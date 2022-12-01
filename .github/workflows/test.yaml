@@ -3,5 +3,9 @@ on:  [workflow_dispatch, pull_request, push]
 
 jobs:
   test:
+    env:
+      # Used in notebooks for testing
+      KAFKA_HOSTNAME: "kafka"
+      KAFKA_PORT: "9092"
     runs-on: ubuntu-latest
     steps: [uses: fastai/workflows/nbdev-ci@master]
