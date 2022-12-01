@@ -34,9 +34,10 @@ jobs:
     steps:
       - name: Install quarto
         run: |
+          apt update
           apt install wget --yes
           wget -q https://www.quarto.org/download/latest/quarto-linux-amd64.deb
-          sudo dpkg -i quarto-linux-amd64.deb
+          dpkg -i quarto-linux-amd64.deb
       - uses: fastai/workflows/nbdev-ci@master
       - name: test build docs
         run: |
