@@ -6,15 +6,15 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       # Used in notebooks for testing
-      KAFKA_HOSTNAME: "kafka"
+      KAFKA_HOSTNAME: "localhost"
       KAFKA_PORT: "9092"
     defaults:
       run:
         shell: bash
-    container:
+#    container:
       # todo: use latest or dev depending on branch
 #      image: ghcr.io/airtai/airt-docker-dask-tf2:dev
-      image: ubuntu:20.04
+#      image: ubuntu:20.04
     services:
       zookeeper:
         image: wurstmeister/zookeeper
@@ -28,16 +28,14 @@ jobs:
           KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
           KAFKA_LISTENERS: "PLAINTEXT://:9092"
           KAFKA_CREATE_TOPICS: "training_request:1:1,training_status:1:1,prediction_request:1:1,prediction_status:1:1"
-          KAFKA_ADVERTISED_HOST_NAME: "kafka"
+          KAFKA_ADVERTISED_HOST_NAME: "localhost"
         ports:
           - 9092:9092
     steps:
       - name: Install quarto
         run: |
-          apt update
-          apt install wget --yes
           wget -q https://www.quarto.org/download/latest/quarto-linux-amd64.deb
-          dpkg -i quarto-linux-amd64.deb
+          sudo dpkg -i quarto-linux-amd64.deb
       - uses: fastai/workflows/nbdev-ci@master
       - name: test build docs
         run: |
