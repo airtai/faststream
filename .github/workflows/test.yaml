@@ -3,7 +3,12 @@ on:  [workflow_dispatch, pull_request, push]
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: true
+      matrix:
+        os:  [ubuntu]
+        version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+    runs-on: ${{ matrix.os }}-latest
     env:
       # Used in notebooks for testing
       KAFKA_HOSTNAME: "localhost"
@@ -11,10 +16,6 @@ jobs:
     defaults:
       run:
         shell: bash
-#    container:
-      # todo: use latest or dev depending on branch
-#      image: ghcr.io/airtai/airt-docker-dask-tf2:dev
-#      image: ubuntu:20.04
     services:
       zookeeper:
         image: wurstmeister/zookeeper
@@ -36,8 +37,11 @@ jobs:
         run: |
           wget -q https://www.quarto.org/download/latest/quarto-linux-amd64.deb
           sudo dpkg -i quarto-linux-amd64.deb
-      - uses: fastai/workflows/nbdev-ci@master
-      - name: test build docs
+      - name: Run nbdev tests
+        uses: fastai/workflows/nbdev-ci@master
+        with:
+          version: ${{ matrix.version }}
+      - name: Test building docs with nbdev-mkdocs
         run: |
           test -f setup.py && pip install -e ".[dev]"
           nbdev_mkdocs docs
