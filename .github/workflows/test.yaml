@@ -11,9 +11,9 @@ jobs:
     defaults:
       run:
         shell: bash
-    container:
+#    container:
       # todo: use latest or dev depending on branch
-      image: ghcr.io/airtai/airt-docker-dask-tf2:dev
+#      image: ghcr.io/airtai/airt-docker-dask-tf2:dev
     services:
       zookeeper:
         image: wurstmeister/zookeeper
