@@ -8,4 +8,29 @@ jobs:
       KAFKA_HOSTNAME: "kafka"
       KAFKA_PORT: "9092"
     runs-on: ubuntu-latest
-    steps: [uses: fastai/workflows/nbdev-ci@master]
+    defaults:
+      run:
+        shell: bash
+    container:
+      # todo: use latest or dev depending on branch
+      image: ghcr.io/airtai/airt-docker-dask-tf2:dev
+    services:
+      zookeeper:
+        image: wurstmeister/zookeeper
+        ports:
+          - 2181:2181
+          - 2888:2888
+          - 3888:3888
+      kafka:
+        image: wurstmeister/kafka
+        env:
+          KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+          KAFKA_LISTENERS: "PLAINTEXT://:9092"
+          KAFKA_CREATE_TOPICS: "training_request:1:1,training_status:1:1,prediction_request:1:1,prediction_status:1:1"
+          KAFKA_ADVERTISED_HOST_NAME: "kafka"
+        ports:
+          - 9092:9092
+    steps:
+      - uses: actions/checkout@v3
+      - run: echo "PATH=$PATH:/root/.local/bin" >> $GITHUB_ENV
+      - uses: fastai/workflows/nbdev-ci@master
