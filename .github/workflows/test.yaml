@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       # Used in notebooks for testing
-      KAFKA_HOSTNAME: "kafka"
+      KAFKA_HOSTNAME: "localhost"
       KAFKA_PORT: "9092"
     defaults:
       run:
