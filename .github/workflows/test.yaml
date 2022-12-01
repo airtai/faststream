@@ -3,12 +3,7 @@ on:  [workflow_dispatch, pull_request, push]
 
 jobs:
   test:
-    strategy:
-      fail-fast: true
-      matrix:
-        os:  [ubuntu]
-        version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ubuntu-20.04
     env:
       # Used in notebooks for testing
       KAFKA_HOSTNAME: "kafka"
@@ -46,8 +41,6 @@ jobs:
             sudo installer -pkg quarto-macos.pkg -target /
           fi
       - uses: fastai/workflows/nbdev-ci@master
-        with:
-          version: ${{ matrix.version }}
       - name: test build docs
         run: |
           test -f setup.py && pip install -e ".[dev]"
