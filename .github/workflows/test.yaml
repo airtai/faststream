@@ -6,14 +6,15 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       # Used in notebooks for testing
-      KAFKA_HOSTNAME: "localhost"
+      KAFKA_HOSTNAME: "kafka"
       KAFKA_PORT: "9092"
     defaults:
       run:
         shell: bash
-#    container:
+    container:
       # todo: use latest or dev depending on branch
 #      image: ghcr.io/airtai/airt-docker-dask-tf2:dev
+      image: ubuntu:20.04
     services:
       zookeeper:
         image: wurstmeister/zookeeper
