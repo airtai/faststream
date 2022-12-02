@@ -37,10 +37,11 @@ jobs:
         run: |
           wget -q https://www.quarto.org/download/latest/quarto-linux-amd64.deb
           sudo dpkg -i quarto-linux-amd64.deb
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: npm
+      - name: Setup node
+        run: curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && apt-get install -y nodejs && apt purge --auto-remove && apt clean && rm -rf /var/lib/apt/lists/*
+ #     - uses: actions/setup-node@v3
+ #       with:
+ #         node-version: 18
       - name: Check npx
         run: npx --version
       - name: Run nbdev tests
