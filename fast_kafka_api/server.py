@@ -326,7 +326,7 @@ def create_ws_server(assets_path: Path = Path("./assets")) -> FastKafkaAPI:
     @app.consumes  # type: ignore
     async def on_training_data(msg: EventData):
         # ToDo: this is not showing up in logs
-        logger.debug(f"{msg=}")
+        logger.debug(f"msg={msg}")
         global _total_no_of_records
         global _no_of_records_received
         _no_of_records_received = _no_of_records_received + 1
@@ -345,22 +345,24 @@ def create_ws_server(assets_path: Path = Path("./assets")) -> FastKafkaAPI:
 
     @app.produces  # type: ignore
     def on_training_data_status(msg: TrainingDataStatus, kafka_msg: Any):
-        logger.debug(f"on_training_data_status({msg=}, {kafka_msg=})")
+        logger.debug(f"on_training_data_status(msg={msg}, kafka_msg={kafka_msg})")
 
     @app.produces  # type: ignore
     def on_training_model_status(msg: TrainingModelStatus, kafka_msg: Any):
-        logger.debug(f"on_training_model_status({msg=}, {kafka_msg=})")
+        logger.debug(f"on_training_model_status(msg={msg}, kafka_msg={kafka_msg})")
 
     @app.produces  # type: ignore
     def on_model_metrics(msg: ModelMetrics, kafka_msg: Any):
-        logger.debug(f"on_training_model_status({msg=}, {kafka_msg=})")
+        logger.debug(f"on_training_model_status(msg={msg}, kafka_msg={kafka_msg})")
 
     @app.produces  # type: ignore
     def on_prediction(msg: Prediction, kafka_msg: Any):
-        logger.debug(f"on_realtime_data_status({msg=}, {kafka_msg=})")
+        logger.debug(f"on_realtime_data_status(msg={msg},, kafka_msg={kafka_msg})")
 
     @app.produces_on_error  # type: ignore
     def on_error(kafka_error_msg: KafkaErrorMsg, kafka_err: Any):
-        logger.warning(f"on_error({kafka_error_msg=}, {kafka_err=})")
+        logger.warning(
+            f"on_error(kafka_error_msg={kafka_error_msg}, kafka_err={kafka_err},)"
+        )
 
     return app

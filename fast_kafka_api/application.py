@@ -382,7 +382,7 @@ async def _consumer_pooling_step(
     msg_type: Type[KafkaMessage],
 ) -> None:
     logger.debug("_consumer_pooling_step()")
-    #     print(f"{iscoroutinefunction(async_poll_f)=}")
+    #     print(f"iscoroutinefunction(async_poll_f)={iscoroutinefunction(async_poll_f)},")
     if not iscoroutinefunction(async_poll_f):
         raise ValueError(
             f"async_poll_f ({async_poll_f}) must be coroutine, but it isn't."
@@ -397,11 +397,11 @@ async def _consumer_pooling_step(
         msg = await async_poll_f(timeout=timeout)  # type: ignore
         if msg is None:
             logger.debug(
-                f"consumers_async_loop({topic=}): no messages for the topic {topic} due to no message available."
+                f"consumers_async_loop(topic={topic}): no messages for the topic {topic} due to no message available."
             )
         elif msg.error() is not None:
             logger.warning(
-                f"consumers_async_loop({topic=}): no messages for the topic {topic} due to error: {msg.error()}"
+                f"consumers_async_loop(topic={topic}): no messages for the topic {topic} due to error: {msg.error()}"
             )
             if on_error_callback is not None:
                 kafka_err_msg = KafkaErrorMsg(
@@ -414,11 +414,11 @@ async def _consumer_pooling_step(
         else:
             #             msg_type = _get_first_func_arg_type(on_event_callback)
             logger.debug(
-                f"consumers_async_loop({topic=}): message received for the topic {topic}: {msg.value()}, {on_event_callback}, {msg_type=}"
+                f"consumers_async_loop(topic={topic}): message received for the topic {topic}: {msg.value()}, {on_event_callback}, msg_type={msg_type},"
             )
             msg_object = msg_type.parse_raw(msg.value().decode("utf-8"))
             logger.debug(
-                f"consumers_async_loop({topic=}): calling {on_event_callback}({msg_object})"
+                f"consumers_async_loop(topic={topic}): calling {on_event_callback}({msg_object})"
             )
             await on_event_callback(msg_object)
 
@@ -426,7 +426,7 @@ async def _consumer_pooling_step(
         import traceback
 
         logger.warning(
-            f"consumers_async_loop({topic=}): Exception in inner try raised: {e}"
+            f"consumers_async_loop(topic={topic}): Exception in inner try raised: {e}"
             + "\n"
             + traceback.format_exc()
         )
@@ -449,18 +449,20 @@ async def _consumers_async_loop(
     timeout: float = 1.0,
     app: FastKafkaAPI,
 ):
-    logger.info(f"consumers_async_loop({topic=}, {config=}, {timeout=}) starting.")
+    logger.info(
+        f"consumers_async_loop(topic={topic}, config={config}, timeout={timeout}) starting."
+    )
     try:
         c: Consumer = None
 
         c = Consumer(config)
         logger.info(
-            f"consumers_async_loop({topic=}): Kafka Consumer for topic created."
+            f"consumers_async_loop(topic={topic}): Kafka Consumer for topic created."
         )
 
         c.subscribe([topic])
         logger.info(
-            f"consumers_async_loop({topic=}): Kafka Consumer subscribed to topic."
+            f"consumers_async_loop(topic={topic}): Kafka Consumer subscribed to topic."
         )
 
         # we convert the blocking poll() function into asynchronous one (it executes poll() in a worker thread)
@@ -477,7 +479,7 @@ async def _consumers_async_loop(
 
         while True:
             if is_shutting_down_f():
-                logger.info(f"consumers_async_loop({topic=}) shutting down...")
+                logger.info(f"consumers_async_loop(topic={topic}) shutting down...")
                 break
 
             await _consumer_pooling_step(
@@ -491,15 +493,15 @@ async def _consumers_async_loop(
 
     except Exception as e:
         logger.error(
-            f"consumers_async_loop({topic=}): Exception in outer try raised: {e}"
+            f"consumers_async_loop(topic={topic}): Exception in outer try raised: {e}"
         )
 
     finally:
         if c is not None:
             c.close()
-            logger.info(f"consumers_async_loop({topic=}): Kafka Consumer closed.")
+            logger.info(f"consumers_async_loop(topic={topic}): Kafka Consumer closed.")
 
-    logger.info(f"consumers_async_loop({topic=}) exiting.")
+    logger.info(f"consumers_async_loop(topic={topic}) exiting.")
 
 # %% ../nbs/000_FastKafkaAPI.ipynb 32
 def consumers_async_loop(
@@ -605,7 +607,7 @@ def produce_raw(
     ):
         msg_cls: KafkaMessage
         if kafka_err is not None:
-            logger.info(f"produce_raw() {topic=} {raw_msg=} delivery error")
+            logger.info(f"produce_raw() topic={topic} raw_msg={raw_msg} delivery error")
             if self._on_error_topic is not None:
                 on_error = self._store["producers"][self._on_error_topic]
                 msg_cls = _get_msg_cls_for_method(on_error)
@@ -613,7 +615,7 @@ def produce_raw(
                     msg_cls("Message delivery failed: {}".format(kafka_err)), kafka_err  # type: ignore
                 )
         else:
-            logger.info(f"produce_raw() {topic=} {raw_msg=} delivered")
+            logger.info(f"produce_raw() topic={topic} raw_msg={raw_msg} delivered")
             msg_cls = _get_msg_cls_for_method(on_delivery)
             on_delivery(msg_cls.parse_raw(raw_msg), kafka_msg)
 
@@ -630,10 +632,12 @@ def test_run(self: FastKafkaAPI, f: Callable[[], Any], timeout: int = 30):
                     app._on_startup()  # type: ignore
 
                     if iscoroutinefunction(f):
-                        logger.info(f"test_run({app=}, {f=}): Calling coroutine {f}")
+                        logger.info(
+                            f"test_run(app={app}, f={f}): Calling coroutine {f}"
+                        )
                         retval = await f()
                     else:
-                        logger.info(f"test_run({app=}, {f=}): Calling function {f}")
+                        logger.info(f"test_run(app={app}, f={f}): Calling function {f}")
                         retval = await asyncer.asyncify(f)()
 
                 return retval
@@ -641,9 +645,9 @@ def test_run(self: FastKafkaAPI, f: Callable[[], Any], timeout: int = 30):
             logger.error(f"test_run(): exception caugth {e}")
             raise e
         finally:
-            logger.info(f"test_run({app=}, {f=}): shutting down the app")
+            logger.info(f"test_run(app={app}, f={f}): shutting down the app")
             await app._on_shutdown()
-            logger.info(f"test_run({app=}, {f=}): finished")
+            logger.info(f"test_run(app={app}, f={f}): finished")
 
     return asyncer.runnify(_loop)()
 
@@ -663,6 +667,6 @@ async def testing_ctx(self: FastKafkaAPI, timeout: int = 30):
         logger.error(f"test_context(): exception caugth {e}")
         raise e
     finally:
-        logger.info(f"test_context({self=}): shutting down the app")
+        logger.info(f"test_context(self={self}): shutting down the app")
         await self._on_shutdown()
-        logger.info(f"test_context({self=}): finished")
+        logger.info(f"test_context(self={self}): finished")

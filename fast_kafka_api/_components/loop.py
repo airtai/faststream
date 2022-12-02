@@ -73,11 +73,11 @@ async def _consumer_pooling_step(
         msg = await async_poll_f(timeout=timeout)  # type: ignore
         if msg is None:
             logger.debug(
-                f"consumers_async_loop({topic=}): no messages for the topic {topic} due to no message available."
+                f"consumers_async_loop(topic={topic}): no messages for the topic {topic} due to no message available."
             )
         elif msg.error() is not None:
             logger.warning(
-                f"consumers_async_loop({topic=}): no messages for the topic {topic} due to error: {msg.error()}"
+                f"consumers_async_loop(topic={topic}): no messages for the topic {topic} due to error: {msg.error()}"
             )
             if on_error_callback is not None:
                 kafka_err_msg = KafkaErrorMsg(
@@ -89,11 +89,11 @@ async def _consumer_pooling_step(
 
         else:
             logger.debug(
-                f"consumers_async_loop({topic=}): message received for the topic {topic}: {msg.value()}, {on_event_callback}, {msg_type=}"
+                f"consumers_async_loop(topic={topic}): message received for the topic {topic}: {msg.value()}, {on_event_callback}, msg_type={msg_type},"
             )
             msg_object = msg_type.parse_raw(msg.value().decode("utf-8"))
             logger.debug(
-                f"consumers_async_loop({topic=}): calling {on_event_callback}({msg_object})"
+                f"consumers_async_loop(topic={topic}): calling {on_event_callback}({msg_object})"
             )
             await on_event_callback(msg_object, produce)
 
@@ -101,7 +101,7 @@ async def _consumer_pooling_step(
         import traceback
 
         logger.warning(
-            f"consumers_async_loop({topic=}): Exception in inner try raised: {e}"
+            f"consumers_async_loop(topic={topic}): Exception in inner try raised: {e}"
             + "\n"
             + traceback.format_exc()
         )
@@ -128,7 +128,7 @@ async def _consumers_async_loop(
     timeout: float,
     topic: str,
 ):
-    logger.info(f"_consumers_async_loop({topic=}, {timeout=}) starting.")
+    logger.info(f"_consumers_async_loop(topic={topic}, timeout={timeout}) starting.")
     if not iscoroutinefunction(async_poll_f):
         raise ValueError(
             f"async_poll_f ({async_poll_f}) must be coroutine, but it isn't."
@@ -145,7 +145,7 @@ async def _consumers_async_loop(
     try:
         while True:
             if is_shutting_down_f():
-                logger.info(f"consumers_async_loop({topic=}) shutting down...")
+                logger.info(f"consumers_async_loop(topic={topic}) shutting down...")
                 break
 
             await _consumer_pooling_step(
@@ -159,7 +159,7 @@ async def _consumers_async_loop(
             )
     except Exception as e:
         logger.error(
-            f"consumers_async_loop({topic=}): Exception in outer try raised: {e}"
+            f"consumers_async_loop(topic={topic}): Exception in outer try raised: {e}"
         )
         if on_error_callback is not None:
             kafka_err_msg = KafkaErrorMsg(
@@ -169,7 +169,7 @@ async def _consumers_async_loop(
             )
             await on_error_callback(kafka_err_msg)
 
-    logger.info(f"_consumers_async_loop({topic=}) exiting.")
+    logger.info(f"_consumers_async_loop(topic={topic}) exiting.")
 
 # %% ../../nbs/001_ProcessingLoop.ipynb 18
 async def consumers_async_loop(
@@ -184,7 +184,9 @@ async def consumers_async_loop(
     config: Dict[str, str],
     timeout: float = 1.0,
 ):
-    logger.info(f"consumers_async_loop({topic=}, {config=}, {timeout=}) starting.")
+    logger.info(
+        f"consumers_async_loop(topic={topic}, config={config}, timeout={timeout}) starting."
+    )
     try:
         # we convert the blocking poll() function into asynchronous one (it executes poll() in a worker thread)
         async_poll_f = asyncer.asyncify(consumer.poll)
@@ -207,4 +209,4 @@ async def consumers_async_loop(
             msg_type=msg_type,
         )
     finally:
-        logger.info(f"consumers_async_loop({topic=}) exiting.")
+        logger.info(f"consumers_async_loop(topic={topic}) exiting.")
