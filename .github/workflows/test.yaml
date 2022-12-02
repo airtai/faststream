@@ -39,7 +39,7 @@ jobs:
           sudo dpkg -i quarto-linux-amd64.deb
       - name: Setup node
         run: | 
-          sudo curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+          sudo curl -fsSL https://deb.nodesource.com/setup_18.x | sudo bash -
           sudo apt-get install -y nodejs
           sudo apt purge --auto-remove
           sudo apt clean && rm -rf /var/lib/apt/lists/*
