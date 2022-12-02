@@ -38,7 +38,11 @@ jobs:
           wget -q https://www.quarto.org/download/latest/quarto-linux-amd64.deb
           sudo dpkg -i quarto-linux-amd64.deb
       - name: Setup node
-        run: curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && apt-get install -y nodejs && apt purge --auto-remove && apt clean && rm -rf /var/lib/apt/lists/*
+        run: | 
+          curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+          sudo apt-get install -y nodejs
+          sudo apt purge --auto-remove
+          sudo apt clean && rm -rf /var/lib/apt/lists/*
  #     - uses: actions/setup-node@v3
  #       with:
  #         node-version: 18
