@@ -439,7 +439,7 @@ async def _consumer_pooling_step(
             )
             on_error_callback(kafka_err_msg)
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 27
+# %% ../nbs/000_FastKafkaAPI.ipynb 28
 async def _consumers_async_loop(
     *,
     topic: str,
@@ -503,7 +503,7 @@ async def _consumers_async_loop(
 
     logger.info(f"consumers_async_loop(topic={topic}) exiting.")
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 32
+# %% ../nbs/000_FastKafkaAPI.ipynb 33
 def consumers_async_loop(
     *,
     app: FastKafkaAPI,
@@ -543,7 +543,7 @@ def consumers_async_loop(
 
     return tx
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 34
+# %% ../nbs/000_FastKafkaAPI.ipynb 35
 @patch
 def _on_startup(self: FastKafkaAPI) -> None:
     export_async_spec(
@@ -577,7 +577,7 @@ async def _on_shutdown(self: FastKafkaAPI) -> None:
 
     self._is_shutting_down = False
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 38
+# %% ../nbs/000_FastKafkaAPI.ipynb 39
 @patch
 def produce_raw(
     self: FastKafkaAPI,
@@ -621,7 +621,7 @@ def produce_raw(
 
     return p.produce(topic, raw_msg, on_delivery=_delivery_report)
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 40
+# %% ../nbs/000_FastKafkaAPI.ipynb 41
 @patch
 def test_run(self: FastKafkaAPI, f: Callable[[], Any], timeout: int = 30):
     async def _loop(app: FastKafkaAPI = self, f: Callable[[], Any] = f):
@@ -651,7 +651,7 @@ def test_run(self: FastKafkaAPI, f: Callable[[], Any], timeout: int = 30):
 
     return asyncer.runnify(_loop)()
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 42
+# %% ../nbs/000_FastKafkaAPI.ipynb 43
 @patch
 @asynccontextmanager
 async def testing_ctx(self: FastKafkaAPI, timeout: int = 30):

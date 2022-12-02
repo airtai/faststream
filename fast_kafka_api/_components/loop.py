@@ -21,6 +21,8 @@ from pydantic import Field, HttpUrl, EmailStr, PositiveInt
 from confluent_kafka import Consumer
 from confluent_kafka import Message, KafkaError
 
+import asyncer
+
 import fast_kafka_api.logger
 
 fast_kafka_api.logger.should_supress_timestamps = True
@@ -114,7 +116,7 @@ async def _consumer_pooling_step(
             )
             await on_error_callback(kafka_err_msg)
 
-# %% ../../nbs/001_ProcessingLoop.ipynb 16
+# %% ../../nbs/001_ProcessingLoop.ipynb 17
 async def _consumers_async_loop(
     *,
     async_poll_f: Callable[[float], Optional[Message]],
@@ -171,7 +173,7 @@ async def _consumers_async_loop(
 
     logger.info(f"_consumers_async_loop(topic={topic}) exiting.")
 
-# %% ../../nbs/001_ProcessingLoop.ipynb 18
+# %% ../../nbs/001_ProcessingLoop.ipynb 19
 async def consumers_async_loop(
     *,
     consumer: Consumer,
