@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "fast-kafka-api"
+  site-url: "https://airtai.github.io/fast-kafka-api"
+  description: "Extension of FastAPI with Kafka event handlers"
+  repo-branch: main
+  repo-url: "https://github.com/airtai/fast-kafka-api"

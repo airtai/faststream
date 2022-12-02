@@ -1,0 +1,20 @@
+version: "3"
+services:
+    zookeeper:
+        image: wurstmeister/zookeeper
+        hostname: zookeeper
+        container_name: zookeeper
+
+    kafka:
+        image: wurstmeister/kafka
+        hostname: kafka
+        container_name: kafka
+        environment:
+            KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+            KAFKA_LISTENERS: "PLAINTEXT://:9092"
+            KAFKA_CREATE_TOPICS: "training_request:1:1,training_status:1:1,prediction_request:1:1,prediction_status:1:1"
+            KAFKA_ADVERTISED_HOST_NAME: $KAFKA_HOSTNAME
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        depends_on:
+            - zookeeper
