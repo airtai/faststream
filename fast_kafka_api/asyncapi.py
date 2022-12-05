@@ -22,6 +22,10 @@ from pydantic import Field, HttpUrl, EmailStr, PositiveInt
 from pydantic.schema import schema
 from pydantic.json import timedelta_isoformat
 
+import fast_kafka_api.logger
+
+fast_kafka_api.logger.should_supress_timestamps = True
+
 import fast_kafka_api
 from .logger import get_logger
 
@@ -360,7 +364,7 @@ def export_async_spec(
         logger.info(f"Output of '$ {' '.join(cmd)}'{p.stdout.decode()}")
     else:
         logger.error(f"Generation of async docs failed!")
-        logger.info(f"Output of '$ {' '.join(cmd)}'{p.stdout.decode()}"),
+        logger.info(f"Output of '$ {' '.join(cmd)}'{p.stdout.decode()}")
         raise ValueError(
             f"Generation of async docs failed, used '$ {' '.join(cmd)}'{p.stdout.decode()}"
         )
