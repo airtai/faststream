@@ -22,6 +22,10 @@ from pydantic import Field, HttpUrl, EmailStr, PositiveInt
 from pydantic.schema import schema
 from pydantic.json import timedelta_isoformat
 
+import fast_kafka_api.logger
+
+fast_kafka_api.logger.should_supress_timestamps = True
+
 import fast_kafka_api
 from .logger import get_logger
 
