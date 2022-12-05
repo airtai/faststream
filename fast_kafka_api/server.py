@@ -236,7 +236,7 @@ _no_of_records_received = 0
 
 
 def create_ws_server(assets_path: Path = Path("./assets")) -> FastKafkaAPI:
-    title = "Airt API for Infobip"
+    title = "Airt API for fast Kafka"
     description = "Airt API for kafka interaction"
     version = "0.0.1"
     openapi_url = "/openapi.json"
@@ -249,21 +249,7 @@ def create_ws_server(assets_path: Path = Path("./assets")) -> FastKafkaAPI:
             "url": "kafka",
             "description": "local development kafka",
             "port": 9092,
-        },
-        "staging": {
-            "url": "kafka.staging.infobip.airt.ai",
-            "description": "staging kafka",
-            "port": 9092,
-            "protocol": "kafka-secure",
-            "security": {"type": "plain"},
-        },
-        "production": {
-            "url": "kafka.infobip.airt.ai",
-            "description": "production kafka",
-            "port": 9092,
-            "protocol": "kafka-secure",
-            "security": {"type": "plain"},
-        },
+        }
     }
 
     kafka_server_url = environ["KAFKA_HOSTNAME"]

@@ -360,7 +360,7 @@ def export_async_spec(
         logger.info(f"Output of '$ {' '.join(cmd)}'{p.stdout.decode()}")
     else:
         logger.error(f"Generation of async docs failed!")
-        logger.info(f"Output of '$ {' '.join(cmd)}'{p.stdout.decode()}")
+        logger.info(f"Output of '$ {' '.join(cmd)}'{p.stdout.decode()}"),
         raise ValueError(
             f"Generation of async docs failed, used '$ {' '.join(cmd)}'{p.stdout.decode()}"
         )
