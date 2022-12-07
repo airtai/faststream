@@ -32,6 +32,11 @@ jobs:
           KAFKA_ADVERTISED_HOST_NAME: "localhost"
         ports:
           - 9092:9092
+        options: >-
+          --health-cmd "kafka-topics.sh --list -zookeeper zookeeper:2181"
+          --health-interval 10s 
+          --health-timeout 5s 
+          --health-retries 5
     steps:
       - name: Install quarto
         run: |
