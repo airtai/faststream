@@ -65,7 +65,7 @@ echo DOCKER_COMPOSE_PROJECT variable set to $DOCKER_COMPOSE_PROJECT
 if test -z "$KAFKA_HOSTNAME"
 then
 	echo "KAFKA_HOSTNAME variable not set, setting it to $USER-kafka"
-	export KAFKA_HOSTNAME="$USER-kafka"
+	export KAFKA_HOSTNAME="$USER-kafka-1"
 fi
 
 if test -z "$DB_DOWNLOAD_SIZE"

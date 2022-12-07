@@ -5,15 +5,48 @@ services:
         hostname: zookeeper
         container_name: zookeeper
 
-    kafka:
+    kafka-1:
         image: wurstmeister/kafka
-        hostname: kafka
-        container_name: kafka
+        hostname: kafka-1
         environment:
             KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-            KAFKA_LISTENERS: "PLAINTEXT://:9092"
-            KAFKA_CREATE_TOPICS: "training_request:1:1,training_status:1:1,prediction_request:1:1,prediction_status:1:1"
-            KAFKA_ADVERTISED_HOST_NAME: $KAFKA_HOSTNAME
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTER:PLAINTEXT
+            KAFKA_ADVERTISED_LISTENERS: INTER://kafka-1:9092
+            KAFKA_LISTENERS: INTER://kafka-1:9092
+            KAFKA_INTER_BROKER_LISTENER_NAME: INTER
+            KAFKA_CREATE_TOPICS: >-
+              training_request:${NUM_PARTITIONS:-6}:${REPLICATION_FACTOR:-3},
+              training_status:${NUM_PARTITIONS:-6}:${REPLICATION_FACTOR:-3},
+              prediction_request:${NUM_PARTITIONS:-6}:${REPLICATION_FACTOR:-3},
+              prediction_status:${NUM_PARTITIONS:-6}:${REPLICATION_FACTOR:-3}
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        depends_on:
+            - zookeeper
+
+    kafka-2:
+        image: wurstmeister/kafka
+        hostname: kafka-2
+        environment:
+            KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTER:PLAINTEXT
+            KAFKA_ADVERTISED_LISTENERS: INTER://kafka-2:9092
+            KAFKA_LISTENERS: INTER://kafka-2:9092
+            KAFKA_INTER_BROKER_LISTENER_NAME: INTER
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        depends_on:
+            - zookeeper
+
+    kafka-3:
+        image: wurstmeister/kafka
+        hostname: kafka-3
+        environment:
+            KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTER:PLAINTEXT
+            KAFKA_ADVERTISED_LISTENERS: INTER://kafka-3:9092
+            KAFKA_LISTENERS: INTER://kafka-3:9092
+            KAFKA_INTER_BROKER_LISTENER_NAME: INTER
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         depends_on:

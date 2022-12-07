@@ -11,13 +11,24 @@ services:
         networks:
             - fast-kafka-api-network
 
-    kafka:
-        hostname: $USER-kafka
-        container_name: $USER-kafka
-        environment:
-            KAFKA_ZOOKEEPER_CONNECT: "$USER-zookeeper:2181"
+    kafka-1:
+        container_name: $USER-kafka-1
         ports:
-            - "$KAFKA_PORT:9092"
+            - "9092"
+        networks:
+            - fast-kafka-api-network
+
+    kafka-2:
+        container_name: $USER-kafka-2
+        ports:
+            - "9092"
+        networks:
+            - fast-kafka-api-network
+
+    kafka-3:
+        container_name: $USER-kafka-3
+        ports:
+            - "9092"
         networks:
             - fast-kafka-api-network
 
@@ -59,7 +70,9 @@ services:
                       device_ids: ['$GPU_PARAMS']
                       capabilities: [gpu]
         depends_on:
-            - kafka
+            - kafka-1
+            - kafka-2
+            - kafka-3
 
 networks:
     fast-kafka-api-network:
