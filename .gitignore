@@ -1,9 +1,3 @@
-# nbdev-mkdocs related files
-mkdocs/site
-mkdocs/docs
-_proc
-
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -137,3 +131,9 @@ dmypy.json
 # PyCharm
 .idea
 
+# nbdev related stuff
+_proc/
+
+# nbdev_mkdocs
+mkdocs/docs/
+mkdocs/site/
