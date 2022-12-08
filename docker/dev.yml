@@ -19,10 +19,9 @@ services:
         environment:
             KAFKA_HOSTNAME: $KAFKA_HOSTNAME
             KAFKA_PORT: 9092
-            DOMAIN: localhost
-            JUPYTER_CONFIG_DIR: /root/.jupyter
             USER: $USER
             USERNAME: $USERNAME
+            PRESERVE_ENVS: $PRESERVE_ENVS
         depends_on:
             kafka:
                 condition: service_healthy

@@ -9,7 +9,9 @@ services:
 
     kafka:
         image: wurstmeister/kafka
-        scale: 3
+#        scale: 3
+        deploy:
+            replicas: 3
         environment:
             HOSTNAME_COMMAND: "docker info | grep ^Name: | cut -d' ' -f 2"
             KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
