@@ -70,9 +70,12 @@ services:
                       device_ids: ['$GPU_PARAMS']
                       capabilities: [gpu]
         depends_on:
-            - kafka-1
-            - kafka-2
-            - kafka-3
+            kafka-1:
+                condition: service_healthy
+            kafka-2:
+                condition: service_healthy
+            kafka-3:
+                condition: service_healthy
 
 networks:
     fast-kafka-api-network:
