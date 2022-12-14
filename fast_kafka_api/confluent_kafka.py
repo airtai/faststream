@@ -113,16 +113,7 @@ def create_testing_topic(
         #         _consume_all_messages(c)
         fs = admin.delete_topics(topics=[topic])
         results = {k: f.result() for k, f in fs.items()}
-        while True:
-            existing_topics = admin.list_topics().topics.keys()
-            if topic not in existing_topics:
-                break
-            logger.info(
-                f"Waiting for topic '{topic}' to be deleted, sleeping for 1 sec."
-            )
-            sleep(1)
-
-        logger.info(f"Topic '{topic}' deleted.")
+        time.sleep(1)
 
 # %% ../nbs/002_ConfluentKafka.ipynb 11
 class AIOProducer:
