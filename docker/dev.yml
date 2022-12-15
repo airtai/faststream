@@ -5,8 +5,8 @@ services:
         hostname: $DOCKER_COMPOSE_PROJECT-devel
         container_name: $DOCKER_COMPOSE_PROJECT-devel
         ports:
-            - "8888:8888"
-            - "4000:4000"
+            - "${PORT_PREFIX}8888:8888"
+            - "${PORT_PREFIX}4000:4000"
         networks:
             - fast-kafka-api-network
         volumes:
