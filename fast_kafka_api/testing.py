@@ -2,7 +2,7 @@
 
 # %% auto 0
 __all__ = ['logger', 'kafka_server_url', 'kafka_server_port', 'kafka_config', 'true_after', 'create_missing_topics',
-           'create_testing_topic', 'create_and_fill_testing_topic']
+           'create_testing_topic', 'create_and_fill_testing_topic', 'nb_safe_seed']
 
 # %% ../nbs/999_Test_Utils.ipynb 1
 from typing import List, Dict, Any, Optional, Callable, Tuple, Generator
@@ -12,6 +12,7 @@ import random
 from datetime import datetime, timedelta
 import time
 import asyncio
+import hashlib
 
 from confluent_kafka.admin import AdminClient, NewTopic
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
@@ -27,7 +28,7 @@ kafka_server_port = environ["KAFKA_PORT"]
 
 kafka_config = {
     "bootstrap.servers": f"{kafka_server_url}:{kafka_server_port}",
-    "group.id": f"{kafka_server_url}:{kafka_server_port}_group",
+    # "group.id": f"{kafka_server_url}:{kafka_server_port}_group"
 }
 
 # %% ../nbs/999_Test_Utils.ipynb 6
@@ -114,7 +115,7 @@ def create_testing_topic(
 # %% ../nbs/999_Test_Utils.ipynb 15
 @asynccontextmanager
 async def create_and_fill_testing_topic(
-    msgs: List[bytes], kafka_config: Dict[str, str] = kafka_config, *, seed: int = 42
+    msgs: List[bytes], kafka_config: Dict[str, str] = kafka_config, *, seed: int
 ) -> Generator[str, None, None]:
 
     with create_testing_topic(kafka_config, "my_topic_", seed=seed) as topic:
@@ -141,3 +142,12 @@ async def create_and_fill_testing_topic(
         finally:
             await producer.stop()
             logger.info(f"Producer {producer} stoped.")
+
+# %% ../nbs/999_Test_Utils.ipynb 18
+def nb_safe_seed(s: str) -> Callable[[int], int]:
+    init_seed = int(hashlib.sha1(s.encode("utf-8")).hexdigest(), 16) % (10**8)
+
+    def _get_seed(x: int = 0, *, init_seed: int = init_seed) -> int:
+        return init_seed + x
+
+    return _get_seed

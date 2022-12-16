@@ -10,9 +10,17 @@ from os import environ
 import asyncio
 
 from aiokafka import AIOKafkaConsumer
+from pydantic import BaseModel, HttpUrl, NonNegativeInt, Field
+import asyncer
+import anyio
 
-from ..logger import get_logger
-from ..testing import true_after, create_and_fill_testing_topic
+from ..logger import get_logger, supress_timestamps
+from fast_kafka_api.testing import (
+    true_after,
+    create_and_fill_testing_topic,
+    nb_safe_seed,
+)
+from ..asyncapi import KafkaMessage
 
-# %% ../../nbs/aiokafka_playground.ipynb 3
+# %% ../../nbs/aiokafka_playground.ipynb 4
 logger = get_logger(__name__)
