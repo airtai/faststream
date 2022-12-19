@@ -8,7 +8,7 @@ from typing import *
 
 from os import environ
 import asyncio
-import unittest.mock
+from unittest.mock import MagicMock, Mock, call
 from datetime import datetime, timedelta
 
 from aiokafka import AIOKafkaConsumer
@@ -37,7 +37,7 @@ async def process_msgs(
     ],
     produce: Callable[[str, BaseModel], None],
     msg_types: Dict[str, Type[BaseModel]],
-    process_f: Callable[None, None]  ## TODO, add correct typing
+    process_f: Callable[[Any], None]  ## TODO, add correct typing
 ):
     for topic_partition, topic_msgs in msgs.items():
         topic = topic_partition.topic
@@ -57,7 +57,8 @@ async def process_message_callback(receive_stream):
 
 async def _aiokafka_consumer_loop(
     *,
-    consumer,
+    consumer: AIOKafkaConsumer,
+    max_buffer_size: int,
     callbacks: Dict[
         str, Callable[[KafkaMessage, Callable[[str, BaseModel], None]], None]
     ],
@@ -65,7 +66,9 @@ async def _aiokafka_consumer_loop(
     msg_types: Dict[str, Type[BaseModel]],
     is_shutting_down_f: Callable[[], bool],
 ):
-    send_stream, receive_stream = anyio.create_memory_object_stream()
+    send_stream, receive_stream = anyio.create_memory_object_stream(
+        max_buffer_size=max_buffer_size
+    )
     async with anyio.create_task_group() as tg:
         tg.start_soon(process_message_callback, receive_stream)
         async with send_stream:
@@ -81,13 +84,14 @@ async def _aiokafka_consumer_loop(
                 if is_shutting_down_f():
                     break
 
-# %% ../../nbs/aiokafka_playground.ipynb 18
+# %% ../../nbs/aiokafka_playground.ipynb 17
 async def aiokafka_consumer_loop(
     topics: List[str],
     *,
     bootstrap_servers: str,
     auto_offset_reset: str,
     max_poll_records: int,
+    max_buffer_size: int,
     callbacks: Dict[
         str, Callable[[KafkaMessage, Callable[[str, BaseModel], None]], None]
     ],
@@ -110,6 +114,7 @@ async def aiokafka_consumer_loop(
     try:
         await _aiokafka_consumer_loop(
             consumer=consumer,
+            max_buffer_size=max_buffer_size,
             callbacks=callbacks,
             produce=produce,
             msg_types=msg_types,
