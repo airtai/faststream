@@ -136,7 +136,7 @@ async def create_and_fill_testing_topic(
             ]
             await producer.flush()
             sent_msgs = [await f for f in fx]
-            logger.info(f"Sent messages: {len(sent_msgs)=}")
+            logger.info(f"Sent messages: len(sent_msgs)={len(sent_msgs)}")
 
             yield topic
         finally:
