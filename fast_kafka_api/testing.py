@@ -124,7 +124,7 @@ async def create_and_fill_testing_topic(
         logger.info(f"Producer {producer} created.")
 
         await producer.start()
-        logger.info(f"Producer {producer} stared.")
+        logger.info(f"Producer {producer} started.")
         try:
             fx = [
                 producer.send_and_wait(

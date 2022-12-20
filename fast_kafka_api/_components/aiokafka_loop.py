@@ -23,7 +23,6 @@ from fast_kafka_api.testing import (
     create_and_fill_testing_topic,
     nb_safe_seed,
 )
-from ..asyncapi import KafkaMessage
 
 # %% ../../nbs/aiokafka_playground.ipynb 4
 logger = get_logger(__name__)
@@ -32,12 +31,9 @@ logger = get_logger(__name__)
 async def process_msgs(
     *,
     msgs: Dict[TopicPartition, List[ConsumerRecord]],
-    callbacks: Dict[
-        str, Callable[[KafkaMessage, Callable[[str, BaseModel], None]], None]
-    ],
-    produce: Callable[[str, BaseModel], None],
+    callbacks: Dict[str, Callable[[BaseModel], None]],
     msg_types: Dict[str, Type[BaseModel]],
-    process_f: Callable[[Any], None]  ## TODO, add correct typing
+    process_f: Callable[[Callable[[BaseModel], None], BaseModel], None]
 ):
     for topic_partition, topic_msgs in msgs.items():
         topic = topic_partition.topic
@@ -46,23 +42,20 @@ async def process_msgs(
             msg_type.parse_raw(msg.value.decode("utf-8")) for msg in topic_msgs
         ]
         for msg in decoded_msgs:
-            await process_f((callbacks[topic], msg, produce))
+            await process_f((callbacks[topic], msg))
 
 # %% ../../nbs/aiokafka_playground.ipynb 14
 async def process_message_callback(receive_stream):
     async with receive_stream:
-        async for callback, msg, produce in receive_stream:
-            await callback(msg, produce)
+        async for callback, msg in receive_stream:
+            await callback(msg)
 
 
 async def _aiokafka_consumer_loop(
     *,
     consumer: AIOKafkaConsumer,
     max_buffer_size: int,
-    callbacks: Dict[
-        str, Callable[[KafkaMessage, Callable[[str, BaseModel], None]], None]
-    ],
-    produce: Callable[[str, BaseModel], None],
+    callbacks: Dict[str, Callable[[BaseModel], None]],
     msg_types: Dict[str, Type[BaseModel]],
     is_shutting_down_f: Callable[[], bool],
 ):
@@ -77,14 +70,13 @@ async def _aiokafka_consumer_loop(
                 await process_msgs(
                     msgs=msgs,
                     callbacks=callbacks,
-                    produce=produce,
                     msg_types=msg_types,
                     process_f=send_stream.send,
                 )
                 if is_shutting_down_f():
                     break
 
-# %% ../../nbs/aiokafka_playground.ipynb 17
+# %% ../../nbs/aiokafka_playground.ipynb 16
 async def aiokafka_consumer_loop(
     topics: List[str],
     *,
@@ -92,10 +84,7 @@ async def aiokafka_consumer_loop(
     auto_offset_reset: str,
     max_poll_records: int,
     max_buffer_size: int,
-    callbacks: Dict[
-        str, Callable[[KafkaMessage, Callable[[str, BaseModel], None]], None]
-    ],
-    produce: Callable[[str, BaseModel], None],
+    callbacks: Dict[str, Callable[[BaseModel], None]],
     msg_types: Dict[str, Type[BaseModel]],
     is_shutting_down_f: Callable[[], bool],
 ):
@@ -116,7 +105,6 @@ async def aiokafka_consumer_loop(
             consumer=consumer,
             max_buffer_size=max_buffer_size,
             callbacks=callbacks,
-            produce=produce,
             msg_types=msg_types,
             is_shutting_down_f=is_shutting_down_f,
         )
