@@ -37,6 +37,7 @@ from pydantic import BaseModel
 from pydantic import Field, HttpUrl, EmailStr, PositiveInt
 from pydantic.schema import schema
 from pydantic.json import timedelta_isoformat
+from aiokafka import AIOKafkaProducer
 
 import confluent_kafka
 from confluent_kafka import Producer
@@ -128,7 +129,10 @@ class FastKafkaAPI(FastAPI):
 
         super().__init__(title=title, contact=contact, **kwargs)
 
-        self._store: Dict[str, Dict[str, Tuple[TopicCallable, Dict[str, Any]]],] = {
+        self._store: Dict[
+            str,
+            Dict[str, Tuple[Union[TopicCallable, AIOKafkaProducer], Dict[str, Any]]],
+        ] = {
             "consumers": {},
             "producers": {},
         }
@@ -366,7 +370,7 @@ def _register_kafka_callback(
             store_key=store_key, topic=topic, f=on_topic, on_error=on_error, **kwargs
         )
 
-        return produce(self, on_topic) if produces else on_topic
+        return produce(self, topic, on_topic) if produces else on_topic
 
     return _decorator
 
@@ -399,7 +403,7 @@ def populate_consumers(
 
     return tx
 
-# %% ../nbs/FastKafkaAPI_rework.ipynb 24
+# %% ../nbs/FastKafkaAPI_rework.ipynb 25
 @patch
 def _on_startup(self: FastKafkaAPI) -> None:
     #     export_async_spec(
@@ -420,6 +424,8 @@ def _on_startup(self: FastKafkaAPI) -> None:
         is_shutting_down_f=is_shutting_down_f,
     )
 
+    populate_producers(app=self)
+
     self._confluent_producer = AIOProducer(self._kafka_config)
     logger.info("AIOProducer created.")
 
@@ -429,11 +435,12 @@ async def _on_shutdown(self: FastKafkaAPI) -> None:
     self._is_shutting_down = True
     await asyncio.wait(self._kafka_consumer_tasks)
     self._confluent_producer.close()  # type: ignore
+    [await producer.stop() for producer, _ in self._store["producers"].values()]
     logger.info("AIOProducer closed.")
 
     self._is_shutting_down = False
 
-# %% ../nbs/FastKafkaAPI_rework.ipynb 28
+# %% ../nbs/FastKafkaAPI_rework.ipynb 29
 @patch
 def produce_raw(
     self: FastKafkaAPI,
@@ -477,7 +484,7 @@ def produce_raw(
 
     return p.produce(topic, raw_msg, on_delivery=_delivery_report)
 
-# %% ../nbs/FastKafkaAPI_rework.ipynb 30
+# %% ../nbs/FastKafkaAPI_rework.ipynb 31
 @patch
 def test_run(self: FastKafkaAPI, f: Callable[[], Any], timeout: int = 30):
     async def _loop(app: FastKafkaAPI = self, f: Callable[[], Any] = f):
@@ -507,7 +514,7 @@ def test_run(self: FastKafkaAPI, f: Callable[[], Any], timeout: int = 30):
 
     return asyncer.runnify(_loop)()
 
-# %% ../nbs/FastKafkaAPI_rework.ipynb 32
+# %% ../nbs/FastKafkaAPI_rework.ipynb 33
 @patch
 @asynccontextmanager
 async def testing_ctx(self: FastKafkaAPI, timeout: int = 30):
