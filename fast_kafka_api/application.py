@@ -17,6 +17,7 @@ from datetime import datetime, timedelta
 import tempfile
 from contextlib import contextmanager, asynccontextmanager
 import time
+from inspect import signature
 
 from fastcore.foundation import patch
 from fastcore.meta import delegates
@@ -48,6 +49,7 @@ import fast_kafka_api.logger
 fast_kafka_api.logger.should_supress_timestamps = True
 
 import fast_kafka_api
+from ._components.aiokafka_loop import aiokafka_consumer_loop
 from .confluent_kafka import AIOProducer
 from .confluent_kafka import create_missing_topics
 from fast_kafka_api.asyncapi import (
@@ -252,8 +254,7 @@ class FastKafkaAPI(FastAPI):
         This function decorator is also responsible for registering topics for AsyncAPI specificiation and documentation.
 
         Params:
-            f_or_topic: either a function or name of the topic. In the case of function, its name is
-                used to infer the name of the topic ("on_topic_name" -> "topic_name")
+            topic: TODO
 
         Returns:
             A function returning the same function
@@ -264,6 +265,7 @@ class FastKafkaAPI(FastAPI):
             topic=topic,
             prefix=prefix,
             on_error=on_error,
+            produces=True,
             **kwargs,
         )
 
@@ -331,7 +333,7 @@ def _add_topic(
 def _get_first_func_arg_type(f: Callable[[Any], Any]) -> Type[Any]:
     return list(get_type_hints(f).values())[0]
 
-# %% ../nbs/FastKafkaAPI_rework.ipynb 17
+# %% ../nbs/FastKafkaAPI_rework.ipynb 18
 @patch
 def _register_kafka_callback(
     self: FastKafkaAPI,
@@ -340,6 +342,7 @@ def _register_kafka_callback(
     topic: Optional[str] = None,
     prefix: str = "on_",
     on_error: bool = False,
+    produces: bool = False,
     **kwargs,
 ) -> Callable[[KafkaMessage, Callable[[str, KafkaMessage], None]], None]:
     """ """
@@ -362,70 +365,50 @@ def _register_kafka_callback(
         self._add_topic(
             store_key=store_key, topic=topic, f=on_topic, on_error=on_error, **kwargs
         )
-        return on_topic
+
+        return produce(self, on_topic) if produces else on_topic
 
     return _decorator
 
-
-#     elif callable(f_or_topic):
-#         first_arg_type = _get_first_func_arg_type(f_or_topic)
-#         if on_error and first_arg_type != KafkaErrorMsg:
-#             raise ValueError(
-#                 f"The first argument of a decorator handling errors must be KafkaErrorMsg, it is '{first_arg_type}' instead"
-#             )
-#         self._add_topic(
-#             store_key=store_key, topic=topic, f=f_or_topic, on_error=on_error
-#         )
-#         return f_or_topic
-#     else:
-#         raise ValueError(
-#             f"Called on object of type {type(f_or_topic)}, should be called on 'str' or 'callable' only."
-#         )
-
-# %% ../nbs/FastKafkaAPI_rework.ipynb 24
+# %% ../nbs/FastKafkaAPI_rework.ipynb 23
 def populate_consumers(
     *,
     app: FastKafkaAPI,
     is_shutting_down_f: Callable[[], bool],
 ) -> List[asyncio.Task]:
     config: Dict[str, Any] = app._kafka_config
-    # something like this, consumer_config right now is a decorator function
-    # do we change the logic of _add_topic function or pass the consumer configuration another way?
     tx = [
         asyncio.create_task(
             aiokafka_consumer_loop(
                 topics=[topic],
+                #                 bootstrap_servers=configuration.get("bootstrap.servers",config["bootstrap.servers"]),
+                #                 auto_offset_reset=configuration.get("auto_offset_reset", config["auto_offset_reset"]),
+                #                 max_poll_records=configuration.get("max_poll_records", config["max_poll_records"]),
+                #                 max_buffer_size=configuration.get("max_buffer_size", config["max_buffer_size"]),
                 bootstrap_servers=config["bootstrap.servers"],
-                auto_offset_reset=consumer_config.get(
-                    "auto_offset_reset", config["auto_offset_reset"]
-                ),
-                max_poll_records=consumer_config.get(
-                    "max_poll_records", config["max_poll_records"]
-                ),
-                max_buffer_size=consumer_config.get(
-                    "max_buffer_size", config["max_buffer_size"]
-                ),
-                callbacks={topic: consumer_config["callback"]},
-                produce=consumer_config.get("produce", config["produce"]),
-                msg_types={topic: consumer_config["msg_type"]},
+                auto_offset_reset="earliest",
+                max_poll_records=100,
+                max_buffer_size=100,
+                callbacks={topic: consumer},
+                msg_types={topic: signature(consumer).parameters["msg"].annotation},
                 is_shutting_down_f=is_shutting_down_f,
             )
         )
-        for topic, consumer_config in app._store["consumers"].items()
+        for topic, (consumer, configuration) in app._store["consumers"].items()
     ]
 
     return tx
 
-# %% ../nbs/FastKafkaAPI_rework.ipynb 25
+# %% ../nbs/FastKafkaAPI_rework.ipynb 24
 @patch
 def _on_startup(self: FastKafkaAPI) -> None:
-    export_async_spec(
-        consumers=self._store["consumers"],  # type: ignore
-        producers=self._store["producers"],  # type: ignore
-        kafka_brokers=self._kafka_brokers,
-        kafka_service_info=self._kafka_service_info,
-        asyncapi_path=self._asyncapi_path,
-    )
+    #     export_async_spec(
+    #         consumers=self._store["consumers"],  # type: ignore
+    #         producers=self._store["producers"],  # type: ignore
+    #         kafka_brokers=self._kafka_brokers,
+    #         kafka_service_info=self._kafka_service_info,
+    #         asyncapi_path=self._asyncapi_path,
+    #     )
 
     self._is_shutting_down = False
 
@@ -450,7 +433,7 @@ async def _on_shutdown(self: FastKafkaAPI) -> None:
 
     self._is_shutting_down = False
 
-# %% ../nbs/FastKafkaAPI_rework.ipynb 29
+# %% ../nbs/FastKafkaAPI_rework.ipynb 28
 @patch
 def produce_raw(
     self: FastKafkaAPI,
@@ -494,7 +477,7 @@ def produce_raw(
 
     return p.produce(topic, raw_msg, on_delivery=_delivery_report)
 
-# %% ../nbs/FastKafkaAPI_rework.ipynb 31
+# %% ../nbs/FastKafkaAPI_rework.ipynb 30
 @patch
 def test_run(self: FastKafkaAPI, f: Callable[[], Any], timeout: int = 30):
     async def _loop(app: FastKafkaAPI = self, f: Callable[[], Any] = f):
@@ -524,7 +507,7 @@ def test_run(self: FastKafkaAPI, f: Callable[[], Any], timeout: int = 30):
 
     return asyncer.runnify(_loop)()
 
-# %% ../nbs/FastKafkaAPI_rework.ipynb 33
+# %% ../nbs/FastKafkaAPI_rework.ipynb 32
 @patch
 @asynccontextmanager
 async def testing_ctx(self: FastKafkaAPI, timeout: int = 30):
