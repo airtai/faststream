@@ -80,7 +80,7 @@ def create_missing_topics(
         while not set(topic_names).issubset(set(admin.list_topics().topics.keys())):
             time.sleep(1)
 
-# %% ../nbs/999_Test_Utils.ipynb 13
+# %% ../nbs/999_Test_Utils.ipynb 10
 @contextmanager
 def create_testing_topic(
     kafka_config: Dict[str, Any], topic_prefix: str, seed: Optional[int] = None
@@ -112,7 +112,7 @@ def create_testing_topic(
         while topic in admin.list_topics().topics.keys():
             time.sleep(1)
 
-# %% ../nbs/999_Test_Utils.ipynb 15
+# %% ../nbs/999_Test_Utils.ipynb 12
 @asynccontextmanager
 async def create_and_fill_testing_topic(
     msgs: List[bytes], kafka_config: Dict[str, str] = kafka_config, *, seed: int
@@ -143,7 +143,7 @@ async def create_and_fill_testing_topic(
             await producer.stop()
             logger.info(f"Producer {producer} stoped.")
 
-# %% ../nbs/999_Test_Utils.ipynb 18
+# %% ../nbs/999_Test_Utils.ipynb 15
 def nb_safe_seed(s: str) -> Callable[[int], int]:
     init_seed = int(hashlib.sha1(s.encode("utf-8")).hexdigest(), 16) % (10**8)
 
