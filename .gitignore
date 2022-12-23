@@ -135,6 +135,8 @@ dmypy.json
 _proc
 _docs
 
+nbs/asyncapi
+
 # nbdev_mkdocs
 mkdocs/docs/
 mkdocs/site/

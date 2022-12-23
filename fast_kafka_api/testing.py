@@ -19,7 +19,7 @@ import unittest
 from confluent_kafka.admin import AdminClient, NewTopic
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
 
-from .logger import get_logger
+from ._components.logger import get_logger
 
 # %% ../nbs/999_Test_Utils.ipynb 3
 logger = get_logger(__name__)
@@ -147,6 +147,14 @@ async def create_and_fill_testing_topic(
 
 # %% ../nbs/999_Test_Utils.ipynb 15
 def nb_safe_seed(s: str) -> Callable[[int], int]:
+    """Gets a unique seed function for a notebook
+
+    Params:
+        s: name of the notebook used to initialize the seed function
+
+    Returns:
+        A unique seed function
+    """
     init_seed = int(hashlib.sha1(s.encode("utf-8")).hexdigest(), 16) % (10**8)
 
     def _get_seed(x: int = 0, *, init_seed: int = init_seed) -> int:
@@ -157,6 +165,7 @@ def nb_safe_seed(s: str) -> Callable[[int], int]:
 # %% ../nbs/999_Test_Utils.ipynb 17
 @contextmanager
 def mock_AIOKafkaProducer_send():
+    """Mocks **send** method of **AIOKafkaProducer**"""
     with unittest.mock.patch("__main__.AIOKafkaProducer.send") as mock:
 
         async def _f():

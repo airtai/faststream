@@ -26,9 +26,15 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from pydantic import validator, BaseModel, Field, HttpUrl, EmailStr, NonNegativeInt
 
-from .application import FastKafkaAPI
-from .asyncapi import KafkaMessage, ConsumeCallable, ProduceCallable
-from .logger import get_logger
+from fast_kafka_api.application import (
+    FastKafkaAPI,
+    KafkaMessage,
+    ConsumeCallable,
+    ProduceCallable,
+)
+
+# from fast_kafka_api.asyncapi import KafkaMessage, ConsumeCallable, ProduceCallable
+from ._components.logger import get_logger
 
 # %% ../nbs/099_Test_Service.ipynb 3
 logger = get_logger(__name__)

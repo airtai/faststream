@@ -45,25 +45,23 @@ from confluent_kafka.admin import AdminClient, NewTopic
 from confluent_kafka import Message, KafkaError
 import asyncer
 
-import fast_kafka_api.logger
+import fast_kafka_api._components.logger
 
-fast_kafka_api.logger.should_supress_timestamps = True
+fast_kafka_api._components.logger.should_supress_timestamps = True
 
 import fast_kafka_api
 from ._components.aiokafka_loop import aiokafka_consumer_loop
-from fast_kafka_api.asyncapi import (
+from fast_kafka_api._components.asyncapi import (
     KafkaMessage,
     export_async_spec,
     ConsumeCallable,
     ProduceCallable,
-)
-from fast_kafka_api.asyncapi import (
     KafkaBroker,
     ContactInfo,
     KafkaServiceInfo,
     KafkaBrokers,
 )
-from .logger import get_logger, supress_timestamps
+from ._components.logger import get_logger, supress_timestamps
 
 # %% ../nbs/000_FastKafkaAPI.ipynb 2
 logger = get_logger(__name__)
@@ -80,6 +78,16 @@ class FastKafkaAPI(FastAPI):
         root_path: Optional[Union[Path, str]] = None,
         **kwargs,
     ):
+        """Combined REST and Kafka service
+
+        Params:
+            title: name of the service, used for generating documentation
+            kafka_config:
+            contact:
+            kafka_brokers:
+            root_path:
+            kwargs: parameters passed to FastAPI constructor
+        """
         self._kafka_config = kafka_config
 
         config_defaults = {
@@ -175,24 +183,6 @@ class FastKafkaAPI(FastAPI):
         prefix: str = "on_",
         **kwargs,
     ) -> ConsumeCallable:
-        """Decorator registering the callback called when a message is received in a topic.
-
-        This function decorator is also responsible for registering topics for AsyncAPI specificiation and documentation.
-
-        Params:
-            topic: Kafka topic that the consumer will subscribe to and execute the decorated function when it receives a message from the topic, default: None
-                If the topic is not specified, topic name will be inferred from the decorated function name by stripping the defined prefix
-            prefix: Prefix stripped from the decorated function to define a topic name if the topic argument is not passed, default: "on_"
-                If the decorated function name is not prefixed with the defined prefix and topic argument is not passed, then this method will throw ValueError
-            **kwargs: Keyword arguments that will be passed to AIOKafkaConsumer, used to configure the consumer
-
-        Returns:
-            A function returning the same function
-
-        Throws:
-            ValueError
-
-        """
         raise NotImplementedError
 
     def produces(
@@ -203,28 +193,6 @@ class FastKafkaAPI(FastAPI):
         producer: AIOKafkaProducer = None,
         **kwargs,
     ) -> ProduceCallable:
-        """Decorator registering the callback called when delivery report for a produced message is received
-
-        This function decorator is also responsible for registering topics for AsyncAPI specificiation and documentation.
-
-        Params:
-            topic: Kafka topic that the producer will send returned values from the decorated function to, default: None
-                If the topic is not specified, topic name will be inferred from the decorated function name by stripping the defined prefix
-            prefix: Prefix stripped from the decorated function to define a topic name if the topic argument is not passed, default: "to_"
-                If the decorated function name is not prefixed with the defined prefix and topic argument is not passed, then this method will throw ValueError
-            **kwargs: Keyword arguments that will be passed to AIOKafkaProducer, used to configure the producer
-            topic:
-            prefix:
-            producer:
-            **kwargs:
-
-        Returns:
-            A function returning the same function
-
-        Throws:
-            ValueError
-
-        """
         raise NotImplementedError
 
 # %% ../nbs/000_FastKafkaAPI.ipynb 8
@@ -247,7 +215,24 @@ def consumes(
     prefix: str = "on_",
     **kwargs,
 ) -> ConsumeCallable:
-    """ """
+    """Decorator registering the callback called when a message is received in a topic.
+
+    This function decorator is also responsible for registering topics for AsyncAPI specificiation and documentation.
+
+    Params:
+        topic: Kafka topic that the consumer will subscribe to and execute the decorated function when it receives a message from the topic, default: None
+            If the topic is not specified, topic name will be inferred from the decorated function name by stripping the defined prefix
+        prefix: Prefix stripped from the decorated function to define a topic name if the topic argument is not passed, default: "on_"
+            If the decorated function name is not prefixed with the defined prefix and topic argument is not passed, then this method will throw ValueError
+        **kwargs: Keyword arguments that will be passed to AIOKafkaConsumer, used to configure the consumer
+
+    Returns:
+        A function returning the same function
+
+    Throws:
+        ValueError
+
+    """
 
     def _decorator(
         on_topic: ConsumeCallable, topic: str = topic, kwargs=kwargs
@@ -283,7 +268,25 @@ def produces(
     producer: AIOKafkaProducer = None,
     **kwargs,
 ) -> ProduceCallable:
-    """ """
+    """Decorator registering the callback called when delivery report for a produced message is received
+
+    This function decorator is also responsible for registering topics for AsyncAPI specificiation and documentation.
+
+    Params:
+        topic: Kafka topic that the producer will send returned values from the decorated function to, default: None
+            If the topic is not specified, topic name will be inferred from the decorated function name by stripping the defined prefix
+        prefix: Prefix stripped from the decorated function to define a topic name if the topic argument is not passed, default: "to_"
+            If the decorated function name is not prefixed with the defined prefix and topic argument is not passed, then this method will throw ValueError
+        producer:
+        **kwargs: Keyword arguments that will be passed to AIOKafkaProducer, used to configure the producer
+
+    Returns:
+        A function returning the same function
+
+    Throws:
+        ValueError
+
+    """
 
     def _decorator(
         on_topic: ProduceCallable, topic: str = topic, kwargs=kwargs

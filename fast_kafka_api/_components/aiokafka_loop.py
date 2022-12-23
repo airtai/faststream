@@ -17,7 +17,7 @@ from pydantic import BaseModel, HttpUrl, NonNegativeInt, Field
 import asyncer
 import anyio
 
-from ..logger import get_logger, supress_timestamps
+from .logger import get_logger, supress_timestamps
 from fast_kafka_api.testing import (
     true_after,
     create_and_fill_testing_topic,
