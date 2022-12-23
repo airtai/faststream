@@ -2,7 +2,7 @@
 
 # %% auto 0
 __all__ = ['logger', 'kafka_server_url', 'kafka_server_port', 'kafka_config', 'true_after', 'create_missing_topics',
-           'create_testing_topic', 'create_and_fill_testing_topic', 'nb_safe_seed']
+           'create_testing_topic', 'create_and_fill_testing_topic', 'nb_safe_seed', 'mock_AIOKafkaProducer_send']
 
 # %% ../nbs/999_Test_Utils.ipynb 1
 from typing import List, Dict, Any, Optional, Callable, Tuple, Generator
@@ -13,6 +13,8 @@ from datetime import datetime, timedelta
 import time
 import asyncio
 import hashlib
+
+import unittest
 
 from confluent_kafka.admin import AdminClient, NewTopic
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
@@ -151,3 +153,15 @@ def nb_safe_seed(s: str) -> Callable[[int], int]:
         return init_seed + x
 
     return _get_seed
+
+# %% ../nbs/999_Test_Utils.ipynb 17
+@contextmanager
+def mock_AIOKafkaProducer_send():
+    with unittest.mock.patch("__main__.AIOKafkaProducer.send") as mock:
+
+        async def _f():
+            pass
+
+        mock.return_value = asyncio.create_task(_f())
+
+        yield mock

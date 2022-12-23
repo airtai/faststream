@@ -99,6 +99,8 @@ d = { 'settings': { 'branch': 'main',
                                                                                           'fast_kafka_api/testing.py'),
                                         'fast_kafka_api.testing.create_testing_topic': ( 'test_utils.html#create_testing_topic',
                                                                                          'fast_kafka_api/testing.py'),
+                                        'fast_kafka_api.testing.mock_AIOKafkaProducer_send': ( 'test_utils.html#mock_aiokafkaproducer_send',
+                                                                                               'fast_kafka_api/testing.py'),
                                         'fast_kafka_api.testing.nb_safe_seed': ( 'test_utils.html#nb_safe_seed',
                                                                                  'fast_kafka_api/testing.py'),
                                         'fast_kafka_api.testing.true_after': ('test_utils.html#true_after', 'fast_kafka_api/testing.py')}}}

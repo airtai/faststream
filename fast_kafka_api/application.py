@@ -64,7 +64,6 @@ from fast_kafka_api.asyncapi import (
     KafkaBrokers,
 )
 from .logger import get_logger, supress_timestamps
-from .testing import true_after
 
 # %% ../nbs/000_FastKafkaAPI.ipynb 2
 logger = get_logger(__name__)
