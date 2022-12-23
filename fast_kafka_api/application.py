@@ -160,11 +160,11 @@ class FastKafkaAPI(FastAPI):
             return FileResponse(self._asyncapi_path / "spec" / "asyncapi.yml")
 
         @self.on_event("startup")
-        async def __on_startup(app=self):
-            app._on_startup()
+        async def on_startup(app=self):
+            await app._on_startup()
 
         @self.on_event("shutdown")
-        async def __on_shutdown(app=self):
+        async def on_shutdown(app=self):
             await app._on_shutdown()
 
     async def _on_startup(self) -> None:
