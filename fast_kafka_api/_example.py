@@ -26,8 +26,8 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from pydantic import validator, BaseModel, Field, HttpUrl, EmailStr, NonNegativeInt
 
-from .application import FastKafkaAPI, ConsumeCallable, ProduceCallable
-from .asyncapi import KafkaMessage
+from .application import FastKafkaAPI
+from .asyncapi import KafkaMessage, ConsumeCallable, ProduceCallable
 from .logger import get_logger
 
 # %% ../nbs/099_Test_Service.ipynb 3
@@ -326,9 +326,9 @@ def create_ws_server(assets_path: Path = Path("./assets")) -> FastKafkaAPI:
         return msg
 
     @app.produces()  # type: ignore
-    def to_training_model_status(msg: TrainingModelStatus) -> TrainingModelStatus:
+    def to_training_model_status(msg: str) -> TrainingModelStatus:
         logger.debug(f"on_training_model_status(msg={msg}, kafka_msg={kafka_msg})")
-        return msg
+        return TrainingModelStatus()
 
     @app.produces()  # type: ignore
     def to_model_metrics(msg: ModelMetrics) -> ModelMetrics:
