@@ -26,8 +26,8 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from pydantic import validator, BaseModel, Field, HttpUrl, EmailStr, NonNegativeInt
 
-from .application import FastKafkaAPI, KafkaErrorMsg
-from .asyncapi import KafkaMessage
+from .application import FastKafkaAPI
+from .asyncapi import KafkaMessage, ConsumeCallable, ProduceCallable
 from .logger import get_logger
 
 # %% ../nbs/099_Test_Service.ipynb 3
@@ -51,7 +51,7 @@ class ModelTrainingRequest(BaseModel):
     )
 
 
-class EventData(KafkaMessage):
+class EventData(BaseModel):
     """
     A sequence of events for a fixed account_id
     """
@@ -85,7 +85,7 @@ class EventData(KafkaMessage):
     )
 
 
-class RealtimeData(KafkaMessage):
+class RealtimeData(BaseModel):
     event_data: EventData = Field(
         ...,
         example=dict(
@@ -103,7 +103,7 @@ class RealtimeData(KafkaMessage):
     )
 
 
-class TrainingDataStatus(KafkaMessage):
+class TrainingDataStatus(BaseModel):
     AccountId: NonNegativeInt = Field(
         ..., example=202020, description="ID of an account"
     )
@@ -119,7 +119,7 @@ class TrainingDataStatus(KafkaMessage):
     )
 
 
-class TrainingModelStatus(KafkaMessage):
+class TrainingModelStatus(BaseModel):
     AccountId: NonNegativeInt = Field(
         ..., example=202020, description="ID of an account"
     )
@@ -140,7 +140,7 @@ class TrainingModelStatus(KafkaMessage):
     )
 
 
-class ModelMetrics(KafkaMessage):
+class ModelMetrics(BaseModel):
     """The standard metrics for classification models.
 
     The most important metrics is AUC for unbalanced classes such as churn. Metrics such as
@@ -177,7 +177,7 @@ class ModelMetrics(KafkaMessage):
     accuracy: float = Field(..., example=0.82, description="accuracy", ge=0.0, le=1.0)
 
 
-class Prediction(KafkaMessage):
+class Prediction(BaseModel):
     AccountId: NonNegativeInt = Field(
         ..., example=202020, description="ID of an account"
     )
@@ -246,18 +246,18 @@ def create_ws_server(assets_path: Path = Path("./assets")) -> FastKafkaAPI:
     kafka_server_url = environ["KAFKA_HOSTNAME"]
     kafka_server_port = environ["KAFKA_PORT"]
     kafka_config = {
-        "bootstrap.servers": f"{kafka_server_url}:{kafka_server_port}",
-        "group.id": f"{kafka_server_url}:{kafka_server_port}_group",
-        "auto.offset.reset": "earliest",
+        "bootstrap_servers": f"{kafka_server_url}:{kafka_server_port}",
+        "group_id": f"{kafka_server_url}:{kafka_server_port}_group",
+        "auto_offset_reset": "earliest",
     }
     if "KAFKA_API_KEY" in environ:
         kafka_config = {
             **kafka_config,
             **{
-                "security.protocol": "SASL_SSL",
-                "sasl.mechanisms": "PLAIN",
-                "sasl.username": environ["KAFKA_API_KEY"],
-                "sasl.password": environ["KAFKA_API_SECRET"],
+                "security_protocol": "SASL_SSL",
+                "sasl_mechanisms": "PLAIN",
+                "sasl_username": environ["KAFKA_API_KEY"],
+                "sasl_password": environ["KAFKA_API_SECRET"],
             },
         }
 
@@ -300,7 +300,7 @@ def create_ws_server(assets_path: Path = Path("./assets")) -> FastKafkaAPI:
     async def from_kafka_end():
         pass
 
-    @app.consumes  # type: ignore
+    @app.consumes()  # type: ignore
     async def on_training_data(msg: EventData):
         # ToDo: this is not showing up in logs
         logger.debug(f"msg={msg}")
@@ -316,30 +316,28 @@ def create_ws_server(assets_path: Path = Path("./assets")) -> FastKafkaAPI:
             )
             app.produce("training_data_status", training_data_status)
 
-    @app.consumes  # type: ignore
+    @app.consumes()  # type: ignore
     async def on_realitime_data(msg: RealtimeData):
         pass
 
-    @app.produces  # type: ignore
-    def on_training_data_status(msg: TrainingDataStatus, kafka_msg: Any):
+    @app.produces()  # type: ignore
+    def to_training_data_status(msg: TrainingDataStatus) -> TrainingDataStatus:
         logger.debug(f"on_training_data_status(msg={msg}, kafka_msg={kafka_msg})")
+        return msg
 
-    @app.produces  # type: ignore
-    def on_training_model_status(msg: TrainingModelStatus, kafka_msg: Any):
+    @app.produces()  # type: ignore
+    def to_training_model_status(msg: str) -> TrainingModelStatus:
         logger.debug(f"on_training_model_status(msg={msg}, kafka_msg={kafka_msg})")
+        return TrainingModelStatus()
 
-    @app.produces  # type: ignore
-    def on_model_metrics(msg: ModelMetrics, kafka_msg: Any):
+    @app.produces()  # type: ignore
+    def to_model_metrics(msg: ModelMetrics) -> ModelMetrics:
         logger.debug(f"on_training_model_status(msg={msg}, kafka_msg={kafka_msg})")
+        return msg
 
-    @app.produces  # type: ignore
-    def on_prediction(msg: Prediction, kafka_msg: Any):
+    @app.produces()  # type: ignore
+    def to_prediction(msg: Prediction) -> Prediction:
         logger.debug(f"on_realtime_data_status(msg={msg},, kafka_msg={kafka_msg})")
-
-    @app.produces_on_error  # type: ignore
-    def on_error(kafka_error_msg: KafkaErrorMsg, kafka_err: Any):
-        logger.warning(
-            f"on_error(kafka_error_msg={kafka_error_msg}, kafka_err={kafka_err},)"
-        )
+        return msg
 
     return app
