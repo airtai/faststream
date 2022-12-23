@@ -1,0 +1,10 @@
+website:
+  sidebar:
+    contents:
+      - index.ipynb
+      - 000_FastKafkaAPI.ipynb
+      - 001_ProcessingLoop.ipynb
+      - 003_AsyncAPI.ipynb
+      - 099_Test_Service.ipynb
+      - 999_Test_Utils.ipynb
+      - Logger.ipynb

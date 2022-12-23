@@ -1,5 +1,6 @@
-- [Home](index.md)
-{guides}
+{sidebar}
+- API
 {api}
+- CLI
 {cli}
-{changelog}
+- [Releases]{changelog}

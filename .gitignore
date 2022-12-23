@@ -132,7 +132,8 @@ dmypy.json
 .idea
 
 # nbdev related stuff
-_proc/
+_proc
+_docs
 
 # nbdev_mkdocs
 mkdocs/docs/
