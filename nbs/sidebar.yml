@@ -8,8 +8,3 @@ website:
       - 099_Test_Service.ipynb
       - 999_Test_Utils.ipynb
       - Logger.ipynb
-      - section: asyncapi
-        contents:
-          - section: docs
-            contents:
-              - asyncapi/docs/index.html
