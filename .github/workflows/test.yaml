@@ -7,7 +7,7 @@ jobs:
       fail-fast: false
       matrix:
         os:  [ubuntu]
-        version: ["3.8", "3.9", "3.10", "3.11"]
+        version: ["3.8", "3.9", "3.10"]
     runs-on: ${{ matrix.os }}-latest
     env:
       # Used in notebooks for testing
