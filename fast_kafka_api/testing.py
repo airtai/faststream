@@ -25,8 +25,10 @@ from ._components.logger import get_logger
 logger = get_logger(__name__)
 
 # %% ../nbs/999_Test_Utils.ipynb 5
-kafka_server_url = environ["KAFKA_HOSTNAME"]
-kafka_server_port = environ["KAFKA_PORT"]
+kafka_server_url = (
+    environ["KAFKA_HOSTNAME"] if "KAFKA_HOSTNAME" in environ else "localhost"
+)
+kafka_server_port = environ["KAFKA_PORT"] if "KAFKA_PORT" in environ else "9092"
 
 kafka_config = {
     "bootstrap.servers": f"{kafka_server_url}:{kafka_server_port}",
