@@ -111,7 +111,7 @@ async def on_input_data(msg: InputData):
     await to_predictions(user_id=msg.user_id, score=score)
 
 @app.produces(topic="predictions")
-def to_predictions(user_id: int, score: float) -> Prediction:
+async def to_predictions(user_id: int, score: float) -> Prediction:
     prediction = Prediction(user_id=user_id, score=score)
     print(f"prediction={prediction}")
     return prediction
