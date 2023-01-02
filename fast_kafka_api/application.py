@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 import tempfile
 from contextlib import contextmanager, asynccontextmanager
 import time
-from inspect import signature, iscoroutinefunction
+from inspect import signature
 import functools
 
 from fastcore.foundation import patch
@@ -265,7 +265,7 @@ def produce_decorator(self: FastKafkaAPI, func: ProduceCallable, topic: str):
 
     return _produce_async if iscoroutinefunction(func) else _produce_sync
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 18
+# %% ../nbs/000_FastKafkaAPI.ipynb 19
 @patch
 def produces(
     self: FastKafkaAPI,
@@ -307,7 +307,7 @@ def produces(
 
     return _decorator
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 22
+# %% ../nbs/000_FastKafkaAPI.ipynb 23
 def populate_consumers(
     *,
     app: FastKafkaAPI,
@@ -329,7 +329,7 @@ def populate_consumers(
 
     return tx
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 23
+# %% ../nbs/000_FastKafkaAPI.ipynb 24
 # TODO: Add passing of vars
 
 
@@ -349,7 +349,7 @@ async def populate_producers(*, app: FastKafkaAPI) -> None:
         else:
             asyncio.create_task(potential_producer.start())
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 24
+# %% ../nbs/000_FastKafkaAPI.ipynb 25
 @patch
 async def _on_startup(self: FastKafkaAPI) -> None:
     export_async_spec(

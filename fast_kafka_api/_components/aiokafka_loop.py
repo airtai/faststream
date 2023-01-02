@@ -8,8 +8,8 @@ from typing import *
 
 from os import environ
 import asyncio
-from unittest.mock import MagicMock, Mock, call
 from datetime import datetime, timedelta
+from asyncio import iscoroutinefunction  # do not use the version from inspect
 
 from aiokafka import AIOKafkaConsumer
 from aiokafka.structs import TopicPartition, ConsumerRecord
@@ -24,17 +24,28 @@ from fast_kafka_api.testing import (
     nb_safe_seed,
 )
 
-# %% ../../nbs/001_ProcessingLoop.ipynb 4
+# %% ../../nbs/001_ProcessingLoop.ipynb 5
 logger = get_logger(__name__)
 
-# %% ../../nbs/001_ProcessingLoop.ipynb 8
+# %% ../../nbs/001_ProcessingLoop.ipynb 9
 async def process_msgs(
     *,
     msgs: Dict[TopicPartition, List[ConsumerRecord]],
     callbacks: Dict[str, Callable[[BaseModel], None]],
     msg_types: Dict[str, Type[BaseModel]],
     process_f: Callable[[Callable[[BaseModel], None], BaseModel], None]
-):
+) -> None:
+    """For each messages **msg** in **msgs**, calls process_f with callbacks[topic] and **msgs**.
+
+    Params:
+        msgs: a dictionary mapping topic partition to a list of messages, returned by `AIOKafkaConsumer.getmany`.
+        callbacks: a dictionary mapping topics into a callback functions.
+        msg_types: a dictionary mapping topics into a message type of a message.
+        process_f: a stream processing function registrated by `anyio.create_memory_object_stream`
+
+    Todo:
+        remove it :)
+    """
     for topic_partition, topic_msgs in msgs.items():
         topic = topic_partition.topic
         msg_type = msg_types[topic]
@@ -42,9 +53,12 @@ async def process_msgs(
             msg_type.parse_raw(msg.value.decode("utf-8")) for msg in topic_msgs
         ]
         for msg in decoded_msgs:
-            await process_f((callbacks[topic], msg))
+            callback = callbacks[topic]
+            if not iscoroutinefunction(callback):
+                callback = asyncer.asyncify(callback)
+            await process_f((callback, msg))
 
-# %% ../../nbs/001_ProcessingLoop.ipynb 14
+# %% ../../nbs/001_ProcessingLoop.ipynb 15
 async def process_message_callback(receive_stream):
     async with receive_stream:
         async for callback, msg in receive_stream:
@@ -52,63 +66,71 @@ async def process_message_callback(receive_stream):
 
 
 async def _aiokafka_consumer_loop(
-    *,
     consumer: AIOKafkaConsumer,
-    max_buffer_size: int,
+    *,
     callbacks: Dict[str, Callable[[BaseModel], None]],
+    timeout_ms: int = 100,
+    max_buffer_size: int = 10_000,
     msg_types: Dict[str, Type[BaseModel]],
     is_shutting_down_f: Callable[[], bool],
 ):
+    """Write docs
+
+    Todo: add batch size if needed
+    """
     send_stream, receive_stream = anyio.create_memory_object_stream(
         max_buffer_size=max_buffer_size
     )
     async with anyio.create_task_group() as tg:
         tg.start_soon(process_message_callback, receive_stream)
         async with send_stream:
-            while True:
-                msgs = await consumer.getmany(timeout_ms=100)
+            while not is_shutting_down_f():
+                msgs = await consumer.getmany(timeout_ms=timeout_ms)
                 await process_msgs(
                     msgs=msgs,
                     callbacks=callbacks,
                     msg_types=msg_types,
                     process_f=send_stream.send,
                 )
-                if is_shutting_down_f():
-                    break
 
-# %% ../../nbs/001_ProcessingLoop.ipynb 16
+# %% ../../nbs/001_ProcessingLoop.ipynb 17
 async def aiokafka_consumer_loop(
     topics: List[str],
     *,
     bootstrap_servers: str,
     auto_offset_reset: str,
-    max_poll_records: int,
-    max_buffer_size: int,
+    max_poll_records: int = 1_000,
+    timeout_ms: int = 100,
+    max_buffer_size: int = 10_000,
     callbacks: Dict[str, Callable[[BaseModel], None]],
     msg_types: Dict[str, Type[BaseModel]],
     is_shutting_down_f: Callable[[], bool],
     **kwargs,
 ):
+    """todo: write docs"""
+    logger.info(f"aiokafka_consumer_loop() starting..")
     consumer = AIOKafkaConsumer(
         bootstrap_servers=bootstrap_servers,
         auto_offset_reset=auto_offset_reset,
         max_poll_records=max_poll_records,
     )
-    logger.info("Consumer created.")
+    logger.info("aiokafka_consumer_loop(): Consumer created.")
 
     await consumer.start()
-    logger.info("Consumer started.")
+    logger.info("aiokafka_consumer_loop(): Consumer started.")
     consumer.subscribe(topics)
-    logger.info("Consumer subscribed.")
+    logger.info("aiokafka_consumer_loop(): Consumer subscribed.")
 
     try:
         await _aiokafka_consumer_loop(
             consumer=consumer,
             max_buffer_size=max_buffer_size,
+            timeout_ms=timeout_ms,
             callbacks=callbacks,
             msg_types=msg_types,
             is_shutting_down_f=is_shutting_down_f,
         )
     finally:
         await consumer.stop()
-        logger.info(f"Consumer stopped.")
+        logger.info(f"aiokafka_consumer_loop(): Consumer stopped.")
+        logger.info(f"aiokafka_consumer_loop() finished.")

@@ -125,7 +125,7 @@ import uvicorn
 uvicorn.run(app, host="0.0.0.0", port=4000)
 ```
 
-    INFO:     Started server process [2296]
+    INFO:     Started server process [4860]
     INFO:     Waiting for application startup.
 
     [INFO] fast_kafka_api._components.asyncapi: Async specifications generated at: 'asyncapi/spec/asyncapi.yml'
@@ -136,21 +136,23 @@ uvicorn.run(app, host="0.0.0.0", port=4000)
     Check out your shiny new generated files at /work/fast-kafka-api/nbs/asyncapi/docs.
 
 
-    [INFO] fast_kafka_api._components.aiokafka_loop: Consumer created.
+    [INFO] fast_kafka_api._components.aiokafka_loop: aiokafka_consumer_loop() starting..
+    [INFO] fast_kafka_api._components.aiokafka_loop: aiokafka_consumer_loop(): Consumer created.
 
     INFO:     Application startup complete.
     INFO:     Uvicorn running on http://0.0.0.0:4000 (Press CTRL+C to quit)
 
-    [INFO] fast_kafka_api._components.aiokafka_loop: Consumer started.
+    [INFO] fast_kafka_api._components.aiokafka_loop: aiokafka_consumer_loop(): Consumer started.
     [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
     [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
-    [INFO] fast_kafka_api._components.aiokafka_loop: Consumer subscribed.
+    [INFO] fast_kafka_api._components.aiokafka_loop: aiokafka_consumer_loop(): Consumer subscribed.
     [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'input_data': 1}. 
 
     INFO:     Shutting down
     INFO:     Waiting for application shutdown.
 
-    [INFO] fast_kafka_api._components.aiokafka_loop: Consumer stopped.
+    [INFO] fast_kafka_api._components.aiokafka_loop: aiokafka_consumer_loop(): Consumer stopped.
+    [INFO] fast_kafka_api._components.aiokafka_loop: aiokafka_consumer_loop() finished.
 
     INFO:     Application shutdown complete.
-    INFO:     Finished server process [2296]
+    INFO:     Finished server process [4860]
