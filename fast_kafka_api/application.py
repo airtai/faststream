@@ -51,7 +51,7 @@ fast_kafka_api._components.logger.should_supress_timestamps = True
 
 import fast_kafka_api
 from ._components.aiokafka_consumer_loop import aiokafka_consumer_loop
-from ._components.aiokafka_producer_loop import aiokafka_producer_loop
+from ._components.aiokafka_producer_manager import AIOKafkaProducerManager
 from fast_kafka_api._components.asyncapi import (
     KafkaMessage,
     export_async_spec,
@@ -247,7 +247,7 @@ def consumes(
 
     return _decorator
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 15
+# %% ../nbs/000_FastKafkaAPI.ipynb 14
 def to_json_utf8(o: Any) -> bytes:
     """Converts to JSON and then encodes with UTF-8"""
     if hasattr(o, "json"):
@@ -255,7 +255,7 @@ def to_json_utf8(o: Any) -> bytes:
     else:
         return json.dumps(o).encode("utf-8")
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 18
+# %% ../nbs/000_FastKafkaAPI.ipynb 17
 def produce_decorator(self: FastKafkaAPI, func: ProduceCallable, topic: str):
     async def _produce(return_val, producer, topic=topic):
         fut = await producer.send(topic, to_json_utf8(return_val))
@@ -265,20 +265,20 @@ def produce_decorator(self: FastKafkaAPI, func: ProduceCallable, topic: str):
     async def _produce_async(*args, **kwargs):
         return_val = await func(*args, **kwargs)
         _, producer, _ = self._producers_store[topic]
-        await _produce(return_val, producer)
+        fut = await producer.send(topic, to_json_utf8(return_val))
+        msg = await fut
         return return_val
 
     @functools.wraps(func)
     def _produce_sync(*args, **kwargs):
         return_val = func(*args, **kwargs)
         _, producer, _ = self._producers_store[topic]
-        loop = asyncio.get_running_loop()
-        asyncio.create_task(_produce(return_val, producer))
+        producer.send(topic, to_json_utf8(return_val))
         return return_val
 
     return _produce_async if iscoroutinefunction(func) else _produce_sync
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 20
+# %% ../nbs/000_FastKafkaAPI.ipynb 19
 @patch
 def produces(
     self: FastKafkaAPI,
@@ -320,7 +320,7 @@ def produces(
 
     return _decorator
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 24
+# %% ../nbs/000_FastKafkaAPI.ipynb 23
 def populate_consumers(
     *,
     app: FastKafkaAPI,
@@ -342,7 +342,7 @@ def populate_consumers(
 
     return tx
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 25
+# %% ../nbs/000_FastKafkaAPI.ipynb 24
 # TODO: Add passing of vars
 
 
@@ -353,16 +353,32 @@ async def populate_producers(*, app: FastKafkaAPI) -> None:
         potential_producer,
         configuration,
     ) in app._producers_store.items():
-        if type(potential_producer) != AIOKafkaProducer:
-            producer = AIOKafkaProducer(
-                **{"bootstrap_servers": config["bootstrap_servers"], **configuration}
-            )
-            asyncio.create_task(producer.start())
-            app._producers_store[topic] = (topic_callable, producer, configuration)
+        if iscoroutinefunction(topic_callable):
+            if type(potential_producer) != AIOKafkaProducer:
+                producer = AIOKafkaProducer(
+                    **{
+                        "bootstrap_servers": config["bootstrap_servers"],
+                        **configuration,
+                    }
+                )
+            else:
+                producer = potential_producer
         else:
-            asyncio.create_task(potential_producer.start())
+            producer = AIOKafkaProducerManager(
+                **{
+                    "bootstrap_servers": config["bootstrap_servers"],
+                    **configuration,
+                }
+            )
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 26
+        await producer.start()
+        app._producers_store[topic] = (
+            topic_callable,
+            producer,
+            configuration,
+        )
+
+# %% ../nbs/000_FastKafkaAPI.ipynb 25
 @patch
 async def _on_startup(self: FastKafkaAPI) -> None:
     export_async_spec(
