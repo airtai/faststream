@@ -131,7 +131,7 @@ async def create_and_fill_testing_topic(
         logger.info(f"Producer {producer} started.")
         try:
             fx = [
-                producer.send_and_wait(
+                producer.send(
                     topic,
                     msg,
                     key=f"{i % 17}".encode("utf-8"),
@@ -140,6 +140,7 @@ async def create_and_fill_testing_topic(
             ]
             await producer.flush()
             sent_msgs = [await f for f in fx]
+            msg_statuses = [await s for s in sent_msgs]
             logger.info(f"Sent messages: len(sent_msgs)={len(sent_msgs)}")
 
             yield topic

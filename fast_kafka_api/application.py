@@ -256,19 +256,26 @@ def to_json_utf8(o: Any) -> bytes:
 
 # %% ../nbs/000_FastKafkaAPI.ipynb 18
 def produce_decorator(self: FastKafkaAPI, func: ProduceCallable, topic: str):
-
-    if not iscoroutinefunction(func):
-        raise ValueError(f"Input function must be async: {func}")
+    async def _produce(return_val, producer, topic=topic):
+        fut = await producer.send(topic, to_json_utf8(return_val))
+        msg = await fut
 
     @functools.wraps(func)
     async def _produce_async(*args, **kwargs):
         return_val = await func(*args, **kwargs)
         _, producer, _ = self._producers_store[topic]
-        fut = await producer.send(topic, to_json_utf8(return_val))
-        msg = await fut
+        await _produce(return_val, producer)
         return return_val
 
-    return _produce_async
+    @functools.wraps(func)
+    def _produce_sync(*args, **kwargs):
+        return_val = func(*args, **kwargs)
+        _, producer, _ = self._producers_store[topic]
+        loop = asyncio.get_running_loop()
+        asyncio.create_task(_produce(return_val, producer))
+        return return_val
+
+    return _produce_async if iscoroutinefunction(func) else _produce_sync
 
 # %% ../nbs/000_FastKafkaAPI.ipynb 20
 @patch
