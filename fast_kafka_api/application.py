@@ -50,7 +50,8 @@ import fast_kafka_api._components.logger
 fast_kafka_api._components.logger.should_supress_timestamps = True
 
 import fast_kafka_api
-from ._components.aiokafka_loop import aiokafka_consumer_loop
+from ._components.aiokafka_consumer_loop import aiokafka_consumer_loop
+from ._components.aiokafka_producer_loop import aiokafka_producer_loop
 from fast_kafka_api._components.asyncapi import (
     KafkaMessage,
     export_async_spec,
