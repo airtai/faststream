@@ -33,7 +33,6 @@ from fast_kafka_api.application import (
     ProduceCallable,
 )
 
-# from fast_kafka_api.asyncapi import KafkaMessage, ConsumeCallable, ProduceCallable
 from ._components.logger import get_logger
 
 # %% ../nbs/099_Test_Service.ipynb 3

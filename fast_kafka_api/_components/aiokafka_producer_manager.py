@@ -27,6 +27,8 @@ async def _aiokafka_producer_manager(
     Todo: add batch size if needed
     """
 
+    logger.info("_aiokafka_producer_manager(): Starting...")
+
     async def send_message(receive_stream):
         async with receive_stream:
             async for topic, msg in receive_stream:
@@ -37,33 +39,36 @@ async def _aiokafka_producer_manager(
         max_buffer_size=max_buffer_size
     )
 
-    task_group_generator = anyio.create_task_group()
-    task_group = await task_group_generator.__aenter__()
-    task_group.start_soon(send_message, receive_stream)
-    await send_stream.__aenter__()
-    yield send_stream
-    await send_stream.__aexit__(None, None, None)
-    await task_group_generator.__aexit__(None, None, None)
+    logger.info("_aiokafka_producer_manager(): Starting task group")
+    async with anyio.create_task_group() as task_group:
+        logger.info("_aiokafka_producer_manager(): Starting send_stream")
+        task_group.start_soon(send_message, receive_stream)
+        async with send_stream:
+            yield send_stream
+            logger.info("_aiokafka_producer_manager(): Exiting send_stream")
+        logger.info("_aiokafka_producer_manager(): Exiting task group")
+    logger.info("_aiokafka_producer_manager(): Finished.")
 
 # %% ../../nbs/002_ProducerManager.ipynb 11
 class AIOKafkaProducerManager:
-    def __init__(
-        self,
-        *,
-        bootstrap_servers: str,
-        max_buffer_size: int = 10_000,
-        **kwargs,
-    ):
-        self.producer = AIOKafkaProducer(bootstrap_servers=bootstrap_servers)
+    def __init__(self, producer: AIOKafkaProducer, *, max_buffer_size: int = 1_000):
+        self.producer = producer
         self.max_buffer_size = max_buffer_size
 
     async def start(self):
+        logger.info("AIOKafkaProducerManager.start(): Entering...")
+        await self.producer.start()
         self.producer_manager_generator = _aiokafka_producer_manager(self.producer)
         self.send_stream = await self.producer_manager_generator.__aenter__()
+        logger.info("AIOKafkaProducerManager.start(): Finished.")
 
     async def stop(self):
-        await self.producer.stop()
+        # todo: try to flush messages before you exit
+        logger.info("AIOKafkaProducerManager.stop(): Entering...")
         await self.producer_manager_generator.__aexit__(None, None, None)
+        logger.info("AIOKafkaProducerManager.stop(): Stoping producer...")
+        await self.producer.stop()
+        logger.info("AIOKafkaProducerManager.stop(): Finished")
 
     def send(self, topic: str, msg: bytes):
         self.send_stream.send_nowait((topic, msg))
