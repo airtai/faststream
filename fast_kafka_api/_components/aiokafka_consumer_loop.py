@@ -19,10 +19,10 @@ import anyio
 
 from .logger import get_logger
 
-# %% ../../nbs/001_ConsumerLoop.ipynb 5
+# %% ../../nbs/001_ConsumerLoop.ipynb 6
 logger = get_logger(__name__)
 
-# %% ../../nbs/001_ConsumerLoop.ipynb 9
+# %% ../../nbs/001_ConsumerLoop.ipynb 10
 async def process_msgs(
     *,
     msgs: Dict[TopicPartition, List[ConsumerRecord]],
@@ -53,7 +53,7 @@ async def process_msgs(
                 callback = asyncer.asyncify(callback)
             await process_f((callback, msg))
 
-# %% ../../nbs/001_ConsumerLoop.ipynb 15
+# %% ../../nbs/001_ConsumerLoop.ipynb 16
 async def process_message_callback(receive_stream):
     async with receive_stream:
         async for callback, msg in receive_stream:
@@ -88,7 +88,7 @@ async def _aiokafka_consumer_loop(
                     process_f=send_stream.send,
                 )
 
-# %% ../../nbs/001_ConsumerLoop.ipynb 17
+# %% ../../nbs/001_ConsumerLoop.ipynb 18
 async def aiokafka_consumer_loop(
     topics: List[str],
     *,

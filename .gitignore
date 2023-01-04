@@ -136,6 +136,8 @@ _proc
 _docs
 
 nbs/asyncapi
+token
+*.bak
 
 # nbdev_mkdocs
 mkdocs/docs/
