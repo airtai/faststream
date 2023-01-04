@@ -69,7 +69,7 @@ kafka_brokers = {
         "port": 9092,
     },
     "production": {
-        "url": "kafka.infobip.acme.com",
+        "url": "kafka.acme.com",
         "description": "production kafka",
         "port": 9092,
         "protocol": "kafka-secure",
@@ -95,7 +95,7 @@ app = FastKafkaAPI(
 )
 ```
 
-    [INFO] fast_kafka_api.asyncapi: ok
+    [INFO] fast_kafka_api._components.asyncapi: ok
 
 Next, we use decorators to define which functions are called in input
 data (consuming data) and which functions are producing messages
@@ -111,7 +111,7 @@ async def on_input_data(msg: InputData):
     await to_predictions(user_id=msg.user_id, score=score)
 
 @app.produces(topic="predictions")
-def to_predictions(user_id: int, score: float) -> Prediction:
+async def to_predictions(user_id: int, score: float) -> Prediction:
     prediction = Prediction(user_id=user_id, score=score)
     print(f"prediction={prediction}")
     return prediction
@@ -125,32 +125,34 @@ import uvicorn
 uvicorn.run(app, host="0.0.0.0", port=4000)
 ```
 
-    INFO:     Started server process [7241]
+    INFO:     Started server process [4860]
     INFO:     Waiting for application startup.
 
-    [INFO] fast_kafka_api.asyncapi: Async specifications generated at: 'asyncapi/spec/asyncapi.yml'
-    [INFO] fast_kafka_api.asyncapi: Async docs generated at 'asyncapi/docs'
-    [INFO] fast_kafka_api.asyncapi: Output of '$ npx -y -p @asyncapi/generator ag asyncapi/spec/asyncapi.yml @asyncapi/html-template -o asyncapi/docs --force-write'
+    [INFO] fast_kafka_api._components.asyncapi: Async specifications generated at: 'asyncapi/spec/asyncapi.yml'
+    [INFO] fast_kafka_api._components.asyncapi: Async docs generated at 'asyncapi/docs'
+    [INFO] fast_kafka_api._components.asyncapi: Output of '$ npx -y -p @asyncapi/generator ag asyncapi/spec/asyncapi.yml @asyncapi/html-template -o asyncapi/docs --force-write'
 
     Done! ✨
     Check out your shiny new generated files at /work/fast-kafka-api/nbs/asyncapi/docs.
 
 
-    [INFO] fast_kafka_api._components.aiokafka_loop: Consumer created.
+    [INFO] fast_kafka_api._components.aiokafka_loop: aiokafka_consumer_loop() starting..
+    [INFO] fast_kafka_api._components.aiokafka_loop: aiokafka_consumer_loop(): Consumer created.
 
     INFO:     Application startup complete.
     INFO:     Uvicorn running on http://0.0.0.0:4000 (Press CTRL+C to quit)
 
-    [INFO] fast_kafka_api._components.aiokafka_loop: Consumer started.
+    [INFO] fast_kafka_api._components.aiokafka_loop: aiokafka_consumer_loop(): Consumer started.
     [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
     [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
-    [INFO] fast_kafka_api._components.aiokafka_loop: Consumer subscribed.
+    [INFO] fast_kafka_api._components.aiokafka_loop: aiokafka_consumer_loop(): Consumer subscribed.
     [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'input_data': 1}. 
 
     INFO:     Shutting down
     INFO:     Waiting for application shutdown.
 
-    [INFO] fast_kafka_api._components.aiokafka_loop: Consumer stopped.
+    [INFO] fast_kafka_api._components.aiokafka_loop: aiokafka_consumer_loop(): Consumer stopped.
+    [INFO] fast_kafka_api._components.aiokafka_loop: aiokafka_consumer_loop() finished.
 
     INFO:     Application shutdown complete.
-    INFO:     Finished server process [7241]
+    INFO:     Finished server process [4860]

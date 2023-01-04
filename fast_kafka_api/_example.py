@@ -33,7 +33,6 @@ from fast_kafka_api.application import (
     ProduceCallable,
 )
 
-# from fast_kafka_api.asyncapi import KafkaMessage, ConsumeCallable, ProduceCallable
 from ._components.logger import get_logger
 
 # %% ../nbs/099_Test_Service.ipynb 3
@@ -327,22 +326,22 @@ def create_ws_server(assets_path: Path = Path("./assets")) -> FastKafkaAPI:
         pass
 
     @app.produces()  # type: ignore
-    def to_training_data_status(msg: TrainingDataStatus) -> TrainingDataStatus:
+    async def to_training_data_status(msg: TrainingDataStatus) -> TrainingDataStatus:
         logger.debug(f"on_training_data_status(msg={msg}, kafka_msg={kafka_msg})")
         return msg
 
     @app.produces()  # type: ignore
-    def to_training_model_status(msg: str) -> TrainingModelStatus:
+    async def to_training_model_status(msg: str) -> TrainingModelStatus:
         logger.debug(f"on_training_model_status(msg={msg}, kafka_msg={kafka_msg})")
         return TrainingModelStatus()
 
     @app.produces()  # type: ignore
-    def to_model_metrics(msg: ModelMetrics) -> ModelMetrics:
+    async def to_model_metrics(msg: ModelMetrics) -> ModelMetrics:
         logger.debug(f"on_training_model_status(msg={msg}, kafka_msg={kafka_msg})")
         return msg
 
     @app.produces()  # type: ignore
-    def to_prediction(msg: Prediction) -> Prediction:
+    async def to_prediction(msg: Prediction) -> Prediction:
         logger.debug(f"on_realtime_data_status(msg={msg},, kafka_msg={kafka_msg})")
         return msg
 

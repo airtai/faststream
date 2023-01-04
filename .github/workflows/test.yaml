@@ -50,7 +50,9 @@ jobs:
         with:
           node-version: 18
       - name: Check npx
-        run: npx --version
+        run: |
+          npx --version
+          npx -y -p @asyncapi/generator ag --version
       - name: Run nbdev tests
         uses: fastai/workflows/nbdev-ci@master
         with:
