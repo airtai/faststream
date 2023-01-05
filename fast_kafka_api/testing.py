@@ -2,19 +2,25 @@
 
 # %% auto 0
 __all__ = ['logger', 'kafka_server_url', 'kafka_server_port', 'kafka_config', 'true_after', 'create_missing_topics',
-           'create_testing_topic', 'create_and_fill_testing_topic', 'nb_safe_seed', 'mock_AIOKafkaProducer_send']
+           'create_testing_topic', 'create_and_fill_testing_topic', 'nb_safe_seed', 'mock_AIOKafkaProducer_send',
+           'change_dir', 'run_script_and_cancel']
 
 # %% ../nbs/999_Test_Utils.ipynb 1
 from typing import List, Dict, Any, Optional, Callable, Tuple, Generator
-from os import environ
+import os
 from contextlib import contextmanager, asynccontextmanager
 import random
 from datetime import datetime, timedelta
 import time
 import asyncio
 import hashlib
+import contextlib
+import subprocess
+import shlex
 
 import unittest
+from tempfile import TemporaryDirectory
+from pathlib import Path
 
 from confluent_kafka.admin import AdminClient, NewTopic
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
@@ -26,9 +32,9 @@ logger = get_logger(__name__)
 
 # %% ../nbs/999_Test_Utils.ipynb 5
 kafka_server_url = (
-    environ["KAFKA_HOSTNAME"] if "KAFKA_HOSTNAME" in environ else "localhost"
+    os.environ["KAFKA_HOSTNAME"] if "KAFKA_HOSTNAME" in os.environ else "localhost"
 )
-kafka_server_port = environ["KAFKA_PORT"] if "KAFKA_PORT" in environ else "9092"
+kafka_server_port = os.environ["KAFKA_PORT"] if "KAFKA_PORT" in os.environ else "9092"
 
 kafka_config = {
     "bootstrap.servers": f"{kafka_server_url}:{kafka_server_port}",
@@ -177,3 +183,34 @@ def mock_AIOKafkaProducer_send():
         mock.return_value = asyncio.create_task(_f())
 
         yield mock
+
+# %% ../nbs/999_Test_Utils.ipynb 18
+@contextlib.contextmanager
+def change_dir(d: str):
+    curdir = os.getcwd()
+    os.chdir(d)
+    try:
+        yield
+    finally:
+        os.chdir(curdir)
+
+# %% ../nbs/999_Test_Utils.ipynb 20
+def run_script_and_cancel(
+    *, script: str, script_file: str, cmd: str, cancel_after: int
+) -> bytes:
+    with TemporaryDirectory() as d:
+        consumer_script = Path(d) / script_file
+
+        with open(consumer_script, "a+") as file:
+            file.write(script)
+
+        # os.chdir(d)
+        with change_dir(d):
+            proc = subprocess.Popen(
+                shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+            )
+            time.sleep(cancel_after)
+            proc.terminate()
+            proc.wait()
+
+        return proc.stdout.read()
