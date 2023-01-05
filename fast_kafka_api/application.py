@@ -432,7 +432,7 @@ async def _shutdown_producers(self: FastKafkaAPI) -> None:
 
 # %% ../nbs/000_FastKafkaAPI.ipynb 30
 @patch
-async def _on_startup(self: FastKafkaAPI) -> None:
+def generate_async_spec(self: FastKafkaAPI) -> None:
     export_async_spec(
         consumers={topic: callback for topic, (callback, _) in self._consumers_store.items()},  # type: ignore
         producers={topic: callback for topic, (callback, _, _) in self._producers_store.items()},  # type: ignore
@@ -441,11 +441,16 @@ async def _on_startup(self: FastKafkaAPI) -> None:
         asyncapi_path=self._asyncapi_path,
     )
 
+# %% ../nbs/000_FastKafkaAPI.ipynb 32
+@patch
+async def _on_startup(self: FastKafkaAPI) -> None:
+
     self._is_shutting_down = False
 
     def is_shutting_down_f(self: FastKafkaAPI = self) -> bool:
         return self._is_shutting_down
 
+    self.generate_async_spec()
     self._populate_consumers(is_shutting_down_f)
     await self._populate_producers()
 
