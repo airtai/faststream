@@ -3,7 +3,7 @@
 # %% auto 0
 __all__ = ['logger', 'ConsumeCallable', 'ProduceCallable', 'sec_scheme_name_mapping', 'T', 'KafkaMessage', 'SecurityType',
            'APIKeyLocation', 'SecuritySchema', 'KafkaBroker', 'ContactInfo', 'KafkaServiceInfo', 'KafkaBrokers',
-           'export_async_spec']
+           'yaml_file_cmp', 'export_async_spec']
 
 # %% ../../nbs/003_AsyncAPI.ipynb 1
 from typing import *
@@ -14,6 +14,8 @@ import json
 import yaml
 from datetime import datetime, timedelta
 import tempfile
+import filecmp
+import shutil
 
 import subprocess  # nosec: B404: Consider possible security implications associated with the subprocess module.
 
@@ -336,33 +338,54 @@ def _get_asyncapi_schema(
     }
 
 # %% ../../nbs/003_AsyncAPI.ipynb 40
-def export_async_spec(
+def yaml_file_cmp(file_1: Union[Path, str], file_2: Union[Path, str]) -> bool:
+    def _read(f: Union[Path, str]) -> Dict[str, Any]:
+        with open(f) as stream:
+            return yaml.safe_load(stream)
+
+    d = [_read(f) for f in [file_1, file_2]]
+    return d[0] == d[1]
+
+# %% ../../nbs/003_AsyncAPI.ipynb 41
+def _generate_async_spec(
     *,
     consumers: Dict[str, Callable[[KafkaMessage], None]],
     producers: Dict[str, Callable[[KafkaMessage, Any], None]],
     kafka_brokers: KafkaBrokers,
     kafka_service_info: KafkaServiceInfo,
-    asyncapi_path: Union[Path, str],
-) -> None:
-    """Export async specification to a given path
-
-    Params:
-        path: path where the specification will be exported. If parent subdirectories do not exist, they will be created.
-
-
-    """
+    spec_path: Path,
+    force_rebuild: bool,
+) -> bool:
     # generate spec file
     asyncapi_schema = _get_asyncapi_schema(
         consumers, producers, kafka_brokers, kafka_service_info
     )
-    spec_path = Path(asyncapi_path) / "spec" / "asyncapi.yml"
+    if not spec_path.exists():
+        logger.info(
+            f"Old async specifications at '{spec_path.resolve()}' does not exist."
+        )
     spec_path.parent.mkdir(exist_ok=True, parents=True)
-    with open(spec_path, "w") as f:
-        yaml.dump(asyncapi_schema, f, sort_keys=False)
-    logger.info(f"Async specifications generated at: '{spec_path}'")
+    with tempfile.TemporaryDirectory() as d:
+        with open(Path(d) / "asyncapi.yml", "w") as f:
+            yaml.dump(asyncapi_schema, f, sort_keys=False)
+        spec_changed = not (
+            spec_path.exists() and yaml_file_cmp(Path(d) / "asyncapi.yml", spec_path)
+        )
+        if spec_changed or force_rebuild:
+            shutil.copyfile(Path(d) / "asyncapi.yml", spec_path)
+            logger.info(f"New async specifications generated at: '{spec_path}'")
+            return True
+        else:
+            logger.info(f"Keeping the old async specifications at: '{spec_path}'")
+            return False
 
-    # generate docs folder
-    docs_path = Path(asyncapi_path) / "docs"
+# %% ../../nbs/003_AsyncAPI.ipynb 43
+def _generate_async_docs(
+    *,
+    spec_path: Path,
+    docs_path: Path,
+) -> None:
+
     cmd = [
         "npx",
         "-y",
@@ -387,3 +410,45 @@ def export_async_spec(
         raise ValueError(
             f"Generation of async docs failed, used '$ {' '.join(cmd)}'{p.stdout.decode()}"
         )
+
+# %% ../../nbs/003_AsyncAPI.ipynb 45
+def export_async_spec(
+    *,
+    consumers: Dict[str, Callable[[KafkaMessage], None]],
+    producers: Dict[str, Callable[[KafkaMessage, Any], None]],
+    kafka_brokers: KafkaBrokers,
+    kafka_service_info: KafkaServiceInfo,
+    asyncapi_path: Union[Path, str],
+    force_rebuild: bool = False,
+) -> None:
+    """Export async specification to a given path
+
+    Params:
+        path: path where the specification will be exported. If parent subdirectories do not exist, they will be created.
+
+
+    """
+    # generate spec file
+    spec_path = Path(asyncapi_path) / "spec" / "asyncapi.yml"
+    is_spec_built = _generate_async_spec(
+        consumers=consumers,
+        producers=producers,
+        kafka_brokers=kafka_brokers,
+        kafka_service_info=kafka_service_info,
+        spec_path=spec_path,
+        force_rebuild=force_rebuild,
+    )
+
+    # generate docs folder
+    docs_path = Path(asyncapi_path) / "docs"
+
+    if not is_spec_built and docs_path.exists():
+        logger.info(
+            f"Skipping generating async documentation in '{docs_path.resolve()}'"
+        )
+        return
+
+    _generate_async_docs(
+        spec_path=spec_path,
+        docs_path=docs_path,
+    )
