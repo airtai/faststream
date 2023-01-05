@@ -102,8 +102,6 @@ data (consuming data) and which functions are producing messages
 (producing data):
 
 ``` python
-import unittest
-
 @app.consumes(topic="input_data")
 async def on_input_data(msg: InputData):
     print(f"msg={msg}")
