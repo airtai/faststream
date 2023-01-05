@@ -3,7 +3,7 @@
 # %% auto 0
 __all__ = ['logger', 'ConsumeCallable', 'ProduceCallable', 'sec_scheme_name_mapping', 'T', 'KafkaMessage', 'SecurityType',
            'APIKeyLocation', 'SecuritySchema', 'KafkaBroker', 'ContactInfo', 'KafkaServiceInfo', 'KafkaBrokers',
-           'export_async_spec']
+           'yaml_file_cmp', 'export_async_spec']
 
 # %% ../../nbs/003_AsyncAPI.ipynb 1
 from typing import *
@@ -338,6 +338,15 @@ def _get_asyncapi_schema(
     }
 
 # %% ../../nbs/003_AsyncAPI.ipynb 40
+def yaml_file_cmp(file_1: Union[Path, str], file_2: Union[Path, str]) -> bool:
+    def _read(f: Union[Path, str]) -> Dict[str, Any]:
+        with open(f) as stream:
+            return yaml.safe_load(stream)
+
+    d = [_read(f) for f in [file_1, file_2]]
+    return d[0] == d[1]
+
+# %% ../../nbs/003_AsyncAPI.ipynb 41
 def _generate_async_spec(
     *,
     consumers: Dict[str, Callable[[KafkaMessage], None]],
@@ -360,7 +369,7 @@ def _generate_async_spec(
         with open(Path(d) / "asyncapi.yml", "w") as f:
             yaml.dump(asyncapi_schema, f, sort_keys=False)
         spec_changed = not (
-            spec_path.exists() and filecmp.cmp(Path(d) / "asyncapi.yml", spec_path)
+            spec_path.exists() and yaml_file_cmp(Path(d) / "asyncapi.yml", spec_path)
         )
         if spec_changed or force_rebuild:
             shutil.copyfile(Path(d) / "asyncapi.yml", spec_path)
@@ -370,7 +379,7 @@ def _generate_async_spec(
             logger.info(f"Keeping the old async specifications at: '{spec_path}'")
             return False
 
-# %% ../../nbs/003_AsyncAPI.ipynb 42
+# %% ../../nbs/003_AsyncAPI.ipynb 43
 def _generate_async_docs(
     *,
     spec_path: Path,
@@ -402,7 +411,7 @@ def _generate_async_docs(
             f"Generation of async docs failed, used '$ {' '.join(cmd)}'{p.stdout.decode()}"
         )
 
-# %% ../../nbs/003_AsyncAPI.ipynb 44
+# %% ../../nbs/003_AsyncAPI.ipynb 45
 def export_async_spec(
     *,
     consumers: Dict[str, Callable[[KafkaMessage], None]],
@@ -435,7 +444,7 @@ def export_async_spec(
 
     if not is_spec_built and docs_path.exists():
         logger.info(
-            "Skipping generating async documentation in '{docs_path.resolve()}'"
+            f"Skipping generating async documentation in '{docs_path.resolve()}'"
         )
         return
 
