@@ -132,6 +132,8 @@ dmypy.json
 .idea
 
 # nbdev related stuff
+.gitattributes
+.gitconfig
 _proc
 _docs
 
