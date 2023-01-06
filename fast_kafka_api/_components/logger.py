@@ -6,12 +6,11 @@ __all__ = ['should_supress_timestamps', 'logger_spaces_added', 'supress_timestam
 
 # %% ../../nbs/Logger.ipynb 2
 import logging
-from typing import *
-
 import logging.config
 import traceback
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from io import StringIO
+from typing import *
 
 # %% ../../nbs/Logger.ipynb 4
 # Logger Levels

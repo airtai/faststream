@@ -8,7 +8,6 @@ import asyncio
 from asyncio import iscoroutinefunction  # do not use the version from inspect
 from datetime import datetime, timedelta
 from os import environ
-
 from typing import *
 
 import anyio

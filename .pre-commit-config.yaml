@@ -12,3 +12,18 @@ repos:
   rev: '1.7.4'
   hooks:
   - id: bandit
+
+ # Dogfooding .pre-commit-hooks.yml and setup.py
+- repo: https://github.com/returntocorp/semgrep
+  rev: v0.100.0
+  hooks:
+      - id: semgrep
+        name: Semgrep Python
+        types: [python]
+        exclude: "^cli/tests/.+$|^scripts/.+$|^cli/setup.py$"
+        args: ["--config", "https://semgrep.dev/p/python", "--error"]
+      - id: semgrep
+        name: Semgrep Bandit
+        types: [python]
+        exclude: "^cli/tests/.+$|^scripts/.+$|^cli/setup.py$"
+        args: ["--config", "https://semgrep.dev/p/bandit", "--error"]

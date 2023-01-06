@@ -43,6 +43,7 @@ def _import_from_string(import_str: str) -> Any:
         raise ImportFromStringError(message.format(import_str=import_str))
 
     try:
+        # nosemgrep: python.lang.security.audit.non-literal-import.non-literal-import
         module = importlib.import_module(module_str)
     except ImportError as exc:
         if exc.name != module_str:
