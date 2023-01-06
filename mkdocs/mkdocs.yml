@@ -83,7 +83,7 @@ theme:
 #     repo: fontawesome/brands/gitlab
     logo: material/compass-outline
 #     admonition:
-#         <type>: <icon> 
+#         <type>: <icon>
   favicon: overrides/images/compass-outline.png
 
 extra_css:

@@ -4,12 +4,11 @@
 __all__ = ['ImportFromStringError', 'run', 'generate_docs']
 
 # %% ../nbs/004_CLI.ipynb 1
-from typing import *
-from pathlib import Path
-from asyncio import run as aiorun
 import importlib
 import sys
-
+from asyncio import run as aiorun
+from pathlib import Path
+from typing import *
 
 import typer
 
@@ -44,6 +43,7 @@ def _import_from_string(import_str: str) -> Any:
         raise ImportFromStringError(message.format(import_str=import_str))
 
     try:
+        # nosemgrep: python.lang.security.audit.non-literal-import.non-literal-import
         module = importlib.import_module(module_str)
     except ImportError as exc:
         if exc.name != module_str:

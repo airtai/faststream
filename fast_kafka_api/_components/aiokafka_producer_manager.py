@@ -4,13 +4,12 @@
 __all__ = ['logger', 'AIOKafkaProducerManager']
 
 # %% ../../nbs/002_ProducerManager.ipynb 1
+import asyncio
+from contextlib import asynccontextmanager, contextmanager
 from typing import *
 
-from contextlib import contextmanager, asynccontextmanager
-
-from aiokafka import AIOKafkaProducer
 import anyio
-import asyncio
+from aiokafka import AIOKafkaProducer
 
 from .logger import get_logger
 

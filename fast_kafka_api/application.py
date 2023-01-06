@@ -4,46 +4,40 @@
 __all__ = ['logger', 'FastKafkaAPI', 'produce_decorator', 'filter_using_signature']
 
 # %% ../nbs/000_FastKafkaAPI.ipynb 1
+import asyncio
+import functools
+import json
+import tempfile
+import time
+from asyncio import iscoroutinefunction  # do not use the version from inspect
+from contextlib import asynccontextmanager, contextmanager
+from copy import deepcopy
+from datetime import datetime, timedelta
+from enum import Enum
+from inspect import signature
+from os import environ
+from pathlib import Path
 from typing import *
 from typing import get_type_hints
 
-from enum import Enum
-from pathlib import Path
-import json
-import yaml
-from copy import deepcopy
-from os import environ
-from datetime import datetime, timedelta
-import tempfile
-from contextlib import contextmanager, asynccontextmanager
-import time
-from inspect import signature
-import functools
-
-from fastcore.foundation import patch
-
 import anyio
-import asyncio
-from asyncio import iscoroutinefunction  # do not use the version from inspect
+import asyncer
+import confluent_kafka
 import httpx
-from fastapi import FastAPI
-from fastapi import status, Depends, HTTPException, Request, Response
-from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
+import yaml
+from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
+from confluent_kafka import KafkaError, Message, Producer
+from confluent_kafka.admin import AdminClient, NewTopic
+from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
+from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
-from pydantic import Field, HttpUrl, EmailStr, PositiveInt
-from pydantic.schema import schema
+from fastcore.foundation import patch
+from pydantic import BaseModel, EmailStr, Field, HttpUrl, PositiveInt
 from pydantic.json import timedelta_isoformat
-from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
-
-import confluent_kafka
-from confluent_kafka import Producer
-from confluent_kafka.admin import AdminClient, NewTopic
-from confluent_kafka import Message, KafkaError
-import asyncer
+from pydantic.schema import schema
 
 import fast_kafka_api._components.logger
 
@@ -53,14 +47,14 @@ import fast_kafka_api
 from ._components.aiokafka_consumer_loop import aiokafka_consumer_loop
 from ._components.aiokafka_producer_manager import AIOKafkaProducerManager
 from fast_kafka_api._components.asyncapi import (
-    KafkaMessage,
-    export_async_spec,
     ConsumeCallable,
-    ProduceCallable,
-    KafkaBroker,
     ContactInfo,
-    KafkaServiceInfo,
+    KafkaBroker,
     KafkaBrokers,
+    KafkaMessage,
+    KafkaServiceInfo,
+    ProduceCallable,
+    export_async_spec,
 )
 from ._components.logger import get_logger, supress_timestamps
 
@@ -337,7 +331,7 @@ def _populate_consumers(
                 callbacks={topic: consumer},
                 msg_types={topic: signature(consumer).parameters["msg"].annotation},
                 is_shutting_down_f=is_shutting_down_f,
-                **{**default_config, **override_config}
+                **{**default_config, **override_config},
             )
         )
         for topic, (consumer, override_config) in self._consumers_store.items()
@@ -359,7 +353,7 @@ async def _create_producer(
     producer: Optional[AIOKafkaProducer],
     default_config: Dict[str, Any],
     override_config: Dict[str, Any],
-    producers_list: List[Union[AIOKafkaProducer, AIOKafkaProducerManager]]
+    producers_list: List[Union[AIOKafkaProducer, AIOKafkaProducerManager]],
 ) -> Union[AIOKafkaProducer, AIOKafkaProducerManager]:
     """Creates a producer
 
