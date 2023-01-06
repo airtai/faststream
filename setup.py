@@ -1,7 +1,7 @@
 from pkg_resources import parse_version
 from configparser import ConfigParser
 import setuptools
-assert parse_version(setuptools.__version__)>=parse_version('36.2')
+assert parse_version(setuptools.__version__)>=parse_version('36.2') # nosec
 
 # note: all settings are in settings.ini; edit there, not here
 config = ConfigParser(delimiters=['='])
@@ -10,7 +10,7 @@ cfg = config['DEFAULT']
 
 cfg_keys = 'version description keywords author author_email'.split()
 expected = cfg_keys + "lib_name user branch license status min_python audience language".split()
-for o in expected: assert o in cfg, "missing expected setting: {}".format(o)
+for o in expected: assert o in cfg, "missing expected setting: {}".format(o) # nosec
 setup_cfg = {o:cfg[o] for o in cfg_keys}
 
 licenses = {
@@ -53,5 +53,3 @@ setuptools.setup(
         'nbdev': [f'{cfg.get("lib_path")}={cfg.get("lib_path")}._modidx:d']
     },
     **setup_cfg)
-
-

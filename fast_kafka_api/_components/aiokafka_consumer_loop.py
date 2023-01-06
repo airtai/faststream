@@ -4,18 +4,18 @@
 __all__ = ['logger', 'process_msgs', 'process_message_callback', 'aiokafka_consumer_loop']
 
 # %% ../../nbs/001_ConsumerLoop.ipynb 1
+import asyncio
+from asyncio import iscoroutinefunction  # do not use the version from inspect
+from datetime import datetime, timedelta
+from os import environ
+
 from typing import *
 
-from os import environ
-import asyncio
-from datetime import datetime, timedelta
-from asyncio import iscoroutinefunction  # do not use the version from inspect
-
-from aiokafka import AIOKafkaConsumer
-from aiokafka.structs import TopicPartition, ConsumerRecord
-from pydantic import BaseModel, HttpUrl, NonNegativeInt, Field
-import asyncer
 import anyio
+import asyncer
+from aiokafka import AIOKafkaConsumer
+from aiokafka.structs import ConsumerRecord, TopicPartition
+from pydantic import BaseModel, Field, HttpUrl, NonNegativeInt
 
 from .logger import get_logger
 
@@ -28,7 +28,7 @@ async def process_msgs(
     msgs: Dict[TopicPartition, List[ConsumerRecord]],
     callbacks: Dict[str, Callable[[BaseModel], None]],
     msg_types: Dict[str, Type[BaseModel]],
-    process_f: Callable[[Callable[[BaseModel], None], BaseModel], None]
+    process_f: Callable[[Callable[[BaseModel], None], BaseModel], None],
 ) -> None:
     """For each messages **msg** in **msgs**, calls process_f with callbacks[topic] and **msgs**.
 

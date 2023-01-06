@@ -4,12 +4,11 @@
 __all__ = ['ImportFromStringError', 'run', 'generate_docs']
 
 # %% ../nbs/004_CLI.ipynb 1
-from typing import *
-from pathlib import Path
-from asyncio import run as aiorun
 import importlib
 import sys
-
+from asyncio import run as aiorun
+from pathlib import Path
+from typing import *
 
 import typer
 

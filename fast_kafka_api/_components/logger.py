@@ -5,16 +5,15 @@ __all__ = ['should_supress_timestamps', 'logger_spaces_added', 'supress_timestam
            'get_logger', 'set_level']
 
 # %% ../../nbs/Logger.ipynb 2
-from typing import *
 import logging
+from typing import *
 
-# %% ../../nbs/Logger.ipynb 3
 import logging.config
-from contextlib import contextmanager, redirect_stdout, redirect_stderr
-from io import StringIO
 import traceback
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
+from io import StringIO
 
-# %% ../../nbs/Logger.ipynb 5
+# %% ../../nbs/Logger.ipynb 4
 # Logger Levels
 # CRITICAL = 50
 # ERROR = 40
@@ -76,7 +75,7 @@ def get_default_logger_configuration(level: int = logging.INFO) -> Dict[str, Any
     }
     return LOGGING_CONFIG
 
-# %% ../../nbs/Logger.ipynb 9
+# %% ../../nbs/Logger.ipynb 8
 logger_spaces_added: List[str] = []
 
 
@@ -119,7 +118,7 @@ def get_logger(
 
     return logger
 
-# %% ../../nbs/Logger.ipynb 15
+# %% ../../nbs/Logger.ipynb 14
 def set_level(level: int):
     """Set logger level
 

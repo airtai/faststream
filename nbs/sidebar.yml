@@ -6,7 +6,7 @@ website:
         contents:
         - guides/Guide_01_Intro.ipynb
         - guides/Guide_02_First_Steps.ipynb
-        
+
 #       - 000_FastKafkaAPI.ipynb
 #       - 001_ProcessingLoop.ipynb
 #       - 003_AsyncAPI.ipynb

@@ -78,6 +78,7 @@ in your Kafka-based applications.
 
 ``` python
 from typing import List
+
 from pydantic import BaseModel, Field, NonNegativeInt
 
 
@@ -137,6 +138,7 @@ initialized FastKafkaAPI application.
 
 ``` python
 from os import environ
+
 from fast_kafka_api.application import FastKafkaAPI
 
 kafka_server_url = environ["KAFKA_HOSTNAME"]
@@ -253,11 +255,18 @@ import uvicorn
 uvicorn.run(app, host="0.0.0.0", port=4000)
 ```
 
-    INFO:     Started server process [20697]
+    INFO:     Started server process [30165]
     INFO:     Waiting for application startup.
 
-    [INFO] fast_kafka_api._components.asyncapi: Keeping the old async specifications at: 'asyncapi/spec/asyncapi.yml'
-    [INFO] fast_kafka_api._components.asyncapi: Skipping generating async documentation in '/work/fast-kafka-api/nbs/asyncapi/docs'
+    [INFO] fast_kafka_api._components.asyncapi: Old async specifications at '/work/fast-kafka-api/nbs/asyncapi/spec/asyncapi.yml' does not exist.
+    [INFO] fast_kafka_api._components.asyncapi: New async specifications generated at: 'asyncapi/spec/asyncapi.yml'
+    [INFO] fast_kafka_api._components.asyncapi: Async docs generated at 'asyncapi/docs'
+    [INFO] fast_kafka_api._components.asyncapi: Output of '$ npx -y -p @asyncapi/generator ag asyncapi/spec/asyncapi.yml @asyncapi/html-template -o asyncapi/docs --force-write'
+
+    Done! ✨
+    Check out your shiny new generated files at /work/fast-kafka-api/nbs/asyncapi/docs.
+
+
     [INFO] fast_kafka_api._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting..
     [INFO] fast_kafka_api._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created.
 
@@ -268,13 +277,9 @@ uvicorn.run(app, host="0.0.0.0", port=4000)
     [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
     [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
     [INFO] fast_kafka_api._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
-    [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'input_data': 1}. 
-    INFO:     172.24.0.1:60824 - "GET / HTTP/1.1" 307 Temporary Redirect
-    INFO:     172.24.0.1:60824 - "GET /asyncapi HTTP/1.1" 307 Temporary Redirect
-    INFO:     172.24.0.1:60824 - "GET /index.html HTTP/1.1" 200 OK
-    INFO:     172.24.0.1:60808 - "GET /css/asyncapi.min.css HTTP/1.1" 200 OK
-    INFO:     172.24.0.1:60824 - "GET /css/global.min.css HTTP/1.1" 200 OK
-    INFO:     172.24.0.1:60836 - "GET /js/asyncapi-ui.min.js HTTP/1.1" 200 OK
+    [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'input_data': 1}.
+    INFO:     172.24.0.1:39182 - "GET /livereload/2598869104/2598869929 HTTP/1.1" 404 Not Found
+    INFO:     172.24.0.1:39182 - "GET /livereload/2598869104/2598869929 HTTP/1.1" 404 Not Found
 
     INFO:     Shutting down
     INFO:     Waiting for application shutdown.
@@ -283,4 +288,4 @@ uvicorn.run(app, host="0.0.0.0", port=4000)
     [INFO] fast_kafka_api._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
 
     INFO:     Application shutdown complete.
-    INFO:     Finished server process [20697]
+    INFO:     Finished server process [30165]

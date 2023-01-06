@@ -6,24 +6,24 @@ __all__ = ['logger', 'kafka_server_url', 'kafka_server_port', 'kafka_config', 't
            'change_dir', 'run_script_and_cancel']
 
 # %% ../nbs/999_Test_Utils.ipynb 1
-from typing import List, Dict, Any, Optional, Callable, Tuple, Generator
-import os
-from contextlib import contextmanager, asynccontextmanager
-import random
-from datetime import datetime, timedelta
-import time
 import asyncio
-import hashlib
 import contextlib
-import subprocess
+import hashlib
+import os
+import random
 import shlex
-
+import subprocess  # nosec: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+import time
 import unittest
-from tempfile import TemporaryDirectory
+from contextlib import asynccontextmanager, contextmanager
+from datetime import datetime, timedelta
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
+from typing import Any, Callable, Dict, Generator, List, Optional, Tuple
+
+from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from confluent_kafka.admin import AdminClient, NewTopic
-from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
 
 from ._components.logger import get_logger
 
@@ -97,7 +97,10 @@ def create_testing_topic(
 ) -> Generator[str, None, None]:
     # create random topic name
     random.seed(seed)
-    topic = topic_prefix + str(random.randint(0, 10**10)).zfill(3)
+    # [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+    suffix = str(random.randint(0, 10**10))  # nosec
+
+    topic = topic_prefix + suffix.zfill(3)
 
     # delete topic if it already exists
     admin = AdminClient(kafka_config)
@@ -164,7 +167,7 @@ def nb_safe_seed(s: str) -> Callable[[int], int]:
     Returns:
         A unique seed function
     """
-    init_seed = int(hashlib.sha1(s.encode("utf-8")).hexdigest(), 16) % (10**8)
+    init_seed = int(hashlib.sha256(s.encode("utf-8")).hexdigest(), 16) % (10**8)
 
     def _get_seed(x: int = 0, *, init_seed: int = init_seed) -> int:
         return init_seed + x
@@ -206,7 +209,7 @@ def run_script_and_cancel(
 
         # os.chdir(d)
         with change_dir(d):
-            proc = subprocess.Popen(
+            proc = subprocess.Popen(  # nosec: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
                 shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT
             )
             time.sleep(cancel_after)

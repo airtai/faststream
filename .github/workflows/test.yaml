@@ -34,8 +34,8 @@ jobs:
           - 9092:9092
         options: >-
           --health-cmd "kafka-topics.sh --list -zookeeper zookeeper:2181"
-          --health-interval 10s 
-          --health-timeout 5s 
+          --health-interval 10s
+          --health-timeout 5s
           --health-retries 5
     steps:
       - name: Install quarto
@@ -43,7 +43,7 @@ jobs:
           wget -q https://www.quarto.org/download/latest/quarto-linux-amd64.deb
           sudo dpkg -i quarto-linux-amd64.deb
 #      - name: Setup node
-#        run: | 
+#        run: |
 #          sudo curl -fsSL https://deb.nodesource.com/setup_18.x | sudo bash -
 #          sudo apt-get install -y nodejs
       - uses: actions/setup-node@v3

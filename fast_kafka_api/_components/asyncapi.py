@@ -6,24 +6,21 @@ __all__ = ['logger', 'ConsumeCallable', 'ProduceCallable', 'sec_scheme_name_mapp
            'yaml_file_cmp', 'export_async_spec']
 
 # %% ../../nbs/003_AsyncAPI.ipynb 1
-from typing import *
-
+import filecmp
+import json
+import shutil
+import subprocess  # nosec: B404: Consider possible security implications associated with the subprocess module.
+import tempfile
+from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-import json
-import yaml
-from datetime import datetime, timedelta
-import tempfile
-import filecmp
-import shutil
-
-import subprocess  # nosec: B404: Consider possible security implications associated with the subprocess module.
+from typing import *
 
 import httpx
-from pydantic import BaseModel
-from pydantic import Field, HttpUrl, EmailStr, PositiveInt
-from pydantic.schema import schema
+import yaml
+from pydantic import BaseModel, EmailStr, Field, HttpUrl, PositiveInt
 from pydantic.json import timedelta_isoformat
+from pydantic.schema import schema
 
 import fast_kafka_api._components.logger
 
