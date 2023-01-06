@@ -48,6 +48,8 @@ Here is an example python script using FastKafkaAPI that takes data from
 an input Kafka topic, makes a prediction using a predictive model, and
 outputs the prediction to an output Kafka topic.
 
+### Messages
+
 FastKafkaAPI uses Pydantic to parse input JSON-encoded data into Python
 objects, making it easy to work with structured data in your Kafka-based
 applications. Pydantic’s `BaseModel` class allows you to define messages
@@ -112,6 +114,8 @@ in a Kafka consumer and to produce a JSON-encoded message in a producer.
 Using Pydantic’s BaseModel in combination with FastKafkaAPI makes it
 easy to work with structured data in your Kafka-based applications.
 
+### Application
+
 This example shows how to initialize a FastKafkaAPI application. It
 starts by defining two environment variables: `KAFKA_HOSTNAME` and
 `KAFKA_PORT`, which are used to specify the hostname and port of the
@@ -175,6 +179,8 @@ app = FastKafkaAPI(
 
     [INFO] fast_kafka_api._components.asyncapi: ok
 
+### Function decorators
+
 FastKafkaAPI provides convenient function decorators called `@consumes`
 and `@produces` to allow you to delegate the actual processing of data
 to user-defined functions. These decorators make it easy to specify the
@@ -229,6 +235,8 @@ async def to_predictions(user_id: int, score: float) -> Prediction:
     return prediction
 ```
 
+### Running the service
+
 This example shows how to start the FastKafkaAPI service using the
 uvicorn library. The `uvicorn.run` function is called with the `app`
 argument (which represents the FastKafkaAPI application) and the `host`
@@ -277,7 +285,7 @@ uvicorn.run(app, host="0.0.0.0", port=4000)
     [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
     [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
     [INFO] fast_kafka_api._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
-    [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'input_data': 1}.
+    [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'input_data': 1}. 
     INFO:     172.24.0.1:39182 - "GET /livereload/2598869104/2598869929 HTTP/1.1" 404 Not Found
     INFO:     172.24.0.1:39182 - "GET /livereload/2598869104/2598869929 HTTP/1.1" 404 Not Found
 

@@ -2,6 +2,11 @@
 
 <!-- do not remove -->
 
+## 0.0.3
+
+Documentation polishing and Semgrep scan added
+
+
 ## 0.0.2
 
 
