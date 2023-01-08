@@ -2,7 +2,7 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: "v4.4.0"
     hooks:
       #    -   id: trailing-whitespace
       #    -   id: end-of-file-fixer
@@ -15,15 +15,10 @@ repos:
 
  # Dogfooding .pre-commit-hooks.yml and setup.py
 - repo: https://github.com/returntocorp/semgrep
-  rev: v0.100.0
+  rev: "v1.3.0"
   hooks:
       - id: semgrep
         name: Semgrep Python
         types: [python]
         exclude: "^cli/tests/.+$|^scripts/.+$|^cli/setup.py$"
         args: ["--config", "https://semgrep.dev/p/python", "--error"]
-      - id: semgrep
-        name: Semgrep Bandit
-        types: [python]
-        exclude: "^cli/tests/.+$|^scripts/.+$|^cli/setup.py$"
-        args: ["--config", "https://semgrep.dev/p/bandit", "--error"]

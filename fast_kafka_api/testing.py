@@ -12,7 +12,9 @@ import hashlib
 import os
 import random
 import shlex
-import subprocess  # nosec: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+
+# [B404:blacklist] Consider possible security implications associated with the subprocess module.
+import subprocess  # nosec
 import time
 import unittest
 from contextlib import asynccontextmanager, contextmanager
