@@ -8,10 +8,11 @@ on:
   # Changes must be merged to develop first
   pull_request_target: {}
   push:
-    branches:
-      - develop
+#    branches:
+#      - develop
     paths:
       - .github/workflows/semgrep.yml
+  workflow_dispatch:
 #  schedule:
     # random HH:MM to avoid a load spike on GitHub Actions at 00:00
 #    - cron: "50 15 * * *"
