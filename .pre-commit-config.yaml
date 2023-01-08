@@ -26,3 +26,4 @@ repos:
     - id: semgrep
       name: Semgrep 
       args: ["--config", "auto", "--error"]
+
