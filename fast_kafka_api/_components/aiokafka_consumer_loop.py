@@ -54,7 +54,7 @@ async def process_msgs(  # type: ignore
                 c: Callable[[BaseModel], None] = callback_raw  # type: ignore
                 callback: Callable[[BaseModel], Awaitable[None]] = asyncer.asyncify(c)
             else:
-                callback = callback_raw  # type: ignore
+                callback = callback_raw
 
             await process_f((callback, msg))
 
