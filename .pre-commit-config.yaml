@@ -8,17 +8,21 @@ repos:
       #    -   id: end-of-file-fixer
       #    -   id: check-yaml
     -   id: check-added-large-files
+
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: ''  # Use the sha / tag you want to point at
+    hooks:
+    -   id: mypy
+        args: ["fast_kafka_api"]
+
 - repo: https://github.com/PyCQA/bandit
   rev: '1.7.4'
   hooks:
   - id: bandit
 
- # Dogfooding .pre-commit-hooks.yml and setup.py
 - repo: https://github.com/returntocorp/semgrep
   rev: "v1.3.0"
   hooks:
       - id: semgrep
-        name: Semgrep Python
-        types: [python]
-        exclude: "^cli/tests/.+$|^scripts/.+$|^cli/setup.py$"
-        args: ["--config", "https://semgrep.dev/p/python", "--error"]
+        name: Semgrep 
+        args: ["--config", "auto", "--error"]
