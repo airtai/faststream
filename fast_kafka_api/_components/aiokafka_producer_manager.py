@@ -18,7 +18,7 @@ logger = get_logger(__name__)
 
 # %% ../../nbs/002_ProducerManager.ipynb 8
 @asynccontextmanager
-async def _aiokafka_producer_manager(
+async def _aiokafka_producer_manager(  # type: ignore
     producer: AIOKafkaProducer, *, max_buffer_size: int = 10_000
 ):
     """Write docs
@@ -50,7 +50,7 @@ async def _aiokafka_producer_manager(
 
 # %% ../../nbs/002_ProducerManager.ipynb 11
 class AIOKafkaProducerManager:
-    def __init__(self, producer: AIOKafkaProducer, *, max_buffer_size: int = 1_000):
+    def __init__(self, producer: AIOKafkaProducer, *, max_buffer_size: int = 1_000):  # type: ignore
         self.producer = producer
         self.max_buffer_size = max_buffer_size
 

@@ -21,7 +21,7 @@ from contextlib import asynccontextmanager, contextmanager
 from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, Callable, Dict, Generator, List, Optional, Tuple
+from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, AsyncIterator
 
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from confluent_kafka.admin import AdminClient, NewTopic
@@ -59,7 +59,7 @@ def true_after(seconds: float):
 #             - Num partitions
 
 
-def create_missing_topics(
+def create_missing_topics(  # type: ignore
     admin: AdminClient,
     topic_names: List[str],
     *,
@@ -130,7 +130,7 @@ def create_testing_topic(
 @asynccontextmanager
 async def create_and_fill_testing_topic(
     msgs: List[bytes], kafka_config: Dict[str, str] = kafka_config, *, seed: int
-) -> Generator[str, None, None]:
+) -> AsyncIterator[str]:
 
     with create_testing_topic(kafka_config, "my_topic_", seed=seed) as topic:
 
@@ -179,7 +179,7 @@ def nb_safe_seed(s: str) -> Callable[[int], int]:
 @contextmanager
 def mock_AIOKafkaProducer_send():
     """Mocks **send** method of **AIOKafkaProducer**"""
-    with unittest.mock.patch("__main__.AIOKafkaProducer.send") as mock:
+    with unittest.mock.patch("__main__.AIOKafkaProducer.send") as mock:  # type: ignore
 
         async def _f():
             pass
@@ -217,4 +217,4 @@ def run_script_and_cancel(
             proc.terminate()
             proc.wait()
 
-        return proc.stdout.read()
+        return proc.stdout.read()  # type: ignore

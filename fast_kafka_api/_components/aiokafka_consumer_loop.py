@@ -22,12 +22,14 @@ from .logger import get_logger
 logger = get_logger(__name__)
 
 # %% ../../nbs/001_ConsumerLoop.ipynb 10
-async def process_msgs(
+async def process_msgs(  # type: ignore
     *,
     msgs: Dict[TopicPartition, List[ConsumerRecord]],
-    callbacks: Dict[str, Callable[[BaseModel], None]],
+    callbacks: Dict[str, Callable[[BaseModel], Union[None, Awaitable[None]]]],
     msg_types: Dict[str, Type[BaseModel]],
-    process_f: Callable[[Callable[[BaseModel], None], BaseModel], None],
+    process_f: Callable[
+        [Tuple[Callable[[BaseModel], Awaitable[None]], BaseModel]], Awaitable[None]
+    ],
 ) -> None:
     """For each messages **msg** in **msgs**, calls process_f with callbacks[topic] and **msgs**.
 
@@ -47,9 +49,13 @@ async def process_msgs(
             msg_type.parse_raw(msg.value.decode("utf-8")) for msg in topic_msgs
         ]
         for msg in decoded_msgs:
-            callback = callbacks[topic]
-            if not iscoroutinefunction(callback):
-                callback = asyncer.asyncify(callback)
+            callback_raw = callbacks[topic]
+            if not iscoroutinefunction(callback_raw):
+                c: Callable[[BaseModel], None] = callback_raw  # type: ignore
+                callback: Callable[[BaseModel], Awaitable[None]] = asyncer.asyncify(c)
+            else:
+                callback = callback_raw  # type: ignore
+
             await process_f((callback, msg))
 
 # %% ../../nbs/001_ConsumerLoop.ipynb 16
@@ -59,10 +65,10 @@ async def process_message_callback(receive_stream):
             await callback(msg)
 
 
-async def _aiokafka_consumer_loop(
+async def _aiokafka_consumer_loop(  # type: ignore
     consumer: AIOKafkaConsumer,
     *,
-    callbacks: Dict[str, Callable[[BaseModel], None]],
+    callbacks: Dict[str, Callable[[BaseModel], Union[None, Awaitable[None]]]],
     timeout_ms: int = 100,
     max_buffer_size: int = 10_000,
     msg_types: Dict[str, Type[BaseModel]],
@@ -96,7 +102,7 @@ async def aiokafka_consumer_loop(
     max_poll_records: int = 1_000,
     timeout_ms: int = 100,
     max_buffer_size: int = 10_000,
-    callbacks: Dict[str, Callable[[BaseModel], None]],
+    callbacks: Dict[str, Callable[[BaseModel], Union[None, Awaitable[None]]]],
     msg_types: Dict[str, Type[BaseModel]],
     is_shutting_down_f: Callable[[], bool],
     **kwargs,
