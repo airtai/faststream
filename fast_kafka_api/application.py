@@ -117,12 +117,15 @@ class FastKafkaAPI(FastAPI):
 
         self._consumers_store: Dict[str, Tuple[ConsumeCallable, Dict[str, Any]]] = {}
 
-        self._producers_store: Dict[
+        self._producers_list: List[  # type: ignore
+            Union[AIOKafkaProducer, AIOKafkaProducerManager]
+        ] = []
+        self._producers_store: Dict[  # type: ignore
             str, Tuple[ProduceCallable, AIOKafkaProducer, Dict[str, Any]]
         ] = {}
         self._on_error_topic: Optional[str] = None
 
-        contact_info = ContactInfo(**contact)  # type: ignore
+        contact_info = ContactInfo(**contact)
         self._kafka_service_info = KafkaServiceInfo(
             title=self.title,
             version=self.version,
@@ -180,7 +183,7 @@ class FastKafkaAPI(FastAPI):
     ) -> ConsumeCallable:
         raise NotImplementedError
 
-    def produces(
+    def produces(  # type: ignore
         self,
         topic: Optional[str] = None,
         *,
@@ -188,6 +191,24 @@ class FastKafkaAPI(FastAPI):
         producer: AIOKafkaProducer = None,
         **kwargs,
     ) -> ProduceCallable:
+        raise NotImplementedError
+
+    def _populate_consumers(
+        self,
+        is_shutting_down_f: Callable[[], bool],
+    ) -> None:
+        raise NotImplementedError
+
+    async def _populate_producers(self) -> None:
+        raise NotImplementedError
+
+    def generate_async_spec(self) -> None:
+        raise NotImplementedError
+
+    async def _shutdown_consumers(self) -> None:
+        raise NotImplementedError
+
+    async def _shutdown_producers(self) -> None:
         raise NotImplementedError
 
 # %% ../nbs/000_FastKafkaAPI.ipynb 9
@@ -209,7 +230,7 @@ def consumes(
     *,
     prefix: str = "on_",
     **kwargs,
-) -> ConsumeCallable:
+) -> Callable[[ConsumeCallable], ConsumeCallable]:
     """Decorator registering the callback called when a message is received in a topic.
 
     This function decorator is also responsible for registering topics for AsyncAPI specificiation and documentation.
@@ -230,12 +251,15 @@ def consumes(
     """
 
     def _decorator(
-        on_topic: ConsumeCallable, topic: str = topic, kwargs=kwargs
+        on_topic: ConsumeCallable, topic: Optional[str] = topic, kwargs=kwargs
     ) -> ConsumeCallable:
-        if topic is None:
-            topic = _get_topic_name(topic_callable=on_topic, prefix=prefix)
+        topic_resolved: str = (
+            _get_topic_name(topic_callable=on_topic, prefix=prefix)
+            if topic is None
+            else topic
+        )
 
-        self._consumers_store[topic] = (on_topic, kwargs)
+        self._consumers_store[topic_resolved] = (on_topic, kwargs)
 
         return on_topic
 
@@ -245,39 +269,43 @@ def consumes(
 def _to_json_utf8(o: Any) -> bytes:
     """Converts to JSON and then encodes with UTF-8"""
     if hasattr(o, "json"):
-        return o.json().encode("utf-8")
+        return o.json().encode("utf-8")  # type: ignore
     else:
         return json.dumps(o).encode("utf-8")
 
 # %% ../nbs/000_FastKafkaAPI.ipynb 18
-def produce_decorator(self: FastKafkaAPI, func: ProduceCallable, topic: str):
+def produce_decorator(
+    self: FastKafkaAPI, func: ProduceCallable, topic: str
+) -> ProduceCallable:
     @functools.wraps(func)
-    async def _produce_async(*args, **kwargs):
-        return_val = await func(*args, **kwargs)
+    async def _produce_async(*args, **kwargs) -> BaseModel:
+        f: Callable[..., Awaitable[BaseModel]] = func  # type: ignore
+        return_val = await f(*args, **kwargs)
         _, producer, _ = self._producers_store[topic]
         fut = await producer.send(topic, _to_json_utf8(return_val))
         msg = await fut
         return return_val
 
     @functools.wraps(func)
-    def _produce_sync(*args, **kwargs):
-        return_val = func(*args, **kwargs)
+    def _produce_sync(*args, **kwargs) -> BaseModel:
+        f: Callable[..., BaseModel] = func  # type: ignore
+        return_val = f(*args, **kwargs)
         _, producer, _ = self._producers_store[topic]
         producer.send(topic, _to_json_utf8(return_val))
         return return_val
 
-    return _produce_async if iscoroutinefunction(func) else _produce_sync
+    return _produce_async if iscoroutinefunction(func) else _produce_sync  # type: ignore
 
 # %% ../nbs/000_FastKafkaAPI.ipynb 20
 @patch
-def produces(
+def produces(  # type: ignore
     self: FastKafkaAPI,
     topic: Optional[str] = None,
     *,
     prefix: str = "to_",
     producer: AIOKafkaProducer = None,
     **kwargs,
-) -> ProduceCallable:
+) -> Callable[[ProduceCallable], ProduceCallable]:
     """Decorator registering the callback called when delivery report for a produced message is received
 
     This function decorator is also responsible for registering topics for AsyncAPI specificiation and documentation.
@@ -299,14 +327,17 @@ def produces(
     """
 
     def _decorator(
-        on_topic: ProduceCallable, topic: str = topic, kwargs=kwargs
+        on_topic: ProduceCallable, topic: Optional[str] = topic, kwargs=kwargs
     ) -> ProduceCallable:
-        if topic is None:
-            topic = _get_topic_name(topic_callable=on_topic, prefix=prefix)
+        topic_resolved: str = (
+            _get_topic_name(topic_callable=on_topic, prefix=prefix)
+            if topic is None
+            else topic
+        )
 
-        self._producers_store[topic] = (on_topic, producer, kwargs)
+        self._producers_store[topic_resolved] = (on_topic, producer, kwargs)
 
-        return produce_decorator(self, on_topic, topic)
+        return produce_decorator(self, on_topic, topic_resolved)
 
     return _decorator
 
@@ -347,7 +378,7 @@ async def _shutdown_consumers(
 
 # %% ../nbs/000_FastKafkaAPI.ipynb 28
 # TODO: Add passing of vars
-async def _create_producer(
+async def _create_producer(  # type: ignore
     *,
     callback: ProduceCallable,
     producer: Optional[AIOKafkaProducer],
@@ -428,8 +459,12 @@ async def _shutdown_producers(self: FastKafkaAPI) -> None:
 @patch
 def generate_async_spec(self: FastKafkaAPI) -> None:
     export_async_spec(
-        consumers={topic: callback for topic, (callback, _) in self._consumers_store.items()},  # type: ignore
-        producers={topic: callback for topic, (callback, _, _) in self._producers_store.items()},  # type: ignore
+        consumers={
+            topic: callback for topic, (callback, _) in self._consumers_store.items()
+        },
+        producers={
+            topic: callback for topic, (callback, _, _) in self._producers_store.items()
+        },
         kafka_brokers=self._kafka_brokers,
         kafka_service_info=self._kafka_service_info,
         asyncapi_path=self._asyncapi_path,
