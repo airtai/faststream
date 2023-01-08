@@ -10,7 +10,7 @@ repos:
     -   id: check-added-large-files
 
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: ''  # Use the sha / tag you want to point at
+    rev: 'v0.991'  # Use the sha / tag you want to point at
     hooks:
     -   id: mypy
         args: ["fast_kafka_api"]
@@ -23,6 +23,6 @@ repos:
 - repo: https://github.com/returntocorp/semgrep
   rev: "v1.3.0"
   hooks:
-      - id: semgrep
-        name: Semgrep 
-        args: ["--config", "auto", "--error"]
+    - id: semgrep
+      name: Semgrep 
+      args: ["--config", "auto", "--error"]
