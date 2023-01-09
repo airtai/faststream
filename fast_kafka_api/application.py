@@ -61,7 +61,7 @@ from ._components.logger import get_logger, supress_timestamps
 # %% ../nbs/000_FastKafkaAPI.ipynb 2
 logger = get_logger(__name__)
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 9
+# %% ../nbs/000_FastKafkaAPI.ipynb 8
 class FastKafkaAPI(FastAPI):
     def __init__(
         self,
@@ -123,8 +123,9 @@ class FastKafkaAPI(FastAPI):
         self._producers_store: Dict[  # type: ignore
             str, Tuple[ProduceCallable, AIOKafkaProducer, Dict[str, Any]]
         ] = {}
-        self._scheduled_bg_tasks: List[Task[Callable[None, None]]] = []
-        self._bg_tasks_group: Optional[asyncio.TaskGroup]
+        self._scheduled_bg_tasks: List[Callable[..., Coroutine[Any, Any, Any]]] = []
+        self._bg_task_group_generator: Optional[anyio.abc.TaskGroup] = None
+        self._bg_tasks_group: Optional[anyio.abc.TaskGroup]
         self._on_error_topic: Optional[str] = None
 
         contact_info = ContactInfo(**contact)
@@ -197,7 +198,7 @@ class FastKafkaAPI(FastAPI):
 
     def run_in_background(
         self,
-    ) -> Callable[[List[Any]], Any]:
+    ) -> Callable[[], Any]:
         raise NotImplementedError
 
     def _populate_consumers(
@@ -224,159 +225,7 @@ class FastKafkaAPI(FastAPI):
     async def _shutdown_bg_tasks(self) -> None:
         raise NotImplementedError
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 11
-class FastKafkaAPI(FastAPI):
-    def __init__(
-        self,
-        *,
-        title: str = "FastKafkaAPI",
-        kafka_config: Dict[str, Any],
-        contact: Optional[Dict[str, Union[str, Any]]] = None,
-        kafka_brokers: Optional[Dict[str, Any]] = None,
-        root_path: Optional[Union[Path, str]] = None,
-        **kwargs: Dict[str, Any],
-    ):
-        """Combined REST and Kafka service
-
-        Params:
-            title: name of the service, used for generating documentation
-            kafka_config:
-            contact:
-            kafka_brokers:
-            root_path:
-            kwargs: parameters passed to FastAPI constructor
-        """
-        self._kafka_config = kafka_config
-
-        config_defaults = {
-            "bootstrap_servers": "localhost:9092",
-            "auto_offset_reset": "earliest",
-            "max_poll_records": 100,
-            "max_buffer_size": 10_000,
-        }
-
-        for key, value in config_defaults.items():
-            if key not in kafka_config:
-                kafka_config[key] = value
-
-        if root_path is None:
-            root_path = Path(".")
-        self._root_path = Path(root_path)
-
-        if kafka_brokers is None:
-            kafka_brokers = {
-                "localhost": KafkaBroker(
-                    url="https://localhost",
-                    description="Local (dev) Kafka broker",
-                    port="9092",
-                )
-            }
-        if contact is None:
-            contact = dict(
-                name="author", url="https://www.google.com", email="noreply@gmail.com"
-            )
-
-        super().__init__(title=title, contact=contact, **kwargs)  # type: ignore
-
-        self._consumers_store: Dict[str, Tuple[ConsumeCallable, Dict[str, Any]]] = {}
-
-        self._producers_list: List[  # type: ignore
-            Union[AIOKafkaProducer, AIOKafkaProducerManager]
-        ] = []
-        self._producers_store: Dict[  # type: ignore
-            str, Tuple[ProduceCallable, AIOKafkaProducer, Dict[str, Any]]
-        ] = {}
-        self._scheduled_bg_tasks: List[Task[Callable[None, None]]] = []
-        self._bg_tasks_group: Optional[asyncio.TaskGroup]
-        self._on_error_topic: Optional[str] = None
-
-        contact_info = ContactInfo(**contact)
-        self._kafka_service_info = KafkaServiceInfo(
-            title=self.title,
-            version=self.version,
-            description=self.description,
-            contact=contact_info,
-        )
-
-        self._kafka_brokers = KafkaBrokers(brokers=kafka_brokers)
-
-        self._asyncapi_path = self._root_path / "asyncapi"
-        (self._asyncapi_path / "docs").mkdir(exist_ok=True, parents=True)
-        (self._asyncapi_path / "spec").mkdir(exist_ok=True, parents=True)
-        self.mount(
-            "/asyncapi",
-            StaticFiles(directory=self._asyncapi_path / "docs"),
-            name="asyncapi",
-        )
-
-        self._is_shutting_down: bool = False
-        self._kafka_consumer_tasks: List[asyncio.Task[Any]] = []
-        self._kafka_producer_tasks: List[asyncio.Task[Any]] = []
-
-        @self.get("/", include_in_schema=False)
-        def redirect_root_to_asyncapi():
-            return RedirectResponse("/asyncapi")
-
-        @self.get("/asyncapi", include_in_schema=False)
-        async def redirect_asyncapi_docs():
-            return RedirectResponse("/asyncapi/index.html")
-
-        @self.get("/asyncapi.yml", include_in_schema=False)
-        async def download_asyncapi_yml():
-            return FileResponse(self._asyncapi_path / "spec" / "asyncapi.yml")
-
-        @self.on_event("startup")
-        async def on_startup(app=self):
-            await app._on_startup()
-
-        @self.on_event("shutdown")
-        async def on_shutdown(app=self):
-            await app._on_shutdown()
-
-    async def _on_startup(self) -> None:
-        raise NotImplementedError
-
-    async def _on_shutdown(self) -> None:
-        raise NotImplementedError
-
-    def consumes(
-        self,
-        topic: Optional[str] = None,
-        *,
-        prefix: str = "on_",
-        **kwargs: Dict[str, Any],
-    ) -> ConsumeCallable:
-        raise NotImplementedError
-
-    def produces(  # type: ignore
-        self,
-        topic: Optional[str] = None,
-        *,
-        prefix: str = "to_",
-        producer: Optional[AIOKafkaProducer] = None,
-        **kwargs: Dict[str, Any],
-    ) -> ProduceCallable:
-        raise NotImplementedError
-
-    def _populate_consumers(
-        self,
-        is_shutting_down_f: Callable[[], bool],
-    ) -> None:
-        raise NotImplementedError
-
-    async def _populate_producers(self) -> None:
-        raise NotImplementedError
-
-    def generate_async_spec(self) -> None:
-        raise NotImplementedError
-
-    async def _shutdown_consumers(self) -> None:
-        raise NotImplementedError
-
-    async def _shutdown_producers(self) -> None:
-        raise NotImplementedError
-
-# %% ../nbs/000_FastKafkaAPI.ipynb 13
+# %% ../nbs/000_FastKafkaAPI.ipynb 9
 def _get_topic_name(
     topic_callable: Union[ConsumeCallable, ProduceCallable], prefix: str = "on_"
 ) -> str:
@@ -387,7 +236,7 @@ def _get_topic_name(
 
     return topic
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 17
+# %% ../nbs/000_FastKafkaAPI.ipynb 13
 @patch  # type: ignore
 def consumes(
     self: FastKafkaAPI,
@@ -432,7 +281,7 @@ def consumes(
 
     return _decorator
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 19
+# %% ../nbs/000_FastKafkaAPI.ipynb 15
 def _to_json_utf8(o: Any) -> bytes:
     """Converts to JSON and then encodes with UTF-8"""
     if hasattr(o, "json"):
@@ -440,7 +289,7 @@ def _to_json_utf8(o: Any) -> bytes:
     else:
         return json.dumps(o).encode("utf-8")
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 21
+# %% ../nbs/000_FastKafkaAPI.ipynb 17
 def produce_decorator(
     self: FastKafkaAPI, func: ProduceCallable, topic: str
 ) -> ProduceCallable:
@@ -463,7 +312,7 @@ def produce_decorator(
 
     return _produce_async if iscoroutinefunction(func) else _produce_sync  # type: ignore
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 23
+# %% ../nbs/000_FastKafkaAPI.ipynb 19
 @patch  # type: ignore
 def produces(
     self: FastKafkaAPI,
@@ -510,11 +359,13 @@ def produces(
 
     return _decorator
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 25
-@patch
+# %% ../nbs/000_FastKafkaAPI.ipynb 21
+@patch  # type: ignore
 def run_in_background(
     self: FastKafkaAPI,
-) -> Callable[None, None]:
+) -> Callable[
+    [Callable[..., Coroutine[Any, Any, Any]]], Callable[..., Coroutine[Any, Any, Any]]
+]:
     """
     Decorator to schedule a task to be run in the background.
 
@@ -524,36 +375,30 @@ def run_in_background(
         Callable[None, None]: A decorator function that takes a background task as an input and stores it to be run in the backround.
     """
 
-    def _decorator(bg_task: Callable[None, None]) -> Callable[None, None]:
+    def _decorator(
+        bg_task: Callable[..., Coroutine[Any, Any, Any]]
+    ) -> Callable[..., Coroutine[Any, Any, Any]]:
         """
         Store the background task.
 
         Args:
-            bg_task (Callable[None, None]): The background task to be run asynchronously.
+            bg_task (Callable[[], None]): The background task to be run asynchronously.
 
         Returns:
-            Callable[None, None]: Original background task.
+            Callable[[], None]: Original background task.
         """
-        #         @functools.wraps(bg_task)
-        #         async def cancellation_handler(bg_task: Callable[None, None]) -> Callable[None, None]:
-        #             try:
-        #                 await bg_task()
-        #             except CancelledException as e:
-        #                 logger.info(f"Got cancel request for {bg_task}, exiting...")
-
-        #         canceled_wrapper = cancellation_handler(bg_task)
         self._scheduled_bg_tasks.append(bg_task)
 
         return bg_task
 
     return _decorator
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 29
+# %% ../nbs/000_FastKafkaAPI.ipynb 25
 def filter_using_signature(f: Callable, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
     param_names = list(signature(f).parameters.keys())
     return {k: v for k, v in kwargs.items() if k in param_names}
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 31
+# %% ../nbs/000_FastKafkaAPI.ipynb 27
 @patch  # type: ignore
 def _populate_consumers(
     self: FastKafkaAPI,
@@ -583,7 +428,7 @@ async def _shutdown_consumers(
     if self._kafka_consumer_tasks:
         await asyncio.wait(self._kafka_consumer_tasks)
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 33
+# %% ../nbs/000_FastKafkaAPI.ipynb 29
 # TODO: Add passing of vars
 async def _create_producer(  # type: ignore
     *,
@@ -662,7 +507,7 @@ async def _populate_producers(self: FastKafkaAPI) -> None:
 async def _shutdown_producers(self: FastKafkaAPI) -> None:
     [await producer.stop() for producer in self._producers_list[::-1]]
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 35
+# %% ../nbs/000_FastKafkaAPI.ipynb 31
 @patch  # type: ignore
 async def _populate_bg_tasks(
     self: FastKafkaAPI,
@@ -677,10 +522,10 @@ async def _populate_bg_tasks(
 async def _shutdown_bg_tasks(
     self: FastKafkaAPI,
 ) -> None:
-    self._bg_tasks_group.cancel_scope.cancel()
-    await self._bg_task_group_generator.__aexit__(None, None, None)
+    self._bg_tasks_group.cancel_scope.cancel()  # type: ignore
+    await self._bg_task_group_generator.__aexit__(None, None, None)  # type: ignore
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 37
+# %% ../nbs/000_FastKafkaAPI.ipynb 33
 @patch  # type: ignore
 def generate_async_spec(self: FastKafkaAPI) -> None:
     export_async_spec(
@@ -695,7 +540,7 @@ def generate_async_spec(self: FastKafkaAPI) -> None:
         asyncapi_path=self._asyncapi_path,
     )
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 39
+# %% ../nbs/000_FastKafkaAPI.ipynb 35
 @patch  # type: ignore
 async def _on_startup(self: FastKafkaAPI) -> None:
 
