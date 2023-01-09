@@ -32,8 +32,6 @@ from .logger import get_logger
 # %% ../../nbs/003_AsyncAPI.ipynb 2
 logger = get_logger(__name__)
 
-logger.info("ok")
-
 # %% ../../nbs/003_AsyncAPI.ipynb 4
 ConsumeCallable = Callable[[BaseModel], Union[Awaitable[None], None]]
 ProduceCallable = Callable[..., Union[Awaitable[BaseModel], BaseModel]]
