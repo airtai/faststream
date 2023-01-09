@@ -46,20 +46,39 @@ async def process_msgs(  # type: ignore
     for topic_partition, topic_msgs in msgs.items():
         topic = topic_partition.topic
         msg_type = msg_types[topic]
-        decoded_msgs = [
-            msg_type.parse_raw(msg.value.decode("utf-8")) for msg in topic_msgs
-        ]
-        for msg in decoded_msgs:
-            callback_raw = callbacks[topic]
-            if not iscoroutinefunction(callback_raw):
-                c: Callable[[BaseModel], None] = callback_raw  # type: ignore
-                callback: Callable[[BaseModel], Awaitable[None]] = asyncer.asyncify(c)
-            else:
-                callback = callback_raw
+        try:
+            decoded_msgs = [
+                msg_type.parse_raw(msg.value.decode("utf-8")) for msg in topic_msgs
+            ]
+            for msg in decoded_msgs:
+                callback_raw = callbacks[topic]
+                if not iscoroutinefunction(callback_raw):
+                    c: Callable[[BaseModel], None] = callback_raw  # type: ignore
+                    callback: Callable[[BaseModel], Awaitable[None]] = asyncer.asyncify(
+                        c
+                    )
+                else:
+                    callback = callback_raw
 
-            await process_f((callback, msg))
+                async def safe_callback(
+                    msg: BaseModel,
+                    callback: Callable[[BaseModel], Awaitable[None]] = callback,
+                ) -> None:
+                    try:
+                        #                         logger.debug(f"process_msgs(): awaiting '{callback}({msg})'")
+                        await callback(msg)
+                    except Exception as e:
+                        logger.warning(
+                            f"process_msgs(): exception caugth {e.__repr__()} while awaiting '{callback}({msg})'"
+                        )
 
-# %% ../../nbs/001_ConsumerLoop.ipynb 16
+                await process_f((safe_callback, msg))
+        except Exception as e:
+            logger.warning(
+                f"process_msgs(): Unexpected exception '{e.__repr__()}' caught and ignored for topic='{topic_partition.topic}', partition='{topic_partition.partition}' and messages: {topic_msgs}"
+            )
+
+# %% ../../nbs/001_ConsumerLoop.ipynb 17
 async def process_message_callback(
     receive_stream: MemoryObjectReceiveStream[Any],
 ) -> None:
@@ -89,14 +108,19 @@ async def _aiokafka_consumer_loop(  # type: ignore
         async with send_stream:
             while not is_shutting_down_f():
                 msgs = await consumer.getmany(timeout_ms=timeout_ms)
-                await process_msgs(
-                    msgs=msgs,
-                    callbacks=callbacks,
-                    msg_types=msg_types,
-                    process_f=send_stream.send,
-                )
+                try:
+                    await process_msgs(
+                        msgs=msgs,
+                        callbacks=callbacks,
+                        msg_types=msg_types,
+                        process_f=send_stream.send,
+                    )
+                except Exception as e:
+                    logger.warning(
+                        f"_aiokafka_consumer_loop(): Unexpected exception '{e}' caught and ignored for messages: {msgs}"
+                    )
 
-# %% ../../nbs/001_ConsumerLoop.ipynb 18
+# %% ../../nbs/001_ConsumerLoop.ipynb 19
 async def aiokafka_consumer_loop(  # type: ignore
     topics: List[str],
     *,
