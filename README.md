@@ -194,8 +194,6 @@ app = FastKafkaAPI(
 )
 ```
 
-    [INFO] fast_kafka_api._components.asyncapi: ok
-
 ### Function decorators
 
 FastKafkaAPI provides convenient function decorators called `@consumes`
@@ -280,7 +278,7 @@ import uvicorn
 uvicorn.run(app, host="0.0.0.0", port=4000)
 ```
 
-    INFO:     Started server process [30165]
+    INFO:     Started server process [17714]
     INFO:     Waiting for application startup.
 
     [INFO] fast_kafka_api._components.asyncapi: Old async specifications at '/work/fast-kafka-api/nbs/asyncapi/spec/asyncapi.yml' does not exist.
@@ -303,8 +301,6 @@ uvicorn.run(app, host="0.0.0.0", port=4000)
     [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
     [INFO] fast_kafka_api._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
     [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'input_data': 1}. 
-    INFO:     172.24.0.1:39182 - "GET /livereload/2598869104/2598869929 HTTP/1.1" 404 Not Found
-    INFO:     172.24.0.1:39182 - "GET /livereload/2598869104/2598869929 HTTP/1.1" 404 Not Found
 
     INFO:     Shutting down
     INFO:     Waiting for application shutdown.
@@ -313,4 +309,4 @@ uvicorn.run(app, host="0.0.0.0", port=4000)
     [INFO] fast_kafka_api._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
 
     INFO:     Application shutdown complete.
-    INFO:     Finished server process [30165]
+    INFO:     Finished server process [17714]
