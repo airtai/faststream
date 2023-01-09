@@ -210,6 +210,9 @@ class FastKafkaAPI:
         self._producers_store: Dict[  # type: ignore
             str, Tuple[ProduceCallable, AIOKafkaProducer, Dict[str, Any]]
         ] = {}
+        self._scheduled_bg_tasks: List[Callable[..., Coroutine[Any, Any, Any]]] = []
+        self._bg_task_group_generator: Optional[anyio.abc.TaskGroup] = None
+        self._bg_tasks_group: Optional[anyio.abc.TaskGroup]
         self._on_error_topic: Optional[str] = None
 
         #         contact_info = ContactInfo(**contact)
@@ -280,6 +283,11 @@ class FastKafkaAPI:
     ) -> ProduceCallable:
         raise NotImplementedError
 
+    def run_in_background(
+        self,
+    ) -> Callable[[], Any]:
+        raise NotImplementedError
+
     def _populate_consumers(
         self,
         is_shutting_down_f: Callable[[], bool],
@@ -296,6 +304,12 @@ class FastKafkaAPI:
         raise NotImplementedError
 
     async def _shutdown_producers(self) -> None:
+        raise NotImplementedError
+
+    async def _populate_bg_tasks(self) -> None:
+        raise NotImplementedError
+
+    async def _shutdown_bg_tasks(self) -> None:
         raise NotImplementedError
 
 # %% ../nbs/000_FastKafkaAPI.ipynb 26
@@ -421,12 +435,46 @@ def produces(
 
     return _decorator
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 36
+# %% ../nbs/000_FastKafkaAPI.ipynb 34
+@patch  # type: ignore
+def run_in_background(
+    self: FastKafkaAPI,
+) -> Callable[
+    [Callable[..., Coroutine[Any, Any, Any]]], Callable[..., Coroutine[Any, Any, Any]]
+]:
+    """
+    Decorator to schedule a task to be run in the background.
+
+    This decorator is used to schedule a task to be run in the background when the app's `_on_startup` event is triggered.
+
+    Returns:
+        Callable[None, None]: A decorator function that takes a background task as an input and stores it to be run in the backround.
+    """
+
+    def _decorator(
+        bg_task: Callable[..., Coroutine[Any, Any, Any]]
+    ) -> Callable[..., Coroutine[Any, Any, Any]]:
+        """
+        Store the background task.
+
+        Args:
+            bg_task (Callable[[], None]): The background task to be run asynchronously.
+
+        Returns:
+            Callable[[], None]: Original background task.
+        """
+        self._scheduled_bg_tasks.append(bg_task)
+
+        return bg_task
+
+    return _decorator
+
+# %% ../nbs/000_FastKafkaAPI.ipynb 38
 def filter_using_signature(f: Callable, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
     param_names = list(signature(f).parameters.keys())
     return {k: v for k, v in kwargs.items() if k in param_names}
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 38
+# %% ../nbs/000_FastKafkaAPI.ipynb 40
 @patch  # type: ignore
 def _populate_consumers(
     self: FastKafkaAPI,
@@ -456,7 +504,7 @@ async def _shutdown_consumers(
     if self._kafka_consumer_tasks:
         await asyncio.wait(self._kafka_consumer_tasks)
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 40
+# %% ../nbs/000_FastKafkaAPI.ipynb 42
 # TODO: Add passing of vars
 async def _create_producer(  # type: ignore
     *,
@@ -535,7 +583,25 @@ async def _populate_producers(self: FastKafkaAPI) -> None:
 async def _shutdown_producers(self: FastKafkaAPI) -> None:
     [await producer.stop() for producer in self._producers_list[::-1]]
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 42
+# %% ../nbs/000_FastKafkaAPI.ipynb 44
+@patch  # type: ignore
+async def _populate_bg_tasks(
+    self: FastKafkaAPI,
+) -> None:
+    self._bg_task_group_generator = anyio.create_task_group()
+    self._bg_tasks_group = await self._bg_task_group_generator.__aenter__()
+    for task in self._scheduled_bg_tasks:
+        self._bg_tasks_group.start_soon(task)
+
+
+@patch  # type: ignore
+async def _shutdown_bg_tasks(
+    self: FastKafkaAPI,
+) -> None:
+    self._bg_tasks_group.cancel_scope.cancel()  # type: ignore
+    await self._bg_task_group_generator.__aexit__(None, None, None)  # type: ignore
+
+# %% ../nbs/000_FastKafkaAPI.ipynb 46
 @patch  # type: ignore
 def generate_async_spec(self: FastKafkaAPI) -> None:
     export_async_spec(
@@ -550,7 +616,7 @@ def generate_async_spec(self: FastKafkaAPI) -> None:
         asyncapi_path=self._asyncapi_path,
     )
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 44
+# %% ../nbs/000_FastKafkaAPI.ipynb 48
 @patch  # type: ignore
 async def _on_startup(self: FastKafkaAPI) -> None:
 
@@ -562,11 +628,13 @@ async def _on_startup(self: FastKafkaAPI) -> None:
     self.generate_async_spec()
     await self._populate_producers()
     self._populate_consumers(is_shutting_down_f)
+    await self._populate_bg_tasks()
 
 
 @patch  # type: ignore
 async def _on_shutdown(self: FastKafkaAPI) -> None:
     self._is_shutting_down = True
 
+    await self._shutdown_bg_tasks()
     await self._shutdown_consumers()
     await self._shutdown_producers()

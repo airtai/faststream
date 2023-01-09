@@ -5,6 +5,23 @@ FastKafkaAPI
 
 <b>Effortless Kafka integration for your web services</b>
 
+------------------------------------------------------------------------
+
+![PyPI](https://img.shields.io/pypi/v/fast-kafka-api.png) ![PyPI -
+Downloads](https://img.shields.io/pypi/dm/fast-kafka-api.png) ![PyPI -
+Python
+Version](https://img.shields.io/pypi/pyversions/fast-kafka-api.png)
+
+![GitHub Workflow
+Status](https://img.shields.io/github/actions/workflow/status/airtai/fast-kafka-api/test.yaml)
+![CodeQL](https://github.com/airtai/fast-kafka-api//actions/workflows/codeql.yml/badge.svg)
+![Dependency
+Review](https://github.com/airtai/fast-kafka-api//actions/workflows/dependency-review.yml/badge.svg)
+
+![GitHub](https://img.shields.io/github/license/airtai/fast-kafka-api.png)
+
+------------------------------------------------------------------------
+
 FastKafkaAPI is a powerful and easy-to-use Python library for building
 asynchronous web services that interact with Kafka topics. Built on top
 of FastAPI, Starlette, Pydantic, and AIOKafka, FastKafkaAPI simplifies
@@ -261,7 +278,11 @@ import uvicorn
 uvicorn.run(app._fast_api_app, host="0.0.0.0", port=4000)
 ```
 
+<<<<<<< HEAD
     INFO:     Started server process [21284]
+=======
+    INFO:     Started server process [17714]
+>>>>>>> origin/main
     INFO:     Waiting for application startup.
 
     [INFO] fast_kafka_api._components.asyncapi: Old async specifications at '/work/fast-kafka-api/nbs/asyncapi/spec/asyncapi.yml' does not exist.
@@ -292,4 +313,8 @@ uvicorn.run(app._fast_api_app, host="0.0.0.0", port=4000)
     [INFO] fast_kafka_api._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
 
     INFO:     Application shutdown complete.
+<<<<<<< HEAD
     INFO:     Finished server process [21284]
+=======
+    INFO:     Finished server process [17714]
+>>>>>>> origin/main
