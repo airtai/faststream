@@ -5,6 +5,23 @@ FastKafkaAPI
 
 <b>Effortless Kafka integration for your web services</b>
 
+------------------------------------------------------------------------
+
+![PyPI](https://img.shields.io/pypi/v/fast-kafka-api.png) ![PyPI -
+Downloads](https://img.shields.io/pypi/dm/fast-kafka-api.png) ![PyPI -
+Python
+Version](https://img.shields.io/pypi/pyversions/fast-kafka-api.png)
+
+![GitHub Workflow
+Status](https://img.shields.io/github/actions/workflow/status/airtai/fast-kafka-api/test.yaml)
+![CodeQL](https://github.com/airtai/fast-kafka-api//actions/workflows/codeql.yml/badge.svg)
+![Dependency
+Review](https://github.com/airtai/fast-kafka-api//actions/workflows/dependency-review.yml/badge.svg)
+
+![GitHub](https://img.shields.io/github/license/airtai/fast-kafka-api.png)
+
+------------------------------------------------------------------------
+
 FastKafkaAPI is a powerful and easy-to-use Python library for building
 asynchronous web services that interact with Kafka topics. Built on top
 of FastAPI, Starlette, Pydantic, and AIOKafka, FastKafkaAPI simplifies
