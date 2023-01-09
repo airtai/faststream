@@ -10,6 +10,7 @@ from asyncio import run as aiorun
 from pathlib import Path
 from typing import *
 
+from fastapi import FastAPI
 import typer
 
 from .application import FastKafkaAPI

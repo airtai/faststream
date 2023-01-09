@@ -35,6 +35,7 @@ from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from fastcore.foundation import patch
+from fastcore.meta import delegates
 from pydantic import BaseModel, EmailStr, Field, HttpUrl, PositiveInt
 from pydantic.json import timedelta_isoformat
 from pydantic.schema import schema
@@ -61,59 +62,145 @@ from ._components.logger import get_logger, supress_timestamps
 # %% ../nbs/000_FastKafkaAPI.ipynb 2
 logger = get_logger(__name__)
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 8
-class FastKafkaAPI(FastAPI):
-    def __init__(
-        self,
-        *,
-        title: str = "FastKafkaAPI",
-        kafka_config: Dict[str, Any],
-        contact: Optional[Dict[str, Union[str, Any]]] = None,
-        kafka_brokers: Optional[Dict[str, Any]] = None,
-        root_path: Optional[Union[Path, str]] = None,
-        **kwargs: Dict[str, Any],
-    ):
-        """Combined REST and Kafka service
+# %% ../nbs/000_FastKafkaAPI.ipynb 9
+def _get_fast_api_app(
+    fast_api_app: Optional[FastAPI] = None,
+    title: str = "FastKafkaAPI",
+    description: str = "FastKafkaAPI application handling Kafka consumers and producers",
+) -> FastAPI:
+    if fast_api_app is None:
+        return FastAPI(title=title, description=description)
+    else:
+        return fast_api_app
 
-        Params:
-            title: name of the service, used for generating documentation
-            kafka_config:
-            contact:
-            kafka_brokers:
-            root_path:
-            kwargs: parameters passed to FastAPI constructor
-        """
-        self._kafka_config = kafka_config
+# %% ../nbs/000_FastKafkaAPI.ipynb 11
+def _get_func_with_combined_sig(
+    fx: List[Callable[[Any], Any]], keep: bool = False
+) -> Callable[[Any], Any]:
+    def _f(**kwargs):
+        pass
 
-        config_defaults = {
-            "bootstrap_servers": "localhost:9092",
-            "auto_offset_reset": "earliest",
-            "max_poll_records": 100,
-            "max_buffer_size": 10_000,
-        }
+    retval = _f
+    for f in fx:
+        retval = delegates(f, keep=True)(retval)
+    if not keep:
+        retval = delegates(_f, keep=False)(retval)
+    return retval  # type: ignore
 
-        for key, value in config_defaults.items():
-            if key not in kafka_config:
-                kafka_config[key] = value
+# %% ../nbs/000_FastKafkaAPI.ipynb 14
+@delegates(  # type: ignore
+    _get_func_with_combined_sig([AIOKafkaConsumer.__init__, AIOKafkaProducer.__init__])
+)
+def _get_kafka_config(
+    **kwargs,
+) -> Dict[str, Any]:
+    allowed_keys = set(signature(_get_kafka_config).parameters.keys())
+    if not set(kwargs.keys()) <= allowed_keys:
+        unallowed_keys = ", ".join(
+            sorted([f"'{x}'" for x in set(kwargs.keys()).difference(allowed_keys)])
+        )
+        raise ValueError(f"Unallowed key arguments passed: {unallowed_keys}")
+    retval = kwargs.copy()
 
-        if root_path is None:
-            root_path = Path(".")
-        self._root_path = Path(root_path)
+    # todo: check this values
+    config_defaults = {
+        "bootstrap_servers": "localhost:9092",
+        "auto_offset_reset": "earliest",
+        "max_poll_records": 100,
+        #         "max_buffer_size": 10_000,
+    }
+    for key, value in config_defaults.items():
+        if key not in retval:
+            retval[key] = value
 
-        if kafka_brokers is None:
-            kafka_brokers = {
+    return retval
+
+# %% ../nbs/000_FastKafkaAPI.ipynb 17
+def _get_kafka_brokers(kafka_brokers: Optional[Dict[str, Any]] = None) -> KafkaBrokers:
+    if kafka_brokers is None:
+        retval: KafkaBrokers = KafkaBrokers(
+            brokers={
                 "localhost": KafkaBroker(
                     url="https://localhost",
                     description="Local (dev) Kafka broker",
                     port="9092",
                 )
             }
+        )
+    else:
+        retval = KafkaBrokers(
+            brokers={
+                k: KafkaBroker.parse_raw(
+                    v.json() if hasattr(v, "json") else json.dumps(v)
+                )
+                for k, v in kafka_brokers.items()
+            }
+        )
+
+    return retval
+
+# %% ../nbs/000_FastKafkaAPI.ipynb 21
+def _get_topic_name(
+    topic_callable: Union[ConsumeCallable, ProduceCallable], prefix: str = "on_"
+) -> str:
+    topic = topic_callable.__name__
+    if not topic.startswith(prefix) or len(topic) <= len(prefix):
+        raise ValueError(f"Function name '{topic}' must start with {prefix}")
+    topic = topic[len(prefix) :]
+
+    return topic
+
+# %% ../nbs/000_FastKafkaAPI.ipynb 23
+class FastKafkaAPI:
+    @delegates(  # type: ignore
+        _get_func_with_combined_sig(
+            [AIOKafkaConsumer.__init__, AIOKafkaProducer.__init__]
+        )
+    )
+    def __init__(
+        self,
+        *,
+        fast_api_app: Optional[FastAPI] = None,
+        title: str = "FastKafkaAPI",
+        description: str = "FastKafkaAPI application handling Kafka consumers and producers",
+        #         kafka_config: Optional[Dict[str, Any]] = None,
+        version: Optional[str] = None,
+        contact: Optional[Dict[str, Union[str, Any]]] = None,
+        kafka_brokers: Optional[Dict[str, Any]] = None,
+        root_path: Optional[Union[Path, str]] = None,
+        **kwargs,
+    ):
+        """Combined REST and Kafka service
+
+        Params:
+            fast_api_app: the FastAPI app, if None, one will be created
+            title: name of the service, used for generating documentation
+            description: description of the service used for generating documentation
+            contact:
+            kafka_brokers: dictionary describing kafka brokers used for generating documentation
+            root_path: path to where documentation will be created
+        """
+        self._fast_api_app = _get_fast_api_app(fast_api_app, title, description)
+        self._title = title
+        self._description = description
+
+        if version is None:
+            version = "0.0.1"
+        self._version = version
+
         if contact is None:
             contact = dict(
                 name="author", url="https://www.google.com", email="noreply@gmail.com"
             )
+        self._contact_info = ContactInfo(**contact)
 
-        super().__init__(title=title, contact=contact, **kwargs)  # type: ignore
+        self._kafka_config = _get_kafka_config(**kwargs)
+
+        if root_path is None:
+            root_path = Path(".")
+        self._root_path = Path(root_path)
+
+        #         super().__init__(title=title, contact=contact, **kwargs)  # type: ignore
 
         self._consumers_store: Dict[str, Tuple[ConsumeCallable, Dict[str, Any]]] = {}
 
@@ -125,20 +212,20 @@ class FastKafkaAPI(FastAPI):
         ] = {}
         self._on_error_topic: Optional[str] = None
 
-        contact_info = ContactInfo(**contact)
+        #         contact_info = ContactInfo(**contact)
         self._kafka_service_info = KafkaServiceInfo(
-            title=self.title,
-            version=self.version,
-            description=self.description,
-            contact=contact_info,
+            title=self._title,
+            version=self._version,
+            description=self._description,
+            contact=self._contact_info,
         )
 
-        self._kafka_brokers = KafkaBrokers(brokers=kafka_brokers)
+        self._kafka_brokers = _get_kafka_brokers(kafka_brokers)
 
         self._asyncapi_path = self._root_path / "asyncapi"
         (self._asyncapi_path / "docs").mkdir(exist_ok=True, parents=True)
         (self._asyncapi_path / "spec").mkdir(exist_ok=True, parents=True)
-        self.mount(
+        self._fast_api_app.mount(
             "/asyncapi",
             StaticFiles(directory=self._asyncapi_path / "docs"),
             name="asyncapi",
@@ -148,23 +235,23 @@ class FastKafkaAPI(FastAPI):
         self._kafka_consumer_tasks: List[asyncio.Task[Any]] = []
         self._kafka_producer_tasks: List[asyncio.Task[Any]] = []
 
-        @self.get("/", include_in_schema=False)
+        @self._fast_api_app.get("/", include_in_schema=False)
         def redirect_root_to_asyncapi():
             return RedirectResponse("/asyncapi")
 
-        @self.get("/asyncapi", include_in_schema=False)
+        @self._fast_api_app.get("/asyncapi", include_in_schema=False)
         async def redirect_asyncapi_docs():
             return RedirectResponse("/asyncapi/index.html")
 
-        @self.get("/asyncapi.yml", include_in_schema=False)
+        @self._fast_api_app.get("/asyncapi.yml", include_in_schema=False)
         async def download_asyncapi_yml():
             return FileResponse(self._asyncapi_path / "spec" / "asyncapi.yml")
 
-        @self.on_event("startup")
+        @self._fast_api_app.on_event("startup")
         async def on_startup(app=self):
             await app._on_startup()
 
-        @self.on_event("shutdown")
+        @self._fast_api_app.on_event("shutdown")
         async def on_shutdown(app=self):
             await app._on_shutdown()
 
@@ -211,18 +298,7 @@ class FastKafkaAPI(FastAPI):
     async def _shutdown_producers(self) -> None:
         raise NotImplementedError
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 9
-def _get_topic_name(
-    topic_callable: Union[ConsumeCallable, ProduceCallable], prefix: str = "on_"
-) -> str:
-    topic = topic_callable.__name__
-    if not topic.startswith(prefix) or len(topic) <= len(prefix):
-        raise ValueError(f"Function name '{topic}' must start with {prefix}")
-    topic = topic[len(prefix) :]
-
-    return topic
-
-# %% ../nbs/000_FastKafkaAPI.ipynb 13
+# %% ../nbs/000_FastKafkaAPI.ipynb 26
 @patch  # type: ignore
 def consumes(
     self: FastKafkaAPI,
@@ -267,7 +343,7 @@ def consumes(
 
     return _decorator
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 15
+# %% ../nbs/000_FastKafkaAPI.ipynb 28
 def _to_json_utf8(o: Any) -> bytes:
     """Converts to JSON and then encodes with UTF-8"""
     if hasattr(o, "json"):
@@ -275,7 +351,7 @@ def _to_json_utf8(o: Any) -> bytes:
     else:
         return json.dumps(o).encode("utf-8")
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 17
+# %% ../nbs/000_FastKafkaAPI.ipynb 30
 def produce_decorator(
     self: FastKafkaAPI, func: ProduceCallable, topic: str
 ) -> ProduceCallable:
@@ -298,7 +374,7 @@ def produce_decorator(
 
     return _produce_async if iscoroutinefunction(func) else _produce_sync  # type: ignore
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 19
+# %% ../nbs/000_FastKafkaAPI.ipynb 32
 @patch  # type: ignore
 def produces(
     self: FastKafkaAPI,
@@ -345,12 +421,12 @@ def produces(
 
     return _decorator
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 23
+# %% ../nbs/000_FastKafkaAPI.ipynb 36
 def filter_using_signature(f: Callable, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
     param_names = list(signature(f).parameters.keys())
     return {k: v for k, v in kwargs.items() if k in param_names}
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 25
+# %% ../nbs/000_FastKafkaAPI.ipynb 38
 @patch  # type: ignore
 def _populate_consumers(
     self: FastKafkaAPI,
@@ -380,7 +456,7 @@ async def _shutdown_consumers(
     if self._kafka_consumer_tasks:
         await asyncio.wait(self._kafka_consumer_tasks)
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 27
+# %% ../nbs/000_FastKafkaAPI.ipynb 40
 # TODO: Add passing of vars
 async def _create_producer(  # type: ignore
     *,
@@ -459,7 +535,7 @@ async def _populate_producers(self: FastKafkaAPI) -> None:
 async def _shutdown_producers(self: FastKafkaAPI) -> None:
     [await producer.stop() for producer in self._producers_list[::-1]]
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 29
+# %% ../nbs/000_FastKafkaAPI.ipynb 42
 @patch  # type: ignore
 def generate_async_spec(self: FastKafkaAPI) -> None:
     export_async_spec(
@@ -474,7 +550,7 @@ def generate_async_spec(self: FastKafkaAPI) -> None:
         asyncapi_path=self._asyncapi_path,
     )
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 31
+# %% ../nbs/000_FastKafkaAPI.ipynb 44
 @patch  # type: ignore
 async def _on_startup(self: FastKafkaAPI) -> None:
 
