@@ -11,6 +11,7 @@ from os import environ
 from typing import *
 
 import anyio
+from anyio.streams.memory import MemoryObjectReceiveStream
 import asyncer
 from aiokafka import AIOKafkaConsumer
 from aiokafka.structs import ConsumerRecord, TopicPartition
@@ -59,7 +60,9 @@ async def process_msgs(  # type: ignore
             await process_f((callback, msg))
 
 # %% ../../nbs/001_ConsumerLoop.ipynb 16
-async def process_message_callback(receive_stream):
+async def process_message_callback(
+    receive_stream: MemoryObjectReceiveStream[Any],
+) -> None:
     async with receive_stream:
         async for callback, msg in receive_stream:
             await callback(msg)
@@ -73,7 +76,7 @@ async def _aiokafka_consumer_loop(  # type: ignore
     max_buffer_size: int = 10_000,
     msg_types: Dict[str, Type[BaseModel]],
     is_shutting_down_f: Callable[[], bool],
-):
+) -> None:
     """Write docs
 
     Todo: add batch size if needed
@@ -94,7 +97,7 @@ async def _aiokafka_consumer_loop(  # type: ignore
                 )
 
 # %% ../../nbs/001_ConsumerLoop.ipynb 18
-async def aiokafka_consumer_loop(
+async def aiokafka_consumer_loop(  # type: ignore
     topics: List[str],
     *,
     bootstrap_servers: str,
@@ -106,7 +109,7 @@ async def aiokafka_consumer_loop(
     msg_types: Dict[str, Type[BaseModel]],
     is_shutting_down_f: Callable[[], bool],
     **kwargs,
-):
+) -> None:
     """todo: write docs"""
     logger.info(f"aiokafka_consumer_loop() starting..")
     consumer = AIOKafkaConsumer(

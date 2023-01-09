@@ -70,7 +70,7 @@ _app = typer.Typer(help="")
 @_app.command(
     help="Runs Fast Kafka API application using uvicorn",
 )
-def run(root_path: str = typer.Option(".", help="")):
+def run(root_path: str = typer.Option(".", help="")) -> None:
     try:
         raise NotImplementedError()
     except Exception as e:
@@ -89,7 +89,7 @@ def generate_docs(
         ...,
         help="input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafkaAPI**.",
     ),
-):
+) -> None:
     try:
         application = _import_from_string(app)
         application.generate_async_spec()

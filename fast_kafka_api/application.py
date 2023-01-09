@@ -71,7 +71,7 @@ class FastKafkaAPI(FastAPI):
         contact: Optional[Dict[str, Union[str, Any]]] = None,
         kafka_brokers: Optional[Dict[str, Any]] = None,
         root_path: Optional[Union[Path, str]] = None,
-        **kwargs,
+        **kwargs: Dict[str, Any],
     ):
         """Combined REST and Kafka service
 
@@ -113,7 +113,7 @@ class FastKafkaAPI(FastAPI):
                 name="author", url="https://www.google.com", email="noreply@gmail.com"
             )
 
-        super().__init__(title=title, contact=contact, **kwargs)
+        super().__init__(title=title, contact=contact, **kwargs)  # type: ignore
 
         self._consumers_store: Dict[str, Tuple[ConsumeCallable, Dict[str, Any]]] = {}
 
@@ -179,7 +179,7 @@ class FastKafkaAPI(FastAPI):
         topic: Optional[str] = None,
         *,
         prefix: str = "on_",
-        **kwargs,
+        **kwargs: Dict[str, Any],
     ) -> ConsumeCallable:
         raise NotImplementedError
 
@@ -188,8 +188,8 @@ class FastKafkaAPI(FastAPI):
         topic: Optional[str] = None,
         *,
         prefix: str = "to_",
-        producer: AIOKafkaProducer = None,
-        **kwargs,
+        producer: Optional[AIOKafkaProducer] = None,
+        **kwargs: Dict[str, Any],
     ) -> ProduceCallable:
         raise NotImplementedError
 
@@ -223,13 +223,13 @@ def _get_topic_name(
     return topic
 
 # %% ../nbs/000_FastKafkaAPI.ipynb 13
-@patch
+@patch  # type: ignore
 def consumes(
     self: FastKafkaAPI,
     topic: Optional[str] = None,
     *,
     prefix: str = "on_",
-    **kwargs,
+    **kwargs: Dict[str, Any],
 ) -> Callable[[ConsumeCallable], ConsumeCallable]:
     """Decorator registering the callback called when a message is received in a topic.
 
@@ -251,7 +251,9 @@ def consumes(
     """
 
     def _decorator(
-        on_topic: ConsumeCallable, topic: Optional[str] = topic, kwargs=kwargs
+        on_topic: ConsumeCallable,
+        topic: Optional[str] = topic,
+        kwargs: Dict[str, Any] = kwargs,
     ) -> ConsumeCallable:
         topic_resolved: str = (
             _get_topic_name(topic_callable=on_topic, prefix=prefix)
@@ -273,12 +275,12 @@ def _to_json_utf8(o: Any) -> bytes:
     else:
         return json.dumps(o).encode("utf-8")
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 18
+# %% ../nbs/000_FastKafkaAPI.ipynb 17
 def produce_decorator(
     self: FastKafkaAPI, func: ProduceCallable, topic: str
 ) -> ProduceCallable:
     @functools.wraps(func)
-    async def _produce_async(*args, **kwargs) -> BaseModel:
+    async def _produce_async(*args: List[Any], **kwargs: Dict[str, Any]) -> BaseModel:
         f: Callable[..., Awaitable[BaseModel]] = func  # type: ignore
         return_val = await f(*args, **kwargs)
         _, producer, _ = self._producers_store[topic]
@@ -287,7 +289,7 @@ def produce_decorator(
         return return_val
 
     @functools.wraps(func)
-    def _produce_sync(*args, **kwargs) -> BaseModel:
+    def _produce_sync(*args: List[Any], **kwargs: Dict[str, Any]) -> BaseModel:
         f: Callable[..., BaseModel] = func  # type: ignore
         return_val = f(*args, **kwargs)
         _, producer, _ = self._producers_store[topic]
@@ -296,15 +298,15 @@ def produce_decorator(
 
     return _produce_async if iscoroutinefunction(func) else _produce_sync  # type: ignore
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 20
-@patch
-def produces(  # type: ignore
+# %% ../nbs/000_FastKafkaAPI.ipynb 19
+@patch  # type: ignore
+def produces(
     self: FastKafkaAPI,
     topic: Optional[str] = None,
     *,
     prefix: str = "to_",
     producer: AIOKafkaProducer = None,
-    **kwargs,
+    **kwargs: Dict[str, Any],
 ) -> Callable[[ProduceCallable], ProduceCallable]:
     """Decorator registering the callback called when delivery report for a produced message is received
 
@@ -327,7 +329,9 @@ def produces(  # type: ignore
     """
 
     def _decorator(
-        on_topic: ProduceCallable, topic: Optional[str] = topic, kwargs=kwargs
+        on_topic: ProduceCallable,
+        topic: Optional[str] = topic,
+        kwargs: Dict[str, Any] = kwargs,
     ) -> ProduceCallable:
         topic_resolved: str = (
             _get_topic_name(topic_callable=on_topic, prefix=prefix)
@@ -341,13 +345,13 @@ def produces(  # type: ignore
 
     return _decorator
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 24
-def filter_using_signature(f: Callable, **kwargs) -> Dict[str, Any]:
+# %% ../nbs/000_FastKafkaAPI.ipynb 23
+def filter_using_signature(f: Callable, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
     param_names = list(signature(f).parameters.keys())
     return {k: v for k, v in kwargs.items() if k in param_names}
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 26
-@patch
+# %% ../nbs/000_FastKafkaAPI.ipynb 25
+@patch  # type: ignore
 def _populate_consumers(
     self: FastKafkaAPI,
     is_shutting_down_f: Callable[[], bool],
@@ -369,14 +373,14 @@ def _populate_consumers(
     ]
 
 
-@patch
+@patch  # type: ignore
 async def _shutdown_consumers(
     self: FastKafkaAPI,
 ) -> None:
     if self._kafka_consumer_tasks:
         await asyncio.wait(self._kafka_consumer_tasks)
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 28
+# %% ../nbs/000_FastKafkaAPI.ipynb 27
 # TODO: Add passing of vars
 async def _create_producer(  # type: ignore
     *,
@@ -416,7 +420,7 @@ async def _create_producer(  # type: ignore
     return producer
 
 
-@patch
+@patch  # type: ignore
 async def _populate_producers(self: FastKafkaAPI) -> None:
     """Populates the producers for the FastKafkaAPI instance.
 
@@ -451,12 +455,12 @@ async def _populate_producers(self: FastKafkaAPI) -> None:
     }
 
 
-@patch
+@patch  # type: ignore
 async def _shutdown_producers(self: FastKafkaAPI) -> None:
     [await producer.stop() for producer in self._producers_list[::-1]]
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 30
-@patch
+# %% ../nbs/000_FastKafkaAPI.ipynb 29
+@patch  # type: ignore
 def generate_async_spec(self: FastKafkaAPI) -> None:
     export_async_spec(
         consumers={
@@ -470,8 +474,8 @@ def generate_async_spec(self: FastKafkaAPI) -> None:
         asyncapi_path=self._asyncapi_path,
     )
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 32
-@patch
+# %% ../nbs/000_FastKafkaAPI.ipynb 31
+@patch  # type: ignore
 async def _on_startup(self: FastKafkaAPI) -> None:
 
     self._is_shutting_down = False
@@ -484,7 +488,7 @@ async def _on_startup(self: FastKafkaAPI) -> None:
     await self._populate_producers()
 
 
-@patch
+@patch  # type: ignore
 async def _on_shutdown(self: FastKafkaAPI) -> None:
     self._is_shutting_down = True
 
