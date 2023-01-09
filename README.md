@@ -190,7 +190,7 @@ app = FastKafkaAPI(
     version="0.0.1",
     description="A simple example on how to use FastKafkaAPI",
     kafka_brokers=kafka_brokers,
-    kafka_config=kafka_config,
+    **kafka_config,
 )
 ```
 
@@ -275,10 +275,14 @@ initiated and the service will stop.
 ``` python
 import uvicorn
 
-uvicorn.run(app, host="0.0.0.0", port=4000)
+uvicorn.run(app._fast_api_app, host="0.0.0.0", port=4000)
 ```
 
+<<<<<<< HEAD
+    INFO:     Started server process [21284]
+=======
     INFO:     Started server process [17714]
+>>>>>>> origin/main
     INFO:     Waiting for application startup.
 
     [INFO] fast_kafka_api._components.asyncapi: Old async specifications at '/work/fast-kafka-api/nbs/asyncapi/spec/asyncapi.yml' does not exist.
@@ -309,4 +313,8 @@ uvicorn.run(app, host="0.0.0.0", port=4000)
     [INFO] fast_kafka_api._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
 
     INFO:     Application shutdown complete.
+<<<<<<< HEAD
+    INFO:     Finished server process [21284]
+=======
     INFO:     Finished server process [17714]
+>>>>>>> origin/main
