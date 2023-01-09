@@ -17,6 +17,7 @@ import shlex
 import subprocess  # nosec
 import time
 import unittest
+import unittest.mock
 from contextlib import asynccontextmanager, contextmanager
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -43,11 +44,11 @@ kafka_config = {
 }
 
 # %% ../nbs/999_Test_Utils.ipynb 6
-def true_after(seconds: float):
+def true_after(seconds: float) -> Callable[[], bool]:
     """Function returning True after a given number of seconds"""
     t = datetime.now()
 
-    def _true_after(seconds=seconds, t=t):
+    def _true_after(seconds: float = seconds, t: datetime = t) -> bool:
         return (datetime.now() - t) > timedelta(seconds=seconds)
 
     return _true_after
@@ -177,9 +178,9 @@ def nb_safe_seed(s: str) -> Callable[[int], int]:
 
 # %% ../nbs/999_Test_Utils.ipynb 17
 @contextmanager
-def mock_AIOKafkaProducer_send():
+def mock_AIOKafkaProducer_send() -> Generator[unittest.mock.Mock, None, None]:
     """Mocks **send** method of **AIOKafkaProducer**"""
-    with unittest.mock.patch("__main__.AIOKafkaProducer.send") as mock:  # type: ignore
+    with unittest.mock.patch("__main__.AIOKafkaProducer.send") as mock:
 
         async def _f():
             pass
@@ -190,7 +191,7 @@ def mock_AIOKafkaProducer_send():
 
 # %% ../nbs/999_Test_Utils.ipynb 18
 @contextlib.contextmanager
-def change_dir(d: str):
+def change_dir(d: str) -> Generator[None, None, None]:
     curdir = os.getcwd()
     os.chdir(d)
     try:

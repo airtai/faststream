@@ -234,7 +234,7 @@ def _get_example(cls: Type[BaseModel]) -> BaseModel:
 # %% ../../nbs/003_AsyncAPI.ipynb 30
 def _add_example_to_msg_definitions(
     msg_cls: Type[BaseModel], msg_schema: Dict[str, Dict[str, Any]]
-):
+) -> None:
     try:
         example = _get_example(msg_cls)
     except Exception as e:

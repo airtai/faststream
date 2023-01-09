@@ -54,14 +54,14 @@ class AIOKafkaProducerManager:
         self.producer = producer
         self.max_buffer_size = max_buffer_size
 
-    async def start(self):
+    async def start(self) -> None:
         logger.info("AIOKafkaProducerManager.start(): Entering...")
         await self.producer.start()
         self.producer_manager_generator = _aiokafka_producer_manager(self.producer)
         self.send_stream = await self.producer_manager_generator.__aenter__()
         logger.info("AIOKafkaProducerManager.start(): Finished.")
 
-    async def stop(self):
+    async def stop(self) -> None:
         # todo: try to flush messages before you exit
         logger.info("AIOKafkaProducerManager.stop(): Entering...")
         await self.producer_manager_generator.__aexit__(None, None, None)
@@ -69,5 +69,5 @@ class AIOKafkaProducerManager:
         await self.producer.stop()
         logger.info("AIOKafkaProducerManager.stop(): Finished")
 
-    def send(self, topic: str, msg: bytes):
+    def send(self, topic: str, msg: bytes) -> None:
         self.send_stream.send_nowait((topic, msg))
