@@ -2,10 +2,9 @@
 
 <!-- do not remove -->
 
+## 0.0.4
 
-## 0.0.4rc0
-
-
+- inheritance from FastAPI removed
 
 
 ## 0.0.3
