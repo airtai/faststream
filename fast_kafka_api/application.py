@@ -484,8 +484,8 @@ async def _on_startup(self: FastKafkaAPI) -> None:
         return self._is_shutting_down
 
     self.generate_async_spec()
-    self._populate_consumers(is_shutting_down_f)
     await self._populate_producers()
+    self._populate_consumers(is_shutting_down_f)
 
 
 @patch  # type: ignore

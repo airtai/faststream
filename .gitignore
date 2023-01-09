@@ -138,6 +138,8 @@ _proc
 _docs
 
 nbs/asyncapi
+nbs/.last_checked
+nbs/_*.ipynb
 token
 *.bak
 
