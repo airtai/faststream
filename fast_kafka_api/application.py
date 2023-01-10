@@ -63,13 +63,13 @@ from ._components.logger import get_logger, supress_timestamps
 logger = get_logger(__name__)
 
 # %% ../nbs/000_FastKafkaAPI.ipynb 9
-@delegates(FastAPI)
+@delegates(FastAPI)  # type: ignore
 def _get_fast_api_app(
     fast_api_app: Optional[FastAPI] = None,
     **kwargs: Dict[str, Any],
 ) -> FastAPI:
     if fast_api_app is None:
-        return FastAPI(**kwargs)
+        return FastAPI(**kwargs)  # type: ignore
     else:
         return fast_api_app
 
@@ -165,8 +165,7 @@ def _get_contact_info(
     name: str = "Author",
     url: str = "https://www.google.com",
     email: str = "noreply@gmail.com",
-    **kwargs
-):
+) -> ContactInfo:
     return ContactInfo(name=name, url=url, email=email)
 
 # %% ../nbs/000_FastKafkaAPI.ipynb 23
