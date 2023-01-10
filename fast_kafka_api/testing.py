@@ -202,7 +202,7 @@ def change_dir(d: str) -> Generator[None, None, None]:
 # %% ../nbs/999_Test_Utils.ipynb 20
 def run_script_and_cancel(
     *, script: str, script_file: str, cmd: str, cancel_after: int
-) -> bytes:
+) -> Tuple[int, bytes]:
     with TemporaryDirectory() as d:
         consumer_script = Path(d) / script_file
 
@@ -216,6 +216,6 @@ def run_script_and_cancel(
             )
             time.sleep(cancel_after)
             proc.terminate()
-            proc.wait()
+            output, _ = proc.communicate()
 
-        return proc.stdout.read()  # type: ignore
+        return (proc.returncode, output)
