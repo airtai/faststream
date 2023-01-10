@@ -63,13 +63,13 @@ from ._components.logger import get_logger, supress_timestamps
 logger = get_logger(__name__)
 
 # %% ../nbs/000_FastKafkaAPI.ipynb 9
+@delegates(FastAPI)
 def _get_fast_api_app(
     fast_api_app: Optional[FastAPI] = None,
-    title: str = "FastKafkaAPI",
-    description: str = "FastKafkaAPI application handling Kafka consumers and producers",
+    **kwargs: Dict[str, Any],
 ) -> FastAPI:
     if fast_api_app is None:
-        return FastAPI(title=title, description=description)
+        return FastAPI(**kwargs)
     else:
         return fast_api_app
 
@@ -77,6 +77,16 @@ def _get_fast_api_app(
 def _get_func_with_combined_sig(
     fx: List[Callable[[Any], Any]], keep: bool = False
 ) -> Callable[[Any], Any]:
+    """Creates a no-op function with a signature containing parameters from signatures of all functions from `fx`
+
+    Args:
+        fx: a list of functions
+        keep: if **True**, keep kwargs as an argument
+
+    Returns:
+        no-op function with a signature containing parameters from signatures of all functions from `fx`
+    """
+
     def _f(**kwargs):
         pass
 
@@ -139,7 +149,7 @@ def _get_kafka_brokers(kafka_brokers: Optional[Dict[str, Any]] = None) -> KafkaB
 
     return retval
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 21
+# %% ../nbs/000_FastKafkaAPI.ipynb 19
 def _get_topic_name(
     topic_callable: Union[ConsumeCallable, ProduceCallable], prefix: str = "on_"
 ) -> str:
@@ -150,6 +160,15 @@ def _get_topic_name(
 
     return topic
 
+# %% ../nbs/000_FastKafkaAPI.ipynb 21
+def _get_contact_info(
+    name: str = "Author",
+    url: str = "https://www.google.com",
+    email: str = "noreply@gmail.com",
+    **kwargs
+):
+    return ContactInfo(name=name, url=url, email=email)
+
 # %% ../nbs/000_FastKafkaAPI.ipynb 23
 class FastKafkaAPI:
     @delegates(  # type: ignore
@@ -159,13 +178,13 @@ class FastKafkaAPI:
     )
     def __init__(
         self,
+        fast_api_app: FastAPI,
         *,
-        fast_api_app: Optional[FastAPI] = None,
-        title: str = "FastKafkaAPI",
-        description: str = "FastKafkaAPI application handling Kafka consumers and producers",
-        #         kafka_config: Optional[Dict[str, Any]] = None,
+        asyncapi_route: Optional[str] = "/asyncapi",
+        title: Optional[str] = None,
+        description: Optional[str] = None,
         version: Optional[str] = None,
-        contact: Optional[Dict[str, Union[str, Any]]] = None,
+        contact: Optional[Dict[str, str]] = None,
         kafka_brokers: Optional[Dict[str, Any]] = None,
         root_path: Optional[Union[Path, str]] = None,
         **kwargs,
@@ -174,34 +193,44 @@ class FastKafkaAPI:
 
         Params:
             fast_api_app: the FastAPI app, if None, one will be created
-            title: name of the service, used for generating documentation
-            description: description of the service used for generating documentation
-            contact:
+            asyncapi_route: the route to where to mount the documentation. If **None**, the docs will not be mounted.
+            title: optional title for the documentation. If None, the title of passed fast_api_app will be used
+            description: optional description for the documentation. If None, the description of passed fast_api_app will be used
+            version: optional version for the documentation. If None, the version of passed fast_api_app will be used
+            contact: optional contact for the documentation. If None, the contact of passed fast_api_app will be used
             kafka_brokers: dictionary describing kafka brokers used for generating documentation
             root_path: path to where documentation will be created
         """
-        self._fast_api_app = _get_fast_api_app(fast_api_app, title, description)
-        self._title = title
-        self._description = description
+        self._fast_api_app = fast_api_app
 
-        if version is None:
-            version = "0.0.1"
-        self._version = version
+        # this is neede for documentation generation
+        self._title = title if title else fast_api_app.title
+        self._description = description if description else fast_api_app.description
+        self._version = version if version else fast_api_app.version
+        if contact is not None:
+            self._contact_info = _get_contact_info(**contact)
+        elif fast_api_app.contact is not None:
+            if isinstance(fast_api_app.contact, str):
+                self._contact_info = _get_contact_info(name=fast_api_app.contact)
+            else:
+                self._contact_info = _get_contact_info(**fast_api_app.contact)
+        else:
+            self._contact_info = _get_contact_info()
 
-        if contact is None:
-            contact = dict(
-                name="author", url="https://www.google.com", email="noreply@gmail.com"
-            )
-        self._contact_info = ContactInfo(**contact)
+        self._kafka_service_info = KafkaServiceInfo(
+            title=self._title,
+            version=self._version,
+            description=self._description,
+            contact=self._contact_info,
+        )
+        self._kafka_brokers = _get_kafka_brokers(kafka_brokers)
 
+        self._root_path = Path(".") if root_path is None else Path(root_path)
+
+        # this is used as default parameters for creating AIOProducer and AIOConsumer objects
         self._kafka_config = _get_kafka_config(**kwargs)
 
-        if root_path is None:
-            root_path = Path(".")
-        self._root_path = Path(root_path)
-
-        #         super().__init__(title=title, contact=contact, **kwargs)  # type: ignore
-
+        #
         self._consumers_store: Dict[str, Tuple[ConsumeCallable, Dict[str, Any]]] = {}
 
         self._producers_list: List[  # type: ignore
@@ -210,20 +239,14 @@ class FastKafkaAPI:
         self._producers_store: Dict[  # type: ignore
             str, Tuple[ProduceCallable, AIOKafkaProducer, Dict[str, Any]]
         ] = {}
+
+        # background tasks
         self._scheduled_bg_tasks: List[Callable[..., Coroutine[Any, Any, Any]]] = []
         self._bg_task_group_generator: Optional[anyio.abc.TaskGroup] = None
         self._bg_tasks_group: Optional[anyio.abc.TaskGroup]
+
+        # todo: use this for errrors
         self._on_error_topic: Optional[str] = None
-
-        #         contact_info = ContactInfo(**contact)
-        self._kafka_service_info = KafkaServiceInfo(
-            title=self._title,
-            version=self._version,
-            description=self._description,
-            contact=self._contact_info,
-        )
-
-        self._kafka_brokers = _get_kafka_brokers(kafka_brokers)
 
         self._asyncapi_path = self._root_path / "asyncapi"
         (self._asyncapi_path / "docs").mkdir(exist_ok=True, parents=True)
@@ -312,7 +335,7 @@ class FastKafkaAPI:
     async def _shutdown_bg_tasks(self) -> None:
         raise NotImplementedError
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 26
+# %% ../nbs/000_FastKafkaAPI.ipynb 28
 @patch  # type: ignore
 def consumes(
     self: FastKafkaAPI,
@@ -357,7 +380,7 @@ def consumes(
 
     return _decorator
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 28
+# %% ../nbs/000_FastKafkaAPI.ipynb 30
 def _to_json_utf8(o: Any) -> bytes:
     """Converts to JSON and then encodes with UTF-8"""
     if hasattr(o, "json"):
@@ -365,7 +388,7 @@ def _to_json_utf8(o: Any) -> bytes:
     else:
         return json.dumps(o).encode("utf-8")
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 30
+# %% ../nbs/000_FastKafkaAPI.ipynb 32
 def produce_decorator(
     self: FastKafkaAPI, func: ProduceCallable, topic: str
 ) -> ProduceCallable:
@@ -388,7 +411,7 @@ def produce_decorator(
 
     return _produce_async if iscoroutinefunction(func) else _produce_sync  # type: ignore
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 32
+# %% ../nbs/000_FastKafkaAPI.ipynb 34
 @patch  # type: ignore
 def produces(
     self: FastKafkaAPI,
@@ -435,7 +458,7 @@ def produces(
 
     return _decorator
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 34
+# %% ../nbs/000_FastKafkaAPI.ipynb 36
 @patch  # type: ignore
 def run_in_background(
     self: FastKafkaAPI,
@@ -469,12 +492,12 @@ def run_in_background(
 
     return _decorator
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 38
+# %% ../nbs/000_FastKafkaAPI.ipynb 40
 def filter_using_signature(f: Callable, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
     param_names = list(signature(f).parameters.keys())
     return {k: v for k, v in kwargs.items() if k in param_names}
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 40
+# %% ../nbs/000_FastKafkaAPI.ipynb 42
 @patch  # type: ignore
 def _populate_consumers(
     self: FastKafkaAPI,
@@ -504,7 +527,7 @@ async def _shutdown_consumers(
     if self._kafka_consumer_tasks:
         await asyncio.wait(self._kafka_consumer_tasks)
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 42
+# %% ../nbs/000_FastKafkaAPI.ipynb 44
 # TODO: Add passing of vars
 async def _create_producer(  # type: ignore
     *,
@@ -583,7 +606,7 @@ async def _populate_producers(self: FastKafkaAPI) -> None:
 async def _shutdown_producers(self: FastKafkaAPI) -> None:
     [await producer.stop() for producer in self._producers_list[::-1]]
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 44
+# %% ../nbs/000_FastKafkaAPI.ipynb 46
 @patch  # type: ignore
 async def _populate_bg_tasks(
     self: FastKafkaAPI,
@@ -601,7 +624,7 @@ async def _shutdown_bg_tasks(
     self._bg_tasks_group.cancel_scope.cancel()  # type: ignore
     await self._bg_task_group_generator.__aexit__(None, None, None)  # type: ignore
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 46
+# %% ../nbs/000_FastKafkaAPI.ipynb 48
 @patch  # type: ignore
 def generate_async_spec(self: FastKafkaAPI) -> None:
     export_async_spec(
@@ -616,7 +639,7 @@ def generate_async_spec(self: FastKafkaAPI) -> None:
         asyncapi_path=self._asyncapi_path,
     )
 
-# %% ../nbs/000_FastKafkaAPI.ipynb 48
+# %% ../nbs/000_FastKafkaAPI.ipynb 50
 @patch  # type: ignore
 async def _on_startup(self: FastKafkaAPI) -> None:
 
