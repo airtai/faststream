@@ -160,6 +160,7 @@ initialized FastKafkaAPI application.
 ``` python
 from os import environ
 
+from fastapi import FastAPI
 from fast_kafka_api.application import FastKafkaAPI
 
 kafka_server_url = environ["KAFKA_HOSTNAME"]
@@ -184,11 +185,15 @@ kafka_config = {
     "bootstrap_servers": f"{kafka_server_url}:{kafka_server_port}",
 }
 
-app = FastKafkaAPI(
+app = FastAPI(
     title="FastKafkaAPI Example",
     contact={"name": "airt.ai", "url": "https://airt.ai", "email": "info@airt.ai"},
     version="0.0.1",
     description="A simple example on how to use FastKafkaAPI",
+)
+
+kafka_app = FastKafkaAPI(
+    app,
     kafka_brokers=kafka_brokers,
     **kafka_config,
 )
@@ -236,14 +241,14 @@ logic of your application without worrying about the underlying Kafka
 integration.
 
 ``` python
-@app.consumes(topic="input_data")
+@kafka_app.consumes(topic="input_data")
 async def on_input_data(msg: InputData):
     print(f"msg={msg}")
     score = await model.predict(feature_1=msg.feature_1, feature_2=msg.feature_2)
     await to_predictions(user_id=msg.user_id, score=score)
 
 
-@app.produces(topic="predictions")
+@kafka_app.produces(topic="predictions")
 async def to_predictions(user_id: int, score: float) -> Prediction:
     prediction = Prediction(user_id=user_id, score=score)
     print(f"prediction={prediction}")
@@ -275,10 +280,10 @@ initiated and the service will stop.
 ``` python
 import uvicorn
 
-uvicorn.run(app._fast_api_app, host="0.0.0.0", port=4000)
+uvicorn.run(app, host="0.0.0.0", port=4000)
 ```
 
-    INFO:     Started server process [21284]
+    INFO:     Started server process [32157]
     INFO:     Waiting for application startup.
 
     [INFO] fast_kafka_api._components.asyncapi: Old async specifications at '/work/fast-kafka-api/nbs/asyncapi/spec/asyncapi.yml' does not exist.
@@ -309,4 +314,4 @@ uvicorn.run(app._fast_api_app, host="0.0.0.0", port=4000)
     [INFO] fast_kafka_api._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
 
     INFO:     Application shutdown complete.
-    INFO:     Finished server process [21284]
+    INFO:     Finished server process [32157]
