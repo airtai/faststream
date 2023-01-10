@@ -218,4 +218,4 @@ def run_script_and_cancel(
             proc.terminate()
             output, _ = proc.communicate()
 
-        return (proc.returncode, output)  # type: ignore
+        return (proc.returncode, output)
