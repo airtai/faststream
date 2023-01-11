@@ -45,7 +45,10 @@ import fast_kafka_api._components.logger
 fast_kafka_api._components.logger.should_supress_timestamps = True
 
 import fast_kafka_api
-from ._components.aiokafka_consumer_loop import aiokafka_consumer_loop
+from fast_kafka_api._components.aiokafka_consumer_loop import (
+    aiokafka_consumer_loop,
+    sanitize_kafka_config,
+)
 from ._components.aiokafka_producer_manager import AIOKafkaProducerManager
 from fast_kafka_api._components.asyncapi import (
     ConsumeCallable,
@@ -555,6 +558,9 @@ async def _create_producer(  # type: ignore
             **override_config,
         }
         producer = AIOKafkaProducer(**config)
+        logger.info(
+            f"_create_producer() : created producer using the config: '{sanitize_kafka_config(**config)}'"
+        )
 
     if not iscoroutinefunction(callback):
         producer = AIOKafkaProducerManager(producer)
