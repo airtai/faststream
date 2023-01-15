@@ -333,8 +333,10 @@ def create_missing_topics(
     if len(new_topics):
         logger.info(f"create_missing_topics({topic_names}): new_topics = {new_topics}")
         fs = admin.create_topics(new_topics)
+        results = {k: v.result() for k, v in fs.items()}
         while not set(topic_names).issubset(set(admin.list_topics().topics.keys())):
             time.sleep(1)
+        time.sleep(3)
 
 # %% ../nbs/009_Helpers.ipynb 21
 @delegates(AIOKafkaProducer)  # type: ignore
@@ -488,7 +490,7 @@ async def produce_messages(
             return json.dumps(msg).encode("utf-8")
 
         fx = [
-            await p.send(topic, prepare_msg(msg), partition=1)
+            await p.send(topic, prepare_msg(msg))
             for msg in tqdm(msgs, desc=f"producing to '{topic}'")
         ]
         delivery = [await f for f in fx]
