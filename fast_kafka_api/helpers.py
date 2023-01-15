@@ -20,9 +20,12 @@ def in_notebook():
 # %% ../nbs/009_Helpers.ipynb 4
 import asyncio
 import os
+import json
 import time
 from typing import *
 
+import anyio
+import aiokafka
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
 from aiokafka.helpers import create_ssl_context
 from confluent_kafka.admin import AdminClient, NewTopic
@@ -33,14 +36,14 @@ if in_notebook():
 else:
     from tqdm import tqdm, trange
 
-from ._components.helpers import delegates_using_docstring
+from ._components.helpers import combine_params
 from ._components.logger import get_logger, supress_timestamps
 
 # %% ../nbs/009_Helpers.ipynb 6
 logger = get_logger(__name__)
 
 # %% ../nbs/009_Helpers.ipynb 9
-@delegates_using_docstring(AIOKafkaProducer)
+@delegates(AIOKafkaProducer)  # type: ignore
 def aiokafka2confluent(**kwargs: Dict[str, Any]) -> Dict[str, Any]:
     """Converts AIOKafka styled config dictionary into Confluence styled one
 
@@ -172,7 +175,7 @@ def aiokafka2confluent(**kwargs: Dict[str, Any]) -> Dict[str, Any]:
             :mod:`kafka.oauth.abstract`).
             Default: :data:`None`
     """
-    confluent_config = {k.replace("_", "."): v for k, v in aiokafka_config.items()}
+    confluent_config = {k.replace("_", "."): v for k, v in kwargs.items()}
     for k1, k2 in zip(
         ["sasl.plain.username", "sasl.plain.password"],
         ["sasl.username", "sasl.password"],
@@ -221,11 +224,24 @@ def create_admin_client(  # type: ignore
     """Creates Confluent admin client needed for things such as creating and deleting topics
 
     Args:
-        bootstrap_servers:
-        security_protocol:
-        sasl_mechanism:
-        sasl_plain_password:
-        sasl_plain_username:
+        bootstrap_servers (str, list(str)): a ``host[:port]`` string or list of
+            ``host[:port]`` strings that the producer should contact to
+            bootstrap initial cluster metadata. This does not have to be the
+            full node list.  It just needs to have at least one broker that will
+            respond to a Metadata API Request. Default port is 9092. If no
+            servers are specified, will default to ``localhost:9092``.
+        security_protocol (str): Protocol used to communicate with brokers.
+            Valid values are: ``PLAINTEXT``, ``SSL``. Default: ``PLAINTEXT``.
+            Default: ``PLAINTEXT``.
+        sasl_mechanism (str): Authentication mechanism when security_protocol
+            is configured for ``SASL_PLAINTEXT`` or ``SASL_SSL``. Valid values
+            are: ``PLAIN``, ``GSSAPI``, ``SCRAM-SHA-256``, ``SCRAM-SHA-512``,
+            ``OAUTHBEARER``.
+            Default: ``PLAIN``
+        sasl_plain_username (str): username for SASL ``PLAIN`` authentication.
+            Default: :data:`None`
+        sasl_plain_password (str): password for SASL ``PLAIN`` authentication.
+            Default: :data:`None`
 
     Returns:
         An admin client
@@ -252,7 +268,7 @@ def create_admin_client(  # type: ignore
 ## TODO: Add tests for:
 #             - Replication factor (less than and greater than number of brokers)
 #             - Num partitions
-@delegates_using_docstring(create_admin_client)  # type: ignore
+@delegates(create_admin_client)  # type: ignore
 def create_missing_topics(
     topic_names: List[str],
     *,
@@ -266,15 +282,28 @@ def create_missing_topics(
 
     Args:
         topic_names: a list of topic names
-        num_partitions: number of partitions
-        replication_factor:
-        replica_assignment:
-        new_topic_config:
-        bootstrap_servers:
-        security_protocol:
-        sasl_mechanism:
-        sasl_plain_password:
-        sasl_plain_username:
+        num_partitions: Number of partitions to create
+        replication_factor: Replication factor of partitions, or -1 if replica_assignment is used.
+        replica_assignment: List of lists with the replication assignment for each new partition.
+        new_topic_config: topic level config parameters as defined here: https://kafka.apache.org/documentation.html#topicconfigs
+        bootstrap_servers (str, list(str)): a ``host[:port]`` string or list of
+            ``host[:port]`` strings that the producer should contact to
+            bootstrap initial cluster metadata. This does not have to be the
+            full node list.  It just needs to have at least one broker that will
+            respond to a Metadata API Request. Default port is 9092. If no
+            servers are specified, will default to ``localhost:9092``.
+        security_protocol (str): Protocol used to communicate with brokers.
+            Valid values are: ``PLAINTEXT``, ``SSL``. Default: ``PLAINTEXT``.
+            Default: ``PLAINTEXT``.
+        sasl_mechanism (str): Authentication mechanism when security_protocol
+            is configured for ``SASL_PLAINTEXT`` or ``SASL_SSL``. Valid values
+            are: ``PLAIN``, ``GSSAPI``, ``SCRAM-SHA-256``, ``SCRAM-SHA-512``,
+            ``OAUTHBEARER``.
+            Default: ``PLAIN``
+        sasl_plain_username (str): username for SASL ``PLAIN`` authentication.
+            Default: :data:`None`
+        sasl_plain_password (str): password for SASL ``PLAIN`` authentication.
+            Default: :data:`None`
     """
     admin = create_admin_client(**kwargs)  # type: ignore
     if not replication_factor:
@@ -308,18 +337,18 @@ def create_missing_topics(
             time.sleep(1)
 
 # %% ../nbs/009_Helpers.ipynb 21
-@delegates_using_docstring(AIOKafkaProducer)
+@delegates(AIOKafkaProducer)  # type: ignore
 async def produce_messages(
     *,
     topic: str,
     msgs: List[Any],
     **kwargs: Dict[str, Any],
-):
+) -> List[aiokafka.structs.RecordMetadata]:
     """Produces messages to Kafka topic
 
     Args:
-        topic:
-        msgs:
+        topic: Topic name
+        msgs: a list of messages to produce
         bootstrap_servers (str, list(str)): a ``host[:port]`` string or list of
             ``host[:port]`` strings that the producer should contact to
             bootstrap initial cluster metadata. This does not have to be the
@@ -454,8 +483,8 @@ async def produce_messages(
                 return msg
             elif isinstance(msg, str):
                 return msg.encode("utf-8")
-            elif hasattr(msg, json):
-                return msg.json().encode("utf-8")
+            elif hasattr(msg, "json"):
+                return msg.json().encode("utf-8")  # type: ignore
             return json.dumps(msg).encode("utf-8")
 
         fx = [
@@ -468,17 +497,17 @@ async def produce_messages(
         await p.stop()
 
 # %% ../nbs/009_Helpers.ipynb 24
-@delegates_using_docstring(AIOKafkaConsumer)
+@delegates(AIOKafkaConsumer)  # type: ignore
 async def consumes_messages(
     *,
     topic: str,
     msgs_count: int,
     **kwargs: Dict[str, Any],
-):
+) -> List[Any]:
     """Consumes messages
     Args:
-        topic:
-        msgs_count:
+        topic: Topic name
+        msgs_count: number of messages to consume before returning
         *topics (list(str)): optional list of topics to subscribe to. If not set,
             call :meth:`.subscribe` or :meth:`.assign` before consuming records.
             Passing topics directly is same as calling :meth:`.subscribe` API.
@@ -659,8 +688,8 @@ async def consumes_messages(
         await consumer.stop()
 
 # %% ../nbs/009_Helpers.ipynb 27
-@delegates_using_docstring(AIOKafkaConsumer)
-@delegates(AIOKafkaProducer)
+@delegates(AIOKafkaConsumer)  # type: ignore
+@delegates(AIOKafkaProducer, keep=True)  # type: ignore
 async def produce_and_consume_messages(
     *,
     produce_topic: str,
@@ -668,12 +697,14 @@ async def produce_and_consume_messages(
     msgs: List[Any],
     msgs_count: int,
     **kwargs: Dict[str, Any],
-):
+) -> None:
     """produce_and_consume_messages
 
     Args:
-        produce_topic:
-        consume_topic:
+        produce_topic: Topic name for producing messages
+        consume_topic: Topic name for consuming messages
+        msgs: a list of messages to produce
+        msgs_count: number of messages to consume before returning
         bootstrap_servers (str, list(str)): a ``host[:port]`` string (or list of
             ``host[:port]`` strings) that the consumer should contact to bootstrap
             initial cluster metadata.
@@ -838,14 +869,94 @@ async def produce_and_consume_messages(
             Default: None
         sasl_oauth_token_provider (~aiokafka.abc.AbstractTokenProvider): OAuthBearer token provider instance. (See :mod:`kafka.oauth.abstract`).
             Default: None
+        key_serializer (Callable): used to convert user-supplied keys to bytes
+            If not :data:`None`, called as ``f(key),`` should return
+            :class:`bytes`.
+            Default: :data:`None`.
+        value_serializer (Callable): used to convert user-supplied message
+            values to :class:`bytes`. If not :data:`None`, called as
+            ``f(value)``, should return :class:`bytes`.
+            Default: :data:`None`.
+        acks (Any): one of ``0``, ``1``, ``all``. The number of acknowledgments
+            the producer requires the leader to have received before considering a
+            request complete. This controls the durability of records that are
+            sent. The following settings are common:
+
+            * ``0``: Producer will not wait for any acknowledgment from the server
+              at all. The message will immediately be added to the socket
+              buffer and considered sent. No guarantee can be made that the
+              server has received the record in this case, and the retries
+              configuration will not take effect (as the client won't
+              generally know of any failures). The offset given back for each
+              record will always be set to -1.
+            * ``1``: The broker leader will write the record to its local log but
+              will respond without awaiting full acknowledgement from all
+              followers. In this case should the leader fail immediately
+              after acknowledging the record but before the followers have
+              replicated it then the record will be lost.
+            * ``all``: The broker leader will wait for the full set of in-sync
+              replicas to acknowledge the record. This guarantees that the
+              record will not be lost as long as at least one in-sync replica
+              remains alive. This is the strongest available guarantee.
+
+            If unset, defaults to ``acks=1``. If `enable_idempotence` is
+            :data:`True` defaults to ``acks=all``
+        compression_type (str): The compression type for all data generated by
+            the producer. Valid values are ``gzip``, ``snappy``, ``lz4``, ``zstd``
+            or :data:`None`.
+            Compression is of full batches of data, so the efficacy of batching
+            will also impact the compression ratio (more batching means better
+            compression). Default: :data:`None`.
+        max_batch_size (int): Maximum size of buffered data per partition.
+            After this amount :meth:`send` coroutine will block until batch is
+            drained.
+            Default: 16384
+        linger_ms (int): The producer groups together any records that arrive
+            in between request transmissions into a single batched request.
+            Normally this occurs only under load when records arrive faster
+            than they can be sent out. However in some circumstances the client
+            may want to reduce the number of requests even under moderate load.
+            This setting accomplishes this by adding a small amount of
+            artificial delay; that is, if first request is processed faster,
+            than `linger_ms`, producer will wait ``linger_ms - process_time``.
+            Default: 0 (i.e. no delay).
+        partitioner (Callable): Callable used to determine which partition
+            each message is assigned to. Called (after key serialization):
+            ``partitioner(key_bytes, all_partitions, available_partitions)``.
+            The default partitioner implementation hashes each non-None key
+            using the same murmur2 algorithm as the Java client so that
+            messages with the same key are assigned to the same partition.
+            When a key is :data:`None`, the message is delivered to a random partition
+            (filtered to partitions with available leaders only, if possible).
+        max_request_size (int): The maximum size of a request. This is also
+            effectively a cap on the maximum record size. Note that the server
+            has its own cap on record size which may be different from this.
+            This setting will limit the number of record batches the producer
+            will send in a single request to avoid sending huge requests.
+            Default: 1048576.
+        enable_idempotence (bool): When set to :data:`True`, the producer will
+            ensure that exactly one copy of each message is written in the
+            stream. If :data:`False`, producer retries due to broker failures,
+            etc., may write duplicates of the retried message in the stream.
+            Note that enabling idempotence acks to set to ``all``. If it is not
+            explicitly set by the user it will be chosen. If incompatible
+            values are set, a :exc:`ValueError` will be thrown.
+            New in version 0.5.0.
+        sasl_oauth_token_provider (: class:`~aiokafka.abc.AbstractTokenProvider`):
+            OAuthBearer token provider instance. (See
+            :mod:`kafka.oauth.abstract`).
+            Default: :data:`None`
+        *topics (list(str)): optional list of topics to subscribe to. If not set,
+            call :meth:`.subscribe` or :meth:`.assign` before consuming records.
+            Passing topics directly is same as calling :meth:`.subscribe` API.
     """
     async with anyio.create_task_group() as tg:
         tg.start_soon(
-            lambda d: produce_messages(**d),
+            lambda d: produce_messages(**d),  # type: ignore
             dict(msgs=msgs, topic=produce_topic, **kwargs),
         )
         tg.start_soon(
-            lambda d: consumes_messages(**d),
+            lambda d: consumes_messages(**d),  # type: ignore
             dict(
                 msgs_count=msgs_count,
                 topic=consume_topic,
