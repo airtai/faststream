@@ -35,6 +35,7 @@ aiokafka_config = {
 }
 
 # %% ../../nbs/001_ConsumerLoop.ipynb 10
+## TODO: Refactor this back to consumer loop
 async def process_msgs(  # type: ignore
     *,
     msgs: Dict[TopicPartition, List[ConsumerRecord]],
