@@ -152,7 +152,7 @@ class KafkaBrokers(BaseModel):
 # T = TypeVar("T")
 
 
-def _get_msg_cls_for_producer(f: ProduceCallable) -> Type[BaseModel]:
+def _get_msg_cls_for_producer(f: ProduceCallable) -> Type[Any]:
     types = get_type_hints(f)
     return_type = types.pop("return", type(None))
     # @app.producer must define a return value
@@ -160,24 +160,26 @@ def _get_msg_cls_for_producer(f: ProduceCallable) -> Type[BaseModel]:
         raise ValueError(
             f"Producer function must have a defined return value, got {return_type} as return value"
         )
+    if not hasattr(return_type, "json"):
+        raise ValueError(f"Producer function return value must have json method")
     return return_type  # type: ignore
 
 # %% ../../nbs/003_AsyncAPI.ipynb 20
-def _get_msg_cls_for_consumer(f: ConsumeCallable) -> Type[BaseModel]:
-    classes = get_type_hints(f)
-    return_type = classes.pop("return", type(None))
-    classes_list = list(classes.values())
+def _get_msg_cls_for_consumer(f: ConsumeCallable) -> Type[Any]:
+    types = get_type_hints(f)
+    return_type = types.pop("return", type(None))
+    types_list = list(types.values())
     # @app.consumer takes only message argument
-    if len(classes_list) != 1:
+    if len(types_list) != 1:
         raise ValueError(
-            f"Consumer function must have only one input param, got {classes_list}"
+            f"Consumer function must have only one input param, got {types_list}"
         )
     # @app.consumer does not return a value
     if return_type != type(None):
         raise ValueError(
             f"Consumer function cannot return any value, got {return_type}"
         )
-    return classes_list[0]  # type: ignore
+    return types_list[0]  # type: ignore
 
 # %% ../../nbs/003_AsyncAPI.ipynb 23
 def _get_topic_dict(
