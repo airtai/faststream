@@ -17,9 +17,9 @@ def in_notebook():
     return True
 
 # %% ../../nbs/010_Internal_Helpers.ipynb 4
+import textwrap
 from functools import wraps
 from inspect import signature
-import textwrap
 from typing import *
 
 import docstring_parser
@@ -35,8 +35,14 @@ from .logger import get_logger, supress_timestamps
 # %% ../../nbs/010_Internal_Helpers.ipynb 6
 logger = get_logger(__name__)
 
-# %% ../../nbs/010_Internal_Helpers.ipynb 9
+# %% ../../nbs/010_Internal_Helpers.ipynb 8
 F = TypeVar("F", bound=Callable[..., Any])
+
+
+def _format_args(xs: List[docstring_parser.DocstringParam]) -> str:
+    return "\nArgs:\n - " + "\n - ".join(
+        [f"{x.arg_name} ({x.type_name}): {x.description}" for x in xs]
+    )
 
 
 def combine_params(f: F, o: Union[Type, Callable[..., Any]]) -> F:
@@ -50,12 +56,15 @@ def combine_params(f: F, o: Union[Type, Callable[..., Any]]) -> F:
         Function f with augumented docstring including arguments from both functions/objects
     """
     src_params = docstring_parser.parse_from_object(o).params
+    #     logger.info(f"combine_params(): source:{_format_args(src_params)}")
     docs = docstring_parser.parse_from_object(f)
+    #     logger.info(f"combine_params(): destination:{_format_args(docs.params)}")
     dst_params_names = [p.arg_name for p in docs.params]
 
     combined_params = docs.params + [
         x for x in src_params if not x.arg_name in dst_params_names
     ]
+    #     logger.info(f"combine_params(): combined:{_format_args(combined_params)}")
 
     docs.meta = [
         x for x in docs.meta if not isinstance(x, docstring_parser.DocstringParam)
@@ -66,7 +75,7 @@ def combine_params(f: F, o: Union[Type, Callable[..., Any]]) -> F:
     )
     return f
 
-# %% ../../nbs/010_Internal_Helpers.ipynb 12
+# %% ../../nbs/010_Internal_Helpers.ipynb 10
 def delegates_using_docstring(o: Union[Type, Callable[..., Any]]) -> Callable[[F], F]:
     def _delegates_using_docstring(f: F) -> F:
         def _combine_params(o: Union[Type, Callable[..., Any]]) -> Callable[[F], F]:
@@ -85,7 +94,7 @@ def delegates_using_docstring(o: Union[Type, Callable[..., Any]]) -> Callable[[F
 
     return _delegates_using_docstring
 
-# %% ../../nbs/010_Internal_Helpers.ipynb 19
+# %% ../../nbs/010_Internal_Helpers.ipynb 17
 def use_parameters_of(
     o: Union[Type, Callable[..., Any]], **kwargs: Dict[str, Any]
 ) -> Dict[str, Any]:

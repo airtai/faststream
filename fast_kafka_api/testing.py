@@ -3,7 +3,7 @@
 # %% auto 0
 __all__ = ['logger', 'kafka_server_url', 'kafka_server_port', 'aiokafka_config', 'in_notebook', 'nb_safe_seed', 'true_after',
            'create_testing_topic', 'create_and_fill_testing_topic', 'mock_AIOKafkaProducer_send', 'change_dir',
-           'run_script_and_cancel']
+           'run_script_and_cancel', 'run_on_uvicorn']
 
 # %% ../nbs/999_Test_Utils.ipynb 1
 def in_notebook():
@@ -25,52 +25,48 @@ import hashlib
 import os
 import random
 import shlex
-import textwrap
 
 # [B404:blacklist] Consider possible security implications associated with the subprocess module.
 import subprocess  # nosec
+import textwrap
 import time
 import unittest
 import unittest.mock
 from contextlib import asynccontextmanager, contextmanager
-from fastcore.meta import delegates
 from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Generator,
-    List,
-    Optional,
-    Tuple,
-    AsyncIterator,
-    Union,
-)
-from pydantic import BaseModel
+from typing import *
 
+import asyncer
+import uvicorn
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from confluent_kafka.admin import AdminClient, NewTopic
+from fastcore.meta import delegates
+from pydantic import BaseModel
 
+from ._cli import _import_from_string
+from ._components.helpers import combine_params, use_parameters_of
+from ._components.logger import get_logger, supress_timestamps
+from fast_kafka_api.helpers import (
+    consumes_messages,
+    create_admin_client,
+    create_missing_topics,
+    in_notebook,
+    produce_messages,
+)
+from .application import FastKafka
+
+# %% ../nbs/999_Test_Utils.ipynb 4
 if in_notebook():
     from tqdm.notebook import tqdm, trange
 else:
     from tqdm import tqdm, trange
 
-from ._components.logger import get_logger, supress_timestamps
-from ._components.helpers import combine_params, use_parameters_of
-from fast_kafka_api.helpers import (
-    create_admin_client,
-    create_missing_topics,
-    produce_messages,
-    consumes_messages,
-)
-
-# %% ../nbs/999_Test_Utils.ipynb 6
+# %% ../nbs/999_Test_Utils.ipynb 7
 logger = get_logger(__name__)
 
-# %% ../nbs/999_Test_Utils.ipynb 8
+# %% ../nbs/999_Test_Utils.ipynb 9
 kafka_server_url = (
     os.environ["KAFKA_HOSTNAME"] if "KAFKA_HOSTNAME" in os.environ else "localhost"
 )
@@ -80,7 +76,7 @@ aiokafka_config = {
     "bootstrap_servers": f"{kafka_server_url}:{kafka_server_port}",
 }
 
-# %% ../nbs/999_Test_Utils.ipynb 9
+# %% ../nbs/999_Test_Utils.ipynb 10
 def nb_safe_seed(s: str) -> Callable[[int], int]:
     """Gets a unique seed function for a notebook
 
@@ -97,7 +93,7 @@ def nb_safe_seed(s: str) -> Callable[[int], int]:
 
     return _get_seed
 
-# %% ../nbs/999_Test_Utils.ipynb 11
+# %% ../nbs/999_Test_Utils.ipynb 12
 def true_after(seconds: float) -> Callable[[], bool]:
     """Function returning True after a given number of seconds"""
     t = datetime.now()
@@ -107,7 +103,7 @@ def true_after(seconds: float) -> Callable[[], bool]:
 
     return _true_after
 
-# %% ../nbs/999_Test_Utils.ipynb 13
+# %% ../nbs/999_Test_Utils.ipynb 14
 @contextmanager
 @delegates(create_missing_topics)  # type: ignore
 def create_testing_topic(
@@ -204,7 +200,7 @@ def create_testing_topic(
         while topic in admin.list_topics().topics.keys():
             time.sleep(1)
 
-# %% ../nbs/999_Test_Utils.ipynb 16
+# %% ../nbs/999_Test_Utils.ipynb 17
 @asynccontextmanager
 @delegates(produce_messages)  # type: ignore
 @delegates(create_testing_topic, keep=True)  # type: ignore
@@ -354,7 +350,7 @@ async def create_and_fill_testing_topic(**kwargs: Dict[str, str]) -> AsyncIterat
 
         yield topic
 
-# %% ../nbs/999_Test_Utils.ipynb 20
+# %% ../nbs/999_Test_Utils.ipynb 21
 @contextmanager
 def mock_AIOKafkaProducer_send() -> Generator[unittest.mock.Mock, None, None]:
     """Mocks **send** method of **AIOKafkaProducer**"""
@@ -367,7 +363,7 @@ def mock_AIOKafkaProducer_send() -> Generator[unittest.mock.Mock, None, None]:
 
         yield mock
 
-# %% ../nbs/999_Test_Utils.ipynb 21
+# %% ../nbs/999_Test_Utils.ipynb 22
 @contextlib.contextmanager
 def change_dir(d: str) -> Generator[None, None, None]:
     curdir = os.getcwd()
@@ -377,23 +373,93 @@ def change_dir(d: str) -> Generator[None, None, None]:
     finally:
         os.chdir(curdir)
 
-# %% ../nbs/999_Test_Utils.ipynb 23
-def run_script_and_cancel(
-    *, script: str, script_file: str, cmd: str, cancel_after: int
+# %% ../nbs/999_Test_Utils.ipynb 24
+async def run_script_and_cancel(
+    script: str,
+    *,
+    script_file: Optional[str] = None,
+    cmd: Optional[str] = None,
+    cancel_after: int = 10,
+    app_name: str = "app",
+    kafka_app_name: str = "kafka_app",
+    generate_docs: bool = False,
 ) -> Tuple[int, bytes]:
+    """Run script and cancel after predefined time
+
+    Args:
+        script: a python source code to be executed in a separate subprocess
+        script_file: name of the script where script source will be saved
+        cmd: command to execute. If None, it will be set to 'python3 -m {Path(script_file).stem}'
+        cancel_after: number of seconds before sending SIGTERM signal
+
+    Returns:
+        A tuple containing exit code and combined stdout and stderr as a binary string
+    """
+    if script_file is None:
+        script_file = "script.py"
+
+    if cmd is None:
+        cmd = f"python3 -m {Path(script_file).stem}"
+
     with TemporaryDirectory() as d:
         consumer_script = Path(d) / script_file
 
-        with open(consumer_script, "a+") as file:
+        with open(consumer_script, "w") as file:
             file.write(script)
 
-        # os.chdir(d)
         with change_dir(d):
+            if generate_docs:
+                kafka_app: FastKafka = _import_from_string(
+                    f"{Path(script_file).stem}:{kafka_app_name}"
+                )
+                await asyncer.asyncify(kafka_app.create_docs)()
+
             proc = subprocess.Popen(  # nosec: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
                 shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT
             )
-            time.sleep(cancel_after)
+            await asyncio.sleep(cancel_after)
             proc.terminate()
             output, _ = proc.communicate()
 
         return (proc.returncode, output)
+
+# %% ../nbs/999_Test_Utils.ipynb 29
+async def run_on_uvicorn(
+    script: str,
+    *,
+    script_file: str = "server.py",
+    app_name: str = "app",
+    kafka_app_name: str = "kafka_app",
+    cmd: Optional[str] = None,
+    cancel_after: int = 60,
+    host: str = "127.0.0.1",
+    port: int = 8000,
+    workers: int = 1,
+) -> None:
+    """Runs a script using Uvicorn server
+    Args:
+        script: input Python script to save to temporary folder under the name `script_file` and import `app_name` from
+        script_file: name of the file for saving the input Python script
+        app_name: name of the variable in script holding the FastAPI object
+        cmd: command to execute
+        cancel_after: number of seconds to wait since the beginning of the execution before the TERM_SIG is send to the Uvicorn application
+
+    Raises:
+
+    """
+    if cmd is None:
+        cmd = f"python3 -m uvicorn {Path(script_file).stem}:{app_name} --host {host} --port {port} --workers {workers}"
+
+    exit_code, output = await run_script_and_cancel(
+        script,
+        script_file=script_file,
+        cmd=cmd,
+        cancel_after=cancel_after,
+        app_name=app_name,
+        kafka_app_name=kafka_app_name,
+        generate_docs=True,
+    )
+
+    print(output.decode("utf-8"))
+    if exit_code != 0:
+        raise RuntimeError(f"Execution of '{cmd}' failed: {output.decode('utf-8')}")

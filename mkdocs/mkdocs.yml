@@ -1,5 +1,5 @@
 # Site
-site_name: FastKafkaAPI
+site_name: FastKafka
 site_url: https://airtai.github.io/fast-kafka-api
 site_author: airt
 site_description: Extension of FastAPI with Kafka event handlers
