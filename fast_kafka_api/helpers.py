@@ -2,7 +2,8 @@
 
 # %% auto 0
 __all__ = ['logger', 'in_notebook', 'aiokafka2confluent', 'confluent2aiokafka', 'create_admin_client', 'create_missing_topics',
-           'produce_messages', 'consumes_messages', 'produce_and_consume_messages']
+           'produce_messages', 'consumes_messages', 'produce_and_consume_messages', 'get_collapsible_admonition',
+           'source2markdown', 'wait_for_get_url']
 
 # %% ../nbs/009_Helpers.ipynb 2
 def in_notebook():
@@ -19,30 +20,36 @@ def in_notebook():
 
 # %% ../nbs/009_Helpers.ipynb 4
 import asyncio
-import os
+import inspect
 import json
+import os
+import textwrap
 import time
+from datetime import datetime, timedelta
 from typing import *
 
-import anyio
+import aiohttp
 import aiokafka
-from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
+import anyio
+from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from aiokafka.helpers import create_ssl_context
 from confluent_kafka.admin import AdminClient, NewTopic
 from fastcore.meta import delegates
+from IPython.display import Markdown
 
+from ._components.helpers import combine_params
+from ._components.logger import get_logger, supress_timestamps
+
+# %% ../nbs/009_Helpers.ipynb 5
 if in_notebook():
     from tqdm.notebook import tqdm, trange
 else:
     from tqdm import tqdm, trange
 
-from ._components.helpers import combine_params
-from ._components.logger import get_logger, supress_timestamps
-
-# %% ../nbs/009_Helpers.ipynb 6
+# %% ../nbs/009_Helpers.ipynb 7
 logger = get_logger(__name__)
 
-# %% ../nbs/009_Helpers.ipynb 9
+# %% ../nbs/009_Helpers.ipynb 10
 @delegates(AIOKafkaProducer)  # type: ignore
 def aiokafka2confluent(**kwargs: Dict[str, Any]) -> Dict[str, Any]:
     """Converts AIOKafka styled config dictionary into Confluence styled one
@@ -188,7 +195,7 @@ def aiokafka2confluent(**kwargs: Dict[str, Any]) -> Dict[str, Any]:
 
     return confluent_config
 
-# %% ../nbs/009_Helpers.ipynb 11
+# %% ../nbs/009_Helpers.ipynb 12
 def confluent2aiokafka(confluent_config: Dict[str, Any]) -> Dict[str, Any]:
     """Converts AIOKafka styled config dictionary into Confluence styled one
 
@@ -212,14 +219,14 @@ def confluent2aiokafka(confluent_config: Dict[str, Any]) -> Dict[str, Any]:
 
     return aiokafka_config
 
-# %% ../nbs/009_Helpers.ipynb 15
+# %% ../nbs/009_Helpers.ipynb 16
 def create_admin_client(  # type: ignore
     bootstrap_servers: str = "localhost",
     security_protocol: Optional[str] = None,
     sasl_mechanism: Optional[str] = None,
     sasl_plain_password: Optional[str] = None,
     sasl_plain_username: Optional[str] = None,
-    **kwargs: Dict[str, Any]
+    **kwargs: Dict[str, Any],
 ) -> AdminClient:
     """Creates Confluent admin client needed for things such as creating and deleting topics
 
@@ -263,7 +270,7 @@ def create_admin_client(  # type: ignore
 
     return admin
 
-# %% ../nbs/009_Helpers.ipynb 17
+# %% ../nbs/009_Helpers.ipynb 18
 ## TODO: Check if replication num is <= of number of brokers
 ## TODO: Add tests for:
 #             - Replication factor (less than and greater than number of brokers)
@@ -338,7 +345,7 @@ def create_missing_topics(
             time.sleep(1)
         time.sleep(3)
 
-# %% ../nbs/009_Helpers.ipynb 21
+# %% ../nbs/009_Helpers.ipynb 22
 @delegates(AIOKafkaProducer)  # type: ignore
 async def produce_messages(
     *,
@@ -498,7 +505,7 @@ async def produce_messages(
     finally:
         await p.stop()
 
-# %% ../nbs/009_Helpers.ipynb 24
+# %% ../nbs/009_Helpers.ipynb 25
 @delegates(AIOKafkaConsumer)  # type: ignore
 async def consumes_messages(
     *,
@@ -689,7 +696,7 @@ async def consumes_messages(
     finally:
         await consumer.stop()
 
-# %% ../nbs/009_Helpers.ipynb 27
+# %% ../nbs/009_Helpers.ipynb 28
 @delegates(AIOKafkaConsumer)  # type: ignore
 @delegates(AIOKafkaProducer, keep=True)  # type: ignore
 async def produce_and_consume_messages(
@@ -965,3 +972,61 @@ async def produce_and_consume_messages(
                 **kwargs,
             ),
         )
+
+# %% ../nbs/009_Helpers.ipynb 31
+def get_collapsible_admonition(
+    code_block: str, *, name: Optional[str] = None
+) -> Markdown:
+    alt_name = "" if name is None else name
+    intro = f'This example contains the content of the file "{alt_name}":'
+    return Markdown(
+        f"??? Example \n\n    {intro}\n\n"
+        + textwrap.indent(f"```python\n{code_block}\n```", prefix="    ")
+    )
+
+# %% ../nbs/009_Helpers.ipynb 33
+def source2markdown(o: Union[str, Callable[..., Any]]) -> Markdown:
+    """Converts source code into Markdown for displaying it with Jupyter notebook
+
+    Args:
+        o: source code
+    """
+    s = inspect.getsource(o) if callable(o) else o
+    return Markdown(
+        f"""
+```python
+{s}
+```
+"""
+    )
+
+# %% ../nbs/009_Helpers.ipynb 35
+async def wait_for_get_url(
+    url: str, timeout: Optional[int] = None, **kwargs: Dict[str, Any]
+) -> aiohttp.ClientResponse:
+    t0 = datetime.now()
+    if timeout is not None:
+        pbar = tqdm(total=timeout, **kwargs)
+    try:
+        async with aiohttp.ClientSession() as session:
+            while True:
+                try:
+                    async with session.get(url) as response:
+                        if timeout is not None:
+                            pbar.update(pbar.total - pbar.n)
+                        return response
+                except aiohttp.ClientConnectorError as e:
+                    if timeout is not None:
+                        if pbar.total - pbar.n > 1:
+                            pbar.update(1)
+                    await asyncio.sleep(1)
+
+                if timeout is not None and datetime.now() - t0 >= timedelta(
+                    seconds=timeout
+                ):
+                    raise TimeoutError(
+                        f"Could not fetch url '{url}' for more than {timeout} seconds"
+                    )
+    finally:
+        if timeout is not None:
+            pbar.close()

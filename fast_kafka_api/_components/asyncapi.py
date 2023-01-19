@@ -267,7 +267,11 @@ def _get_msg_definitions_with_examples(
     for msg_cls in msg_classes:
         _add_example_to_msg_definitions(msg_cls, msg_schema)
 
-    msg_schema = {k: {"payload": v} for k, v in msg_schema["definitions"].items()}
+    msg_schema = (
+        {k: {"payload": v} for k, v in msg_schema["definitions"].items()}
+        if "definitions" in msg_schema
+        else {}
+    )
 
     return msg_schema
 
@@ -380,10 +384,14 @@ def _generate_async_spec(
         )
         if spec_changed or force_rebuild:
             shutil.copyfile(Path(d) / "asyncapi.yml", spec_path)
-            logger.info(f"New async specifications generated at: '{spec_path}'")
+            logger.info(
+                f"New async specifications generated at: '{spec_path.resolve()}'"
+            )
             return True
         else:
-            logger.info(f"Keeping the old async specifications at: '{spec_path}'")
+            logger.info(
+                f"Keeping the old async specifications at: '{spec_path.resolve()}'"
+            )
             return False
 
 # %% ../../nbs/003_AsyncAPI.ipynb 45
