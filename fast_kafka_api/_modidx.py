@@ -193,4 +193,6 @@ d = { 'settings': { 'branch': 'main',
                                                                                    'fast_kafka_api/testing.py'),
                                         'fast_kafka_api.testing.run_script_and_cancel': ( 'test_utils.html#run_script_and_cancel',
                                                                                           'fast_kafka_api/testing.py'),
-                                        'fast_kafka_api.testing.true_after': ('test_utils.html#true_after', 'fast_kafka_api/testing.py')}}}
+                                        'fast_kafka_api.testing.true_after': ('test_utils.html#true_after', 'fast_kafka_api/testing.py')},
+            'fast_kafka_api.uvicorn_helpers': { 'fast_kafka_api.uvicorn_helpers.run_uvicorn': ( 'uvicorn_helpers.html#run_uvicorn',
+                                                                                                'fast_kafka_api/uvicorn_helpers.py')}}}
