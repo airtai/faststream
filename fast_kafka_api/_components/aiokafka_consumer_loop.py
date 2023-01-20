@@ -13,10 +13,10 @@ from typing import *
 
 from fastcore.meta import delegates
 import anyio
-from anyio.streams.memory import MemoryObjectReceiveStream
 import asyncer
 from aiokafka import AIOKafkaConsumer
 from aiokafka.structs import ConsumerRecord, TopicPartition
+from anyio.streams.memory import MemoryObjectReceiveStream
 from pydantic import BaseModel, Field, HttpUrl, NonNegativeInt
 
 from .logger import get_logger

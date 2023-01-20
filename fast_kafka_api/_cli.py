@@ -10,10 +10,10 @@ from asyncio import run as aiorun
 from pathlib import Path
 from typing import *
 
-from fastapi import FastAPI
 import typer
+from fastapi import FastAPI
 
-from .application import FastKafkaAPI
+from .application import FastKafka
 
 # %% ../nbs/004_CLI.ipynb 6
 class ImportFromStringError(Exception):
@@ -88,12 +88,12 @@ def generate_docs(
     ),
     app: str = typer.Argument(
         ...,
-        help="input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafkaAPI**.",
+        help="input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafka**.",
     ),
 ) -> None:
     try:
         application = _import_from_string(app)
-        application.generate_async_spec()
+        application.create_docs()
     except Exception as e:
 
         typer.secho(f"Unexpected internal error: {e}", err=True, fg=typer.colors.RED)
