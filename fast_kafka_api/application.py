@@ -511,9 +511,9 @@ def _populate_consumers(
     self._kafka_consumer_tasks = [
         asyncio.create_task(
             aiokafka_consumer_loop(
-                topics=[topic],
-                callbacks={topic: consumer},
-                msg_types={topic: signature(consumer).parameters["msg"].annotation},
+                topic=topic,
+                callback=consumer,
+                msg_type=signature(consumer).parameters["msg"].annotation,
                 is_shutting_down_f=is_shutting_down_f,
                 **{**default_config, **override_config},
             )
