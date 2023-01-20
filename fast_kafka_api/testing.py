@@ -392,10 +392,18 @@ async def run_script_and_cancel(
 
         with change_dir(d):
             if generate_docs:
-                kafka_app: FastKafka = _import_from_string(
-                    f"{Path(script_file).stem}:{kafka_app_name}"
+                logger.info(
+                    f"Generating docs for: {Path(script_file).stem}:{kafka_app_name}"
                 )
-                await asyncer.asyncify(kafka_app.create_docs)()
+                try:
+                    kafka_app: FastKafka = _import_from_string(
+                        f"{Path(script_file).stem}:{kafka_app_name}"
+                    )
+                    await asyncer.asyncify(kafka_app.create_docs)()
+                except Exception as e:
+                    logger.warning(
+                        f"Generating docs failed for: {Path(script_file).stem}:{kafka_app_name}, ignoring it for now."
+                    )
 
             proc = subprocess.Popen(  # nosec: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
                 shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT
@@ -425,7 +433,7 @@ async def run_on_uvicorn(
         script_file: name of the file for saving the input Python script
         app_name: name of the variable in script holding the FastAPI object
         cmd: command to execute
-        cancel_after: number of seconds to wait since the beginning of the execution before the TERM_SIG is send to the Uvicorn application
+        cancel_after: number of seconds to wait since the beginning of the execution before the TERMSIG is send to the Uvicorn application
 
     Raises:
 

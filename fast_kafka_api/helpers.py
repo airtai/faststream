@@ -974,7 +974,7 @@ async def produce_and_consume_messages(
         )
 
 # %% ../nbs/009_Helpers.ipynb 31
-def get_collapsible_admonition(
+def get_collapsible_admonition(  # type: ignore
     code_block: str, *, name: Optional[str] = None
 ) -> Markdown:
     alt_name = "" if name is None else name
@@ -985,7 +985,7 @@ def get_collapsible_admonition(
     )
 
 # %% ../nbs/009_Helpers.ipynb 33
-def source2markdown(o: Union[str, Callable[..., Any]]) -> Markdown:
+def source2markdown(o: Union[str, Callable[..., Any]]) -> Markdown:  # type: ignore
     """Converts source code into Markdown for displaying it with Jupyter notebook
 
     Args:
