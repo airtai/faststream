@@ -54,7 +54,6 @@ def _create_safe_callback(
         callback: Callable[[BaseModel], Awaitable[None]] = callback,
     ) -> None:
         try:
-            #                         logger.debug(f"process_msgs(): awaiting '{callback}({msg})'")
             await callback(msg)
         except Exception as e:
             logger.warning(
@@ -65,7 +64,7 @@ def _create_safe_callback(
 
 # %% ../../nbs/001_ConsumerLoop.ipynb 14
 def _prepare_callback(
-    callback: Union[Callable[[BaseModel], None], Callable[[BaseModel], Awaitable[None]]]
+    callback: Callable[[BaseModel], Union[None, Awaitable[None]]]
 ) -> Callable[[BaseModel], Awaitable[None]]:
     """
     Prepares a callback to be used in the consumer loop.
@@ -78,13 +77,13 @@ def _prepare_callback(
     Returns:
         Prepared callback
     """
-    callback: Callable[[BaseModel], Awaitable[None]] = (
-        callback if iscoroutinefunction(callback) else asyncer.asyncify(callback)
+    async_callback: Callable[[BaseModel], Awaitable[None]] = (
+        callback if iscoroutinefunction(callback) else asyncer.asyncify(callback)  # type: ignore
     )
-    return _create_safe_callback(callback)
+    return _create_safe_callback(async_callback)
 
-# %% ../../nbs/001_ConsumerLoop.ipynb 17
-async def _stream_msgs(
+# %% ../../nbs/001_ConsumerLoop.ipynb 16
+async def _stream_msgs(  # type: ignore
     msgs: Dict[TopicPartition, bytes],
     send_stream: anyio.streams.memory.MemoryObjectSendStream[Any],
 ) -> None:
@@ -101,17 +100,17 @@ async def _stream_msgs(
             await send_stream.send(topic_msgs)
         except Exception as e:
             logger.warning(
-                f"_stream_msgs(): Unexpected exception '{e.__repr__()}' caught and ignored for topic='{topic_partition.topic}', partition='{topic_partition.partition}' and messages: {topic_msgs}"
+                f"_stream_msgs(): Unexpected exception '{e.__repr__()}' caught and ignored for topic='{topic_partition.topic}', partition='{topic_partition.partition}' and messages: {topic_msgs!r}"
             )
 
 
-def _decode_streamed_msgs(
+def _decode_streamed_msgs(  # type: ignore
     msgs: List[ConsumerRecord], msg_type: BaseModel
 ) -> List[BaseModel]:
     decoded_msgs = [msg_type.parse_raw(msg.value.decode("utf-8")) for msg in msgs]
     return decoded_msgs
 
-# %% ../../nbs/001_ConsumerLoop.ipynb 22
+# %% ../../nbs/001_ConsumerLoop.ipynb 21
 async def _streamed_records(receive_stream):
     async for records_per_topic in receive_stream:
         for records in records_per_topic:
@@ -119,8 +118,8 @@ async def _streamed_records(receive_stream):
                 yield record
 
 
-@delegates(AIOKafkaConsumer.getmany)
-async def _aiokafka_consumer_loop(  # type: ignore
+@delegates(AIOKafkaConsumer.getmany)  # type: ignore
+async def _aiokafka_consumer_loop(
     consumer: AIOKafkaConsumer,
     *,
     topic: str,
@@ -146,9 +145,9 @@ async def _aiokafka_consumer_loop(  # type: ignore
 
     async def process_message_callback(
         receive_stream: MemoryObjectReceiveStream[Any],
-        callback=prepared_callback,
-        msg_type=msg_type,
-        topic=topic,
+        callback: Callable[[BaseModel], Awaitable[None]] = prepared_callback,
+        msg_type: Type[BaseModel] = msg_type,
+        topic: str = topic,
     ) -> None:
         async with receive_stream:
             try:
@@ -182,15 +181,15 @@ async def _aiokafka_consumer_loop(  # type: ignore
                         f"_aiokafka_consumer_loop(): Unexpected exception '{e}' caught and ignored for messages: {msgs}"
                     )
 
-# %% ../../nbs/001_ConsumerLoop.ipynb 27
+# %% ../../nbs/001_ConsumerLoop.ipynb 26
 def sanitize_kafka_config(**kwargs):
     """Sanitize Kafka config"""
     return {k: "*" * len(v) if "pass" in k.lower() else v for k, v in kwargs.items()}
 
-# %% ../../nbs/001_ConsumerLoop.ipynb 29
-@delegates(AIOKafkaConsumer)
-@delegates(_aiokafka_consumer_loop, keep=True)
-async def aiokafka_consumer_loop(  # type: ignore
+# %% ../../nbs/001_ConsumerLoop.ipynb 28
+@delegates(AIOKafkaConsumer)  # type: ignore
+@delegates(_aiokafka_consumer_loop, keep=True)  # type: ignore
+async def aiokafka_consumer_loop(
     topic: str,
     *,
     timeout_ms: int = 100,
