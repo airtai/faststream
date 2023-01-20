@@ -112,6 +112,13 @@ def _decode_streamed_msgs(
     return decoded_msgs
 
 # %% ../../nbs/001_ConsumerLoop.ipynb 22
+async def _streamed_records(receive_stream):
+    async for records_per_topic in receive_stream:
+        for records in records_per_topic:
+            for record in records:
+                yield record
+
+
 @delegates(AIOKafkaConsumer.getmany)
 async def _aiokafka_consumer_loop(  # type: ignore
     consumer: AIOKafkaConsumer,
@@ -145,21 +152,18 @@ async def _aiokafka_consumer_loop(  # type: ignore
     ) -> None:
         async with receive_stream:
             try:
-                # todo: iteration can be factored out as a function
-                async for records_per_topic in receive_stream:
-                    for records in records_per_topic:
-                        for record in records:
-                            try:
-                                msg = record.value
-                                decoded_msg = msg_type.parse_raw(msg.decode("utf-8"))
-                                await callback(decoded_msg)
-                            except Exception as e:
-                                logger.warning(
-                                    f"process_message_callback(): Unexpected exception '{e.__repr__()}' caught and ignored for topic='{topic}' and message: {msg}"
-                                )
+                async for record in _streamed_records(receive_stream):
+                    try:
+                        msg = record.value
+                        decoded_msg = msg_type.parse_raw(msg.decode("utf-8"))
+                        await callback(decoded_msg)
+                    except Exception as e:
+                        logger.warning(
+                            f"process_message_callback(): Unexpected exception '{e.__repr__()}' caught and ignored for topic='{topic}' and message: {msg}"
+                        )
             except Exception as e:
                 logger.warning(
-                    f"process_message_callback(): Unexpected exception '{e.__repr__()}' caught and ignored for topic='{topic}' and message: {msg}"
+                    f"process_message_callback(): Unexpected exception '{e.__repr__()}' caught and ignored for topic='{topic}'"
                 )
 
     send_stream, receive_stream = anyio.create_memory_object_stream(
@@ -172,8 +176,6 @@ async def _aiokafka_consumer_loop(  # type: ignore
             while not is_shutting_down_f():
                 msgs = await consumer.getmany(**kwargs)
                 try:
-                    #                     await _stream_msgs(msgs, send_stream)
-                    #                     print(f"{msgs=}")
                     await send_stream.send(msgs.values())
                 except Exception as e:
                     logger.warning(
