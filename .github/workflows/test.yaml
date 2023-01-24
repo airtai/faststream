@@ -52,10 +52,12 @@ jobs:
 #          sudo apt-get install -y nodejs
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 19
       - name: Check npx
         run: |
           npx --version
+#          npm i patch-jest-cache
+#          npx patch-jest-cache
           npx -y -p @asyncapi/generator ag --version
       - name: Run nbdev tests
         uses: fastai/workflows/nbdev-ci@master
