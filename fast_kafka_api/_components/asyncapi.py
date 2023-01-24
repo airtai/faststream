@@ -403,6 +403,7 @@ def _generate_async_docs(
 
     cmd = [
         "npx",
+        "--no-cache",
         "-y",
         "-p",
         "@asyncapi/generator",
@@ -412,7 +413,6 @@ def _generate_async_docs(
         "-o",
         f"{docs_path}",
         "--force-write",
-        "--no-cache",
     ]
     p = subprocess.run(  # nosec: B603 subprocess call - check for execution of untrusted input.
         cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE
