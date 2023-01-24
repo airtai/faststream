@@ -403,6 +403,7 @@ def _generate_async_docs(
 
     cmd = [
         "npx",
+        "--no-install",
         "-y",
         "-p",
         "@asyncapi/generator",
