@@ -14,7 +14,7 @@ from uvicorn import Config, Server
 
 # %% ../nbs/Uvicorn_Helpers.ipynb 3
 @contextmanager
-def run_uvicorn(arg: Union[Config, FastAPI]):
+def run_uvicorn(arg: Union[Config, FastAPI]) -> Generator[None, None, None]:
     if isinstance(arg, Config):
         config: Config = arg
     else:

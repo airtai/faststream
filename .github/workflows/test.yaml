@@ -48,7 +48,7 @@ jobs:
           sudo dpkg -i quarto-linux-amd64.deb
       - uses: actions/setup-node@v3
         with:
-          node-version: 19.3
+          node-version: 18
       - name: Check npx
         run: |
           npx --version
