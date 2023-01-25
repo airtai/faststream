@@ -12,7 +12,7 @@ import multiprocessing
 from fastapi import FastAPI
 from uvicorn import Config, Server
 
-# %% ../nbs/Uvicorn_Helpers.ipynb 3
+# %% ../nbs/Uvicorn_Helpers.ipynb 4
 @contextmanager
 def run_uvicorn(arg: Union[Config, FastAPI]) -> Generator[None, None, None]:
     if isinstance(arg, Config):
@@ -28,6 +28,8 @@ def run_uvicorn(arg: Union[Config, FastAPI]) -> Generator[None, None, None]:
     try:
         p.start()
         yield
+    except Exception as e:
+        print(f"Exception raised {e=}")
     finally:
         p.terminate()
         p.join()
