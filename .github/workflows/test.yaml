@@ -53,6 +53,8 @@ jobs:
         run: |
           npx --version
           npx -y -p @asyncapi/generator ag --version
+#          npm i patch-jest-cache
+#          npx patch-jest-cache
       - name: Run nbdev tests
         uses: fastai/workflows/nbdev-ci@master
         with:
