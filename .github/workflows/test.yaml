@@ -53,6 +53,7 @@ jobs:
         run: |
           npx --version
           npx -y -p @asyncapi/generator ag --version
+          npx -y -p @asyncapi/generator ag https://raw.githubusercontent.com/asyncapi/asyncapi/master/examples/simple.yml -o /tmp/install_check/docs
 #          npm i patch-jest-cache
 #          npx patch-jest-cache
       - name: Run nbdev tests
