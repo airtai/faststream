@@ -46,10 +46,6 @@ jobs:
         run: |
           wget -q https://www.quarto.org/download/latest/quarto-linux-amd64.deb
           sudo dpkg -i quarto-linux-amd64.deb
-#      - name: Setup node
-#        run: |
-#          sudo curl -fsSL https://deb.nodesource.com/setup_18.x | sudo bash -
-#          sudo apt-get install -y nodejs
       - uses: actions/setup-node@v3
         with:
           node-version: 18
@@ -57,6 +53,9 @@ jobs:
         run: |
           npx --version
           npx -y -p @asyncapi/generator ag --version
+          npx -y -p @asyncapi/generator ag https://raw.githubusercontent.com/asyncapi/asyncapi/master/examples/simple.yml @asyncapi/html-template -o /tmp/install_check/docs
+#          npm i patch-jest-cache
+#          npx patch-jest-cache
       - name: Run nbdev tests
         uses: fastai/workflows/nbdev-ci@master
         with:
