@@ -1,12 +1,12 @@
 # Site
 site_name: FastKafka
-site_url: https://airtai.github.io/fast-kafka-api
+site_url: https://fastkafka.airt.ai
 site_author: airt
-site_description: Extension of FastAPI with Kafka event handlers
+site_description: FastKafka is a powerful and easy-to-use Python library for building asynchronous web services that interact with Kafka topics. Built on top of FastAPI, Starlette, Pydantic, AIOKafka and AsyncAPI, FastKafka simplifies the process of writing producers and consumers for Kafka topics, handling all the parsing, networking, task scheduling and data generation automatically. With FastKafka, you can quickly prototype and develop high-performance Kafka-based services with minimal code, making it an ideal choice for developers looking to streamline their workflow and accelerate their projects.
 
 # Repository
-repo_name: fast-kafka-api
-repo_url: https://github.com/airtai/fast-kafka-api
+repo_name: fastkafka
+repo_url: https://github.com/airtai/fastkafka
 edit_uri: ''
 
 copyright: 2022 onwards, airt
@@ -65,6 +65,7 @@ theme:
   - search.suggest
   - search.highlight
   - search.share
+  - content.code.copy
   palette:
   - scheme: slate
     primary: black
@@ -97,5 +98,5 @@ extra_javascript:
 extra:
   analytics:
     provider: google
-    property: G-1ZWQNQNSZ8
-  social_image: https://opengraph.githubassets.com/1671805243.560235/airtai/fast-kafka-api
+    property: G-WLMWPELHMB
+  social_image: https://opengraph.githubassets.com/1671805243.560327/airtai/fastkafka

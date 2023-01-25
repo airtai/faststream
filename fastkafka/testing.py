@@ -35,7 +35,7 @@ from pydantic import BaseModel
 from ._cli import _import_from_string
 from ._components.helpers import combine_params, use_parameters_of
 from ._components.logger import get_logger, supress_timestamps
-from fast_kafka_api.helpers import (
+from fastkafka.helpers import (
     consumes_messages,
     create_admin_client,
     create_missing_topics,
@@ -100,7 +100,7 @@ def create_testing_topic(
     Example:
         ```python
         from os import environ
-        from fast_kafka_api.testing import create_testing_topic, create_admin_client
+        from fastkafka.testing import create_testing_topic, create_admin_client
 
         kafka_server_url = environ["KAFKA_HOSTNAME"]
         aiokafka_config = {"bootstrap_servers": f"{kafka_server_url}:9092"}

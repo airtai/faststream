@@ -1,6 +1,6 @@
 version: "3"
 services:
-    fast-kafka-api-devel:
+    fastkafka-devel:
         image: ghcr.io/airtai/nbdev-mkdocs
         hostname: $DOCKER_COMPOSE_PROJECT-devel
         container_name: $DOCKER_COMPOSE_PROJECT-devel
@@ -9,9 +9,9 @@ services:
             - "${PORT_PREFIX}4000:4000"
             - "${PORT_PREFIX}6006:6006"
         networks:
-            - fast-kafka-api-network
+            - fastkafka-network
         volumes:
-            - $AIRT_PROJECT:/work/fast-kafka-api
+            - $AIRT_PROJECT:/work/fastkafka
             - /etc/passwd:/etc/passwd
             - /etc/group:/etc/group
             - /etc/shadow:/etc/shadow
@@ -28,5 +28,5 @@ services:
                 condition: service_healthy
 
 networks:
-    fast-kafka-api-network:
-        name: "${USER}-fast-kafka-api-network"
+    fastkafka-network:
+        name: "${USER}-fastkafka-network"

@@ -5,7 +5,7 @@ services:
         hostname: zookeeper
         container_name: zookeeper
         networks:
-          - fast-kafka-api-network
+          - fastkafka-network
 
     kafka:
         image: wurstmeister/kafka
@@ -34,4 +34,4 @@ services:
             timeout: 10s
             retries: 5
         networks:
-          - fast-kafka-api-network
+          - fastkafka-network

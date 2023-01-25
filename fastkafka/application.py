@@ -40,17 +40,17 @@ from pydantic import BaseModel, EmailStr, Field, HttpUrl, PositiveInt
 from pydantic.json import timedelta_isoformat
 from pydantic.schema import schema
 
-import fast_kafka_api._components.logger
+import fastkafka._components.logger
 
-fast_kafka_api._components.logger.should_supress_timestamps = True
+fastkafka._components.logger.should_supress_timestamps = True
 
-import fast_kafka_api
-from fast_kafka_api._components.aiokafka_consumer_loop import (
+import fastkafka
+from fastkafka._components.aiokafka_consumer_loop import (
     aiokafka_consumer_loop,
     sanitize_kafka_config,
 )
 from ._components.aiokafka_producer_manager import AIOKafkaProducerManager
-from fast_kafka_api._components.asyncapi import (
+from fastkafka._components.asyncapi import (
     ConsumeCallable,
     ContactInfo,
     KafkaBroker,
