@@ -402,6 +402,7 @@ class FastKafka:
         contact: Optional[Dict[str, str]] = None,
         kafka_brokers: Optional[Dict[str, Any]] = None,
         root_path: Optional[Union[Path, str]] = None,
+        skip_docs: bool = True,
         **kwargs,
     ):
         """Creates FastKafka application
@@ -419,6 +420,7 @@ class FastKafka:
             kafka_brokers: dictionary describing kafka brokers used for
                 generating documentation
             root_path: path to where documentation will be created
+            skip_docs: Boolean indicating whether to skip the generation of html docs, defaults to true
             bootstrap_servers (str, list(str)): a ``host[:port]`` string or list of
                 ``host[:port]`` strings that the producer should contact to
                 bootstrap initial cluster metadata. This does not have to be the
@@ -689,6 +691,8 @@ class FastKafka:
 
         # this is used as default parameters for creating AIOProducer and AIOConsumer objects
         self._kafka_config = _get_kafka_config(**kwargs)
+
+        self.skip_docs = skip_docs
 
         #
         self._consumers_store: Dict[str, Tuple[ConsumeCallable, Dict[str, Any]]] = {}
@@ -1366,6 +1370,7 @@ def create_docs(self: FastKafka) -> None:
         kafka_brokers=self._kafka_brokers,
         kafka_service_info=self._kafka_service_info,
         asyncapi_path=self._asyncapi_path,
+        skip_docs=self.skip_docs,
     )
 
 # %% ../nbs/000_FastKafka.ipynb 51

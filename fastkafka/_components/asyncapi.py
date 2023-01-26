@@ -435,6 +435,7 @@ def export_async_spec(
     kafka_service_info: KafkaServiceInfo,
     asyncapi_path: Union[Path, str],
     force_rebuild: bool = False,
+    skip_docs: bool = True,
 ) -> None:
     """Export async specification to a given path
 
@@ -454,16 +455,17 @@ def export_async_spec(
         force_rebuild=force_rebuild,
     )
 
-    # generate docs folder
-    docs_path = Path(asyncapi_path) / "docs"
+    if not skip_docs:
+        # generate docs folder
+        docs_path = Path(asyncapi_path) / "docs"
 
-    if not is_spec_built and docs_path.exists():
-        logger.info(
-            f"Skipping generating async documentation in '{docs_path.resolve()}'"
+        if not is_spec_built and docs_path.exists():
+            logger.info(
+                f"Skipping generating async documentation in '{docs_path.resolve()}'"
+            )
+            return
+
+        _generate_async_docs(
+            spec_path=spec_path,
+            docs_path=docs_path,
         )
-        return
-
-    _generate_async_docs(
-        spec_path=spec_path,
-        docs_path=docs_path,
-    )
