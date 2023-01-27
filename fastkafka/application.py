@@ -15,10 +15,12 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 from enum import Enum
 from inspect import signature
-from os import environ
+from os import environ, getpid
 from pathlib import Path
 from typing import *
 from typing import get_type_hints
+import threading
+import signal
 
 import anyio
 import asyncer
@@ -708,7 +710,7 @@ class FastKafka:
         # background tasks
         self._scheduled_bg_tasks: List[Callable[..., Coroutine[Any, Any, Any]]] = []
         self._bg_task_group_generator: Optional[anyio.abc.TaskGroup] = None
-        self._bg_tasks_group: Optional[anyio.abc.TaskGroup]
+        self._bg_tasks_group: Optional[anyio.abc.TaskGroup] = None
 
         # todo: use this for errrors
         self._on_error_topic: Optional[str] = None
@@ -716,6 +718,27 @@ class FastKafka:
         self._is_shutting_down: bool = False
         self._kafka_consumer_tasks: List[asyncio.Task[Any]] = []
         self._kafka_producer_tasks: List[asyncio.Task[Any]] = []
+
+    async def serve(self) -> None:
+        process_id = getpid()
+
+        message = f"Started server process {process_id}"
+        logger.info(message)
+
+        await self.startup()
+        await self.main_loop()
+
+        message = f"Finished server process {process_id}"
+        logger.info(message)
+
+    async def main_loop(self) -> None:
+        try:
+            while True:
+                await asyncio.sleep(0.1)
+        except asyncio.CancelledError:
+            logger.info("Got cencelled, exiting....")
+            await self.shutdown()
+            raise
 
     async def startup(self) -> None:
         raise NotImplementedError
