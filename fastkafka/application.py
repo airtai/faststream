@@ -718,8 +718,10 @@ class FastKafka:
         self._is_shutting_down: bool = False
         self._kafka_consumer_tasks: List[asyncio.Task[Any]] = []
         self._kafka_producer_tasks: List[asyncio.Task[Any]] = []
+        self.run = False
 
     async def serve(self) -> None:
+        self.run = True
         process_id = getpid()
 
         message = f"Started server process {process_id}"
@@ -727,18 +729,13 @@ class FastKafka:
 
         await self.startup()
         await self.main_loop()
-
+        await self.shutdown()
         message = f"Finished server process {process_id}"
         logger.info(message)
 
     async def main_loop(self) -> None:
-        try:
-            while True:
-                await asyncio.sleep(0.1)
-        except asyncio.CancelledError:
-            logger.info("Got cencelled, exiting....")
-            await self.shutdown()
-            raise
+        while self.run:
+            await asyncio.sleep(0.1)
 
     async def startup(self) -> None:
         raise NotImplementedError
