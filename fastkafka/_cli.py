@@ -14,6 +14,7 @@ from os import getpid
 import time
 import anyio
 import threading
+import copy
 
 import typer
 from fastapi import FastAPI
@@ -81,6 +82,7 @@ _app = typer.Typer(help="")
     help="Runs Fast Kafka API application",
 )
 def run(
+    num_workers: int = typer.Option(1, help="Number of FastKafka instances to run"),
     app: str = typer.Argument(
         ...,
         help="input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafka**.",
@@ -88,7 +90,7 @@ def run(
 ) -> None:
     try:
         application = _import_from_string(app)
-        worker_handler = KafkaWorkersHandler(app=application, num_workers=1)
+        worker_handler = KafkaWorkersHandler(app=application, num_workers=num_workers)
         worker_handler.run()
     except Exception as e:
         typer.secho(f"Unexpected internal error: {e}", err=True, fg=typer.colors.RED)
@@ -100,7 +102,7 @@ def run(
 )
 def generate_docs(
     root_path: str = typer.Option(
-        ".", help="root path under which documentation will be create"
+        ".", help="root path under which documentation will be created"
     ),
     app: str = typer.Argument(
         ...,
