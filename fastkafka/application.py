@@ -720,22 +720,11 @@ class FastKafka:
         self._kafka_producer_tasks: List[asyncio.Task[Any]] = []
         self.run = False
 
-    async def serve(self) -> None:
-        self.run = True
-        process_id = getpid()
-
-        message = f"Started server process {process_id}"
-        logger.info(message)
-
+    async def __aenter__(self):
         await self.startup()
-        await self.main_loop()
-        await self.shutdown()
-        message = f"Finished server process {process_id}"
-        logger.info(message)
 
-    async def main_loop(self) -> None:
-        while self.run:
-            await asyncio.sleep(0.1)
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.shutdown()
 
     async def startup(self) -> None:
         raise NotImplementedError

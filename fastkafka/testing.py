@@ -3,7 +3,7 @@
 # %% auto 0
 __all__ = ['logger', 'kafka_server_url', 'kafka_server_port', 'aiokafka_config', 'nb_safe_seed', 'true_after',
            'create_testing_topic', 'create_and_fill_testing_topic', 'mock_AIOKafkaProducer_send', 'change_dir',
-           'run_script_and_cancel', 'run_on_uvicorn']
+           'run_on_uvicorn']
 
 # %% ../nbs/999_Test_Utils.ipynb 1
 import asyncio
@@ -32,7 +32,7 @@ from confluent_kafka.admin import AdminClient, NewTopic
 from fastcore.meta import delegates
 from pydantic import BaseModel
 
-from ._cli import _import_from_string
+# from fastkafka.server import _import_from_string
 from ._components.helpers import combine_params, use_parameters_of
 from ._components.logger import get_logger, supress_timestamps
 from fastkafka.helpers import (
@@ -355,64 +355,6 @@ def change_dir(d: str) -> Generator[None, None, None]:
         yield
     finally:
         os.chdir(curdir)
-
-# %% ../nbs/999_Test_Utils.ipynb 21
-async def run_script_and_cancel(
-    script: str,
-    *,
-    script_file: Optional[str] = None,
-    cmd: Optional[str] = None,
-    cancel_after: int = 10,
-    app_name: str = "app",
-    kafka_app_name: str = "kafka_app",
-    generate_docs: bool = False,
-) -> Tuple[int, bytes]:
-    """Run script and cancel after predefined time
-
-    Args:
-        script: a python source code to be executed in a separate subprocess
-        script_file: name of the script where script source will be saved
-        cmd: command to execute. If None, it will be set to 'python3 -m {Path(script_file).stem}'
-        cancel_after: number of seconds before sending SIGTERM signal
-
-    Returns:
-        A tuple containing exit code and combined stdout and stderr as a binary string
-    """
-    if script_file is None:
-        script_file = "script.py"
-
-    if cmd is None:
-        cmd = f"python3 -m {Path(script_file).stem}"
-
-    with TemporaryDirectory() as d:
-        consumer_script = Path(d) / script_file
-
-        with open(consumer_script, "w") as file:
-            file.write(script)
-
-        with change_dir(d):
-            if generate_docs:
-                logger.info(
-                    f"Generating docs for: {Path(script_file).stem}:{kafka_app_name}"
-                )
-                try:
-                    kafka_app: FastKafka = _import_from_string(
-                        f"{Path(script_file).stem}:{kafka_app_name}"
-                    )
-                    await asyncer.asyncify(kafka_app.create_docs)()
-                except Exception as e:
-                    logger.warning(
-                        f"Generating docs failed for: {Path(script_file).stem}:{kafka_app_name}, ignoring it for now."
-                    )
-
-            proc = subprocess.Popen(  # nosec: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
-                shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-            )
-            await asyncio.sleep(cancel_after)
-            proc.terminate()
-            output, _ = proc.communicate()
-
-        return (proc.returncode, output)
 
 # %% ../nbs/999_Test_Utils.ipynb 26
 async def run_on_uvicorn(
