@@ -29,6 +29,7 @@ import importlib
 
 import docstring_parser
 from fastcore.meta import delegates
+import typer
 
 if in_notebook():
     from tqdm.notebook import tqdm, trange

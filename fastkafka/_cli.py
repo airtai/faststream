@@ -21,6 +21,7 @@ from fastapi import FastAPI
 
 from .application import FastKafka
 from ._components.logger import get_logger, supress_timestamps
+from ._components.helpers import _import_from_string
 
 # %% ../nbs/004_CLI.ipynb 3
 logger = get_logger(__name__)
@@ -39,13 +40,7 @@ def run(
         help="input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafka**.",
     ),
 ) -> None:
-    try:
-        application = _import_from_string(app)
-        worker_handler = KafkaWorkersHandler(app=application, num_workers=num_workers)
-        worker_handler.run()
-    except Exception as e:
-        typer.secho(f"Unexpected internal error: {e}", err=True, fg=typer.colors.RED)
-        raise typer.Exit(1)
+    pass
 
 
 @_app.command(

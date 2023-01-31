@@ -715,6 +715,7 @@ class FastKafka:
         # todo: use this for errrors
         self._on_error_topic: Optional[str] = None
 
+        self._is_started: bool = False
         self._is_shutting_down: bool = False
         self._kafka_consumer_tasks: List[asyncio.Task[Any]] = []
         self._kafka_producer_tasks: List[asyncio.Task[Any]] = []
@@ -1395,6 +1396,8 @@ async def startup(self: FastKafka) -> None:
     await self._populate_producers()
     self._populate_consumers(is_shutting_down_f)
     await self._populate_bg_tasks()
+
+    self._is_started = True
 
 
 @patch  # type: ignore
