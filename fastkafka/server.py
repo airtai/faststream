@@ -26,7 +26,7 @@ from ._components.logger import get_logger
 # %% ../nbs/005_FastKafkaServer.ipynb 5
 logger = get_logger(__name__)
 
-# %% ../nbs/005_FastKafkaServer.ipynb 9
+# %% ../nbs/005_FastKafkaServer.ipynb 8
 class ServerProcess:
     def __init__(self, app: FastKafka):
         if app._is_started:
@@ -66,7 +66,7 @@ class ServerProcess:
             await asyncio.sleep(0.1)
 
     @contextmanager
-    def run_in_process(self: ServerProcess) -> Generator[None, None, None]:
+    def run_in_process(self) -> Generator[None, None, None]:
         def create_and_run(app=self.app):
             server = ServerProcess(app=app)
             server.run()
@@ -102,7 +102,7 @@ def run_in_process_until_terminate(
 
         p.close()
 
-# %% ../nbs/005_FastKafkaServer.ipynb 11
+# %% ../nbs/005_FastKafkaServer.ipynb 10
 class Server(ServerProcess):
     def __init__(self, app: FastKafka, num_workers: Optional[int] = None):
         ServerProcess.__init__(self, app=app)
