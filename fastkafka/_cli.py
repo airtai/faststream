@@ -16,6 +16,8 @@ import anyio
 import threading
 import copy
 from contextlib import contextmanager
+import multiprocessing
+import subprocess
 
 import typer
 from fastapi import FastAPI
@@ -23,7 +25,7 @@ from fastapi import FastAPI
 from .application import FastKafka
 from ._components.logger import get_logger, supress_timestamps
 from ._components.helpers import _import_from_string
-from .server import Server, run_in_process_until_terminate
+from .server import run_fastkafka_server
 
 # %% ../nbs/004_CLI.ipynb 5
 logger = get_logger(__name__)
@@ -36,53 +38,20 @@ _app = typer.Typer(help="")
     help="Runs Fast Kafka API application",
 )
 def run(
-    num_workers: int = typer.Option(1, help="Number of FastKafka instances to run"),
+    num_workers: int = typer.Option(
+        multiprocessing.cpu_count(),
+        help="Number of FastKafka instances to run, defaults to number of CPU cores.",
+    ),
     app: str = typer.Argument(
         ...,
         help="input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafka**.",
     ),
 ) -> None:
-    async def main_loop(num_workers: int = num_workers, app: str = app):
-        logger.info("Entering whatever()")
-        try:
-            application = _import_from_string(app)
-            logger.info(f"{application=}")
-            server = Server(app=application, num_workers=num_workers)
-            logger.info("Server object created")
-
-            loop = asyncio.get_event_loop()
-
-            HANDLED_SIGNALS = (
-                signal.SIGINT,  # Unix signal 2. Sent by Ctrl+C.
-                signal.SIGTERM,  # Unix signal 15. Sent by `kill <pid>`.
-            )
-
-            def handle_exit(sig: int) -> None:
-                global should_exit
-                should_exit = True
-
-            for sig in HANDLED_SIGNALS:
-                loop.add_signal_handler(sig, handle_exit, sig)
-
-            should_exit = False
-
-            logger.info("Entering waiting loop...")
-            with server.run_in_process():
-                while not should_exit:
-                    await asyncio.sleep(0.2)
-                    print(".", end="")
-
-        except Exception as e:
-            typer.secho(
-                f"Unexpected internal error: {e}", err=True, fg=typer.colors.RED
-            )
-            raise typer.Exit(1)
-
-    #     logger.info("Entering run()")
-    asyncio.run(main_loop())
-
-
-#     logger.info("Exiting run()")
+    try:
+        asyncio.run(run_fastkafka_server(num_workers=num_workers, app=app))
+    except Exception as e:
+        typer.secho(f"Unexpected internal error: {e}", err=True, fg=typer.colors.RED)
+        raise typer.Exit(1)
 
 
 @_app.command(
