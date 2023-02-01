@@ -25,7 +25,7 @@ from fastapi import FastAPI
 from .application import FastKafka
 from ._components.logger import get_logger, supress_timestamps
 from ._components.helpers import _import_from_string
-from .server import run_fastkafka_server
+from .server import run_fastkafka_server, terminate_asyncio_process
 
 # %% ../nbs/004_CLI.ipynb 5
 logger = get_logger(__name__)
