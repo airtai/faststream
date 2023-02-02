@@ -2,7 +2,7 @@
 
 # %% auto 0
 __all__ = ['logger', 'generate_app_in_tmp', 'ServerProcess', 'run_fastkafka_server_process', 'terminate_asyncio_process',
-           'run_fastkafka_server']
+           'run_fastkafka_server', 'run_in_process']
 
 # %% ../nbs/005_FastKafkaServer.ipynb 1
 import importlib
@@ -186,3 +186,16 @@ async def run_fastkafka_server(num_workers: int, app: str) -> None:
             fg=typer.colors.RED,
         )
         raise typer.Exit(1)
+
+# %% ../nbs/005_FastKafkaServer.ipynb 15
+@contextmanager
+def run_in_process(target: Callable[..., Any]) -> Generator[None, None, None]:
+    p = multiprocessing.Process(target=target)
+    try:
+        p.start()
+        yield p
+    except Exception as e:
+        print(f"Exception raised {e=}")
+    finally:
+        p.terminate()
+        p.join()
