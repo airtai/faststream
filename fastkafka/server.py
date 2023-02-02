@@ -94,29 +94,33 @@ def run_fastkafka_server_process(
     ServerProcess(app).run()
 
 # %% ../nbs/005_FastKafkaServer.ipynb 12
-async def terminate_asyncio_process(
-    p: asyncio.subprocess.Process,
-) -> Tuple[bytes, bytes]:
+async def terminate_asyncio_process(p: asyncio.subprocess.Process) -> None:
+    logger.info(f"terminate_asyncio_process(): Terminating the process {p.pid}...")
     # Check if SIGINT already propagated to process
     try:
-        await asyncio.wait_for(p.wait(), 5)
-        return await p.communicate()
+        await asyncio.wait_for(p.wait(), 1)
+        logger.info(
+            f"terminate_asyncio_process(): Process {p.pid} was already terminated."
+        )
+        return
     except asyncio.TimeoutError:
-        logger.warning("Process not terminated, starting termination...")
+        pass
 
     for i in range(3):
         p.terminate()
         try:
-            return await asyncio.wait_for(p.communicate(), 10)
+            await asyncio.wait_for(p.wait(), 10)
+            logger.info(f"terminate_asyncio_process(): Process {p.pid} terminated.")
+            return
         except asyncio.TimeoutError:
-            logger.warning("Process not terminated, retrying...")
+            logger.warning(
+                f"terminate_asyncio_process(): Process {p.pid} not terminated, retrying..."
+            )
 
-    logger.warning("Killing the process...")
+    logger.warning(f"Killing the process {p.pid}...")
     p.kill()
-    outs, errs = await p.communicate()
-    logger.warning("Process killed!")
-
-    return outs, errs
+    p.wait()
+    logger.warning(f"terminate_asyncio_process(): Process {p.pid} killed!")
 
 # %% ../nbs/005_FastKafkaServer.ipynb 14
 async def run_fastkafka_server(num_workers: int, app: str) -> None:
@@ -135,39 +139,44 @@ async def run_fastkafka_server(num_workers: int, app: str) -> None:
     for sig in HANDLED_SIGNALS:
         loop.add_signal_handler(sig, handle_exit, sig)
 
-    procs = [
-        await asyncio.create_subprocess_exec(
-            "run_fastkafka_server_process",
-            app,
-            stdout=asyncio.subprocess.PIPE,
-            stdin=asyncio.subprocess.PIPE,
-        )
-        for i in range(num_workers)
-    ]
+    async with asyncer.create_task_group() as tg:
+        tasks = [
+            tg.soonify(asyncio.create_subprocess_exec)(
+                "run_fastkafka_server_process",
+                app,
+                stdout=asyncio.subprocess.PIPE,
+                stdin=asyncio.subprocess.PIPE,
+            )
+            for i in range(num_workers)
+        ]
+
+    procs = [task.value for task in tasks]
 
     async def log_output(
-        output: Optional[asyncio.StreamReader], worker_id: int, d: Dict[str, bool] = d
+        output: Optional[asyncio.StreamReader], pid: int, d: Dict[str, bool] = d
     ) -> None:
         if output is None:
             raise RuntimeError("Expected StreamReader, got None. Is stdout piped?")
-        while not d["should_exit"]:
+        while not output.at_eof():
             outs = await output.readline()
             if outs != b"":
-                typer.echo(f"[{worker_id:03d}]: " + outs.decode("utf-8"), nl=False)
+                typer.echo(f"[{pid:03d}]: " + outs.decode("utf-8"), nl=False)
 
     async with asyncer.create_task_group() as tg:
-        log_tasks = [
-            tg.soonify(log_output)(proc.stdout, i) for i, proc in enumerate(procs)
-        ]
+        for proc in procs:
+            tg.soonify(log_output)(proc.stdout, proc.pid)
+
         while not d["should_exit"]:
             await asyncio.sleep(0.2)
 
-    #     terminate and stuff
-    typer.echo("Starting process cleanup, this may take a few seconds...")
-    outputs = [await terminate_asyncio_process(proc) for proc in procs]
+        typer.echo("Starting process cleanup, this may take a few seconds...")
+        for proc in procs:
+            tg.soonify(terminate_asyncio_process)(proc)
 
-    for i, (output, _) in enumerate(outputs):
-        typer.echo(f"[{i:03d}]: " + output.decode("utf-8"))
+    for proc in procs:
+        output, _ = await proc.communicate()
+        if output:
+            typer.echo(f"[{proc.pid:03d}]: " + output.decode("utf-8"), nl=False)
 
     returncodes = [proc.returncode for proc in procs]
     if not returncodes == [0] * len(procs):
