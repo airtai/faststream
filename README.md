@@ -330,28 +330,28 @@ fastkafka run --num-workers=1 server:kafka_app
 
 After running the command, you should see an output like the one below:
 
-    [2904]: [INFO] fastkafka._components.asyncapi: Old async specifications at '/tmp/tmpim1egbmo/asyncapi/spec/asyncapi.yml' does not exist.
-    [2904]: [INFO] fastkafka._components.asyncapi: New async specifications generated at: '/tmp/tmpim1egbmo/asyncapi/spec/asyncapi.yml'
-    [2904]: [INFO] fastkafka.application: _create_producer() : created producer using the config: '{'bootstrap_servers': 'tvrtko-fastkafka-kafka-1:9092'}'
-    [2904]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
-    [2904]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'tvrtko-fastkafka-kafka-1:9092', 'auto_offset_reset': 'latest', 'max_poll_records': 100, 'group_id': 'my_group'}
-    [2904]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
-    [2904]: [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
-    [2904]: [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
-    [2904]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
-    [2904]: [INFO] aiokafka.consumer.group_coordinator: Discovered coordinator 1002 for group my_group
-    [2904]: [INFO] aiokafka.consumer.group_coordinator: Revoking previously assigned partitions set() for group my_group
-    [2904]: [INFO] aiokafka.consumer.group_coordinator: (Re-)joining group my_group
+    [5897]: [INFO] fastkafka._components.asyncapi: Old async specifications at '/tmp/tmpis4xwgv_/asyncapi/spec/asyncapi.yml' does not exist.
+    [5897]: [INFO] fastkafka._components.asyncapi: New async specifications generated at: '/tmp/tmpis4xwgv_/asyncapi/spec/asyncapi.yml'
+    [5897]: [INFO] fastkafka.application: _create_producer() : created producer using the config: '{'bootstrap_servers': 'tvrtko-fastkafka-kafka-1:9092'}'
+    [5897]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
+    [5897]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'tvrtko-fastkafka-kafka-1:9092', 'auto_offset_reset': 'latest', 'max_poll_records': 100, 'group_id': 'my_group'}
+    [5897]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
+    [5897]: [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
+    [5897]: [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
+    [5897]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
+    [5897]: [INFO] aiokafka.consumer.group_coordinator: Discovered coordinator 1002 for group my_group
+    [5897]: [INFO] aiokafka.consumer.group_coordinator: Revoking previously assigned partitions set() for group my_group
+    [5897]: [INFO] aiokafka.consumer.group_coordinator: (Re-)joining group my_group
+    [5897]: [INFO] aiokafka.consumer.group_coordinator: Joined group 'my_group' (generation 37) with member_id aiokafka-0.8.0-169e280f-4808-4bfd-a763-7c9557b0fab0
+    [5897]: [INFO] aiokafka.consumer.group_coordinator: Elected group leader -- performing partition assignments using roundrobin
+    [5897]: [INFO] aiokafka.consumer.group_coordinator: Successfully synced group my_group with generation 37
+    [5897]: [INFO] aiokafka.consumer.group_coordinator: Setting newly assigned partitions {TopicPartition(topic='input_data', partition=1), TopicPartition(topic='input_data', partition=2), TopicPartition(topic='input_data', partition=0)} for group my_group
     Starting process cleanup, this may take a few seconds...
-    [INFO] fastkafka.server: terminate_asyncio_process(): Terminating the process 2904...
-    [2904]: [INFO] aiokafka.consumer.group_coordinator: Joined group 'my_group' (generation 14) with member_id aiokafka-0.8.0-6e998275-8baa-4494-bbf6-78b48305269f
-    [2904]: [INFO] aiokafka.consumer.group_coordinator: Elected group leader -- performing partition assignments using roundrobin
-    [2904]: [INFO] aiokafka.consumer.group_coordinator: Successfully synced group my_group with generation 14
-    [2904]: [INFO] aiokafka.consumer.group_coordinator: Setting newly assigned partitions {TopicPartition(topic='input_data', partition=1), TopicPartition(topic='input_data', partition=2), TopicPartition(topic='input_data', partition=0)} for group my_group
-    [2904]: [INFO] aiokafka.consumer.group_coordinator: LeaveGroup request succeeded
-    [2904]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
-    [2904]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
-    [INFO] fastkafka.server: terminate_asyncio_process(): Process 2904 terminated.
+    [INFO] fastkafka.server: terminate_asyncio_process(): Terminating the process 5897...
+    [5897]: [INFO] aiokafka.consumer.group_coordinator: LeaveGroup request succeeded
+    [5897]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
+    [5897]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
+    [INFO] fastkafka.server: terminate_asyncio_process(): Process 5897 terminated.
 
 When the service is started, several log messages are printed to the
 console, including information about the application startup, AsyncAPI
@@ -369,46 +369,38 @@ initiated and the service will stop.
 
 ### Checking out the documentation
 
-We start by generating the documentation for the FastKafka service by
-running the following command:
+To generate and serve the documentation **locally**, you can use the
+built in kafka function that will do all the work for you. In the folder
+where the server.py file is located, run the following command:
 
-``` sh
-fastkafka generate-docs server:kafka_app
+``` shell
+fastkafka docs serve --port=35467 server:kafka_app
 ```
 
-Next, we start the Uvicorn server by running:
+After running the command you should see the following output:
 
-``` sh
-uvicorn server:app
+``` python
+exit_code, output = await run_script_and_cancel(
+    script=script,
+    script_file="server.py",
+    cmd=cmd,
+    cancel_after=30,
+)
+assert exit_code == 0, exit_code
+print(output.decode("utf-8"))
 ```
 
-The meaning of the `server:app` notation is to import the symbol `app`
-from the module `"server"`, typically from a file named `"server.py"`.
-
-exit_code = await run_on_uvicorn(script, cancel_after=5, workers=2)
-
-FastKafka automatically generates documentation from functions decorated
-with `@kafka_app.consumes` and `@kafka_app.produces` decorators using
-`AsyncAPI` and then uses `FastAPI` for serving it. When started with
-Uvicorn in the example above, you will see the following lines logging
-the generation of the docs:
+    [INFO] fastkafka._components.asyncapi: Old async specifications at '/tmp/tmplyenyg3f/asyncapi/spec/asyncapi.yml' does not exist.
+    [INFO] fastkafka._components.asyncapi: New async specifications generated at: '/tmp/tmplyenyg3f/asyncapi/spec/asyncapi.yml'
+    [INFO] fastkafka._components.asyncapi: Async docs generated at 'asyncapi/docs'
+    [INFO] fastkafka._components.asyncapi: Output of '$ npx -y -p @asyncapi/generator ag asyncapi/spec/asyncapi.yml @asyncapi/html-template -o asyncapi/docs --force-write'
 
     Done! ✨
-    Check out your shiny new generated files at //tmp/tmp********/asyncapi/docs.
+    Check out your shiny new generated files at /tmp/tmplyenyg3f/asyncapi/docs.
 
-and for starting the web service for serving them:
 
-    INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-
-Clicking on the link above redirects to the following url:
-
-    http://127.0.0.1:8000/asyncapi/index.html
-
-and opens the web page with the documentation.
-
-The first section of the documentation relates to servers and it is
-generated from the `kafka_brokers` parameter passed to the constructor
-of `FastKafka` object:
+    Serving documentation on http://0.0.0.0:35467
+    Interupting serving of documentation and cleaning up...
 
 kafka_brokers = { “localhost”: { “url”: “localhost”, “description”:
 “local development kafka broker”, “port”: 9092, }, “production”: {
@@ -501,12 +493,3 @@ async with asyncer.create_task_group() as tg:
         msgs=msgs, topic="input_data", bootstrap_servers=bootstrap_servers
     )
 ```
-
-    generating messages:   0%|          | 0/100000 [00:00<?, ?it/s]
-
-    [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'predictions'})
-    [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'predictions': 3}. 
-
-    consuming from 'predictions':   0%|          | 0/100000 [00:00<?, ?it/s]
-
-    producing to 'input_data':   0%|          | 0/100000 [00:00<?, ?it/s]
