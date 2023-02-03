@@ -327,7 +327,6 @@ async def create_and_fill_testing_topic(**kwargs: Dict[str, str]) -> AsyncIterat
     with create_testing_topic(
         **use_parameters_of(create_testing_topic, **kwargs)
     ) as topic:
-
         await produce_messages(
             topic=topic, **use_parameters_of(produce_messages, **kwargs)
         )

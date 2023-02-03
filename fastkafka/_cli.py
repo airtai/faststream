@@ -85,7 +85,6 @@ def generate_docs(
         application.skip_docs = False
         application.create_docs()
     except Exception as e:
-
         typer.secho(f"Unexpected internal error: {e}", err=True, fg=typer.colors.RED)
         raise typer.Exit(1)
 
@@ -134,6 +133,5 @@ def serve_docs(
                     httpd.handle_request()
                 typer.secho(f"Interupting serving of documentation and cleaning up...")
     except Exception as e:
-
         typer.secho(f"Unexpected internal error: {e}", err=True, fg=typer.colors.RED)
         raise typer.Exit(1)

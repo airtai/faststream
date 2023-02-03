@@ -1386,7 +1386,6 @@ def create_docs(self: FastKafka) -> None:
 # %% ../nbs/000_FastKafka.ipynb 51
 @patch  # type: ignore
 async def startup(self: FastKafka) -> None:
-
     self._is_shutting_down = False
 
     def is_shutting_down_f(self: FastKafka = self) -> bool:

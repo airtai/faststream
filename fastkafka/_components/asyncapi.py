@@ -400,7 +400,6 @@ def _generate_async_docs(
     spec_path: Path,
     docs_path: Path,
 ) -> None:
-
     cmd = [
         "npx",
         "-y",
