@@ -119,7 +119,7 @@ async def terminate_asyncio_process(p: asyncio.subprocess.Process) -> None:
 
     logger.warning(f"Killing the process {p.pid}...")
     p.kill()
-    p.wait()
+    await p.wait()
     logger.warning(f"terminate_asyncio_process(): Process {p.pid} killed!")
 
 # %% ../nbs/005_FastKafkaServer.ipynb 14
@@ -189,7 +189,9 @@ async def run_fastkafka_server(num_workers: int, app: str) -> None:
 
 # %% ../nbs/005_FastKafkaServer.ipynb 15
 @contextmanager
-def run_in_process(target: Callable[..., Any]) -> Generator[None, None, None]:
+def run_in_process(
+    target: Callable[..., Any]
+) -> Generator[multiprocessing.Process, None, None]:
     p = multiprocessing.Process(target=target)
     try:
         p.start()

@@ -20,6 +20,7 @@ import multiprocessing
 import subprocess
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import socketserver
+from types import FrameType
 
 import typer
 from fastapi import FastAPI
@@ -117,7 +118,9 @@ def serve_docs(
 
             d = {"should_stop": False}
 
-            def sigint_handler(signal, frame, d: Dict[str, bool] = d):
+            def sigint_handler(
+                signal: int, frame: Optional[FrameType], d: Dict[str, bool] = d
+            ) -> None:
                 d["should_stop"] = True
 
             signal.signal(signal.SIGINT, sigint_handler)
