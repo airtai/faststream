@@ -17,7 +17,6 @@ import threading
 import copy
 from contextlib import contextmanager
 import multiprocessing
-import subprocess
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import socketserver
 from types import FrameType

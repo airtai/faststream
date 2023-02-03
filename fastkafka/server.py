@@ -15,7 +15,6 @@ import threading
 import signal
 from contextlib import ExitStack, contextmanager
 from tempfile import TemporaryDirectory
-import subprocess
 
 
 import multiprocessing
