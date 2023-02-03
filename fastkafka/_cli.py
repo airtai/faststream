@@ -99,7 +99,7 @@ def serve_docs(
     root_path: str = typer.Option(
         ".", help="root path under which documentation will be created"
     ),
-    bind: str = typer.Option("0.0.0.0", help="Some info"),
+    bind: str = typer.Option("127.0.0.1", help="Some info"),
     port: int = typer.Option(8000, help="Some info"),
     app: str = typer.Argument(
         ...,
