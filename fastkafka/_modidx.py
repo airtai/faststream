@@ -208,6 +208,4 @@ d = { 'settings': { 'branch': 'main',
                                    'fastkafka.testing.nb_safe_seed': ('test_utils.html#nb_safe_seed', 'fastkafka/testing.py'),
                                    'fastkafka.testing.run_script_and_cancel': ( 'test_utils.html#run_script_and_cancel',
                                                                                 'fastkafka/testing.py'),
-                                   'fastkafka.testing.true_after': ('test_utils.html#true_after', 'fastkafka/testing.py')},
-            'fastkafka.uvicorn_helpers': { 'fastkafka.uvicorn_helpers.run_uvicorn': ( 'uvicorn_helpers.html#run_uvicorn',
-                                                                                      'fastkafka/uvicorn_helpers.py')}}}
+                                   'fastkafka.testing.true_after': ('test_utils.html#true_after', 'fastkafka/testing.py')}}}

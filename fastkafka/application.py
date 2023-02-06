@@ -404,7 +404,6 @@ class FastKafka:
         contact: Optional[Dict[str, str]] = None,
         kafka_brokers: Optional[Dict[str, Any]] = None,
         root_path: Optional[Union[Path, str]] = None,
-        skip_docs: bool = True,
         **kwargs,
     ):
         """Creates FastKafka application
@@ -422,7 +421,6 @@ class FastKafka:
             kafka_brokers: dictionary describing kafka brokers used for
                 generating documentation
             root_path: path to where documentation will be created
-            skip_docs: Boolean indicating whether to skip the generation of html docs, defaults to true
             bootstrap_servers (str, list(str)): a ``host[:port]`` string or list of
                 ``host[:port]`` strings that the producer should contact to
                 bootstrap initial cluster metadata. This does not have to be the
@@ -693,8 +691,6 @@ class FastKafka:
 
         # this is used as default parameters for creating AIOProducer and AIOConsumer objects
         self._kafka_config = _get_kafka_config(**kwargs)
-
-        self.skip_docs = skip_docs
 
         #
         self._consumers_store: Dict[str, Tuple[ConsumeCallable, Dict[str, Any]]] = {}
@@ -1006,6 +1002,8 @@ def _to_json_utf8(o: Any) -> bytes:
 def produce_decorator(
     self: FastKafka, func: ProduceCallable, topic: str
 ) -> ProduceCallable:
+    """todo: write documentation"""
+
     @functools.wraps(func)
     async def _produce_async(*args: List[Any], **kwargs: Dict[str, Any]) -> BaseModel:
         f: Callable[..., Awaitable[BaseModel]] = func  # type: ignore
@@ -1234,6 +1232,7 @@ def run_in_background(
 
 # %% ../nbs/000_FastKafka.ipynb 41
 def filter_using_signature(f: Callable, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    """todo: write docs"""
     param_names = list(signature(f).parameters.keys())
     return {k: v for k, v in kwargs.items() if k in param_names}
 
@@ -1369,29 +1368,13 @@ async def _shutdown_bg_tasks(
 
 # %% ../nbs/000_FastKafka.ipynb 49
 @patch  # type: ignore
-def create_docs(self: FastKafka) -> None:
-    export_async_spec(
-        consumers={
-            topic: callback for topic, (callback, _) in self._consumers_store.items()
-        },
-        producers={
-            topic: callback for topic, (callback, _, _) in self._producers_store.items()
-        },
-        kafka_brokers=self._kafka_brokers,
-        kafka_service_info=self._kafka_service_info,
-        asyncapi_path=self._asyncapi_path,
-        skip_docs=self.skip_docs,
-    )
-
-# %% ../nbs/000_FastKafka.ipynb 51
-@patch  # type: ignore
 async def startup(self: FastKafka) -> None:
     self._is_shutting_down = False
 
     def is_shutting_down_f(self: FastKafka = self) -> bool:
         return self._is_shutting_down
 
-    self.create_docs()
+    #     self.create_docs()
     await self._populate_producers()
     self._populate_consumers(is_shutting_down_f)
     await self._populate_bg_tasks()
@@ -1406,3 +1389,18 @@ async def shutdown(self: FastKafka) -> None:
     await self._shutdown_bg_tasks()
     await self._shutdown_consumers()
     await self._shutdown_producers()
+
+# %% ../nbs/000_FastKafka.ipynb 57
+@patch  # type: ignore
+def create_docs(self: FastKafka) -> None:
+    export_async_spec(
+        consumers={
+            topic: callback for topic, (callback, _) in self._consumers_store.items()
+        },
+        producers={
+            topic: callback for topic, (callback, _, _) in self._producers_store.items()
+        },
+        kafka_brokers=self._kafka_brokers,
+        kafka_service_info=self._kafka_service_info,
+        asyncapi_path=self._asyncapi_path,
+    )
