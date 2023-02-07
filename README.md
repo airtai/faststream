@@ -330,26 +330,26 @@ fastkafka run --num-workers=1 server:kafka_app
 
 After running the command, you should see an output like the one below:
 
-    [4393]: [INFO] fastkafka.application: _create_producer() : created producer using the config: '{'bootstrap_servers': 'tvrtko-fastkafka-kafka-1:9092'}'
-    [4393]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
-    [4393]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'tvrtko-fastkafka-kafka-1:9092', 'auto_offset_reset': 'latest', 'max_poll_records': 100, 'group_id': 'my_group'}
-    [4393]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
-    [4393]: [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
-    [4393]: [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
-    [4393]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
-    [4393]: [INFO] aiokafka.consumer.group_coordinator: Discovered coordinator 1003 for group my_group
-    [4393]: [INFO] aiokafka.consumer.group_coordinator: Revoking previously assigned partitions set() for group my_group
-    [4393]: [INFO] aiokafka.consumer.group_coordinator: (Re-)joining group my_group
-    [4393]: [INFO] aiokafka.consumer.group_coordinator: Joined group 'my_group' (generation 6) with member_id aiokafka-0.8.0-0d3f67c3-186b-4527-8d57-acedc00b4d12
-    [4393]: [INFO] aiokafka.consumer.group_coordinator: Elected group leader -- performing partition assignments using roundrobin
-    [4393]: [INFO] aiokafka.consumer.group_coordinator: Successfully synced group my_group with generation 6
-    [4393]: [INFO] aiokafka.consumer.group_coordinator: Setting newly assigned partitions {TopicPartition(topic='input_data', partition=0)} for group my_group
+    [52931]: [INFO] fastkafka.application: _create_producer() : created producer using the config: '{'bootstrap_servers': 'tvrtko-fastkafka-kafka-1:9092'}'
+    [52931]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
+    [52931]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'tvrtko-fastkafka-kafka-1:9092', 'auto_offset_reset': 'latest', 'max_poll_records': 100, 'group_id': 'my_group'}
+    [52931]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
+    [52931]: [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
+    [52931]: [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
+    [52931]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
+    [52931]: [INFO] aiokafka.consumer.group_coordinator: Discovered coordinator 1003 for group my_group
+    [52931]: [INFO] aiokafka.consumer.group_coordinator: Revoking previously assigned partitions set() for group my_group
+    [52931]: [INFO] aiokafka.consumer.group_coordinator: (Re-)joining group my_group
+    [52931]: [INFO] aiokafka.consumer.group_coordinator: Joined group 'my_group' (generation 26) with member_id aiokafka-0.8.0-d3172244-9a47-4f94-8037-e0ac77cbd136
+    [52931]: [INFO] aiokafka.consumer.group_coordinator: Elected group leader -- performing partition assignments using roundrobin
+    [52931]: [INFO] aiokafka.consumer.group_coordinator: Successfully synced group my_group with generation 26
+    [52931]: [INFO] aiokafka.consumer.group_coordinator: Setting newly assigned partitions {TopicPartition(topic='input_data', partition=0)} for group my_group
     Starting process cleanup, this may take a few seconds...
-    [INFO] fastkafka.server: terminate_asyncio_process(): Terminating the process 4393...
-    [4393]: [INFO] aiokafka.consumer.group_coordinator: LeaveGroup request succeeded
-    [4393]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
-    [4393]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
-    [INFO] fastkafka.server: terminate_asyncio_process(): Process 4393 terminated.
+    [INFO] fastkafka.server: terminate_asyncio_process(): Terminating the process 52931...
+    [52931]: [INFO] aiokafka.consumer.group_coordinator: LeaveGroup request succeeded
+    [52931]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
+    [52931]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
+    [INFO] fastkafka.server: terminate_asyncio_process(): Process 52931 terminated.
 
 When the service is started, several log messages are printed to the
 console, including information about the application startup, AsyncAPI
@@ -371,10 +371,6 @@ To generate and serve the documentation **locally**, you can use the
 built in kafka function that will do all the work for you. In the folder
 where the server.py file is located, run the following command:
 
-``` shell
-fastkafka docs serve server:kafka_app
-```
-
 After running the command you should see the following output:
 
 ``` python
@@ -387,27 +383,6 @@ exit_code, output = await run_script_and_cancel(
 assert exit_code == 0, exit_code
 print(output.decode("utf-8"))
 ```
-
-    [INFO] fastkafka._components.asyncapi: Old async specifications at '/tmp/tmpd0str3aa/asyncapi/spec/asyncapi.yml' does not exist.
-    [INFO] fastkafka._components.asyncapi: New async specifications generated at: '/tmp/tmpd0str3aa/asyncapi/spec/asyncapi.yml'
-    [INFO] fastkafka._components.asyncapi: Async docs generated at 'asyncapi/docs'
-    [INFO] fastkafka._components.asyncapi: Output of '$ npx -y -p @asyncapi/generator ag asyncapi/spec/asyncapi.yml @asyncapi/html-template -o asyncapi/docs --force-write'
-
-    Done! ✨
-    Check out your shiny new generated files at /tmp/tmpd0str3aa/asyncapi/docs.
-
-
-    Serving documentation on http://127.0.0.1:8000
-    Interupting serving of documentation and cleaning up...
-
-    {'localhost': {'description': 'local development kafka broker',
-                   'port': 9092,
-                   'url': 'localhost'},
-     'production': {'description': 'production kafka broker',
-                    'port': 9092,
-                    'protocol': 'kafka-secure',
-                    'security': {'type': 'plain'},
-                    'url': 'kafka.airt.ai'}}
 
 The generated documentation is as follows:
 
@@ -460,17 +435,95 @@ from fastkafka.helpers import (
     produce_messages,
     wait_for_get_url,
 )
+
+from fastkafka.kafka_broker import create_kafka_test_env
 ```
 
+bootstrap_servers =
+f”{environ\[‘KAFKA_HOSTNAME’\]}:{environ\[‘KAFKA_PORT’\]}”
+
+create_missing_topics( \[“input_data”, “predictions”\],
+bootstrap_servers=bootstrap_servers, num_partitions=48, )
+
 ``` python
-bootstrap_servers = f"{environ['KAFKA_HOSTNAME']}:{environ['KAFKA_PORT']}"
+script = """
+from typing import List
+from pydantic import BaseModel, Field, NonNegativeInt
+
+class InputData(BaseModel):
+    user_id: NonNegativeInt = Field(..., example=202020, description="ID of a user")
+    feature_1: List[float] = Field(
+        ...,
+        example=[1.2, 2.3, 4.5, 6.7, 0.1],
+        description="input feature 1",
+    )
+    feature_2: List[int] = Field(
+        ...,
+        example=[2, 4, 3, 1, 0],
+        description="input feature 2",
+    )
+
+class Prediction(BaseModel):
+    user_id: NonNegativeInt = Field(..., example=202020, description="ID of a user")
+    score: float = Field(
+        ...,
+        example=0.4321,
+        description="Prediction score (e.g. the probability of churn in the next 28 days)",
+        ge=0.0,
+        le=1.0,
+    )
 
 
-create_missing_topics(
-    ["input_data", "predictions"],
+
+from os import environ
+
+from fastkafka.application import FastKafka
+
+kafka_brokers = {
+    "localhost": {
+        "url": "localhost",
+        "description": "local development kafka broker",
+        "port": 9092,
+    },
+    "production": {
+        "url": "kafka.airt.ai",
+        "description": "production kafka broker",
+        "port": 9092,
+        "protocol": "kafka-secure",
+        "security": {"type": "plain"},
+    },
+}
+
+bootstrap_servers = f"localhost:9999"
+
+kafka_app = FastKafka(
+    kafka_brokers=kafka_brokers,
     bootstrap_servers=bootstrap_servers,
-    num_partitions=48,
 )
+
+
+
+@kafka_app.consumes(topic="input_data", auto_offset_reset="latest", group_id="my_group")
+async def on_input_data(msg: InputData):
+    global model
+    score = await model.predict(feature_1=msg.feature_1, feature_2=msg.feature_2)
+    await to_predictions(user_id=msg.user_id, score=score)
+
+
+@kafka_app.produces(topic="predictions")
+async def to_predictions(user_id: int, score: float) -> Prediction:
+    prediction = Prediction(user_id=user_id, score=score)
+    return prediction
+
+
+# this is a mock up for testing, should be replaced with the real model
+class Model:
+    async def predict(self, feature_1: List[int], feature_2: List[float]) -> float:
+        return 0.87
+
+
+model = Model()
+"""
 ```
 
 ``` python
@@ -481,30 +534,162 @@ msgs = [
     for i in trange(5_000, desc="generating messages")
 ]
 
-async with asyncer.create_task_group() as tg:
-    tg.soonify(run_script_and_cancel)(
-        script=script,
-        script_file=f"server.py",
-        cmd=f"fastkafka run --num-workers={num_workers} server:kafka_app",
-        cancel_after=120,
-    )
+async with create_kafka_test_env(zookeeper_port=9998, kafka_port=9999) as bootstrap_servers:
+    
+    async with asyncer.create_task_group() as tg:
+        output = tg.soonify(run_script_and_cancel)(
+            script=script,
+            script_file=f"server.py",
+            cmd=f"fastkafka run --num-workers={num_workers} server:kafka_app",
+            cancel_after=30,
+        )
 
-    tg.soonify(consumes_messages)(
-        msgs_count=len(msgs), topic="predictions", bootstrap_servers=bootstrap_servers
-    )
+        tg.soonify(consumes_messages)(
+            msgs_count=len(msgs), topic="input_data", bootstrap_servers=bootstrap_servers
+        )
 
-    await anyio.sleep(2)
+        
+        tg.soonify(consumes_messages)(
+            msgs_count=len(msgs), topic="predictions", bootstrap_servers=bootstrap_servers
+        )
+        
+        
+        await anyio.sleep(10)
 
-    tg.soonify(produce_messages)(
-        msgs=msgs, topic="input_data", bootstrap_servers=bootstrap_servers
-    )
+        tg.soonify(produce_messages)(
+            msgs=msgs, topic="input_data", bootstrap_servers=bootstrap_servers
+        )
+    
+print(output.value[1].decode("UTF-8"))
 ```
 
     generating messages:   0%|          | 0/5000 [00:00<?, ?it/s]
 
+    [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
     [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'predictions'})
-    [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'predictions': 48}. 
+    [ERROR] aiokafka.cluster: Topic predictions not found in cluster metadata
+    [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {'predictions': 1} to {'predictions': 0}. 
+    [WARNING] aiokafka.cluster: Topic predictions is not available during auto-create initialization
+    [WARNING] aiokafka.cluster: Topic input_data is not available during auto-create initialization
+    [WARNING] aiokafka.cluster: Topic predictions is not available during auto-create initialization
+    [WARNING] aiokafka.cluster: Topic input_data is not available during auto-create initialization
+    [WARNING] aiokafka.cluster: Topic predictions is not available during auto-create initialization
+    [WARNING] aiokafka.cluster: Topic input_data is not available during auto-create initialization
+    [WARNING] aiokafka.cluster: Topic predictions is not available during auto-create initialization
+    [WARNING] aiokafka.cluster: Topic input_data is not available during auto-create initialization
+    [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'predictions': 1}. 
 
     consuming from 'predictions':   0%|          | 0/5000 [00:00<?, ?it/s]
 
+    [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'input_data': 1}. 
+
+    consuming from 'input_data':   0%|          | 0/5000 [00:00<?, ?it/s]
+
     producing to 'input_data':   0%|          | 0/5000 [00:00<?, ?it/s]
+
+    [INFO] fastkafka.server: terminate_asyncio_process(): Terminating the process 59039...
+    [ERROR] aiokafka: Unable connect to node with id 0: [Errno 111] Connect call failed ('192.168.176.6', 9999)
+    [ERROR] aiokafka: Unable to update metadata from [0]
+    [INFO] fastkafka.server: terminate_asyncio_process(): Process 59039 terminated.
+    [INFO] fastkafka.server: terminate_asyncio_process(): Terminating the process 58674...
+    [INFO] fastkafka.server: terminate_asyncio_process(): Process 58674 terminated.
+    [59464]: [INFO] fastkafka.application: _create_producer() : created producer using the config: '{'bootstrap_servers': 'localhost:9999'}'
+    [59464]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
+    [59464]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'localhost:9999', 'auto_offset_reset': 'latest', 'max_poll_records': 100, 'group_id': 'my_group'}
+    [59464]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
+    [59464]: [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
+    [59464]: [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
+    [59464]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
+    [59464]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59462]: [INFO] fastkafka.application: _create_producer() : created producer using the config: '{'bootstrap_servers': 'localhost:9999'}'
+    [59462]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
+    [59462]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'localhost:9999', 'auto_offset_reset': 'latest', 'max_poll_records': 100, 'group_id': 'my_group'}
+    [59462]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
+    [59462]: [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
+    [59462]: [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
+    [59462]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
+    [59462]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59464]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59458]: [INFO] fastkafka.application: _create_producer() : created producer using the config: '{'bootstrap_servers': 'localhost:9999'}'
+    [59458]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
+    [59458]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'localhost:9999', 'auto_offset_reset': 'latest', 'max_poll_records': 100, 'group_id': 'my_group'}
+    [59458]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
+    [59458]: [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
+    [59458]: [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
+    [59458]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
+    [59458]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59460]: [INFO] fastkafka.application: _create_producer() : created producer using the config: '{'bootstrap_servers': 'localhost:9999'}'
+    [59462]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59460]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
+    [59460]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'localhost:9999', 'auto_offset_reset': 'latest', 'max_poll_records': 100, 'group_id': 'my_group'}
+    [59464]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59460]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
+    [59460]: [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
+    [59460]: [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
+    [59460]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
+    [59460]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59458]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59462]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59464]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59460]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59458]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59462]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59464]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59460]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59458]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59462]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59464]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59460]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59458]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59462]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59464]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59460]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [59458]: [INFO] aiokafka.consumer.group_coordinator: Discovered coordinator 0 for group my_group
+    [59458]: [INFO] aiokafka.consumer.group_coordinator: Revoking previously assigned partitions set() for group my_group
+    [59458]: [INFO] aiokafka.consumer.group_coordinator: (Re-)joining group my_group
+    [59462]: [INFO] aiokafka.consumer.group_coordinator: Discovered coordinator 0 for group my_group
+    [59462]: [INFO] aiokafka.consumer.group_coordinator: Revoking previously assigned partitions set() for group my_group
+    [59462]: [INFO] aiokafka.consumer.group_coordinator: (Re-)joining group my_group
+    [59464]: [INFO] aiokafka.consumer.group_coordinator: Discovered coordinator 0 for group my_group
+    [59464]: [INFO] aiokafka.consumer.group_coordinator: Revoking previously assigned partitions set() for group my_group
+    [59464]: [INFO] aiokafka.consumer.group_coordinator: (Re-)joining group my_group
+    [59458]: [INFO] aiokafka.consumer.group_coordinator: Joined group 'my_group' (generation 1) with member_id aiokafka-0.8.0-1720b7f0-2ace-4291-a3c1-54cd94321032
+    [59458]: [INFO] aiokafka.consumer.group_coordinator: Elected group leader -- performing partition assignments using roundrobin
+    [59460]: [INFO] aiokafka.consumer.group_coordinator: Discovered coordinator 0 for group my_group
+    [59460]: [INFO] aiokafka.consumer.group_coordinator: Revoking previously assigned partitions set() for group my_group
+    [59460]: [INFO] aiokafka.consumer.group_coordinator: (Re-)joining group my_group
+    [59458]: [INFO] aiokafka.consumer.group_coordinator: (Re-)joining group my_group
+    [59458]: [INFO] aiokafka.consumer.group_coordinator: Joined group 'my_group' (generation 2) with member_id aiokafka-0.8.0-1720b7f0-2ace-4291-a3c1-54cd94321032
+    [59458]: [INFO] aiokafka.consumer.group_coordinator: Elected group leader -- performing partition assignments using roundrobin
+    [59464]: [INFO] aiokafka.consumer.group_coordinator: Joined group 'my_group' (generation 2) with member_id aiokafka-0.8.0-efc4e176-93fa-4985-a2b5-7f50d6ab6884
+    [59462]: [INFO] aiokafka.consumer.group_coordinator: Joined group 'my_group' (generation 2) with member_id aiokafka-0.8.0-f1b2c12f-6fde-49be-bf53-0d9289259190
+    [59460]: [INFO] aiokafka.consumer.group_coordinator: Joined group 'my_group' (generation 2) with member_id aiokafka-0.8.0-2977bfea-5098-477f-bdc0-27e55b1f1ad6
+    [59464]: [INFO] aiokafka.consumer.group_coordinator: Successfully synced group my_group with generation 2
+    [59464]: [INFO] aiokafka.consumer.group_coordinator: Setting newly assigned partitions set() for group my_group
+    [59458]: [INFO] aiokafka.consumer.group_coordinator: Successfully synced group my_group with generation 2
+    [59458]: [INFO] aiokafka.consumer.group_coordinator: Setting newly assigned partitions {TopicPartition(topic='input_data', partition=0)} for group my_group
+    [59462]: [INFO] aiokafka.consumer.group_coordinator: Successfully synced group my_group with generation 2
+    [59462]: [INFO] aiokafka.consumer.group_coordinator: Setting newly assigned partitions set() for group my_group
+    [59460]: [INFO] aiokafka.consumer.group_coordinator: Successfully synced group my_group with generation 2
+    [59460]: [INFO] aiokafka.consumer.group_coordinator: Setting newly assigned partitions set() for group my_group
+    Starting process cleanup, this may take a few seconds...
+    [INFO] fastkafka.server: terminate_asyncio_process(): Terminating the process 59458...
+    [INFO] fastkafka.server: terminate_asyncio_process(): Terminating the process 59460...
+    [INFO] fastkafka.server: terminate_asyncio_process(): Terminating the process 59462...
+    [INFO] fastkafka.server: terminate_asyncio_process(): Terminating the process 59464...
+    [59460]: [INFO] aiokafka.consumer.group_coordinator: LeaveGroup request succeeded
+    [59460]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
+    [59460]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
+    [59462]: [INFO] aiokafka.consumer.group_coordinator: LeaveGroup request succeeded
+    [59462]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
+    [59462]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
+    [59458]: [INFO] aiokafka.consumer.group_coordinator: LeaveGroup request succeeded
+    [59458]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
+    [59458]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
+    [59464]: [INFO] aiokafka.consumer.group_coordinator: LeaveGroup request succeeded
+    [59464]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
+    [59464]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
+    [INFO] fastkafka.server: terminate_asyncio_process(): Process 59460 terminated.
+    [INFO] fastkafka.server: terminate_asyncio_process(): Process 59462 terminated.
+    [INFO] fastkafka.server: terminate_asyncio_process(): Process 59464 terminated.
+    [INFO] fastkafka.server: terminate_asyncio_process(): Process 59458 terminated.
