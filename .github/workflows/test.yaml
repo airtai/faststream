@@ -2,11 +2,20 @@ name: CI
 on:  [workflow_dispatch, pull_request, push]
 
 jobs:
-  static_check:
+  mypy_static_analysis:
     runs-on: ubuntu-latest
     steps:
-      - uses: airtai/workflows/nbdev-mkdocs-static-check@main
+      - uses: airtai/workflows/airt-mypy-check@main
+  bandit_static_analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: airtai/workflows/airt-bandit-check@main
+  semgrep_static_analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: airtai/workflows/airt-semgrep-check@main
   test:
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
