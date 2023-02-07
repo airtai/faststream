@@ -106,7 +106,6 @@ def serve_docs(
 ) -> None:
     try:
         application = _import_from_string(app)
-        application.skip_docs = False
         application.create_docs()
         with change_dir("asyncapi/docs/"):
             server_address = (bind, port)
