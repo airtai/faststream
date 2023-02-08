@@ -3,7 +3,8 @@
 # %% auto 0
 __all__ = ['logger', 'kafka_server_url', 'kafka_server_port', 'aiokafka_config', 'nb_safe_seed', 'true_after',
            'create_testing_topic', 'create_and_fill_testing_topic', 'mock_AIOKafkaProducer_send', 'change_dir',
-           'run_script_and_cancel']
+           'run_script_and_cancel', 'get_zookeeper_config_string', 'get_kafka_config_string', 'LocalKafkaBroker',
+           'install_java', 'install_kafka']
 
 # %% ../nbs/999_Test_Utils.ipynb 1
 import asyncio
@@ -12,11 +13,16 @@ import hashlib
 import os
 import random
 import shlex
+import multiprocessing
 
 # [B404:blacklist] Consider possible security implications associated with the subprocess module.
+import requests
+import shutil
+import signal
 import subprocess  # nosec
 import textwrap
 import time
+import typer
 import unittest
 import unittest.mock
 from contextlib import asynccontextmanager, contextmanager
@@ -30,7 +36,10 @@ import uvicorn
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from confluent_kafka.admin import AdminClient, NewTopic
 from fastcore.meta import delegates
+from fastcore.foundation import patch
 from pydantic import BaseModel
+import tarfile
+from tqdm import tqdm
 
 # from fastkafka.server import _import_from_string
 from ._components.helpers import combine_params, use_parameters_of
@@ -44,13 +53,21 @@ from fastkafka.helpers import (
     trange,
     produce_messages,
 )
-from .application import FastKafka
+from .components._subprocess import terminate_asyncio_process
+from .application import FastKafka, filter_using_signature
 from ._components.helpers import _import_from_string
+from .helpers import in_notebook
 
-# %% ../nbs/999_Test_Utils.ipynb 4
+# %% ../nbs/999_Test_Utils.ipynb 2
+if in_notebook():
+    from tqdm.notebook import tqdm, trange
+else:
+    from tqdm import tqdm, trange
+
+# %% ../nbs/999_Test_Utils.ipynb 5
 logger = get_logger(__name__)
 
-# %% ../nbs/999_Test_Utils.ipynb 6
+# %% ../nbs/999_Test_Utils.ipynb 7
 kafka_server_url = (
     os.environ["KAFKA_HOSTNAME"] if "KAFKA_HOSTNAME" in os.environ else "localhost"
 )
@@ -60,7 +77,7 @@ aiokafka_config = {
     "bootstrap_servers": f"{kafka_server_url}:{kafka_server_port}",
 }
 
-# %% ../nbs/999_Test_Utils.ipynb 7
+# %% ../nbs/999_Test_Utils.ipynb 8
 def nb_safe_seed(s: str) -> Callable[[int], int]:
     """Gets a unique seed function for a notebook
 
@@ -77,7 +94,7 @@ def nb_safe_seed(s: str) -> Callable[[int], int]:
 
     return _get_seed
 
-# %% ../nbs/999_Test_Utils.ipynb 9
+# %% ../nbs/999_Test_Utils.ipynb 10
 def true_after(seconds: float) -> Callable[[], bool]:
     """Function returning True after a given number of seconds"""
     t = datetime.now()
@@ -87,7 +104,7 @@ def true_after(seconds: float) -> Callable[[], bool]:
 
     return _true_after
 
-# %% ../nbs/999_Test_Utils.ipynb 11
+# %% ../nbs/999_Test_Utils.ipynb 12
 @contextmanager
 @delegates(create_missing_topics)  # type: ignore
 def create_testing_topic(
@@ -184,7 +201,7 @@ def create_testing_topic(
         while topic in admin.list_topics().topics.keys():
             time.sleep(1)
 
-# %% ../nbs/999_Test_Utils.ipynb 14
+# %% ../nbs/999_Test_Utils.ipynb 15
 @asynccontextmanager
 @delegates(produce_messages)  # type: ignore
 @delegates(create_testing_topic, keep=True)  # type: ignore
@@ -333,7 +350,7 @@ async def create_and_fill_testing_topic(**kwargs: Dict[str, str]) -> AsyncIterat
 
         yield topic
 
-# %% ../nbs/999_Test_Utils.ipynb 18
+# %% ../nbs/999_Test_Utils.ipynb 19
 @contextmanager
 def mock_AIOKafkaProducer_send() -> Generator[unittest.mock.Mock, None, None]:
     """Mocks **send** method of **AIOKafkaProducer**"""
@@ -346,7 +363,7 @@ def mock_AIOKafkaProducer_send() -> Generator[unittest.mock.Mock, None, None]:
 
         yield mock
 
-# %% ../nbs/999_Test_Utils.ipynb 19
+# %% ../nbs/999_Test_Utils.ipynb 20
 @contextlib.contextmanager
 def change_dir(d: str) -> Generator[None, None, None]:
     curdir = os.getcwd()
@@ -356,7 +373,7 @@ def change_dir(d: str) -> Generator[None, None, None]:
     finally:
         os.chdir(curdir)
 
-# %% ../nbs/999_Test_Utils.ipynb 21
+# %% ../nbs/999_Test_Utils.ipynb 22
 async def run_script_and_cancel(
     script: str,
     *,
@@ -413,3 +430,257 @@ async def run_script_and_cancel(
             output, _ = proc.communicate()
 
         return (proc.returncode, output)
+
+# %% ../nbs/999_Test_Utils.ipynb 29
+def get_zookeeper_config_string(
+    data_dir: Union[
+        str, os.PathLike[str]
+    ],  # the directory where the snapshot is stored.
+    zookeeper_port: int = 2181,  # the port at which the clients will connect
+) -> str:
+    zookeeper_config = f"""dataDir={data_dir}/zookeeper
+clientPort={zookeeper_port}
+maxClientCnxns=0
+admin.enableServer=false
+"""
+
+    return zookeeper_config
+
+# %% ../nbs/999_Test_Utils.ipynb 31
+def get_kafka_config_string(
+    data_dir: Union[str, os.PathLike[str]],
+    zookeeper_port: int = 2181,
+    listener_port: int = 9092,
+) -> str:
+    kafka_config = f"""broker.id=0
+
+############################# Socket Server Settings #############################
+
+# The address the socket server listens on. If not configured, the host name will be equal to the value of
+# java.net.InetAddress.getCanonicalHostName(), with PLAINTEXT listener name, and port 9092.
+#   FORMAT:
+#     listeners = listener_name://host_name:port
+#   EXAMPLE:
+#     listeners = PLAINTEXT://your.host.name:9092
+listeners=PLAINTEXT://:{listener_port}
+
+# Listener name, hostname and port the broker will advertise to clients.
+# If not set, it uses the value for "listeners".
+#advertised.listeners=PLAINTEXT://your.host.name:9092
+
+# Maps listener names to security protocols, the default is for them to be the same. See the config documentation for more details
+#listener.security.protocol.map=PLAINTEXT:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL
+
+# The number of threads that the server uses for receiving requests from the network and sending responses to the network
+num.network.threads=3
+
+# The number of threads that the server uses for processing requests, which may include disk I/O
+num.io.threads=8
+
+# The send buffer (SO_SNDBUF) used by the socket server
+socket.send.buffer.bytes=102400
+
+# The receive buffer (SO_RCVBUF) used by the socket server
+socket.receive.buffer.bytes=102400
+
+# The maximum size of a request that the socket server will accept (protection against OOM)
+socket.request.max.bytes=104857600
+
+
+############################# Log Basics #############################
+
+# A comma separated list of directories under which to store log files
+log.dirs={data_dir}/kafka_logs
+
+# The default number of log partitions per topic. More partitions allow greater
+# parallelism for consumption, but this will also result in more files across
+# the brokers.
+num.partitions=1
+
+# The number of threads per data directory to be used for log recovery at startup and flushing at shutdown.
+# This value is recommended to be increased for installations with data dirs located in RAID array.
+num.recovery.threads.per.data.dir=1
+
+offsets.topic.replication.factor=1
+transaction.state.log.replication.factor=1
+transaction.state.log.min.isr=1
+
+# The number of messages to accept before forcing a flush of data to disk
+log.flush.interval.messages=10000
+
+# The maximum amount of time a message can sit in a log before we force a flush
+log.flush.interval.ms=1000
+
+# The minimum age of a log file to be eligible for deletion due to age
+log.retention.hours=168
+
+# A size-based retention policy for logs. Segments are pruned from the log unless the remaining
+# segments drop below log.retention.bytes. Functions independently of log.retention.hours.
+log.retention.bytes=1073741824
+
+# The maximum size of a log segment file. When this size is reached a new log segment will be created.
+log.segment.bytes=1073741824
+
+# The interval at which log segments are checked to see if they can be deleted according to the retention policies
+log.retention.check.interval.ms=300000
+
+# Zookeeper connection string (see zookeeper docs for details).
+zookeeper.connect=localhost:{zookeeper_port}
+
+# Timeout in ms for connecting to zookeeper
+zookeeper.connection.timeout.ms=18000
+
+# The following configuration specifies the time, in milliseconds, that the GroupCoordinator will delay the initial consumer rebalance.
+group.initial.rebalance.delay.ms=0
+"""
+
+    return kafka_config
+
+# %% ../nbs/999_Test_Utils.ipynb 33
+class LocalKafkaBroker:
+    lock = multiprocessing.Lock()
+
+    @delegates(get_kafka_config_string)  # type: ignore
+    @delegates(get_zookeeper_config_string, keep=True)  # type: ignore
+    def __init__(self, **kwargs: Dict[str, Any]):
+        self.zookeeper_kwargs = filter_using_signature(
+            get_zookeeper_config_string, **kwargs
+        )
+        self.kafka_kwargs = filter_using_signature(get_kafka_config_string, **kwargs)
+        self.temporary_directory: Optional[TemporaryDirectory] = None
+        self.temporary_directory_path: Optional[Path] = None
+        self.kafka_task: Optional[asyncio.subprocess.Process] = None
+        self.zookeeper_task: Optional[asyncio.subprocess.Process] = None
+
+    @classmethod
+    def _install(cls) -> None:
+        raise NotImplementedError
+
+    def start(self) -> str:
+        LocalKafkaBroker._install()
+        asyncio.run(self._start())
+        listener_port = self.kafka_kwargs.get("listener_port", 9092)
+        return f"127.0.0.1:{listener_port}"
+
+    async def _start(self) -> None:
+        raise NotImplementedError
+
+    def stop(self) -> None:
+        asyncio.run(self._stop())
+
+    async def _stop(self) -> None:
+        raise NotImplementedError
+
+    def __enter__(self) -> str:
+        return self.start()
+
+    def __exit__(self, *args, **kwargs):
+        self.stop()
+
+# %% ../nbs/999_Test_Utils.ipynb 34
+def install_java() -> None:
+    if not shutil.which("java"):
+        logger.info("Installing Java...")
+        logger.info(" - installing install-jdk...")
+        subprocess.run(["pip", "install", "install-jdk"], check=True)  # nosec
+        import jdk
+
+        logger.info(" - installing jdk...")
+        jdk_bin_path = jdk.install("11")
+        os.environ["PATH"] = os.environ["PATH"] + f":{jdk_bin_path}/bin"
+        logger.info("Java installed.")
+    else:
+        logger.info("Java is already installed.")
+
+# %% ../nbs/999_Test_Utils.ipynb 36
+def install_kafka() -> None:
+    if not shutil.which("kafka-server-start.sh"):
+        logger.info("Installing Kafka...")
+        kafka_version = "3.3.2"
+        kafka_fname = f"kafka_2.13-{kafka_version}"
+        kafka_url = f"https://dlcdn.apache.org/kafka/{kafka_version}/{kafka_fname}.tgz"
+        local_path = Path(os.environ["HOME"]) / ".local"
+        local_path.mkdir(exist_ok=True, parents=True)
+        tgz_path = local_path / f"{kafka_fname}.tgz"
+        kafka_path = local_path / f"{kafka_fname}"
+
+        response = requests.get(
+            kafka_url,
+            stream=True,
+        )
+        try:
+            total = response.raw.length_remaining // 128
+        except Exception:
+            total = None
+
+        with open(tgz_path, "wb") as f:
+            for data in tqdm(response.iter_content(chunk_size=128), total=total):
+                f.write(data)
+
+        with tarfile.open(tgz_path) as tar:
+            for tarinfo in tar:
+                tar.extract(tarinfo, local_path)
+
+        os.environ["PATH"] = os.environ["PATH"] + f":{kafka_path}/bin"
+        logger.info(f"Kafka installed in {kafka_path}.")
+    else:
+        logger.info("Kafka is already installed")
+
+# %% ../nbs/999_Test_Utils.ipynb 38
+@patch(cls_method=True)  # type: ignore
+def _install(cls: LocalKafkaBroker) -> None:
+    with cls.lock:
+        install_java()
+        install_kafka()
+
+# %% ../nbs/999_Test_Utils.ipynb 40
+@patch  # type: ignore
+async def _start(self: LocalKafkaBroker) -> None:
+    self.temporary_directory = TemporaryDirectory()
+    self.temporary_directory_path = Path(self.temporary_directory.__enter__())
+
+    async def write_config_and_run(
+        config: str, config_path: Union[str, os.PathLike[str]], run_cmd: str
+    ) -> asyncio.subprocess.Process:
+        with open(config_path, "w") as f:
+            f.write(config)
+
+        return await asyncio.create_subprocess_exec(
+            run_cmd,
+            config_path,
+            stdout=asyncio.subprocess.PIPE,
+            stdin=asyncio.subprocess.PIPE,
+        )
+
+    # start_zookeeper
+
+    zookeeper_config_path = self.temporary_directory_path / "zookeeper.properties"
+    self.zookeeper_task = await write_config_and_run(
+        get_zookeeper_config_string(
+            data_dir=self.temporary_directory_path, **self.zookeeper_kwargs
+        ),
+        zookeeper_config_path,
+        "zookeeper-server-start.sh",
+    )
+
+    await asyncio.sleep(5)
+
+    # start_kafka
+
+    kafka_config_path = self.temporary_directory_path / "kafka.properties"
+    self.kafka_task = await write_config_and_run(
+        get_kafka_config_string(
+            data_dir=self.temporary_directory_path, **self.kafka_kwargs
+        ),
+        kafka_config_path,
+        "kafka-server-start.sh",
+    )
+
+    await asyncio.sleep(5)
+
+
+@patch  # type: ignore
+async def _stop(self: LocalKafkaBroker) -> None:
+    await terminate_asyncio_process(self.kafka_task)  # type: ignore
+    await terminate_asyncio_process(self.zookeeper_task)  # type: ignore
+    self.temporary_directory.__exit__(None, None, None)  # type: ignore
