@@ -434,9 +434,7 @@ async def run_script_and_cancel(
 
 # %% ../nbs/999_Test_Utils.ipynb 29
 def get_zookeeper_config_string(
-    data_dir: Union[
-        str, os.PathLike[str]
-    ],  # the directory where the snapshot is stored.
+    data_dir: Union[str, Path],  # the directory where the snapshot is stored.
     zookeeper_port: int = 2181,  # the port at which the clients will connect
 ) -> str:
     zookeeper_config = f"""dataDir={data_dir}/zookeeper
@@ -449,9 +447,7 @@ admin.enableServer=false
 
 # %% ../nbs/999_Test_Utils.ipynb 31
 def get_kafka_config_string(
-    data_dir: Union[str, os.PathLike[str]],
-    zookeeper_port: int = 2181,
-    listener_port: int = 9092,
+    data_dir: Union[str, Path], zookeeper_port: int = 2181, listener_port: int = 9092
 ) -> str:
     kafka_config = f"""broker.id=0
 
@@ -655,7 +651,7 @@ async def _start(self: LocalKafkaBroker) -> str:
     self.temporary_directory_path = Path(self.temporary_directory.__enter__())
 
     async def write_config_and_run(
-        config: str, config_path: Union[str, os.PathLike[str]], run_cmd: str
+        config: str, config_path: Union[str, Path], run_cmd: str
     ) -> asyncio.subprocess.Process:
         with open(config_path, "w") as f:
             f.write(config)
