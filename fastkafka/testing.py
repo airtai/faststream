@@ -30,6 +30,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
+import glob
 
 import asyncer
 import uvicorn
@@ -557,12 +558,9 @@ class LocalKafkaBroker:
         raise NotImplementedError
 
     def start(self) -> str:
-        LocalKafkaBroker._install()
-        asyncio.run(self._start())
-        listener_port = self.kafka_kwargs.get("listener_port", 9092)
-        return f"127.0.0.1:{listener_port}"
+        return asyncio.run(self._start())
 
-    async def _start(self) -> None:
+    async def _start(self) -> str:
         raise NotImplementedError
 
     def stop(self) -> None:
@@ -572,14 +570,28 @@ class LocalKafkaBroker:
         raise NotImplementedError
 
     def __enter__(self) -> str:
+        LocalKafkaBroker._install()
         return self.start()
 
     def __exit__(self, *args, **kwargs):
         self.stop()
 
+    async def __aenter__(self) -> str:
+        LocalKafkaBroker._install()
+        return await self._start()
+
+    async def __aexit__(self, *args, **kwargs):
+        await self._stop()
+
 # %% ../nbs/999_Test_Utils.ipynb 34
 def install_java() -> None:
-    if not shutil.which("java"):
+    potential_jdk_path = list(Path(os.environ["HOME"] + "/.jdk").glob("jdk-11*"))
+    if potential_jdk_path:
+        logger.info("Java is already installed.")
+        if not shutil.which("java"):
+            logger.info("But not exported to PATH, exporting...")
+            os.environ["PATH"] = os.environ["PATH"] + f":{potential_jdk_path[0]}/bin"
+    else:
         logger.info("Installing Java...")
         logger.info(" - installing install-jdk...")
         subprocess.run(["pip", "install", "install-jdk"], check=True)  # nosec
@@ -587,22 +599,27 @@ def install_java() -> None:
 
         logger.info(" - installing jdk...")
         jdk_bin_path = jdk.install("11")
+        print(jdk_bin_path)
         os.environ["PATH"] = os.environ["PATH"] + f":{jdk_bin_path}/bin"
         logger.info("Java installed.")
-    else:
-        logger.info("Java is already installed.")
 
 # %% ../nbs/999_Test_Utils.ipynb 36
 def install_kafka() -> None:
-    if not shutil.which("kafka-server-start.sh"):
+    kafka_version = "3.3.2"
+    kafka_fname = f"kafka_2.13-{kafka_version}"
+    kafka_url = f"https://dlcdn.apache.org/kafka/{kafka_version}/{kafka_fname}.tgz"
+    local_path = Path(os.environ["HOME"]) / ".local"
+    local_path.mkdir(exist_ok=True, parents=True)
+    tgz_path = local_path / f"{kafka_fname}.tgz"
+    kafka_path = local_path / f"{kafka_fname}"
+
+    if list(kafka_path.glob("bin")):
+        logger.info("Kafka is already installed.")
+        if not shutil.which("kafka-server-start.sh"):
+            logger.info("But not exported to PATH, exporting...")
+            os.environ["PATH"] = os.environ["PATH"] + f":{kafka_path}/bin"
+    else:
         logger.info("Installing Kafka...")
-        kafka_version = "3.3.2"
-        kafka_fname = f"kafka_2.13-{kafka_version}"
-        kafka_url = f"https://dlcdn.apache.org/kafka/{kafka_version}/{kafka_fname}.tgz"
-        local_path = Path(os.environ["HOME"]) / ".local"
-        local_path.mkdir(exist_ok=True, parents=True)
-        tgz_path = local_path / f"{kafka_fname}.tgz"
-        kafka_path = local_path / f"{kafka_fname}"
 
         response = requests.get(
             kafka_url,
@@ -623,8 +640,6 @@ def install_kafka() -> None:
 
         os.environ["PATH"] = os.environ["PATH"] + f":{kafka_path}/bin"
         logger.info(f"Kafka installed in {kafka_path}.")
-    else:
-        logger.info("Kafka is already installed")
 
 # %% ../nbs/999_Test_Utils.ipynb 38
 @patch(cls_method=True)  # type: ignore
@@ -635,7 +650,7 @@ def _install(cls: LocalKafkaBroker) -> None:
 
 # %% ../nbs/999_Test_Utils.ipynb 40
 @patch  # type: ignore
-async def _start(self: LocalKafkaBroker) -> None:
+async def _start(self: LocalKafkaBroker) -> str:
     self.temporary_directory = TemporaryDirectory()
     self.temporary_directory_path = Path(self.temporary_directory.__enter__())
 
@@ -677,6 +692,9 @@ async def _start(self: LocalKafkaBroker) -> None:
     )
 
     await asyncio.sleep(5)
+
+    listener_port = self.kafka_kwargs.get("listener_port", 9092)
+    return f"127.0.0.1:{listener_port}"
 
 
 @patch  # type: ignore
