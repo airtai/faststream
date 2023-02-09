@@ -41,6 +41,7 @@ from fastcore.foundation import patch
 from pydantic import BaseModel
 import tarfile
 from tqdm import tqdm
+import ilock
 
 # from fastkafka.server import _import_from_string
 from ._components.helpers import combine_params, use_parameters_of
@@ -351,7 +352,7 @@ async def create_and_fill_testing_topic(**kwargs: Dict[str, str]) -> AsyncIterat
 
         yield topic
 
-# %% ../nbs/999_Test_Utils.ipynb 19
+# %% ../nbs/999_Test_Utils.ipynb 18
 @contextmanager
 def mock_AIOKafkaProducer_send() -> Generator[unittest.mock.Mock, None, None]:
     """Mocks **send** method of **AIOKafkaProducer**"""
@@ -364,7 +365,7 @@ def mock_AIOKafkaProducer_send() -> Generator[unittest.mock.Mock, None, None]:
 
         yield mock
 
-# %% ../nbs/999_Test_Utils.ipynb 20
+# %% ../nbs/999_Test_Utils.ipynb 19
 @contextlib.contextmanager
 def change_dir(d: str) -> Generator[None, None, None]:
     curdir = os.getcwd()
@@ -374,7 +375,7 @@ def change_dir(d: str) -> Generator[None, None, None]:
     finally:
         os.chdir(curdir)
 
-# %% ../nbs/999_Test_Utils.ipynb 22
+# %% ../nbs/999_Test_Utils.ipynb 21
 async def run_script_and_cancel(
     script: str,
     *,
@@ -408,31 +409,30 @@ async def run_script_and_cancel(
         with open(consumer_script, "w") as file:
             file.write(script)
 
-        with change_dir(d):
-            if generate_docs:
-                logger.info(
-                    f"Generating docs for: {Path(script_file).stem}:{kafka_app_name}"
-                )
-                try:
-                    kafka_app: FastKafka = _import_from_string(
-                        f"{Path(script_file).stem}:{kafka_app_name}"
-                    )
-                    await asyncer.asyncify(kafka_app.create_docs)()
-                except Exception as e:
-                    logger.warning(
-                        f"Generating docs failed for: {Path(script_file).stem}:{kafka_app_name}, ignoring it for now."
-                    )
-
-            proc = subprocess.Popen(  # nosec: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
-                shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        if generate_docs:
+            logger.info(
+                f"Generating docs for: {Path(script_file).stem}:{kafka_app_name}"
             )
-            await asyncio.sleep(cancel_after)
-            proc.terminate()
-            output, _ = proc.communicate()
+            try:
+                kafka_app: FastKafka = _import_from_string(
+                    f"{Path(script_file).stem}:{kafka_app_name}"
+                )
+                await asyncer.asyncify(kafka_app.create_docs)()
+            except Exception as e:
+                logger.warning(
+                    f"Generating docs failed for: {Path(script_file).stem}:{kafka_app_name}, ignoring it for now."
+                )
+
+        proc = subprocess.Popen(  # nosec: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+            shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=d
+        )
+        await asyncio.sleep(cancel_after)
+        proc.terminate()
+        output, _ = proc.communicate()
 
         return (proc.returncode, output)
 
-# %% ../nbs/999_Test_Utils.ipynb 29
+# %% ../nbs/999_Test_Utils.ipynb 28
 def get_zookeeper_config_string(
     data_dir: Union[str, Path],  # the directory where the snapshot is stored.
     zookeeper_port: int = 2181,  # the port at which the clients will connect
@@ -445,7 +445,7 @@ admin.enableServer=false
 
     return zookeeper_config
 
-# %% ../nbs/999_Test_Utils.ipynb 31
+# %% ../nbs/999_Test_Utils.ipynb 30
 def get_kafka_config_string(
     data_dir: Union[str, Path], zookeeper_port: int = 2181, listener_port: int = 9092
 ) -> str:
@@ -533,9 +533,10 @@ group.initial.rebalance.delay.ms=0
 
     return kafka_config
 
-# %% ../nbs/999_Test_Utils.ipynb 33
+# %% ../nbs/999_Test_Utils.ipynb 32
 class LocalKafkaBroker:
-    lock = multiprocessing.Lock()
+    lock = ilock.ILock("install_lock:LocalKafkaBroker")
+    #     posix_ipc.Semaphore("install_lock", flags=posix_ipc.O_CREAT, initial_value = 1)
 
     @delegates(get_kafka_config_string)  # type: ignore
     @delegates(get_zookeeper_config_string, keep=True)  # type: ignore
