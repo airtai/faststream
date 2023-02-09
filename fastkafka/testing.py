@@ -60,6 +60,8 @@ from .application import FastKafka, filter_using_signature
 from ._components.helpers import _import_from_string
 from .helpers import in_notebook
 
+import nest_asyncio
+
 # %% ../nbs/999_Test_Utils.ipynb 2
 if in_notebook():
     from tqdm.notebook import tqdm, trange
@@ -437,6 +439,17 @@ def get_zookeeper_config_string(
     data_dir: Union[str, Path],  # the directory where the snapshot is stored.
     zookeeper_port: int = 2181,  # the port at which the clients will connect
 ) -> str:
+    """Generates a zookeeeper configuration string that can be exported to file
+    and used to start a zookeeper instance.
+
+    Args:
+        data_dir: Path to the directory where the zookeepeer instance will save data
+        zookeeper_port: Port for clients (Kafka brokes) to connect
+    Returns:
+        Zookeeper configuration string.
+
+    """
+
     zookeeper_config = f"""dataDir={data_dir}/zookeeper
 clientPort={zookeeper_port}
 maxClientCnxns=0
@@ -449,6 +462,18 @@ admin.enableServer=false
 def get_kafka_config_string(
     data_dir: Union[str, Path], zookeeper_port: int = 2181, listener_port: int = 9092
 ) -> str:
+    """Generates a kafka broker configuration string that can be exported to file
+    and used to start a kafka broker instance.
+
+    Args:
+        data_dir: Path to the directory where the kafka broker instance will save data
+        zookeeper_port: Port on which the zookeeper instance is running
+        listener_port: Port on which the clients (producers and consumers) can connect
+    Returns:
+        Kafka broker configuration string.
+
+    """
+
     kafka_config = f"""broker.id=0
 
 ############################# Socket Server Settings #############################
@@ -533,14 +558,25 @@ group.initial.rebalance.delay.ms=0
 
     return kafka_config
 
-# %% ../nbs/999_Test_Utils.ipynb 32
+# %% ../nbs/999_Test_Utils.ipynb 33
 class LocalKafkaBroker:
+    """LocalKafkaBroker class, used for running unique kafka brokers in tests to prevent topic clashing.
+
+    Attributes:
+        lock (ilock.Lock): Lock used for synchronizing the install process between multiple kafka brokers.
+    """
+
     lock = ilock.ILock("install_lock:LocalKafkaBroker")
-    #     posix_ipc.Semaphore("install_lock", flags=posix_ipc.O_CREAT, initial_value = 1)
 
     @delegates(get_kafka_config_string)  # type: ignore
     @delegates(get_zookeeper_config_string, keep=True)  # type: ignore
     def __init__(self, **kwargs: Dict[str, Any]):
+        """Initialises the LocalKafkaBroker object
+        Args:
+            data_dir: Path to the directory where the zookeepeer instance will save data
+            zookeeper_port: Port for clients (Kafka brokes) to connect
+            listener_port: Port on which the clients (producers and consumers) can connect
+        """
         self.zookeeper_kwargs = filter_using_signature(
             get_zookeeper_config_string, **kwargs
         )
@@ -552,18 +588,56 @@ class LocalKafkaBroker:
 
     @classmethod
     def _install(cls) -> None:
+        """Prepares the environment for running Kafka brokers.
+        Returns:
+           None
+        """
         raise NotImplementedError
 
     def start(self) -> str:
-        return asyncio.run(self._start())
+        """Starts a local kafka broker and zookeeper instance synchronously
+        Returns:
+           Kafka broker bootstrap server address in string format: add:port
+        """
+        try:
+            loop = asyncio.get_event_loop()
+            try:
+                return loop.run_until_complete(self._start())
+            except RuntimeError:
+                nest_asyncio.apply(loop)
+                return loop.run_until_complete(self._start())
+        #                 return asyncio.run(self._start())
+        except RuntimeError:
+            return asyncio.run(self._start())
 
     async def _start(self) -> str:
+        """Starts a local kafka broker and zookeeper instance asynchronously
+        Returns:
+           Kafka broker bootstrap server address in string format: add:port
+        """
         raise NotImplementedError
 
     def stop(self) -> None:
-        asyncio.run(self._stop())
+        """Stops a local kafka broker and zookeeper instance synchronously
+        Returns:
+           None
+        """
+        try:
+            loop = asyncio.get_event_loop()
+            try:
+                return loop.run_until_complete(self._stop())
+            except RuntimeError:
+                nest_asyncio.apply(loop)
+                return loop.run_until_complete(self._stop())
+        #                 return asyncio.run(self._stop())
+        except RuntimeError:
+            return asyncio.run(self._stop())
 
     async def _stop(self) -> None:
+        """Stops a local kafka broker and zookeeper instance synchronously
+        Returns:
+           None
+        """
         raise NotImplementedError
 
     def __enter__(self) -> str:
@@ -580,8 +654,12 @@ class LocalKafkaBroker:
     async def __aexit__(self, *args, **kwargs):
         await self._stop()
 
-# %% ../nbs/999_Test_Utils.ipynb 34
+# %% ../nbs/999_Test_Utils.ipynb 35
 def install_java() -> None:
+    """Checks if jdk-11 is installed on the machine and installs it if not
+    Returns:
+       None
+    """
     potential_jdk_path = list(Path(os.environ["HOME"] + "/.jdk").glob("jdk-11*"))
     if potential_jdk_path:
         logger.info("Java is already installed.")
@@ -600,8 +678,12 @@ def install_java() -> None:
         os.environ["PATH"] = os.environ["PATH"] + f":{jdk_bin_path}/bin"
         logger.info("Java installed.")
 
-# %% ../nbs/999_Test_Utils.ipynb 36
+# %% ../nbs/999_Test_Utils.ipynb 37
 def install_kafka() -> None:
+    """Checks if kafka is installed on the machine and installs it if not
+    Returns:
+       None
+    """
     kafka_version = "3.3.2"
     kafka_fname = f"kafka_2.13-{kafka_version}"
     kafka_url = f"https://dlcdn.apache.org/kafka/{kafka_version}/{kafka_fname}.tgz"
@@ -638,14 +720,14 @@ def install_kafka() -> None:
         os.environ["PATH"] = os.environ["PATH"] + f":{kafka_path}/bin"
         logger.info(f"Kafka installed in {kafka_path}.")
 
-# %% ../nbs/999_Test_Utils.ipynb 38
+# %% ../nbs/999_Test_Utils.ipynb 39
 @patch(cls_method=True)  # type: ignore
 def _install(cls: LocalKafkaBroker) -> None:
     with cls.lock:
         install_java()
         install_kafka()
 
-# %% ../nbs/999_Test_Utils.ipynb 40
+# %% ../nbs/999_Test_Utils.ipynb 41
 @patch  # type: ignore
 async def _start(self: LocalKafkaBroker) -> str:
     self.temporary_directory = TemporaryDirectory()
