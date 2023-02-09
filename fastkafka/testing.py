@@ -572,6 +572,7 @@ class LocalKafkaBroker:
     @delegates(get_zookeeper_config_string, keep=True)  # type: ignore
     def __init__(self, **kwargs: Dict[str, Any]):
         """Initialises the LocalKafkaBroker object
+
         Args:
             data_dir: Path to the directory where the zookeepeer instance will save data
             zookeeper_port: Port for clients (Kafka brokes) to connect
@@ -585,6 +586,7 @@ class LocalKafkaBroker:
         self.temporary_directory_path: Optional[Path] = None
         self.kafka_task: Optional[asyncio.subprocess.Process] = None
         self.zookeeper_task: Optional[asyncio.subprocess.Process] = None
+        self.started = True
 
     @classmethod
     def _install(cls) -> None:
@@ -594,24 +596,15 @@ class LocalKafkaBroker:
         """
         raise NotImplementedError
 
-    def start(self) -> str:
-        """Starts a local kafka broker and zookeeper instance synchronously
+    async def _start(self) -> str:
+        """Starts a local kafka broker and zookeeper instance asynchronously
         Returns:
            Kafka broker bootstrap server address in string format: add:port
         """
-        try:
-            loop = asyncio.get_event_loop()
-            try:
-                return loop.run_until_complete(self._start())
-            except RuntimeError:
-                nest_asyncio.apply(loop)
-                return loop.run_until_complete(self._start())
-        #                 return asyncio.run(self._start())
-        except RuntimeError:
-            return asyncio.run(self._start())
+        raise NotImplementedError
 
-    async def _start(self) -> str:
-        """Starts a local kafka broker and zookeeper instance asynchronously
+    def start(self) -> str:
+        """Starts a local kafka broker and zookeeper instance synchronously
         Returns:
            Kafka broker bootstrap server address in string format: add:port
         """
@@ -622,16 +615,7 @@ class LocalKafkaBroker:
         Returns:
            None
         """
-        try:
-            loop = asyncio.get_event_loop()
-            try:
-                return loop.run_until_complete(self._stop())
-            except RuntimeError:
-                nest_asyncio.apply(loop)
-                return loop.run_until_complete(self._stop())
-        #                 return asyncio.run(self._stop())
-        except RuntimeError:
-            return asyncio.run(self._stop())
+        raise NotImplementedError
 
     async def _stop(self) -> None:
         """Stops a local kafka broker and zookeeper instance synchronously
@@ -641,27 +625,27 @@ class LocalKafkaBroker:
         raise NotImplementedError
 
     def __enter__(self) -> str:
-        LocalKafkaBroker._install()
+        #         LocalKafkaBroker._install()
         return self.start()
 
     def __exit__(self, *args, **kwargs):
         self.stop()
 
     async def __aenter__(self) -> str:
-        LocalKafkaBroker._install()
+        #         LocalKafkaBroker._install()
         return await self._start()
 
     async def __aexit__(self, *args, **kwargs):
         await self._stop()
 
-# %% ../nbs/999_Test_Utils.ipynb 35
+# %% ../nbs/999_Test_Utils.ipynb 36
 def install_java() -> None:
     """Checks if jdk-11 is installed on the machine and installs it if not
     Returns:
        None
     """
     potential_jdk_path = list(Path(os.environ["HOME"] + "/.jdk").glob("jdk-11*"))
-    if potential_jdk_path:
+    if potential_jdk_path != []:
         logger.info("Java is already installed.")
         if not shutil.which("java"):
             logger.info("But not exported to PATH, exporting...")
@@ -678,7 +662,7 @@ def install_java() -> None:
         os.environ["PATH"] = os.environ["PATH"] + f":{jdk_bin_path}/bin"
         logger.info("Java installed.")
 
-# %% ../nbs/999_Test_Utils.ipynb 37
+# %% ../nbs/999_Test_Utils.ipynb 38
 def install_kafka() -> None:
     """Checks if kafka is installed on the machine and installs it if not
     Returns:
@@ -692,7 +676,7 @@ def install_kafka() -> None:
     tgz_path = local_path / f"{kafka_fname}.tgz"
     kafka_path = local_path / f"{kafka_fname}"
 
-    if list(kafka_path.glob("bin")):
+    if (kafka_path / "bin").exists():
         logger.info("Kafka is already installed.")
         if not shutil.which("kafka-server-start.sh"):
             logger.info("But not exported to PATH, exporting...")
@@ -720,16 +704,18 @@ def install_kafka() -> None:
         os.environ["PATH"] = os.environ["PATH"] + f":{kafka_path}/bin"
         logger.info(f"Kafka installed in {kafka_path}.")
 
-# %% ../nbs/999_Test_Utils.ipynb 39
+# %% ../nbs/999_Test_Utils.ipynb 40
 @patch(cls_method=True)  # type: ignore
 def _install(cls: LocalKafkaBroker) -> None:
     with cls.lock:
         install_java()
         install_kafka()
 
-# %% ../nbs/999_Test_Utils.ipynb 41
+# %% ../nbs/999_Test_Utils.ipynb 42
 @patch  # type: ignore
 async def _start(self: LocalKafkaBroker) -> str:
+    self._install()
+
     self.temporary_directory = TemporaryDirectory()
     self.temporary_directory_path = Path(self.temporary_directory.__enter__())
 
@@ -748,6 +734,7 @@ async def _start(self: LocalKafkaBroker) -> str:
 
     # start_zookeeper
 
+    logger.info("Starting zookeeper...")
     zookeeper_config_path = self.temporary_directory_path / "zookeeper.properties"
     self.zookeeper_task = await write_config_and_run(
         get_zookeeper_config_string(
@@ -757,10 +744,16 @@ async def _start(self: LocalKafkaBroker) -> str:
         "zookeeper-server-start.sh",
     )
 
+    logger.info("Zookeeper started, sleeping for 5 seconds...")
     await asyncio.sleep(5)
+    if self.zookeeper_task.returncode is not None:
+        raise ValueError(
+            f"Could not start zookeeper with params: {self.zookeeper_kwargs}"
+        )
 
     # start_kafka
 
+    logger.info("Starting Kafka broker...")
     kafka_config_path = self.temporary_directory_path / "kafka.properties"
     self.kafka_task = await write_config_and_run(
         get_kafka_config_string(
@@ -770,10 +763,17 @@ async def _start(self: LocalKafkaBroker) -> str:
         "kafka-server-start.sh",
     )
 
+    logger.info("Kafka broker started, sleeping for 5 seconds...")
     await asyncio.sleep(5)
+    if self.kafka_task.returncode is not None:
+        raise ValueError(
+            f"Could not start Kafka broker with params: {self.kafka_kwargs}"
+        )
 
     listener_port = self.kafka_kwargs.get("listener_port", 9092)
-    return f"127.0.0.1:{listener_port}"
+    retval = f"127.0.0.1:{listener_port}"
+    logger.info(f"Local Kafka broker up and running on {retval}")
+    return retval
 
 
 @patch  # type: ignore
@@ -781,3 +781,67 @@ async def _stop(self: LocalKafkaBroker) -> None:
     await terminate_asyncio_process(self.kafka_task)  # type: ignore
     await terminate_asyncio_process(self.zookeeper_task)  # type: ignore
     self.temporary_directory.__exit__(None, None, None)  # type: ignore
+
+# %% ../nbs/999_Test_Utils.ipynb 45
+@patch  # type: ignore
+def start(self: LocalKafkaBroker) -> str:
+    """Starts a local kafka broker and zookeeper instance synchronously
+    Returns:
+       Kafka broker bootstrap server address in string format: add:port
+    """
+    logger.info(f"{self.__class__.__name__}.start(): entering...")
+    try:
+        # get or create loop
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError as e:
+            logger.warning(
+                f"{self.__class__.__name__}.start(): RuntimeError raised when calling asyncio.get_event_loop(): {e}"
+            )
+            logger.warning(
+                f"{self.__class__.__name__}.start(): asyncio.new_event_loop()"
+            )
+            loop = asyncio.new_event_loop()
+
+        # start zookeeper and kafka broker in the loop
+        try:
+            retval = loop.run_until_complete(self._start())
+            logger.info(f"{self.__class__.__name__}.start(): returning {retval}")
+            self.started = True
+            return retval
+        except RuntimeError as e:
+            logger.warning(
+                f"{self.__class__.__name__}.start(): RuntimeError raised for loop ({loop}): {e}"
+            )
+            logger.warning(
+                f"{self.__class__.__name__}.start(): calling nest_asyncio.apply()"
+            )
+            nest_asyncio.apply(loop)
+
+            retval = loop.run_until_complete(self._start())
+            logger.info(f"{self.__class__}.start(): returning {retval}")
+            self.started = True
+            return retval
+
+    finally:
+        logger.info(f"{self.__class__.__name__}.start(): exited.")
+
+
+@patch  # type: ignore
+def stop(self: LocalKafkaBroker) -> None:
+    """Stops a local kafka broker and zookeeper instance synchronously
+    Returns:
+       None
+    """
+    logger.info(f"{self.__class__.__name__}.stop(): entering...")
+    try:
+        if not self.started:
+            raise RuntimeError(
+                "LocalKafkaBroker not started yet, please call LocalKafkaBroker.start() before!"
+            )
+
+        loop = asyncio.get_event_loop()
+        self.started = False
+        return loop.run_until_complete(self._stop())
+    finally:
+        logger.info(f"{self.__class__.__name__}.stop(): exited.")
