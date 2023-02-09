@@ -15,10 +15,12 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 from enum import Enum
 from inspect import signature
-from os import environ
+from os import environ, getpid
 from pathlib import Path
 from typing import *
 from typing import get_type_hints
+import threading
+import signal
 
 import anyio
 import asyncer
@@ -28,12 +30,6 @@ import yaml
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from confluent_kafka import KafkaError, Message, Producer
 from confluent_kafka.admin import AdminClient, NewTopic
-from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
-from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
-from fastapi.openapi.utils import get_openapi
-from fastapi.responses import FileResponse, RedirectResponse
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi.staticfiles import StaticFiles
 from fastcore.foundation import patch
 from fastcore.meta import delegates
 from pydantic import BaseModel, EmailStr, Field, HttpUrl, PositiveInt
@@ -67,52 +63,6 @@ from ._components.logger import get_logger, supress_timestamps
 logger = get_logger(__name__)
 
 # %% ../nbs/000_FastKafka.ipynb 9
-@delegates(FastAPI)  # type: ignore
-def _get_fast_api_app(
-    fast_api_app: Optional[FastAPI] = None,
-    **kwargs: Dict[str, Any],
-) -> FastAPI:
-    """
-    Args:
-        fast_api_app: FastAPI application
-        debug: debug argument of FastAPI()
-        routes: routes argument of FastAPI()
-        title: title argument of FastAPI()
-        description: description argument of FastAPI()
-        version: version argument of FastAPI()
-        openapi_url: openapi_url argument of FastAPI()
-        openapi_tags: openapi_tags argument of FastAPI()
-        servers: servers argument of FastAPI()
-        dependencies: dependencies argument of FastAPI()
-        default_response_class: default_response_class argument of FastAPI()
-        docs_url: docs_url argument of FastAPI()
-        redoc_url: redoc_url argument of FastAPI()
-        swagger_ui_oauth2_redirect_url: swagger_ui_oauth2_redirect_url argument of FastAPI()
-        swagger_ui_init_oauth: swagger_ui_init_oauth argument of FastAPI()
-        middleware: middleware argument of FastAPI()
-        exception_handlers: exception_handlers argument of FastAPI()
-        on_startup: on_startup argument of FastAPI()
-        on_shutdown: on_shutdown argument of FastAPI()
-        terms_of_service: terms_of_service argument of FastAPI()
-        contact: contact argument of FastAPI()
-        license_info: license_info argument of FastAPI()
-        openapi_prefix: openapi_prefix argument of FastAPI()
-        root_path: root_path argument of FastAPI()
-        root_path_in_servers: root_path_in_servers argument of FastAPI()
-        responses: responses argument of FastAPI()
-        callbacks: callbacks argument of FastAPI()
-        deprecated: deprecated argument of FastAPI()
-        include_in_schema: include_in_schema argument of FastAPI()
-        swagger_ui_parameters: swagger_ui_parameters argument of FastAPI()
-        generate_unique_id_function: generate_unique_id_function argument of FastAPI()
-    extra: extra argument of FastAPI()
-    """
-    if fast_api_app is None:
-        return FastAPI(**kwargs)  # type: ignore
-    else:
-        return fast_api_app
-
-# %% ../nbs/000_FastKafka.ipynb 13
 @delegates(AIOKafkaConsumer)  # type: ignore
 @delegates(AIOKafkaProducer, keep=True)  # type: ignore
 def _get_kafka_config(
@@ -385,7 +335,7 @@ def _get_kafka_config(
 
     return retval
 
-# %% ../nbs/000_FastKafka.ipynb 18
+# %% ../nbs/000_FastKafka.ipynb 14
 def _get_kafka_brokers(kafka_brokers: Optional[Dict[str, Any]] = None) -> KafkaBrokers:
     """Get Kafka brokers
 
@@ -415,7 +365,7 @@ def _get_kafka_brokers(kafka_brokers: Optional[Dict[str, Any]] = None) -> KafkaB
 
     return retval
 
-# %% ../nbs/000_FastKafka.ipynb 20
+# %% ../nbs/000_FastKafka.ipynb 16
 def _get_topic_name(
     topic_callable: Union[ConsumeCallable, ProduceCallable], prefix: str = "on_"
 ) -> str:
@@ -434,7 +384,7 @@ def _get_topic_name(
 
     return topic
 
-# %% ../nbs/000_FastKafka.ipynb 22
+# %% ../nbs/000_FastKafka.ipynb 18
 def _get_contact_info(
     name: str = "Author",
     url: str = "https://www.google.com",
@@ -442,14 +392,12 @@ def _get_contact_info(
 ) -> ContactInfo:
     return ContactInfo(name=name, url=url, email=email)
 
-# %% ../nbs/000_FastKafka.ipynb 24
+# %% ../nbs/000_FastKafka.ipynb 20
 class FastKafka:
     @delegates(_get_kafka_config)  # type: ignore
     def __init__(
         self,
-        fast_api_app: FastAPI,
         *,
-        asyncapi_route: Optional[str] = "/asyncapi",
         title: Optional[str] = None,
         description: Optional[str] = None,
         version: Optional[str] = None,
@@ -461,17 +409,15 @@ class FastKafka:
         """Creates FastKafka application
 
         Args:
-            fast_api_app: the FastAPI app, if None, one will be created
-            asyncapi_route: the route to where to mount the documentation.
-                If **None**, the docs will not be mounted.
             title: optional title for the documentation. If None,
-                the title of passed fast_api_app will be used
+                the title will be set to empty string
             description: optional description for the documentation. If
-                None, the description of passed fast_api_app will be used
+                None, the description will be set to empty string
             version: optional version for the documentation. If None,
-                the version of passed fast_api_app will be used
+                the version will be set to empty string
             contact: optional contact for the documentation. If None, the
-                contact of passed fast_api_app will be used
+                contact will be set to placeholder values:
+                name='Author' url=HttpUrl('https://www.google.com', ) email='noreply@gmail.com'
             kafka_brokers: dictionary describing kafka brokers used for
                 generating documentation
             root_path: path to where documentation will be created
@@ -719,19 +665,13 @@ class FastKafka:
             sasl_oauth_token_provider (~aiokafka.abc.AbstractTokenProvider): OAuthBearer token provider instance. (See :mod:`kafka.oauth.abstract`).
                 Default: None
         """
-        self._fast_api_app = fast_api_app
 
         # this is neede for documentation generation
-        self._title = title if title else fast_api_app.title
-        self._description = description if description else fast_api_app.description
-        self._version = version if version else fast_api_app.version
+        self._title = title if title is not None else ""
+        self._description = description if description is not None else ""
+        self._version = version if version is not None else ""
         if contact is not None:
             self._contact_info = _get_contact_info(**contact)
-        elif fast_api_app.contact is not None:
-            if isinstance(fast_api_app.contact, str):
-                self._contact_info = _get_contact_info(name=fast_api_app.contact)
-            else:
-                self._contact_info = _get_contact_info(**fast_api_app.contact)
         else:
             self._contact_info = _get_contact_info()
 
@@ -745,64 +685,48 @@ class FastKafka:
 
         self._root_path = Path(".") if root_path is None else Path(root_path)
 
+        self._asyncapi_path = self._root_path / "asyncapi"
+        (self._asyncapi_path / "docs").mkdir(exist_ok=True, parents=True)
+        (self._asyncapi_path / "spec").mkdir(exist_ok=True, parents=True)
+
         # this is used as default parameters for creating AIOProducer and AIOConsumer objects
         self._kafka_config = _get_kafka_config(**kwargs)
 
         #
         self._consumers_store: Dict[str, Tuple[ConsumeCallable, Dict[str, Any]]] = {}
 
-        self._producers_list: List[  # type: ignore
-            Union[AIOKafkaProducer, AIOKafkaProducerManager]
-        ] = []
         self._producers_store: Dict[  # type: ignore
             str, Tuple[ProduceCallable, AIOKafkaProducer, Dict[str, Any]]
         ] = {}
 
+        self._producers_list: List[  # type: ignore
+            Union[AIOKafkaProducer, AIOKafkaProducerManager]
+        ] = []
+
         # background tasks
         self._scheduled_bg_tasks: List[Callable[..., Coroutine[Any, Any, Any]]] = []
         self._bg_task_group_generator: Optional[anyio.abc.TaskGroup] = None
-        self._bg_tasks_group: Optional[anyio.abc.TaskGroup]
+        self._bg_tasks_group: Optional[anyio.abc.TaskGroup] = None
 
         # todo: use this for errrors
         self._on_error_topic: Optional[str] = None
 
-        self._asyncapi_path = self._root_path / "asyncapi"
-        (self._asyncapi_path / "docs").mkdir(exist_ok=True, parents=True)
-        (self._asyncapi_path / "spec").mkdir(exist_ok=True, parents=True)
-        self._fast_api_app.mount(
-            "/asyncapi",
-            StaticFiles(directory=self._asyncapi_path / "docs"),
-            name="asyncapi",
-        )
-
+        self._is_started: bool = False
         self._is_shutting_down: bool = False
         self._kafka_consumer_tasks: List[asyncio.Task[Any]] = []
         self._kafka_producer_tasks: List[asyncio.Task[Any]] = []
+        self.run = False
 
-        @self._fast_api_app.get("/", include_in_schema=False)
-        def redirect_root_to_asyncapi():
-            return RedirectResponse("/asyncapi")
+    async def __aenter__(self):
+        await self.startup()
 
-        @self._fast_api_app.get("/asyncapi", include_in_schema=False)
-        async def redirect_asyncapi_docs():
-            return RedirectResponse("/asyncapi/index.html")
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.shutdown()
 
-        @self._fast_api_app.get("/asyncapi.yml", include_in_schema=False)
-        async def download_asyncapi_yml():
-            return FileResponse(self._asyncapi_path / "spec" / "asyncapi.yml")
-
-        @self._fast_api_app.on_event("startup")
-        async def on_startup(app=self):
-            await app._on_startup()
-
-        @self._fast_api_app.on_event("shutdown")
-        async def on_shutdown(app=self):
-            await app._on_shutdown()
-
-    async def _on_startup(self) -> None:
+    async def startup(self) -> None:
         raise NotImplementedError
 
-    async def _on_shutdown(self) -> None:
+    async def shutdown(self) -> None:
         raise NotImplementedError
 
     def consumes(
@@ -838,6 +762,9 @@ class FastKafka:
     async def _populate_producers(self) -> None:
         raise NotImplementedError
 
+    async def _populate_bg_tasks(self) -> None:
+        raise NotImplementedError
+
     def create_docs(self) -> None:
         raise NotImplementedError
 
@@ -847,13 +774,10 @@ class FastKafka:
     async def _shutdown_producers(self) -> None:
         raise NotImplementedError
 
-    async def _populate_bg_tasks(self) -> None:
-        raise NotImplementedError
-
     async def _shutdown_bg_tasks(self) -> None:
         raise NotImplementedError
 
-# %% ../nbs/000_FastKafka.ipynb 30
+# %% ../nbs/000_FastKafka.ipynb 25
 @patch  # type: ignore
 @delegates(AIOKafkaConsumer)  # type: ignore
 def consumes(
@@ -1066,7 +990,7 @@ def consumes(
 
     return _decorator
 
-# %% ../nbs/000_FastKafka.ipynb 34
+# %% ../nbs/000_FastKafka.ipynb 29
 def _to_json_utf8(o: Any) -> bytes:
     """Converts to JSON and then encodes with UTF-8"""
     if hasattr(o, "json"):
@@ -1074,10 +998,12 @@ def _to_json_utf8(o: Any) -> bytes:
     else:
         return json.dumps(o).encode("utf-8")
 
-# %% ../nbs/000_FastKafka.ipynb 36
+# %% ../nbs/000_FastKafka.ipynb 31
 def produce_decorator(
     self: FastKafka, func: ProduceCallable, topic: str
 ) -> ProduceCallable:
+    """todo: write documentation"""
+
     @functools.wraps(func)
     async def _produce_async(*args: List[Any], **kwargs: Dict[str, Any]) -> BaseModel:
         f: Callable[..., Awaitable[BaseModel]] = func  # type: ignore
@@ -1097,7 +1023,7 @@ def produce_decorator(
 
     return _produce_async if iscoroutinefunction(func) else _produce_sync  # type: ignore
 
-# %% ../nbs/000_FastKafka.ipynb 38
+# %% ../nbs/000_FastKafka.ipynb 33
 @patch  # type: ignore
 @delegates(AIOKafkaProducer)  # type: ignore
 def produces(
@@ -1270,7 +1196,7 @@ def produces(
 
     return _decorator
 
-# %% ../nbs/000_FastKafka.ipynb 43
+# %% ../nbs/000_FastKafka.ipynb 37
 @patch  # type: ignore
 def run_in_background(
     self: FastKafka,
@@ -1304,12 +1230,13 @@ def run_in_background(
 
     return _decorator
 
-# %% ../nbs/000_FastKafka.ipynb 47
+# %% ../nbs/000_FastKafka.ipynb 41
 def filter_using_signature(f: Callable, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    """todo: write docs"""
     param_names = list(signature(f).parameters.keys())
     return {k: v for k, v in kwargs.items() if k in param_names}
 
-# %% ../nbs/000_FastKafka.ipynb 49
+# %% ../nbs/000_FastKafka.ipynb 43
 @patch  # type: ignore
 def _populate_consumers(
     self: FastKafka,
@@ -1339,7 +1266,7 @@ async def _shutdown_consumers(
     if self._kafka_consumer_tasks:
         await asyncio.wait(self._kafka_consumer_tasks)
 
-# %% ../nbs/000_FastKafka.ipynb 51
+# %% ../nbs/000_FastKafka.ipynb 45
 # TODO: Add passing of vars
 async def _create_producer(  # type: ignore
     *,
@@ -1421,7 +1348,7 @@ async def _populate_producers(self: FastKafka) -> None:
 async def _shutdown_producers(self: FastKafka) -> None:
     [await producer.stop() for producer in self._producers_list[::-1]]
 
-# %% ../nbs/000_FastKafka.ipynb 53
+# %% ../nbs/000_FastKafka.ipynb 47
 @patch  # type: ignore
 async def _populate_bg_tasks(
     self: FastKafka,
@@ -1439,7 +1366,31 @@ async def _shutdown_bg_tasks(
     self._bg_tasks_group.cancel_scope.cancel()  # type: ignore
     await self._bg_task_group_generator.__aexit__(None, None, None)  # type: ignore
 
-# %% ../nbs/000_FastKafka.ipynb 55
+# %% ../nbs/000_FastKafka.ipynb 49
+@patch  # type: ignore
+async def startup(self: FastKafka) -> None:
+    self._is_shutting_down = False
+
+    def is_shutting_down_f(self: FastKafka = self) -> bool:
+        return self._is_shutting_down
+
+    #     self.create_docs()
+    await self._populate_producers()
+    self._populate_consumers(is_shutting_down_f)
+    await self._populate_bg_tasks()
+
+    self._is_started = True
+
+
+@patch  # type: ignore
+async def shutdown(self: FastKafka) -> None:
+    self._is_shutting_down = True
+
+    await self._shutdown_bg_tasks()
+    await self._shutdown_consumers()
+    await self._shutdown_producers()
+
+# %% ../nbs/000_FastKafka.ipynb 57
 @patch  # type: ignore
 def create_docs(self: FastKafka) -> None:
     export_async_spec(
@@ -1453,26 +1404,3 @@ def create_docs(self: FastKafka) -> None:
         kafka_service_info=self._kafka_service_info,
         asyncapi_path=self._asyncapi_path,
     )
-
-# %% ../nbs/000_FastKafka.ipynb 57
-@patch  # type: ignore
-async def _on_startup(self: FastKafka) -> None:
-
-    self._is_shutting_down = False
-
-    def is_shutting_down_f(self: FastKafka = self) -> bool:
-        return self._is_shutting_down
-
-    self.create_docs()
-    await self._populate_producers()
-    self._populate_consumers(is_shutting_down_f)
-    await self._populate_bg_tasks()
-
-
-@patch  # type: ignore
-async def _on_shutdown(self: FastKafka) -> None:
-    self._is_shutting_down = True
-
-    await self._shutdown_bg_tasks()
-    await self._shutdown_consumers()
-    await self._shutdown_producers()

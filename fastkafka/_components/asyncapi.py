@@ -400,7 +400,6 @@ def _generate_async_docs(
     spec_path: Path,
     docs_path: Path,
 ) -> None:
-
     cmd = [
         "npx",
         "-y",
@@ -434,7 +433,7 @@ def export_async_spec(
     kafka_brokers: KafkaBrokers,
     kafka_service_info: KafkaServiceInfo,
     asyncapi_path: Union[Path, str],
-    force_rebuild: bool = False,
+    force_rebuild: bool = True,
 ) -> None:
     """Export async specification to a given path
 

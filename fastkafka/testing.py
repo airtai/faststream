@@ -3,7 +3,7 @@
 # %% auto 0
 __all__ = ['logger', 'kafka_server_url', 'kafka_server_port', 'aiokafka_config', 'nb_safe_seed', 'true_after',
            'create_testing_topic', 'create_and_fill_testing_topic', 'mock_AIOKafkaProducer_send', 'change_dir',
-           'run_script_and_cancel', 'run_on_uvicorn']
+           'run_script_and_cancel']
 
 # %% ../nbs/999_Test_Utils.ipynb 1
 import asyncio
@@ -32,7 +32,7 @@ from confluent_kafka.admin import AdminClient, NewTopic
 from fastcore.meta import delegates
 from pydantic import BaseModel
 
-from ._cli import _import_from_string
+# from fastkafka.server import _import_from_string
 from ._components.helpers import combine_params, use_parameters_of
 from ._components.logger import get_logger, supress_timestamps
 from fastkafka.helpers import (
@@ -45,6 +45,7 @@ from fastkafka.helpers import (
     produce_messages,
 )
 from .application import FastKafka
+from ._components.helpers import _import_from_string
 
 # %% ../nbs/999_Test_Utils.ipynb 4
 logger = get_logger(__name__)
@@ -326,7 +327,6 @@ async def create_and_fill_testing_topic(**kwargs: Dict[str, str]) -> AsyncIterat
     with create_testing_topic(
         **use_parameters_of(create_testing_topic, **kwargs)
     ) as topic:
-
         await produce_messages(
             topic=topic, **use_parameters_of(produce_messages, **kwargs)
         )
@@ -413,44 +413,3 @@ async def run_script_and_cancel(
             output, _ = proc.communicate()
 
         return (proc.returncode, output)
-
-# %% ../nbs/999_Test_Utils.ipynb 26
-async def run_on_uvicorn(
-    script: str,
-    *,
-    script_file: str = "server.py",
-    app_name: str = "app",
-    kafka_app_name: str = "kafka_app",
-    cmd: Optional[str] = None,
-    cancel_after: int = 60,
-    host: str = "127.0.0.1",
-    port: int = 8000,
-    workers: int = 1,
-) -> None:
-    """Runs a script using Uvicorn server
-    Args:
-        script: input Python script to save to temporary folder under the name `script_file` and import `app_name` from
-        script_file: name of the file for saving the input Python script
-        app_name: name of the variable in script holding the FastAPI object
-        cmd: command to execute
-        cancel_after: number of seconds to wait since the beginning of the execution before the TERMSIG is send to the Uvicorn application
-
-    Raises:
-
-    """
-    if cmd is None:
-        cmd = f"python3 -m uvicorn {Path(script_file).stem}:{app_name} --host {host} --port {port} --workers {workers}"
-
-    exit_code, output = await run_script_and_cancel(
-        script,
-        script_file=script_file,
-        cmd=cmd,
-        cancel_after=cancel_after,
-        app_name=app_name,
-        kafka_app_name=kafka_app_name,
-        generate_docs=True,
-    )
-
-    print(output.decode("utf-8"))
-    if exit_code != 0:
-        raise RuntimeError(f"Execution of '{cmd}' failed: {output.decode('utf-8')}")

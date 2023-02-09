@@ -23,6 +23,7 @@ services:
             USER: $USER
             USERNAME: $USERNAME
             PRESERVE_ENVS: $PRESERVE_ENVS
+            OPENAI_API_KEY: $OPENAI_API_KEY
         depends_on:
             kafka:
                 condition: service_healthy
