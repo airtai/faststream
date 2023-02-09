@@ -55,7 +55,7 @@ from fastkafka.helpers import (
     trange,
     produce_messages,
 )
-from .components._subprocess import terminate_asyncio_process
+from ._components._subprocess import terminate_asyncio_process
 from .application import FastKafka, filter_using_signature
 from ._components.helpers import _import_from_string
 from .helpers import in_notebook

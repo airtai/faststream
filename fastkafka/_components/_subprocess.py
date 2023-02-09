@@ -26,7 +26,7 @@ import asyncer
 # from fastkafka.application import FastKafka
 # from fastkafka.testing import change_dir
 # from fastkafka._components.helpers import _import_from_string, generate_app_src
-from .._components.logger import get_logger
+from .logger import get_logger
 
 # %% ../../nbs/006_Subprocess.ipynb 5
 logger = get_logger(__name__)
