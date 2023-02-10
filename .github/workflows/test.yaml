@@ -15,6 +15,7 @@ jobs:
     steps:
       - uses: airtai/workflows/airt-semgrep-check@main
   test:
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
