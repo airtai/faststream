@@ -2,6 +2,14 @@
 
 <!-- do not remove -->
 
+## 0.1.0rc1
+
+
+### Bugs Squashed
+
+- Consumer is not created with all parameters passed to FastKafkaAPI constructor ([#49](https://github.com/airtai/fastkafka/issues/49))
+
+
 ## 0.0.4
 
 - inheritance from FastAPI removed
