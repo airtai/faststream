@@ -3,7 +3,7 @@ services:
     zookeeper:
         image: wurstmeister/zookeeper
         hostname: zookeeper
-        container_name: zookeeper
+#        container_name: zookeeper
         networks:
           - fastkafka-network
 
