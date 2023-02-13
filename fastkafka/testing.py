@@ -33,7 +33,6 @@ from typing import *
 import glob
 
 import asyncer
-import uvicorn
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from confluent_kafka.admin import AdminClient, NewTopic
 from fastcore.meta import delegates
@@ -41,7 +40,8 @@ from fastcore.foundation import patch
 from pydantic import BaseModel
 import tarfile
 from tqdm import tqdm
-import ilock
+import posix_ipc
+import nest_asyncio
 
 # from fastkafka.server import _import_from_string
 from ._components.helpers import combine_params, use_parameters_of
@@ -59,8 +59,6 @@ from ._components._subprocess import terminate_asyncio_process
 from .application import FastKafka, filter_using_signature
 from ._components.helpers import _import_from_string
 from .helpers import in_notebook
-
-import nest_asyncio
 
 # %% ../nbs/999_Test_Utils.ipynb 2
 if in_notebook():
@@ -566,7 +564,9 @@ class LocalKafkaBroker:
         lock (ilock.Lock): Lock used for synchronizing the install process between multiple kafka brokers.
     """
 
-    lock = ilock.ILock("install_lock:LocalKafkaBroker")
+    lock = posix_ipc.Semaphore(
+        "install_lock:LocalKafkaBroker", posix_ipc.O_CREAT, initial_value=1
+    )
 
     @delegates(get_kafka_config_string)  # type: ignore
     @delegates(get_zookeeper_config_string, keep=True)  # type: ignore
@@ -638,7 +638,7 @@ class LocalKafkaBroker:
     async def __aexit__(self, *args, **kwargs):
         await self._stop()
 
-# %% ../nbs/999_Test_Utils.ipynb 36
+# %% ../nbs/999_Test_Utils.ipynb 37
 def install_java() -> None:
     """Checks if jdk-11 is installed on the machine and installs it if not
     Returns:
@@ -662,7 +662,7 @@ def install_java() -> None:
         os.environ["PATH"] = os.environ["PATH"] + f":{jdk_bin_path}/bin"
         logger.info("Java installed.")
 
-# %% ../nbs/999_Test_Utils.ipynb 38
+# %% ../nbs/999_Test_Utils.ipynb 39
 def install_kafka() -> None:
     """Checks if kafka is installed on the machine and installs it if not
     Returns:
@@ -704,14 +704,14 @@ def install_kafka() -> None:
         os.environ["PATH"] = os.environ["PATH"] + f":{kafka_path}/bin"
         logger.info(f"Kafka installed in {kafka_path}.")
 
-# %% ../nbs/999_Test_Utils.ipynb 40
+# %% ../nbs/999_Test_Utils.ipynb 41
 @patch(cls_method=True)  # type: ignore
 def _install(cls: LocalKafkaBroker) -> None:
     with cls.lock:
         install_java()
         install_kafka()
 
-# %% ../nbs/999_Test_Utils.ipynb 42
+# %% ../nbs/999_Test_Utils.ipynb 43
 @patch  # type: ignore
 async def _start(self: LocalKafkaBroker) -> str:
     self._install()
@@ -782,7 +782,7 @@ async def _stop(self: LocalKafkaBroker) -> None:
     await terminate_asyncio_process(self.zookeeper_task)  # type: ignore
     self.temporary_directory.__exit__(None, None, None)  # type: ignore
 
-# %% ../nbs/999_Test_Utils.ipynb 45
+# %% ../nbs/999_Test_Utils.ipynb 46
 @patch  # type: ignore
 def start(self: LocalKafkaBroker) -> str:
     """Starts a local kafka broker and zookeeper instance synchronously
