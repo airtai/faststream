@@ -4,7 +4,7 @@
 __all__ = ['logger', 'kafka_server_url', 'kafka_server_port', 'aiokafka_config', 'nb_safe_seed', 'true_after',
            'create_testing_topic', 'create_and_fill_testing_topic', 'mock_AIOKafkaProducer_send', 'change_dir',
            'run_script_and_cancel', 'get_zookeeper_config_string', 'get_kafka_config_string', 'LocalKafkaBroker',
-           'install_java', 'install_kafka', 'Tester']
+           'install_java', 'install_kafka']
 
 # %% ../nbs/999_Test_Utils.ipynb 1
 import asyncio
@@ -848,76 +848,3 @@ def stop(self: LocalKafkaBroker) -> None:
         return loop.run_until_complete(self._stop())
     finally:
         logger.info(f"{self.__class__.__name__}.stop(): exited.")
-
-# %% ../nbs/999_Test_Utils.ipynb 51
-@patch
-def create_mocks(self: FastKafka) -> None:
-    app_methods = [f for f, _ in self._consumers_store.values()] + [
-        f for f, _, _ in self._producers_store.values()
-    ]
-    self.AppMocks = namedtuple(
-        f"{self.__class__.__name__}Mocks", [f.__name__ for f in app_methods]
-    )
-    # todo: create Magicmock if needed
-    self.mocks = self.AppMocks(**{f.__name__: AsyncMock() for f in app_methods})
-
-    def add_mock(f: Callable[[...], Any], mock: AsyncMock) -> Callable[[...], Any]:
-        @functools.wraps(f)
-        async def async_inner(
-            *args, f: Callable[[...], Any] = f, mock: AsyncMock = mock, **kwargs
-        ) -> Any:
-            await mock(*args, **kwargs)
-            return await f(*args, **kwargs)
-
-        return async_inner
-
-    self._consumers_store = {
-        name: (
-            add_mock(f, getattr(self.mocks, f.__name__)),
-            kwargs,
-        )
-        for name, (f, kwargs) in self._consumers_store.items()
-    }
-    self._producers_store = {
-        name: (
-            add_mock(f, getattr(self.mocks, f.__name__)),
-            producer,
-            kwargs,
-        )
-        for name, (f, producer, kwargs) in self._producers_store.items()
-    }
-
-# %% ../nbs/999_Test_Utils.ipynb 54
-class Tester(FastKafka):
-    def __init__(self, apps: List[FastKafka]):
-        self.apps = apps
-        super().__init__(bootstrap_servers=apps[0]._kafka_config["bootstrap_servers"])
-        self.create_mirror()
-
-        @self.produces()
-        async def to_preprocessed_signals(msg: str) -> str:
-            print(f"Producing msg {msg}")
-            return msg
-
-        self.to_preprocessed_signals = to_preprocessed_signals
-
-        @self.consumes(auto_offset_reset="latest")
-        async def on_predictions(msg: str):
-            pass
-
-    async def startup(self):
-        for app in self.apps:
-            app.create_mocks()
-            await app.startup()
-
-        self.create_mocks()
-        await super().startup()
-        await asyncio.sleep(3)
-
-    async def shutdown(self):
-        await super().shutdown()
-        for app in self.apps.reverse():
-            await app.shutdown()
-
-    def create_mirror(self):
-        pass
