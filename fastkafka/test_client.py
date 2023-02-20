@@ -9,24 +9,40 @@ from unittest.mock import AsyncMock, MagicMock
 from typing import *
 import inspect
 import functools
+from datetime import datetime, timedelta
 
 from fastcore.foundation import patch
+from fastcore.meta import delegates
 
 from .application import FastKafka
 
-# %% ../nbs/9991_Test_Client.ipynb 3
+# %% ../nbs/9991_Test_Client.ipynb 4
 @patch
 def create_mocks(self: FastKafka) -> None:
+    """Creates self.mocks as a named tuple mapping a new function obtained by calling the original functions and a mock"""
     app_methods = [f for f, _ in self._consumers_store.values()] + [
         f for f, _, _ in self._producers_store.values()
     ]
     self.AppMocks = namedtuple(
         f"{self.__class__.__name__}Mocks", [f.__name__ for f in app_methods]
     )
-    # todo: create Magicmock if needed
-    self.mocks = self.AppMocks(**{f.__name__: AsyncMock() for f in app_methods})
 
-    def add_mock(f: Callable[[...], Any], mock: AsyncMock) -> Callable[[...], Any]:
+    self.mocks = self.AppMocks(
+        **{
+            f.__name__: AsyncMock() if inspect.iscoroutinefunction(f) else MagicMock()
+            for f in app_methods
+        }
+    )
+
+    self.awaited_mocks = self.AppMocks(
+        **{name: AwaitedMock(mock) for name, mock in self.mocks._asdict().items()}
+    )
+
+    def add_mock(
+        f: Callable[[...], Any], mock: Union[AsyncMock, MagicMock]
+    ) -> Callable[[...], Any]:
+        """Add call to mock when calling function f"""
+
         @functools.wraps(f)
         async def async_inner(
             *args, f: Callable[[...], Any] = f, mock: AsyncMock = mock, **kwargs
@@ -34,7 +50,17 @@ def create_mocks(self: FastKafka) -> None:
             await mock(*args, **kwargs)
             return await f(*args, **kwargs)
 
-        return async_inner
+        @functools.wraps(f)
+        def sync_inner(
+            *args, f: Callable[[...], Any] = f, mock: MagicMock = mock, **kwargs
+        ) -> Any:
+            mock(*args, **kwargs)
+            return f(*args, **kwargs)
+
+        if inspect.iscoroutinefunction(f):
+            return async_inner
+        else:
+            return sync_inner
 
     self._consumers_store = {
         name: (
@@ -52,10 +78,10 @@ def create_mocks(self: FastKafka) -> None:
         for name, (f, producer, kwargs) in self._producers_store.items()
     }
 
-# %% ../nbs/9991_Test_Client.ipynb 6
+# %% ../nbs/9991_Test_Client.ipynb 9
 class Tester(FastKafka):
-    def __init__(self, apps: List[FastKafka]):
-        self.apps = apps
+    def __init__(self, app: Union[FastKafka, List[FastKafka]]):
+        self.apps = app if isinstance(app, list) else [app]
         super().__init__(
             bootstrap_servers=self.apps[0]._kafka_config["bootstrap_servers"]
         )
@@ -78,7 +104,7 @@ class Tester(FastKafka):
     def create_mirrors(self):
         pass
 
-# %% ../nbs/9991_Test_Client.ipynb 9
+# %% ../nbs/9991_Test_Client.ipynb 12
 def mirror_producer(
     topic: str, producer_f: Callable[[...], Any]
 ) -> Callable[[...], Any]:
@@ -108,7 +134,7 @@ def mirror_producer(
 
     return mirror_func
 
-# %% ../nbs/9991_Test_Client.ipynb 11
+# %% ../nbs/9991_Test_Client.ipynb 14
 def mirror_consumer(
     topic: str, consumer_f: Callable[[...], Any]
 ) -> Callable[[...], Any]:
@@ -129,7 +155,7 @@ def mirror_consumer(
     mirror_func.__signature__ = sig
     return mirror_func
 
-# %% ../nbs/9991_Test_Client.ipynb 15
+# %% ../nbs/9991_Test_Client.ipynb 16
 @patch
 def create_mirrors(self: Tester):
     for app in self.apps:
