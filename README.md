@@ -240,7 +240,7 @@ async with LocalKafkaBroker(
         num_partitions=1,
     )
 
-    # Coreating the KafkaApp object
+    # Creating the KafkaApp object
     kafka_app = create_app(bootstrap_servers=bootstrap_servers)
     decorate_app(kafka_app=kafka_app)
 
@@ -256,8 +256,6 @@ async with LocalKafkaBroker(
         await tester.awaited_mocks.on_predictions.assert_awaited_with(
             Prediction(user_id=1, score=0.87), timeout=5
         )
-
-print("ok")
 ```
 
     [INFO] fastkafka.testing: Installing Java...
