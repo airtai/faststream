@@ -121,16 +121,9 @@ port, and other details of a Kafka broker. This dictionary is used for
 generating the documentation only and it is not being checked by the
 actual server.
 
-Next, an object of the `FastAPI` class is created. It role is to serve
-the documentation and to start and shutdown
-[`FastKafka`](https://airtai.github.io/fastkafka/fastkafka.html#fastkafka).
-
-Finally, an object of the
+Next, an object of the
 [`FastKafka`](https://airtai.github.io/fastkafka/fastkafka.html#fastkafka)
 class is initialized with the minimum set of arguments:
-
-- `app`: an `FastAPI` application used for serving the documentation and
-  starting/shutting down the service
 
 - `kafka_brokers`: a dictionary used for generation of documentation
 
@@ -139,32 +132,30 @@ class is initialized with the minimum set of arguments:
   initial cluster metadata
 
 ``` python
-
-from os import environ
-
 from fastkafka.application import FastKafka
 
-kafka_brokers = {
-    "localhost": {
-        "url": "localhost",
-        "description": "local development kafka broker",
-        "port": 9092,
-    },
-    "production": {
-        "url": "kafka.airt.ai",
-        "description": "production kafka broker",
-        "port": 9092,
-        "protocol": "kafka-secure",
-        "security": {"type": "plain"},
-    },
-}
+def create_app(bootstrap_servers: str) -> FastKafka:
+    kafka_brokers = {
+        "localhost": {
+            "url": "localhost",
+            "description": "local development kafka broker",
+            "port": 9092,
+        },
+        "production": {
+            "url": "kafka.airt.ai",
+            "description": "production kafka broker",
+            "port": 9092,
+            "protocol": "kafka-secure",
+            "security": {"type": "plain"},
+        },
+    }
 
-bootstrap_servers = f"{environ['KAFKA_HOSTNAME']}:{environ['KAFKA_PORT']}"
-
-kafka_app = FastKafka(
-    kafka_brokers=kafka_brokers,
-    bootstrap_servers=bootstrap_servers,
-)
+    kafka_app = FastKafka(
+        kafka_brokers=kafka_brokers,
+        bootstrap_servers=bootstrap_servers,
+    )
+    
+    return kafka_app
 ```
 
 ### Function decorators
@@ -205,28 +196,142 @@ This following example shows how to use the `@kafka_app.consumes` and
   on the returned value and produce it to the specified topic.
 
 ``` python
-
-@kafka_app.consumes(topic="input_data", auto_offset_reset="latest", group_id="my_group")
-async def on_input_data(msg: InputData):
-    global model
-    score = await model.predict(feature_1=msg.feature_1, feature_2=msg.feature_2)
-    await to_predictions(user_id=msg.user_id, score=score)
-
-
-@kafka_app.produces(topic="predictions")
-async def to_predictions(user_id: int, score: float) -> Prediction:
-    prediction = Prediction(user_id=user_id, score=score)
-    return prediction
+def decorate_app(kafka_app: FastKafka):
+    @kafka_app.consumes(topic="input_data", auto_offset_reset="latest", group_id="my_group")
+    async def on_input_data(msg: InputData):     
+        # this is a mock up for testing, should be replaced with the real model
+        class Model:
+            async def predict(self, feature_1: List[int], feature_2: List[float]) -> float:
+                return 0.87
 
 
-# this is a mock up for testing, should be replaced with the real model
-class Model:
-    async def predict(self, feature_1: List[int], feature_2: List[float]) -> float:
-        return 0.87
+        model = Model()
+    
+        score = await model.predict(feature_1=msg.feature_1, feature_2=msg.feature_2)
+        await to_predictions(user_id=msg.user_id, score=score)
 
 
-model = Model()
+    @kafka_app.produces(topic="predictions")
+    async def to_predictions(user_id: int, score: float) -> Prediction:
+        prediction = Prediction(user_id=user_id, score=score)
+        return prediction
 ```
+
+## Testing the service
+
+The service can be tested using the
+[`LocalKafkaBroker`](https://airtai.github.io/fastkafka/test_utils.html#localkafkabroker)
+and [`Tester`](https://airtai.github.io/fastkafka/fastkafka.html#tester)
+instances.
+
+``` python
+from fastkafka.testing import LocalKafkaBroker
+from fastkafka.application import Tester
+from fastkafka.helpers import create_missing_topics
+```
+
+``` python
+async with LocalKafkaBroker(
+    zookeeper_port=9892, listener_port=9893
+) as bootstrap_servers:
+    create_missing_topics(
+        ["input_data", "predictions"],
+        bootstrap_servers=bootstrap_servers,
+        num_partitions=1,
+    )
+
+    # Coreating the KafkaApp object
+    kafka_app = create_app(bootstrap_servers=bootstrap_servers)
+    decorate_app(kafka_app=kafka_app)
+
+    # Creating the Tester object
+    tester = Tester(app=kafka_app)
+
+    async with tester:
+        # Send message to input_data topic
+        await tester.to_input_data(
+            InputData(user_id=1, feature_1=[0.1, 0.2], feature_2=[1.1, -1.2])
+        )
+        # Assert that the "kafka_app" service reacted to sent message with a Prediction message in predictions topic
+        await tester.awaited_mocks.on_predictions.assert_awaited_with(
+            Prediction(user_id=1, score=0.87), timeout=5
+        )
+
+print("ok")
+```
+
+    [INFO] fastkafka.testing: Installing Java...
+    [INFO] fastkafka.testing:  - installing install-jdk...
+    Defaulting to user installation because normal site-packages is not writeable
+    Collecting install-jdk
+      Downloading install-jdk-0.3.0.tar.gz (3.8 kB)
+      Preparing metadata (setup.py): started
+      Preparing metadata (setup.py): finished with status 'done'
+    Building wheels for collected packages: install-jdk
+      Building wheel for install-jdk (setup.py): started
+      Building wheel for install-jdk (setup.py): finished with status 'done'
+      Created wheel for install-jdk: filename=install_jdk-0.3.0-py3-none-any.whl size=3741 sha256=d7d47386fbf6806f67acf3b4f8668eef131305e43eeb33a0dff719b72838f00c
+      Stored in directory: /home/tvrtko/.cache/pip/wheels/79/7a/47/9a4619174f7ca0f1068edb7a5412730a37365b6d183b0b3847
+    Successfully built install-jdk
+    Installing collected packages: install-jdk
+    Successfully installed install-jdk-0.3.0
+    [INFO] fastkafka.testing:  - installing jdk...
+
+
+    [notice] A new release of pip is available: 23.0 -> 23.0.1
+    [notice] To update, run: python3 -m pip install --upgrade pip
+
+    /home/tvrtko/.jdk/jdk-11.0.18+10
+    [INFO] fastkafka.testing: Java installed.
+    [INFO] fastkafka.testing: Installing Kafka...
+
+      0%|          | 0/832968 [00:00<?, ?it/s]
+
+    [INFO] fastkafka.testing: Kafka installed in /home/tvrtko/.local/kafka_2.13-3.3.2.
+    [INFO] fastkafka.testing: Starting zookeeper...
+    [INFO] fastkafka.testing: Zookeeper started, sleeping for 5 seconds...
+    [INFO] fastkafka.testing: Starting Kafka broker...
+    [INFO] fastkafka.testing: Kafka broker started, sleeping for 5 seconds...
+    [INFO] fastkafka.testing: Local Kafka broker up and running on 127.0.0.1:9893
+    [INFO] fastkafka.helpers: create_missing_topics(['input_data', 'predictions']): new_topics = [NewTopic(topic=input_data,num_partitions=1), NewTopic(topic=predictions,num_partitions=1)]
+    [INFO] fastkafka.application: _create_producer() : created producer using the config: '{'bootstrap_servers': '127.0.0.1:9893'}'
+    [INFO] fastkafka.application: _create_producer() : created producer using the config: '{'bootstrap_servers': '127.0.0.1:9893'}'
+    [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
+    [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': '127.0.0.1:9893', 'auto_offset_reset': 'latest', 'max_poll_records': 100, 'group_id': 'my_group'}
+    [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
+    [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
+    [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
+    [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
+    [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
+    [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': '127.0.0.1:9893', 'auto_offset_reset': 'earliest', 'max_poll_records': 100}
+    [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
+    [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'predictions'})
+    [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'predictions'}
+    [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
+    [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'predictions': 1}. 
+    [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [INFO] aiokafka.consumer.group_coordinator: Discovered coordinator 0 for group my_group
+    [INFO] aiokafka.consumer.group_coordinator: Revoking previously assigned partitions set() for group my_group
+    [INFO] aiokafka.consumer.group_coordinator: (Re-)joining group my_group
+    [INFO] aiokafka.consumer.group_coordinator: Joined group 'my_group' (generation 1) with member_id aiokafka-0.8.0-d4b67e81-1947-4aa5-8549-98c3254bcb4a
+    [INFO] aiokafka.consumer.group_coordinator: Elected group leader -- performing partition assignments using roundrobin
+    [INFO] aiokafka.consumer.group_coordinator: Successfully synced group my_group with generation 1
+    [INFO] aiokafka.consumer.group_coordinator: Setting newly assigned partitions {TopicPartition(topic='input_data', partition=0)} for group my_group
+    [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
+    [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
+    [INFO] aiokafka.consumer.group_coordinator: LeaveGroup request succeeded
+    [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
+    [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
+    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Terminating the process 630...
+    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Process 630 terminated.
+    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Terminating the process 263...
+    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Process 263 terminated.
+    ok
 
 ## Running the service
 
@@ -318,10 +423,14 @@ We will concatenate the code snippets from above and save them in a file
 
     model = Model()
 
-
     ```
 
-Then, we start the FaskKafka servie by running the following command in
+Notice the
+`bootstrap_servers = f"{environ['KAFKA_HOSTNAME']}:{environ['KAFKA_PORT']}"`
+line. This enables us to pass the Kafka bootstrap server address to the
+app through the environment variables.
+
+Then, we start the FastKafka service by running the following command in
 the folder where the server.py file is located:
 
 ``` shell
@@ -330,26 +439,51 @@ fastkafka run --num-workers=1 server:kafka_app
 
 After running the command, you should see an output like the one below:
 
-    [5047]: [INFO] fastkafka.application: _create_producer() : created producer using the config: '{'bootstrap_servers': 'tvrtko-fastkafka-kafka-1:9092'}'
-    [5047]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
-    [5047]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'tvrtko-fastkafka-kafka-1:9092', 'auto_offset_reset': 'latest', 'max_poll_records': 100, 'group_id': 'my_group'}
-    [5047]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
-    [5047]: [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
-    [5047]: [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
-    [5047]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
-    [5047]: [INFO] aiokafka.consumer.group_coordinator: Discovered coordinator 1001 for group my_group
-    [5047]: [INFO] aiokafka.consumer.group_coordinator: Revoking previously assigned partitions set() for group my_group
-    [5047]: [INFO] aiokafka.consumer.group_coordinator: (Re-)joining group my_group
-    [5047]: [INFO] aiokafka.consumer.group_coordinator: Joined group 'my_group' (generation 3) with member_id aiokafka-0.8.0-4638ef56-bd7d-4581-95ad-42c90322442d
-    [5047]: [INFO] aiokafka.consumer.group_coordinator: Elected group leader -- performing partition assignments using roundrobin
-    [5047]: [INFO] aiokafka.consumer.group_coordinator: Successfully synced group my_group with generation 3
-    [5047]: [INFO] aiokafka.consumer.group_coordinator: Setting newly assigned partitions {TopicPartition(topic='input_data', partition=0)} for group my_group
+    [INFO] fastkafka.testing: Java is already installed.
+    [INFO] fastkafka.testing: Kafka is already installed.
+    [INFO] fastkafka.testing: Starting zookeeper...
+    [INFO] fastkafka.testing: Zookeeper started, sleeping for 5 seconds...
+    [INFO] fastkafka.testing: Starting Kafka broker...
+    [INFO] fastkafka.testing: Kafka broker started, sleeping for 5 seconds...
+    [INFO] fastkafka.testing: Local Kafka broker up and running on 127.0.0.1:9893
+    [2648]: [INFO] fastkafka.application: _create_producer() : created producer using the config: '{'bootstrap_servers': 'localhost:9893'}'
+    [2648]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
+    [2648]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'localhost:9893', 'auto_offset_reset': 'latest', 'max_poll_records': 100, 'group_id': 'my_group'}
+    [2648]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
+    [2648]: [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
+    [2648]: [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
+    [2648]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
+    [2648]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [2648]: [WARNING] aiokafka.cluster: Topic input_data is not available during auto-create initialization
+    [2648]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [2648]: [WARNING] aiokafka.cluster: Topic input_data is not available during auto-create initialization
+    [2648]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [2648]: [WARNING] aiokafka.cluster: Topic input_data is not available during auto-create initialization
+    [2648]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [2648]: [WARNING] aiokafka.cluster: Topic input_data is not available during auto-create initialization
+    [2648]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [2648]: [WARNING] aiokafka.cluster: Topic input_data is not available during auto-create initialization
+    [2648]: [ERROR] aiokafka.consumer.group_coordinator: Group Coordinator Request failed: [Error 15] CoordinatorNotAvailableError
+    [2648]: [WARNING] aiokafka.cluster: Topic input_data is not available during auto-create initialization
+    [2648]: [INFO] aiokafka.consumer.group_coordinator: Discovered coordinator 0 for group my_group
+    [2648]: [INFO] aiokafka.consumer.group_coordinator: Revoking previously assigned partitions set() for group my_group
+    [2648]: [INFO] aiokafka.consumer.group_coordinator: (Re-)joining group my_group
+    [2648]: [INFO] aiokafka.consumer.group_coordinator: Joined group 'my_group' (generation 1) with member_id aiokafka-0.8.0-d01c8ae6-0888-4b80-bd50-a8c9e2358e28
+    [2648]: [INFO] aiokafka.consumer.group_coordinator: Elected group leader -- performing partition assignments using roundrobin
+    [2648]: [WARNING] kafka.coordinator.assignors.roundrobin: No partition metadata for topic input_data
+    [2648]: [INFO] aiokafka.consumer.group_coordinator: Successfully synced group my_group with generation 1
+    [2648]: [INFO] aiokafka.consumer.group_coordinator: Setting newly assigned partitions set() for group my_group
     Starting process cleanup, this may take a few seconds...
-    [INFO] fastkafka.server: terminate_asyncio_process(): Terminating the process 5047...
-    [5047]: [INFO] aiokafka.consumer.group_coordinator: LeaveGroup request succeeded
-    [5047]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
-    [5047]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
-    [INFO] fastkafka.server: terminate_asyncio_process(): Process 5047 terminated.
+    [INFO] fastkafka.server: terminate_asyncio_process(): Terminating the process 2648...
+    [2648]: [INFO] aiokafka.consumer.group_coordinator: LeaveGroup request succeeded
+    [2648]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
+    [2648]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
+    [INFO] fastkafka.server: terminate_asyncio_process(): Process 2648 terminated.
+
+    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Terminating the process 2232...
+    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Process 2232 terminated.
+    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Terminating the process 1867...
+    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Process 1867 terminated.
 
 When the service is started, several log messages are printed to the
 console, including information about the application startup, AsyncAPI
@@ -377,26 +511,17 @@ fastkafka docs serve server:kafka_app
 
 After running the command you should see the following output:
 
-``` python
-exit_code, output = await run_script_and_cancel(
-    script=script,
-    script_file="server.py",
-    cmd=cmd,
-    cancel_after=45,
-)
-print(output.decode("utf-8"))
-assert exit_code == 0, exit_code
-print(output.decode("utf-8"))
-```
+    [INFO] fastkafka._components.asyncapi: Old async specifications at '/tmp/tmp8ld9d1yo/asyncapi/spec/asyncapi.yml' does not exist.
+    [INFO] fastkafka._components.asyncapi: New async specifications generated at: '/tmp/tmp8ld9d1yo/asyncapi/spec/asyncapi.yml'
+    [INFO] fastkafka._components.asyncapi: Async docs generated at 'asyncapi/docs'
+    [INFO] fastkafka._components.asyncapi: Output of '$ npx -y -p @asyncapi/generator ag asyncapi/spec/asyncapi.yml @asyncapi/html-template -o asyncapi/docs --force-write'
 
-    {'localhost': {'description': 'local development kafka broker',
-                   'port': 9092,
-                   'url': 'localhost'},
-     'production': {'description': 'production kafka broker',
-                    'port': 9092,
-                    'protocol': 'kafka-secure',
-                    'security': {'type': 'plain'},
-                    'url': 'kafka.airt.ai'}}
+    Done! ✨
+    Check out your shiny new generated files at /tmp/tmp8ld9d1yo/asyncapi/docs.
+
+
+    Serving documentation on http://127.0.0.1:8000
+    Interupting serving of documentation and cleaning up...
 
 The generated documentation is as follows:
 
@@ -432,89 +557,3 @@ async def on_input_data(msg: InputData):
 The resulting documentation is generated as follows:
 
 ![Kafka_consumer](images/screenshot-kafka-consumer.png)
-
-## Testing the service
-
-``` python
-from os import environ
-
-import anyio
-import asyncer
-from tqdm.notebook import tqdm, trange
-
-from fastkafka.helpers import (
-    consumes_messages,
-    create_missing_topics,
-    create_admin_client,
-    produce_messages,
-    wait_for_get_url,
-)
-
-from fastkafka.testing import LocalKafkaBroker
-```
-
-``` python
-num_workers = 4
-listener_port = 9913
-msgs = [
-    dict(user_id=i, feature_1=[(i / 1_000) ** 2], feature_2=[i % 177])
-    for i in trange(5_000, desc="generating messages")
-]
-
-bootstrap_servers = f"{environ['KAFKA_HOSTNAME']}:{environ['KAFKA_PORT']}"
-
-async with LocalKafkaBroker(
-    zookeeper_port=9911, listener_port=listener_port
-) as bootstrap_servers:
-    create_missing_topics(
-        ["input_data", "predictions"],
-        bootstrap_servers=bootstrap_servers,
-        num_partitions=4,
-    )
-
-    async with asyncer.create_task_group() as tg:
-        output = tg.soonify(run_script_and_cancel)(
-            script=script.replace(
-                "bootstrap_servers = f\"{environ['KAFKA_HOSTNAME']}:{environ['KAFKA_PORT']}\"",
-                f'bootstrap_servers = "localhost:{listener_port}"',
-            ),
-            script_file=f"server.py",
-            cmd=f"fastkafka run --num-workers={num_workers} server:kafka_app",
-            cancel_after=120,
-        )
-
-        tg.soonify(consumes_messages)(
-            msgs_count=len(msgs),
-            topic="predictions",
-            bootstrap_servers=bootstrap_servers,
-        )
-
-        await anyio.sleep(10)
-
-        tg.soonify(produce_messages)(
-            msgs=msgs, topic="input_data", bootstrap_servers=bootstrap_servers
-        )
-
-print(output.value[1].decode("UTF-8"))
-```
-
-    generating messages:   0%|          | 0/20000 [00:00<?, ?it/s]
-
-    [INFO] fastkafka.testing: Java is already installed.
-    [INFO] fastkafka.testing: But not exported to PATH, exporting...
-    [INFO] fastkafka.testing: Kafka is already installed.
-    [INFO] fastkafka.testing: But not exported to PATH, exporting...
-    [INFO] fastkafka.helpers: create_missing_topics(['input_data', 'predictions']): new_topics = [NewTopic(topic=predictions,num_partitions=4)]
-    [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'predictions'})
-    [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'predictions': 4}. 
-
-    consuming from 'predictions':   0%|          | 0/20000 [00:00<?, ?it/s]
-
-    producing to 'input_data':   0%|          | 0/20000 [00:00<?, ?it/s]
-
-    [INFO] fastkafka.components._subprocess: terminate_asyncio_process(): Terminating the process 5435...
-    [INFO] fastkafka.components._subprocess: terminate_asyncio_process(): Process 5435 was already terminated.
-    [INFO] fastkafka.components._subprocess: terminate_asyncio_process(): Terminating the process 5052...
-    [INFO] fastkafka.components._subprocess: terminate_asyncio_process(): Process 5052 was already terminated.
-
-    PendingValueException: The return value of this task is still pending. Maybe you forgot to access it after the async with asyncer.create_task_group() block. If you need to access values of async tasks inside the same task group, you probably need a different approach, for example with AnyIO Streams.
