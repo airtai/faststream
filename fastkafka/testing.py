@@ -14,6 +14,8 @@ import os
 import random
 import shlex
 import multiprocessing
+from collections import namedtuple
+import functools
 
 # [B404:blacklist] Consider possible security implications associated with the subprocess module.
 import requests
@@ -31,13 +33,14 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
 import glob
+from unittest.mock import AsyncMock, MagicMock
 
 import asyncer
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from confluent_kafka.admin import AdminClient, NewTopic
 from fastcore.meta import delegates
 from fastcore.foundation import patch
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import tarfile
 from tqdm import tqdm
 import posix_ipc
@@ -358,7 +361,7 @@ def mock_AIOKafkaProducer_send() -> Generator[unittest.mock.Mock, None, None]:
     """Mocks **send** method of **AIOKafkaProducer**"""
     with unittest.mock.patch("__main__.AIOKafkaProducer.send") as mock:
 
-        async def _f():
+        async def _f() -> None:
             pass
 
         mock.return_value = asyncio.create_task(_f())
@@ -556,7 +559,7 @@ group.initial.rebalance.delay.ms=0
 
     return kafka_config
 
-# %% ../nbs/999_Test_Utils.ipynb 33
+# %% ../nbs/999_Test_Utils.ipynb 32
 class LocalKafkaBroker:
     """LocalKafkaBroker class, used for running unique kafka brokers in tests to prevent topic clashing.
 
@@ -567,6 +570,17 @@ class LocalKafkaBroker:
     lock = posix_ipc.Semaphore(
         "install_lock:LocalKafkaBroker", posix_ipc.O_CREAT, initial_value=1
     )
+
+    @staticmethod
+    def clear_install_semaphore() -> None:
+        """Clears semaphore used for synchronizing installation of requirements
+
+        Use this function only if the semaphore is being locked due to crashing process (rarely)
+        """
+        LocalKafkaBroker.lock.unlink()
+        LocalKafkaBroker.lock = posix_ipc.Semaphore(
+            "install_lock:LocalKafkaBroker", posix_ipc.O_CREAT, initial_value=1
+        )
 
     @delegates(get_kafka_config_string)  # type: ignore
     @delegates(get_zookeeper_config_string, keep=True)  # type: ignore
@@ -628,17 +642,17 @@ class LocalKafkaBroker:
         #         LocalKafkaBroker._install()
         return self.start()
 
-    def __exit__(self, *args, **kwargs):
+    def __exit__(self, *args: Any, **kwargs: Any) -> None:
         self.stop()
 
     async def __aenter__(self) -> str:
         #         LocalKafkaBroker._install()
         return await self._start()
 
-    async def __aexit__(self, *args, **kwargs):
+    async def __aexit__(self, *args: Any, **kwargs: Any) -> None:
         await self._stop()
 
-# %% ../nbs/999_Test_Utils.ipynb 37
+# %% ../nbs/999_Test_Utils.ipynb 36
 def install_java() -> None:
     """Checks if jdk-11 is installed on the machine and installs it if not
     Returns:
@@ -662,7 +676,7 @@ def install_java() -> None:
         os.environ["PATH"] = os.environ["PATH"] + f":{jdk_bin_path}/bin"
         logger.info("Java installed.")
 
-# %% ../nbs/999_Test_Utils.ipynb 39
+# %% ../nbs/999_Test_Utils.ipynb 38
 def install_kafka() -> None:
     """Checks if kafka is installed on the machine and installs it if not
     Returns:
@@ -704,14 +718,14 @@ def install_kafka() -> None:
         os.environ["PATH"] = os.environ["PATH"] + f":{kafka_path}/bin"
         logger.info(f"Kafka installed in {kafka_path}.")
 
-# %% ../nbs/999_Test_Utils.ipynb 41
+# %% ../nbs/999_Test_Utils.ipynb 40
 @patch(cls_method=True)  # type: ignore
 def _install(cls: LocalKafkaBroker) -> None:
     with cls.lock:
         install_java()
         install_kafka()
 
-# %% ../nbs/999_Test_Utils.ipynb 43
+# %% ../nbs/999_Test_Utils.ipynb 42
 @patch  # type: ignore
 async def _start(self: LocalKafkaBroker) -> str:
     self._install()
@@ -782,7 +796,7 @@ async def _stop(self: LocalKafkaBroker) -> None:
     await terminate_asyncio_process(self.zookeeper_task)  # type: ignore
     self.temporary_directory.__exit__(None, None, None)  # type: ignore
 
-# %% ../nbs/999_Test_Utils.ipynb 46
+# %% ../nbs/999_Test_Utils.ipynb 45
 @patch  # type: ignore
 def start(self: LocalKafkaBroker) -> str:
     """Starts a local kafka broker and zookeeper instance synchronously

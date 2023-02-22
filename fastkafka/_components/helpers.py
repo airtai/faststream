@@ -5,7 +5,7 @@ __all__ = ['logger', 'F', 'in_notebook', 'combine_params', 'delegates_using_docs
            'ImportFromStringError']
 
 # %% ../../nbs/010_Internal_Helpers.ipynb 2
-def in_notebook():
+def in_notebook() -> bool:
     try:
         from IPython import get_ipython
 
@@ -94,9 +94,9 @@ def delegates_using_docstring(o: Union[Type, Callable[..., Any]]) -> Callable[[F
             return __combine_params
 
         @_combine_params(o)
-        @delegates(o)
+        @delegates(o)  # type: ignore
         @wraps(f)
-        def _f(*args, **kwargs):
+        def _f(*args: Any, **kwargs: Any) -> Any:
             return f(*args, **kwargs)
 
         return _f
