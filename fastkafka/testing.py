@@ -559,7 +559,7 @@ group.initial.rebalance.delay.ms=0
 
     return kafka_config
 
-# %% ../nbs/999_Test_Utils.ipynb 33
+# %% ../nbs/999_Test_Utils.ipynb 32
 class LocalKafkaBroker:
     """LocalKafkaBroker class, used for running unique kafka brokers in tests to prevent topic clashing.
 
@@ -570,6 +570,17 @@ class LocalKafkaBroker:
     lock = posix_ipc.Semaphore(
         "install_lock:LocalKafkaBroker", posix_ipc.O_CREAT, initial_value=1
     )
+
+    @staticmethod
+    def clear_install_semaphore():
+        """Clears semaphore used for synchronizing installation of requirements
+
+        Use this function only if the semaphore is being locked due to crashing process (rarely)
+        """
+        LocalKafkaBroker.lock.unlink()
+        LocalKafkaBroker.lock = posix_ipc.Semaphore(
+            "install_lock:LocalKafkaBroker", posix_ipc.O_CREAT, initial_value=1
+        )
 
     @delegates(get_kafka_config_string)  # type: ignore
     @delegates(get_zookeeper_config_string, keep=True)  # type: ignore
@@ -641,7 +652,7 @@ class LocalKafkaBroker:
     async def __aexit__(self, *args, **kwargs):
         await self._stop()
 
-# %% ../nbs/999_Test_Utils.ipynb 37
+# %% ../nbs/999_Test_Utils.ipynb 36
 def install_java() -> None:
     """Checks if jdk-11 is installed on the machine and installs it if not
     Returns:
@@ -665,7 +676,7 @@ def install_java() -> None:
         os.environ["PATH"] = os.environ["PATH"] + f":{jdk_bin_path}/bin"
         logger.info("Java installed.")
 
-# %% ../nbs/999_Test_Utils.ipynb 39
+# %% ../nbs/999_Test_Utils.ipynb 38
 def install_kafka() -> None:
     """Checks if kafka is installed on the machine and installs it if not
     Returns:
@@ -707,14 +718,14 @@ def install_kafka() -> None:
         os.environ["PATH"] = os.environ["PATH"] + f":{kafka_path}/bin"
         logger.info(f"Kafka installed in {kafka_path}.")
 
-# %% ../nbs/999_Test_Utils.ipynb 41
+# %% ../nbs/999_Test_Utils.ipynb 40
 @patch(cls_method=True)  # type: ignore
 def _install(cls: LocalKafkaBroker) -> None:
     with cls.lock:
         install_java()
         install_kafka()
 
-# %% ../nbs/999_Test_Utils.ipynb 43
+# %% ../nbs/999_Test_Utils.ipynb 42
 @patch  # type: ignore
 async def _start(self: LocalKafkaBroker) -> str:
     self._install()
@@ -785,7 +796,7 @@ async def _stop(self: LocalKafkaBroker) -> None:
     await terminate_asyncio_process(self.zookeeper_task)  # type: ignore
     self.temporary_directory.__exit__(None, None, None)  # type: ignore
 
-# %% ../nbs/999_Test_Utils.ipynb 46
+# %% ../nbs/999_Test_Utils.ipynb 45
 @patch  # type: ignore
 def start(self: LocalKafkaBroker) -> str:
     """Starts a local kafka broker and zookeeper instance synchronously
