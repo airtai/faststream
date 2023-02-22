@@ -18,6 +18,7 @@ from enum import Enum
 from inspect import signature
 from os import environ, getpid
 from pathlib import Path
+import types
 from typing import *
 from typing import get_type_hints
 import threading
@@ -726,10 +727,15 @@ class FastKafka:
         self.mocks = None
         self.awaited_mocks = None
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> None:
         await self.startup()
 
-    async def __aexit__(self, exc_type, exc, tb):
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc: Optional[BaseException],
+        tb: Optional[types.TracebackType],
+    ) -> None:
         await self.shutdown()
 
     async def startup(self) -> None:
@@ -1522,7 +1528,7 @@ class Tester(FastKafka):
         )
         self.create_mirrors()
 
-    async def startup(self):
+    async def startup(self) -> None:
         for app in self.apps:
             app.create_mocks()
             await app.startup()
@@ -1531,19 +1537,19 @@ class Tester(FastKafka):
         await super().startup()
         await asyncio.sleep(3)
 
-    async def shutdown(self):
+    async def shutdown(self) -> None:
         await super().shutdown()
         for app in self.apps[::-1]:
             await app.shutdown()
 
-    def create_mirrors(self):
+    def create_mirrors(self) -> None:
         pass
 
 # %% ../nbs/000_FastKafka.ipynb 67
 def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(producer_f).return_annotation
 
-    async def skeleton_func(msg):
+    async def skeleton_func(msg: BaseModel) -> None:
         pass
 
     mirror_func = skeleton_func
@@ -1571,7 +1577,7 @@ def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[...,
 def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(consumer_f).parameters["msg"]
 
-    async def skeleton_func(msg):
+    async def skeleton_func(msg: BaseModel) -> BaseModel:
         return msg
 
     mirror_func = skeleton_func

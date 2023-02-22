@@ -6,7 +6,7 @@ __all__ = ['logger', 'in_notebook', 'aiokafka2confluent', 'confluent2aiokafka', 
            'source2markdown', 'wait_for_get_url']
 
 # %% ../nbs/009_Helpers.ipynb 2
-def in_notebook():
+def in_notebook() -> bool:
     try:
         from IPython import get_ipython
 

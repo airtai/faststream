@@ -361,7 +361,7 @@ def mock_AIOKafkaProducer_send() -> Generator[unittest.mock.Mock, None, None]:
     """Mocks **send** method of **AIOKafkaProducer**"""
     with unittest.mock.patch("__main__.AIOKafkaProducer.send") as mock:
 
-        async def _f():
+        async def _f() -> None:
             pass
 
         mock.return_value = asyncio.create_task(_f())
@@ -572,7 +572,7 @@ class LocalKafkaBroker:
     )
 
     @staticmethod
-    def clear_install_semaphore():
+    def clear_install_semaphore() -> None:
         """Clears semaphore used for synchronizing installation of requirements
 
         Use this function only if the semaphore is being locked due to crashing process (rarely)
@@ -642,14 +642,14 @@ class LocalKafkaBroker:
         #         LocalKafkaBroker._install()
         return self.start()
 
-    def __exit__(self, *args, **kwargs):
+    def __exit__(self, *args: Any, **kwargs: Any) -> None:
         self.stop()
 
     async def __aenter__(self) -> str:
         #         LocalKafkaBroker._install()
         return await self._start()
 
-    async def __aexit__(self, *args, **kwargs):
+    async def __aexit__(self, *args: Any, **kwargs: Any) -> None:
         await self._stop()
 
 # %% ../nbs/999_Test_Utils.ipynb 36

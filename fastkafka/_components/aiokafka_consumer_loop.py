@@ -111,7 +111,9 @@ def _decode_streamed_msgs(  # type: ignore
     return decoded_msgs
 
 # %% ../../nbs/001_ConsumerLoop.ipynb 21
-async def _streamed_records(receive_stream):
+async def _streamed_records(
+    receive_stream: MemoryObjectReceiveStream,
+) -> AsyncGenerator[Any, Any]:
     async for records_per_topic in receive_stream:
         for records in records_per_topic:
             for record in records:
@@ -182,7 +184,7 @@ async def _aiokafka_consumer_loop(
                     )
 
 # %% ../../nbs/001_ConsumerLoop.ipynb 26
-def sanitize_kafka_config(**kwargs):
+def sanitize_kafka_config(**kwargs: Any) -> Dict[str, Any]:
     """Sanitize Kafka config"""
     return {k: "*" * len(v) if "pass" in k.lower() else v for k, v in kwargs.items()}
 

@@ -83,13 +83,13 @@ class SecuritySchema(BaseModel):
     flows: Optional[str] = None
     openIdConnectUrl: Optional[str] = None
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         for k, v in sec_scheme_name_mapping.items():
             if v in kwargs:
                 kwargs[k] = kwargs.pop(v)
         super().__init__(**kwargs)
 
-    def dict(self, *args, **kwarg):
+    def dict(self, *args: Any, **kwarg: Any) -> Dict[str, Any]:
         """Renames internal names of members ('security_type' -> 'type', 'api_key_loc' -> 'in')"""
         d = super().dict(*args, **kwarg)
 
@@ -101,7 +101,7 @@ class SecuritySchema(BaseModel):
 
         return d
 
-    def json(self, *args, **kwargs):
+    def json(self, *args: Any, **kwargs: Any) -> str:
         """Serialize into JSON using dict()"""
         return json.dumps(self.dict(), *args, **kwargs)
 
@@ -115,7 +115,7 @@ class KafkaBroker(BaseModel):
     protocol: str = Field("kafka")
     security: Optional[SecuritySchema] = None
 
-    def dict(self, *args, **kwarg):
+    def dict(self, *args: Any, **kwarg: Any) -> Dict[str, Any]:
         """Makes port a variable and remove it from the dictionary"""
         d = super().dict(*args, **kwarg)
         d["variables"] = {"port": {"default": self.port}}
@@ -125,7 +125,7 @@ class KafkaBroker(BaseModel):
 
         return d
 
-    def json(self, *args, **kwargs):
+    def json(self, *args: Any, **kwargs: Any) -> str:
         """Serialize into JSON using dict()"""
         return json.dumps(self.dict(), *args, **kwargs)
 
