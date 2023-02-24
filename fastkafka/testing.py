@@ -584,7 +584,7 @@ class LocalKafkaBroker:
 
     @delegates(get_kafka_config_string)  # type: ignore
     @delegates(get_zookeeper_config_string, keep=True)  # type: ignore
-    def __init__(self, **kwargs: Dict[str, Any]):
+    def __init__(self, topics: Iterable[str] = [], **kwargs: Dict[str, Any]):
         """Initialises the LocalKafkaBroker object
 
         Args:
@@ -601,6 +601,7 @@ class LocalKafkaBroker:
         self.kafka_task: Optional[asyncio.subprocess.Process] = None
         self.zookeeper_task: Optional[asyncio.subprocess.Process] = None
         self.started = True
+        self.topics: Iterable[str] = topics
 
     @classmethod
     def _install(cls) -> None:
@@ -785,9 +786,23 @@ async def _start(self: LocalKafkaBroker) -> str:
         )
 
     listener_port = self.kafka_kwargs.get("listener_port", 9092)
-    retval = f"127.0.0.1:{listener_port}"
-    logger.info(f"Local Kafka broker up and running on {retval}")
-    return retval
+    bootstrap_server = f"127.0.0.1:{listener_port}"
+    logger.info(f"Local Kafka broker up and running on {bootstrap_server}")
+
+    async with asyncer.create_task_group() as tg:
+        return_codes = [
+            tg.soonify(asyncio.create_subprocess_exec)(
+                "kafka-topics.sh",
+                "--create",
+                f"--topic={topic}",
+                f"--bootstrap-server={bootstrap_server}",
+                stdout=asyncio.subprocess.PIPE,
+                stdin=asyncio.subprocess.PIPE,
+            )
+            for topic in self.topics
+        ]
+
+    return bootstrap_server
 
 
 @patch  # type: ignore
