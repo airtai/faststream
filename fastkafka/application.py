@@ -63,6 +63,7 @@ from fastkafka._components.asyncapi import (
 )
 from ._components.helpers import combine_params
 from ._components.logger import get_logger, supress_timestamps
+from .helpers import create_missing_topics
 
 # %% ../nbs/000_FastKafka.ipynb 2
 logger = get_logger(__name__)
@@ -726,6 +727,9 @@ class FastKafka:
         self.AppMocks = None
         self.mocks = None
         self.awaited_mocks = None
+
+    def set_bootstrap_servers(self, bootstrap_servers: str) -> None:
+        self._kafka_config["bootstrap_servers"] = bootstrap_servers
 
     async def __aenter__(self) -> None:
         await self.startup()
@@ -1529,6 +1533,7 @@ class Tester(FastKafka):
         self.create_mirrors()
 
     async def startup(self) -> None:
+        self.create_topics()
         for app in self.apps:
             app.create_mocks()
             await app.startup()
@@ -1545,7 +1550,30 @@ class Tester(FastKafka):
     def create_mirrors(self) -> None:
         pass
 
+    def create_topics(self) -> None:
+        pass
+
 # %% ../nbs/000_FastKafka.ipynb 67
+@patch
+def create_topics(self: Tester) -> None:
+    topics = set(
+        sum(
+            list(list(app._consumers_store.keys()) for app in self.apps),
+            start=[],
+        )
+        + sum(
+            list(list(app._producers_store.keys()) for app in self.apps),
+            start=[],
+        )
+    )
+
+    create_missing_topics(
+        topics,
+        bootstrap_servers=bootstrap_server,
+        num_partitions=1,
+    )
+
+# %% ../nbs/000_FastKafka.ipynb 69
 def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(producer_f).return_annotation
 
@@ -1573,7 +1601,7 @@ def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[...,
 
     return mirror_func
 
-# %% ../nbs/000_FastKafka.ipynb 69
+# %% ../nbs/000_FastKafka.ipynb 71
 def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(consumer_f).parameters["msg"]
 
@@ -1592,7 +1620,7 @@ def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[...,
     mirror_func.__signature__ = sig  # type: ignore
     return mirror_func
 
-# %% ../nbs/000_FastKafka.ipynb 71
+# %% ../nbs/000_FastKafka.ipynb 73
 @patch  # type: ignore
 def create_mirrors(self: Tester):
     for app in self.apps:
