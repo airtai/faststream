@@ -646,6 +646,21 @@ class LocalKafkaBroker:
         """
         raise NotImplementedError
 
+    def get_service_config_string(self, service: str, *, data_dir: Path) -> str:
+        """Generates a configuration for a service
+        Args:
+            data_dir: Path to the directory where the zookeepeer instance will save data
+            service: "kafka" or "zookeeper", defines which service to get config string for
+        """
+        raise NotImplementedError
+
+    async def _start_service(self, service: str = "kafka") -> None:
+        """Starts the service according to defined service var
+        Args:
+            service: "kafka" or "zookeeper", defines which service to start
+        """
+        raise NotImplementedError
+
     async def _start_zookeeper(self) -> None:
         """Start a local zookeeper instance
         Returns:
@@ -778,75 +793,67 @@ async def write_config_and_run(
 
 
 @patch  # type: ignore
-async def _start_zookeeper(self: LocalKafkaBroker) -> None:
-    logger.info("Starting zookeeper...")
+def get_service_config_string(
+    self: LocalKafkaBroker, service: str, *, data_dir: Path
+) -> str:
+    service_kwargs = getattr(self, f"{service}_kwargs")
+    if service == "kafka":
+        return get_kafka_config_string(data_dir=data_dir, **service_kwargs)
+    else:
+        return get_zookeeper_config_string(data_dir=data_dir, **service_kwargs)
 
-    for i in range(self.retries + 1):
-        if self.temporary_directory_path is None:
-            raise ValueError(
-                "LocalKafkaBroker._start_zookeeper(): self.temporary_directory_path is None, dit you initialise it?"
-            )
-        zookeeper_config_path = self.temporary_directory_path / "zookeeper.properties"
-        self.zookeeper_task = await write_config_and_run(
-            get_zookeeper_config_string(
-                data_dir=self.temporary_directory_path, **self.zookeeper_kwargs
-            ),
-            zookeeper_config_path,
-            "zookeeper-server-start.sh",
+
+@patch  # type: ignore
+async def _start_service(self: LocalKafkaBroker, service: str = "kafka") -> None:
+    logger.info(f"Starting {service}...")
+
+    if self.temporary_directory_path is None:
+        raise ValueError(
+            "LocalKafkaBroker._start_service(): self.temporary_directory_path is None, did you initialise it?"
         )
 
-        logger.info("Zookeeper started, sleeping for 5 seconds...")
+    for i in range(self.retries + 1):
+        service_config_path = self.temporary_directory_path / f"{service}.properties"
+        service_task = await write_config_and_run(
+            self.get_service_config_string(
+                service, data_dir=self.temporary_directory_path
+            ),
+            service_config_path,
+            f"{service}-server-start.sh",
+        )
+        setattr(self, f"{service}_task", service_task)
+
+        logger.info("{service} started, sleeping for 5 seconds...")
         await asyncio.sleep(5)
 
-        if self.zookeeper_task.returncode is None:
+        if service_task.returncode is None:
             break
         elif i < self.retries:
             logger.info(
-                "Zookeeper startup falied, generating a new port and retrying..."
+                f"{service} startup falied, generating a new port and retrying..."
             )
             port = get_free_port()
-            self.zookeeper_kwargs["zookeeper_port"] = port
-            self.kafka_kwargs["zookeeper_port"] = port
+
+            portname = service if service != "kafka" else "listener"
+            for d in [self.zookeeper_kwargs, self.kafka_kwargs]:
+                if f"{portname}_port" in d:
+                    d[f"{portname}_port"] = port
             logger.info(f"port={port}")
 
-    if self.zookeeper_task.returncode is not None:  # type: ignore
+    if service_task.returncode is not None:
         raise ValueError(
-            f"Could not start zookeeper with params: {self.zookeeper_kwargs}"
+            f"Could not start {service} with params: {getattr(self, f'{service}_kwargs')}"
         )
 
 
 @patch  # type: ignore
 async def _start_kafka(self: LocalKafkaBroker) -> None:
-    logger.info("Starting Kafka broker...")
+    return await self._start_service("kafka")
 
-    if self.temporary_directory_path is None:
-        raise ValueError(
-            "LocalKafkaBroker._start_kafka(): self.temporary_directory_path is None, dit you initialise it?"
-        )
-    for i in range(self.retries + 1):
-        kafka_config_path = self.temporary_directory_path / "kafka.properties"
-        self.kafka_task = await write_config_and_run(
-            get_kafka_config_string(
-                data_dir=self.temporary_directory_path, **self.kafka_kwargs
-            ),
-            kafka_config_path,
-            "kafka-server-start.sh",
-        )
 
-        logger.info("Kafka broker started, sleeping for 5 seconds...")
-        await asyncio.sleep(5)
-        if self.kafka_task.returncode is None:
-            break
-        elif i < self.retries:
-            logger.info("Kafka startup falied, generating a new port and retrying...")
-            port = get_free_port()
-            self.kafka_kwargs["listener_port"] = port
-            logger.info(f"port={port}")
-
-    if self.kafka_task.returncode is not None:  # type: ignore
-        raise ValueError(
-            f"Could not start Kafka broker with params: {self.kafka_kwargs}"
-        )
+@patch  # type: ignore
+async def _start_zookeeper(self: LocalKafkaBroker) -> None:
+    return await self._start_service("zookeeper")
 
 
 @patch  # type: ignore
