@@ -4,7 +4,7 @@
 __all__ = ['logger', 'kafka_server_url', 'kafka_server_port', 'aiokafka_config', 'nb_safe_seed', 'true_after',
            'create_testing_topic', 'create_and_fill_testing_topic', 'mock_AIOKafkaProducer_send', 'change_dir',
            'run_script_and_cancel', 'get_zookeeper_config_string', 'get_kafka_config_string', 'LocalKafkaBroker',
-           'install_java', 'install_kafka', 'get_free_port']
+           'install_java', 'install_kafka', 'get_free_port', 'write_config_and_run']
 
 # %% ../nbs/999_Test_Utils.ipynb 1
 import asyncio
@@ -646,6 +646,27 @@ class LocalKafkaBroker:
         """
         raise NotImplementedError
 
+    async def _start_zookeeper(self) -> None:
+        """Start a local zookeeper instance
+        Returns:
+           None
+        """
+        raise NotImplementedError
+
+    async def _start_kafka(self) -> None:
+        """Start a local kafka broker
+        Returns:
+           None
+        """
+        raise NotImplementedError
+
+    async def _create_topics(self) -> None:
+        """Create missing topics in local Kafka broker
+        Returns:
+           None
+        """
+        raise NotImplementedError
+
     def __enter__(self) -> str:
         #         LocalKafkaBroker._install()
         return self.start()
@@ -742,31 +763,29 @@ def get_free_port() -> str:
     return port
 
 
+async def write_config_and_run(
+    config: str, config_path: Union[str, Path], run_cmd: str
+) -> asyncio.subprocess.Process:
+    with open(config_path, "w") as f:
+        f.write(config)
+
+    return await asyncio.create_subprocess_exec(
+        run_cmd,
+        config_path,
+        stdout=asyncio.subprocess.PIPE,
+        stdin=asyncio.subprocess.PIPE,
+    )
+
+
 @patch  # type: ignore
-async def _start(self: LocalKafkaBroker) -> str:
-    self._install()
-
-    self.temporary_directory = TemporaryDirectory()
-    self.temporary_directory_path = Path(self.temporary_directory.__enter__())
-
-    async def write_config_and_run(
-        config: str, config_path: Union[str, Path], run_cmd: str
-    ) -> asyncio.subprocess.Process:
-        with open(config_path, "w") as f:
-            f.write(config)
-
-        return await asyncio.create_subprocess_exec(
-            run_cmd,
-            config_path,
-            stdout=asyncio.subprocess.PIPE,
-            stdin=asyncio.subprocess.PIPE,
-        )
-
-    # start_zookeeper
-
+async def _start_zookeeper(self: LocalKafkaBroker) -> None:
     logger.info("Starting zookeeper...")
 
     for i in range(self.retries + 1):
+        if self.temporary_directory_path is None:
+            raise ValueError(
+                "LocalKafkaBroker._start_zookeeper(): self.temporary_directory_path is None, dit you initialise it?"
+            )
         zookeeper_config_path = self.temporary_directory_path / "zookeeper.properties"
         self.zookeeper_task = await write_config_and_run(
             get_zookeeper_config_string(
@@ -795,9 +814,15 @@ async def _start(self: LocalKafkaBroker) -> str:
             f"Could not start zookeeper with params: {self.zookeeper_kwargs}"
         )
 
-    # start_kafka
 
+@patch  # type: ignore
+async def _start_kafka(self: LocalKafkaBroker) -> None:
     logger.info("Starting Kafka broker...")
+
+    if self.temporary_directory_path is None:
+        raise ValueError(
+            "LocalKafkaBroker._start_kafka(): self.temporary_directory_path is None, dit you initialise it?"
+        )
     for i in range(self.retries + 1):
         kafka_config_path = self.temporary_directory_path / "kafka.properties"
         self.kafka_task = await write_config_and_run(
@@ -823,9 +848,11 @@ async def _start(self: LocalKafkaBroker) -> str:
             f"Could not start Kafka broker with params: {self.kafka_kwargs}"
         )
 
+
+@patch  # type: ignore
+async def _create_topics(self: LocalKafkaBroker) -> None:
     listener_port = self.kafka_kwargs.get("listener_port", 9092)
     bootstrap_server = f"127.0.0.1:{listener_port}"
-    logger.info(f"Local Kafka broker up and running on {bootstrap_server}")
 
     async with asyncer.create_task_group() as tg:
         processes = [
@@ -844,6 +871,23 @@ async def _start(self: LocalKafkaBroker) -> str:
 
     if not all(return_value == 0 for return_value in return_values):
         raise ValueError(f"Could not create missing topics!")
+
+
+@patch  # type: ignore
+async def _start(self: LocalKafkaBroker) -> str:
+    self._install()
+
+    self.temporary_directory = TemporaryDirectory()
+    self.temporary_directory_path = Path(self.temporary_directory.__enter__())
+
+    await self._start_zookeeper()
+    await self._start_kafka()
+
+    listener_port = self.kafka_kwargs.get("listener_port", 9092)
+    bootstrap_server = f"127.0.0.1:{listener_port}"
+    logger.info(f"Local Kafka broker up and running on {bootstrap_server}")
+
+    await self._create_topics()
 
     return bootstrap_server
 
