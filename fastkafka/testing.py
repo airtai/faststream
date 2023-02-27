@@ -790,7 +790,7 @@ async def _start(self: LocalKafkaBroker) -> str:
     logger.info(f"Local Kafka broker up and running on {bootstrap_server}")
 
     async with asyncer.create_task_group() as tg:
-        return_codes = [
+        processes = [
             tg.soonify(asyncio.create_subprocess_exec)(
                 "kafka-topics.sh",
                 "--create",
@@ -801,6 +801,11 @@ async def _start(self: LocalKafkaBroker) -> str:
             )
             for topic in self.topics
         ]
+
+    return_values = [await process.value.wait() for process in processes]
+
+    if not all(return_value == 0 for return_value in return_values):
+        raise ValueError(f"Could not create missing topics!")
 
     return bootstrap_server
 
