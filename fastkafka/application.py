@@ -731,9 +731,6 @@ class FastKafka:
     def set_bootstrap_servers(self, bootstrap_servers: str) -> None:
         self._kafka_config["bootstrap_servers"] = bootstrap_servers
 
-    def set_bootstrap_servers(self, bootstrap_servers: str) -> None:
-        self._kafka_config["bootstrap_servers"] = bootstrap_servers
-
     async def __aenter__(self) -> None:
         await self.startup()
 
