@@ -4,7 +4,7 @@
 __all__ = ['logger', 'kafka_server_url', 'kafka_server_port', 'aiokafka_config', 'nb_safe_seed', 'true_after',
            'create_testing_topic', 'create_and_fill_testing_topic', 'mock_AIOKafkaProducer_send', 'change_dir',
            'run_script_and_cancel', 'get_zookeeper_config_string', 'get_kafka_config_string', 'LocalKafkaBroker',
-           'install_java', 'install_kafka']
+           'install_java', 'install_kafka', 'get_free_port']
 
 # %% ../nbs/999_Test_Utils.ipynb 1
 import asyncio
@@ -16,6 +16,7 @@ import shlex
 import multiprocessing
 from collections import namedtuple
 import functools
+import socket
 
 # [B404:blacklist] Consider possible security implications associated with the subprocess module.
 import requests
@@ -584,17 +585,23 @@ class LocalKafkaBroker:
 
     @delegates(get_kafka_config_string)  # type: ignore
     @delegates(get_zookeeper_config_string, keep=True)  # type: ignore
-    def __init__(self, topics: Iterable[str] = [], **kwargs: Dict[str, Any]):
+    def __init__(
+        self, topics: Iterable[str] = [], retries: int = 0, **kwargs: Dict[str, Any]
+    ):
         """Initialises the LocalKafkaBroker object
 
         Args:
             data_dir: Path to the directory where the zookeepeer instance will save data
             zookeeper_port: Port for clients (Kafka brokes) to connect
             listener_port: Port on which the clients (producers and consumers) can connect
+            topics: List of topics to create after sucessfull Kafka broker startup
+            retries: Number of retries to create kafka and zookeeper services using random
+            port allocation if the requested port was taken
         """
         self.zookeeper_kwargs = filter_using_signature(
             get_zookeeper_config_string, **kwargs
         )
+        self.retries = retries
         self.kafka_kwargs = filter_using_signature(get_kafka_config_string, **kwargs)
         self.temporary_directory: Optional[TemporaryDirectory] = None
         self.temporary_directory_path: Optional[Path] = None
@@ -727,6 +734,14 @@ def _install(cls: LocalKafkaBroker) -> None:
         install_kafka()
 
 # %% ../nbs/999_Test_Utils.ipynb 42
+def get_free_port() -> str:
+    s = socket.socket()
+    s.bind(("127.0.0.1", 0))
+    port = str(s.getsockname()[1])
+    s.close()
+    return port
+
+
 @patch  # type: ignore
 async def _start(self: LocalKafkaBroker) -> str:
     self._install()
@@ -750,18 +765,32 @@ async def _start(self: LocalKafkaBroker) -> str:
     # start_zookeeper
 
     logger.info("Starting zookeeper...")
-    zookeeper_config_path = self.temporary_directory_path / "zookeeper.properties"
-    self.zookeeper_task = await write_config_and_run(
-        get_zookeeper_config_string(
-            data_dir=self.temporary_directory_path, **self.zookeeper_kwargs
-        ),
-        zookeeper_config_path,
-        "zookeeper-server-start.sh",
-    )
 
-    logger.info("Zookeeper started, sleeping for 5 seconds...")
-    await asyncio.sleep(5)
-    if self.zookeeper_task.returncode is not None:
+    for i in range(self.retries + 1):
+        zookeeper_config_path = self.temporary_directory_path / "zookeeper.properties"
+        self.zookeeper_task = await write_config_and_run(
+            get_zookeeper_config_string(
+                data_dir=self.temporary_directory_path, **self.zookeeper_kwargs
+            ),
+            zookeeper_config_path,
+            "zookeeper-server-start.sh",
+        )
+
+        logger.info("Zookeeper started, sleeping for 5 seconds...")
+        await asyncio.sleep(5)
+
+        if self.zookeeper_task.returncode is None:
+            break
+        elif i < self.retries:
+            logger.info(
+                "Zookeeper startup falied, generating a new port and retrying..."
+            )
+            port = get_free_port()
+            self.zookeeper_kwargs["zookeeper_port"] = port
+            self.kafka_kwargs["zookeeper_port"] = port
+            logger.info(f"port={port}")
+
+    if self.zookeeper_task.returncode is not None:  # type: ignore
         raise ValueError(
             f"Could not start zookeeper with params: {self.zookeeper_kwargs}"
         )
@@ -769,18 +798,27 @@ async def _start(self: LocalKafkaBroker) -> str:
     # start_kafka
 
     logger.info("Starting Kafka broker...")
-    kafka_config_path = self.temporary_directory_path / "kafka.properties"
-    self.kafka_task = await write_config_and_run(
-        get_kafka_config_string(
-            data_dir=self.temporary_directory_path, **self.kafka_kwargs
-        ),
-        kafka_config_path,
-        "kafka-server-start.sh",
-    )
+    for i in range(self.retries + 1):
+        kafka_config_path = self.temporary_directory_path / "kafka.properties"
+        self.kafka_task = await write_config_and_run(
+            get_kafka_config_string(
+                data_dir=self.temporary_directory_path, **self.kafka_kwargs
+            ),
+            kafka_config_path,
+            "kafka-server-start.sh",
+        )
 
-    logger.info("Kafka broker started, sleeping for 5 seconds...")
-    await asyncio.sleep(5)
-    if self.kafka_task.returncode is not None:
+        logger.info("Kafka broker started, sleeping for 5 seconds...")
+        await asyncio.sleep(5)
+        if self.kafka_task.returncode is None:
+            break
+        elif i < self.retries:
+            logger.info("Kafka startup falied, generating a new port and retrying...")
+            port = get_free_port()
+            self.kafka_kwargs["listener_port"] = port
+            logger.info(f"port={port}")
+
+    if self.kafka_task.returncode is not None:  # type: ignore
         raise ValueError(
             f"Could not start Kafka broker with params: {self.kafka_kwargs}"
         )
@@ -816,7 +854,7 @@ async def _stop(self: LocalKafkaBroker) -> None:
     await terminate_asyncio_process(self.zookeeper_task)  # type: ignore
     self.temporary_directory.__exit__(None, None, None)  # type: ignore
 
-# %% ../nbs/999_Test_Utils.ipynb 45
+# %% ../nbs/999_Test_Utils.ipynb 46
 @patch  # type: ignore
 def start(self: LocalKafkaBroker) -> str:
     """Starts a local kafka broker and zookeeper instance synchronously
