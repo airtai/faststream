@@ -778,6 +778,9 @@ class FastKafka:
     ) -> None:
         raise NotImplementedError
 
+    def get_topics(self) -> Iterable[str]:
+        raise NotImplementedError
+
     async def _populate_producers(self) -> None:
         raise NotImplementedError
 
@@ -1220,6 +1223,13 @@ def produces(
 
 # %% ../nbs/000_FastKafka.ipynb 37
 @patch  # type: ignore
+def get_topics(self: FastKafka) -> Iterable[str]:
+    produce_topics = set(self._producers_store.keys())
+    consume_topics = set(self._consumers_store.keys())
+    return consume_topics.union(produce_topics)
+
+# %% ../nbs/000_FastKafka.ipynb 39
+@patch  # type: ignore
 def run_in_background(
     self: FastKafka,
 ) -> Callable[
@@ -1252,13 +1262,13 @@ def run_in_background(
 
     return _decorator
 
-# %% ../nbs/000_FastKafka.ipynb 41
+# %% ../nbs/000_FastKafka.ipynb 43
 def filter_using_signature(f: Callable, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
     """todo: write docs"""
     param_names = list(signature(f).parameters.keys())
     return {k: v for k, v in kwargs.items() if k in param_names}
 
-# %% ../nbs/000_FastKafka.ipynb 43
+# %% ../nbs/000_FastKafka.ipynb 45
 @patch  # type: ignore
 def _populate_consumers(
     self: FastKafka,
@@ -1288,7 +1298,7 @@ async def _shutdown_consumers(
     if self._kafka_consumer_tasks:
         await asyncio.wait(self._kafka_consumer_tasks)
 
-# %% ../nbs/000_FastKafka.ipynb 45
+# %% ../nbs/000_FastKafka.ipynb 47
 # TODO: Add passing of vars
 async def _create_producer(  # type: ignore
     *,
@@ -1370,7 +1380,7 @@ async def _populate_producers(self: FastKafka) -> None:
 async def _shutdown_producers(self: FastKafka) -> None:
     [await producer.stop() for producer in self._producers_list[::-1]]
 
-# %% ../nbs/000_FastKafka.ipynb 47
+# %% ../nbs/000_FastKafka.ipynb 49
 @patch  # type: ignore
 async def _populate_bg_tasks(
     self: FastKafka,
@@ -1388,7 +1398,7 @@ async def _shutdown_bg_tasks(
     self._bg_tasks_group.cancel_scope.cancel()  # type: ignore
     await self._bg_task_group_generator.__aexit__(None, None, None)  # type: ignore
 
-# %% ../nbs/000_FastKafka.ipynb 49
+# %% ../nbs/000_FastKafka.ipynb 51
 @patch  # type: ignore
 async def startup(self: FastKafka) -> None:
     self._is_shutting_down = False
@@ -1412,7 +1422,7 @@ async def shutdown(self: FastKafka) -> None:
     await self._shutdown_consumers()
     await self._shutdown_producers()
 
-# %% ../nbs/000_FastKafka.ipynb 54
+# %% ../nbs/000_FastKafka.ipynb 56
 @patch  # type: ignore
 def create_docs(self: FastKafka) -> None:
     export_async_spec(
@@ -1427,7 +1437,7 @@ def create_docs(self: FastKafka) -> None:
         asyncapi_path=self._asyncapi_path,
     )
 
-# %% ../nbs/000_FastKafka.ipynb 59
+# %% ../nbs/000_FastKafka.ipynb 61
 class AwaitedMock:
     @staticmethod
     def _await_for(f: Callable[..., Any]) -> Callable[..., Any]:
@@ -1461,7 +1471,7 @@ class AwaitedMock:
                 if inspect.ismethod(f):
                     setattr(self, name, self._await_for(f))
 
-# %% ../nbs/000_FastKafka.ipynb 60
+# %% ../nbs/000_FastKafka.ipynb 62
 @patch  # type: ignore
 def create_mocks(self: FastKafka) -> None:
     """Creates self.mocks as a named tuple mapping a new function obtained by calling the original functions and a mock"""
@@ -1523,7 +1533,7 @@ def create_mocks(self: FastKafka) -> None:
         for name, (f, producer, kwargs) in self._producers_store.items()
     }
 
-# %% ../nbs/000_FastKafka.ipynb 65
+# %% ../nbs/000_FastKafka.ipynb 67
 class Tester(FastKafka):
     def __init__(self, app: Union[FastKafka, List[FastKafka]]):
         self.apps = app if isinstance(app, list) else [app]
@@ -1549,7 +1559,7 @@ class Tester(FastKafka):
     def create_mirrors(self) -> None:
         pass
 
-# %% ../nbs/000_FastKafka.ipynb 67
+# %% ../nbs/000_FastKafka.ipynb 69
 def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(producer_f).return_annotation
 
@@ -1577,7 +1587,7 @@ def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[...,
 
     return mirror_func
 
-# %% ../nbs/000_FastKafka.ipynb 69
+# %% ../nbs/000_FastKafka.ipynb 71
 def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(consumer_f).parameters["msg"]
 
@@ -1596,7 +1606,7 @@ def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[...,
     mirror_func.__signature__ = sig  # type: ignore
     return mirror_func
 
-# %% ../nbs/000_FastKafka.ipynb 71
+# %% ../nbs/000_FastKafka.ipynb 73
 @patch  # type: ignore
 def create_mirrors(self: Tester):
     for app in self.apps:
