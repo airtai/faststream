@@ -931,9 +931,19 @@ def start(self: LocalKafkaBroker) -> str:
             loop = asyncio.new_event_loop()
 
         # start zookeeper and kafka broker in the loop
+
+        if loop.is_running():
+            logger.warning(
+                f"{self.__class__.__name__}.start(): ({loop}) is already running!"
+            )
+            logger.warning(
+                f"{self.__class__.__name__}.start(): calling nest_asyncio.apply()"
+            )
+            nest_asyncio.apply(loop)
+
         try:
             retval = loop.run_until_complete(self._start())
-            logger.info(f"{self.__class__.__name__}.start(): returning {retval}")
+            logger.info(f"{self.__class__}.start(): returning {retval}")
             self.started = True
             return retval
         except RuntimeError as e:
@@ -943,13 +953,6 @@ def start(self: LocalKafkaBroker) -> str:
             logger.warning(
                 f"{self.__class__.__name__}.start(): calling nest_asyncio.apply()"
             )
-            nest_asyncio.apply(loop)
-
-            retval = loop.run_until_complete(self._start())
-            logger.info(f"{self.__class__}.start(): returning {retval}")
-            self.started = True
-            return retval
-
     finally:
         logger.info(f"{self.__class__.__name__}.start(): exited.")
 
