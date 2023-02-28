@@ -830,7 +830,7 @@ async def _start_service(self: LocalKafkaBroker, service: str = "kafka") -> None
         )
         setattr(self, f"{service}_task", service_task)
 
-        logger.info("{service} started, sleeping for 5 seconds...")
+        logger.info(f"{service} started, sleeping for 5 seconds...")
         await asyncio.sleep(5)
 
         if service_task.returncode is None:
