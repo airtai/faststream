@@ -81,6 +81,7 @@ in Kafka consumers and producers.
 from typing import List
 from pydantic import BaseModel, Field, NonNegativeInt
 
+
 class InputData(BaseModel):
     user_id: NonNegativeInt = Field(..., example=202020, description="ID of a user")
     feature_1: List[float] = Field(
@@ -93,6 +94,7 @@ class InputData(BaseModel):
         example=[2, 4, 3, 1, 0],
         description="input feature 2",
     )
+
 
 class Prediction(BaseModel):
     user_id: NonNegativeInt = Field(..., example=202020, description="ID of a user")
@@ -194,12 +196,11 @@ This following example shows how to use the `@kafka_app.consumes` and
 
 ``` python
 @kafka_app.consumes(topic="input_data", auto_offset_reset="latest", group_id="my_group")
-async def on_input_data(msg: InputData):     
+async def on_input_data(msg: InputData):
     # this is a mock up for testing, should be replaced with the real model
     class Model:
         async def predict(self, feature_1: List[int], feature_2: List[float]) -> float:
             return 0.87
-
 
     model = Model()
 
@@ -230,7 +231,6 @@ from fastkafka.helpers import create_missing_topics
 async with LocalKafkaBroker(
     zookeeper_port=9892, listener_port=9893, topics=kafka_app.get_topics()
 ) as bootstrap_servers:
-
     kafka_app.set_bootstrap_servers(bootstrap_servers)
 
     # Creating the Tester object
@@ -245,7 +245,7 @@ async with LocalKafkaBroker(
         await tester.awaited_mocks.on_predictions.assert_awaited_with(
             Prediction(user_id=1, score=0.87), timeout=5
         )
-        
+
 print("ok")
 ```
 
