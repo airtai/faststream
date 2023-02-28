@@ -10,6 +10,7 @@ from typing import *
 
 import anyio
 from aiokafka import AIOKafkaProducer
+from anyio.streams.memory import MemoryObjectReceiveStream
 
 from .logger import get_logger
 
@@ -28,7 +29,7 @@ async def _aiokafka_producer_manager(  # type: ignore
 
     logger.info("_aiokafka_producer_manager(): Starting...")
 
-    async def send_message(receive_stream):
+    async def send_message(receive_stream: MemoryObjectReceiveStream) -> Any:
         async with receive_stream:
             async for topic, msg in receive_stream:
                 fut = await producer.send(topic, msg)

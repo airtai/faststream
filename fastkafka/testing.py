@@ -14,6 +14,8 @@ import os
 import random
 import shlex
 import multiprocessing
+from collections import namedtuple
+import functools
 
 # [B404:blacklist] Consider possible security implications associated with the subprocess module.
 import requests
@@ -31,17 +33,18 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
 import glob
+from unittest.mock import AsyncMock, MagicMock
 
 import asyncer
-import uvicorn
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from confluent_kafka.admin import AdminClient, NewTopic
 from fastcore.meta import delegates
 from fastcore.foundation import patch
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import tarfile
 from tqdm import tqdm
-import ilock
+import posix_ipc
+import nest_asyncio
 
 # from fastkafka.server import _import_from_string
 from ._components.helpers import combine_params, use_parameters_of
@@ -59,8 +62,6 @@ from ._components._subprocess import terminate_asyncio_process
 from .application import FastKafka, filter_using_signature
 from ._components.helpers import _import_from_string
 from .helpers import in_notebook
-
-import nest_asyncio
 
 # %% ../nbs/999_Test_Utils.ipynb 2
 if in_notebook():
@@ -360,7 +361,7 @@ def mock_AIOKafkaProducer_send() -> Generator[unittest.mock.Mock, None, None]:
     """Mocks **send** method of **AIOKafkaProducer**"""
     with unittest.mock.patch("__main__.AIOKafkaProducer.send") as mock:
 
-        async def _f():
+        async def _f() -> None:
             pass
 
         mock.return_value = asyncio.create_task(_f())
@@ -558,7 +559,7 @@ group.initial.rebalance.delay.ms=0
 
     return kafka_config
 
-# %% ../nbs/999_Test_Utils.ipynb 33
+# %% ../nbs/999_Test_Utils.ipynb 32
 class LocalKafkaBroker:
     """LocalKafkaBroker class, used for running unique kafka brokers in tests to prevent topic clashing.
 
@@ -566,11 +567,24 @@ class LocalKafkaBroker:
         lock (ilock.Lock): Lock used for synchronizing the install process between multiple kafka brokers.
     """
 
-    lock = ilock.ILock("install_lock:LocalKafkaBroker")
+    lock = posix_ipc.Semaphore(
+        "install_lock:LocalKafkaBroker", posix_ipc.O_CREAT, initial_value=1
+    )
+
+    @staticmethod
+    def clear_install_semaphore() -> None:
+        """Clears semaphore used for synchronizing installation of requirements
+
+        Use this function only if the semaphore is being locked due to crashing process (rarely)
+        """
+        LocalKafkaBroker.lock.unlink()
+        LocalKafkaBroker.lock = posix_ipc.Semaphore(
+            "install_lock:LocalKafkaBroker", posix_ipc.O_CREAT, initial_value=1
+        )
 
     @delegates(get_kafka_config_string)  # type: ignore
     @delegates(get_zookeeper_config_string, keep=True)  # type: ignore
-    def __init__(self, **kwargs: Dict[str, Any]):
+    def __init__(self, topics: Iterable[str] = [], **kwargs: Dict[str, Any]):
         """Initialises the LocalKafkaBroker object
 
         Args:
@@ -587,6 +601,7 @@ class LocalKafkaBroker:
         self.kafka_task: Optional[asyncio.subprocess.Process] = None
         self.zookeeper_task: Optional[asyncio.subprocess.Process] = None
         self.started = True
+        self.topics: Iterable[str] = topics
 
     @classmethod
     def _install(cls) -> None:
@@ -628,14 +643,14 @@ class LocalKafkaBroker:
         #         LocalKafkaBroker._install()
         return self.start()
 
-    def __exit__(self, *args, **kwargs):
+    def __exit__(self, *args: Any, **kwargs: Any) -> None:
         self.stop()
 
     async def __aenter__(self) -> str:
         #         LocalKafkaBroker._install()
         return await self._start()
 
-    async def __aexit__(self, *args, **kwargs):
+    async def __aexit__(self, *args: Any, **kwargs: Any) -> None:
         await self._stop()
 
 # %% ../nbs/999_Test_Utils.ipynb 36
@@ -771,9 +786,28 @@ async def _start(self: LocalKafkaBroker) -> str:
         )
 
     listener_port = self.kafka_kwargs.get("listener_port", 9092)
-    retval = f"127.0.0.1:{listener_port}"
-    logger.info(f"Local Kafka broker up and running on {retval}")
-    return retval
+    bootstrap_server = f"127.0.0.1:{listener_port}"
+    logger.info(f"Local Kafka broker up and running on {bootstrap_server}")
+
+    async with asyncer.create_task_group() as tg:
+        processes = [
+            tg.soonify(asyncio.create_subprocess_exec)(
+                "kafka-topics.sh",
+                "--create",
+                f"--topic={topic}",
+                f"--bootstrap-server={bootstrap_server}",
+                stdout=asyncio.subprocess.PIPE,
+                stdin=asyncio.subprocess.PIPE,
+            )
+            for topic in self.topics
+        ]
+
+    return_values = [await process.value.wait() for process in processes]
+
+    if not all(return_value == 0 for return_value in return_values):
+        raise ValueError(f"Could not create missing topics!")
+
+    return bootstrap_server
 
 
 @patch  # type: ignore

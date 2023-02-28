@@ -6,7 +6,7 @@ __all__ = ['logger', 'in_notebook', 'aiokafka2confluent', 'confluent2aiokafka', 
            'source2markdown', 'wait_for_get_url']
 
 # %% ../nbs/009_Helpers.ipynb 2
-def in_notebook():
+def in_notebook() -> bool:
     try:
         from IPython import get_ipython
 
@@ -277,7 +277,7 @@ def create_admin_client(  # type: ignore
 #             - Num partitions
 @delegates(create_admin_client)  # type: ignore
 def create_missing_topics(
-    topic_names: List[str],
+    topic_names: Collection[str],
     *,
     num_partitions: Optional[int] = None,
     replication_factor: Optional[int] = None,
@@ -288,7 +288,7 @@ def create_missing_topics(
     """Create missing topics
 
     Args:
-        topic_names: a list of topic names
+        topic_names: a collection of topic names
         num_partitions: Number of partitions to create
         replication_factor: Replication factor of partitions, or -1 if replica_assignment is used.
         replica_assignment: List of lists with the replication assignment for each new partition.
