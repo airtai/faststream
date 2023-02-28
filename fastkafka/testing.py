@@ -586,7 +586,12 @@ class LocalKafkaBroker:
     @delegates(get_kafka_config_string)  # type: ignore
     @delegates(get_zookeeper_config_string, keep=True)  # type: ignore
     def __init__(
-        self, topics: Iterable[str] = [], retries: int = 0, **kwargs: Dict[str, Any]
+        self,
+        topics: Iterable[str] = [],
+        *,
+        retries: int = 0,
+        apply_nest_asyncio: bool = False,
+        **kwargs: Dict[str, Any],
     ):
         """Initialises the LocalKafkaBroker object
 
@@ -596,12 +601,14 @@ class LocalKafkaBroker:
             listener_port: Port on which the clients (producers and consumers) can connect
             topics: List of topics to create after sucessfull Kafka broker startup
             retries: Number of retries to create kafka and zookeeper services using random
+            apply_nest_asyncio: set to True if running in notebook
             port allocation if the requested port was taken
         """
         self.zookeeper_kwargs = filter_using_signature(
             get_zookeeper_config_string, **kwargs
         )
         self.retries = retries
+        self.apply_nest_asyncio = apply_nest_asyncio
         self.kafka_kwargs = filter_using_signature(get_kafka_config_string, **kwargs)
         self.temporary_directory: Optional[TemporaryDirectory] = None
         self.temporary_directory_path: Optional[Path] = None
@@ -933,13 +940,18 @@ def start(self: LocalKafkaBroker) -> str:
         # start zookeeper and kafka broker in the loop
 
         if loop.is_running():
-            logger.warning(
-                f"{self.__class__.__name__}.start(): ({loop}) is already running!"
-            )
-            logger.warning(
-                f"{self.__class__.__name__}.start(): calling nest_asyncio.apply()"
-            )
-            nest_asyncio.apply(loop)
+            if self.apply_nest_asyncio:
+                logger.warning(
+                    f"{self.__class__.__name__}.start(): ({loop}) is already running!"
+                )
+                logger.warning(
+                    f"{self.__class__.__name__}.start(): calling nest_asyncio.apply()"
+                )
+                nest_asyncio.apply(loop)
+            else:
+                msg = f"{self.__class__.__name__}.start(): ({loop}) is already running! Use 'apply_nest_asyncio=True' when creating 'LocalKafkaBroker' to prevent this."
+                logger.error(msg)
+                raise RuntimeError(msg)
 
         try:
             retval = loop.run_until_complete(self._start())
