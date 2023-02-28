@@ -874,10 +874,14 @@ async def _create_topics(self: LocalKafkaBroker) -> None:
             for topic in self.topics
         ]
 
-    return_values = [await process.value.wait() for process in processes]
-
-    if not all(return_value == 0 for return_value in return_values):
-        raise ValueError(f"Could not create missing topics!")
+    try:
+        return_values = [
+            await asyncio.wait_for(process.value.wait(), 30) for process in processes
+        ]
+        if any(return_value != 0 for return_value in return_values):
+            raise ValueError("Could not create missing topics!")
+    except asyncio.TimeoutError as _:
+        raise ValueError("Timed out while creating missing topics!")
 
 
 @patch  # type: ignore
