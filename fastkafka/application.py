@@ -721,6 +721,7 @@ class FastKafka:
         self._is_shutting_down: bool = False
         self._kafka_consumer_tasks: List[asyncio.Task[Any]] = []
         self._kafka_producer_tasks: List[asyncio.Task[Any]] = []
+        self._running_bg_tasks: List[asyncio.Task[Any]] = []
         self.run = False
 
         # testing functions
@@ -1385,18 +1386,22 @@ async def _shutdown_producers(self: FastKafka) -> None:
 async def _populate_bg_tasks(
     self: FastKafka,
 ) -> None:
-    self._bg_task_group_generator = anyio.create_task_group()
-    self._bg_tasks_group = await self._bg_task_group_generator.__aenter__()
-    for task in self._scheduled_bg_tasks:
-        self._bg_tasks_group.start_soon(task)
+    self._running_bg_tasks = [
+        asyncio.create_task(task()) for task in self._scheduled_bg_tasks
+    ]
 
 
 @patch  # type: ignore
 async def _shutdown_bg_tasks(
     self: FastKafka,
 ) -> None:
-    self._bg_tasks_group.cancel_scope.cancel()  # type: ignore
-    await self._bg_task_group_generator.__aexit__(None, None, None)  # type: ignore
+    [task.cancel() for task in self._running_bg_tasks]
+
+    for task in self._running_bg_tasks:
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
 
 # %% ../nbs/000_FastKafka.ipynb 51
 @patch  # type: ignore
