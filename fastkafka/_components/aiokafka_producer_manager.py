@@ -39,14 +39,11 @@ async def _aiokafka_producer_manager(  # type: ignore
         max_buffer_size=max_buffer_size
     )
 
-    logger.info("_aiokafka_producer_manager(): Starting task group")
-    async with anyio.create_task_group() as task_group:
-        logger.info("_aiokafka_producer_manager(): Starting send_stream")
-        task_group.start_soon(send_message, receive_stream)
-        async with send_stream:
-            yield send_stream
-            logger.info("_aiokafka_producer_manager(): Exiting send_stream")
-        logger.info("_aiokafka_producer_manager(): Exiting task group")
+    logger.info("_aiokafka_producer_manager(): Starting send_stream")
+    asyncio.create_task(send_message(receive_stream))
+    async with send_stream:
+        yield send_stream
+        logger.info("_aiokafka_producer_manager(): Exiting send_stream")
     logger.info("_aiokafka_producer_manager(): Finished.")
 
 # %% ../../nbs/002_ProducerManager.ipynb 11
