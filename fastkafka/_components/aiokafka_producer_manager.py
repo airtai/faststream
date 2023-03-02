@@ -10,7 +10,7 @@ from typing import *
 
 import anyio
 from aiokafka import AIOKafkaProducer
-from anyio.streams.memory import MemoryObjectReceiveStream
+from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 
 from .logger import get_logger
 
@@ -19,17 +19,20 @@ logger = get_logger(__name__)
 
 # %% ../../nbs/002_ProducerManager.ipynb 8
 @asynccontextmanager
-async def _aiokafka_producer_manager(  # type: ignore
-    producer: AIOKafkaProducer, *, max_buffer_size: int = 10_000
-):
+async def _aiokafka_producer_manager(  # type: ignore # Argument 1 to "_aiokafka_producer_manager" becomes "Any" due to an unfollowed import  [no-any-unimported]
+    producer: AIOKafkaProducer,
+    *,
+    max_buffer_size: int = 10_000,
+) -> AsyncGenerator[MemoryObjectSendStream[Any], None]:
     """Write docs
 
     Todo: add batch size if needed
+
     """
 
     logger.info("_aiokafka_producer_manager(): Starting...")
 
-    async def send_message(receive_stream: MemoryObjectReceiveStream) -> Any:
+    async def send_message(receive_stream: MemoryObjectReceiveStream) -> None:
         async with receive_stream:
             async for topic, msg in receive_stream:
                 fut = await producer.send(topic, msg)
@@ -39,14 +42,12 @@ async def _aiokafka_producer_manager(  # type: ignore
         max_buffer_size=max_buffer_size
     )
 
-    logger.info("_aiokafka_producer_manager(): Starting task group")
-    async with anyio.create_task_group() as task_group:
-        logger.info("_aiokafka_producer_manager(): Starting send_stream")
-        task_group.start_soon(send_message, receive_stream)
-        async with send_stream:
-            yield send_stream
-            logger.info("_aiokafka_producer_manager(): Exiting send_stream")
-        logger.info("_aiokafka_producer_manager(): Exiting task group")
+    logger.info("_aiokafka_producer_manager(): Starting send_stream")
+    asyncio.create_task(send_message(receive_stream))
+    async with send_stream:
+        yield send_stream
+        logger.info("_aiokafka_producer_manager(): Exiting send_stream")
+
     logger.info("_aiokafka_producer_manager(): Finished.")
 
 # %% ../../nbs/002_ProducerManager.ipynb 11
