@@ -732,8 +732,9 @@ class FastKafka:
     def set_bootstrap_servers(self, bootstrap_servers: str) -> None:
         self._kafka_config["bootstrap_servers"] = bootstrap_servers
 
-    async def __aenter__(self) -> None:
+    async def __aenter__(self) -> "FastKafka":
         await self.startup()
+        return self
 
     async def __aexit__(
         self,
@@ -1057,7 +1058,6 @@ def produces(
     topic: Optional[str] = None,
     *,
     prefix: str = "to_",
-    producer: Optional[AIOKafkaProducer] = None,
     **kwargs: Dict[str, Any],
 ) -> Callable[[ProduceCallable], ProduceCallable]:
     """Decorator registering the callback called when delivery report for a produced message is received
@@ -1216,7 +1216,7 @@ def produces(
             else topic
         )
 
-        self._producers_store[topic_resolved] = (on_topic, producer, kwargs)
+        self._producers_store[topic_resolved] = (on_topic, None, kwargs)
 
         return produce_decorator(self, on_topic, topic_resolved)
 
@@ -1304,7 +1304,6 @@ async def _shutdown_consumers(
 async def _create_producer(  # type: ignore
     *,
     callback: ProduceCallable,
-    producer: Optional[AIOKafkaProducer],
     default_config: Dict[str, Any],
     override_config: Dict[str, Any],
     producers_list: List[Union[AIOKafkaProducer, AIOKafkaProducerManager]],
@@ -1322,15 +1321,14 @@ async def _create_producer(  # type: ignore
         A producer.
     """
 
-    if producer is None:
-        config = {
-            **filter_using_signature(AIOKafkaProducer, **default_config),
-            **override_config,
-        }
-        producer = AIOKafkaProducer(**config)
-        logger.info(
-            f"_create_producer() : created producer using the config: '{sanitize_kafka_config(**config)}'"
-        )
+    config = {
+        **filter_using_signature(AIOKafkaProducer, **default_config),
+        **override_config,
+    }
+    producer = AIOKafkaProducer(**config)
+    logger.info(
+        f"_create_producer() : created producer using the config: '{sanitize_kafka_config(**config)}'"
+    )
 
     if not iscoroutinefunction(callback):
         producer = AIOKafkaProducerManager(producer)
@@ -1362,7 +1360,6 @@ async def _populate_producers(self: FastKafka) -> None:
             callback,
             await _create_producer(
                 callback=callback,
-                producer=producer,
                 default_config=default_config,
                 override_config=override_config,
                 producers_list=self._producers_list,
@@ -1371,7 +1368,7 @@ async def _populate_producers(self: FastKafka) -> None:
         )
         for topic, (
             callback,
-            producer,
+            _,
             override_config,
         ) in self._producers_store.items()
     }
@@ -1380,6 +1377,20 @@ async def _populate_producers(self: FastKafka) -> None:
 @patch  # type: ignore
 async def _shutdown_producers(self: FastKafka) -> None:
     [await producer.stop() for producer in self._producers_list[::-1]]
+    # Remove references to stale producers
+    self._producers_list = []
+    self._producers_store = {
+        topic: (
+            callback,
+            None,
+            override_config,
+        )
+        for topic, (
+            callback,
+            _,
+            override_config,
+        ) in self._producers_store.items()
+    }
 
 # %% ../nbs/000_FastKafka.ipynb 49
 @patch  # type: ignore
@@ -1442,7 +1453,7 @@ def create_docs(self: FastKafka) -> None:
         asyncapi_path=self._asyncapi_path,
     )
 
-# %% ../nbs/000_FastKafka.ipynb 61
+# %% ../nbs/000_FastKafka.ipynb 62
 class AwaitedMock:
     @staticmethod
     def _await_for(f: Callable[..., Any]) -> Callable[..., Any]:
@@ -1476,7 +1487,7 @@ class AwaitedMock:
                 if inspect.ismethod(f):
                     setattr(self, name, self._await_for(f))
 
-# %% ../nbs/000_FastKafka.ipynb 62
+# %% ../nbs/000_FastKafka.ipynb 63
 @patch  # type: ignore
 def create_mocks(self: FastKafka) -> None:
     """Creates self.mocks as a named tuple mapping a new function obtained by calling the original functions and a mock"""
@@ -1538,7 +1549,7 @@ def create_mocks(self: FastKafka) -> None:
         for name, (f, producer, kwargs) in self._producers_store.items()
     }
 
-# %% ../nbs/000_FastKafka.ipynb 67
+# %% ../nbs/000_FastKafka.ipynb 68
 class Tester(FastKafka):
     def __init__(self, app: Union[FastKafka, List[FastKafka]]):
         self.apps = app if isinstance(app, list) else [app]
@@ -1564,7 +1575,7 @@ class Tester(FastKafka):
     def create_mirrors(self) -> None:
         pass
 
-# %% ../nbs/000_FastKafka.ipynb 69
+# %% ../nbs/000_FastKafka.ipynb 70
 def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(producer_f).return_annotation
 
@@ -1592,7 +1603,7 @@ def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[...,
 
     return mirror_func
 
-# %% ../nbs/000_FastKafka.ipynb 71
+# %% ../nbs/000_FastKafka.ipynb 72
 def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(consumer_f).parameters["msg"]
 
@@ -1611,7 +1622,7 @@ def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[...,
     mirror_func.__signature__ = sig  # type: ignore
     return mirror_func
 
-# %% ../nbs/000_FastKafka.ipynb 73
+# %% ../nbs/000_FastKafka.ipynb 74
 @patch  # type: ignore
 def create_mirrors(self: Tester):
     for app in self.apps:

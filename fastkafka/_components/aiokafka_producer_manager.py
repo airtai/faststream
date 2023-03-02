@@ -10,7 +10,7 @@ from typing import *
 
 import anyio
 from aiokafka import AIOKafkaProducer
-from anyio.streams.memory import MemoryObjectReceiveStream
+from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 
 from .logger import get_logger
 
@@ -19,12 +19,15 @@ logger = get_logger(__name__)
 
 # %% ../../nbs/002_ProducerManager.ipynb 8
 @asynccontextmanager
-async def _aiokafka_producer_manager(  # type: ignore
-    producer: AIOKafkaProducer, *, max_buffer_size: int = 10_000
-):
+async def _aiokafka_producer_manager(  # type: ignore # Argument 1 to "_aiokafka_producer_manager" becomes "Any" due to an unfollowed import  [no-any-unimported]
+    producer: AIOKafkaProducer,
+    *,
+    max_buffer_size: int = 10_000,
+) -> AsyncGenerator[MemoryObjectSendStream[Any], None]:
     """Write docs
 
     Todo: add batch size if needed
+
     """
 
     logger.info("_aiokafka_producer_manager(): Starting...")
@@ -44,6 +47,7 @@ async def _aiokafka_producer_manager(  # type: ignore
     async with send_stream:
         yield send_stream
         logger.info("_aiokafka_producer_manager(): Exiting send_stream")
+
     logger.info("_aiokafka_producer_manager(): Finished.")
 
 # %% ../../nbs/002_ProducerManager.ipynb 11
