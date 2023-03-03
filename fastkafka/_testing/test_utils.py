@@ -31,6 +31,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
 from unittest.mock import AsyncMock, MagicMock
+from IPython.display import IFrame
 
 import asyncer
 import nest_asyncio
@@ -455,9 +456,9 @@ async def display_docs(docs_path: str, port: int = 4000) -> None:
             from google.colab.output import eval_js
 
             proxy = eval_js(f"google.colab.kernel.proxyPort({port})")
-            logger.log("Google colab detected! Proxy adjusted.")
+            logger.info("Google colab detected! Proxy adjusted.")
         except:
             proxy = f"http://localhost:{port}"
         finally:
-            display(IFrame(f"{proxy}", 1000, 700))
+            display(IFrame(f"{proxy}", 1000, 700))  # type: ignore
             await terminate_asyncio_process(process)
