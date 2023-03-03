@@ -14,6 +14,7 @@ import tempfile
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import *
 
 import httpx
@@ -396,29 +397,30 @@ def _generate_async_spec(
 
 # %% ../../nbs/003_AsyncAPI.ipynb 45
 def _install_deps() -> None:
-    cmd = [
-        "npx",
-        "-y",
-        "-p",
-        "@asyncapi/generator",
-        "ag",
-        "https://raw.githubusercontent.com/asyncapi/asyncapi/master/examples/simple.yml",
-        "@asyncapi/html-template",
-        "-o",
-        "/tmp/install_check/docs",  # nosec: B108: [hardcoded_tmp_directory] Probable insecure usage of temp file/directory.
-    ]
+    with TemporaryDirectory() as d:
+        cmd = [
+            "npx",
+            "-y",
+            "-p",
+            "@asyncapi/generator",
+            "ag",
+            "https://raw.githubusercontent.com/asyncapi/asyncapi/master/examples/simple.yml",
+            "@asyncapi/html-template",
+            "-o",
+            d,
+        ]
 
-    p = subprocess.run(  # nosec: B603 subprocess call - check for execution of untrusted input.
-        cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE
-    )
-    if p.returncode == 0:
-        logger.info("AsyncAPI generator installed")
-    else:
-        logger.error("AsyncAPI generator NOT installed!")
-        logger.info(f"Output of '$ {' '.join(cmd)}'{p.stdout.decode()}")
-        raise ValueError(
-            f"AsyncAPI generator NOT installed, used '$ {' '.join(cmd)}'{p.stdout.decode()}"
+        p = subprocess.run(  # nosec: B603 subprocess call - check for execution of untrusted input.
+            cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE
         )
+        if p.returncode == 0:
+            logger.info("AsyncAPI generator installed")
+        else:
+            logger.error("AsyncAPI generator NOT installed!")
+            logger.info(f"Output of '$ {' '.join(cmd)}'{p.stdout.decode()}")
+            raise ValueError(
+                f"AsyncAPI generator NOT installed, used '$ {' '.join(cmd)}'{p.stdout.decode()}"
+            )
 
 
 def _generate_async_docs(

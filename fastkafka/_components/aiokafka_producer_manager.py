@@ -32,7 +32,7 @@ async def _aiokafka_producer_manager(  # type: ignore # Argument 1 to "_aiokafka
 
     logger.info("_aiokafka_producer_manager(): Starting...")
 
-    async def send_message(receive_stream: MemoryObjectReceiveStream) -> None:
+    async def send_message(receive_stream: MemoryObjectReceiveStream) -> Any:
         async with receive_stream:
             async for topic, msg in receive_stream:
                 fut = await producer.send(topic, msg)

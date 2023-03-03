@@ -4,9 +4,11 @@ website:
       - index.ipynb
       - section: Guides
         contents:
-        - guides/Guide_01_Intro.ipynb
-        - guides/Guide_02_First_Steps.ipynb
-        - guides/Guide_03_Authentication.ipynb
+        #- guides/Guide_00_FastKafka_Demo.ipynb
+        
+#         - guides/Guide_01_Intro.ipynb
+#         - guides/Guide_02_First_Steps.ipynb
+#         - guides/Guide_03_Authentication.ipynb
 
 #       - 000_FastKafkaAPI.ipynb
 #       - 001_ProcessingLoop.ipynb
