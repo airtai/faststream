@@ -42,6 +42,21 @@ You can install it with `pip` as usual:
 pip install fastkafka
 ```
 
+## Tutorial
+
+You can start an interactive tutorial in Google Colab by clicking the
+button below or by clicking on the following link:
+
+https://colab.research.google.com/github/airtai/fastkafka/blob/main/nbs/guides/Guide_00_FastKafka_Demo.ipynb
+
+<div>
+
+[![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/airtai/fastkafka/blob/main/nbs/guides/Guide_00_FastKafka_Demo.ipynb)
+
+Open In Colab
+
+</div>
+
 ## Writing server code
 
 Here is an example python script using FastKafka that takes data from a
