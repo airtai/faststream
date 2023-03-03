@@ -189,7 +189,7 @@ class LocalKafkaBroker:
         self,
         topics: Iterable[str] = [],
         *,
-        retries: int = 0,
+        retries: int = 2,
         apply_nest_asyncio: bool = False,
         **kwargs: Dict[str, Any],
     ):
@@ -214,8 +214,12 @@ class LocalKafkaBroker:
         self.temporary_directory_path: Optional[Path] = None
         self.kafka_task: Optional[asyncio.subprocess.Process] = None
         self.zookeeper_task: Optional[asyncio.subprocess.Process] = None
-        self.started = True
+        self._is_started = False
         self.topics: Iterable[str] = topics
+
+    @property
+    def is_started(self) -> bool:
+        return self._is_started
 
     @classmethod
     def _install(cls) -> None:
@@ -507,6 +511,8 @@ async def _start(self: LocalKafkaBroker) -> str:
 
     await self._create_topics()
 
+    self._is_started = True
+
     return bootstrap_server
 
 
@@ -515,6 +521,7 @@ async def _stop(self: LocalKafkaBroker) -> None:
     await terminate_asyncio_process(self.kafka_task)  # type: ignore
     await terminate_asyncio_process(self.zookeeper_task)  # type: ignore
     self.temporary_directory.__exit__(None, None, None)  # type: ignore
+    self._is_started = False
 
 # %% ../../nbs/007_LocalKafkaBroker.ipynb 26
 @patch  # type: ignore
@@ -556,7 +563,6 @@ def start(self: LocalKafkaBroker) -> str:
         try:
             retval = loop.run_until_complete(self._start())
             logger.info(f"{self.__class__}.start(): returning {retval}")
-            self.started = True
             return retval
         except RuntimeError as e:
             logger.warning(
@@ -577,13 +583,12 @@ def stop(self: LocalKafkaBroker) -> None:
     """
     logger.info(f"{self.__class__.__name__}.stop(): entering...")
     try:
-        if not self.started:
+        if not self._is_started:
             raise RuntimeError(
                 "LocalKafkaBroker not started yet, please call LocalKafkaBroker.start() before!"
             )
 
         loop = asyncio.get_event_loop()
-        self.started = False
-        return loop.run_until_complete(self._stop())
+        loop.run_until_complete(self._stop())
     finally:
         logger.info(f"{self.__class__.__name__}.stop(): exited.")

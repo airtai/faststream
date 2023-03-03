@@ -728,6 +728,10 @@ class FastKafka:
         self.mocks = None
         self.awaited_mocks = None
 
+    @property
+    def is_started(self) -> bool:
+        return self._is_started
+
     def set_bootstrap_servers(self, bootstrap_servers: str) -> None:
         self._kafka_config["bootstrap_servers"] = bootstrap_servers
 
@@ -1410,8 +1414,6 @@ async def _shutdown_bg_tasks(
 # %% ../../nbs/000_FastKafka.ipynb 49
 @patch  # type: ignore
 async def startup(self: FastKafka) -> None:
-    self._is_shutting_down = False
-
     def is_shutting_down_f(self: FastKafka = self) -> bool:
         return self._is_shutting_down
 
@@ -1430,6 +1432,9 @@ async def shutdown(self: FastKafka) -> None:
     await self._shutdown_bg_tasks()
     await self._shutdown_consumers()
     await self._shutdown_producers()
+
+    self._is_shutting_down = False
+    self._is_started = False
 
 # %% ../../nbs/000_FastKafka.ipynb 54
 @patch  # type: ignore
