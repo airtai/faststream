@@ -5,29 +5,44 @@ __all__ = ['Tester', 'mirror_producer', 'mirror_consumer']
 
 # %% ../../nbs/008_Tester.ipynb 1
 import asyncio
+from contextlib import asynccontextmanager
 import inspect
 from typing import *
 
 from fastcore.basics import patch
-from pydantic import BaseModel, Field
+from fastcore.meta import delegates
+from pydantic import BaseModel
 
 from .app import FastKafka
 from .._testing.local_broker import LocalKafkaBroker
 
-# %% ../../nbs/008_Tester.ipynb 4
+# %% ../../nbs/008_Tester.ipynb 5
 class Tester(FastKafka):
-    def __init__(self, app: Union[FastKafka, List[FastKafka]]):
+    @delegates(LocalKafkaBroker.__init__)  # type: ignore
+    def __init__(
+        self,
+        app: Union[FastKafka, List[FastKafka]],
+        *,
+        broker: Optional[LocalKafkaBroker] = None,
+        **kwargs: Any
+    ):
         self.apps = app if isinstance(app, list) else [app]
         super().__init__(
             bootstrap_servers=self.apps[0]._kafka_config["bootstrap_servers"]
         )
         self.create_mirrors()
 
+        if broker is None:
+            topics = set().union(*(app.get_topics() for app in self.apps))
+            kwargs["topics"] = topics
+            self.broker = LocalKafkaBroker(**kwargs)
+        else:
+            self.broker = broker
+
     async def startup(self) -> None:
         for app in self.apps:
             app.create_mocks()
             await app.startup()
-
         self.create_mocks()
         await super().startup()
         await asyncio.sleep(3)
@@ -40,7 +55,29 @@ class Tester(FastKafka):
     def create_mirrors(self) -> None:
         pass
 
-# %% ../../nbs/008_Tester.ipynb 6
+    @asynccontextmanager
+    async def _create_ctx(self) -> AsyncGenerator["Tester", None]:
+        bootstrap_server = await self.broker._start()
+        try:
+            self.set_bootstrap_servers(bootstrap_servers=bootstrap_server)
+            for app in self.apps:
+                app.set_bootstrap_servers(bootstrap_server)
+            await self.startup()
+            try:
+                yield self
+            finally:
+                await self.shutdown()
+        finally:
+            await self.broker._stop()
+
+    async def __aenter__(self) -> "Tester":
+        self._ctx = self._create_ctx()
+        return await self._ctx.__aenter__()
+
+    async def __aexit__(self, *args: Any) -> None:
+        await self._ctx.__aexit__(*args)
+
+# %% ../../nbs/008_Tester.ipynb 8
 def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(producer_f).return_annotation
 
@@ -68,7 +105,7 @@ def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[...,
 
     return mirror_func
 
-# %% ../../nbs/008_Tester.ipynb 8
+# %% ../../nbs/008_Tester.ipynb 10
 def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(consumer_f).parameters["msg"]
 
@@ -87,7 +124,7 @@ def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[...,
     mirror_func.__signature__ = sig  # type: ignore
     return mirror_func
 
-# %% ../../nbs/008_Tester.ipynb 10
+# %% ../../nbs/008_Tester.ipynb 12
 @patch  # type: ignore
 def create_mirrors(self: Tester):
     for app in self.apps:
