@@ -3,7 +3,18 @@
 # %% auto 0
 __all__ = ['Tester', 'mirror_producer', 'mirror_consumer']
 
-# %% ../../nbs/008_Tester.ipynb 5
+# %% ../../nbs/008_Tester.ipynb 1
+import asyncio
+import inspect
+from typing import *
+
+from fastcore.basics import patch
+from pydantic import BaseModel, Field
+
+from .app import FastKafka
+from .._testing.local_broker import LocalKafkaBroker
+
+# %% ../../nbs/008_Tester.ipynb 4
 class Tester(FastKafka):
     def __init__(self, app: Union[FastKafka, List[FastKafka]]):
         self.apps = app if isinstance(app, list) else [app]
@@ -29,7 +40,7 @@ class Tester(FastKafka):
     def create_mirrors(self) -> None:
         pass
 
-# %% ../../nbs/008_Tester.ipynb 7
+# %% ../../nbs/008_Tester.ipynb 6
 def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(producer_f).return_annotation
 
@@ -57,7 +68,7 @@ def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[...,
 
     return mirror_func
 
-# %% ../../nbs/008_Tester.ipynb 9
+# %% ../../nbs/008_Tester.ipynb 8
 def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(consumer_f).parameters["msg"]
 
@@ -76,7 +87,7 @@ def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[...,
     mirror_func.__signature__ = sig  # type: ignore
     return mirror_func
 
-# %% ../../nbs/008_Tester.ipynb 11
+# %% ../../nbs/008_Tester.ipynb 10
 @patch  # type: ignore
 def create_mirrors(self: Tester):
     for app in self.apps:
