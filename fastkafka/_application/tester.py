@@ -11,14 +11,14 @@ from typing import *
 
 from fastcore.basics import patch
 from fastcore.meta import delegates
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from .app import FastKafka
 from .._testing.local_broker import LocalKafkaBroker
 
 # %% ../../nbs/008_Tester.ipynb 5
 class Tester(FastKafka):
-    @delegates(LocalKafkaBroker.__init__)
+    @delegates(LocalKafkaBroker.__init__)  # type: ignore
     def __init__(
         self,
         app: Union[FastKafka, List[FastKafka]],
@@ -60,7 +60,8 @@ class Tester(FastKafka):
         bootstrap_server = await self.broker._start()
         try:
             self.set_bootstrap_servers(bootstrap_servers=bootstrap_server)
-            [app.set_bootstrap_servers(bootstrap_server) for app in self.apps]
+            for app in self.apps:
+                app.set_bootstrap_servers(bootstrap_server)
             await self.startup()
             try:
                 yield self
@@ -73,7 +74,7 @@ class Tester(FastKafka):
         self._ctx = self._create_ctx()
         return await self._ctx.__aenter__()
 
-    async def __aexit__(self, *args) -> None:
+    async def __aexit__(self, *args: Any) -> None:
         await self._ctx.__aexit__(*args)
 
 # %% ../../nbs/008_Tester.ipynb 8
