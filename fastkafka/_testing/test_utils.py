@@ -3,7 +3,7 @@
 # %% auto 0
 __all__ = ['logger', 'kafka_server_url', 'kafka_server_port', 'aiokafka_config', 'nb_safe_seed', 'true_after',
            'create_testing_topic', 'create_and_fill_testing_topic', 'mock_AIOKafkaProducer_send', 'change_dir',
-           'run_script_and_cancel']
+           'run_script_and_cancel', 'display_docs']
 
 # %% ../../nbs/997_Test_Utils.ipynb 1
 import asyncio
@@ -31,6 +31,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
 from unittest.mock import AsyncMock, MagicMock
+from IPython.display import IFrame
 
 import asyncer
 import nest_asyncio
@@ -439,3 +440,25 @@ async def run_script_and_cancel(
         output, _ = proc.communicate()
 
         return (proc.returncode, output)
+
+# %% ../../nbs/997_Test_Utils.ipynb 26
+async def display_docs(docs_path: str, port: int = 4000) -> None:
+    with change_dir(docs_path):
+        process = await asyncio.create_subprocess_exec(
+            "python3",
+            "-m",
+            "http.server",
+            f"{port}",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        try:
+            from google.colab.output import eval_js
+
+            proxy = eval_js(f"google.colab.kernel.proxyPort({port})")
+            logger.info("Google colab detected! Proxy adjusted.")
+        except:
+            proxy = f"http://localhost:{port}"
+        finally:
+            display(IFrame(f"{proxy}", 1000, 700))  # type: ignore
+            await terminate_asyncio_process(process)
