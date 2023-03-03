@@ -16,12 +16,31 @@ class IrisInputData(BaseModel):
     )
 
 
-class IrisPredictionData(BaseModel):
+class IrisPrediction(BaseModel):
     species: str = Field(..., example="setosa", description="Predicted species")
     
 from fastkafka.application import FastKafka
 
-kafka_app = FastKafka()
+kafka_brokers = {
+    "localhost": {
+        "url": "localhost",
+        "description": "local development kafka broker",
+        "port": 9092,
+    },
+    "production": {
+        "url": "kafka.airt.ai",
+        "description": "production kafka broker",
+        "port": 9092,
+        "protocol": "kafka-secure",
+        "security": {"type": "plain"},
+    },
+}
+
+kafka_app = FastKafka(
+    title="Iris predictions",
+    kafka_brokers=kafka_brokers,
+    bootstrap_servers="localhost:9092",
+)
 
 iris_species = ["setosa", "versicolor", "virginica"]
 
@@ -36,6 +55,6 @@ async def on_input_data(msg: IrisInputData):
 
 
 @kafka_app.produces(topic="predictions")
-def to_predictions(species_class: int) -> IrisPredictionData:
-    prediction = IrisPredictionData(species=iris_species[species_class])
+def to_predictions(species_class: int) -> IrisPrediction:
+    prediction = IrisPrediction(species=iris_species[species_class])
     return prediction

@@ -32,6 +32,7 @@ from fastkafka.server import (
     run_in_process,
     terminate_asyncio_process,
 )
+from ._testing.local_broker import LocalKafkaBroker
 from .testing import change_dir
 
 # %% ../nbs/004_CLI.ipynb 5
@@ -39,14 +40,13 @@ logger = get_logger(__name__)
 
 # %% ../nbs/004_CLI.ipynb 8
 _app = typer.Typer(help="")
-_run_app = typer.Typer(help="")
+
+# _run_app = typer.Typer(help="")
 # _app.add_typer(_run_app, name="run")
-_docs_app = typer.Typer(
-    help="Collection of functions for managing fastkafka app documentation"
-)
+_docs_app = typer.Typer(help="Commands for managing fastkafka app documentation")
 _app.add_typer(_docs_app, name="docs")
 
-
+# %% ../nbs/004_CLI.ipynb 9
 @_app.command(
     help="Runs Fast Kafka API application",
 )
@@ -66,7 +66,7 @@ def run(
         typer.secho(f"Unexpected internal error: {e}", err=True, fg=typer.colors.RED)
         raise typer.Exit(1)
 
-# %% ../nbs/004_CLI.ipynb 12
+# %% ../nbs/004_CLI.ipynb 13
 @_docs_app.command(
     "install_deps",
     help="Creates documentation for a Fast Kafka API application ",
