@@ -5,28 +5,26 @@ __all__ = ['logger', 'generate_app_in_tmp', 'ServerProcess', 'run_fastkafka_serv
            'run_fastkafka_server', 'run_in_process']
 
 # %% ../nbs/005_FastKafkaServer.ipynb 1
-import importlib
-import sys
 import asyncio
-from typing import *
-from contextlib import contextmanager
-from pathlib import Path
-import threading
-import signal
-from contextlib import ExitStack, contextmanager
-from tempfile import TemporaryDirectory
-
-
+import importlib
 import multiprocessing
-from fastcore.meta import delegates
-from fastcore.basics import patch
-import typer
-import asyncer
+import signal
+import sys
+import threading
+from contextlib import ExitStack, contextmanager
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from typing import *
 
-from .application import FastKafka
-from .testing import change_dir
+import asyncer
+import typer
+from fastcore.basics import patch
+from fastcore.meta import delegates
+
 from ._components.helpers import _import_from_string, generate_app_src
 from ._components.logger import get_logger
+from .application import FastKafka
+from .testing import change_dir
 
 # %% ../nbs/005_FastKafkaServer.ipynb 5
 logger = get_logger(__name__)

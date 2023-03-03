@@ -2,7 +2,7 @@
 
 # %% auto 0
 __all__ = ['logger', 'F', 'in_notebook', 'combine_params', 'delegates_using_docstring', 'use_parameters_of', 'generate_app_src',
-           'ImportFromStringError']
+           'ImportFromStringError', 'filter_using_signature']
 
 # %% ../../nbs/010_Internal_Helpers.ipynb 2
 def in_notebook() -> bool:
@@ -18,18 +18,18 @@ def in_notebook() -> bool:
     return True
 
 # %% ../../nbs/010_Internal_Helpers.ipynb 4
+import importlib
+import sys
 import textwrap
 from functools import wraps
 from inspect import signature
-from typing import *
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import sys
-import importlib
+from typing import *
 
 import docstring_parser
-from fastcore.meta import delegates
 import typer
+from fastcore.meta import delegates
 
 if in_notebook():
     from tqdm.notebook import tqdm, trange
@@ -184,3 +184,9 @@ def _import_from_string(import_str: str) -> Any:
         )
 
     return instance
+
+# %% ../../nbs/010_Internal_Helpers.ipynb 23
+def filter_using_signature(f: Callable, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    """todo: write docs"""
+    param_names = list(signature(f).parameters.keys())
+    return {k: v for k, v in kwargs.items() if k in param_names}
