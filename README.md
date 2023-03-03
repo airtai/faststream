@@ -399,14 +399,6 @@ Notice that the same happens automatically in the
 [`Tester`](https://airtai.github.io/fastkafka/tester.html#tester) as
 shown above.
 
-``` python
-from fastkafka.testing import LocalKafkaBroker
-
-broker = LocalKafkaBroker(apply_nest_asyncio=True)
-
-broker.start()
-```
-
     [INFO] fastkafka._testing.local_broker: LocalKafkaBroker.start(): entering...
     [WARNING] fastkafka._testing.local_broker: LocalKafkaBroker.start(): (<_UnixSelectorEventLoop running=True closed=False debug=False>) is already running!
     [WARNING] fastkafka._testing.local_broker: LocalKafkaBroker.start(): calling nest_asyncio.apply()
@@ -488,10 +480,6 @@ You need to interupt running of the cell above by selecting
 `Runtime->Interupt execution` on the toolbar above.
 
 Finally, we can stop the local Kafka Broker:
-
-``` python
-broker.stop()
-```
 
     [INFO] fastkafka._testing.local_broker: LocalKafkaBroker.stop(): entering...
     [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Terminating the process 127341...
