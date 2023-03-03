@@ -460,5 +460,7 @@ async def display_docs(docs_path: str, port: int = 4000) -> None:
         except:
             proxy = f"http://localhost:{port}"
         finally:
+            await asyncio.sleep(2)
             display(IFrame(f"{proxy}", 1000, 700))  # type: ignore
+            await asyncio.sleep(2)
             await terminate_asyncio_process(process)
