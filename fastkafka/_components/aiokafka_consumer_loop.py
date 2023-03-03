@@ -11,12 +11,12 @@ from datetime import datetime, timedelta
 from os import environ
 from typing import *
 
-from fastcore.meta import delegates
 import anyio
 import asyncer
 from aiokafka import AIOKafkaConsumer
 from aiokafka.structs import ConsumerRecord, TopicPartition
 from anyio.streams.memory import MemoryObjectReceiveStream
+from fastcore.meta import delegates
 from pydantic import BaseModel, Field, HttpUrl, NonNegativeInt
 
 from .logger import get_logger
