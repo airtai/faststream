@@ -22,7 +22,6 @@ from typing import *
 
 import anyio
 import typer
-from fastapi import FastAPI
 
 from ._components.asyncapi import _install_deps
 from ._components.helpers import _import_from_string
