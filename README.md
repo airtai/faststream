@@ -48,7 +48,7 @@ You can start an interactive tutorial in Google Colab by clicking the
 button below:
 
 <a href="https://colab.research.google.com/github/airtai/fastkafka/blob/main/nbs/guides/Guide_00_FastKafka_Demo.ipynb">
-<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" target=”_blank”>
 </a>
 
 ## Writing server code
