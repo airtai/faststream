@@ -24,7 +24,7 @@ class Tester(FastKafka):
         app: Union[FastKafka, List[FastKafka]],
         *,
         broker: Optional[LocalKafkaBroker] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ):
         self.apps = app if isinstance(app, list) else [app]
         super().__init__(
