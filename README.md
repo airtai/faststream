@@ -79,6 +79,7 @@ in Kafka consumers and producers.
 
 ``` python
 from typing import List
+
 from pydantic import BaseModel, Field, NonNegativeInt
 
 
@@ -217,14 +218,14 @@ async def to_predictions(user_id: int, score: float) -> Prediction:
 ## Testing the service
 
 The service can be tested using the
-[`LocalKafkaBroker`](https://airtai.github.io/fastkafka/test_utils.html#localkafkabroker)
-and [`Tester`](https://airtai.github.io/fastkafka/fastkafka.html#tester)
+[`LocalKafkaBroker`](https://airtai.github.io/fastkafka/localkafkabroker.html#localkafkabroker)
+and [`Tester`](https://airtai.github.io/fastkafka/tester.html#tester)
 instances.
 
 ``` python
-from fastkafka.testing import LocalKafkaBroker
 from fastkafka.application import Tester
 from fastkafka.helpers import create_missing_topics
+from fastkafka.testing import LocalKafkaBroker
 ```
 
 ``` python
