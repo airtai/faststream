@@ -26,6 +26,20 @@ channels:
         $ref: '#/components/messages/IrisPredictionData'
 components:
   messages:
+    IrisPredictionData:
+      payload:
+        title: IrisPredictionData
+        type: object
+        properties:
+          species:
+            title: Species
+            description: Predicted species
+            example: setosa
+            type: string
+        required:
+        - species
+        example:
+          species: setosa
     IrisInputData:
       payload:
         title: IrisInputData
@@ -65,19 +79,5 @@ components:
           sepal_width: 0.5
           petal_length: 0.5
           petal_width: 0.5
-    IrisPredictionData:
-      payload:
-        title: IrisPredictionData
-        type: object
-        properties:
-          species:
-            title: Species
-            description: Predicted species
-            example: setosa
-            type: string
-        required:
-        - species
-        example:
-          species: setosa
   schemas: {}
   securitySchemes: {}
