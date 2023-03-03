@@ -221,6 +221,7 @@ async def on_input_data(msg: IrisInputData):
 
     to_predictions(species_class)
 
+
 @kafka_app.produces(topic="predictions")
 def to_predictions(species_class: int) -> IrisPrediction:
     iris_species = ["setosa", "versicolor", "virginica"]
@@ -247,11 +248,10 @@ msg = IrisInputData(
 
 # Start Tester app and create local Kafka broker for testing
 async with Tester(kafka_app) as tester:
-    
     # Send IrisInputData message to input_data topic
     await tester.to_input_data(msg)
-    
-    # Assert that the kafka_app responded with IrisPedictionData in predictions topic
+
+    # Assert that the kafka_app responded with IrisPrediction in predictions topic
     await tester.awaited_mocks.on_predictions.assert_awaited_with(
         IrisPrediction(species="setosa"), timeout=2
     )
@@ -603,3 +603,14 @@ Finally, all messages as defined as subclasses of *BaseModel* are
 documented as well:
 
 ![Kafka\_![Kafka_servers](https://raw.githubusercontent.com/airtai/fastkafka/main/nbs/images/screenshot-kafka-messages.png)](https://raw.githubusercontent.com/airtai/fastkafka/main/nbs/images/screenshot-kafka-messages.png)
+
+## License
+
+FastKafka is licensed under the Apache License 2. 0 A permissive license
+whose main conditions require preservation of copyright and license
+notices. Contributors provide an express grant of patent rights.
+Licensed works, modifications, and larger works may be distributed under
+different terms and without source code.
+
+The full text of the license can be found
+[here](https://raw.githubusercontent.com/airtai/fastkafka/main/LICENSE).
