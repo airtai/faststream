@@ -31,6 +31,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
 from unittest.mock import AsyncMock, MagicMock
+from IPython.display import IFrame
 
 import asyncer
 import nest_asyncio
