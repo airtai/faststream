@@ -16,6 +16,7 @@ from tempfile import TemporaryDirectory
 from typing import *
 
 import asyncer
+import jdk
 import nest_asyncio
 import posix_ipc
 import requests
@@ -329,9 +330,9 @@ def install_java() -> None:
             os.environ["PATH"] = os.environ["PATH"] + f":{potential_jdk_path[0]}/bin"
     else:
         logger.info("Installing Java...")
-        logger.info(" - installing install-jdk...")
-        subprocess.run(["pip", "install", "install-jdk"], check=True)  # nosec
-        import jdk
+        #         logger.info(" - installing install-jdk...")
+        #         subprocess.run(["pip", "install", "install-jdk"], check=True)  # nosec
+        #         import jdk
 
         logger.info(" - installing jdk...")
         jdk_bin_path = jdk.install("11")
