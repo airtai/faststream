@@ -2,7 +2,7 @@
 
 # %% auto 0
 __all__ = ['logger', 'F', 'in_notebook', 'combine_params', 'delegates_using_docstring', 'use_parameters_of', 'generate_app_src',
-           'ImportFromStringError', 'filter_using_signature']
+           'change_dir', 'ImportFromStringError', 'filter_using_signature']
 
 # %% ../../nbs/010_Internal_Helpers.ipynb 2
 def in_notebook() -> bool:
@@ -26,6 +26,8 @@ from inspect import signature
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
+import contextlib
+import os
 
 import docstring_parser
 import typer
@@ -137,6 +139,16 @@ def generate_app_src(out_path: Union[Path, str]) -> None:
         f.write(source)
 
 # %% ../../nbs/010_Internal_Helpers.ipynb 21
+@contextlib.contextmanager
+def change_dir(d: str) -> Generator[None, None, None]:
+    curdir = os.getcwd()
+    os.chdir(d)
+    try:
+        yield
+    finally:
+        os.chdir(curdir)
+
+# %% ../../nbs/010_Internal_Helpers.ipynb 23
 class ImportFromStringError(Exception):
     pass
 
@@ -185,7 +197,7 @@ def _import_from_string(import_str: str) -> Any:
 
     return instance
 
-# %% ../../nbs/010_Internal_Helpers.ipynb 23
+# %% ../../nbs/010_Internal_Helpers.ipynb 25
 def filter_using_signature(f: Callable, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
     """todo: write docs"""
     param_names = list(signature(f).parameters.keys())
