@@ -20,10 +20,10 @@ from pydantic import BaseModel, Field, HttpUrl, NonNegativeInt
 
 from .logger import get_logger
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 6
+# %% ../../nbs/011_ConsumerLoop.ipynb 5
 logger = get_logger(__name__)
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 10
+# %% ../../nbs/011_ConsumerLoop.ipynb 9
 def _create_safe_callback(
     callback: Callable[[BaseModel], Awaitable[None]]
 ) -> Callable[[BaseModel], Awaitable[None]]:
@@ -50,7 +50,7 @@ def _create_safe_callback(
 
     return _safe_callback
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 13
+# %% ../../nbs/011_ConsumerLoop.ipynb 12
 def _prepare_callback(
     callback: Callable[[BaseModel], Union[None, Awaitable[None]]]
 ) -> Callable[[BaseModel], Awaitable[None]]:
@@ -70,7 +70,7 @@ def _prepare_callback(
     )
     return _create_safe_callback(async_callback)
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 15
+# %% ../../nbs/011_ConsumerLoop.ipynb 14
 async def _stream_msgs(  # type: ignore
     msgs: Dict[TopicPartition, bytes],
     send_stream: anyio.streams.memory.MemoryObjectSendStream[Any],
@@ -98,7 +98,7 @@ def _decode_streamed_msgs(  # type: ignore
     decoded_msgs = [msg_type.parse_raw(msg.value.decode("utf-8")) for msg in msgs]
     return decoded_msgs
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 20
+# %% ../../nbs/011_ConsumerLoop.ipynb 19
 async def _streamed_records(
     receive_stream: MemoryObjectReceiveStream,
 ) -> AsyncGenerator[Any, Any]:
@@ -171,12 +171,12 @@ async def _aiokafka_consumer_loop(
                         f"_aiokafka_consumer_loop(): Unexpected exception '{e}' caught and ignored for messages: {msgs}"
                     )
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 25
+# %% ../../nbs/011_ConsumerLoop.ipynb 24
 def sanitize_kafka_config(**kwargs: Any) -> Dict[str, Any]:
     """Sanitize Kafka config"""
     return {k: "*" * len(v) if "pass" in k.lower() else v for k, v in kwargs.items()}
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 27
+# %% ../../nbs/011_ConsumerLoop.ipynb 26
 @delegates(AIOKafkaConsumer)  # type: ignore
 @delegates(_aiokafka_consumer_loop, keep=True)  # type: ignore
 async def aiokafka_consumer_loop(

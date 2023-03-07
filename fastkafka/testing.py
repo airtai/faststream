@@ -6,8 +6,6 @@ __all__ = ['dummy']
 # %% ../nbs/000_Testing_export.ipynb 1
 from ._testing.local_broker import LocalKafkaBroker
 from fastkafka._testing.test_utils import (
-    create_and_fill_testing_topic,
-    create_testing_topic,
     mock_AIOKafkaProducer_send,
     nb_safe_seed,
     run_script_and_cancel,
@@ -19,8 +17,6 @@ __all__ = [
     "LocalKafkaBroker",
     "nb_safe_seed",
     "true_after",
-    "create_testing_topic",
-    "create_and_fill_testing_topic",
     "mock_AIOKafkaProducer_send",
     "run_script_and_cancel",
     "display_docs",

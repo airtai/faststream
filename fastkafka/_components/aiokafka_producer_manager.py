@@ -14,10 +14,10 @@ from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStre
 
 from .logger import get_logger
 
-# %% ../../nbs/012_ProducerManager.ipynb 5
+# %% ../../nbs/012_ProducerManager.ipynb 4
 logger = get_logger(__name__)
 
-# %% ../../nbs/012_ProducerManager.ipynb 7
+# %% ../../nbs/012_ProducerManager.ipynb 6
 @asynccontextmanager
 async def _aiokafka_producer_manager(  # type: ignore # Argument 1 to "_aiokafka_producer_manager" becomes "Any" due to an unfollowed import  [no-any-unimported]
     producer: AIOKafkaProducer,
@@ -50,7 +50,7 @@ async def _aiokafka_producer_manager(  # type: ignore # Argument 1 to "_aiokafka
 
     logger.info("_aiokafka_producer_manager(): Finished.")
 
-# %% ../../nbs/012_ProducerManager.ipynb 10
+# %% ../../nbs/012_ProducerManager.ipynb 9
 class AIOKafkaProducerManager:
     def __init__(self, producer: AIOKafkaProducer, *, max_buffer_size: int = 1_000):  # type: ignore
         self.producer = producer
