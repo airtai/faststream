@@ -6,12 +6,8 @@ __all__ = ['dummy']
 # %% ../nbs/000_Testing_export.ipynb 1
 from ._testing.local_broker import LocalKafkaBroker
 from fastkafka._testing.test_utils import (
-    aiokafka_config,
     create_and_fill_testing_topic,
     create_testing_topic,
-    kafka_server_port,
-    kafka_server_url,
-    logger,
     mock_AIOKafkaProducer_send,
     nb_safe_seed,
     run_script_and_cancel,
@@ -21,10 +17,6 @@ from fastkafka._testing.test_utils import (
 
 __all__ = [
     "LocalKafkaBroker",
-    "logger",
-    "kafka_server_url",
-    "kafka_server_port",
-    "aiokafka_config",
     "nb_safe_seed",
     "true_after",
     "create_testing_topic",

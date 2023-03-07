@@ -17,7 +17,7 @@ from .logger import get_logger
 # %% ../../nbs/012_ProducerManager.ipynb 5
 logger = get_logger(__name__)
 
-# %% ../../nbs/012_ProducerManager.ipynb 8
+# %% ../../nbs/012_ProducerManager.ipynb 7
 @asynccontextmanager
 async def _aiokafka_producer_manager(  # type: ignore # Argument 1 to "_aiokafka_producer_manager" becomes "Any" due to an unfollowed import  [no-any-unimported]
     producer: AIOKafkaProducer,
@@ -50,7 +50,7 @@ async def _aiokafka_producer_manager(  # type: ignore # Argument 1 to "_aiokafka
 
     logger.info("_aiokafka_producer_manager(): Finished.")
 
-# %% ../../nbs/012_ProducerManager.ipynb 11
+# %% ../../nbs/012_ProducerManager.ipynb 10
 class AIOKafkaProducerManager:
     def __init__(self, producer: AIOKafkaProducer, *, max_buffer_size: int = 1_000):  # type: ignore
         self.producer = producer
