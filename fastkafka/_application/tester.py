@@ -77,7 +77,10 @@ class Tester(FastKafka):
     async def __aexit__(self, *args: Any) -> None:
         await self._ctx.__aexit__(*args)
 
-# %% ../../nbs/008_Tester.ipynb 8
+# %% ../../nbs/008_Tester.ipynb 6
+Tester.__module__ = "fastkafka"
+
+# %% ../../nbs/008_Tester.ipynb 9
 def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(producer_f).return_annotation
 
@@ -105,7 +108,7 @@ def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[...,
 
     return mirror_func
 
-# %% ../../nbs/008_Tester.ipynb 10
+# %% ../../nbs/008_Tester.ipynb 11
 def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(consumer_f).parameters["msg"]
 
@@ -124,7 +127,7 @@ def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[...,
     mirror_func.__signature__ = sig  # type: ignore
     return mirror_func
 
-# %% ../../nbs/008_Tester.ipynb 12
+# %% ../../nbs/008_Tester.ipynb 13
 @patch  # type: ignore
 def create_mirrors(self: Tester):
     for app in self.apps:

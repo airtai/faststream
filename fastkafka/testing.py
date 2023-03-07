@@ -39,3 +39,6 @@ __all__ = [
 # %% ../nbs/999_Testing_export.ipynb 2
 def dummy() -> None:
     pass
+
+
+dummy.__module__ = "_dummy"

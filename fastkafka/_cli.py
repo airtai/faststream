@@ -26,7 +26,7 @@ import typer
 from ._components.asyncapi import _install_deps
 from ._components.helpers import _import_from_string
 from ._components.logger import get_logger, supress_timestamps
-from .application import FastKafka
+from . import FastKafka
 from fastkafka.server import (
     run_fastkafka_server,
     run_in_process,

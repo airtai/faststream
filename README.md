@@ -149,7 +149,7 @@ class is initialized with the minimum set of arguments:
   initial cluster metadata
 
 ``` python
-from fastkafka.application import FastKafka
+from fastkafka import FastKafka
 
 kafka_brokers = {
     "localhost": {
@@ -237,7 +237,7 @@ The service can be tested using the
 instances which internally starts Kafka broker and zookeeper.
 
 ``` python
-from fastkafka.application import Tester
+from fastkafka import Tester
 
 msg = IrisInputData(
     sepal_length=0.1,
@@ -551,7 +551,7 @@ From the parameters passed to the application constructor, we get the
 documentation bellow:
 
 ``` python
-from fastkafka.application import FastKafka
+from fastkafka import FastKafka
 
 kafka_brokers = {
     "localhost": {

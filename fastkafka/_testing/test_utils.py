@@ -57,7 +57,7 @@ from fastkafka._components.helpers import (
     use_parameters_of,
 )
 from .._components.logger import get_logger, supress_timestamps
-from ..application import FastKafka
+from .. import FastKafka
 from fastkafka.helpers import (
     consumes_messages,
     create_admin_client,

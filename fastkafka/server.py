@@ -23,7 +23,7 @@ from fastcore.meta import delegates
 
 from ._components.helpers import _import_from_string, generate_app_src
 from ._components.logger import get_logger
-from .application import FastKafka
+from . import FastKafka
 from .testing import change_dir
 
 # %% ../nbs/005_FastKafkaServer.ipynb 5
