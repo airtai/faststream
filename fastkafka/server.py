@@ -41,6 +41,8 @@ def generate_app_in_tmp() -> Generator[str, None, None]:
 
 # %% ../nbs/005_FastKafkaServer.ipynb 9
 class ServerProcess:
+    """Server process"""
+
     def __init__(self, app: str):
         self.app = app
         self.should_exit = False
