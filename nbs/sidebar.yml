@@ -3,10 +3,10 @@ website:
     contents:
       - index.ipynb
       
-#       - section: Guides
-#         contents:
+      - section: Guides
+        contents:
+        - guides/Guide_04_Github_Actions_Workflow.ipynb
 #         - guides/Guide_00_FastKafka_Demo.ipynb
-        
 #         - guides/Guide_01_Intro.ipynb
 #         - guides/Guide_02_First_Steps.ipynb
 #         - guides/Guide_03_Authentication.ipynb
