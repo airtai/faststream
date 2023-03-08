@@ -20,36 +20,11 @@ jobs:
       fail-fast: false
       matrix:
         os:  [ubuntu]
-        version: ["3.8", "3.9", "3.10"]
+        version: ["3.8", "3.9", "3.10", "3.11"]
     runs-on: ${{ matrix.os }}-latest
-    env:
-      # Used in notebooks for testing
-      KAFKA_HOSTNAME: "localhost"
-      KAFKA_PORT: "9092"
     defaults:
       run:
         shell: bash
-    services:
-      zookeeper:
-        image: wurstmeister/zookeeper
-        ports:
-          - 2181:2181
-          - 2888:2888
-          - 3888:3888
-      kafka:
-        image: wurstmeister/kafka
-        env:
-          KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-          KAFKA_LISTENERS: "PLAINTEXT://:9092"
-          KAFKA_CREATE_TOPICS: "training_request:1:1,training_status:1:1,prediction_request:1:1,prediction_status:1:1"
-          KAFKA_ADVERTISED_HOST_NAME: "localhost"
-        ports:
-          - 9092:9092
-        options: >-
-          --health-cmd "kafka-topics.sh --list -zookeeper zookeeper:2181"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - name: Install quarto
         run: |
@@ -63,8 +38,6 @@ jobs:
           npx --version
           npx -y -p @asyncapi/generator ag --version
           npx -y -p @asyncapi/generator ag https://raw.githubusercontent.com/asyncapi/asyncapi/master/examples/simple.yml @asyncapi/html-template -o /tmp/install_check/docs
-#          npm i patch-jest-cache
-#          npx patch-jest-cache
       - name: Run nbdev tests
         uses: fastai/workflows/nbdev-ci@master
         with:

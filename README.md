@@ -237,7 +237,7 @@ The service can be tested using the
 instances which internally starts Kafka broker and zookeeper.
 
 ``` python
-from fastkafka import Tester
+from fastkafka.testing import Tester
 
 msg = IrisInputData(
     sepal_length=0.1,
