@@ -1,5 +1,8 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+
+exclude: 'docker'
+
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: "v4.4.0"
@@ -15,7 +18,7 @@ repos:
   - id: bandit
 
 - repo: https://github.com/returntocorp/semgrep
-  rev: "v1.3.0"
+  rev: "v1.14.0"
   hooks:
     - id: semgrep
       name: Semgrep 

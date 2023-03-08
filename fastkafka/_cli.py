@@ -29,7 +29,6 @@ from ._components.logger import get_logger, supress_timestamps
 from .application import FastKafka
 from fastkafka.server import (
     run_fastkafka_server,
-    run_in_process,
     terminate_asyncio_process,
 )
 from ._testing.local_broker import LocalKafkaBroker

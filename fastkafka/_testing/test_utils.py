@@ -59,8 +59,6 @@ from .._components.logger import get_logger, supress_timestamps
 from ..application import FastKafka
 from fastkafka.helpers import (
     consumes_messages,
-    create_admin_client,
-    create_missing_topics,
     in_notebook,
     produce_messages,
     tqdm,

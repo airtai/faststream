@@ -62,7 +62,6 @@ from fastkafka._components.asyncapi import (
 )
 from .._components.helpers import combine_params, filter_using_signature
 from .._components.logger import get_logger, supress_timestamps
-from ..helpers import create_missing_topics
 
 # %% ../../nbs/014_FastKafka.ipynb 2
 logger = get_logger(__name__)

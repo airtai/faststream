@@ -32,7 +32,7 @@ from .application import FastKafka
 # %% ../nbs/021_FastKafkaServer.ipynb 5
 logger = get_logger(__name__)
 
-# %% ../nbs/021_FastKafkaServer.ipynb 8
+# %% ../nbs/021_FastKafkaServer.ipynb 7
 @contextmanager
 def generate_app_in_tmp() -> Generator[str, None, None]:
     with TemporaryDirectory() as d:
@@ -42,7 +42,7 @@ def generate_app_in_tmp() -> Generator[str, None, None]:
             import_str = f"{src_path.stem}:kafka_app"
             yield import_str
 
-# %% ../nbs/021_FastKafkaServer.ipynb 9
+# %% ../nbs/021_FastKafkaServer.ipynb 8
 class ServerProcess:
     def __init__(self, app: str):
         self.app = app
@@ -80,7 +80,7 @@ class ServerProcess:
         while not self.should_exit:
             await asyncio.sleep(0.1)
 
-# %% ../nbs/021_FastKafkaServer.ipynb 10
+# %% ../nbs/021_FastKafkaServer.ipynb 9
 _app = typer.Typer()
 
 
@@ -93,7 +93,7 @@ def run_fastkafka_server_process(
 ) -> None:
     ServerProcess(app).run()
 
-# %% ../nbs/021_FastKafkaServer.ipynb 12
+# %% ../nbs/021_FastKafkaServer.ipynb 11
 async def terminate_asyncio_process(p: asyncio.subprocess.Process) -> None:
     logger.info(f"terminate_asyncio_process(): Terminating the process {p.pid}...")
     # Check if SIGINT already propagated to process
@@ -122,7 +122,7 @@ async def terminate_asyncio_process(p: asyncio.subprocess.Process) -> None:
     await p.wait()
     logger.warning(f"terminate_asyncio_process(): Process {p.pid} killed!")
 
-# %% ../nbs/021_FastKafkaServer.ipynb 14
+# %% ../nbs/021_FastKafkaServer.ipynb 13
 async def run_fastkafka_server(num_workers: int, app: str) -> None:
     loop = asyncio.get_event_loop()
 
@@ -187,7 +187,7 @@ async def run_fastkafka_server(num_workers: int, app: str) -> None:
         )
         raise typer.Exit(1)
 
-# %% ../nbs/021_FastKafkaServer.ipynb 15
+# %% ../nbs/021_FastKafkaServer.ipynb 14
 @contextmanager
 def run_in_process(
     target: Callable[..., Any]
