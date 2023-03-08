@@ -18,12 +18,8 @@ from typing import *
 import asyncer
 import typer
 
-# from fastcore.meta import delegates
 from fastcore.basics import patch
 
-# from fastkafka.application import FastKafka
-# from fastkafka.testing import change_dir
-# from fastkafka._components.helpers import _import_from_string, generate_app_src
 from .logger import get_logger
 
 # %% ../../nbs/006_Subprocess.ipynb 5
