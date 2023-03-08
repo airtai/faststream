@@ -2,6 +2,20 @@
 
 <!-- do not remove -->
 
+## 0.2.0
+
+### New Features
+
+- Replace kafka container with LocalKafkaBroker ([#112](https://github.com/airtai/fastkafka/issues/112))
+  - - [x] Replace kafka container with LocalKafkaBroker in tests
+- [x] Remove kafka container from tests environment
+- [x] Fix failing tests
+
+### Bugs Squashed
+
+- Fix random failing in CI ([#109](https://github.com/airtai/fastkafka/issues/109))
+
+
 ## 0.1.3
 
 - version update in __init__.py
