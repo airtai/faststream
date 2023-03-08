@@ -2,6 +2,11 @@
 
 <!-- do not remove -->
 
+## 0.1.3
+
+- version update in __init__.py
+
+
 ## 0.1.2
 
 ### New Features
