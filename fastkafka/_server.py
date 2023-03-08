@@ -27,7 +27,7 @@ from fastkafka._components.helpers import (
     change_dir,
 )
 from ._components.logger import get_logger
-from .application import FastKafka
+from ._application.app import FastKafka
 
 # %% ../nbs/021_FastKafkaServer.ipynb 5
 logger = get_logger(__name__)

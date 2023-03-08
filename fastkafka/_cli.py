@@ -26,8 +26,8 @@ import typer
 from ._components.asyncapi import _install_deps
 from ._components.helpers import _import_from_string, change_dir
 from ._components.logger import get_logger, supress_timestamps
-from .application import FastKafka
-from fastkafka.server import (
+from . import FastKafka
+from fastkafka._server import (
     run_fastkafka_server,
     terminate_asyncio_process,
 )

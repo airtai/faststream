@@ -23,7 +23,7 @@ plugins:
         import:
         - https://docs.python.org/3/objects.inv
         options:
-          heading_level: 2
+          heading_level: 4
           show_category_heading: true
           show_root_heading: true
           show_root_toc_entry: true

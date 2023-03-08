@@ -47,7 +47,6 @@ from tqdm import tqdm
 
 from .._components._subprocess import terminate_asyncio_process
 
-# from fastkafka.server import _import_from_string
 from fastkafka._components.helpers import (
     _import_from_string,
     combine_params,
@@ -56,7 +55,7 @@ from fastkafka._components.helpers import (
     change_dir,
 )
 from .._components.logger import get_logger, supress_timestamps
-from ..application import FastKafka
+from .._application.app import FastKafka
 from fastkafka.helpers import (
     consumes_messages,
     in_notebook,

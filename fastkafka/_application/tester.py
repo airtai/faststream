@@ -26,6 +26,11 @@ class Tester(FastKafka):
         broker: Optional[LocalKafkaBroker] = None,
         **kwargs: Any,
     ):
+        """Mirror-like object for testing a FastFafka application
+
+        Can be used as context manager
+
+        """
         self.apps = app if isinstance(app, list) else [app]
         super().__init__(
             bootstrap_servers=self.apps[0]._kafka_config["bootstrap_servers"]
@@ -40,6 +45,7 @@ class Tester(FastKafka):
             self.broker = broker
 
     async def startup(self) -> None:
+        """Starts the Tester"""
         for app in self.apps:
             app.create_mocks()
             await app.startup()
@@ -48,6 +54,7 @@ class Tester(FastKafka):
         await asyncio.sleep(3)
 
     async def shutdown(self) -> None:
+        """Shuts down the Tester"""
         await super().shutdown()
         for app in self.apps[::-1]:
             await app.shutdown()
@@ -76,6 +83,9 @@ class Tester(FastKafka):
 
     async def __aexit__(self, *args: Any) -> None:
         await self._ctx.__aexit__(*args)
+
+
+Tester.__module__ = "fastkafka.testing"
 
 # %% ../../nbs/015_Tester.ipynb 8
 def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[..., Any]:

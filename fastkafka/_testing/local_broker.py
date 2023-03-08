@@ -315,6 +315,9 @@ class LocalKafkaBroker:
     async def __aexit__(self, *args: Any, **kwargs: Any) -> None:
         await self._stop()
 
+
+LocalKafkaBroker.__module__ = "fastkafka.testing"
+
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 16
 def install_java() -> None:
     """Checks if jdk-11 is installed on the machine and installs it if not
