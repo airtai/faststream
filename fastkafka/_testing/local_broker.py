@@ -2,7 +2,7 @@
 
 # %% auto 0
 __all__ = ['logger', 'get_zookeeper_config_string', 'get_kafka_config_string', 'LocalKafkaBroker', 'install_java',
-           'install_kafka', 'get_free_port', 'write_config_and_run']
+           'install_kafka', 'run_and_match', 'get_free_port', 'write_config_and_run']
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 1
 import asyncio
@@ -13,7 +13,9 @@ import subprocess  # nosec - Issue: [B404:blacklist] Consider possible security 
 import tarfile
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from datetime import datetime, timedelta
 from typing import *
+import re
 
 import asyncer
 import jdk
@@ -388,6 +390,44 @@ def _install(cls: LocalKafkaBroker) -> None:
         install_kafka()
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 22
+async def run_and_match(
+    *args: str, timeout: int = 5, pattern: str
+) -> asyncio.subprocess.Process:
+    # Create the subprocess; redirect the standard output
+    # into a pipe.
+
+    proc = await asyncio.create_subprocess_exec(
+        *args,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+
+    # Read one line of output.
+    t = datetime.now()
+    while datetime.now() - t < timedelta(seconds=timeout):
+        try:
+            data = await asyncio.wait_for(proc.stdout.readline(), timeout=1.0)  # type: ignore
+            ddata = data.decode("utf-8")
+
+            if len(re.findall(pattern, ddata)) > 0:
+                # print(f"Matched: {ddata}")
+                return proc
+        except asyncio.exceptions.TimeoutError as e:
+            pass
+
+        if proc.returncode is not None:
+            stdout, stderr = await proc.communicate()
+            dstdout = stdout.decode("utf-8")
+            dstderr = stderr.decode("utf-8")
+            raise RuntimeError(
+                f"stdout={dstdout}, stderr={dstderr}, returncode={proc.returncode}"
+            )
+
+    await terminate_asyncio_process(proc)
+
+    raise TimeoutError()
+
+# %% ../../nbs/001_LocalKafkaBroker.ipynb 24
 def get_free_port() -> str:
     s = socket.socket()
     s.bind(("127.0.0.1", 0))
@@ -433,34 +473,42 @@ async def _start_service(self: LocalKafkaBroker, service: str = "kafka") -> None
     configs_tried: List[Dict[str, Any]] = []
 
     for i in range(self.retries + 1):
-        service_config_path = self.temporary_directory_path / f"{service}.properties"
-        service_task = await write_config_and_run(
-            self.get_service_config_string(
-                service, data_dir=self.temporary_directory_path
-            ),
-            service_config_path,
-            f"{service}-server-start.sh",
-        )
-
         configs_tried = configs_tried + [getattr(self, f"{service}_kwargs").copy()]
-        setattr(self, f"{service}_task", service_task)
 
-        logger.info(f"{service} started, sleeping for 5 seconds...")
-        await asyncio.sleep(5)
+        service_config_path = self.temporary_directory_path / f"{service}.properties"
 
-        if service_task.returncode is None:
-            return
+        with open(service_config_path, "w") as f:
+            f.write(
+                self.get_service_config_string(
+                    service, data_dir=self.temporary_directory_path
+                )
+            )
 
-        logger.info(f"{service} startup falied, generating a new port and retrying...")
-        port = get_free_port()
+        try:
+            service_task = await run_and_match(
+                f"{service}-server-start.sh",
+                str(service_config_path),
+                pattern="INFO \[KafkaServer id=0\] started"
+                if service == "kafka"
+                else "INFO Snapshot taken",
+                timeout=30,
+            )
+        except Exception as e:
+            print(e)
+            logger.info(
+                f"{service} startup falied, generating a new port and retrying..."
+            )
+            port = get_free_port()
+            if service == "zookeeper":
+                self.zookeeper_kwargs["zookeeper_port"] = port
+                self.kafka_kwargs["zookeeper_port"] = port
+            else:
+                self.kafka_kwargs["listener_port"] = port
 
-        if service == "zookeeper":
-            self.zookeeper_kwargs["zookeeper_port"] = port
-            self.kafka_kwargs["zookeeper_port"] = port
+            logger.info(f"port={port}")
         else:
-            self.kafka_kwargs["listener_port"] = port
-
-        logger.info(f"port={port}")
+            setattr(self, f"{service}_task", service_task)
+            return
 
     raise ValueError(f"Could not start {service} with params: {configs_tried}")
 
@@ -531,7 +579,7 @@ async def _stop(self: LocalKafkaBroker) -> None:
     self.temporary_directory.__exit__(None, None, None)  # type: ignore
     self._is_started = False
 
-# %% ../../nbs/001_LocalKafkaBroker.ipynb 25
+# %% ../../nbs/001_LocalKafkaBroker.ipynb 27
 @patch  # type: ignore
 def start(self: LocalKafkaBroker) -> str:
     """Starts a local kafka broker and zookeeper instance synchronously
