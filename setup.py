@@ -54,9 +54,9 @@ setuptools.setup(
     extras_require={ 'dev': dev_requirements },
     dependency_links = cfg.get('dep_links','').split(),
     python_requires  = '>=' + cfg['min_python'],
-    long_description = open('README.md').read(),
+    long_description = open('README.md', encoding="UTF-8").read(),
     long_description_content_type = 'text/markdown',
-    zip_safe = False,
+    zip_saencoding="UTF-8").rfe = False,
     entry_points = {
         'console_scripts': cfg.get('console_scripts','').split(),
         'nbdev': [f'{cfg.get("lib_path")}={cfg.get("lib_path")}._modidx:d']
