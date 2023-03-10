@@ -21,14 +21,13 @@ import typer
 from fastcore.basics import patch
 from fastcore.meta import delegates
 
-from ._application.app import FastKafka
-from ._components.logger import get_logger
-
 from fastkafka._components.helpers import (
     _import_from_string,
-    change_dir,
     generate_app_src,
+    change_dir,
 )
+from ._components.logger import get_logger
+from ._application.app import FastKafka
 
 # %% ../nbs/021_FastKafkaServer.ipynb 5
 logger = get_logger(__name__)
