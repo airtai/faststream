@@ -36,7 +36,7 @@ from confluent_kafka.admin import AdminClient, NewTopic
 from fastcore.meta import delegates
 from IPython.display import Markdown
 
-from ._components.helpers import change_dir, combine_params
+from ._components.helpers import combine_params, change_dir
 from ._components.logger import get_logger, supress_timestamps
 
 # %% ../nbs/999_Helpers.ipynb 6

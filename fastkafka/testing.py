@@ -4,14 +4,15 @@
 __all__ = ['dummy']
 
 # %% ../nbs/000_Testing_export.ipynb 1
-from ._application.tester import Tester
 from ._testing.local_broker import LocalKafkaBroker
+from ._application.tester import Tester
+
 from fastkafka._testing.test_utils import (
-    display_docs,
     mock_AIOKafkaProducer_send,
     nb_safe_seed,
     run_script_and_cancel,
     true_after,
+    display_docs,
 )
 
 __all__ = [

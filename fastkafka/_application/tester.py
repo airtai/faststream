@@ -5,8 +5,8 @@ __all__ = ['Tester', 'mirror_producer', 'mirror_consumer']
 
 # %% ../../nbs/015_Tester.ipynb 1
 import asyncio
-import inspect
 from contextlib import asynccontextmanager
+import inspect
 from typing import *
 
 from fastcore.basics import patch
