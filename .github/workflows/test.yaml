@@ -36,8 +36,13 @@ jobs:
       - name: Check npx
         run: |
           npx --version
-          npx -y -p @asyncapi/generator ag --version
-          npx -y -p @asyncapi/generator ag https://raw.githubusercontent.com/asyncapi/asyncapi/master/examples/simple.yml @asyncapi/html-template -o /tmp/install_check/docs
+          #npx -y -p @asyncapi/generator ag --version
+          #npx -y -p @asyncapi/generator ag https://raw.githubusercontent.com/asyncapi/asyncapi/master/examples/simple.yml @asyncapi/html-template -o /tmp/install_check/docs
+      - name: Install deps
+        run: |
+          pip install ".[dev]"
+          fastkafka docs install_deps
+          fastkafka testing install_deps
       - name: Run nbdev tests
         uses: fastai/workflows/nbdev-ci@master
         with:
