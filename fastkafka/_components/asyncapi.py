@@ -396,7 +396,7 @@ def _generate_async_spec(
             return False
 
 # %% ../../nbs/013_AsyncAPI.ipynb 45
-def _install_deps() -> None:
+def _install_docs_deps() -> None:
     with TemporaryDirectory() as d:
         cmd = [
             "npx",

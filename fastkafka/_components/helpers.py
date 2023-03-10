@@ -4,7 +4,7 @@
 __all__ = ['logger', 'F', 'potential_jdk_path', 'kafka_version', 'kafka_fname', 'kafka_url', 'local_path', 'tgz_path',
            'kafka_path', 'in_notebook', 'combine_params', 'delegates_using_docstring', 'use_parameters_of',
            'generate_app_src', 'change_dir', 'ImportFromStringError', 'filter_using_signature', 'check_java',
-           'install_java', 'check_kafka', 'install_kafka', 'install_deps']
+           'check_kafka']
 
 # %% ../../nbs/998_Internal_Helpers.ipynb 2
 def in_notebook() -> bool:
@@ -223,7 +223,7 @@ def check_java(*, potential_jdk_path: List[Path] = potential_jdk_path) -> bool:
     return False
 
 # %% ../../nbs/998_Internal_Helpers.ipynb 28
-def install_java() -> None:
+def _install_java() -> None:
     """Checks if jdk-11 is installed on the machine and installs it if not
     Returns:
        None
@@ -255,7 +255,7 @@ def check_kafka(kafka_path: Path = kafka_path) -> bool:
     return False
 
 # %% ../../nbs/998_Internal_Helpers.ipynb 31
-def install_kafka(
+def _install_kafka(
     *,
     kafka_url: str = kafka_url,
     local_path: Path = local_path,
@@ -289,6 +289,6 @@ def install_kafka(
         logger.info(f"Kafka installed in {kafka_path}.")
 
 # %% ../../nbs/998_Internal_Helpers.ipynb 33
-def install_deps() -> None:
-    install_java()
-    install_kafka()
+def _install_testing_deps() -> None:
+    _install_java()
+    _install_kafka()
