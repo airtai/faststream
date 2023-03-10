@@ -30,21 +30,20 @@ jobs:
         run: |
           wget -q https://www.quarto.org/download/latest/quarto-linux-amd64.deb
           sudo dpkg -i quarto-linux-amd64.deb
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: Check npx
-        run: |
-          npx --version
-          #npx -y -p @asyncapi/generator ag --version
-          #npx -y -p @asyncapi/generator ag https://raw.githubusercontent.com/asyncapi/asyncapi/master/examples/simple.yml @asyncapi/html-template -o /tmp/install_check/docs
+      - name: Install Python
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
-      - name: Install deps
+        with:
+          python-version: ${{ inputs.version }}
+          cache: "pip"
+          cache-dependency-path: settings.ini      
+      - name: Install project lib
         run: |
           python -m pip install --upgrade pip
           test -f setup.py && pip install -e ".[dev]"
           pip install ".[dev]"
+      - name: Install docs and testing deps
+        run: |
           fastkafka docs install_deps
           fastkafka testing install_deps
       - name: Run nbdev tests
