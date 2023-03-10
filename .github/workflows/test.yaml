@@ -40,6 +40,8 @@ jobs:
           #npx -y -p @asyncapi/generator ag https://raw.githubusercontent.com/asyncapi/asyncapi/master/examples/simple.yml @asyncapi/html-template -o /tmp/install_check/docs
       - name: Install deps
         run: |
+          ls
+          test -f setup.py && pip install -e ".[dev]"
           pip install ".[dev]"
           fastkafka docs install_deps
           fastkafka testing install_deps
