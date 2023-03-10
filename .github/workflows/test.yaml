@@ -38,6 +38,8 @@ jobs:
           npx --version
           #npx -y -p @asyncapi/generator ag --version
           #npx -y -p @asyncapi/generator ag https://raw.githubusercontent.com/asyncapi/asyncapi/master/examples/simple.yml @asyncapi/html-template -o /tmp/install_check/docs
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
       - name: Install deps
         run: |
           ls
