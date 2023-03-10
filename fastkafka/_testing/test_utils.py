@@ -32,7 +32,6 @@ from unittest.mock import AsyncMock, MagicMock
 
 import asyncer
 import nest_asyncio
-import posix_ipc
 
 # [B404:blacklist] Consider possible security implications associated with the subprocess module.
 import requests
