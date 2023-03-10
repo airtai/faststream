@@ -53,7 +53,6 @@ jobs:
           version: ${{ matrix.version }}
       - name: Test building docs with nbdev-mkdocs
         run: |
-          test -f setup.py && pip install -e ".[dev]"
           nbdev_mkdocs docs
           if [ -f "mkdocs/site/index.html" ]; then
             echo "docs built successfully."
