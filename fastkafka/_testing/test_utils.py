@@ -29,7 +29,6 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
 from unittest.mock import AsyncMock, MagicMock
-from IPython.display import IFrame
 
 import asyncer
 import nest_asyncio
@@ -42,20 +41,20 @@ from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from confluent_kafka.admin import AdminClient, NewTopic
 from fastcore.foundation import patch
 from fastcore.meta import delegates
+from IPython.display import IFrame
 from pydantic import BaseModel, Field
 from tqdm import tqdm
 
+from .._application.app import FastKafka
 from .._components._subprocess import terminate_asyncio_process
-
 from fastkafka._components.helpers import (
     _import_from_string,
+    change_dir,
     combine_params,
     filter_using_signature,
     use_parameters_of,
-    change_dir,
 )
 from .._components.logger import get_logger, supress_timestamps
-from .._application.app import FastKafka
 from fastkafka.helpers import (
     consumes_messages,
     in_notebook,

@@ -23,16 +23,16 @@ from typing import *
 import anyio
 import typer
 
-from ._components.asyncapi import _install_docs_deps
-from ._components.helpers import _import_from_string, change_dir
-from ._components.logger import get_logger, supress_timestamps
 from . import FastKafka
-from fastkafka._server import (
-    run_fastkafka_server,
-    terminate_asyncio_process,
+from ._components.asyncapi import _install_docs_deps
+from fastkafka._components.helpers import (
+    _import_from_string,
+    _install_testing_deps,
+    change_dir,
 )
+from ._components.logger import get_logger, supress_timestamps
+from ._server import run_fastkafka_server, terminate_asyncio_process
 from ._testing.local_broker import LocalKafkaBroker
-from ._components.helpers import _install_testing_deps
 
 # %% ../nbs/023_CLI.ipynb 5
 logger = get_logger(__name__)

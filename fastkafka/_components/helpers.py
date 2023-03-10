@@ -20,24 +20,24 @@ def in_notebook() -> bool:
     return True
 
 # %% ../../nbs/998_Internal_Helpers.ipynb 4
+import contextlib
 import importlib
+import os
+import shutil
 import sys
+import tarfile
 import textwrap
 from functools import wraps
 from inspect import signature
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
-import contextlib
-import os
-import tarfile
 
-import jdk
-import shutil
 import docstring_parser
+import jdk
+import requests
 import typer
 from fastcore.meta import delegates
-import requests
 
 if in_notebook():
     from tqdm.notebook import tqdm, trange
