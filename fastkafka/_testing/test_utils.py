@@ -33,7 +33,6 @@ from IPython.display import IFrame
 
 import asyncer
 import nest_asyncio
-import posix_ipc
 
 # [B404:blacklist] Consider possible security implications associated with the subprocess module.
 import requests
