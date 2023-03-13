@@ -30,10 +30,8 @@ jobs:
         run: |
           wget -q https://www.quarto.org/download/latest/quarto-linux-amd64.deb
           sudo dpkg -i quarto-linux-amd64.deb
-      - name: Checkout project
-        uses: actions/checkout@v3
-      - name: Install Python
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ inputs.version }}
           cache: "pip"
