@@ -33,6 +33,19 @@ Kafka-based services with minimal code, making it an ideal choice for
 developers looking to streamline their workflow and accelerate their
 projects.
 
+------------------------------------------------------------------------
+
+#### ⭐ Stay in touch
+
+Please show your support and stay in touch by giving our [GitHub
+repository](https://github.com/airtai/fastkafka/) a star! Your support
+helps us to stay in touch with you and encourages us to continue
+developing and improving the library. Thank you for your support!
+
+
+![Activity](https://repobeats.axiom.co/api/embed/21f36049093d5eb8e5fdad18c3c5d8df5428ca30.svg "Repobeats analytics image")
+
+
 ## Install
 
 FastKafka works on macOS, Linux, and most Unix-style operating systems.
