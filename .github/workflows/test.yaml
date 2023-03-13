@@ -30,50 +30,30 @@ jobs:
         run: |
           wget -q https://www.quarto.org/download/latest/quarto-linux-amd64.deb
           sudo dpkg -i quarto-linux-amd64.deb
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Check npx
+        run: |
+          npx --version
+          #npx -y -p @asyncapi/generator ag --version
+          #npx -y -p @asyncapi/generator ag https://raw.githubusercontent.com/asyncapi/asyncapi/master/examples/simple.yml @asyncapi/html-template -o /tmp/install_check/docs
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ inputs.version }}
-          cache: "pip"
-          cache-dependency-path: settings.ini
-      - name: Install project lib
+      - name: Install deps
         run: |
           python -m pip install --upgrade pip
           test -f setup.py && pip install -e ".[dev]"
           pip install ".[dev]"
-      - name: Install docs and testing deps
-        run: |
           fastkafka docs install_deps
           fastkafka testing install_deps
       - name: Run nbdev tests
-        run: |
-          echo "Check we are starting with clean git checkout"
-          if [[ `git status --porcelain -uno` ]]; then
-            git diff
-            echo "git status is not clean"
-            false
-          fi
-          echo "Trying to strip out notebooks"
-          nbdev_clean
-          echo "Check that strip out was unnecessary"
-          git status -s # display the status to see which nbs need cleaning up
-          if [[ `git status --porcelain -uno` ]]; then
-            git status -uno
-            echo -e "!!! Detected unstripped out notebooks\n!!!Remember to run nbdev_install_hooks"
-            false
-          fi
-          nbdev_export
-          if [[ `git status --porcelain -uno` ]]; then
-            echo "::error::Notebooks and library are not in sync.  Please run nbdev_export."
-            git status -uno
-            git diff
-            exit 1;
-          fi
-          if [ ! $SKIP_TEST ]; then
-            nbdev_test --flags "$FLAGS"
-          fi
+        uses: fastai/workflows/nbdev-ci@master
+        with:
+          version: ${{ matrix.version }}
       - name: Test building docs with nbdev-mkdocs
         run: |
+          test -f setup.py && pip install -e ".[dev]"
           nbdev_mkdocs docs
           if [ -f "mkdocs/site/index.html" ]; then
             echo "docs built successfully."
