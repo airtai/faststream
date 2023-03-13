@@ -48,30 +48,32 @@ jobs:
           fastkafka docs install_deps
           fastkafka testing install_deps
       - name: Run nbdev tests
-        if [[ `git status --porcelain -uno` ]]; then
-          git diff
-          echo "git status is not clean"
-          false
-        fi
-        echo "Trying to strip out notebooks"
-        nbdev_clean
-        echo "Check that strip out was unnecessary"
-        git status -s # display the status to see which nbs need cleaning up
-        if [[ `git status --porcelain -uno` ]]; then
-          git status -uno
-          echo -e "!!! Detected unstripped out notebooks\n!!!Remember to run nbdev_install_hooks"
-          false
-        fi
-        nbdev_export
-        if [[ `git status --porcelain -uno` ]]; then
-          echo "::error::Notebooks and library are not in sync.  Please run nbdev_export."
-          git status -uno
-          git diff
-          exit 1;
-        fi
-        if [ ! $SKIP_TEST ]; then
-          nbdev_test --flags "$FLAGS"
-        fi
+        run: |
+          echo "Check we are starting with clean git checkout"
+          if [[ `git status --porcelain -uno` ]]; then
+            git diff
+            echo "git status is not clean"
+            false
+          fi
+          echo "Trying to strip out notebooks"
+          nbdev_clean
+          echo "Check that strip out was unnecessary"
+          git status -s # display the status to see which nbs need cleaning up
+          if [[ `git status --porcelain -uno` ]]; then
+            git status -uno
+            echo -e "!!! Detected unstripped out notebooks\n!!!Remember to run nbdev_install_hooks"
+            false
+          fi
+          nbdev_export
+          if [[ `git status --porcelain -uno` ]]; then
+            echo "::error::Notebooks and library are not in sync.  Please run nbdev_export."
+            git status -uno
+            git diff
+            exit 1;
+          fi
+          if [ ! $SKIP_TEST ]; then
+            nbdev_test --flags "$FLAGS"
+          fi
       - name: Test building docs with nbdev-mkdocs
         run: |
           nbdev_mkdocs docs
