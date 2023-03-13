@@ -44,7 +44,7 @@ jobs:
           fastkafka testing install_deps
       - name: Run nbdev tests
         run: |
-          nbdev test_nbs
+          nbdev_test
       - name: Test building docs with nbdev-mkdocs
         run: |
           nbdev_mkdocs docs
