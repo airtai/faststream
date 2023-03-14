@@ -21,9 +21,9 @@ Review](https://github.com/airtai/fastkafka//actions/workflows/dependency-review
 
 ------------------------------------------------------------------------
 
-[FastKafka](fastkafka.airt.ai) is a powerful and easy-to-use Python
-library for building asynchronous services that interact with Kafka
-topics. Built on top of [Pydantic](https://docs.pydantic.dev/),
+[FastKafka](https://fastkafka.airt.ai/) is a powerful and easy-to-use
+Python library for building asynchronous services that interact with
+Kafka topics. Built on top of [Pydantic](https://docs.pydantic.dev/),
 [AIOKafka](https://github.com/aio-libs/aiokafka) and
 [AsyncAPI](https://www.asyncapi.com/), FastKafka simplifies the process
 of writing producers and consumers for Kafka topics, handling all the
