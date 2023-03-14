@@ -22,3 +22,10 @@
   <meta name="twitter:description" content="{{ config.site_description }}" />
   <meta name="twitter:image" content="{{ image_url }}" />
 {% endblock %}
+
+{% block outdated %}
+  You're not viewing the latest version.
+  <a href="{{ '../' ~ base_url }}">
+    <strong>Click here to go to latest.</strong>
+  </a>
+{% endblock %}
