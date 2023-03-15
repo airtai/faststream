@@ -18,7 +18,6 @@ from typing import *
 from unittest.mock import AsyncMock, MagicMock
 
 import anyio
-import yaml
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from fastcore.foundation import patch
 from fastcore.meta import delegates
