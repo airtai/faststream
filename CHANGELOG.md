@@ -2,6 +2,26 @@
 
 <!-- do not remove -->
 
+## 0.2.2
+
+### New Features
+
+- Extract JDK and Kafka installation out of LocalKafkaBroker ([#131](https://github.com/airtai/fastkafka/issues/131))
+
+- PyYAML version relaxed ([#119](https://github.com/airtai/fastkafka/pull/119)), thanks to [@davorrunje](https://github.com/davorrunje)
+
+- Replace docker based kafka with local ([#68](https://github.com/airtai/fastkafka/issues/68))
+  - [x] replace docker compose with a simple docker run (standard run_jupyter.sh should do)
+  - [x] replace all tests to use LocalKafkaBroker
+  - [x] update documentation
+
+### Bugs Squashed
+
+- Fix broken link for FastKafka docs in index notebook ([#145](https://github.com/airtai/fastkafka/issues/145))
+
+- Fix encoding issues when loading setup.py on windows OS ([#135](https://github.com/airtai/fastkafka/issues/135))
+
+
 ## 0.2.0
 
 ### New Features
