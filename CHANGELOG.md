@@ -2,6 +2,11 @@
 
 <!-- do not remove -->
 
+## 0.2.3
+
+- Fixed broken links on PyPi index page
+
+
 ## 0.2.2
 
 ### New Features
