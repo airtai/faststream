@@ -33,7 +33,6 @@ from IPython.display import IFrame
 
 import asyncer
 import nest_asyncio
-import posix_ipc
 
 # [B404:blacklist] Consider possible security implications associated with the subprocess module.
 import requests
@@ -56,7 +55,7 @@ from fastkafka._components.helpers import (
 )
 from .._components.logger import get_logger, supress_timestamps
 from .._application.app import FastKafka
-from fastkafka.helpers import (
+from fastkafka._helpers import (
     consumes_messages,
     in_notebook,
     produce_messages,

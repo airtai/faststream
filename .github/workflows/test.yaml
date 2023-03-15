@@ -33,18 +33,20 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - name: Check npx
-        run: |
-          npx --version
-          npx -y -p @asyncapi/generator ag --version
-          npx -y -p @asyncapi/generator ag https://raw.githubusercontent.com/asyncapi/asyncapi/master/examples/simple.yml @asyncapi/html-template -o /tmp/install_check/docs
-      - name: Run nbdev tests
+      - name: Prepare nbdev env
         uses: fastai/workflows/nbdev-ci@master
         with:
           version: ${{ matrix.version }}
+          skip_test: true
+      - name: Install testing deps
+        run: |
+          fastkafka docs install_deps
+          fastkafka testing install_deps
+      - name: Run nbdev tests
+        run: |
+          nbdev_test
       - name: Test building docs with nbdev-mkdocs
         run: |
-          test -f setup.py && pip install -e ".[dev]"
           nbdev_mkdocs docs
           if [ -f "mkdocs/site/index.html" ]; then
             echo "docs built successfully."

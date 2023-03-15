@@ -21,9 +21,9 @@ Review](https://github.com/airtai/fastkafka//actions/workflows/dependency-review
 
 ------------------------------------------------------------------------
 
-[FastKafka](fastkafka.airt.ai) is a powerful and easy-to-use Python
-library for building asynchronous services that interact with Kafka
-topics. Built on top of [Pydantic](https://docs.pydantic.dev/),
+[FastKafka](https://fastkafka.airt.ai/) is a powerful and easy-to-use
+Python library for building asynchronous services that interact with
+Kafka topics. Built on top of [Pydantic](https://docs.pydantic.dev/),
 [AIOKafka](https://github.com/aio-libs/aiokafka) and
 [AsyncAPI](https://www.asyncapi.com/), FastKafka simplifies the process
 of writing producers and consumers for Kafka topics, handling all the
@@ -150,7 +150,7 @@ generating the documentation only and it is not being checked by the
 actual server.
 
 Next, an object of the
-[`FastKafka`](https://airtai.github.io/fastkafka/0.2.2rc3/api/fastkafka/FastKafka/#fastkafka.FastKafka)
+[`FastKafka`](https://airtai.github.io/fastkafka/0.2.2rc5/api/fastkafka/FastKafka/#fastkafka.FastKafka)
 class is initialized with the minimum set of arguments:
 
 - `kafka_brokers`: a dictionary used for generation of documentation
@@ -244,7 +244,7 @@ def to_predictions(species_class: int) -> IrisPrediction:
 ## Testing the service
 
 The service can be tested using the
-[`Tester`](https://airtai.github.io/fastkafka/0.2.2rc3/api/fastkafka/testing/Tester/#fastkafka.testing.Tester)
+[`Tester`](https://airtai.github.io/fastkafka/0.2.2rc5/api/fastkafka/testing/Tester/#fastkafka.testing.Tester)
 instances which internally starts Kafka broker and zookeeper.
 
 ``` python
@@ -405,9 +405,9 @@ def to_predictions(species_class: int) -> IrisPredictionData:
 To run the service, you will need a running Kafka broker on localhost as
 specified by the `bootstrap_servers="localhost:9092"` parameter above.
 We can start the Kafka broker locally using the
-[`LocalKafkaBroker`](https://airtai.github.io/fastkafka/0.2.2rc3/api/fastkafka/testing/LocalKafkaBroker/#fastkafka.testing.LocalKafkaBroker).
+[`LocalKafkaBroker`](https://airtai.github.io/fastkafka/0.2.2rc5/api/fastkafka/testing/LocalKafkaBroker/#fastkafka.testing.LocalKafkaBroker).
 Notice that the same happens automatically in the
-[`Tester`](https://airtai.github.io/fastkafka/0.2.2rc3/api/fastkafka/testing/Tester/#fastkafka.testing.Tester)
+[`Tester`](https://airtai.github.io/fastkafka/0.2.2rc5/api/fastkafka/testing/Tester/#fastkafka.testing.Tester)
 as shown above.
 
     [INFO] fastkafka._testing.local_broker: LocalKafkaBroker.start(): entering...
