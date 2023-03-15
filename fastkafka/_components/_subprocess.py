@@ -4,21 +4,12 @@
 __all__ = ['logger', 'terminate_asyncio_process', 'run_async_subprocesses']
 
 # %% ../../nbs/022_Subprocess.ipynb 1
-# import importlib
-# import sys
 import asyncio
-import multiprocessing
 import signal
-import threading
-from contextlib import ExitStack, contextmanager
-from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import *
 
 import asyncer
 import typer
-
-from fastcore.basics import patch
 
 from .logger import get_logger
 

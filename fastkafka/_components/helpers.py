@@ -25,11 +25,9 @@ import os
 import shutil
 import sys
 import tarfile
-import textwrap
 from functools import wraps
 from inspect import signature
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import *
 
 import docstring_parser
@@ -39,14 +37,14 @@ import typer
 from fastcore.meta import delegates
 
 if in_notebook():
-    from tqdm.notebook import tqdm, trange
+    from tqdm.notebook import tqdm
 else:
-    from tqdm import tqdm, trange
+    from tqdm import tqdm
 
 import nbformat
 from nbconvert import PythonExporter
 
-from .logger import get_logger, supress_timestamps
+from .logger import get_logger
 
 # %% ../../nbs/998_Internal_Helpers.ipynb 6
 logger = get_logger(__name__)

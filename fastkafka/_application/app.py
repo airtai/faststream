@@ -8,37 +8,21 @@ import asyncio
 import functools
 import inspect
 import json
-import signal
-import tempfile
-import threading
-import time
 import types
 from asyncio import iscoroutinefunction  # do not use the version from inspect
 from collections import namedtuple
-from contextlib import asynccontextmanager, contextmanager
-from copy import deepcopy
 from datetime import datetime, timedelta
-from enum import Enum
 from inspect import signature
-from os import environ, getpid
 from pathlib import Path
 from typing import *
-from typing import get_type_hints
 from unittest.mock import AsyncMock, MagicMock
 
 import anyio
-import asyncer
-import confluent_kafka
-import httpx
 import yaml
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
-from confluent_kafka import KafkaError, Message, Producer
-from confluent_kafka.admin import AdminClient, NewTopic
 from fastcore.foundation import patch
 from fastcore.meta import delegates
-from pydantic import BaseModel, EmailStr, Field, HttpUrl, PositiveInt
-from pydantic.json import timedelta_isoformat
-from pydantic.schema import schema
+from pydantic import BaseModel
 
 import fastkafka._components.logger
 
@@ -55,18 +39,17 @@ from fastkafka._components.asyncapi import (
     ContactInfo,
     KafkaBroker,
     KafkaBrokers,
-    KafkaMessage,
     KafkaServiceInfo,
     ProduceCallable,
     export_async_spec,
 )
-from .._components.helpers import combine_params, filter_using_signature
-from .._components.logger import get_logger, supress_timestamps
+from .._components.helpers import filter_using_signature
+from .._components.logger import get_logger
 
-# %% ../../nbs/014_FastKafka.ipynb 2
+# %% ../../nbs/014_FastKafka.ipynb 3
 logger = get_logger(__name__)
 
-# %% ../../nbs/014_FastKafka.ipynb 8
+# %% ../../nbs/014_FastKafka.ipynb 9
 @delegates(AIOKafkaConsumer)  # type: ignore
 @delegates(AIOKafkaProducer, keep=True)  # type: ignore
 def _get_kafka_config(
@@ -339,7 +322,7 @@ def _get_kafka_config(
 
     return retval
 
-# %% ../../nbs/014_FastKafka.ipynb 13
+# %% ../../nbs/014_FastKafka.ipynb 14
 def _get_kafka_brokers(kafka_brokers: Optional[Dict[str, Any]] = None) -> KafkaBrokers:
     """Get Kafka brokers
 
@@ -369,7 +352,7 @@ def _get_kafka_brokers(kafka_brokers: Optional[Dict[str, Any]] = None) -> KafkaB
 
     return retval
 
-# %% ../../nbs/014_FastKafka.ipynb 15
+# %% ../../nbs/014_FastKafka.ipynb 16
 def _get_topic_name(
     topic_callable: Union[ConsumeCallable, ProduceCallable], prefix: str = "on_"
 ) -> str:
@@ -388,7 +371,7 @@ def _get_topic_name(
 
     return topic
 
-# %% ../../nbs/014_FastKafka.ipynb 17
+# %% ../../nbs/014_FastKafka.ipynb 18
 def _get_contact_info(
     name: str = "Author",
     url: str = "https://www.google.com",
@@ -396,7 +379,7 @@ def _get_contact_info(
 ) -> ContactInfo:
     return ContactInfo(name=name, url=url, email=email)
 
-# %% ../../nbs/014_FastKafka.ipynb 19
+# %% ../../nbs/014_FastKafka.ipynb 20
 class FastKafka:
     @delegates(_get_kafka_config)  # type: ignore
     def __init__(
@@ -806,10 +789,10 @@ class FastKafka:
     async def _shutdown_bg_tasks(self) -> None:
         raise NotImplementedError
 
-# %% ../../nbs/014_FastKafka.ipynb 20
+# %% ../../nbs/014_FastKafka.ipynb 21
 FastKafka.__module__ = "fastkafka"
 
-# %% ../../nbs/014_FastKafka.ipynb 25
+# %% ../../nbs/014_FastKafka.ipynb 26
 @patch  # type: ignore
 @delegates(AIOKafkaConsumer)  # type: ignore
 def consumes(
@@ -1022,7 +1005,7 @@ def consumes(
 
     return _decorator
 
-# %% ../../nbs/014_FastKafka.ipynb 29
+# %% ../../nbs/014_FastKafka.ipynb 30
 def _to_json_utf8(o: Any) -> bytes:
     """Converts to JSON and then encodes with UTF-8"""
     if hasattr(o, "json"):
@@ -1030,7 +1013,7 @@ def _to_json_utf8(o: Any) -> bytes:
     else:
         return json.dumps(o).encode("utf-8")
 
-# %% ../../nbs/014_FastKafka.ipynb 31
+# %% ../../nbs/014_FastKafka.ipynb 32
 def produce_decorator(
     self: FastKafka, func: ProduceCallable, topic: str
 ) -> ProduceCallable:
@@ -1055,7 +1038,7 @@ def produce_decorator(
 
     return _produce_async if iscoroutinefunction(func) else _produce_sync  # type: ignore
 
-# %% ../../nbs/014_FastKafka.ipynb 33
+# %% ../../nbs/014_FastKafka.ipynb 34
 @patch  # type: ignore
 @delegates(AIOKafkaProducer)  # type: ignore
 def produces(
@@ -1227,14 +1210,14 @@ def produces(
 
     return _decorator
 
-# %% ../../nbs/014_FastKafka.ipynb 37
+# %% ../../nbs/014_FastKafka.ipynb 38
 @patch  # type: ignore
 def get_topics(self: FastKafka) -> Iterable[str]:
     produce_topics = set(self._producers_store.keys())
     consume_topics = set(self._consumers_store.keys())
     return consume_topics.union(produce_topics)
 
-# %% ../../nbs/014_FastKafka.ipynb 39
+# %% ../../nbs/014_FastKafka.ipynb 40
 @patch  # type: ignore
 def run_in_background(
     self: FastKafka,
@@ -1268,7 +1251,7 @@ def run_in_background(
 
     return _decorator
 
-# %% ../../nbs/014_FastKafka.ipynb 43
+# %% ../../nbs/014_FastKafka.ipynb 44
 @patch  # type: ignore
 def _populate_consumers(
     self: FastKafka,
@@ -1298,7 +1281,7 @@ async def _shutdown_consumers(
     if self._kafka_consumer_tasks:
         await asyncio.wait(self._kafka_consumer_tasks)
 
-# %% ../../nbs/014_FastKafka.ipynb 45
+# %% ../../nbs/014_FastKafka.ipynb 46
 # TODO: Add passing of vars
 async def _create_producer(  # type: ignore
     *,
@@ -1391,7 +1374,7 @@ async def _shutdown_producers(self: FastKafka) -> None:
         ) in self._producers_store.items()
     }
 
-# %% ../../nbs/014_FastKafka.ipynb 47
+# %% ../../nbs/014_FastKafka.ipynb 48
 @patch  # type: ignore
 async def _populate_bg_tasks(
     self: FastKafka,
@@ -1413,7 +1396,7 @@ async def _shutdown_bg_tasks(
         except asyncio.CancelledError:
             pass
 
-# %% ../../nbs/014_FastKafka.ipynb 49
+# %% ../../nbs/014_FastKafka.ipynb 50
 @patch  # type: ignore
 async def startup(self: FastKafka) -> None:
     def is_shutting_down_f(self: FastKafka = self) -> bool:
@@ -1438,7 +1421,7 @@ async def shutdown(self: FastKafka) -> None:
     self._is_shutting_down = False
     self._is_started = False
 
-# %% ../../nbs/014_FastKafka.ipynb 54
+# %% ../../nbs/014_FastKafka.ipynb 55
 @patch  # type: ignore
 def create_docs(self: FastKafka) -> None:
     export_async_spec(
@@ -1453,7 +1436,7 @@ def create_docs(self: FastKafka) -> None:
         asyncapi_path=self._asyncapi_path,
     )
 
-# %% ../../nbs/014_FastKafka.ipynb 58
+# %% ../../nbs/014_FastKafka.ipynb 59
 class AwaitedMock:
     @staticmethod
     def _await_for(f: Callable[..., Any]) -> Callable[..., Any]:
@@ -1487,7 +1470,7 @@ class AwaitedMock:
                 if inspect.ismethod(f):
                     setattr(self, name, self._await_for(f))
 
-# %% ../../nbs/014_FastKafka.ipynb 59
+# %% ../../nbs/014_FastKafka.ipynb 60
 @patch  # type: ignore
 def create_mocks(self: FastKafka) -> None:
     """Creates self.mocks as a named tuple mapping a new function obtained by calling the original functions and a mock"""
