@@ -33,7 +33,6 @@ requirements = [
     "tqdm>=4.62",
     "docstring-parser>=0.15",
     "typer>=0.7.0",
-    "PyYAML>=5.3.1"
 ]
 test_requirements = [
     "install-jdk==0.3.0",
@@ -41,7 +40,10 @@ test_requirements = [
     "ipywidgets>=8.0",
     "requests>=2.20",
 ]
-docs_requirements = ["aiohttp>=3.8.4"]
+docs_requirements = [
+    "PyYAML>=5.3.1",
+    "aiohttp>=3.8.4"
+]
 
 min_python = cfg['min_python']
 lic = licenses.get(cfg['license'].lower(), (cfg['license'], None))
