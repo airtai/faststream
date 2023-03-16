@@ -30,16 +30,16 @@ requirements = [
     "aiokafka>=0.8.0",
     "fastcore>=1.5.27",
     "asyncer>=0.0.2",
-    "requests>=2.28.1",
     "tqdm>=4.62",
     "docstring-parser>=0.15",
-    "install-jdk==0.3.0",
     "typer>=0.7.0",
     "nbconvert>=7.2.9",
     "nbformat>=5.7.3",
     "PyYAML>=5.3.1"
 ]
 test_requirements = [
+    "install-jdk==0.3.0",
+    "requests>=2.28.1",
     "nest-asyncio>=1.5.6",
     "ipywidgets>=8.0",
     "requests>=2.20",
@@ -49,7 +49,7 @@ docs_requirements = ["aiohttp>=3.8.4"]
 min_python = cfg['min_python']
 lic = licenses.get(cfg['license'].lower(), (cfg['license'], None))
 
-dev_requirements = test_requirements + docs_requirements + [
+dev_requirements = [
     "nbdev-mkdocs==0.2.1rc0",
     "mypy==1.0.1",
     "pre-commit==3.0.4",
@@ -86,7 +86,7 @@ setuptools.setup(
     packages = setuptools.find_packages(),
     include_package_data = True,
     install_requires = requirements,
-    extras_require={ 'dev': dev_requirements, "test": test_requirements, "docs": docs_requirements },
+    extras_require={ 'dev': dev_requirements + test_requirements + docs_requirements, "test": test_requirements, "docs": docs_requirements },
     dependency_links = cfg.get('dep_links','').split(),
     python_requires  = '>=' + cfg['min_python'],
     long_description = open('README.md', encoding="UTF-8").read(),
