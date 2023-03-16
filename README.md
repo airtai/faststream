@@ -47,10 +47,28 @@ developing and improving the library. Thank you for your support!
 ## Install
 
 FastKafka works on macOS, Linux, and most Unix-style operating systems.
-You can install it with `pip` as usual:
+You can install base version of `fastkafka` with `pip` as usual:
 
 ``` sh
 pip install fastkafka
+```
+
+To install fastkafka with testing features please use:
+
+``` sh
+pip install fastkafka[test]
+```
+
+To install fastkafka with asyncapi docs please use:
+
+``` sh
+pip install fastkafka[docs]
+```
+
+To install fastkafka with all the features please use:
+
+``` sh
+pip install fastkafka[test,docs]
 ```
 
 ## Tutorial
@@ -116,7 +134,7 @@ These message classes will be used to parse and validate incoming data
 in Kafka consumers and producers.
 
 ``` python
-from pydantic import BaseModel, NonNegativeFloat, Field
+from pydantic import BaseModel, Field, NonNegativeFloat
 
 
 class IrisInputData(BaseModel):

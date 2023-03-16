@@ -8,9 +8,7 @@ __all__ = ['logger', 'aiokafka2confluent', 'confluent2aiokafka', 'produce_messag
 import asyncio
 import inspect
 import json
-import os
 import textwrap
-import time
 from datetime import datetime, timedelta
 from typing import *
 
@@ -19,18 +17,17 @@ import aiokafka
 import anyio
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from aiokafka.helpers import create_ssl_context
-from confluent_kafka.admin import AdminClient, NewTopic
 from fastcore.meta import delegates
 from IPython.display import Markdown
 
-from ._components.helpers import combine_params, change_dir, in_notebook
-from ._components.logger import get_logger, supress_timestamps
+from ._components.helpers import in_notebook
+from ._components.logger import get_logger
 
 # %% ../nbs/999_Helpers.ipynb 4
 if in_notebook():
-    from tqdm.notebook import tqdm, trange
+    from tqdm.notebook import tqdm
 else:
-    from tqdm import tqdm, trange
+    from tqdm import tqdm
 
 # %% ../nbs/999_Helpers.ipynb 6
 logger = get_logger(__name__)

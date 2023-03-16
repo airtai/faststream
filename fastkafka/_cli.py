@@ -5,34 +5,23 @@ __all__ = ['logger', 'run', 'docs_install_deps', 'generate_docs', 'serve_docs', 
 
 # %% ../nbs/023_CLI.ipynb 1
 import asyncio
-import copy
-import importlib
 import multiprocessing
 import signal
 import socketserver
-import sys
-import threading
-import time
-from contextlib import contextmanager
-from http.server import HTTPServer, SimpleHTTPRequestHandler
-from os import getpid
-from pathlib import Path
+from http.server import SimpleHTTPRequestHandler
 from types import FrameType
 from typing import *
 
-import anyio
 import typer
 
-from . import FastKafka
 from ._components.asyncapi import _install_docs_deps
 from fastkafka._components.helpers import (
     _import_from_string,
     _install_testing_deps,
     change_dir,
 )
-from ._components.logger import get_logger, supress_timestamps
-from ._server import run_fastkafka_server, terminate_asyncio_process
-from ._testing.local_broker import LocalKafkaBroker
+from ._components.logger import get_logger
+from ._server import run_fastkafka_server
 
 # %% ../nbs/023_CLI.ipynb 5
 logger = get_logger(__name__)

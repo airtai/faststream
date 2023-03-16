@@ -6,10 +6,8 @@ __all__ = ['logger', 'get_zookeeper_config_string', 'get_kafka_config_string', '
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 1
 import asyncio
-import os
 import re
 import socket
-import subprocess  # nosec - Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
 from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -27,13 +25,13 @@ from fastkafka._components.helpers import (
     filter_using_signature,
     in_notebook,
 )
-from .._components.logger import get_logger, supress_timestamps
+from .._components.logger import get_logger
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 3
 if in_notebook():
-    from tqdm.notebook import tqdm, trange
+    from tqdm.notebook import tqdm
 else:
-    from tqdm import tqdm, trange
+    from tqdm import tqdm
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 4
 logger = get_logger(__name__)
