@@ -46,10 +46,9 @@ def _install_java() -> None:
     try:
         import jdk
     except Exception as e:
-        logger.error(
-            "Please install test version of fastkafka using 'pip install fastkafka[test]' command"
-        )
-        raise e
+        msg = "Please install test version of fastkafka using 'pip install fastkafka[test]' command"
+        logger.error(msg)
+        raise RuntimeError(msg)
 
     if not check_java():
         logger.info("Installing Java...")
@@ -92,10 +91,9 @@ def _install_kafka(
     try:
         import requests
     except Exception as e:
-        logger.error(
-            "Please install test version of fastkafka using 'pip install fastkafka[test]' command"
-        )
-        raise e
+        msg = "Please install test version of fastkafka using 'pip install fastkafka[test]' command"
+        logger.error(msg)
+        raise RuntimeError(msg)
 
     if not check_kafka():
         logger.info("Installing Kafka...")

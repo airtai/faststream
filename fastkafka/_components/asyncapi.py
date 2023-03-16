@@ -351,10 +351,9 @@ def yaml_file_cmp(file_1: Union[Path, str], file_2: Union[Path, str]) -> bool:
     try:
         import yaml
     except Exception as e:
-        logger.error(
-            "Please install test version of fastkafka using 'pip install fastkafka[docs]' command"
-        )
-        raise e
+        msg = "Please install docs version of fastkafka using 'pip install fastkafka[docs]' command"
+        logger.error(msg)
+        raise RuntimeError(msg)
 
     def _read(f: Union[Path, str]) -> Dict[str, Any]:
         with open(f) as stream:
@@ -376,10 +375,9 @@ def _generate_async_spec(
     try:
         import yaml
     except Exception as e:
-        logger.error(
-            "Please install test version of fastkafka using 'pip install fastkafka[docs]' command"
-        )
-        raise e
+        msg = "Please install docs version of fastkafka using 'pip install fastkafka[docs]' command"
+        logger.error(msg)
+        raise RuntimeError(msg)
 
     # generate spec file
     asyncapi_schema = _get_asyncapi_schema(
