@@ -40,8 +40,6 @@ test_requirements = [
     "nest-asyncio>=1.5.6",
     "ipywidgets>=8.0",
     "requests>=2.20",
-    "nbconvert>=7.2.9",
-    "nbformat>=5.7.3",
 ]
 docs_requirements = ["aiohttp>=3.8.4"]
 
@@ -49,6 +47,8 @@ min_python = cfg['min_python']
 lic = licenses.get(cfg['license'].lower(), (cfg['license'], None))
 
 dev_requirements = [
+    "nbconvert>=7.2.9",
+    "nbformat>=5.7.3",
     "nbdev-mkdocs==0.2.1rc0",
     "mypy==1.0.1",
     "pre-commit==3.0.4",

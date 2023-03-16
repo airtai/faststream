@@ -13,11 +13,6 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
 
-import jdk
-import nbformat
-import requests
-from nbconvert import PythonExporter
-
 from .helpers import change_dir, in_notebook
 from .logger import get_logger
 
@@ -48,6 +43,14 @@ def _install_java() -> None:
     Returns:
        None
     """
+    try:
+        import jdk
+    except Exception as e:
+        logger.error(
+            "Please install test version of fastkafka using 'pip install fastkafka[test]' command"
+        )
+        raise e
+
     if not check_java():
         logger.info("Installing Java...")
         logger.info(" - installing jdk...")
@@ -86,6 +89,14 @@ def _install_kafka(
     Returns:
        None
     """
+    try:
+        import requests
+    except Exception as e:
+        logger.error(
+            "Please install test version of fastkafka using 'pip install fastkafka[test]' command"
+        )
+        raise e
+
     if not check_kafka():
         logger.info("Installing Kafka...")
         local_path.mkdir(exist_ok=True, parents=True)
@@ -116,6 +127,9 @@ def _install_testing_deps() -> None:
 
 # %% ../../nbs/098_Test_Dependencies.ipynb 15
 def generate_app_src(out_path: Union[Path, str]) -> None:
+    import nbformat
+    from nbconvert import PythonExporter
+
     path = Path("099_Test_Service.ipynb")
     if not path.exists():
         path = Path("..") / "099_Test_Service.ipynb"
