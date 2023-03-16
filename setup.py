@@ -33,16 +33,15 @@ requirements = [
     "tqdm>=4.62",
     "docstring-parser>=0.15",
     "typer>=0.7.0",
-    "nbconvert>=7.2.9",
-    "nbformat>=5.7.3",
     "PyYAML>=5.3.1"
 ]
 test_requirements = [
     "install-jdk==0.3.0",
-    "requests>=2.28.1",
     "nest-asyncio>=1.5.6",
     "ipywidgets>=8.0",
     "requests>=2.20",
+    "nbconvert>=7.2.9",
+    "nbformat>=5.7.3",
 ]
 docs_requirements = ["aiohttp>=3.8.4"]
 

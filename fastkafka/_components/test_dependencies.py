@@ -2,19 +2,23 @@
 
 # %% auto 0
 __all__ = ['logger', 'kafka_version', 'kafka_fname', 'kafka_url', 'local_path', 'tgz_path', 'kafka_path', 'check_java',
-           'check_kafka']
+           'check_kafka', 'generate_app_src', 'generate_app_in_tmp']
 
 # %% ../../nbs/098_Test_Dependencies.ipynb 2
 import shutil
 import tarfile
+from contextlib import contextmanager
 from os import environ
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import *
 
 import jdk
+import nbformat
 import requests
+from nbconvert import PythonExporter
 
-from .helpers import in_notebook
+from .helpers import change_dir, in_notebook
 from .logger import get_logger
 
 if in_notebook():
@@ -109,3 +113,29 @@ def _install_kafka(
 def _install_testing_deps() -> None:
     _install_java()
     _install_kafka()
+
+# %% ../../nbs/098_Test_Dependencies.ipynb 15
+def generate_app_src(out_path: Union[Path, str]) -> None:
+    path = Path("099_Test_Service.ipynb")
+    if not path.exists():
+        path = Path("..") / "099_Test_Service.ipynb"
+    if not path.exists():
+        raise ValueError(f"Path '{path.resolve()}' does not exists.")
+
+    with open(path, "r") as f:
+        notebook = nbformat.reads(f.read(), nbformat.NO_CONVERT)
+        exporter = PythonExporter()
+        source, _ = exporter.from_notebook_node(notebook)
+
+    with open(out_path, "w") as f:
+        f.write(source)
+
+# %% ../../nbs/098_Test_Dependencies.ipynb 17
+@contextmanager
+def generate_app_in_tmp() -> Generator[str, None, None]:
+    with TemporaryDirectory() as d:
+        src_path = Path(d) / "main.py"
+        generate_app_src(src_path)
+        with change_dir(d):
+            import_str = f"{src_path.stem}:kafka_app"
+            yield import_str
