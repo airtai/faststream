@@ -15,12 +15,9 @@ from typing import *
 import typer
 
 from ._components.asyncapi import _install_docs_deps
-from fastkafka._components.helpers import (
-    _import_from_string,
-    _install_testing_deps,
-    change_dir,
-)
+from ._components.helpers import _import_from_string, change_dir
 from ._components.logger import get_logger
+from ._components.test_dependencies import _install_testing_deps
 from ._server import run_fastkafka_server
 
 # %% ../nbs/023_CLI.ipynb 5

@@ -19,13 +19,9 @@ from fastcore.basics import patch
 from fastcore.meta import delegates
 
 from .._components._subprocess import terminate_asyncio_process
-from fastkafka._components.helpers import (
-    check_java,
-    check_kafka,
-    filter_using_signature,
-    in_notebook,
-)
+from .._components.helpers import filter_using_signature, in_notebook
 from .._components.logger import get_logger
+from .._components.test_dependencies import check_java, check_kafka
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 3
 if in_notebook():
