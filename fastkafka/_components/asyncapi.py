@@ -6,20 +6,17 @@ __all__ = ['logger', 'ConsumeCallable', 'ProduceCallable', 'sec_scheme_name_mapp
            'yaml_file_cmp', 'export_async_spec']
 
 # %% ../../nbs/013_AsyncAPI.ipynb 1
-import filecmp
 import json
 import shutil
 import subprocess  # nosec: B404: Consider possible security implications associated with the subprocess module.
 import tempfile
-from datetime import datetime, timedelta
+from datetime import timedelta
 from enum import Enum
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
 
-import httpx
-import yaml
-from pydantic import BaseModel, EmailStr, Field, HttpUrl, PositiveInt
+from pydantic import BaseModel, Field, HttpUrl
 from pydantic.json import timedelta_isoformat
 from pydantic.schema import schema
 
@@ -30,14 +27,14 @@ fastkafka._components.logger.should_supress_timestamps = True
 import fastkafka
 from .logger import get_logger
 
-# %% ../../nbs/013_AsyncAPI.ipynb 2
+# %% ../../nbs/013_AsyncAPI.ipynb 3
 logger = get_logger(__name__)
 
-# %% ../../nbs/013_AsyncAPI.ipynb 4
+# %% ../../nbs/013_AsyncAPI.ipynb 5
 ConsumeCallable = Callable[[BaseModel], Union[Awaitable[None], None]]
 ProduceCallable = Callable[..., Union[Awaitable[BaseModel], BaseModel]]
 
-# %% ../../nbs/013_AsyncAPI.ipynb 5
+# %% ../../nbs/013_AsyncAPI.ipynb 6
 class KafkaMessage(BaseModel):
     class Config:
         """This class is used for specific JSON encoders, in our case to properly format timedelta in ISO format."""
@@ -46,7 +43,7 @@ class KafkaMessage(BaseModel):
             timedelta: timedelta_isoformat,
         }
 
-# %% ../../nbs/013_AsyncAPI.ipynb 7
+# %% ../../nbs/013_AsyncAPI.ipynb 8
 class SecurityType(str, Enum):
     plain = "plain"
     userPassword = "userPassword"
@@ -106,7 +103,7 @@ class SecuritySchema(BaseModel):
         """Serialize into JSON using dict()"""
         return json.dumps(self.dict(), *args, **kwargs)
 
-# %% ../../nbs/013_AsyncAPI.ipynb 9
+# %% ../../nbs/013_AsyncAPI.ipynb 10
 class KafkaBroker(BaseModel):
     """Kafka broker"""
 
@@ -130,7 +127,7 @@ class KafkaBroker(BaseModel):
         """Serialize into JSON using dict()"""
         return json.dumps(self.dict(), *args, **kwargs)
 
-# %% ../../nbs/013_AsyncAPI.ipynb 12
+# %% ../../nbs/013_AsyncAPI.ipynb 13
 class ContactInfo(BaseModel):
     name: str = Field(..., example="My company")
     url: HttpUrl = Field(..., example="https://www.github.com/mycompany")
@@ -145,11 +142,11 @@ class KafkaServiceInfo(BaseModel):
         ...,
     )
 
-# %% ../../nbs/013_AsyncAPI.ipynb 14
+# %% ../../nbs/013_AsyncAPI.ipynb 15
 class KafkaBrokers(BaseModel):
     brokers: Dict[str, KafkaBroker]
 
-# %% ../../nbs/013_AsyncAPI.ipynb 17
+# %% ../../nbs/013_AsyncAPI.ipynb 18
 # T = TypeVar("T")
 
 
@@ -165,7 +162,7 @@ def _get_msg_cls_for_producer(f: ProduceCallable) -> Type[Any]:
         raise ValueError(f"Producer function return value must have json method")
     return return_type  # type: ignore
 
-# %% ../../nbs/013_AsyncAPI.ipynb 20
+# %% ../../nbs/013_AsyncAPI.ipynb 21
 def _get_msg_cls_for_consumer(f: ConsumeCallable) -> Type[Any]:
     types = get_type_hints(f)
     return_type = types.pop("return", type(None))
@@ -182,7 +179,7 @@ def _get_msg_cls_for_consumer(f: ConsumeCallable) -> Type[Any]:
         )
     return types_list[0]  # type: ignore
 
-# %% ../../nbs/013_AsyncAPI.ipynb 23
+# %% ../../nbs/013_AsyncAPI.ipynb 24
 def _get_topic_dict(
     f: Callable[[Any], Any], direction: str = "publish"
 ) -> Dict[str, Any]:
@@ -203,7 +200,7 @@ def _get_topic_dict(
         msg_schema["description"] = f.__doc__  # type: ignore
     return {direction: msg_schema}
 
-# %% ../../nbs/013_AsyncAPI.ipynb 26
+# %% ../../nbs/013_AsyncAPI.ipynb 27
 def _get_channels_schema(
     consumers: Dict[str, ConsumeCallable],
     producers: Dict[str, ProduceCallable],
@@ -214,7 +211,7 @@ def _get_channels_schema(
             topics[topic] = _get_topic_dict(f, d)
     return topics
 
-# %% ../../nbs/013_AsyncAPI.ipynb 28
+# %% ../../nbs/013_AsyncAPI.ipynb 29
 def _get_kafka_msg_classes(
     consumers: Dict[str, ConsumeCallable],
     producers: Dict[str, ProduceCallable],
@@ -230,7 +227,7 @@ def _get_kafka_msg_definitions(
 ) -> Dict[str, Dict[str, Any]]:
     return schema(_get_kafka_msg_classes(consumers, producers))  # type: ignore
 
-# %% ../../nbs/013_AsyncAPI.ipynb 30
+# %% ../../nbs/013_AsyncAPI.ipynb 31
 def _get_example(cls: Type[BaseModel]) -> BaseModel:
     kwargs: Dict[str, Any] = {}
     for k, v in cls.__fields__.items():
@@ -247,7 +244,7 @@ def _get_example(cls: Type[BaseModel]) -> BaseModel:
 
     return json.loads(cls(**kwargs).json())  # type: ignore
 
-# %% ../../nbs/013_AsyncAPI.ipynb 32
+# %% ../../nbs/013_AsyncAPI.ipynb 33
 def _add_example_to_msg_definitions(
     msg_cls: Type[BaseModel], msg_schema: Dict[str, Dict[str, Any]]
 ) -> None:
@@ -276,7 +273,7 @@ def _get_msg_definitions_with_examples(
 
     return msg_schema
 
-# %% ../../nbs/013_AsyncAPI.ipynb 34
+# %% ../../nbs/013_AsyncAPI.ipynb 35
 def _get_security_schemes(kafka_brokers: KafkaBrokers) -> Dict[str, Any]:
     security_schemes = {}
     for key, kafka_broker in kafka_brokers.brokers.items():
@@ -286,7 +283,7 @@ def _get_security_schemes(kafka_brokers: KafkaBrokers) -> Dict[str, Any]:
             )
     return security_schemes
 
-# %% ../../nbs/013_AsyncAPI.ipynb 36
+# %% ../../nbs/013_AsyncAPI.ipynb 37
 def _get_components_schema(
     consumers: Dict[str, ConsumeCallable],
     producers: Dict[str, ProduceCallable],
@@ -319,7 +316,7 @@ def _get_components_schema(
 
     return _sub_values(components)  # type: ignore
 
-# %% ../../nbs/013_AsyncAPI.ipynb 38
+# %% ../../nbs/013_AsyncAPI.ipynb 39
 def _get_servers_schema(kafka_brokers: KafkaBrokers) -> Dict[str, Any]:
     servers = json.loads(kafka_brokers.json(sort_keys=False))["brokers"]
 
@@ -328,7 +325,7 @@ def _get_servers_schema(kafka_brokers: KafkaBrokers) -> Dict[str, Any]:
             servers[key]["security"] = [{f"{key}_default_security": []}]
     return servers  # type: ignore
 
-# %% ../../nbs/013_AsyncAPI.ipynb 40
+# %% ../../nbs/013_AsyncAPI.ipynb 41
 def _get_asyncapi_schema(
     consumers: Dict[str, ConsumeCallable],
     producers: Dict[str, ProduceCallable],
@@ -349,8 +346,15 @@ def _get_asyncapi_schema(
         "components": components,
     }
 
-# %% ../../nbs/013_AsyncAPI.ipynb 42
+# %% ../../nbs/013_AsyncAPI.ipynb 43
 def yaml_file_cmp(file_1: Union[Path, str], file_2: Union[Path, str]) -> bool:
+    try:
+        import yaml
+    except Exception as e:
+        msg = "Please install docs version of fastkafka using 'pip install fastkafka[docs]' command"
+        logger.error(msg)
+        raise RuntimeError(msg)
+
     def _read(f: Union[Path, str]) -> Dict[str, Any]:
         with open(f) as stream:
             return yaml.safe_load(stream)  # type: ignore
@@ -358,7 +362,7 @@ def yaml_file_cmp(file_1: Union[Path, str], file_2: Union[Path, str]) -> bool:
     d = [_read(f) for f in [file_1, file_2]]
     return d[0] == d[1]
 
-# %% ../../nbs/013_AsyncAPI.ipynb 43
+# %% ../../nbs/013_AsyncAPI.ipynb 44
 def _generate_async_spec(
     *,
     consumers: Dict[str, ConsumeCallable],
@@ -368,6 +372,13 @@ def _generate_async_spec(
     spec_path: Path,
     force_rebuild: bool,
 ) -> bool:
+    try:
+        import yaml
+    except Exception as e:
+        msg = "Please install docs version of fastkafka using 'pip install fastkafka[docs]' command"
+        logger.error(msg)
+        raise RuntimeError(msg)
+
     # generate spec file
     asyncapi_schema = _get_asyncapi_schema(
         consumers, producers, kafka_brokers, kafka_service_info
@@ -395,7 +406,7 @@ def _generate_async_spec(
             )
             return False
 
-# %% ../../nbs/013_AsyncAPI.ipynb 45
+# %% ../../nbs/013_AsyncAPI.ipynb 46
 def _install_docs_deps() -> None:
     with TemporaryDirectory() as d:
         cmd = [
@@ -453,7 +464,7 @@ def _generate_async_docs(
             f"Generation of async docs failed, used '$ {' '.join(cmd)}'{p.stdout.decode()}"
         )
 
-# %% ../../nbs/013_AsyncAPI.ipynb 47
+# %% ../../nbs/013_AsyncAPI.ipynb 48
 def export_async_spec(
     *,
     consumers: Dict[str, ConsumeCallable],

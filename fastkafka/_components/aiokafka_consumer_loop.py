@@ -4,10 +4,7 @@
 __all__ = ['logger', 'sanitize_kafka_config', 'aiokafka_consumer_loop']
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 1
-import asyncio
 from asyncio import iscoroutinefunction  # do not use the version from inspect
-from datetime import datetime, timedelta
-from os import environ
 from typing import *
 
 import anyio
@@ -16,7 +13,7 @@ from aiokafka import AIOKafkaConsumer
 from aiokafka.structs import ConsumerRecord, TopicPartition
 from anyio.streams.memory import MemoryObjectReceiveStream
 from fastcore.meta import delegates
-from pydantic import BaseModel, Field, HttpUrl, NonNegativeInt
+from pydantic import BaseModel
 
 from .logger import get_logger
 

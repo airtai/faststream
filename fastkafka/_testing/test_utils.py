@@ -5,74 +5,30 @@ __all__ = ['logger', 'nb_safe_seed', 'true_after', 'mock_AIOKafkaProducer_send',
 
 # %% ../../nbs/002_Test_Utils.ipynb 1
 import asyncio
-import contextlib
-import functools
-import glob
 import hashlib
-import multiprocessing
-import os
-import random
 import shlex
-import shutil
-import signal
-import socket
 import subprocess  # nosec
-import tarfile
-import textwrap
-import time
 import unittest
 import unittest.mock
-from collections import namedtuple
-from contextlib import asynccontextmanager, contextmanager
+from contextlib import contextmanager
 from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
-from unittest.mock import AsyncMock, MagicMock
-from IPython.display import IFrame
 
 import asyncer
-import nest_asyncio
+from aiokafka import AIOKafkaProducer
+from IPython.display import IFrame
 
-# [B404:blacklist] Consider possible security implications associated with the subprocess module.
-import requests
-import typer
-from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
-from confluent_kafka.admin import AdminClient, NewTopic
-from fastcore.foundation import patch
-from fastcore.meta import delegates
-from pydantic import BaseModel, Field
-from tqdm import tqdm
-
-from .._components._subprocess import terminate_asyncio_process
-
-from fastkafka._components.helpers import (
-    _import_from_string,
-    combine_params,
-    filter_using_signature,
-    use_parameters_of,
-    change_dir,
-)
-from .._components.logger import get_logger, supress_timestamps
 from .._application.app import FastKafka
-from fastkafka._helpers import (
-    consumes_messages,
-    in_notebook,
-    produce_messages,
-    tqdm,
-    trange,
-)
+from .._components._subprocess import terminate_asyncio_process
+from .._components.helpers import _import_from_string, change_dir
+from .._components.logger import get_logger
 
-# %% ../../nbs/002_Test_Utils.ipynb 2
-if in_notebook():
-    from tqdm.notebook import tqdm, trange
-else:
-    from tqdm import tqdm, trange
-
-# %% ../../nbs/002_Test_Utils.ipynb 5
+# %% ../../nbs/002_Test_Utils.ipynb 4
 logger = get_logger(__name__)
 
-# %% ../../nbs/002_Test_Utils.ipynb 7
+# %% ../../nbs/002_Test_Utils.ipynb 6
 def nb_safe_seed(s: str) -> Callable[[int], int]:
     """Gets a unique seed function for a notebook
 
@@ -89,7 +45,7 @@ def nb_safe_seed(s: str) -> Callable[[int], int]:
 
     return _get_seed
 
-# %% ../../nbs/002_Test_Utils.ipynb 9
+# %% ../../nbs/002_Test_Utils.ipynb 8
 def true_after(seconds: float) -> Callable[[], bool]:
     """Function returning True after a given number of seconds"""
     t = datetime.now()
@@ -99,7 +55,7 @@ def true_after(seconds: float) -> Callable[[], bool]:
 
     return _true_after
 
-# %% ../../nbs/002_Test_Utils.ipynb 11
+# %% ../../nbs/002_Test_Utils.ipynb 10
 @contextmanager
 def mock_AIOKafkaProducer_send() -> Generator[unittest.mock.Mock, None, None]:
     """Mocks **send** method of **AIOKafkaProducer**"""
@@ -112,7 +68,7 @@ def mock_AIOKafkaProducer_send() -> Generator[unittest.mock.Mock, None, None]:
 
         yield mock
 
-# %% ../../nbs/002_Test_Utils.ipynb 12
+# %% ../../nbs/002_Test_Utils.ipynb 11
 async def run_script_and_cancel(
     script: str,
     *,
@@ -169,7 +125,7 @@ async def run_script_and_cancel(
 
         return (proc.returncode, output)
 
-# %% ../../nbs/002_Test_Utils.ipynb 17
+# %% ../../nbs/002_Test_Utils.ipynb 16
 async def display_docs(docs_path: str, port: int = 4000) -> None:
     with change_dir(docs_path):
         process = await asyncio.create_subprocess_exec(
