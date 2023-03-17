@@ -71,5 +71,5 @@ class AIOKafkaProducerManager:
         await self.producer.stop()
         logger.info("AIOKafkaProducerManager.stop(): Finished")
 
-    def send(self, topic: str, msg: bytes, key: bytes = None) -> None:
+    def send(self, topic: str, msg: bytes, key: Optional[bytes] = None) -> None:
         self.send_stream.send_nowait((topic, msg, key))
