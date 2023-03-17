@@ -39,12 +39,11 @@ from fastkafka._components.asyncapi import (
     KafkaBroker,
     KafkaBrokers,
     KafkaServiceInfo,
-    ProduceCallable,
     export_async_spec,
 )
 from .._components.helpers import filter_using_signature
 from .._components.logger import get_logger
-from .._components.producer_decorator import producer_decorator
+from .._components.producer_decorator import producer_decorator, ProduceCallable
 
 # %% ../../nbs/015_FastKafka.ipynb 3
 logger = get_logger(__name__)
