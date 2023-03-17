@@ -43,7 +43,7 @@ from fastkafka._components.asyncapi import (
 )
 from .._components.helpers import filter_using_signature
 from .._components.logger import get_logger
-from .._components.producer_decorator import producer_decorator, ProduceCallable
+from .._components.producer_decorator import ProduceCallable, producer_decorator
 
 # %% ../../nbs/015_FastKafka.ipynb 3
 logger = get_logger(__name__)
