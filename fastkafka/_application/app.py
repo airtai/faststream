@@ -1381,13 +1381,13 @@ async def _shutdown_producers(self: FastKafka) -> None:
 async def _populate_bg_tasks(
     self: FastKafka,
 ) -> None:
-    self._running_bg_tasks = []
-
-    for task in self._scheduled_bg_tasks:
+    def _start_bg_task(task):
         logger.info(
             f"_populate_bg_tasks() : Starting background task '{task.__name__}'"
         )
-        self._running_bg_tasks.append(asyncio.create_task(task(), name=task.__name__))
+        return asyncio.create_task(task(), name=task.__name__)
+
+    self._running_bg_tasks = [_start_bg_task(task) for task in self._scheduled_bg_tasks]
 
 
 @patch  # type: ignore
