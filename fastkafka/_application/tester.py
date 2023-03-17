@@ -64,7 +64,6 @@ class Tester(FastKafka):
 
     @asynccontextmanager
     async def _create_ctx(self) -> AsyncGenerator["Tester", None]:
-        print(f"{self._producers_store=}")
         bootstrap_server = await self.broker._start()
         try:
             self.set_bootstrap_servers(bootstrap_servers=bootstrap_server)
