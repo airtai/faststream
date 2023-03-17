@@ -5,7 +5,12 @@ website:
       
       - section: Guides
         contents:
-        - guides/Guide_04_Github_Actions_Workflow.ipynb
+        - guides/Guide_04_Github_Actions_Workflow.ipynb    
+        - section: Producing
+          contents:
+          - guides/Guide_21_Produces_Basics.ipynb
+#           - guides/Guide_22_@produces_Partition_Key.ipynb
+          
 #         - guides/Guide_00_FastKafka_Demo.ipynb
 #         - guides/Guide_01_Intro.ipynb
 #         - guides/Guide_02_First_Steps.ipynb
