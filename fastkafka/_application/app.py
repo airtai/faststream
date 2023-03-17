@@ -1381,9 +1381,7 @@ async def _shutdown_producers(self: FastKafka) -> None:
 async def _populate_bg_tasks(
     self: FastKafka,
 ) -> None:
-    def _start_bg_task(
-        task: Callable[..., Coroutine[Any, Any, Any]]
-    ) -> asyncio.Task[Any]:
+    def _start_bg_task(task: Callable[..., Coroutine[Any, Any, Any]]) -> asyncio.Task:
         logger.info(
             f"_populate_bg_tasks() : Starting background task '{task.__name__}'"
         )
