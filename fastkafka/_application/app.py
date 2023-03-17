@@ -1303,24 +1303,25 @@ async def _populate_producers(self: FastKafka) -> None:
     """
     default_config: Dict[str, Any] = self._kafka_config
     self._producers_list = []
-    producer_store_updates = {
-        topic: (
-            callback,
-            await _create_producer(
-                callback=callback,
-                default_config=default_config,
-                override_config=override_config,
-                producers_list=self._producers_list,
-            ),
-            override_config,
-        )
-        for topic, (
-            callback,
-            _,
-            override_config,
-        ) in self._producers_store.items()
-    }
-    self._producers_store.update(producer_store_updates)
+    self._producers_store.update(
+        {
+            topic: (
+                callback,
+                await _create_producer(
+                    callback=callback,
+                    default_config=default_config,
+                    override_config=override_config,
+                    producers_list=self._producers_list,
+                ),
+                override_config,
+            )
+            for topic, (
+                callback,
+                _,
+                override_config,
+            ) in self._producers_store.items()
+        }
+    )
 
 
 @patch  # type: ignore
@@ -1328,18 +1329,20 @@ async def _shutdown_producers(self: FastKafka) -> None:
     [await producer.stop() for producer in self._producers_list[::-1]]
     # Remove references to stale producers
     self._producers_list = []
-    self._producers_store = {
-        topic: (
-            callback,
-            None,
-            override_config,
-        )
-        for topic, (
-            callback,
-            _,
-            override_config,
-        ) in self._producers_store.items()
-    }
+    self._producers_store.update(
+        {
+            topic: (
+                callback,
+                None,
+                override_config,
+            )
+            for topic, (
+                callback,
+                _,
+                override_config,
+            ) in self._producers_store.items()
+        }
+    )
 
 # %% ../../nbs/015_FastKafka.ipynb 44
 @patch  # type: ignore

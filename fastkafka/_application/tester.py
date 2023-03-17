@@ -16,7 +16,7 @@ from pydantic import BaseModel
 from .app import FastKafka
 from .._testing.local_broker import LocalKafkaBroker
 
-# %% ../../nbs/016_Tester.ipynb 5
+# %% ../../nbs/016_Tester.ipynb 6
 class Tester(FastKafka):
     @delegates(LocalKafkaBroker.__init__)  # type: ignore
     def __init__(

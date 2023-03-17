@@ -36,7 +36,6 @@ def producer_decorator(
     producer_store: Dict[str, Any], func: ProduceCallable, topic: str
 ) -> ProduceCallable:
     """todo: write documentation"""
-    print(f"producer_decorator: {producer_store=}")
 
     @functools.wraps(func)
     async def _produce_async(
