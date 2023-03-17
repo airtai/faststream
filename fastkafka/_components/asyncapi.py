@@ -16,7 +16,6 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
 
-import yaml
 from pydantic import BaseModel, Field, HttpUrl
 from pydantic.json import timedelta_isoformat
 from pydantic.schema import schema
@@ -349,6 +348,13 @@ def _get_asyncapi_schema(
 
 # %% ../../nbs/014_AsyncAPI.ipynb 43
 def yaml_file_cmp(file_1: Union[Path, str], file_2: Union[Path, str]) -> bool:
+    try:
+        import yaml
+    except Exception as e:
+        msg = "Please install docs version of fastkafka using 'pip install fastkafka[docs]' command"
+        logger.error(msg)
+        raise RuntimeError(msg)
+
     def _read(f: Union[Path, str]) -> Dict[str, Any]:
         with open(f) as stream:
             return yaml.safe_load(stream)  # type: ignore
@@ -366,6 +372,13 @@ def _generate_async_spec(
     spec_path: Path,
     force_rebuild: bool,
 ) -> bool:
+    try:
+        import yaml
+    except Exception as e:
+        msg = "Please install docs version of fastkafka using 'pip install fastkafka[docs]' command"
+        logger.error(msg)
+        raise RuntimeError(msg)
+
     # generate spec file
     asyncapi_schema = _get_asyncapi_schema(
         consumers, producers, kafka_brokers, kafka_service_info
