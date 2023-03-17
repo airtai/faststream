@@ -58,7 +58,7 @@
 
 - Include missing requirement ([#110](https://github.com/airtai/fastkafka/issues/110))
   - [x] Typer is imported in this [file](https://github.com/airtai/fastkafka/blob/main/fastkafka/_components/helpers.py) but it is not included in [settings.ini](https://github.com/airtai/fastkafka/blob/main/settings.ini)
-  - [x] Add aiohttp which is imported in this [file](https://github.com/airtai/fastkafka/blob/main/fastkafka/helpers.py)
+  - [x] Add aiohttp which is imported in this [file](https://github.com/airtai/fastkafka/blob/main/fastkafka/_helpers.py)
   - [x] Add nbformat which is imported in _components/helpers.py
   - [x] Add nbconvert which is imported in _components/helpers.py
 
