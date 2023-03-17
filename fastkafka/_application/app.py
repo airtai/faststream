@@ -1210,6 +1210,9 @@ def run_in_background(
         Returns:
             Callable[[], None]: Original background task.
         """
+        logger.info(
+            f"run_in_background() : Adding function '{bg_task.__name__}' as background task"
+        )
         self._scheduled_bg_tasks.append(bg_task)
 
         return bg_task
@@ -1348,22 +1351,36 @@ async def _shutdown_producers(self: FastKafka) -> None:
 async def _populate_bg_tasks(
     self: FastKafka,
 ) -> None:
-    self._running_bg_tasks = [
-        asyncio.create_task(task()) for task in self._scheduled_bg_tasks
-    ]
+    def _start_bg_task(task: Callable[..., Coroutine[Any, Any, Any]]) -> asyncio.Task:
+        logger.info(
+            f"_populate_bg_tasks() : Starting background task '{task.__name__}'"
+        )
+        return asyncio.create_task(task(), name=task.__name__)
+
+    self._running_bg_tasks = [_start_bg_task(task) for task in self._scheduled_bg_tasks]
 
 
 @patch  # type: ignore
 async def _shutdown_bg_tasks(
     self: FastKafka,
 ) -> None:
-    [task.cancel() for task in self._running_bg_tasks]
+    for task in self._running_bg_tasks:
+        logger.info(
+            f"_shutdown_bg_tasks() : Cancelling background task '{task.get_name()}'"
+        )
+        task.cancel()
 
     for task in self._running_bg_tasks:
+        logger.info(
+            f"_shutdown_bg_tasks() : Waiting for background task '{task.get_name()}' to finish"
+        )
         try:
             await task
         except asyncio.CancelledError:
             pass
+        logger.info(
+            f"_shutdown_bg_tasks() : Execution finished for background task '{task.get_name()}'"
+        )
 
 # %% ../../nbs/015_FastKafka.ipynb 46
 @patch  # type: ignore
