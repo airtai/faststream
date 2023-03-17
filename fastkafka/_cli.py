@@ -10,8 +10,7 @@ from typing import *
 
 import typer
 
-from . import _cli_docs
-from . import _cli_testing
+from . import _cli_docs, _cli_testing
 from ._components.logger import get_logger
 from ._server import run_fastkafka_server
 
