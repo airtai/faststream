@@ -390,6 +390,7 @@ class FastKafka:
         contact: Optional[Dict[str, str]] = None,
         kafka_brokers: Optional[Dict[str, Any]] = None,
         root_path: Optional[Union[Path, str]] = None,
+        bootstrap_servers: Optional[Union[str, List[str]]] = None,
         **kwargs,
     ):
         """Creates FastKafka application
@@ -676,7 +677,16 @@ class FastKafka:
         (self._asyncapi_path / "spec").mkdir(exist_ok=True, parents=True)
 
         # this is used as default parameters for creating AIOProducer and AIOConsumer objects
-        self._kafka_config = _get_kafka_config(**kwargs)
+        if bootstrap_servers is None and kafka_brokers is not None:
+            local_broker = (
+                kafka_brokers["local"]
+                if "local" in kafka_brokers
+                else kafka_brokers["localhost"]
+            )
+            bootstrap_servers = f'{local_broker["url"]}:{local_broker["port"]}'
+        self._kafka_config = _get_kafka_config(
+            bootstrap_servers=bootstrap_servers, **kwargs
+        )
 
         #
         self._consumers_store: Dict[str, Tuple[ConsumeCallable, Dict[str, Any]]] = {}
