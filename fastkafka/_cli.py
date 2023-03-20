@@ -33,7 +33,7 @@ def run(
         ...,
         help="input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafka**.",
     ),
-    kafka_broker: Optional[str] = typer.Argument(
+    kafka_broker: Optional[str] = typer.Option(
         None, help="broker to use from kafka_brokers"
     ),
 ) -> None:

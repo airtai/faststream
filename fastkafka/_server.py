@@ -72,7 +72,7 @@ def run_fastkafka_server_process(
         ...,
         help="input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafka**.",
     ),
-    kafka_broker: Optional[str] = typer.Argument(
+    kafka_broker: Optional[str] = typer.Option(
         None, help="broker to use from kafka_brokers"
     ),
 ) -> None:
@@ -132,7 +132,7 @@ async def run_fastkafka_server(
             app,
         ]
         if kafka_broker is not None:
-            args.append(kafka_broker)
+            args[1:1] = ["--kafka-broker", kafka_broker]
         tasks = [
             tg.soonify(asyncio.create_subprocess_exec)(
                 *args,
