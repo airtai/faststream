@@ -33,15 +33,22 @@ def run(
         ...,
         help="input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafka**.",
     ),
+    kafka_broker: Optional[str] = typer.Argument(
+        None, help="broker to use from kafka_brokers"
+    ),
 ) -> None:
     try:
-        asyncio.run(run_fastkafka_server(num_workers=num_workers, app=app))
+        asyncio.run(
+            run_fastkafka_server(
+                num_workers=num_workers, app=app, kafka_broker=kafka_broker
+            )
+        )
     except Exception as e:
         typer.secho(f"Unexpected internal error: {e}", err=True, fg=typer.colors.RED)
         raise typer.Exit(1)
 
-# %% ../nbs/023_CLI.ipynb 13
+# %% ../nbs/023_CLI.ipynb 14
 _app.add_typer(_cli_docs._docs_app, name="docs")
 
-# %% ../nbs/023_CLI.ipynb 21
+# %% ../nbs/023_CLI.ipynb 22
 _app.add_typer(_cli_testing._testing_app, name="testing")

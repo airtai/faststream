@@ -677,13 +677,6 @@ class FastKafka:
         (self._asyncapi_path / "spec").mkdir(exist_ok=True, parents=True)
 
         # this is used as default parameters for creating AIOProducer and AIOConsumer objects
-        if bootstrap_servers is None and kafka_brokers is not None:
-            local_broker = (
-                kafka_brokers["local"]
-                if "local" in kafka_brokers
-                else kafka_brokers["localhost"]
-            )
-            bootstrap_servers = f'{local_broker["url"]}:{local_broker["port"]}'
         self._kafka_config = _get_kafka_config(
             bootstrap_servers=bootstrap_servers, **kwargs
         )
@@ -724,6 +717,19 @@ class FastKafka:
         return self._is_started
 
     def set_bootstrap_servers(self, bootstrap_servers: str) -> None:
+        self._kafka_config["bootstrap_servers"] = bootstrap_servers
+
+    def set_kafka_broker(self, kafka_broker: str) -> None:
+        if kafka_broker not in self._kafka_brokers.brokers:
+            raise ValueError(
+                f"Given kafka_broker '{kafka_broker}' is not found in kafka_brokers, available options are {self._kafka_brokers.brokers.keys()}"
+            )
+
+        broker_to_use = self._kafka_brokers.brokers[kafka_broker]
+        bootstrap_servers = f"{broker_to_use.url}:{broker_to_use.port}"
+        logger.info(
+            f"set_kafka_broker() : Setting bootstrap_servers value to '{bootstrap_servers}'"
+        )
         self._kafka_config["bootstrap_servers"] = bootstrap_servers
 
     async def __aenter__(self) -> "FastKafka":
