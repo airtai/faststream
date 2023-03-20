@@ -6,7 +6,7 @@ website:
       - section: Guides
         contents:
         - guides/Guide_04_Github_Actions_Workflow.ipynb    
-        - section: Producing
+        - section: Producing to Kafka
           contents:
           - guides/Guide_21_Produces_Basics.ipynb
 #           - guides/Guide_22_@produces_Partition_Key.ipynb
