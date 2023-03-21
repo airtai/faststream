@@ -716,16 +716,16 @@ class FastKafka:
     def is_started(self) -> bool:
         return self._is_started
 
-    def set_bootstrap_servers(self, bootstrap_servers: str) -> None:
+    def _set_bootstrap_servers(self, bootstrap_servers: str) -> None:
         self._kafka_config["bootstrap_servers"] = bootstrap_servers
 
-    def set_kafka_broker(self, kafka_broker: str) -> None:
-        if kafka_broker not in self._kafka_brokers.brokers:
+    def set_kafka_broker(self, kafka_broker_name: str) -> None:
+        if kafka_broker_name not in self._kafka_brokers.brokers:
             raise ValueError(
-                f"Given kafka_broker '{kafka_broker}' is not found in kafka_brokers, available options are {self._kafka_brokers.brokers.keys()}"
+                f"Given kafka_broker_name '{kafka_broker_name}' is not found in kafka_brokers, available options are {self._kafka_brokers.brokers.keys()}"
             )
 
-        broker_to_use = self._kafka_brokers.brokers[kafka_broker]
+        broker_to_use = self._kafka_brokers.brokers[kafka_broker_name]
         bootstrap_servers = f"{broker_to_use.url}:{broker_to_use.port}"
         logger.info(
             f"set_kafka_broker() : Setting bootstrap_servers value to '{bootstrap_servers}'"

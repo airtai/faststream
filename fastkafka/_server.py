@@ -23,10 +23,10 @@ logger = get_logger(__name__)
 
 # %% ../nbs/021_FastKafkaServer.ipynb 7
 class ServerProcess:
-    def __init__(self, app: str, kafka_broker: Optional[str] = None):
+    def __init__(self, app: str, kafka_broker_name: Optional[str] = None):
         self.app = app
         self.should_exit = False
-        self.kafka_broker = kafka_broker
+        self.kafka_broker_name = kafka_broker_name
 
     def run(self) -> None:
         return asyncio.run(self._serve())
@@ -35,8 +35,8 @@ class ServerProcess:
         self._install_signal_handlers()
 
         self.application = _import_from_string(self.app)
-        if self.kafka_broker is not None:
-            self.application.set_kafka_broker(self.kafka_broker)
+        if self.kafka_broker_name is not None:
+            self.application.set_kafka_broker(self.kafka_broker_name)
 
         async with self.application:
             await self._main_loop()
@@ -73,7 +73,8 @@ def run_fastkafka_server_process(
         help="input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafka**.",
     ),
     kafka_broker: Optional[str] = typer.Option(
-        None, help="broker to use from kafka_brokers"
+        None,
+        help="kafka_broker, one of the keys of the kafka_brokers dictionary passed in the constructor of FastaKafka class.",
     ),
 ) -> None:
     ServerProcess(app, kafka_broker).run()

@@ -66,9 +66,9 @@ class Tester(FastKafka):
     async def _create_ctx(self) -> AsyncGenerator["Tester", None]:
         bootstrap_server = await self.broker._start()
         try:
-            self.set_bootstrap_servers(bootstrap_servers=bootstrap_server)
+            self._set_bootstrap_servers(bootstrap_servers=bootstrap_server)
             for app in self.apps:
-                app.set_bootstrap_servers(bootstrap_server)
+                app._set_bootstrap_servers(bootstrap_server)
             await self.startup()
             try:
                 yield self
