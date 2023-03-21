@@ -733,7 +733,7 @@ class FastKafka:
         logger.info(
             f"set_kafka_broker() : Setting bootstrap_servers value to '{bootstrap_servers}'"
         )
-        self._kafka_config["bootstrap_servers"] = bootstrap_servers
+        self._set_bootstrap_servers(bootstrap_servers=bootstrap_servers)
 
     async def __aenter__(self) -> "FastKafka":
         await self.startup()
