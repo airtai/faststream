@@ -33,8 +33,8 @@ def run(
         ...,
         help="input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafka**.",
     ),
-    kafka_broker: Optional[str] = typer.Option(
-        None,
+    kafka_broker: str = typer.Option(
+        ...,
         help="kafka_broker, one of the keys of the kafka_brokers dictionary passed in the constructor of FastaKafka class.",
     ),
 ) -> None:
@@ -48,8 +48,8 @@ def run(
         typer.secho(f"Unexpected internal error: {e}", err=True, fg=typer.colors.RED)
         raise typer.Exit(1)
 
-# %% ../nbs/023_CLI.ipynb 14
+# %% ../nbs/023_CLI.ipynb 13
 _app.add_typer(_cli_docs._docs_app, name="docs")
 
-# %% ../nbs/023_CLI.ipynb 22
+# %% ../nbs/023_CLI.ipynb 21
 _app.add_typer(_cli_testing._testing_app, name="testing")

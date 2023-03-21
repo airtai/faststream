@@ -23,7 +23,7 @@ logger = get_logger(__name__)
 
 # %% ../nbs/021_FastKafkaServer.ipynb 7
 class ServerProcess:
-    def __init__(self, app: str, kafka_broker_name: Optional[str] = None):
+    def __init__(self, app: str, kafka_broker_name: str):
         self.app = app
         self.should_exit = False
         self.kafka_broker_name = kafka_broker_name
@@ -35,8 +35,7 @@ class ServerProcess:
         self._install_signal_handlers()
 
         self.application = _import_from_string(self.app)
-        if self.kafka_broker_name is not None:
-            self.application.set_kafka_broker(self.kafka_broker_name)
+        self.application.set_kafka_broker(self.kafka_broker_name)
 
         async with self.application:
             await self._main_loop()
@@ -72,8 +71,8 @@ def run_fastkafka_server_process(
         ...,
         help="input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafka**.",
     ),
-    kafka_broker: Optional[str] = typer.Option(
-        None,
+    kafka_broker: str = typer.Option(
+        ...,
         help="kafka_broker, one of the keys of the kafka_brokers dictionary passed in the constructor of FastaKafka class.",
     ),
 ) -> None:
@@ -108,10 +107,8 @@ async def terminate_asyncio_process(p: asyncio.subprocess.Process) -> None:
     await p.wait()
     logger.warning(f"terminate_asyncio_process(): Process {p.pid} killed!")
 
-# %% ../nbs/021_FastKafkaServer.ipynb 13
-async def run_fastkafka_server(
-    num_workers: int, app: str, kafka_broker: Optional[str] = None
-) -> None:
+# %% ../nbs/021_FastKafkaServer.ipynb 12
+async def run_fastkafka_server(num_workers: int, app: str, kafka_broker: str) -> None:
     loop = asyncio.get_event_loop()
 
     HANDLED_SIGNALS = (
@@ -130,10 +127,10 @@ async def run_fastkafka_server(
     async with asyncer.create_task_group() as tg:
         args = [
             "run_fastkafka_server_process",
+            "--kafka-broker",
+            kafka_broker,
             app,
         ]
-        if kafka_broker is not None:
-            args[1:1] = ["--kafka-broker", kafka_broker]
         tasks = [
             tg.soonify(asyncio.create_subprocess_exec)(
                 *args,
@@ -180,7 +177,7 @@ async def run_fastkafka_server(
         )
         raise typer.Exit(1)
 
-# %% ../nbs/021_FastKafkaServer.ipynb 14
+# %% ../nbs/021_FastKafkaServer.ipynb 13
 @contextmanager
 def run_in_process(
     target: Callable[..., Any]
