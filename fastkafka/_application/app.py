@@ -388,7 +388,7 @@ class FastKafka:
         description: Optional[str] = None,
         version: Optional[str] = None,
         contact: Optional[Dict[str, str]] = None,
-        kafka_brokers: Optional[Dict[str, Any]] = None,
+        kafka_brokers: Dict[str, Any],
         root_path: Optional[Union[Path, str]] = None,
         bootstrap_servers: Optional[Union[str, List[str]]] = None,
         **kwargs,
@@ -676,10 +676,13 @@ class FastKafka:
         (self._asyncapi_path / "docs").mkdir(exist_ok=True, parents=True)
         (self._asyncapi_path / "spec").mkdir(exist_ok=True, parents=True)
 
+        if bootstrap_servers is not None:
+            raise ValueError(
+                f"'bootstrap_servers' parameter is not supported, please use 'kafka_brokers' to set kafka server configuration"
+            )
+
         # this is used as default parameters for creating AIOProducer and AIOConsumer objects
-        self._kafka_config = _get_kafka_config(
-            bootstrap_servers=bootstrap_servers, **kwargs
-        )
+        self._kafka_config = _get_kafka_config(**kwargs)
 
         #
         self._consumers_store: Dict[str, Tuple[ConsumeCallable, Dict[str, Any]]] = {}
