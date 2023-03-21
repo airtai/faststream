@@ -124,9 +124,7 @@ def _install_testing_deps() -> None:
     _install_kafka()
 
 # %% ../../nbs/098_Test_Dependencies.ipynb 15
-def generate_app_src(
-    out_path: Union[Path, str], listener_port: Optional[Union[int, str]] = None
-) -> None:
+def generate_app_src(out_path: Union[Path, str]) -> None:
     import nbformat
     from nbconvert import PythonExporter
 
@@ -141,20 +139,15 @@ def generate_app_src(
         exporter = PythonExporter()
         source, _ = exporter.from_notebook_node(notebook)
 
-    if listener_port is not None:
-        source = source.replace("9092", str(listener_port))
-
     with open(out_path, "w") as f:
         f.write(source)
 
 # %% ../../nbs/098_Test_Dependencies.ipynb 17
 @contextmanager
-def generate_app_in_tmp(
-    listener_port: Optional[Union[int, str]] = None
-) -> Generator[str, None, None]:
+def generate_app_in_tmp() -> Generator[str, None, None]:
     with TemporaryDirectory() as d:
         src_path = Path(d) / "main.py"
-        generate_app_src(src_path, listener_port=listener_port)
+        generate_app_src(src_path)
         with change_dir(d):
             import_str = f"{src_path.stem}:kafka_app"
             yield import_str
