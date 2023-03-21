@@ -9,6 +9,7 @@ website:
         - section: Producing to Kafka
           contents:
           - guides/Guide_21_Produces_Basics.ipynb
+          - guides/Guide_22_Partition_Keys.ipynb
 #           - guides/Guide_22_@produces_Partition_Key.ipynb
           
 #         - guides/Guide_00_FastKafka_Demo.ipynb
