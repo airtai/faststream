@@ -13,15 +13,3 @@ website:
           contents:
           - guides/Guide_21_Produces_Basics.ipynb
           - guides/Guide_22_Partition_Keys.ipynb
-          
-#         - guides/Guide_00_FastKafka_Demo.ipynb
-#         - guides/Guide_01_Intro.ipynb
-#         - guides/Guide_02_First_Steps.ipynb
-#         - guides/Guide_03_Authentication.ipynb
-
-#       - 000_FastKafkaAPI.ipynb
-#       - 001_ProcessingLoop.ipynb
-#       - 003_AsyncAPI.ipynb
-#       - 099_Test_Service.ipynb
-#       - 999_Test_Utils.ipynb
-#       - Logger.ipynb
