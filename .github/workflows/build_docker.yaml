@@ -1,5 +1,11 @@
-name: CI
-on:  [workflow_dispatch, push]
+name: Build docker
+# ToDo: Build only for tags
+on:
+  workflow_dispatch:
+  push:
+#     tags:
+#       - '*'
+# on:  [workflow_dispatch, push]
 
 jobs:
   build_docker:
@@ -9,7 +15,6 @@ jobs:
       matrix:
         version: ["3.8", "3.9", "3.10", "3.11"]
     runs-on: ubuntu-latest
-    runs-on: ${{ matrix.os }}-latest
     defaults:
       run:
         shell: bash
