@@ -38,7 +38,7 @@ jobs:
 
       # - run: wget https://github.com/aquasecurity/trivy/releases/download/v0.18.3/trivy_0.18.3_Linux-64bit.deb
       # - run: sudo dpkg -i trivy_0.18.3_Linux-64bit.deb
-      - run: docker pull ghcr.io/$GITHUB_REPOSITORY:$PYTHON_VERSION || || true
+      - run: docker pull ghcr.io/$GITHUB_REPOSITORY:$PYTHON_VERSION || true
       - run: bash ./scripts/build_docker.sh
       - name: Push only if branch name is main
         if: github.ref_name == 'main'
