@@ -43,13 +43,13 @@ async def _install_docs_deps() -> None:
             cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
         )
         output, return_code = await proc.communicate()
-        output = output.decode("UTF-8")
+        output_decoded = output.decode("UTF-8")
 
         if return_code == b"":
             logger.info("AsyncAPI generator installed")
         else:
             logger.error("AsyncAPI generator NOT installed!")
-            logger.info(f"Output of '$ {cmd}'{output}")
+            logger.info(f"Output of '$ {cmd}'{output_decoded}")
             raise ValueError(
-                f"AsyncAPI generator NOT installed, used '$ {' '.join(cmd)}'{output}"
+                f"AsyncAPI generator NOT installed, used '$ {cmd}'{output_decoded}"
             )
