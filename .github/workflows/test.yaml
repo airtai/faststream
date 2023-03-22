@@ -1,5 +1,5 @@
 name: CI
-on:  [workflow_dispatch, pull_request, push]
+on:  [workflow_dispatch, push]
 
 jobs:
   mypy_static_analysis:

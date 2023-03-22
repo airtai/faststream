@@ -2,6 +2,42 @@
 
 <!-- do not remove -->
 
+## 0.3.0rc0
+
+### New Features
+
+- Add a GH action file to check for broken links in the docs ([#163](https://github.com/airtai/fastkafka/issues/163))
+
+- Optimize requirements for testing and docs ([#151](https://github.com/airtai/fastkafka/issues/151))
+
+- Break requirements into base and optional for testing and dev ([#124](https://github.com/airtai/fastkafka/issues/124))
+  - MInimize base requirements needed just for running the service.
+
+Move to setup.py
+
+- Add link to example git repo into guide for building docs using actions ([#81](https://github.com/airtai/fastkafka/issues/81))
+
+- Add logging for run_in_background ([#46](https://github.com/airtai/fastkafka/issues/46))
+
+- Implement partition Key mechanism for producers ([#16](https://github.com/airtai/fastkafka/issues/16))
+  - - [x] Implement partition key mechanism for `@produces` decorator
+Implemented behaviour:
+  1. A method decorated with `@produces` can return defined message as-is: the message is wrapped in a Event object with key=None and passed to producer = message sent without defined key, partition chosen at random
+  2. A method decorated with `@produces` can return defined message wrapped in an Event object with key argument value in bytes = message sent to kafka with defined key, partition chosen using the defined key
+
+### Bugs Squashed
+
+- fastkafka docs install_deps fails ([#157](https://github.com/airtai/fastkafka/issues/157))
+  - Unexpected internal error: [Errno 2] No such file or directory: 'npx'
+
+- Broken links in docs ([#141](https://github.com/airtai/fastkafka/issues/141))
+  - Looks nice! Btw: The links to your docs in your readme are broken:)
+
+https://www.reddit.com/r/Python/comments/11paz9u/comment/jbz18oq/?utm_source=share&utm_medium=web2x&context=3
+
+- fastkafka run is not showing up in CLI docs ([#132](https://github.com/airtai/fastkafka/issues/132))
+
+
 ## 0.2.3
 
 - Fixed broken links on PyPi index page
@@ -58,7 +94,7 @@
 
 - Include missing requirement ([#110](https://github.com/airtai/fastkafka/issues/110))
   - [x] Typer is imported in this [file](https://github.com/airtai/fastkafka/blob/main/fastkafka/_components/helpers.py) but it is not included in [settings.ini](https://github.com/airtai/fastkafka/blob/main/settings.ini)
-  - [x] Add aiohttp which is imported in this [file](https://github.com/airtai/fastkafka/blob/main/fastkafka/helpers.py)
+  - [x] Add aiohttp which is imported in this [file](https://github.com/airtai/fastkafka/blob/main/fastkafka/_helpers.py)
   - [x] Add nbformat which is imported in _components/helpers.py
   - [x] Add nbconvert which is imported in _components/helpers.py
 

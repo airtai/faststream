@@ -34,8 +34,8 @@ async def _aiokafka_producer_manager(  # type: ignore # Argument 1 to "_aiokafka
 
     async def send_message(receive_stream: MemoryObjectReceiveStream) -> Any:
         async with receive_stream:
-            async for topic, msg in receive_stream:
-                fut = await producer.send(topic, msg)
+            async for topic, msg, key in receive_stream:
+                fut = await producer.send(topic, msg, key=key)
                 msg = await fut
 
     send_stream, receive_stream = anyio.create_memory_object_stream(
@@ -71,5 +71,5 @@ class AIOKafkaProducerManager:
         await self.producer.stop()
         logger.info("AIOKafkaProducerManager.stop(): Finished")
 
-    def send(self, topic: str, msg: bytes) -> None:
-        self.send_stream.send_nowait((topic, msg))
+    def send(self, topic: str, msg: bytes, key: Optional[bytes] = None) -> None:
+        self.send_stream.send_nowait((topic, msg, key))

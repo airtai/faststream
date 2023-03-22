@@ -37,7 +37,7 @@ requirements = [
 test_requirements = [
     "install-jdk==0.3.0",
     "nest-asyncio>=1.5.6",
-    "ipywidgets>=8.0",
+    "ipywidgets>=8.0,<=8.0.4",
     "requests>=2.20",
 ]
 docs_requirements = [
@@ -51,7 +51,7 @@ lic = licenses.get(cfg['license'].lower(), (cfg['license'], None))
 dev_requirements = [
     "nbconvert>=7.2.9",
     "nbformat>=5.7.3",
-    "nbdev-mkdocs==0.2.1rc0",
+    "nbdev-mkdocs==0.2.1",
     "mypy==1.0.1",
     "pre-commit==3.0.4",
     "nbqa==1.6.3",
