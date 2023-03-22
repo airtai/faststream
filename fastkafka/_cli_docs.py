@@ -9,10 +9,11 @@ import socketserver
 from http.server import SimpleHTTPRequestHandler
 from types import FrameType
 from typing import *
+import asyncio
 
 import typer
 
-from ._components.asyncapi import _install_docs_deps
+from ._components.docs_dependencies import _check_npx, _install_docs_deps
 from ._components.helpers import _import_from_string, change_dir
 from ._components.logger import get_logger
 
@@ -29,6 +30,7 @@ _docs_app = typer.Typer(help="Commands for managing fastkafka app documentation"
 )
 def docs_install_deps() -> None:
     try:
+        asyncio.run(_check_npx())
         _install_docs_deps()
     except Exception as e:
         typer.secho(f"Unexpected internal error: {e}", err=True, fg=typer.colors.RED)
