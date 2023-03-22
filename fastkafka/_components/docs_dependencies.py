@@ -6,7 +6,6 @@ __all__ = ['logger']
 # %% ../../nbs/097_Docs_Dependencies.ipynb 2
 import asyncio
 from tempfile import TemporaryDirectory
-import subprocess
 import shutil
 
 from .logger import get_logger
@@ -33,28 +32,24 @@ async def _check_npx(required_major_version: int = 9) -> None:
         )
 
 # %% ../../nbs/097_Docs_Dependencies.ipynb 10
-def _install_docs_deps() -> None:
+async def _install_docs_deps() -> None:
     with TemporaryDirectory() as d:
-        cmd = [
-            "npx",
-            "-y",
-            "-p",
-            "@asyncapi/generator",
-            "ag",
-            "https://raw.githubusercontent.com/asyncapi/asyncapi/master/examples/simple.yml",
-            "@asyncapi/html-template",
-            "-o",
-            d,
-        ]
-
-        p = subprocess.run(  # nosec: B603 subprocess call - check for execution of untrusted input.
-            cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE
+        cmd = (
+            "npx -y -p @asyncapi/generator ag https://raw.githubusercontent.com/asyncapi/asyncapi/master/examples/simple.yml @asyncapi/html-template -o "
+            + d
         )
-        if p.returncode == 0:
+
+        proc = await asyncio.create_subprocess_shell(
+            cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+        )
+        output, return_code = await proc.communicate()
+        output = output.decode("UTF-8")
+
+        if return_code == b"":
             logger.info("AsyncAPI generator installed")
         else:
             logger.error("AsyncAPI generator NOT installed!")
-            logger.info(f"Output of '$ {' '.join(cmd)}'{p.stdout.decode()}")
+            logger.info(f"Output of '$ {cmd}'{output}")
             raise ValueError(
-                f"AsyncAPI generator NOT installed, used '$ {' '.join(cmd)}'{p.stdout.decode()}"
+                f"AsyncAPI generator NOT installed, used '$ {' '.join(cmd)}'{output}"
             )
