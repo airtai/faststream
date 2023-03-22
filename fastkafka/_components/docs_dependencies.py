@@ -46,7 +46,7 @@ async def _install_docs_deps() -> None:
         output, return_code_bytes = await proc.communicate()
         output_decoded = output.decode("UTF-8")
 
-        return_code = int.from_bytes(return_code, sys.byteorder)  # type: ignore
+        return_code = int.from_bytes(return_code_bytes, sys.byteorder)  # type: ignore
 
         if return_code == 0:
             logger.info("AsyncAPI generator installed")
