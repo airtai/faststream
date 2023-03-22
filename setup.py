@@ -37,7 +37,7 @@ requirements = [
 test_requirements = [
     "install-jdk==0.3.0",
     "nest-asyncio>=1.5.6",
-    "ipywidgets>=8.0",
+    "ipywidgets>=8.0,<=8.0.4",
     "requests>=2.20",
 ]
 docs_requirements = [

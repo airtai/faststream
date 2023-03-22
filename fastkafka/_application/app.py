@@ -388,8 +388,9 @@ class FastKafka:
         description: Optional[str] = None,
         version: Optional[str] = None,
         contact: Optional[Dict[str, str]] = None,
-        kafka_brokers: Optional[Dict[str, Any]] = None,
+        kafka_brokers: Dict[str, Any],
         root_path: Optional[Union[Path, str]] = None,
+        bootstrap_servers: Optional[Union[str, List[str]]] = None,
         **kwargs,
     ):
         """Creates FastKafka application
@@ -675,6 +676,11 @@ class FastKafka:
         (self._asyncapi_path / "docs").mkdir(exist_ok=True, parents=True)
         (self._asyncapi_path / "spec").mkdir(exist_ok=True, parents=True)
 
+        if bootstrap_servers is not None:
+            raise ValueError(
+                f"'bootstrap_servers' parameter is not supported, please use 'kafka_brokers' to set kafka server configuration"
+            )
+
         # this is used as default parameters for creating AIOProducer and AIOConsumer objects
         self._kafka_config = _get_kafka_config(**kwargs)
 
@@ -713,8 +719,21 @@ class FastKafka:
     def is_started(self) -> bool:
         return self._is_started
 
-    def set_bootstrap_servers(self, bootstrap_servers: str) -> None:
+    def _set_bootstrap_servers(self, bootstrap_servers: str) -> None:
         self._kafka_config["bootstrap_servers"] = bootstrap_servers
+
+    def set_kafka_broker(self, kafka_broker_name: str) -> None:
+        if kafka_broker_name not in self._kafka_brokers.brokers:
+            raise ValueError(
+                f"Given kafka_broker_name '{kafka_broker_name}' is not found in kafka_brokers, available options are {self._kafka_brokers.brokers.keys()}"
+            )
+
+        broker_to_use = self._kafka_brokers.brokers[kafka_broker_name]
+        bootstrap_servers = f"{broker_to_use.url}:{broker_to_use.port}"
+        logger.info(
+            f"set_kafka_broker() : Setting bootstrap_servers value to '{bootstrap_servers}'"
+        )
+        self._set_bootstrap_servers(bootstrap_servers=bootstrap_servers)
 
     async def __aenter__(self) -> "FastKafka":
         await self.startup()
