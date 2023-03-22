@@ -7,6 +7,7 @@ __all__ = ['logger']
 import asyncio
 from tempfile import TemporaryDirectory
 import shutil
+import sys
 
 from .logger import get_logger
 
@@ -42,14 +43,18 @@ async def _install_docs_deps() -> None:
         proc = await asyncio.create_subprocess_shell(
             cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
         )
-        output, return_code = await proc.communicate()
+        output, return_code_bytes = await proc.communicate()
         output_decoded = output.decode("UTF-8")
 
-        if return_code == b"":
+        return_code = int.from_bytes(return_code, sys.byteorder)  # type: ignore
+
+        if return_code == 0:
             logger.info("AsyncAPI generator installed")
         else:
             logger.error("AsyncAPI generator NOT installed!")
-            logger.info(f"Output of '$ {cmd}'{output_decoded}")
+            logger.info(
+                f"Output of '$ {cmd}'{output_decoded} \n return_code={return_code}"
+            )
             raise ValueError(
-                f"AsyncAPI generator NOT installed, used '$ {cmd}'{output_decoded}"
+                f"AsyncAPI generator NOT installed, used '$ {cmd}'{output_decoded} \n return_code={return_code}"
             )
