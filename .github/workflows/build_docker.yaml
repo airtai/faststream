@@ -7,6 +7,10 @@ on:
 #       - '*'
 # on:  [workflow_dispatch, push]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   build_docker:
     timeout-minutes: 60
