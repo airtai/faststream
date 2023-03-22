@@ -1,0 +1,36 @@
+name: CI
+on:  [workflow_dispatch, push]
+
+jobs:
+  build_docker:
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ["3.8", "3.9", "3.10", "3.11"]
+    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Set python version
+      - run: echo "PYTHON_VERSION=${{ matrix.version }}" >> $GITHUB_ENV
+
+      # - run: wget https://github.com/aquasecurity/trivy/releases/download/v0.18.3/trivy_0.18.3_Linux-64bit.deb
+      # - run: sudo dpkg -i trivy_0.18.3_Linux-64bit.deb
+      - run: docker pull ghcr.io/$GITHUB_REPOSITORY:$PYTHON_VERSION || || true
+      - run: bash ./scripts/build_docker.sh
+      - name: Push only if branch name is main
+        if: github.ref_name == 'main'
+        run: docker push ghcr.io/$GITHUB_REPOSITORY --all-tags
