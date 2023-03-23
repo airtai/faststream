@@ -10,6 +10,7 @@ from ._components.producer_decorator import KafkaEvent
 
 __all__ = [
     "FastKafka",
+    "KafkaEvent",
 ]
 
 # %% ../nbs/010_Application_export.ipynb 2
