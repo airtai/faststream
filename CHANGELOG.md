@@ -2,6 +2,19 @@
 
 <!-- do not remove -->
 
+## 0.3.0rc2
+
+### New Features
+
+- Add support for Redpanda for testing and deployment ([#181](https://github.com/airtai/fastkafka/pull/181)), thanks to [@kumaranvpl](https://github.com/kumaranvpl)
+
+- Remove bootstrap_servers from __init__ and use the name of broker as an option when running/testing ([#134](https://github.com/airtai/fastkafka/issues/134))
+
+### Bugs Squashed
+
+- Fix the helper.py link in CHANGELOG.md ([#165](https://github.com/airtai/fastkafka/issues/165))
+
+
 ## 0.3.0rc0
 
 ### New Features
