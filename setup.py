@@ -51,7 +51,7 @@ lic = licenses.get(cfg['license'].lower(), (cfg['license'], None))
 dev_requirements = [
     "nbconvert>=7.2.9",
     "nbformat>=5.7.3",
-    "nbdev-mkdocs==0.2.1",
+    "nbdev-mkdocs==0.2.2",
     "mypy==1.0.1",
     "pre-commit==3.0.4",
     "nbqa==1.6.3",
