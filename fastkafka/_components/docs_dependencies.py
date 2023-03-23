@@ -11,7 +11,7 @@ import shutil
 import sys
 from pathlib import Path
 import os
-import subprocess
+import subprocess  # nosec Issue: [B404:blacklist]
 
 import tarfile
 
@@ -33,7 +33,12 @@ npm_required_major_version = 9
 def _check_npm(required_major_version: int = npm_required_major_version) -> None:
     if shutil.which("npm") is not None:
         cmd = "npm --version"
-        proc = subprocess.run(cmd, shell=True, check=True, capture_output=True)
+        proc = subprocess.run(
+            cmd,
+            shell=True,
+            check=True,
+            capture_output=True,  # nosec [B602:subprocess_popen_with_shell_equals_true]
+        )
         major_version = int(proc.stdout.decode("UTF-8").split(".")[0])
         if major_version < required_major_version:
             raise RuntimeError(
