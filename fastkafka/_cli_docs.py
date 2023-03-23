@@ -13,7 +13,11 @@ import asyncio
 
 import typer
 
-from ._components.docs_dependencies import _check_npx, _install_docs_deps
+from fastkafka._components.docs_dependencies import (
+    _install_docs_npm_deps,
+    _check_npm_with_local,
+    _install_node,
+)
 from ._components.helpers import _import_from_string, change_dir
 from ._components.logger import get_logger
 
@@ -30,11 +34,18 @@ _docs_app = typer.Typer(help="Commands for managing fastkafka app documentation"
 )
 def docs_install_deps() -> None:
     try:
-        asyncio.run(_check_npx())
-        asyncio.run(_install_docs_deps())
+        asyncio.run(_check_npm_with_local())
     except Exception as e:
         typer.secho(f"Unexpected internal error: {e}", err=True, fg=typer.colors.RED)
-        raise typer.Exit(1)
+        install_confirm = typer.confirm(
+            "npm not found or version is too low, do you want us to install the NodeJS and npm locally?"
+        )
+        if install_confirm is False:
+            print("Not installing NodeJS and npm locally, exiting..")
+            raise typer.Abort()
+
+    _install_node()
+    asyncio.run(_install_docs_npm_deps())
 
 
 @_docs_app.command(

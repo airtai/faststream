@@ -15,6 +15,7 @@ from enum import Enum
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
+import asyncio
 
 from pydantic import BaseModel, Field, HttpUrl
 from pydantic.json import timedelta_isoformat
@@ -26,6 +27,7 @@ fastkafka._components.logger.should_supress_timestamps = True
 
 from .logger import get_logger
 from .producer_decorator import KafkaEvent, ProduceCallable
+from .docs_dependencies import _check_npm_with_local
 
 # %% ../../nbs/014_AsyncAPI.ipynb 3
 logger = get_logger(__name__)
@@ -415,6 +417,7 @@ def _generate_async_docs(
     spec_path: Path,
     docs_path: Path,
 ) -> None:
+    asyncio.run(_check_npm_with_local())
     cmd = [
         "npx",
         "-y",
