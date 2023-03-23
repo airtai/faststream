@@ -15,6 +15,7 @@ from pydantic import BaseModel
 
 from .app import FastKafka
 from .._testing.local_broker import LocalKafkaBroker
+from .._testing.local_redpanda_broker import LocalRedpandaBroker
 
 # %% ../../nbs/016_Tester.ipynb 6
 class Tester(FastKafka):
@@ -23,7 +24,7 @@ class Tester(FastKafka):
         self,
         app: Union[FastKafka, List[FastKafka]],
         *,
-        broker: Optional[LocalKafkaBroker] = None,
+        broker: Union[str, LocalKafkaBroker, LocalRedpandaBroker] = "kafka",
         **kwargs: Any,
     ):
         """Mirror-like object for testing a FastFafka application
@@ -36,12 +37,18 @@ class Tester(FastKafka):
         super().__init__(kafka_brokers={"localhost": {"url": host, "port": port}})
         self.create_mirrors()
 
-        if broker is None:
+        if isinstance(broker, LocalKafkaBroker) or isinstance(
+            broker, LocalRedpandaBroker
+        ):
+            self.broker = broker
+        else:
             topics = set().union(*(app.get_topics() for app in self.apps))
             kwargs["topics"] = topics
-            self.broker = LocalKafkaBroker(**kwargs)
-        else:
-            self.broker = broker
+            self.broker = (
+                LocalRedpandaBroker(**kwargs)
+                if broker == "redpanda"
+                else LocalKafkaBroker(**kwargs)
+            )
 
     async def startup(self) -> None:
         """Starts the Tester"""

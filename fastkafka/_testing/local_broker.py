@@ -309,7 +309,7 @@ def _check_deps(cls: LocalKafkaBroker) -> None:
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 16
 async def run_and_match(
-    *args: str, timeout: int = 5, pattern: str
+    *args: str, capture: str = "stdout", timeout: int = 5, pattern: str
 ) -> asyncio.subprocess.Process:
     # Create the subprocess; redirect the standard output
     # into a pipe.
@@ -324,7 +324,14 @@ async def run_and_match(
     t = datetime.now()
     while datetime.now() - t < timedelta(seconds=timeout):
         try:
-            data = await asyncio.wait_for(proc.stdout.readline(), timeout=1.0)  # type: ignore
+            if capture == "stdout":
+                data = await asyncio.wait_for(proc.stdout.readline(), timeout=1.0)  # type: ignore
+            elif capture == "stderr":
+                data = await asyncio.wait_for(proc.stderr.readline(), timeout=1.0)  # type: ignore
+            else:
+                raise ValueError(
+                    f"Unknown capture param value {capture}, supported values are 'stdout', 'stderr'"
+                )
             ddata = data.decode("utf-8")
 
             if len(re.findall(pattern, ddata)) > 0:
