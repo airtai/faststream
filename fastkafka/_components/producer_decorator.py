@@ -21,8 +21,19 @@ BaseSubmodel
 
 @dataclass
 class KafkaEvent(Generic[BaseSubmodel]):
+    """
+    A generic class for representing Kafka events. Based on BaseSubmodel, bound to pydantic.BaseModel
+
+    Attributes:
+        message (BaseSubmodel): The message contained in the Kafka event, can be of type pydantic.BaseModel.
+        key (bytes, optional): The optional key used to identify the Kafka event.
+    """
+
     message: BaseSubmodel
     key: Optional[bytes] = None
+
+
+KafkaEvent.__module__ = "fastkafka"
 
 # %% ../../nbs/013_ProducerDecorator.ipynb 5
 ProduceReturnTypes = Union[BaseModel, KafkaEvent[BaseModel]]
