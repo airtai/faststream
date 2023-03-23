@@ -15,7 +15,6 @@ from enum import Enum
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
-import asyncio
 
 from pydantic import BaseModel, Field, HttpUrl
 from pydantic.json import timedelta_isoformat
@@ -417,7 +416,7 @@ def _generate_async_docs(
     spec_path: Path,
     docs_path: Path,
 ) -> None:
-    asyncio.run(_check_npm_with_local())
+    _check_npm_with_local()
     cmd = [
         "npx",
         "-y",

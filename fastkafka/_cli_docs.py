@@ -34,7 +34,7 @@ _docs_app = typer.Typer(help="Commands for managing fastkafka app documentation"
 )
 def docs_install_deps() -> None:
     try:
-        asyncio.run(_check_npm_with_local())
+        _check_npm_with_local()
     except Exception as e:
         typer.secho(f"Unexpected internal error: {e}", err=True, fg=typer.colors.RED)
         install_confirm = typer.confirm(

@@ -11,6 +11,7 @@ import shutil
 import sys
 from pathlib import Path
 import os
+import subprocess
 
 import tarfile
 
@@ -29,14 +30,11 @@ logger = get_logger(__name__)
 npm_required_major_version = 9
 
 
-async def _check_npm(required_major_version: int = npm_required_major_version) -> None:
+def _check_npm(required_major_version: int = npm_required_major_version) -> None:
     if shutil.which("npm") is not None:
         cmd = "npm --version"
-        proc = await asyncio.create_subprocess_shell(
-            cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-        )
-        output, _ = await proc.communicate()
-        major_version = int(output.decode("UTF-8").split(".")[0])
+        proc = subprocess.run(cmd, shell=True, check=True, capture_output=True)
+        major_version = int(proc.stdout.decode("UTF-8").split(".")[0])
         if major_version < required_major_version:
             raise RuntimeError(
                 f"Found installed npm major version: {major_version}, required npx major version: {required_major_version}. To use documentation features of FastKafka, please update npm"
@@ -55,14 +53,14 @@ tgz_path = local_path / f"{node_fname}.tar.xz"
 node_path = local_path / f"{node_fname}"
 
 
-async def _check_npm_with_local(node_path: Path = node_path) -> None:
+def _check_npm_with_local(node_path: Path = node_path) -> None:
     try:
-        await _check_npm()
+        _check_npm()
     except RuntimeError as e:
         if (node_path / "bin").exists():
             logger.info("Found local installation of NodeJS.")
             os.environ["PATH"] = os.environ["PATH"] + f":{node_path}/bin"
-            await _check_npm()
+            _check_npm()
         else:
             raise e
 
