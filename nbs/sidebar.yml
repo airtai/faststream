@@ -5,7 +5,8 @@ website:
       
       - section: Guides
         contents:
-        - guides/Guide_04_Github_Actions_Workflow.ipynb    
+        - guides/Guide_04_Github_Actions_Workflow.ipynb
+        - guides/Guide_30_Using_docker_to_deploy_fastkafka.ipynb
         - section: Producing to Kafka
           contents:
           - guides/Guide_21_Produces_Basics.ipynb

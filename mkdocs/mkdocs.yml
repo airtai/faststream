@@ -65,6 +65,7 @@ theme:
   - search.highlight
   - search.share
   - content.code.copy
+  - content.code.annotate
   palette:
   - scheme: slate
     primary: black
