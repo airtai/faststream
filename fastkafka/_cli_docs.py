@@ -43,8 +43,8 @@ def docs_install_deps() -> None:
         if install_confirm is False:
             print("Not installing NodeJS and npm locally, exiting..")
             raise typer.Abort()
-
-    _install_node()
+        else:
+            _install_node()
     asyncio.run(_install_docs_npm_deps())
 
 

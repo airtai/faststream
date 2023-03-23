@@ -40,7 +40,7 @@ jobs:
           skip_test: true
       - name: Install testing deps
         run: |
-          yes | fastkafka docs install_deps
+          y | fastkafka docs install_deps
           fastkafka testing install_deps
       - name: Run nbdev tests
         run: |
