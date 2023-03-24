@@ -19,7 +19,6 @@ from unittest.mock import AsyncMock, MagicMock
 
 import anyio
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
-from fastcore.foundation import patch
 from fastcore.meta import delegates
 from pydantic import BaseModel
 
@@ -44,6 +43,7 @@ from fastkafka._components.asyncapi import (
 from .._components.helpers import filter_using_signature
 from .._components.logger import get_logger
 from .._components.producer_decorator import ProduceCallable, producer_decorator
+from .._components.basics import patch
 
 # %% ../../nbs/015_FastKafka.ipynb 3
 logger = get_logger(__name__)

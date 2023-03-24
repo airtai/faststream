@@ -9,7 +9,7 @@ import inspect
 from contextlib import asynccontextmanager
 from typing import *
 
-from fastcore.basics import patch
+from .._components.basics import patch
 from fastcore.meta import delegates
 from pydantic import BaseModel
 

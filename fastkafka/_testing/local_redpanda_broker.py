@@ -11,7 +11,7 @@ from typing import *
 
 import asyncer
 import nest_asyncio
-from fastcore.basics import patch
+from .._components.basics import patch
 
 from .._components._subprocess import terminate_asyncio_process
 from .._components.helpers import in_notebook
