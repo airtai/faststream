@@ -12,16 +12,19 @@ from functools import wraps
 import docstring_parser
 
 # %% ../../nbs/095_Fastcore_Meta_Deps.ipynb 5
+F = TypeVar("F", bound=Callable[..., Any])
+
+# %% ../../nbs/095_Fastcore_Meta_Deps.ipynb 6
 def _delegates_without_docs(
-    to: FunctionType = None,  # Delegatee
-    keep=False,  # Keep `kwargs` in decorated function?
-    but: list = None,
+    to: Optional[FunctionType] = None,  # Delegatee
+    keep: bool = False,  # Keep `kwargs` in decorated function?
+    but: Optional[List[str]] = None,
 ) -> FunctionType:  # Exclude these parameters from signature
     "Decorator: replace `**kwargs` in signature with params from `to`"
     if but is None:
         but = []
 
-    def _f(f):
+    def _f(f: FunctionType) -> Callable[[FunctionType], FunctionType]:
         if to is None:
             to_f, from_f = f.__base__.__init__, f.__init__
         else:
@@ -55,10 +58,7 @@ def _delegates_without_docs(
 
     return _f
 
-# %% ../../nbs/095_Fastcore_Meta_Deps.ipynb 15
-F = TypeVar("F", bound=Callable[..., Any])
-
-
+# %% ../../nbs/095_Fastcore_Meta_Deps.ipynb 16
 def _format_args(xs: List[docstring_parser.DocstringParam]) -> str:
     return "\nArgs:\n - " + "\n - ".join(
         [f"{x.arg_name} ({x.type_name}): {x.description}" for x in xs]
@@ -95,7 +95,7 @@ def combine_params(f: F, o: Union[Type, Callable[..., Any]]) -> F:
     )
     return f
 
-# %% ../../nbs/095_Fastcore_Meta_Deps.ipynb 17
+# %% ../../nbs/095_Fastcore_Meta_Deps.ipynb 18
 def delegates(
     o: Union[Type, Callable[..., Any]],
     keep: bool = False,
@@ -126,7 +126,7 @@ def delegates(
 
     return _inner
 
-# %% ../../nbs/095_Fastcore_Meta_Deps.ipynb 34
+# %% ../../nbs/095_Fastcore_Meta_Deps.ipynb 35
 def use_parameters_of(
     o: Union[Type, Callable[..., Any]], **kwargs: Dict[str, Any]
 ) -> Dict[str, Any]:
@@ -143,13 +143,13 @@ def use_parameters_of(
     allowed_keys = set(inspect.signature(o).parameters.keys())
     return {k: v for k, v in kwargs.items() if k in allowed_keys}
 
-# %% ../../nbs/095_Fastcore_Meta_Deps.ipynb 36
+# %% ../../nbs/095_Fastcore_Meta_Deps.ipynb 37
 def filter_using_signature(f: Callable, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
     """todo: write docs"""
     param_names = list(inspect.signature(f).parameters.keys())
     return {k: v for k, v in kwargs.items() if k in param_names}
 
-# %% ../../nbs/095_Fastcore_Meta_Deps.ipynb 38
+# %% ../../nbs/095_Fastcore_Meta_Deps.ipynb 39
 TorF = TypeVar("TorF", Type, Callable[..., Any])
 
 
