@@ -2,6 +2,10 @@
 
 <!-- do not remove -->
 
+## 0.3.1
+
+-  README.md file updated
+
 
 ## 0.3.0
 
