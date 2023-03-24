@@ -24,7 +24,7 @@ class Tester(FastKafka):
         self,
         app: Union[FastKafka, List[FastKafka]],
         *,
-        broker: Union[str, LocalKafkaBroker, LocalRedpandaBroker] = "kafka",
+        broker: Optional[Union[LocalKafkaBroker, LocalRedpandaBroker]] = None,
         **kwargs: Any,
     ):
         """Mirror-like object for testing a FastFafka application
@@ -37,21 +37,35 @@ class Tester(FastKafka):
         super().__init__(kafka_brokers={"localhost": {"url": host, "port": port}})
         self.create_mirrors()
 
-        if isinstance(broker, LocalKafkaBroker) or isinstance(
-            broker, LocalRedpandaBroker
-        ):
-            self.broker = broker
-        else:
+        if broker is None:
             topics = set().union(*(app.get_topics() for app in self.apps))
             kwargs["topics"] = topics
-            if broker == "kafka":
-                self.broker = LocalKafkaBroker(**kwargs)
-            elif broker == "redpanda":
-                self.broker = LocalRedpandaBroker(**kwargs)
-            else:
-                raise ValueError(
-                    f"Unknown broker value '{broker}', supported values are 'kafka', 'redpanda'"
-                )
+            self.broker = LocalKafkaBroker(**kwargs)
+        else:
+            self.broker = broker
+
+    @delegates(LocalRedpandaBroker.__init__)  # type: ignore
+    def redpanda(self, **kwargs: Any) -> "Tester":
+        """Sets tester's broker to LocalRedpandaBroker
+
+        Args:
+            listener_port: Port on which the clients (producers and consumers) can connect
+            tag: Tag of Redpanda image to use to start container
+            seastar_core: Core(s) to use byt Seastar (the framework Redpanda uses under the hood)
+            memory: The amount of memory to make available to Redpanda
+            mode: Mode to use to load configuration properties in container
+            default_log_level: Log levels to use for Redpanda
+            topics: List of topics to create after sucessfull redpanda broker startup
+            retries: Number of retries to create redpanda service
+            apply_nest_asyncio: set to True if running in notebook
+            port allocation if the requested port was taken
+        Returns:
+            An instance of tester with redpanda as broker
+        """
+        topics = set().union(*(app.get_topics() for app in self.apps))
+        kwargs["topics"] = topics
+        self.broker = LocalRedpandaBroker(**kwargs)
+        return self
 
     async def startup(self) -> None:
         """Starts the Tester"""
@@ -96,7 +110,7 @@ class Tester(FastKafka):
 
 Tester.__module__ = "fastkafka.testing"
 
-# %% ../../nbs/016_Tester.ipynb 9
+# %% ../../nbs/016_Tester.ipynb 10
 def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(producer_f).return_annotation
 
@@ -124,7 +138,7 @@ def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[...,
 
     return mirror_func
 
-# %% ../../nbs/016_Tester.ipynb 11
+# %% ../../nbs/016_Tester.ipynb 12
 def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(consumer_f).parameters["msg"]
 
@@ -143,7 +157,7 @@ def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[...,
     mirror_func.__signature__ = sig  # type: ignore
     return mirror_func
 
-# %% ../../nbs/016_Tester.ipynb 13
+# %% ../../nbs/016_Tester.ipynb 14
 @patch  # type: ignore
 def create_mirrors(self: Tester):
     for app in self.apps:
