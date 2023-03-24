@@ -19,13 +19,11 @@ from .._testing.local_redpanda_broker import LocalRedpandaBroker
 
 # %% ../../nbs/016_Tester.ipynb 6
 class Tester(FastKafka):
-    @delegates(LocalKafkaBroker.__init__)  # type: ignore
     def __init__(
         self,
         app: Union[FastKafka, List[FastKafka]],
         *,
         broker: Optional[Union[LocalKafkaBroker, LocalRedpandaBroker]] = None,
-        **kwargs: Any,
     ):
         """Mirror-like object for testing a FastFafka application
 
@@ -37,16 +35,11 @@ class Tester(FastKafka):
         super().__init__(kafka_brokers={"localhost": {"url": host, "port": port}})
         self.create_mirrors()
 
-        if broker is None:
-            topics = set().union(*(app.get_topics() for app in self.apps))
-            kwargs["topics"] = topics
-            self.broker = LocalKafkaBroker(**kwargs)
-        else:
-            self.broker = broker
+        self.broker = broker
 
     @delegates(LocalRedpandaBroker.__init__)  # type: ignore
-    def redpanda(self, **kwargs: Any) -> "Tester":
-        """Sets tester's broker to LocalRedpandaBroker
+    def using_local_redpanda(self, **kwargs: Any) -> "Tester":
+        """Starts local Redpanda broker used by the Tester instance
 
         Args:
             listener_port: Port on which the clients (producers and consumers) can connect
@@ -59,12 +52,40 @@ class Tester(FastKafka):
             retries: Number of retries to create redpanda service
             apply_nest_asyncio: set to True if running in notebook
             port allocation if the requested port was taken
+
         Returns:
-            An instance of tester with redpanda as broker
+            An instance of tester with Redpanda as broker
         """
         topics = set().union(*(app.get_topics() for app in self.apps))
-        kwargs["topics"] = topics
+        kwargs["topics"] = (
+            topics.union(kwargs["topics"]) if "topics" in kwargs else topics
+        )
         self.broker = LocalRedpandaBroker(**kwargs)
+
+        return self
+
+    @delegates(LocalKafkaBroker.__init__)  # type: ignore
+    def using_local_kafka(self, **kwargs: Any) -> "Tester":
+        """Starts local Kafka broker used by the Tester instance
+
+        Args:
+            data_dir: Path to the directory where the zookeepeer instance will save data
+            zookeeper_port: Port for clients (Kafka brokes) to connect
+            listener_port: Port on which the clients (producers and consumers) can connect
+            topics: List of topics to create after sucessfull Kafka broker startup
+            retries: Number of retries to create kafka and zookeeper services using random
+            apply_nest_asyncio: set to True if running in notebook
+            port allocation if the requested port was taken
+
+        Returns:
+            An instance of tester with Kafka as broker
+        """
+        topics = set().union(*(app.get_topics() for app in self.apps))
+        kwargs["topics"] = (
+            topics.union(kwargs["topics"]) if "topics" in kwargs else topics
+        )
+        self.broker = LocalKafkaBroker(**kwargs)
+
         return self
 
     async def startup(self) -> None:
@@ -87,6 +108,10 @@ class Tester(FastKafka):
 
     @asynccontextmanager
     async def _create_ctx(self) -> AsyncGenerator["Tester", None]:
+        if self.broker is None:
+            topics = set().union(*(app.get_topics() for app in self.apps))
+            self.broker = LocalKafkaBroker(topics=topics)
+
         bootstrap_server = await self.broker._start()
         try:
             self._set_bootstrap_servers(bootstrap_servers=bootstrap_server)
