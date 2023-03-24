@@ -30,9 +30,6 @@ jobs:
         run: |
           wget -q https://www.quarto.org/download/latest/quarto-linux-amd64.deb
           sudo dpkg -i quarto-linux-amd64.deb
-#      - uses: actions/setup-node@v3
-#        with:
-#          node-version: 18
       - name: Prepare nbdev env
         uses: fastai/workflows/nbdev-ci@master
         with:
