@@ -7,6 +7,7 @@ website:
         contents:
         - guides/Guide_04_Github_Actions_Workflow.ipynb
         - guides/Guide_30_Using_docker_to_deploy_fastkafka.ipynb   
+        - guides/Guide_31_Using_redpanda_to_test_fastkafka.ipynb   
         - section: Consuming from Kafka
           contents:
           - guides/Guide_11_Consumes_Basics.ipynb
