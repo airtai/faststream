@@ -13,13 +13,13 @@ from types import FunctionType, MethodType, UnionType
 from typing import Union
 from functools import partial
 
-# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 3
+# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 4
 def test_eq(a, b):
     "`test` that `a==b`"
     if a != b:
         raise ValueError(f"{a} != {b}")
 
-# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 5
+# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 6
 def copy_func(f):
     "Copy a non-builtin function (NB `copy.copy` does not work for this)"
     if not isinstance(f, FunctionType):
@@ -33,7 +33,7 @@ def copy_func(f):
     fn.__qualname__ = f.__qualname__
     return fn
 
-# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 11
+# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 12
 def patch_to(cls, as_prop=False, cls_method=False):
     "Decorator: add `f` to `cls`"
     if not isinstance(cls, (tuple, list)):
@@ -57,7 +57,7 @@ def patch_to(cls, as_prop=False, cls_method=False):
 
     return _inner
 
-# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 22
+# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 23
 def eval_type(t, glb, loc):
     "`eval` a type or collection of types, if needed, for annotations in py3.10+"
     if isinstance(t, str):
@@ -133,7 +133,7 @@ def get_annotations_ex(obj, *, globals=None, locals=None):
 
     return dict(ann), globals, locals
 
-# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 23
+# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 24
 def patch(f=None, *, as_prop=False, cls_method=False):
     "Decorator: add `f` to the first parameter's class (based on f's type annotations)"
     if f is None:
