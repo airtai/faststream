@@ -26,6 +26,7 @@ fastkafka._components.logger.should_supress_timestamps = True
 
 from .logger import get_logger
 from .producer_decorator import KafkaEvent, ProduceCallable
+from .docs_dependencies import _check_npm_with_local
 
 # %% ../../nbs/014_AsyncAPI.ipynb 3
 logger = get_logger(__name__)
@@ -410,38 +411,12 @@ def _generate_async_spec(
             return False
 
 # %% ../../nbs/014_AsyncAPI.ipynb 47
-def _install_docs_deps() -> None:
-    with TemporaryDirectory() as d:
-        cmd = [
-            "npx",
-            "-y",
-            "-p",
-            "@asyncapi/generator",
-            "ag",
-            "https://raw.githubusercontent.com/asyncapi/asyncapi/master/examples/simple.yml",
-            "@asyncapi/html-template",
-            "-o",
-            d,
-        ]
-
-        p = subprocess.run(  # nosec: B603 subprocess call - check for execution of untrusted input.
-            cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE
-        )
-        if p.returncode == 0:
-            logger.info("AsyncAPI generator installed")
-        else:
-            logger.error("AsyncAPI generator NOT installed!")
-            logger.info(f"Output of '$ {' '.join(cmd)}'{p.stdout.decode()}")
-            raise ValueError(
-                f"AsyncAPI generator NOT installed, used '$ {' '.join(cmd)}'{p.stdout.decode()}"
-            )
-
-
 def _generate_async_docs(
     *,
     spec_path: Path,
     docs_path: Path,
 ) -> None:
+    _check_npm_with_local()
     cmd = [
         "npx",
         "-y",
