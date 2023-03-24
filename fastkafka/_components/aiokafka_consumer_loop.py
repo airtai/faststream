@@ -105,7 +105,7 @@ async def _streamed_records(
                 yield record
 
 
-@delegates(AIOKafkaConsumer.getmany)  # type: ignore
+@delegates(AIOKafkaConsumer.getmany)
 async def _aiokafka_consumer_loop(
     consumer: AIOKafkaConsumer,
     *,

@@ -3,12 +3,54 @@
 # %% auto 0
 __all__ = ['logger', 'FastKafka', 'AwaitedMock']
 
+# %% ../../nbs/015_FastKafka.ipynb 1
+import asyncio
+import functools
+import inspect
+import json
+import types
+from asyncio import iscoroutinefunction  # do not use the version from inspect
+from collections import namedtuple
+from datetime import datetime, timedelta
+from inspect import signature
+from pathlib import Path
+from typing import *
+from unittest.mock import AsyncMock, MagicMock
+
+import anyio
+from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
+from .._components.meta import delegates, filter_using_signature, export
+from pydantic import BaseModel
+
+import fastkafka._components.logger
+
+fastkafka._components.logger.should_supress_timestamps = True
+
+import fastkafka
+from fastkafka._components.aiokafka_consumer_loop import (
+    aiokafka_consumer_loop,
+    sanitize_kafka_config,
+)
+from .._components.aiokafka_producer_manager import AIOKafkaProducerManager
+from fastkafka._components.asyncapi import (
+    ConsumeCallable,
+    ContactInfo,
+    KafkaBroker,
+    KafkaBrokers,
+    KafkaServiceInfo,
+    export_async_spec,
+)
+
+from .._components.logger import get_logger
+from .._components.producer_decorator import ProduceCallable, producer_decorator
+from .._components.basics import patch
+
 # %% ../../nbs/015_FastKafka.ipynb 3
 logger = get_logger(__name__)
 
 # %% ../../nbs/015_FastKafka.ipynb 9
-@delegates(AIOKafkaConsumer)  # type: ignore
-@delegates(AIOKafkaProducer, keep=True)  # type: ignore
+@delegates(AIOKafkaConsumer)
+@delegates(AIOKafkaProducer, keep=True)
 def _get_kafka_config(
     **kwargs,
 ) -> Dict[str, Any]:
@@ -286,7 +328,7 @@ class FastKafka:
         raise NotImplementedError
 
 # %% ../../nbs/015_FastKafka.ipynb 24
-@patch  # type: ignore
+@patch
 @delegates(AIOKafkaConsumer)
 def consumes(
     self: FastKafka,
@@ -499,8 +541,8 @@ def consumes(
     return _decorator
 
 # %% ../../nbs/015_FastKafka.ipynb 28
-@patch  # type: ignore
-@delegates(AIOKafkaProducer)  # type: ignore
+@patch
+@delegates(AIOKafkaProducer)
 def produces(
     self: FastKafka,
     topic: Optional[str] = None,
@@ -670,14 +712,14 @@ def produces(
     return _decorator
 
 # %% ../../nbs/015_FastKafka.ipynb 32
-@patch  # type: ignore
+@patch
 def get_topics(self: FastKafka) -> Iterable[str]:
     produce_topics = set(self._producers_store.keys())
     consume_topics = set(self._consumers_store.keys())
     return consume_topics.union(produce_topics)
 
 # %% ../../nbs/015_FastKafka.ipynb 34
-@patch  # type: ignore
+@patch
 def run_in_background(
     self: FastKafka,
 ) -> Callable[
@@ -714,7 +756,7 @@ def run_in_background(
     return _decorator
 
 # %% ../../nbs/015_FastKafka.ipynb 38
-@patch  # type: ignore
+@patch
 def _populate_consumers(
     self: FastKafka,
     is_shutting_down_f: Callable[[], bool],
@@ -736,7 +778,7 @@ def _populate_consumers(
     ]
 
 
-@patch  # type: ignore
+@patch
 async def _shutdown_consumers(
     self: FastKafka,
 ) -> None:
@@ -784,7 +826,7 @@ async def _create_producer(  # type: ignore
     return producer
 
 
-@patch  # type: ignore
+@patch
 async def _populate_producers(self: FastKafka) -> None:
     """Populates the producers for the FastKafka instance.
 
@@ -820,7 +862,7 @@ async def _populate_producers(self: FastKafka) -> None:
     )
 
 
-@patch  # type: ignore
+@patch
 async def _shutdown_producers(self: FastKafka) -> None:
     [await producer.stop() for producer in self._producers_list[::-1]]
     # Remove references to stale producers
@@ -841,7 +883,7 @@ async def _shutdown_producers(self: FastKafka) -> None:
     )
 
 # %% ../../nbs/015_FastKafka.ipynb 42
-@patch  # type: ignore
+@patch
 async def _populate_bg_tasks(
     self: FastKafka,
 ) -> None:
@@ -854,7 +896,7 @@ async def _populate_bg_tasks(
     self._running_bg_tasks = [_start_bg_task(task) for task in self._scheduled_bg_tasks]
 
 
-@patch  # type: ignore
+@patch
 async def _shutdown_bg_tasks(
     self: FastKafka,
 ) -> None:
@@ -877,7 +919,7 @@ async def _shutdown_bg_tasks(
         )
 
 # %% ../../nbs/015_FastKafka.ipynb 44
-@patch  # type: ignore
+@patch
 async def startup(self: FastKafka) -> None:
     def is_shutting_down_f(self: FastKafka = self) -> bool:
         return self._is_shutting_down
@@ -890,7 +932,7 @@ async def startup(self: FastKafka) -> None:
     self._is_started = True
 
 
-@patch  # type: ignore
+@patch
 async def shutdown(self: FastKafka) -> None:
     self._is_shutting_down = True
 
@@ -902,7 +944,7 @@ async def shutdown(self: FastKafka) -> None:
     self._is_started = False
 
 # %% ../../nbs/015_FastKafka.ipynb 49
-@patch  # type: ignore
+@patch
 def create_docs(self: FastKafka) -> None:
     export_async_spec(
         consumers={
@@ -920,7 +962,7 @@ def create_docs(self: FastKafka) -> None:
 class AwaitedMock:
     @staticmethod
     def _await_for(f: Callable[..., Any]) -> Callable[..., Any]:
-        @delegates(f)  # type: ignore
+        @delegates(f)
         async def inner(*args, f=f, timeout: int = 60, **kwargs) -> Any:
             if inspect.iscoroutinefunction(f):
                 return await asyncio.wait_for(f(*args, **kwargs), timeout=timeout)
@@ -951,7 +993,7 @@ class AwaitedMock:
                     setattr(self, name, self._await_for(f))
 
 # %% ../../nbs/015_FastKafka.ipynb 54
-@patch  # type: ignore
+@patch
 def create_mocks(self: FastKafka) -> None:
     """Creates self.mocks as a named tuple mapping a new function obtained by calling the original functions and a mock"""
     app_methods = [f for f, _ in self._consumers_store.values()] + [

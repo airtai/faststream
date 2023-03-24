@@ -10,17 +10,20 @@ import functools
 import types
 
 from types import FunctionType, MethodType, UnionType
-from typing import Union
+from typing import Union, TypeVar, Any, Callable, Type
 from functools import partial
 
-# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 4
-def test_eq(a, b):
+# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 3
+def test_eq(a: Any, b: Any) -> None:
     "`test` that `a==b`"
     if a != b:
         raise ValueError(f"{a} != {b}")
 
-# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 6
-def copy_func(f):
+# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 5
+F = TypeVar("F", bound=Callable[..., Any])
+
+
+def copy_func(f: FunctionType) -> FunctionType:
     "Copy a non-builtin function (NB `copy.copy` does not work for this)"
     if not isinstance(f, FunctionType):
         return cp.copy(f)
@@ -33,13 +36,15 @@ def copy_func(f):
     fn.__qualname__ = f.__qualname__
     return fn
 
-# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 12
-def patch_to(cls, as_prop=False, cls_method=False):
+# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 11
+def patch_to(
+    cls: Type, as_prop: bool = False, cls_method: bool = False
+) -> Callable[[F], F]:
     "Decorator: add `f` to `cls`"
     if not isinstance(cls, (tuple, list)):
         cls = (cls,)
 
-    def _inner(f):
+    def _inner(f: F) -> F:
         for c_ in cls:
             nf = copy_func(f)
             nm = f.__name__
@@ -57,7 +62,7 @@ def patch_to(cls, as_prop=False, cls_method=False):
 
     return _inner
 
-# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 23
+# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 22
 def eval_type(t, glb, loc):
     "`eval` a type or collection of types, if needed, for annotations in py3.10+"
     if isinstance(t, str):
@@ -133,8 +138,8 @@ def get_annotations_ex(obj, *, globals=None, locals=None):
 
     return dict(ann), globals, locals
 
-# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 24
-def patch(f=None, *, as_prop=False, cls_method=False):
+# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 23
+def patch(f: F = None, *, as_prop: bool = False, cls_method: bool = False) -> F:
     "Decorator: add `f` to the first parameter's class (based on f's type annotations)"
     if f is None:
         return partial(patch, as_prop=as_prop, cls_method=cls_method)

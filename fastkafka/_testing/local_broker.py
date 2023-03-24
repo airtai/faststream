@@ -160,8 +160,8 @@ group.initial.rebalance.delay.ms=0
 class LocalKafkaBroker:
     """LocalKafkaBroker class, used for running unique kafka brokers in tests to prevent topic clashing."""
 
-    @delegates(get_kafka_config_string)  # type: ignore
-    @delegates(get_zookeeper_config_string, keep=True)  # type: ignore
+    @delegates(get_kafka_config_string)
+    @delegates(get_zookeeper_config_string, keep=True)
     def __init__(
         self,
         topics: Iterable[str] = [],
@@ -296,7 +296,7 @@ class LocalKafkaBroker:
 LocalKafkaBroker.__module__ = "fastkafka.testing"
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 14
-@patch(cls_method=True)  # type: ignore
+@patch(cls_method=True)
 def _check_deps(cls: LocalKafkaBroker) -> None:
     if not check_java():
         raise RuntimeError(
@@ -375,7 +375,7 @@ async def write_config_and_run(
     )
 
 
-@patch  # type: ignore
+@patch
 def get_service_config_string(
     self: LocalKafkaBroker, service: str, *, data_dir: Path
 ) -> str:
@@ -386,7 +386,7 @@ def get_service_config_string(
         return get_zookeeper_config_string(data_dir=data_dir, **service_kwargs)
 
 
-@patch  # type: ignore
+@patch
 async def _start_service(self: LocalKafkaBroker, service: str = "kafka") -> None:
     logger.info(f"Starting {service}...")
 
@@ -438,17 +438,17 @@ async def _start_service(self: LocalKafkaBroker, service: str = "kafka") -> None
     raise ValueError(f"Could not start {service} with params: {configs_tried}")
 
 
-@patch  # type: ignore
+@patch
 async def _start_kafka(self: LocalKafkaBroker) -> None:
     return await self._start_service("kafka")
 
 
-@patch  # type: ignore
+@patch
 async def _start_zookeeper(self: LocalKafkaBroker) -> None:
     return await self._start_service("zookeeper")
 
 
-@patch  # type: ignore
+@patch
 async def _create_topics(self: LocalKafkaBroker) -> None:
     listener_port = self.kafka_kwargs.get("listener_port", 9092)
     bootstrap_server = f"127.0.0.1:{listener_port}"
@@ -476,7 +476,7 @@ async def _create_topics(self: LocalKafkaBroker) -> None:
         raise ValueError("Timed out while creating missing topics!")
 
 
-@patch  # type: ignore
+@patch
 async def _start(self: LocalKafkaBroker) -> str:
     self._check_deps()
 
@@ -497,7 +497,7 @@ async def _start(self: LocalKafkaBroker) -> str:
     return bootstrap_server
 
 
-@patch  # type: ignore
+@patch
 async def _stop(self: LocalKafkaBroker) -> None:
     await terminate_asyncio_process(self.kafka_task)  # type: ignore
     await terminate_asyncio_process(self.zookeeper_task)  # type: ignore
@@ -505,7 +505,7 @@ async def _stop(self: LocalKafkaBroker) -> None:
     self._is_started = False
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 21
-@patch  # type: ignore
+@patch
 def start(self: LocalKafkaBroker) -> str:
     """Starts a local kafka broker and zookeeper instance synchronously
     Returns:
@@ -556,7 +556,7 @@ def start(self: LocalKafkaBroker) -> str:
         logger.info(f"{self.__class__.__name__}.start(): exited.")
 
 
-@patch  # type: ignore
+@patch
 def stop(self: LocalKafkaBroker) -> None:
     """Stops a local kafka broker and zookeeper instance synchronously
     Returns:
