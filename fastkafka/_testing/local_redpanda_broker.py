@@ -15,19 +15,19 @@ from .._components.basics import patch
 
 from .._components._subprocess import terminate_asyncio_process
 from .._components.helpers import in_notebook
-from .._components.logger import get_logger
+from .._components.logger import get_logger, supress_timestamps
 from .local_broker import get_free_port, run_and_match
 
-# %% ../../nbs/017_LocalRedpandaBroker.ipynb 3
+# %% ../../nbs/017_LocalRedpandaBroker.ipynb 2
 if in_notebook():
     from tqdm.notebook import tqdm
 else:
     from tqdm import tqdm
 
-# %% ../../nbs/017_LocalRedpandaBroker.ipynb 4
+# %% ../../nbs/017_LocalRedpandaBroker.ipynb 3
 logger = get_logger(__name__)
 
-# %% ../../nbs/017_LocalRedpandaBroker.ipynb 6
+# %% ../../nbs/017_LocalRedpandaBroker.ipynb 5
 class LocalRedpandaBroker:
     """LocalRedpandaBroker class, used for running unique redpanda brokers in tests to prevent topic clashing."""
 
@@ -140,7 +140,7 @@ class LocalRedpandaBroker:
 
 LocalRedpandaBroker.__module__ = "fastkafka.testing"
 
-# %% ../../nbs/017_LocalRedpandaBroker.ipynb 8
+# %% ../../nbs/017_LocalRedpandaBroker.ipynb 7
 async def check_docker() -> bool:
     try:
         docker_task = await run_and_match("docker", "-v", pattern="Docker version")
@@ -149,7 +149,7 @@ async def check_docker() -> bool:
         logger.debug(f"Error in check_docker() : {e}")
         return False
 
-# %% ../../nbs/017_LocalRedpandaBroker.ipynb 10
+# %% ../../nbs/017_LocalRedpandaBroker.ipynb 9
 @patch(cls_method=True)  # type: ignore
 def _check_deps(cls: LocalRedpandaBroker) -> None:
     if not check_docker():
@@ -157,7 +157,7 @@ def _check_deps(cls: LocalRedpandaBroker) -> None:
             "Docker installation not found! Please install docker manually and retry."
         )
 
-# %% ../../nbs/017_LocalRedpandaBroker.ipynb 13
+# %% ../../nbs/017_LocalRedpandaBroker.ipynb 12
 @patch  # type: ignore
 async def _start_redpanda(self: LocalRedpandaBroker, service: str = "redpanda") -> None:
     logger.info(f"Starting {service}...")
@@ -270,7 +270,7 @@ async def _stop(self: LocalRedpandaBroker) -> None:
     self.temporary_directory.__exit__(None, None, None)  # type: ignore
     self._is_started = False
 
-# %% ../../nbs/017_LocalRedpandaBroker.ipynb 15
+# %% ../../nbs/017_LocalRedpandaBroker.ipynb 14
 @patch  # type: ignore
 def start(self: LocalRedpandaBroker) -> str:
     """Starts a local redpanda broker instance synchronously

@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 from typing import *
 
 from .._components.basics import patch
-from fastcore.meta import delegates
+from .._components.meta import delegates
 from pydantic import BaseModel
 
 from .app import FastKafka

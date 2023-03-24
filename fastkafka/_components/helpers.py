@@ -29,7 +29,7 @@ from typing import *
 
 import docstring_parser
 import typer
-from fastcore.meta import delegates
+from .meta import delegates
 
 from .logger import get_logger
 

@@ -31,10 +31,9 @@ def copy_func(f):
     fn.__dict__.update(f.__dict__)
     fn.__annotations__.update(f.__annotations__)
     fn.__qualname__ = f.__qualname__
-    fn.__doc__ = fn.__doc__  # Add for documentation transfer
     return fn
 
-# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 10
+# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 11
 def patch_to(cls, as_prop=False, cls_method=False):
     "Decorator: add `f` to `cls`"
     if not isinstance(cls, (tuple, list)):
@@ -53,11 +52,12 @@ def patch_to(cls, as_prop=False, cls_method=False):
             else:
                 setattr(c_, nm, property(nf) if as_prop else nf)
         # Avoid clobbering existing functions
-        return globals().get(nm, builtins.__dict__.get(nm, None))
+        existing_func = globals().get(nm, builtins.__dict__.get(nm, None))
+        return existing_func
 
     return _inner
 
-# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 20
+# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 22
 def eval_type(t, glb, loc):
     "`eval` a type or collection of types, if needed, for annotations in py3.10+"
     if isinstance(t, str):
@@ -133,7 +133,7 @@ def get_annotations_ex(obj, *, globals=None, locals=None):
 
     return dict(ann), globals, locals
 
-# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 21
+# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 23
 def patch(f=None, *, as_prop=False, cls_method=False):
     "Decorator: add `f` to the first parameter's class (based on f's type annotations)"
     if f is None:

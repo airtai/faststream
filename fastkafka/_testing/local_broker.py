@@ -16,7 +16,7 @@ from typing import *
 import asyncer
 import nest_asyncio
 from .._components.basics import patch
-from fastcore.meta import delegates
+from .._components.meta import delegates
 
 from .._components._subprocess import terminate_asyncio_process
 from .._components.helpers import filter_using_signature, in_notebook

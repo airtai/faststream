@@ -19,7 +19,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import anyio
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
-from fastcore.meta import delegates
+from .._components.meta import delegates
 from pydantic import BaseModel
 
 import fastkafka._components.logger
