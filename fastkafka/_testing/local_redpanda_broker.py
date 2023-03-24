@@ -68,7 +68,7 @@ class LocalRedpandaBroker:
         return self._is_started
 
     @classmethod
-    def _check_deps(cls) -> None:
+    async def _check_deps(cls) -> None:
         """Prepares the environment for running redpanda brokers.
         Returns:
            None
@@ -151,8 +151,8 @@ async def check_docker() -> bool:
 
 # %% ../../nbs/017_LocalRedpandaBroker.ipynb 10
 @patch(cls_method=True)  # type: ignore
-def _check_deps(cls: LocalRedpandaBroker) -> None:
-    if not check_docker():
+async def _check_deps(cls: LocalRedpandaBroker) -> None:
+    if not await check_docker():
         raise RuntimeError(
             "Docker installation not found! Please install docker manually and retry."
         )
@@ -246,7 +246,7 @@ async def _create_topics(self: LocalRedpandaBroker) -> None:
 
 @patch  # type: ignore
 async def _start(self: LocalRedpandaBroker) -> str:
-    self._check_deps()
+    await self._check_deps()
 
     self.temporary_directory = TemporaryDirectory()
     self.temporary_directory_path = Path(self.temporary_directory.__enter__())
@@ -266,7 +266,9 @@ async def _start(self: LocalRedpandaBroker) -> str:
 
 @patch  # type: ignore
 async def _stop(self: LocalRedpandaBroker) -> None:
+    logger.info(f"Stopping redpanda...")
     await terminate_asyncio_process(self.redpanda_task)  # type: ignore
+    logger.info(f"Redpanda stopped.")
     self.temporary_directory.__exit__(None, None, None)  # type: ignore
     self._is_started = False
 

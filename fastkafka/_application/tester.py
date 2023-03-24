@@ -44,11 +44,14 @@ class Tester(FastKafka):
         else:
             topics = set().union(*(app.get_topics() for app in self.apps))
             kwargs["topics"] = topics
-            self.broker = (
-                LocalRedpandaBroker(**kwargs)
-                if broker == "redpanda"
-                else LocalKafkaBroker(**kwargs)
-            )
+            if broker == "kafka":
+                self.broker = LocalKafkaBroker(**kwargs)
+            elif broker == "redpanda":
+                self.broker = LocalRedpandaBroker(**kwargs)
+            else:
+                raise ValueError(
+                    f"Unknown broker value '{broker}', supported values are 'kafka', 'redpanda'"
+                )
 
     async def startup(self) -> None:
         """Starts the Tester"""
