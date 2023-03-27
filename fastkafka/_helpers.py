@@ -18,7 +18,7 @@ import aiokafka
 from aiokafka.structs import RecordMetadata
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from aiokafka.helpers import create_ssl_context
-from ._components.fastcore_deps import delegates
+from ._components.meta import delegates
 from IPython.display import Markdown
 
 from ._components.helpers import in_notebook
