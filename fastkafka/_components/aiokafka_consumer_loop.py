@@ -106,7 +106,7 @@ async def _streamed_records(
 
 
 @delegates(AIOKafkaConsumer.getmany)
-async def _aiokafka_consumer_loop(
+async def _aiokafka_consumer_loop(  # type: ignore
     consumer: AIOKafkaConsumer,
     *,
     topic: str,
@@ -114,7 +114,7 @@ async def _aiokafka_consumer_loop(
     max_buffer_size: int = 100_000,
     msg_type: Type[BaseModel],
     is_shutting_down_f: Callable[[], bool],
-    **kwargs,
+    **kwargs: Any,
 ) -> None:
     """
     Consumer loop for infinite pooling of the AIOKafka consumer for new messages. Calls consumer.getmany()
@@ -174,17 +174,17 @@ def sanitize_kafka_config(**kwargs: Any) -> Dict[str, Any]:
     return {k: "*" * len(v) if "pass" in k.lower() else v for k, v in kwargs.items()}
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 26
-@delegates(AIOKafkaConsumer)  # type: ignore
-@delegates(_aiokafka_consumer_loop, keep=True)  # type: ignore
+@delegates(AIOKafkaConsumer)
+@delegates(_aiokafka_consumer_loop, keep=True)
 async def aiokafka_consumer_loop(
     topic: str,
     *,
     timeout_ms: int = 100,
     max_buffer_size: int = 100_000,
-    callback: Dict[str, Callable[[BaseModel], Union[None, Awaitable[None]]]],
-    msg_type: Dict[str, Type[BaseModel]],
+    callback: Callable[[BaseModel], Union[None, Awaitable[None]]],
+    msg_type: Type[BaseModel],
     is_shutting_down_f: Callable[[], bool],
-    **kwargs,
+    **kwargs: Any,
 ) -> None:
     """Consumer loop for infinite pooling of the AIOKafka consumer for new messages. Creates and starts AIOKafkaConsumer
     and runs _aio_kafka_consumer loop fo infinite poling of the consumer for new messages.

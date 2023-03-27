@@ -541,17 +541,9 @@ def start(self: LocalKafkaBroker) -> str:
                 logger.error(msg)
                 raise RuntimeError(msg)
 
-        try:
-            retval = loop.run_until_complete(self._start())
-            logger.info(f"{self.__class__}.start(): returning {retval}")
-            return retval
-        except RuntimeError as e:
-            logger.warning(
-                f"{self.__class__.__name__}.start(): RuntimeError raised for loop ({loop}): {e}"
-            )
-            logger.warning(
-                f"{self.__class__.__name__}.start(): calling nest_asyncio.apply()"
-            )
+        retval = loop.run_until_complete(self._start())
+        logger.info(f"{self.__class__}.start(): returning {retval}")
+        return retval
     finally:
         logger.info(f"{self.__class__.__name__}.start(): exited.")
 

@@ -52,7 +52,7 @@ logger = get_logger(__name__)
 @delegates(AIOKafkaConsumer)
 @delegates(AIOKafkaProducer, keep=True)
 def _get_kafka_config(
-    **kwargs,
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Get kafka config"""
     allowed_keys = set(signature(_get_kafka_config).parameters.keys())
@@ -147,7 +147,7 @@ class FastKafka:
         kafka_brokers: Dict[str, Any],
         root_path: Optional[Union[Path, str]] = None,
         bootstrap_servers: Optional[Union[str, List[str]]] = None,
-        **kwargs,
+        **kwargs: Any,
     ):
         """Creates FastKafka application
 
@@ -963,7 +963,9 @@ class AwaitedMock:
     @staticmethod
     def _await_for(f: Callable[..., Any]) -> Callable[..., Any]:
         @delegates(f)
-        async def inner(*args, f=f, timeout: int = 60, **kwargs) -> Any:
+        async def inner(
+            *args: Any, f: Callable[..., Any] = f, timeout: int = 60, **kwargs: Any
+        ) -> Any:
             if inspect.iscoroutinefunction(f):
                 return await asyncio.wait_for(f(*args, **kwargs), timeout=timeout)
             else:
@@ -981,7 +983,7 @@ class AwaitedMock:
 
                 raise e
 
-        return inner  # type: ignore
+        return inner
 
     def __init__(self, o: Any):
         self._o = o

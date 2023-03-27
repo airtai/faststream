@@ -19,7 +19,7 @@ from .._testing.local_redpanda_broker import LocalRedpandaBroker
 
 # %% ../../nbs/016_Tester.ipynb 6
 class Tester(FastKafka):
-    @delegates(LocalKafkaBroker.__init__)  # type: ignore
+    @delegates(LocalKafkaBroker.__init__)
     def __init__(
         self,
         app: Union[FastKafka, List[FastKafka]],

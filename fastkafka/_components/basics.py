@@ -8,9 +8,10 @@ import builtins
 import copy as cp
 import functools
 import types
+import sys
 
 from types import FunctionType, MethodType, UnionType
-from typing import Union, TypeVar, Any, Callable, Type
+from typing import *
 from functools import partial
 
 # %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 3
@@ -23,7 +24,7 @@ def test_eq(a: Any, b: Any) -> None:
 F = TypeVar("F", bound=Callable[..., Any])
 
 
-def copy_func(f: FunctionType) -> FunctionType:
+def copy_func(f: Union[F, FunctionType]) -> Union[F, FunctionType]:
     "Copy a non-builtin function (NB `copy.copy` does not work for this)"
     if not isinstance(f, FunctionType):
         return cp.copy(f)
@@ -38,11 +39,11 @@ def copy_func(f: FunctionType) -> FunctionType:
 
 # %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 11
 def patch_to(
-    cls: Type, as_prop: bool = False, cls_method: bool = False
+    cls: Union[Type, Iterable[Type]], as_prop: bool = False, cls_method: bool = False
 ) -> Callable[[F], F]:
     "Decorator: add `f` to `cls`"
     if not isinstance(cls, (tuple, list)):
-        cls = (cls,)
+        cls = (cls,)  # type: ignore
 
     def _inner(f: F) -> F:
         for c_ in cls:
@@ -58,12 +59,14 @@ def patch_to(
                 setattr(c_, nm, property(nf) if as_prop else nf)
         # Avoid clobbering existing functions
         existing_func = globals().get(nm, builtins.__dict__.get(nm, None))
-        return existing_func
+        return existing_func  # type: ignore
 
     return _inner
 
 # %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 22
-def eval_type(t, glb, loc):
+def eval_type(
+    t: Sequence, glb: Optional[Dict[str, Any]], loc: Optional[Mapping[str, object]]
+) -> Any:
     "`eval` a type or collection of types, if needed, for annotations in py3.10+"
     if isinstance(t, str):
         if "|" in t:
@@ -74,15 +77,18 @@ def eval_type(t, glb, loc):
     return t
 
 
-def union2tuple(t):
-    if getattr(t, "__origin__", None) is Union or (
-        UnionType and isinstance(t, UnionType)
-    ):
+def union2tuple(t: UnionType) -> Tuple[Any, ...]:
+    if getattr(t, "__origin__", None) is Union or isinstance(t, UnionType):
         return t.__args__
     return t
 
 
-def get_annotations_ex(obj, *, globals=None, locals=None):
+def get_annotations_ex(
+    obj: Union[FunctionType, Type, F],
+    *,
+    globals: Optional[Dict[str, Any]] = None,
+    locals: Optional[Dict[str, Any]] = None,
+) -> Tuple[Dict[str, Any], Union[Any, Dict[str, Any], None], Dict[str, Any]]:
     "Backport of py3.10 `get_annotations` that returns globals/locals"
     if isinstance(obj, type):
         obj_dict = getattr(obj, "__dict__", None)
@@ -108,7 +114,7 @@ def get_annotations_ex(obj, *, globals=None, locals=None):
     elif callable(obj):
         ann = getattr(obj, "__annotations__", None)
         obj_globals = getattr(obj, "__globals__", None)
-        obj_locals, unwrap = None, obj
+        obj_locals, unwrap = None, obj  # type: ignore
     else:
         raise TypeError(f"{obj!r} is not a module, class, or callable.")
 
@@ -122,27 +128,29 @@ def get_annotations_ex(obj, *, globals=None, locals=None):
     if unwrap is not None:
         while True:
             if hasattr(unwrap, "__wrapped__"):
-                unwrap = unwrap.__wrapped__  # type: ignore
+                unwrap = unwrap.__wrapped__
                 continue
             if isinstance(unwrap, functools.partial):
-                unwrap = unwrap.func
+                unwrap = unwrap.func  # type: ignore
                 continue
             break
         if hasattr(unwrap, "__globals__"):
-            obj_globals = unwrap.__globals__  # type: ignore
+            obj_globals = unwrap.__globals__
 
     if globals is None:
         globals = obj_globals
     if locals is None:
         locals = obj_locals
 
-    return dict(ann), globals, locals
+    return dict(ann), globals, locals  # type: ignore
 
 # %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 23
-def patch(f: F = None, *, as_prop: bool = False, cls_method: bool = False) -> F:
+def patch(
+    f: Optional[F] = None, *, as_prop: bool = False, cls_method: bool = False
+) -> Union[partial[F], F]:
     "Decorator: add `f` to the first parameter's class (based on f's type annotations)"
     if f is None:
-        return partial(patch, as_prop=as_prop, cls_method=cls_method)
+        return partial(patch, as_prop=as_prop, cls_method=cls_method)  # type: ignore
     ann, glb, loc = get_annotations_ex(f)
     cls = union2tuple(
         eval_type(ann.pop("cls") if cls_method else next(iter(ann.values())), glb, loc)

@@ -12,9 +12,10 @@ import textwrap
 from datetime import datetime, timedelta
 from typing import *
 
+import anyio
 import aiohttp
 import aiokafka
-import anyio
+from aiokafka.structs import RecordMetadata
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from aiokafka.helpers import create_ssl_context
 from ._components.meta import delegates
@@ -33,7 +34,7 @@ else:
 logger = get_logger(__name__)
 
 # %% ../nbs/999_Helpers.ipynb 9
-@delegates(AIOKafkaProducer)  # type: ignore
+@delegates(AIOKafkaProducer)
 def aiokafka2confluent(**kwargs: Dict[str, Any]) -> Dict[str, Any]:
     """Converts AIOKafka styled config dictionary into Confluence styled one
 
@@ -203,13 +204,13 @@ def confluent2aiokafka(confluent_config: Dict[str, Any]) -> Dict[str, Any]:
     return aiokafka_config
 
 # %% ../nbs/999_Helpers.ipynb 14
-@delegates(AIOKafkaProducer)  # type: ignore
-async def produce_messages(
+@delegates(AIOKafkaProducer)
+async def produce_messages(  # type: ignore
     *,
     topic: str,
     msgs: List[Any],
     **kwargs: Dict[str, Any],
-) -> List[aiokafka.structs.RecordMetadata]:
+) -> List[RecordMetadata]:
     """Produces messages to Kafka topic
 
     Args:
@@ -363,13 +364,13 @@ async def produce_messages(
         await p.stop()
 
 # %% ../nbs/999_Helpers.ipynb 17
-@delegates(AIOKafkaConsumer)  # type: ignore
+@delegates(AIOKafkaConsumer)
 async def consumes_messages(
     *,
     topic: str,
     msgs_count: int,
     **kwargs: Dict[str, Any],
-) -> List[Any]:
+) -> None:
     """Consumes messages
     Args:
         topic: Topic name
@@ -554,8 +555,8 @@ async def consumes_messages(
         await consumer.stop()
 
 # %% ../nbs/999_Helpers.ipynb 20
-@delegates(AIOKafkaConsumer)  # type: ignore
-@delegates(AIOKafkaProducer, keep=True)  # type: ignore
+@delegates(AIOKafkaConsumer)
+@delegates(AIOKafkaProducer, keep=True)
 async def produce_and_consume_messages(
     *,
     produce_topic: str,
@@ -818,11 +819,11 @@ async def produce_and_consume_messages(
     """
     async with anyio.create_task_group() as tg:
         tg.start_soon(
-            lambda d: produce_messages(**d),  # type: ignore
+            lambda d: produce_messages(**d),
             dict(msgs=msgs, topic=produce_topic, **kwargs),
         )
         tg.start_soon(
-            lambda d: consumes_messages(**d),  # type: ignore
+            lambda d: consumes_messages(**d),
             dict(
                 msgs_count=msgs_count,
                 topic=consume_topic,

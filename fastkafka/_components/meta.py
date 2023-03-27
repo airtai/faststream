@@ -16,19 +16,19 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 # %% ../../nbs/095_Fastcore_Meta_Deps.ipynb 6
 def _delegates_without_docs(
-    to: Optional[FunctionType] = None,  # Delegatee
+    to: Optional[F] = None,  # Delegatee
     keep: bool = False,  # Keep `kwargs` in decorated function?
-    but: Optional[List[str]] = None,
-) -> FunctionType:  # Exclude these parameters from signature
+    but: Optional[List[str]] = None,  # Exclude these parameters from signature
+) -> Callable[[F], F]:
     "Decorator: replace `**kwargs` in signature with params from `to`"
     if but is None:
         but = []
 
-    def _f(f: FunctionType) -> Callable[[FunctionType], FunctionType]:
+    def _f(f: F) -> F:
         if to is None:
-            to_f, from_f = f.__base__.__init__, f.__init__
+            to_f, from_f = f.__base__.__init__, f.__init__  # type: ignore
         else:
-            to_f, from_f = to.__init__ if isinstance(to, type) else to, f
+            to_f, from_f = to.__init__ if isinstance(to, type) else to, f  # type: ignore
         from_f = getattr(from_f, "__func__", from_f)
         to_f = getattr(to_f, "__func__", to_f)
         if hasattr(from_f, "__delwrap__"):
@@ -39,19 +39,19 @@ def _delegates_without_docs(
         s2 = {
             k: v.replace(kind=inspect.Parameter.KEYWORD_ONLY)
             for k, v in inspect.signature(to_f).parameters.items()
-            if v.default != inspect.Parameter.empty and k not in sigd and k not in but
+            if v.default != inspect.Parameter.empty and k not in sigd and k not in but  # type: ignore
         }
         anno = {
             k: v
             for k, v in getattr(to_f, "__annotations__", {}).items()
-            if k not in sigd and k not in but
+            if k not in sigd and k not in but  # type: ignore
         }
         sigd.update(s2)
         if keep:
             sigd["kwargs"] = k
         else:
             from_f.__delwrap__ = to_f
-        from_f.__signature__ = sig.replace(parameters=sigd.values())
+        from_f.__signature__ = sig.replace(parameters=list(sigd.values()))
         if hasattr(from_f, "__annotations__"):
             from_f.__annotations__.update(anno)
         return f
@@ -116,7 +116,7 @@ def delegates(
 
             return __combine_params
 
-        @_combine_params(o)
+        @_combine_params(o)  # type: ignore
         @_delegates_without_docs(o, keep=keep, but=but)  # type: ignore
         @wraps(f)
         def _f(*args: Any, **kwargs: Any) -> Any:
