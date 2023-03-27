@@ -14,7 +14,7 @@ from types import FunctionType
 from typing import *
 from functools import wraps
 
-from types import FunctionType, MethodType, UnionType
+from types import FunctionType, MethodType
 from typing import *
 from functools import partial
 import docstring_parser
@@ -83,10 +83,17 @@ def eval_type(
     return t
 
 
-def union2tuple(t: UnionType) -> Tuple[Any, ...]:
-    if getattr(t, "__origin__", None) is Union or isinstance(t, UnionType):
-        return t.__args__
-    return t
+def union2tuple(t) -> Tuple[Any, ...]:  # type: ignore
+    if getattr(t, "__origin__", None) is Union:
+        return t.__args__  # type: ignore
+    try:
+        from types import UnionType
+
+        if isinstance(t, UnionType):
+            return t.__args__
+    except ImportError as e:
+        pass
+    return t  # type: ignore
 
 
 def get_annotations_ex(
