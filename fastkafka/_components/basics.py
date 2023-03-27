@@ -35,9 +35,10 @@ def copy_func(f: Union[F, FunctionType]) -> Union[F, FunctionType]:
     fn.__dict__.update(f.__dict__)
     fn.__annotations__.update(f.__annotations__)
     fn.__qualname__ = f.__qualname__
+    fn.__doc__ = f.__doc__
     return fn
 
-# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 11
+# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 10
 def patch_to(
     cls: Union[Type, Iterable[Type]], as_prop: bool = False, cls_method: bool = False
 ) -> Callable[[F], F]:
@@ -63,7 +64,7 @@ def patch_to(
 
     return _inner
 
-# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 22
+# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 21
 def eval_type(
     t: Sequence, glb: Optional[Dict[str, Any]], loc: Optional[Mapping[str, object]]
 ) -> Any:
@@ -144,7 +145,7 @@ def get_annotations_ex(
 
     return dict(ann), globals, locals  # type: ignore
 
-# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 23
+# %% ../../nbs/096_Fastcore_Basics_Deps.ipynb 22
 def patch(
     f: Optional[F] = None, *, as_prop: bool = False, cls_method: bool = False
 ) -> Union[partial[F], F]:
