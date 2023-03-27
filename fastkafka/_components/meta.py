@@ -184,7 +184,10 @@ def _delegates_without_docs(
             return f
         sig = inspect.signature(from_f)
         sigd = dict(sig.parameters)
-        k = sigd.pop("kwargs")
+        if "kwargs" in sigd:
+            k = sigd.pop("kwargs")
+        else:
+            k = None
         s2 = {
             k: v.replace(kind=inspect.Parameter.KEYWORD_ONLY)
             for k, v in inspect.signature(to_f).parameters.items()
@@ -196,7 +199,7 @@ def _delegates_without_docs(
             if k not in sigd and k not in but  # type: ignore
         }
         sigd.update(s2)
-        if keep:
+        if keep and k is not None:
             sigd["kwargs"] = k
         else:
             from_f.__delwrap__ = to_f

@@ -6,6 +6,7 @@ __all__ = ['dummy']
 # %% ../nbs/000_Testing_export.ipynb 1
 from ._application.tester import Tester
 from ._testing.local_broker import LocalKafkaBroker
+from ._testing.local_redpanda_broker import LocalRedpandaBroker
 from fastkafka._testing.test_utils import (
     display_docs,
     mock_AIOKafkaProducer_send,
@@ -16,6 +17,7 @@ from fastkafka._testing.test_utils import (
 
 __all__ = [
     "LocalKafkaBroker",
+    "LocalRedpandaBroker",
     "Tester",
     "nb_safe_seed",
     "true_after",
@@ -24,7 +26,7 @@ __all__ = [
     "display_docs",
 ]
 
-# %% ../nbs/000_Testing_export.ipynb 2
+# %% ../nbs/000_Testing_export.ipynb 3
 def dummy() -> None:
     pass
 

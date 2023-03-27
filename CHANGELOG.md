@@ -2,51 +2,46 @@
 
 <!-- do not remove -->
 
-## 0.3.0rc2
+## 0.3.1
+
+-  README.md file updated
+
+
+## 0.3.0
 
 ### New Features
+
+- Guide for fastkafka produces using partition key ([#172](https://github.com/airtai/fastkafka/pull/172)), thanks to [@Sternakt](https://github.com/Sternakt)
+  - Closes #161
 
 - Add support for Redpanda for testing and deployment ([#181](https://github.com/airtai/fastkafka/pull/181)), thanks to [@kumaranvpl](https://github.com/kumaranvpl)
 
 - Remove bootstrap_servers from __init__ and use the name of broker as an option when running/testing ([#134](https://github.com/airtai/fastkafka/issues/134))
-
-### Bugs Squashed
-
-- Fix the helper.py link in CHANGELOG.md ([#165](https://github.com/airtai/fastkafka/issues/165))
-
-
-## 0.3.0rc0
-
-### New Features
 
 - Add a GH action file to check for broken links in the docs ([#163](https://github.com/airtai/fastkafka/issues/163))
 
 - Optimize requirements for testing and docs ([#151](https://github.com/airtai/fastkafka/issues/151))
 
 - Break requirements into base and optional for testing and dev ([#124](https://github.com/airtai/fastkafka/issues/124))
-  - MInimize base requirements needed just for running the service.
-
-Move to setup.py
+  - Minimize base requirements needed just for running the service.
 
 - Add link to example git repo into guide for building docs using actions ([#81](https://github.com/airtai/fastkafka/issues/81))
 
 - Add logging for run_in_background ([#46](https://github.com/airtai/fastkafka/issues/46))
 
 - Implement partition Key mechanism for producers ([#16](https://github.com/airtai/fastkafka/issues/16))
-  - - [x] Implement partition key mechanism for `@produces` decorator
-Implemented behaviour:
-  1. A method decorated with `@produces` can return defined message as-is: the message is wrapped in a Event object with key=None and passed to producer = message sent without defined key, partition chosen at random
-  2. A method decorated with `@produces` can return defined message wrapped in an Event object with key argument value in bytes = message sent to kafka with defined key, partition chosen using the defined key
 
 ### Bugs Squashed
+
+- Implement checks for npm installation and version ([#176](https://github.com/airtai/fastkafka/pull/176)), thanks to [@Sternakt](https://github.com/Sternakt)
+  - Closes #158 by checking if the npx is installed and more verbose error handling
+
+- Fix the helper.py link in CHANGELOG.md ([#165](https://github.com/airtai/fastkafka/issues/165))
 
 - fastkafka docs install_deps fails ([#157](https://github.com/airtai/fastkafka/issues/157))
   - Unexpected internal error: [Errno 2] No such file or directory: 'npx'
 
 - Broken links in docs ([#141](https://github.com/airtai/fastkafka/issues/141))
-  - Looks nice! Btw: The links to your docs in your readme are broken:)
-
-https://www.reddit.com/r/Python/comments/11paz9u/comment/jbz18oq/?utm_source=share&utm_medium=web2x&context=3
 
 - fastkafka run is not showing up in CLI docs ([#132](https://github.com/airtai/fastkafka/issues/132))
 
