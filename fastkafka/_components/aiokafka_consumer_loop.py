@@ -12,9 +12,9 @@ import asyncer
 from aiokafka import AIOKafkaConsumer
 from aiokafka.structs import ConsumerRecord, TopicPartition
 from anyio.streams.memory import MemoryObjectReceiveStream
-from .meta import delegates
 from pydantic import BaseModel
 
+from .fastcore_deps import delegates
 from .logger import get_logger
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 5

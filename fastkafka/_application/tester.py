@@ -9,10 +9,9 @@ import inspect
 from contextlib import asynccontextmanager
 from typing import *
 
-from .._components.basics import patch
-from .._components.meta import delegates
 from pydantic import BaseModel
 
+from .._components.fastcore_deps import patch, delegates
 from .app import FastKafka
 from .._testing.local_broker import LocalKafkaBroker
 from .._testing.local_redpanda_broker import LocalRedpandaBroker

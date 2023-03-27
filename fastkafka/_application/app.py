@@ -19,7 +19,6 @@ from unittest.mock import AsyncMock, MagicMock
 
 import anyio
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
-from .._components.meta import delegates, filter_using_signature, export
 from pydantic import BaseModel
 
 import fastkafka._components.logger
@@ -27,6 +26,11 @@ import fastkafka._components.logger
 fastkafka._components.logger.should_supress_timestamps = True
 
 import fastkafka
+from fastkafka._components.fastcore_deps import (
+    delegates,
+    filter_using_signature,
+    export,
+)
 from fastkafka._components.aiokafka_consumer_loop import (
     aiokafka_consumer_loop,
     sanitize_kafka_config,
