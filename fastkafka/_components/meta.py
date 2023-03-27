@@ -10,14 +10,14 @@ import functools
 import types
 import sys
 import inspect
-from types import FunctionType
 from typing import *
 from functools import wraps
-
 from types import FunctionType, MethodType
+
 from typing import *
 from functools import partial
 import docstring_parser
+from mypy_extensions import DefaultNamedArg
 
 # %% ../../nbs/096_Fastcore_Deps.ipynb 4
 def test_eq(a: Any, b: Any) -> None:
@@ -77,7 +77,7 @@ def eval_type(
     if isinstance(t, str):
         if "|" in t:
             return Union[eval_type(tuple(t.split("|")), glb, loc)]
-        return eval(t, glb, loc)
+        return eval(t, glb, loc)  # nosec B307:blacklist
     if isinstance(t, (tuple, list)):
         return type(t)([eval_type(c, glb, loc) for c in t])
     return t
@@ -158,12 +158,12 @@ def get_annotations_ex(
     return dict(ann), globals, locals  # type: ignore
 
 # %% ../../nbs/096_Fastcore_Deps.ipynb 23
-def patch(
+def patch(  # type: ignore
     f: Optional[F] = None, *, as_prop: bool = False, cls_method: bool = False
-) -> Union[partial[F], F]:
+):
     "Decorator: add `f` to the first parameter's class (based on f's type annotations)"
     if f is None:
-        return partial(patch, as_prop=as_prop, cls_method=cls_method)  # type: ignore
+        return partial(patch, as_prop=as_prop, cls_method=cls_method)
     ann, glb, loc = get_annotations_ex(f)
     cls = union2tuple(
         eval_type(ann.pop("cls") if cls_method else next(iter(ann.values())), glb, loc)

@@ -295,7 +295,7 @@ class LocalKafkaBroker:
 LocalKafkaBroker.__module__ = "fastkafka.testing"
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 14
-@patch(cls_method=True)
+@patch(cls_method=True)  # type: ignore
 def _check_deps(cls: LocalKafkaBroker) -> None:
     if not check_java():
         raise RuntimeError(

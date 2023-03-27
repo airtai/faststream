@@ -200,7 +200,7 @@ async def check_docker() -> bool:
         return False
 
 # %% ../../nbs/017_LocalRedpandaBroker.ipynb 10
-@patch(cls_method=True)
+@patch(cls_method=True)  # type: ignore
 def _check_deps(cls: LocalRedpandaBroker) -> None:
     if not check_docker():
         raise RuntimeError(
