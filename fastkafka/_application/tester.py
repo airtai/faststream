@@ -92,7 +92,7 @@ class Tester(FastKafka):
         """Starts the Tester"""
         for app in self.apps:
             app.create_mocks()
-            await app.start()
+            await app.__aenter__()
         self.create_mocks()
         await super().start()
         await asyncio.sleep(3)
@@ -101,7 +101,7 @@ class Tester(FastKafka):
         """Shuts down the Tester"""
         await super().stop()
         for app in self.apps[::-1]:
-            await app.stop()
+            await app.__aexit__(None, None, None)
 
     def create_mirrors(self) -> None:
         pass
