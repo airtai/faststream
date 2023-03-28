@@ -190,7 +190,7 @@ class LocalRedpandaBroker:
 
 LocalRedpandaBroker.__module__ = "fastkafka.testing"
 
-# %% ../../nbs/017_LocalRedpandaBroker.ipynb 9
+# %% ../../nbs/017_LocalRedpandaBroker.ipynb 10
 async def check_docker() -> bool:
     try:
         docker_task = await run_and_match("docker", "-v", pattern="Docker version")
@@ -199,15 +199,15 @@ async def check_docker() -> bool:
         logger.debug(f"Error in check_docker() : {e}")
         return False
 
-# %% ../../nbs/017_LocalRedpandaBroker.ipynb 10
+# %% ../../nbs/017_LocalRedpandaBroker.ipynb 12
 @patch(cls_method=True)  # type: ignore
-def _check_deps(cls: LocalRedpandaBroker) -> None:
-    if not check_docker():
+async def _check_deps(cls: LocalRedpandaBroker) -> None:
+    if not await check_docker():
         raise RuntimeError(
             "Docker installation not found! Please install docker manually and retry."
         )
 
-# %% ../../nbs/017_LocalRedpandaBroker.ipynb 12
+# %% ../../nbs/017_LocalRedpandaBroker.ipynb 15
 @patch
 async def _start_redpanda(self: LocalRedpandaBroker, service: str = "redpanda") -> None:
     logger.info(f"Starting {service}...")
@@ -304,7 +304,7 @@ async def _stop(self: LocalRedpandaBroker) -> None:
     self.temporary_directory.__exit__(None, None, None)  # type: ignore
     self._is_started = False
 
-# %% ../../nbs/017_LocalRedpandaBroker.ipynb 14
+# %% ../../nbs/017_LocalRedpandaBroker.ipynb 17
 @patch
 def start(self: LocalRedpandaBroker) -> str:
     """Starts a local redpanda broker instance synchronously
