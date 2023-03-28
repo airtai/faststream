@@ -32,7 +32,6 @@ requirements = [
     "tqdm>=4.62",
     "docstring-parser>=0.15",
     "typer>=0.7.0",
-    "mypy-extensions==1.0.0",
 ]
 test_requirements = [
     "install-jdk==0.3.0",
