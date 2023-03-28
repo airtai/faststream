@@ -201,8 +201,8 @@ async def check_docker() -> bool:
 
 # %% ../../nbs/017_LocalRedpandaBroker.ipynb 12
 @patch(cls_method=True)  # type: ignore
-def _check_deps(cls: LocalRedpandaBroker) -> None:
-    if not check_docker():
+async def _check_deps(cls: LocalRedpandaBroker) -> None:
+    if not await check_docker():
         raise RuntimeError(
             "Docker installation not found! Please install docker manually and retry."
         )
