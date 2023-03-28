@@ -28,7 +28,6 @@ requirements = [
     "pydantic>=1.9",
     "anyio>=3.0",
     "aiokafka>=0.8.0",
-    "fastcore>=1.5.27",
     "asyncer>=0.0.2",
     "tqdm>=4.62",
     "docstring-parser>=0.15",
