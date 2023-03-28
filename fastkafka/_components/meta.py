@@ -12,7 +12,7 @@ import sys
 import inspect
 from typing import *
 from functools import wraps
-from types import FunctionType, MethodType
+from types import *
 
 from typing import *
 from functools import partial
@@ -64,6 +64,7 @@ def patch_to(
             else:
                 setattr(c_, nm, property(nf) if as_prop else nf)
         # Avoid clobbering existing functions
+        # nosemgrep
         existing_func = globals().get(nm, builtins.__dict__.get(nm, None))
         return existing_func  # type: ignore
 
@@ -77,6 +78,7 @@ def eval_type(
     if isinstance(t, str):
         if "|" in t:
             return Union[eval_type(tuple(t.split("|")), glb, loc)]
+        # nosemgrep
         return eval(t, glb, loc)  # nosec B307:blacklist
     if isinstance(t, (tuple, list)):
         return type(t)([eval_type(c, glb, loc) for c in t])
@@ -84,15 +86,10 @@ def eval_type(
 
 
 def union2tuple(t) -> Tuple[Any, ...]:  # type: ignore
-    if getattr(t, "__origin__", None) is Union:
+    if getattr(t, "__origin__", None) is Union or (
+        "UnionType" in dir() and isinstance(t, UnionType)
+    ):
         return t.__args__  # type: ignore
-    try:
-        from types import UnionType
-
-        if isinstance(t, UnionType):
-            return t.__args__
-    except ImportError as e:
-        pass
     return t  # type: ignore
 
 
