@@ -16,6 +16,7 @@ from inspect import signature
 from pathlib import Path
 from typing import *
 from unittest.mock import AsyncMock, MagicMock
+from contextlib import AbstractAsyncContextManager
 
 import anyio
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
@@ -145,6 +146,7 @@ class FastKafka:
         kafka_brokers: Dict[str, Any],
         root_path: Optional[Union[Path, str]] = None,
         bootstrap_servers: Optional[Union[str, List[str]]] = None,
+        lifespan: Optional[AbstractAsyncContextManager] = None,
         **kwargs: Any,
     ):
         """Creates FastKafka application
@@ -221,6 +223,8 @@ class FastKafka:
         # todo: use this for errrors
         self._on_error_topic: Optional[str] = None
 
+        self.lifespan = lifespan
+
         self._is_started: bool = False
         self._is_shutting_down: bool = False
         self._kafka_consumer_tasks: List[asyncio.Task[Any]] = []
@@ -254,7 +258,9 @@ class FastKafka:
         self._set_bootstrap_servers(bootstrap_servers=bootstrap_servers)
 
     async def __aenter__(self) -> "FastKafka":
-        await self.startup()
+        if self.lifespan is not None:
+            await self.lifespan.__aenter__()
+        await self.start()
         return self
 
     async def __aexit__(
@@ -263,12 +269,14 @@ class FastKafka:
         exc: Optional[BaseException],
         tb: Optional[types.TracebackType],
     ) -> None:
-        await self.shutdown()
+        await self.stop()
+        if self.lifespan is not None:
+            await self.lifespan.__aexit__(exc_type, exc, tb)
 
-    async def startup(self) -> None:
+    async def start(self) -> None:
         raise NotImplementedError
 
-    async def shutdown(self) -> None:
+    async def stop(self) -> None:
         raise NotImplementedError
 
     def consumes(
@@ -918,7 +926,7 @@ async def _shutdown_bg_tasks(
 
 # %% ../../nbs/015_FastKafka.ipynb 44
 @patch
-async def startup(self: FastKafka) -> None:
+async def start(self: FastKafka) -> None:
     def is_shutting_down_f(self: FastKafka = self) -> bool:
         return self._is_shutting_down
 
@@ -931,7 +939,7 @@ async def startup(self: FastKafka) -> None:
 
 
 @patch
-async def shutdown(self: FastKafka) -> None:
+async def stop(self: FastKafka) -> None:
     self._is_shutting_down = True
 
     await self._shutdown_bg_tasks()
