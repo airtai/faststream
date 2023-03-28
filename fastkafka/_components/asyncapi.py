@@ -24,9 +24,9 @@ import fastkafka._components.logger
 
 fastkafka._components.logger.should_supress_timestamps = True
 
+from .docs_dependencies import _check_npm_with_local
 from .logger import get_logger
 from .producer_decorator import KafkaEvent, ProduceCallable
-from .docs_dependencies import _check_npm_with_local
 
 # %% ../../nbs/014_AsyncAPI.ipynb 3
 logger = get_logger(__name__)

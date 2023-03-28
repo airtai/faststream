@@ -11,8 +11,8 @@ from typing import *
 
 from pydantic import BaseModel
 
-from .._components.meta import patch, delegates
 from .app import FastKafka
+from .._components.meta import delegates, patch
 from .._testing.local_broker import LocalKafkaBroker
 from .._testing.local_redpanda_broker import LocalRedpandaBroker
 

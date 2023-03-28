@@ -6,17 +6,16 @@ __all__ = ['logger', 'npm_required_major_version', 'node_version', 'node_fname',
 
 # %% ../../nbs/097_Docs_Dependencies.ipynb 2
 import asyncio
-from tempfile import TemporaryDirectory
-import shutil
-import sys
-from pathlib import Path
 import os
+import shutil
 import subprocess  # nosec Issue: [B404:blacklist]
-
+import sys
 import tarfile
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
-from .logger import get_logger
 from .helpers import in_notebook
+from .logger import get_logger
 
 if in_notebook():
     from tqdm.notebook import tqdm

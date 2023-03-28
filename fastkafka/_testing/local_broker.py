@@ -16,10 +16,10 @@ from typing import *
 import asyncer
 import nest_asyncio
 
-from .._components.meta import patch, delegates, filter_using_signature
 from .._components._subprocess import terminate_asyncio_process
 from .._components.helpers import in_notebook
 from .._components.logger import get_logger
+from .._components.meta import delegates, filter_using_signature, patch
 from .._components.test_dependencies import check_java, check_kafka
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 3

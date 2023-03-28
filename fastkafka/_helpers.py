@@ -12,17 +12,17 @@ import textwrap
 from datetime import datetime, timedelta
 from typing import *
 
-import anyio
 import aiohttp
 import aiokafka
-from aiokafka.structs import RecordMetadata
+import anyio
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from aiokafka.helpers import create_ssl_context
-from ._components.meta import delegates
+from aiokafka.structs import RecordMetadata
 from IPython.display import Markdown
 
 from ._components.helpers import in_notebook
 from ._components.logger import get_logger
+from ._components.meta import delegates
 
 # %% ../nbs/999_Helpers.ipynb 4
 if in_notebook():

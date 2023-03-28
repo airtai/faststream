@@ -14,8 +14,8 @@ from aiokafka.structs import ConsumerRecord, TopicPartition
 from anyio.streams.memory import MemoryObjectReceiveStream
 from pydantic import BaseModel
 
-from .meta import delegates
 from .logger import get_logger
+from .meta import delegates
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 5
 logger = get_logger(__name__)

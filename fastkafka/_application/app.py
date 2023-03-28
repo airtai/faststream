@@ -26,7 +26,6 @@ import fastkafka._components.logger
 fastkafka._components.logger.should_supress_timestamps = True
 
 import fastkafka
-from .._components.meta import delegates, filter_using_signature, export, patch
 from fastkafka._components.aiokafka_consumer_loop import (
     aiokafka_consumer_loop,
     sanitize_kafka_config,
@@ -40,8 +39,8 @@ from fastkafka._components.asyncapi import (
     KafkaServiceInfo,
     export_async_spec,
 )
-
 from .._components.logger import get_logger
+from .._components.meta import delegates, export, filter_using_signature, patch
 from .._components.producer_decorator import ProduceCallable, producer_decorator
 
 # %% ../../nbs/015_FastKafka.ipynb 3

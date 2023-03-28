@@ -7,15 +7,13 @@ __all__ = ['TorF', 'patch', 'combine_params', 'delegates', 'use_parameters_of', 
 import builtins
 import copy as cp
 import functools
-import types
-import sys
 import inspect
-from typing import *
-from functools import wraps
+import sys
+import types
+from functools import partial, wraps
 from types import *
-
 from typing import *
-from functools import partial
+
 import docstring_parser
 from mypy_extensions import DefaultNamedArg
 
@@ -86,10 +84,13 @@ def eval_type(
 
 
 def union2tuple(t) -> Tuple[Any, ...]:  # type: ignore
-    if getattr(t, "__origin__", None) is Union or (
-        "UnionType" in dir() and isinstance(t, UnionType)
-    ):
+    if getattr(t, "__origin__", None) is Union:
         return t.__args__  # type: ignore
+
+    if sys.version_info >= (3, 10):
+        if isinstance(t, UnionType):
+            return t.__args__
+
     return t  # type: ignore
 
 
