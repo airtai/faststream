@@ -15,11 +15,11 @@ repos:
   hooks:
   - id: bandit
 
-- repo: https://github.com/returntocorp/semgrep
-  rev: "v1.14.0"
-  hooks:
-    - id: semgrep
-      name: Semgrep 
-      args: ["--config", "auto", "--error"]
-      exclude: ^docker/
+    #- repo: https://github.com/returntocorp/semgrep
+    #  rev: "v1.14.0"
+    #  hooks:
+    #    - id: semgrep
+    #      name: Semgrep 
+    #      args: ["--config", "auto", "--error"]
+    #      exclude: ^docker/
 

@@ -9,18 +9,16 @@ import inspect
 from contextlib import asynccontextmanager
 from typing import *
 
-from fastcore.basics import patch
-from fastcore.meta import delegates
 from pydantic import BaseModel
 
 from .app import FastKafka
+from .._components.meta import delegates, patch
 from .._testing.local_broker import LocalKafkaBroker
 from .._testing.local_redpanda_broker import LocalRedpandaBroker
 
 # %% ../../nbs/016_Tester.ipynb 6
 class Tester(FastKafka):
-    __test__ = False
-
+    @delegates(LocalKafkaBroker.__init__)
     def __init__(
         self,
         app: Union[FastKafka, List[FastKafka]],
@@ -39,7 +37,7 @@ class Tester(FastKafka):
 
         self.broker = broker
 
-    @delegates(LocalRedpandaBroker.__init__)  # type: ignore
+    @delegates(LocalRedpandaBroker.__init__)
     def using_local_redpanda(self, **kwargs: Any) -> "Tester":
         """Starts local Redpanda broker used by the Tester instance
 
@@ -66,7 +64,7 @@ class Tester(FastKafka):
 
         return self
 
-    @delegates(LocalKafkaBroker.__init__)  # type: ignore
+    @delegates(LocalKafkaBroker.__init__)
     def using_local_kafka(self, **kwargs: Any) -> "Tester":
         """Starts local Kafka broker used by the Tester instance
 
@@ -185,8 +183,8 @@ def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[...,
     return mirror_func
 
 # %% ../../nbs/016_Tester.ipynb 14
-@patch  # type: ignore
-def create_mirrors(self: Tester):
+@patch
+def create_mirrors(self: Tester) -> None:
     for app in self.apps:
         for topic, (consumer_f, _) in app._consumers_store.items():
             mirror_f = mirror_consumer(topic, consumer_f)

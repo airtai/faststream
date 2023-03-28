@@ -11,12 +11,11 @@ from typing import *
 
 import asyncer
 import nest_asyncio
-from fastcore.basics import patch
-from fastcore.meta import delegates
 
 from .._components._subprocess import terminate_asyncio_process
 from .._components.helpers import in_notebook
-from .._components.logger import get_logger
+from .._components.logger import get_logger, supress_timestamps
+from .._components.meta import delegates, patch
 from .local_broker import get_free_port, run_and_match
 
 # %% ../../nbs/017_LocalRedpandaBroker.ipynb 3
@@ -78,7 +77,7 @@ def get_redpanda_docker_cmd(
 class LocalRedpandaBroker:
     """LocalRedpandaBroker class, used for running unique redpanda brokers in tests to prevent topic clashing."""
 
-    @delegates(get_redpanda_docker_cmd, keep=True)  # type: ignore
+    @delegates(get_redpanda_docker_cmd, keep=True)
     def __init__(
         self,
         topics: Iterable[str] = [],
@@ -202,14 +201,14 @@ async def check_docker() -> bool:
 
 # %% ../../nbs/017_LocalRedpandaBroker.ipynb 12
 @patch(cls_method=True)  # type: ignore
-async def _check_deps(cls: LocalRedpandaBroker) -> None:
-    if not await check_docker():
+def _check_deps(cls: LocalRedpandaBroker) -> None:
+    if not check_docker():
         raise RuntimeError(
             "Docker installation not found! Please install docker manually and retry."
         )
 
 # %% ../../nbs/017_LocalRedpandaBroker.ipynb 15
-@patch  # type: ignore
+@patch
 async def _start_redpanda(self: LocalRedpandaBroker, service: str = "redpanda") -> None:
     logger.info(f"Starting {service}...")
 
@@ -247,7 +246,7 @@ async def _start_redpanda(self: LocalRedpandaBroker, service: str = "redpanda") 
     raise ValueError(f"Could not start {service} with params: {configs_tried}")
 
 
-@patch  # type: ignore
+@patch
 async def _create_topics(self: LocalRedpandaBroker) -> None:
     listener_port = self.redpanda_kwargs.get("listener_port", 9092)
 
@@ -277,7 +276,7 @@ async def _create_topics(self: LocalRedpandaBroker) -> None:
         raise ValueError("Timed out while creating missing topics!")
 
 
-@patch  # type: ignore
+@patch
 async def _start(self: LocalRedpandaBroker) -> str:
     await self._check_deps()
 
@@ -297,7 +296,7 @@ async def _start(self: LocalRedpandaBroker) -> str:
     return bootstrap_server
 
 
-@patch  # type: ignore
+@patch
 async def _stop(self: LocalRedpandaBroker) -> None:
     logger.info(f"Stopping redpanda...")
     await terminate_asyncio_process(self.redpanda_task)  # type: ignore
@@ -306,7 +305,7 @@ async def _stop(self: LocalRedpandaBroker) -> None:
     self._is_started = False
 
 # %% ../../nbs/017_LocalRedpandaBroker.ipynb 17
-@patch  # type: ignore
+@patch
 def start(self: LocalRedpandaBroker) -> str:
     """Starts a local redpanda broker instance synchronously
     Returns:
@@ -342,22 +341,14 @@ def start(self: LocalRedpandaBroker) -> str:
                 logger.error(msg)
                 raise RuntimeError(msg)
 
-        try:
-            retval = loop.run_until_complete(self._start())
-            logger.info(f"{self.__class__}.start(): returning {retval}")
-            return retval
-        except RuntimeError as e:
-            logger.warning(
-                f"{self.__class__.__name__}.start(): RuntimeError raised for loop ({loop}): {e}"
-            )
-            logger.warning(
-                f"{self.__class__.__name__}.start(): calling nest_asyncio.apply()"
-            )
+        retval = loop.run_until_complete(self._start())
+        logger.info(f"{self.__class__}.start(): returning {retval}")
+        return retval
     finally:
         logger.info(f"{self.__class__.__name__}.start(): exited.")
 
 
-@patch  # type: ignore
+@patch
 def stop(self: LocalRedpandaBroker) -> None:
     """Stops a local redpanda broker instance synchronously
     Returns:
