@@ -88,20 +88,20 @@ class Tester(FastKafka):
 
         return self
 
-    async def startup(self) -> None:
+    async def _start_tester(self) -> None:
         """Starts the Tester"""
         for app in self.apps:
             app.create_mocks()
-            await app.startup()
+            await app.__aenter__()
         self.create_mocks()
-        await super().startup()
+        await super().__aenter__()
         await asyncio.sleep(3)
 
-    async def shutdown(self) -> None:
+    async def _stop_tester(self) -> None:
         """Shuts down the Tester"""
-        await super().shutdown()
+        await super().__aexit__(None, None, None)
         for app in self.apps[::-1]:
-            await app.shutdown()
+            await app.__aexit__(None, None, None)
 
     def create_mirrors(self) -> None:
         pass
@@ -117,11 +117,11 @@ class Tester(FastKafka):
             self._set_bootstrap_servers(bootstrap_servers=bootstrap_server)
             for app in self.apps:
                 app._set_bootstrap_servers(bootstrap_server)
-            await self.startup()
+            await self._start_tester()
             try:
                 yield self
             finally:
-                await self.shutdown()
+                await self._stop_tester()
         finally:
             await self.broker._stop()
 

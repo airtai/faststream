@@ -15,7 +15,6 @@ from types import *
 from typing import *
 
 import docstring_parser
-from mypy_extensions import DefaultNamedArg
 
 # %% ../../nbs/096_Meta.ipynb 4
 def test_eq(a: Any, b: Any) -> None:
