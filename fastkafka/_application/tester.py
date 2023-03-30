@@ -88,18 +88,18 @@ class Tester(FastKafka):
 
         return self
 
-    async def start(self) -> None:
+    async def _start_tester(self) -> None:
         """Starts the Tester"""
         for app in self.apps:
             app.create_mocks()
             await app.__aenter__()
         self.create_mocks()
-        await super().start()
+        await super().__aenter__()
         await asyncio.sleep(3)
 
-    async def stop(self) -> None:
+    async def _stop_tester(self) -> None:
         """Shuts down the Tester"""
-        await super().stop()
+        await super().__aexit__(None, None, None)
         for app in self.apps[::-1]:
             await app.__aexit__(None, None, None)
 
@@ -117,11 +117,11 @@ class Tester(FastKafka):
             self._set_bootstrap_servers(bootstrap_servers=bootstrap_server)
             for app in self.apps:
                 app._set_bootstrap_servers(bootstrap_server)
-            await self.start()
+            await self._start_tester()
             try:
                 yield self
             finally:
-                await self.stop()
+                await self._stop_tester()
         finally:
             await self.broker._stop()
 

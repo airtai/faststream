@@ -146,7 +146,7 @@ class FastKafka:
         kafka_brokers: Dict[str, Any],
         root_path: Optional[Union[Path, str]] = None,
         bootstrap_servers: Optional[Union[str, List[str]]] = None,
-        lifespan: Optional[Callable[[], AsyncContextManager[None]]] = None,
+        lifespan: Optional[Callable[["FastKafka"], AsyncContextManager[None]]] = None,
         **kwargs: Any,
     ):
         """Creates FastKafka application
@@ -228,6 +228,7 @@ class FastKafka:
         self._on_error_topic: Optional[str] = None
 
         self.lifespan = lifespan
+        self.lifespan_ctx: Optional[AsyncContextManager[None]] = None
 
         self._is_started: bool = False
         self._is_shutting_down: bool = False
@@ -263,9 +264,9 @@ class FastKafka:
 
     async def __aenter__(self) -> "FastKafka":
         if self.lifespan is not None:
-            self.lifespan_epoch = self.lifespan()
-            await self.lifespan_epoch.__aenter__()
-        await self.start()
+            self.lifespan_ctx = self.lifespan(self)
+            await self.lifespan_ctx.__aenter__()
+        await self._start()
         return self
 
     async def __aexit__(
@@ -274,14 +275,14 @@ class FastKafka:
         exc: Optional[BaseException],
         tb: Optional[types.TracebackType],
     ) -> None:
-        await self.stop()
-        if self.lifespan is not None:
-            await self.lifespan_epoch.__aexit__(exc_type, exc, tb)
+        await self._stop()
+        if self.lifespan_ctx is not None:
+            await self.lifespan_ctx.__aexit__(exc_type, exc, tb)
 
-    async def start(self) -> None:
+    async def _start(self) -> None:
         raise NotImplementedError
 
-    async def stop(self) -> None:
+    async def _stop(self) -> None:
         raise NotImplementedError
 
     def consumes(
@@ -361,9 +362,6 @@ def consumes(
             if the topic argument is not passed, default: "on_". If the decorated
             function name is not prefixed with the defined prefix and topic argument
             is not passed, then this method will throw ValueError
-        bootstrap_servers (str, list(str)): a ``host[:port]`` string (or list of
-            ``host[:port]`` strings) that the consumer should contact to bootstrap
-            initial cluster metadata.
 
     Returns:
         A function returning the same function
@@ -646,7 +644,7 @@ async def _shutdown_bg_tasks(
 
 # %% ../../nbs/015_FastKafka.ipynb 40
 @patch
-async def start(self: FastKafka) -> None:
+async def _start(self: FastKafka) -> None:
     def is_shutting_down_f(self: FastKafka = self) -> bool:
         return self._is_shutting_down
 
@@ -659,7 +657,7 @@ async def start(self: FastKafka) -> None:
 
 
 @patch
-async def stop(self: FastKafka) -> None:
+async def _stop(self: FastKafka) -> None:
     self._is_shutting_down = True
 
     await self._shutdown_bg_tasks()
