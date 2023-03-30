@@ -171,9 +171,9 @@ class FastKafka:
                 respond to a Metadata API Request. Default port is 9092. If no
                 servers are specified, will default to ``localhost:9092``.
             lifespan: asynccontextmanager that is used for setting lifespan hooks.
-            __aenter__ is called before app start and __aexit__ after app stop.
-            The lifespan is called whe application is started as async context manager, e.g.:
-            `async with kafka_app...`
+                __aenter__ is called before app start and __aexit__ after app stop.
+                The lifespan is called whe application is started as async context
+                manager, e.g.:`async with kafka_app...`
 
         """
 
