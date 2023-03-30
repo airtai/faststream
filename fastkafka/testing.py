@@ -5,7 +5,7 @@ __all__ = ['dummy']
 
 # %% ../nbs/000_Testing_export.ipynb 1
 from ._application.tester import Tester
-from ._testing.apache_kafka_broker import LocalKafkaBroker
+from ._testing.apache_kafka_broker import ApacheKafkaBroker
 from ._testing.local_redpanda_broker import LocalRedpandaBroker
 from fastkafka._testing.test_utils import (
     display_docs,
@@ -16,7 +16,7 @@ from fastkafka._testing.test_utils import (
 )
 
 __all__ = [
-    "LocalKafkaBroker",
+    "ApacheKafkaBroker",
     "LocalRedpandaBroker",
     "Tester",
     "nb_safe_seed",

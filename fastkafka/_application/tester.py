@@ -13,17 +13,17 @@ from pydantic import BaseModel
 
 from .app import FastKafka
 from .._components.meta import delegates, patch
-from .._testing.local_broker import LocalKafkaBroker
+from .._testing.apache_kafka_broker import ApacheKafkaBroker
 from .._testing.local_redpanda_broker import LocalRedpandaBroker
 
 # %% ../../nbs/016_Tester.ipynb 6
 class Tester(FastKafka):
-    @delegates(LocalKafkaBroker.__init__)
+    @delegates(ApacheKafkaBroker.__init__)
     def __init__(
         self,
         app: Union[FastKafka, List[FastKafka]],
         *,
-        broker: Optional[Union[LocalKafkaBroker, LocalRedpandaBroker]] = None,
+        broker: Optional[Union[ApacheKafkaBroker, LocalRedpandaBroker]] = None,
     ):
         """Mirror-like object for testing a FastFafka application
 
@@ -64,7 +64,7 @@ class Tester(FastKafka):
 
         return self
 
-    @delegates(LocalKafkaBroker.__init__)
+    @delegates(ApacheKafkaBroker.__init__)
     def using_local_kafka(self, **kwargs: Any) -> "Tester":
         """Starts local Kafka broker used by the Tester instance
 
@@ -84,7 +84,7 @@ class Tester(FastKafka):
         kwargs["topics"] = (
             topics.union(kwargs["topics"]) if "topics" in kwargs else topics
         )
-        self.broker = LocalKafkaBroker(**kwargs)
+        self.broker = ApacheKafkaBroker(**kwargs)
 
         return self
 
@@ -110,7 +110,7 @@ class Tester(FastKafka):
     async def _create_ctx(self) -> AsyncGenerator["Tester", None]:
         if self.broker is None:
             topics = set().union(*(app.get_topics() for app in self.apps))
-            self.broker = LocalKafkaBroker(topics=topics)
+            self.broker = ApacheKafkaBroker(topics=topics)
 
         bootstrap_server = await self.broker._start()
         try:
