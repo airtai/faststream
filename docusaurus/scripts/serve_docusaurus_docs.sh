@@ -1,5 +1,5 @@
 #!/bin/bash
 
 echo "Serve docusaurus documentation"
-cd docusaurus && npm run serve
+cd docusaurus && npm run start
 
