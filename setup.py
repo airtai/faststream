@@ -28,7 +28,6 @@ requirements = [
     "pydantic>=1.9",
     "anyio>=3.0",
     "aiokafka>=0.8.0",
-    "fastcore>=1.5.27",
     "asyncer>=0.0.2",
     "tqdm>=4.62",
     "docstring-parser>=0.15",
@@ -51,7 +50,7 @@ lic = licenses.get(cfg['license'].lower(), (cfg['license'], None))
 dev_requirements = [
     "nbconvert>=7.2.9",
     "nbformat>=5.7.3",
-    "nbdev-mkdocs==0.2.2",
+    "nbdev-mkdocs==0.3.0",
     "mypy==1.0.1",
     "pre-commit==3.0.4",
     "nbqa==1.6.3",

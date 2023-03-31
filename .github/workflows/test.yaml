@@ -41,7 +41,7 @@ jobs:
           fastkafka testing install_deps
       - name: Run nbdev tests
         run: |
-          nbdev_test --timing --do_print --pause 1 --skip_file_glob "017_LocalRedpandaBroker.ipynb"
+          nbdev_test --timing --do_print
       - name: Test building docs with nbdev-mkdocs
         run: |
           nbdev_mkdocs docs

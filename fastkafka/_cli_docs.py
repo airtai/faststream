@@ -4,18 +4,18 @@
 __all__ = ['logger', 'docs_install_deps', 'generate_docs', 'serve_docs']
 
 # %% ../nbs/024_CLI_Docs.ipynb 1
+import asyncio
 import signal
 import socketserver
 from http.server import SimpleHTTPRequestHandler
 from types import FrameType
 from typing import *
-import asyncio
 
 import typer
 
 from fastkafka._components.docs_dependencies import (
-    _install_docs_npm_deps,
     _check_npm_with_local,
+    _install_docs_npm_deps,
     _install_node,
 )
 from ._components.helpers import _import_from_string, change_dir

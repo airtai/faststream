@@ -165,3 +165,6 @@ token
 # nbdev_mkdocs
 mkdocs/docs/
 mkdocs/site/
+
+# Ignore trashbins
+.Trash*

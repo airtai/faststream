@@ -15,12 +15,11 @@ from typing import *
 
 import asyncer
 import nest_asyncio
-from fastcore.basics import patch
-from fastcore.meta import delegates
 
 from .._components._subprocess import terminate_asyncio_process
-from .._components.helpers import filter_using_signature, in_notebook
+from .._components.helpers import in_notebook
 from .._components.logger import get_logger
+from .._components.meta import delegates, filter_using_signature, patch
 from .._components.test_dependencies import check_java, check_kafka
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 3
@@ -160,8 +159,8 @@ group.initial.rebalance.delay.ms=0
 class LocalKafkaBroker:
     """LocalKafkaBroker class, used for running unique kafka brokers in tests to prevent topic clashing."""
 
-    @delegates(get_kafka_config_string)  # type: ignore
-    @delegates(get_zookeeper_config_string, keep=True)  # type: ignore
+    @delegates(get_kafka_config_string)
+    @delegates(get_zookeeper_config_string, keep=True)
     def __init__(
         self,
         topics: Iterable[str] = [],
@@ -375,7 +374,7 @@ async def write_config_and_run(
     )
 
 
-@patch  # type: ignore
+@patch
 def get_service_config_string(
     self: LocalKafkaBroker, service: str, *, data_dir: Path
 ) -> str:
@@ -386,7 +385,7 @@ def get_service_config_string(
         return get_zookeeper_config_string(data_dir=data_dir, **service_kwargs)
 
 
-@patch  # type: ignore
+@patch
 async def _start_service(self: LocalKafkaBroker, service: str = "kafka") -> None:
     logger.info(f"Starting {service}...")
 
@@ -438,17 +437,17 @@ async def _start_service(self: LocalKafkaBroker, service: str = "kafka") -> None
     raise ValueError(f"Could not start {service} with params: {configs_tried}")
 
 
-@patch  # type: ignore
+@patch
 async def _start_kafka(self: LocalKafkaBroker) -> None:
     return await self._start_service("kafka")
 
 
-@patch  # type: ignore
+@patch
 async def _start_zookeeper(self: LocalKafkaBroker) -> None:
     return await self._start_service("zookeeper")
 
 
-@patch  # type: ignore
+@patch
 async def _create_topics(self: LocalKafkaBroker) -> None:
     listener_port = self.kafka_kwargs.get("listener_port", 9092)
     bootstrap_server = f"127.0.0.1:{listener_port}"
@@ -476,7 +475,7 @@ async def _create_topics(self: LocalKafkaBroker) -> None:
         raise ValueError("Timed out while creating missing topics!")
 
 
-@patch  # type: ignore
+@patch
 async def _start(self: LocalKafkaBroker) -> str:
     self._check_deps()
 
@@ -497,7 +496,7 @@ async def _start(self: LocalKafkaBroker) -> str:
     return bootstrap_server
 
 
-@patch  # type: ignore
+@patch
 async def _stop(self: LocalKafkaBroker) -> None:
     await terminate_asyncio_process(self.kafka_task)  # type: ignore
     await terminate_asyncio_process(self.zookeeper_task)  # type: ignore
@@ -505,7 +504,7 @@ async def _stop(self: LocalKafkaBroker) -> None:
     self._is_started = False
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 21
-@patch  # type: ignore
+@patch
 def start(self: LocalKafkaBroker) -> str:
     """Starts a local kafka broker and zookeeper instance synchronously
     Returns:
@@ -541,22 +540,14 @@ def start(self: LocalKafkaBroker) -> str:
                 logger.error(msg)
                 raise RuntimeError(msg)
 
-        try:
-            retval = loop.run_until_complete(self._start())
-            logger.info(f"{self.__class__}.start(): returning {retval}")
-            return retval
-        except RuntimeError as e:
-            logger.warning(
-                f"{self.__class__.__name__}.start(): RuntimeError raised for loop ({loop}): {e}"
-            )
-            logger.warning(
-                f"{self.__class__.__name__}.start(): calling nest_asyncio.apply()"
-            )
+        retval = loop.run_until_complete(self._start())
+        logger.info(f"{self.__class__}.start(): returning {retval}")
+        return retval
     finally:
         logger.info(f"{self.__class__.__name__}.start(): exited.")
 
 
-@patch  # type: ignore
+@patch
 def stop(self: LocalKafkaBroker) -> None:
     """Stops a local kafka broker and zookeeper instance synchronously
     Returns:
