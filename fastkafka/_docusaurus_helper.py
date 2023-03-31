@@ -4,34 +4,33 @@
 __all__ = ['build_markdown_docs']
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 2
-from typing import *
 import itertools
 import re
 import types
 from inspect import (
+    getdoc,
     getmembers,
     getmodule,
+    getsource,
     isclass,
     iscoroutine,
     isfunction,
     ismethod,
-    getdoc,
-    getsource,
     signature,
 )
 from pathlib import Path
+from typing import *
 
-from docstring_parser.common import DocstringParam, DocstringReturns, DocstringRaises
-from docstring_parser import parse
 import typer
+from docstring_parser import parse
+from docstring_parser.common import DocstringParam, DocstringRaises, DocstringReturns
 from nbdev.config import get_config
-
 from nbdev_mkdocs.mkdocs import (
-    _import_all_members,
     _add_all_submodules,
     _get_api_summary,
-    _import_submodules,
+    _import_all_members,
     _import_functions_and_classes,
+    _import_submodules,
 )
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 4
