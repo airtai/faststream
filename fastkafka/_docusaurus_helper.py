@@ -21,7 +21,7 @@ from inspect import (
 )
 from pathlib import Path
 
-from docstring_parser.common import DocstringParam
+from docstring_parser.common import DocstringParam, DocstringReturns, DocstringRaises
 from docstring_parser import parse
 import typer
 from nbdev.config import get_config
@@ -35,7 +35,10 @@ from nbdev_mkdocs.mkdocs import (
 )
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 4
-def _format_docstring_sections(items: List[DocstringParam], keyword: str) -> str:
+def _format_docstring_sections(
+    items: Union[List[DocstringParam], List[DocstringReturns], List[DocstringRaises]],
+    keyword: str,
+) -> str:
     """Format a list of docstring sections
 
     Args:
@@ -50,7 +53,7 @@ def _format_docstring_sections(items: List[DocstringParam], keyword: str) -> str
         formatted_docstring += f"**{keyword}**:\n"
         for item in items:
             if keyword == "Parameters":
-                formatted_docstring += f"- `{item.arg_name}`: {item.description}\n"
+                formatted_docstring += f"- `{item.arg_name}`: {item.description}\n"  # type: ignore
             elif keyword == "Exceptions":
                 formatted_docstring += f"- `{item.type_name}`: {item.description}\n"
             else:
@@ -99,10 +102,10 @@ def _get_submodules(module_name: str) -> List[str]:
     """
     members = _import_all_members(module_name)
     members_with_submodules = _add_all_submodules(members)
-    members_with_submodules = [
+    members_with_submodules_str: List[str] = [
         x[:-1] if x.endswith(".") else x for x in members_with_submodules
     ]
-    return members_with_submodules
+    return members_with_submodules_str
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 14
 def _load_submodules(
@@ -195,7 +198,7 @@ def _get_formatted_docstring_for_symbol(
             if not x.startswith("_") or x.endswith("__"):
                 if isfunction(y) and y.__doc__ is not None:
                     contents += f"{_get_symbol_definition(y)}\n{_docstring_to_markdown(y.__doc__)}"
-                elif isclass(y) and not x.startswith("__"):
+                elif isclass(y) and not x.startswith("__") and y.__doc__ is not None:
                     contents += f"{_get_symbol_definition(y)}\n{_docstring_to_markdown(y.__doc__)}"
                     contents = traverse(y, contents)
         return contents
@@ -210,7 +213,7 @@ def _get_formatted_docstring_for_symbol(
     return contents
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 24
-def _convert_html_style_attribute_to_jsx(contents) -> str:
+def _convert_html_style_attribute_to_jsx(contents: str) -> str:
     """Converts the inline style attributes in an HTML string to JSX compatible format.
 
     Args:
@@ -316,6 +319,5 @@ def build_markdown_docs(
     if module_name is None:
         module_name = get_config().lib_name
 
-    docs_path = Path(docs_path)
-    _fix_invalid_syntax_in_markdown(docs_path)
-    _generate_markdown_docs(module_name, docs_path)
+    _fix_invalid_syntax_in_markdown(Path(docs_path))
+    _generate_markdown_docs(module_name, Path(docs_path))
