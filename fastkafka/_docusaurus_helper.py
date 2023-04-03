@@ -7,7 +7,7 @@ __all__ = ['build_markdown_docs']
 import itertools
 import re
 import types
-from inspect import getmembers, isclass, isfunction, signature
+from inspect import getmembers, isclass, isfunction, signature, Signature
 from pathlib import Path
 from typing import *
 
@@ -140,7 +140,7 @@ def _convert_union_to_optional(annotation_str: str) -> str:
         return annotation_str
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 18
-def _get_arg_list_with_signature(_signature: signature) -> str:
+def _get_arg_list_with_signature(_signature: Signature) -> str:
     """Converts a function's signature into a string representation of its argument list.
 
     Args:
