@@ -120,6 +120,24 @@ venv.bak/
 # mkdocs documentation
 /site
 
+# docusaurus documentation
+docusaurus/node_modules
+docusaurus/docs
+docusaurus/build
+
+docusaurus/.docusaurus
+docusaurus/.cache-loader
+
+docusaurus/.DS_Store
+docusaurus/.env.local
+docusaurus/.env.development.local
+docusaurus/.env.test.local
+docusaurus/.env.production.local
+
+docusaurus/npm-debug.log*
+docusaurus/yarn-debug.log*
+docusaurus/yarn-error.log*
+
 # mypy
 .mypy_cache/
 .dmypy.json
