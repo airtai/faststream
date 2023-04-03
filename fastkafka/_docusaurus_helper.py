@@ -7,17 +7,7 @@ __all__ = ['build_markdown_docs']
 import itertools
 import re
 import types
-from inspect import (
-    getdoc,
-    getmembers,
-    getmodule,
-    getsource,
-    isclass,
-    iscoroutine,
-    isfunction,
-    ismethod,
-    signature,
-)
+from inspect import getmembers, isclass, isfunction, signature
 from pathlib import Path
 from typing import *
 
@@ -131,6 +121,41 @@ def _load_submodules(
     return names
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 16
+def _convert_union_to_optional(annotation_str: str) -> str:
+    """Convert the 'Union[Type1, Type2, ..., NoneType]' to 'Optional[Type1, Type2, ...]' in the given annotation string
+
+    Args:
+        annotation_str: The type annotation string to convert.
+
+    Returns:
+        The converted type annotation string.
+    """
+    pattern = r"Union\[(.*)?,\s*NoneType\s*\]"
+    match = re.search(pattern, annotation_str)
+    if match:
+        union_type = match.group(1)
+        optional_type = f"Optional[{union_type}]"
+        return re.sub(pattern, optional_type, annotation_str)
+    else:
+        return annotation_str
+
+# %% ../nbs/096_Docusaurus_Helper.ipynb 18
+def _get_arg_list_with_signature(_signature: signature) -> str:
+    """Converts a function's signature into a string representation of its argument list.
+
+    Args:
+        _signature (signature): The signature object for the function to convert.
+
+    Returns:
+        str: A string representation of the function's argument list.
+    """
+    arg_list = []
+    for param in _signature.parameters.values():
+        arg_list.append(_convert_union_to_optional(str(param)))
+
+    return ", ".join(arg_list)
+
+# %% ../nbs/096_Docusaurus_Helper.ipynb 21
 def _get_symbol_definition(symbol: Union[types.FunctionType, Type[Any]]) -> str:
     """Return the definition of a given symbol.
 
@@ -141,34 +166,25 @@ def _get_symbol_definition(symbol: Union[types.FunctionType, Type[Any]]) -> str:
         A string representing the function definition
     """
     _signature = signature(symbol)
-    arg_list = ", ".join(
-        f"{param.name}: {param.annotation.__name__}"
-        if param.annotation.__name__ != "_empty"
-        else f"{param.name}"
-        for param in _signature.parameters.values()
-    )
-    if isfunction(symbol):
-        if _signature.return_annotation:
-            if isinstance(_signature.return_annotation, str):
-                ret_val = (
-                    f"`def {symbol.__name__}({arg_list})"
-                    + f' -> "{_signature.return_annotation}"`\n'
-                )
-            elif _signature.return_annotation.__name__ != "_empty":
-                ret_val = (
-                    f"`def {symbol.__name__}({arg_list})"
-                    + f" -> {_signature.return_annotation.__name__}`\n"
-                )
-            else:
-                ret_val = f"`def {symbol.__name__}({arg_list})`\n"
-        else:
-            ret_val = f"`def {symbol.__name__}({arg_list})`\n"
+    arg_list = _get_arg_list_with_signature(_signature)
+    ret_val = ""
 
-    else:
-        ret_val = ""
+    if isfunction(symbol):
+        ret_val = f"`def {symbol.__name__}({arg_list})"
+        if _signature.return_annotation and "inspect._empty" not in str(
+            _signature.return_annotation
+        ):
+            if isinstance(_signature.return_annotation, type):
+                ret_val = ret_val + f" -> {_signature.return_annotation.__name__}`\n"
+            else:
+                ret_val = ret_val + f" -> {_signature.return_annotation}`\n"
+
+        else:
+            ret_val = ret_val + " -> None`\n"
+
     return ret_val
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 20
+# %% ../nbs/096_Docusaurus_Helper.ipynb 27
 def _get_formatted_docstring_for_symbol(
     symbol: Union[types.FunctionType, Type[Any]]
 ) -> str:
@@ -211,7 +227,7 @@ def _get_formatted_docstring_for_symbol(
         contents = traverse(symbol, contents)
     return contents
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 24
+# %% ../nbs/096_Docusaurus_Helper.ipynb 31
 def _convert_html_style_attribute_to_jsx(contents: str) -> str:
     """Converts the inline style attributes in an HTML string to JSX compatible format.
 
@@ -243,7 +259,7 @@ def _convert_html_style_attribute_to_jsx(contents: str) -> str:
 
     return contents
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 26
+# %% ../nbs/096_Docusaurus_Helper.ipynb 33
 def _get_all_markdown_files_path(docs_path: Path) -> List[Path]:
     """Get all Markdown files in a directory and its subdirectories.
 
@@ -256,12 +272,12 @@ def _get_all_markdown_files_path(docs_path: Path) -> List[Path]:
     markdown_files = [file_path for file_path in docs_path.glob("**/*.md")]
     return markdown_files
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 28
+# %% ../nbs/096_Docusaurus_Helper.ipynb 35
 def _fix_special_symbols_in_html(contents: str) -> str:
     contents = contents.replace("”", '"')
     return contents
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 30
+# %% ../nbs/096_Docusaurus_Helper.ipynb 37
 def _fix_invalid_syntax_in_markdown(docs_path: Path) -> None:
     """Fix invalid HTML syntax in markdown files and converts inline style attributes to JSX-compatible format.
 
@@ -279,7 +295,7 @@ def _fix_invalid_syntax_in_markdown(docs_path: Path) -> None:
     for i, file_path in enumerate(markdown_files):
         file_path.write_text(updated_contents[i])
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 32
+# %% ../nbs/096_Docusaurus_Helper.ipynb 39
 def _generate_markdown_docs(module_name: str, docs_path: Path) -> None:
     """Generates Markdown documentation files for the symbols in the given module and save them to the given directory.
 
@@ -300,7 +316,7 @@ def _generate_markdown_docs(module_name: str, docs_path: Path) -> None:
         with open((docs_path / "api" / target_file_path), "w") as f:
             f.write(content)
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 34
+# %% ../nbs/096_Docusaurus_Helper.ipynb 41
 _app = typer.Typer()
 
 
