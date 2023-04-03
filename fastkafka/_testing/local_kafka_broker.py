@@ -7,12 +7,13 @@ __all__ = ['logger', 'create_consumer_record', 'ConsumerMetadata', 'LocalKafkaBr
 import uuid
 from collections import namedtuple
 from dataclasses import dataclass
+import asyncio
 
 from typing import *
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from aiokafka.structs import ConsumerRecord, TopicPartition
 
-from .._components.meta import patch, delegates
+from .._components.meta import copy_func, patch, delegates
 from .._components.logger import get_logger
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 3
@@ -45,8 +46,8 @@ class ConsumerMetadata:
 class LocalKafkaBroker:
     def __init__(self, topics: List[str]):
         self.data: Dict[str, List[ConsumerRecord]] = {topic: list() for topic in topics}  # type: ignore
-
         self.consumers_metadata: Dict[str, List[ConsumerMetadata]] = {}
+        self.is_started: bool = False
 
     def connect(self) -> uuid.UUID:
         return uuid.uuid4()
@@ -68,9 +69,10 @@ class LocalKafkaBroker:
 
     def produce(
         self, actor_id: str, *, topic: str, msg: bytes, key: Optional[bytes]
-    ) -> None:
+    ) -> ConsumerRecord:  # type: ignore
         record = create_consumer_record(topic, msg)
         self.data[topic].append(record)
+        return record
 
     def consume(  # type: ignore
         self, actor_id: str
@@ -101,10 +103,21 @@ class LocalKafkaBroker:
     def __enter__(self) -> "LocalKafkaBroker":
         logger.info("Local kafka broker starting")
         self._patch_consumers_and_producers()
+        self.is_started = True
         return self
 
     def __exit__(self, *args: Any) -> None:
         logger.info("Local kafka broker stopping")
+        self.is_started = False
+
+    async def _start(self) -> str:
+        logger.info("LocalKafkaBroker._start() called")
+        self.__enter__()
+        return "localbroker:0"
+
+    async def _stop(self) -> None:
+        logger.info("LocalKafkaBroker._stop() called")
+        self.__exit__()
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 13
 def _patch_AIOKafkaConsumer_init(broker: LocalKafkaBroker) -> None:
@@ -133,7 +146,7 @@ def _patch_AIOKafkaConsumer_start() -> None:
             )
         self.id = self.broker.connect()
 
-# %% ../../nbs/001_LocalKafkaBroker.ipynb 19
+# %% ../../nbs/001_LocalKafkaBroker.ipynb 20
 def _patch_AIOKafkaConsumer_subscribe() -> None:
     @patch
     @delegates(AIOKafkaConsumer.subscribe)
@@ -151,7 +164,7 @@ def _patch_AIOKafkaConsumer_subscribe() -> None:
             for topic in topics
         ]
 
-# %% ../../nbs/001_LocalKafkaBroker.ipynb 22
+# %% ../../nbs/001_LocalKafkaBroker.ipynb 23
 def _patch_AIOKafkaConsumer_stop() -> None:
     @patch
     @delegates(AIOKafkaConsumer.stop)
@@ -163,17 +176,17 @@ def _patch_AIOKafkaConsumer_stop() -> None:
             )
         self.broker.unsubscribe(self.id)
 
-# %% ../../nbs/001_LocalKafkaBroker.ipynb 25
+# %% ../../nbs/001_LocalKafkaBroker.ipynb 26
 def _patch_AIOKafkaConsumer_getmany() -> None:
     @patch
     @delegates(AIOKafkaConsumer.getmany)
     async def getmany(  # type: ignore
         self: AIOKafkaConsumer, **kwargs: Any
     ) -> Dict[TopicPartition, List[ConsumerRecord]]:
-        logger.info("AIOKafkaConsumer patched getmany() called!")
+        #         logger.info("AIOKafkaConsumer patched getmany() called!")
         return self.broker.consume(self.id)  # type: ignore
 
-# %% ../../nbs/001_LocalKafkaBroker.ipynb 28
+# %% ../../nbs/001_LocalKafkaBroker.ipynb 29
 def _patch_AIOKafkaConsumer(broker: LocalKafkaBroker) -> None:
     _patch_AIOKafkaConsumer_init(broker)
     _patch_AIOKafkaConsumer_start()
@@ -181,7 +194,7 @@ def _patch_AIOKafkaConsumer(broker: LocalKafkaBroker) -> None:
     _patch_AIOKafkaConsumer_stop()
     _patch_AIOKafkaConsumer_getmany()
 
-# %% ../../nbs/001_LocalKafkaBroker.ipynb 32
+# %% ../../nbs/001_LocalKafkaBroker.ipynb 33
 def _patch_AIOKafkaProducer_init(broker: LocalKafkaBroker) -> None:
     @patch
     @delegates(AIOKafkaProducer)
@@ -192,7 +205,7 @@ def _patch_AIOKafkaProducer_init(broker: LocalKafkaBroker) -> None:
         self.broker = broker
         self.id = None
 
-# %% ../../nbs/001_LocalKafkaBroker.ipynb 35
+# %% ../../nbs/001_LocalKafkaBroker.ipynb 36
 def _patch_AIOKafkaProducer_start() -> None:
     @patch
     @delegates(AIOKafkaProducer.start)
@@ -204,7 +217,7 @@ def _patch_AIOKafkaProducer_start() -> None:
             )
         self.id = self.broker.connect()
 
-# %% ../../nbs/001_LocalKafkaBroker.ipynb 38
+# %% ../../nbs/001_LocalKafkaBroker.ipynb 39
 def _patch_AIOKafkaProducer_stop() -> None:
     @patch
     @delegates(AIOKafkaProducer.stop)
@@ -215,7 +228,7 @@ def _patch_AIOKafkaProducer_stop() -> None:
                 "Producer start() not called! Run producer start() first"
             )
 
-# %% ../../nbs/001_LocalKafkaBroker.ipynb 41
+# %% ../../nbs/001_LocalKafkaBroker.ipynb 42
 def _patch_AIOKafkaProducer_send() -> None:
     @patch
     @delegates(AIOKafkaProducer.send)
@@ -231,11 +244,25 @@ def _patch_AIOKafkaProducer_send() -> None:
             raise RuntimeError(
                 "Producer start() not called! Run producer start() first"
             )
-        self.broker.produce(self.id, topic=topic, msg=msg, key=key)
+        record = self.broker.produce(self.id, topic=topic, msg=msg, key=key)
 
-# %% ../../nbs/001_LocalKafkaBroker.ipynb 44
+        async def _f(record: ConsumerRecord = record) -> ConsumerRecord:
+            return record
+
+        return asyncio.create_task(_f())
+
+# %% ../../nbs/001_LocalKafkaBroker.ipynb 45
 def _patch_AIOKafkaProducer(broker: LocalKafkaBroker) -> None:
     _patch_AIOKafkaProducer_init(broker)
     _patch_AIOKafkaProducer_start()
     _patch_AIOKafkaProducer_stop()
     _patch_AIOKafkaProducer_send()
+
+# %% ../../nbs/001_LocalKafkaBroker.ipynb 48
+@patch
+def _patch_consumers_and_producers(self: LocalKafkaBroker) -> None:
+    logger.info(
+        "LocalKafkaProducer._patch_consumers_and_producers(): Patching consumers and producers!"
+    )
+    _patch_AIOKafkaConsumer(self)
+    _patch_AIOKafkaProducer(self)

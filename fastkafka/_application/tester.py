@@ -15,6 +15,7 @@ from .app import FastKafka
 from .._components.meta import delegates, patch
 from .._testing.apache_kafka_broker import ApacheKafkaBroker
 from .._testing.local_redpanda_broker import LocalRedpandaBroker
+from .._testing.local_kafka_broker import LocalKafkaBroker
 
 # %% ../../nbs/016_Tester.ipynb 6
 class Tester(FastKafka):
@@ -110,13 +111,14 @@ class Tester(FastKafka):
     async def _create_ctx(self) -> AsyncGenerator["Tester", None]:
         if self.broker is None:
             topics = set().union(*(app.get_topics() for app in self.apps))
-            self.broker = ApacheKafkaBroker(topics=topics)
+            self.broker = LocalKafkaBroker(topics=topics)
 
         bootstrap_server = await self.broker._start()
         try:
-            self._set_bootstrap_servers(bootstrap_servers=bootstrap_server)
-            for app in self.apps:
-                app._set_bootstrap_servers(bootstrap_server)
+            if isinstance(self.broker, (ApacheKafkaBroker, LocalRedpandaBroker)):
+                self._set_bootstrap_servers(bootstrap_servers=bootstrap_server)
+                for app in self.apps:
+                    app._set_bootstrap_servers(bootstrap_server)
             await self._start_tester()
             try:
                 yield self
@@ -135,7 +137,7 @@ class Tester(FastKafka):
 
 Tester.__module__ = "fastkafka.testing"
 
-# %% ../../nbs/016_Tester.ipynb 10
+# %% ../../nbs/016_Tester.ipynb 11
 def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(producer_f).return_annotation
 
@@ -163,7 +165,7 @@ def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[...,
 
     return mirror_func
 
-# %% ../../nbs/016_Tester.ipynb 12
+# %% ../../nbs/016_Tester.ipynb 13
 def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(consumer_f).parameters["msg"]
 
@@ -182,7 +184,7 @@ def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[...,
     mirror_func.__signature__ = sig  # type: ignore
     return mirror_func
 
-# %% ../../nbs/016_Tester.ipynb 14
+# %% ../../nbs/016_Tester.ipynb 15
 @patch
 def create_mirrors(self: Tester) -> None:
     for app in self.apps:
