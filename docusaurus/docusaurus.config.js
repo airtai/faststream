@@ -68,7 +68,7 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       // Replace with your project's social card
-      image: 'img/default_social_logo.jpg',
+      image: 'https://opengraph.githubassets.com/1671805243.560327/airtai/fastkafka',
       navbar: {
         title: 'FastKafka',
         logo: {
