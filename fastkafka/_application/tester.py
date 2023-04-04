@@ -24,7 +24,9 @@ class Tester(FastKafka):
         self,
         app: Union[FastKafka, List[FastKafka]],
         *,
-        broker: Optional[Union[ApacheKafkaBroker, LocalRedpandaBroker]] = None,
+        broker: Optional[
+            Union[ApacheKafkaBroker, LocalRedpandaBroker, LocalKafkaBroker]
+        ] = None,
     ):
         """Mirror-like object for testing a FastFafka application
 

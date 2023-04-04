@@ -17,7 +17,7 @@ import fastkafka._application.app
 import fastkafka._components.aiokafka_consumer_loop
 import fastkafka._components.aiokafka_producer_manager
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
-from aiokafka.structs import ConsumerRecord, TopicPartition
+from aiokafka.structs import ConsumerRecord, TopicPartition, RecordMetadata
 
 import fastkafka._application.app
 from .._components.meta import copy_func, patch, delegates, classcontextmanager
@@ -53,15 +53,17 @@ class ConsumerMetadata:
 # InMemoryBroker
 @classcontextmanager()
 class LocalKafkaBroker:
-    def __init__(self, topics: List[str]):
+    def __init__(self, topics: Set[str]):
         self.data: Dict[str, List[ConsumerRecord]] = {topic: list() for topic in topics}  # type: ignore
-        self.consumers_metadata: Dict[str, List[ConsumerMetadata]] = {}
+        self.consumers_metadata: Dict[uuid.UUID, List[ConsumerMetadata]] = {}
         self.is_started: bool = False
 
     def connect(self) -> uuid.UUID:
         return uuid.uuid4()
 
-    def subscribe(self, actor_id: str, *, auto_offest_reset: str, topic: str) -> None:
+    def subscribe(
+        self, actor_id: uuid.UUID, *, auto_offest_reset: str, topic: str
+    ) -> None:
         consumer_metadata = self.consumers_metadata.get(actor_id, list())
         # todo: what if whatever?
         consumer_metadata.append(
@@ -71,27 +73,35 @@ class LocalKafkaBroker:
         )
         self.consumers_metadata[actor_id] = consumer_metadata
 
-    def unsubscribe(self, actor_id: str) -> None:
+    def unsubscribe(self, actor_id: uuid.UUID) -> None:
         try:
             del self.consumers_metadata[actor_id]
         except KeyError:
             logger.warning(f"No subscription with {actor_id=} found!")
 
-    def produce(
+    def produce(  # type: ignore
         self, *, topic: str, msg: bytes, key: Optional[bytes] = None
-    ) -> Optional[ConsumerRecord]:  # type: ignore
+    ) -> RecordMetadata:
         if topic in self.data:
             record = create_consumer_record(topic, msg)
             self.data[topic].append(record)
-            return record
         else:
             # todo: log only once
             logger.warning(
                 f"Topic {topic} is not available during auto-create initialization"
             )
+        return RecordMetadata(
+            topic=topic,
+            partition=0,
+            topic_partition=TopicPartition(topic=topic, partition=0),
+            offset=0,
+            timestamp=1680602752070,
+            timestamp_type=0,
+            log_start_offset=0,
+        )
 
     def consume(  # type: ignore
-        self, actor_id: str
+        self, actor_id: uuid.UUID
     ) -> Dict[TopicPartition, List[ConsumerRecord]]:
         msgs: Dict[TopicPartition, List[ConsumerRecord]] = {}  # type: ignore
 
@@ -110,17 +120,17 @@ class LocalKafkaBroker:
         return msgs
 
     @contextmanager
-    def lifecycle(self) -> "LocalKafkaBroker":
+    def lifecycle(self) -> Iterator["LocalKafkaBroker"]:
         raise NotImplementedError()
 
     async def _start(self) -> str:
         logger.info("LocalKafkaBroker._start() called")
-        self.__enter__()
+        self.__enter__()  # type: ignore
         return "localbroker:0"
 
     async def _stop(self) -> None:
         logger.info("LocalKafkaBroker._stop() called")
-        self.__exit__(None, None, None)
+        self.__exit__(None, None, None)  # type: ignore
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 15
 # InMemoryConsumer
@@ -131,7 +141,8 @@ class ConsumerMock:
     ) -> None:
         logger.info("AIOKafkaConsumer patched __init__() called()")
         self.broker = broker
-        self._id = None
+        self._id: Optional[uuid.UUID] = None
+        self._auto_offset_reset: str = "latest"
 
     @delegates(AIOKafkaConsumer)
     def __call__(self, **kwargs: Any) -> "ConsumerMock":
@@ -160,7 +171,7 @@ class ConsumerMock:
         raise NotImplementedError()
 
     @delegates(AIOKafkaConsumer.getmany)
-    async def getmany(
+    async def getmany(  # type: ignore
         self, **kwargs: Any
     ) -> Dict[TopicPartition, List[ConsumerRecord]]:
         raise NotImplementedError()
@@ -184,17 +195,15 @@ def subscribe(self: ConsumerMock, topics: List[str], **kwargs: Any) -> None:
     if self._id is None:
         raise RuntimeError("Consumer start() not called! Run consumer start() first")
     logger.info(f"AIOKafkaConsumer.subscribe(), subscribing to: {topics}")
-    [
+    for topic in topics:
         self.broker.subscribe(
             self._id, topic=topic, auto_offest_reset=self._auto_offset_reset
         )
-        for topic in topics
-    ]
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 24
 @patch
 @delegates(AIOKafkaConsumer.stop)
-async def stop(self: ConsumerMock, **kwargs: Any) -> None:  # type: ignore
+async def stop(self: ConsumerMock, **kwargs: Any) -> None:
     logger.info("AIOKafkaConsumer patched stop() called")
     if self._id is None:
         raise RuntimeError("Consumer start() not called! Run consumer start() first")
@@ -203,7 +212,7 @@ async def stop(self: ConsumerMock, **kwargs: Any) -> None:  # type: ignore
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 27
 @patch
 @delegates(AIOKafkaConsumer.getmany)
-async def getmany(
+async def getmany(  # type: ignore
     self: ConsumerMock, **kwargs: Any
 ) -> Dict[TopicPartition, List[ConsumerRecord]]:
     return self.broker.consume(self._id)  # type: ignore
@@ -214,7 +223,7 @@ class ProducerMock:
     def __init__(self, broker: LocalKafkaBroker, **kwargs: Any) -> None:
         logger.info("AIOKafkaProducer patched __init__() called()")
         self.broker = broker
-        self.id = None
+        self.id: Optional[uuid.UUID] = None
 
     @delegates(AIOKafkaProducer)
     def __call__(self, **kwargs: Any) -> "ProducerMock":
@@ -239,7 +248,7 @@ class ProducerMock:
         raise NotImplementedError()
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 32
-@patch
+@patch  # type: ignore
 @delegates(AIOKafkaProducer.start)
 async def start(self: ProducerMock, **kwargs: Any) -> None:
     logger.info("AIOKafkaProducer patched start() called()")
@@ -250,7 +259,7 @@ async def start(self: ProducerMock, **kwargs: Any) -> None:
     self.id = self.broker.connect()
 
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 35
-@patch
+@patch  # type: ignore
 @delegates(AIOKafkaProducer.stop)
 async def stop(self: ProducerMock, **kwargs: Any) -> None:
     logger.info("AIOKafkaProducer patched stop() called")
@@ -260,18 +269,18 @@ async def stop(self: ProducerMock, **kwargs: Any) -> None:
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 38
 @patch
 @delegates(AIOKafkaProducer.send)
-async def send(
+async def send(  # type: ignore
     self: ProducerMock,
     topic: str,
     msg: bytes,
     key: Optional[bytes] = None,
     **kwargs: Any,
-) -> None:
+) -> asyncio.Task[ConsumerRecord]:
     if self.id is None:
         raise RuntimeError("Producer start() not called! Run producer start() first")
     record = self.broker.produce(topic=topic, msg=msg, key=key)
 
-    async def _f(record: ConsumerRecord = record) -> ConsumerRecord:
+    async def _f(record: ConsumerRecord = record) -> ConsumerRecord:  # type: ignore
         return record
 
     return asyncio.create_task(_f())
@@ -279,7 +288,7 @@ async def send(
 # %% ../../nbs/001_LocalKafkaBroker.ipynb 41
 @patch
 @contextmanager
-def lifecycle(self: LocalKafkaBroker) -> None:
+def lifecycle(self: LocalKafkaBroker) -> Iterator[LocalKafkaBroker]:
     logger.info(
         "LocalKafkaBroker._patch_consumers_and_producers(): Patching consumers and producers!"
     )

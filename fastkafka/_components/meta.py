@@ -325,21 +325,20 @@ def classcontextmanager(name: str = "lifecycle") -> Callable[[Type[T]], Type[T]]
     def _classcontextmanager(cls: Type[T], name: str = name) -> Type[T]:
         if not hasattr(cls, name):
             raise ValueError
-        print(f"{cls=}")
 
         @patch
-        def __enter__(self: cls) -> Any:
+        def __enter__(self: cls) -> Any:  # type: ignore
             if not hasattr(self, "_lifecycle_ctx"):
-                self._lifecycle_ctx = []
+                self._lifecycle_ctx = []  # type: ignore
 
             print(f"{cls}.__enter__")
-            self._lifecycle_ctx.append(getattr(self, name)())
-            return self._lifecycle_ctx[-1].__enter__()
+            self._lifecycle_ctx.append(getattr(self, name)())  # type: ignore
+            return self._lifecycle_ctx[-1].__enter__()  # type: ignore
 
         @patch
-        def __exit__(self: cls, *args: Any) -> None:
+        def __exit__(self: cls, *args: Any) -> None:  # type: ignore
             print(f"{cls}.__exit__")
-            self._lifecycle_ctx.pop(-1).__exit__(*args)
+            self._lifecycle_ctx.pop(-1).__exit__(*args)  # type: ignore
 
         return cls
 
