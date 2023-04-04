@@ -343,3 +343,22 @@ def classcontextmanager(name: str = "lifecycle") -> Callable[[Type[T]], Type[T]]
         return cls
 
     return _classcontextmanager
+
+# %% ../../nbs/096_Meta.ipynb 74
+def _get_default_kwargs_from_sig(f: F, **kwargs: Any) -> Dict[str, Any]:
+    """
+    Get default values for function **kwargs
+
+    Args:
+        f: Function to extract default values from
+
+    Returns:
+        Dict of default values of function f **kwargs
+    """
+    defaults = {
+        k: v.default
+        for k, v in inspect.signature(f).parameters.items()
+        if v.default != inspect._empty
+    }
+    defaults.update(kwargs)
+    return defaults
