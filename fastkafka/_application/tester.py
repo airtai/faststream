@@ -15,7 +15,7 @@ from .app import FastKafka
 from .._components.meta import delegates, patch
 from .._testing.apache_kafka_broker import ApacheKafkaBroker
 from .._testing.local_redpanda_broker import LocalRedpandaBroker
-from .._testing.local_kafka_broker import LocalKafkaBroker
+from .._testing.in_memory_broker import InMemoryBroker
 
 # %% ../../nbs/016_Tester.ipynb 6
 class Tester(FastKafka):
@@ -25,7 +25,7 @@ class Tester(FastKafka):
         app: Union[FastKafka, List[FastKafka]],
         *,
         broker: Optional[
-            Union[ApacheKafkaBroker, LocalRedpandaBroker, LocalKafkaBroker]
+            Union[ApacheKafkaBroker, LocalRedpandaBroker, InMemoryBroker]
         ] = None,
     ):
         """Mirror-like object for testing a FastFafka application
@@ -113,7 +113,7 @@ class Tester(FastKafka):
     async def _create_ctx(self) -> AsyncGenerator["Tester", None]:
         if self.broker is None:
             topics = set().union(*(app.get_topics() for app in self.apps))
-            self.broker = LocalKafkaBroker(topics=topics)
+            self.broker = InMemoryBroker(topics=topics)
 
         bootstrap_server = await self.broker._start()
         try:
