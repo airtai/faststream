@@ -7,7 +7,7 @@ __all__ = ['build_markdown_docs']
 import itertools
 import re
 import types
-from inspect import getmembers, isclass, isfunction, signature, Signature
+from inspect import Signature, getmembers, isclass, isfunction, signature
 from pathlib import Path
 from typing import *
 

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# exit when any command fails
+set -e
+
 echo "Cleanup existing build artifacts"
 rm -rf docusaurus/docs
 
