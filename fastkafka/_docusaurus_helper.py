@@ -224,7 +224,6 @@ def _get_formatted_docstring_for_symbol(
     )
     if isclass(symbol):
         contents = traverse(symbol, contents)
-
     return contents
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 31
@@ -277,7 +276,7 @@ def _fix_special_symbols_in_html(contents: str) -> str:
     contents = contents.replace("”", '"')
     return contents
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 38
+# %% ../nbs/096_Docusaurus_Helper.ipynb 37
 def fix_invalid_syntax_in_markdown(docs_path: str) -> None:
     """Fix invalid HTML syntax in markdown files and converts inline style attributes to JSX-compatible format.
 
@@ -295,7 +294,7 @@ def fix_invalid_syntax_in_markdown(docs_path: str) -> None:
     for i, file_path in enumerate(markdown_files):
         file_path.write_text(updated_contents[i])
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 40
+# %% ../nbs/096_Docusaurus_Helper.ipynb 39
 def generate_markdown_docs(module_name: str, docs_path: str) -> None:
     """Generates Markdown documentation files for the symbols in the given module and save them to the given directory.
 
