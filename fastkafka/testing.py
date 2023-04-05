@@ -7,6 +7,8 @@ __all__ = ['dummy']
 from ._application.tester import Tester
 from ._testing.apache_kafka_broker import ApacheKafkaBroker
 from ._testing.local_redpanda_broker import LocalRedpandaBroker
+from ._testing.in_memory_broker import InMemoryBroker
+
 from fastkafka._testing.test_utils import (
     display_docs,
     mock_AIOKafkaProducer_send,
@@ -16,6 +18,7 @@ from fastkafka._testing.test_utils import (
 )
 
 __all__ = [
+    "InMemoryBroker",
     "ApacheKafkaBroker",
     "LocalRedpandaBroker",
     "Tester",
