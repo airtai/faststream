@@ -184,6 +184,25 @@ def _get_symbol_definition(symbol: Union[types.FunctionType, Type[Any]]) -> str:
     return ret_val
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 27
+def _format_urls_for_markdown(text: str) -> str:
+    """Format URLs in the input text to be compatible with Markdown syntax.
+
+    This function looks for all URLs enclosed inside single or double quotes in the input
+    text and formats each one to '[link text](url)'
+
+    Args:
+        text: The input text to process.
+
+    Returns:
+        The input text with URLs in Markdown format.
+    """
+    pattern = re.compile(r"(?<!<a\s)([\"\'])(https?://\S+?)(\1)(?![^<]*?>)")
+    unique_urls = set(url[1] for url in pattern.findall(text))
+    for url in unique_urls:
+        text = text.replace(url, f"[{url}]({url})")
+    return text
+
+# %% ../nbs/096_Docusaurus_Helper.ipynb 30
 def _get_formatted_docstring_for_symbol(
     symbol: Union[types.FunctionType, Type[Any]]
 ) -> str:
@@ -224,9 +243,11 @@ def _get_formatted_docstring_for_symbol(
     )
     if isclass(symbol):
         contents = traverse(symbol, contents)
+
+    contents = _format_urls_for_markdown(contents)
     return contents
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 31
+# %% ../nbs/096_Docusaurus_Helper.ipynb 34
 def _convert_html_style_attribute_to_jsx(contents: str) -> str:
     """Converts the inline style attributes in an HTML string to JSX compatible format.
 
@@ -258,7 +279,7 @@ def _convert_html_style_attribute_to_jsx(contents: str) -> str:
 
     return contents
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 33
+# %% ../nbs/096_Docusaurus_Helper.ipynb 36
 def _get_all_markdown_files_path(docs_path: Path) -> List[Path]:
     """Get all Markdown files in a directory and its subdirectories.
 
@@ -271,12 +292,13 @@ def _get_all_markdown_files_path(docs_path: Path) -> List[Path]:
     markdown_files = [file_path for file_path in docs_path.glob("**/*.md")]
     return markdown_files
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 35
+# %% ../nbs/096_Docusaurus_Helper.ipynb 38
 def _fix_special_symbols_in_html(contents: str) -> str:
     contents = contents.replace("”", '"')
+    contents = _format_urls_for_markdown(contents)
     return contents
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 37
+# %% ../nbs/096_Docusaurus_Helper.ipynb 41
 def fix_invalid_syntax_in_markdown(docs_path: str) -> None:
     """Fix invalid HTML syntax in markdown files and converts inline style attributes to JSX-compatible format.
 
@@ -294,7 +316,7 @@ def fix_invalid_syntax_in_markdown(docs_path: str) -> None:
     for i, file_path in enumerate(markdown_files):
         file_path.write_text(updated_contents[i])
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 39
+# %% ../nbs/096_Docusaurus_Helper.ipynb 43
 def generate_markdown_docs(module_name: str, docs_path: str) -> None:
     """Generates Markdown documentation files for the symbols in the given module and save them to the given directory.
 
