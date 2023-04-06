@@ -36,7 +36,7 @@ const items = [
 
 export default function HomepageFAQ() {
   return (
-    <section className={clsx('hero hero--primary', styles.features)}>
+    <section className={styles.features}>
       <div className="container">
       <div className={clsx('col col--12')}>
           <p className={styles.title}>FAQ's</p>

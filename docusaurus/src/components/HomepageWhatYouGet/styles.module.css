@@ -44,3 +44,8 @@
   -ms-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
 }
+.childrenWithExtraPadding {
+  margin: 80px 0px;
+  /* padding: 0px 30px; */
+  font-size: 1.2rem;
+}
