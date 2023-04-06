@@ -11,14 +11,13 @@ import json
 import types
 from asyncio import iscoroutinefunction  # do not use the version from inspect
 from collections import namedtuple
+from contextlib import AbstractAsyncContextManager
 from datetime import datetime, timedelta
+from functools import wraps
 from inspect import signature
 from pathlib import Path
 from typing import *
 from unittest.mock import AsyncMock, MagicMock
-from contextlib import AbstractAsyncContextManager
-from functools import wraps
-
 
 import anyio
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
@@ -33,7 +32,6 @@ from fastkafka._components.aiokafka_consumer_loop import (
     aiokafka_consumer_loop,
     sanitize_kafka_config,
 )
-from .._components.benchmarking import _benchmark
 from .._components.aiokafka_producer_manager import AIOKafkaProducerManager
 from fastkafka._components.asyncapi import (
     ConsumeCallable,
@@ -43,6 +41,7 @@ from fastkafka._components.asyncapi import (
     KafkaServiceInfo,
     export_async_spec,
 )
+from .._components.benchmarking import _benchmark
 from .._components.logger import get_logger
 from .._components.meta import delegates, export, filter_using_signature, patch
 from .._components.producer_decorator import ProduceCallable, producer_decorator
