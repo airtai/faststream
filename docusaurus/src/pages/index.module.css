@@ -10,14 +10,25 @@
   overflow: hidden;
 }
 
-@media screen and (max-width: 996px) {
-  .heroBanner {
-    padding: 2rem;
-  }
-}
-
 .buttons {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.title {
+    font-size: 3rem;
+    margin-bottom: 30px;
+}
+
+.description {
+    font-size: 1.5rem;
+    line-height: 1.3rem;
+    opacity: 0.9;
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: 2rem;
+  }
 }

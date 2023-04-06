@@ -1,0 +1,46 @@
+.features {
+  display: flex;
+  align-items: center;
+  padding: 2rem 0;
+  width: 100%;
+}
+
+.featureSvg {
+  height: 200px;
+  width: 200px;
+}
+.title {
+  font-size: 2.3rem;
+  text-align: center;
+}
+.subTitle {
+  font-size: 1.5rem;
+  text-align: left;
+}
+.description {
+  font-size: 1rem;
+  text-align: center;
+  margin-top: 3rem;
+}
+.rowWitExtraMargin {
+  margin-top: 80px;
+}
+.link {
+  color: var(--ifm-hero-text-color);
+  text-decoration: underline;
+  transition: color var(--ifm-transition-fast)
+    var(--ifm-transition-timing-default);
+}
+
+.wrapper {
+  position: relative;
+}
+
+.verticalAndHorizontalCenter {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
