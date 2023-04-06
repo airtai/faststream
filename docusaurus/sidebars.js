@@ -15,7 +15,7 @@ module.exports = {
                 "api/fastkafka/KafkaEvent",
                 {
                   "items": [
-                    "api/fastkafka/testing/LocalKafkaBroker",
+                    "api/fastkafka/testing/ApacheKafkaBroker",
                     "api/fastkafka/testing/LocalRedpandaBroker",
                     "api/fastkafka/testing/Tester"
                   ],

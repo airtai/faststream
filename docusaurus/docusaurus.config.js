@@ -70,7 +70,7 @@ const config = {
       // Replace with your project's social card
       image: 'https://opengraph.githubassets.com/1671805243.560327/airtai/fastkafka',
       navbar: {
-        title: 'FastKafka',
+        title: '',
         logo: {
           alt: 'FastKafka Logo',
           src: 'img/AIRT_icon_blue.svg',
@@ -79,14 +79,21 @@ const config = {
           {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
-            position: 'left',
-            label: 'Get Started',
+            position: 'right',
+            label: 'Docs',
           },
-          {to: '/blog', label: 'Blog', position: 'left'},
+//           {to: '/blog', label: 'Blog', position: 'left'},
           {
             href: 'https://github.com/airtai/fastkafka',
-            label: 'GitHub',
             position: 'right',
+            className: "header-github-link",
+            "aria-label": "GitHub repository",
+          },
+          {
+            href: 'https://discord.gg/CJWmYpyFbc',
+            position: 'right',
+            className: "header-discord-link",
+            "aria-label": "Discord Link",
           },
         ],
       },
@@ -105,17 +112,21 @@ const config = {
           {
             title: 'Community',
             items: [
-//               {
-//                 label: 'Stack Overflow',
-//                 href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-//               },
-//               {
-//                 label: 'Discord',
-//                 href: 'https://discordapp.com/invite/docusaurus',
-//               },
+              {
+                label: 'GitHub',
+                href: 'https://github.com/airtai/fastkafka',
+              },
               {
                 label: 'Twitter',
                 href: 'https://twitter.com/airt_AI',
+              },
+              {
+                label: 'Facebook',
+                href: 'https://www.facebook.com/airt.ai.api/',
+              },
+              {
+                label: 'LinkedIn',
+                href: 'https://www.linkedin.com/company/airt-ai/',
               },
             ],
           },
@@ -123,17 +134,21 @@ const config = {
             title: 'More',
             items: [
               {
-                label: 'Blog',
-                to: '/blog',
+                label: 'About Us',
+                to: 'https://airt.ai/about-us',
               },
               {
-                label: 'GitHub',
-                href: 'https://github.com/airtai/fastkafka',
+                label: 'Contact',
+                to: 'https://airt.ai/contact',
+              },
+              {
+                label: 'Company information',
+                to: 'https://airt.ai/company-information',
               },
             ],
           },
         ],
-        copyright: `Copyright © 2022 onwards airt technologies ltd.`,
+        copyright: `© 2023 airt`,
       },
       prism: {
         theme: lightCodeTheme,
