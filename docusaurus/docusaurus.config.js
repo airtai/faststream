@@ -70,7 +70,7 @@ const config = {
       // Replace with your project's social card
       image: 'https://opengraph.githubassets.com/1671805243.560327/airtai/fastkafka',
       navbar: {
-        title: 'FastKafka',
+        title: '',
         logo: {
           alt: 'FastKafka Logo',
           src: 'img/AIRT_icon_blue.svg',
@@ -79,14 +79,21 @@ const config = {
           {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
-            position: 'left',
-            label: 'Get Started',
+            position: 'right',
+            label: 'Docs',
           },
-          {to: '/blog', label: 'Blog', position: 'left'},
+//           {to: '/blog', label: 'Blog', position: 'left'},
           {
             href: 'https://github.com/airtai/fastkafka',
-            label: 'GitHub',
             position: 'right',
+            className: "header-github-link",
+            "aria-label": "GitHub repository",
+          },
+          {
+            href: 'https://discord.gg/CJWmYpyFbc',
+            position: 'right',
+            className: "header-discord-link",
+            "aria-label": "Discord Link",
           },
         ],
       },
