@@ -112,17 +112,21 @@ const config = {
           {
             title: 'Community',
             items: [
-//               {
-//                 label: 'Stack Overflow',
-//                 href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-//               },
-//               {
-//                 label: 'Discord',
-//                 href: 'https://discordapp.com/invite/docusaurus',
-//               },
+              {
+                label: 'GitHub',
+                href: 'https://github.com/airtai/fastkafka',
+              },
               {
                 label: 'Twitter',
                 href: 'https://twitter.com/airt_AI',
+              },
+              {
+                label: 'Facebook',
+                href: 'https://www.facebook.com/airt.ai.api/',
+              },
+              {
+                label: 'LinkedIn',
+                href: 'https://www.linkedin.com/company/airt-ai/',
               },
             ],
           },
@@ -130,17 +134,21 @@ const config = {
             title: 'More',
             items: [
               {
-                label: 'Blog',
-                to: '/blog',
+                label: 'About Us',
+                to: 'https://airt.ai/about-us',
               },
               {
-                label: 'GitHub',
-                href: 'https://github.com/airtai/fastkafka',
+                label: 'Contact',
+                to: 'https://airt.ai/contact',
+              },
+              {
+                label: 'Company information',
+                to: 'https://airt.ai/company-information',
               },
             ],
           },
         ],
-        copyright: `Copyright © 2022 onwards airt technologies ltd.`,
+        copyright: `© 2023 airt`,
       },
       prism: {
         theme: lightCodeTheme,
