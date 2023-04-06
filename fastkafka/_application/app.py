@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import *
 from unittest.mock import AsyncMock, MagicMock
 from contextlib import AbstractAsyncContextManager
+from functools import wraps
+
 
 import anyio
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
@@ -31,6 +33,7 @@ from fastkafka._components.aiokafka_consumer_loop import (
     aiokafka_consumer_loop,
     sanitize_kafka_config,
 )
+from .._components.benchmarking import _benchmark
 from .._components.aiokafka_producer_manager import AIOKafkaProducerManager
 from fastkafka._components.asyncapi import (
     ConsumeCallable,
@@ -219,6 +222,8 @@ class FastKafka:
             Union[AIOKafkaProducer, AIOKafkaProducerManager]
         ] = []
 
+        self.benchmark_results: Dict[str, Dict[str, Any]] = {}
+
         # background tasks
         self._scheduled_bg_tasks: List[Callable[..., Coroutine[Any, Any, Any]]] = []
         self._bg_task_group_generator: Optional[anyio.abc.TaskGroup] = None
@@ -302,6 +307,14 @@ class FastKafka:
         producer: Optional[AIOKafkaProducer] = None,
         **kwargs: Dict[str, Any],
     ) -> ProduceCallable:
+        raise NotImplementedError
+
+    def benchmark(
+        self,
+        interval: Union[int, timedelta] = 1,
+        *,
+        sliding_window_size: Optional[int] = None,
+    ) -> None:
         raise NotImplementedError
 
     def run_in_background(
@@ -784,3 +797,58 @@ def create_mocks(self: FastKafka) -> None:
             for name, (f, producer, kwargs) in self._producers_store.items()
         }
     )
+
+# %% ../../nbs/015_FastKafka.ipynb 56
+@patch
+def benchmark(
+    self: FastKafka,
+    interval: Union[int, timedelta] = 1,
+    *,
+    sliding_window_size: Optional[int] = None,
+) -> Callable[[Any], Any]:
+    """Decorator to benchmark produces/consumes functions
+
+    Args:
+        interval: Period to use to calculate throughput. If value is of type int,
+            then it will be used as seconds. If value is of type timedelta,
+            then it will be used as it is. default: 1 - one second
+        sliding_window_size: The size of the sliding window to use to calculate
+            average throughput. default: None - By default average throughput is
+            not calculated
+    """
+
+    def _decorator(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
+        func_name = f"{func.__module__}.{func.__qualname__}"
+
+        @wraps(func)
+        def wrapper(
+            *args: Any,
+            **kwargs: Any,
+        ) -> Any:
+            _benchmark(
+                interval=interval,
+                sliding_window_size=sliding_window_size,
+                func_name=func_name,
+                benchmark_results=self.benchmark_results,
+            )
+            return func(*args, **kwargs)
+
+        @wraps(func)
+        async def async_wrapper(
+            *args: Any,
+            **kwargs: Any,
+        ) -> Any:
+            _benchmark(
+                interval=interval,
+                sliding_window_size=sliding_window_size,
+                func_name=func_name,
+                benchmark_results=self.benchmark_results,
+            )
+            return await func(*args, **kwargs)
+
+        if inspect.iscoroutinefunction(func):
+            return async_wrapper
+        else:
+            return wrapper
+
+    return _decorator
