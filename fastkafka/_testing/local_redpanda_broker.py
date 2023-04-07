@@ -284,6 +284,7 @@ async def _start(self: LocalRedpandaBroker) -> str:
     self.temporary_directory_path = Path(self.temporary_directory.__enter__())
 
     await self._start_redpanda()
+    await asyncio.sleep(5)
 
     listener_port = self.redpanda_kwargs.get("listener_port", 9092)
     bootstrap_server = f"127.0.0.1:{listener_port}"
