@@ -313,7 +313,7 @@ class FastKafka:
         interval: Union[int, timedelta] = 1,
         *,
         sliding_window_size: Optional[int] = None,
-    ) -> None:
+    ) -> Callable[[Callable[[BaseModel], Any]], Callable[[Any], Any]]:
         raise NotImplementedError
 
     def run_in_background(
@@ -804,7 +804,7 @@ def benchmark(
     interval: Union[int, timedelta] = 1,
     *,
     sliding_window_size: Optional[int] = None,
-) -> Callable[[Any], Any]:
+) -> Callable[[Callable[[BaseModel], Any]], Callable[[Any], Any]]:
     """Decorator to benchmark produces/consumes functions
 
     Args:
@@ -816,7 +816,7 @@ def benchmark(
             not calculated
     """
 
-    def _decorator(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
+    def _decorator(func: Callable[[BaseModel], Any]) -> Callable[[Any], Any]:
         func_name = f"{func.__module__}.{func.__qualname__}"
 
         @wraps(func)
