@@ -25,7 +25,6 @@
 .description {
   font-size: 1.5rem;
   line-height: 1.7rem;
-  opacity: 0.9;
 }
 
 @media screen and (max-width: 996px) {

@@ -22,7 +22,7 @@ function HomepageHeader() {
         <div className={styles.buttons}>
           <Link
             className="btn-github-link button button--secondary button--lg"
-            to="https://github.com/airtai/fastkafka">
+            to="/docs">
               Get Started
           </Link>
         </div>

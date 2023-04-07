@@ -14,7 +14,7 @@ import 'react-accessible-accordion/dist/fancy-example.css';
 const items = [
   {
     "heading": "How much does FastKafka cost?",
-    "content": "FastKafka is under Apache 2.0 license and free to use. That being said, if you want  to show us some love (read: if you’d need and like support, e.g., you want a certain feature or an issue prioritized :-)), you can subscribe for support here."
+    "content": "FastKafka is under Apache 2.0 license and free to use."
   },
   {
     "heading": "How can I contribute or request features?",
@@ -22,7 +22,7 @@ const items = [
   },
   {
     "heading": "Do you support any streaming platforms other than Kafka?",
-    "content": "No, as in, not yet. We built the initial version for Kafka service and for our needs, but we reached out to the wider community to find out what to do next. We got requests for RabbitMQ, Pulsar, and Redpanda that went to our backlog and we’ll support them in our future releases."
+    "content": "Slowly, but surely. We built the initial version for Kafka service and for our needs, but we reached out to the wider community to find out what to do next. We added support for Red panda, and also got requests for RabbitMQ and Pulsar that went to our backlog and we’ll support them in our future releases."
   },
   {
     "heading": "Does FastKafka integrate with AsyncAPI in the way that FastAPi integrates with OpenAPI?",
@@ -39,7 +39,8 @@ export default function HomepageFAQ() {
     <section className={styles.features}>
       <div className="container">
       <div className={clsx('col col--12')}>
-          <h2 className={styles.title}>FAQ's</h2>
+          <h2 className={styles.title}>FAQs</h2>
+          <p>For anything not covered here, join <a className={styles.href} href="https://discord.gg/CJWmYpyFbc" target="_blank">our Discord</a></p>
         </div>
         <div className={clsx('col col--12 text--left padding-horiz--md')}>
         <Accordion allowZeroExpanded>
