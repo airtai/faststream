@@ -228,7 +228,7 @@ async def _start_redpanda(self: LocalRedpandaBroker, service: str = "redpanda") 
             service_task = await run_and_match(
                 *redpanda_docker_cmd,
                 capture="stderr",
-                pattern="Successfully started Redpanda",
+                pattern="Bootstrap complete",
                 timeout=30,
             )
         except Exception as e:
