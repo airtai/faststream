@@ -2,6 +2,26 @@
 
 <!-- do not remove -->
 
+## 0.4.0
+
+### New Features
+
+- Integrate fastkafka chat ([#208](https://github.com/airtai/fastkafka/pull/208)), thanks to [@harishmohanraj](https://github.com/harishmohanraj)
+
+- Add benchmarking ([#206](https://github.com/airtai/fastkafka/pull/206)), thanks to [@kumaranvpl](https://github.com/kumaranvpl)
+
+- Enable fast testing without running kafka locally ([#198](https://github.com/airtai/fastkafka/pull/198)), thanks to [@Sternakt](https://github.com/Sternakt)
+
+- Generate docs using Docusaurus ([#194](https://github.com/airtai/fastkafka/pull/194)), thanks to [@harishmohanraj](https://github.com/harishmohanraj)
+
+- Add test cases for LocalRedpandaBroker ([#189](https://github.com/airtai/fastkafka/pull/189)), thanks to [@kumaranvpl](https://github.com/kumaranvpl)
+
+- Reimplement patch and delegates from fastcore ([#188](https://github.com/airtai/fastkafka/pull/188)), thanks to [@Sternakt](https://github.com/Sternakt)
+
+- Rename existing functions into start and stop and add lifespan handler ([#117](https://github.com/airtai/fastkafka/issues/117))
+  - https://www.linkedin.com/posts/tiangolo_fastapi-activity-7038907638331404288-Oar3/?utm_source=share&utm_medium=member_ios
+
+
 ## 0.3.1
 
 -  README.md file updated
