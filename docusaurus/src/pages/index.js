@@ -21,7 +21,7 @@ function HomepageHeader() {
         <p className={styles.description}>that interact with Kafka</p>
         <div className={styles.buttons}>
           <Link
-            className="btn-github-link button button--secondary button--lg"
+            className="button button--secondary button--lg"
             to="/docs">
               Get Started
           </Link>

@@ -25,3 +25,7 @@
 .withExtraMargin {
   margin-top: 60px;
 }
+
+.testimonialDescription {
+    font-size: 1.2rem;
+}

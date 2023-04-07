@@ -57,8 +57,8 @@ function Feature({description, source}) {
   return (
     <div className={clsx('col col--4', styles.withExtraMargin)}>
       <div className="text--center padding-horiz--md">
-        <p>{description}</p>
-        <p>{source}</p>
+        <p className={styles.testimonialDescription}>{description}</p>
+        <p className={styles.testimonialDescription}>{source}</p>
       </div>
     </div>
   );
