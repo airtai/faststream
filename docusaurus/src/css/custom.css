@@ -26,10 +26,15 @@
   src: url("/static/font/Roboto-Light.ttf") format("truetype");
 }
 
+@font-face {
+  font-family: "Roboto-Regular";
+  src: url("/static/font/Roboto-Regular.ttf") format("truetype");
+}
+
 :root {
-  font-family: "Roboto-Light";
+  font-family: "Roboto-Regular";
   --ifm-font-family-monospace: "RobotoMono-Regular";
-  --ifm-font-family-base: "Roboto-Light";
+  --ifm-font-family-base: "Roboto-Regular";
   --ifm-heading-font-family: "Rubik-Medium";
   --ifm-color-primary: #56b7e1; /*#2e8555; */
   --ifm-color-primary-dark: #3cacdc;
