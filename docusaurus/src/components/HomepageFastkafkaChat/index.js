@@ -1,5 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
+import Iframe from 'react-iframe'
+import BrowserWindow from '../BrowserWindow';
 
 import styles from './styles.module.css';
 
@@ -49,17 +51,22 @@ function Feature({Svg, title, description}) {
   );
 }
 
-export default function HomepageFeatures() {
+export default function HomepageFastkafkaChat() {
   return (
-    <section className={styles.features}>
+    <section className={`${styles.features} hero hero--primary`}>
       <div className="container">
       <div className={clsx('col col--12')}>
-          <h2 className={styles.title}>Swim with the stream…ing services</h2>
+          <h2 className={styles.title}>Check out our code-generation feature!</h2>
+          <p className={styles.fastkafkaDescription}>Let us know what you need solved and we’ll generate the FastKafka code for you!</p>
         </div>
-        <div className="row">
-          {FeatureList.map((props, idx) => (
-            <Feature key={idx} {...props} />
-          ))}
+        <div className={`row`}>
+          <div className={clsx('col col--12')}>
+            <div className="text--center padding-horiz--md">
+              <BrowserWindow>
+                <Iframe url="https://fastkafka-chat.azurewebsites.net/" className={styles.fastkafkaChatIframe} />
+              </BrowserWindow>
+            </div>
+          </div>
         </div>
       </div>
     </section>

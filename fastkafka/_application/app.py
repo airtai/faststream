@@ -11,12 +11,13 @@ import json
 import types
 from asyncio import iscoroutinefunction  # do not use the version from inspect
 from collections import namedtuple
+from contextlib import AbstractAsyncContextManager
 from datetime import datetime, timedelta
+from functools import wraps
 from inspect import signature
 from pathlib import Path
 from typing import *
 from unittest.mock import AsyncMock, MagicMock
-from contextlib import AbstractAsyncContextManager
 
 import anyio
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
@@ -40,6 +41,7 @@ from fastkafka._components.asyncapi import (
     KafkaServiceInfo,
     export_async_spec,
 )
+from .._components.benchmarking import _benchmark
 from .._components.logger import get_logger
 from .._components.meta import delegates, export, filter_using_signature, patch
 from .._components.producer_decorator import ProduceCallable, producer_decorator
@@ -133,6 +135,12 @@ def _get_contact_info(
     return ContactInfo(name=name, url=url, email=email)
 
 # %% ../../nbs/015_FastKafka.ipynb 18
+I = TypeVar("I", bound=BaseModel)
+O = TypeVar("O", BaseModel, Awaitable[BaseModel])
+
+F = TypeVar("F", bound=Callable)
+
+# %% ../../nbs/015_FastKafka.ipynb 19
 @export("fastkafka")
 class FastKafka:
     @delegates(_get_kafka_config)
@@ -219,6 +227,8 @@ class FastKafka:
             Union[AIOKafkaProducer, AIOKafkaProducerManager]
         ] = []
 
+        self.benchmark_results: Dict[str, Dict[str, Any]] = {}
+
         # background tasks
         self._scheduled_bg_tasks: List[Callable[..., Coroutine[Any, Any, Any]]] = []
         self._bg_task_group_generator: Optional[anyio.abc.TaskGroup] = None
@@ -304,6 +314,14 @@ class FastKafka:
     ) -> ProduceCallable:
         raise NotImplementedError
 
+    def benchmark(
+        self,
+        interval: Union[int, timedelta] = 1,
+        *,
+        sliding_window_size: Optional[int] = None,
+    ) -> Callable[[F], F]:
+        raise NotImplementedError
+
     def run_in_background(
         self,
     ) -> Callable[[], Any]:
@@ -339,7 +357,7 @@ class FastKafka:
     async def _shutdown_bg_tasks(self) -> None:
         raise NotImplementedError
 
-# %% ../../nbs/015_FastKafka.ipynb 24
+# %% ../../nbs/015_FastKafka.ipynb 25
 @patch
 @delegates(AIOKafkaConsumer)
 def consumes(
@@ -388,7 +406,7 @@ def consumes(
 
     return _decorator
 
-# %% ../../nbs/015_FastKafka.ipynb 26
+# %% ../../nbs/015_FastKafka.ipynb 27
 @patch
 @delegates(AIOKafkaProducer)
 def produces(
@@ -435,14 +453,14 @@ def produces(
 
     return _decorator
 
-# %% ../../nbs/015_FastKafka.ipynb 28
+# %% ../../nbs/015_FastKafka.ipynb 29
 @patch
 def get_topics(self: FastKafka) -> Iterable[str]:
     produce_topics = set(self._producers_store.keys())
     consume_topics = set(self._consumers_store.keys())
     return consume_topics.union(produce_topics)
 
-# %% ../../nbs/015_FastKafka.ipynb 30
+# %% ../../nbs/015_FastKafka.ipynb 31
 @patch
 def run_in_background(
     self: FastKafka,
@@ -479,7 +497,7 @@ def run_in_background(
 
     return _decorator
 
-# %% ../../nbs/015_FastKafka.ipynb 34
+# %% ../../nbs/015_FastKafka.ipynb 35
 @patch
 def _populate_consumers(
     self: FastKafka,
@@ -509,7 +527,7 @@ async def _shutdown_consumers(
     if self._kafka_consumer_tasks:
         await asyncio.wait(self._kafka_consumer_tasks)
 
-# %% ../../nbs/015_FastKafka.ipynb 36
+# %% ../../nbs/015_FastKafka.ipynb 37
 # TODO: Add passing of vars
 async def _create_producer(  # type: ignore
     *,
@@ -606,7 +624,7 @@ async def _shutdown_producers(self: FastKafka) -> None:
         }
     )
 
-# %% ../../nbs/015_FastKafka.ipynb 38
+# %% ../../nbs/015_FastKafka.ipynb 39
 @patch
 async def _populate_bg_tasks(
     self: FastKafka,
@@ -642,7 +660,7 @@ async def _shutdown_bg_tasks(
             f"_shutdown_bg_tasks() : Execution finished for background task '{task.get_name()}'"
         )
 
-# %% ../../nbs/015_FastKafka.ipynb 40
+# %% ../../nbs/015_FastKafka.ipynb 41
 @patch
 async def _start(self: FastKafka) -> None:
     def is_shutting_down_f(self: FastKafka = self) -> bool:
@@ -667,7 +685,7 @@ async def _stop(self: FastKafka) -> None:
     self._is_shutting_down = False
     self._is_started = False
 
-# %% ../../nbs/015_FastKafka.ipynb 46
+# %% ../../nbs/015_FastKafka.ipynb 47
 @patch
 def create_docs(self: FastKafka) -> None:
     export_async_spec(
@@ -682,7 +700,7 @@ def create_docs(self: FastKafka) -> None:
         asyncapi_path=self._asyncapi_path,
     )
 
-# %% ../../nbs/015_FastKafka.ipynb 50
+# %% ../../nbs/015_FastKafka.ipynb 51
 class AwaitedMock:
     @staticmethod
     def _await_for(f: Callable[..., Any]) -> Callable[..., Any]:
@@ -718,7 +736,7 @@ class AwaitedMock:
                 if inspect.ismethod(f):
                     setattr(self, name, self._await_for(f))
 
-# %% ../../nbs/015_FastKafka.ipynb 51
+# %% ../../nbs/015_FastKafka.ipynb 52
 @patch
 def create_mocks(self: FastKafka) -> None:
     """Creates self.mocks as a named tuple mapping a new function obtained by calling the original functions and a mock"""
@@ -784,3 +802,58 @@ def create_mocks(self: FastKafka) -> None:
             for name, (f, producer, kwargs) in self._producers_store.items()
         }
     )
+
+# %% ../../nbs/015_FastKafka.ipynb 58
+@patch
+def benchmark(
+    self: FastKafka,
+    interval: Union[int, timedelta] = 1,
+    *,
+    sliding_window_size: Optional[int] = None,
+) -> Callable[[Callable[[I], Optional[O]]], Callable[[I], Optional[O]]]:
+    """Decorator to benchmark produces/consumes functions
+
+    Args:
+        interval: Period to use to calculate throughput. If value is of type int,
+            then it will be used as seconds. If value is of type timedelta,
+            then it will be used as it is. default: 1 - one second
+        sliding_window_size: The size of the sliding window to use to calculate
+            average throughput. default: None - By default average throughput is
+            not calculated
+    """
+
+    def _decorator(func: Callable[[I], Optional[O]]) -> Callable[[I], Optional[O]]:
+        func_name = f"{func.__module__}.{func.__qualname__}"
+
+        @wraps(func)
+        def wrapper(
+            *args: I,
+            **kwargs: I,
+        ) -> Optional[O]:
+            _benchmark(
+                interval=interval,
+                sliding_window_size=sliding_window_size,
+                func_name=func_name,
+                benchmark_results=self.benchmark_results,
+            )
+            return func(*args, **kwargs)
+
+        @wraps(func)
+        async def async_wrapper(
+            *args: I,
+            **kwargs: I,
+        ) -> Optional[O]:
+            _benchmark(
+                interval=interval,
+                sliding_window_size=sliding_window_size,
+                func_name=func_name,
+                benchmark_results=self.benchmark_results,
+            )
+            return await func(*args, **kwargs)  # type: ignore
+
+        if inspect.iscoroutinefunction(func):
+            return async_wrapper  # type: ignore
+        else:
+            return wrapper
+
+    return _decorator

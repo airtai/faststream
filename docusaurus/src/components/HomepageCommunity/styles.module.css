@@ -6,9 +6,8 @@
 }
 
 .featureSvg {
-  height: 160px;
-  width: 160px;
-  margin: 30px 0px;
+  height: 200px;
+  width: 200px;
 }
 .title {
   font-size: 2.3rem;
@@ -23,6 +22,6 @@
   text-align: center;
   margin-top: 3rem;
 }
-.rowWitExtraMargin {
-  margin-top: 80px;
+.withExtraMargin {
+  margin-top: 60px;
 }

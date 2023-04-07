@@ -8,13 +8,29 @@
 
 @font-face {
   font-family: "Panton-SemiBold";
-  src: url('/static/font/Panton-SemiBold.woff') format('woff');
+  src: url("/static/font/Panton-SemiBold.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Rubik-Medium";
+  src: url("/static/font/Rubik-Medium.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "RobotoMono-Regular";
+  src: url("/static/font/RobotoMono-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Roboto-Light";
+  src: url("/static/font/Roboto-Light.ttf") format("truetype");
 }
 
 :root {
-  font-family: 'Panton-SemiBold';
-  --ifm-font-family-monospace: "Panton-SemiBold";
-  --ifm-font-family-base: "Panton-SemiBold";
+  font-family: "Roboto-Light";
+  --ifm-font-family-monospace: "RobotoMono-Regular";
+  --ifm-font-family-base: "Roboto-Light";
+  --ifm-heading-font-family: "Rubik-Medium";
   --ifm-color-primary: #56b7e1; /*#2e8555; */
   --ifm-color-primary-dark: #3cacdc;
   --ifm-color-primary-darker: #2ea6da;
@@ -27,7 +43,7 @@
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
-[data-theme='dark'] {
+[data-theme="dark"] {
   --ifm-color-primary: #56b7e1;
   --ifm-color-primary-dark: #3cacdc;
   --ifm-color-primary-darker: #2ea6da;
@@ -35,5 +51,47 @@
   --ifm-color-primary-light: #70c2e6;
   --ifm-color-primary-lighter: #7ec8e8;
   --ifm-color-primary-lightest: #a5d9ef;
- --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+.btn-github-link:before {
+  background: url("data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12'/%3E%3C/svg%3E")
+    no-repeat;
+  content: "";
+  display: inline-flex;
+  height: 21px;
+  width: 21px;
+  margin: 0px 10px 0px 0px;
+  vertical-align: text-top;
+}
+
+.header-github-link:hover {
+  opacity: 0.6;
+}
+
+.header-github-link:before {
+  background: url("data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12'/%3E%3C/svg%3E")
+    no-repeat;
+  content: "";
+  display: flex;
+  height: 20px;
+  width: 20px;
+}
+
+[data-theme="dark"] .header-github-link::before {
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='white' d='M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12'/%3E%3C/svg%3E")
+    no-repeat;
+}
+
+.header-discord-link:hover {
+  opacity: 0.6;
+}
+
+.header-discord-link:before {
+  background: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgZGF0YS1uYW1lPSJMYXllciAxIiB2aWV3Qm94PSIwIDAgMjQgMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEwLjEzODMxLDEwLjYyOTgyaC0uMDAwMTNhMS4wNTI4OCwxLjA1Mjg4LDAsMSwwLC4wMDAxMywwWm0zLjc1NDI3LDBhMS4xNDU4MiwxLjE0NTgyLDAsMSwwLDEuMDQ5MDcsMS4xNDE2NkExLjA5NTg2LDEuMDk1ODYsMCwwLDAsMTMuODkyNTgsMTAuNjI5ODJabTQuOTk4NzgtOC42Mjk3SDUuMTA4NjRBMi4xMTM2NCwyLjExMzY0LDAsMCwwLDMsNC4xMTlWMTguMDI1MjdBMi4xMTM2OCwyLjExMzY4LDAsMCwwLDUuMTA4NjQsMjAuMTQ0MUgxNi43NzI1OGwtLjU0NTE2LTEuOTAyODksMS4zMTY1MywxLjIyNCwxLjI0NDYyLDEuMTUyTDIxLDIyLjU3MTUzVjQuMTE5QTIuMTEzNjQsMi4xMTM2NCwwLDAsMCwxOC44OTEzNiwyLjAwMDEyWk0xNC45MjExNCwxNS40MzMyM3YuMDAwMDZzLS4zNzAzNi0uNDQyMzItLjY3ODk1LS44MzMxOWEzLjI0NTksMy4yNDU5LDAsMCwwLDEuODYxODEtMS4yMjQsNS44NzgzNyw1Ljg3ODM3LDAsMCwxLTEuMTgyODYuNjA2ODEsNi43Njk3NCw2Ljc2OTc0LDAsMCwxLTEuNDkxNDUuNDQyMzIsNy4yMDYsNy4yMDYsMCwwLDEtMi42NjM5NC0uMDEwMjUsOC42NDQ1Niw4LjY0NDU2LDAsMCwxLTEuNTEyMDktLjQ0MjI2LDYuMDM3MzUsNi4wMzczNSwwLDAsMS0uNzUwODUtLjM0OTczYy0uMDMwODktLjAyMDYzLS4wNjE2NS0uMDMwODktLjA5MjUzLS4wNTE0NmEuMTQxNzEuMTQxNzEsMCwwLDEtLjA0MTE0LS4wMzA4MmMtLjE4NTA2LS4xMDI4NC0uMjg4MDktLjE3NDg3LS4yODgwOS0uMTc0ODdBMy4xOTk3NSwzLjE5OTc1LDAsMCwwLDkuODgxMSwxNC41Nzk1M2MtLjMwODQ3LjM5MDkzLS42ODkwOC44NTM3LS42ODkwOC44NTM3YTMuNzI4OTIsMy43Mjg5MiwwLDAsMS0zLjEzNzA5LTEuNTYzNDJBMTMuNzc1LDEzLjc3NSwwLDAsMSw3LjUzNiw3Ljg3MzIzYTUuMDg2NDEsNS4wODY0MSwwLDAsMSwyLjg5MDI2LTEuMDhsLjEwMjc4LjEyMzQ4QTYuOTM3NjIsNi45Mzc2MiwwLDAsMCw3LjgyNCw4LjI2NDFzLjIyNjMyLS4xMjM0MS42MDY4Mi0uMjk4MjhhNy43MjIsNy43MjIsMCwwLDEsMi4zMzUtLjY0Nzk1LDEuMDA0NjUsMS4wMDQ2NSwwLDAsMSwuMTc0OTItLjAyMDYzLDguNzAyLDguNzAyLDAsMCwxLDIuMDc3NjQtLjAyMDUxLDguMzg0LDguMzg0LDAsMCwxLDMuMDk2Ljk4NzM3LDYuODQ1NzYsNi44NDU3NiwwLDAsMC0yLjU2MS0xLjMwNjI4bC4xNDM5Mi0uMTY0NDlhNS4wODU3NSw1LjA4NTc1LDAsMCwxLDIuODkwMjYsMS4wOCwxMy43NzM2OCwxMy43NzM2OCwwLDAsMSwxLjQ4MTIsNS45OTY1MkEzLjc1OTcyLDMuNzU5NzIsMCwwLDEsMTQuOTIxMTQsMTUuNDMzMjNaIiBmaWxsPSIjNjU2M2ZmIi8+PC9zdmc+")
+    no-repeat;
+  content: "";
+  display: flex;
+  height: 30px;
+  width: 30px;
 }

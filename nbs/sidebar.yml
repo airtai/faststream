@@ -9,6 +9,7 @@ website:
         - guides/Guide_30_Using_docker_to_deploy_fastkafka.ipynb   
         - guides/Guide_31_Using_redpanda_to_test_fastkafka.ipynb 
         - guides/Guide_05_Lifespan_Handler.ipynb
+        - guides/Guide_06_Benchmarking_FastKafka.ipynb
         - section: Consuming from Kafka
           contents:
           - guides/Guide_11_Consumes_Basics.ipynb
