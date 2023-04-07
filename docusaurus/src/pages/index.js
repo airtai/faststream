@@ -7,6 +7,7 @@ import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import HomepageWhatYouGet from '@site/src/components/HomepageWhatYouGet';
 import HomepageCommunity from '@site/src/components/HomepageCommunity';
 import HomepageFAQ from '@site/src/components/HomepageFAQ';
+import HomepageFastkafkaChat from '@site/src/components/HomepageFastkafkaChat';
 
 import styles from './index.module.css';
 
@@ -21,7 +22,7 @@ function HomepageHeader() {
         <div className={styles.buttons}>
           <Link
             className="btn-github-link button button--secondary button--lg"
-            to="https://github.com/airtai/fastkafka">
+            to="/docs">
               Get Started
           </Link>
         </div>
@@ -39,6 +40,7 @@ export default function Home() {
       <HomepageHeader />
       <main>
         <HomepageFeatures />
+        <HomepageFastkafkaChat />
         <HomepageWhatYouGet />
         <HomepageCommunity />
         <HomepageFAQ />

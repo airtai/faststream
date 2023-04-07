@@ -66,10 +66,10 @@ function Feature({description, source}) {
 
 export default function HomepageCommunity() {
   return (
-    <section className={styles.features}>
+    <section className={`${styles.features}  hero hero--primary`}>
       <div className="container">
       <div className={clsx('col col--12')}>
-          <p className={styles.title}>The community has spoken!</p>
+          <h2 className={styles.title}>The community has spoken!</h2>
         </div>
         <div className="row">
           {FeatureList.map((props, idx) => (

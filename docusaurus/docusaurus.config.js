@@ -113,6 +113,10 @@ const config = {
             title: 'Community',
             items: [
               {
+                label: 'Discord',
+                href: 'https://discord.gg/CJWmYpyFbc',
+              },
+              {
                 label: 'GitHub',
                 href: 'https://github.com/airtai/fastkafka',
               },

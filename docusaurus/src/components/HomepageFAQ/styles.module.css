@@ -45,6 +45,10 @@
   transform: translate(-50%, -50%);
 }
 
+.href {
+  text-decoration: underline;
+}
+
 /**
 * ----------------------------------------------
 * Demo styles
