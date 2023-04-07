@@ -4,30 +4,29 @@
 __all__ = ['logger', 'create_consumer_record', 'ConsumerMetadata', 'InMemoryBroker', 'InMemoryConsumer', 'InMemoryProducer']
 
 # %% ../../nbs/001_InMemoryBroker.ipynb 1
-import uuid
-from collections import namedtuple
-from dataclasses import dataclass
-from contextlib import contextmanager
-import inspect
 import asyncio
 import copy
-
+import inspect
+import uuid
+from collections import namedtuple
+from contextlib import contextmanager
+from dataclasses import dataclass
 from typing import *
+
+from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
+from aiokafka.structs import ConsumerRecord, RecordMetadata, TopicPartition
+
 import fastkafka._application.app
 import fastkafka._components.aiokafka_consumer_loop
 import fastkafka._components.aiokafka_producer_manager
-from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
-from aiokafka.structs import ConsumerRecord, TopicPartition, RecordMetadata
-
-import fastkafka._application.app
-from fastkafka._components.meta import (
-    copy_func,
-    patch,
-    delegates,
-    classcontextmanager,
-    _get_default_kwargs_from_sig,
-)
 from .._components.logger import get_logger
+from fastkafka._components.meta import (
+    _get_default_kwargs_from_sig,
+    classcontextmanager,
+    copy_func,
+    delegates,
+    patch,
+)
 
 # %% ../../nbs/001_InMemoryBroker.ipynb 3
 logger = get_logger(__name__)

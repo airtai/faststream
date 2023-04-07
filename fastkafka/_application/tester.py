@@ -14,8 +14,8 @@ from pydantic import BaseModel
 from .app import FastKafka
 from .._components.meta import delegates, patch
 from .._testing.apache_kafka_broker import ApacheKafkaBroker
-from .._testing.local_redpanda_broker import LocalRedpandaBroker
 from .._testing.in_memory_broker import InMemoryBroker
+from .._testing.local_redpanda_broker import LocalRedpandaBroker
 
 # %% ../../nbs/016_Tester.ipynb 6
 class Tester(FastKafka):
