@@ -331,13 +331,11 @@ def classcontextmanager(name: str = "lifecycle") -> Callable[[Type[T]], Type[T]]
             if not hasattr(self, "_lifecycle_ctx"):
                 self._lifecycle_ctx = []  # type: ignore
 
-            print(f"{cls}.__enter__")
             self._lifecycle_ctx.append(getattr(self, name)())  # type: ignore
             return self._lifecycle_ctx[-1].__enter__()  # type: ignore
 
         @patch
         def __exit__(self: cls, *args: Any) -> None:  # type: ignore
-            print(f"{cls}.__exit__")
             self._lifecycle_ctx.pop(-1).__exit__(*args)  # type: ignore
 
         return cls
