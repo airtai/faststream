@@ -13,7 +13,7 @@ from typing import *
 from .logger import get_logger
 
 # %% ../../nbs/017_Benchmarking.ipynb 4
-logger = get_logger(__name__)
+logger = get_logger("fastkafka.benchmark")
 
 # %% ../../nbs/017_Benchmarking.ipynb 5
 def _benchmark(
@@ -57,14 +57,18 @@ def _benchmark(
             benchmark_results[func_name]["count"]
             - benchmark_results[func_name]["last_count"]
         ) / (diff / timedelta(seconds=1))
-        log_msg = f"For {func_name}({interval=},{sliding_window_size=}) - Throughput = {throughput:5,.0f}"
+        log_msg = f"Throughput = {throughput:5,.0f}"
 
         if sliding_window_size is not None:
             benchmark_results[func_name]["history"].append(throughput)
 
-            log_msg += f", Average throughput = {mean(benchmark_results[func_name]['history']):5,.0f}"
-            if len(benchmark_results[func_name]["history"]) > 1:
-                log_msg += f", Standard deviation of throughput is {stdev(benchmark_results[func_name]['history']):5,.0f}"
+            log_msg += f", Avg throughput = {mean(benchmark_results[func_name]['history']):5,.0f}"
+        #             if len(benchmark_results[func_name]["history"]) > 1:
+        #                 log_msg += f", Standard deviation of throughput is {stdev(benchmark_results[func_name]['history']):5,.0f}"
+        log_msg = (
+            log_msg
+            + f" - For {func_name}(interval={interval.seconds},{sliding_window_size=})"
+        )
         logger.info(log_msg)
 
         benchmark_results[func_name]["last_start"] = datetime.utcnow()
