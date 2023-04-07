@@ -50,7 +50,7 @@ support!
 
 ------------------------------------------------------------------------
 
-We were busy lately, check it out yourself!
+#### 🐝🐝🐝 We were busy lately 🐝🐝🐝
 
 ![Activity](https://repobeats.axiom.co/api/embed/21f36049093d5eb8e5fdad18c3c5d8df5428ca30.svg "Repobeats analytics image")
 
