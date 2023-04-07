@@ -113,13 +113,15 @@ class Tester(FastKafka):
     async def _create_ctx(self) -> AsyncGenerator["Tester", None]:
         if self.broker is None:
             topics = set().union(*(app.get_topics() for app in self.apps))
-            self.broker = InMemoryBroker(topics=topics)
+            self.broker = InMemoryBroker()
 
         bootstrap_server = await self.broker._start()
+        old_bootstrap_servers: List[str] = list()
         try:
             if isinstance(self.broker, (ApacheKafkaBroker, LocalRedpandaBroker)):
                 self._set_bootstrap_servers(bootstrap_servers=bootstrap_server)
                 for app in self.apps:
+                    old_bootstrap_servers.append(app._kafka_config["bootstrap_servers"])
                     app._set_bootstrap_servers(bootstrap_server)
             await self._start_tester()
             try:
@@ -128,6 +130,8 @@ class Tester(FastKafka):
                 await self._stop_tester()
         finally:
             await self.broker._stop()
+            for app, server in zip(self.apps, old_bootstrap_servers):
+                app._set_bootstrap_servers(server)
 
     async def __aenter__(self) -> "Tester":
         self._ctx = self._create_ctx()
