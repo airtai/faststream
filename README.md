@@ -37,8 +37,10 @@ projects.
 
 #### ⭐⭐⭐ Stay in touch ⭐⭐⭐
 
-Please show your support and stay in touch by: - giving our [GitHub
-repository](https://github.com/airtai/fastkafka/) a star, and
+Please show your support and stay in touch by:
+
+- giving our [GitHub repository](https://github.com/airtai/fastkafka/) a
+  star, and
 
 - joining our [Discord server](https://discord.gg/CJWmYpyFbc).
 
@@ -186,7 +188,7 @@ both generating the documentation and later to run the actual server
 against one of the given kafka broker.
 
 Next, an object of the
-[`FastKafka`](https://airtai.github.io/fastkafka/0.4.0rc1/api/fastkafka/FastKafka/#fastkafka.FastKafka)
+[`FastKafka`](https://airtai.github.io/fastkafka/fastkafka.html#fastkafka)
 class is initialized with the minimum set of arguments:
 
 - `kafka_brokers`: a dictionary used for generation of documentation
@@ -276,7 +278,7 @@ def to_predictions(species_class: int) -> IrisPrediction:
 ## Testing the service
 
 The service can be tested using the
-[`Tester`](https://airtai.github.io/fastkafka/0.4.0rc1/api/fastkafka/testing/Tester/#fastkafka.testing.Tester)
+[`Tester`](https://airtai.github.io/fastkafka/tester.html#tester)
 instances which internally starts InMemory implementation of Kafka
 broker.
 
@@ -436,10 +438,10 @@ def to_predictions(species_class: int) -> IrisPrediction:
 To run the service, you will need a running Kafka broker on localhost as
 specified in the `kafka_brokers` parameter above. We can start the Kafka
 broker locally using the
-[`ApacheKafkaBroker`](https://airtai.github.io/fastkafka/0.4.0rc1/api/fastkafka/testing/ApacheKafkaBroker/#fastkafka.testing.ApacheKafkaBroker).
+[`ApacheKafkaBroker`](https://airtai.github.io/fastkafka/apachekafkabroker.html#apachekafkabroker).
 
 To use
-[`ApacheKafkaBroker`](https://airtai.github.io/fastkafka/0.4.0rc1/api/fastkafka/testing/ApacheKafkaBroker/#fastkafka.testing.ApacheKafkaBroker),
+[`ApacheKafkaBroker`](https://airtai.github.io/fastkafka/apachekafkabroker.html#apachekafkabroker),
 you need to install JRE and Kafka to your environment. To simplify this
 process, fastkafka comes with a CLI command that does just that, to run
 it, in your terminal execute the following:
@@ -449,7 +451,7 @@ fastkafka testing install_deps
 ```
 
 Now we can run
-[`ApacheKafkaBroker`](https://airtai.github.io/fastkafka/0.4.0rc1/api/fastkafka/testing/ApacheKafkaBroker/#fastkafka.testing.ApacheKafkaBroker)
+[`ApacheKafkaBroker`](https://airtai.github.io/fastkafka/apachekafkabroker.html#apachekafkabroker)
 that will start a Kafka broker instance for us.
 
 ``` python
