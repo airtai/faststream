@@ -16,9 +16,14 @@
   src: url("/static/font/Rubik-Medium.ttf") format("truetype");
 }
 
+@font-face {
+  font-family: "SourceCodePro-Regular";
+  src: url("/static/font/SourceCodePro-Regular.ttf") format("truetype");
+}
+
 :root {
   font-family: "Rubik-Medium";
-  --ifm-font-family-monospace: "Rubik-Medium";
+  --ifm-font-family-monospace: "SourceCodePro-Regular";
   --ifm-font-family-base: "Rubik-Medium";
   --ifm-color-primary: #56b7e1; /*#2e8555; */
   --ifm-color-primary-dark: #3cacdc;
