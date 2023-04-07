@@ -54,7 +54,7 @@ export default function HomepageFeatures() {
     <section className={styles.features}>
       <div className="container">
       <div className={clsx('col col--12')}>
-          <p className={styles.title}>Swim with the stream…ing services</p>
+          <h2 className={styles.title}>Swim with the stream…ing services</h2>
         </div>
         <div className="row">
           {FeatureList.map((props, idx) => (

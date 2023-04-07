@@ -56,8 +56,8 @@ export default function HomepageFastkafkaChat() {
     <section className={`${styles.features} hero hero--primary`}>
       <div className="container">
       <div className={clsx('col col--12')}>
-          <p className={styles.title}>Curious about Fastkafka?</p>
-          <p className={styles.title}>Type your questions below for speedy answers!</p>
+          <h2 className={styles.title}>Curious about Fastkafka?</h2>
+          <h2 className={styles.title}>Type your questions below for speedy answers!</h2>
         </div>
         <div className={`row`}>
           <div className={clsx('col col--12')}>

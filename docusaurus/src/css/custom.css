@@ -17,14 +17,20 @@
 }
 
 @font-face {
-  font-family: "SourceCodePro-Regular";
-  src: url("/static/font/SourceCodePro-Regular.ttf") format("truetype");
+  font-family: "RobotoMono-Regular";
+  src: url("/static/font/RobotoMono-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Roboto-Light";
+  src: url("/static/font/Roboto-Light.ttf") format("truetype");
 }
 
 :root {
-  font-family: "Rubik-Medium";
-  --ifm-font-family-monospace: "SourceCodePro-Regular";
-  --ifm-font-family-base: "Rubik-Medium";
+  font-family: "Roboto-Light";
+  --ifm-font-family-monospace: "RobotoMono-Regular";
+  --ifm-font-family-base: "Roboto-Light";
+  --ifm-heading-font-family: "Rubik-Medium";
   --ifm-color-primary: #56b7e1; /*#2e8555; */
   --ifm-color-primary-dark: #3cacdc;
   --ifm-color-primary-darker: #2ea6da;

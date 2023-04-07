@@ -9,7 +9,7 @@ export default function HomepageWhatYouGet() {
     <section className={styles.features}>
       <div className="container">
       <div className={clsx('col col--12')}>
-          <p className={styles.title}>You get what you expect</p>
+          <h2 className={styles.title}>You get what you expect</h2>
         </div>
         <div className={`row ${styles.childrenWithExtraPadding}`}>
           <div className={clsx('col col--6 text--center padding-horiz--md')}>
