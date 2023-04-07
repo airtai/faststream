@@ -182,12 +182,19 @@ class GroupMetadata:
 # %% ../../nbs/001_InMemoryBroker.ipynb 22
 @classcontextmanager()
 class InMemoryBroker:
-    def __init__(self, topics: Iterable[str], num_partitions: int = 1):
+    def __init__(
+        self,
+        topics: Iterable[str],
+        bootstrap_servers: Iterable[str] = ["localhost"],
+        num_partitions: int = 1,
+    ):
         self.num_partitions = num_partitions
-        self.topics: Dict[str, KafkaTopic] = {
-            topic: KafkaTopic(topic, num_partitions) for topic in topics
+        self.topics: Dict[Tuple[str, str], KafkaTopic] = {
+            (server, topic): KafkaTopic(topic, num_partitions)
+            for topic in topics
+            for server in bootstrap_servers
         }
-        self.topic_groups: Dict[Tuple[str, str], GroupMetadata] = {}
+        self.topic_groups: Dict[Tuple[str, str, str], GroupMetadata] = {}
         self.is_started: bool = False
 
     def connect(self) -> uuid.UUID:
@@ -196,59 +203,37 @@ class InMemoryBroker:
     def dissconnect(self, consumer_id: uuid.UUID) -> None:
         pass
 
-    def subscribe(self, topic: str, group: str, consumer_id: uuid.UUID) -> None:
-        group_meta = self.topic_groups.get(
-            (topic, group), GroupMetadata(self.num_partitions)
-        )
-        group_meta.subscribe(consumer_id)
-        self.topic_groups[(topic, group)] = group_meta
+    def subscribe(
+        self, bootstrap_server: str, topic: str, group: str, consumer_id: uuid.UUID
+    ) -> None:
+        raise NotImplementedError()
 
-    def unsubscribe(self, topic: str, group: str, consumer_id: uuid.UUID) -> None:
-        self.topic_groups[(topic, group)].unsubscribe(consumer_id)
+    def unsubscribe(
+        self, bootstrap_server: str, topic: str, group: str, consumer_id: uuid.UUID
+    ) -> None:
+        raise NotImplementedError()
 
     def read(  # type: ignore
-        self, *, topic: str, group: str, consumer_id: uuid.UUID, auto_offset_reset: str
+        self,
+        *,
+        bootstrap_server: str,
+        topic: str,
+        group: str,
+        consumer_id: uuid.UUID,
+        auto_offset_reset: str,
     ) -> Dict[TopicPartition, List[KafkaRecord]]:
-        group_meta = self.topic_groups[(topic, group)]
-        partitions, offsets = group_meta.get_partitions(consumer_id)
-
-        if len(partitions) == 0:
-            return {}
-
-        partitions_data = {}
-
-        for partition in partitions:
-            offset = offsets[partition]
-
-            if offset is None:
-                offset = (
-                    self.topics[topic].latest_offset(partition)
-                    if auto_offset_reset == "latest"
-                    else 0
-                )
-
-            topic_partition, data, offset = self.topics[topic].read(partition, offset)
-
-            partitions_data[topic_partition] = data
-            group_meta.set_offset(partition, offset)
-
-        return partitions_data
+        raise NotImplementedError()
 
     def write(  # type: ignore
         self,
         *,
+        bootstrap_server: str,
         topic: str,
         value: bytes,
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
     ) -> RecordMetadata:
-        if topic in self.topics:
-            return self.topics[topic].write(value, key=key, partition=partition)
-        else:
-            # todo: log only once
-            logger.warning(
-                f"Topic {topic} is not available during auto-create initialization"
-            )
+        raise NotImplementedError()
 
     @contextmanager
     def lifecycle(self) -> Iterator["InMemoryBroker"]:
@@ -263,7 +248,54 @@ class InMemoryBroker:
         logger.info("InMemoryBroker._stop() called")
         self.__exit__(None, None, None)  # type: ignore
 
-# %% ../../nbs/001_InMemoryBroker.ipynb 29
+# %% ../../nbs/001_InMemoryBroker.ipynb 24
+@patch
+def subscribe(
+    self: InMemoryBroker,
+    bootstrap_server: str,
+    topic: str,
+    group: str,
+    consumer_id: uuid.UUID,
+) -> None:
+    group_meta = self.topic_groups.get(
+        (bootstrap_server, topic, group), GroupMetadata(self.num_partitions)
+    )
+    group_meta.subscribe(consumer_id)
+    self.topic_groups[(bootstrap_server, topic, group)] = group_meta
+
+
+@patch
+def unsubscribe(
+    self: InMemoryBroker,
+    bootstrap_server: str,
+    topic: str,
+    group: str,
+    consumer_id: uuid.UUID,
+) -> None:
+    self.topic_groups[(bootstrap_server, topic, group)].unsubscribe(consumer_id)
+
+# %% ../../nbs/001_InMemoryBroker.ipynb 26
+@patch
+def write(  # type: ignore
+    self: InMemoryBroker,
+    *,
+    bootstrap_server: str,
+    topic: str,
+    value: bytes,
+    key: Optional[bytes] = None,
+    partition: Optional[int] = None,
+) -> RecordMetadata:
+    if (bootstrap_server, topic) in self.topics:
+        return self.topics[(bootstrap_server, topic)].write(
+            value, key=key, partition=partition
+        )
+    else:
+        # todo: log only once
+        logger.warning(
+            f"Topic {topic} is not available during auto-create initialization"
+        )
+
+# %% ../../nbs/001_InMemoryBroker.ipynb 35
 # InMemoryConsumer
 class InMemoryConsumer:
     def __init__(
@@ -275,12 +307,14 @@ class InMemoryConsumer:
         self._auto_offset_reset: str = "latest"
         self._group_id: Optional[str] = None
         self._topics: List[str] = list()
+        self._bootstrap_servers = ""
 
     @delegates(AIOKafkaConsumer)
     def __call__(self, **kwargs: Any) -> "InMemoryConsumer":
         defaults = _get_default_kwargs_from_sig(InMemoryConsumer.__call__, **kwargs)
         consume_copy = InMemoryConsumer(self.broker)
         consume_copy._auto_offset_reset = defaults["auto_offset_reset"]
+        consume_copy._bootstrap_servers = defaults["bootstrap_servers"]
         consume_copy._group_id = (
             defaults["group_id"]
             if defaults["group_id"] is not None
@@ -306,7 +340,7 @@ class InMemoryConsumer:
     ) -> Dict[TopicPartition, List[ConsumerRecord]]:
         raise NotImplementedError()
 
-# %% ../../nbs/001_InMemoryBroker.ipynb 32
+# %% ../../nbs/001_InMemoryBroker.ipynb 38
 @patch
 @delegates(AIOKafkaConsumer.start)
 async def start(self: InMemoryConsumer, **kwargs: Any) -> None:
@@ -317,8 +351,8 @@ async def start(self: InMemoryConsumer, **kwargs: Any) -> None:
         )
     self._id = self.broker.connect()
 
-# %% ../../nbs/001_InMemoryBroker.ipynb 35
-@patch
+# %% ../../nbs/001_InMemoryBroker.ipynb 41
+@patch  # type: ignore
 @delegates(AIOKafkaConsumer.subscribe)
 def subscribe(self: InMemoryConsumer, topics: List[str], **kwargs: Any) -> None:
     logger.info("AIOKafkaConsumer patched subscribe() called")
@@ -326,10 +360,15 @@ def subscribe(self: InMemoryConsumer, topics: List[str], **kwargs: Any) -> None:
         raise RuntimeError("Consumer start() not called! Run consumer start() first")
     logger.info(f"AIOKafkaConsumer.subscribe(), subscribing to: {topics}")
     for topic in topics:
-        self.broker.subscribe(consumer_id=self._id, topic=topic, group=self._group_id)  # type: ignore
+        self.broker.subscribe(
+            bootstrap_server=self._bootstrap_servers,
+            consumer_id=self._id,
+            topic=topic,
+            group=self._group_id,  # type: ignore
+        )
         self._topics.append(topic)
 
-# %% ../../nbs/001_InMemoryBroker.ipynb 38
+# %% ../../nbs/001_InMemoryBroker.ipynb 44
 @patch
 @delegates(AIOKafkaConsumer.stop)
 async def stop(self: InMemoryConsumer, **kwargs: Any) -> None:
@@ -337,9 +376,14 @@ async def stop(self: InMemoryConsumer, **kwargs: Any) -> None:
     if self._id is None:
         raise RuntimeError("Consumer start() not called! Run consumer start() first")
     for topic in self._topics:
-        self.broker.unsubscribe(topic=topic, group=self._group_id, consumer_id=self._id)  # type: ignore
+        self.broker.unsubscribe(
+            bootstrap_server=self._bootstrap_servers,
+            topic=topic,
+            group=self._group_id,  # type: ignore
+            consumer_id=self._id,
+        )
 
-# %% ../../nbs/001_InMemoryBroker.ipynb 41
+# %% ../../nbs/001_InMemoryBroker.ipynb 47
 @patch
 @delegates(AIOKafkaConsumer.getmany)
 async def getmany(  # type: ignore
@@ -347,21 +391,26 @@ async def getmany(  # type: ignore
 ) -> Dict[TopicPartition, List[ConsumerRecord]]:
     for topic in self._topics:
         return self.broker.read(
+            bootstrap_server=self._bootstrap_servers,
             topic=topic,
             consumer_id=self._id,  # type: ignore
             group=self._group_id,  # type: ignore
             auto_offset_reset=self._auto_offset_reset,
         )
 
-# %% ../../nbs/001_InMemoryBroker.ipynb 44
+# %% ../../nbs/001_InMemoryBroker.ipynb 50
 class InMemoryProducer:
     def __init__(self, broker: InMemoryBroker, **kwargs: Any) -> None:
         self.broker = broker
         self.id: Optional[uuid.UUID] = None
+        self._bootstrap_servers = ""
 
     @delegates(AIOKafkaProducer)
     def __call__(self, **kwargs: Any) -> "InMemoryProducer":
-        return InMemoryProducer(self.broker)
+        defaults = _get_default_kwargs_from_sig(InMemoryConsumer.__call__, **kwargs)
+        producer_copy = InMemoryProducer(self.broker)
+        producer_copy._bootstrap_servers = defaults["bootstrap_servers"]
+        return producer_copy
 
     @delegates(AIOKafkaProducer.start)
     async def start(self, **kwargs: Any) -> None:
@@ -381,7 +430,7 @@ class InMemoryProducer:
     ):
         raise NotImplementedError()
 
-# %% ../../nbs/001_InMemoryBroker.ipynb 46
+# %% ../../nbs/001_InMemoryBroker.ipynb 53
 @patch  # type: ignore
 @delegates(AIOKafkaProducer.start)
 async def start(self: InMemoryProducer, **kwargs: Any) -> None:
@@ -392,7 +441,7 @@ async def start(self: InMemoryProducer, **kwargs: Any) -> None:
         )
     self.id = self.broker.connect()
 
-# %% ../../nbs/001_InMemoryBroker.ipynb 49
+# %% ../../nbs/001_InMemoryBroker.ipynb 56
 @patch  # type: ignore
 @delegates(AIOKafkaProducer.stop)
 async def stop(self: InMemoryProducer, **kwargs: Any) -> None:
@@ -400,7 +449,7 @@ async def stop(self: InMemoryProducer, **kwargs: Any) -> None:
     if self.id is None:
         raise RuntimeError("Producer start() not called! Run producer start() first")
 
-# %% ../../nbs/001_InMemoryBroker.ipynb 52
+# %% ../../nbs/001_InMemoryBroker.ipynb 59
 @patch
 @delegates(AIOKafkaProducer.send)
 async def send(  # type: ignore
@@ -413,14 +462,21 @@ async def send(  # type: ignore
 ):  # asyncio.Task[RecordMetadata]
     if self.id is None:
         raise RuntimeError("Producer start() not called! Run producer start() first")
-    record = self.broker.write(topic=topic, value=msg, key=key, partition=partition)
+
+    record = self.broker.write(
+        bootstrap_server=self._bootstrap_servers,
+        topic=topic,
+        value=msg,
+        key=key,
+        partition=partition,
+    )
 
     async def _f(record: ConsumerRecord = record) -> RecordMetadata:  # type: ignore
         return record
 
     return asyncio.create_task(_f())
 
-# %% ../../nbs/001_InMemoryBroker.ipynb 55
+# %% ../../nbs/001_InMemoryBroker.ipynb 63
 @patch
 @contextmanager
 def lifecycle(self: InMemoryBroker) -> Iterator[InMemoryBroker]:
