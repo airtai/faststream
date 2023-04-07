@@ -1,8 +1,14 @@
 import React from 'react';
 import clsx from 'clsx';
 import Layout from '@theme/Layout';
+import YouTube from 'react-youtube';
 
 import styles from './styles.module.css';
+
+const opts = {
+      height: '720',
+      width: '1280',
+    };
 
 export default function Hello() {
   return (
@@ -11,10 +17,8 @@ export default function Hello() {
       <div className="container">
         <div className="row">
           <div className="col col--12">
-            <p className={styles.header}>Demo</p>
+            <YouTube videoId="dQw4w9WgXcQ" opts={opts}/>
           </div>
-        </div>
-        <div className={`text--center padding-horiz--md ${styles.description}`}>
         </div>
       </div>
     </section>
