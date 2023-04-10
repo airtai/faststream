@@ -19,6 +19,8 @@ from .._testing.local_redpanda_broker import LocalRedpandaBroker
 
 # %% ../../nbs/016_Tester.ipynb 6
 class Tester(FastKafka):
+    __test__ = False
+
     @delegates(ApacheKafkaBroker.__init__)
     def __init__(
         self,
