@@ -222,7 +222,9 @@ def _format_args(xs: List[docstring_parser.DocstringParam]) -> str:
     )
 
 
-def combine_params(f: F, o: Union[Type, Callable[..., Any]]) -> F:
+def combine_params(
+    f: F, o: Union[Type, Callable[..., Any]], but: Optional[List[str]] = None
+) -> F:
     """Combines docstring arguments of a function and another object or function
 
     Args:
@@ -232,6 +234,9 @@ def combine_params(f: F, o: Union[Type, Callable[..., Any]]) -> F:
     Returns:
         Function f with augumented docstring including arguments from both functions/objects
     """
+    if but is None:
+        but = []
+
     src_params = docstring_parser.parse_from_object(o).params
     #     logger.info(f"combine_params(): source:{_format_args(src_params)}")
     docs = docstring_parser.parse_from_object(f)
@@ -239,7 +244,9 @@ def combine_params(f: F, o: Union[Type, Callable[..., Any]]) -> F:
     dst_params_names = [p.arg_name for p in docs.params]
 
     combined_params = docs.params + [
-        x for x in src_params if not x.arg_name in dst_params_names
+        x
+        for x in src_params
+        if x.arg_name not in dst_params_names and x.arg_name not in but
     ]
     #     logger.info(f"combine_params(): combined:{_format_args(combined_params)}")
 
@@ -252,7 +259,7 @@ def combine_params(f: F, o: Union[Type, Callable[..., Any]]) -> F:
     )
     return f
 
-# %% ../../nbs/096_Meta.ipynb 47
+# %% ../../nbs/096_Meta.ipynb 48
 def delegates(
     o: Union[Type, Callable[..., Any]],
     keep: bool = False,
@@ -267,13 +274,19 @@ def delegates(
     """
 
     def _inner(f: F, keep: bool = keep, but: Optional[List[str]] = but) -> F:
-        def _combine_params(o: Union[Type, Callable[..., Any]]) -> Callable[[F], F]:
-            def __combine_params(f: F, o: Union[Type, Callable[..., Any]] = o) -> F:
-                return combine_params(f=f, o=o)
+        def _combine_params(
+            o: Union[Type, Callable[..., Any]], but: Optional[List[str]] = None
+        ) -> Callable[[F], F]:
+            def __combine_params(
+                f: F,
+                o: Union[Type, Callable[..., Any]] = o,
+                but: Optional[List[str]] = but,
+            ) -> F:
+                return combine_params(f=f, o=o, but=but)
 
             return __combine_params
 
-        @_combine_params(o)  # type: ignore
+        @_combine_params(o, but=but)  # type: ignore
         @_delegates_without_docs(o, keep=keep, but=but)  # type: ignore
         @wraps(f)
         def _f(*args: Any, **kwargs: Any) -> Any:
@@ -283,7 +296,7 @@ def delegates(
 
     return _inner
 
-# %% ../../nbs/096_Meta.ipynb 64
+# %% ../../nbs/096_Meta.ipynb 66
 def use_parameters_of(
     o: Union[Type, Callable[..., Any]], **kwargs: Dict[str, Any]
 ) -> Dict[str, Any]:
@@ -300,13 +313,13 @@ def use_parameters_of(
     allowed_keys = set(inspect.signature(o).parameters.keys())
     return {k: v for k, v in kwargs.items() if k in allowed_keys}
 
-# %% ../../nbs/096_Meta.ipynb 66
+# %% ../../nbs/096_Meta.ipynb 68
 def filter_using_signature(f: Callable, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
     """todo: write docs"""
     param_names = list(inspect.signature(f).parameters.keys())
     return {k: v for k, v in kwargs.items() if k in param_names}
 
-# %% ../../nbs/096_Meta.ipynb 68
+# %% ../../nbs/096_Meta.ipynb 70
 TorF = TypeVar("TorF", Type, Callable[..., Any])
 
 
@@ -317,7 +330,7 @@ def export(module_name: str) -> Callable[[TorF], TorF]:
 
     return _inner
 
-# %% ../../nbs/096_Meta.ipynb 71
+# %% ../../nbs/096_Meta.ipynb 73
 T = TypeVar("T")
 
 
@@ -342,7 +355,7 @@ def classcontextmanager(name: str = "lifecycle") -> Callable[[Type[T]], Type[T]]
 
     return _classcontextmanager
 
-# %% ../../nbs/096_Meta.ipynb 74
+# %% ../../nbs/096_Meta.ipynb 76
 def _get_default_kwargs_from_sig(f: F, **kwargs: Any) -> Dict[str, Any]:
     """
     Get default values for function **kwargs
