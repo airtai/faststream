@@ -50,8 +50,8 @@ from .._components.producer_decorator import ProduceCallable, producer_decorator
 logger = get_logger(__name__)
 
 # %% ../../nbs/015_FastKafka.ipynb 9
-@delegates(AIOKafkaConsumer)
-@delegates(AIOKafkaProducer, keep=True)
+@delegates(AIOKafkaConsumer, but=["bootstrap_servers"])
+@delegates(AIOKafkaProducer, but=["bootstrap_servers"], keep=True)
 def _get_kafka_config(
     **kwargs: Any,
 ) -> Dict[str, Any]:
@@ -153,7 +153,6 @@ class FastKafka:
         contact: Optional[Dict[str, str]] = None,
         kafka_brokers: Dict[str, Any],
         root_path: Optional[Union[Path, str]] = None,
-        bootstrap_servers: Optional[Union[str, List[str]]] = None,
         lifespan: Optional[Callable[["FastKafka"], AsyncContextManager[None]]] = None,
         **kwargs: Any,
     ):
@@ -172,12 +171,6 @@ class FastKafka:
             kafka_brokers: dictionary describing kafka brokers used for
                 generating documentation
             root_path: path to where documentation will be created
-            bootstrap_servers (str, list(str)): a ``host[:port]`` string or list of
-                ``host[:port]`` strings that the producer should contact to
-                bootstrap initial cluster metadata. This does not have to be the
-                full node list.  It just needs to have at least one broker that will
-                respond to a Metadata API Request. Default port is 9092. If no
-                servers are specified, will default to ``localhost:9092``.
             lifespan: asynccontextmanager that is used for setting lifespan hooks.
                 __aenter__ is called before app start and __aexit__ after app stop.
                 The lifespan is called whe application is started as async context
@@ -207,11 +200,6 @@ class FastKafka:
         self._asyncapi_path = self._root_path / "asyncapi"
         (self._asyncapi_path / "docs").mkdir(exist_ok=True, parents=True)
         (self._asyncapi_path / "spec").mkdir(exist_ok=True, parents=True)
-
-        if bootstrap_servers is not None:
-            raise ValueError(
-                f"'bootstrap_servers' parameter is not supported, please use 'kafka_brokers' to set kafka server configuration"
-            )
 
         # this is used as default parameters for creating AIOProducer and AIOConsumer objects
         self._kafka_config = _get_kafka_config(**kwargs)
