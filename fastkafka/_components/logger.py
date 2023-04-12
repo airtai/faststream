@@ -2,12 +2,14 @@
 
 # %% auto 0
 __all__ = ['should_supress_timestamps', 'logger_spaces_added', 'supress_timestamps', 'get_default_logger_configuration',
-           'get_logger', 'set_level']
+           'get_logger', 'set_level', 'true_after']
 
 # %% ../../nbs/Logger.ipynb 2
 import logging
 import logging.config
+from datetime import datetime, timedelta
 from typing import *
+from .meta import patch
 
 # %% ../../nbs/Logger.ipynb 4
 # Logger Levels
@@ -131,3 +133,34 @@ def set_level(level: int) -> None:
 
     for logger in loggers:
         logger.setLevel(level)
+
+# %% ../../nbs/Logger.ipynb 18
+def true_after(seconds: float) -> Callable[[], bool]:
+    """Function returning True after a given number of seconds"""
+    t = datetime.now()
+
+    def _true_after(seconds: float = seconds, t: datetime = t) -> bool:
+        return (datetime.now() - t) > timedelta(seconds=seconds)
+
+    return _true_after
+
+
+@patch
+def log_and_timeout(self: logging.Logger, msg: str, level: int, timeout: int = 5):
+    try:
+        self.timeouted_msgs
+        pass
+    except AttributeError:
+        self.timeouted_msgs = {}
+
+    if msg not in self.timeouted_msgs or self.timeouted_msgs[msg]():
+        self.timeouted_msgs[msg] = true_after(timeout)
+
+        if level == logging.DEBUG:
+            self.debug(msg)
+        if level == logging.INFO:
+            self.info(msg)
+        if level == logging.WARNING:
+            self.warning(msg)
+        if level == logging.ERROR:
+            self.error(msg)

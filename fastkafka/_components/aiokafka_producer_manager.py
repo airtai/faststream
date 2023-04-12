@@ -7,6 +7,8 @@ __all__ = ['logger', 'AIOKafkaProducerManager']
 import asyncio
 from contextlib import asynccontextmanager
 from typing import *
+import time
+import logging
 
 import anyio
 from aiokafka import AIOKafkaProducer
@@ -22,7 +24,7 @@ logger = get_logger(__name__)
 async def _aiokafka_producer_manager(  # type: ignore # Argument 1 to "_aiokafka_producer_manager" becomes "Any" due to an unfollowed import  [no-any-unimported]
     producer: AIOKafkaProducer,
     *,
-    max_buffer_size: int = 10_000,
+    max_buffer_size: int = 1_000_000,
 ) -> AsyncGenerator[MemoryObjectSendStream[Any], None]:
     """Write docs
 
@@ -36,7 +38,11 @@ async def _aiokafka_producer_manager(  # type: ignore # Argument 1 to "_aiokafka
         async with receive_stream:
             async for topic, msg, key in receive_stream:
                 fut = await producer.send(topic, msg, key=key)
-                msg = await fut
+
+                def release_callbalck(fut):
+                    pass
+
+                fut.add_done_callback(release_callbalck)
 
     send_stream, receive_stream = anyio.create_memory_object_stream(
         max_buffer_size=max_buffer_size
@@ -55,21 +61,41 @@ class AIOKafkaProducerManager:
     def __init__(self, producer: AIOKafkaProducer, *, max_buffer_size: int = 1_000):  # type: ignore
         self.producer = producer
         self.max_buffer_size = max_buffer_size
+        self.shutting_down = False
 
     async def start(self) -> None:
         logger.info("AIOKafkaProducerManager.start(): Entering...")
         await self.producer.start()
-        self.producer_manager_generator = _aiokafka_producer_manager(self.producer)
+        self.producer_manager_generator = _aiokafka_producer_manager(
+            self.producer, max_buffer_size=self.max_buffer_size
+        )
         self.send_stream = await self.producer_manager_generator.__aenter__()
+        self.shutting_down = False
         logger.info("AIOKafkaProducerManager.start(): Finished.")
 
     async def stop(self) -> None:
         # todo: try to flush messages before you exit
         logger.info("AIOKafkaProducerManager.stop(): Entering...")
+        self.shutting_down = True
         await self.producer_manager_generator.__aexit__(None, None, None)
         logger.info("AIOKafkaProducerManager.stop(): Stoping producer...")
+        await self.producer.flush()
         await self.producer.stop()
         logger.info("AIOKafkaProducerManager.stop(): Finished")
 
+    async def send_with_throttle(self, data, stream):
+        while not self.shutting_down:
+            try:
+                stream.send_nowait(data)
+                break
+            except anyio.WouldBlock:
+                logger.log_and_timeout(
+                    "Send stream full and blocking, throttling...", level=logging.INFO
+                )
+                await asyncio.sleep(0.01)
+
     def send(self, topic: str, msg: bytes, key: Optional[bytes] = None) -> None:
-        self.send_stream.send_nowait((topic, msg, key))
+        if not self.shutting_down:
+            asyncio.create_task(
+                self.send_with_throttle((topic, msg, key), self.send_stream)
+            )

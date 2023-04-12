@@ -539,7 +539,7 @@ async def _create_producer(  # type: ignore
 
     config = {
         **filter_using_signature(AIOKafkaProducer, **default_config),
-        **override_config,
+        **filter_using_signature(AIOKafkaProducer, **override_config),
     }
     producer = AIOKafkaProducer(**config)
     logger.info(
@@ -547,7 +547,10 @@ async def _create_producer(  # type: ignore
     )
 
     if not iscoroutinefunction(callback):
-        producer = AIOKafkaProducerManager(producer)
+        producer = AIOKafkaProducerManager(
+            producer,
+            **filter_using_signature(AIOKafkaProducerManager, **override_config),
+        )
 
     await producer.start()
 
