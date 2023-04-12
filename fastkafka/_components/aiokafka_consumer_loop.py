@@ -146,7 +146,6 @@ async def _aiokafka_consumer_loop(  # type: ignore
                 async for record in _streamed_records(receive_stream):
                     try:
                         msg = record.value
-                        #                         decoded_msg = msg_type.parse_raw(msg.decode("utf-8"))
                         decoded_msg = decoder_fn(msg, msg_type)
                         await callback(decoded_msg)
                     except Exception as e:

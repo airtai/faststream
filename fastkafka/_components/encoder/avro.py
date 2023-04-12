@@ -5,9 +5,9 @@ __all__ = ['logger', 'AvroBase', 'avro_encoder', 'avro_decoder']
 
 # %% ../../../nbs/18_Avro_Encode_Decoder.ipynb 1
 import io
-import fastavro
-
 from typing import *
+
+import fastavro
 from pydantic import BaseModel
 from pydantic.main import ModelMetaclass
 

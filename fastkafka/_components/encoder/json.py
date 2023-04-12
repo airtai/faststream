@@ -5,9 +5,9 @@ __all__ = ['logger', 'json_encoder', 'json_decoder']
 
 # %% ../../../nbs/19_Json_Encode_Decoder.ipynb 1
 import io
-
 import json
 from typing import *
+
 from pydantic import BaseModel
 from pydantic.main import ModelMetaclass
 
