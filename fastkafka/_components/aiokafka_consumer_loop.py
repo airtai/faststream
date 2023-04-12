@@ -13,6 +13,7 @@ from aiokafka import AIOKafkaConsumer
 from aiokafka.structs import ConsumerRecord, TopicPartition
 from anyio.streams.memory import MemoryObjectReceiveStream
 from pydantic import BaseModel
+from pydantic.main import ModelMetaclass
 
 from .logger import get_logger
 from .meta import delegates
@@ -110,6 +111,7 @@ async def _aiokafka_consumer_loop(  # type: ignore
     consumer: AIOKafkaConsumer,
     *,
     topic: str,
+    decoder_fn: Callable[[bytes, ModelMetaclass], Any],
     callback: Callable[[BaseModel], Union[None, Awaitable[None]]],
     max_buffer_size: int = 100_000,
     msg_type: Type[BaseModel],
@@ -121,6 +123,8 @@ async def _aiokafka_consumer_loop(  # type: ignore
     and after the consumer return messages or times out, messages are decoded and streamed to defined callback.
 
     Params:
+        topic: Topic to subscribe
+        decoder_fn: Function to decode the messages consumed from the topic
         callbacks: Dict of callbacks mapped to their respective topics
         timeout_ms: Time to timeut the getmany request by the consumer
         max_buffer_size: Maximum number of unconsumed messages in the callback buffer
@@ -135,13 +139,14 @@ async def _aiokafka_consumer_loop(  # type: ignore
         callback: Callable[[BaseModel], Awaitable[None]] = prepared_callback,
         msg_type: Type[BaseModel] = msg_type,
         topic: str = topic,
+        decoder_fn: Callable[[bytes, ModelMetaclass], Any] = decoder_fn,
     ) -> None:
         async with receive_stream:
             try:
                 async for record in _streamed_records(receive_stream):
                     try:
                         msg = record.value
-                        decoded_msg = msg_type.parse_raw(msg.decode("utf-8"))
+                        decoded_msg = decoder_fn(msg, msg_type)
                         await callback(decoded_msg)
                     except Exception as e:
                         logger.warning(
@@ -178,6 +183,7 @@ def sanitize_kafka_config(**kwargs: Any) -> Dict[str, Any]:
 @delegates(_aiokafka_consumer_loop, keep=True)
 async def aiokafka_consumer_loop(
     topic: str,
+    decoder_fn: Callable[[bytes, ModelMetaclass], Any],
     *,
     timeout_ms: int = 100,
     max_buffer_size: int = 100_000,
@@ -191,6 +197,7 @@ async def aiokafka_consumer_loop(
 
     Args:
         topic: name of the topic to subscribe to
+        decoder_fn: Function to decode the messages consumed from the topic
         callback: callback function to be called after decoding and parsing a consumed message
         timeout_ms: Time to timeut the getmany request by the consumer
         max_buffer_size: Maximum number of unconsumed messages in the callback buffer
@@ -215,6 +222,7 @@ async def aiokafka_consumer_loop(
             await _aiokafka_consumer_loop(
                 consumer=consumer,
                 topic=topic,
+                decoder_fn=decoder_fn,
                 max_buffer_size=max_buffer_size,
                 timeout_ms=timeout_ms,
                 callback=callback,

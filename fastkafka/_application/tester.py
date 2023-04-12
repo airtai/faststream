@@ -196,7 +196,7 @@ def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[...,
 @patch
 def create_mirrors(self: Tester) -> None:
     for app in self.apps:
-        for topic, (consumer_f, _) in app._consumers_store.items():
+        for topic, (consumer_f, _, _) in app._consumers_store.items():
             mirror_f = mirror_consumer(topic, consumer_f)
             mirror_f = self.produces()(mirror_f)  # type: ignore
             setattr(self, mirror_f.__name__, mirror_f)
