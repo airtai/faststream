@@ -81,3 +81,7 @@
     height: 40px;
     width: 150px;
 }
+
+h3.anchor > code {
+    font-size: 1rem;
+}

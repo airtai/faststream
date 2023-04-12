@@ -170,25 +170,18 @@ def _get_symbol_definition(symbol: Union[types.FunctionType, Type[Any]]) -> str:
     ret_val = ""
 
     if isfunction(symbol):
-        ret_val = f"#### `def {symbol.__name__}({arg_list})"
+        ret_val = f"### `{symbol.__name__}`" + f" {{#{symbol.__name__.strip('_')}}}\n\n"
+        ret_val = ret_val + f"`def {symbol.__name__}({arg_list})"
         if _signature.return_annotation and "inspect._empty" not in str(
             _signature.return_annotation
         ):
             if isinstance(_signature.return_annotation, type):
-                ret_val = (
-                    ret_val
-                    + f" -> {_signature.return_annotation.__name__}`"
-                    + f" {{#{symbol.__name__.strip('_')}}}\n"
-                )
+                ret_val = ret_val + f" -> {_signature.return_annotation.__name__}`\n"
             else:
-                ret_val = (
-                    ret_val
-                    + f" -> {_signature.return_annotation}`"
-                    + f" {{#{symbol.__name__.strip('_')}}}\n"
-                )
+                ret_val = ret_val + f" -> {_signature.return_annotation}`\n"
 
         else:
-            ret_val = ret_val + " -> None`" + f" {{#{symbol.__name__.strip('_')}}}\n"
+            ret_val = ret_val + " -> None`\n"
 
     return ret_val
 
