@@ -33,6 +33,9 @@ requirements = [
     "docstring-parser>=0.15",
     "typer>=0.7.0",
 ]
+avro_requirements = [
+    "fastavro>=1.7.3"
+]
 test_requirements = [
     "install-jdk==0.3.0",
     "nest-asyncio>=1.5.6",
@@ -86,7 +89,7 @@ setuptools.setup(
     packages = setuptools.find_packages(),
     include_package_data = True,
     install_requires = requirements,
-    extras_require={ 'dev': dev_requirements + test_requirements + docs_requirements, "test": test_requirements, "docs": docs_requirements },
+    extras_require={ 'dev': dev_requirements + avro_requirements + test_requirements + docs_requirements, "avro": avro_requirements, "test": test_requirements, "docs": docs_requirements },
     dependency_links = cfg.get('dep_links','').split(),
     python_requires  = '>=' + cfg['min_python'],
     long_description = open('README.md', encoding="UTF-8").read(),
