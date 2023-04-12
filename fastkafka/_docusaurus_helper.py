@@ -9,6 +9,7 @@ import re
 import types
 from inspect import Signature, getmembers, isclass, isfunction, signature
 from pathlib import Path
+from urllib.parse import urljoin
 from typing import *
 
 from docstring_parser import parse
@@ -169,21 +170,29 @@ def _get_symbol_definition(symbol: Union[types.FunctionType, Type[Any]]) -> str:
     ret_val = ""
 
     if isfunction(symbol):
-        ret_val = f"`def {symbol.__name__}({arg_list})"
+        ret_val = f"#### `def {symbol.__name__}({arg_list})"
         if _signature.return_annotation and "inspect._empty" not in str(
             _signature.return_annotation
         ):
             if isinstance(_signature.return_annotation, type):
-                ret_val = ret_val + f" -> {_signature.return_annotation.__name__}`\n"
+                ret_val = (
+                    ret_val
+                    + f" -> {_signature.return_annotation.__name__}`"
+                    + f" {{#{symbol.__name__.strip('_')}}}\n"
+                )
             else:
-                ret_val = ret_val + f" -> {_signature.return_annotation}`\n"
+                ret_val = (
+                    ret_val
+                    + f" -> {_signature.return_annotation}`"
+                    + f" {{#{symbol.__name__.strip('_')}}}\n"
+                )
 
         else:
-            ret_val = ret_val + " -> None`\n"
+            ret_val = ret_val + " -> None`" + f" {{#{symbol.__name__.strip('_')}}}\n"
 
     return ret_val
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 27
+# %% ../nbs/096_Docusaurus_Helper.ipynb 28
 def _get_formatted_docstring_for_symbol(
     symbol: Union[types.FunctionType, Type[Any]]
 ) -> str:
@@ -226,7 +235,7 @@ def _get_formatted_docstring_for_symbol(
         contents = traverse(symbol, contents)
     return contents
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 31
+# %% ../nbs/096_Docusaurus_Helper.ipynb 32
 def _convert_html_style_attribute_to_jsx(contents: str) -> str:
     """Converts the inline style attributes in an HTML string to JSX compatible format.
 
@@ -258,7 +267,7 @@ def _convert_html_style_attribute_to_jsx(contents: str) -> str:
 
     return contents
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 33
+# %% ../nbs/096_Docusaurus_Helper.ipynb 34
 def _get_all_markdown_files_path(docs_path: Path) -> List[Path]:
     """Get all Markdown files in a directory and its subdirectories.
 
@@ -271,12 +280,51 @@ def _get_all_markdown_files_path(docs_path: Path) -> List[Path]:
     markdown_files = [file_path for file_path in docs_path.glob("**/*.md")]
     return markdown_files
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 35
+# %% ../nbs/096_Docusaurus_Helper.ipynb 36
 def _fix_special_symbols_in_html(contents: str) -> str:
     contents = contents.replace("”", '"')
     return contents
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 37
+# %% ../nbs/096_Docusaurus_Helper.ipynb 38
+def _remove_redundant_segment_from_link(url: str) -> str:
+    """Remove redundant segment from the end of a URL.
+
+    Args:
+        url: The URL to remove the a redundant segment.
+
+    Returns:
+        The updated URL with the redundant segment removed, or the original URL if no redundant segment was found.
+    """
+    segments = url.split("/#")[0].split("/")[-2:]
+    return (
+        url.replace(f"/{segments[1]}", "")
+        if segments[0] == segments[1].lower()
+        else url
+    )
+
+# %% ../nbs/096_Docusaurus_Helper.ipynb 42
+def _fix_symbol_links(contents: str) -> str:
+    """Fix symbol links in Markdown content.
+
+    Args:
+        contents: The Markdown content to search for symbol links.
+
+    Returns:
+        str: The Markdown content with updated symbol links.
+    """
+    cfg = get_config()
+    prefix = re.escape(urljoin(cfg["doc_host"] + "/", cfg["doc_baseurl"] + "/api"))
+    pattern = re.compile(rf"\[(.*?)\]\(({prefix}[^)]+)\)")
+    matches = pattern.findall(contents)
+    for match in matches:
+        old_url = match[1]
+        new_url = _remove_redundant_segment_from_link(old_url).replace(
+            "/api/", "/docs/api/"
+        )
+        contents = contents.replace(old_url, new_url)
+    return contents
+
+# %% ../nbs/096_Docusaurus_Helper.ipynb 48
 def fix_invalid_syntax_in_markdown(docs_path: str) -> None:
     """Fix invalid HTML syntax in markdown files and converts inline style attributes to JSX-compatible format.
 
@@ -284,17 +332,16 @@ def fix_invalid_syntax_in_markdown(docs_path: str) -> None:
         docs_path: The path to the root directory to search for markdown files.
     """
     markdown_files = _get_all_markdown_files_path(Path(docs_path))
-    updated_contents = [
-        _convert_html_style_attribute_to_jsx(Path(file).read_text())
-        for file in markdown_files
-    ]
-    updated_contents = [
-        _fix_special_symbols_in_html(contents) for contents in updated_contents
-    ]
-    for i, file_path in enumerate(markdown_files):
-        file_path.write_text(updated_contents[i])
+    for file in markdown_files:
+        contents = Path(file).read_text()
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 39
+        contents = _convert_html_style_attribute_to_jsx(contents)
+        contents = _fix_special_symbols_in_html(contents)
+        contents = _fix_symbol_links(contents)
+
+        file.write_text(contents)
+
+# %% ../nbs/096_Docusaurus_Helper.ipynb 50
 def generate_markdown_docs(module_name: str, docs_path: str) -> None:
     """Generates Markdown documentation files for the symbols in the given module and save them to the given directory.
 
@@ -306,7 +353,7 @@ def generate_markdown_docs(module_name: str, docs_path: str) -> None:
     symbols = _load_submodules(module_name, members_with_submodules)
 
     for symbol in symbols:
-        content = f"`{symbol.__module__}.{symbol.__name__}`\n\n"
+        content = f"## `{symbol.__module__}.{symbol.__name__}` {{#{symbol.__module__}.{symbol.__name__}}}\n\n"
         content += _get_formatted_docstring_for_symbol(symbol)
         target_file_path = (
             "/".join(f"{symbol.__module__}.{symbol.__name__}".split(".")) + ".md"
