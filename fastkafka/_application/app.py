@@ -22,6 +22,7 @@ from unittest.mock import AsyncMock, MagicMock
 import anyio
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from pydantic import BaseModel
+from pydantic.main import ModelMetaclass
 
 import fastkafka._components.logger
 
@@ -204,7 +205,12 @@ class FastKafka:
         self._kafka_config = _get_kafka_config(**kwargs)
 
         #
-        self._consumers_store: Dict[str, Tuple[ConsumeCallable, Dict[str, Any]]] = {}
+        self._consumers_store: Dict[
+            str,
+            Tuple[
+                ConsumeCallable, Callable[[bytes, ModelMetaclass], Any], Dict[str, Any]
+            ],
+        ] = {}
 
         self._producers_store: Dict[  # type: ignore
             str, Tuple[ProduceCallable, AIOKafkaProducer, Dict[str, Any]]
@@ -283,6 +289,7 @@ class FastKafka:
     def consumes(
         self,
         topic: Optional[str] = None,
+        decoder: str = "json",
         *,
         prefix: str = "on_",
         **kwargs: Dict[str, Any],
@@ -292,6 +299,7 @@ class FastKafka:
     def produces(  # type: ignore
         self,
         topic: Optional[str] = None,
+        encoder: str = "json",
         *,
         prefix: str = "to_",
         producer: Optional[AIOKafkaProducer] = None,
@@ -343,11 +351,32 @@ class FastKafka:
         raise NotImplementedError
 
 # %% ../../nbs/015_FastKafka.ipynb 25
+def _get_decoder_fn(decoder: str) -> Callable[[bytes, ModelMetaclass], Any]:
+    """
+    Imports and returns decoder function based on input
+    """
+    if decoder == "json":
+        from fastkafka._components.encoder.json import json_decoder
+
+        return json_decoder
+    elif decoder == "avro":
+        try:
+            from fastkafka._components.encoder.avro import avro_decoder
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError(
+                "Unable to import avro packages. Please install FastKafka using the command 'fastkafka[avro]'"
+            )
+        return avro_decoder
+    else:
+        raise ValueError(f"Unknown decoder - {decoder}")
+
+# %% ../../nbs/015_FastKafka.ipynb 27
 @patch
 @delegates(AIOKafkaConsumer)
 def consumes(
     self: FastKafka,
     topic: Optional[str] = None,
+    decoder: str = "json",
     *,
     prefix: str = "on_",
     **kwargs: Dict[str, Any],
@@ -361,6 +390,10 @@ def consumes(
             decorated function when it receives a message from the topic,
             default: None. If the topic is not specified, topic name will be
             inferred from the decorated function name by stripping the defined prefix
+        decoder: Decoder to use to decode messages consumed from the topic,
+                default: json - By default, it uses json decoder to decode
+                bytes to json string and then it creates instance of pydantic
+                BaseModel
         prefix: Prefix stripped from the decorated function to define a topic name
             if the topic argument is not passed, default: "on_". If the decorated
             function name is not prefixed with the defined prefix and topic argument
@@ -377,6 +410,7 @@ def consumes(
     def _decorator(
         on_topic: ConsumeCallable,
         topic: Optional[str] = topic,
+        decoder: str = decoder,
         kwargs: Dict[str, Any] = kwargs,
     ) -> ConsumeCallable:
         topic_resolved: str = (
@@ -385,18 +419,40 @@ def consumes(
             else topic
         )
 
-        self._consumers_store[topic_resolved] = (on_topic, kwargs)
+        decoder_fn = _get_decoder_fn(decoder)
+        self._consumers_store[topic_resolved] = (on_topic, decoder_fn, kwargs)
 
         return on_topic
 
     return _decorator
 
-# %% ../../nbs/015_FastKafka.ipynb 27
+# %% ../../nbs/015_FastKafka.ipynb 29
+def _get_encoder_fn(encoder: str) -> Callable[[BaseModel], bytes]:
+    """
+    Imports and returns encoder function based on input
+    """
+    if encoder == "json":
+        from fastkafka._components.encoder.json import json_encoder
+
+        return json_encoder
+    elif encoder == "avro":
+        try:
+            from fastkafka._components.encoder.avro import avro_encoder
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError(
+                "Unable to import avro packages. Please install FastKafka using the command 'fastkafka[avro]'"
+            )
+        return avro_encoder
+    else:
+        raise ValueError(f"Unknown encoder - {encoder}")
+
+# %% ../../nbs/015_FastKafka.ipynb 31
 @patch
 @delegates(AIOKafkaProducer)
 def produces(
     self: FastKafka,
     topic: Optional[str] = None,
+    encoder: str = "json",
     *,
     prefix: str = "to_",
     **kwargs: Dict[str, Any],
@@ -410,6 +466,10 @@ def produces(
             the decorated function to, default: None- If the topic is not
             specified, topic name will be inferred from the decorated function
             name by stripping the defined prefix.
+        encoder: Encoder to use to encode messages before sending it to topic,
+                default: json - By default, it uses json encoder to convert
+                pydantic basemodel to json string and then encodes the string to bytes
+                using 'utf-8' encoding
         prefix: Prefix stripped from the decorated function to define a topic
             name if the topic argument is not passed, default: "to_". If the
             decorated function name is not prefixed with the defined prefix
@@ -434,18 +494,21 @@ def produces(
         )
 
         self._producers_store[topic_resolved] = (on_topic, None, kwargs)
-        return producer_decorator(self._producers_store, on_topic, topic_resolved)
+        encoder_fn = _get_encoder_fn(encoder)
+        return producer_decorator(
+            self._producers_store, on_topic, topic_resolved, encoder_fn=encoder_fn
+        )
 
     return _decorator
 
-# %% ../../nbs/015_FastKafka.ipynb 29
+# %% ../../nbs/015_FastKafka.ipynb 33
 @patch
 def get_topics(self: FastKafka) -> Iterable[str]:
     produce_topics = set(self._producers_store.keys())
     consume_topics = set(self._consumers_store.keys())
     return consume_topics.union(produce_topics)
 
-# %% ../../nbs/015_FastKafka.ipynb 31
+# %% ../../nbs/015_FastKafka.ipynb 35
 @patch
 def run_in_background(
     self: FastKafka,
@@ -482,7 +545,7 @@ def run_in_background(
 
     return _decorator
 
-# %% ../../nbs/015_FastKafka.ipynb 35
+# %% ../../nbs/015_FastKafka.ipynb 39
 @patch
 def _populate_consumers(
     self: FastKafka,
@@ -495,13 +558,18 @@ def _populate_consumers(
         asyncio.create_task(
             aiokafka_consumer_loop(
                 topic=topic,
+                decoder_fn=decoder_fn,
                 callback=consumer,
                 msg_type=signature(consumer).parameters["msg"].annotation,
                 is_shutting_down_f=is_shutting_down_f,
                 **{**default_config, **override_config},
             )
         )
-        for topic, (consumer, override_config) in self._consumers_store.items()
+        for topic, (
+            consumer,
+            decoder_fn,
+            override_config,
+        ) in self._consumers_store.items()
     ]
 
 
@@ -512,7 +580,7 @@ async def _shutdown_consumers(
     if self._kafka_consumer_tasks:
         await asyncio.wait(self._kafka_consumer_tasks)
 
-# %% ../../nbs/015_FastKafka.ipynb 37
+# %% ../../nbs/015_FastKafka.ipynb 41
 # TODO: Add passing of vars
 async def _create_producer(  # type: ignore
     *,
@@ -606,7 +674,7 @@ async def _shutdown_producers(self: FastKafka) -> None:
         }
     )
 
-# %% ../../nbs/015_FastKafka.ipynb 39
+# %% ../../nbs/015_FastKafka.ipynb 43
 @patch
 async def _populate_bg_tasks(
     self: FastKafka,
@@ -642,7 +710,7 @@ async def _shutdown_bg_tasks(
             f"_shutdown_bg_tasks() : Execution finished for background task '{task.get_name()}'"
         )
 
-# %% ../../nbs/015_FastKafka.ipynb 41
+# %% ../../nbs/015_FastKafka.ipynb 45
 @patch
 async def _start(self: FastKafka) -> None:
     def is_shutting_down_f(self: FastKafka = self) -> bool:
@@ -667,12 +735,12 @@ async def _stop(self: FastKafka) -> None:
     self._is_shutting_down = False
     self._is_started = False
 
-# %% ../../nbs/015_FastKafka.ipynb 47
+# %% ../../nbs/015_FastKafka.ipynb 51
 @patch
 def create_docs(self: FastKafka) -> None:
     export_async_spec(
         consumers={
-            topic: callback for topic, (callback, _) in self._consumers_store.items()
+            topic: callback for topic, (callback, _, _) in self._consumers_store.items()
         },
         producers={
             topic: callback for topic, (callback, _, _) in self._producers_store.items()
@@ -682,7 +750,7 @@ def create_docs(self: FastKafka) -> None:
         asyncapi_path=self._asyncapi_path,
     )
 
-# %% ../../nbs/015_FastKafka.ipynb 51
+# %% ../../nbs/015_FastKafka.ipynb 55
 class AwaitedMock:
     @staticmethod
     def _await_for(f: Callable[..., Any]) -> Callable[..., Any]:
@@ -718,11 +786,11 @@ class AwaitedMock:
                 if inspect.ismethod(f):
                     setattr(self, name, self._await_for(f))
 
-# %% ../../nbs/015_FastKafka.ipynb 52
+# %% ../../nbs/015_FastKafka.ipynb 56
 @patch
 def create_mocks(self: FastKafka) -> None:
     """Creates self.mocks as a named tuple mapping a new function obtained by calling the original functions and a mock"""
-    app_methods = [f for f, _ in self._consumers_store.values()] + [
+    app_methods = [f for f, _, _ in self._consumers_store.values()] + [
         f for f, _, _ in self._producers_store.values()
     ]
     self.AppMocks = namedtuple(  # type: ignore
@@ -768,9 +836,10 @@ def create_mocks(self: FastKafka) -> None:
         {
             name: (
                 add_mock(f, getattr(self.mocks, f.__name__)),
+                decoder_fn,
                 kwargs,
             )
-            for name, (f, kwargs) in self._consumers_store.items()
+            for name, (f, decoder_fn, kwargs) in self._consumers_store.items()
         }
     )
 
@@ -785,7 +854,7 @@ def create_mocks(self: FastKafka) -> None:
         }
     )
 
-# %% ../../nbs/015_FastKafka.ipynb 58
+# %% ../../nbs/015_FastKafka.ipynb 62
 @patch
 def benchmark(
     self: FastKafka,

@@ -90,12 +90,6 @@ const config = {
             value: '<iframe src="https://ghbtns.com/github-btn.html?user=airtai&repo=fastkafka&type=star&count=true&size=large" frameborder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe>',
           },
           {
-            href: 'https://github.com/airtai/fastkafka',
-            position: 'right',
-            className: "header-github-link",
-            "aria-label": "GitHub repository",
-          },
-          {
             href: 'https://discord.gg/CJWmYpyFbc',
             position: 'right',
             className: "header-discord-link",
@@ -147,10 +141,10 @@ const config = {
                 label: 'About Us',
                 to: 'https://airt.ai/about-us',
               },
-              {
-                label: 'Contact',
-                to: 'https://airt.ai/contact',
-              },
+//               {
+//                 label: 'Contact',
+//                 to: 'https://airt.ai/contact',
+//               },
               {
                 label: 'Company information',
                 to: 'https://airt.ai/company-information',

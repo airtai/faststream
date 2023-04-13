@@ -45,21 +45,16 @@ ProduceCallable = Union[
     Callable[..., ProduceReturnTypes], Callable[..., Awaitable[ProduceReturnTypes]]
 ]
 
-# %% ../../nbs/013_ProducerDecorator.ipynb 6
-def _to_json_utf8(o: Any) -> bytes:
-    """Converts to JSON and then encodes with UTF-8"""
-    if hasattr(o, "json"):
-        return o.json().encode("utf-8")  # type: ignore
-    else:
-        return json.dumps(o).encode("utf-8")
-
 # %% ../../nbs/013_ProducerDecorator.ipynb 8
 def _wrap_in_event(message: Union[BaseModel, KafkaEvent]) -> KafkaEvent:
     return message if type(message) == KafkaEvent else KafkaEvent(message)
 
 # %% ../../nbs/013_ProducerDecorator.ipynb 11
 def producer_decorator(
-    producer_store: Dict[str, Any], func: ProduceCallable, topic: str
+    producer_store: Dict[str, Any],
+    func: ProduceCallable,
+    topic: str,
+    encoder_fn: Callable[[BaseModel], bytes],
 ) -> ProduceCallable:
     """todo: write documentation"""
 
@@ -85,7 +80,7 @@ def producer_decorator(
         wrapped_val = _wrap_in_event(return_val)
         _, producer, _ = producer_store[topic]
         fut = await producer.send(
-            topic, _to_json_utf8(wrapped_val.message), key=wrapped_val.key
+            topic, encoder_fn(wrapped_val.message), key=wrapped_val.key
         )
         fut.add_done_callback(release_callback)
         return return_val
@@ -102,11 +97,8 @@ def producer_decorator(
         wrapped_val = _wrap_in_event(return_val)
         _, producer, _ = producer_store[topic]
         fut = loop.run_until_complete(
-            producer.send(
-                topic, _to_json_utf8(wrapped_val.message), key=wrapped_val.key
-            )
+            producer.send(topic, encoder_fn(wrapped_val.message), key=wrapped_val.key)
         )
-        fut.add_done_callback(release_callback)
         return return_val
 
     return _produce_async if iscoroutinefunction(func) else _produce_sync
