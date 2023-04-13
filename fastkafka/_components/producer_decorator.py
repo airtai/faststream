@@ -12,6 +12,8 @@ from collections import namedtuple
 from dataclasses import dataclass
 from typing import *
 
+import nest_asyncio
+
 from aiokafka import AIOKafkaProducer
 from pydantic import BaseModel
 
@@ -61,9 +63,15 @@ def producer_decorator(
 ) -> ProduceCallable:
     """todo: write documentation"""
 
-    loop = asyncio.get_event_loop()
+    try:
+        loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
+    except RuntimeError as e:
+        loop = asyncio.new_event_loop()
 
-    def release_callback(fut):
+    if loop.is_running():
+        nest_asyncio.apply(loop)
+
+    def release_callback(fut: asyncio.Future) -> None:
         pass
 
     @functools.wraps(func)
@@ -87,7 +95,7 @@ def producer_decorator(
         *args: List[Any],
         producer_store: Dict[str, Any] = producer_store,
         f: Callable[..., ProduceReturnTypes] = func,  # type: ignore
-        loop=loop,
+        loop: asyncio.AbstractEventLoop = loop,
         **kwargs: Any
     ) -> ProduceReturnTypes:
         return_val = f(*args, **kwargs)

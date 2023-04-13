@@ -2,14 +2,14 @@
 
 # %% auto 0
 __all__ = ['should_supress_timestamps', 'logger_spaces_added', 'supress_timestamps', 'get_default_logger_configuration',
-           'get_logger', 'set_level', 'true_after', 'cached_log']
+           'get_logger', 'set_level', 'cached_log']
 
 # %% ../../nbs/Logger.ipynb 2
 import logging
 import logging.config
-from datetime import datetime, timedelta
 from typing import *
 from .meta import patch
+from .helpers import true_after
 
 # %% ../../nbs/Logger.ipynb 4
 # Logger Levels
@@ -135,23 +135,13 @@ def set_level(level: int) -> None:
         logger.setLevel(level)
 
 # %% ../../nbs/Logger.ipynb 18
-def true_after(seconds: Union[int, float]) -> Callable[[], bool]:
-    """Function returning True after a given number of seconds"""
-    t = datetime.now()
-
-    def _true_after(seconds: Union[int, float] = seconds, t: datetime = t) -> bool:
-        return (datetime.now() - t) > timedelta(seconds=seconds)
-
-    return _true_after
-
-# %% ../../nbs/Logger.ipynb 19
 def cached_log(
     self: logging.Logger, msg: str, level: int, timeout: Union[int, float] = 5
-):
+) -> None:
     if not hasattr(self, "_timeouted_msgs"):
-        self._timeouted_msgs = {}
+        self._timeouted_msgs = {}  # type: ignore
 
-    if msg not in self._timeouted_msgs or self._timeouted_msgs[msg]():
-        self._timeouted_msgs[msg] = true_after(timeout)
+    if msg not in self._timeouted_msgs or self._timeouted_msgs[msg]():  # type: ignore
+        self._timeouted_msgs[msg] = true_after(timeout)  # type: ignore
 
         self.log(level, msg)

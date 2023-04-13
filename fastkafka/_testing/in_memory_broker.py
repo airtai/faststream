@@ -22,7 +22,6 @@ from aiokafka.structs import ConsumerRecord, RecordMetadata, TopicPartition
 
 import fastkafka._application.app
 import fastkafka._components.aiokafka_consumer_loop
-import fastkafka._components.aiokafka_producer_manager
 from .._components.logger import get_logger
 from fastkafka._components.meta import (
     _get_default_kwargs_from_sig,
@@ -526,17 +525,11 @@ def lifecycle(self: InMemoryBroker) -> Iterator[InMemoryBroker]:
         old_consumer_loop = (
             fastkafka._components.aiokafka_consumer_loop.AIOKafkaConsumer
         )
-        old_producer_manager = (
-            fastkafka._components.aiokafka_producer_manager.AIOKafkaProducer
-        )
 
         fastkafka._application.app.AIOKafkaConsumer = InMemoryConsumer(self)
         fastkafka._application.app.AIOKafkaProducer = InMemoryProducer(self)
         fastkafka._components.aiokafka_consumer_loop.AIOKafkaConsumer = (
             InMemoryConsumer(self)
-        )
-        fastkafka._components.aiokafka_producer_manager.AIOKafkaProducer = (
-            InMemoryProducer(self)
         )
 
         self.is_started = True
@@ -548,9 +541,6 @@ def lifecycle(self: InMemoryBroker) -> Iterator[InMemoryBroker]:
         fastkafka._application.app.AIOKafkaProducer = old_producer_app
         fastkafka._components.aiokafka_consumer_loop.AIOKafkaConsumer = (
             old_consumer_loop
-        )
-        fastkafka._components.aiokafka_producer_manager.AIOKafkaProducer = (
-            old_producer_manager
         )
 
         self.is_started = False

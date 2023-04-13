@@ -13,7 +13,6 @@ from fastkafka._testing.test_utils import (
     mock_AIOKafkaProducer_send,
     nb_safe_seed,
     run_script_and_cancel,
-    true_after,
 )
 
 __all__ = [

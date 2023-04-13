@@ -32,7 +32,6 @@ from fastkafka._components.aiokafka_consumer_loop import (
     aiokafka_consumer_loop,
     sanitize_kafka_config,
 )
-from .._components.aiokafka_producer_manager import AIOKafkaProducerManager
 from fastkafka._components.asyncapi import (
     ConsumeCallable,
     ContactInfo,
@@ -211,9 +210,7 @@ class FastKafka:
             str, Tuple[ProduceCallable, AIOKafkaProducer, Dict[str, Any]]
         ] = {}
 
-        self._producers_list: List[  # type: ignore
-            Union[AIOKafkaProducer, AIOKafkaProducerManager]
-        ] = []
+        self._producers_list: List[AIOKafkaProducer] = []  # type: ignore
 
         self.benchmark_results: Dict[str, Dict[str, Any]] = {}
 
@@ -522,8 +519,8 @@ async def _create_producer(  # type: ignore
     callback: ProduceCallable,
     default_config: Dict[str, Any],
     override_config: Dict[str, Any],
-    producers_list: List[Union[AIOKafkaProducer, AIOKafkaProducerManager]],
-) -> Union[AIOKafkaProducer, AIOKafkaProducerManager]:
+    producers_list: List[AIOKafkaProducer],
+) -> AIOKafkaProducer:
     """Creates a producer
 
     Args:
