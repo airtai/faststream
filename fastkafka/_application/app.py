@@ -546,12 +546,6 @@ async def _create_producer(  # type: ignore
         f"_create_producer() : created producer using the config: '{sanitize_kafka_config(**config)}'"
     )
 
-    if not iscoroutinefunction(callback):
-        producer = AIOKafkaProducerManager(
-            producer,
-            **filter_using_signature(AIOKafkaProducerManager, **override_config),
-        )
-
     await producer.start()
 
     producers_list.append(producer)

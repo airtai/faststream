@@ -167,6 +167,9 @@ async def _aiokafka_consumer_loop(  # type: ignore
                     logger.warning(
                         f"_aiokafka_consumer_loop(): Unexpected exception '{e}' caught and ignored for messages: {msgs}"
                     )
+            logger.info(
+                f"_aiokafka_consumer_loop(): Consumer loop shutting down, waiting for send_stream to drain..."
+            )
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 24
 def sanitize_kafka_config(**kwargs: Any) -> Dict[str, Any]:

@@ -6,6 +6,7 @@ __all__ = ['BaseSubmodel', 'ProduceReturnTypes', 'ProduceCallable', 'KafkaEvent'
 # %% ../../nbs/013_ProducerDecorator.ipynb 1
 import functools
 import json
+import asyncio
 from asyncio import iscoroutinefunction  # do not use the version from inspect
 from collections import namedtuple
 from dataclasses import dataclass
@@ -60,6 +61,11 @@ def producer_decorator(
 ) -> ProduceCallable:
     """todo: write documentation"""
 
+    loop = asyncio.get_event_loop()
+
+    def release_callback(fut):
+        pass
+
     @functools.wraps(func)
     async def _produce_async(
         *args: List[Any],
@@ -73,7 +79,7 @@ def producer_decorator(
         fut = await producer.send(
             topic, _to_json_utf8(wrapped_val.message), key=wrapped_val.key
         )
-        msg = await fut
+        fut.add_done_callback(release_callback)
         return return_val
 
     @functools.wraps(func)
@@ -81,12 +87,18 @@ def producer_decorator(
         *args: List[Any],
         producer_store: Dict[str, Any] = producer_store,
         f: Callable[..., ProduceReturnTypes] = func,  # type: ignore
+        loop=loop,
         **kwargs: Any
     ) -> ProduceReturnTypes:
         return_val = f(*args, **kwargs)
         wrapped_val = _wrap_in_event(return_val)
         _, producer, _ = producer_store[topic]
-        producer.send(topic, _to_json_utf8(wrapped_val.message), key=wrapped_val.key)
+        fut = loop.run_until_complete(
+            producer.send(
+                topic, _to_json_utf8(wrapped_val.message), key=wrapped_val.key
+            )
+        )
+        fut.add_done_callback(release_callback)
         return return_val
 
     return _produce_async if iscoroutinefunction(func) else _produce_sync

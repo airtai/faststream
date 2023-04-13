@@ -14,7 +14,7 @@ import anyio
 from aiokafka import AIOKafkaProducer
 from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 
-from .logger import get_logger
+from .logger import get_logger, cached_log
 
 # %% ../../nbs/012_ProducerManager.ipynb 4
 logger = get_logger(__name__)
@@ -83,19 +83,23 @@ class AIOKafkaProducerManager:
         await self.producer.stop()
         logger.info("AIOKafkaProducerManager.stop(): Finished")
 
-    async def send_with_throttle(self, data, stream):
+    async def _send_with_throttle(self, *, topic, msg, key, stream):
         while not self.shutting_down:
             try:
                 stream.send_nowait(data)
                 break
             except anyio.WouldBlock:
-                logger.log_and_timeout(
-                    "Send stream full and blocking, throttling...", level=logging.INFO
+                cached_log(
+                    logger,
+                    f"Send stream full and blocking for {topic=}, throttling...",
+                    level=logging.WARNING,
                 )
                 await asyncio.sleep(0.01)
 
     def send(self, topic: str, msg: bytes, key: Optional[bytes] = None) -> None:
         if not self.shutting_down:
             asyncio.create_task(
-                self.send_with_throttle((topic, msg, key), self.send_stream)
+                self._send_with_throttle(
+                    topic=topic, msg=msg, key=key, stream=self.send_stream
+                )
             )
