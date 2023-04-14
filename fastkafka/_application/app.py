@@ -379,7 +379,7 @@ def _get_decoder_fn(decoder: str) -> Callable[[bytes, ModelMetaclass], Any]:
 def consumes(
     self: FastKafka,
     topic: Optional[str] = None,
-    decoder: str = "json",
+    decoder: Union[str, Callable[[bytes, ModelMetaclass], Any]] = "json",
     *,
     prefix: str = "on_",
     **kwargs: Dict[str, Any],
@@ -396,7 +396,7 @@ def consumes(
         decoder: Decoder to use to decode messages consumed from the topic,
                 default: json - By default, it uses json decoder to decode
                 bytes to json string and then it creates instance of pydantic
-                BaseModel
+                BaseModel. It also accepts custom decoder function.
         prefix: Prefix stripped from the decorated function to define a topic name
             if the topic argument is not passed, default: "on_". If the decorated
             function name is not prefixed with the defined prefix and topic argument
@@ -413,7 +413,7 @@ def consumes(
     def _decorator(
         on_topic: ConsumeCallable,
         topic: Optional[str] = topic,
-        decoder: str = decoder,
+        decoder: Union[str, Callable[[bytes, ModelMetaclass], Any]] = decoder,
         kwargs: Dict[str, Any] = kwargs,
     ) -> ConsumeCallable:
         topic_resolved: str = (
@@ -422,7 +422,7 @@ def consumes(
             else topic
         )
 
-        decoder_fn = _get_decoder_fn(decoder)
+        decoder_fn = _get_decoder_fn(decoder) if isinstance(decoder, str) else decoder
         self._consumers_store[topic_resolved] = (on_topic, decoder_fn, kwargs)
 
         return on_topic
@@ -455,7 +455,7 @@ def _get_encoder_fn(encoder: str) -> Callable[[BaseModel], bytes]:
 def produces(
     self: FastKafka,
     topic: Optional[str] = None,
-    encoder: str = "json",
+    encoder: Union[str, Callable[[BaseModel], bytes]] = "json",
     *,
     prefix: str = "to_",
     **kwargs: Dict[str, Any],
@@ -472,7 +472,7 @@ def produces(
         encoder: Encoder to use to encode messages before sending it to topic,
                 default: json - By default, it uses json encoder to convert
                 pydantic basemodel to json string and then encodes the string to bytes
-                using 'utf-8' encoding
+                using 'utf-8' encoding. It also accepts custom encoder function.
         prefix: Prefix stripped from the decorated function to define a topic
             name if the topic argument is not passed, default: "to_". If the
             decorated function name is not prefixed with the defined prefix
@@ -497,7 +497,7 @@ def produces(
         )
 
         self._producers_store[topic_resolved] = (on_topic, None, kwargs)
-        encoder_fn = _get_encoder_fn(encoder)
+        encoder_fn = _get_encoder_fn(encoder) if isinstance(encoder, str) else encoder
         return producer_decorator(
             self._producers_store, on_topic, topic_resolved, encoder_fn=encoder_fn
         )
