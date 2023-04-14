@@ -2,6 +2,25 @@
 
 <!-- do not remove -->
 
+## 0.5.0
+
+### New Features
+
+- Significant speedup of Kafka producer ([#236](https://github.com/airtai/fastkafka/pull/236)), thanks to [@Sternakt](https://github.com/Sternakt)
+ 
+
+- Added support for AVRO encoding/decoding ([#231](https://github.com/airtai/fastkafka/pull/231)), thanks to [@kumaranvpl](https://github.com/kumaranvpl)
+
+
+### Bugs Squashed
+
+- Fixed sidebar to include guides in docusaurus documentation ([#238](https://github.com/airtai/fastkafka/pull/238)), thanks to [@Sternakt](https://github.com/Sternakt)
+
+- Fixed link to symbols in docusaurus docs ([#227](https://github.com/airtai/fastkafka/pull/227)), thanks to [@harishmohanraj](https://github.com/harishmohanraj)
+
+- Removed bootstrap servers from constructor ([#220](https://github.com/airtai/fastkafka/pull/220)), thanks to [@kumaranvpl](https://github.com/kumaranvpl)
+
+
 ## 0.4.0
 
 ### New Features
