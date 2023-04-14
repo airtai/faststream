@@ -32,13 +32,13 @@ requirements = [
     "tqdm>=4.62",
     "docstring-parser>=0.15",
     "typer>=0.7.0",
+    "nest-asyncio>=1.5.6",
 ]
 avro_requirements = [
     "fastavro>=1.7.3"
 ]
 test_requirements = [
     "install-jdk==0.3.0",
-    "nest-asyncio>=1.5.6",
     "ipywidgets>=8.0,<=8.0.4",
     "requests>=2.20",
 ]

@@ -12,10 +12,12 @@ from collections import namedtuple
 from dataclasses import dataclass
 from typing import *
 
+import nest_asyncio
+
 from aiokafka import AIOKafkaProducer
 from pydantic import BaseModel
 
-# %% ../../nbs/013_ProducerDecorator.ipynb 5
+# %% ../../nbs/013_ProducerDecorator.ipynb 3
 BaseSubmodel = TypeVar("BaseSubmodel", bound=BaseModel)
 BaseSubmodel
 
@@ -36,27 +38,30 @@ class KafkaEvent(Generic[BaseSubmodel]):
 
 KafkaEvent.__module__ = "fastkafka"
 
-# %% ../../nbs/013_ProducerDecorator.ipynb 7
+# %% ../../nbs/013_ProducerDecorator.ipynb 5
 ProduceReturnTypes = Union[BaseModel, KafkaEvent[BaseModel]]
 
 ProduceCallable = Union[
     Callable[..., ProduceReturnTypes], Callable[..., Awaitable[ProduceReturnTypes]]
 ]
 
-# %% ../../nbs/013_ProducerDecorator.ipynb 10
+# %% ../../nbs/013_ProducerDecorator.ipynb 8
 def _wrap_in_event(message: Union[BaseModel, KafkaEvent]) -> KafkaEvent:
     return message if type(message) == KafkaEvent else KafkaEvent(message)
 
-# %% ../../nbs/013_ProducerDecorator.ipynb 13
+# %% ../../nbs/013_ProducerDecorator.ipynb 11
 def get_loop() -> asyncio.AbstractEventLoop:
     try:
         loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
     except RuntimeError as e:
         loop = asyncio.new_event_loop()
 
+    if loop.is_running():
+        nest_asyncio.apply(loop)
+
     return loop
 
-# %% ../../nbs/013_ProducerDecorator.ipynb 15
+# %% ../../nbs/013_ProducerDecorator.ipynb 13
 def producer_decorator(
     producer_store: Dict[str, Any],
     func: ProduceCallable,
