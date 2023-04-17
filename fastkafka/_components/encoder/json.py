@@ -26,10 +26,29 @@ def _to_json_utf8(o: Any) -> bytes:
 
 # %% ../../../nbs/19_Json_Encode_Decoder.ipynb 9
 def json_encoder(msg: BaseModel) -> bytes:
+    """
+    Encoder to encode pydantic instances to json string
+
+    Args:
+        msg: An instance of pydantic basemodel
+
+    Returns:
+        Json string in bytes which is encoded from pydantic basemodel
+    """
     return _to_json_utf8(msg)
 
 # %% ../../../nbs/19_Json_Encode_Decoder.ipynb 11
 def json_decoder(raw_msg: bytes, cls: ModelMetaclass) -> Any:
+    """
+    Decoder to decode json string in bytes to pydantic model instance
+
+    Args:
+        raw_msg: Bytes message received from Kafka topic
+        cls: Pydantic class; This pydantic class will be used to construct instance of same class
+
+    Returns:
+        An instance of given pydantic class
+    """
     msg_dict = json.loads(raw_msg.decode("utf-8"))
 
     return cls(**msg_dict)

@@ -7,10 +7,13 @@ __all__ = ['dummy']
 # %% ../nbs/010_Application_export.ipynb 1
 from ._application.app import FastKafka
 from ._components.producer_decorator import KafkaEvent
+from ._components import encoder
+
 
 __all__ = [
     "FastKafka",
     "KafkaEvent",
+    "encoder",
 ]
 
 # %% ../nbs/010_Application_export.ipynb 2

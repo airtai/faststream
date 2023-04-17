@@ -204,6 +204,15 @@ class AvroBase(BaseModel):
 
 # %% ../../../nbs/18_Avro_Encode_Decoder.ipynb 11
 def avro_encoder(msg: BaseModel) -> bytes:
+    """
+    Encoder to encode pydantic instances to avro message
+
+    Args:
+        msg: An instance of pydantic basemodel
+
+    Returns:
+        A bytes message which is encoded from pydantic basemodel
+    """
     schema = fastavro.schema.parse_schema(AvroBase.avro_schema_for_pydantic(msg))
     bytes_writer = io.BytesIO()
     fastavro.schemaless_writer(bytes_writer, schema, msg.dict())
@@ -212,6 +221,16 @@ def avro_encoder(msg: BaseModel) -> bytes:
 
 # %% ../../../nbs/18_Avro_Encode_Decoder.ipynb 13
 def avro_decoder(raw_msg: bytes, cls: ModelMetaclass) -> Any:
+    """
+    Decoder to decode avro encoded messages to pydantic model instance
+
+    Args:
+        raw_msg: Avro encoded bytes message received from Kafka topic
+        cls: Pydantic class; This pydantic class will be used to construct instance of same class
+
+    Returns:
+        An instance of given pydantic class
+    """
     schema = fastavro.schema.parse_schema(AvroBase.avro_schema_for_pydantic(cls))
 
     bytes_reader = io.BytesIO(raw_msg)
@@ -221,7 +240,15 @@ def avro_decoder(raw_msg: bytes, cls: ModelMetaclass) -> Any:
 
 # %% ../../../nbs/18_Avro_Encode_Decoder.ipynb 16
 def avsc_to_pydantic(schema: Dict[str, Any]) -> ModelMetaclass:
-    """Generate python code of pydantic of given Avro Schema"""
+    """
+    Generate pydantic model from given Avro Schema
+
+    Args:
+        schema: Avro schema in dictionary format
+
+    Returns:
+        Pydantic model class built from given avro schema
+    """
     if "type" not in schema or schema["type"] != "record":
         raise AttributeError("Type not supported")
     if "name" not in schema:
