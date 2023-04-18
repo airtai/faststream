@@ -202,6 +202,9 @@ class AvroBase(BaseModel):
             "fields": fields,
         }
 
+
+AvroBase.__module__ = "fastkafka.encoder"
+
 # %% ../../../nbs/18_Avro_Encode_Decoder.ipynb 11
 def avro_encoder(msg: BaseModel) -> bytes:
     """
@@ -218,6 +221,9 @@ def avro_encoder(msg: BaseModel) -> bytes:
     fastavro.schemaless_writer(bytes_writer, schema, msg.dict())
     raw_bytes = bytes_writer.getvalue()
     return raw_bytes
+
+
+avro_encoder.__module__ = "fastkafka.encoder"
 
 # %% ../../../nbs/18_Avro_Encode_Decoder.ipynb 13
 def avro_decoder(raw_msg: bytes, cls: ModelMetaclass) -> Any:
@@ -237,6 +243,9 @@ def avro_decoder(raw_msg: bytes, cls: ModelMetaclass) -> Any:
     msg_dict = fastavro.schemaless_reader(bytes_reader, schema)
 
     return cls(**msg_dict)
+
+
+avro_decoder.__module__ = "fastkafka.encoder"
 
 # %% ../../../nbs/18_Avro_Encode_Decoder.ipynb 16
 def avsc_to_pydantic(schema: Dict[str, Any]) -> ModelMetaclass:
@@ -360,3 +369,6 @@ def avsc_to_pydantic(schema: Dict[str, Any]) -> ModelMetaclass:
         return pydantic_model  # type: ignore
 
     return record_type_to_pydantic(schema)
+
+
+avsc_to_pydantic.__module__ = "fastkafka.encoder"

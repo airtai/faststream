@@ -37,6 +37,9 @@ def json_encoder(msg: BaseModel) -> bytes:
     """
     return _to_json_utf8(msg)
 
+
+json_encoder.__module__ = "fastkafka.encoder"
+
 # %% ../../../nbs/19_Json_Encode_Decoder.ipynb 11
 def json_decoder(raw_msg: bytes, cls: ModelMetaclass) -> Any:
     """
@@ -52,3 +55,6 @@ def json_decoder(raw_msg: bytes, cls: ModelMetaclass) -> Any:
     msg_dict = json.loads(raw_msg.decode("utf-8"))
 
     return cls(**msg_dict)
+
+
+json_decoder.__module__ = "fastkafka.encoder"
