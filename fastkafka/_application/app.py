@@ -154,6 +154,7 @@ class FastKafka:
         kafka_brokers: Dict[str, Any],
         root_path: Optional[Union[Path, str]] = None,
         lifespan: Optional[Callable[["FastKafka"], AsyncContextManager[None]]] = None,
+        test_mode: bool = False,
         **kwargs: Any,
     ):
         """Creates FastKafka application
@@ -175,13 +176,15 @@ class FastKafka:
                 __aenter__ is called before app start and __aexit__ after app stop.
                 The lifespan is called whe application is started as async context
                 manager, e.g.:`async with kafka_app...`
-
+            test_mode: If set to True, fastkafka app will be started in test mode and exceptions
+                will be raised immediately instead of handling them gracefully.
         """
 
         # this is needed for documentation generation
         self._title = title if title is not None else ""
         self._description = description if description is not None else ""
         self._version = version if version is not None else ""
+        self.test_mode = test_mode
         if contact is not None:
             self._contact_info = _get_contact_info(**contact)
         else:
@@ -562,6 +565,7 @@ def _populate_consumers(
                 callback=consumer,
                 msg_type=signature(consumer).parameters["msg"].annotation,
                 is_shutting_down_f=is_shutting_down_f,
+                test_mode=self.test_mode,
                 **{**default_config, **override_config},
             )
         )

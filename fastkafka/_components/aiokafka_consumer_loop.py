@@ -23,13 +23,14 @@ logger = get_logger(__name__)
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 9
 def _create_safe_callback(
-    callback: Callable[[BaseModel], Awaitable[None]]
+    callback: Callable[[BaseModel], Awaitable[None]], test_mode: bool = False
 ) -> Callable[[BaseModel], Awaitable[None]]:
     """
     Wraps an async callback into a safe callback that catches any Exception and loggs them as warnings
 
     Params:
         callback: async callable that will be wrapped into a safe callback
+        test_mode: to start fastkafka app in test mode
 
     Returns:
         Wrapped callback into a safe callback that handles exceptions
@@ -45,12 +46,15 @@ def _create_safe_callback(
             logger.warning(
                 f"_safe_callback(): exception caugth {e.__repr__()} while awaiting '{callback}({msg})'"
             )
+            if test_mode:
+                raise e
 
     return _safe_callback
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 12
 def _prepare_callback(
-    callback: Callable[[BaseModel], Union[None, Awaitable[None]]]
+    callback: Callable[[BaseModel], Union[None, Awaitable[None]]],
+    test_mode: bool = False,
 ) -> Callable[[BaseModel], Awaitable[None]]:
     """
     Prepares a callback to be used in the consumer loop.
@@ -59,6 +63,7 @@ def _prepare_callback(
 
     Params:
         callback: async callable that will be prepared for use in consumer
+        test_mode: to start fastkafka app in test mode
 
     Returns:
         Prepared callback
@@ -66,7 +71,7 @@ def _prepare_callback(
     async_callback: Callable[[BaseModel], Awaitable[None]] = (
         callback if iscoroutinefunction(callback) else asyncer.asyncify(callback)  # type: ignore
     )
-    return _create_safe_callback(async_callback)
+    return _create_safe_callback(async_callback, test_mode=test_mode)
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 14
 async def _stream_msgs(  # type: ignore
@@ -116,6 +121,7 @@ async def _aiokafka_consumer_loop(  # type: ignore
     max_buffer_size: int = 100_000,
     msg_type: Type[BaseModel],
     is_shutting_down_f: Callable[[], bool],
+    test_mode: bool = False,
     **kwargs: Any,
 ) -> None:
     """
@@ -130,9 +136,10 @@ async def _aiokafka_consumer_loop(  # type: ignore
         max_buffer_size: Maximum number of unconsumed messages in the callback buffer
         msg_types: Dict of message types mapped to their respective topics
         is_shutting_down_f: Function for controlling the shutdown of consumer loop
+        test_mode: To start fastkafka app in test mode
     """
 
-    prepared_callback = _prepare_callback(callback)
+    prepared_callback = _prepare_callback(callback, test_mode=test_mode)
 
     async def process_message_callback(
         receive_stream: MemoryObjectReceiveStream[Any],
@@ -152,10 +159,14 @@ async def _aiokafka_consumer_loop(  # type: ignore
                         logger.warning(
                             f"process_message_callback(): Unexpected exception '{e.__repr__()}' caught and ignored for topic='{topic}' and message: {msg}"
                         )
+                        if test_mode:
+                            raise e
             except Exception as e:
                 logger.warning(
                     f"process_message_callback(): Unexpected exception '{e.__repr__()}' caught and ignored for topic='{topic}'"
                 )
+                if test_mode:
+                    raise e
 
     send_stream, receive_stream = anyio.create_memory_object_stream(
         max_buffer_size=max_buffer_size
@@ -172,6 +183,8 @@ async def _aiokafka_consumer_loop(  # type: ignore
                     logger.warning(
                         f"_aiokafka_consumer_loop(): Unexpected exception '{e}' caught and ignored for messages: {msgs}"
                     )
+                    if test_mode:
+                        raise e
             logger.info(
                 f"_aiokafka_consumer_loop(): Consumer loop shutting down, waiting for send_stream to drain..."
             )
@@ -193,6 +206,7 @@ async def aiokafka_consumer_loop(
     callback: Callable[[BaseModel], Union[None, Awaitable[None]]],
     msg_type: Type[BaseModel],
     is_shutting_down_f: Callable[[], bool],
+    test_mode: bool = False,
     **kwargs: Any,
 ) -> None:
     """Consumer loop for infinite pooling of the AIOKafka consumer for new messages. Creates and starts AIOKafkaConsumer
@@ -206,6 +220,7 @@ async def aiokafka_consumer_loop(
         max_buffer_size: Maximum number of unconsumed messages in the callback buffer
         msg_type: Type with `parse_json` method used for parsing a decoded message
         is_shutting_down_f: Function for controlling the shutdown of consumer loop
+        test_mode: To start fastkafka app in test mode
     """
     logger.info(f"aiokafka_consumer_loop() starting...")
     try:
@@ -231,6 +246,7 @@ async def aiokafka_consumer_loop(
                 callback=callback,
                 msg_type=msg_type,
                 is_shutting_down_f=is_shutting_down_f,
+                test_mode=test_mode,
             )
         finally:
             await consumer.stop()

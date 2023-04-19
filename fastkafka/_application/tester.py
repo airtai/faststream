@@ -97,6 +97,7 @@ class Tester(FastKafka):
         """Starts the Tester"""
         for app in self.apps:
             app.create_mocks()
+            app.test_mode = True
             await app.__aenter__()
         self.create_mocks()
         await super().__aenter__()
