@@ -4,13 +4,14 @@
 __all__ = ['dummy']
 
 # %% ../nbs/020_Encoder_Export.ipynb 1
-from ._components._encoder.json import json_decoder, json_encoder
-from fastkafka._components._encoder.avro import (
+from fastkafka._components.encoder.avro import (
     AvroBase,
     avro_decoder,
     avro_encoder,
     avsc_to_pydantic,
 )
+from ._components.encoder.json import json_decoder, json_encoder
+from ._components.meta import export
 
 __all__ = [
     "AvroBase",
@@ -22,8 +23,6 @@ __all__ = [
 ]
 
 # %% ../nbs/020_Encoder_Export.ipynb 3
+@export("_dummy")
 def dummy() -> None:
     pass
-
-
-dummy.__module__ = "_dummy"

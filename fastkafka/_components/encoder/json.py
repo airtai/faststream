@@ -12,6 +12,7 @@ from pydantic import BaseModel
 from pydantic.main import ModelMetaclass
 
 from ..logger import get_logger
+from ..meta import export
 
 # %% ../../../nbs/019_Json_Encode_Decoder.ipynb 4
 logger = get_logger(__name__)
@@ -25,6 +26,7 @@ def _to_json_utf8(o: Any) -> bytes:
         return json.dumps(o).encode("utf-8")
 
 # %% ../../../nbs/019_Json_Encode_Decoder.ipynb 9
+@export("fastkafka.encoder")
 def json_encoder(msg: BaseModel) -> bytes:
     """
     Encoder to encode pydantic instances to json string
@@ -37,10 +39,8 @@ def json_encoder(msg: BaseModel) -> bytes:
     """
     return _to_json_utf8(msg)
 
-
-json_encoder.__module__ = "fastkafka.encoder"
-
 # %% ../../../nbs/019_Json_Encode_Decoder.ipynb 11
+@export("fastkafka.encoder")
 def json_decoder(raw_msg: bytes, cls: ModelMetaclass) -> Any:
     """
     Decoder to decode json string in bytes to pydantic model instance
@@ -55,6 +55,3 @@ def json_decoder(raw_msg: bytes, cls: ModelMetaclass) -> Any:
     msg_dict = json.loads(raw_msg.decode("utf-8"))
 
     return cls(**msg_dict)
-
-
-json_decoder.__module__ = "fastkafka.encoder"

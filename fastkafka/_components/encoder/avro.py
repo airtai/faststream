@@ -13,11 +13,13 @@ from pydantic import BaseModel, create_model
 from pydantic.main import ModelMetaclass
 
 from ..logger import get_logger
+from ..meta import export
 
 # %% ../../../nbs/018_Avro_Encode_Decoder.ipynb 4
 logger = get_logger(__name__)
 
 # %% ../../../nbs/018_Avro_Encode_Decoder.ipynb 7
+@export("fastkafka.encoder")
 class AvroBase(BaseModel):
     """This is base pydantic class that will add some methods"""
 
@@ -202,10 +204,8 @@ class AvroBase(BaseModel):
             "fields": fields,
         }
 
-
-AvroBase.__module__ = "fastkafka.encoder"
-
 # %% ../../../nbs/018_Avro_Encode_Decoder.ipynb 11
+@export("fastkafka.encoder")
 def avro_encoder(msg: BaseModel) -> bytes:
     """
     Encoder to encode pydantic instances to avro message
@@ -222,10 +222,8 @@ def avro_encoder(msg: BaseModel) -> bytes:
     raw_bytes = bytes_writer.getvalue()
     return raw_bytes
 
-
-avro_encoder.__module__ = "fastkafka.encoder"
-
 # %% ../../../nbs/018_Avro_Encode_Decoder.ipynb 13
+@export("fastkafka.encoder")
 def avro_decoder(raw_msg: bytes, cls: ModelMetaclass) -> Any:
     """
     Decoder to decode avro encoded messages to pydantic model instance
@@ -244,10 +242,8 @@ def avro_decoder(raw_msg: bytes, cls: ModelMetaclass) -> Any:
 
     return cls(**msg_dict)
 
-
-avro_decoder.__module__ = "fastkafka.encoder"
-
 # %% ../../../nbs/018_Avro_Encode_Decoder.ipynb 16
+@export("fastkafka.encoder")
 def avsc_to_pydantic(schema: Dict[str, Any]) -> ModelMetaclass:
     """
     Generate pydantic model from given Avro Schema
@@ -369,6 +365,3 @@ def avsc_to_pydantic(schema: Dict[str, Any]) -> ModelMetaclass:
         return pydantic_model  # type: ignore
 
     return record_type_to_pydantic(schema)
-
-
-avsc_to_pydantic.__module__ = "fastkafka.encoder"

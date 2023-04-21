@@ -359,12 +359,12 @@ def _get_decoder_fn(decoder: str) -> Callable[[bytes, ModelMetaclass], Any]:
     Imports and returns decoder function based on input
     """
     if decoder == "json":
-        from fastkafka._components._encoder.json import json_decoder
+        from fastkafka._components.encoder.json import json_decoder
 
         return json_decoder
     elif decoder == "avro":
         try:
-            from fastkafka._components._encoder.avro import avro_decoder
+            from fastkafka._components.encoder.avro import avro_decoder
         except ModuleNotFoundError:
             raise ModuleNotFoundError(
                 "Unable to import avro packages. Please install FastKafka using the command 'fastkafka[avro]'"
@@ -435,12 +435,12 @@ def _get_encoder_fn(encoder: str) -> Callable[[BaseModel], bytes]:
     Imports and returns encoder function based on input
     """
     if encoder == "json":
-        from fastkafka._components._encoder.json import json_encoder
+        from fastkafka._components.encoder.json import json_encoder
 
         return json_encoder
     elif encoder == "avro":
         try:
-            from fastkafka._components._encoder.avro import avro_encoder
+            from fastkafka._components.encoder.avro import avro_encoder
         except ModuleNotFoundError:
             raise ModuleNotFoundError(
                 "Unable to import avro packages. Please install FastKafka using the command 'fastkafka[avro]'"
