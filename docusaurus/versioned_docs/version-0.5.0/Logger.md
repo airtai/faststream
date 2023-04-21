@@ -34,9 +34,7 @@ Supress logger timestamp
 Args: flag: If not set, then the default value **True** will be used to
 supress the timestamp from the logger messages
 
-Example on how to use
-[`get_default_logger_configuration`](./api/fastkafka/_components/logger/get_default_logger_configuration.md/#fastkafka._components.logger.get_default_logger_configuration)
-function
+Example on how to useExample on how to use **get_default_logger_configuration** function
 
 ``` python
 # collapse_output
@@ -91,9 +89,7 @@ f()
     23-04-13 06:25:25.131 [INFO] __main__: hello
     23-04-13 06:25:25.132 [INFO] __main__: hello
 
-Example on how to use
-[`get_logger`](./api/fastkafka/_components/logger/get_logger.md/#fastkafka._components.logger.get_logger)
-function
+Example on how to use **get_logger** function
 
 ``` python
 # collapse_output
