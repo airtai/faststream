@@ -6,6 +6,7 @@ __all__ = ['dummy']
 
 # %% ../nbs/010_Application_export.ipynb 1
 from ._application.app import FastKafka
+from ._components.meta import export
 from ._components.producer_decorator import KafkaEvent
 
 __all__ = [
@@ -14,8 +15,6 @@ __all__ = [
 ]
 
 # %% ../nbs/010_Application_export.ipynb 2
+@export("_dummy")
 def dummy() -> None:
     pass
-
-
-dummy.__module__ = "_dummy"

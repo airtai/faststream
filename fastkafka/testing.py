@@ -5,6 +5,7 @@ __all__ = ['dummy']
 
 # %% ../nbs/000_Testing_export.ipynb 1
 from ._application.tester import Tester
+from ._components.meta import export
 from ._testing.apache_kafka_broker import ApacheKafkaBroker
 from ._testing.in_memory_broker import InMemoryBroker
 from ._testing.local_redpanda_broker import LocalRedpandaBroker
@@ -28,8 +29,6 @@ __all__ = [
 ]
 
 # %% ../nbs/000_Testing_export.ipynb 3
+@export("_dummy")
 def dummy() -> None:
     pass
-
-
-dummy.__module__ = "_dummy"

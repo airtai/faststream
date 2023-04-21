@@ -12,12 +12,13 @@ from typing import *
 from pydantic import BaseModel
 
 from .app import FastKafka
-from .._components.meta import delegates, patch
+from .._components.meta import delegates, export, patch
 from .._testing.apache_kafka_broker import ApacheKafkaBroker
 from .._testing.in_memory_broker import InMemoryBroker
 from .._testing.local_redpanda_broker import LocalRedpandaBroker
 
 # %% ../../nbs/016_Tester.ipynb 6
+@export("fastkafka.testing")
 class Tester(FastKafka):
     __test__ = False
 
@@ -141,9 +142,6 @@ class Tester(FastKafka):
 
     async def __aexit__(self, *args: Any) -> None:
         await self._ctx.__aexit__(*args)
-
-
-Tester.__module__ = "fastkafka.testing"
 
 # %% ../../nbs/016_Tester.ipynb 11
 def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[..., Any]:

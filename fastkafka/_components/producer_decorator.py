@@ -4,18 +4,19 @@
 __all__ = ['BaseSubmodel', 'ProduceReturnTypes', 'ProduceCallable', 'KafkaEvent', 'get_loop', 'producer_decorator']
 
 # %% ../../nbs/013_ProducerDecorator.ipynb 1
+import asyncio
 import functools
 import json
-import asyncio
 from asyncio import iscoroutinefunction  # do not use the version from inspect
 from collections import namedtuple
 from dataclasses import dataclass
 from typing import *
 
 import nest_asyncio
-
 from aiokafka import AIOKafkaProducer
 from pydantic import BaseModel
+
+from .meta import export
 
 # %% ../../nbs/013_ProducerDecorator.ipynb 3
 BaseSubmodel = TypeVar("BaseSubmodel", bound=BaseModel)
@@ -23,6 +24,7 @@ BaseSubmodel
 
 
 @dataclass
+@export("fastkafka")
 class KafkaEvent(Generic[BaseSubmodel]):
     """
     A generic class for representing Kafka events. Based on BaseSubmodel, bound to pydantic.BaseModel
@@ -34,9 +36,6 @@ class KafkaEvent(Generic[BaseSubmodel]):
 
     message: BaseSubmodel
     key: Optional[bytes] = None
-
-
-KafkaEvent.__module__ = "fastkafka"
 
 # %% ../../nbs/013_ProducerDecorator.ipynb 5
 ProduceReturnTypes = Union[BaseModel, KafkaEvent[BaseModel]]

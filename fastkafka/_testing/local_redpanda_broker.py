@@ -15,7 +15,7 @@ import nest_asyncio
 from .._components._subprocess import terminate_asyncio_process
 from .._components.helpers import in_notebook
 from .._components.logger import get_logger, supress_timestamps
-from .._components.meta import delegates, patch
+from .._components.meta import delegates, export, patch
 from .apache_kafka_broker import get_free_port, run_and_match
 
 # %% ../../nbs/003_LocalRedpandaBroker.ipynb 3
@@ -74,6 +74,7 @@ def get_redpanda_docker_cmd(
     return redpanda_docker_cmd
 
 # %% ../../nbs/003_LocalRedpandaBroker.ipynb 8
+@export("fastkafka.testing")
 class LocalRedpandaBroker:
     """LocalRedpandaBroker class, used for running unique redpanda brokers in tests to prevent topic clashing."""
 
@@ -186,9 +187,6 @@ class LocalRedpandaBroker:
 
     async def __aexit__(self, *args: Any, **kwargs: Any) -> None:
         await self._stop()
-
-
-LocalRedpandaBroker.__module__ = "fastkafka.testing"
 
 # %% ../../nbs/003_LocalRedpandaBroker.ipynb 10
 async def check_docker() -> bool:
