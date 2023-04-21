@@ -8,8 +8,9 @@ __all__ = ['should_supress_timestamps', 'logger_spaces_added', 'supress_timestam
 import logging
 import logging.config
 from typing import *
-from .meta import patch
+
 from .helpers import true_after
+from .meta import patch
 
 # %% ../../nbs/Logger.ipynb 4
 # Logger Levels

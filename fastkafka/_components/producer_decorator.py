@@ -4,18 +4,18 @@
 __all__ = ['BaseSubmodel', 'ProduceReturnTypes', 'ProduceCallable', 'KafkaEvent', 'get_loop', 'producer_decorator']
 
 # %% ../../nbs/013_ProducerDecorator.ipynb 1
+import asyncio
 import functools
 import json
-import asyncio
 from asyncio import iscoroutinefunction  # do not use the version from inspect
 from collections import namedtuple
 from dataclasses import dataclass
 from typing import *
 
 import nest_asyncio
-
 from aiokafka import AIOKafkaProducer
 from pydantic import BaseModel
+
 from .meta import export
 
 # %% ../../nbs/013_ProducerDecorator.ipynb 3

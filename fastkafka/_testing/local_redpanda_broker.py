@@ -15,7 +15,7 @@ import nest_asyncio
 from .._components._subprocess import terminate_asyncio_process
 from .._components.helpers import in_notebook
 from .._components.logger import get_logger, supress_timestamps
-from .._components.meta import delegates, patch, export
+from .._components.meta import delegates, export, patch
 from .apache_kafka_broker import get_free_port, run_and_match
 
 # %% ../../nbs/003_LocalRedpandaBroker.ipynb 3

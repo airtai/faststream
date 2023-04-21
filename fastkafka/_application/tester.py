@@ -12,7 +12,7 @@ from typing import *
 from pydantic import BaseModel
 
 from .app import FastKafka
-from .._components.meta import delegates, patch, export
+from .._components.meta import delegates, export, patch
 from .._testing.apache_kafka_broker import ApacheKafkaBroker
 from .._testing.in_memory_broker import InMemoryBroker
 from .._testing.local_redpanda_broker import LocalRedpandaBroker

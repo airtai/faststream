@@ -19,7 +19,7 @@ import nest_asyncio
 from .._components._subprocess import terminate_asyncio_process
 from .._components.helpers import in_notebook
 from .._components.logger import get_logger
-from .._components.meta import delegates, filter_using_signature, patch, export
+from .._components.meta import delegates, export, filter_using_signature, patch
 from .._components.test_dependencies import check_java, check_kafka
 
 # %% ../../nbs/002_ApacheKafkaBroker.ipynb 3

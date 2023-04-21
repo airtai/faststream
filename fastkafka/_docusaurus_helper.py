@@ -10,11 +10,10 @@ import re
 import types
 from inspect import Signature, getmembers, isclass, isfunction, signature
 from pathlib import Path
-from urllib.parse import urljoin
 from typing import *
+from urllib.parse import urljoin
 
 import yaml
-
 from docstring_parser import parse
 from docstring_parser.common import DocstringParam, DocstringRaises, DocstringReturns
 from nbdev.config import get_config
