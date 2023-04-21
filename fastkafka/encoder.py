@@ -11,6 +11,7 @@ from fastkafka._components.encoder.avro import (
     avro_encoder,
     avsc_to_pydantic,
 )
+from ._components.meta import export
 
 __all__ = [
     "AvroBase",
@@ -22,8 +23,6 @@ __all__ = [
 ]
 
 # %% ../nbs/020_Encoder_Export.ipynb 3
+@export("_dummy")
 def dummy() -> None:
     pass
-
-
-dummy.__module__ = "_dummy"

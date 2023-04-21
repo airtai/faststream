@@ -14,6 +14,7 @@ from fastkafka._testing.test_utils import (
     nb_safe_seed,
     run_script_and_cancel,
 )
+from ._components.meta import export
 
 __all__ = [
     "InMemoryBroker",
@@ -28,8 +29,6 @@ __all__ = [
 ]
 
 # %% ../nbs/000_Testing_export.ipynb 3
+@export("_dummy")
 def dummy() -> None:
     pass
-
-
-dummy.__module__ = "_dummy"

@@ -19,7 +19,7 @@ import nest_asyncio
 from .._components._subprocess import terminate_asyncio_process
 from .._components.helpers import in_notebook
 from .._components.logger import get_logger
-from .._components.meta import delegates, filter_using_signature, patch
+from .._components.meta import delegates, filter_using_signature, patch, export
 from .._components.test_dependencies import check_java, check_kafka
 
 # %% ../../nbs/002_ApacheKafkaBroker.ipynb 3
@@ -156,6 +156,7 @@ group.initial.rebalance.delay.ms=0
     return kafka_config
 
 # %% ../../nbs/002_ApacheKafkaBroker.ipynb 12
+@export("fastkafka.testing")
 class ApacheKafkaBroker:
     """ApacheKafkaBroker class, used for running unique kafka brokers in tests to prevent topic clashing."""
 
@@ -290,9 +291,6 @@ class ApacheKafkaBroker:
 
     async def __aexit__(self, *args: Any, **kwargs: Any) -> None:
         await self._stop()
-
-
-ApacheKafkaBroker.__module__ = "fastkafka.testing"
 
 # %% ../../nbs/002_ApacheKafkaBroker.ipynb 14
 @patch(cls_method=True)  # type: ignore
