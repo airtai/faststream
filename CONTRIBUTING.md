@@ -74,7 +74,7 @@ Once it's filed:
 
 - The project team will label the issue accordingly.
 - A team member will try to reproduce the issue with your provided steps. If there are no reproduction steps or no obvious way to reproduce the issue, the team will ask you for those steps and mark the issue as `needs-repro`. Bugs with the `needs-repro` tag will not be addressed until they are reproduced.
-- If the team is able to reproduce the issue, it will be marked `needs-fix`, as well as possibly other tags (such as `critical`), and the issue will be left to be [implemented by someone](#your-first-code-contribution).
+- If the team is able to reproduce the issue, it will be marked `needs-fix`, as well as possibly other tags (such as `critical`), and the issue will be left to be implemented.
 
 ### Suggesting Enhancements
 
@@ -140,16 +140,22 @@ pip install fastkafka -e [."dev"]
 To be able to run tests and use all the functionalities of fastkafka, you have to have JRE and Kafka toolkit installed on your machine. To do this, you have two options:
 
 1. Use our `fastkafka testing install-deps` CLI command which will install JRE and Kafka toolkit for you in your .local folder
+OR
 2. Install JRE and Kafka manually.
    To do this, please refer to [JDK and JRE installation guide](https://docs.oracle.com/javase/9/install/toc.htm) and [Apache Kafka quickstart](https://kafka.apache.org/quickstart)
    
 #### Install npm
 
-Be able to run tests you must have npm installed, because of documentation generation. To do this, you have two options:
+To be able to run tests you must have npm installed, because of documentation generation. To do this, you have two options:
 
 1. Use our `fastkafka docs install_deps` CLI command which will install npm for you in your .local folder
+OR
 2. Install npm manually.
    To do this, please refer to [NPM installation guide](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+   
+#### Install docusaurus
+
+To generate the documentation, you need docusaurus. To install it run 'docusaurus/scripts/install_docusaurus_deps.sh' in the root of fastkafka project.
 
 #### Check if everything works
 
@@ -178,14 +184,14 @@ The general philosopy you should follow when writing code for fastkafka is:
 After you have implemented your changes you will want to open a pull request to merge those changes into our main branch. To make this as painless for you and us, please do the following before opening the request (all the commands are to be run in the root of fastkafka project):
 
 1. Format your notebooks: `nbqa black nbs`
-2. Cloase and clean the metadata from your notebooks: `nbdev_clean`
+2. Close, shutdown, and clean the metadata from your notebooks: `nbdev_clean`
 3. Export your code: `nbdev_export`
 4. Run the tests: `nbdev_test`
 5. Test code typing: `mypy fastkafka`
 6. Test code safety with bandit: `bandit -r fastkafka`
 7. Test code safety with semgrep: `semgrep --config auto -r fastkafka`
 
-When you have done this, and all the tests are passing, your code should be ready for a merge. Please Commit and push your code and open a pull request and assign it to one of the core developers. We will then review your changes and if everythng is in order, we will approve your merge.
+When you have done this, and all the tests are passing, your code should be ready for a merge. Please commit and push your code and open a pull request and assign it to one of the core developers. We will then review your changes and if everythng is in order, we will approve your merge.
 
 ## Attribution
 This guide is based on the **contributing-gen**. [Make your own](https://github.com/bttger/contributing-gen)!
