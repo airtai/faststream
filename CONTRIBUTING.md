@@ -157,7 +157,7 @@ After installing fastkafka and all the necessary dependencies, run `nbdev_test` 
 
 ### Way of working
 
-The development of fastkafka is done in Jupyter notebooks. Inside the `nbs` directory you will fin all the source code of fastkafka, this is where you will implement your changes.
+The development of fastkafka is done in Jupyter notebooks. Inside the `nbs` directory you will find all the source code of fastkafka, this is where you will implement your changes.
 
 The testing, cleanup and exporting of the code is being handled by `nbdev`, please, before starting the work on fastkafka, get familiar with it by reading [nbdev documentation](https://nbdev.fast.ai/getting_started.html).
 
@@ -166,7 +166,7 @@ The general philosopy you should follow when writing code for fastkafka is:
 - Function should be an atomic functionality, short and concise
    - Good rule of thumb: your function should be 5-10 lines long usually
 - If there are more than 2 params, enforce keywording using *
-   - E.g.: def function(param1, *, param2, param3): ...
+   - E.g.: `def function(param1, *, param2, param3): ...`
 - Define typing of arguments and return value
    - If not, mypy tests will fail and a lot of easily avoidable bugs will go undetected
 - After the function cell, write test cells using the assert keyword
