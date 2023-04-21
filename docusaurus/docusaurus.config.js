@@ -49,6 +49,11 @@ const config = {
             '**/*.test.{js,jsx,ts,tsx}',
             '**/__tests__/**',
           ],
+          versions: {
+            current: {
+              label: `dev 🚧`,
+            },
+          },
         },
         blog: {
           showReadingTime: true,
@@ -79,6 +84,12 @@ const config = {
           src: 'img/AIRT_icon_blue.svg',
         },
         items: [
+          {
+            type: 'docsVersionDropdown',
+            position: 'right',
+            dropdownActiveClassDisabled: true,
+            // dropdownItemsAfter: [{to: '/versions', label: 'All versions'}],
+          },
           {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',

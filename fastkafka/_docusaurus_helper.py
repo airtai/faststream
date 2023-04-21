@@ -282,62 +282,92 @@ def _fix_special_symbols_in_html(contents: str) -> str:
     return contents
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 38
-def _remove_redundant_segment_from_link(url: str) -> str:
-    """Remove redundant segment from the end of a URL.
+def _add_file_extension_to_link(url: str) -> str:
+    """Add file extension to the last segment of a URL
 
     Args:
-        url: The URL to remove the a redundant segment.
+        url: A URL string.
 
     Returns:
-        The updated URL with the redundant segment removed, or the original URL if no redundant segment was found.
+        A string of the updated URL with a file extension added to the last segment of the URL.
     """
     segments = url.split("/#")[0].split("/")[-2:]
-    return (
-        url.replace(f"/{segments[1]}", "")
-        if segments[0] == segments[1].lower()
-        else url
-    )
+    return url.replace(f"/{segments[1]}", f"/{segments[1]}.md")
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 42
-def _fix_symbol_links(contents: str) -> str:
+def _fix_symbol_links(
+    contents: str, dir_prefix: str, doc_host: str, doc_baseurl: str
+) -> str:
     """Fix symbol links in Markdown content.
 
     Args:
         contents: The Markdown content to search for symbol links.
+        dir_prefix: Directory prefix to append in the relative URL.
+        doc_host: The host URL for the documentation site.
+        doc_baseurl: The base URL for the documentation site.
 
     Returns:
         str: The Markdown content with updated symbol links.
     """
-    cfg = get_config()
-    prefix = re.escape(urljoin(cfg["doc_host"] + "/", cfg["doc_baseurl"] + "/api"))
+    prefix = re.escape(urljoin(doc_host + "/", doc_baseurl))
     pattern = re.compile(rf"\[(.*?)\]\(({prefix}[^)]+)\)")
     matches = pattern.findall(contents)
     for match in matches:
         old_url = match[1]
-        new_url = _remove_redundant_segment_from_link(old_url).replace(
-            "/api/", "/docs/api/"
-        )
-        contents = contents.replace(old_url, new_url)
+        new_url = _add_file_extension_to_link(old_url).replace("/api/", "/docs/api/")
+        dir_prefix = "./" if dir_prefix == "" else dir_prefix
+        relative_url = dir_prefix + new_url.split("/docs/")[1]
+        contents = contents.replace(old_url, relative_url)
     return contents
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 48
+# %% ../nbs/096_Docusaurus_Helper.ipynb 49
+def _get_relative_url_prefix(docs_path: Path, sub_path: Path) -> str:
+    """Returns a relative url prefix from a sub path to a docs path.
+
+    Args:
+        docs_path (Path): The docs directory path.
+        sub_path (Path): The sub directory path.
+
+    Returns:
+        str: A string representing the relative path from the sub path to the docs path.
+
+    Raises:
+        ValueError: If the sub path is not a descendant of the docs path.
+    """
+    try:
+        relative_path = sub_path.relative_to(docs_path)
+    except ValueError:
+        raise ValueError(f"{sub_path} is not a descendant of {docs_path}")
+
+    return (
+        "../" * (len(relative_path.parts) - 1) if len(relative_path.parts) > 1 else ""
+    )
+
+# %% ../nbs/096_Docusaurus_Helper.ipynb 51
 def fix_invalid_syntax_in_markdown(docs_path: str) -> None:
     """Fix invalid HTML syntax in markdown files and converts inline style attributes to JSX-compatible format.
 
     Args:
         docs_path: The path to the root directory to search for markdown files.
     """
+    cfg = get_config()
+    doc_host = cfg["doc_host"]
+    doc_baseurl = cfg["doc_baseurl"]
+
     markdown_files = _get_all_markdown_files_path(Path(docs_path))
     for file in markdown_files:
+        relative_url_prefix = _get_relative_url_prefix(Path(docs_path), file)
         contents = Path(file).read_text()
 
         contents = _convert_html_style_attribute_to_jsx(contents)
         contents = _fix_special_symbols_in_html(contents)
-        contents = _fix_symbol_links(contents)
+        contents = _fix_symbol_links(
+            contents, relative_url_prefix, doc_host, doc_baseurl
+        )
 
         file.write_text(contents)
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 50
+# %% ../nbs/096_Docusaurus_Helper.ipynb 53
 def generate_markdown_docs(module_name: str, docs_path: str) -> None:
     """Generates Markdown documentation files for the symbols in the given module and save them to the given directory.
 
@@ -358,7 +388,7 @@ def generate_markdown_docs(module_name: str, docs_path: str) -> None:
         with open((Path(docs_path) / "api" / target_file_path), "w") as f:
             f.write(content)
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 52
+# %% ../nbs/096_Docusaurus_Helper.ipynb 55
 SidebarT = Union[str, List["SidebarT"], Dict[str, "SidebarT"]]
 
 
@@ -379,7 +409,7 @@ def remove_section_contents(
     new_section[section["section"]] = parse_contents(section["contents"])  # type: ignore
     return new_section
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 54
+# %% ../nbs/096_Docusaurus_Helper.ipynb 57
 def generate_sidebar(
     nbs_sidebar: str = "/work/fastkafka/nbs/sidebar.yml",
     target: str = "./docusaurus/sidebars.js",
