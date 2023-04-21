@@ -567,7 +567,8 @@ def _populate_consumers(
                 is_shutting_down_f=is_shutting_down_f,
                 test_mode=self.test_mode,
                 **{**default_config, **override_config},
-            )
+            ),
+            name=consumer.__name__,
         )
         for topic, (
             consumer,
@@ -583,6 +584,9 @@ async def _shutdown_consumers(
 ) -> None:
     if self._kafka_consumer_tasks:
         await asyncio.wait(self._kafka_consumer_tasks)
+        for task in self._kafka_consumer_tasks:
+            if self.test_mode and task.exception():
+                raise task.exception()  # type: ignore
 
 # %% ../../nbs/015_FastKafka.ipynb 41
 # TODO: Add passing of vars

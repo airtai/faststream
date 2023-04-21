@@ -37,7 +37,9 @@ class Tester(FastKafka):
         """
         self.apps = app if isinstance(app, list) else [app]
         host, port = self.apps[0]._kafka_config["bootstrap_servers"].split(":")
-        super().__init__(kafka_brokers={"localhost": {"url": host, "port": port}})
+        super().__init__(
+            kafka_brokers={"localhost": {"url": host, "port": port}}, test_mode=True
+        )
         self.create_mirrors()
 
         self.broker = broker
