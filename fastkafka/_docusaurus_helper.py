@@ -446,6 +446,8 @@ tutorialSidebar: [
         "CLI": ['cli/fastkafka', 'cli/run_fastkafka_server_process'],
     },
 
+    "LICENSE",
+    "CONTRIBUTING",
     "CHANGELOG",
 ],
 };"""

@@ -7,6 +7,9 @@ echo "Cleanup existing build artifacts"
 rm -rf docusaurus/docs
 
 echo "Runing nbdev_mkdocs docs"
+mkdir -p mkdocs/docs
+cp LICENSE mkdocs/docs/LICENSE.md
+cp CONTRIBUTING.md mkdocs/docs
 nbdev_mkdocs docs
 
 echo "Copying newly generated markdown files to docusaurus directory"
