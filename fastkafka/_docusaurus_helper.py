@@ -356,7 +356,7 @@ def fix_invalid_syntax_in_markdown(docs_path: str) -> None:
 
     markdown_files = _get_all_markdown_files_path(Path(docs_path))
     for file in markdown_files:
-        relative_url_prefix = _get_relative_url_prefix(docs_path, file)
+        relative_url_prefix = _get_relative_url_prefix(Path(docs_path), file)
         contents = Path(file).read_text()
 
         contents = _convert_html_style_attribute_to_jsx(contents)
