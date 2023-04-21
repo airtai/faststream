@@ -51,7 +51,7 @@ const config = {
           ],
           versions: {
             current: {
-              label: `Canary 🚧`,
+              label: `dev 🚧`,
             },
           },
         },
