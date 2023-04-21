@@ -4,8 +4,8 @@
 __all__ = ['dummy']
 
 # %% ../nbs/020_Encoder_Export.ipynb 1
-from ._components._encoder.json import json_decoder, json_encoder
-from fastkafka._components._encoder.avro import (
+from ._components.encoder.json import json_decoder, json_encoder
+from fastkafka._components.encoder.avro import (
     AvroBase,
     avro_decoder,
     avro_encoder,
