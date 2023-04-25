@@ -171,10 +171,15 @@ def _get_msg_cls_for_consumer(f: ConsumeCallable) -> Type[Any]:
     types = get_type_hints(f)
     return_type = types.pop("return", type(None))
     types_list = list(types.values())
-    # @app.consumer takes only message argument
-    if len(types_list) != 1:
+    # @app.consumer first consumer argument must be a msg which is a subclass of BaseModel
+    try:
+        if issubclass(BaseModel, types_list[0]):
+            raise ValueError(
+                f"Consumer function first param must be a BaseModel subclass msg, got {types_list}"
+            )
+    except IndexError:
         raise ValueError(
-            f"Consumer function must have only one input param, got {types_list}"
+            f"Consumer function first param must be a BaseModel subclass msg, got {types_list}"
         )
     # @app.consumer does not return a value
     if return_type != type(None):
