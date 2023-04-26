@@ -67,7 +67,7 @@
 .testimonialHeader {
   display: flex;
   justify-content: space-between;
-  height: 40px;
+  height: 45px;
   margin-bottom: 30px;
 }
 .testimonialUserInfo {
@@ -81,7 +81,7 @@
 }
 
 .testimonialProfilePic {
-  width: 40px;
+  width: 45px;
   height: auto;
   border-radius: 50%;
 }

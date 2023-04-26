@@ -6,14 +6,13 @@ const FeatureList = [
   {
     containerOne: {
       source: {
-        name: "r/Python",
-        icon: "/img/reddit-logo.png",
-        link: "https://www.google.com",
+        icon: "img/reddit-logo.png",
+        link: "https://www.reddit.com/r/Python/comments/11paz9u/comment/jbxf1v8/?utm_source=share&utm_medium=web2x&context=3",
       },
       user: {
-        profilePic: "",
-        userName: "@username",
-        fullName: "Full Name",
+        profilePic: "img/code_mc.png",
+        userName: "u/code_mc",
+        fullName: "code_mc",
       },
       description: (
         <>
@@ -23,14 +22,13 @@ const FeatureList = [
     },
     containerTwo: {
       source: {
-        name: "r/FastAPI",
-        icon: "/img/reddit-logo.png",
-        link: "https://www.google.com",
+        icon: "img/reddit-logo.png",
+        link: "https://www.reddit.com/r/FastAPI/comments/11oq09r/comment/jbx4dfn/?utm_source=share&utm_medium=web2x&context=3",
       },
       user: {
-        profilePic: "",
-        userName: "@username",
-        fullName: "Full Name",
+        profilePic: "img/streaming_bear.png",
+        userName: "u/SteamingBeer",
+        fullName: "SteamingBeer",
       },
       description: (
         <>
@@ -42,14 +40,13 @@ const FeatureList = [
   {
     containerOne: {
       source: {
-        name: "r/Python",
-        icon: "/img/reddit-logo.png",
-        link: "https://www.google.com",
+        icon: "img/reddit-logo.png",
+        link: "https://www.reddit.com/r/Python/comments/11paz9u/comment/jbxbbxp/?utm_source=share&utm_medium=web2x&context=3",
       },
       user: {
-        profilePic: "",
-        userName: "@username",
-        fullName: "Full Name",
+        profilePic: "img/best_bottle.png",
+        userName: "u/BestBottle4517",
+        fullName: "BestBottle4517",
       },
       description: (
         <>
@@ -59,14 +56,13 @@ const FeatureList = [
     },
     containerTwo: {
       source: {
-        name: "HackerNews",
-        icon: "/img/reddit-logo.png",
-        link: "https://www.google.com",
+        icon: "img/Y_Combinator_Logo.png",
+        link: "https://news.ycombinator.com/item?id=35086594",
       },
       user: {
-        profilePic: "",
-        userName: "@username",
-        fullName: "Full Name",
+        profilePic: "img/I.svg",
+        userName: "iknownothow",
+        fullName: "iknownothow",
       },
       description: (
         <>
@@ -78,14 +74,13 @@ const FeatureList = [
   {
     containerOne: {
       source: {
-        name: "r/FastAPI",
-        icon: "/img/reddit-logo.png",
-        link: "https://www.google.com",
+        icon: "img/reddit-logo.png",
+        link: "https://www.reddit.com/r/FastAPI/comments/11oq09r/comment/jc4dwit/?utm_source=share&utm_medium=web2x&context=3",
       },
       user: {
-        profilePic: "",
-        userName: "@username",
-        fullName: "Full Name",
+        profilePic: "img/no_application.png",
+        userName: "u/No-Application5593",
+        fullName: "No-Application5593",
       },
       description: (
         <>
@@ -95,14 +90,13 @@ const FeatureList = [
     },
     containerTwo: {
       source: {
-        name: "r/programming",
-        icon: "/img/reddit-logo.png",
-        link: "https://www.google.com",
+        icon: "img/reddit-logo.png",
+        link: "https://www.reddit.com/r/programming/comments/11sjtgm/comment/jceqgml/?utm_source=share&utm_medium=web2x&context=3",
       },
       user: {
-        profilePic: "",
-        userName: "@username",
-        fullName: "Full Name",
+        profilePic: "img/tea_junky.png",
+        userName: "u/teajunky",
+        fullName: "teajunky",
       },
       description: (
         <>
@@ -120,7 +114,7 @@ function Feature({containerOne, containerTwo}) {
           <div className={styles.testimonialContainer}>
             <div className={styles.testimonialHeader}>
               <div className={styles.testimonialUserInfo}>
-                {/* <img src={containerOne.user.profilePic} className={styles.testimonialProfilePic} /> */}
+                <img src={containerOne.user.profilePic} className={styles.testimonialProfilePic} />
                 <div> 
                   <h6>{containerOne.user.fullName}</h6>
                   <p>{containerOne.user.userName}</p>
@@ -132,7 +126,6 @@ function Feature({containerOne, containerTwo}) {
             </div>
             <div className="text--center padding-horiz--md">
               <p className={styles.testimonialDescription}>{containerOne.description}</p>
-              <p className={styles.testimonialDescription}>{containerOne.source.name}</p>
             </div>
           </div>
         </a>
@@ -140,7 +133,7 @@ function Feature({containerOne, containerTwo}) {
           <div className={styles.testimonialContainer}>
             <div className={styles.testimonialHeader}>
               <div className={styles.testimonialUserInfo}>
-                {/* <img src={containerTwo.user.profilePic} className={styles.testimonialProfilePic} /> */}
+                <img src={containerTwo.user.profilePic} className={styles.testimonialProfilePic} />
                 <div> 
                   <h6>{containerTwo.user.fullName}</h6>
                   <p>{containerTwo.user.userName}</p>
@@ -152,7 +145,6 @@ function Feature({containerOne, containerTwo}) {
             </div>
             <div className="text--center padding-horiz--md">
               <p className={styles.testimonialDescription}>{containerTwo.description}</p>
-              <p className={styles.testimonialDescription}>{containerTwo.source.name}</p>
             </div>
           </div>
         </a>
