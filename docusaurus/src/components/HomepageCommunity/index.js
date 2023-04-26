@@ -6,7 +6,7 @@ import styles from './styles.module.css';
 function Feature({containerOne, containerTwo}) {
   return (
       <div className={`${clsx('col col--4')} ${styles.testimonialWrapper}`}>
-        <a href={containerOne.source.link} target="_blank" className={styles.testimonialAnchor}>
+        <a href={containerOne.source.link} target="_blank" rel="noopener noreferrer" className={styles.testimonialAnchor}>
           <div className={styles.testimonialContainer}>
             <div className={styles.testimonialHeader}>
               <div className={styles.testimonialUserInfo}>
@@ -25,7 +25,7 @@ function Feature({containerOne, containerTwo}) {
             </div>
           </div>
         </a>
-        <a href={containerTwo.source.link} target="_blank" className={styles.testimonialAnchor}>
+        <a href={containerTwo.source.link} target="_blank" rel="noopener noreferrer" className={styles.testimonialAnchor}>
           <div className={styles.testimonialContainer}>
             <div className={styles.testimonialHeader}>
               <div className={styles.testimonialUserInfo}>
