@@ -429,6 +429,7 @@ tutorialSidebar: [
         "items": [
             "api/fastkafka/FastKafka",
             "api/fastkafka/KafkaEvent",
+            "api/fastkafka/EventMetadata",
             {
               "items": [
                 "api/fastkafka/testing/ApacheKafkaBroker",

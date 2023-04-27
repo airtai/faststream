@@ -14,7 +14,7 @@ import string
 import uuid
 from collections import namedtuple
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import *
 
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
@@ -42,6 +42,12 @@ class KafkaRecord:
     key: Optional[bytes] = None
     value: bytes = b""
     offset: int = 0
+    timestamp = 0
+    timestamp_type = 0
+    checksum = 0
+    serialized_key_size = 0
+    serialized_value_size = 0
+    headers: Sequence[Tuple[str, bytes]] = field(default_factory=list)
 
 # %% ../../nbs/001_InMemoryBroker.ipynb 7
 class KafkaPartition:

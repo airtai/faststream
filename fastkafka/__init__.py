@@ -8,11 +8,9 @@ __all__ = ['dummy']
 from ._application.app import FastKafka
 from ._components.meta import export
 from ._components.producer_decorator import KafkaEvent
+from ._components.aiokafka_consumer_loop import EventMetadata
 
-__all__ = [
-    "FastKafka",
-    "KafkaEvent",
-]
+__all__ = ["FastKafka", "KafkaEvent", "EventMetadata"]
 
 # %% ../nbs/010_Application_export.ipynb 2
 @export("_dummy")
