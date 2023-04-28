@@ -35,12 +35,22 @@ projects.
 
 ------------------------------------------------------------------------
 
-#### ⭐ Stay in touch
+#### ⭐⭐⭐ Stay in touch ⭐⭐⭐
 
-Please show your support and stay in touch by giving our [GitHub
-repository](https://github.com/airtai/fastkafka/) a star! Your support
-helps us to stay in touch with you and encourages us to continue
-developing and improving the library. Thank you for your support!
+Please show your support and stay in touch by:
+
+- giving our [GitHub repository](https://github.com/airtai/fastkafka/) a
+  star, and
+
+- joining our [Discord server](https://discord.gg/CJWmYpyFbc).
+
+Your support helps us to stay in touch with you and encourages us to
+continue developing and improving the library. Thank you for your
+support!
+
+------------------------------------------------------------------------
+
+#### 🐝🐝🐝 We were busy lately 🐝🐝🐝
 
 ![Activity](https://repobeats.axiom.co/api/embed/21f36049093d5eb8e5fdad18c3c5d8df5428ca30.svg "Repobeats analytics image")
 
@@ -77,7 +87,7 @@ You can start an interactive tutorial in Google Colab by clicking the
 button below:
 
 <a href="https://colab.research.google.com/github/airtai/fastkafka/blob/main/nbs/guides/Guide_00_FastKafka_Demo.ipynb" target=”_blank”>
-<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab">
+<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" />
 </a>
 
 ## Writing server code
@@ -92,21 +102,31 @@ First we will prepare our model using the Iris dataset so that we can
 demonstrate the predictions using FastKafka. The following call
 downloads the dataset and trains the model.
 
+We will wrap the model creation into a lifespan of our app so that the
+model is created just before the app is started.
+
 ``` python
+from contextlib import asynccontextmanager
+
 from sklearn.datasets import load_iris
 from sklearn.linear_model import LogisticRegression
 
-X, y = load_iris(return_X_y=True)
-model = LogisticRegression(random_state=0, max_iter=500).fit(X, y)
-x = X[[0, 55, -1]]
-print(x)
-print(model.predict(x))
-```
+from fastkafka import FastKafka
 
-    [[5.1 3.5 1.4 0.2]
-     [5.7 2.8 4.5 1.3]
-     [5.9 3.  5.1 1.8]]
-    [0 1 2]
+ml_models = {}
+
+
+@asynccontextmanager
+async def lifespan(app: FastKafka):
+    # Load the ML model
+    X, y = load_iris(return_X_y=True)
+    ml_models["iris_predictor"] = LogisticRegression(random_state=0, max_iter=500).fit(
+        X, y
+    )
+    yield
+    # Clean up the ML models and release the resources
+    ml_models.clear()
+```
 
 ### Messages
 
@@ -168,7 +188,7 @@ both generating the documentation and later to run the actual server
 against one of the given kafka broker.
 
 Next, an object of the
-[`FastKafka`](https://airtai.github.io/fastkafka/0.3.0/api/fastkafka/FastKafka/#fastkafka.FastKafka)
+[`FastKafka`](https://fastkafka.airt.ai/docs/api/fastkafka)
 class is initialized with the minimum set of arguments:
 
 - `kafka_brokers`: a dictionary used for generation of documentation
@@ -194,6 +214,7 @@ kafka_brokers = {
 kafka_app = FastKafka(
     title="Iris predictions",
     kafka_brokers=kafka_brokers,
+    lifespan=lifespan,
 )
 ```
 
@@ -238,8 +259,7 @@ This following example shows how to use the `@kafka_app.consumes` and
 ``` python
 @kafka_app.consumes(topic="input_data", auto_offset_reset="latest")
 async def on_input_data(msg: IrisInputData):
-    global model
-    species_class = model.predict(
+    species_class = ml_models["iris_predictor"].predict(
         [[msg.sepal_length, msg.sepal_width, msg.petal_length, msg.petal_width]]
     )[0]
 
@@ -257,24 +277,13 @@ def to_predictions(species_class: int) -> IrisPrediction:
 ## Testing the service
 
 The service can be tested using the
-[`Tester`](https://airtai.github.io/fastkafka/0.3.0/api/fastkafka/testing/Tester/#fastkafka.testing.Tester)
-instances which internally starts Kafka broker and zookeeper.
+[`Tester`](https://fastkafka.airt.ai/docs/api/fastkafka/testing/Tester)
+instances which internally starts InMemory implementation of Kafka
+broker.
 
-Before running tests, we have to install Java runtime and Apache Kafka
-locally. To simplify the process, we provide the following convenience
-command:
-
-``` sh
-fastkafka testing install_deps
-```
-
-    [INFO] fastkafka._components.test_dependencies: Installing Java...
-    [INFO] fastkafka._components.test_dependencies:  - installing jdk...
-    [INFO] fastkafka._components.test_dependencies:  - jdk path: /home/kumaran/.jdk/jdk-11.0.18+10
-    [INFO] fastkafka._components.test_dependencies: Java installed.
-    [INFO] fastkafka._components.test_dependencies: Installing Kafka...
-    832969it [00:02, 309324.60it/s]                                                 
-    [INFO] fastkafka._components.test_dependencies: Kafka installed in /home/kumaran/.local/kafka_2.13-3.3.2.
+The Tester will redirect your consumes and produces decorated functions
+to the InMemory Kafka broker so that you can quickly test your app
+without the need for a running Kafka broker and all its dependencies.
 
 ``` python
 from fastkafka.testing import Tester
@@ -286,7 +295,7 @@ msg = IrisInputData(
     petal_width=0.4,
 )
 
-# Start Tester app and create local Kafka broker for testing
+# Start Tester app and create InMemory Kafka broker for testing
 async with Tester(kafka_app) as tester:
     # Send IrisInputData message to input_data topic
     await tester.to_input_data(msg)
@@ -297,46 +306,39 @@ async with Tester(kafka_app) as tester:
     )
 ```
 
-    [INFO] fastkafka._components.test_dependencies: Java is already installed.
-    [INFO] fastkafka._components.test_dependencies: But not exported to PATH, exporting...
-    [INFO] fastkafka._components.test_dependencies: Kafka is installed.
-    [INFO] fastkafka._components.test_dependencies: But not exported to PATH, exporting...
-    [INFO] fastkafka._testing.local_broker: Starting zookeeper...
-    [INFO] fastkafka._testing.local_broker: Starting kafka...
-    [INFO] fastkafka._testing.local_broker: Local Kafka broker up and running on 127.0.0.1:9092
-    [INFO] fastkafka._application.app: _create_producer() : created producer using the config: '{'bootstrap_servers': '127.0.0.1:9092'}'
-    [INFO] fastkafka._components.aiokafka_producer_manager: AIOKafkaProducerManager.start(): Entering...
-    [INFO] fastkafka._components.aiokafka_producer_manager: _aiokafka_producer_manager(): Starting...
-    [INFO] fastkafka._components.aiokafka_producer_manager: _aiokafka_producer_manager(): Starting send_stream
-    [INFO] fastkafka._components.aiokafka_producer_manager: AIOKafkaProducerManager.start(): Finished.
-    [INFO] fastkafka._application.app: _create_producer() : created producer using the config: '{'bootstrap_servers': '127.0.0.1:9092'}'
+    [INFO] fastkafka._testing.in_memory_broker: InMemoryBroker._start() called
+    [INFO] fastkafka._testing.in_memory_broker: InMemoryBroker._patch_consumers_and_producers(): Patching consumers and producers!
+    [INFO] fastkafka._testing.in_memory_broker: InMemoryBroker starting
+    [INFO] fastkafka._application.app: _create_producer() : created producer using the config: '{'bootstrap_servers': 'localhost:9092'}'
+    [INFO] fastkafka._testing.in_memory_broker: AIOKafkaProducer patched start() called()
+    [INFO] fastkafka._application.app: _create_producer() : created producer using the config: '{'bootstrap_servers': 'localhost:9092'}'
+    [INFO] fastkafka._testing.in_memory_broker: AIOKafkaProducer patched start() called()
     [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
-    [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': '127.0.0.1:9092', 'auto_offset_reset': 'latest', 'max_poll_records': 100}
+    [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'localhost:9092', 'auto_offset_reset': 'latest', 'max_poll_records': 100}
+    [INFO] fastkafka._testing.in_memory_broker: AIOKafkaConsumer patched start() called()
     [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
-    [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
-    [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
+    [INFO] fastkafka._testing.in_memory_broker: AIOKafkaConsumer patched subscribe() called
+    [INFO] fastkafka._testing.in_memory_broker: AIOKafkaConsumer.subscribe(), subscribing to: ['input_data']
     [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
     [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
-    [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': '127.0.0.1:9092', 'auto_offset_reset': 'earliest', 'max_poll_records': 100}
-    [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'input_data': 1}. 
+    [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'localhost:9092', 'auto_offset_reset': 'earliest', 'max_poll_records': 100}
+    [INFO] fastkafka._testing.in_memory_broker: AIOKafkaConsumer patched start() called()
     [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
-    [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'predictions'})
-    [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'predictions'}
+    [INFO] fastkafka._testing.in_memory_broker: AIOKafkaConsumer patched subscribe() called
+    [INFO] fastkafka._testing.in_memory_broker: AIOKafkaConsumer.subscribe(), subscribing to: ['predictions']
     [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
-    [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'predictions': 1}. 
+    [INFO] fastkafka._components.aiokafka_consumer_loop: _aiokafka_consumer_loop(): Consumer loop shutting down, waiting for send_stream to drain...
+    [INFO] fastkafka._testing.in_memory_broker: AIOKafkaConsumer patched stop() called
     [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
     [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
+    [INFO] fastkafka._testing.in_memory_broker: AIOKafkaProducer patched stop() called
+    [INFO] fastkafka._components.aiokafka_consumer_loop: _aiokafka_consumer_loop(): Consumer loop shutting down, waiting for send_stream to drain...
+    [INFO] fastkafka._testing.in_memory_broker: AIOKafkaConsumer patched stop() called
     [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
     [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
-    [INFO] fastkafka._components.aiokafka_producer_manager: AIOKafkaProducerManager.stop(): Entering...
-    [INFO] fastkafka._components.aiokafka_producer_manager: _aiokafka_producer_manager(): Exiting send_stream
-    [INFO] fastkafka._components.aiokafka_producer_manager: _aiokafka_producer_manager(): Finished.
-    [INFO] fastkafka._components.aiokafka_producer_manager: AIOKafkaProducerManager.stop(): Stoping producer...
-    [INFO] fastkafka._components.aiokafka_producer_manager: AIOKafkaProducerManager.stop(): Finished
-    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Terminating the process 547...
-    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Process 547 terminated.
-    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Terminating the process 173...
-    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Process 173 terminated.
+    [INFO] fastkafka._testing.in_memory_broker: AIOKafkaProducer patched stop() called
+    [INFO] fastkafka._testing.in_memory_broker: InMemoryBroker._stop() called
+    [INFO] fastkafka._testing.in_memory_broker: InMemoryBroker stopping
 
 ### Recap
 
@@ -364,6 +366,28 @@ and save them in a file `"application.py"`
 
 ``` python
 # content of the "application.py" file
+
+from contextlib import asynccontextmanager
+
+from sklearn.datasets import load_iris
+from sklearn.linear_model import LogisticRegression
+
+from fastkafka import FastKafka
+
+ml_models = {}
+
+
+@asynccontextmanager
+async def lifespan(app: FastKafka):
+    # Load the ML model
+    X, y = load_iris(return_X_y=True)
+    ml_models["iris_predictor"] = LogisticRegression(random_state=0, max_iter=500).fit(
+        X, y
+    )
+    yield
+    # Clean up the ML models and release the resources
+    ml_models.clear()
+
 
 from pydantic import BaseModel, NonNegativeFloat, Field
 
@@ -405,22 +429,22 @@ kafka_brokers = {
 kafka_app = FastKafka(
     title="Iris predictions",
     kafka_brokers=kafka_brokers,
+    lifespan=lifespan,
 )
-
-iris_species = ["setosa", "versicolor", "virginica"]
 
 @kafka_app.consumes(topic="input_data", auto_offset_reset="latest")
 async def on_input_data(msg: IrisInputData):
-    global model
-    species_class = model.predict([
-          [msg.sepal_length, msg.sepal_width, msg.petal_length, msg.petal_width]
-        ])[0]
+    species_class = ml_models["iris_predictor"].predict(
+        [[msg.sepal_length, msg.sepal_width, msg.petal_length, msg.petal_width]]
+    )[0]
 
     to_predictions(species_class)
 
 
 @kafka_app.produces(topic="predictions")
 def to_predictions(species_class: int) -> IrisPrediction:
+    iris_species = ["setosa", "versicolor", "virginica"]
+
     prediction = IrisPrediction(species=iris_species[species_class])
     return prediction
 ```
@@ -428,21 +452,42 @@ def to_predictions(species_class: int) -> IrisPrediction:
 To run the service, you will need a running Kafka broker on localhost as
 specified in the `kafka_brokers` parameter above. We can start the Kafka
 broker locally using the
-[`LocalKafkaBroker`](https://airtai.github.io/fastkafka/0.3.0/api/fastkafka/testing/LocalKafkaBroker/#fastkafka.testing.LocalKafkaBroker).
-Notice that the same happens automatically in the
-[`Tester`](https://airtai.github.io/fastkafka/0.3.0/api/fastkafka/testing/Tester/#fastkafka.testing.Tester)
-as shown above.
+[`ApacheKafkaBroker`](https://fastkafka.airt.ai/docs/api/fastkafka/testing/ApacheKafkaBroker).
 
-    [INFO] fastkafka._testing.local_broker: LocalKafkaBroker.start(): entering...
-    [WARNING] fastkafka._testing.local_broker: LocalKafkaBroker.start(): (<_UnixSelectorEventLoop running=True closed=False debug=False>) is already running!
-    [WARNING] fastkafka._testing.local_broker: LocalKafkaBroker.start(): calling nest_asyncio.apply()
+To use
+[`ApacheKafkaBroker`](https://fastkafka.airt.ai/docs/api/fastkafka/testing/ApacheKafkaBroker),
+you need to install JRE and Kafka to your environment. To simplify this
+process, fastkafka comes with a CLI command that does just that, to run
+it, in your terminal execute the following:
+
+``` sh
+fastkafka testing install_deps
+```
+
+Now we can run
+[`ApacheKafkaBroker`](https://fastkafka.airt.ai/docs/api/fastkafka/testing/ApacheKafkaBroker)
+that will start a Kafka broker instance for us.
+
+``` python
+from fastkafka.testing import ApacheKafkaBroker
+
+broker = ApacheKafkaBroker(apply_nest_asyncio=True)
+
+broker.start()
+```
+
+    [INFO] fastkafka._testing.apache_kafka_broker: ApacheKafkaBroker.start(): entering...
+    [WARNING] fastkafka._testing.apache_kafka_broker: ApacheKafkaBroker.start(): (<_UnixSelectorEventLoop running=True closed=False debug=False>) is already running!
+    [WARNING] fastkafka._testing.apache_kafka_broker: ApacheKafkaBroker.start(): calling nest_asyncio.apply()
     [INFO] fastkafka._components.test_dependencies: Java is already installed.
+    [INFO] fastkafka._components.test_dependencies: But not exported to PATH, exporting...
     [INFO] fastkafka._components.test_dependencies: Kafka is installed.
-    [INFO] fastkafka._testing.local_broker: Starting zookeeper...
-    [INFO] fastkafka._testing.local_broker: Starting kafka...
-    [INFO] fastkafka._testing.local_broker: Local Kafka broker up and running on 127.0.0.1:9092
-    [INFO] fastkafka._testing.local_broker: <class 'fastkafka.testing.LocalKafkaBroker'>.start(): returning 127.0.0.1:9092
-    [INFO] fastkafka._testing.local_broker: LocalKafkaBroker.start(): exited.
+    [INFO] fastkafka._components.test_dependencies: But not exported to PATH, exporting...
+    [INFO] fastkafka._testing.apache_kafka_broker: Starting zookeeper...
+    [INFO] fastkafka._testing.apache_kafka_broker: Starting kafka...
+    [INFO] fastkafka._testing.apache_kafka_broker: Local Kafka broker up and running on 127.0.0.1:9092
+    [INFO] fastkafka._testing.apache_kafka_broker: <class 'fastkafka.testing.ApacheKafkaBroker'>.start(): returning 127.0.0.1:9092
+    [INFO] fastkafka._testing.apache_kafka_broker: ApacheKafkaBroker.start(): exited.
 
     '127.0.0.1:9092'
 
@@ -457,70 +502,56 @@ In the above command, we use `--num-workers` option to specify how many
 workers to launch and we use `--kafka-broker` option to specify which
 kafka broker configuration to use from earlier specified `kafka_brokers`
 
-    [2559]: [INFO] fastkafka._application.app: set_kafka_broker() : Setting bootstrap_servers value to 'localhost:9092'
-    [2559]: [INFO] fastkafka._application.app: _create_producer() : created producer using the config: '{'bootstrap_servers': 'localhost:9092'}'
-    [2559]: [INFO] fastkafka._components.aiokafka_producer_manager: AIOKafkaProducerManager.start(): Entering...
-    [2561]: [INFO] fastkafka._application.app: set_kafka_broker() : Setting bootstrap_servers value to 'localhost:9092'
-    [2561]: [INFO] fastkafka._application.app: _create_producer() : created producer using the config: '{'bootstrap_servers': 'localhost:9092'}'
-    [2561]: [INFO] fastkafka._components.aiokafka_producer_manager: AIOKafkaProducerManager.start(): Entering...
-    [2559]: [INFO] fastkafka._components.aiokafka_producer_manager: _aiokafka_producer_manager(): Starting...
-    [2559]: [INFO] fastkafka._components.aiokafka_producer_manager: _aiokafka_producer_manager(): Starting send_stream
-    [2559]: [INFO] fastkafka._components.aiokafka_producer_manager: AIOKafkaProducerManager.start(): Finished.
-    [2561]: [INFO] fastkafka._components.aiokafka_producer_manager: _aiokafka_producer_manager(): Starting...
-    [2561]: [INFO] fastkafka._components.aiokafka_producer_manager: _aiokafka_producer_manager(): Starting send_stream
-    [2561]: [INFO] fastkafka._components.aiokafka_producer_manager: AIOKafkaProducerManager.start(): Finished.
-    [2559]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
-    [2559]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'localhost:9092', 'auto_offset_reset': 'latest', 'max_poll_records': 100}
-    [2561]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
-    [2561]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'localhost:9092', 'auto_offset_reset': 'latest', 'max_poll_records': 100}
-    [2561]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
-    [2559]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
-    [2561]: [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
-    [2561]: [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
-    [2559]: [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
-    [2561]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
-    [2559]: [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
-    [2559]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
-    [2561]: [ERROR] aiokafka.cluster: Topic input_data not found in cluster metadata
-    [2561]: [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'input_data': 0}. 
-    [2559]: [WARNING] aiokafka.cluster: Topic input_data is not available during auto-create initialization
-    [2559]: [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'input_data': 0}. 
-    [2561]: [ERROR] aiokafka: Unable connect to node with id 0: [Errno 111] Connect call failed ('172.22.0.2', 9092)
-    [2559]: [ERROR] aiokafka: Unable connect to node with id 0: [Errno 111] Connect call failed ('172.22.0.2', 9092)
-    [2561]: [ERROR] aiokafka: Unable to update metadata from [0]
-    [2559]: [ERROR] aiokafka: Unable to update metadata from [0]
+    [801767]: [INFO] fastkafka._application.app: set_kafka_broker() : Setting bootstrap_servers value to 'localhost:9092'
+    [801765]: [INFO] fastkafka._application.app: set_kafka_broker() : Setting bootstrap_servers value to 'localhost:9092'
+    [801767]: [INFO] fastkafka._application.app: _create_producer() : created producer using the config: '{'bootstrap_servers': 'localhost:9092'}'
+    [801765]: [INFO] fastkafka._application.app: _create_producer() : created producer using the config: '{'bootstrap_servers': 'localhost:9092'}'
+    [801765]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
+    [801767]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
+    [801765]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'localhost:9092', 'auto_offset_reset': 'latest', 'max_poll_records': 100}
+    [801767]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'localhost:9092', 'auto_offset_reset': 'latest', 'max_poll_records': 100}
+    [801767]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
+    [801767]: [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
+    [801767]: [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
+    [801767]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
+    [801765]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
+    [801765]: [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
+    [801765]: [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
+    [801765]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
+    [801765]: [ERROR] aiokafka.cluster: Topic input_data not found in cluster metadata
+    [801765]: [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'input_data': 0}. 
+    [801767]: [WARNING] aiokafka.cluster: Topic input_data is not available during auto-create initialization
+    [801767]: [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'input_data': 0}. 
+    [801767]: [ERROR] aiokafka: Unable connect to node with id 0: [Errno 111] Connect call failed ('192.168.112.2', 9092)
+    [801765]: [ERROR] aiokafka: Unable connect to node with id 0: [Errno 111] Connect call failed ('192.168.112.2', 9092)
+    [801767]: [ERROR] aiokafka: Unable to update metadata from [0]
+    [801765]: [ERROR] aiokafka: Unable to update metadata from [0]
     ^C
     Starting process cleanup, this may take a few seconds...
-    [INFO] fastkafka._server: terminate_asyncio_process(): Terminating the process 2559...
-    [INFO] fastkafka._server: terminate_asyncio_process(): Terminating the process 2561...
-    [2561]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
-    [2561]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
-    [2561]: [INFO] fastkafka._components.aiokafka_producer_manager: AIOKafkaProducerManager.stop(): Entering...
-    [2561]: [INFO] fastkafka._components.aiokafka_producer_manager: _aiokafka_producer_manager(): Exiting send_stream
-    [2561]: [INFO] fastkafka._components.aiokafka_producer_manager: _aiokafka_producer_manager(): Finished.
-    [2561]: [INFO] fastkafka._components.aiokafka_producer_manager: AIOKafkaProducerManager.stop(): Stoping producer...
-    [2561]: [INFO] fastkafka._components.aiokafka_producer_manager: AIOKafkaProducerManager.stop(): Finished
-    [2559]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
-    [2559]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
-    [2559]: [INFO] fastkafka._components.aiokafka_producer_manager: AIOKafkaProducerManager.stop(): Entering...
-    [2559]: [INFO] fastkafka._components.aiokafka_producer_manager: _aiokafka_producer_manager(): Exiting send_stream
-    [2559]: [INFO] fastkafka._components.aiokafka_producer_manager: _aiokafka_producer_manager(): Finished.
-    [2559]: [INFO] fastkafka._components.aiokafka_producer_manager: AIOKafkaProducerManager.stop(): Stoping producer...
-    [2559]: [INFO] fastkafka._components.aiokafka_producer_manager: AIOKafkaProducerManager.stop(): Finished
-    [INFO] fastkafka._server: terminate_asyncio_process(): Process 2561 was already terminated.
-    [INFO] fastkafka._server: terminate_asyncio_process(): Process 2559 was already terminated.
+    [INFO] fastkafka._server: terminate_asyncio_process(): Terminating the process 801765...
+    [INFO] fastkafka._server: terminate_asyncio_process(): Terminating the process 801767...
+    [801765]: [INFO] fastkafka._components.aiokafka_consumer_loop: _aiokafka_consumer_loop(): Consumer loop shutting down, waiting for send_stream to drain...
+    [801765]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
+    [801765]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
+    [801767]: [INFO] fastkafka._components.aiokafka_consumer_loop: _aiokafka_consumer_loop(): Consumer loop shutting down, waiting for send_stream to drain...
+    [801767]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
+    [801767]: [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
 
 You need to interupt running of the cell above by selecting
 `Runtime->Interupt execution` on the toolbar above.
 
 Finally, we can stop the local Kafka Broker:
 
-    [INFO] fastkafka._testing.local_broker: LocalKafkaBroker.stop(): entering...
-    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Terminating the process 2098...
-    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Process 2098 was already terminated.
-    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Terminating the process 1725...
-    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Process 1725 was already terminated.
-    [INFO] fastkafka._testing.local_broker: LocalKafkaBroker.stop(): exited.
+``` python
+broker.stop()
+```
+
+    [INFO] fastkafka._testing.apache_kafka_broker: ApacheKafkaBroker.stop(): entering...
+    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Terminating the process 801303...
+    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Process 801303 was already terminated.
+    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Terminating the process 800930...
+    [INFO] fastkafka._components._subprocess: terminate_asyncio_process(): Process 800930 was already terminated.
+    [INFO] fastkafka._testing.apache_kafka_broker: ApacheKafkaBroker.stop(): exited.
 
 ## Documentation
 
@@ -534,7 +565,7 @@ convenience command line for it:
 fastkafka docs install_deps
 ```
 
-    [INFO] fastkafka._components.asyncapi: AsyncAPI generator installed
+    [INFO] fastkafka._components.docs_dependencies: AsyncAPI generator installed
 
 To generate the documentation programatically you just need to call the
 folloving command:

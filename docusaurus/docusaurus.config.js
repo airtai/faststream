@@ -49,6 +49,11 @@ const config = {
             '**/*.test.{js,jsx,ts,tsx}',
             '**/__tests__/**',
           ],
+          versions: {
+            current: {
+              label: `dev 🚧`,
+            },
+          },
         },
         blog: {
           showReadingTime: true,
@@ -60,6 +65,9 @@ const config = {
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
+        gtag: {
+          trackingID: 'G-WLMWPELHMB',
+        },
       }),
     ],
   ],
@@ -70,23 +78,36 @@ const config = {
       // Replace with your project's social card
       image: 'https://opengraph.githubassets.com/1671805243.560327/airtai/fastkafka',
       navbar: {
-        title: 'FastKafka',
+        title: '',
         logo: {
           alt: 'FastKafka Logo',
           src: 'img/AIRT_icon_blue.svg',
         },
         items: [
           {
+            type: 'docsVersionDropdown',
+            position: 'right',
+            dropdownActiveClassDisabled: true,
+            // dropdownItemsAfter: [{to: '/versions', label: 'All versions'}],
+          },
+          {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
-            position: 'left',
-            label: 'Get Started',
-          },
-          {to: '/blog', label: 'Blog', position: 'left'},
-          {
-            href: 'https://github.com/airtai/fastkafka',
-            label: 'GitHub',
             position: 'right',
+            label: 'Docs',
+          },
+//           {to: '/blog', label: 'Blog', position: 'left'},
+          {
+            type: 'html',
+            position: 'right',
+            className: 'github-stars',
+            value: '<iframe src="https://ghbtns.com/github-btn.html?user=airtai&repo=fastkafka&type=star&count=true&size=large" frameborder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe>',
+          },
+          {
+            href: 'https://discord.gg/CJWmYpyFbc',
+            position: 'right',
+            className: "header-discord-link",
+            "aria-label": "Discord Link",
           },
         ],
       },
@@ -105,17 +126,25 @@ const config = {
           {
             title: 'Community',
             items: [
-//               {
-//                 label: 'Stack Overflow',
-//                 href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-//               },
-//               {
-//                 label: 'Discord',
-//                 href: 'https://discordapp.com/invite/docusaurus',
-//               },
+              {
+                label: 'Discord',
+                href: 'https://discord.gg/CJWmYpyFbc',
+              },
+              {
+                label: 'GitHub',
+                href: 'https://github.com/airtai/fastkafka',
+              },
               {
                 label: 'Twitter',
                 href: 'https://twitter.com/airt_AI',
+              },
+              {
+                label: 'Facebook',
+                href: 'https://www.facebook.com/airt.ai.api/',
+              },
+              {
+                label: 'LinkedIn',
+                href: 'https://www.linkedin.com/company/airt-ai/',
               },
             ],
           },
@@ -123,17 +152,21 @@ const config = {
             title: 'More',
             items: [
               {
-                label: 'Blog',
-                to: '/blog',
+                label: 'About Us',
+                to: 'https://airt.ai/about-us',
               },
+//               {
+//                 label: 'Contact',
+//                 to: 'https://airt.ai/contact',
+//               },
               {
-                label: 'GitHub',
-                href: 'https://github.com/airtai/fastkafka',
+                label: 'Company information',
+                to: 'https://airt.ai/company-information',
               },
             ],
           },
         ],
-        copyright: `Copyright © 2022 onwards airt technologies ltd.`,
+        copyright: `© 2023 airt`,
       },
       prism: {
         theme: lightCodeTheme,

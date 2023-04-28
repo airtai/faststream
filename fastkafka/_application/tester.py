@@ -12,18 +12,24 @@ from typing import *
 from pydantic import BaseModel
 
 from .app import FastKafka
-from .._components.meta import delegates, patch
-from .._testing.local_broker import LocalKafkaBroker
+from .._components.meta import delegates, export, patch
+from .._testing.apache_kafka_broker import ApacheKafkaBroker
+from .._testing.in_memory_broker import InMemoryBroker
 from .._testing.local_redpanda_broker import LocalRedpandaBroker
 
 # %% ../../nbs/016_Tester.ipynb 6
+@export("fastkafka.testing")
 class Tester(FastKafka):
-    @delegates(LocalKafkaBroker.__init__)
+    __test__ = False
+
+    @delegates(ApacheKafkaBroker.__init__)
     def __init__(
         self,
         app: Union[FastKafka, List[FastKafka]],
         *,
-        broker: Optional[Union[LocalKafkaBroker, LocalRedpandaBroker]] = None,
+        broker: Optional[
+            Union[ApacheKafkaBroker, LocalRedpandaBroker, InMemoryBroker]
+        ] = None,
     ):
         """Mirror-like object for testing a FastFafka application
 
@@ -64,7 +70,7 @@ class Tester(FastKafka):
 
         return self
 
-    @delegates(LocalKafkaBroker.__init__)
+    @delegates(ApacheKafkaBroker.__init__)
     def using_local_kafka(self, **kwargs: Any) -> "Tester":
         """Starts local Kafka broker used by the Tester instance
 
@@ -84,7 +90,7 @@ class Tester(FastKafka):
         kwargs["topics"] = (
             topics.union(kwargs["topics"]) if "topics" in kwargs else topics
         )
-        self.broker = LocalKafkaBroker(**kwargs)
+        self.broker = ApacheKafkaBroker(**kwargs)
 
         return self
 
@@ -110,13 +116,16 @@ class Tester(FastKafka):
     async def _create_ctx(self) -> AsyncGenerator["Tester", None]:
         if self.broker is None:
             topics = set().union(*(app.get_topics() for app in self.apps))
-            self.broker = LocalKafkaBroker(topics=topics)
+            self.broker = InMemoryBroker()
 
         bootstrap_server = await self.broker._start()
+        old_bootstrap_servers: List[str] = list()
         try:
-            self._set_bootstrap_servers(bootstrap_servers=bootstrap_server)
-            for app in self.apps:
-                app._set_bootstrap_servers(bootstrap_server)
+            if isinstance(self.broker, (ApacheKafkaBroker, LocalRedpandaBroker)):
+                self._set_bootstrap_servers(bootstrap_servers=bootstrap_server)
+                for app in self.apps:
+                    old_bootstrap_servers.append(app._kafka_config["bootstrap_servers"])
+                    app._set_bootstrap_servers(bootstrap_server)
             await self._start_tester()
             try:
                 yield self
@@ -124,6 +133,8 @@ class Tester(FastKafka):
                 await self._stop_tester()
         finally:
             await self.broker._stop()
+            for app, server in zip(self.apps, old_bootstrap_servers):
+                app._set_bootstrap_servers(server)
 
     async def __aenter__(self) -> "Tester":
         self._ctx = self._create_ctx()
@@ -132,10 +143,7 @@ class Tester(FastKafka):
     async def __aexit__(self, *args: Any) -> None:
         await self._ctx.__aexit__(*args)
 
-
-Tester.__module__ = "fastkafka.testing"
-
-# %% ../../nbs/016_Tester.ipynb 10
+# %% ../../nbs/016_Tester.ipynb 11
 def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(producer_f).return_annotation
 
@@ -163,7 +171,7 @@ def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[...,
 
     return mirror_func
 
-# %% ../../nbs/016_Tester.ipynb 12
+# %% ../../nbs/016_Tester.ipynb 13
 def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(consumer_f).parameters["msg"]
 
@@ -182,11 +190,11 @@ def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[...,
     mirror_func.__signature__ = sig  # type: ignore
     return mirror_func
 
-# %% ../../nbs/016_Tester.ipynb 14
+# %% ../../nbs/016_Tester.ipynb 15
 @patch
 def create_mirrors(self: Tester) -> None:
     for app in self.apps:
-        for topic, (consumer_f, _) in app._consumers_store.items():
+        for topic, (consumer_f, _, _) in app._consumers_store.items():
             mirror_f = mirror_consumer(topic, consumer_f)
             mirror_f = self.produces()(mirror_f)  # type: ignore
             setattr(self, mirror_f.__name__, mirror_f)

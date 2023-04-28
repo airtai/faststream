@@ -2,12 +2,15 @@
 
 # %% auto 0
 __all__ = ['should_supress_timestamps', 'logger_spaces_added', 'supress_timestamps', 'get_default_logger_configuration',
-           'get_logger', 'set_level']
+           'get_logger', 'set_level', 'cached_log']
 
 # %% ../../nbs/Logger.ipynb 2
 import logging
 import logging.config
 from typing import *
+
+from .helpers import true_after
+from .meta import patch
 
 # %% ../../nbs/Logger.ipynb 4
 # Logger Levels
@@ -131,3 +134,15 @@ def set_level(level: int) -> None:
 
     for logger in loggers:
         logger.setLevel(level)
+
+# %% ../../nbs/Logger.ipynb 18
+def cached_log(
+    self: logging.Logger, msg: str, level: int, timeout: Union[int, float] = 5
+) -> None:
+    if not hasattr(self, "_timeouted_msgs"):
+        self._timeouted_msgs = {}  # type: ignore
+
+    if msg not in self._timeouted_msgs or self._timeouted_msgs[msg]():  # type: ignore
+        self._timeouted_msgs[msg] = true_after(timeout)  # type: ignore
+
+        self.log(level, msg)
