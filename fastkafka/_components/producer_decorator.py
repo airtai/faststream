@@ -9,6 +9,7 @@ import random
 import asyncio
 import functools
 import json
+import time
 from asyncio import iscoroutinefunction  # do not use the version from inspect
 from collections import namedtuple
 from dataclasses import dataclass
@@ -16,12 +17,13 @@ from typing import *
 
 import nest_asyncio
 from aiokafka import AIOKafkaProducer
+from aiokafka.producer.message_accumulator import BatchBuilder
 from pydantic import BaseModel
 
 from .meta import export
 
 # %% ../../nbs/013_ProducerDecorator.ipynb 3
-BaseSubmodel = TypeVar("BaseSubmodel", bound=BaseModel)
+BaseSubmodel = TypeVar("BaseSubmodel", bound=Union[List[BaseModel], BaseModel])
 BaseSubmodel
 
 
@@ -49,7 +51,9 @@ ProduceCallable = Union[
 ]
 
 # %% ../../nbs/013_ProducerDecorator.ipynb 8
-def _wrap_in_event(message: Union[BaseModel, KafkaEvent]) -> KafkaEvent:
+def _wrap_in_event(
+    message: Union[BaseModel, List[BaseModel], KafkaEvent]
+) -> KafkaEvent:
     return message if type(message) == KafkaEvent else KafkaEvent(message)
 
 # %% ../../nbs/013_ProducerDecorator.ipynb 11
@@ -69,7 +73,7 @@ def release_callback(fut: asyncio.Future) -> None:
     pass
 
 # %% ../../nbs/013_ProducerDecorator.ipynb 14
-async def produce_single(
+async def produce_single(  # type: ignore
     producer: AIOKafkaProducer,
     topic: str,
     encoder_fn: Callable[[BaseModel], bytes],
@@ -81,7 +85,9 @@ async def produce_single(
     fut.add_done_callback(release_callback)
 
 # %% ../../nbs/013_ProducerDecorator.ipynb 16
-async def send_batch(producer, topic, batch, key):
+async def send_batch(  # type: ignore
+    producer: AIOKafkaProducer, topic: str, batch: BatchBuilder, key: Optional[bytes]
+) -> None:
     partitions = await producer.partitions_for(topic)
     if key == None:
         partition = random.choice(tuple(partitions))
@@ -90,7 +96,7 @@ async def send_batch(producer, topic, batch, key):
     await producer.send_batch(batch, topic, partition=partition)
 
 
-async def produce_batch(
+async def produce_batch(  # type: ignore
     producer: AIOKafkaProducer,
     topic: str,
     encoder_fn: Callable[[BaseModel], bytes],
@@ -100,14 +106,18 @@ async def produce_batch(
 
     for message in wrapped_val.message:
         metadata = batch.append(
-            key=wrapped_val.key, value=encoder_fn(message), timestamp=None
+            key=wrapped_val.key,
+            value=encoder_fn(message),
+            timestamp=int(time.time() * 1000),
         )
         if metadata == None:
             # send batch
             await send_batch(producer, topic, batch, wrapped_val.key)
             # create new batch
             batch = producer.create_batch()
-            batch.append(key=None, value=encoder_fn(message), timestamp=None)
+            batch.append(
+                key=None, value=encoder_fn(message), timestamp=int(time.time() * 1000)
+            )
 
     await send_batch(producer, topic, batch, wrapped_val.key)
 
