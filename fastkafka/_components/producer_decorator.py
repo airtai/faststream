@@ -90,7 +90,7 @@ async def send_batch(  # type: ignore
 ) -> None:
     partitions = await producer.partitions_for(topic)
     if key == None:
-        partition = random.choice(tuple(partitions))
+        partition = random.choice(tuple(partitions))  # nosec
     else:
         partition = producer._partition(topic, None, None, None, key, None)
     await producer.send_batch(batch, topic, partition=partition)
