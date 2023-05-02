@@ -66,6 +66,7 @@ dev_requirements = [
     "pandas>=1.2.0",
     "email-validator==1.3.1",
     "scikit-learn==1.2.1",
+    "ipython<8.13"
 ]
 
 project_urls = {
