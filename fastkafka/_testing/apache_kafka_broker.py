@@ -306,11 +306,15 @@ def _check_deps(cls: ApacheKafkaBroker) -> None:
 
 # %% ../../nbs/002_ApacheKafkaBroker.ipynb 16
 async def run_and_match(
-    *args: str, capture: str = "stdout", timeout: int = 5, pattern: str
+    *args: str,
+    capture: str = "stdout",
+    timeout: int = 5,
+    pattern: str,
+    num_to_match: int = 1,
 ) -> asyncio.subprocess.Process:
     # Create the subprocess; redirect the standard output
     # into a pipe.
-
+    matched = 0
     proc = await asyncio.create_subprocess_exec(
         *args,
         stdout=asyncio.subprocess.PIPE,
@@ -333,7 +337,9 @@ async def run_and_match(
 
             if len(re.findall(pattern, ddata)) > 0:
                 # print(f"Matched: {ddata}")
-                return proc
+                matched += 1
+                if matched == num_to_match:
+                    return proc
         except asyncio.exceptions.TimeoutError as e:
             pass
 
@@ -341,15 +347,18 @@ async def run_and_match(
             stdout, stderr = await proc.communicate()
             dstdout = stdout.decode("utf-8")
             dstderr = stderr.decode("utf-8")
-            raise RuntimeError(
-                f"stdout={dstdout}, stderr={dstderr}, returncode={proc.returncode}"
-            )
+            if proc.returncode == 0:
+                raise TimeoutError()
+            else:
+                raise RuntimeError(
+                    f"stdout={dstdout}, stderr={dstderr}, returncode={proc.returncode}"
+                )
 
     await terminate_asyncio_process(proc)
 
     raise TimeoutError()
 
-# %% ../../nbs/002_ApacheKafkaBroker.ipynb 18
+# %% ../../nbs/002_ApacheKafkaBroker.ipynb 19
 def get_free_port() -> str:
     s = socket.socket()
     s.bind(("127.0.0.1", 0))
@@ -501,7 +510,7 @@ async def _stop(self: ApacheKafkaBroker) -> None:
     self.temporary_directory.__exit__(None, None, None)  # type: ignore
     self._is_started = False
 
-# %% ../../nbs/002_ApacheKafkaBroker.ipynb 21
+# %% ../../nbs/002_ApacheKafkaBroker.ipynb 22
 @patch
 def start(self: ApacheKafkaBroker) -> str:
     """Starts a local kafka broker and zookeeper instance synchronously
