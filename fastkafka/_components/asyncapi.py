@@ -156,6 +156,9 @@ def _get_msg_cls_for_producer(f: ProduceCallable) -> Type[Any]:
             f"Producer function must have a defined return value, got {return_type} as return value"
         )
 
+    if hasattr(return_type, "__origin__") and return_type.__origin__ == list:
+        return_type = return_type.__args__[0]
+
     if hasattr(return_type, "__origin__") and return_type.__origin__ == KafkaEvent:
         return_type = return_type.__args__[0]
 
@@ -163,7 +166,7 @@ def _get_msg_cls_for_producer(f: ProduceCallable) -> Type[Any]:
         raise ValueError(f"Producer function return value must have json method")
     return return_type  # type: ignore
 
-# %% ../../nbs/014_AsyncAPI.ipynb 21
+# %% ../../nbs/014_AsyncAPI.ipynb 22
 def _get_msg_cls_for_consumer(f: ConsumeCallable) -> Type[Any]:
     types = get_type_hints(f)
     return_type = types.pop("return", type(None))
@@ -185,7 +188,7 @@ def _get_msg_cls_for_consumer(f: ConsumeCallable) -> Type[Any]:
         )
     return types_list[0]  # type: ignore
 
-# %% ../../nbs/014_AsyncAPI.ipynb 24
+# %% ../../nbs/014_AsyncAPI.ipynb 25
 def _get_topic_dict(
     f: Callable[[Any], Any], direction: str = "publish"
 ) -> Dict[str, Any]:
@@ -206,7 +209,7 @@ def _get_topic_dict(
         msg_schema["description"] = f.__doc__  # type: ignore
     return {direction: msg_schema}
 
-# %% ../../nbs/014_AsyncAPI.ipynb 27
+# %% ../../nbs/014_AsyncAPI.ipynb 28
 def _get_channels_schema(
     consumers: Dict[str, ConsumeCallable],
     producers: Dict[str, ProduceCallable],
@@ -217,7 +220,7 @@ def _get_channels_schema(
             topics[topic] = _get_topic_dict(f, d)
     return topics
 
-# %% ../../nbs/014_AsyncAPI.ipynb 29
+# %% ../../nbs/014_AsyncAPI.ipynb 30
 def _get_kafka_msg_classes(
     consumers: Dict[str, ConsumeCallable],
     producers: Dict[str, ProduceCallable],
@@ -233,7 +236,7 @@ def _get_kafka_msg_definitions(
 ) -> Dict[str, Dict[str, Any]]:
     return schema(_get_kafka_msg_classes(consumers, producers))  # type: ignore
 
-# %% ../../nbs/014_AsyncAPI.ipynb 31
+# %% ../../nbs/014_AsyncAPI.ipynb 32
 def _get_example(cls: Type[BaseModel]) -> BaseModel:
     kwargs: Dict[str, Any] = {}
     for k, v in cls.__fields__.items():
@@ -250,7 +253,7 @@ def _get_example(cls: Type[BaseModel]) -> BaseModel:
 
     return json.loads(cls(**kwargs).json())  # type: ignore
 
-# %% ../../nbs/014_AsyncAPI.ipynb 33
+# %% ../../nbs/014_AsyncAPI.ipynb 34
 def _add_example_to_msg_definitions(
     msg_cls: Type[BaseModel], msg_schema: Dict[str, Dict[str, Any]]
 ) -> None:
@@ -279,7 +282,7 @@ def _get_msg_definitions_with_examples(
 
     return msg_schema
 
-# %% ../../nbs/014_AsyncAPI.ipynb 35
+# %% ../../nbs/014_AsyncAPI.ipynb 36
 def _get_security_schemes(kafka_brokers: KafkaBrokers) -> Dict[str, Any]:
     security_schemes = {}
     for key, kafka_broker in kafka_brokers.brokers.items():
@@ -289,7 +292,7 @@ def _get_security_schemes(kafka_brokers: KafkaBrokers) -> Dict[str, Any]:
             )
     return security_schemes
 
-# %% ../../nbs/014_AsyncAPI.ipynb 37
+# %% ../../nbs/014_AsyncAPI.ipynb 38
 def _get_components_schema(
     consumers: Dict[str, ConsumeCallable],
     producers: Dict[str, ProduceCallable],
@@ -322,7 +325,7 @@ def _get_components_schema(
 
     return _sub_values(components)  # type: ignore
 
-# %% ../../nbs/014_AsyncAPI.ipynb 39
+# %% ../../nbs/014_AsyncAPI.ipynb 40
 def _get_servers_schema(kafka_brokers: KafkaBrokers) -> Dict[str, Any]:
     servers = json.loads(kafka_brokers.json(sort_keys=False))["brokers"]
 
@@ -331,7 +334,7 @@ def _get_servers_schema(kafka_brokers: KafkaBrokers) -> Dict[str, Any]:
             servers[key]["security"] = [{f"{key}_default_security": []}]
     return servers  # type: ignore
 
-# %% ../../nbs/014_AsyncAPI.ipynb 41
+# %% ../../nbs/014_AsyncAPI.ipynb 42
 def _get_asyncapi_schema(
     consumers: Dict[str, ConsumeCallable],
     producers: Dict[str, ProduceCallable],
@@ -352,7 +355,7 @@ def _get_asyncapi_schema(
         "components": components,
     }
 
-# %% ../../nbs/014_AsyncAPI.ipynb 43
+# %% ../../nbs/014_AsyncAPI.ipynb 44
 def yaml_file_cmp(file_1: Union[Path, str], file_2: Union[Path, str]) -> bool:
     try:
         import yaml
@@ -368,7 +371,7 @@ def yaml_file_cmp(file_1: Union[Path, str], file_2: Union[Path, str]) -> bool:
     d = [_read(f) for f in [file_1, file_2]]
     return d[0] == d[1]
 
-# %% ../../nbs/014_AsyncAPI.ipynb 44
+# %% ../../nbs/014_AsyncAPI.ipynb 45
 def _generate_async_spec(
     *,
     consumers: Dict[str, ConsumeCallable],
@@ -412,7 +415,7 @@ def _generate_async_spec(
             )
             return False
 
-# %% ../../nbs/014_AsyncAPI.ipynb 46
+# %% ../../nbs/014_AsyncAPI.ipynb 47
 def _generate_async_docs(
     *,
     spec_path: Path,
@@ -444,7 +447,7 @@ def _generate_async_docs(
             f"Generation of async docs failed, used '$ {' '.join(cmd)}'{p.stdout.decode()}"
         )
 
-# %% ../../nbs/014_AsyncAPI.ipynb 48
+# %% ../../nbs/014_AsyncAPI.ipynb 49
 def export_async_spec(
     *,
     consumers: Dict[str, ConsumeCallable],

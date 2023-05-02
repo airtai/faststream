@@ -167,7 +167,7 @@ class FastKafka:
                 the version will be set to empty string
             contact: optional contact for the documentation. If None, the
                 contact will be set to placeholder values:
-                name='Author' url=HttpUrl('https://www.google.com', ) email='noreply@gmail.com'
+                name='Author' url=HttpUrl(' https://www.google.com ', ) email='noreply@gmail.com'
             kafka_brokers: dictionary describing kafka brokers used for
                 generating documentation
             root_path: path to where documentation will be created
@@ -421,7 +421,7 @@ def consumes(
 
         decoder_fn = _get_decoder_fn(decoder) if isinstance(decoder, str) else decoder
         self._consumers_store[topic_resolved] = (on_topic, decoder_fn, kwargs)
-
+        setattr(self, on_topic.__name__, on_topic)
         return on_topic
 
     return _decorator
@@ -483,21 +483,23 @@ def produces(
     """
 
     def _decorator(
-        on_topic: ProduceCallable,
+        to_topic: ProduceCallable,
         topic: Optional[str] = topic,
         kwargs: Dict[str, Any] = kwargs,
     ) -> ProduceCallable:
         topic_resolved: str = (
-            _get_topic_name(topic_callable=on_topic, prefix=prefix)
+            _get_topic_name(topic_callable=to_topic, prefix=prefix)
             if topic is None
             else topic
         )
 
-        self._producers_store[topic_resolved] = (on_topic, None, kwargs)
+        self._producers_store[topic_resolved] = (to_topic, None, kwargs)
         encoder_fn = _get_encoder_fn(encoder) if isinstance(encoder, str) else encoder
-        return producer_decorator(
-            self._producers_store, on_topic, topic_resolved, encoder_fn=encoder_fn
+        decorated = producer_decorator(
+            self._producers_store, to_topic, topic_resolved, encoder_fn=encoder_fn
         )
+        setattr(self, to_topic.__name__, decorated)
+        return decorated
 
     return _decorator
 
@@ -854,7 +856,7 @@ def create_mocks(self: FastKafka) -> None:
         }
     )
 
-# %% ../../nbs/015_FastKafka.ipynb 62
+# %% ../../nbs/015_FastKafka.ipynb 61
 @patch
 def benchmark(
     self: FastKafka,
