@@ -119,11 +119,10 @@ def _create_safe_callback(
 
     return _safe_callback
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 20
+# %% ../../nbs/011_ConsumerLoop.ipynb 19
 def _prepare_callback(
-    callback: Callable[[BaseModel], Union[None, Awaitable[None]]],
-    test_mode: bool = False,
-) -> Callable[[BaseModel], Awaitable[None]]:
+    callback: ConsumeCallable, test_mode: bool = False
+) -> AsyncConsumeMeta:
     """
     Prepares a callback to be used in the consumer loop.
         1. If callback is sync, asyncify it
@@ -141,26 +140,7 @@ def _prepare_callback(
     )
     return _create_safe_callback(async_callback, test_mode=test_mode)
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 22
-def _prepare_callback(callback: ConsumeCallable) -> AsyncConsumeMeta:
-    """
-    Prepares a callback to be used in the consumer loop.
-        1. If callback is sync, asyncify it
-        2. Wrap the callback into a safe callback for exception handling
-
-    Params:
-        callback: async callable that will be prepared for use in consumer
-        test_mode: to start fastkafka app in test mode
-
-    Returns:
-        Prepared callback
-    """
-    async_callback: Union[AsyncConsume, AsyncConsumeMeta] = (
-        callback if iscoroutinefunction(callback) else asyncer.asyncify(callback)  # type: ignore
-    )
-    return _create_safe_callback(async_callback, test_mode=test_mode)
-
-# %% ../../nbs/011_ConsumerLoop.ipynb 25
+# %% ../../nbs/011_ConsumerLoop.ipynb 21
 async def _stream_msgs(  # type: ignore
     msgs: Dict[TopicPartition, bytes],
     send_stream: anyio.streams.memory.MemoryObjectSendStream[Any],
@@ -188,7 +168,7 @@ def _decode_streamed_msgs(  # type: ignore
     decoded_msgs = [msg_type.parse_raw(msg.value.decode("utf-8")) for msg in msgs]
     return decoded_msgs
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 31
+# %% ../../nbs/011_ConsumerLoop.ipynb 27
 async def _streamed_records(
     receive_stream: MemoryObjectReceiveStream,
 ) -> AsyncGenerator[Any, Any]:
@@ -293,12 +273,12 @@ async def _aiokafka_consumer_loop(  # type: ignore
                 f"_aiokafka_consumer_loop(): Consumer loop shutting down, waiting for send_stream to drain..."
             )
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 36
+# %% ../../nbs/011_ConsumerLoop.ipynb 32
 def sanitize_kafka_config(**kwargs: Any) -> Dict[str, Any]:
     """Sanitize Kafka config"""
     return {k: "*" * len(v) if "pass" in k.lower() else v for k, v in kwargs.items()}
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 38
+# %% ../../nbs/011_ConsumerLoop.ipynb 34
 @delegates(AIOKafkaConsumer)
 @delegates(_aiokafka_consumer_loop, keep=True)
 async def aiokafka_consumer_loop(
