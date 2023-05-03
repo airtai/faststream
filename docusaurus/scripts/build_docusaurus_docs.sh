@@ -7,6 +7,9 @@ echo "Cleanup existing build artifacts"
 rm -rf docusaurus/docs
 
 echo "Runing nbdev_mkdocs docs"
+mkdir -p mkdocs/docs
+cp LICENSE mkdocs/docs/LICENSE.md
+cp CONTRIBUTING.md mkdocs/docs
 nbdev_mkdocs docs
 
 echo "Copying newly generated markdown files to docusaurus directory"
@@ -16,7 +19,7 @@ echo "Generating API docs"
 python3 -c "from fastkafka._docusaurus_helper import fix_invalid_syntax_in_markdown, generate_markdown_docs; fix_invalid_syntax_in_markdown('./docusaurus/docs'); generate_markdown_docs('fastkafka', './docusaurus/docs')"
 
 echo "Generating sidebars.js"
-python3 -c "from fastkafka._docusaurus_helper import generate_sidebar; generate_sidebar('./nbs/sidebar.yml', './docusaurus/sidebars.js')"
+python3 -c "from fastkafka._docusaurus_helper import generate_sidebar; generate_sidebar('./docusaurus/docs/SUMMARY.md', './docusaurus/sidebars.js')"
 
 echo "Runing docusaurus build"
 cd docusaurus && npm run build

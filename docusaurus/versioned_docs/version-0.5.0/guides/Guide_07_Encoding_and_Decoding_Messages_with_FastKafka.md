@@ -260,7 +260,7 @@ iris_prediction_schema = {
 ```
 
 We can easily construct pydantic models from avro schema using
-[`avsc_to_pydantic`](../api/fastkafka/_components/encoder/avro/avsc_to_pydantic.md/#fastkafka._components.encoder.avro.avsc_to_pydantic)
+[`avsc_to_pydantic`](../api/fastkafka/encoder/avsc_to_pydantic.md/#fastkafka.encoder.avsc_to_pydantic)
 function which is included as part of
 [`FastKafka`](../api/fastkafka/FastKafka.md/#fastkafka.FastKafka)
 itself.
@@ -291,7 +291,7 @@ This is exactly same as manually defining the pydantic models ourselves.
 You don’t have to worry about not making any mistakes while converting
 avro schema to pydantic models manually. You can easily and
 automatically accomplish it by using
-[`avsc_to_pydantic`](../api/fastkafka/_components/encoder/avro/avsc_to_pydantic.md/#fastkafka._components.encoder.avro.avsc_to_pydantic)
+[`avsc_to_pydantic`](../api/fastkafka/encoder/avsc_to_pydantic.md/#fastkafka.encoder.avsc_to_pydantic)
 function as demonstrated above.
 
 #### Building pydantic models from `.avsc` file
@@ -457,7 +457,7 @@ The above code is a sample implementation of using FastKafka to consume
 and produce Avro-encoded messages from/to a Kafka topic. The code
 defines two Avro schemas for the input data and the prediction result.
 It then uses the
-[`avsc_to_pydantic`](../api/fastkafka/_components/encoder/avro/avsc_to_pydantic.md/#fastkafka._components.encoder.avro.avsc_to_pydantic)
+[`avsc_to_pydantic`](../api/fastkafka/encoder/avsc_to_pydantic.md/#fastkafka.encoder.avsc_to_pydantic)
 function from the FastKafka library to convert the Avro schema into
 Pydantic models, which will be used to decode and encode Avro messages.
 

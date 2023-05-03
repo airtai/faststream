@@ -15,7 +15,7 @@ None, the description will be set to empty string
 the version will be set to empty string
 - `contact`: optional contact for the documentation. If None, the
 contact will be set to placeholder values:
-name='Author' url=HttpUrl('https://www.google.com', ) email='noreply@gmail.com'
+name='Author' url=HttpUrl(' https://www.google.com ', ) email='noreply@gmail.com'
 - `kafka_brokers`: dictionary describing kafka brokers used for
 generating documentation
 - `root_path`: path to where documentation will be created
