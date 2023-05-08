@@ -182,15 +182,6 @@ def _decode_streamed_msgs(  # type: ignore
     return decoded_msgs
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 28
-async def _streamed_records(
-    receive_stream: MemoryObjectReceiveStream,
-) -> AsyncGenerator[Any, Any]:
-    async for records_per_topic in receive_stream:
-        for records in records_per_topic:
-            for record in records:
-                yield record
-
-# %% ../../nbs/011_ConsumerLoop.ipynb 29
 def create_processor(
     callback: Callable[[BaseModel, EventMetadata], Awaitable[None]],
     msg_type: Type[BaseModel],
@@ -218,22 +209,22 @@ def create_processor(
     ) -> None:
         async with receive_stream:
             try:
-                async for record in _streamed_records(receive_stream):
-                    try:
-                        msg = record.value
-                        decoded_msg = decoder_fn(msg, msg_type)
-                        task: asyncio.Task = asyncio.create_task(
-                            callback(
-                                decoded_msg,
-                                EventMetadata.create_event_metadata(record),
-                            )  # type: ignore
-                        )
-                        await task_pool.add(task)
-                        task.add_done_callback(lambda task: task.result())
-                    except Exception as e:
-                        logger.warning(
-                            f"process_message_callback(): Unexpected exception '{e.__repr__()}' caught and ignored for topic='{topic}' and message: {msg}"
-                        )
+                async for records_per_topic in receive_stream:
+                    for records in records_per_topic:
+                        for record in records:
+                            try:
+                                task: asyncio.Task = asyncio.create_task(
+                                    callback(
+                                        decoder_fn(record.value, msg_type),
+                                        EventMetadata.create_event_metadata(record),
+                                    )  # type: ignore
+                                )
+                                await task_pool.add(task)
+                                task.add_done_callback(lambda task: task.result())
+                            except Exception as e:
+                                logger.warning(
+                                    f"process_message_callback(): Unexpected exception '{e.__repr__()}' caught and ignored for topic='{topic}' and message: {record.value}"
+                                )
             except Exception as e:
                 logger.warning(
                     f"process_message_callback(): Unexpected exception '{e.__repr__()}' caught and ignored for topic='{topic}'"
@@ -291,13 +282,16 @@ async def _aiokafka_consumer_loop(  # type: ignore
                 msgs = await consumer.getmany(**kwargs)
                 try:
                     await send_stream.send(msgs.values())
+                #                     print(send_stream)
                 except Exception as e:
                     logger.warning(
                         f"_aiokafka_consumer_loop(): Unexpected exception '{e}' caught and ignored for messages: {msgs}"
                     )
+            #             print(send_stream)
             logger.info(
-                f"_aiokafka_consumer_loop(): Consumer loop shutting down, waiting for send_stream to drain..."
+                f"_aiokafka_consumer_loop(): Consumer loop shutting down, waiting for send_stream and task_pool to drain..."
             )
+            #         print(send_stream)
             await asyncio.sleep(1)
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 35
