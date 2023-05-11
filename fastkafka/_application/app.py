@@ -208,7 +208,10 @@ class FastKafka:
         self._consumers_store: Dict[
             str,
             Tuple[
-                ConsumeCallable, Callable[[bytes, ModelMetaclass], Any], Dict[str, Any]
+                ConsumeCallable,
+                Callable[[bytes, ModelMetaclass], Any],
+                str,
+                Dict[str, Any],
             ],
         ] = {}
 

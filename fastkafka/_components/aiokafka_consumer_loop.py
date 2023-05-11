@@ -231,17 +231,17 @@ async def _aiokafka_consumer_loop(  # type: ignore
     if executor_type == "DynamicTaskExecutor":
         stream = TaskStream
     elif executor_type == "BlockingExecutor":
-        stream = CoroutineStream
+        stream = CoroutineStream  # type: ignore
     else:
         raise AttributeError(f"Executor type not found! Got {executor_type}")
 
-    stream = stream(
+    concrete_stream = stream(
         produce_func=poll_consumer,
         consume_func=handle_msg,
         throw_exceptions=throw_exceptions,
     )
 
-    await stream.start(is_shutting_down_f)
+    await concrete_stream.start(is_shutting_down_f)
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 34
 def sanitize_kafka_config(**kwargs: Any) -> Dict[str, Any]:

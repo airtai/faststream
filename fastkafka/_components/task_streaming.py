@@ -11,7 +11,9 @@ from contextlib import asynccontextmanager
 from typing import *
 
 import anyio
+from aiokafka import ConsumerRecord
 
+from logging import Logger
 from .logger import get_logger
 
 # %% ../../nbs/011_TaskStreaming.ipynb 3
@@ -60,16 +62,16 @@ class TaskPool:
         self.finished = True
 
     @staticmethod
-    def log_error(logger: "logging.Logger") -> Callable[[Exception], None]:
-        def _log_error(e: Exception, logger: "logging.Logger" = logger) -> None:
+    def log_error(logger: Logger) -> Callable[[Exception], None]:
+        def _log_error(e: Exception, logger: Logger = logger) -> None:
             logger.warning(f"{e=}")
 
         return _log_error
 
 # %% ../../nbs/011_TaskStreaming.ipynb 14
 class ExceptionMonitor:
-    def __init__(self):
-        self.exceptions = []
+    def __init__(self) -> None:
+        self.exceptions: List[Exception] = []
         self.exception_found = False
 
     def on_error(self, e: Exception) -> None:
@@ -84,17 +86,17 @@ class ExceptionMonitor:
     async def __aenter__(self) -> "ExceptionMonitor":
         return self
 
-    async def __aexit__(self, a, b, c) -> None:
+    async def __aexit__(self, *args: Any, **kwargs: Any) -> None:
         while len(self.exceptions) > 0:
             self._monitor_step()
             await asyncio.sleep(0)
 
 # %% ../../nbs/011_TaskStreaming.ipynb 18
 class TaskStream:
-    def __init__(
+    def __init__(  # type: ignore
         self,
-        produce_func,
-        consume_func,
+        produce_func: Callable[[], Awaitable[ConsumerRecord]],
+        consume_func: Callable[[ConsumerRecord], Awaitable[None]],
         throw_exceptions: bool = True,
         max_buffer_size=100_000,
         size=100_000,
@@ -105,24 +107,37 @@ class TaskStream:
         self.max_buffer_size = max_buffer_size
         self.exception_monitor = ExceptionMonitor()
         self.task_pool = TaskPool(
-            on_error=self.exception_monitor.on_error
+            on_error=self.exception_monitor.on_error  # type: ignore
             if throw_exceptions
             else TaskPool.log_error(logger),
             size=size,
         )
 
-    def _process_items(self):
-        async def _process_items_wrapper(
-            receive_stream, consume_func=self.consume_func, task_pool=self.task_pool
+    def _process_items(  # type: ignore
+        self,
+    ) -> Callable[
+        [
+            anyio.streams.memory.MemoryObjectReceiveStream,
+            Callable[[ConsumerRecord], Awaitable[None]],
+            bool,
+        ],
+        Coroutine[Any, Any, Awaitable[None]],
+    ]:
+        async def _process_items_wrapper(  # type: ignore
+            receive_stream: anyio.streams.memory.MemoryObjectReceiveStream,
+            consume_func: Callable[
+                [ConsumerRecord], Awaitable[None]
+            ] = self.consume_func,
+            task_pool=self.task_pool,
         ):
             async with receive_stream:
                 async for msg in receive_stream:
-                    task = asyncio.create_task(consume_func(msg))
+                    task: asyncio.Task = asyncio.create_task(consume_func(msg))  # type: ignore
                     await task_pool.add(task)
 
         return _process_items_wrapper
 
-    async def start(self, is_shutting_down_f):
+    async def start(self, is_shutting_down_f: Callable[[], bool]) -> None:
         send_stream, receive_stream = anyio.create_memory_object_stream(
             max_buffer_size=self.max_buffer_size
         )
@@ -132,7 +147,10 @@ class TaskStream:
                 tg.start_soon(self._process_items(), receive_stream)
                 async with send_stream:
                     while not is_shutting_down_f():
-                        if self.exception_monitor.exception_found and throw_exceptions:
+                        if (
+                            self.exception_monitor.exception_found
+                            and self.throw_exceptions
+                        ):
                             break
                         msgs = await self.produce_func()
                         for msg in msgs:
@@ -140,10 +158,10 @@ class TaskStream:
 
 # %% ../../nbs/011_TaskStreaming.ipynb 27
 class CoroutineStream:
-    def __init__(
+    def __init__(  # type: ignore
         self,
-        produce_func,
-        consume_func,
+        produce_func: Callable[[], Awaitable[ConsumerRecord]],
+        consume_func: Callable[[ConsumerRecord], Awaitable[None]],
         throw_exceptions: bool = True,
         max_buffer_size=100_000,
     ):
@@ -152,12 +170,23 @@ class CoroutineStream:
         self.throw_exceptions = throw_exceptions
         self.max_buffer_size = max_buffer_size
 
-    def _process_items(self):
-        async def _process_items_wrapper(
-            receive_stream,
-            consume_func=self.consume_func,
-            throw_exceptions=self.throw_exceptions,
-        ):
+    def _process_items(  # type: ignore
+        self,
+    ) -> Callable[
+        [
+            anyio.streams.memory.MemoryObjectReceiveStream,
+            Callable[[ConsumerRecord], Awaitable[None]],
+            bool,
+        ],
+        Coroutine[Any, Any, Awaitable[None]],
+    ]:
+        async def _process_items_wrapper(  # type: ignore
+            receive_stream: anyio.streams.memory.MemoryObjectReceiveStream,
+            consume_func: Callable[
+                [ConsumerRecord], Awaitable[None]
+            ] = self.consume_func,
+            throw_exceptions: bool = self.throw_exceptions,
+        ) -> Awaitable[None]:
             async with receive_stream:
                 async for msg in receive_stream:
                     try:
@@ -170,7 +199,7 @@ class CoroutineStream:
 
         return _process_items_wrapper
 
-    async def start(self, is_shutting_down_f):
+    async def start(self, is_shutting_down_f: Callable[[], bool]) -> None:
         send_stream, receive_stream = anyio.create_memory_object_stream(
             max_buffer_size=self.max_buffer_size
         )
