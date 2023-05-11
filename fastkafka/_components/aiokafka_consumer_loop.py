@@ -2,7 +2,7 @@
 
 # %% auto 0
 __all__ = ['logger', 'AsyncConsume', 'AsyncConsumeMeta', 'SyncConsume', 'SyncConsumeMeta', 'ConsumeCallable', 'EventMetadata',
-           'create_processor', 'sanitize_kafka_config', 'aiokafka_consumer_loop']
+           'sanitize_kafka_config', 'aiokafka_consumer_loop']
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 1
 import asyncio
@@ -22,7 +22,7 @@ from pydantic.main import ModelMetaclass
 
 from .logger import get_logger
 from .meta import delegates, export
-from .helper_structs import TaskPool, pool_guard
+from .task_streaming import TaskStream, CoroutineStream
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 5
 logger = get_logger(__name__)
@@ -151,7 +151,7 @@ def _prepare_callback(callback: ConsumeCallable) -> AsyncConsumeMeta:
     async_callback: Union[AsyncConsume, AsyncConsumeMeta] = (
         callback if iscoroutinefunction(callback) else asyncer.asyncify(callback)  # type: ignore
     )
-    return _create_safe_callback(async_callback)
+    return _callback_parameters_wrapper(async_callback)
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 23
 async def _stream_msgs(  # type: ignore
@@ -182,57 +182,6 @@ def _decode_streamed_msgs(  # type: ignore
     return decoded_msgs
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 28
-def create_processor(
-    callback: Callable[[BaseModel, EventMetadata], Awaitable[None]],
-    msg_type: Type[BaseModel],
-    topic: str,
-    decoder_fn: Callable[[bytes, ModelMetaclass], Any],
-    task_pool: TaskPool,
-) -> Callable[
-    [
-        MemoryObjectReceiveStream[Any],
-        Callable[[BaseModel, EventMetadata], Awaitable[None]],
-        Type[BaseModel],
-        str,
-        Callable[[bytes, ModelMetaclass], Any],
-        TaskPool,
-    ],
-    Coroutine[Any, Any, None],
-]:
-    async def process_message_callback(
-        receive_stream: MemoryObjectReceiveStream[Any],
-        callback: Callable[[BaseModel, EventMetadata], Awaitable[None]] = callback,
-        msg_type: Type[BaseModel] = msg_type,
-        topic: str = topic,
-        decoder_fn: Callable[[bytes, ModelMetaclass], Any] = decoder_fn,
-        task_pool: TaskPool = task_pool,
-    ) -> None:
-        async with receive_stream:
-            try:
-                async for records_per_topic in receive_stream:
-                    for records in records_per_topic:
-                        for record in records:
-                            try:
-                                task: asyncio.Task = asyncio.create_task(
-                                    callback(
-                                        decoder_fn(record.value, msg_type),
-                                        EventMetadata.create_event_metadata(record),
-                                    )  # type: ignore
-                                )
-                                await task_pool.add(task)
-                                task.add_done_callback(lambda task: task.result())
-                            except Exception as e:
-                                logger.warning(
-                                    f"process_message_callback(): Unexpected exception '{e.__repr__()}' caught and ignored for topic='{topic}' and message: {record.value}"
-                                )
-            except Exception as e:
-                logger.warning(
-                    f"process_message_callback(): Unexpected exception '{e.__repr__()}' caught and ignored for topic='{topic}'"
-                )
-
-    return process_message_callback
-
-# %% ../../nbs/011_ConsumerLoop.ipynb 30
 @delegates(AIOKafkaConsumer.getmany)
 async def _aiokafka_consumer_loop(  # type: ignore
     consumer: AIOKafkaConsumer,
@@ -244,6 +193,8 @@ async def _aiokafka_consumer_loop(  # type: ignore
     max_parallel_tasks: int = 100_000,
     msg_type: Type[BaseModel],
     is_shutting_down_f: Callable[[], bool],
+    executor_type: str = "BlockingExecutor",
+    throw_exceptions: bool = False,
     **kwargs: Any,
 ) -> None:
     """
@@ -261,45 +212,43 @@ async def _aiokafka_consumer_loop(  # type: ignore
     """
 
     prepared_callback = _prepare_callback(callback)
-    task_pool = TaskPool(max_parallel_tasks)
 
-    process_message_callback = create_processor(
-        callback=prepared_callback,
-        msg_type=msg_type,
-        topic=topic,
-        decoder_fn=decoder_fn,
-        task_pool=task_pool,
+    async def handle_msg(  # type: ignore
+        record: ConsumerRecord,
+        callback: AsyncConsumeMeta = prepared_callback,
+        decoder_fn: Callable[[bytes, ModelMetaclass], Any] = decoder_fn,
+        msg_type: Type[BaseModel] = msg_type,
+    ) -> None:
+        await callback(
+            decoder_fn(record.value, msg_type),
+            EventMetadata.create_event_metadata(record),
+        )
+
+    async def poll_consumer(kwargs: Any = kwargs) -> List[ConsumerRecord]:  # type: ignore
+        msgs = await consumer.getmany(**kwargs)
+        return [msg for msg_group in msgs.values() for msg in msg_group]
+
+    if executor_type == "DynamicTaskExecutor":
+        stream = TaskStream
+    elif executor_type == "BlockingExecutor":
+        stream = CoroutineStream
+    else:
+        raise AttributeError(f"Executor type not found! Got {executor_type}")
+
+    stream = stream(
+        produce_func=poll_consumer,
+        consume_func=handle_msg,
+        throw_exceptions=throw_exceptions,
     )
 
-    send_stream, receive_stream = anyio.create_memory_object_stream(
-        max_buffer_size=max_buffer_size
-    )
+    await stream.start(is_shutting_down_f)
 
-    async with anyio.create_task_group() as tg:
-        tg.start_soon(process_message_callback, receive_stream)
-        async with pool_guard(task_pool), send_stream:
-            while not is_shutting_down_f():
-                msgs = await consumer.getmany(**kwargs)
-                try:
-                    await send_stream.send(msgs.values())
-                #                     print(send_stream)
-                except Exception as e:
-                    logger.warning(
-                        f"_aiokafka_consumer_loop(): Unexpected exception '{e}' caught and ignored for messages: {msgs}"
-                    )
-            #             print(send_stream)
-            logger.info(
-                f"_aiokafka_consumer_loop(): Consumer loop shutting down, waiting for send_stream and task_pool to drain..."
-            )
-            #         print(send_stream)
-            await asyncio.sleep(1)
-
-# %% ../../nbs/011_ConsumerLoop.ipynb 35
+# %% ../../nbs/011_ConsumerLoop.ipynb 34
 def sanitize_kafka_config(**kwargs: Any) -> Dict[str, Any]:
     """Sanitize Kafka config"""
     return {k: "*" * len(v) if "pass" in k.lower() else v for k, v in kwargs.items()}
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 37
+# %% ../../nbs/011_ConsumerLoop.ipynb 36
 @delegates(AIOKafkaConsumer)
 @delegates(_aiokafka_consumer_loop, keep=True)
 async def aiokafka_consumer_loop(
@@ -311,6 +260,7 @@ async def aiokafka_consumer_loop(
     callback: ConsumeCallable,
     msg_type: Type[BaseModel],
     is_shutting_down_f: Callable[[], bool],
+    executor_type: str = "DynamicTaskExecutor",
     **kwargs: Any,
 ) -> None:
     """Consumer loop for infinite pooling of the AIOKafka consumer for new messages. Creates and starts AIOKafkaConsumer
@@ -349,6 +299,7 @@ async def aiokafka_consumer_loop(
                 callback=callback,
                 msg_type=msg_type,
                 is_shutting_down_f=is_shutting_down_f,
+                executor_type=executor_type,
             )
         finally:
             await consumer.stop()
