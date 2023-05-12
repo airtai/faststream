@@ -45,6 +45,7 @@ from .._components.benchmarking import _benchmark
 from .._components.logger import get_logger
 from .._components.meta import delegates, export, filter_using_signature, patch
 from .._components.producer_decorator import ProduceCallable, producer_decorator
+from .._components.task_streaming import StreamExecutor
 
 # %% ../../nbs/015_FastKafka.ipynb 3
 logger = get_logger(__name__)
@@ -208,7 +209,10 @@ class FastKafka:
         self._consumers_store: Dict[
             str,
             Tuple[
-                ConsumeCallable, Callable[[bytes, ModelMetaclass], Any], Dict[str, Any]
+                ConsumeCallable,
+                Callable[[bytes, ModelMetaclass], Any],
+                Union[str, StreamExecutor, None],
+                Dict[str, Any],
             ],
         ] = {}
 
@@ -378,6 +382,7 @@ def consumes(
     topic: Optional[str] = None,
     decoder: Union[str, Callable[[bytes, ModelMetaclass], Any]] = "json",
     *,
+    executor: Union[str, StreamExecutor, None] = None,
     prefix: str = "on_",
     **kwargs: Dict[str, Any],
 ) -> Callable[[ConsumeCallable], ConsumeCallable]:
@@ -394,6 +399,14 @@ def consumes(
                 default: json - By default, it uses json decoder to decode
                 bytes to json string and then it creates instance of pydantic
                 BaseModel. It also accepts custom decoder function.
+        executor: Type of executor to choose for consuming tasks. Avaliable options
+                are "SequentialExecutor" and "DynamicTaskExecutor". The default option is
+                "SequentialExecutor" which will execute the consuming tasks sequentially.
+                If the consuming tasks have high latency it is recommended to use
+                "DynamicTaskExecutor" which will wrap the consuming functions into tasks
+                and run them in on asyncio loop in background. This comes with a cost of
+                increased overhead so use it only in cases when your consume functions have
+                high latency such as database queries or some other type of networking.
         prefix: Prefix stripped from the decorated function to define a topic name
             if the topic argument is not passed, default: "on_". If the decorated
             function name is not prefixed with the defined prefix and topic argument
@@ -411,6 +424,7 @@ def consumes(
         on_topic: ConsumeCallable,
         topic: Optional[str] = topic,
         decoder: Union[str, Callable[[bytes, ModelMetaclass], Any]] = decoder,
+        executor: Union[str, StreamExecutor, None] = executor,
         kwargs: Dict[str, Any] = kwargs,
     ) -> ConsumeCallable:
         topic_resolved: str = (
@@ -420,7 +434,7 @@ def consumes(
         )
 
         decoder_fn = _get_decoder_fn(decoder) if isinstance(decoder, str) else decoder
-        self._consumers_store[topic_resolved] = (on_topic, decoder_fn, kwargs)
+        self._consumers_store[topic_resolved] = (on_topic, decoder_fn, executor, kwargs)
         setattr(self, on_topic.__name__, on_topic)
         return on_topic
 
@@ -564,12 +578,14 @@ def _populate_consumers(
                 callback=consumer,
                 msg_type=signature(consumer).parameters["msg"].annotation,
                 is_shutting_down_f=is_shutting_down_f,
+                executor=executor,
                 **{**default_config, **override_config},
             )
         )
         for topic, (
             consumer,
             decoder_fn,
+            executor,
             override_config,
         ) in self._consumers_store.items()
     ]
@@ -742,7 +758,8 @@ async def _stop(self: FastKafka) -> None:
 def create_docs(self: FastKafka) -> None:
     export_async_spec(
         consumers={
-            topic: callback for topic, (callback, _, _) in self._consumers_store.items()
+            topic: callback
+            for topic, (callback, _, _, _) in self._consumers_store.items()
         },
         producers={
             topic: callback for topic, (callback, _, _) in self._producers_store.items()
@@ -792,7 +809,7 @@ class AwaitedMock:
 @patch
 def create_mocks(self: FastKafka) -> None:
     """Creates self.mocks as a named tuple mapping a new function obtained by calling the original functions and a mock"""
-    app_methods = [f for f, _, _ in self._consumers_store.values()] + [
+    app_methods = [f for f, _, _, _ in self._consumers_store.values()] + [
         f for f, _, _ in self._producers_store.values()
     ]
     self.AppMocks = namedtuple(  # type: ignore
@@ -839,9 +856,10 @@ def create_mocks(self: FastKafka) -> None:
             name: (
                 add_mock(f, getattr(self.mocks, f.__name__)),
                 decoder_fn,
+                executor,
                 kwargs,
             )
-            for name, (f, decoder_fn, kwargs) in self._consumers_store.items()
+            for name, (f, decoder_fn, executor, kwargs) in self._consumers_store.items()
         }
     )
 

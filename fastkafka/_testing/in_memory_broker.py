@@ -429,6 +429,7 @@ async def stop(self: InMemoryConsumer, **kwargs: Any) -> None:
 async def getmany(  # type: ignore
     self: InMemoryConsumer, **kwargs: Any
 ) -> Dict[TopicPartition, List[ConsumerRecord]]:
+    await asyncio.sleep(0)
     for topic in self._topics:
         return self.broker.read(
             bootstrap_server=self._bootstrap_servers,

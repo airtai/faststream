@@ -17,7 +17,7 @@ from .._testing.apache_kafka_broker import ApacheKafkaBroker
 from .._testing.in_memory_broker import InMemoryBroker
 from .._testing.local_redpanda_broker import LocalRedpandaBroker
 
-# %% ../../nbs/016_Tester.ipynb 6
+# %% ../../nbs/016_Tester.ipynb 8
 @export("fastkafka.testing")
 class Tester(FastKafka):
     __test__ = False
@@ -143,7 +143,7 @@ class Tester(FastKafka):
     async def __aexit__(self, *args: Any) -> None:
         await self._ctx.__aexit__(*args)
 
-# %% ../../nbs/016_Tester.ipynb 11
+# %% ../../nbs/016_Tester.ipynb 13
 def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(producer_f).return_annotation
 
@@ -171,7 +171,7 @@ def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[...,
 
     return mirror_func
 
-# %% ../../nbs/016_Tester.ipynb 13
+# %% ../../nbs/016_Tester.ipynb 15
 def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(consumer_f).parameters["msg"]
 
@@ -190,11 +190,11 @@ def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[...,
     mirror_func.__signature__ = sig  # type: ignore
     return mirror_func
 
-# %% ../../nbs/016_Tester.ipynb 15
+# %% ../../nbs/016_Tester.ipynb 17
 @patch
 def create_mirrors(self: Tester) -> None:
     for app in self.apps:
-        for topic, (consumer_f, _, _) in app._consumers_store.items():
+        for topic, (consumer_f, _, _, _) in app._consumers_store.items():
             mirror_f = mirror_consumer(topic, consumer_f)
             mirror_f = self.produces()(mirror_f)  # type: ignore
             setattr(self, mirror_f.__name__, mirror_f)
