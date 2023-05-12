@@ -547,7 +547,13 @@ def send_batch(
     self: InMemoryProducer, batch: "MockBatch", topic: str, partition: Any
 ) -> None:
     for record in batch._batch:
-        self.send(topic, key=record[0], value=record[1])
+        self.broker.write(
+            bootstrap_server=self._bootstrap_servers,
+            topic=topic,
+            value=record[1],
+            key=record[0],
+            partition=partition,
+        )
 
 # %% ../../nbs/001_InMemoryBroker.ipynb 62
 @patch
