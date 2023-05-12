@@ -11,6 +11,7 @@ from typing import *
 
 from pydantic import BaseModel
 
+from .. import KafkaEvent
 from .app import FastKafka
 from .._components.meta import delegates, export, patch
 from .._testing.apache_kafka_broker import ApacheKafkaBroker
@@ -147,6 +148,12 @@ class Tester(FastKafka):
 def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(producer_f).return_annotation
 
+    if hasattr(msg_type, "__origin__") and msg_type.__origin__ == KafkaEvent:
+        msg_type = msg_type.__args__[0]
+
+    if hasattr(msg_type, "__origin__") and msg_type.__origin__ == list:
+        msg_type = msg_type.__args__[0]
+
     async def skeleton_func(msg: BaseModel) -> None:
         pass
 
@@ -171,7 +178,7 @@ def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[...,
 
     return mirror_func
 
-# %% ../../nbs/016_Tester.ipynb 15
+# %% ../../nbs/016_Tester.ipynb 16
 def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(consumer_f).parameters["msg"]
 
@@ -190,7 +197,7 @@ def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[...,
     mirror_func.__signature__ = sig  # type: ignore
     return mirror_func
 
-# %% ../../nbs/016_Tester.ipynb 17
+# %% ../../nbs/016_Tester.ipynb 18
 @patch
 def create_mirrors(self: Tester) -> None:
     for app in self.apps:

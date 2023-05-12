@@ -156,10 +156,10 @@ def _get_msg_cls_for_producer(f: ProduceCallable) -> Type[Any]:
             f"Producer function must have a defined return value, got {return_type} as return value"
         )
 
-    if hasattr(return_type, "__origin__") and return_type.__origin__ == list:
+    if hasattr(return_type, "__origin__") and return_type.__origin__ == KafkaEvent:
         return_type = return_type.__args__[0]
 
-    if hasattr(return_type, "__origin__") and return_type.__origin__ == KafkaEvent:
+    if hasattr(return_type, "__origin__") and return_type.__origin__ == list:
         return_type = return_type.__args__[0]
 
     if not hasattr(return_type, "json"):
