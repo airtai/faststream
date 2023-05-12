@@ -472,12 +472,22 @@ class InMemoryProducer:
     ):
         raise NotImplementedError()
 
+    @delegates(AIOKafkaProducer.partitions_for)
+    async def partitions_for(self, topic: str) -> List[int]:
+        raise NotImplementedError()
+
+    @delegates(AIOKafkaProducer._partition)
+    def _partition(
+        self, topic: str, arg1: Any, arg2: Any, arg3: Any, key: bytes, arg4: Any
+    ) -> int:
+        raise NotImplementedError()
+
     @delegates(AIOKafkaProducer.create_batch)
     def create_batch(self) -> "MockBatch":
         raise NotImplementedError()
 
     @delegates(AIOKafkaProducer.send_batch)
-    def send_batch(self, batch: "MockBatch", topic: str, partition: Any) -> None:
+    async def send_batch(self, batch: "MockBatch", topic: str, partition: Any) -> None:
         raise NotImplementedError()
 
 # %% ../../nbs/001_InMemoryBroker.ipynb 52
@@ -527,12 +537,43 @@ async def send(  # type: ignore
     return asyncio.create_task(_f())
 
 # %% ../../nbs/001_InMemoryBroker.ipynb 60
+@patch
+@delegates(AIOKafkaProducer.partitions_for)
+async def partitions_for(self: InMemoryProducer, topic: str) -> List[int]:
+    return [i for i in range(self.broker.num_partitions)]
+
+# %% ../../nbs/001_InMemoryBroker.ipynb 62
+@patch
+@delegates(AIOKafkaProducer._partition)
+def _partition(
+    self: InMemoryProducer,
+    topic: str,
+    arg1: Any,
+    arg2: Any,
+    arg3: Any,
+    key: bytes,
+    arg4: Any,
+) -> int:
+    return int(hashlib.sha256(key).hexdigest(), 16) % self.broker.num_partitions
+
+# %% ../../nbs/001_InMemoryBroker.ipynb 64
 class MockBatch:
     def __init__(self) -> None:
-        self._batch: List[Tuple] = []
+        self._batch: List[Tuple] = list()
 
-    def append(self, key: Optional[bytes], value: bytes, timestamp: int):
+    def append(  # type: ignore
+        self, key: Optional[bytes], value: bytes, timestamp: int
+    ) -> RecordMetadata:
         self._batch.append((key, value))
+        return RecordMetadata(
+            topic="",
+            partition=0,
+            topic_partition=None,
+            offset=0,
+            timestamp=timestamp,
+            timestamp_type=0,
+            log_start_offset=0,
+        )
 
 
 @patch
@@ -543,7 +584,7 @@ def create_batch(self: InMemoryProducer) -> "MockBatch":
 
 @patch
 @delegates(AIOKafkaProducer.send_batch)
-def send_batch(
+async def send_batch(
     self: InMemoryProducer, batch: "MockBatch", topic: str, partition: Any
 ) -> None:
     for record in batch._batch:
@@ -555,7 +596,7 @@ def send_batch(
             partition=partition,
         )
 
-# %% ../../nbs/001_InMemoryBroker.ipynb 62
+# %% ../../nbs/001_InMemoryBroker.ipynb 68
 @patch
 @contextmanager
 def lifecycle(self: InMemoryBroker) -> Iterator[InMemoryBroker]:
