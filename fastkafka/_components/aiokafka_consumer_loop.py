@@ -22,7 +22,7 @@ from pydantic.main import ModelMetaclass
 
 from .logger import get_logger
 from .meta import delegates, export
-from .task_streaming import TaskStream, CoroutineStream
+from .task_streaming import get_executor, StreamExecutor
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 5
 logger = get_logger(__name__)
@@ -109,33 +109,6 @@ def _callback_parameters_wrapper(
     return _params_wrap
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 16
-def _create_safe_callback(
-    callback: Union[AsyncConsume, AsyncConsumeMeta]
-) -> AsyncConsumeMeta:
-    """Wraps an async callback into a safe callback that catches any Exception and loggs them as warnings
-
-    Args:
-        callback: async callable that will be wrapped into a safe callback
-
-    Returns:
-        Wrapped callback into a safe callback that handles exceptions
-    """
-
-    async def _safe_callback(
-        msg: BaseModel,
-        meta: EventMetadata,
-        callback: Union[AsyncConsume, AsyncConsumeMeta] = callback,
-    ) -> None:
-        try:
-            await _callback_parameters_wrapper(callback)(msg, meta)
-        except Exception as e:
-            logger.warning(
-                f"_safe_callback(): exception caugth {e.__repr__()} while awaiting '{callback}({msg})'"
-            )
-
-    return _safe_callback
-
-# %% ../../nbs/011_ConsumerLoop.ipynb 21
 def _prepare_callback(callback: ConsumeCallable) -> AsyncConsumeMeta:
     """
     Prepares a callback to be used in the consumer loop.
@@ -153,7 +126,7 @@ def _prepare_callback(callback: ConsumeCallable) -> AsyncConsumeMeta:
     )
     return _callback_parameters_wrapper(async_callback)
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 23
+# %% ../../nbs/011_ConsumerLoop.ipynb 18
 async def _stream_msgs(  # type: ignore
     msgs: Dict[TopicPartition, bytes],
     send_stream: anyio.streams.memory.MemoryObjectSendStream[Any],
@@ -181,7 +154,7 @@ def _decode_streamed_msgs(  # type: ignore
     decoded_msgs = [msg_type.parse_raw(msg.value.decode("utf-8")) for msg in msgs]
     return decoded_msgs
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 28
+# %% ../../nbs/011_ConsumerLoop.ipynb 23
 @delegates(AIOKafkaConsumer.getmany)
 async def _aiokafka_consumer_loop(  # type: ignore
     consumer: AIOKafkaConsumer,
@@ -190,11 +163,9 @@ async def _aiokafka_consumer_loop(  # type: ignore
     decoder_fn: Callable[[bytes, ModelMetaclass], Any],
     callback: ConsumeCallable,
     max_buffer_size: int = 100_000,
-    max_parallel_tasks: int = 100_000,
     msg_type: Type[BaseModel],
     is_shutting_down_f: Callable[[], bool],
-    executor_type: str = "BlockingExecutor",
-    throw_exceptions: bool = False,
+    executor: Union[str, StreamExecutor, None] = None,
     **kwargs: Any,
 ) -> None:
     """
@@ -228,27 +199,14 @@ async def _aiokafka_consumer_loop(  # type: ignore
         msgs = await consumer.getmany(**kwargs)
         return [msg for msg_group in msgs.values() for msg in msg_group]
 
-    if executor_type == "DynamicTaskExecutor":
-        stream = TaskStream
-    elif executor_type == "BlockingExecutor":
-        stream = CoroutineStream  # type: ignore
-    else:
-        raise AttributeError(f"Executor type not found! Got {executor_type}")
+    await get_executor(executor).run(is_shutting_down_f, poll_consumer, handle_msg)
 
-    concrete_stream = stream(
-        produce_func=poll_consumer,
-        consume_func=handle_msg,
-        throw_exceptions=throw_exceptions,
-    )
-
-    await concrete_stream.start(is_shutting_down_f)
-
-# %% ../../nbs/011_ConsumerLoop.ipynb 34
+# %% ../../nbs/011_ConsumerLoop.ipynb 28
 def sanitize_kafka_config(**kwargs: Any) -> Dict[str, Any]:
     """Sanitize Kafka config"""
     return {k: "*" * len(v) if "pass" in k.lower() else v for k, v in kwargs.items()}
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 36
+# %% ../../nbs/011_ConsumerLoop.ipynb 30
 @delegates(AIOKafkaConsumer)
 @delegates(_aiokafka_consumer_loop, keep=True)
 async def aiokafka_consumer_loop(
@@ -260,7 +218,7 @@ async def aiokafka_consumer_loop(
     callback: ConsumeCallable,
     msg_type: Type[BaseModel],
     is_shutting_down_f: Callable[[], bool],
-    executor_type: str = "DynamicTaskExecutor",
+    executor: Union[str, StreamExecutor, None] = None,
     **kwargs: Any,
 ) -> None:
     """Consumer loop for infinite pooling of the AIOKafka consumer for new messages. Creates and starts AIOKafkaConsumer
@@ -299,7 +257,7 @@ async def aiokafka_consumer_loop(
                 callback=callback,
                 msg_type=msg_type,
                 is_shutting_down_f=is_shutting_down_f,
-                executor_type=executor_type,
+                executor=executor,
             )
         finally:
             await consumer.stop()
