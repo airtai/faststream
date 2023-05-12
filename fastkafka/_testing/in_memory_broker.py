@@ -2,7 +2,7 @@
 
 # %% auto 0
 __all__ = ['logger', 'KafkaRecord', 'KafkaPartition', 'KafkaTopic', 'split_list', 'GroupMetadata', 'InMemoryBroker',
-           'InMemoryConsumer', 'InMemoryProducer']
+           'InMemoryConsumer', 'InMemoryProducer', 'MockBatch']
 
 # %% ../../nbs/001_InMemoryBroker.ipynb 1
 import asyncio
@@ -17,6 +17,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import *
 
+import aiokafka
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from aiokafka.structs import ConsumerRecord, RecordMetadata, TopicPartition
 
@@ -463,12 +464,20 @@ class InMemoryProducer:
 
     @delegates(AIOKafkaProducer.send)
     async def send(  # type: ignore
-        self: AIOKafkaProducer,
+        self,
         topic: str,
         msg: bytes,
         key: Optional[bytes] = None,
         **kwargs: Any,
     ):
+        raise NotImplementedError()
+
+    @delegates(AIOKafkaProducer.create_batch)
+    def create_batch(self) -> "MockBatch":
+        raise NotImplementedError()
+
+    @delegates(AIOKafkaProducer.send_batch)
+    def send_batch(self, batch: "MockBatch", topic: str, partition: Any) -> None:
         raise NotImplementedError()
 
 # %% ../../nbs/001_InMemoryBroker.ipynb 52
@@ -517,7 +526,30 @@ async def send(  # type: ignore
 
     return asyncio.create_task(_f())
 
-# %% ../../nbs/001_InMemoryBroker.ipynb 61
+# %% ../../nbs/001_InMemoryBroker.ipynb 60
+class MockBatch:
+    def __init__(self) -> None:
+        self._batch: List[Tuple] = []
+
+    def append(self, key: Optional[bytes], value: bytes, timestamp: int):
+        self._batch.append((key, value))
+
+
+@patch
+@delegates(AIOKafkaProducer.create_batch)
+def create_batch(self: InMemoryProducer) -> "MockBatch":
+    return MockBatch()
+
+
+@patch
+@delegates(AIOKafkaProducer.send_batch)
+def send_batch(
+    self: InMemoryProducer, batch: "MockBatch", topic: str, partition: Any
+) -> None:
+    for record in batch._batch:
+        self.send(topic, key=record[0], value=record[1])
+
+# %% ../../nbs/001_InMemoryBroker.ipynb 62
 @patch
 @contextmanager
 def lifecycle(self: InMemoryBroker) -> Iterator[InMemoryBroker]:
