@@ -2,6 +2,53 @@
 
 <!-- do not remove -->
 
+## 0.6.0
+
+### New Features
+
+- Timestamps added to CLI commands ([#283](https://github.com/airtai/fastkafka/pull/283)), thanks to [@davorrunje](https://github.com/davorrunje)
+
+- Added option to process messages concurrently ([#278](https://github.com/airtai/fastkafka/pull/278)), thanks to [@Sternakt](https://github.com/Sternakt)
+  - A new `executor` option is added that supports either sequential processing for tasks with small latencies or concurrent processing for tasks with larger latencies.
+
+- Add consumes and produces functions to app ([#274](https://github.com/airtai/fastkafka/pull/274)), thanks to [@Sternakt](https://github.com/Sternakt)
+
+
+- Add batching for producers ([#273](https://github.com/airtai/fastkafka/pull/273)), thanks to [@Sternakt](https://github.com/Sternakt)
+  - requirement(batch): batch support is a real need! and i see it on the issue list.... so hope we do not need to wait too long
+
+    https://discord.com/channels/1085457301214855171/1090956337938182266/1098592795557630063
+
+- Fix broken links in guides ([#272](https://github.com/airtai/fastkafka/pull/272)), thanks to [@harishmohanraj](https://github.com/harishmohanraj)
+
+- Generate the docusaurus sidebar dynamically by parsing summary.md ([#270](https://github.com/airtai/fastkafka/pull/270)), thanks to [@harishmohanraj](https://github.com/harishmohanraj)
+
+- Metadata passed to consumer ([#269](https://github.com/airtai/fastkafka/pull/269)), thanks to [@Sternakt](https://github.com/Sternakt)
+  - requirement(key): read the key value somehow..Maybe I missed something in the docs
+    requirement(header): read header values, Reason: I use CDC | Debezium and in the current system the header values are important to differentiate between the CRUD operations.
+
+    https://discord.com/channels/1085457301214855171/1090956337938182266/1098592795557630063
+
+- Contribution with instructions how to build and test added ([#255](https://github.com/airtai/fastkafka/pull/255)), thanks to [@Sternakt](https://github.com/Sternakt)
+
+
+- Export encoders, decoders from fastkafka.encoder ([#246](https://github.com/airtai/fastkafka/pull/246)), thanks to [@kumaranvpl](https://github.com/kumaranvpl)
+
+
+- Create a Github action file to automatically index the website and commit it to the FastKafkachat repository. ([#239](https://github.com/airtai/fastkafka/issues/239))
+
+
+- UI Improvement: Post screenshots with links to the actual messages in testimonials section ([#228](https://github.com/airtai/fastkafka/issues/228))
+
+### Bugs Squashed
+
+- Batch testing fix ([#280](https://github.com/airtai/fastkafka/pull/280)), thanks to [@Sternakt](https://github.com/Sternakt)
+
+- Tester breaks when using Batching or KafkaEvent producers ([#279](https://github.com/airtai/fastkafka/issues/279))
+
+- Consumer loop callbacks are not executing in parallel ([#276](https://github.com/airtai/fastkafka/issues/276))
+
+
 ## 0.5.0
 
 ### New Features
