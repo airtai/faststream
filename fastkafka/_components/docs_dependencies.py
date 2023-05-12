@@ -87,6 +87,7 @@ def _install_node(
     response = requests.get(
         node_url,
         stream=True,
+        timeout=60,
     )
     try:
         total = response.raw.length_remaining // 128

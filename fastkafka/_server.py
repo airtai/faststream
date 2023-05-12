@@ -16,10 +16,11 @@ import asyncer
 import typer
 
 from ._components.helpers import _import_from_string
-from ._components.logger import get_logger
+from ._components.logger import get_logger, supress_timestamps
 
 # %% ../nbs/021_FastKafkaServer.ipynb 5
-logger = get_logger(__name__)
+supress_timestamps(False)
+logger = get_logger(__name__, level=20)
 
 # %% ../nbs/021_FastKafkaServer.ipynb 7
 class ServerProcess:

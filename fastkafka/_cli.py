@@ -10,12 +10,14 @@ from typing import *
 
 import typer
 
+from ._components.logger import get_logger, supress_timestamps
+
 from . import _cli_docs, _cli_testing
-from ._components.logger import get_logger
 from ._server import run_fastkafka_server
 
 # %% ../nbs/023_CLI.ipynb 5
-logger = get_logger(__name__)
+supress_timestamps(False)
+logger = get_logger(__name__, level=20)
 
 # %% ../nbs/023_CLI.ipynb 8
 _app = typer.Typer(help="")

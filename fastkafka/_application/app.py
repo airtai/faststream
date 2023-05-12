@@ -89,7 +89,7 @@ def _get_kafka_brokers(kafka_brokers: Optional[Dict[str, Any]] = None) -> KafkaB
     if kafka_brokers is None:
         retval: KafkaBrokers = KafkaBrokers(
             brokers={
-                "localhost": KafkaBroker(
+                "localhost": KafkaBroker(  # type: ignore
                     url="https://localhost",
                     description="Local (dev) Kafka broker",
                     port="9092",
@@ -133,7 +133,7 @@ def _get_contact_info(
     url: str = "https://www.google.com",
     email: str = "noreply@gmail.com",
 ) -> ContactInfo:
-    return ContactInfo(name=name, url=url, email=email)
+    return ContactInfo(name=name, url=url, email=email)  # type: ignore
 
 # %% ../../nbs/015_FastKafka.ipynb 18
 I = TypeVar("I", bound=BaseModel)

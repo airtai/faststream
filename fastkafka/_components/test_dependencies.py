@@ -101,6 +101,7 @@ def _install_kafka(
         response = requests.get(
             kafka_url,
             stream=True,
+            timeout=60,
         )
         try:
             total = response.raw.length_remaining // 128
