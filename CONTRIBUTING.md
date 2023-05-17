@@ -97,6 +97,14 @@ Enhancement suggestions are tracked as [GitHub issues](https://github.com/airtai
 - **Describe the current behavior** and **explain which behavior you expected to see instead** and why. At this point you can also tell which alternatives do not work for you.
 - **Explain why this enhancement would be useful** to most fastkafka users. You may also want to point out the other projects that solved it better and which could serve as inspiration.
 
+### Your First Code Contribution
+
+A great way to start contributing to FastKafka would be by solving an issue tagged with "good first issue". To find a list of issues that are tagged as "good first issue" and are suitable for newcomers, please visit the following link: [Good first issues](https://github.com/airtai/fastkafka/labels/good%20first%20issue)
+
+These issues are beginner-friendly and provide a great opportunity to get started with contributing to FastKafka. Choose an issue that interests you, follow the contribution process mentioned in [Way of working](#way-of-working) and [Before a PR](#before-a-pr), and help us make FastKafka even better!
+
+If you have any questions or need further assistance, feel free to reach out to us. Happy coding!
+
 ## Development
 
 ### Prepare the dev environment
@@ -176,12 +184,12 @@ The general philosopy you should follow when writing code for fastkafka is:
 - Define typing of arguments and return value
    - If not, mypy tests will fail and a lot of easily avoidable bugs will go undetected
 - After the function cell, write test cells using the assert keyword
-   - Whenever you implement something you should test tat functionality immediateli in the cells below 
+   - Whenever you implement something you should test that functionality immediately in the cells below 
 - Add Google style python docstrings when function is implemented and tested
 
 ### Before a PR
 
-After you have implemented your changes you will want to open a pull request to merge those changes into our main branch. To make this as painless for you and us, please do the following before opening the request (all the commands are to be run in the root of fastkafka project):
+After you have implemented your changes you will want to open a pull request to merge those changes into our main branch. To make this as smooth for you and us, please do the following before opening the request (all the commands are to be run in the root of fastkafka project):
 
 1. Format your notebooks: `nbqa black nbs`
 2. Close, shutdown, and clean the metadata from your notebooks: `nbdev_clean`
