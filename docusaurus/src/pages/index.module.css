@@ -8,6 +8,17 @@
   text-align: center;
   position: relative;
   overflow: hidden;
+  background: rgb(96, 190, 228);
+  background: linear-gradient(
+    180deg,
+    rgba(96, 190, 228, 1) 0%,
+    rgba(17, 115, 164, 1) 100%
+  );
+}
+.heroRobot {
+  width: 870px;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
 }
 
 .buttons {
@@ -24,11 +35,37 @@
 
 .description {
   font-size: 1.5rem;
-  line-height: 1.7rem;
+  line-height: 0.8rem;
+  font-style: italic;
+}
+.heroButton {
+  color: #fff;
+  background: var(--ifm-navbar-background-color);
+  border-radius: 25px;
+  padding: 0.8rem 2.5rem 0.7rem 2.5rem;
+  margin-top: -1.5rem;
+}
+.descriptionMobile {
+  display: none;
 }
 
+/** Tablet view */
+@media screen and (max-width: 1290px) {
+}
+
+/** Mobile view */
 @media screen and (max-width: 996px) {
   .heroBanner {
     padding: 2rem;
+  }
+  .description {
+    display: none;
+  }
+  .descriptionMobile {
+    font-size: 1.3rem;
+    font-style: italic;
+    line-height: 1.8rem;
+    margin-bottom: 0;
+    display: block;
   }
 }

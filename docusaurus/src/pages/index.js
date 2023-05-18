@@ -16,12 +16,13 @@ function HomepageHeader() {
   return (
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
-        <h1 className={styles.title}>Effortless Kafka integration for web services</h1>
-        <p className={styles.description}>Open-source framework for building asynchronous web services </p>
-        <p className={styles.description}>that interact with Kafka</p>
+        <img className={styles.heroRobot} src="img/robot-hero.svg" />
+        <p className={styles.description}>Open-source framework for building asynchronous web </p>
+        <p className={styles.description}>services that interact with Kafka</p>
+        <p className={styles.descriptionMobile}>Open-source framework for building asynchronous web services that interact with Kafka</p>
         <div className={styles.buttons}>
           <Link
-            className="button button--secondary button--lg"
+            className={clsx("button button--lg", styles.heroButton)}
             to="/docs">
               Get Started
           </Link>

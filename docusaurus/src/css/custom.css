@@ -48,7 +48,7 @@
   --ifm-navbar-background-color: #003257;
   --ifm-dropdown-background-color: #003257;
   --ifm-navbar-height: 4.69rem;
-  --ifm-font-color-base: #fff;
+  /* --ifm-font-color-base: #fff; */
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -69,6 +69,7 @@
   padding-bottom: 0px;
 }
 .navbar__title {
+  color: #fff;
   font-size: 3.4rem;
   position: absolute;
   margin-top: 0.3rem;
@@ -84,6 +85,10 @@
   color: var(--ifm-navbar-link-color);
 }
 
+.navbar__items.navbar__items--right .navbar__link {
+  color: #fff;
+}
+
 .navbar__items.navbar__items--right
   .navbar__item.dropdown
   .dropdown__link:hover {
@@ -92,7 +97,7 @@
 .navbar__items.navbar__items--right .navbar__item.dropdown,
 .navbar__items.navbar__items--right .navbar__item.navbar__link {
   border-right: 1px solid #214c6c;
-  padding: 23px 20px;
+  padding: 23px 18px;
 }
 .navbar__items.navbar__items--right
   .navbar__item.navbar__link.header-discord-link {
@@ -125,10 +130,8 @@
 .navbar.navbar--fixed-top .navbar__items--right {
   flex: 1;
   justify-content: center;
-  margin-left: 500px;
+  /* margin-left: 500px; */
 }
-
-/* ============= */
 
 .header-discord-link:before,
 .footer-discord-link:before {
@@ -160,4 +163,36 @@
 
 h3.anchor > code {
   font-size: 1rem;
+}
+
+/** Tablet view */
+@media screen and (max-width: 1290px) {
+  .navbar__items.navbar__items--right .navbar__item.dropdown,
+  .navbar__items.navbar__items--right .navbar__item.navbar__link {
+    padding: 23px 18px;
+  }
+}
+
+/** Mobile view */
+@media screen and (max-width: 996px) {
+  .navbar__item.github-stars {
+    display: none;
+  }
+  .navbar__brand {
+    margin-left: 1rem;
+  }
+  .navbar__title {
+    font-size: 3rem;
+  }
+  ul.menu__list li {
+    margin-bottom: 10px;
+  }
+  .navbar__logo {
+    margin-top: 1rem;
+    width: 1.7rem;
+  }
+  .navbar__title {
+    margin-top: 0;
+    margin-left: 1.8rem;
+  }
 }
