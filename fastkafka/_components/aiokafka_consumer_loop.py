@@ -2,7 +2,7 @@
 
 # %% auto 0
 __all__ = ['logger', 'AsyncConsume', 'AsyncConsumeMeta', 'SyncConsume', 'SyncConsumeMeta', 'ConsumeCallable', 'EventMetadata',
-           'sanitize_kafka_config', 'aiokafka_consumer_loop']
+           'get_single_msg_handlers', 'get_batch_msg_handlers', 'sanitize_kafka_config', 'aiokafka_consumer_loop']
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 1
 import asyncio
@@ -75,10 +75,15 @@ class EventMetadata:
         )
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 11
-AsyncConsume = Callable[[BaseModel], Awaitable[None]]
-AsyncConsumeMeta = Callable[[BaseModel, EventMetadata], Awaitable[None]]
-SyncConsume = Callable[[BaseModel], None]
-SyncConsumeMeta = Callable[[BaseModel, EventMetadata], None]
+AsyncConsume = Callable[[Union[List[BaseModel], BaseModel]], Awaitable[None]]
+AsyncConsumeMeta = Callable[
+    [Union[List[BaseModel], BaseModel], Union[List[EventMetadata], EventMetadata]],
+    Awaitable[None],
+]
+SyncConsume = Callable[[Union[List[BaseModel], BaseModel]], None]
+SyncConsumeMeta = Callable[
+    [Union[List[BaseModel], BaseModel], Union[List[EventMetadata], EventMetadata]], None
+]
 
 ConsumeCallable = Union[AsyncConsume, AsyncConsumeMeta, SyncConsume, SyncConsumeMeta]
 
@@ -96,19 +101,21 @@ def _callback_parameters_wrapper(
     """
 
     async def _params_wrap(
-        msg: BaseModel,
-        meta: EventMetadata,
+        msg: Union[BaseModel, List[BaseModel]],
+        meta: Union[EventMetadata, List[EventMetadata]],
         callback: Union[AsyncConsume, AsyncConsumeMeta] = callback,
     ) -> None:
         types = list(get_type_hints(callback).values())
         args: List[Union[BaseModel, EventMetadata]] = [msg]
         if EventMetadata in types:
             args.insert(types.index(EventMetadata), meta)
+        if List[EventMetadata] in types:
+            args.insert(types.index(List[EventMetadata]), meta)
         await callback(*args)  # type: ignore
 
     return _params_wrap
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 16
+# %% ../../nbs/011_ConsumerLoop.ipynb 17
 def _prepare_callback(callback: ConsumeCallable) -> AsyncConsumeMeta:
     """
     Prepares a callback to be used in the consumer loop.
@@ -126,7 +133,7 @@ def _prepare_callback(callback: ConsumeCallable) -> AsyncConsumeMeta:
     )
     return _callback_parameters_wrapper(async_callback)
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 18
+# %% ../../nbs/011_ConsumerLoop.ipynb 19
 async def _stream_msgs(  # type: ignore
     msgs: Dict[TopicPartition, bytes],
     send_stream: anyio.streams.memory.MemoryObjectSendStream[Any],
@@ -154,7 +161,63 @@ def _decode_streamed_msgs(  # type: ignore
     decoded_msgs = [msg_type.parse_raw(msg.value.decode("utf-8")) for msg in msgs]
     return decoded_msgs
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 23
+# %% ../../nbs/011_ConsumerLoop.ipynb 24
+def get_single_msg_handlers(
+    *,
+    consumer: AIOKafkaConsumer,
+    callback: AsyncConsumeMeta,
+    decoder_fn: Callable[[bytes, ModelMetaclass], Any],
+    msg_type: Type[BaseModel],
+    **kwargs: Any,
+) -> None:
+    async def handle_msg(  # type: ignore
+        record: ConsumerRecord,
+        callback: AsyncConsumeMeta = callback,
+        decoder_fn: Callable[[bytes, ModelMetaclass], Any] = decoder_fn,
+        msg_type: Type[BaseModel] = msg_type,
+    ) -> None:
+        await callback(
+            decoder_fn(record.value, msg_type),
+            EventMetadata.create_event_metadata(record),
+        )
+
+    async def poll_consumer(  # type: ignore
+        consumer: AIOKafkaConsumer = consumer, kwargs: Any = kwargs
+    ) -> List[ConsumerRecord]:
+        msgs = await consumer.getmany(**kwargs)
+        return [msg for msg_group in msgs.values() for msg in msg_group]
+
+    return handle_msg, poll_consumer
+
+# %% ../../nbs/011_ConsumerLoop.ipynb 25
+def get_batch_msg_handlers(
+    *,
+    consumer: AIOKafkaConsumer,
+    callback: AsyncConsumeMeta,
+    decoder_fn: Callable[[bytes, ModelMetaclass], Any],
+    msg_type: Type[BaseModel],
+    **kwargs: Any,
+) -> None:
+    async def handle_msg(  # type: ignore
+        records: List[ConsumerRecord],
+        callback: AsyncConsumeMeta = callback,
+        decoder_fn: Callable[[bytes, ModelMetaclass], Any] = decoder_fn,
+        msg_type: Type[BaseModel] = msg_type,
+    ) -> None:
+        await callback(
+            [decoder_fn(record.value, msg_type) for record in records],
+            [EventMetadata.create_event_metadata(record) for record in records],
+        )
+
+    async def poll_consumer(  # type: ignore
+        consumer: AIOKafkaConsumer = consumer, mkwargs: Any = kwargs
+    ) -> List[List[ConsumerRecord]]:
+        msgs = await consumer.getmany(**kwargs)
+        return msgs.values()
+
+    return handle_msg, poll_consumer
+
+# %% ../../nbs/011_ConsumerLoop.ipynb 26
 @delegates(AIOKafkaConsumer.getmany)
 async def _aiokafka_consumer_loop(  # type: ignore
     consumer: AIOKafkaConsumer,
@@ -163,7 +226,7 @@ async def _aiokafka_consumer_loop(  # type: ignore
     decoder_fn: Callable[[bytes, ModelMetaclass], Any],
     callback: ConsumeCallable,
     max_buffer_size: int = 100_000,
-    msg_type: Type[BaseModel],
+    msg_type: Union[Type[List[BaseModel]], Type[BaseModel]],
     is_shutting_down_f: Callable[[], bool],
     executor: Union[str, StreamExecutor, None] = None,
     **kwargs: Any,
@@ -184,29 +247,31 @@ async def _aiokafka_consumer_loop(  # type: ignore
 
     prepared_callback = _prepare_callback(callback)
 
-    async def handle_msg(  # type: ignore
-        record: ConsumerRecord,
-        callback: AsyncConsumeMeta = prepared_callback,
-        decoder_fn: Callable[[bytes, ModelMetaclass], Any] = decoder_fn,
-        msg_type: Type[BaseModel] = msg_type,
-    ) -> None:
-        await callback(
-            decoder_fn(record.value, msg_type),
-            EventMetadata.create_event_metadata(record),
+    if hasattr(msg_type, "__origin__") and msg_type.__origin__ == list:
+        handle_msg, poll_consumer = get_batch_msg_handlers(
+            consumer=consumer,
+            callback=prepared_callback,
+            decoder_fn=decoder_fn,
+            msg_type=msg_type.__args__[0],
+            **kwargs,
         )
-
-    async def poll_consumer(kwargs: Any = kwargs) -> List[ConsumerRecord]:  # type: ignore
-        msgs = await consumer.getmany(**kwargs)
-        return [msg for msg_group in msgs.values() for msg in msg_group]
+    else:
+        handle_msg, poll_consumer = get_single_msg_handlers(
+            consumer=consumer,
+            callback=prepared_callback,
+            decoder_fn=decoder_fn,
+            msg_type=msg_type,
+            **kwargs,
+        )
 
     await get_executor(executor).run(is_shutting_down_f, poll_consumer, handle_msg)
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 28
+# %% ../../nbs/011_ConsumerLoop.ipynb 33
 def sanitize_kafka_config(**kwargs: Any) -> Dict[str, Any]:
     """Sanitize Kafka config"""
     return {k: "*" * len(v) if "pass" in k.lower() else v for k, v in kwargs.items()}
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 30
+# %% ../../nbs/011_ConsumerLoop.ipynb 35
 @delegates(AIOKafkaConsumer)
 @delegates(_aiokafka_consumer_loop, keep=True)
 async def aiokafka_consumer_loop(
@@ -216,7 +281,7 @@ async def aiokafka_consumer_loop(
     timeout_ms: int = 100,
     max_buffer_size: int = 100_000,
     callback: ConsumeCallable,
-    msg_type: Type[BaseModel],
+    msg_type: Union[Type[List[BaseModel]], Type[BaseModel]],
     is_shutting_down_f: Callable[[], bool],
     executor: Union[str, StreamExecutor, None] = None,
     **kwargs: Any,
