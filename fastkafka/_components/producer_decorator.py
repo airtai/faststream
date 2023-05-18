@@ -15,7 +15,6 @@ from collections import namedtuple
 from dataclasses import dataclass
 from typing import *
 
-import nest_asyncio
 from aiokafka import AIOKafkaProducer
 from aiokafka.producer.message_accumulator import BatchBuilder
 from pydantic import BaseModel
