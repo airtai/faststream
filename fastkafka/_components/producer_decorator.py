@@ -5,10 +5,10 @@ __all__ = ['BaseSubmodel', 'ProduceReturnTypes', 'ProduceCallable', 'KafkaEvent'
            'send_batch', 'produce_batch', 'producer_decorator']
 
 # %% ../../nbs/013_ProducerDecorator.ipynb 1
-import random
 import asyncio
 import functools
 import json
+import random
 import time
 from asyncio import iscoroutinefunction  # do not use the version from inspect
 from collections import namedtuple
@@ -124,7 +124,7 @@ def producer_decorator(
         encoder_fn: Callable[[BaseModel], bytes] = encoder_fn,
         producer_store: Dict[str, Any] = producer_store,
         f: Callable[..., Awaitable[ProduceReturnTypes]] = func,  # type: ignore
-        **kwargs: Any
+        **kwargs: Any,
     ) -> ProduceReturnTypes:
         return_val = await f(*args, **kwargs)
         wrapped_val = _wrap_in_event(return_val)
