@@ -77,8 +77,11 @@ const config = {
     ({
       // Replace with your project's social card
       image: 'https://opengraph.githubassets.com/1671805243.560327/airtai/fastkafka',
+      // colorMode: {
+      //   disableSwitch: true,
+      // },
       navbar: {
-        title: '',
+        title: 'FastKafka',
         logo: {
           alt: 'FastKafka Logo',
           src: 'img/AIRT_icon_blue.svg',
