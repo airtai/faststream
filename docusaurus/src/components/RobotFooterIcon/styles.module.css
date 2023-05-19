@@ -1,0 +1,12 @@
+.robotFooterContainer {
+  text-align: center;
+  position: relative;
+}
+
+.robotFooterIcon {
+  width: 7rem;
+  height: auto;
+  position: absolute;
+  margin-top: -4rem;
+  margin-left: -3.5rem;
+}

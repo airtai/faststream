@@ -77,8 +77,11 @@ const config = {
     ({
       // Replace with your project's social card
       image: 'https://opengraph.githubassets.com/1671805243.560327/airtai/fastkafka',
+      // colorMode: {
+      //   disableSwitch: true,
+      // },
       navbar: {
-        title: '',
+        title: 'FastKafka',
         logo: {
           alt: 'FastKafka Logo',
           src: 'img/AIRT_icon_blue.svg',
@@ -115,58 +118,68 @@ const config = {
         style: 'dark',
         links: [
           {
-            title: 'Docs',
+            title: 'COMMUNITY',
+            items: [
+              {
+                html: `
+                    <a class="footer-discord-link" href="https://discord.gg/CJWmYpyFbc" target="_blank" rel="noreferrer noopener" aria-label="Discord link"></a>
+                  `,
+              },
+              {
+                html: `
+                    <a class="footer-github-link" href="https://github.com/airtai" target="_blank" rel="noreferrer noopener" aria-label="Github link"></a>
+                  `,
+              },
+              {
+                html: `
+                    <a class="footer-twitter-link" href="https://twitter.com/airt_AI" target="_blank" rel="noreferrer noopener" aria-label="Twitter link"></a>
+                  `,
+              },
+              {
+                html: `
+                    <a class="footer-facebook-link" href="https://www.facebook.com/airt.ai.api/" target="_blank" rel="noreferrer noopener" aria-label="Facebook link"></a>
+                  `,
+              },
+              {
+                html: `
+                    <a class="footer-linkedin-link" href="https://www.linkedin.com/company/airt-ai/" target="_blank" rel="noreferrer noopener" aria-label="LinkedIn link"></a>
+                  `,
+              },
+            ],
+          },
+          {
+            title: 'EXPLORE DOCS',
             items: [
               {
                 label: 'Get Started',
-                to: '/docs/',
+                href: 'docs',
               },
             ],
           },
           {
-            title: 'Community',
+            title: 'EXPLORE MORE',
             items: [
               {
-                label: 'Discord',
-                href: 'https://discord.gg/CJWmYpyFbc',
+                label: 'News',
+                to: 'https://airt.ai/news',
               },
-              {
-                label: 'GitHub',
-                href: 'https://github.com/airtai/fastkafka',
-              },
-              {
-                label: 'Twitter',
-                href: 'https://twitter.com/airt_AI',
-              },
-              {
-                label: 'Facebook',
-                href: 'https://www.facebook.com/airt.ai.api/',
-              },
-              {
-                label: 'LinkedIn',
-                href: 'https://www.linkedin.com/company/airt-ai/',
-              },
-            ],
-          },
-          {
-            title: 'More',
-            items: [
               {
                 label: 'About Us',
                 to: 'https://airt.ai/about-us',
               },
-//               {
-//                 label: 'Contact',
-//                 to: 'https://airt.ai/contact',
-//               },
               {
                 label: 'Company information',
                 to: 'https://airt.ai/company-information',
               },
+              // {
+              //   label: 'Contact',
+              //   to: 'contact',
+              // },
+              
             ],
           },
         ],
-        copyright: `© 2023 airt`,
+        copyright: `© 2023 airt. All rights reserved.`,
       },
       prism: {
         theme: lightCodeTheme,
