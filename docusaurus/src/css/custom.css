@@ -502,11 +502,14 @@ h3.anchor > code {
   }
   .navbar__logo {
     margin-top: 0.5rem;
-    width: 1.9rem;
+    width: 1.6rem;
   }
   .navbar__title {
     margin-top: 0.1rem;
     margin-left: 2.2rem;
-    font-size: 2.4rem;
+    font-size: 1.95rem;
+  }
+  html.docs-doc-page .navbar__brand {
+    margin-left: 0rem;
   }
 }
