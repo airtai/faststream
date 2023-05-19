@@ -12,6 +12,7 @@ import types
 from asyncio import iscoroutinefunction  # do not use the version from inspect
 from collections import namedtuple
 from contextlib import AbstractAsyncContextManager
+from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 from functools import wraps
 from inspect import signature
@@ -273,6 +274,19 @@ class FastKafka:
         self._kafka_config["bootstrap_servers"] = bootstrap_servers
 
     def set_kafka_broker(self, kafka_broker_name: str) -> None:
+        """
+        Sets the Kafka broker to start FastKafka with
+
+        Args:
+            kafka_broker_name: The name of the Kafka broker to start FastKafka
+
+        Raises:
+            ValueError: If the provided kafka_broker_name is not found in dictionary of kafka_brokers
+
+        Returns:
+            None
+        """
+
         if kafka_broker_name not in self._kafka_brokers.brokers:
             raise ValueError(
                 f"Given kafka_broker_name '{kafka_broker_name}' is not found in kafka_brokers, available options are {self._kafka_brokers.brokers.keys()}"
@@ -946,3 +960,26 @@ def benchmark(
             return wrapper
 
     return _decorator
+
+# %% ../../nbs/015_FastKafka.ipynb 64
+@patch
+def fastapi_lifespan(
+    self: FastKafka, kafka_broker_name: str
+) -> Callable[["fastapi.FastAPI"], AsyncIterator[None]]:
+    """
+    Method for managing the lifespan of a FastAPI application with a specific Kafka broker.
+
+    Args:
+        kafka_broker_name: The name of the Kafka broker to start FastKafka
+
+    Returns:
+        Lifespan function to use for initializing FastAPI
+    """
+
+    @asynccontextmanager
+    async def lifespan(fastapi_app: "fastapi.FastAPI") -> AsyncIterator[None]:
+        self.set_kafka_broker(kafka_broker_name=kafka_broker_name)
+        async with self:
+            yield
+
+    return lifespan  # type: ignore
