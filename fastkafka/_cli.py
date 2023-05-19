@@ -36,7 +36,7 @@ def run(
         help="input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafka**.",
     ),
     kafka_broker: str = typer.Option(
-        ...,
+        "localhost",
         help="kafka_broker, one of the keys of the kafka_brokers dictionary passed in the constructor of FastaKafka class.",
     ),
 ) -> None:
