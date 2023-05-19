@@ -152,7 +152,7 @@ class FastKafka:
         description: Optional[str] = None,
         version: Optional[str] = None,
         contact: Optional[Dict[str, str]] = None,
-        kafka_brokers: Dict[str, Any],
+        kafka_brokers: Optional[Dict[str, Any]] = None,
         root_path: Optional[Union[Path, str]] = None,
         lifespan: Optional[Callable[["FastKafka"], AsyncContextManager[None]]] = None,
         **kwargs: Any,
@@ -169,8 +169,16 @@ class FastKafka:
             contact: optional contact for the documentation. If None, the
                 contact will be set to placeholder values:
                 name='Author' url=HttpUrl(' https://www.google.com ', ) email='noreply@gmail.com'
-            kafka_brokers: dictionary describing kafka brokers used for
-                generating documentation
+            kafka_brokers: dictionary describing kafka brokers used for setting
+                the bootstrap server when running the applicationa and for
+                generating documentation. Defaults to
+                    {
+                        "localhost": {
+                            "url": "localhost",
+                            "description": "local kafka broker",
+                            "port": "9092",
+                        }
+                    }
             root_path: path to where documentation will be created
             lifespan: asynccontextmanager that is used for setting lifespan hooks.
                 __aenter__ is called before app start and __aexit__ after app stop.
@@ -194,6 +202,16 @@ class FastKafka:
             description=self._description,
             contact=self._contact_info,
         )
+
+        if kafka_brokers is None:
+            kafka_brokers = {
+                "localhost": {
+                    "url": "localhost",
+                    "description": "local kafka broker",
+                    "port": "9092",
+                }
+            }
+
         self._kafka_brokers = _get_kafka_brokers(kafka_brokers)
 
         self._root_path = Path(".") if root_path is None else Path(root_path)
@@ -354,7 +372,7 @@ class FastKafka:
     async def _shutdown_bg_tasks(self) -> None:
         raise NotImplementedError
 
-# %% ../../nbs/015_FastKafka.ipynb 25
+# %% ../../nbs/015_FastKafka.ipynb 26
 def _get_decoder_fn(decoder: str) -> Callable[[bytes, ModelMetaclass], Any]:
     """
     Imports and returns decoder function based on input
@@ -374,7 +392,7 @@ def _get_decoder_fn(decoder: str) -> Callable[[bytes, ModelMetaclass], Any]:
     else:
         raise ValueError(f"Unknown decoder - {decoder}")
 
-# %% ../../nbs/015_FastKafka.ipynb 27
+# %% ../../nbs/015_FastKafka.ipynb 28
 @patch
 @delegates(AIOKafkaConsumer)
 def consumes(
@@ -440,7 +458,7 @@ def consumes(
 
     return _decorator
 
-# %% ../../nbs/015_FastKafka.ipynb 29
+# %% ../../nbs/015_FastKafka.ipynb 30
 def _get_encoder_fn(encoder: str) -> Callable[[BaseModel], bytes]:
     """
     Imports and returns encoder function based on input
@@ -460,7 +478,7 @@ def _get_encoder_fn(encoder: str) -> Callable[[BaseModel], bytes]:
     else:
         raise ValueError(f"Unknown encoder - {encoder}")
 
-# %% ../../nbs/015_FastKafka.ipynb 31
+# %% ../../nbs/015_FastKafka.ipynb 32
 @patch
 @delegates(AIOKafkaProducer)
 def produces(
@@ -517,14 +535,14 @@ def produces(
 
     return _decorator
 
-# %% ../../nbs/015_FastKafka.ipynb 33
+# %% ../../nbs/015_FastKafka.ipynb 34
 @patch
 def get_topics(self: FastKafka) -> Iterable[str]:
     produce_topics = set(self._producers_store.keys())
     consume_topics = set(self._consumers_store.keys())
     return consume_topics.union(produce_topics)
 
-# %% ../../nbs/015_FastKafka.ipynb 35
+# %% ../../nbs/015_FastKafka.ipynb 36
 @patch
 def run_in_background(
     self: FastKafka,
@@ -561,7 +579,7 @@ def run_in_background(
 
     return _decorator
 
-# %% ../../nbs/015_FastKafka.ipynb 39
+# %% ../../nbs/015_FastKafka.ipynb 40
 @patch
 def _populate_consumers(
     self: FastKafka,
@@ -598,7 +616,7 @@ async def _shutdown_consumers(
     if self._kafka_consumer_tasks:
         await asyncio.wait(self._kafka_consumer_tasks)
 
-# %% ../../nbs/015_FastKafka.ipynb 41
+# %% ../../nbs/015_FastKafka.ipynb 42
 # TODO: Add passing of vars
 async def _create_producer(  # type: ignore
     *,
@@ -692,7 +710,7 @@ async def _shutdown_producers(self: FastKafka) -> None:
         }
     )
 
-# %% ../../nbs/015_FastKafka.ipynb 43
+# %% ../../nbs/015_FastKafka.ipynb 44
 @patch
 async def _populate_bg_tasks(
     self: FastKafka,
@@ -728,7 +746,7 @@ async def _shutdown_bg_tasks(
             f"_shutdown_bg_tasks() : Execution finished for background task '{task.get_name()}'"
         )
 
-# %% ../../nbs/015_FastKafka.ipynb 45
+# %% ../../nbs/015_FastKafka.ipynb 46
 @patch
 async def _start(self: FastKafka) -> None:
     def is_shutting_down_f(self: FastKafka = self) -> bool:
@@ -753,7 +771,7 @@ async def _stop(self: FastKafka) -> None:
     self._is_shutting_down = False
     self._is_started = False
 
-# %% ../../nbs/015_FastKafka.ipynb 51
+# %% ../../nbs/015_FastKafka.ipynb 52
 @patch
 def create_docs(self: FastKafka) -> None:
     export_async_spec(
@@ -769,7 +787,7 @@ def create_docs(self: FastKafka) -> None:
         asyncapi_path=self._asyncapi_path,
     )
 
-# %% ../../nbs/015_FastKafka.ipynb 55
+# %% ../../nbs/015_FastKafka.ipynb 56
 class AwaitedMock:
     @staticmethod
     def _await_for(f: Callable[..., Any]) -> Callable[..., Any]:
@@ -805,7 +823,7 @@ class AwaitedMock:
                 if inspect.ismethod(f):
                     setattr(self, name, self._await_for(f))
 
-# %% ../../nbs/015_FastKafka.ipynb 56
+# %% ../../nbs/015_FastKafka.ipynb 57
 @patch
 def create_mocks(self: FastKafka) -> None:
     """Creates self.mocks as a named tuple mapping a new function obtained by calling the original functions and a mock"""
@@ -874,7 +892,7 @@ def create_mocks(self: FastKafka) -> None:
         }
     )
 
-# %% ../../nbs/015_FastKafka.ipynb 61
+# %% ../../nbs/015_FastKafka.ipynb 62
 @patch
 def benchmark(
     self: FastKafka,

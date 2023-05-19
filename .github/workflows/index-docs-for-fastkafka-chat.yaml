@@ -47,5 +47,4 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Update fastkafka docs index file"
-          file_pattern: "data/website_index.json.gz"
-
+          file_pattern: "data/website_index.zip"

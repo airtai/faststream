@@ -13,7 +13,9 @@ from pydantic import BaseModel
 
 from .. import KafkaEvent
 from .app import FastKafka
+from .._components.helpers import unwrap_list_type
 from .._components.meta import delegates, export, patch
+from .._components.producer_decorator import unwrap_from_kafka_event
 from .._testing.apache_kafka_broker import ApacheKafkaBroker
 from .._testing.in_memory_broker import InMemoryBroker
 from .._testing.local_redpanda_broker import LocalRedpandaBroker
@@ -148,11 +150,7 @@ class Tester(FastKafka):
 def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(producer_f).return_annotation
 
-    if hasattr(msg_type, "__origin__") and msg_type.__origin__ == KafkaEvent:
-        msg_type = msg_type.__args__[0]
-
-    if hasattr(msg_type, "__origin__") and msg_type.__origin__ == list:
-        msg_type = msg_type.__args__[0]
+    msg_type_unwrapped = unwrap_list_type(unwrap_from_kafka_event(msg_type))
 
     async def skeleton_func(msg: BaseModel) -> None:
         pass
@@ -168,7 +166,7 @@ def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[...,
         parameters=[
             inspect.Parameter(
                 name="msg",
-                annotation=msg_type,
+                annotation=msg_type_unwrapped,
                 kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
             )
         ]
@@ -182,6 +180,8 @@ def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[...,
 def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(consumer_f).parameters["msg"]
 
+    msg_type_unwrapped = unwrap_list_type(msg_type)
+
     async def skeleton_func(msg: BaseModel) -> BaseModel:
         return msg
 
@@ -192,7 +192,9 @@ def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[...,
     mirror_func.__name__ = "to_" + topic.replace(".", "_")
 
     # adjust arg and return val
-    sig = sig.replace(parameters=[msg_type], return_annotation=msg_type.annotation)
+    sig = sig.replace(
+        parameters=[msg_type], return_annotation=msg_type_unwrapped.annotation
+    )
 
     mirror_func.__signature__ = sig  # type: ignore
     return mirror_func
