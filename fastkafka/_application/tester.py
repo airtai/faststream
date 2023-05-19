@@ -161,7 +161,7 @@ def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[...,
     sig = inspect.signature(skeleton_func)
 
     # adjust name
-    mirror_func.__name__ = "on_" + topic
+    mirror_func.__name__ = "on_" + topic.replace(".", "_")
 
     # adjust arg and return val
     sig = sig.replace(
@@ -189,7 +189,7 @@ def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[...,
     sig = inspect.signature(skeleton_func)
 
     # adjust name
-    mirror_func.__name__ = "to_" + topic
+    mirror_func.__name__ = "to_" + topic.replace(".", "_")
 
     # adjust arg and return val
     sig = sig.replace(parameters=[msg_type], return_annotation=msg_type.annotation)
@@ -203,9 +203,9 @@ def create_mirrors(self: Tester) -> None:
     for app in self.apps:
         for topic, (consumer_f, _, _, _) in app._consumers_store.items():
             mirror_f = mirror_consumer(topic, consumer_f)
-            mirror_f = self.produces()(mirror_f)  # type: ignore
+            mirror_f = self.produces(topic=topic)(mirror_f)  # type: ignore
             setattr(self, mirror_f.__name__, mirror_f)
         for topic, (producer_f, _, _) in app._producers_store.items():
             mirror_f = mirror_producer(topic, producer_f)
-            mirror_f = self.consumes()(mirror_f)  # type: ignore
+            mirror_f = self.consumes(topic=topic)(mirror_f)  # type: ignore
             setattr(self, mirror_f.__name__, mirror_f)
