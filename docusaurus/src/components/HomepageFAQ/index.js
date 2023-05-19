@@ -18,19 +18,19 @@ const items = [
   },
   {
     "heading": "How can I contribute or request features?",
-    "content": "We love and welcome community contributions! Here is a doc to get you started. To request features, add a “Feature request” using the New issue button in Github from this link, or join our feature-request Discord channel."
+    "content": "We love and welcome community contributions! Here is a <a href='https://github.com/airtai/fastkafka/blob/main/CONTRIBUTING.md' target='_blank'>doc</a> to get you started. To request features, add a “Feature request” using the New issue button in GitHub from <a href='https://github.com/airtai/fastkafka/issues' target='_blank'>this link</a>, or join our feature-request <a href='https://discord.gg/CJWmYpyFbc' target='_blank'>Discord channel</a>."
   },
   {
     "heading": "Do you support any streaming platforms other than Kafka?",
-    "content": "Slowly, but surely. We built the initial version for Kafka service and for our needs, but we reached out to the wider community to find out what to do next. We added support for Red panda, and also got requests for RabbitMQ and Pulsar that went to our backlog and we’ll support them in our future releases."
+    "content": "Slowly, but surely. We built the initial version for Kafka service and for our needs, but we reached out to the wider community to find out what to do next. We added support for Redpanda, and also got requests for RabbitMQ and Pulsar that went to our backlog and we’ll support them in our future releases."
   },
   {
     "heading": "Does FastKafka integrate with AsyncAPI in the way that FastAPi integrates with OpenAPI?",
-    "content": "Very much the same, but with a small difference due to dependancies of AsyncAPI. You write your code using decorators and you get AsyncAPI specification generated automatically as YAML file. You can convert that file to static HTML file ether by Python API call, CLI or github action. AsyncAPI requires Node.js, and you don’t necessarily want this in production."
+    "content": "Very much the same, but with a small difference due to dependencies of AsyncAPI. You write your code using decorators and you get AsyncAPI specification generated automatically as YAML file. You can convert that file to static HTML file ether by Python API call, CLI or github action. AsyncAPI requires Node.js, and you don’t necessarily want this in production."
   },
   {
     "heading": "Does it assume that Kafka messages are in JSON format? What if we want to use protobuf, for example?",
-    "content": "For the first implementation we just released uses with JSON encoded messages, but we can easily add additional formats/protocols. We’ve created an issue on github and will try to prioritize it for one of the next releases."
+    "content": "For the first implementation we just released uses with JSON encoded messages, but we can easily add additional formats/protocols. We’ve created an issue on GitHub and will try to prioritize it for one of the next releases."
   },
 ]
 
@@ -52,7 +52,7 @@ export default function HomepageFAQ() {
                       </AccordionItemButton>
                   </AccordionItemHeading>
                   <AccordionItemPanel>
-                    {item.content}
+                  <p className={styles.faqAnswer} dangerouslySetInnerHTML={{__html: item.content}} />
                   </AccordionItemPanel>
               </AccordionItem>
           ))}
