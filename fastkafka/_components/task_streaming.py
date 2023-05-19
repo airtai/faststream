@@ -35,12 +35,30 @@ class TaskPool:
         self.finished = False
 
     async def add(self, item: Task) -> None:
+        """
+        Adds a task to the task pool.
+
+        Args:
+            item: The task to be added.
+
+        Returns:
+            None
+        """
         while len(self.pool) >= self.size:
             await asyncio.sleep(0)
         self.pool.add(item)
         item.add_done_callback(self.discard)
 
     def discard(self, task: Task) -> None:
+        """
+        Discards a completed task from the task pool.
+
+        Args:
+            task: The completed task to be discarded.
+
+        Returns:
+            None
+        """
         e = task.exception()
         if e is not None and self.on_error is not None:
             try:
@@ -53,6 +71,12 @@ class TaskPool:
         self.pool.discard(task)
 
     def __len__(self) -> int:
+        """
+        Returns the number of tasks in the task pool.
+
+        Returns:
+            The number of tasks in the task pool.
+        """
         return len(self.pool)
 
     async def __aenter__(self) -> "TaskPool":
@@ -66,6 +90,16 @@ class TaskPool:
 
     @staticmethod
     def log_error(logger: Logger) -> Callable[[Exception], None]:
+        """
+        Creates a decorator that logs errors using the specified logger.
+
+        Args:
+            logger: The logger to use for error logging.
+
+        Returns:
+            The decorator function.
+        """
+
         def _log_error(e: Exception, logger: Logger = logger) -> None:
             logger.warning(f"{e=}")
 
@@ -78,10 +112,25 @@ class ExceptionMonitor:
         self.exception_found = False
 
     def on_error(self, e: Exception) -> None:
+        """
+        Handles an error by storing the exception.
+
+        Args:
+            e: The exception to be handled.
+
+        Returns:
+            None
+        """
         self.exceptions.append(e)
         self.exception_found = True
 
     def _monitor_step(self) -> None:
+        """
+        Raises the next exception in the queue.
+
+        Returns:
+            None
+        """
         if len(self.exceptions) > 0:
             e = self.exceptions.pop(0)
             raise e
@@ -99,15 +148,16 @@ class StreamExecutor(ABC):
     @abstractmethod
     async def run(  # type: ignore
         self,
+        *,
         is_shutting_down_f: Callable[[], bool],
-        produce_func: Callable[[], Awaitable[ConsumerRecord]],
-        consume_func: Callable[[ConsumerRecord], Awaitable[None]],
+        generator: Callable[[], Awaitable[ConsumerRecord]],
+        processor: Callable[[ConsumerRecord], Awaitable[None]],
     ) -> None:
         pass
 
 # %% ../../nbs/011_TaskStreaming.ipynb 20
 def _process_items_task(  # type: ignore
-    consume_func: Callable[[ConsumerRecord], Awaitable[None]], task_pool: TaskPool
+    processor: Callable[[ConsumerRecord], Awaitable[None]], task_pool: TaskPool
 ) -> Callable[
     [
         anyio.streams.memory.MemoryObjectReceiveStream,
@@ -118,12 +168,12 @@ def _process_items_task(  # type: ignore
 ]:
     async def _process_items_wrapper(  # type: ignore
         receive_stream: anyio.streams.memory.MemoryObjectReceiveStream,
-        consume_func: Callable[[ConsumerRecord], Awaitable[None]] = consume_func,
+        processor: Callable[[ConsumerRecord], Awaitable[None]] = processor,
         task_pool=task_pool,
     ):
         async with receive_stream:
             async for msg in receive_stream:
-                task: asyncio.Task = asyncio.create_task(consume_func(msg))  # type: ignore
+                task: asyncio.Task = asyncio.create_task(processor(msg))  # type: ignore
                 await task_pool.add(task)
 
     return _process_items_wrapper
@@ -148,18 +198,30 @@ class DynamicTaskExecutor(StreamExecutor):
 
     async def run(  # type: ignore
         self,
+        *,
         is_shutting_down_f: Callable[[], bool],
-        produce_func: Callable[[], Awaitable[ConsumerRecord]],
-        consume_func: Callable[[ConsumerRecord], Awaitable[None]],
+        generator: Callable[[], Awaitable[ConsumerRecord]],
+        processor: Callable[[ConsumerRecord], Awaitable[None]],
     ) -> None:
         send_stream, receive_stream = anyio.create_memory_object_stream(
             max_buffer_size=self.max_buffer_size
         )
+        """
+        Runs the dynamic task executor.
+
+        Args:
+            is_shutting_down_f: Function to check if the executor is shutting down.
+            generator: Generator function for retrieving consumer records.
+            processor: Processor function for processing consumer records.
+
+        Returns:
+            None
+        """
 
         async with self.exception_monitor, self.task_pool:
             async with anyio.create_task_group() as tg:
                 tg.start_soon(
-                    _process_items_task(consume_func, self.task_pool), receive_stream
+                    _process_items_task(processor, self.task_pool), receive_stream
                 )
                 async with send_stream:
                     while not is_shutting_down_f():
@@ -168,13 +230,13 @@ class DynamicTaskExecutor(StreamExecutor):
                             and self.throw_exceptions
                         ):
                             break
-                        msgs = await produce_func()
+                        msgs = await generator()
                         for msg in msgs:
                             await send_stream.send(msg)
 
 # %% ../../nbs/011_TaskStreaming.ipynb 30
 def _process_items_coro(  # type: ignore
-    consume_func: Callable[[ConsumerRecord], Awaitable[None]],
+    processor: Callable[[ConsumerRecord], Awaitable[None]],
     throw_exceptions: bool,
 ) -> Callable[
     [
@@ -186,13 +248,13 @@ def _process_items_coro(  # type: ignore
 ]:
     async def _process_items_wrapper(  # type: ignore
         receive_stream: anyio.streams.memory.MemoryObjectReceiveStream,
-        consume_func: Callable[[ConsumerRecord], Awaitable[None]] = consume_func,
+        processor: Callable[[ConsumerRecord], Awaitable[None]] = processor,
         throw_exceptions: bool = throw_exceptions,
     ) -> Awaitable[None]:
         async with receive_stream:
             async for msg in receive_stream:
                 try:
-                    await consume_func(msg)
+                    await processor(msg)
                 except Exception as e:
                     if throw_exceptions:
                         raise e
@@ -213,26 +275,51 @@ class SequentialExecutor(StreamExecutor):
 
     async def run(  # type: ignore
         self,
+        *,
         is_shutting_down_f: Callable[[], bool],
-        produce_func: Callable[[], Awaitable[ConsumerRecord]],
-        consume_func: Callable[[ConsumerRecord], Awaitable[None]],
+        generator: Callable[[], Awaitable[ConsumerRecord]],
+        processor: Callable[[ConsumerRecord], Awaitable[None]],
     ) -> None:
+        """
+        Runs the sequential executor.
+
+        Args:
+            is_shutting_down_f: Function to check if the executor is shutting down.
+            generator: Generator function for retrieving consumer records.
+            processor: Processor function for processing consumer records.
+
+        Returns:
+            None
+        """
+
         send_stream, receive_stream = anyio.create_memory_object_stream(
             max_buffer_size=self.max_buffer_size
         )
 
         async with anyio.create_task_group() as tg:
             tg.start_soon(
-                _process_items_coro(consume_func, self.throw_exceptions), receive_stream
+                _process_items_coro(processor, self.throw_exceptions), receive_stream
             )
             async with send_stream:
                 while not is_shutting_down_f():
-                    msgs = await produce_func()
+                    msgs = await generator()
                     for msg in msgs:
                         await send_stream.send(msg)
 
 # %% ../../nbs/011_TaskStreaming.ipynb 34
 def get_executor(executor: Union[str, StreamExecutor, None] = None) -> StreamExecutor:
+    """
+    Returns an instance of the specified executor.
+
+    Args:
+        executor: Executor instance or name of the executor.
+
+    Returns:
+        Instance of the specified executor.
+
+    Raises:
+        AttributeError: If the executor is not found.
+    """
     if isinstance(executor, StreamExecutor):
         return executor
     elif executor is None:
