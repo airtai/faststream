@@ -2,7 +2,7 @@
 
 # %% auto 0
 __all__ = ['logger', 'AsyncConsume', 'AsyncConsumeMeta', 'SyncConsume', 'SyncConsumeMeta', 'ConsumeCallable', 'EventMetadata',
-           'get_single_msg_handlers', 'get_batch_msg_handlers', 'sanitize_kafka_config', 'aiokafka_consumer_loop']
+           'sanitize_kafka_config', 'aiokafka_consumer_loop']
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 1
 import asyncio
@@ -60,6 +60,14 @@ class EventMetadata:
 
     @staticmethod
     def create_event_metadata(record: ConsumerRecord) -> "EventMetadata":  # type: ignore
+        """Creates an instance of EventMetadata from a ConsumerRecord.
+
+        Args:
+            record: The Kafka ConsumerRecord.
+
+        Returns:
+            The created EventMetadata instance.
+        """
         return EventMetadata(
             topic=record.topic,
             partition=record.partition,
@@ -124,7 +132,7 @@ def _prepare_callback(callback: ConsumeCallable) -> AsyncConsumeMeta:
         1. If callback is sync, asyncify it
         2. Wrap the callback into a safe callback for exception handling
 
-    Params:
+    Args:
         callback: async callable that will be prepared for use in consumer
 
     Returns:
@@ -143,7 +151,7 @@ async def _stream_msgs(  # type: ignore
     """
     Decodes and streams the message and topic to the send_stream.
 
-    Params:
+    Args:
         msgs:
         send_stream:
     """
@@ -164,7 +172,7 @@ def _decode_streamed_msgs(  # type: ignore
     return decoded_msgs
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 24
-def get_single_msg_handlers(  # type: ignore
+def _get_single_msg_handlers(  # type: ignore
     *,
     consumer: AIOKafkaConsumer,
     callback: AsyncConsumeMeta,
@@ -183,6 +191,20 @@ def get_single_msg_handlers(  # type: ignore
     ],
     Callable[[AIOKafkaConsumer, Any], Awaitable[List[ConsumerRecord]]],
 ]:
+    """
+    Retrieves the message handlers for consuming single messages from a Kafka topic.
+
+    Args:
+        consumer: The Kafka consumer instance.
+        callback: The callback function to handle the consumed message.
+        decoder_fn: The function to decode the consumed message.
+        msg_type: The type of the consumed message.
+        **kwargs: Additional keyword arguments for the consumer.
+
+    Returns:
+        The handle_msg function and poll_consumer function.
+    """
+
     async def handle_msg(  # type: ignore
         record: ConsumerRecord,
         callback: AsyncConsumeMeta = callback,
@@ -202,8 +224,8 @@ def get_single_msg_handlers(  # type: ignore
 
     return handle_msg, poll_consumer
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 25
-def get_batch_msg_handlers(  # type: ignore
+# %% ../../nbs/011_ConsumerLoop.ipynb 26
+def _get_batch_msg_handlers(  # type: ignore
     *,
     consumer: AIOKafkaConsumer,
     callback: AsyncConsumeMeta,
@@ -222,6 +244,20 @@ def get_batch_msg_handlers(  # type: ignore
     ],
     Callable[[AIOKafkaConsumer, Any], Awaitable[List[List[ConsumerRecord]]]],
 ]:
+    """
+    Retrieves the message handlers for consuming messages in batches from a Kafka topic.
+
+    Args:
+        consumer: The Kafka consumer instance.
+        callback: The callback function to handle the consumed messages.
+        decoder_fn: The function to decode the consumed messages.
+        msg_type: The type of the consumed messages.
+        **kwargs: Additional keyword arguments for the consumer.
+
+    Returns:
+        The handle_msg function and poll_consumer function.
+    """
+
     async def handle_msg(  # type: ignore
         records: List[ConsumerRecord],
         callback: AsyncConsumeMeta = callback,
@@ -241,7 +277,7 @@ def get_batch_msg_handlers(  # type: ignore
 
     return handle_msg, poll_consumer
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 26
+# %% ../../nbs/011_ConsumerLoop.ipynb 28
 @delegates(AIOKafkaConsumer.getmany)
 async def _aiokafka_consumer_loop(  # type: ignore
     consumer: AIOKafkaConsumer,
@@ -259,7 +295,7 @@ async def _aiokafka_consumer_loop(  # type: ignore
     Consumer loop for infinite pooling of the AIOKafka consumer for new messages. Calls consumer.getmany()
     and after the consumer return messages or times out, messages are decoded and streamed to defined callback.
 
-    Params:
+    Args:
         topic: Topic to subscribe
         decoder_fn: Function to decode the messages consumed from the topic
         callbacks: Dict of callbacks mapped to their respective topics
@@ -272,7 +308,7 @@ async def _aiokafka_consumer_loop(  # type: ignore
     prepared_callback = _prepare_callback(callback)
 
     if hasattr(msg_type, "__origin__") and msg_type.__origin__ == list:
-        handle_msg, poll_consumer = get_batch_msg_handlers(
+        handle_msg, poll_consumer = _get_batch_msg_handlers(
             consumer=consumer,
             callback=prepared_callback,
             decoder_fn=decoder_fn,
@@ -280,7 +316,7 @@ async def _aiokafka_consumer_loop(  # type: ignore
             **kwargs,
         )
     else:
-        handle_msg, poll_consumer = get_single_msg_handlers(
+        handle_msg, poll_consumer = _get_single_msg_handlers(
             consumer=consumer,
             callback=prepared_callback,
             decoder_fn=decoder_fn,
@@ -294,12 +330,12 @@ async def _aiokafka_consumer_loop(  # type: ignore
         processor=handle_msg,  # type: ignore
     )
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 33
+# %% ../../nbs/011_ConsumerLoop.ipynb 35
 def sanitize_kafka_config(**kwargs: Any) -> Dict[str, Any]:
     """Sanitize Kafka config"""
     return {k: "*" * len(v) if "pass" in k.lower() else v for k, v in kwargs.items()}
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 35
+# %% ../../nbs/011_ConsumerLoop.ipynb 37
 @delegates(AIOKafkaConsumer)
 @delegates(_aiokafka_consumer_loop, keep=True)
 async def aiokafka_consumer_loop(

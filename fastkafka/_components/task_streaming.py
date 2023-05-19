@@ -35,12 +35,30 @@ class TaskPool:
         self.finished = False
 
     async def add(self, item: Task) -> None:
+        """
+        Adds a task to the task pool.
+
+        Args:
+            item: The task to be added.
+
+        Returns:
+            None
+        """
         while len(self.pool) >= self.size:
             await asyncio.sleep(0)
         self.pool.add(item)
         item.add_done_callback(self.discard)
 
     def discard(self, task: Task) -> None:
+        """
+        Discards a completed task from the task pool.
+
+        Args:
+            task: The completed task to be discarded.
+
+        Returns:
+            None
+        """
         e = task.exception()
         if e is not None and self.on_error is not None:
             try:
@@ -53,6 +71,12 @@ class TaskPool:
         self.pool.discard(task)
 
     def __len__(self) -> int:
+        """
+        Returns the number of tasks in the task pool.
+
+        Returns:
+            The number of tasks in the task pool.
+        """
         return len(self.pool)
 
     async def __aenter__(self) -> "TaskPool":
@@ -66,6 +90,16 @@ class TaskPool:
 
     @staticmethod
     def log_error(logger: Logger) -> Callable[[Exception], None]:
+        """
+        Creates a decorator that logs errors using the specified logger.
+
+        Args:
+            logger: The logger to use for error logging.
+
+        Returns:
+            The decorator function.
+        """
+
         def _log_error(e: Exception, logger: Logger = logger) -> None:
             logger.warning(f"{e=}")
 
@@ -78,10 +112,25 @@ class ExceptionMonitor:
         self.exception_found = False
 
     def on_error(self, e: Exception) -> None:
+        """
+        Handles an error by storing the exception.
+
+        Args:
+            e: The exception to be handled.
+
+        Returns:
+            None
+        """
         self.exceptions.append(e)
         self.exception_found = True
 
     def _monitor_step(self) -> None:
+        """
+        Raises the next exception in the queue.
+
+        Returns:
+            None
+        """
         if len(self.exceptions) > 0:
             e = self.exceptions.pop(0)
             raise e
@@ -157,6 +206,17 @@ class DynamicTaskExecutor(StreamExecutor):
         send_stream, receive_stream = anyio.create_memory_object_stream(
             max_buffer_size=self.max_buffer_size
         )
+        """
+        Runs the dynamic task executor.
+
+        Args:
+            is_shutting_down_f: Function to check if the executor is shutting down.
+            generator: Generator function for retrieving consumer records.
+            processor: Processor function for processing consumer records.
+
+        Returns:
+            None
+        """
 
         async with self.exception_monitor, self.task_pool:
             async with anyio.create_task_group() as tg:
@@ -220,6 +280,18 @@ class SequentialExecutor(StreamExecutor):
         generator: Callable[[], Awaitable[ConsumerRecord]],
         processor: Callable[[ConsumerRecord], Awaitable[None]],
     ) -> None:
+        """
+        Runs the sequential executor.
+
+        Args:
+            is_shutting_down_f: Function to check if the executor is shutting down.
+            generator: Generator function for retrieving consumer records.
+            processor: Processor function for processing consumer records.
+
+        Returns:
+            None
+        """
+
         send_stream, receive_stream = anyio.create_memory_object_stream(
             max_buffer_size=self.max_buffer_size
         )
@@ -236,6 +308,18 @@ class SequentialExecutor(StreamExecutor):
 
 # %% ../../nbs/011_TaskStreaming.ipynb 34
 def get_executor(executor: Union[str, StreamExecutor, None] = None) -> StreamExecutor:
+    """
+    Returns an instance of the specified executor.
+
+    Args:
+        executor: Executor instance or name of the executor.
+
+    Returns:
+        Instance of the specified executor.
+
+    Raises:
+        AttributeError: If the executor is not found.
+    """
     if isinstance(executor, StreamExecutor):
         return executor
     elif executor is None:
