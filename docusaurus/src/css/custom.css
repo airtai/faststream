@@ -125,8 +125,6 @@ html.plugin-pages
   font-family: var(--ifm-heading-font-family);
   font-weight: 100;
   line-height: var(--ifm-heading-line-height);
-  cursor: text;
-  user-select: text;
 }
 
 .navbar__brand:hover {
@@ -406,6 +404,7 @@ h3.anchor > code {
 .accordion__item .accordion__panel {
   padding: 20px;
   animation: fadein 0.35s ease-in;
+  color: #fff;
   /* font-size: 1rem; */
   /* border: 1px solid #8bcae5; */
   /* border-top: none; */
