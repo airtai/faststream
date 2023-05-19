@@ -37,6 +37,7 @@
   font-size: 1.5rem;
   line-height: 0.8rem;
   font-style: italic;
+  color: #fff;
 }
 .heroButton {
   color: #fff;
@@ -44,6 +45,9 @@
   border-radius: 25px;
   padding: 0.8rem 2.5rem 0.7rem 2.5rem;
   margin-top: -1.5rem;
+}
+.heroButton:hover {
+  background: #3e99c5;
 }
 .descriptionMobile {
   display: none;

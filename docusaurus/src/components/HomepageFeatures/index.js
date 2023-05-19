@@ -41,7 +41,7 @@ function Feature({src, title, description}) {
       <div className="text--center">
         <img className={styles.featureSvg} src={src}/>
       </div>
-      <div className="text--center padding-horiz--md">
+      <div className={clsx("text--center padding-horiz--md"), styles.textContainer}>
         <h3>{title}</h3>
         <p>{description}</p>
       </div>

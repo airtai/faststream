@@ -13,6 +13,7 @@
 .title {
   font-size: 3rem;
   text-align: center;
+  color: #fff;
 }
 
 .title + p {
@@ -20,15 +21,18 @@
   font-style: italic;
   text-align: center;
   margin-bottom: 5rem;
+  color: #fff;
 }
 .subTitle {
   font-size: 1.5rem;
   text-align: center;
+  color: #fff;
 }
 .description {
   font-size: 1rem;
   text-align: center;
   margin-top: 3rem;
+  color: #fff;
 }
 .rowWitExtraMargin {
   margin-top: 80px;

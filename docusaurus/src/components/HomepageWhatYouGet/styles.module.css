@@ -18,15 +18,18 @@
 .title {
   font-size: 3rem;
   text-align: center;
+  color: #fff;
 }
 .subTitle {
   font-size: 1.5rem;
   text-align: left;
+  color: #fff;
 }
 .description {
   font-size: 1rem;
   text-align: center;
   margin-top: 3rem;
+  color: #fff;
 }
 .rowWitExtraMargin {
   margin-top: 80px;
@@ -57,6 +60,7 @@
   margin: 4rem 0px;
   /* padding: 0px 30px; */
   font-size: 1.2rem;
+  color: #fff;
 }
 /** Mobile view */
 @media screen and (max-width: 996px) {

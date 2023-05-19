@@ -21,15 +21,23 @@
   text-align: center;
   padding-top: 3rem;
   padding-bottom: 3rem;
+  color: #fff;
+}
+.textContainer {
+  color: #fff;
+  text-align: center;
+  padding: 1rem 2.2rem;
 }
 .subTitle {
   font-size: 1.4rem;
   text-align: left;
+  color: #fff;
 }
 .description {
   font-size: 1rem;
   text-align: center;
   margin-top: 3rem;
+  color: #fff;
 }
 .rowWitExtraMargin {
   margin-top: 80px;

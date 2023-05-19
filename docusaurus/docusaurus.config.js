@@ -167,6 +167,10 @@ const config = {
                 label: 'About Us',
                 to: 'https://airt.ai/about-us',
               },
+              {
+                label: 'Company information',
+                to: 'https://airt.ai/company-information',
+              },
               // {
               //   label: 'Contact',
               //   to: 'contact',

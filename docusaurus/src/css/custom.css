@@ -48,7 +48,7 @@
   --ifm-navbar-background-color: #003257;
   --ifm-dropdown-background-color: #003257;
   --ifm-navbar-height: 4.69rem;
-  --ifm-font-color-base: #fff;
+  /* --ifm-font-color-base: #fff; */
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -61,9 +61,57 @@
   --ifm-color-primary-lighter: #7ec8e8;
   --ifm-color-primary-lightest: #a5d9ef;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  /* --ifm-navbar-background-color: #242526; */
 }
 
 /* default settings for both tablet and desktop */
+
+.toggleButton_node_modules-\@docusaurus-theme-classic-lib-theme-ColorModeToggle-styles-module {
+  color: #fff;
+}
+.navbar.navbar--fixed-top
+  .toggleButton_node_modules-\@docusaurus-theme-classic-lib-theme-ColorModeToggle-styles-module:hover {
+  background: #8c9fae;
+}
+
+[data-theme="dark"]
+  .navbar.navbar--fixed-top
+  .toggleButton_node_modules-\@docusaurus-theme-classic-lib-theme-ColorModeToggle-styles-module:hover {
+  background: #444950;
+}
+
+html.plugin-pages .navbar__items.navbar__items--right > a + div > button {
+  display: none;
+}
+
+.navbar.navbar-sidebar--show .navbar-sidebar .navbar-sidebar__brand > div {
+  margin-left: auto;
+  margin-right: 1rem !important;
+}
+
+.navbar.navbar-sidebar--show
+  .navbar-sidebar
+  .navbar-sidebar__brand
+  .navbar-sidebar__close {
+  margin-left: unset;
+}
+
+html.plugin-pages
+  .navbar.navbar-sidebar--show
+  .navbar-sidebar
+  .navbar-sidebar__brand
+  > div {
+  display: none;
+}
+
+html.plugin-pages
+  .navbar.navbar-sidebar--show
+  .navbar-sidebar
+  .navbar-sidebar__brand
+  .navbar-sidebar__close {
+  margin-left: auto;
+}
+
 .navbar--fixed-top {
   padding-top: 0px;
   padding-bottom: 0px;
@@ -88,7 +136,9 @@
 .navbar__items.navbar__items--right .navbar__link {
   color: #fff;
 }
-
+.navbar__items.navbar__items--right .navbar__item.dropdown .dropdown__link {
+  color: #fff;
+}
 .navbar__items.navbar__items--right
   .navbar__item.dropdown
   .dropdown__link:hover {
@@ -123,8 +173,36 @@
   margin-left: 9.6rem;
 }
 
+html.docs-doc-page .navbar__brand {
+  margin-left: 0;
+}
+
+html.docs-doc-page[data-theme="dark"] .navbar {
+  background-color: #242526;
+}
+/* [data-theme="dark"] .navbar {
+  background-color: #242526;
+} */
+
+html.docs-doc-page .navbar.navbar--fixed-top .navbar__items--right {
+  flex: 1;
+  justify-content: end;
+}
+@media screen and (max-width: 996px) {
+  .navbar__title {
+    margin-top: 0;
+    margin-left: 1.8rem;
+  }
+  html.docs-doc-page .navbar__brand {
+    margin-left: 1rem;
+  }
+}
+
 .navbar__link {
   font-size: 1.1rem;
+}
+.navbar__toggle {
+  color: #fff;
 }
 
 .navbar.navbar--fixed-top .navbar__items--right {
@@ -290,7 +368,8 @@ h3.anchor > code {
 
 .accordion__item .accordion__button {
   background-color: #076d9e;
-  color: var(--ifm-font-color-base);
+  /* color: var(--ifm-font-color-base); */
+  color: #fff;
   cursor: pointer;
   padding: 2.5rem;
   width: 100%;
