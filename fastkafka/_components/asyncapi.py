@@ -25,8 +25,13 @@ fastkafka._components.logger.should_supress_timestamps = True
 
 from .docs_dependencies import _check_npm_with_local
 from .logger import get_logger
-from .producer_decorator import KafkaEvent, ProduceCallable
+from fastkafka._components.producer_decorator import (
+    KafkaEvent,
+    ProduceCallable,
+    unwrap_from_kafka_event,
+)
 from .aiokafka_consumer_loop import ConsumeCallable, EventMetadata
+from .helpers import unwrap_list_type
 
 # %% ../../nbs/014_AsyncAPI.ipynb 3
 logger = get_logger(__name__)
@@ -156,11 +161,8 @@ def _get_msg_cls_for_producer(f: ProduceCallable) -> Type[Any]:
             f"Producer function must have a defined return value, got {return_type} as return value"
         )
 
-    if hasattr(return_type, "__origin__") and return_type.__origin__ == KafkaEvent:
-        return_type = return_type.__args__[0]
-
-    if hasattr(return_type, "__origin__") and return_type.__origin__ == list:
-        return_type = return_type.__args__[0]
+    return_type = unwrap_from_kafka_event(return_type)
+    return_type = unwrap_list_type(return_type)
 
     if not hasattr(return_type, "json"):
         raise ValueError(f"Producer function return value must have json method")
@@ -180,8 +182,7 @@ def _get_msg_cls_for_consumer(f: ConsumeCallable) -> Type[Any]:
     try:
         msg_type = types_list[0]
 
-        if hasattr(msg_type, "__origin__") and msg_type.__origin__ == list:
-            msg_type = msg_type.__args__[0]
+        msg_type = unwrap_list_type(msg_type)
 
         if not issubclass(msg_type, BaseModel):
             raise ValueError(

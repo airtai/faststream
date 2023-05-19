@@ -143,34 +143,6 @@ def _prepare_callback(callback: ConsumeCallable) -> AsyncConsumeMeta:
     )
     return _callback_parameters_wrapper(async_callback)
 
-# %% ../../nbs/011_ConsumerLoop.ipynb 19
-async def _stream_msgs(  # type: ignore
-    msgs: Dict[TopicPartition, bytes],
-    send_stream: anyio.streams.memory.MemoryObjectSendStream[Any],
-) -> None:
-    """
-    Decodes and streams the message and topic to the send_stream.
-
-    Args:
-        msgs:
-        send_stream:
-    """
-    for topic_partition, topic_msgs in msgs.items():
-        topic = topic_partition.topic
-        try:
-            await send_stream.send(topic_msgs)
-        except Exception as e:
-            logger.warning(
-                f"_stream_msgs(): Unexpected exception '{e.__repr__()}' caught and ignored for topic='{topic_partition.topic}', partition='{topic_partition.partition}' and messages: {topic_msgs!r}"
-            )
-
-
-def _decode_streamed_msgs(  # type: ignore
-    msgs: List[ConsumerRecord], msg_type: BaseModel
-) -> List[BaseModel]:
-    decoded_msgs = [msg_type.parse_raw(msg.value.decode("utf-8")) for msg in msgs]
-    return decoded_msgs
-
 # %% ../../nbs/011_ConsumerLoop.ipynb 24
 def _get_single_msg_handlers(  # type: ignore
     *,
