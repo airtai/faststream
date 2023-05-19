@@ -11,8 +11,7 @@ import json
 import types
 from asyncio import iscoroutinefunction  # do not use the version from inspect
 from collections import namedtuple
-from contextlib import AbstractAsyncContextManager
-from contextlib import asynccontextmanager
+from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from datetime import datetime, timedelta
 from functools import wraps
 from inspect import signature
