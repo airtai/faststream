@@ -1,8 +1,14 @@
 .features {
   display: flex;
   align-items: center;
-  padding: 2rem 0;
+  padding: 4rem 0 0 0;
   width: 100%;
+  background-color: #60bee4;
+  border-bottom: 1px solid #8bcae5;
+}
+
+.features p {
+  text-align: left;
 }
 
 .featureSvg {
@@ -10,7 +16,7 @@
   width: 200px;
 }
 .title {
-  font-size: 2.3rem;
+  font-size: 3rem;
   text-align: center;
 }
 .subTitle {
@@ -26,10 +32,13 @@
   margin-top: 80px;
 }
 .link {
-  color: var(--ifm-hero-text-color);
+  color: #fff;
   text-decoration: underline;
   transition: color var(--ifm-transition-fast)
     var(--ifm-transition-timing-default);
+}
+.link:hover {
+  color: var(--ifm-hero-text-color);
 }
 
 .wrapper {
@@ -45,7 +54,13 @@
   transform: translate(-50%, -50%);
 }
 .childrenWithExtraPadding {
-  margin: 80px 0px;
+  margin: 4rem 0px;
   /* padding: 0px 30px; */
   font-size: 1.2rem;
+}
+/** Mobile view */
+@media screen and (max-width: 996px) {
+  .title {
+    font-size: 2rem;
+  }
 }

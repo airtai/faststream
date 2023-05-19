@@ -1,21 +1,29 @@
 .features {
   display: flex;
   align-items: center;
-  padding: 2rem 0;
+  padding: 1rem 0 4rem 0;
   width: 100%;
+  background: rgb(20, 116, 166);
+  background: linear-gradient(
+    180deg,
+    rgba(20, 116, 166, 1) 50%,
+    rgba(82, 175, 216, 1) 100%
+  );
 }
 
 .featureSvg {
-  height: 160px;
-  width: 160px;
+  height: 250px;
+  width: 330px;
   margin: 30px 0px;
 }
 .title {
-  font-size: 2.3rem;
+  font-size: 3rem;
   text-align: center;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
 }
 .subTitle {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   text-align: left;
 }
 .description {
@@ -25,4 +33,11 @@
 }
 .rowWitExtraMargin {
   margin-top: 80px;
+}
+
+/** Mobile view */
+@media screen and (max-width: 996px) {
+  .title {
+    font-size: 2rem;
+  }
 }

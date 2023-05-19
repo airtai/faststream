@@ -7,35 +7,35 @@ import styles from './styles.module.css';
 
 
 
-const FeatureList = [
-  {
-    title: 'WRITE',
-    Svg: require('@site/static/img/programming-monitor-svgrepo-com.svg').default,
-    description: (
-      <>
-        producers & consumers for Kafka topics in a simplified way
-      </>
-    ),
-  },
-  {
-    title: 'PROTOTYPE',
-    Svg: require('@site/static/img/rocket-svgrepo-com.svg').default,
-    description: (
-      <>
-        quickly & develop high-performance Kafka-based services
-      </>
-    ),
-  },
-  {
-    title: 'STREAMLINE',
-    Svg: require('@site/static/img/hierarchy-order-svgrepo-com.svg').default,
-    description: (
-      <>
-        your workflow & accelerate your progress
-      </>
-    ),
-  },
-];
+// const FeatureList = [
+//   {
+//     title: 'WRITE',
+//     Svg: require('@site/static/img/programming-monitor-svgrepo-com.svg').default,
+//     description: (
+//       <>
+//         producers & consumers for Kafka topics in a simplified way
+//       </>
+//     ),
+//   },
+//   {
+//     title: 'PROTOTYPE',
+//     Svg: require('@site/static/img/rocket-svgrepo-com.svg').default,
+//     description: (
+//       <>
+//         quickly & develop high-performance Kafka-based services
+//       </>
+//     ),
+//   },
+//   {
+//     title: 'STREAMLINE',
+//     Svg: require('@site/static/img/hierarchy-order-svgrepo-com.svg').default,
+//     description: (
+//       <>
+//         your workflow & accelerate your progress
+//       </>
+//     ),
+//   },
+// ];
 
 function Feature({Svg, title, description}) {
   return (

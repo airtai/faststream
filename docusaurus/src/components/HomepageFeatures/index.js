@@ -8,7 +8,7 @@ import styles from './styles.module.css';
 const FeatureList = [
   {
     title: 'WRITE',
-    Svg: require('@site/static/img/programming-monitor-svgrepo-com.svg').default,
+    src: "img/write.svg",
     description: (
       <>
         producers & consumers for Kafka topics in a simplified way
@@ -17,7 +17,7 @@ const FeatureList = [
   },
   {
     title: 'PROTOTYPE',
-    Svg: require('@site/static/img/rocket-svgrepo-com.svg').default,
+    src: "img/prototype.svg",
     description: (
       <>
         quickly & develop high-performance Kafka-based services
@@ -26,7 +26,7 @@ const FeatureList = [
   },
   {
     title: 'STREAMLINE',
-    Svg: require('@site/static/img/hierarchy-order-svgrepo-com.svg').default,
+    src: "img/streamline.svg",
     description: (
       <>
         your workflow & accelerate your progress
@@ -35,11 +35,11 @@ const FeatureList = [
   },
 ];
 
-function Feature({Svg, title, description}) {
+function Feature({src, title, description}) {
   return (
     <div className={clsx('col col--4')}>
       <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
+        <img className={styles.featureSvg} src={src}/>
       </div>
       <div className="text--center padding-horiz--md">
         <h3>{title}</h3>

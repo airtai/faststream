@@ -1,8 +1,16 @@
 .features {
   display: flex;
   align-items: center;
-  padding: 2rem 0;
+  padding: 5rem 0;
   width: 100%;
+  background: rgb(82, 175, 216);
+  background: linear-gradient(
+    180deg,
+    rgba(82, 175, 216, 1) 0%,
+    rgba(96, 190, 228, 1) 100%
+  );
+  border-top: 1px solid #8bcae5;
+  border-bottom: 1px solid #8bcae5;
 }
 
 .featureSvg {
@@ -11,12 +19,14 @@
   margin: 30px 0px;
 }
 .title {
-  font-size: 2.3rem;
+  font-size: 3rem;
   text-align: center;
 }
 .fastkafkaDescription {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
+  font-style: italic;
   text-align: center;
+  margin-bottom: 5rem;
 }
 .subTitle {
   font-size: 1.5rem;
@@ -40,6 +50,13 @@
 .fastkafkaChatHeader {
   font-size: 1.8rem;
   text-align: center;
+}
+
+/** Mobile view */
+@media screen and (max-width: 996px) {
+  .title {
+    font-size: 2rem;
+  }
 }
 
 /* .slantedDiv {
