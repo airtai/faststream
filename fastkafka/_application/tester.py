@@ -182,6 +182,9 @@ def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[...,
 def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(consumer_f).parameters["msg"]
 
+    if hasattr(msg_type, "__origin__") and msg_type.__origin__ == list:
+        msg_type = msg_type.__args__[0]  # type: ignore
+
     async def skeleton_func(msg: BaseModel) -> BaseModel:
         return msg
 

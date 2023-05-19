@@ -99,15 +99,16 @@ class StreamExecutor(ABC):
     @abstractmethod
     async def run(  # type: ignore
         self,
+        *,
         is_shutting_down_f: Callable[[], bool],
-        produce_func: Callable[[], Awaitable[ConsumerRecord]],
-        consume_func: Callable[[ConsumerRecord], Awaitable[None]],
+        generator: Callable[[], Awaitable[ConsumerRecord]],
+        processor: Callable[[ConsumerRecord], Awaitable[None]],
     ) -> None:
         pass
 
 # %% ../../nbs/011_TaskStreaming.ipynb 20
 def _process_items_task(  # type: ignore
-    consume_func: Callable[[ConsumerRecord], Awaitable[None]], task_pool: TaskPool
+    processor: Callable[[ConsumerRecord], Awaitable[None]], task_pool: TaskPool
 ) -> Callable[
     [
         anyio.streams.memory.MemoryObjectReceiveStream,
@@ -118,12 +119,12 @@ def _process_items_task(  # type: ignore
 ]:
     async def _process_items_wrapper(  # type: ignore
         receive_stream: anyio.streams.memory.MemoryObjectReceiveStream,
-        consume_func: Callable[[ConsumerRecord], Awaitable[None]] = consume_func,
+        processor: Callable[[ConsumerRecord], Awaitable[None]] = processor,
         task_pool=task_pool,
     ):
         async with receive_stream:
             async for msg in receive_stream:
-                task: asyncio.Task = asyncio.create_task(consume_func(msg))  # type: ignore
+                task: asyncio.Task = asyncio.create_task(processor(msg))  # type: ignore
                 await task_pool.add(task)
 
     return _process_items_wrapper
@@ -148,9 +149,10 @@ class DynamicTaskExecutor(StreamExecutor):
 
     async def run(  # type: ignore
         self,
+        *,
         is_shutting_down_f: Callable[[], bool],
-        produce_func: Callable[[], Awaitable[ConsumerRecord]],
-        consume_func: Callable[[ConsumerRecord], Awaitable[None]],
+        generator: Callable[[], Awaitable[ConsumerRecord]],
+        processor: Callable[[ConsumerRecord], Awaitable[None]],
     ) -> None:
         send_stream, receive_stream = anyio.create_memory_object_stream(
             max_buffer_size=self.max_buffer_size
@@ -159,7 +161,7 @@ class DynamicTaskExecutor(StreamExecutor):
         async with self.exception_monitor, self.task_pool:
             async with anyio.create_task_group() as tg:
                 tg.start_soon(
-                    _process_items_task(consume_func, self.task_pool), receive_stream
+                    _process_items_task(processor, self.task_pool), receive_stream
                 )
                 async with send_stream:
                     while not is_shutting_down_f():
@@ -168,13 +170,13 @@ class DynamicTaskExecutor(StreamExecutor):
                             and self.throw_exceptions
                         ):
                             break
-                        msgs = await produce_func()
+                        msgs = await generator()
                         for msg in msgs:
                             await send_stream.send(msg)
 
 # %% ../../nbs/011_TaskStreaming.ipynb 30
 def _process_items_coro(  # type: ignore
-    consume_func: Callable[[ConsumerRecord], Awaitable[None]],
+    processor: Callable[[ConsumerRecord], Awaitable[None]],
     throw_exceptions: bool,
 ) -> Callable[
     [
@@ -186,13 +188,13 @@ def _process_items_coro(  # type: ignore
 ]:
     async def _process_items_wrapper(  # type: ignore
         receive_stream: anyio.streams.memory.MemoryObjectReceiveStream,
-        consume_func: Callable[[ConsumerRecord], Awaitable[None]] = consume_func,
+        processor: Callable[[ConsumerRecord], Awaitable[None]] = processor,
         throw_exceptions: bool = throw_exceptions,
     ) -> Awaitable[None]:
         async with receive_stream:
             async for msg in receive_stream:
                 try:
-                    await consume_func(msg)
+                    await processor(msg)
                 except Exception as e:
                     if throw_exceptions:
                         raise e
@@ -213,9 +215,10 @@ class SequentialExecutor(StreamExecutor):
 
     async def run(  # type: ignore
         self,
+        *,
         is_shutting_down_f: Callable[[], bool],
-        produce_func: Callable[[], Awaitable[ConsumerRecord]],
-        consume_func: Callable[[ConsumerRecord], Awaitable[None]],
+        generator: Callable[[], Awaitable[ConsumerRecord]],
+        processor: Callable[[ConsumerRecord], Awaitable[None]],
     ) -> None:
         send_stream, receive_stream = anyio.create_memory_object_stream(
             max_buffer_size=self.max_buffer_size
@@ -223,11 +226,11 @@ class SequentialExecutor(StreamExecutor):
 
         async with anyio.create_task_group() as tg:
             tg.start_soon(
-                _process_items_coro(consume_func, self.throw_exceptions), receive_stream
+                _process_items_coro(processor, self.throw_exceptions), receive_stream
             )
             async with send_stream:
                 while not is_shutting_down_f():
-                    msgs = await produce_func()
+                    msgs = await generator()
                     for msg in msgs:
                         await send_stream.send(msg)
 
