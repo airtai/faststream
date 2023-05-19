@@ -60,6 +60,9 @@
 .href {
   text-decoration: underline;
 }
+.faqAnswer a {
+  text-decoration: underline;
+}
 
 /** Mobile view */
 @media screen and (max-width: 996px) {

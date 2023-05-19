@@ -8,6 +8,7 @@ website:
         - section: Writing services
           contents:
           - guides/Guide_11_Consumes_Basics.ipynb
+          - guides/Guide_12_Batch_Consuming.ipynb
           - guides/Guide_21_Produces_Basics.ipynb
           - guides/Guide_22_Partition_Keys.ipynb
           - guides/Guide_23_Batch_Producing.ipynb
@@ -26,5 +27,3 @@ website:
         - section: Benchmarking
           contents:          
           - guides/Guide_06_Benchmarking_FastKafka.ipynb
-
-          
