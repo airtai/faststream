@@ -25,6 +25,22 @@
   text-align: center;
   margin-top: 3rem;
 }
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 55px;
+}
+.heroButton {
+  color: #fff;
+  background: var(--ifm-navbar-background-color);
+  border-radius: 25px;
+  padding: 0.8rem 2.5rem 0.7rem 2.5rem;
+  margin-top: -1.5rem;
+}
+.heroButton:hover {
+  background: #3e99c5;
+}
 
 /* .withExtraMargin*/
 /* .testimonialWrapper {
