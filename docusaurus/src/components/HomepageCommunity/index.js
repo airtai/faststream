@@ -83,17 +83,17 @@ export default function HomepageCommunity() {
       },
       container_2: {
         source: {
-          icon: "img/reddit-logo.png",
-          link: "https://www.reddit.com/r/programming/comments/11sjtgm/comment/jceqgml/?utm_source=share&utm_medium=web2x&context=3",
+          icon: "img/twitter-logo.svg",
+          link: "https://twitter.com/emaxerrno/status/1635005087721611264?s=20",
         },
         user: {
-          profilePic: profiles["teajunky"]["icon_img"],
-          userName: profiles["teajunky"]["subreddit"]["display_name_prefixed"],
-          fullName: "teajunky",
+          profilePic: "img/a-alphabet-round-icon.png",
+          userName: "Alexander Gallego",
+          fullName: "Alexander Gallego",
         },
         description: (
           <>
-            Wow, the code in the package is auto-generated from Jupyter-Notebooks
+            this is cool. let me know if you want to share it w/ the @redpandadata community.
           </>
         ),
       },
@@ -115,20 +115,21 @@ export default function HomepageCommunity() {
       },
       container_4: {
         source: {
-          icon: "img/twitter-logo.svg",
-          link: "https://twitter.com/emaxerrno/status/1635005087721611264?s=20",
+          icon: "img/reddit-logo.png",
+          link: "https://www.reddit.com/r/programming/comments/11sjtgm/comment/jceqgml/?utm_source=share&utm_medium=web2x&context=3",
         },
         user: {
-          profilePic: "img/a-alphabet-round-icon.png",
-          userName: "Alexander Gallego",
-          fullName: "Alexander Gallego",
+          profilePic: profiles["teajunky"]["icon_img"],
+          userName: profiles["teajunky"]["subreddit"]["display_name_prefixed"],
+          fullName: "teajunky",
         },
         description: (
           <>
-            this is cool. let me know if you want to share it w/ the @redpandadata community.
+            Wow, the code in the package is auto-generated from Jupyter-Notebooks
           </>
         ),
       },
+      
     },
     {
       container_1: {
@@ -266,7 +267,7 @@ export default function HomepageCommunity() {
   ];
 
   const handleLoadMore = () => {
-    setTestimonialLimitToShow(testimonialLimitToShow === "2" ? "3" : maxTestimonialSectionToShow);
+    setTestimonialLimitToShow(testimonialLimitToShow === "2" ? "3" : Object.keys(testimonials[0]).length);
   };
 
   useEffect(() => {
@@ -297,7 +298,7 @@ export default function HomepageCommunity() {
             <Testimonial key={idx} testimonialLimitToShow={testimonialLimitToShow} allTestimonials = {props}  />
           ))}
         </div>
-        {testimonialLimitToShow < maxTestimonialSectionToShow && (
+        {testimonialLimitToShow < Object.keys(testimonials[0]).length && (
           <div className={styles.buttons}>
             <button className={clsx("button button--lg", styles.heroButton)} onClick={handleLoadMore}>
                 Load More
