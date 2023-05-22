@@ -11,7 +11,7 @@ import json
 import types
 from asyncio import iscoroutinefunction  # do not use the version from inspect
 from collections import namedtuple
-from contextlib import AbstractAsyncContextManager
+from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from datetime import datetime, timedelta
 from functools import wraps
 from inspect import signature
@@ -47,10 +47,14 @@ from .._components.meta import delegates, export, filter_using_signature, patch
 from .._components.producer_decorator import ProduceCallable, producer_decorator
 from .._components.task_streaming import StreamExecutor
 
-# %% ../../nbs/015_FastKafka.ipynb 3
+# %% ../../nbs/015_FastKafka.ipynb 2
+if TYPE_CHECKING:
+    from fastapi import FastAPI
+
+# %% ../../nbs/015_FastKafka.ipynb 4
 logger = get_logger(__name__)
 
-# %% ../../nbs/015_FastKafka.ipynb 9
+# %% ../../nbs/015_FastKafka.ipynb 10
 @delegates(AIOKafkaConsumer, but=["bootstrap_servers"])
 @delegates(AIOKafkaProducer, but=["bootstrap_servers"], keep=True)
 def _get_kafka_config(
@@ -78,7 +82,7 @@ def _get_kafka_config(
 
     return retval
 
-# %% ../../nbs/015_FastKafka.ipynb 12
+# %% ../../nbs/015_FastKafka.ipynb 13
 def _get_kafka_brokers(kafka_brokers: Optional[Dict[str, Any]] = None) -> KafkaBrokers:
     """Get Kafka brokers
 
@@ -108,7 +112,7 @@ def _get_kafka_brokers(kafka_brokers: Optional[Dict[str, Any]] = None) -> KafkaB
 
     return retval
 
-# %% ../../nbs/015_FastKafka.ipynb 14
+# %% ../../nbs/015_FastKafka.ipynb 15
 def _get_topic_name(
     topic_callable: Union[ConsumeCallable, ProduceCallable], prefix: str = "on_"
 ) -> str:
@@ -127,7 +131,7 @@ def _get_topic_name(
 
     return topic
 
-# %% ../../nbs/015_FastKafka.ipynb 16
+# %% ../../nbs/015_FastKafka.ipynb 17
 def _get_contact_info(
     name: str = "Author",
     url: str = "https://www.google.com",
@@ -135,13 +139,13 @@ def _get_contact_info(
 ) -> ContactInfo:
     return ContactInfo(name=name, url=url, email=email)  # type: ignore
 
-# %% ../../nbs/015_FastKafka.ipynb 18
+# %% ../../nbs/015_FastKafka.ipynb 19
 I = TypeVar("I", bound=BaseModel)
 O = TypeVar("O", BaseModel, Awaitable[BaseModel])
 
 F = TypeVar("F", bound=Callable)
 
-# %% ../../nbs/015_FastKafka.ipynb 19
+# %% ../../nbs/015_FastKafka.ipynb 20
 @export("fastkafka")
 class FastKafka:
     @delegates(_get_kafka_config)
@@ -273,6 +277,19 @@ class FastKafka:
         self._kafka_config["bootstrap_servers"] = bootstrap_servers
 
     def set_kafka_broker(self, kafka_broker_name: str) -> None:
+        """
+        Sets the Kafka broker to start FastKafka with
+
+        Args:
+            kafka_broker_name: The name of the Kafka broker to start FastKafka
+
+        Raises:
+            ValueError: If the provided kafka_broker_name is not found in dictionary of kafka_brokers
+
+        Returns:
+            None
+        """
+
         if kafka_broker_name not in self._kafka_brokers.brokers:
             raise ValueError(
                 f"Given kafka_broker_name '{kafka_broker_name}' is not found in kafka_brokers, available options are {self._kafka_brokers.brokers.keys()}"
@@ -372,7 +389,7 @@ class FastKafka:
     async def _shutdown_bg_tasks(self) -> None:
         raise NotImplementedError
 
-# %% ../../nbs/015_FastKafka.ipynb 26
+# %% ../../nbs/015_FastKafka.ipynb 27
 def _get_decoder_fn(decoder: str) -> Callable[[bytes, ModelMetaclass], Any]:
     """
     Imports and returns decoder function based on input
@@ -392,7 +409,7 @@ def _get_decoder_fn(decoder: str) -> Callable[[bytes, ModelMetaclass], Any]:
     else:
         raise ValueError(f"Unknown decoder - {decoder}")
 
-# %% ../../nbs/015_FastKafka.ipynb 28
+# %% ../../nbs/015_FastKafka.ipynb 29
 @patch
 @delegates(AIOKafkaConsumer)
 def consumes(
@@ -458,7 +475,7 @@ def consumes(
 
     return _decorator
 
-# %% ../../nbs/015_FastKafka.ipynb 30
+# %% ../../nbs/015_FastKafka.ipynb 31
 def _get_encoder_fn(encoder: str) -> Callable[[BaseModel], bytes]:
     """
     Imports and returns encoder function based on input
@@ -478,7 +495,7 @@ def _get_encoder_fn(encoder: str) -> Callable[[BaseModel], bytes]:
     else:
         raise ValueError(f"Unknown encoder - {encoder}")
 
-# %% ../../nbs/015_FastKafka.ipynb 32
+# %% ../../nbs/015_FastKafka.ipynb 33
 @patch
 @delegates(AIOKafkaProducer)
 def produces(
@@ -535,14 +552,14 @@ def produces(
 
     return _decorator
 
-# %% ../../nbs/015_FastKafka.ipynb 34
+# %% ../../nbs/015_FastKafka.ipynb 35
 @patch
 def get_topics(self: FastKafka) -> Iterable[str]:
     produce_topics = set(self._producers_store.keys())
     consume_topics = set(self._consumers_store.keys())
     return consume_topics.union(produce_topics)
 
-# %% ../../nbs/015_FastKafka.ipynb 36
+# %% ../../nbs/015_FastKafka.ipynb 37
 @patch
 def run_in_background(
     self: FastKafka,
@@ -579,7 +596,7 @@ def run_in_background(
 
     return _decorator
 
-# %% ../../nbs/015_FastKafka.ipynb 40
+# %% ../../nbs/015_FastKafka.ipynb 41
 @patch
 def _populate_consumers(
     self: FastKafka,
@@ -616,7 +633,7 @@ async def _shutdown_consumers(
     if self._kafka_consumer_tasks:
         await asyncio.wait(self._kafka_consumer_tasks)
 
-# %% ../../nbs/015_FastKafka.ipynb 42
+# %% ../../nbs/015_FastKafka.ipynb 43
 # TODO: Add passing of vars
 async def _create_producer(  # type: ignore
     *,
@@ -710,7 +727,7 @@ async def _shutdown_producers(self: FastKafka) -> None:
         }
     )
 
-# %% ../../nbs/015_FastKafka.ipynb 44
+# %% ../../nbs/015_FastKafka.ipynb 45
 @patch
 async def _populate_bg_tasks(
     self: FastKafka,
@@ -746,7 +763,7 @@ async def _shutdown_bg_tasks(
             f"_shutdown_bg_tasks() : Execution finished for background task '{task.get_name()}'"
         )
 
-# %% ../../nbs/015_FastKafka.ipynb 46
+# %% ../../nbs/015_FastKafka.ipynb 47
 @patch
 async def _start(self: FastKafka) -> None:
     def is_shutting_down_f(self: FastKafka = self) -> bool:
@@ -771,7 +788,7 @@ async def _stop(self: FastKafka) -> None:
     self._is_shutting_down = False
     self._is_started = False
 
-# %% ../../nbs/015_FastKafka.ipynb 52
+# %% ../../nbs/015_FastKafka.ipynb 53
 @patch
 def create_docs(self: FastKafka) -> None:
     export_async_spec(
@@ -787,7 +804,7 @@ def create_docs(self: FastKafka) -> None:
         asyncapi_path=self._asyncapi_path,
     )
 
-# %% ../../nbs/015_FastKafka.ipynb 56
+# %% ../../nbs/015_FastKafka.ipynb 57
 class AwaitedMock:
     @staticmethod
     def _await_for(f: Callable[..., Any]) -> Callable[..., Any]:
@@ -823,7 +840,7 @@ class AwaitedMock:
                 if inspect.ismethod(f):
                     setattr(self, name, self._await_for(f))
 
-# %% ../../nbs/015_FastKafka.ipynb 57
+# %% ../../nbs/015_FastKafka.ipynb 58
 @patch
 def create_mocks(self: FastKafka) -> None:
     """Creates self.mocks as a named tuple mapping a new function obtained by calling the original functions and a mock"""
@@ -892,7 +909,7 @@ def create_mocks(self: FastKafka) -> None:
         }
     )
 
-# %% ../../nbs/015_FastKafka.ipynb 62
+# %% ../../nbs/015_FastKafka.ipynb 63
 @patch
 def benchmark(
     self: FastKafka,
@@ -946,3 +963,26 @@ def benchmark(
             return wrapper
 
     return _decorator
+
+# %% ../../nbs/015_FastKafka.ipynb 65
+@patch
+def fastapi_lifespan(
+    self: FastKafka, kafka_broker_name: str
+) -> Callable[["FastAPI"], AsyncIterator[None]]:
+    """
+    Method for managing the lifespan of a FastAPI application with a specific Kafka broker.
+
+    Args:
+        kafka_broker_name: The name of the Kafka broker to start FastKafka
+
+    Returns:
+        Lifespan function to use for initializing FastAPI
+    """
+
+    @asynccontextmanager
+    async def lifespan(fastapi_app: "FastAPI") -> AsyncIterator[None]:
+        self.set_kafka_broker(kafka_broker_name=kafka_broker_name)
+        async with self:
+            yield
+
+    return lifespan  # type: ignore

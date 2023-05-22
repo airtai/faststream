@@ -23,8 +23,7 @@ website:
         - section: Deployment
           contents:          
           - guides/Guide_30_Using_docker_to_deploy_fastkafka.ipynb   
+          - guides/Guide_32_Using_fastapi_to_run_fastkafka_application.ipynb
         - section: Benchmarking
           contents:          
           - guides/Guide_06_Benchmarking_FastKafka.ipynb
-
-          
