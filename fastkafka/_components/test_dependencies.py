@@ -9,6 +9,7 @@ import shutil
 import tarfile
 from contextlib import contextmanager
 from os import environ
+from os.path import expanduser
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
@@ -27,7 +28,7 @@ logger = get_logger(__name__)
 # %% ../../nbs/098_Test_Dependencies.ipynb 6
 def check_java(*, potential_jdk_path: Optional[List[Path]] = None) -> bool:
     if potential_jdk_path is None:
-        potential_jdk_path = list(Path(environ["HOME"] + "/.jdk").glob("jdk-11*"))
+        potential_jdk_path = list(Path(expanduser("~") + "/.jdk").glob("jdk-11*"))
 
     if potential_jdk_path != []:
         logger.info("Java is already installed.")
@@ -63,7 +64,7 @@ def _install_java() -> None:
 kafka_version = "3.3.2"
 kafka_fname = f"kafka_2.13-{kafka_version}"
 kafka_url = f"https://dlcdn.apache.org/kafka/{kafka_version}/{kafka_fname}.tgz"
-local_path = Path(environ["HOME"]) / ".local"
+local_path = Path(expanduser("~")) / ".local"
 tgz_path = local_path / f"{kafka_fname}.tgz"
 kafka_path = local_path / f"{kafka_fname}"
 

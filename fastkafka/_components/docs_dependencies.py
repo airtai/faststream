@@ -52,7 +52,7 @@ def _check_npm(required_major_version: int = npm_required_major_version) -> None
 node_version = "v18.15.0"
 node_fname = f"node-{node_version}-linux-x64"
 node_url = f"https://nodejs.org/dist/{node_version}/{node_fname}.tar.xz"
-local_path = Path(os.environ["HOME"]) / ".local"
+local_path = Path(os.path.expanduser("~")) / ".local"
 tgz_path = local_path / f"{node_fname}.tar.xz"
 node_path = local_path / f"{node_fname}"
 
