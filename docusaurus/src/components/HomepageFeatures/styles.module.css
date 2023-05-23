@@ -19,7 +19,7 @@
 .title {
   font-size: 3rem;
   text-align: center;
-  padding-top: 3rem;
+  padding-top: 2rem;
   padding-bottom: 3rem;
   color: #fff;
 }
@@ -27,6 +27,12 @@
   color: #fff;
   text-align: center;
   padding: 1rem 2.2rem;
+}
+.textContainer h3 {
+  font-size: 1.5rem;
+}
+.textContainer p {
+  font-size: 1rem;
 }
 .subTitle {
   font-size: 1.4rem;

@@ -43,8 +43,9 @@
   color: #fff;
   background: var(--ifm-navbar-background-color);
   border-radius: 25px;
-  padding: 0.8rem 2.5rem 0.7rem 2.5rem;
+  padding: 0.7rem 2.5rem 0.7rem 2.5rem;
   margin-top: -1.5rem;
+  font-size: 1rem;
 }
 .heroButton:hover {
   background: #3e99c5;
