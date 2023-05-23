@@ -6,8 +6,7 @@ __all__ = ['logger']
 # %% ../../nbs/017_Benchmarking.ipynb 1
 from collections import deque
 from datetime import datetime, timedelta
-from functools import wraps
-from statistics import mean, stdev
+from statistics import mean
 from typing import *
 
 from .logger import get_logger
