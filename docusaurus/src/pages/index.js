@@ -13,7 +13,6 @@ import RobotFooterIcon from '@site/src/components/RobotFooterIcon';
 import styles from './index.module.css';
 
 function HomepageHeader() {
-  const {siteConfig} = useDocusaurusContext();
   return (
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
@@ -37,8 +36,8 @@ export default function Home() {
   const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
-      title="Effortless Kafka integration for web services"
-      description="Powerful and easy-to-use open-source framework for building asynchronous web services that interact with Kafka.">
+      title={siteConfig.tagline}
+      description={siteConfig.customFields.description}>
       <HomepageHeader />
       <main>
         <HomepageFeatures />
