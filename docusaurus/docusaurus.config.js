@@ -7,7 +7,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'FastKafka',
-  tagline: 'Effortless Kafka integration for your web services',
+  tagline: 'Powerful and easy-to-use open-source framework for building asynchronous web services that interact with Kafka.',
   favicon: 'img/AIRT_icon_blue.svg',
 
   // Set the production url of your site here

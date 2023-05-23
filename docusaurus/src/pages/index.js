@@ -38,7 +38,7 @@ export default function Home() {
   return (
     <Layout
       title="Effortless Kafka integration for web services"
-      description="Effortless Kafka integration for web services">
+      description="Powerful and easy-to-use open-source framework for building asynchronous web services that interact with Kafka.">
       <HomepageHeader />
       <main>
         <HomepageFeatures />
