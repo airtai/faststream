@@ -12,19 +12,17 @@ import tempfile
 from datetime import timedelta
 from enum import Enum
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import *
 
 from pydantic import BaseModel, Field, HttpUrl
 from pydantic.json import timedelta_isoformat
 from pydantic.schema import schema
 
-from .aiokafka_consumer_loop import ConsumeCallable, EventMetadata
+from .aiokafka_consumer_loop import ConsumeCallable
 from .docs_dependencies import _check_npm_with_local
 from .helpers import unwrap_list_type
 from .logger import get_logger
 from fastkafka._components.producer_decorator import (
-    KafkaEvent,
     ProduceCallable,
     unwrap_from_kafka_event,
 )

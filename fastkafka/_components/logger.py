@@ -10,7 +10,6 @@ import logging.config
 from typing import *
 
 from .helpers import true_after
-from .meta import patch
 
 # %% ../../nbs/Logger.ipynb 4
 # Logger Levels

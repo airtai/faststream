@@ -5,18 +5,13 @@ __all__ = ['logger', 'AsyncConsume', 'AsyncConsumeMeta', 'SyncConsume', 'SyncCon
            'sanitize_kafka_config', 'aiokafka_consumer_loop']
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 1
-import asyncio
 from asyncio import iscoroutinefunction, Task  # do not use the version from inspect
 from typing import *
-from functools import wraps, partial
 from dataclasses import dataclass
-from contextlib import asynccontextmanager
 
-import anyio
 import asyncer
 from aiokafka import AIOKafkaConsumer
-from aiokafka.structs import ConsumerRecord, TopicPartition
-from anyio.streams.memory import MemoryObjectReceiveStream
+from aiokafka.structs import ConsumerRecord
 from pydantic import BaseModel
 from pydantic.main import ModelMetaclass
 
