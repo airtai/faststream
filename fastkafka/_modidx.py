@@ -528,4 +528,5 @@ d = { 'settings': { 'branch': 'main',
                                                'fastkafka._testing.test_utils.run_script_and_cancel': ( 'test_utils.html#run_script_and_cancel',
                                                                                                         'fastkafka/_testing/test_utils.py')},
             'fastkafka.encoder': {'fastkafka.encoder.dummy': ('encoder_export.html#dummy', 'fastkafka/encoder.py')},
+            'fastkafka.executors': {'fastkafka.executors.dummy': ('application_executors_export.html#dummy', 'fastkafka/executors.py')},
             'fastkafka.testing': {'fastkafka.testing.dummy': ('testing_export.html#dummy', 'fastkafka/testing.py')}}}
