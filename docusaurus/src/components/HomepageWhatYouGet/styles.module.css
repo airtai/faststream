@@ -9,6 +9,7 @@
 
 .features p {
   text-align: left;
+  font-size: 1rem;
 }
 
 .featureSvg {
@@ -25,12 +26,7 @@
   text-align: left;
   color: #fff;
 }
-.description {
-  font-size: 1rem;
-  text-align: center;
-  margin-top: 3rem;
-  color: #fff;
-}
+
 .rowWitExtraMargin {
   margin-top: 80px;
 }
