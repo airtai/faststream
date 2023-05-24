@@ -7,6 +7,7 @@ __all__ = ['logger', 'get_zookeeper_config_string', 'get_kafka_config_string', '
 # %% ../../nbs/002_ApacheKafkaBroker.ipynb 1
 import asyncio
 import re
+import platform
 import socket
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -20,7 +21,7 @@ from .._components._subprocess import terminate_asyncio_process
 from .._components.helpers import in_notebook
 from .._components.logger import get_logger
 from .._components.meta import delegates, export, filter_using_signature, patch
-from .._components.test_dependencies import check_java, check_kafka
+from .._components.test_dependencies import check_java, check_kafka, kafka_path
 
 # %% ../../nbs/002_ApacheKafkaBroker.ipynb 3
 if in_notebook():
@@ -304,7 +305,7 @@ def _check_deps(cls: ApacheKafkaBroker) -> None:
             "Kafka installation not found! Please install Kafka tools manually or run 'fastkafka testing install_deps'."
         )
 
-# %% ../../nbs/002_ApacheKafkaBroker.ipynb 16
+# %% ../../nbs/002_ApacheKafkaBroker.ipynb 17
 async def run_and_match(
     *args: str,
     capture: str = "stdout",
@@ -358,7 +359,7 @@ async def run_and_match(
 
     raise TimeoutError()
 
-# %% ../../nbs/002_ApacheKafkaBroker.ipynb 19
+# %% ../../nbs/002_ApacheKafkaBroker.ipynb 20
 def get_free_port() -> str:
     s = socket.socket()
     s.bind(("127.0.0.1", 0))
@@ -403,6 +404,7 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
 
     configs_tried: List[Dict[str, Any]] = []
 
+    msg = ""
     for i in range(self.retries + 1):
         configs_tried = configs_tried + [getattr(self, f"{service}_kwargs").copy()]
 
@@ -416,8 +418,13 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
             )
 
         try:
+            service_start_script = (
+                kafka_path / f"/bin/windows/{service}-server-start.bat"
+                if platform.system() == "Windows"
+                else f"{service}-server-start.sh"
+            )
             service_task = await run_and_match(
-                f"{service}-server-start.sh",
+                service_start_script,
                 str(service_config_path),
                 pattern="INFO \[KafkaServer id=0\] started"
                 if service == "kafka"
@@ -426,6 +433,7 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
             )
         except Exception as e:
             print(e)
+            msg = msg + " " + str(e)
             logger.info(
                 f"{service} startup falied, generating a new port and retrying..."
             )
@@ -441,7 +449,9 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
             setattr(self, f"{service}_task", service_task)
             return
 
-    raise ValueError(f"Could not start {service} with params: {configs_tried}")
+    raise ValueError(
+        f"Could not start {service} with params: {configs_tried} {msg=}, {service_start_script=}"
+    )
 
 
 @patch
@@ -459,10 +469,15 @@ async def _create_topics(self: ApacheKafkaBroker) -> None:
     listener_port = self.kafka_kwargs.get("listener_port", 9092)
     bootstrap_server = f"127.0.0.1:{listener_port}"
 
+    topics_script = (
+        kafka_path / "/bin/windows/kafka-topics.bat"
+        if platform.system() == "Windows"
+        else "kafka-topics.sh"
+    )
     async with asyncer.create_task_group() as tg:
         processes = [
             tg.soonify(asyncio.create_subprocess_exec)(
-                "kafka-topics.sh",
+                topics_script,
                 "--create",
                 f"--topic={topic}",
                 f"--bootstrap-server={bootstrap_server}",
@@ -510,7 +525,7 @@ async def _stop(self: ApacheKafkaBroker) -> None:
     self.temporary_directory.__exit__(None, None, None)  # type: ignore
     self._is_started = False
 
-# %% ../../nbs/002_ApacheKafkaBroker.ipynb 22
+# %% ../../nbs/002_ApacheKafkaBroker.ipynb 23
 @patch
 def start(self: ApacheKafkaBroker) -> str:
     """Starts a local kafka broker and zookeeper instance synchronously

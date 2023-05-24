@@ -5,6 +5,7 @@ __all__ = ['logger', 'kafka_version', 'kafka_fname', 'kafka_url', 'local_path', 
            'check_kafka', 'generate_app_src', 'generate_app_in_tmp']
 
 # %% ../../nbs/098_Test_Dependencies.ipynb 2
+import platform
 import shutil
 import tarfile
 from contextlib import contextmanager
@@ -74,7 +75,12 @@ def check_kafka(kafka_path: Path = kafka_path) -> bool:
         logger.info("Kafka is installed.")
         if not shutil.which("kafka-server-start.sh"):
             logger.info("But not exported to PATH, exporting...")
-            environ["PATH"] = environ["PATH"] + f":{kafka_path}/bin"
+            kafka_binary_path = (
+                f":{kafka_path}/bin/windows"
+                if platform.system() == "Windows"
+                else f":{kafka_path}/bin"
+            )
+            environ["PATH"] = environ["PATH"] + kafka_binary_path
         return True
     return False
 
@@ -117,7 +123,12 @@ def _install_kafka(
             for tarinfo in tar:
                 tar.extract(tarinfo, local_path)
 
-        environ["PATH"] = environ["PATH"] + f":{kafka_path}/bin"
+        kafka_binary_path = (
+            f":{kafka_path}/bin/windows"
+            if platform.system() == "Windows"
+            else f":{kafka_path}/bin"
+        )
+        environ["PATH"] = environ["PATH"] + kafka_binary_path
         logger.info(f"Kafka installed in {kafka_path}.")
 
 # %% ../../nbs/098_Test_Dependencies.ipynb 13
