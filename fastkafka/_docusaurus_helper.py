@@ -12,13 +12,11 @@ from pathlib import Path
 from typing import *
 from urllib.parse import urljoin
 
-import yaml
 from docstring_parser import parse
 from docstring_parser.common import DocstringParam, DocstringRaises, DocstringReturns
 from nbdev.config import get_config
 from nbdev_mkdocs.mkdocs import (
     _add_all_submodules,
-    _get_api_summary,
     _import_all_members,
     _import_functions_and_classes,
     _import_submodules,

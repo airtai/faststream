@@ -231,7 +231,7 @@ html.docs-doc-page .navbar.navbar--fixed-top .navbar__items--right {
 }
 
 .navbar__link {
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 .navbar__toggle {
   color: #fff;
@@ -350,7 +350,7 @@ h3.anchor > code {
 }
 .footer.footer--dark .footer__col .footer__title {
   letter-spacing: 0.025rem;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 .footer.footer--dark .footer__col:first-child .footer__item {
   display: inline-block;
@@ -403,11 +403,11 @@ h3.anchor > code {
   /* color: var(--ifm-font-color-base); */
   color: #fff;
   cursor: pointer;
-  padding: 2.5rem;
+  padding: 2rem;
   width: 100%;
   text-align: left;
   border: 1px solid #8bcae5;
-  font-size: 1.4rem;
+  font-size: 1rem;
   margin: 0.5rem 0;
 }
 
@@ -436,10 +436,10 @@ h3.anchor > code {
 }
 
 .accordion__item .accordion__panel {
-  padding: 2.5rem 2.5rem 1.5rem 2.5rem;
+  padding: 2rem 2rem 1rem 2rem;
   animation: fadein 0.35s ease-in;
   color: #fff;
-  font-size: 1.4rem;
+  font-size: 1rem;
   /* border: 1px solid #8bcae5; */
   /* border-top: none; */
 }

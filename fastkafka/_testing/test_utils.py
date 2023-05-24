@@ -11,13 +11,11 @@ import subprocess  # nosec
 import unittest
 import unittest.mock
 from contextlib import contextmanager
-from datetime import datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
 
 import asyncer
-from aiokafka import AIOKafkaProducer
 from IPython.display import IFrame
 
 from .._application.app import FastKafka

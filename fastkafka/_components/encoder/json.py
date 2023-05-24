@@ -4,7 +4,6 @@
 __all__ = ['logger', 'json_encoder', 'json_decoder']
 
 # %% ../../../nbs/019_Json_Encode_Decoder.ipynb 1
-import io
 import json
 from typing import *
 

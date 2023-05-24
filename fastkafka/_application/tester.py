@@ -11,7 +11,6 @@ from typing import *
 
 from pydantic import BaseModel
 
-from .. import KafkaEvent
 from .app import FastKafka
 from .._components.helpers import unwrap_list_type
 from .._components.meta import delegates, export, patch
