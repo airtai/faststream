@@ -13,6 +13,7 @@ from pydantic import BaseModel
 
 from .. import KafkaEvent
 from .app import FastKafka
+from .._components.asyncapi import KafkaBroker
 from .._components.helpers import unwrap_list_type
 from .._components.meta import delegates, export, patch
 from .._components.producer_decorator import unwrap_from_kafka_event
@@ -40,11 +41,19 @@ class Tester(FastKafka):
 
         """
         self.apps = app if isinstance(app, list) else [app]
-        host, port = self.apps[0]._kafka_config["bootstrap_servers"].split(":")
-        super().__init__(kafka_brokers={"localhost": {"url": host, "port": port}})
+        self.overriden_brokers = set()
+        for app in self.apps:
+            for _, _, _, broker, _ in app._consumers_store.values():
+                if broker is not None:
+                    self.overriden_brokers.add(broker.name)
+            for _, _, broker, _ in app._producers_store.values():
+                if broker is not None:
+                    self.overriden_brokers.add(broker.name)
+
+        super().__init__()
         self.create_mirrors()
 
-        self.broker = broker
+        self.brokers = [broker] if broker is not None else None
 
     @delegates(LocalRedpandaBroker.__init__)
     def using_local_redpanda(self, **kwargs: Any) -> "Tester":
@@ -69,7 +78,10 @@ class Tester(FastKafka):
         kwargs["topics"] = (
             topics.union(kwargs["topics"]) if "topics" in kwargs else topics
         )
-        self.broker = LocalRedpandaBroker(**kwargs)
+        self.brokers = [
+            LocalRedpandaBroker(**kwargs)
+            for _ in range(len(self.overriden_brokers) + 1)
+        ]
 
         return self
 
@@ -93,7 +105,9 @@ class Tester(FastKafka):
         kwargs["topics"] = (
             topics.union(kwargs["topics"]) if "topics" in kwargs else topics
         )
-        self.broker = ApacheKafkaBroker(**kwargs)
+        self.brokers = [
+            ApacheKafkaBroker(**kwargs) for _ in range(len(self.overriden_brokers) + 1)
+        ]
 
         return self
 
@@ -117,27 +131,34 @@ class Tester(FastKafka):
 
     @asynccontextmanager
     async def _create_ctx(self) -> AsyncGenerator["Tester", None]:
-        if self.broker is None:
+        if self.brokers is None:
             topics = set().union(*(app.get_topics() for app in self.apps))
-            self.broker = InMemoryBroker()
+            self.brokers = [InMemoryBroker()]
 
-        bootstrap_server = await self.broker._start()
-        old_bootstrap_servers: List[str] = list()
+        bootstrap_server = await self.brokers[0]._start()
+        url = bootstrap_server.split(":")[0]
+        port = bootstrap_server.split(":")[1]
+        #         old_bootstrap_servers: List[str] = list()
         try:
-            if isinstance(self.broker, (ApacheKafkaBroker, LocalRedpandaBroker)):
-                self._set_bootstrap_servers(bootstrap_servers=bootstrap_server)
+            if isinstance(self.brokers[0], (ApacheKafkaBroker, LocalRedpandaBroker)):
+                self._kafka_brokers.brokers["testing"] = KafkaBroker(url=url, port=port)
+                self.set_kafka_broker("testing")
                 for app in self.apps:
-                    old_bootstrap_servers.append(app._kafka_config["bootstrap_servers"])
-                    app._set_bootstrap_servers(bootstrap_server)
+                    #                     old_bootstrap_servers.append(app._kafka_config["bootstrap_servers"])
+                    app._kafka_brokers.brokers["testing"] = KafkaBroker(
+                        url=url, port=port
+                    )
+                    app.set_kafka_broker("testing")
             await self._start_tester()
             try:
                 yield self
             finally:
                 await self._stop_tester()
         finally:
-            await self.broker._stop()
-            for app, server in zip(self.apps, old_bootstrap_servers):
-                app._set_bootstrap_servers(server)
+            await self.brokers[0]._stop()
+
+    #             for app, server in zip(self.apps, old_bootstrap_servers):
+    #                 app._set_bootstrap_servers(server)
 
     async def __aenter__(self) -> "Tester":
         self._ctx = self._create_ctx()
@@ -203,11 +224,11 @@ def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[...,
 @patch
 def create_mirrors(self: Tester) -> None:
     for app in self.apps:
-        for topic, (consumer_f, _, _, _) in app._consumers_store.items():
+        for topic, (consumer_f, _, _, _, _) in app._consumers_store.items():
             mirror_f = mirror_consumer(topic, consumer_f)
             mirror_f = self.produces(topic=topic)(mirror_f)  # type: ignore
             setattr(self, mirror_f.__name__, mirror_f)
-        for topic, (producer_f, _, _) in app._producers_store.items():
+        for topic, (producer_f, _, _, _) in app._producers_store.items():
             mirror_f = mirror_producer(topic, producer_f)
             mirror_f = self.consumes(topic=topic)(mirror_f)  # type: ignore
             setattr(self, mirror_f.__name__, mirror_f)
