@@ -10,6 +10,7 @@ import re
 import platform
 import socket
 from datetime import datetime, timedelta
+from os import environ
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
@@ -22,8 +23,6 @@ from .._components.helpers import in_notebook
 from .._components.logger import get_logger
 from .._components.meta import delegates, export, filter_using_signature, patch
 from .._components.test_dependencies import check_java, check_kafka, kafka_path
-
-from os import environ
 
 # %% ../../nbs/002_ApacheKafkaBroker.ipynb 3
 if in_notebook():
@@ -321,7 +320,7 @@ async def run_and_match(
     # into a pipe.
     matched = 0
     print(f"{args=}")
-    print("*"*30)
+    print("*" * 30)
     proc = await asyncio.create_subprocess_exec(
         *args,
         stdout=asyncio.subprocess.PIPE,
@@ -355,7 +354,9 @@ async def run_and_match(
             dstdout = stdout.decode("utf-8")
             dstderr = stderr.decode("utf-8")
             if proc.returncode == 0:
-                print(f"at run_and_match stdout={dstdout}, stderr={dstderr}, returncode={proc.returncode}")
+                print(
+                    f"at run_and_match stdout={dstdout}, stderr={dstderr}, returncode={proc.returncode}"
+                )
                 raise TimeoutError()
             else:
                 raise RuntimeError(
@@ -512,7 +513,6 @@ async def _create_topics(self: ApacheKafkaBroker) -> None:
 async def _start(self: ApacheKafkaBroker) -> str:
     self._check_deps()
 
-    # self.temporary_directory = TemporaryDirectory(dir="C:/Users/Public") if platform.system() == "Windows" else TemporaryDirectory()
     self.temporary_directory = TemporaryDirectory()
     self.temporary_directory_path = Path(self.temporary_directory.__enter__())
 

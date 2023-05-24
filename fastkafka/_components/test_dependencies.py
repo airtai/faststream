@@ -36,7 +36,9 @@ def check_java(*, potential_jdk_path: Optional[List[Path]] = None) -> bool:
         if not shutil.which("java"):
             logger.info("But not exported to PATH, exporting...")
             env_path_separator = ";" if platform.system() == "Windows" else ":"
-            environ["PATH"] = environ["PATH"] + f"{env_path_separator}{potential_jdk_path[0]/ 'bin'}"
+            environ["PATH"] = (
+                environ["PATH"] + f"{env_path_separator}{potential_jdk_path[0]/ 'bin'}"
+            )
         return True
     return False
 
@@ -59,7 +61,9 @@ def _install_java() -> None:
         jdk_bin_path = Path(jdk.install("11"))
         logger.info(f" - jdk path: {jdk_bin_path}")
         env_path_separator = ";" if platform.system() == "Windows" else ":"
-        environ["PATH"] = environ["PATH"] + f"{env_path_separator}{jdk_bin_path / 'bin'}"
+        environ["PATH"] = (
+            environ["PATH"] + f"{env_path_separator}{jdk_bin_path / 'bin'}"
+        )
         logger.info("Java installed.")
 
 # %% ../../nbs/098_Test_Dependencies.ipynb 10
@@ -67,9 +71,17 @@ def _install_java() -> None:
 kafka_version = "3.3.2"
 kafka_fname = f"kafka_2.13-{kafka_version}"
 kafka_url = f"https://dlcdn.apache.org/kafka/{kafka_version}/{kafka_fname}.tgz"
-local_path = Path(expanduser("~")).parent / "Public" if platform.system() == "Windows" else Path(expanduser("~")) / ".local"
+local_path = (
+    Path(expanduser("~")).parent / "Public"
+    if platform.system() == "Windows"
+    else Path(expanduser("~")) / ".local"
+)
 tgz_path = local_path / f"{kafka_fname}.tgz"
-kafka_path = local_path / "kafka" if platform.system() == "Windows" else local_path / f"{kafka_fname}"
+kafka_path = (
+    local_path / "kafka"
+    if platform.system() == "Windows"
+    else local_path / f"{kafka_fname}"
+)
 
 
 def check_kafka(kafka_path: Path = kafka_path) -> bool:
