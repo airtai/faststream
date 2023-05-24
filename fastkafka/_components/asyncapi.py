@@ -146,7 +146,28 @@ class KafkaServiceInfo(BaseModel):
 
 # %% ../../nbs/014_AsyncAPI.ipynb 14
 class KafkaBrokers(BaseModel):
-    brokers: Dict[str, KafkaBroker]
+    brokers: Dict[str, Union[List[KafkaBroker], KafkaBroker]]
+
+    def dict(self, *args: Any, **kwarg: Any) -> Dict[str, Any]:
+        """Transcribe brokers into bootstrap server groups"""
+        d = super().dict(*args, **kwarg)
+
+        brokers = {}
+        for k, v in self.brokers.items():
+            if isinstance(v, list):
+                brokers.update(
+                    {f"{k}-bootstrap-server-{i}": u_v.dict() for i, u_v in enumerate(v)}
+                )
+            else:
+                brokers.update({f"{k}": v.dict()})
+        d["brokers"] = brokers
+        d = {k: v for k, v in d.items() if v is not None}
+
+        return d
+
+    def json(self, *args: Any, **kwargs: Any) -> str:
+        """Serialize into JSON using dict()"""
+        return json.dumps(self.dict(), *args, **kwargs)
 
 # %% ../../nbs/014_AsyncAPI.ipynb 17
 # T = TypeVar("T")
@@ -293,7 +314,12 @@ def _get_msg_definitions_with_examples(
 # %% ../../nbs/014_AsyncAPI.ipynb 38
 def _get_security_schemes(kafka_brokers: KafkaBrokers) -> Dict[str, Any]:
     security_schemes = {}
-    for key, kafka_broker in kafka_brokers.brokers.items():
+    for key, broker in kafka_brokers.brokers.items():
+        if isinstance(broker, list):
+            kafka_broker = broker[0]
+        else:
+            kafka_broker = broker
+
         if kafka_broker.security is not None:
             security_schemes[f"{key}_default_security"] = json.loads(
                 kafka_broker.security.json()

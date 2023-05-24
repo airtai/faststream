@@ -68,7 +68,7 @@ def _get_kafka_config(
 
     # todo: check this values
     config_defaults = {
-        "bootstrap_servers": "localhost:9092",
+        "bootstrap_servers": "localhost",
         "auto_offset_reset": "earliest",
         "max_poll_records": 100,
         #         "max_buffer_size": 10_000,
@@ -94,14 +94,28 @@ def _get_kafka_brokers(kafka_brokers: Optional[Dict[str, Any]] = None) -> KafkaB
                     url="https://localhost",
                     description="Local (dev) Kafka broker",
                     port="9092",
+                    grouping="localhost",
                 )
             }
         )
     else:
         retval = KafkaBrokers(
             brokers={
-                k: KafkaBroker.parse_raw(
-                    v.json() if hasattr(v, "json") else json.dumps(v)
+                k: (
+                    [
+                        KafkaBroker.parse_raw(
+                            unwrapped_v.json()
+                            if hasattr(unwrapped_v, "json")
+                            else json.dumps(unwrapped_v)
+                        )
+                        for unwrapped_v in v
+                    ]
+                    if isinstance(v, list)
+                    else list(
+                        KafkaBroker.parse_raw(
+                            v.json() if hasattr(v, "json") else json.dumps(v)
+                        )
+                    )
                 )
                 for k, v in kafka_brokers.items()
             }
@@ -270,9 +284,6 @@ class FastKafka:
     def is_started(self) -> bool:
         return self._is_started
 
-    def _set_bootstrap_servers(self, bootstrap_servers: str) -> None:
-        self._kafka_config["bootstrap_servers"] = bootstrap_servers
-
     def set_kafka_broker(self, kafka_broker_name: str) -> None:
         """
         Sets the Kafka broker to start FastKafka with
@@ -292,12 +303,7 @@ class FastKafka:
                 f"Given kafka_broker_name '{kafka_broker_name}' is not found in kafka_brokers, available options are {self._kafka_brokers.brokers.keys()}"
             )
 
-        broker_to_use = self._kafka_brokers.brokers[kafka_broker_name]
-        bootstrap_servers = f"{broker_to_use.url}:{broker_to_use.port}"
-        logger.info(
-            f"set_kafka_broker() : Setting bootstrap_servers value to '{bootstrap_servers}'"
-        )
-        self._set_bootstrap_servers(bootstrap_servers=bootstrap_servers)
+        self._kafka_config["bootstrap_servers"] = kafka_broker_name
 
     async def __aenter__(self) -> "FastKafka":
         if self.lifespan is not None:
