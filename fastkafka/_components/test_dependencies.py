@@ -9,7 +9,7 @@ import platform
 import shutil
 import tarfile
 from contextlib import contextmanager
-from os import environ
+from os import environ, rename
 from os.path import expanduser
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -35,7 +35,8 @@ def check_java(*, potential_jdk_path: Optional[List[Path]] = None) -> bool:
         logger.info("Java is already installed.")
         if not shutil.which("java"):
             logger.info("But not exported to PATH, exporting...")
-            environ["PATH"] = environ["PATH"] + f":{potential_jdk_path[0]}/bin"
+            env_path_separator = ";" if platform.system() == "Windows" else ":"
+            environ["PATH"] = environ["PATH"] + f"{env_path_separator}{potential_jdk_path[0]/ 'bin'}"
         return True
     return False
 
@@ -55,9 +56,10 @@ def _install_java() -> None:
     if not check_java():
         logger.info("Installing Java...")
         logger.info(" - installing jdk...")
-        jdk_bin_path = jdk.install("11")
+        jdk_bin_path = Path(jdk.install("11"))
         logger.info(f" - jdk path: {jdk_bin_path}")
-        environ["PATH"] = environ["PATH"] + f":{jdk_bin_path}/bin"
+        env_path_separator = ";" if platform.system() == "Windows" else ":"
+        environ["PATH"] = environ["PATH"] + f"{env_path_separator}{jdk_bin_path / 'bin'}"
         logger.info("Java installed.")
 
 # %% ../../nbs/098_Test_Dependencies.ipynb 10
@@ -65,9 +67,9 @@ def _install_java() -> None:
 kafka_version = "3.3.2"
 kafka_fname = f"kafka_2.13-{kafka_version}"
 kafka_url = f"https://dlcdn.apache.org/kafka/{kafka_version}/{kafka_fname}.tgz"
-local_path = Path(expanduser("~")) / ".local"
+local_path = Path(expanduser("~")).parent / "Public" if platform.system() == "Windows" else Path(expanduser("~")) / ".local"
 tgz_path = local_path / f"{kafka_fname}.tgz"
-kafka_path = local_path / f"{kafka_fname}"
+kafka_path = local_path / "kafka" if platform.system() == "Windows" else local_path / f"{kafka_fname}"
 
 
 def check_kafka(kafka_path: Path = kafka_path) -> bool:
@@ -76,9 +78,9 @@ def check_kafka(kafka_path: Path = kafka_path) -> bool:
         if not shutil.which("kafka-server-start.sh"):
             logger.info("But not exported to PATH, exporting...")
             kafka_binary_path = (
-                f":{kafka_path}/bin/windows"
+                f";{kafka_path / 'bin' / 'windows'}"
                 if platform.system() == "Windows"
-                else f":{kafka_path}/bin"
+                else f":{kafka_path / 'bin'}"
             )
             environ["PATH"] = environ["PATH"] + kafka_binary_path
         return True
@@ -90,6 +92,7 @@ def _install_kafka(
     kafka_url: str = kafka_url,
     local_path: Path = local_path,
     tgz_path: Path = tgz_path,
+    kafka_path: Path = kafka_path,
 ) -> None:
     """Checks if kafka is installed on the machine and installs it if not
     Returns:
@@ -123,10 +126,13 @@ def _install_kafka(
             for tarinfo in tar:
                 tar.extract(tarinfo, local_path)
 
+        if platform.system() == "Windows":
+            rename(local_path / f"{kafka_fname}", kafka_path)
+
         kafka_binary_path = (
-            f":{kafka_path}/bin/windows"
+            f";{kafka_path / 'bin' / 'windows'}"
             if platform.system() == "Windows"
-            else f":{kafka_path}/bin"
+            else f":{kafka_path / 'bin'}"
         )
         environ["PATH"] = environ["PATH"] + kafka_binary_path
         logger.info(f"Kafka installed in {kafka_path}.")

@@ -23,6 +23,8 @@ from .._components.logger import get_logger
 from .._components.meta import delegates, export, filter_using_signature, patch
 from .._components.test_dependencies import check_java, check_kafka, kafka_path
 
+from os import environ
+
 # %% ../../nbs/002_ApacheKafkaBroker.ipynb 3
 if in_notebook():
     from tqdm.notebook import tqdm
@@ -47,8 +49,10 @@ def get_zookeeper_config_string(
         Zookeeper configuration string.
 
     """
-
-    zookeeper_config = f"""dataDir={data_dir}/zookeeper
+    zookeeper_data_dir = (Path(data_dir) / "zookeeper").resolve()
+    if platform.system() == "Windows":
+        zookeeper_data_dir = str(zookeeper_data_dir).replace("\\", "/")
+    zookeeper_config = f"""dataDir={zookeeper_data_dir}
 clientPort={zookeeper_port}
 maxClientCnxns=0
 admin.enableServer=false
@@ -71,7 +75,7 @@ def get_kafka_config_string(
         Kafka broker configuration string.
 
     """
-
+    kafka_logs_dir = (Path(data_dir) / "kafka_logs").resolve()
     kafka_config = f"""broker.id=0
 
 ############################# Socket Server Settings #############################
@@ -110,7 +114,7 @@ socket.request.max.bytes=104857600
 ############################# Log Basics #############################
 
 # A comma separated list of directories under which to store log files
-log.dirs={data_dir}/kafka_logs
+log.dirs={kafka_logs_dir}
 
 # The default number of log partitions per topic. More partitions allow greater
 # parallelism for consumption, but this will also result in more files across
@@ -316,6 +320,8 @@ async def run_and_match(
     # Create the subprocess; redirect the standard output
     # into a pipe.
     matched = 0
+    print(f"{args=}")
+    print("*"*30)
     proc = await asyncio.create_subprocess_exec(
         *args,
         stdout=asyncio.subprocess.PIPE,
@@ -349,6 +355,7 @@ async def run_and_match(
             dstdout = stdout.decode("utf-8")
             dstderr = stderr.decode("utf-8")
             if proc.returncode == 0:
+                print(f"at run_and_match stdout={dstdout}, stderr={dstderr}, returncode={proc.returncode}")
                 raise TimeoutError()
             else:
                 raise RuntimeError(
@@ -416,10 +423,14 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
                     service, data_dir=self.temporary_directory_path
                 )
             )
+        # with open(service_config_path, "r") as f:
+        #     print(f"Contents of {service_config_path}")
+        #     print(f.read())
+        # await asyncio.sleep(60*1)
 
         try:
             service_start_script = (
-                kafka_path / f"/bin/windows/{service}-server-start.bat"
+                kafka_path / f"bin/windows/{service}-server-start.bat"
                 if platform.system() == "Windows"
                 else f"{service}-server-start.sh"
             )
@@ -432,7 +443,7 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
                 timeout=30,
             )
         except Exception as e:
-            print(e)
+            print(f"{e=}")
             msg = msg + " " + str(e)
             logger.info(
                 f"{service} startup falied, generating a new port and retrying..."
@@ -470,7 +481,7 @@ async def _create_topics(self: ApacheKafkaBroker) -> None:
     bootstrap_server = f"127.0.0.1:{listener_port}"
 
     topics_script = (
-        kafka_path / "/bin/windows/kafka-topics.bat"
+        kafka_path / "bin/windows/kafka-topics.bat"
         if platform.system() == "Windows"
         else "kafka-topics.sh"
     )
@@ -501,6 +512,7 @@ async def _create_topics(self: ApacheKafkaBroker) -> None:
 async def _start(self: ApacheKafkaBroker) -> str:
     self._check_deps()
 
+    # self.temporary_directory = TemporaryDirectory(dir="C:/Users/Public") if platform.system() == "Windows" else TemporaryDirectory()
     self.temporary_directory = TemporaryDirectory()
     self.temporary_directory_path = Path(self.temporary_directory.__enter__())
 
