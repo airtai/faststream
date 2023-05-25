@@ -21,7 +21,30 @@ from .._testing.apache_kafka_broker import ApacheKafkaBroker
 from .._testing.in_memory_broker import InMemoryBroker
 from .._testing.local_redpanda_broker import LocalRedpandaBroker
 
+# %% ../../nbs/016_Tester.ipynb 7
+def _get_broker_spec(bootstrap_server: str) -> KafkaBroker:
+    url = bootstrap_server.split(":")[0]
+    port = bootstrap_server.split(":")[1]
+    return KafkaBroker(url=url, port=port)
+
 # %% ../../nbs/016_Tester.ipynb 8
+def _reroute_brokers_to_testing(
+    app: FastKafka, broker_spec: str, override_broker_spec: Dict[str, str]
+):
+    for _, _, _, kafka_brokers, _ in app._consumers_store.values():
+        if kafka_brokers is not None:
+            kafka_brokers.brokers.brokers[
+                "fastkafka_tester_broker"
+            ] = override_brokers_spec[kafka_brokers.name]
+    for _, _, kafka_brokers, _ in app._producers_store.values():
+        if kafka_brokers is not None:
+            kafka_brokers.brokers.brokers[
+                "fastkafka_tester_broker"
+            ] = override_brokers_spec[kafka_brokers.name]
+    app._kafka_brokers.brokers["fastkafka_tester_broker"] = broker_spec
+    app.set_kafka_broker("fastkafka_tester_broker")
+
+# %% ../../nbs/016_Tester.ipynb 10
 @export("fastkafka.testing")
 class Tester(FastKafka):
     __test__ = False
@@ -53,7 +76,10 @@ class Tester(FastKafka):
         super().__init__()
         self.create_mirrors()
 
-        self.brokers = [broker] if broker is not None else None
+        self.broker = broker
+        self.overriden_brokers: Dict[
+            str, Union[ApacheKafkaBroker, LocalRedpandaBroker]
+        ] = dict()
 
     @delegates(LocalRedpandaBroker.__init__)
     def using_local_redpanda(self, **kwargs: Any) -> "Tester":
@@ -78,10 +104,11 @@ class Tester(FastKafka):
         kwargs["topics"] = (
             topics.union(kwargs["topics"]) if "topics" in kwargs else topics
         )
-        self.brokers = [
-            LocalRedpandaBroker(**kwargs)
-            for _ in range(len(self.overriden_brokers) + 1)
-        ]
+        self.broker = LocalRedpandaBroker(**kwargs)
+        self.overriden_brokers = {
+            broker_name: LocalRedpandaBroker(**kwargs)
+            for broker_name in self.overriden_brokers
+        }
 
         return self
 
@@ -105,9 +132,11 @@ class Tester(FastKafka):
         kwargs["topics"] = (
             topics.union(kwargs["topics"]) if "topics" in kwargs else topics
         )
-        self.brokers = [
-            ApacheKafkaBroker(**kwargs) for _ in range(len(self.overriden_brokers) + 1)
-        ]
+        self.broker = ApacheKafkaBroker(**kwargs)
+        self.overriden_brokers = {
+            broker_name: ApacheKafkaBroker(**kwargs)
+            for broker_name in self.overriden_brokers
+        }
 
         return self
 
@@ -131,34 +160,29 @@ class Tester(FastKafka):
 
     @asynccontextmanager
     async def _create_ctx(self) -> AsyncGenerator["Tester", None]:
-        if self.brokers is None:
+        if self.broker is None:
             topics = set().union(*(app.get_topics() for app in self.apps))
-            self.brokers = [InMemoryBroker()]
+            self.broker = InMemoryBroker()
 
-        bootstrap_server = await self.brokers[0]._start()
-        url = bootstrap_server.split(":")[0]
-        port = bootstrap_server.split(":")[1]
-        #         old_bootstrap_servers: List[str] = list()
+        broker_spec = _get_broker_spec(await self.broker._start())
+        override_brokers_spec = {
+            broker_name: _get_broker_spec(await broker._start())
+            for broker_name, broker in self.overriden_brokers
+        }
         try:
-            if isinstance(self.brokers[0], (ApacheKafkaBroker, LocalRedpandaBroker)):
-                self._kafka_brokers.brokers["testing"] = KafkaBroker(url=url, port=port)
-                self.set_kafka_broker("testing")
+            if isinstance(self.broker, (ApacheKafkaBroker, LocalRedpandaBroker)):
+                _reroute_brokers_to_testing(self, broker_spec, override_brokers_spec)
                 for app in self.apps:
-                    #                     old_bootstrap_servers.append(app._kafka_config["bootstrap_servers"])
-                    app._kafka_brokers.brokers["testing"] = KafkaBroker(
-                        url=url, port=port
-                    )
-                    app.set_kafka_broker("testing")
+                    _reroute_brokers_to_testing(app, broker_spec, override_brokers_spec)
             await self._start_tester()
             try:
                 yield self
             finally:
                 await self._stop_tester()
         finally:
-            await self.brokers[0]._stop()
-
-    #             for app, server in zip(self.apps, old_bootstrap_servers):
-    #                 app._set_bootstrap_servers(server)
+            await self.broker._stop()
+            for broker in override_brokers_spec.values():
+                await broker._stop()
 
     async def __aenter__(self) -> "Tester":
         self._ctx = self._create_ctx()
@@ -167,7 +191,7 @@ class Tester(FastKafka):
     async def __aexit__(self, *args: Any) -> None:
         await self._ctx.__aexit__(*args)
 
-# %% ../../nbs/016_Tester.ipynb 13
+# %% ../../nbs/016_Tester.ipynb 15
 def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(producer_f).return_annotation
 
@@ -197,7 +221,7 @@ def mirror_producer(topic: str, producer_f: Callable[..., Any]) -> Callable[...,
 
     return mirror_func
 
-# %% ../../nbs/016_Tester.ipynb 16
+# %% ../../nbs/016_Tester.ipynb 18
 def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[..., Any]:
     msg_type = inspect.signature(consumer_f).parameters["msg"]
 
@@ -220,7 +244,7 @@ def mirror_consumer(topic: str, consumer_f: Callable[..., Any]) -> Callable[...,
     mirror_func.__signature__ = sig  # type: ignore
     return mirror_func
 
-# %% ../../nbs/016_Tester.ipynb 18
+# %% ../../nbs/016_Tester.ipynb 20
 @patch
 def create_mirrors(self: Tester) -> None:
     for app in self.apps:
