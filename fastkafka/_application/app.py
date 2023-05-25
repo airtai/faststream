@@ -80,7 +80,9 @@ def _get_kafka_config(
     return retval
 
 # %% ../../nbs/015_FastKafka.ipynb 12
-def _get_kafka_brokers(kafka_brokers: Optional[Dict[str, Any]] = None) -> KafkaBrokers:
+def _get_kafka_brokers(
+    kafka_brokers: Optional[Union[Dict[str, Any], KafkaBrokers]] = None
+) -> KafkaBrokers:
     """Get Kafka brokers
 
     Args:
@@ -99,6 +101,9 @@ def _get_kafka_brokers(kafka_brokers: Optional[Dict[str, Any]] = None) -> KafkaB
             }
         )
     else:
+        if isinstance(kafka_brokers, KafkaBrokers):
+            return kafka_brokers
+
         retval = KafkaBrokers(
             brokers={
                 k: (
@@ -633,13 +638,13 @@ def produces(
 def get_topics(self: FastKafka) -> Iterable[str]:
     produce_topics = set(
         [
-            topic.replace(f"{brokers.name}", "") if brokers is not None else topic
+            topic.replace(f"_{brokers.name}", "") if brokers is not None else topic
             for topic, (_, _, brokers, _) in self._producers_store.items()
         ]
     )
     consume_topics = set(
         [
-            topic.replace(f"{brokers.name}", "") if brokers is not None else topic
+            topic.replace(f"_{brokers.name}", "") if brokers is not None else topic
             for topic, (_, _, _, brokers, _) in self._consumers_store.items()
         ]
     )

@@ -355,7 +355,12 @@ class InMemoryConsumer:
         defaults = _get_default_kwargs_from_sig(InMemoryConsumer.__call__, **kwargs)
         consume_copy = InMemoryConsumer(self.broker)
         consume_copy._auto_offset_reset = defaults["auto_offset_reset"]
-        consume_copy._bootstrap_servers = defaults["bootstrap_servers"]
+        consume_copy._bootstrap_servers = (
+            "".join(defaults["bootstrap_servers"])
+            if isinstance(defaults["bootstrap_servers"], list)
+            else defaults["bootstrap_servers"]
+        )
+
         consume_copy._group_id = (
             defaults["group_id"]
             if defaults["group_id"] is not None
@@ -451,7 +456,11 @@ class InMemoryProducer:
     def __call__(self, **kwargs: Any) -> "InMemoryProducer":
         defaults = _get_default_kwargs_from_sig(InMemoryConsumer.__call__, **kwargs)
         producer_copy = InMemoryProducer(self.broker)
-        producer_copy._bootstrap_servers = defaults["bootstrap_servers"]
+        producer_copy._bootstrap_servers = (
+            "".join(defaults["bootstrap_servers"])
+            if isinstance(defaults["bootstrap_servers"], list)
+            else defaults["bootstrap_servers"]
+        )
         return producer_copy
 
     @delegates(AIOKafkaProducer.start)
