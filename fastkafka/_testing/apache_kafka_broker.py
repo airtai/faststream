@@ -75,6 +75,8 @@ def get_kafka_config_string(
 
     """
     kafka_logs_dir = (Path(data_dir) / "kafka_logs").resolve()
+    if platform.system() == "Windows":
+        kafka_logs_dir = str(kafka_logs_dir).replace("\\", "/")
     kafka_config = f"""broker.id=0
 
 ############################# Socket Server Settings #############################
@@ -424,9 +426,10 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
                     service, data_dir=self.temporary_directory_path
                 )
             )
-        # with open(service_config_path, "r") as f:
-        #     print(f"Contents of {service_config_path}")
-        #     print(f.read())
+        # if service == "zookeeper" or service == "kafka":
+        #     with open(service_config_path, "r") as f:
+        #         print(f"Contents of {service_config_path}")
+        #         print(f.read())
         # await asyncio.sleep(60*1)
 
         try:
@@ -447,7 +450,7 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
             print(f"{e=}")
             msg = msg + " " + str(e)
             logger.info(
-                f"{service} startup falied, generating a new port and retrying..."
+                f"{service} startup failed, generating a new port and retrying..."
             )
             port = get_free_port()
             if service == "zookeeper":
@@ -456,7 +459,7 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
             else:
                 self.kafka_kwargs["listener_port"] = port
 
-            logger.info(f"port={port}")
+            logger.info(f"{service} new port={port}")
         else:
             setattr(self, f"{service}_task", service_task)
             return
