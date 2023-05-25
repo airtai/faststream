@@ -22,7 +22,7 @@ from .._components._subprocess import terminate_asyncio_process
 from .._components.helpers import in_notebook
 from .._components.logger import get_logger
 from .._components.meta import delegates, export, filter_using_signature, patch
-from .._components.test_dependencies import check_java, check_kafka, kafka_path
+from .._components.test_dependencies import check_java, check_kafka
 
 # %% ../../nbs/002_ApacheKafkaBroker.ipynb 3
 if in_notebook():
@@ -48,9 +48,9 @@ def get_zookeeper_config_string(
         Zookeeper configuration string.
 
     """
-    zookeeper_data_dir = (Path(data_dir) / "zookeeper").resolve()
+    zookeeper_data_dir = str((Path(data_dir) / "zookeeper").resolve())
     if platform.system() == "Windows":
-        zookeeper_data_dir = str(zookeeper_data_dir).replace("\\", "/")
+        zookeeper_data_dir = zookeeper_data_dir.replace("\\", "/")
     zookeeper_config = f"""dataDir={zookeeper_data_dir}
 clientPort={zookeeper_port}
 maxClientCnxns=0
@@ -74,9 +74,9 @@ def get_kafka_config_string(
         Kafka broker configuration string.
 
     """
-    kafka_logs_dir = (Path(data_dir) / "kafka_logs").resolve()
+    kafka_logs_dir = str((Path(data_dir) / "kafka_logs").resolve())
     if platform.system() == "Windows":
-        kafka_logs_dir = str(kafka_logs_dir).replace("\\", "/")
+        kafka_logs_dir = kafka_logs_dir.replace("\\", "/")
     kafka_config = f"""broker.id=0
 
 ############################# Socket Server Settings #############################
@@ -433,11 +433,8 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
         # await asyncio.sleep(60*1)
 
         try:
-            service_start_script = (
-                kafka_path / f"bin/windows/{service}-server-start.bat"
-                if platform.system() == "Windows"
-                else f"{service}-server-start.sh"
-            )
+            script_extension = "bat" if platform.system() == "Windows" else "sh"
+            service_start_script = f"{service}-server-start.{script_extension}"
             service_task = await run_and_match(
                 service_start_script,
                 str(service_config_path),
@@ -484,11 +481,8 @@ async def _create_topics(self: ApacheKafkaBroker) -> None:
     listener_port = self.kafka_kwargs.get("listener_port", 9092)
     bootstrap_server = f"127.0.0.1:{listener_port}"
 
-    topics_script = (
-        kafka_path / "bin/windows/kafka-topics.bat"
-        if platform.system() == "Windows"
-        else "kafka-topics.sh"
-    )
+    script_extension = "bat" if platform.system() == "Windows" else "sh"
+    topics_script = f"kafka-topics.{script_extension}"
     async with asyncer.create_task_group() as tg:
         processes = [
             tg.soonify(asyncio.create_subprocess_exec)(
