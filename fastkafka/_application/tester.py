@@ -5,14 +5,16 @@ __all__ = ['Tester', 'mirror_producer', 'mirror_consumer']
 
 # %% ../../nbs/016_Tester.ipynb 1
 import asyncio
+import collections
 import inspect
 from contextlib import asynccontextmanager
+from itertools import groupby
 from typing import *
 
 from pydantic import BaseModel
 
 from .. import KafkaEvent
-from .app import FastKafka, OverrideBrokers
+from .app import FastKafka, AwaitedMock
 from .._components.asyncapi import KafkaBroker
 from .._components.helpers import unwrap_list_type
 from .._components.meta import delegates, export, patch
@@ -27,24 +29,7 @@ def _get_broker_spec(bootstrap_server: str) -> KafkaBroker:
     port = bootstrap_server.split(":")[1]
     return KafkaBroker(url=url, port=port)
 
-# %% ../../nbs/016_Tester.ipynb 8
-def _reroute_brokers_to_testing(
-    app: FastKafka, broker_spec: str, override_brokers_spec: Dict[str, str]
-):
-    for _, _, _, kafka_brokers, _ in app._consumers_store.values():
-        if kafka_brokers is not None:
-            kafka_brokers.brokers.brokers[
-                "fastkafka_tester_broker"
-            ] = override_brokers_spec[kafka_brokers.name]
-    for _, _, kafka_brokers, _ in app._producers_store.values():
-        if kafka_brokers is not None:
-            kafka_brokers.brokers.brokers[
-                "fastkafka_tester_broker"
-            ] = override_brokers_spec[kafka_brokers.name]
-    app._kafka_brokers.brokers["fastkafka_tester_broker"] = broker_spec
-    app.set_kafka_broker("fastkafka_tester_broker")
-
-# %% ../../nbs/016_Tester.ipynb 10
+# %% ../../nbs/016_Tester.ipynb 9
 @export("fastkafka.testing")
 class Tester(FastKafka):
     __test__ = False
@@ -64,22 +49,21 @@ class Tester(FastKafka):
 
         """
         self.apps = app if isinstance(app, list) else [app]
-        self.overriden_brokers_names = set()
-        for app in self.apps:
-            for _, _, _, broker, _ in app._consumers_store.values():
-                if broker is not None:
-                    self.overriden_brokers_names.add(broker.name)
-            for _, _, broker, _ in app._producers_store.values():
-                if broker is not None:
-                    self.overriden_brokers_names.add(broker.name)
 
         super().__init__()
+        self.mirrors: Dict[Any, Any] = {}
         self.create_mirrors()
 
         self.broker = broker
-        self.overriden_brokers: Dict[
-            str, Union[ApacheKafkaBroker, LocalRedpandaBroker]
-        ] = dict()
+
+        unique_broker_configs = []
+        for app in self.apps:
+            for broker_config in app._override_brokers:
+                if broker_config not in unique_broker_configs:
+                    unique_broker_configs.append(broker_config)
+        self.num_brokers = len(unique_broker_configs)
+
+        self.overriden_brokers: List[Union[ApacheKafkaBroker, LocalRedpandaBroker]] = []
 
     @delegates(LocalRedpandaBroker.__init__)
     def using_local_redpanda(self, **kwargs: Any) -> "Tester":
@@ -105,10 +89,9 @@ class Tester(FastKafka):
             topics.union(kwargs["topics"]) if "topics" in kwargs else topics
         )
         self.broker = LocalRedpandaBroker(**kwargs)
-        self.overriden_brokers = {
-            broker_name: LocalRedpandaBroker(**kwargs)
-            for broker_name in self.overriden_brokers_names
-        }
+        self.overriden_brokers = [
+            LocalRedpandaBroker(**kwargs) for _ in range(self.num_brokers)
+        ]
         return self
 
     @delegates(ApacheKafkaBroker.__init__)
@@ -132,10 +115,9 @@ class Tester(FastKafka):
             topics.union(kwargs["topics"]) if "topics" in kwargs else topics
         )
         self.broker = ApacheKafkaBroker(**kwargs)
-        self.overriden_brokers = {
-            broker_name: ApacheKafkaBroker(**kwargs)
-            for broker_name in self.overriden_brokers_names
-        }
+        self.overriden_brokers = [
+            ApacheKafkaBroker(**kwargs) for _ in range(self.num_brokers)
+        ]
 
         return self
 
@@ -164,15 +146,30 @@ class Tester(FastKafka):
             self.broker = InMemoryBroker()
 
         broker_spec = _get_broker_spec(await self.broker._start())
-        override_brokers_spec = {
-            broker_name: _get_broker_spec(await broker._start())
-            for broker_name, broker in self.overriden_brokers.items()
-        }
+
         try:
             if isinstance(self.broker, (ApacheKafkaBroker, LocalRedpandaBroker)):
-                _reroute_brokers_to_testing(self, broker_spec, override_brokers_spec)
-                for app in self.apps:
-                    _reroute_brokers_to_testing(app, broker_spec, override_brokers_spec)
+                override_broker_configs = [
+                    list(grp)
+                    for k, grp in groupby(
+                        [
+                            broker_config
+                            for app in self.apps + [self]
+                            for broker_config in app._override_brokers
+                        ]
+                    )
+                ]
+
+                for override_brokers_config_groups, broker in zip(
+                    override_broker_configs, self.overriden_brokers
+                ):
+                    b_s = _get_broker_spec(await broker._start())
+                    for override_broker_config in override_brokers_config_groups:
+                        override_broker_config["fastkafka_tester_broker"] = b_s
+
+                for app in self.apps + [self]:
+                    app._kafka_brokers.brokers["fastkafka_tester_broker"] = broker_spec
+                    app.set_kafka_broker("fastkafka_tester_broker")
             await self._start_tester()
             try:
                 yield self
@@ -180,7 +177,7 @@ class Tester(FastKafka):
                 await self._stop_tester()
         finally:
             await self.broker._stop()
-            for broker in self.overriden_brokers.values():
+            for broker in self.overriden_brokers:
                 await broker._stop()
 
     async def __aenter__(self) -> "Tester":
@@ -253,6 +250,7 @@ def create_mirrors(self: Tester) -> None:
                 topic=topic,
                 kafka_brokers=brokers,
             )(mirror_f)
+            self.mirrors[consumer_f] = mirror_f
             setattr(self, mirror_f.__name__, mirror_f)
         for topic, (producer_f, _, brokers, _) in app._producers_store.items():
             mirror_f = mirror_producer(topic, producer_f)

@@ -151,12 +151,8 @@ def producer_decorator(
     ) -> ProduceReturnTypes:
         return_val = await f(*args, **kwargs)
         wrapped_val = _wrap_in_event(return_val)
-        _, producer, brokers, _ = producer_store[topic_key]
-        topic = (
-            topic_key.replace(f"_{brokers.name}", "")
-            if brokers is not None
-            else topic_key
-        )
+        _, producer, _, _ = producer_store[topic_key]
+        topic = "_".join(topic_key.split("_")[:-1])
 
         if isinstance(wrapped_val.message, list):
             await produce_batch(producer, topic, encoder_fn, wrapped_val)
