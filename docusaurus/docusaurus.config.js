@@ -82,7 +82,7 @@ const config = {
       algolia: {
         appId: 'EHYNSIUGMY',
         // Public API key: it is safe to commit it
-        // nosemgrep: detected-generic-api-key
+        // nosemgrep
         apiKey: '2680cd13947844a00a5a657b959e6211',
         indexName: 'fastkafka-airt',
       },
@@ -163,7 +163,7 @@ const config = {
             items: [
               {
                 label: 'Get Started',
-                href: 'docs',
+                to: '/docs',
               },
             ],
           },
