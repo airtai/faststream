@@ -79,6 +79,13 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      algolia: {
+        appId: 'EHYNSIUGMY',
+        // Public API key: it is safe to commit it
+        // nosemgrep
+        apiKey: '2680cd13947844a00a5a657b959e6211',
+        indexName: 'fastkafka-airt',
+      },
       // Replace with your project's social card
       image: 'https://opengraph.githubassets.com/1671805243.560327/airtai/fastkafka',
       // colorMode: {
@@ -156,7 +163,7 @@ const config = {
             items: [
               {
                 label: 'Get Started',
-                href: 'docs',
+                to: '/docs',
               },
             ],
           },
