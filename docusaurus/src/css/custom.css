@@ -113,7 +113,7 @@
 .menu__link--active:not(.menu__link--sublist) {
   background: rgba(255, 255, 255, 0.05);
 }
-
+/* + div[class^="toggle_"] { */
 html.plugin-pages .navbar__items.navbar__items--right > a + div > button {
   display: none;
 }
@@ -202,10 +202,6 @@ html.plugin-pages
 }
 
 .navbar__brand {
-  margin-left: 9.6rem;
-}
-
-html.docs-doc-page .navbar__brand {
   margin-left: 0;
 }
 
@@ -216,17 +212,13 @@ html.docs-doc-page[data-theme="dark"] .navbar {
   background-color: #242526;
 } */
 
-html.docs-doc-page .navbar.navbar--fixed-top .navbar__items--right {
-  flex: 1;
+.navbar.navbar--fixed-top .navbar__items--right {
   justify-content: end;
 }
 @media screen and (max-width: 996px) {
   .navbar__title {
     margin-top: 0;
     /* margin-left: 1.8rem; */
-  }
-  html.docs-doc-page .navbar__brand {
-    margin-left: 1rem;
   }
 }
 
@@ -235,12 +227,6 @@ html.docs-doc-page .navbar.navbar--fixed-top .navbar__items--right {
 }
 .navbar__toggle {
   color: #fff;
-}
-
-.navbar.navbar--fixed-top .navbar__items--right {
-  flex: 1;
-  justify-content: center;
-  /* margin-left: 500px; */
 }
 
 .header-discord-link:before,
@@ -494,9 +480,6 @@ h3.anchor > code {
   .navbar__item.github-stars {
     display: none;
   }
-  .navbar__brand {
-    margin-left: 1rem;
-  }
   ul.menu__list li {
     margin-bottom: 10px;
   }
@@ -509,7 +492,7 @@ h3.anchor > code {
     margin-left: 2.2rem;
     font-size: 1.95rem;
   }
-  html.docs-doc-page .navbar__brand {
+  .navbar__brand {
     margin-left: 0rem;
   }
 }
