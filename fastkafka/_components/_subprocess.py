@@ -66,11 +66,18 @@ async def run_async_subprocesses(
 
     d = {"should_exit": False}
 
+    def handle_windows_exit(*args, d: Dict[str, bool] = d) -> None:
+        d["should_exit"] = True
+
     def handle_exit(sig: int, d: Dict[str, bool] = d) -> None:
         d["should_exit"] = True
 
-    for sig in HANDLED_SIGNALS:
-        loop.add_signal_handler(sig, handle_exit, sig)
+    if platform.system() == "Windows":
+        signal.signal(signal.SIGINT, handle_windows_exit)
+        signal.signal(signal.SIGTERM, handle_windows_exit)
+    else:
+        for sig in HANDLED_SIGNALS:
+            loop.add_signal_handler(sig, handle_exit, sig)
 
     async with asyncer.create_task_group() as tg:
         tasks = []
