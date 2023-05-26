@@ -43,6 +43,7 @@ from .._components.logger import get_logger
 from .._components.meta import delegates, export, filter_using_signature, patch
 from .._components.producer_decorator import ProduceCallable, producer_decorator
 from .._components.task_streaming import StreamExecutor
+from .._components.helpers import remove_suffix
 
 # %% ../../nbs/015_FastKafka.ipynb 2
 if TYPE_CHECKING:
@@ -628,12 +629,8 @@ def produces(
 # %% ../../nbs/015_FastKafka.ipynb 39
 @patch
 def get_topics(self: FastKafka) -> Iterable[str]:
-    produce_topics = set(
-        ["_".join(topic.split("_")[:-1]) for topic in self._producers_store]
-    )
-    consume_topics = set(
-        ["_".join(topic.split("_")[:-1]) for topic in self._consumers_store]
-    )
+    produce_topics = set([remove_suffix(topic) for topic in self._producers_store])
+    consume_topics = set([remove_suffix(topic) for topic in self._consumers_store])
     return consume_topics.union(produce_topics)
 
 # %% ../../nbs/015_FastKafka.ipynb 41

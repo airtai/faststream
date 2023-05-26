@@ -21,6 +21,7 @@ from aiokafka.producer.message_accumulator import BatchBuilder
 from pydantic import BaseModel
 
 from .meta import export
+from .helpers import remove_suffix
 
 # %% ../../nbs/013_ProducerDecorator.ipynb 3
 BaseSubmodel = TypeVar("BaseSubmodel", bound=Union[List[BaseModel], BaseModel])
@@ -152,7 +153,7 @@ def producer_decorator(
         return_val = await f(*args, **kwargs)
         wrapped_val = _wrap_in_event(return_val)
         _, producer, _, _ = producer_store[topic_key]
-        topic = "_".join(topic_key.split("_")[:-1])
+        topic = remove_suffix(topic_key)
 
         if isinstance(wrapped_val.message, list):
             await produce_batch(producer, topic, encoder_fn, wrapped_val)
