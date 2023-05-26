@@ -239,7 +239,7 @@ straightforward approach and results with the least amount of overhead.
 
 But, to handle those high latency tasks and run them in parallel,
 FastKafka has a
-[`DynamicTaskExecutor`](../api/fastkafka/_components/task_streaming/DynamicTaskExecutor.md/#fastkafka._components.task_streaming.DynamicTaskExecutor)
+[`DynamicTaskExecutor`](../api/fastkafka/executors/DynamicTaskExecutor.md/#fastkafka.executors.DynamicTaskExecutor)
 prepared for your consumers. This executor comes with additional
 overhead, so use it only when you need to handle high latency functions.
 
