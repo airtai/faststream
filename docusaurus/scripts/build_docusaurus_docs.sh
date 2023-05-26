@@ -21,6 +21,10 @@ python3 -c "from fastkafka._docusaurus_helper import fix_invalid_syntax_in_markd
 echo "Generating sidebars.js"
 python3 -c "from fastkafka._docusaurus_helper import generate_sidebar; generate_sidebar('./docusaurus/docs/SUMMARY.md', './docusaurus/sidebars.js')"
 
+echo "Deleting the markdown files from the docs directory that are not present in the sidebar."
+python3 -c "from fastkafka._docusaurus_helper import delete_unused_markdown_files_from_sidebar; delete_unused_markdown_files_from_sidebar('./docusaurus/docs', './docusaurus/sidebars.js')"
+
+
 echo "Runing docusaurus build"
 cd docusaurus && npm run build
 
