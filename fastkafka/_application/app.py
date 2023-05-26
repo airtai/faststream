@@ -127,7 +127,9 @@ def _get_kafka_brokers(
     return retval
 
 # %% ../../nbs/015_FastKafka.ipynb 14
-def _get_broker_addr_list(brokers: Union[List[KafkaBroker], KafkaBroker]) -> str:
+def _get_broker_addr_list(
+    brokers: Union[List[KafkaBroker], KafkaBroker]
+) -> Union[str, List[str]]:
     if isinstance(brokers, list):
         return [f"{broker.url}:{broker.port}" for broker in brokers]
     else:
@@ -358,7 +360,7 @@ class FastKafka:
     ) -> ConsumeCallable:
         raise NotImplementedError
 
-    def produces(  # type: ignore
+    def produces(
         self,
         topic: Optional[str] = None,
         encoder: str = "json",
@@ -519,7 +521,7 @@ def consumes(
 
         prepared_broker = _prepare_and_check_brokers(self, brokers)
         if prepared_broker is not None:
-            self._override_brokers.append(prepared_broker.brokers)
+            self._override_brokers.append(prepared_broker.brokers)  # type: ignore
 
         self._consumers_store[_resolve_key(topic_resolved, self._consumers_store)] = (
             on_topic,
@@ -606,7 +608,7 @@ def produces(
 
         prepared_broker = _prepare_and_check_brokers(self, brokers)
         if prepared_broker is not None:
-            self._override_brokers.append(prepared_broker.brokers)
+            self._override_brokers.append(prepared_broker.brokers)  # type: ignore
 
         self._producers_store[topic_key] = (
             to_topic,

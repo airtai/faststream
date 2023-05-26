@@ -21,6 +21,7 @@ from .._components.asyncapi import KafkaBroker, KafkaBrokers
 from .._components.helpers import unwrap_list_type
 from .._components.meta import delegates, export, patch
 from .._components.producer_decorator import unwrap_from_kafka_event
+from .._components.aiokafka_consumer_loop import ConsumeCallable
 from .._testing.apache_kafka_broker import ApacheKafkaBroker
 from .._testing.in_memory_broker import InMemoryBroker
 from .._testing.local_redpanda_broker import LocalRedpandaBroker
@@ -30,7 +31,7 @@ from .._components.helpers import remove_suffix
 def _get_broker_spec(bootstrap_server: str) -> KafkaBroker:
     url = bootstrap_server.split(":")[0]
     port = bootstrap_server.split(":")[1]
-    return KafkaBroker(url=url, port=port)
+    return KafkaBroker(url=url, port=port, description="", protocol="")
 
 # %% ../../nbs/016_Tester.ipynb 9
 @export("fastkafka.testing")
@@ -58,7 +59,7 @@ class Tester(FastKafka):
 
         super().__init__()
         self.mirrors: Dict[Any, Any] = {}
-        self.create_mirrors()
+        self._create_mirrors()
         self.broker = broker
 
         unique_broker_configs = []
@@ -131,7 +132,7 @@ class Tester(FastKafka):
         for app in self.apps:
             await app.__aenter__()
         self.create_mocks()
-        self.arrange_mirrors()
+        self._arrange_mirrors()
         await super().__aenter__()
         await asyncio.sleep(3)
 
@@ -141,10 +142,10 @@ class Tester(FastKafka):
         for app in self.apps[::-1]:
             await app.__aexit__(None, None, None)
 
-    def create_mirrors(self) -> None:
+    def _create_mirrors(self) -> None:
         pass
 
-    def arrange_mirrors(self) -> None:
+    def _arrange_mirrors(self) -> None:
         pass
 
     @asynccontextmanager
@@ -173,7 +174,7 @@ class Tester(FastKafka):
                 ):
                     b_s = _get_broker_spec(await broker._start())
                     for override_broker_config in override_brokers_config_groups:
-                        override_broker_config["fastkafka_tester_broker"] = b_s
+                        override_broker_config["fastkafka_tester_broker"] = b_s  # type: ignore
 
                 for app in self.apps + [self]:
                     app._kafka_brokers.brokers["fastkafka_tester_broker"] = broker_spec
@@ -197,7 +198,7 @@ class Tester(FastKafka):
 
 # %% ../../nbs/016_Tester.ipynb 19
 def mirror_producer(
-    topic: str, producer_f: Callable[..., Any], brokers: KafkaBrokers, app: FastKafka
+    topic: str, producer_f: Callable[..., Any], brokers: str, app: FastKafka
 ) -> Callable[..., Any]:
     msg_type = inspect.signature(producer_f).return_annotation
 
@@ -230,8 +231,8 @@ def mirror_producer(
 
 # %% ../../nbs/016_Tester.ipynb 22
 def mirror_consumer(
-    topic: str, consumer_f: Callable[..., Any], brokers: KafkaBrokers, app=FastKafka
-) -> Callable[..., Any]:
+    topic: str, consumer_f: Callable[..., Any], brokers: str, app: FastKafka
+) -> Callable[[BaseModel], Coroutine[Any, Any, BaseModel]]:
     msg_type = inspect.signature(consumer_f).parameters["msg"]
 
     msg_type_unwrapped = unwrap_list_type(msg_type)
@@ -256,7 +257,7 @@ def mirror_consumer(
 
 # %% ../../nbs/016_Tester.ipynb 24
 @patch
-def create_mirrors(self: Tester) -> None:
+def _create_mirrors(self: Tester) -> None:
     for app in self.apps:
         for topic, (consumer_f, _, _, brokers, _) in app._consumers_store.items():
             mirror_f = mirror_consumer(
@@ -278,10 +279,12 @@ def create_mirrors(self: Tester) -> None:
                 brokers.json() if brokers is not None else app._kafka_brokers.json(),
                 app,
             )
-            mirror_f = self.consumes(  # type: ignore
+            mirror_f = self.consumes(
                 topic=remove_suffix(topic),
                 brokers=brokers,
-            )(mirror_f)
+            )(
+                mirror_f  # type: ignore
+            )
             self.mirrors[producer_f] = mirror_f
             setattr(self, mirror_f.__name__, mirror_f)
 
@@ -291,12 +294,12 @@ class AmbiguousWarning:
         self.topic = topic
         self.functions = functions
 
-    def __getattribute__(self, attr) -> Any:
+    def __getattribute__(self, attr: str) -> Any:
         raise RuntimeError(
             f"Ambiguous topic: {super().__getattribute__('topic')}, for functions: {super().__getattribute__('functions')}\nUse Tester.mirrors[app.function] to resolve ambiguity"
         )
 
-    def __call__(self, *args, **kwargs) -> Any:
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
         raise RuntimeError(
             f"Ambiguous topic: {self.topic}, for functions: {self.functions}\nUse Tester.mirrors[app.function] to resolve ambiguity"
         )
@@ -306,11 +309,11 @@ def set_sugar(
     *,
     tester: Tester,
     prefix: str,
-    topic_brokers: Dict[str, str],
+    topic_brokers: Dict[str, Tuple[List[str], List[str]]],
     topic: str,
     brokers: str,
     origin_function_name: str,
-    function,
+    function: Callable[..., Union[Any, Awaitable[Any]]],
 ) -> None:
     brokers_for_topic, functions_for_topic = topic_brokers.get(topic, ([], []))
     if brokers not in brokers_for_topic:
@@ -326,8 +329,8 @@ def set_sugar(
 
 # %% ../../nbs/016_Tester.ipynb 32
 @patch
-def arrange_mirrors(self: Tester) -> None:
-    topic_brokers = {}
+def _arrange_mirrors(self: Tester) -> None:
+    topic_brokers: Dict[str, Tuple[List[str], List[str]]] = {}
     mocks = {}
     awaited_mocks = {}
     for app in self.apps:
