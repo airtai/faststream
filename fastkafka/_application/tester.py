@@ -288,7 +288,7 @@ def _create_mirrors(self: Tester) -> None:
             self.mirrors[producer_f] = mirror_f
             setattr(self, mirror_f.__name__, mirror_f)
 
-# %% ../../nbs/016_Tester.ipynb 29
+# %% ../../nbs/016_Tester.ipynb 30
 class AmbiguousWarning:
     def __init__(self, topic: str, functions: List[str]):
         self.topic = topic
@@ -304,7 +304,7 @@ class AmbiguousWarning:
             f"Ambiguous topic: {self.topic}, for functions: {self.functions}\nUse Tester.mirrors[app.function] to resolve ambiguity"
         )
 
-# %% ../../nbs/016_Tester.ipynb 31
+# %% ../../nbs/016_Tester.ipynb 32
 def set_sugar(
     *,
     tester: Tester,
@@ -327,7 +327,7 @@ def set_sugar(
             tester, f"{prefix}{topic}", AmbiguousWarning(topic, functions_for_topic)
         )
 
-# %% ../../nbs/016_Tester.ipynb 32
+# %% ../../nbs/016_Tester.ipynb 33
 @patch
 def _arrange_mirrors(self: Tester) -> None:
     topic_brokers: Dict[str, Tuple[List[str], List[str]]] = {}
