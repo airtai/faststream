@@ -9,6 +9,7 @@ import platform
 import psutil
 import signal
 from typing import *
+from types import FrameType
 
 import asyncer
 import typer
@@ -66,7 +67,9 @@ async def run_async_subprocesses(
 
     d = {"should_exit": False}
 
-    def handle_windows_exit(*args, d: Dict[str, bool] = d) -> None:
+    def handle_windows_exit(
+        signum: int, frame: Optional[FrameType], d: Dict[str, bool] = d
+    ) -> None:
         d["should_exit"] = True
 
     def handle_exit(sig: int, d: Dict[str, bool] = d) -> None:

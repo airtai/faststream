@@ -12,6 +12,7 @@ import signal
 import threading
 from contextlib import contextmanager
 from typing import *
+from types import FrameType
 
 import asyncer
 import typer
@@ -52,7 +53,7 @@ class ServerProcess:
             signal.SIGTERM,  # Unix signal 15. Sent by `kill <pid>`.
         )
 
-        def handle_windows_exit(*args) -> None:
+        def handle_windows_exit(signum: int, frame: Optional[FrameType]) -> None:
             self.should_exit = True
 
         def handle_exit(sig: int) -> None:
@@ -126,7 +127,9 @@ async def run_fastkafka_server(num_workers: int, app: str, kafka_broker: str) ->
 
     d = {"should_exit": False}
 
-    def handle_windows_exit(*args, d: Dict[str, bool] = d) -> None:
+    def handle_windows_exit(
+        signum: int, frame: Optional[FrameType], d: Dict[str, bool] = d
+    ) -> None:
         d["should_exit"] = True
 
     def handle_exit(sig: int, d: Dict[str, bool] = d) -> None:
