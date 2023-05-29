@@ -13,7 +13,6 @@ from datetime import datetime, timedelta
 from typing import *
 
 import aiohttp
-import aiokafka
 import anyio
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from aiokafka.helpers import create_ssl_context

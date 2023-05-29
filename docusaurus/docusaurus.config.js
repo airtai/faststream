@@ -7,7 +7,11 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'FastKafka',
-  tagline: 'Effortless Kafka integration for your web services',
+  tagline: 'Effortless Kafka integration for web services',
+  customFields: {
+    description:
+      'Powerful and easy-to-use open-source framework for building asynchronous web services that interact with Kafka.',
+  },
   favicon: 'img/AIRT_icon_blue.svg',
 
   // Set the production url of your site here
@@ -75,6 +79,13 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      algolia: {
+        appId: 'EHYNSIUGMY',
+        // Public API key: it is safe to commit it
+        // nosemgrep
+        apiKey: '2680cd13947844a00a5a657b959e6211',
+        indexName: 'fastkafka-airt',
+      },
       // Replace with your project's social card
       image: 'https://opengraph.githubassets.com/1671805243.560327/airtai/fastkafka',
       // colorMode: {
@@ -152,7 +163,7 @@ const config = {
             items: [
               {
                 label: 'Get Started',
-                href: 'docs',
+                to: '/docs',
               },
             ],
           },

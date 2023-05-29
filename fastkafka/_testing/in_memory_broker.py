@@ -6,18 +6,14 @@ __all__ = ['logger', 'KafkaRecord', 'KafkaPartition', 'KafkaTopic', 'split_list'
 
 # %% ../../nbs/001_InMemoryBroker.ipynb 1
 import asyncio
-import copy
 import hashlib
-import inspect
 import random
 import string
 import uuid
-from collections import namedtuple
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import *
 
-import aiokafka
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from aiokafka.structs import ConsumerRecord, RecordMetadata, TopicPartition
 
@@ -27,7 +23,6 @@ from .._components.logger import get_logger
 from fastkafka._components.meta import (
     _get_default_kwargs_from_sig,
     classcontextmanager,
-    copy_func,
     delegates,
     patch,
 )

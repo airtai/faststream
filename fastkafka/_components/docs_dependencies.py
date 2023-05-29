@@ -9,7 +9,6 @@ import asyncio
 import os
 import shutil
 import subprocess  # nosec Issue: [B404:blacklist]
-import sys
 import tarfile
 from pathlib import Path
 from tempfile import TemporaryDirectory

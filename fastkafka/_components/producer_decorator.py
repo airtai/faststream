@@ -7,11 +7,9 @@ __all__ = ['BaseSubmodel', 'ProduceReturnTypes', 'ProduceCallable', 'KafkaEvent'
 # %% ../../nbs/013_ProducerDecorator.ipynb 1
 import asyncio
 import functools
-import json
 import random
 import time
 from asyncio import iscoroutinefunction  # do not use the version from inspect
-from collections import namedtuple
 from dataclasses import dataclass
 from inspect import Parameter
 from typing import *
