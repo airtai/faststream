@@ -321,8 +321,6 @@ async def run_and_match(
     # Create the subprocess; redirect the standard output
     # into a pipe.
     matched = 0
-    print(f"{args=}")
-    print("*" * 30)
     proc = await asyncio.create_subprocess_exec(
         *args,
         stdout=asyncio.subprocess.PIPE,
@@ -356,9 +354,6 @@ async def run_and_match(
             dstdout = stdout.decode("utf-8")
             dstderr = stderr.decode("utf-8")
             if proc.returncode == 0:
-                print(
-                    f"at run_and_match stdout={dstdout}, stderr={dstderr}, returncode={proc.returncode}"
-                )
                 raise TimeoutError()
             else:
                 raise RuntimeError(
@@ -414,7 +409,6 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
 
     configs_tried: List[Dict[str, Any]] = []
 
-    msg = ""
     for i in range(self.retries + 1):
         configs_tried = configs_tried + [getattr(self, f"{service}_kwargs").copy()]
 
@@ -426,11 +420,6 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
                     service, data_dir=self.temporary_directory_path
                 )
             )
-        # if service == "zookeeper" or service == "kafka":
-        #     with open(service_config_path, "r") as f:
-        #         print(f"Contents of {service_config_path}")
-        #         print(f.read())
-        # await asyncio.sleep(60*1)
 
         try:
             script_extension = "bat" if platform.system() == "Windows" else "sh"
@@ -444,8 +433,7 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
                 timeout=30,
             )
         except Exception as e:
-            print(f"{e=}")
-            msg = msg + " " + str(e)
+            print(e)
             logger.info(
                 f"{service} startup failed, generating a new port and retrying..."
             )
@@ -461,9 +449,7 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
             setattr(self, f"{service}_task", service_task)
             return
 
-    raise ValueError(
-        f"Could not start {service} with params: {configs_tried} {msg=}, {service_start_script=}"
-    )
+    raise ValueError(f"Could not start {service} with params: {configs_tried}")
 
 
 @patch
