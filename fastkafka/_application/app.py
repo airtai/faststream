@@ -489,9 +489,11 @@ def consumes(
                 increased overhead so use it only in cases when your consume functions have
                 high latency such as database queries or some other type of networking.
         prefix: Prefix stripped from the decorated function to define a topic name
-            if the topic argument is not passed, default: "on_". If the decorated
-            function name is not prefixed with the defined prefix and topic argument
-            is not passed, then this method will throw ValueError
+                if the topic argument is not passed, default: "on_". If the decorated
+                function name is not prefixed with the defined prefix and topic argument
+                is not passed, then this method will throw ValueError
+        brokers: Optional argument specifying multiple broker clusters for consuming
+                messages from different Kafka clusters in FastKafka.
 
     Returns:
         A function returning the same function
@@ -582,6 +584,8 @@ def produces(
             name if the topic argument is not passed, default: "to_". If the
             decorated function name is not prefixed with the defined prefix
             and topic argument is not passed, then this method will throw ValueError
+        brokers: Optional argument specifying multiple broker clusters for consuming
+            messages from different Kafka clusters in FastKafka.
 
     Returns:
         A function returning the same function

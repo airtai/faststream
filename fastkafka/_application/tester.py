@@ -61,7 +61,7 @@ class Tester(FastKafka):
         self.mirrors: Dict[Any, Any] = {}
         self._create_mirrors()
         self.broker = broker
-
+        self._kafka_brokers = self.apps[0]._kafka_brokers
         unique_broker_configs = []
         for app in self.apps:
             for broker_config in app._override_brokers:
