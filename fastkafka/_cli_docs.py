@@ -88,7 +88,7 @@ def serve_docs(
     try:
         application = _import_from_string(app)
         application.create_docs()
-        with change_dir("asyncapi/docs/"):
+        with change_dir(application.root_path / "asyncapi" / "docs/"):
             server_address = (bind, port)
             handler = SimpleHTTPRequestHandler
 
