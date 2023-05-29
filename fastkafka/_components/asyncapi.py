@@ -436,6 +436,7 @@ def _generate_async_docs(
         f"{docs_path}",
         "--force-write",
     ]
+    # nosemgrep: python.lang.security.audit.subprocess-shell-true.subprocess-shell-true
     p = subprocess.run(  # nosec: B602, B603 subprocess call - check for execution of untrusted input.
         cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, shell=True
     )
