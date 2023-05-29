@@ -6,7 +6,6 @@ __all__ = ['logger', 'terminate_asyncio_process', 'run_async_subprocesses']
 # %% ../../nbs/022_Subprocess.ipynb 1
 import asyncio
 import platform
-import psutil
 import signal
 from typing import *
 from types import FrameType
@@ -34,6 +33,8 @@ async def terminate_asyncio_process(p: asyncio.subprocess.Process) -> None:
 
     for i in range(3):
         if platform.system() == "Windows":
+            import psutil
+
             parent = psutil.Process(p.pid)
             children = parent.children(recursive=True)
             for child in children:
