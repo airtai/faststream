@@ -6,6 +6,7 @@ __all__ = ['logger', 'sec_scheme_name_mapping', 'KafkaMessage', 'SecurityType', 
 
 # %% ../../nbs/014_AsyncAPI.ipynb 1
 import json
+import platform
 import shutil
 import subprocess  # nosec: B404: Consider possible security implications associated with the subprocess module.
 import tempfile
@@ -438,7 +439,10 @@ def _generate_async_docs(
     ]
     # nosemgrep: python.lang.security.audit.subprocess-shell-true.subprocess-shell-true
     p = subprocess.run(  # nosec: B602, B603 subprocess call - check for execution of untrusted input.
-        cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, shell=True
+        cmd,
+        stderr=subprocess.STDOUT,
+        stdout=subprocess.PIPE,
+        shell=True if platform.system() == "Windows" else False,
     )
     if p.returncode == 0:
         logger.info(f"Async docs generated at '{docs_path}'")
