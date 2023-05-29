@@ -19,6 +19,7 @@ from aiokafka.producer.message_accumulator import BatchBuilder
 from pydantic import BaseModel
 
 from .meta import export
+from .helpers import remove_suffix
 
 # %% ../../nbs/013_ProducerDecorator.ipynb 3
 BaseSubmodel = TypeVar("BaseSubmodel", bound=Union[List[BaseModel], BaseModel])
@@ -133,7 +134,7 @@ async def produce_batch(  # type: ignore
 def producer_decorator(
     producer_store: Dict[str, Any],
     func: ProduceCallable,
-    topic: str,
+    topic_key: str,
     encoder_fn: Callable[[BaseModel], bytes],
 ) -> ProduceCallable:
     """todo: write documentation"""
@@ -141,7 +142,7 @@ def producer_decorator(
     @functools.wraps(func)
     async def _produce_async(
         *args: List[Any],
-        topic: str = topic,
+        topic_key: str = topic_key,
         encoder_fn: Callable[[BaseModel], bytes] = encoder_fn,
         producer_store: Dict[str, Any] = producer_store,
         f: Callable[..., Awaitable[ProduceReturnTypes]] = func,  # type: ignore
@@ -149,7 +150,8 @@ def producer_decorator(
     ) -> ProduceReturnTypes:
         return_val = await f(*args, **kwargs)
         wrapped_val = _wrap_in_event(return_val)
-        _, producer, _ = producer_store[topic]
+        _, producer, _, _ = producer_store[topic_key]
+        topic = remove_suffix(topic_key)
 
         if isinstance(wrapped_val.message, list):
             await produce_batch(producer, topic, encoder_fn, wrapped_val)

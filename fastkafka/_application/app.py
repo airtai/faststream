@@ -41,6 +41,7 @@ from .._components.logger import get_logger
 from .._components.meta import delegates, export, filter_using_signature, patch
 from .._components.producer_decorator import ProduceCallable, producer_decorator
 from .._components.task_streaming import StreamExecutor
+from .._components.helpers import remove_suffix
 
 # %% ../../nbs/015_FastKafka.ipynb 2
 if TYPE_CHECKING:
@@ -50,8 +51,8 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 # %% ../../nbs/015_FastKafka.ipynb 9
-@delegates(AIOKafkaConsumer, but=["bootstrap_servers"])
-@delegates(AIOKafkaProducer, but=["bootstrap_servers"], keep=True)
+@delegates(AIOKafkaConsumer, but=["bootstrap_servers_id"])
+@delegates(AIOKafkaProducer, but=["bootstrap_servers_id"], keep=True)
 def _get_kafka_config(
     **kwargs: Any,
 ) -> Dict[str, Any]:
@@ -66,10 +67,9 @@ def _get_kafka_config(
 
     # todo: check this values
     config_defaults = {
-        "bootstrap_servers": "localhost:9092",
+        "bootstrap_servers_id": "localhost",
         "auto_offset_reset": "earliest",
         "max_poll_records": 100,
-        #         "max_buffer_size": 10_000,
     }
     for key, value in config_defaults.items():
         if key not in retval:
@@ -78,7 +78,9 @@ def _get_kafka_config(
     return retval
 
 # %% ../../nbs/015_FastKafka.ipynb 12
-def _get_kafka_brokers(kafka_brokers: Optional[Dict[str, Any]] = None) -> KafkaBrokers:
+def _get_kafka_brokers(
+    kafka_brokers: Optional[Union[Dict[str, Any], KafkaBrokers]] = None
+) -> KafkaBrokers:
     """Get Kafka brokers
 
     Args:
@@ -92,14 +94,29 @@ def _get_kafka_brokers(kafka_brokers: Optional[Dict[str, Any]] = None) -> KafkaB
                     url="https://localhost",
                     description="Local (dev) Kafka broker",
                     port="9092",
+                    grouping="localhost",
                 )
             }
         )
     else:
+        if isinstance(kafka_brokers, KafkaBrokers):
+            return kafka_brokers
+
         retval = KafkaBrokers(
             brokers={
-                k: KafkaBroker.parse_raw(
-                    v.json() if hasattr(v, "json") else json.dumps(v)
+                k: (
+                    [
+                        KafkaBroker.parse_raw(
+                            unwrapped_v.json()
+                            if hasattr(unwrapped_v, "json")
+                            else json.dumps(unwrapped_v)
+                        )
+                        for unwrapped_v in v
+                    ]
+                    if isinstance(v, list)
+                    else KafkaBroker.parse_raw(
+                        v.json() if hasattr(v, "json") else json.dumps(v)
+                    )
                 )
                 for k, v in kafka_brokers.items()
             }
@@ -108,6 +125,15 @@ def _get_kafka_brokers(kafka_brokers: Optional[Dict[str, Any]] = None) -> KafkaB
     return retval
 
 # %% ../../nbs/015_FastKafka.ipynb 14
+def _get_broker_addr_list(
+    brokers: Union[List[KafkaBroker], KafkaBroker]
+) -> Union[str, List[str]]:
+    if isinstance(brokers, list):
+        return [f"{broker.url}:{broker.port}" for broker in brokers]
+    else:
+        return f"{brokers.url}:{brokers.port}"
+
+# %% ../../nbs/015_FastKafka.ipynb 16
 def _get_topic_name(
     topic_callable: Union[ConsumeCallable, ProduceCallable], prefix: str = "on_"
 ) -> str:
@@ -126,7 +152,7 @@ def _get_topic_name(
 
     return topic
 
-# %% ../../nbs/015_FastKafka.ipynb 16
+# %% ../../nbs/015_FastKafka.ipynb 18
 def _get_contact_info(
     name: str = "Author",
     url: str = "https://www.google.com",
@@ -134,13 +160,13 @@ def _get_contact_info(
 ) -> ContactInfo:
     return ContactInfo(name=name, url=url, email=email)  # type: ignore
 
-# %% ../../nbs/015_FastKafka.ipynb 18
+# %% ../../nbs/015_FastKafka.ipynb 20
 I = TypeVar("I", bound=BaseModel)
 O = TypeVar("O", BaseModel, Awaitable[BaseModel])
 
 F = TypeVar("F", bound=Callable)
 
-# %% ../../nbs/015_FastKafka.ipynb 19
+# %% ../../nbs/015_FastKafka.ipynb 21
 @export("fastkafka")
 class FastKafka:
     @delegates(_get_kafka_config)
@@ -213,6 +239,8 @@ class FastKafka:
 
         self._kafka_brokers = _get_kafka_brokers(kafka_brokers)
 
+        self._override_brokers: List[KafkaBrokers] = []
+
         self._root_path = Path(".") if root_path is None else Path(root_path)
 
         self._asyncapi_path = self._root_path / "asyncapi"
@@ -229,12 +257,19 @@ class FastKafka:
                 ConsumeCallable,
                 Callable[[bytes, ModelMetaclass], Any],
                 Union[str, StreamExecutor, None],
+                Optional[KafkaBrokers],
                 Dict[str, Any],
             ],
         ] = {}
 
         self._producers_store: Dict[  # type: ignore
-            str, Tuple[ProduceCallable, AIOKafkaProducer, Dict[str, Any]]
+            str,
+            Tuple[
+                ProduceCallable,
+                AIOKafkaProducer,
+                Optional[KafkaBrokers],
+                Dict[str, Any],
+            ],
         ] = {}
 
         self._producers_list: List[AIOKafkaProducer] = []  # type: ignore
@@ -268,9 +303,6 @@ class FastKafka:
     def is_started(self) -> bool:
         return self._is_started
 
-    def _set_bootstrap_servers(self, bootstrap_servers: str) -> None:
-        self._kafka_config["bootstrap_servers"] = bootstrap_servers
-
     def set_kafka_broker(self, kafka_broker_name: str) -> None:
         """
         Sets the Kafka broker to start FastKafka with
@@ -290,12 +322,7 @@ class FastKafka:
                 f"Given kafka_broker_name '{kafka_broker_name}' is not found in kafka_brokers, available options are {self._kafka_brokers.brokers.keys()}"
             )
 
-        broker_to_use = self._kafka_brokers.brokers[kafka_broker_name]
-        bootstrap_servers = f"{broker_to_use.url}:{broker_to_use.port}"
-        logger.info(
-            f"set_kafka_broker() : Setting bootstrap_servers value to '{bootstrap_servers}'"
-        )
-        self._set_bootstrap_servers(bootstrap_servers=bootstrap_servers)
+        self._kafka_config["bootstrap_servers_id"] = kafka_broker_name
 
     async def __aenter__(self) -> "FastKafka":
         if self.lifespan is not None:
@@ -326,17 +353,18 @@ class FastKafka:
         decoder: str = "json",
         *,
         prefix: str = "on_",
+        brokers: Optional[KafkaBrokers] = None,
         **kwargs: Dict[str, Any],
     ) -> ConsumeCallable:
         raise NotImplementedError
 
-    def produces(  # type: ignore
+    def produces(
         self,
         topic: Optional[str] = None,
         encoder: str = "json",
         *,
         prefix: str = "to_",
-        producer: Optional[AIOKafkaProducer] = None,
+        brokers: Optional[KafkaBrokers] = None,
         **kwargs: Dict[str, Any],
     ) -> ProduceCallable:
         raise NotImplementedError
@@ -384,7 +412,7 @@ class FastKafka:
     async def _shutdown_bg_tasks(self) -> None:
         raise NotImplementedError
 
-# %% ../../nbs/015_FastKafka.ipynb 26
+# %% ../../nbs/015_FastKafka.ipynb 27
 def _get_decoder_fn(decoder: str) -> Callable[[bytes, ModelMetaclass], Any]:
     """
     Imports and returns decoder function based on input
@@ -404,7 +432,29 @@ def _get_decoder_fn(decoder: str) -> Callable[[bytes, ModelMetaclass], Any]:
     else:
         raise ValueError(f"Unknown decoder - {decoder}")
 
-# %% ../../nbs/015_FastKafka.ipynb 28
+# %% ../../nbs/015_FastKafka.ipynb 29
+def _prepare_and_check_brokers(
+    app: FastKafka, kafka_brokers: Optional[Union[Dict[str, Any], KafkaBrokers]]
+) -> Optional[KafkaBrokers]:
+    if kafka_brokers is not None:
+        prepared_brokers = _get_kafka_brokers(kafka_brokers)
+        if prepared_brokers.brokers.keys() != app._kafka_brokers.brokers.keys():
+            raise ValueError(
+                f"To override application default brokers, you must define all of the broker options. Default defined: {set(app._kafka_brokers.brokers.keys())}, override defined: {set(prepared_brokers.brokers.keys())}"
+            )
+        return prepared_brokers
+    return None
+
+# %% ../../nbs/015_FastKafka.ipynb 30
+def _resolve_key(key: str, dictionary: Dict[str, Any]) -> str:
+    i = 0
+    resolved_key = f"{key}_{i}"
+    while resolved_key in dictionary:
+        i += 1
+        resolved_key = f"{key}_{i}"
+    return resolved_key
+
+# %% ../../nbs/015_FastKafka.ipynb 31
 @patch
 @delegates(AIOKafkaConsumer)
 def consumes(
@@ -413,6 +463,7 @@ def consumes(
     decoder: Union[str, Callable[[bytes, ModelMetaclass], Any]] = "json",
     *,
     executor: Union[str, StreamExecutor, None] = None,
+    brokers: Optional[Union[Dict[str, Any], KafkaBrokers]] = None,
     prefix: str = "on_",
     **kwargs: Dict[str, Any],
 ) -> Callable[[ConsumeCallable], ConsumeCallable]:
@@ -455,6 +506,7 @@ def consumes(
         topic: Optional[str] = topic,
         decoder: Union[str, Callable[[bytes, ModelMetaclass], Any]] = decoder,
         executor: Union[str, StreamExecutor, None] = executor,
+        brokers: Optional[Union[Dict[str, Any], KafkaBrokers]] = brokers,
         kwargs: Dict[str, Any] = kwargs,
     ) -> ConsumeCallable:
         topic_resolved: str = (
@@ -464,13 +516,24 @@ def consumes(
         )
 
         decoder_fn = _get_decoder_fn(decoder) if isinstance(decoder, str) else decoder
-        self._consumers_store[topic_resolved] = (on_topic, decoder_fn, executor, kwargs)
+
+        prepared_broker = _prepare_and_check_brokers(self, brokers)
+        if prepared_broker is not None:
+            self._override_brokers.append(prepared_broker.brokers)  # type: ignore
+
+        self._consumers_store[_resolve_key(topic_resolved, self._consumers_store)] = (
+            on_topic,
+            decoder_fn,
+            executor,
+            prepared_broker,
+            kwargs,
+        )
         setattr(self, on_topic.__name__, on_topic)
         return on_topic
 
     return _decorator
 
-# %% ../../nbs/015_FastKafka.ipynb 30
+# %% ../../nbs/015_FastKafka.ipynb 34
 def _get_encoder_fn(encoder: str) -> Callable[[BaseModel], bytes]:
     """
     Imports and returns encoder function based on input
@@ -490,7 +553,7 @@ def _get_encoder_fn(encoder: str) -> Callable[[BaseModel], bytes]:
     else:
         raise ValueError(f"Unknown encoder - {encoder}")
 
-# %% ../../nbs/015_FastKafka.ipynb 32
+# %% ../../nbs/015_FastKafka.ipynb 36
 @patch
 @delegates(AIOKafkaProducer)
 def produces(
@@ -499,6 +562,7 @@ def produces(
     encoder: Union[str, Callable[[BaseModel], bytes]] = "json",
     *,
     prefix: str = "to_",
+    brokers: Optional[Union[Dict[str, Any], KafkaBrokers]] = None,
     **kwargs: Dict[str, Any],
 ) -> Callable[[ProduceCallable], ProduceCallable]:
     """Decorator registering the callback called when delivery report for a produced message is received
@@ -529,6 +593,7 @@ def produces(
     def _decorator(
         to_topic: ProduceCallable,
         topic: Optional[str] = topic,
+        brokers: Optional[Union[Dict[str, Any], KafkaBrokers]] = brokers,
         kwargs: Dict[str, Any] = kwargs,
     ) -> ProduceCallable:
         topic_resolved: str = (
@@ -537,24 +602,38 @@ def produces(
             else topic
         )
 
-        self._producers_store[topic_resolved] = (to_topic, None, kwargs)
+        topic_key = _resolve_key(topic_resolved, self._producers_store)
+
+        prepared_broker = _prepare_and_check_brokers(self, brokers)
+        if prepared_broker is not None:
+            self._override_brokers.append(prepared_broker.brokers)  # type: ignore
+
+        self._producers_store[topic_key] = (
+            to_topic,
+            None,
+            prepared_broker,
+            kwargs,
+        )
         encoder_fn = _get_encoder_fn(encoder) if isinstance(encoder, str) else encoder
         decorated = producer_decorator(
-            self._producers_store, to_topic, topic_resolved, encoder_fn=encoder_fn
+            self._producers_store,
+            to_topic,
+            topic_key,
+            encoder_fn=encoder_fn,
         )
         setattr(self, to_topic.__name__, decorated)
         return decorated
 
     return _decorator
 
-# %% ../../nbs/015_FastKafka.ipynb 34
+# %% ../../nbs/015_FastKafka.ipynb 39
 @patch
 def get_topics(self: FastKafka) -> Iterable[str]:
-    produce_topics = set(self._producers_store.keys())
-    consume_topics = set(self._consumers_store.keys())
+    produce_topics = set([remove_suffix(topic) for topic in self._producers_store])
+    consume_topics = set([remove_suffix(topic) for topic in self._consumers_store])
     return consume_topics.union(produce_topics)
 
-# %% ../../nbs/015_FastKafka.ipynb 36
+# %% ../../nbs/015_FastKafka.ipynb 41
 @patch
 def run_in_background(
     self: FastKafka,
@@ -591,7 +670,7 @@ def run_in_background(
 
     return _decorator
 
-# %% ../../nbs/015_FastKafka.ipynb 40
+# %% ../../nbs/015_FastKafka.ipynb 45
 @patch
 def _populate_consumers(
     self: FastKafka,
@@ -600,22 +679,36 @@ def _populate_consumers(
     default_config: Dict[str, Any] = filter_using_signature(
         AIOKafkaConsumer, **self._kafka_config
     )
+
+    bootstrap_server = self._kafka_config["bootstrap_servers_id"]
+
     self._kafka_consumer_tasks = [
         asyncio.create_task(
             aiokafka_consumer_loop(
-                topic=topic,
+                topic="_".join(topic.split("_")[:-1]),
                 decoder_fn=decoder_fn,
                 callback=consumer,
                 msg_type=signature(consumer).parameters["msg"].annotation,
                 is_shutting_down_f=is_shutting_down_f,
                 executor=executor,
-                **{**default_config, **override_config},
+                **{
+                    **default_config,
+                    **override_config,
+                    **{
+                        "bootstrap_servers": _get_broker_addr_list(
+                            kafka_brokers.brokers[bootstrap_server]
+                            if kafka_brokers is not None
+                            else self._kafka_brokers.brokers[bootstrap_server]
+                        )
+                    },
+                },
             )
         )
         for topic, (
             consumer,
             decoder_fn,
             executor,
+            kafka_brokers,
             override_config,
         ) in self._consumers_store.items()
     ]
@@ -628,13 +721,14 @@ async def _shutdown_consumers(
     if self._kafka_consumer_tasks:
         await asyncio.wait(self._kafka_consumer_tasks)
 
-# %% ../../nbs/015_FastKafka.ipynb 42
+# %% ../../nbs/015_FastKafka.ipynb 47
 # TODO: Add passing of vars
 async def _create_producer(  # type: ignore
     *,
     callback: ProduceCallable,
     default_config: Dict[str, Any],
     override_config: Dict[str, Any],
+    bootstrap_servers: Union[str, List[str]],
     producers_list: List[AIOKafkaProducer],
 ) -> AIOKafkaProducer:
     """Creates a producer
@@ -644,6 +738,7 @@ async def _create_producer(  # type: ignore
         producer: An existing producer to use.
         default_config: A dictionary of default configuration values.
         override_config: A dictionary of configuration values to override.
+        bootstrap_servers: Bootstrap servers to connect the producer to.
         producers_list: A list of producers to add the new producer to.
 
     Returns:
@@ -653,7 +748,9 @@ async def _create_producer(  # type: ignore
     config = {
         **filter_using_signature(AIOKafkaProducer, **default_config),
         **filter_using_signature(AIOKafkaProducer, **override_config),
+        **{"bootstrap_servers": bootstrap_servers},
     }
+
     producer = AIOKafkaProducer(**config)
     logger.info(
         f"_create_producer() : created producer using the config: '{sanitize_kafka_config(**config)}'"
@@ -680,6 +777,8 @@ async def _populate_producers(self: FastKafka) -> None:
         None.
     """
     default_config: Dict[str, Any] = self._kafka_config
+    bootstrap_server = default_config["bootstrap_servers_id"]
+
     self._producers_list = []
     self._producers_store.update(
         {
@@ -689,13 +788,20 @@ async def _populate_producers(self: FastKafka) -> None:
                     callback=callback,
                     default_config=default_config,
                     override_config=override_config,
+                    bootstrap_servers=_get_broker_addr_list(
+                        kafka_brokers.brokers[bootstrap_server]
+                        if kafka_brokers is not None
+                        else self._kafka_brokers.brokers[bootstrap_server]
+                    ),
                     producers_list=self._producers_list,
                 ),
+                kafka_brokers,
                 override_config,
             )
             for topic, (
                 callback,
                 _,
+                kafka_brokers,
                 override_config,
             ) in self._producers_store.items()
         }
@@ -712,17 +818,19 @@ async def _shutdown_producers(self: FastKafka) -> None:
             topic: (
                 callback,
                 None,
+                kafka_brokers,
                 override_config,
             )
             for topic, (
                 callback,
                 _,
+                kafka_brokers,
                 override_config,
             ) in self._producers_store.items()
         }
     )
 
-# %% ../../nbs/015_FastKafka.ipynb 44
+# %% ../../nbs/015_FastKafka.ipynb 49
 @patch
 async def _populate_bg_tasks(
     self: FastKafka,
@@ -758,7 +866,7 @@ async def _shutdown_bg_tasks(
             f"_shutdown_bg_tasks() : Execution finished for background task '{task.get_name()}'"
         )
 
-# %% ../../nbs/015_FastKafka.ipynb 46
+# %% ../../nbs/015_FastKafka.ipynb 51
 @patch
 async def _start(self: FastKafka) -> None:
     def is_shutting_down_f(self: FastKafka = self) -> bool:
@@ -783,23 +891,24 @@ async def _stop(self: FastKafka) -> None:
     self._is_shutting_down = False
     self._is_started = False
 
-# %% ../../nbs/015_FastKafka.ipynb 52
+# %% ../../nbs/015_FastKafka.ipynb 57
 @patch
 def create_docs(self: FastKafka) -> None:
     export_async_spec(
         consumers={
             topic: callback
-            for topic, (callback, _, _, _) in self._consumers_store.items()
+            for topic, (callback, _, _, _, _) in self._consumers_store.items()
         },
         producers={
-            topic: callback for topic, (callback, _, _) in self._producers_store.items()
+            topic: callback
+            for topic, (callback, _, _, _) in self._producers_store.items()
         },
         kafka_brokers=self._kafka_brokers,
         kafka_service_info=self._kafka_service_info,
         asyncapi_path=self._asyncapi_path,
     )
 
-# %% ../../nbs/015_FastKafka.ipynb 56
+# %% ../../nbs/015_FastKafka.ipynb 61
 class AwaitedMock:
     @staticmethod
     def _await_for(f: Callable[..., Any]) -> Callable[..., Any]:
@@ -835,12 +944,12 @@ class AwaitedMock:
                 if inspect.ismethod(f):
                     setattr(self, name, self._await_for(f))
 
-# %% ../../nbs/015_FastKafka.ipynb 57
+# %% ../../nbs/015_FastKafka.ipynb 62
 @patch
 def create_mocks(self: FastKafka) -> None:
     """Creates self.mocks as a named tuple mapping a new function obtained by calling the original functions and a mock"""
-    app_methods = [f for f, _, _, _ in self._consumers_store.values()] + [
-        f for f, _, _ in self._producers_store.values()
+    app_methods = [f for f, _, _, _, _ in self._consumers_store.values()] + [
+        f for f, _, _, _ in self._producers_store.values()
     ]
     self.AppMocks = namedtuple(  # type: ignore
         f"{self.__class__.__name__}Mocks", [f.__name__ for f in app_methods]
@@ -887,9 +996,16 @@ def create_mocks(self: FastKafka) -> None:
                 add_mock(f, getattr(self.mocks, f.__name__)),
                 decoder_fn,
                 executor,
+                kafka_brokers,
                 kwargs,
             )
-            for name, (f, decoder_fn, executor, kwargs) in self._consumers_store.items()
+            for name, (
+                f,
+                decoder_fn,
+                executor,
+                kafka_brokers,
+                kwargs,
+            ) in self._consumers_store.items()
         }
     )
 
@@ -898,13 +1014,19 @@ def create_mocks(self: FastKafka) -> None:
             name: (
                 add_mock(f, getattr(self.mocks, f.__name__)),
                 producer,
+                kafka_brokers,
                 kwargs,
             )
-            for name, (f, producer, kwargs) in self._producers_store.items()
+            for name, (
+                f,
+                producer,
+                kafka_brokers,
+                kwargs,
+            ) in self._producers_store.items()
         }
     )
 
-# %% ../../nbs/015_FastKafka.ipynb 62
+# %% ../../nbs/015_FastKafka.ipynb 67
 @patch
 def benchmark(
     self: FastKafka,
@@ -959,7 +1081,7 @@ def benchmark(
 
     return _decorator
 
-# %% ../../nbs/015_FastKafka.ipynb 64
+# %% ../../nbs/015_FastKafka.ipynb 69
 @patch
 def fastapi_lifespan(
     self: FastKafka, kafka_broker_name: str
