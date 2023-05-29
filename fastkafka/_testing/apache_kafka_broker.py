@@ -7,8 +7,10 @@ __all__ = ['logger', 'get_zookeeper_config_string', 'get_kafka_config_string', '
 # %% ../../nbs/002_ApacheKafkaBroker.ipynb 1
 import asyncio
 import re
+import platform
 import socket
 from datetime import datetime, timedelta
+from os import environ
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
@@ -46,8 +48,10 @@ def get_zookeeper_config_string(
         Zookeeper configuration string.
 
     """
-
-    zookeeper_config = f"""dataDir={data_dir}/zookeeper
+    zookeeper_data_dir = str((Path(data_dir) / "zookeeper").resolve())
+    if platform.system() == "Windows":
+        zookeeper_data_dir = zookeeper_data_dir.replace("\\", "/")
+    zookeeper_config = f"""dataDir={zookeeper_data_dir}
 clientPort={zookeeper_port}
 maxClientCnxns=0
 admin.enableServer=false
@@ -70,7 +74,9 @@ def get_kafka_config_string(
         Kafka broker configuration string.
 
     """
-
+    kafka_logs_dir = str((Path(data_dir) / "kafka_logs").resolve())
+    if platform.system() == "Windows":
+        kafka_logs_dir = kafka_logs_dir.replace("\\", "/")
     kafka_config = f"""broker.id=0
 
 ############################# Socket Server Settings #############################
@@ -109,7 +115,7 @@ socket.request.max.bytes=104857600
 ############################# Log Basics #############################
 
 # A comma separated list of directories under which to store log files
-log.dirs={data_dir}/kafka_logs
+log.dirs={kafka_logs_dir}
 
 # The default number of log partitions per topic. More partitions allow greater
 # parallelism for consumption, but this will also result in more files across
@@ -304,7 +310,7 @@ def _check_deps(cls: ApacheKafkaBroker) -> None:
             "Kafka installation not found! Please install Kafka tools manually or run 'fastkafka testing install_deps'."
         )
 
-# %% ../../nbs/002_ApacheKafkaBroker.ipynb 16
+# %% ../../nbs/002_ApacheKafkaBroker.ipynb 17
 async def run_and_match(
     *args: str,
     capture: str = "stdout",
@@ -358,7 +364,7 @@ async def run_and_match(
 
     raise TimeoutError()
 
-# %% ../../nbs/002_ApacheKafkaBroker.ipynb 19
+# %% ../../nbs/002_ApacheKafkaBroker.ipynb 20
 def get_free_port() -> str:
     s = socket.socket()
     s.bind(("127.0.0.1", 0))
@@ -416,8 +422,10 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
             )
 
         try:
+            script_extension = "bat" if platform.system() == "Windows" else "sh"
+            service_start_script = f"{service}-server-start.{script_extension}"
             service_task = await run_and_match(
-                f"{service}-server-start.sh",
+                service_start_script,
                 str(service_config_path),
                 pattern="INFO \[KafkaServer id=0\] started"
                 if service == "kafka"
@@ -427,7 +435,7 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
         except Exception as e:
             print(e)
             logger.info(
-                f"{service} startup falied, generating a new port and retrying..."
+                f"{service} startup failed, generating a new port and retrying..."
             )
             port = get_free_port()
             if service == "zookeeper":
@@ -436,7 +444,7 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
             else:
                 self.kafka_kwargs["listener_port"] = port
 
-            logger.info(f"port={port}")
+            logger.info(f"{service} new port={port}")
         else:
             setattr(self, f"{service}_task", service_task)
             return
@@ -459,10 +467,12 @@ async def _create_topics(self: ApacheKafkaBroker) -> None:
     listener_port = self.kafka_kwargs.get("listener_port", 9092)
     bootstrap_server = f"127.0.0.1:{listener_port}"
 
+    script_extension = "bat" if platform.system() == "Windows" else "sh"
+    topics_script = f"kafka-topics.{script_extension}"
     async with asyncer.create_task_group() as tg:
         processes = [
             tg.soonify(asyncio.create_subprocess_exec)(
-                "kafka-topics.sh",
+                topics_script,
                 "--create",
                 f"--topic={topic}",
                 f"--bootstrap-server={bootstrap_server}",
@@ -510,7 +520,7 @@ async def _stop(self: ApacheKafkaBroker) -> None:
     self.temporary_directory.__exit__(None, None, None)  # type: ignore
     self._is_started = False
 
-# %% ../../nbs/002_ApacheKafkaBroker.ipynb 22
+# %% ../../nbs/002_ApacheKafkaBroker.ipynb 23
 @patch
 def start(self: ApacheKafkaBroker) -> str:
     """Starts a local kafka broker and zookeeper instance synchronously

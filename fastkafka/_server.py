@@ -7,10 +7,12 @@ __all__ = ['logger', 'ServerProcess', 'run_fastkafka_server_process', 'terminate
 # %% ../nbs/021_FastKafkaServer.ipynb 1
 import asyncio
 import multiprocessing
+import platform
 import signal
 import threading
 from contextlib import contextmanager
 from typing import *
+from types import FrameType
 
 import asyncer
 import typer
@@ -51,11 +53,17 @@ class ServerProcess:
             signal.SIGTERM,  # Unix signal 15. Sent by `kill <pid>`.
         )
 
+        def handle_windows_exit(signum: int, frame: Optional[FrameType]) -> None:
+            self.should_exit = True
+
         def handle_exit(sig: int) -> None:
             self.should_exit = True
 
         for sig in HANDLED_SIGNALS:
-            loop.add_signal_handler(sig, handle_exit, sig)
+            if platform.system() == "Windows":
+                signal.signal(sig, handle_windows_exit)
+            else:
+                loop.add_signal_handler(sig, handle_exit, sig)
 
     async def _main_loop(self) -> None:
         while not self.should_exit:
@@ -118,11 +126,19 @@ async def run_fastkafka_server(num_workers: int, app: str, kafka_broker: str) ->
 
     d = {"should_exit": False}
 
+    def handle_windows_exit(
+        signum: int, frame: Optional[FrameType], d: Dict[str, bool] = d
+    ) -> None:
+        d["should_exit"] = True
+
     def handle_exit(sig: int, d: Dict[str, bool] = d) -> None:
         d["should_exit"] = True
 
     for sig in HANDLED_SIGNALS:
-        loop.add_signal_handler(sig, handle_exit, sig)
+        if platform.system() == "Windows":
+            signal.signal(sig, handle_windows_exit)
+        else:
+            loop.add_signal_handler(sig, handle_exit, sig)
 
     async with asyncer.create_task_group() as tg:
         args = [
