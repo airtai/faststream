@@ -115,13 +115,16 @@ def _install_node(
             zip_ref.extractall(
                 local_path
             )  # nosec: B202 tarfile_unsafe_members - tarfile.extractall used without any validation. Please check and discard dangerous members.
-        os.environ["PATH"] = os.environ["PATH"] + f";{node_path}"
     else:
         with tarfile.open(tgz_path) as tar:
             for tarinfo in tar:
                 tar.extract(tarinfo, local_path)
 
-        os.environ["PATH"] = os.environ["PATH"] + f":{node_path}/bin"
+    os.environ["PATH"] = (
+        os.environ["PATH"] + f";{node_path}"
+        if platform.system() == "Windows"
+        else f":{node_path}/bin"
+    )
     logger.info(f"Node installed in {node_path}.")
 
 # %% ../../nbs/097_Docs_Dependencies.ipynb 16
