@@ -112,7 +112,9 @@ def _install_node(
 
     if platform.system() == "Windows":
         with zipfile.ZipFile(tgz_path, "r") as zip_ref:
-            zip_ref.extractall(local_path)
+            zip_ref.extractall(
+                local_path
+            )  # nosec: B202 tarfile_unsafe_members - tarfile.extractall used without any validation. Please check and discard dangerous members.
         os.environ["PATH"] = os.environ["PATH"] + f";{node_path}"
     else:
         with tarfile.open(tgz_path) as tar:
