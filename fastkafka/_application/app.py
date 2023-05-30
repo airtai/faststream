@@ -354,6 +354,7 @@ class FastKafka:
         *,
         prefix: str = "on_",
         brokers: Optional[KafkaBrokers] = None,
+        description: Optional[str] = None,
         **kwargs: Dict[str, Any],
     ) -> ConsumeCallable:
         raise NotImplementedError
@@ -365,6 +366,7 @@ class FastKafka:
         *,
         prefix: str = "to_",
         brokers: Optional[KafkaBrokers] = None,
+        description: Optional[str] = None,
         **kwargs: Dict[str, Any],
     ) -> ProduceCallable:
         raise NotImplementedError
@@ -465,6 +467,7 @@ def consumes(
     executor: Union[str, StreamExecutor, None] = None,
     brokers: Optional[Union[Dict[str, Any], KafkaBrokers]] = None,
     prefix: str = "on_",
+    description: Optional[str] = None,
     **kwargs: Dict[str, Any],
 ) -> Callable[[ConsumeCallable], ConsumeCallable]:
     """Decorator registering the callback called when a message is received in a topic.
@@ -509,6 +512,7 @@ def consumes(
         decoder: Union[str, Callable[[bytes, ModelMetaclass], Any]] = decoder,
         executor: Union[str, StreamExecutor, None] = executor,
         brokers: Optional[Union[Dict[str, Any], KafkaBrokers]] = brokers,
+        description: Optional[str] = description,
         kwargs: Dict[str, Any] = kwargs,
     ) -> ConsumeCallable:
         topic_resolved: str = (
@@ -522,6 +526,9 @@ def consumes(
         prepared_broker = _prepare_and_check_brokers(self, brokers)
         if prepared_broker is not None:
             self._override_brokers.append(prepared_broker.brokers)  # type: ignore
+
+        if description is not None:
+            setattr(on_topic, "description", description)
 
         self._consumers_store[_resolve_key(topic_resolved, self._consumers_store)] = (
             on_topic,
@@ -565,6 +572,7 @@ def produces(
     *,
     prefix: str = "to_",
     brokers: Optional[Union[Dict[str, Any], KafkaBrokers]] = None,
+    description: Optional[str] = None,
     **kwargs: Dict[str, Any],
 ) -> Callable[[ProduceCallable], ProduceCallable]:
     """Decorator registering the callback called when delivery report for a produced message is received
@@ -598,6 +606,7 @@ def produces(
         to_topic: ProduceCallable,
         topic: Optional[str] = topic,
         brokers: Optional[Union[Dict[str, Any], KafkaBrokers]] = brokers,
+        description: Optional[str] = description,
         kwargs: Dict[str, Any] = kwargs,
     ) -> ProduceCallable:
         topic_resolved: str = (
@@ -611,6 +620,9 @@ def produces(
         prepared_broker = _prepare_and_check_brokers(self, brokers)
         if prepared_broker is not None:
             self._override_brokers.append(prepared_broker.brokers)  # type: ignore
+
+        if description is not None:
+            setattr(to_topic, "description", description)
 
         self._producers_store[topic_key] = (
             to_topic,
@@ -920,11 +932,11 @@ def create_docs(self: FastKafka) -> None:
     """
     export_async_spec(
         consumers={
-            topic: callback
+            remove_suffix(topic) if topic.endswith("_0") else topic: callback
             for topic, (callback, _, _, _, _) in self._consumers_store.items()
         },
         producers={
-            topic: callback
+            remove_suffix(topic) if topic.endswith("_0") else topic: callback
             for topic, (callback, _, _, _) in self._producers_store.items()
         },
         kafka_brokers=self._kafka_brokers,
