@@ -5,6 +5,12 @@ __all__ = ['in_notebook', 'change_dir', 'ImportFromStringError', 'true_after', '
 
 # %% ../../nbs/998_Internal_Helpers.ipynb 2
 def in_notebook() -> bool:
+    """
+    Checks if the code is running in a Jupyter notebook or not.
+
+    Returns:
+        True if running in a Jupyter notebook, False otherwise.
+    """
     try:
         from IPython import get_ipython
 
@@ -30,6 +36,15 @@ import typer
 # %% ../../nbs/998_Internal_Helpers.ipynb 6
 @contextlib.contextmanager
 def change_dir(d: str) -> Generator[None, None, None]:
+    """
+    Changes the current working directory temporarily.
+
+    Args:
+        d: The directory to change to.
+
+    Yields:
+        None.
+    """
     curdir = os.getcwd()
     os.chdir(d)
     try:
@@ -120,4 +135,13 @@ def unwrap_list_type(var_type: Union[Type, Parameter]) -> Union[Type, Parameter]
 
 # %% ../../nbs/998_Internal_Helpers.ipynb 14
 def remove_suffix(topic: str) -> str:
+    """
+    Removes the suffix from a string by splitting on underscores and joining all but the last element.
+
+    Args:
+        topic: The string to remove the suffix from.
+
+    Returns:
+        The string without the suffix.
+    """
     return "_".join(topic.split("_")[:-1])

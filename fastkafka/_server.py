@@ -26,14 +26,27 @@ logger = get_logger(__name__, level=20)
 # %% ../nbs/021_FastKafkaServer.ipynb 7
 class ServerProcess:
     def __init__(self, app: str, kafka_broker_name: str):
+        """
+        Represents a server process for running the FastKafka application.
+
+        Args:
+            app (str): Input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafka**.
+            kafka_broker_name (str): The name of the Kafka broker, one of the keys of the kafka_brokers dictionary passed in the constructor of FastKafka class.
+        """
         self.app = app
         self.should_exit = False
         self.kafka_broker_name = kafka_broker_name
 
     def run(self) -> None:
+        """
+        Runs the FastKafka application server process.
+        """
         return asyncio.run(self._serve())
 
     async def _serve(self) -> None:
+        """
+        Internal method that runs the FastKafka application server.
+        """
         self._install_signal_handlers()
 
         self.application = _import_from_string(self.app)
@@ -43,6 +56,9 @@ class ServerProcess:
             await self._main_loop()
 
     def _install_signal_handlers(self) -> None:
+        """
+        Installs signal handlers for handling termination signals.
+        """
         if threading.current_thread() is not threading.main_thread():
             raise RuntimeError()
 
@@ -66,6 +82,9 @@ class ServerProcess:
                 loop.add_signal_handler(sig, handle_exit, sig)
 
     async def _main_loop(self) -> None:
+        """
+        Main loop for the FastKafka application server process.
+        """
         while not self.should_exit:
             await asyncio.sleep(0.1)
 
@@ -77,17 +96,23 @@ _app = typer.Typer()
 def run_fastkafka_server_process(
     app: str = typer.Argument(
         ...,
-        help="input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafka**.",
+        help="Input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafka**.",
     ),
     kafka_broker: str = typer.Option(
         ...,
-        help="kafka_broker, one of the keys of the kafka_brokers dictionary passed in the constructor of FastaKafka class.",
+        help="Kafka broker, one of the keys of the kafka_brokers dictionary passed in the constructor of FastKafka class.",
     ),
 ) -> None:
     ServerProcess(app, kafka_broker).run()
 
 # %% ../nbs/021_FastKafkaServer.ipynb 10
 async def terminate_asyncio_process(p: asyncio.subprocess.Process) -> None:
+    """
+    Terminates an asyncio process.
+
+    Args:
+        p (asyncio.subprocess.Process): The process to terminate.
+    """
     logger.info(f"terminate_asyncio_process(): Terminating the process {p.pid}...")
     # Check if SIGINT already propagated to process
     try:
@@ -117,6 +142,14 @@ async def terminate_asyncio_process(p: asyncio.subprocess.Process) -> None:
 
 # %% ../nbs/021_FastKafkaServer.ipynb 12
 async def run_fastkafka_server(num_workers: int, app: str, kafka_broker: str) -> None:
+    """
+    Runs the FastKafka server with multiple worker processes.
+
+    Args:
+        num_workers (int): Number of FastKafka instances to run.
+        app (str): Input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafka**.
+        kafka_broker (str): Kafka broker, one of the keys of the kafka_brokers dictionary passed in the constructor of FastKafka class.
+    """
     loop = asyncio.get_event_loop()
 
     HANDLED_SIGNALS = (
@@ -198,6 +231,15 @@ async def run_fastkafka_server(num_workers: int, app: str, kafka_broker: str) ->
 def run_in_process(
     target: Callable[..., Any]
 ) -> Generator[multiprocessing.Process, None, None]:
+    """
+    Runs the target function in a separate process.
+
+    Args:
+        target (Callable[..., Any]): The function to run in a separate process.
+
+    Yields:
+        Generator[multiprocessing.Process, None, None]: A generator that yields the process object.
+    """
     p = multiprocessing.Process(target=target)
     try:
         p.start()

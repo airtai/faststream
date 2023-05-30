@@ -31,6 +31,15 @@ npm_required_major_version = 9
 
 
 def _check_npm(required_major_version: int = npm_required_major_version) -> None:
+    """
+    Check if npm is installed and its major version is compatible with the required version.
+
+    Args:
+        required_major_version: Required major version of npm. Defaults to 9.
+
+    Raises:
+        RuntimeError: If npm is not found or its major version is lower than the required version.
+    """
     if shutil.which("npm") is not None:
         cmd = "npm --version"
         proc = subprocess.run(  # nosec [B602:subprocess_popen_with_shell_equals_true]
@@ -65,6 +74,16 @@ node_path = local_path / f"{node_fname}"
 
 
 def _check_npm_with_local(node_path: Path = node_path) -> None:
+    """
+    Check if npm is installed and its major version is compatible with the required version.
+    If npm is not found but a local installation of NodeJS is available, add the NodeJS binary path to the system's PATH environment variable.
+
+    Args:
+        node_path: Path to the local installation of NodeJS. Defaults to node_path.
+
+    Raises:
+        RuntimeError: If npm is not found and a local installation of NodeJS is not available.
+    """
     try:
         _check_npm()
     except RuntimeError as e:
@@ -87,6 +106,14 @@ def _install_node(
     local_path: Path = local_path,
     tgz_path: Path = tgz_path,
 ) -> None:
+    """
+    Install NodeJS by downloading the NodeJS distribution archive, extracting it, and adding the NodeJS binary path to the system's PATH environment variable.
+
+    Args:
+        node_url: URL of the NodeJS distribution archive to download. Defaults to node_url.
+        local_path: Path to store the downloaded distribution archive. Defaults to local_path.
+        tgz_path: Path of the downloaded distribution archive. Defaults to tgz_path.
+    """
     try:
         import requests
     except Exception as e:
@@ -129,6 +156,9 @@ def _install_node(
 
 # %% ../../nbs/097_Docs_Dependencies.ipynb 16
 async def _install_docs_npm_deps() -> None:
+    """
+    Install the required npm dependencies for generating the documentation using AsyncAPI generator.
+    """
     with TemporaryDirectory() as d:
         cmd = (
             "npx -y -p @asyncapi/generator ag https://raw.githubusercontent.com/asyncapi/asyncapi/master/examples/simple.yml @asyncapi/html-template -o "

@@ -33,6 +33,12 @@ _docs_app = typer.Typer(help="Commands for managing fastkafka app documentation"
     help="Installs dependencies for FastKafka documentation generation",
 )
 def docs_install_deps() -> None:
+    """
+    Installs dependencies for FastKafka documentation generation.
+
+    Raises:
+        typer.Abort: If the user chooses not to install NodeJS and npm locally.
+    """
     try:
         _check_npm_with_local()
     except Exception as e:
@@ -61,6 +67,18 @@ def generate_docs(
         help="input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafka**.",
     ),
 ) -> None:
+    """
+    Generates documentation for a FastKafka application.
+
+    Args:
+        root_path: The root path under which the documentation will be created.
+            Default is the current directory.
+        app: Input in the form of 'path:app', where **path** is the path to a python
+            file and **app** is an object of type **FastKafka**.
+
+    Raises:
+        typer.Exit: If there is an unexpected internal error.
+    """
     try:
         application = _import_from_string(app)
         application.skip_docs = False
@@ -85,6 +103,20 @@ def serve_docs(
         help="input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafka**.",
     ),
 ) -> None:
+    """
+    Generates and serves documentation for a FastKafka application.
+
+    Args:
+        root_path: The root path under which the documentation will be created.
+            Default is the current directory.
+        bind: The IP address to bind the server to. Default is '127.0.0.1'.
+        port: The port number to bind the server to. Default is 8000.
+        app: Input in the form of 'path:app', where **path** is the path to a python
+            file and **app** is an object of type **FastKafka**.
+
+    Raises:
+        typer.Exit: If there is an unexpected internal error.
+    """
     try:
         application = _import_from_string(app)
         application.create_docs()

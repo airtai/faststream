@@ -301,6 +301,11 @@ class ApacheKafkaBroker:
 # %% ../../nbs/002_ApacheKafkaBroker.ipynb 14
 @patch(cls_method=True)  # type: ignore
 def _check_deps(cls: ApacheKafkaBroker) -> None:
+    """Checks the dependencies required to run Apache KafkaBroker.
+
+    Raises:
+        RuntimeError: If JDK installation or Kafka installation is not found.
+    """
     if not check_java():
         raise RuntimeError(
             "JDK installation not found! Please install JDK manually or run 'fastkafka testing install_deps'."
@@ -318,6 +323,23 @@ async def run_and_match(
     pattern: str,
     num_to_match: int = 1,
 ) -> asyncio.subprocess.Process:
+    """Runs a command asynchronously and matches the output against a pattern.
+
+    Args:
+        *args: Command-line arguments for the subprocess.
+        capture: Which output to capture ("stdout" or "stderr").
+        timeout: Timeout in seconds for reading the output.
+        pattern: Regular expression pattern to match in the output.
+        num_to_match: Number of matches to wait for.
+
+    Returns:
+        The subprocess process object.
+
+    Raises:
+        ValueError: If the capture parameter has an unsupported value.
+        TimeoutError: If the process times out.
+        RuntimeError: If the process returns a non-zero return code.
+    """
     # Create the subprocess; redirect the standard output
     # into a pipe.
     matched = 0
@@ -366,6 +388,11 @@ async def run_and_match(
 
 # %% ../../nbs/002_ApacheKafkaBroker.ipynb 20
 def get_free_port() -> str:
+    """Gets a port number which is available and free in the system.
+
+    Returns:
+        The free port number as a string.
+    """
     s = socket.socket()
     s.bind(("127.0.0.1", 0))
     port = str(s.getsockname()[1])
@@ -376,6 +403,16 @@ def get_free_port() -> str:
 async def write_config_and_run(
     config: str, config_path: Union[str, Path], run_cmd: str
 ) -> asyncio.subprocess.Process:
+    """Writes the configuration to a file, and runs a command using the configuration.
+
+    Args:
+        config: The configuration string.
+        config_path: Path to the configuration file.
+        run_cmd: The command to run.
+
+    Returns:
+        The subprocess process object.
+    """
     with open(config_path, "w") as f:
         f.write(config)
 
@@ -391,6 +428,15 @@ async def write_config_and_run(
 def get_service_config_string(
     self: ApacheKafkaBroker, service: str, *, data_dir: Path
 ) -> str:
+    """Gets the configuration string for a service.
+
+    Args:
+        service: Name of the service ("kafka" or "zookeeper").
+        data_dir: Path to the directory where the service will save data.
+
+    Returns:
+        The service configuration string.
+    """
     service_kwargs = getattr(self, f"{service}_kwargs")
     if service == "kafka":
         return get_kafka_config_string(data_dir=data_dir, **service_kwargs)
@@ -400,6 +446,11 @@ def get_service_config_string(
 
 @patch
 async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> None:
+    """Starts a service (kafka or zookeeper) asynchronously.
+
+    Args:
+        service: Name of the service ("kafka" or "zookeeper").
+    """
     logger.info(f"Starting {service}...")
 
     if self.temporary_directory_path is None:
@@ -454,16 +505,19 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
 
 @patch
 async def _start_kafka(self: ApacheKafkaBroker) -> None:
+    """Starts a local Kafka broker asynchronously."""
     return await self._start_service("kafka")
 
 
 @patch
 async def _start_zookeeper(self: ApacheKafkaBroker) -> None:
+    """Starts a local ZooKeeper instance asynchronously."""
     return await self._start_service("zookeeper")
 
 
 @patch
 async def _create_topics(self: ApacheKafkaBroker) -> None:
+    """Creates missing topics in a local Kafka broker asynchronously."""
     listener_port = self.kafka_kwargs.get("listener_port", 9092)
     bootstrap_server = f"127.0.0.1:{listener_port}"
 
@@ -494,6 +548,11 @@ async def _create_topics(self: ApacheKafkaBroker) -> None:
 
 @patch
 async def _start(self: ApacheKafkaBroker) -> str:
+    """Starts a local Kafka broker and ZooKeeper instance asynchronously.
+
+    Returns:
+        The Kafka broker bootstrap server address in string format: host:port.
+    """
     self._check_deps()
 
     self.temporary_directory = TemporaryDirectory()
@@ -515,6 +574,7 @@ async def _start(self: ApacheKafkaBroker) -> str:
 
 @patch
 async def _stop(self: ApacheKafkaBroker) -> None:
+    """Stops a local Kafka broker and ZooKeeper instance asynchronously."""
     await terminate_asyncio_process(self.kafka_task)  # type: ignore
     await terminate_asyncio_process(self.zookeeper_task)  # type: ignore
     self.temporary_directory.__exit__(None, None, None)  # type: ignore
@@ -523,9 +583,10 @@ async def _stop(self: ApacheKafkaBroker) -> None:
 # %% ../../nbs/002_ApacheKafkaBroker.ipynb 23
 @patch
 def start(self: ApacheKafkaBroker) -> str:
-    """Starts a local kafka broker and zookeeper instance synchronously
+    """Starts a local Kafka broker and ZooKeeper instance synchronously.
+
     Returns:
-       Kafka broker bootstrap server address in string format: add:port
+        The Kafka broker bootstrap server address in string format: host:port.
     """
     logger.info(f"{self.__class__.__name__}.start(): entering...")
     try:
