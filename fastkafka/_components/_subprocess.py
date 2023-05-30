@@ -5,8 +5,10 @@ __all__ = ['logger', 'terminate_asyncio_process', 'run_async_subprocesses']
 
 # %% ../../nbs/022_Subprocess.ipynb 1
 import asyncio
+import platform
 import signal
 from typing import *
+from types import FrameType
 
 import asyncer
 import typer
@@ -18,6 +20,15 @@ logger = get_logger(__name__)
 
 # %% ../../nbs/022_Subprocess.ipynb 7
 async def terminate_asyncio_process(p: asyncio.subprocess.Process) -> None:
+    """
+    Terminates an asyncio process.
+
+    Args:
+        p: The asyncio.subprocess.Process instance.
+
+    Returns:
+        None.
+    """
     logger.info(f"terminate_asyncio_process(): Terminating the process {p.pid}...")
     # Check if SIGINT already propagated to process
     try:
@@ -30,7 +41,15 @@ async def terminate_asyncio_process(p: asyncio.subprocess.Process) -> None:
         pass
 
     for i in range(3):
-        p.terminate()
+        if platform.system() == "Windows":
+            import psutil
+
+            parent = psutil.Process(p.pid)
+            children = parent.children(recursive=True)
+            for child in children:
+                child.kill()
+        else:
+            p.terminate()
         try:
             await asyncio.wait_for(p.wait(), 10)
             logger.info(f"terminate_asyncio_process(): Process {p.pid} terminated.")
@@ -49,6 +68,17 @@ async def terminate_asyncio_process(p: asyncio.subprocess.Process) -> None:
 async def run_async_subprocesses(
     commands: List[str], commands_args: List[List[Any]], *, sleep_between: int = 0
 ) -> None:
+    """
+    Runs multiple async subprocesses.
+
+    Args:
+        commands: A list of commands to execute.
+        commands_args: A list of argument lists for each command.
+        sleep_between: The sleep duration in seconds between starting each subprocess.
+
+    Returns:
+        None.
+    """
     loop = asyncio.get_event_loop()
 
     HANDLED_SIGNALS = (
@@ -58,11 +88,19 @@ async def run_async_subprocesses(
 
     d = {"should_exit": False}
 
+    def handle_windows_exit(
+        signum: int, frame: Optional[FrameType], d: Dict[str, bool] = d
+    ) -> None:
+        d["should_exit"] = True
+
     def handle_exit(sig: int, d: Dict[str, bool] = d) -> None:
         d["should_exit"] = True
 
     for sig in HANDLED_SIGNALS:
-        loop.add_signal_handler(sig, handle_exit, sig)
+        if platform.system() == "Windows":
+            signal.signal(sig, handle_windows_exit)
+        else:
+            loop.add_signal_handler(sig, handle_exit, sig)
 
     async with asyncer.create_task_group() as tg:
         tasks = []

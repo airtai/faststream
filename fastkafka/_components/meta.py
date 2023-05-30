@@ -324,6 +324,16 @@ TorF = TypeVar("TorF", Type, Callable[..., Any])
 
 
 def export(module_name: str) -> Callable[[TorF], TorF]:
+    """
+    Decorator that sets the __module__ attribute of the decorated object to the specified module name.
+
+    Args:
+        module_name: Name of the module to set as __module__ attribute.
+
+    Returns:
+        Decorator function that sets the __module__ attribute of the decorated object.
+    """
+
     def _inner(o: TorF, module_name: str = module_name) -> TorF:
         o.__module__ = module_name
         return o
@@ -335,6 +345,16 @@ T = TypeVar("T")
 
 
 def classcontextmanager(name: str = "lifecycle") -> Callable[[Type[T]], Type[T]]:
+    """
+    Decorator that adds context manager functionality to a class.
+
+    Args:
+        name: Name of the context manager attribute in the class. Default is "lifecycle".
+
+    Returns:
+        Decorator function that adds context manager functionality to the class.
+    """
+
     def _classcontextmanager(cls: Type[T], name: str = name) -> Type[T]:
         if not hasattr(cls, name):
             raise ValueError

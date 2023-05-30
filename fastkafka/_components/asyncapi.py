@@ -6,6 +6,7 @@ __all__ = ['logger', 'sec_scheme_name_mapping', 'KafkaMessage', 'SecurityType', 
 
 # %% ../../nbs/014_AsyncAPI.ipynb 1
 import json
+import platform
 import shutil
 import subprocess  # nosec: B404: Consider possible security implications associated with the subprocess module.
 import tempfile
@@ -385,6 +386,15 @@ def _get_asyncapi_schema(
 
 # %% ../../nbs/014_AsyncAPI.ipynb 46
 def yaml_file_cmp(file_1: Union[Path, str], file_2: Union[Path, str]) -> bool:
+    """Compares two YAML files and returns True if their contents are equal, False otherwise.
+
+    Args:
+        file_1: Path or string representing the first YAML file.
+        file_2: Path or string representing the second YAML file.
+
+    Returns:
+        A boolean indicating whether the contents of the two YAML files are equal.
+    """
     try:
         import yaml
     except Exception as e:
@@ -462,8 +472,12 @@ def _generate_async_docs(
         f"{docs_path}",
         "--force-write",
     ]
-    p = subprocess.run(  # nosec: B603 subprocess call - check for execution of untrusted input.
-        cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE
+    # nosemgrep: python.lang.security.audit.subprocess-shell-true.subprocess-shell-true
+    p = subprocess.run(  # nosec: B602, B603 subprocess call - check for execution of untrusted input.
+        cmd,
+        stderr=subprocess.STDOUT,
+        stdout=subprocess.PIPE,
+        shell=True if platform.system() == "Windows" else False,
     )
     if p.returncode == 0:
         logger.info(f"Async docs generated at '{docs_path}'")
@@ -485,12 +499,15 @@ def export_async_spec(
     asyncapi_path: Union[Path, str],
     force_rebuild: bool = True,
 ) -> None:
-    """Export async specification to a given path
+    """Exports the AsyncAPI specification and documentation to the given path.
 
-    Params:
-        path: path where the specification will be exported. If parent subdirectories do not exist, they will be created.
-
-
+    Args:
+        consumers: Dictionary of consumer functions, where the keys are the channel names and the values are the consumer functions.
+        producers: Dictionary of producer functions, where the keys are the channel names and the values are the producer functions.
+        kafka_brokers: KafkaBrokers object representing the Kafka brokers configuration.
+        kafka_service_info: KafkaServiceInfo object representing the Kafka service info configuration.
+        asyncapi_path: Path or string representing the base path where the specification and documentation will be exported.
+        force_rebuild: Boolean indicating whether to force a rebuild of the specification file even if it already exists.
     """
     # generate spec file
     spec_path = Path(asyncapi_path) / "spec" / "asyncapi.yml"

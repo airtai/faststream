@@ -633,6 +633,12 @@ def produces(
 # %% ../../nbs/015_FastKafka.ipynb 39
 @patch
 def get_topics(self: FastKafka) -> Iterable[str]:
+    """
+    Get all topics for both producing and consuming.
+
+    Returns:
+        A set of topics for both producing and consuming.
+    """
     produce_topics = set([remove_suffix(topic) for topic in self._producers_store])
     consume_topics = set([remove_suffix(topic) for topic in self._consumers_store])
     return consume_topics.union(produce_topics)
@@ -898,6 +904,20 @@ async def _stop(self: FastKafka) -> None:
 # %% ../../nbs/015_FastKafka.ipynb 57
 @patch
 def create_docs(self: FastKafka) -> None:
+    """
+    Create the asyncapi documentation based on the configured consumers and producers.
+
+    This function exports the asyncapi specification based on the configured consumers
+    and producers in the FastKafka instance. It generates the asyncapi documentation by
+    extracting the topics and callbacks from the consumers and producers.
+
+    Note:
+        The asyncapi documentation is saved to the location specified by the `_asyncapi_path`
+        attribute of the FastKafka instance.
+
+    Returns:
+        None
+    """
     export_async_spec(
         consumers={
             topic: callback
@@ -914,12 +934,28 @@ def create_docs(self: FastKafka) -> None:
 
 # %% ../../nbs/015_FastKafka.ipynb 61
 class AwaitedMock:
+    """
+    Class representing an awaited mock object.
+
+    Args:
+        o: The original object to be wrapped.
+    """
+
     @staticmethod
     def _await_for(f: Callable[..., Any]) -> Callable[..., Any]:
         @delegates(f)
         async def inner(
             *args: Any, f: Callable[..., Any] = f, timeout: int = 60, **kwargs: Any
         ) -> Any:
+            """
+            Decorator to await the execution of a function.
+
+            Args:
+                f: The function to be wrapped.
+
+            Returns:
+                The wrapped function.
+            """
             if inspect.iscoroutinefunction(f):
                 return await asyncio.wait_for(f(*args, **kwargs), timeout=timeout)
             else:
@@ -940,6 +976,12 @@ class AwaitedMock:
         return inner
 
     def __init__(self, o: Any):
+        """
+        Initializes an instance of AwaitedMock.
+
+        Args:
+            o: The original object to be wrapped.
+        """
         self._o = o
 
         for name in o.__dir__():

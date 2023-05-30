@@ -38,6 +38,17 @@ def run(
         help="kafka_broker, one of the keys of the kafka_brokers dictionary passed in the constructor of FastaKafka class.",
     ),
 ) -> None:
+    """
+    Runs FastKafka application.
+
+    Args:
+        num_workers (int): Number of FastKafka instances to run, defaults to the number of CPU cores.
+        app (str): Input in the form of 'path:app', where **path** is the path to a python file and **app** is an object of type **FastKafka**.
+        kafka_broker (str): Kafka broker, one of the keys of the kafka_brokers dictionary passed in the constructor of FastKafka class.
+
+    Raises:
+        typer.Exit: If there is an unexpected internal error.
+    """
     try:
         asyncio.run(
             run_fastkafka_server(

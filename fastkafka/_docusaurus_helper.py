@@ -457,6 +457,23 @@ def generate_sidebar(
     summary: str = "",
     target: str = "./docusaurus/sidebars.js",
 ) -> None:
+    """
+    Generate a sidebar js file for a Docusaurus documentation site based on a SUMMARY.md file.
+
+    Args:
+        summary_file: The path to the SUMMARY.md file containing the documentation structure.
+            Default is "./docusaurus/docs/SUMMARY.md".
+        summary: An optional summary string.
+            Default is an empty string.
+        target: The path to the target sidebar js file to be generated.
+            Default is "./docusaurus/sidebars.js".
+
+    Returns:
+        None: The function does not return any value directly, but it generates a sidebar file.
+
+    Raises:
+        FileNotFoundError: If the specified `summary_file` does not exist.
+    """
     with open(summary_file, "r") as stream, open(target, "w") as target_stream:
         summary_contents = stream.read()
 

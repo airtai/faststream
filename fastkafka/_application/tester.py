@@ -29,6 +29,15 @@ from .._components.helpers import remove_suffix
 
 # %% ../../nbs/016_Tester.ipynb 7
 def _get_broker_spec(bootstrap_server: str) -> KafkaBroker:
+    """
+    Helper function to get the broker specification from the bootstrap server URL.
+
+    Args:
+        bootstrap_server: The bootstrap server URL in the format "<host>:<port>".
+
+    Returns:
+        A KafkaBroker object representing the broker specification.
+    """
     url = bootstrap_server.split(":")[0]
     port = bootstrap_server.split(":")[1]
     return KafkaBroker(url=url, port=port, description="", protocol="")
@@ -51,6 +60,9 @@ class Tester(FastKafka):
 
         Can be used as context manager
 
+        Args:
+            app: The FastKafka application to be tested.
+            broker: An optional broker to start and to use for testing.
         """
         self.apps = app if isinstance(app, list) else [app]
 
@@ -82,7 +94,7 @@ class Tester(FastKafka):
             memory: The amount of memory to make available to Redpanda
             mode: Mode to use to load configuration properties in container
             default_log_level: Log levels to use for Redpanda
-            topics: List of topics to create after sucessfull redpanda broker startup
+            topics: List of topics to create after successful redpanda broker startup
             retries: Number of retries to create redpanda service
             apply_nest_asyncio: set to True if running in notebook
             port allocation if the requested port was taken
@@ -105,11 +117,11 @@ class Tester(FastKafka):
         """Starts local Kafka broker used by the Tester instance
 
         Args:
-            data_dir: Path to the directory where the zookeepeer instance will save data
-            zookeeper_port: Port for clients (Kafka brokes) to connect
+            data_dir: Path to the directory where the zookeeper instance will save data
+            zookeeper_port: Port for clients (Kafka brokers) to connect
             listener_port: Port on which the clients (producers and consumers) can connect
-            topics: List of topics to create after sucessfull Kafka broker startup
-            retries: Number of retries to create kafka and zookeeper services using random
+            topics: List of topics to create after successful Kafka broker startup
+            retries: Number of retries to create Kafka and zookeeper services using random
             apply_nest_asyncio: set to True if running in notebook
             port allocation if the requested port was taken
 
@@ -204,6 +216,18 @@ class Tester(FastKafka):
 def mirror_producer(
     topic: str, producer_f: Callable[..., Any], brokers: str, app: FastKafka
 ) -> Callable[..., Any]:
+    """
+    Decorator to create a mirrored producer function.
+
+    Args:
+        topic: The topic to produce to.
+        producer_f: The original producer function.
+        brokers: The brokers configuration.
+        app: The FastKafka application.
+
+    Returns:
+        The mirrored producer function.
+    """
     msg_type = inspect.signature(producer_f).return_annotation
 
     msg_type_unwrapped = unwrap_list_type(unwrap_from_kafka_event(msg_type))
@@ -237,6 +261,18 @@ def mirror_producer(
 def mirror_consumer(
     topic: str, consumer_f: Callable[..., Any], brokers: str, app: FastKafka
 ) -> Callable[[BaseModel], Coroutine[Any, Any, BaseModel]]:
+    """
+    Decorator to create a mirrored consumer function.
+
+    Args:
+        topic: The topic to consume from.
+        consumer_f: The original consumer function.
+        brokers: The brokers configuration.
+        app: The FastKafka application.
+
+    Returns:
+        The mirrored consumer function.
+    """
     msg_type = inspect.signature(consumer_f).parameters["msg"]
 
     msg_type_unwrapped = unwrap_list_type(msg_type)
@@ -262,6 +298,17 @@ def mirror_consumer(
 # %% ../../nbs/016_Tester.ipynb 24
 @patch
 def _create_mirrors(self: Tester) -> None:
+    """
+    Creates mirror functions for producers and consumers.
+
+    Iterates over the FastKafka application and its producers and consumers. For each consumer, it creates a mirror
+    consumer function using the `mirror_consumer` decorator. For each producer, it creates a mirror producer function
+    using the `mirror_producer` decorator. The mirror functions are stored in the `self.mirrors` dictionary and also
+    set as attributes on the Tester instance.
+
+    Returns:
+        None
+    """
     for app in self.apps:
         for topic, (consumer_f, _, _, brokers, _) in app._consumers_store.items():
             mirror_f = mirror_consumer(
@@ -294,6 +341,14 @@ def _create_mirrors(self: Tester) -> None:
 
 # %% ../../nbs/016_Tester.ipynb 29
 class AmbiguousWarning:
+    """
+    Warning class used for ambiguous topics.
+
+    Args:
+        topic: The ambiguous topic.
+        functions: List of function names associated with the ambiguous topic.
+    """
+
     def __init__(self, topic: str, functions: List[str]):
         self.topic = topic
         self.functions = functions
@@ -319,6 +374,21 @@ def set_sugar(
     origin_function_name: str,
     function: Callable[..., Union[Any, Awaitable[Any]]],
 ) -> None:
+    """
+    Sets the sugar function for a topic.
+
+    Args:
+        tester: The Tester instance.
+        prefix: The prefix to use for the sugar function (e.g., "to_" or "on_").
+        topic_brokers: Dictionary to store the brokers and functions associated with each topic.
+        topic: The topic name.
+        brokers: The brokers configuration.
+        origin_function_name: The name of the original function.
+        function: The mirror function to be set as the sugar function.
+
+    Returns:
+        None
+    """
     brokers_for_topic, functions_for_topic = topic_brokers.get(topic, ([], []))
     if brokers not in brokers_for_topic:
         brokers_for_topic.append(brokers)
@@ -334,6 +404,18 @@ def set_sugar(
 # %% ../../nbs/016_Tester.ipynb 32
 @patch
 def _arrange_mirrors(self: Tester) -> None:
+    """
+    Arranges the mirror functions.
+
+    Iterates over the FastKafka application and its producers and consumers. For each consumer, it retrieves the mirror
+    function from the `self.mirrors` dictionary and sets it as an attribute on the Tester instance. It also sets the
+    sugar function using the `set_sugar` function. For each producer, it retrieves the mirror function and sets it as
+    an attribute on the Tester instance. It also sets the sugar function for the awaited mocks. Finally, it creates the
+    `mocks` and `awaited_mocks` namedtuples and sets them as attributes on the Tester instance.
+
+    Returns:
+        None
+    """
     topic_brokers: Dict[str, Tuple[List[str], List[str]]] = {}
     mocks = {}
     awaited_mocks = {}
