@@ -138,6 +138,18 @@ def set_level(level: int) -> None:
 def cached_log(
     self: logging.Logger, msg: str, level: int, timeout: Union[int, float] = 5
 ) -> None:
+    """
+    Logs a message with a specified level only once within a given timeout.
+
+    Args:
+        self: The logger instance.
+        msg: The message to log.
+        level: The logging level for the message.
+        timeout: The timeout duration in seconds.
+
+    Returns:
+        None
+    """
     if not hasattr(self, "_timeouted_msgs"):
         self._timeouted_msgs = {}  # type: ignore
 

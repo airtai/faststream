@@ -20,6 +20,15 @@ logger = get_logger(__name__)
 
 # %% ../../nbs/022_Subprocess.ipynb 7
 async def terminate_asyncio_process(p: asyncio.subprocess.Process) -> None:
+    """
+    Terminates an asyncio process.
+
+    Args:
+        p: The asyncio.subprocess.Process instance.
+
+    Returns:
+        None.
+    """
     logger.info(f"terminate_asyncio_process(): Terminating the process {p.pid}...")
     # Check if SIGINT already propagated to process
     try:
@@ -59,6 +68,17 @@ async def terminate_asyncio_process(p: asyncio.subprocess.Process) -> None:
 async def run_async_subprocesses(
     commands: List[str], commands_args: List[List[Any]], *, sleep_between: int = 0
 ) -> None:
+    """
+    Runs multiple async subprocesses.
+
+    Args:
+        commands: A list of commands to execute.
+        commands_args: A list of argument lists for each command.
+        sleep_between: The sleep duration in seconds between starting each subprocess.
+
+    Returns:
+        None.
+    """
     loop = asyncio.get_event_loop()
 
     HANDLED_SIGNALS = (

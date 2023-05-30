@@ -29,6 +29,16 @@ class TaskPool:
         size: int = 100_000,
         on_error: Optional[Callable[[BaseException], None]] = None,
     ):
+        """
+        Initializes a TaskPool instance.
+
+        Args:
+            size: The size of the task pool. Defaults to 100,000.
+            on_error: Optional callback function to handle task errors. Defaults to None.
+
+        Returns:
+            None
+        """
         self.size = size
         self.pool: Set[Task] = set()
         self.on_error = on_error
@@ -108,6 +118,12 @@ class TaskPool:
 # %% ../../nbs/006_TaskStreaming.ipynb 14
 class ExceptionMonitor:
     def __init__(self) -> None:
+        """
+        Initializes an ExceptionMonitor instance.
+
+        Returns:
+            None
+        """
         self.exceptions: List[Exception] = []
         self.exception_found = False
 
@@ -153,6 +169,17 @@ class StreamExecutor(ABC):
         generator: Callable[[], Awaitable[ConsumerRecord]],
         processor: Callable[[ConsumerRecord], Awaitable[None]],
     ) -> None:
+        """
+        Abstract method for running the stream executor.
+
+        Args:
+            is_shutting_down_f: Function to check if the executor is shutting down.
+            generator: Generator function for retrieving consumer records.
+            processor: Processor function for processing consumer records.
+
+        Returns:
+            None
+        """
         pass
 
 # %% ../../nbs/006_TaskStreaming.ipynb 20
