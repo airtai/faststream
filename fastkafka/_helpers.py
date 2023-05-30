@@ -834,6 +834,18 @@ async def produce_and_consume_messages(
 def get_collapsible_admonition(
     code_block: str, *, name: Optional[str] = None
 ) -> Markdown:
+    """
+    Generate a collapsible admonition containing a code block as an example.
+
+    Args:
+        code_block: The code block to be included in the example.
+        name: Optional name or title for the example.
+            Default is None.
+
+    Returns:
+        A Markdown object representing the collapsible admonition
+        with the provided code block.
+    """
     alt_name = "" if name is None else name
     intro = f'This example contains the content of the file "{alt_name}":'
     return Markdown(
@@ -861,6 +873,23 @@ def source2markdown(o: Union[str, Callable[..., Any]]) -> Markdown:
 async def wait_for_get_url(
     url: str, timeout: Optional[int] = None, **kwargs: Dict[str, Any]
 ) -> aiohttp.ClientResponse:
+    """
+    Asynchronously wait for a GET request to a specified URL with an optional timeout.
+
+    Args:
+        url: The URL to send the GET request to.
+        timeout: Optional maximum number of seconds to wait
+            for a response. If not provided, there is no timeout. Default is None.
+        **kwargs: Additional keyword arguments to be passed to the tqdm progress bar,
+            if a timeout is provided.
+
+    Returns:
+        The aiohttp.ClientResponse response object for the GET request.
+
+    Raises:
+        TimeoutError: If the timeout is reached and the URL couldn't be fetched within
+            the specified time.
+    """
     t0 = datetime.now()
     if timeout is not None:
         pbar = tqdm(total=timeout, **kwargs)

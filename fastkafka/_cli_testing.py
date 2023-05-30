@@ -23,6 +23,12 @@ _testing_app = typer.Typer(help="Commands for managing fastkafka testing")
     help="Installs dependencies for FastKafka app testing",
 )
 def testing_install_deps() -> None:
+    """
+    Installs dependencies for FastKafka app testing.
+
+    Raises:
+        typer.Exit: If there is an unexpected internal error.
+    """
     try:
         _install_testing_deps()
     except Exception as e:

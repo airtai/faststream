@@ -48,11 +48,28 @@ class KafkaRecord:
 # %% ../../nbs/001_InMemoryBroker.ipynb 7
 class KafkaPartition:
     def __init__(self, *, partition: int, topic: str):
+        """
+        Initialize a KafkaPartition object.
+
+        Args:
+            partition: The partition number.
+            topic: The topic name.
+        """
         self.partition = partition
         self.topic = topic
         self.messages: List[KafkaRecord] = list()
 
     def write(self, value: bytes, key: Optional[bytes] = None) -> RecordMetadata:  # type: ignore
+        """
+        Write a Kafka record to the partition.
+
+        Args:
+            value: The value of the record.
+            key: The key of the record.
+
+        Returns:
+            The record metadata.
+        """
         record = KafkaRecord(
             topic=self.topic,
             partition=self.partition,
@@ -73,14 +90,36 @@ class KafkaPartition:
         return record_meta
 
     def read(self, offset: int) -> Tuple[List[KafkaRecord], int]:
+        """
+        Read Kafka records from the partition starting from the given offset.
+
+        Args:
+            offset: The starting offset.
+
+        Returns:
+            A tuple containing the list of records and the current offset.
+        """
         return self.messages[offset:], len(self.messages)
 
     def latest_offset(self) -> int:
+        """
+        Get the latest offset of the partition.
+
+        Returns:
+            The latest offset.
+        """
         return len(self.messages)
 
 # %% ../../nbs/001_InMemoryBroker.ipynb 11
 class KafkaTopic:
     def __init__(self, topic: str, num_partitions: int = 1):
+        """
+        Initialize a KafkaTopic object.
+
+        Args:
+            topic: The topic name.
+            num_partitions: The number of partitions in the topic (default: 1).
+        """
         self.topic = topic
         self.num_partitions = num_partitions
         self.partitions: List[KafkaPartition] = [
@@ -91,6 +130,16 @@ class KafkaTopic:
     def read(  # type: ignore
         self, partition: int, offset: int
     ) -> Tuple[TopicPartition, List[KafkaRecord], int]:
+        """
+        Read records from the specified partition and offset.
+
+        Args:
+            partition: The partition index.
+            offset: The offset from which to start reading.
+
+        Returns:
+            A tuple containing the topic partition, list of Kafka records, and the new offset.
+        """
         topic_partition = TopicPartition(topic=self.topic, partition=partition)
         records, offset = self.partitions[partition].read(offset)
         return topic_partition, records, offset
@@ -100,9 +149,29 @@ class KafkaTopic:
         value: bytes,
         partition: int,
     ) -> RecordMetadata:
+        """
+        Write a record with a specified partition.
+
+        Args:
+            value: The value of the record.
+            partition: The partition to write the record to.
+
+        Returns:
+            The metadata of the written record.
+        """
         return self.partitions[partition].write(value)
 
     def write_with_key(self, value: bytes, key: bytes) -> RecordMetadata:  # type: ignore
+        """
+        Write a record with a specified key.
+
+        Args:
+            value: The value of the record.
+            key: The key of the record.
+
+        Returns:
+            The metadata of the written record.
+        """
         partition = int(hashlib.sha256(key).hexdigest(), 16) % self.num_partitions
         return self.partitions[partition].write(value, key=key)
 
@@ -113,6 +182,17 @@ class KafkaTopic:
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
     ) -> RecordMetadata:
+        """
+        Write a record to the topic.
+
+        Args:
+            value: The value of the record.
+            key: The key of the record (optional).
+            partition: The partition to write the record to (optional).
+
+        Returns:
+            The metadata of the written record.
+        """
         if partition is not None:
             return self.write_with_partition(value, partition)
 
@@ -123,10 +203,29 @@ class KafkaTopic:
         return self.write_with_partition(value, partition)
 
     def latest_offset(self, partition: int) -> int:
+        """
+        Get the latest offset of a partition.
+
+        Args:
+            partition: The partition index.
+
+        Returns:
+            The latest offset of the partition.
+        """
         return self.partitions[partition].latest_offset()
 
 # %% ../../nbs/001_InMemoryBroker.ipynb 17
 def split_list(list_to_split: List[Any], split_size: int) -> List[List[Any]]:
+    """
+    Split a list into smaller lists of a specified size.
+
+    Args:
+        list_to_split: The list to split.
+        split_size: The size of each split.
+
+    Returns:
+        A list of smaller lists.
+    """
     return [
         list_to_split[start_index : start_index + split_size]
         for start_index in range(0, len(list_to_split), split_size)
@@ -135,20 +234,41 @@ def split_list(list_to_split: List[Any], split_size: int) -> List[List[Any]]:
 # %% ../../nbs/001_InMemoryBroker.ipynb 19
 class GroupMetadata:
     def __init__(self, num_partitions: int):
+        """
+        Initialize a GroupMetadata object.
+
+        Args:
+            num_partitions: The number of partitions in the group.
+        """
         self.num_partitions = num_partitions
         self.partitions_offsets: Dict[int, int] = {}
         self.consumer_ids: List[uuid.UUID] = list()
         self.partition_assignments: Dict[uuid.UUID, List[int]] = {}
 
     def subscribe(self, consumer_id: uuid.UUID) -> None:
+        """
+        Subscribe a consumer to the group.
+
+        Args:
+            consumer_id: The ID of the consumer.
+        """
         self.consumer_ids.append(consumer_id)
         self.rebalance()
 
     def unsubscribe(self, consumer_id: uuid.UUID) -> None:
+        """
+        Unsubscribe a consumer from the group.
+
+        Args:
+            consumer_id: The ID of the consumer.
+        """
         self.consumer_ids.remove(consumer_id)
         self.rebalance()
 
     def rebalance(self) -> None:
+        """
+        Rebalance the group's partition assignments.
+        """
         if len(self.consumer_ids) == 0:
             self.partition_assignments = {}
         else:
@@ -169,6 +289,15 @@ class GroupMetadata:
     def get_partitions(
         self, consumer_id: uuid.UUID
     ) -> Tuple[List[int], Dict[int, Optional[int]]]:
+        """
+        Get the partition assignments and offsets for a consumer.
+
+        Args:
+            consumer_id: The ID of the consumer.
+
+        Returns:
+            A tuple containing the partition assignments and offsets.
+        """
         partition_assignments = self.partition_assignments.get(consumer_id, [])
         partition_offsets_assignments = {
             partition: self.partitions_offsets.get(partition, None)
@@ -177,6 +306,13 @@ class GroupMetadata:
         return partition_assignments, partition_offsets_assignments
 
     def set_offset(self, partition: int, offset: int) -> None:
+        """
+        Set the offset for a partition.
+
+        Args:
+            partition: The partition index.
+            offset: The offset to set.
+        """
         self.partitions_offsets[partition] = offset
 
 # %% ../../nbs/001_InMemoryBroker.ipynb 22
@@ -195,6 +331,12 @@ class InMemoryBroker:
         return uuid.uuid4()
 
     def dissconnect(self, consumer_id: uuid.UUID) -> None:
+        """
+        Disconnect a consumer from the broker.
+
+        Args:
+            consumer_id: The ID of the consumer.
+        """
         pass
 
     def subscribe(
@@ -231,14 +373,29 @@ class InMemoryBroker:
 
     @contextmanager
     def lifecycle(self) -> Iterator["InMemoryBroker"]:
+        """
+        Context manager for the lifecycle of the in-memory broker.
+
+        Yields:
+            An instance of the in-memory broker.
+        """
         raise NotImplementedError()
 
     async def _start(self) -> str:
+        """
+        Start the in-memory broker.
+
+        Returns:
+            The address of the broker.
+        """
         logger.info("InMemoryBroker._start() called")
         self.__enter__()  # type: ignore
         return "localbroker:0"
 
     async def _stop(self) -> None:
+        """
+        Stop the in-memory broker.
+        """
         logger.info("InMemoryBroker._stop() called")
         self.__exit__(None, None, None)  # type: ignore
 
@@ -251,6 +408,15 @@ def subscribe(
     group: str,
     consumer_id: uuid.UUID,
 ) -> None:
+    """
+    Subscribe a consumer to a topic group.
+
+    Args:
+        bootstrap_server: The bootstrap server address.
+        topic: The topic to subscribe to.
+        group: The group to join.
+        consumer_id: The ID of the consumer.
+    """
     if (bootstrap_server, topic) not in self.topics:
         self.topics[(bootstrap_server, topic)] = KafkaTopic(
             topic=topic, num_partitions=self.num_partitions
@@ -271,6 +437,15 @@ def unsubscribe(
     group: str,
     consumer_id: uuid.UUID,
 ) -> None:
+    """
+    Unsubscribe a consumer from a topic group.
+
+    Args:
+        bootstrap_server: The bootstrap server address.
+        topic: The topic to unsubscribe from.
+        group: The group to leave.
+        consumer_id: The ID of the consumer.
+    """
     self.topic_groups[(bootstrap_server, topic, group)].unsubscribe(consumer_id)
 
 # %% ../../nbs/001_InMemoryBroker.ipynb 25
@@ -284,6 +459,19 @@ def write(  # type: ignore
     key: Optional[bytes] = None,
     partition: Optional[int] = None,
 ) -> RecordMetadata:
+    """
+    Write a message to a topic.
+
+    Args:
+        bootstrap_server: The bootstrap server address.
+        topic: The topic to write the message to.
+        value: The value of the message.
+        key: The key associated with the message.
+        partition: The partition ID to write the message to.
+
+    Returns:
+        The metadata of the written message.
+    """
     if (bootstrap_server, topic) not in self.topics:
         self.topics[(bootstrap_server, topic)] = KafkaTopic(
             topic=topic, num_partitions=self.num_partitions
@@ -304,6 +492,19 @@ def read(  # type: ignore
     consumer_id: uuid.UUID,
     auto_offset_reset: str,
 ) -> Dict[TopicPartition, List[KafkaRecord]]:
+    """
+    Read messages from a topic group.
+
+    Args:
+        bootstrap_server: The bootstrap server address.
+        topic: The topic to read messages from.
+        group: The group to read messages for.
+        consumer_id: The ID of the consumer.
+        auto_offset_reset: The strategy to use when the consumer does not have a valid offset for the group.
+
+    Returns:
+        A dictionary containing the messages retrieved from each topic partition.
+    """
     group_meta = self.topic_groups[(bootstrap_server, topic, group)]
     partitions, offsets = group_meta.get_partitions(consumer_id)
 
@@ -385,6 +586,12 @@ class InMemoryConsumer:
 @patch
 @delegates(AIOKafkaConsumer.start)
 async def start(self: InMemoryConsumer, **kwargs: Any) -> None:
+    """
+    Start consuming messages from the connected broker.
+
+    Raises:
+        RuntimeError: If start() has already been called without calling stop() first.
+    """
     logger.info("AIOKafkaConsumer patched start() called()")
     if self._id is not None:
         raise RuntimeError(
@@ -396,6 +603,15 @@ async def start(self: InMemoryConsumer, **kwargs: Any) -> None:
 @patch  # type: ignore
 @delegates(AIOKafkaConsumer.subscribe)
 def subscribe(self: InMemoryConsumer, topics: List[str], **kwargs: Any) -> None:
+    """
+    Subscribe to a list of topics for consuming messages.
+
+    Args:
+        topics: A list of topics to subscribe to.
+
+    Raises:
+        RuntimeError: If start() has not been called before calling subscribe().
+    """
     logger.info("AIOKafkaConsumer patched subscribe() called")
     if self._id is None:
         raise RuntimeError("Consumer start() not called! Run consumer start() first")
@@ -413,6 +629,12 @@ def subscribe(self: InMemoryConsumer, topics: List[str], **kwargs: Any) -> None:
 @patch
 @delegates(AIOKafkaConsumer.stop)
 async def stop(self: InMemoryConsumer, **kwargs: Any) -> None:
+    """
+    Stop consuming messages from the connected broker.
+
+    Raises:
+        RuntimeError: If start() has not been called before calling stop().
+    """
     logger.info("AIOKafkaConsumer patched stop() called")
     if self._id is None:
         raise RuntimeError("Consumer start() not called! Run consumer start() first")
@@ -430,6 +652,15 @@ async def stop(self: InMemoryConsumer, **kwargs: Any) -> None:
 async def getmany(  # type: ignore
     self: InMemoryConsumer, **kwargs: Any
 ) -> Dict[TopicPartition, List[ConsumerRecord]]:
+    """
+    Retrieve messages from the subscribed topics.
+
+    Returns:
+        A dictionary containing the retrieved messages from each topic partition.
+
+    Raises:
+        RuntimeError: If start() has not been called before calling getmany().
+    """
     await asyncio.sleep(0)
     for topic in self._topics:
         return self.broker.read(
@@ -498,6 +729,12 @@ class InMemoryProducer:
 @patch  # type: ignore
 @delegates(AIOKafkaProducer.start)
 async def start(self: InMemoryProducer, **kwargs: Any) -> None:
+    """
+    Start the in-memory producer.
+
+    Raises:
+        RuntimeError: If start() has already been called without calling stop() first.
+    """
     logger.info("AIOKafkaProducer patched start() called()")
     if self.id is not None:
         raise RuntimeError(
@@ -509,6 +746,12 @@ async def start(self: InMemoryProducer, **kwargs: Any) -> None:
 @patch  # type: ignore
 @delegates(AIOKafkaProducer.stop)
 async def stop(self: InMemoryProducer, **kwargs: Any) -> None:
+    """
+    Stop the in-memory producer.
+
+    Raises:
+        RuntimeError: If start() has not been called before calling stop().
+    """
     logger.info("AIOKafkaProducer patched stop() called")
     if self.id is None:
         raise RuntimeError("Producer start() not called! Run producer start() first")
@@ -524,6 +767,22 @@ async def send(  # type: ignore
     partition: Optional[int] = None,
     **kwargs: Any,
 ):  # asyncio.Task[RecordMetadata]
+    """
+    Send a message to the specified topic.
+
+    Args:
+        topic: The topic to send the message to.
+        msg: The message to send.
+        key: The key associated with the message (optional).
+        partition: The partition to send the message to (optional).
+        **kwargs: Additional arguments to be passed to AIOKafkaProducer.send().
+
+    Returns:
+        A task that resolves to the RecordMetadata of the sent message.
+
+    Raises:
+        RuntimeError: If start() has not been called before calling send().
+    """
     if self.id is None:
         raise RuntimeError("Producer start() not called! Run producer start() first")
 
@@ -544,6 +803,15 @@ async def send(  # type: ignore
 @patch
 @delegates(AIOKafkaProducer.partitions_for)
 async def partitions_for(self: InMemoryProducer, topic: str) -> List[int]:
+    """
+    Retrieve the list of partitions for the specified topic.
+
+    Args:
+        topic: The topic to get the partitions for.
+
+    Returns:
+        A list of partition IDs.
+    """
     return [i for i in range(self.broker.num_partitions)]
 
 # %% ../../nbs/001_InMemoryBroker.ipynb 62
@@ -558,16 +826,40 @@ def _partition(
     key: bytes,
     arg4: Any,
 ) -> int:
+    """
+    Determine the partition to which the message should be sent.
+
+    Args:
+        topic: The topic to send the message to.
+        arg1, arg2, arg3, arg4: Additional arguments passed to the original AIOKafkaProducer._partition().
+
+    Returns:
+        The partition ID.
+    """
     return int(hashlib.sha256(key).hexdigest(), 16) % self.broker.num_partitions
 
 # %% ../../nbs/001_InMemoryBroker.ipynb 64
 class MockBatch:
     def __init__(self) -> None:
+        """
+        Initialize an instance of MockBatch.
+        """
         self._batch: List[Tuple] = list()
 
     def append(  # type: ignore
         self, key: Optional[bytes], value: bytes, timestamp: int
     ) -> RecordMetadata:
+        """
+        Append a message to the batch.
+
+        Args:
+            key: The key associated with the message (optional).
+            value: The value of the message.
+            timestamp: The timestamp of the message.
+
+        Returns:
+            The RecordMetadata of the appended message.
+        """
         self._batch.append((key, value))
         return RecordMetadata(
             topic="",
@@ -583,6 +875,12 @@ class MockBatch:
 @patch
 @delegates(AIOKafkaProducer.create_batch)
 def create_batch(self: InMemoryProducer) -> "MockBatch":
+    """
+    Create a mock batch for the in-memory producer.
+
+    Returns:
+        A MockBatch instance.
+    """
     return MockBatch()
 
 
@@ -591,6 +889,14 @@ def create_batch(self: InMemoryProducer) -> "MockBatch":
 async def send_batch(
     self: InMemoryProducer, batch: "MockBatch", topic: str, partition: Any
 ) -> None:
+    """
+    Send a batch of messages to the specified topic and partition.
+
+    Args:
+        batch: The MockBatch containing the messages to send.
+        topic: The topic to send the batch of messages to.
+        partition: The partition to send the batch of messages to.
+    """
     for record in batch._batch:
         self.broker.write(
             bootstrap_server=self._bootstrap_servers,
@@ -604,6 +910,12 @@ async def send_batch(
 @patch
 @contextmanager
 def lifecycle(self: InMemoryBroker) -> Iterator[InMemoryBroker]:
+    """
+    Context manager for the lifecycle of the in-memory broker.
+
+    Yields:
+        An instance of the in-memory broker.
+    """
     logger.info(
         "InMemoryBroker._patch_consumers_and_producers(): Patching consumers and producers!"
     )

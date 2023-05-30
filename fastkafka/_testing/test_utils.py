@@ -67,16 +67,20 @@ async def run_script_and_cancel(
     kafka_app_name: str = "kafka_app",
     generate_docs: bool = False,
 ) -> Tuple[int, bytes]:
-    """Run script and cancel after predefined time
+    """
+    Runs a script and cancels it after a predefined time.
 
     Args:
-        script: a python source code to be executed in a separate subprocess
-        script_file: name of the script where script source will be saved
-        cmd: command to execute. If None, it will be set to 'python3 -m {Path(script_file).stem}'
-        cancel_after: number of seconds before sending SIGTERM signal
+        script: A python source code to be executed in a separate subprocess.
+        script_file: Name of the script where script source will be saved.
+        cmd: Command to execute. If None, it will be set to 'python3 -m {Path(script_file).stem}'.
+        cancel_after: Number of seconds before sending SIGTERM signal.
+        app_name: Name of the app.
+        kafka_app_name: Name of the Kafka app.
+        generate_docs: Flag indicating whether to generate docs.
 
     Returns:
-        A tuple containing exit code and combined stdout and stderr as a binary string
+        A tuple containing the exit code and combined stdout and stderr as a binary string.
     """
     if script_file is None:
         script_file = "script.py"
@@ -115,6 +119,16 @@ async def run_script_and_cancel(
 
 # %% ../../nbs/004_Test_Utils.ipynb 14
 async def display_docs(docs_path: str, port: int = 4000) -> None:
+    """
+    Serves the documentation using an HTTP server.
+
+    Args:
+        docs_path: Path to the documentation.
+        port: Port number for the HTTP server. Defaults to 4000.
+
+    Returns:
+        None
+    """
     with change_dir(docs_path):
         process = await asyncio.create_subprocess_exec(
             "python3",

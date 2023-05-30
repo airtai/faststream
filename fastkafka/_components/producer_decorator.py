@@ -45,7 +45,7 @@ def unwrap_from_kafka_event(var_type: Union[Type, Parameter]) -> Union[Type, Par
     """
     Unwraps the type from a KafkaEvent.
 
-    Vars:
+    Args:
         var_type: Type to unwrap.
 
     Returns:
@@ -88,6 +88,18 @@ async def produce_single(  # type: ignore
     encoder_fn: Callable[[BaseModel], bytes],
     wrapped_val: KafkaEvent[BaseModel],
 ) -> ProduceReturnTypes:
+    """
+    Sends a single message to the Kafka producer.
+
+    Args:
+        producer (AIOKafkaProducer): The Kafka producer object.
+        topic (str): The topic to which the message will be sent.
+        encoder_fn (Callable[[BaseModel], bytes]): The encoding function to encode the message.
+        wrapped_val (KafkaEvent[BaseModel]): The wrapped Kafka event containing the message.
+
+    Returns:
+        ProduceReturnTypes: The return value from the decorated function.
+    """
     fut = await producer.send(
         topic, encoder_fn(wrapped_val.message), key=wrapped_val.key
     )
@@ -97,6 +109,18 @@ async def produce_single(  # type: ignore
 async def send_batch(  # type: ignore
     producer: AIOKafkaProducer, topic: str, batch: BatchBuilder, key: Optional[bytes]
 ) -> None:
+    """
+    Sends a batch of messages to the Kafka producer.
+
+    Args:
+        producer (AIOKafkaProducer): The Kafka producer object.
+        topic (str): The topic to which the messages will be sent.
+        batch (BatchBuilder): The batch builder object containing the messages.
+        key (Optional[bytes]): The optional key used to identify the batch of messages.
+
+    Returns:
+        None
+    """
     partitions = await producer.partitions_for(topic)
     if key == None:
         partition = random.choice(tuple(partitions))  # nosec
@@ -111,6 +135,18 @@ async def produce_batch(  # type: ignore
     encoder_fn: Callable[[BaseModel], bytes],
     wrapped_val: KafkaEvent[List[BaseModel]],
 ) -> ProduceReturnTypes:
+    """
+    Sends a batch of messages to the Kafka producer.
+
+    Args:
+        producer (AIOKafkaProducer): The Kafka producer object.
+        topic (str): The topic to which the messages will be sent.
+        encoder_fn (Callable[[BaseModel], bytes]): The encoding function to encode the messages.
+        wrapped_val (KafkaEvent[List[BaseModel]]): The wrapped Kafka event containing the list of messages.
+
+    Returns:
+        ProduceReturnTypes: The return value from the decorated function.
+    """
     batch = producer.create_batch()
 
     for message in wrapped_val.message:
@@ -137,7 +173,21 @@ def producer_decorator(
     topic_key: str,
     encoder_fn: Callable[[BaseModel], bytes],
 ) -> ProduceCallable:
-    """todo: write documentation"""
+    """
+    Decorator for Kafka producer functions.
+
+    Args:
+        producer_store (Dict[str, Any]): Dictionary to store the Kafka producer objects.
+        func (ProduceCallable): The function to be decorated.
+        topic_key (str): The key used to identify the topic.
+        encoder_fn (Callable[[BaseModel], bytes]): The encoding function to encode the messages.
+
+    Returns:
+        ProduceCallable: The decorated function.
+
+    Raises:
+        ValueError: If the decorated function is synchronous.
+    """
 
     @functools.wraps(func)
     async def _produce_async(
