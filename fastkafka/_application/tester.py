@@ -59,9 +59,9 @@ class Tester(FastKafka):
 
         super().__init__()
         self.mirrors: Dict[Any, Any] = {}
+        self._kafka_brokers = self.apps[0]._kafka_brokers
         self._create_mirrors()
         self.broker = broker
-        self._kafka_brokers = self.apps[0]._kafka_brokers
         unique_broker_configs = []
         for app in self.apps:
             for broker_config in app._override_brokers:
@@ -179,6 +179,10 @@ class Tester(FastKafka):
                 for app in self.apps + [self]:
                     app._kafka_brokers.brokers["fastkafka_tester_broker"] = broker_spec
                     app.set_kafka_broker("fastkafka_tester_broker")
+
+            else:
+                for app in self.apps + [self]:
+                    app.set_kafka_broker(list(self._kafka_brokers.brokers.keys())[0])
             await self._start_tester()
             try:
                 yield self
