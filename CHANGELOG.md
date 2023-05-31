@@ -2,6 +2,42 @@
 
 <!-- do not remove -->
 
+## 0.7.0
+
+### New Features
+
+- Optional description argument to consumes and produces decorator implemented ([#338](https://github.com/airtai/fastkafka/pull/338)), thanks to [@Sternakt](https://github.com/Sternakt)
+  - Consumes and produces decorators now have optional `description` argument that is used instead of function docstring in async doc generation when specified
+
+- FastKafka Windows OS support enabled ([#326](https://github.com/airtai/fastkafka/pull/326)), thanks to [@kumaranvpl](https://github.com/kumaranvpl)
+  - FastKafka can now run on Windows
+
+- FastKafka and FastAPI integration implemented ([#304](https://github.com/airtai/fastkafka/pull/304)), thanks to [@kumaranvpl](https://github.com/kumaranvpl)
+  - FastKafka can now be run alongside FastAPI
+
+- Batch consuming option to consumers implemented ([#298](https://github.com/airtai/fastkafka/pull/298)), thanks to [@Sternakt](https://github.com/Sternakt)
+  - Consumers can consume events in batches by specifying msg type of consuming function as `List[YourMsgType]` 
+
+- Removed support for synchronous produce functions ([#295](https://github.com/airtai/fastkafka/pull/295)), thanks to [@kumaranvpl](https://github.com/kumaranvpl)
+
+- Added default broker values and update docs ([#292](https://github.com/airtai/fastkafka/pull/292)), thanks to [@Sternakt](https://github.com/Sternakt)
+
+### Bugs Squashed
+
+- Fix index.ipynb to be runnable in colab ([#342](https://github.com/airtai/fastkafka/issues/342))
+
+- Use cli option root_path docs generate and serve CLI commands ([#341](https://github.com/airtai/fastkafka/pull/341)), thanks to [@kumaranvpl](https://github.com/kumaranvpl)
+
+- Fix incorrect asyncapi docs path on fastkafka docs serve command ([#335](https://github.com/airtai/fastkafka/pull/335)), thanks to [@Sternakt](https://github.com/Sternakt)
+  - Serve docs now takes app `root_path` argument into consideration when specified in app
+
+- Fix typo (supress_timestamps->suppress_timestamps) and remove fix for enabling timestamps ([#315](https://github.com/airtai/fastkafka/issues/315))
+
+- Fix logs printing timestamps ([#308](https://github.com/airtai/fastkafka/issues/308))
+
+- Fix topics with dots causing failure of tester instantiation ([#306](https://github.com/airtai/fastkafka/pull/306)), thanks to [@Sternakt](https://github.com/Sternakt)
+  - Specified topics can now have "." in their names
+
 ## 0.6.0
 
 ### New Features
