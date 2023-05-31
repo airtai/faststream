@@ -71,9 +71,9 @@ class Tester(FastKafka):
 
         super().__init__()
         self.mirrors: Dict[Any, Any] = {}
+        self._kafka_brokers = self.apps[0]._kafka_brokers
         self._create_mirrors()
         self.broker = broker
-
         unique_broker_configs = []
         for app in self.apps:
             for broker_config in app._override_brokers:
@@ -191,6 +191,10 @@ class Tester(FastKafka):
                 for app in self.apps + [self]:
                     app._kafka_brokers.brokers["fastkafka_tester_broker"] = broker_spec
                     app.set_kafka_broker("fastkafka_tester_broker")
+
+            else:
+                for app in self.apps + [self]:
+                    app.set_kafka_broker(list(self._kafka_brokers.brokers.keys())[0])
             await self._start_tester()
             try:
                 yield self
@@ -335,7 +339,7 @@ def _create_mirrors(self: Tester) -> None:
             self.mirrors[producer_f] = mirror_f
             setattr(self, mirror_f.__name__, mirror_f)
 
-# %% ../../nbs/016_Tester.ipynb 30
+# %% ../../nbs/016_Tester.ipynb 29
 class AmbiguousWarning:
     """
     Warning class used for ambiguous topics.
@@ -359,7 +363,7 @@ class AmbiguousWarning:
             f"Ambiguous topic: {self.topic}, for functions: {self.functions}\nUse Tester.mirrors[app.function] to resolve ambiguity"
         )
 
-# %% ../../nbs/016_Tester.ipynb 32
+# %% ../../nbs/016_Tester.ipynb 31
 def set_sugar(
     *,
     tester: Tester,
@@ -397,7 +401,7 @@ def set_sugar(
             tester, f"{prefix}{topic}", AmbiguousWarning(topic, functions_for_topic)
         )
 
-# %% ../../nbs/016_Tester.ipynb 33
+# %% ../../nbs/016_Tester.ipynb 32
 @patch
 def _arrange_mirrors(self: Tester) -> None:
     """
