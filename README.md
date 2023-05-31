@@ -224,7 +224,7 @@ async def to_output_data(data: float) -> Data:
 ## Testing the service
 
 The service can be tested using the
-[`Tester`](https://fastkafka.airt.ai/docs/api/fastkafka/testing/Tester#fastkafka.testing.Tester)
+[`Tester`](https://fastkafka.airt.ai/docs/api/fastkafka/testing/Tester)
 instances which internally starts InMemory implementation of Kafka
 broker.
 
@@ -358,7 +358,9 @@ To run the service, use the FastKafka CLI command and pass the module
 (in this case, the file where the app implementation is located) and the
 app simbol to the command.
 
-`shell fastkafka run --num-workers=1 --kafka-broker localhost application:kafka_app`
+``` sh
+fastkafka run --num-workers=1 --kafka-broker localhost application:kafka_app
+```
 
 After running the command, you should see the following output in your
 command line:
