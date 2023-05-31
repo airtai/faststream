@@ -133,7 +133,7 @@ def serve_docs(
             application._asyncapi_path = application._root_path / "asyncapi"
 
         application.create_docs()
-        with change_dir(application._root_path / "asyncapi" / "docs/"):
+        with change_dir(str(application._asyncapi_path / "docs")):
             server_address = (bind, port)
             handler = SimpleHTTPRequestHandler
 
