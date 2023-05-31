@@ -497,6 +497,8 @@ def consumes(
                 is not passed, then this method will throw ValueError
         brokers: Optional argument specifying multiple broker clusters for consuming
                 messages from different Kafka clusters in FastKafka.
+        description: Optional description of the consuming function async docs.
+                If not provided, consuming function __doc__ attr will be used.
 
     Returns:
         A function returning the same function
@@ -594,6 +596,8 @@ def produces(
             and topic argument is not passed, then this method will throw ValueError
         brokers: Optional argument specifying multiple broker clusters for consuming
             messages from different Kafka clusters in FastKafka.
+        description: Optional description of the producing function async docs.
+                If not provided, producing function __doc__ attr will be used.
 
     Returns:
         A function returning the same function
