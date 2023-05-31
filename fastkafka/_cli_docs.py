@@ -8,6 +8,7 @@ import asyncio
 import signal
 import socketserver
 from http.server import SimpleHTTPRequestHandler
+from pathlib import Path
 from types import FrameType
 from typing import *
 
@@ -59,8 +60,10 @@ def docs_install_deps() -> None:
     help="Generates documentation for a FastKafka application",
 )
 def generate_docs(
-    root_path: str = typer.Option(
-        ".", help="root path under which documentation will be created"
+    root_path: Optional[str] = typer.Option(
+        default=None,
+        help="root path under which documentation will be created; default is current directory",
+        show_default=False,
     ),
     app: str = typer.Argument(
         ...,
@@ -81,6 +84,10 @@ def generate_docs(
     """
     try:
         application = _import_from_string(app)
+        if root_path is not None:
+            application._root_path = Path(root_path)
+            application._asyncapi_path = application._root_path / "asyncapi"
+
         application.skip_docs = False
         application.create_docs()
     except Exception as e:
@@ -94,7 +101,9 @@ def generate_docs(
 )
 def serve_docs(
     root_path: str = typer.Option(
-        ".", help="root path under which documentation will be created"
+        default=None,
+        help="root path under which documentation will be created; default is current directory",
+        show_default=False,
     ),
     bind: str = typer.Option("127.0.0.1", help="Some info"),
     port: int = typer.Option(8000, help="Some info"),
@@ -119,6 +128,10 @@ def serve_docs(
     """
     try:
         application = _import_from_string(app)
+        if root_path is not None:
+            application._root_path = Path(root_path)
+            application._asyncapi_path = application._root_path / "asyncapi"
+
         application.create_docs()
         with change_dir(application._root_path / "asyncapi" / "docs/"):
             server_address = (bind, port)
