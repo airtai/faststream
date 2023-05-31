@@ -82,11 +82,11 @@ pip install fastkafka[test,docs]
 
 ## Tutorial
 
-You can start an interactive and extensive tutorial in Google Colab by
-clicking the button below:
+You can start an interactive tutorial in Google Colab by clicking the
+button below:
 
-<a href="https://colab.research.google.com/github/airtai/fastkafka/blob/main/nbs/guides/Guide_00_FastKafka_Demo.ipynb" target=”_blank”>
-<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" />
+<a href="https://colab.research.google.com/github/airtai/fastkafka/blob/main/nbs/index.ipynb" target=”_blank”>
+<img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab" />
 </a>
 
 ## Writing server code
@@ -145,10 +145,10 @@ We will also import and create a logger so that we can log the incoming
 data in our consuming function.
 
 ``` python
+from logging import getLogger
 from fastkafka import FastKafka
-from fastkafka._components.logger import get_logger
 
-logger = get_logger(__name__)
+logger = getLogger("Demo Kafka app")
 
 kafka_brokers = {
     "localhost": {
@@ -241,10 +241,10 @@ msg = Data(
 
 # Start Tester app and create InMemory Kafka broker for testing
 async with Tester(kafka_app) as tester:
-    # Send IrisInputData message to input_data topic
+    # Send Data message to input_data topic
     await tester.to_input_data(msg)
 
-    # Assert that the kafka_app responded with IrisPrediction in predictions topic
+    # Assert that the kafka_app responded with incremented data in output_data topic
     await tester.awaited_mocks.on_output_data.assert_awaited_with(
         Data(data=1.1), timeout=2
     )
@@ -271,7 +271,7 @@ async with Tester(kafka_app) as tester:
     [INFO] fastkafka._testing.in_memory_broker: AIOKafkaConsumer patched subscribe() called
     [INFO] fastkafka._testing.in_memory_broker: AIOKafkaConsumer.subscribe(), subscribing to: ['output_data']
     [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
-    [INFO] __main__: Got data: 0.1
+    [INFO] Demo Kafka app: Got data: 0.1
     [INFO] fastkafka._testing.in_memory_broker: AIOKafkaConsumer patched stop() called
     [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
     [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
@@ -363,38 +363,39 @@ app simbol to the command.
 After running the command, you should see the following output in your
 command line:
 
-    [7262]: 23-05-22 12:16:07.361 [INFO] fastkafka._application.app: set_kafka_broker() : Setting bootstrap_servers value to 'localhost:9092'
-    [7260]: 23-05-22 12:16:07.361 [INFO] fastkafka._application.app: set_kafka_broker() : Setting bootstrap_servers value to 'localhost:9092'
-    [7260]: 23-05-22 12:16:07.361 [INFO] fastkafka._application.app: _create_producer() : created producer using the config: '{'bootstrap_servers': 'localhost:9092'}'
-    [7262]: 23-05-22 12:16:07.361 [INFO] fastkafka._application.app: _create_producer() : created producer using the config: '{'bootstrap_servers': 'localhost:9092'}'
-    [7260]: 23-05-22 12:16:07.388 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
-    [7260]: 23-05-22 12:16:07.388 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'localhost:9092', 'auto_offset_reset': 'latest', 'max_poll_records': 100}
-    [7262]: 23-05-22 12:16:07.389 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
-    [7262]: 23-05-22 12:16:07.389 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'localhost:9092', 'auto_offset_reset': 'latest', 'max_poll_records': 100}
-    [7260]: 23-05-22 12:16:07.396 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
-    [7260]: 23-05-22 12:16:07.396 [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
-    [7260]: 23-05-22 12:16:07.396 [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
-    [7260]: 23-05-22 12:16:07.396 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
-    [7262]: 23-05-22 12:16:07.400 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
-    [7262]: 23-05-22 12:16:07.400 [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
-    [7262]: 23-05-22 12:16:07.401 [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
-    [7262]: 23-05-22 12:16:07.401 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
-    [7262]: 23-05-22 12:16:07.412 [ERROR] aiokafka.cluster: Topic input_data not found in cluster metadata
-    [7262]: 23-05-22 12:16:07.412 [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'input_data': 0}. 
-    [7260]: 23-05-22 12:16:07.482 [WARNING] aiokafka.cluster: Topic input_data is not available during auto-create initialization
-    [7260]: 23-05-22 12:16:07.482 [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'input_data': 0}. 
-    [7262]: 23-05-22 12:16:12.865 [ERROR] aiokafka: Unable connect to node with id 0: [Errno 111] Connect call failed ('172.18.0.2', 9092)
-    [7262]: 23-05-22 12:16:12.865 [ERROR] aiokafka: Unable to update metadata from [0]
-    [7260]: 23-05-22 12:16:12.866 [ERROR] aiokafka: Unable connect to node with id 0: [Errno 111] Connect call failed ('172.18.0.2', 9092)
-    [7260]: 23-05-22 12:16:12.866 [ERROR] aiokafka: Unable to update metadata from [0]
-    ^C
-    [7262]: 23-05-22 12:16:12.978 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
-    [7262]: 23-05-22 12:16:12.979 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
+    [1504]: 23-05-31 11:36:45.874 [INFO] fastkafka._application.app: set_kafka_broker() : Setting bootstrap_servers value to 'localhost:9092'
+    [1504]: 23-05-31 11:36:45.875 [INFO] fastkafka._application.app: _create_producer() : created producer using the config: '{'bootstrap_servers': 'localhost:9092'}'
+    [1504]: 23-05-31 11:36:45.937 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
+    [1504]: 23-05-31 11:36:45.937 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'localhost:9092', 'auto_offset_reset': 'latest', 'max_poll_records': 100}
+    [1504]: 23-05-31 11:36:45.956 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
+    [1504]: 23-05-31 11:36:45.956 [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
+    [1504]: 23-05-31 11:36:45.956 [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
+    [1504]: 23-05-31 11:36:45.956 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
+    [1506]: 23-05-31 11:36:45.993 [INFO] fastkafka._application.app: set_kafka_broker() : Setting bootstrap_servers value to 'localhost:9092'
+    [1506]: 23-05-31 11:36:45.994 [INFO] fastkafka._application.app: _create_producer() : created producer using the config: '{'bootstrap_servers': 'localhost:9092'}'
+    [1506]: 23-05-31 11:36:46.014 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() starting...
+    [1506]: 23-05-31 11:36:46.015 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer created using the following parameters: {'bootstrap_servers': 'localhost:9092', 'auto_offset_reset': 'latest', 'max_poll_records': 100}
+    [1506]: 23-05-31 11:36:46.040 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer started.
+    [1506]: 23-05-31 11:36:46.042 [INFO] aiokafka.consumer.subscription_state: Updating subscribed topics to: frozenset({'input_data'})
+    [1506]: 23-05-31 11:36:46.043 [INFO] aiokafka.consumer.consumer: Subscribed to topic(s): {'input_data'}
+    [1506]: 23-05-31 11:36:46.043 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer subscribed.
+    [1506]: 23-05-31 11:36:46.068 [ERROR] aiokafka.cluster: Topic input_data not found in cluster metadata
+    [1506]: 23-05-31 11:36:46.070 [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'input_data': 0}. 
+    [1504]: 23-05-31 11:36:46.131 [WARNING] aiokafka.cluster: Topic input_data is not available during auto-create initialization
+    [1504]: 23-05-31 11:36:46.132 [INFO] aiokafka.consumer.group_coordinator: Metadata for topic has changed from {} to {'input_data': 0}. 
+    [1506]: 23-05-31 11:37:00.237 [ERROR] aiokafka: Unable connect to node with id 0: [Errno 111] Connect call failed ('172.28.0.12', 9092)
+    [1506]: 23-05-31 11:37:00.237 [ERROR] aiokafka: Unable to update metadata from [0]
+    [1504]: 23-05-31 11:37:00.238 [ERROR] aiokafka: Unable connect to node with id 0: [Errno 111] Connect call failed ('172.28.0.12', 9092)
+    [1504]: 23-05-31 11:37:00.238 [ERROR] aiokafka: Unable to update metadata from [0]
+    [1506]: 23-05-31 11:37:00.294 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
+    [1506]: 23-05-31 11:37:00.294 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
     Starting process cleanup, this may take a few seconds...
-    23-05-22 12:16:12.997 [INFO] fastkafka._server: terminate_asyncio_process(): Terminating the process 7260...
-    23-05-22 12:16:12.998 [INFO] fastkafka._server: terminate_asyncio_process(): Terminating the process 7262...
-    [7260]: 23-05-22 12:16:13.035 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
-    [7260]: 23-05-22 12:16:13.035 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
+    23-05-31 11:37:00.345 [INFO] fastkafka._server: terminate_asyncio_process(): Terminating the process 1504...
+    23-05-31 11:37:00.345 [INFO] fastkafka._server: terminate_asyncio_process(): Terminating the process 1506...
+    [1504]: 23-05-31 11:37:00.347 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop(): Consumer stopped.
+    [1504]: 23-05-31 11:37:00.347 [INFO] fastkafka._components.aiokafka_consumer_loop: aiokafka_consumer_loop() finished.
+    23-05-31 11:37:00.607 [INFO] fastkafka._server: terminate_asyncio_process(): Process 1506 was already terminated.
+    23-05-31 11:37:00.822 [INFO] fastkafka._server: terminate_asyncio_process(): Process 1504 was already terminated.
 
 ## Documentation
 
@@ -408,33 +409,33 @@ convenience command line for it:
 fastkafka docs install_deps
 ```
 
-    23-05-22 12:17:03.425 [INFO] fastkafka._components.docs_dependencies: AsyncAPI generator installed
+    23-05-31 11:38:24.128 [INFO] fastkafka._components.docs_dependencies: AsyncAPI generator installed
 
 To generate the documentation programatically you just need to call the
-folloving command:
+following command:
 
 ``` sh
 fastkafka docs generate application:kafka_app
 ```
 
-    23-05-22 12:17:04.268 [INFO] fastkafka._components.asyncapi: New async specifications generated at: '/work/fastkafka/nbs/asyncapi/spec/asyncapi.yml'
-    23-05-22 12:17:13.777 [INFO] fastkafka._components.asyncapi: Async docs generated at 'asyncapi/docs'
-    23-05-22 12:17:13.777 [INFO] fastkafka._components.asyncapi: Output of '$ npx -y -p @asyncapi/generator ag asyncapi/spec/asyncapi.yml @asyncapi/html-template -o asyncapi/docs --force-write'
+    23-05-31 11:38:25.113 [INFO] fastkafka._components.asyncapi: Old async specifications at '/content/asyncapi/spec/asyncapi.yml' does not exist.
+    23-05-31 11:38:25.118 [INFO] fastkafka._components.asyncapi: New async specifications generated at: '/content/asyncapi/spec/asyncapi.yml'
+    23-05-31 11:38:43.455 [INFO] fastkafka._components.asyncapi: Async docs generated at 'asyncapi/docs'
+    23-05-31 11:38:43.455 [INFO] fastkafka._components.asyncapi: Output of '$ npx -y -p @asyncapi/generator ag asyncapi/spec/asyncapi.yml @asyncapi/html-template -o asyncapi/docs --force-write'
 
     Done! ✨
-    Check out your shiny new generated files at /work/fastkafka/nbs/asyncapi/docs.
+    Check out your shiny new generated files at /content/asyncapi/docs.
 
-. This will generate the *asyncapi* folder in relative path where all
-your documentation will be saved. You can check out the content of it
-with:
+This will generate the *asyncapi* folder in relative path where all your
+documentation will be saved. You can check out the content of it with:
 
 ``` sh
 ls -l asyncapi
 ```
 
-    total 2
-    drwxrwxr-x 4 tvrtko tvrtko 5 Mar 29 09:57 docs
-    drwxrwxr-x 2 tvrtko tvrtko 3 Mar 29 09:56 spec
+    total 8
+    drwxr-xr-x 4 root root 4096 May 31 11:38 docs
+    drwxr-xr-x 2 root root 4096 May 31 11:38 spec
 
 In docs folder you will find the servable static html file of your
 documentation. This can also be served using our `fastkafka docs serve`
@@ -450,16 +451,19 @@ following command:
 fastkafka docs serve application:kafka_app
 ```
 
-    23-05-22 12:17:14.784 [INFO] fastkafka._components.asyncapi: New async specifications generated at: '/work/fastkafka/nbs/asyncapi/spec/asyncapi.yml'
-    23-05-22 12:17:24.450 [INFO] fastkafka._components.asyncapi: Async docs generated at 'asyncapi/docs'
-    23-05-22 12:17:24.450 [INFO] fastkafka._components.asyncapi: Output of '$ npx -y -p @asyncapi/generator ag asyncapi/spec/asyncapi.yml @asyncapi/html-template -o asyncapi/docs --force-write'
+    23-05-31 11:38:45.250 [INFO] fastkafka._components.asyncapi: New async specifications generated at: '/content/asyncapi/spec/asyncapi.yml'
+    23-05-31 11:39:04.410 [INFO] fastkafka._components.asyncapi: Async docs generated at 'asyncapi/docs'
+    23-05-31 11:39:04.411 [INFO] fastkafka._components.asyncapi: Output of '$ npx -y -p @asyncapi/generator ag asyncapi/spec/asyncapi.yml @asyncapi/html-template -o asyncapi/docs --force-write'
 
     Done! ✨
-    Check out your shiny new generated files at /work/fastkafka/nbs/asyncapi/docs.
+    Check out your shiny new generated files at /content/asyncapi/docs.
 
 
     Serving documentation on http://127.0.0.1:8000
-    ^C
+    127.0.0.1 - - [31/May/2023 11:39:14] "GET / HTTP/1.1" 200 -
+    127.0.0.1 - - [31/May/2023 11:39:14] "GET /css/global.min.css HTTP/1.1" 200 -
+    127.0.0.1 - - [31/May/2023 11:39:14] "GET /js/asyncapi-ui.min.js HTTP/1.1" 200 -
+    127.0.0.1 - - [31/May/2023 11:39:14] "GET /css/asyncapi.min.css HTTP/1.1" 200 -
     Interupting serving of documentation and cleaning up...
 
 From the parameters passed to the application constructor, we get the
@@ -484,7 +488,7 @@ kafka_brokers = {
 }
 
 kafka_app = FastKafka(
-    title="Iris predictions",
+    title="Demo Kafka app",
     kafka_brokers=kafka_brokers,
 )
 ```
