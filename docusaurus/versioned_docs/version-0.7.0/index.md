@@ -55,7 +55,7 @@ support!
 
 ## Install
 
-FastKafka works on Windows, macOS, Linux, and most Unix-style operating systems.
+FastKafka works on macOS, Linux, and most Unix-style operating systems.
 You can install base version of `fastkafka` with `pip` as usual:
 
 ``` sh
@@ -85,7 +85,7 @@ pip install fastkafka[test,docs]
 You can start an interactive tutorial in Google Colab by clicking the
 button below:
 
-<a href="https://colab.research.google.com/github/airtai/fastkafka/blob/main/nbs/index.ipynb" target=”_blank”>
+<a href="https://colab.research.google.com/github/airtai/fastkafka/blob/main/nbs/index.ipynb" target="_blank">
 <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab" />
 </a>
 
@@ -108,7 +108,7 @@ the fields and types of your messages.
 
 This example defines one `Data` mesage class. This Class will model the
 consumed and produced data in our app demo, it contains one
-`NonNegativeFloat` field `data` that will be logged and “processed”
+`NonNegativeFloat` field `data` that will be logged and “processed"
 before being produced to another topic.
 
 These message class will be used to parse and validate incoming data in
@@ -135,9 +135,8 @@ port, and other details of a Kafka broker. This dictionary is used for
 both generating the documentation and later to run the actual server
 against one of the given kafka broker.
 
-Next, an object of the
-[`FastKafka`](https://fastkafka.airt.ai/docs/api/fastkafka#fastkafka.FastKafka)
-class is initialized with the minimum set of arguments:
+Next, an object of the `FastKafka` class is initialized with the minimum
+set of arguments:
 
 - `kafka_brokers`: a dictionary used for generation of documentation
 
@@ -193,7 +192,7 @@ This following example shows how to use the `@kafka_app.consumes` and
 
 - The `@kafka_app.consumes` decorator is applied to the `on_input_data`
   function, which specifies that this function should be called whenever
-  a message is received on the “input_data” Kafka topic. The
+  a message is received on the “input_data" Kafka topic. The
   `on_input_data` function takes a single argument which is expected to
   be an instance of the `Data` message class. Specifying the type of the
   single argument is instructing the Pydantic to use `Data.parse_raw()`
@@ -202,7 +201,7 @@ This following example shows how to use the `@kafka_app.consumes` and
 
 - The `@produces` decorator is applied to the `to_output_data` function,
   which specifies that this function should produce a message to the
-  “output_data” Kafka topic whenever it is called. The `to_output_data`
+  “output_data" Kafka topic whenever it is called. The `to_output_data`
   function takes a single float argument `data`. It it increments the
   data returns it wrapped in a `Data` object. The framework will call
   the `Data.json().encode("utf-8")` function on the returned value and
@@ -223,10 +222,8 @@ async def to_output_data(data: float) -> Data:
 
 ## Testing the service
 
-The service can be tested using the
-[`Tester`](https://fastkafka.airt.ai/docs/api/fastkafka/testing/Tester)
-instances which internally starts InMemory implementation of Kafka
-broker.
+The service can be tested using the `Tester` instances which internally
+starts InMemory implementation of Kafka broker.
 
 The Tester will redirect your consumes and produces decorated functions
 to the InMemory Kafka broker so that you can quickly test your app
