@@ -125,7 +125,15 @@ async def terminate_asyncio_process(p: asyncio.subprocess.Process) -> None:
         pass
 
     for i in range(3):
-        p.terminate()
+        if platform.system() == "Windows":
+            import psutil
+
+            parent = psutil.Process(p.pid)
+            children = parent.children(recursive=True)
+            for child in children:
+                child.kill()
+        else:
+            p.terminate()
         try:
             await asyncio.wait_for(p.wait(), 10)
             logger.info(f"terminate_asyncio_process(): Process {p.pid} terminated.")
