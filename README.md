@@ -55,7 +55,7 @@ support!
 
 ## Install
 
-FastKafka works on macOS, Linux, and most Unix-style operating systems.
+FastKafka works on Windows, macOS, Linux, and most Unix-style operating systems.
 You can install base version of `fastkafka` with `pip` as usual:
 
 ``` sh
