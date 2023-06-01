@@ -6,6 +6,7 @@ __all__ = ['logger', 'nb_safe_seed', 'mock_AIOKafkaProducer_send', 'run_script_a
 # %% ../../nbs/004_Test_Utils.ipynb 1
 import asyncio
 import hashlib
+import platform
 import shlex
 import subprocess  # nosec
 import unittest
@@ -112,7 +113,15 @@ async def run_script_and_cancel(
             shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=d
         )
         await asyncio.sleep(cancel_after)
-        proc.terminate()
+        if platform.system() == "Windows":
+            import psutil
+
+            parent = psutil.Process(proc.pid)
+            children = parent.children(recursive=True)
+            for child in children:
+                child.kill()
+        else:
+            proc.terminate()
         output, _ = proc.communicate()
 
         return (proc.returncode, output)
