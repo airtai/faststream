@@ -105,7 +105,7 @@ def run_fastkafka_server_process(
 ) -> None:
     ServerProcess(app, kafka_broker).run()
 
-# %% ../nbs/021_FastKafkaServer.ipynb 12
+# %% ../nbs/021_FastKafkaServer.ipynb 11
 async def run_fastkafka_server(num_workers: int, app: str, kafka_broker: str) -> None:
     """
     Runs the FastKafka server with multiple worker processes.
@@ -191,7 +191,7 @@ async def run_fastkafka_server(num_workers: int, app: str, kafka_broker: str) ->
         )
         raise typer.Exit(1)
 
-# %% ../nbs/021_FastKafkaServer.ipynb 13
+# %% ../nbs/021_FastKafkaServer.ipynb 12
 @contextmanager
 def run_in_process(
     target: Callable[..., Any]
