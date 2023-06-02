@@ -116,12 +116,14 @@ async def run_script_and_cancel(
         if platform.system() == "Windows":
             import psutil
 
-            parent = psutil.Process(proc.pid)
-            children = parent.children(recursive=True)
-            for child in children:
-                child.kill()
-        else:
-            proc.terminate()
+            try:
+                parent = psutil.Process(proc.pid)
+                children = parent.children(recursive=True)
+                for child in children:
+                    child.kill()
+            except psutil.NoSuchProcess:
+                pass
+        proc.terminate()
         output, _ = proc.communicate()
 
         return (proc.returncode, output)
