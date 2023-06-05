@@ -110,6 +110,7 @@ async def run_script_and_cancel(
                     f"Generating docs failed for: {Path(script_file).stem}:{kafka_app_name}, ignoring it for now."
                 )
 
+        creationflags = 0 if platform.system() != "Windows" else subprocess.CREATE_NEW_PROCESS_GROUP  # type: ignore
         proc = subprocess.Popen(
             shlex.split(cmd),
             stdout=subprocess.PIPE,
@@ -118,13 +119,11 @@ async def run_script_and_cancel(
             shell=True  # nosec: [B602:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
             if platform.system() == "Windows"
             else False,
-            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP
-            if platform.system() == "Windows"
-            else 0,
+            creationflags=creationflags,
         )
         await asyncio.sleep(cancel_after)
         if platform.system() == "Windows":
-            proc.send_signal(signal.CTRL_BREAK_EVENT)
+            proc.send_signal(signal.CTRL_BREAK_EVENT)  # type: ignore
         else:
             proc.terminate()
         output, _ = proc.communicate()

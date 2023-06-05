@@ -67,8 +67,9 @@ class ServerProcess:
         HANDLED_SIGNALS = (
             signal.SIGINT,  # Unix signal 2. Sent by Ctrl+C.
             signal.SIGTERM,  # Unix signal 15. Sent by `kill <pid>`.
-            signal.SIGBREAK,
         )
+        if platform.system() == "Windows":
+            HANDLED_SIGNALS = (*HANDLED_SIGNALS, signal.SIGBREAK)  # type: ignore
 
         def handle_windows_exit(signum: int, frame: Optional[FrameType]) -> None:
             self.should_exit = True
@@ -121,8 +122,9 @@ async def run_fastkafka_server(num_workers: int, app: str, kafka_broker: str) ->
     HANDLED_SIGNALS = (
         signal.SIGINT,  # Unix signal 2. Sent by Ctrl+C.
         signal.SIGTERM,  # Unix signal 15. Sent by `kill <pid>`.
-        signal.SIGBREAK,
     )
+    if platform.system() == "Windows":
+        HANDLED_SIGNALS = (*HANDLED_SIGNALS, signal.SIGBREAK)  # type: ignore
 
     d = {"should_exit": False}
 
