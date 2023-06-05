@@ -484,12 +484,12 @@ def _generate_async_docs(
     )
     if p.returncode == 0:
         logger.info(f"Async docs generated at '{docs_path}'")
-        logger.info(f"Output of '$ {' '.join(cmd)}'{p.stdout.decode('utf-8')}")
+        logger.info(f"Output of '$ {' '.join(cmd)}'{p.stdout.decode()}")
     else:
         logger.error(f"Generation of async docs failed!")
-        logger.info(f"Output of '$ {' '.join(cmd)}'{p.stdout.decode('utf-8')}")
+        logger.info(f"Output of '$ {' '.join(cmd)}'{p.stdout.decode()}")
         raise ValueError(
-            f"Generation of async docs failed, used '$ {' '.join(cmd)}'{p.stdout.decode('utf-8')}"
+            f"Generation of async docs failed, used '$ {' '.join(cmd)}'{p.stdout.decode()}"
         )
 
 # %% ../../nbs/014_AsyncAPI.ipynb 52
