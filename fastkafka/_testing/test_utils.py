@@ -110,12 +110,14 @@ async def run_script_and_cancel(
                     f"Generating docs failed for: {Path(script_file).stem}:{kafka_app_name}, ignoring it for now."
                 )
 
-        proc = subprocess.Popen(  # nosec: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+        proc = subprocess.Popen(
             shlex.split(cmd),
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             cwd=d,
-            shell=True if platform.system() == "Windows" else False,
+            shell=True  # nosec: [B602:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+            if platform.system() == "Windows"
+            else False,
             creationflags=subprocess.CREATE_NEW_PROCESS_GROUP
             if platform.system() == "Windows"
             else 0,
