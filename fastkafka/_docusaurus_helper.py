@@ -174,23 +174,13 @@ def _get_symbol_definition(symbol: Union[types.FunctionType, Type[Any]]) -> str:
     if not isfunction(symbol):
         return ""
 
-    _signature = signature(symbol)
-    parameters = _get_parameters(_signature)
-
     symbol_anchor = (
         f"### `{symbol.__name__}`" + f" {{#{symbol.__name__.strip('_')}}}\n\n"
     )
-    return_annotation = (
-        f" -> {_signature.return_annotation}"
-        if not isinstance(_signature.return_annotation, type)
-        else f" -> {_signature.return_annotation.__name__}"
-    )
-    return_annotation = (
-        " -> None" if return_annotation == " -> _empty" else return_annotation
-    )
-    black_formatted = _apply_black_formatting(
-        f"{symbol.__name__}({parameters})" + return_annotation
-    )
+
+    _signature = signature(symbol)
+    parameters = _get_parameters(_signature)
+    black_formatted = _apply_black_formatting(f"{symbol.__name__}({parameters})")
     symbol_definition = f"```py\n{black_formatted}```\n"
 
     return symbol_anchor + symbol_definition
