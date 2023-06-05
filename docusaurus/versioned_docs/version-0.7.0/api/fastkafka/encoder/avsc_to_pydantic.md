@@ -2,7 +2,9 @@
 
 ### `avsc_to_pydantic` {#avsc_to_pydantic}
 
-`def avsc_to_pydantic(schema: Dict[str, Any]) -> ModelMetaclass`
+```py
+avsc_to_pydantic(schema)
+```
 
 Generate pydantic model from given Avro Schema
 

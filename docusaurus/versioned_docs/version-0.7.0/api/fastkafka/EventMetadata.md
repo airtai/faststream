@@ -17,7 +17,9 @@ A class for encapsulating Kafka record metadata.
 
 ### `create_event_metadata` {#create_event_metadata}
 
-`def create_event_metadata(record: aiokafka.structs.ConsumerRecord) -> EventMetadata`
+```py
+create_event_metadata(record)
+```
 
 Creates an instance of EventMetadata from a ConsumerRecord.
 

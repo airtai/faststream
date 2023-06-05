@@ -2,7 +2,9 @@
 
 ### `avro_encoder` {#avro_encoder}
 
-`def avro_encoder(msg: pydantic.main.BaseModel) -> bytes`
+```py
+avro_encoder(msg)
+```
 
 Encoder to encode pydantic instances to avro message
 

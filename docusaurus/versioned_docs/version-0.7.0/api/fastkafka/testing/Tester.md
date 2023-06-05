@@ -2,7 +2,18 @@
 
 ### `__init__` {#init}
 
-`def __init__(self, app: Union[fastkafka.FastKafka, List[fastkafka.FastKafka]], broker: Optional[fastkafka.testing.ApacheKafkaBroker, fastkafka.testing.LocalRedpandaBroker, fastkafka._testing.in_memory_broker.InMemoryBroker] = None, topics: Iterable[str] = [], retries: int = 3, apply_nest_asyncio: bool = False, zookeeper_port: int = 2181, listener_port: int = 9092) -> None`
+```py
+__init__(
+    self,
+    app,
+    broker=None,
+    topics=[],
+    retries=3,
+    apply_nest_asyncio=False,
+    zookeeper_port=2181,
+    listener_port=9092,
+)
+```
 
 Mirror-like object for testing a FastFafka application
 
@@ -17,7 +28,9 @@ Can be used as context manager
 
 ### `benchmark` {#benchmark}
 
-`def benchmark(self: fastkafka.FastKafka, interval: Union[int, datetime.timedelta] = 1, sliding_window_size: Optional[int] = None) -> typing.Callable[[typing.Callable[[~I], typing.Optional[~O]]], typing.Callable[[~I], typing.Optional[~O]]]`
+```py
+benchmark(self, interval=1, sliding_window_size=None)
+```
 
 Decorator to benchmark produces/consumes functions
 
@@ -31,7 +44,53 @@ not calculated
 
 ### `consumes` {#consumes}
 
-`def consumes(self: fastkafka.FastKafka, topic: Optional[str] = None, decoder: Union[str, Callable[[bytes, pydantic.main.ModelMetaclass], Any]] = 'json', executor: Optional[str, fastkafka._components.task_streaming.StreamExecutor] = None, brokers: Optional[Dict[str, Any], fastkafka._components.asyncapi.KafkaBrokers] = None, prefix: str = 'on_', description: Optional[str] = None, loop=None, bootstrap_servers='localhost', client_id='aiokafka-0.8.0', group_id=None, key_deserializer=None, value_deserializer=None, fetch_max_wait_ms=500, fetch_max_bytes=52428800, fetch_min_bytes=1, max_partition_fetch_bytes=1048576, request_timeout_ms=40000, retry_backoff_ms=100, auto_offset_reset='latest', enable_auto_commit=True, auto_commit_interval_ms=5000, check_crcs=True, metadata_max_age_ms=300000, partition_assignment_strategy=(<class 'kafka.coordinator.assignors.roundrobin.RoundRobinPartitionAssignor'>,), max_poll_interval_ms=300000, rebalance_timeout_ms=None, session_timeout_ms=10000, heartbeat_interval_ms=3000, consumer_timeout_ms=200, max_poll_records=None, ssl_context=None, security_protocol='PLAINTEXT', api_version='auto', exclude_internal_topics=True, connections_max_idle_ms=540000, isolation_level='read_uncommitted', sasl_mechanism='PLAIN', sasl_plain_password=None, sasl_plain_username=None, sasl_kerberos_service_name='kafka', sasl_kerberos_domain_name=None, sasl_oauth_token_provider=None) -> typing.Callable[[typing.Union[typing.Callable[[typing.Union[typing.List[pydantic.main.BaseModel], pydantic.main.BaseModel]], typing.Awaitable[NoneType]], typing.Callable[[typing.Union[typing.List[pydantic.main.BaseModel], pydantic.main.BaseModel], typing.Union[typing.List[fastkafka.EventMetadata], fastkafka.EventMetadata]], typing.Awaitable[NoneType]], typing.Callable[[typing.Union[typing.List[pydantic.main.BaseModel], pydantic.main.BaseModel]], NoneType], typing.Callable[[typing.Union[typing.List[pydantic.main.BaseModel], pydantic.main.BaseModel], typing.Union[typing.List[fastkafka.EventMetadata], fastkafka.EventMetadata]], NoneType]]], typing.Union[typing.Callable[[typing.Union[typing.List[pydantic.main.BaseModel], pydantic.main.BaseModel]], typing.Awaitable[NoneType]], typing.Callable[[typing.Union[typing.List[pydantic.main.BaseModel], pydantic.main.BaseModel], typing.Union[typing.List[fastkafka.EventMetadata], fastkafka.EventMetadata]], typing.Awaitable[NoneType]], typing.Callable[[typing.Union[typing.List[pydantic.main.BaseModel], pydantic.main.BaseModel]], NoneType], typing.Callable[[typing.Union[typing.List[pydantic.main.BaseModel], pydantic.main.BaseModel], typing.Union[typing.List[fastkafka.EventMetadata], fastkafka.EventMetadata]], NoneType]]]`
+```py
+consumes(
+    self,
+    topic=None,
+    decoder="json",
+    executor=None,
+    brokers=None,
+    prefix="on_",
+    description=None,
+    loop=None,
+    bootstrap_servers="localhost",
+    client_id="aiokafka-0.8.0",
+    group_id=None,
+    key_deserializer=None,
+    value_deserializer=None,
+    fetch_max_wait_ms=500,
+    fetch_max_bytes=52428800,
+    fetch_min_bytes=1,
+    max_partition_fetch_bytes=1048576,
+    request_timeout_ms=40000,
+    retry_backoff_ms=100,
+    auto_offset_reset="latest",
+    enable_auto_commit=True,
+    auto_commit_interval_ms=5000,
+    check_crcs=True,
+    metadata_max_age_ms=300000,
+    partition_assignment_strategy,
+    max_poll_interval_ms=300000,
+    rebalance_timeout_ms=None,
+    session_timeout_ms=10000,
+    heartbeat_interval_ms=3000,
+    consumer_timeout_ms=200,
+    max_poll_records=None,
+    ssl_context=None,
+    security_protocol="PLAINTEXT",
+    api_version="auto",
+    exclude_internal_topics=True,
+    connections_max_idle_ms=540000,
+    isolation_level="read_uncommitted",
+    sasl_mechanism="PLAIN",
+    sasl_plain_password=None,
+    sasl_plain_username=None,
+    sasl_kerberos_service_name="kafka",
+    sasl_kerberos_domain_name=None,
+    sasl_oauth_token_provider=None,
+)
+```
 
 Decorator registering the callback called when a message is received in a topic.
 
@@ -235,7 +294,9 @@ Default: None
 
 ### `create_docs` {#create_docs}
 
-`def create_docs(self: fastkafka.FastKafka) -> None`
+```py
+create_docs(self)
+```
 
 Create the asyncapi documentation based on the configured consumers and producers.
 
@@ -252,13 +313,17 @@ Note:
 
 ### `create_mocks` {#create_mocks}
 
-`def create_mocks(self: fastkafka.FastKafka) -> None`
+```py
+create_mocks(self)
+```
 
 Creates self.mocks as a named tuple mapping a new function obtained by calling the original functions and a mock
 
 ### `fastapi_lifespan` {#fastapi_lifespan}
 
-`def fastapi_lifespan(self: fastkafka.FastKafka, kafka_broker_name: str) -> typing.Callable[[ForwardRef('FastAPI')], typing.AsyncIterator[NoneType]]`
+```py
+fastapi_lifespan(self, kafka_broker_name)
+```
 
 Method for managing the lifespan of a FastAPI application with a specific Kafka broker.
 
@@ -270,7 +335,9 @@ Method for managing the lifespan of a FastAPI application with a specific Kafka 
 
 ### `get_topics` {#get_topics}
 
-`def get_topics(self: fastkafka.FastKafka) -> typing.Iterable[str]`
+```py
+get_topics(self)
+```
 
 Get all topics for both producing and consuming.
 
@@ -279,7 +346,44 @@ Get all topics for both producing and consuming.
 
 ### `produces` {#produces}
 
-`def produces(self: fastkafka.FastKafka, topic: Optional[str] = None, encoder: Union[str, Callable[[pydantic.main.BaseModel], bytes]] = 'json', prefix: str = 'to_', brokers: Optional[Dict[str, Any], fastkafka._components.asyncapi.KafkaBrokers] = None, description: Optional[str] = None, loop=None, bootstrap_servers='localhost', client_id=None, metadata_max_age_ms=300000, request_timeout_ms=40000, api_version='auto', acks=<object object at 0x7f1c4d890f60>, key_serializer=None, value_serializer=None, compression_type=None, max_batch_size=16384, partitioner=<kafka.partitioner.default.DefaultPartitioner object at 0x7f1c4c8a1210>, max_request_size=1048576, linger_ms=0, send_backoff_ms=100, retry_backoff_ms=100, security_protocol='PLAINTEXT', ssl_context=None, connections_max_idle_ms=540000, enable_idempotence=False, transactional_id=None, transaction_timeout_ms=60000, sasl_mechanism='PLAIN', sasl_plain_password=None, sasl_plain_username=None, sasl_kerberos_service_name='kafka', sasl_kerberos_domain_name=None, sasl_oauth_token_provider=None) -> typing.Callable[[typing.Union[typing.Callable[..., typing.Union[pydantic.main.BaseModel, fastkafka.KafkaEvent[pydantic.main.BaseModel], typing.List[pydantic.main.BaseModel], fastkafka.KafkaEvent[typing.List[pydantic.main.BaseModel]]]], typing.Callable[..., typing.Awaitable[typing.Union[pydantic.main.BaseModel, fastkafka.KafkaEvent[pydantic.main.BaseModel], typing.List[pydantic.main.BaseModel], fastkafka.KafkaEvent[typing.List[pydantic.main.BaseModel]]]]]]], typing.Union[typing.Callable[..., typing.Union[pydantic.main.BaseModel, fastkafka.KafkaEvent[pydantic.main.BaseModel], typing.List[pydantic.main.BaseModel], fastkafka.KafkaEvent[typing.List[pydantic.main.BaseModel]]]], typing.Callable[..., typing.Awaitable[typing.Union[pydantic.main.BaseModel, fastkafka.KafkaEvent[pydantic.main.BaseModel], typing.List[pydantic.main.BaseModel], fastkafka.KafkaEvent[typing.List[pydantic.main.BaseModel]]]]]]]`
+```py
+produces(
+    self,
+    topic=None,
+    encoder="json",
+    prefix="to_",
+    brokers=None,
+    description=None,
+    loop=None,
+    bootstrap_servers="localhost",
+    client_id=None,
+    metadata_max_age_ms=300000,
+    request_timeout_ms=40000,
+    api_version="auto",
+    acks,
+    key_serializer=None,
+    value_serializer=None,
+    compression_type=None,
+    max_batch_size=16384,
+    partitioner,
+    max_request_size=1048576,
+    linger_ms=0,
+    send_backoff_ms=100,
+    retry_backoff_ms=100,
+    security_protocol="PLAINTEXT",
+    ssl_context=None,
+    connections_max_idle_ms=540000,
+    enable_idempotence=False,
+    transactional_id=None,
+    transaction_timeout_ms=60000,
+    sasl_mechanism="PLAIN",
+    sasl_plain_password=None,
+    sasl_plain_username=None,
+    sasl_kerberos_service_name="kafka",
+    sasl_kerberos_domain_name=None,
+    sasl_oauth_token_provider=None,
+)
+```
 
 Decorator registering the callback called when delivery report for a produced message is received
 
@@ -434,7 +538,9 @@ Default: :data:`None`
 
 ### `run_in_background` {#run_in_background}
 
-`def run_in_background(self: fastkafka.FastKafka) -> typing.Callable[[typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, typing.Any]]], typing.Callable[..., typing.Coroutine[typing.Any, typing.Any, typing.Any]]]`
+```py
+run_in_background(self)
+```
 
 Decorator to schedule a task to be run in the background.
 
@@ -445,7 +551,9 @@ This decorator is used to schedule a task to be run in the background when the a
 
 ### `set_kafka_broker` {#set_kafka_broker}
 
-`def set_kafka_broker(self, kafka_broker_name: str) -> None`
+```py
+set_kafka_broker(self, kafka_broker_name)
+```
 
 Sets the Kafka broker to start FastKafka with
 
@@ -460,7 +568,16 @@ Sets the Kafka broker to start FastKafka with
 
 ### `using_local_kafka` {#using_local_kafka}
 
-`def using_local_kafka(self, topics: Iterable[str] = [], retries: int = 3, apply_nest_asyncio: bool = False, zookeeper_port: int = 2181, listener_port: int = 9092) -> Tester`
+```py
+using_local_kafka(
+    self,
+    topics=[],
+    retries=3,
+    apply_nest_asyncio=False,
+    zookeeper_port=2181,
+    listener_port=9092,
+)
+```
 
 Starts local Kafka broker used by the Tester instance
 
@@ -474,7 +591,20 @@ Starts local Kafka broker used by the Tester instance
 
 ### `using_local_redpanda` {#using_local_redpanda}
 
-`def using_local_redpanda(self, topics: Iterable[str] = [], retries: int = 3, apply_nest_asyncio: bool = False, listener_port: int = 9092, tag: str = 'v23.1.2', seastar_core: int = 1, memory: str = '1G', mode: str = 'dev-container', default_log_level: str = 'debug') -> Tester`
+```py
+using_local_redpanda(
+    self,
+    topics=[],
+    retries=3,
+    apply_nest_asyncio=False,
+    listener_port=9092,
+    tag="v23.1.2",
+    seastar_core=1,
+    memory="1G",
+    mode="dev-container",
+    default_log_level="debug",
+)
+```
 
 Starts local Redpanda broker used by the Tester instance
 

@@ -130,7 +130,7 @@ def _get_parameters(_signature: Signature) -> str:
     """Converts a function's signature into a string representation of its parameter list.
 
     Args:
-        _signature (signature): The signature object for the function to convert.
+        _signature: The signature object for the function to convert.
 
     Returns:
         str: A string representation of the function's parameter list.

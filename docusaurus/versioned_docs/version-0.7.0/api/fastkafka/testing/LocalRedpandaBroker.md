@@ -5,7 +5,21 @@ LocalRedpandaBroker class, used for running unique redpanda brokers in tests to 
 
 ### `__init__` {#init}
 
-`def __init__(self, topics: Iterable[str] = [], retries: int = 3, apply_nest_asyncio: bool = False, listener_port: int = 9092, tag: str = 'v23.1.2', seastar_core: int = 1, memory: str = '1G', mode: str = 'dev-container', default_log_level: str = 'debug', **kwargs: Dict[str, Any]) -> None`
+```py
+__init__(
+    self,
+    topics=[],
+    retries=3,
+    apply_nest_asyncio=False,
+    listener_port=9092,
+    tag="v23.1.2",
+    seastar_core=1,
+    memory="1G",
+    mode="dev-container",
+    default_log_level="debug",
+    kwargs,
+)
+```
 
 Initialises the LocalRedpandaBroker object
 
@@ -19,7 +33,9 @@ Initialises the LocalRedpandaBroker object
 
 ### `get_service_config_string` {#get_service_config_string}
 
-`def get_service_config_string(self, service: str, data_dir: pathlib.Path) -> str`
+```py
+get_service_config_string(self, service, data_dir)
+```
 
 Generates a configuration for a service
 
@@ -29,7 +45,9 @@ Generates a configuration for a service
 
 ### `start` {#start}
 
-`def start(self: fastkafka.testing.LocalRedpandaBroker) -> str`
+```py
+start(self)
+```
 
 Starts a local redpanda broker instance synchronously
 
@@ -38,7 +56,9 @@ Starts a local redpanda broker instance synchronously
 
 ### `stop` {#stop}
 
-`def stop(self: fastkafka.testing.LocalRedpandaBroker) -> None`
+```py
+stop(self)
+```
 
 Stops a local redpanda broker instance synchronously
 
