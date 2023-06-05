@@ -8,6 +8,7 @@ import asyncio
 import hashlib
 import platform
 import shlex
+import signal
 import subprocess  # nosec
 import unittest
 import unittest.mock
@@ -110,20 +111,20 @@ async def run_script_and_cancel(
                 )
 
         proc = subprocess.Popen(  # nosec: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
-            shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=d
+            shlex.split(cmd),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            cwd=d,
+            shell=True if platform.system() == "Windows" else False,
+            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP
+            if platform.system() == "Windows"
+            else 0,
         )
         await asyncio.sleep(cancel_after)
         if platform.system() == "Windows":
-            import psutil
-
-            try:
-                parent = psutil.Process(proc.pid)
-                children = parent.children(recursive=True)
-                for child in children:
-                    child.kill()
-            except psutil.NoSuchProcess:
-                pass
-        proc.terminate()
+            proc.send_signal(signal.CTRL_BREAK_EVENT)
+        else:
+            proc.terminate()
         output, _ = proc.communicate()
 
         return (proc.returncode, output)

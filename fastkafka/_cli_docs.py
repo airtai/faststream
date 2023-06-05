@@ -146,6 +146,7 @@ def serve_docs(
 
             signal.signal(signal.SIGINT, sigint_handler)
             signal.signal(signal.SIGTERM, sigint_handler)
+            signal.signal(signal.SIGBREAK, sigint_handler)
 
             with socketserver.TCPServer(server_address, handler) as httpd:
                 httpd.timeout = 0.1
