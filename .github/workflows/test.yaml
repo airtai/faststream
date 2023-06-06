@@ -42,9 +42,20 @@ jobs:
         run: |
           fastkafka docs install_deps
           fastkafka testing install_deps
-      - name: Run nbdev tests
-        run: |
-          nbdev_test --timing --do_print
+      - name:  Install
+        run:   |
+                if [ "$RUNNER_OS" == "Linux" ]; then
+                    nbdev_test --timing --do_print
+                elif [ "$RUNNER_OS" == "Windows" ]; then
+                    nbdev_test --n_workers 1 --timing --do_print --pause 1
+                else
+                    echo "$RUNNER_OS not supported"
+                    exit 1
+                fi
+        shell: bash
+      # - name: Run nbdev tests
+      #   run: |
+      #     nbdev_test --timing --do_print
       - name: Test building docs with nbdev-mkdocs
         run: |
           nbdev_mkdocs docs
