@@ -192,7 +192,7 @@ class LocalRedpandaBroker:
 async def check_docker() -> bool:
     try:
         docker_task = await run_and_match(
-            "docker", "run", "--rm", "hello-world", pattern="Pulling from library"
+            "docker", "run", "--rm", "hello-world", pattern="Hello from Docker"
         )
         return True
     except Exception as e:
