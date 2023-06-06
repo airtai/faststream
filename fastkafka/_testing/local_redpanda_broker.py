@@ -224,6 +224,9 @@ async def _start_redpanda(self: LocalRedpandaBroker, service: str = "redpanda") 
 
         redpanda_docker_cmd = get_redpanda_docker_cmd(**self.redpanda_kwargs)  # type: ignore
 
+        msg = ""
+        import traceback
+
         try:
             service_task = await run_and_match(
                 *redpanda_docker_cmd,
@@ -232,6 +235,9 @@ async def _start_redpanda(self: LocalRedpandaBroker, service: str = "redpanda") 
                 timeout=30,
             )
         except Exception as e:
+            if not msg:
+                tb = traceback.format_exc()
+                msg = msg + str(e) + tb
             logger.info(
                 f"{service} startup failed, generating a new port and retrying..."
             )
@@ -243,7 +249,7 @@ async def _start_redpanda(self: LocalRedpandaBroker, service: str = "redpanda") 
             setattr(self, f"{service}_task", service_task)
             return
 
-    raise ValueError(f"Could not start {service} with params: {configs_tried}")
+    raise ValueError(f"Could not start {service} with params: {configs_tried}, {msg=}")
 
 
 @patch
