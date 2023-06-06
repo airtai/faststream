@@ -27,9 +27,12 @@ jobs:
         shell: bash
     steps:
       - name: Install quarto
-        run: |
-          wget -q https://www.quarto.org/download/latest/quarto-linux-amd64.deb
-          sudo dpkg -i quarto-linux-amd64.deb
+        uses: quarto-dev/quarto-actions/setup@v2
+        # run: |
+        #   wget -q https://www.quarto.org/download/latest/quarto-linux-amd64.deb
+        #   sudo dpkg -i quarto-linux-amd64.deb
+      - run: |
+          quarto --version
       - name: Prepare nbdev env
         uses: fastai/workflows/nbdev-ci@master
         with:
