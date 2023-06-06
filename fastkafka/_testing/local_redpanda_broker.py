@@ -191,7 +191,9 @@ class LocalRedpandaBroker:
 # %% ../../nbs/003_LocalRedpandaBroker.ipynb 10
 async def check_docker() -> bool:
     try:
-        docker_task = await run_and_match("docker", "-v", pattern="Docker version")
+        docker_task = await run_and_match(
+            "docker", "pull", "hello-world", pattern="Pulling from library"
+        )
         return True
     except Exception as e:
         logger.debug(f"Error in check_docker() : {e}")
