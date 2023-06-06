@@ -42,7 +42,7 @@ jobs:
         run: |
           fastkafka docs install_deps
           fastkafka testing install_deps
-      - run: docker pull hello-world
+      - run: docker run --rm hello-world
       - name:  Install
         run:   |
                 if [ "$RUNNER_OS" == "Linux" ]; then
