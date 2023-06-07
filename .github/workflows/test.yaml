@@ -26,7 +26,7 @@ jobs:
       run:
         shell: bash
     steps:
-      - run: docker pull docker.redpanda.com/redpandadata/redpanda:v23.1.2
+      # - run: docker pull docker.redpanda.com/redpandadata/redpanda:v23.1.2
       # - run: docker run -d --rm --name redpanda_9092 -p 9092:9092 docker.redpanda.com/redpandadata/redpanda:v23.1.2 redpanda start --kafka-addr internal://0.0.0.0:9090,external://0.0.0.0:9092 --advertise-kafka-addr internal://localhost:9090,external://localhost:9092 --smp 1 --memory 1G --mode dev-container --default-log-level debug
       # - run: sleep 10
       # - run: docker logs redpanda_9092

@@ -204,7 +204,7 @@ async def check_docker(tag: str = "v23.1.2") -> bool:
             "docker",
             "pull",
             f"docker.redpanda.com/redpandadata/redpanda:{tag}",
-            pattern="Pulling from redpandadata",
+            pattern=f"docker.redpanda.com/redpandadata/redpanda:{tag}",
         )
         return True
     except Exception as e:
