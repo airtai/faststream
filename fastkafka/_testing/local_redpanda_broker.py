@@ -189,10 +189,22 @@ class LocalRedpandaBroker:
         await self._stop()
 
 # %% ../../nbs/003_LocalRedpandaBroker.ipynb 10
-async def check_docker() -> bool:
+async def check_docker(tag: str = "v23.1.2") -> bool:
+    """
+    Checks if a Docker image with the specified tag is available.
+
+    Args:
+        tag: The tag of the Docker image to check. Defaults to "v23.1.2".
+
+    Returns:
+        bool: True if the Docker image is available; False otherwise.
+    """
     try:
         docker_task = await run_and_match(
-            "docker", "run", "--rm", "hello-world", pattern="Hello from Docker"
+            "docker",
+            "pull",
+            f"docker.redpanda.com/redpandadata/redpanda:{tag}",
+            pattern="Pulling from redpandadata",
         )
         return True
     except Exception as e:
