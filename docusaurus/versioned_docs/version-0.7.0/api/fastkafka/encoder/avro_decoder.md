@@ -2,9 +2,7 @@
 
 ### `avro_decoder` {#avro_decoder}
 
-```py
-avro_decoder(raw_msg, cls)
-```
+`def avro_decoder(raw_msg: bytes, cls: pydantic.main.ModelMetaclass) -> Any`
 
 Decoder to decode avro encoded messages to pydantic model instance
 

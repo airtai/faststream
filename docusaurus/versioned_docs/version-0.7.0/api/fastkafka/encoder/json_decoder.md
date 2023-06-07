@@ -2,9 +2,7 @@
 
 ### `json_decoder` {#json_decoder}
 
-```py
-json_decoder(raw_msg, cls)
-```
+`def json_decoder(raw_msg: bytes, cls: pydantic.main.ModelMetaclass) -> Any`
 
 Decoder to decode json string in bytes to pydantic model instance
 
