@@ -49,7 +49,6 @@ jobs:
                     echo "$RUNNER_OS not supported"
                     exit 1
                 fi
-        shell: bash
       # - name: Run nbdev tests
       #   run: |
       #     nbdev_test --timing --do_print
