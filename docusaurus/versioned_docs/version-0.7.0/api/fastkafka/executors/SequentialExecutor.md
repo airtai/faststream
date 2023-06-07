@@ -8,9 +8,7 @@ for running processing tasks in sequence by awaiting their coroutines.
 
 ### `__init__` {#init}
 
-```py
-__init__(self, throw_exceptions=False, max_buffer_size=100000)
-```
+`def __init__(self, throw_exceptions: bool = False, max_buffer_size: int = 100000) -> None`
 
 Create an instance of SequentialExecutor
 
@@ -22,9 +20,7 @@ Defaults to 100_000.
 
 ### `run` {#run}
 
-```py
-run(self, is_shutting_down_f, generator, processor)
-```
+`def run(self, is_shutting_down_f: Callable[[], bool], generator: Callable[[], Awaitable[aiokafka.structs.ConsumerRecord]], processor: Callable[[aiokafka.structs.ConsumerRecord], Awaitable[NoneType]]) -> None`
 
 Runs the sequential executor.
 

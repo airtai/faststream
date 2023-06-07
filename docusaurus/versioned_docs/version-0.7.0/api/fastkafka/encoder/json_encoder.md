@@ -2,9 +2,7 @@
 
 ### `json_encoder` {#json_encoder}
 
-```py
-json_encoder(msg)
-```
+`def json_encoder(msg: pydantic.main.BaseModel) -> bytes`
 
 Encoder to encode pydantic instances to json string
 

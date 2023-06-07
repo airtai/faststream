@@ -5,16 +5,7 @@ ApacheKafkaBroker class, used for running unique kafka brokers in tests to preve
 
 ### `__init__` {#init}
 
-```py
-__init__(
-    self,
-    topics=[],
-    retries=3,
-    apply_nest_asyncio=False,
-    zookeeper_port=2181,
-    listener_port=9092,
-)
-```
+`def __init__(self, topics: Iterable[str] = [], retries: int = 3, apply_nest_asyncio: bool = False, zookeeper_port: int = 2181, listener_port: int = 9092) -> None`
 
 Initialises the ApacheKafkaBroker object
 
@@ -25,9 +16,7 @@ Initialises the ApacheKafkaBroker object
 
 ### `get_service_config_string` {#get_service_config_string}
 
-```py
-get_service_config_string(self, service, data_dir)
-```
+`def get_service_config_string(self: fastkafka.testing.ApacheKafkaBroker, service: str, data_dir: pathlib.Path) -> str`
 
 Gets the configuration string for a service.
 
@@ -40,9 +29,7 @@ Gets the configuration string for a service.
 
 ### `start` {#start}
 
-```py
-start(self)
-```
+`def start(self: fastkafka.testing.ApacheKafkaBroker) -> str`
 
 Starts a local Kafka broker and ZooKeeper instance synchronously.
 
@@ -51,9 +38,7 @@ Starts a local Kafka broker and ZooKeeper instance synchronously.
 
 ### `stop` {#stop}
 
-```py
-stop(self)
-```
+`def stop(self: fastkafka.testing.ApacheKafkaBroker) -> None`
 
 Stops a local kafka broker and zookeeper instance synchronously
 
