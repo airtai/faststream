@@ -34,6 +34,7 @@ jobs:
       run:
         shell: bash
     steps:
+      - run: python -c "import multiprocessing; print(multiprocessing.cpu_count())"
       - name: Configure Pagefile
         if: matrix.os == 'windows'
         uses: al-cheb/configure-pagefile-action@v1.2
@@ -57,7 +58,7 @@ jobs:
       - name:  Install
         run:   |
                 if [ "$RUNNER_OS" == "Linux" ]; then
-                    nbdev_test --timing --do_print
+                    nbdev_test --timing --do_print --pause 1
                 elif [ "$RUNNER_OS" == "Windows" ]; then
                     nbdev_test --timing --do_print --pause 1 --n_workers 2
                 else
