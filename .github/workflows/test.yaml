@@ -34,6 +34,13 @@ jobs:
       run:
         shell: bash
     steps:
+      - name: Configure Pagefile
+        if: matrix.os == 'windows'
+        uses: al-cheb/configure-pagefile-action@v1.2
+        with:
+          minimum-size: 8GB
+          maximum-size: 8GB
+          disk-root: "C:"
       - name: Install quarto
         uses: quarto-dev/quarto-actions/setup@v2
       - run: |
