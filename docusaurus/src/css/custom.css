@@ -208,6 +208,19 @@ html.plugin-pages
 html.docs-doc-page[data-theme="dark"] .navbar {
   background-color: #242526;
 }
+
+html.docs-doc-page main article .markdown > h2.anchor {
+  font-weight: 400;
+}
+html.docs-doc-page main article .markdown > h3.anchor {
+  font-weight: 500;
+  font-family: var(--ifm-font-family-monospace);
+}
+html.docs-doc-page main article .markdown > h3.anchor > strong,
+html.docs-doc-page main ul.table-of-contents > li > ul a > strong {
+  font-weight: 500;
+}
+
 /* [data-theme="dark"] .navbar {
   background-color: #242526;
 } */

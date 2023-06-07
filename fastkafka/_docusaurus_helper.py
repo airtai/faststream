@@ -177,9 +177,7 @@ def _get_symbol_definition(symbol: Union[types.FunctionType, Type[Any]]) -> str:
     if not isfunction(symbol):
         return ""
 
-    symbol_anchor = (
-        f"### `{symbol.__name__}`" + f" {{#{symbol.__name__.strip('_')}}}\n\n"
-    )
+    symbol_anchor = f"### {symbol.__name__}" + f" {{#{symbol.__name__.strip('_')}}}\n\n"
     _signature = signature(symbol)
     parameters = _get_parameters(_signature)
     symbol_definition = f"```py\n{_format_symbol_definition(symbol, parameters)}```\n"
@@ -376,7 +374,7 @@ def generate_markdown_docs(module_name: str, docs_path: str) -> None:
     symbols = _load_submodules(module_name, members_with_submodules)
 
     for symbol in symbols:
-        content = f"## `{symbol.__module__}.{symbol.__name__}` {{#{symbol.__module__}.{symbol.__name__}}}\n\n"
+        content = f"## {symbol.__module__}.{symbol.__name__} {{#{symbol.__module__}.{symbol.__name__}}}\n\n"
         content += _get_formatted_docstring_for_symbol(symbol)
         target_file_path = (
             "/".join(f"{symbol.__module__}.{symbol.__name__}".split(".")) + ".md"
