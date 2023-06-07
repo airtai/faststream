@@ -26,15 +26,8 @@ jobs:
       run:
         shell: bash
     steps:
-      # - run: docker pull docker.redpanda.com/redpandadata/redpanda:v23.1.2
-      # - run: docker run -d --rm --name redpanda_9092 -p 9092:9092 docker.redpanda.com/redpandadata/redpanda:v23.1.2 redpanda start --kafka-addr internal://0.0.0.0:9090,external://0.0.0.0:9092 --advertise-kafka-addr internal://localhost:9090,external://localhost:9092 --smp 1 --memory 1G --mode dev-container --default-log-level debug
-      # - run: sleep 10
-      # - run: docker logs redpanda_9092
       - name: Install quarto
         uses: quarto-dev/quarto-actions/setup@v2
-        # run: |
-        #   wget -q https://www.quarto.org/download/latest/quarto-linux-amd64.deb
-        #   sudo dpkg -i quarto-linux-amd64.deb
       - run: |
           quarto --version
       - name: Prepare nbdev env
@@ -51,7 +44,7 @@ jobs:
                 if [ "$RUNNER_OS" == "Linux" ]; then
                     nbdev_test --timing --do_print
                 elif [ "$RUNNER_OS" == "Windows" ]; then
-                    nbdev_test --n_workers 1 --timing --do_print --pause 1
+                    nbdev_test --timing --do_print --pause 1
                 else
                     echo "$RUNNER_OS not supported"
                     exit 1
