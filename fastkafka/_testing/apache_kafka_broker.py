@@ -376,7 +376,9 @@ async def run_and_match(
             dstdout = stdout.decode("utf-8")
             dstderr = stderr.decode("utf-8")
             if proc.returncode == 0:
-                raise TimeoutError()
+                raise TimeoutError(
+                    f"stdout={dstdout}, stderr={dstderr}, returncode={proc.returncode}"
+                )
             else:
                 raise RuntimeError(
                     f"stdout={dstdout}, stderr={dstderr}, returncode={proc.returncode}"

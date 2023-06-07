@@ -44,7 +44,7 @@ jobs:
                 if [ "$RUNNER_OS" == "Linux" ]; then
                     nbdev_test --timing --do_print
                 elif [ "$RUNNER_OS" == "Windows" ]; then
-                    nbdev_test --timing --do_print --pause 1
+                    nbdev_test --timing --do_print --pause 1 --n_workers 2
                 else
                     echo "$RUNNER_OS not supported"
                     exit 1
