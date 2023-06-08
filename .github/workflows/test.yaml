@@ -17,18 +17,10 @@ jobs:
   test:
     timeout-minutes: 60
     strategy:
-      # max-parallel: 2
       fail-fast: false
       matrix:
         os:  [ubuntu, windows]
         version: ["3.8", "3.9", "3.10", "3.11"]
-        # exclude:
-        #   - os: windows
-        #     version: 3.8
-        #   - os: windows
-        #     version: 3.9
-        #   - os: windows
-        #     version: 3.10
     runs-on: ${{ matrix.os }}-latest
     defaults:
       run:
@@ -54,7 +46,7 @@ jobs:
           fastkafka testing install_deps
       - name: Run nbdev tests
         run: |
-          nbdev_test --timing --do_print --pause 1
+          nbdev_test --timing --do_print
       - name: Test building docs with nbdev-mkdocs
         if: matrix.os != 'windows'
         run: |
