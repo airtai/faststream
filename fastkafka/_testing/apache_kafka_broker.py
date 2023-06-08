@@ -462,7 +462,6 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
 
     configs_tried: List[Dict[str, Any]] = []
 
-    msg = ""
     for i in range(self.retries + 1):
         configs_tried = configs_tried + [getattr(self, f"{service}_kwargs").copy()]
 
@@ -488,7 +487,6 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
             )
         except Exception as e:
             print(e)
-            msg = msg + str(e)
             logger.info(
                 f"{service} startup failed, generating a new port and retrying..."
             )
@@ -504,7 +502,7 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
             setattr(self, f"{service}_task", service_task)
             return
 
-    raise ValueError(f"Could not start {service} with params: {configs_tried}, {msg=}")
+    raise ValueError(f"Could not start {service} with params: {configs_tried}")
 
 
 @patch
