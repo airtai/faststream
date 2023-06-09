@@ -173,7 +173,7 @@ def _format_symbol_definition(
         return f"{symbol.__name__}({formatted_parameters}\n)\n"
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 26
-def _get_decorator_string(symbol: Union[types.FunctionType, Type[Any]]) -> str:
+def _get_method_type(symbol: Union[types.FunctionType, Type[Any]]) -> str:
     try:
         source = getsource(symbol).strip()
     except TypeError as e:
@@ -200,8 +200,6 @@ def _get_symbol_definition(
     Returns:
         A string representing the function definition
     """
-    #     if not isfunction(symbol):
-    #         return ""
     if isclass(symbol):
         return f"{'#'*(header_level - 1)} {symbol.__module__}.{symbol.__name__} {{#{symbol.__module__}.{symbol.__name__}}}\n\n"
 
@@ -214,11 +212,19 @@ def _get_symbol_definition(
     )
     _signature = signature(symbol)
     parameters = _get_parameters(_signature)
-    symbol_definition = f"```py\n{_get_decorator_string(symbol)}{_format_symbol_definition(symbol, parameters)}```\n"
+    symbol_definition = f"```py\n{_get_method_type(symbol)}{_format_symbol_definition(symbol, parameters)}```\n"
     return symbol_anchor + symbol_definition
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 32
 def _is_method(symbol: Union[types.FunctionType, Type[Any]]) -> bool:
+    """Check if the given symbol is a method.
+
+    Args:
+        symbol: A function or method object to check.
+
+    Returns:
+        A boolean indicating whether the symbol is a method.
+    """
     return ismethod(symbol) or isfunction(symbol) or isinstance(symbol, property)
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 34
@@ -255,13 +261,10 @@ def _get_formatted_docstring_for_symbol(
                 if _is_method(y) and y.__doc__ is not None:
                     contents += f"{_get_symbol_definition(y, header_level)}\n{_docstring_to_markdown(y.__doc__)}"
                 elif isclass(y) and y.__doc__ is not None and not x.startswith("_"):
-                    #                     symbol_header = f"{'#'*header_level} {y.__module__}.{y.__name__} {{#{y.__module__}.{y.__name__}}}\n\n"
-                    #                     contents += symbol_header + f"{_get_symbol_definition(y, header_level+1)}\n{_docstring_to_markdown(y.__doc__)}"
                     contents += f"{_get_symbol_definition(y, header_level+1)}\n{_docstring_to_markdown(y.__doc__)}"
                     contents = traverse(y, contents, header_level + 1)
         return contents
 
-    #     symbol_header = f"{'#'*header_level} {symbol.__module__}.{symbol.__name__} {{#{symbol.__module__}.{symbol.__name__}}}\n\n"
     contents = (
         f"{_get_symbol_definition(symbol, header_level+1)}\n{_docstring_to_markdown(symbol.__doc__)}"
         if symbol.__doc__ is not None
@@ -269,7 +272,6 @@ def _get_formatted_docstring_for_symbol(
     )
     if isclass(symbol):
         contents = traverse(symbol, contents, header_level + 1)
-    #     return symbol_header + contents
     return contents
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 37
@@ -420,8 +422,6 @@ def generate_markdown_docs(module_name: str, docs_path: str) -> None:
     symbols = _load_submodules(module_name, members_with_submodules)
 
     for symbol in symbols:
-        #         content = f"## {symbol.__module__}.{symbol.__name__} {{#{symbol.__module__}.{symbol.__name__}}}\n\n"
-        #         content += _get_formatted_docstring_for_symbol(symbol)
         content = _get_formatted_docstring_for_symbol(symbol)
         target_file_path = (
             "/".join(f"{symbol.__module__}.{symbol.__name__}".split(".")) + ".md"
@@ -430,7 +430,7 @@ def generate_markdown_docs(module_name: str, docs_path: str) -> None:
         with open((Path(docs_path) / "api" / target_file_path), "w") as f:
             f.write(content)
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 60
+# %% ../nbs/096_Docusaurus_Helper.ipynb 61
 def _parse_lines(lines: List[str]) -> Tuple[List[str], int]:
     """Parse a list of lines and return a tuple containing a list of filenames and an index indicating how many lines to skip.
 
@@ -447,7 +447,7 @@ def _parse_lines(lines: List[str]) -> Tuple[List[str], int]:
     )
     return [line.split("(")[1][:-4] for line in lines[:index]], index
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 63
+# %% ../nbs/096_Docusaurus_Helper.ipynb 64
 def _parse_section(text: str, ignore_first_line: bool = False) -> List[Any]:
     """Parse the given section contents and return a list of file names in the expected format.
 
@@ -476,7 +476,7 @@ def _parse_section(text: str, ignore_first_line: bool = False) -> List[Any]:
             index += 1
     return ret_val
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 66
+# %% ../nbs/096_Docusaurus_Helper.ipynb 67
 def _get_section_from_markdown(
     markdown_text: str, section_header: str
 ) -> Optional[str]:
@@ -494,7 +494,7 @@ def _get_section_from_markdown(
     match = pattern.search(markdown_text)
     return match.group(1) if match else None
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 71
+# %% ../nbs/096_Docusaurus_Helper.ipynb 72
 def generate_sidebar(
     summary_file: str = "./docusaurus/docs/SUMMARY.md",
     summary: str = "",
@@ -550,7 +550,7 @@ tutorialSidebar: [
 };"""
         )
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 73
+# %% ../nbs/096_Docusaurus_Helper.ipynb 74
 def _get_markdown_filenames_from_sidebar(sidebar_file_path: str) -> List[str]:
     """Get a list of Markdown filenames included in the sidebar.
 
@@ -571,7 +571,7 @@ def _get_markdown_filenames_from_sidebar(sidebar_file_path: str) -> List[str]:
         ]
         return markdown_filenames
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 75
+# %% ../nbs/096_Docusaurus_Helper.ipynb 76
 def _delete_files(files: List[Path]) -> None:
     """Deletes a list of files.
 
@@ -590,7 +590,7 @@ def _delete_files(files: List[Path]) -> None:
                 f"Error deleting files from docusaurus/docs directory. Could not delete file: {file} - {e}"
             )
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 78
+# %% ../nbs/096_Docusaurus_Helper.ipynb 79
 def delete_unused_markdown_files_from_sidebar(
     docs_path: str, sidebar_file_path: str
 ) -> None:
