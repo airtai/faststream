@@ -47,7 +47,6 @@ def _get_broker_spec(bootstrap_server: str) -> KafkaBroker:
 class Tester(FastKafka):
     __test__ = False
 
-    @delegates(ApacheKafkaBroker.__init__)
     def __init__(
         self,
         app: Union[FastKafka, List[FastKafka]],
