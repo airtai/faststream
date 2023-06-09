@@ -52,9 +52,9 @@ def _format_docstring_sections(
         formatted_docstring += f"**{keyword}**:\n"
         for item in items:
             if keyword == "Parameters":
-                formatted_docstring += f"- `{item.arg_name}`: {item.description}\n"  # type: ignore
+                formatted_docstring += f"- **{item.arg_name}**: {item.description}\n"  # type: ignore
             elif keyword == "Exceptions":
-                formatted_docstring += f"- `{item.type_name}`: {item.description}\n"
+                formatted_docstring += f"- **{item.type_name}**: {item.description}\n"
             else:
                 formatted_docstring += f"- {item.description}\n"
         formatted_docstring = f"{formatted_docstring}\n"
