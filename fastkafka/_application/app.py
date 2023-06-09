@@ -242,6 +242,7 @@ class FastKafka:
         self._override_brokers: List[KafkaBrokers] = []
 
         self._root_path = Path(".") if root_path is None else Path(root_path)
+        self._root_path.mkdir(exist_ok=True, parents=True)
 
         self._asyncapi_path = self._root_path / "asyncapi"
 
