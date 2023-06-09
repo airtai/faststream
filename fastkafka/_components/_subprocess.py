@@ -85,6 +85,8 @@ async def run_async_subprocesses(
         signal.SIGINT,  # Unix signal 2. Sent by Ctrl+C.
         signal.SIGTERM,  # Unix signal 15. Sent by `kill <pid>`.
     )
+    if platform.system() == "Windows":
+        HANDLED_SIGNALS = (*HANDLED_SIGNALS, signal.SIGBREAK)  # type: ignore
 
     d = {"should_exit": False}
 

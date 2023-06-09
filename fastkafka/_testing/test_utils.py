@@ -6,7 +6,9 @@ __all__ = ['logger', 'nb_safe_seed', 'mock_AIOKafkaProducer_send', 'run_script_a
 # %% ../../nbs/004_Test_Utils.ipynb 1
 import asyncio
 import hashlib
+import platform
 import shlex
+import signal
 import subprocess  # nosec
 import unittest
 import unittest.mock
@@ -108,11 +110,22 @@ async def run_script_and_cancel(
                     f"Generating docs failed for: {Path(script_file).stem}:{kafka_app_name}, ignoring it for now."
                 )
 
-        proc = subprocess.Popen(  # nosec: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
-            shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=d
+        creationflags = 0 if platform.system() != "Windows" else subprocess.CREATE_NEW_PROCESS_GROUP  # type: ignore
+        proc = subprocess.Popen(
+            shlex.split(cmd),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            cwd=d,
+            shell=True  # nosec: [B602:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+            if platform.system() == "Windows"
+            else False,
+            creationflags=creationflags,
         )
         await asyncio.sleep(cancel_after)
-        proc.terminate()
+        if platform.system() == "Windows":
+            proc.send_signal(signal.CTRL_BREAK_EVENT)  # type: ignore
+        else:
+            proc.terminate()
         output, _ = proc.communicate()
 
         return (proc.returncode, output)
