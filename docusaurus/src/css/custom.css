@@ -480,6 +480,14 @@ h3.anchor > code {
 * ----------------------------------------------
 **/
 
+.prism-code.language-py code .token.decorator {
+    color: #c5221f !important;
+}
+
+html.docs-doc-page[data-theme="dark"] .prism-code.language-py code .token.decorator {
+    color: #fbc02d !important;
+}
+
 /** Tablet view */
 @media screen and (max-width: 1290px) {
   .navbar__items.navbar__items--right .navbar__item.dropdown,
