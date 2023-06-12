@@ -19,17 +19,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:  [ubuntu]
+        os:  [ubuntu, windows]
         version: ["3.8", "3.9", "3.10", "3.11"]
     runs-on: ${{ matrix.os }}-latest
     defaults:
       run:
         shell: bash
     steps:
+      - name: Configure Pagefile
+        if: matrix.os == 'windows'
+        uses: al-cheb/configure-pagefile-action@v1.2
+        with:
+          minimum-size: 8GB
+          maximum-size: 8GB
+          disk-root: "C:"
       - name: Install quarto
-        run: |
-          wget -q https://www.quarto.org/download/latest/quarto-linux-amd64.deb
-          sudo dpkg -i quarto-linux-amd64.deb
+        uses: quarto-dev/quarto-actions/setup@v2
       - name: Prepare nbdev env
         uses: fastai/workflows/nbdev-ci@master
         with:
@@ -43,6 +48,7 @@ jobs:
         run: |
           nbdev_test --timing --do_print
       - name: Test building docs with nbdev-mkdocs
+        if: matrix.os != 'windows'
         run: |
           nbdev_mkdocs docs
           if [ -f "mkdocs/site/index.html" ]; then

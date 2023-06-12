@@ -5,6 +5,7 @@ __all__ = ['logger', 'docs_install_deps', 'generate_docs', 'serve_docs']
 
 # %% ../nbs/024_CLI_Docs.ipynb 1
 import asyncio
+import platform
 import signal
 import socketserver
 from http.server import SimpleHTTPRequestHandler
@@ -146,6 +147,8 @@ def serve_docs(
 
             signal.signal(signal.SIGINT, sigint_handler)
             signal.signal(signal.SIGTERM, sigint_handler)
+            if platform.system() == "Windows":
+                signal.signal(signal.SIGBREAK, sigint_handler)  # type: ignore
 
             with socketserver.TCPServer(server_address, handler) as httpd:
                 httpd.timeout = 0.1
