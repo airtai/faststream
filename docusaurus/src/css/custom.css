@@ -65,13 +65,17 @@
 }
 
 /* default settings for both tablet and desktop */
-.navbar.navbar--fixed-top .navbar__items > a.header-discord-link + div > button,
+.navbar.navbar--fixed-top
+  .navbar__items
+  > a.fastkafka-home-mobile
+  + div
+  > button,
 .navbar-sidebar .navbar-sidebar__brand div > button {
   color: #fff;
 }
 .navbar.navbar--fixed-top
   .navbar__items
-  > a.header-discord-link
+  > a.fastkafka-home-mobile
   + div
   > button:hover,
 .navbar-sidebar .navbar-sidebar__brand div > button:hover {
@@ -81,7 +85,7 @@
 [data-theme="dark"]
   .navbar.navbar--fixed-top
   .navbar__items
-  > a.header-discord-link
+  > a.fastkafka-home-mobile
   + div
   > button:hover,
 .navbar-sidebar .navbar-sidebar__brand div > button:hover {
@@ -152,13 +156,13 @@ html.plugin-pages
 }
 .navbar__title {
   color: #fff;
-  font-size: 2.74rem;
-  position: absolute;
-  margin-top: 0.7rem;
-  margin-left: 2.4rem;
+  font-size: 3.5rem;
   font-family: var(--ifm-heading-font-family);
   font-weight: 100;
   line-height: var(--ifm-heading-line-height);
+  border-right: 1px solid #214c6c;
+  margin-left: -0.4rem;
+  padding: 2px 1rem 2px 0px;
 }
 
 .navbar__brand:hover {
@@ -203,6 +207,7 @@ html.plugin-pages
 
 .navbar__brand {
   margin-left: 0;
+  margin-right: 0;
 }
 
 html.docs-doc-page[data-theme="dark"] .navbar {
@@ -225,14 +230,55 @@ html.docs-doc-page main ul.table-of-contents > li > ul a > strong {
   background-color: #242526;
 } */
 
+/* nav .navbar__inner .navbar__items .fastkafka-home {
+  margin-left: 4.5rem;
+  border-left: 1px solid #214c6c;
+  padding: 23px;
+  
+} */
+nav .navbar__inner .navbar__items .fastkafka-home > div {
+  margin-top: 9px;
+  margin-left: 4px;
+}
+nav .navbar__inner .navbar__items .fastkafka-home > div > p {
+  display: inline-block;
+  margin: 0;
+  color: #fff;
+  font-size: 1.2rem;
+  font-family: var(--ifm-heading-font-family);
+  font-weight: 100;
+  line-height: var(--ifm-heading-line-height);
+}
+nav .navbar__inner .navbar__items .fastkafka-home > div > img {
+  width: 15px;
+  height: auto;
+  margin-right: 5px;
+}
+.fastkafka-home-mobile {
+  display: none;
+}
+
 .navbar.navbar--fixed-top .navbar__items--right {
   justify-content: end;
 }
 @media screen and (max-width: 996px) {
   .navbar__title {
     margin-top: 0;
+    border-right: none;
     /* margin-left: 1.8rem; */
   }
+  .navbar-sidebar .navbar-sidebar__items .menu__link.fastkafka-home {
+    display: none;
+  }
+  .navbar-sidebar
+    .navbar-sidebar__items--show-secondary
+    ul.menu__list
+    li:first-child {
+    display: none;
+  }
+  /* nav .navbar__inner .navbar__items .fastkafka-home {
+    display: block;
+  } */
 }
 
 .navbar__link {
@@ -240,6 +286,11 @@ html.docs-doc-page main ul.table-of-contents > li > ul a > strong {
 }
 .navbar__toggle {
   color: #fff;
+}
+@media screen and (max-width: 1024px) {
+  .navbar__toggle {
+    margin-top: 0.4rem;
+  }
 }
 
 .header-discord-link:before,
@@ -481,11 +532,14 @@ h3.anchor > code {
 **/
 
 .prism-code.language-py code .token.decorator {
-    color: #c5221f !important;
+  color: #c5221f !important;
 }
 
-html.docs-doc-page[data-theme="dark"] .prism-code.language-py code .token.decorator {
-    color: #fbc02d !important;
+html.docs-doc-page[data-theme="dark"]
+  .prism-code.language-py
+  code
+  .token.decorator {
+  color: #fbc02d !important;
 }
 
 /** Tablet view */
@@ -494,9 +548,29 @@ html.docs-doc-page[data-theme="dark"] .prism-code.language-py code .token.decora
   .navbar__items.navbar__items--right .navbar__item.navbar__link {
     padding: 23px 18px;
   }
+  .navbar__title {
+    font-size: 2.8rem;
+    /* margin-left: 1.8rem; */
+    margin-top: -0.3rem;
+    padding: 8px 1rem 8px 0px;
+  }
+  .navbar__logo {
+    margin-top: 0.5rem;
+    width: 1.7rem;
+  }
+  .navbar__brand {
+    margin-left: 0;
+    margin-top: 0.4rem;
+  }
+  nav .navbar__inner .navbar__items .fastkafka-home > div > p {
+    font-size: 1rem;
+  }
+  nav .navbar__inner .navbar__items .fastkafka-home > div > img {
+    font-size: 14px;
+  }
 }
 
-/** Mobile view */
+/** Tablet view */
 @media screen and (max-width: 996px) {
   .navbar__item.github-stars {
     display: none;
@@ -504,16 +578,26 @@ html.docs-doc-page[data-theme="dark"] .prism-code.language-py code .token.decora
   ul.menu__list li {
     margin-bottom: 10px;
   }
-  .navbar__logo {
-    margin-top: 0.5rem;
-    width: 1.6rem;
+  .navbar__items.navbar__items--right
+    .navbar__item.navbar__link.fastkafka-home-mobile {
+    display: block;
+    padding: 0px;
+    margin-right: 11rem;
+    border-right: none;
+    margin-top: 7px;
   }
-  .navbar__title {
-    margin-top: 0.1rem;
-    margin-left: 2.2rem;
-    font-size: 1.95rem;
+  .navbar__items.navbar__items--right
+    .navbar__item.navbar__link.fastkafka-home-mobile
+    img {
+    width: 30px;
+    height: auto;
   }
-  .navbar__brand {
-    margin-left: 0rem;
+}
+
+/** Mobile view */
+@media screen and (max-width: 768px) {
+  .navbar__items.navbar__items--right
+    .navbar__item.navbar__link.fastkafka-home-mobile {
+    margin-right: 3.5rem;
   }
 }
