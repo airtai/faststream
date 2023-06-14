@@ -160,9 +160,7 @@ html.plugin-pages
   font-family: var(--ifm-heading-font-family);
   font-weight: 100;
   line-height: var(--ifm-heading-line-height);
-  border-right: 1px solid #214c6c;
   margin-left: -0.4rem;
-  padding: 2px 1rem 2px 0px;
 }
 
 .navbar__brand:hover {
@@ -188,9 +186,6 @@ html.plugin-pages
 .navbar__items.navbar__items--right
   .navbar__item.navbar__link.header-discord-link {
   border-right: none;
-}
-.navbar__items.navbar__items--right .navbar__item.dropdown {
-  border-left: 1px solid #214c6c;
 }
 
 .dropdown > .navbar__link:after {
@@ -226,19 +221,8 @@ html.docs-doc-page main ul.table-of-contents > li > ul a > strong {
   font-weight: 500;
 }
 
-/* [data-theme="dark"] .navbar {
-  background-color: #242526;
-} */
-
-/* nav .navbar__inner .navbar__items .fastkafka-home {
-  margin-left: 4.5rem;
-  border-left: 1px solid #214c6c;
-  padding: 23px;
-  
-} */
 nav .navbar__inner .navbar__items .fastkafka-home > div {
-  margin-top: 9px;
-  margin-left: 4px;
+  margin-top: 1px;
 }
 nav .navbar__inner .navbar__items .fastkafka-home > div > p {
   display: inline-block;
@@ -262,23 +246,9 @@ nav .navbar__inner .navbar__items .fastkafka-home > div > img {
   justify-content: end;
 }
 @media screen and (max-width: 996px) {
-  .navbar__title {
-    margin-top: 0;
-    border-right: none;
-    /* margin-left: 1.8rem; */
-  }
   .navbar-sidebar .navbar-sidebar__items .menu__link.fastkafka-home {
     display: none;
   }
-  .navbar-sidebar
-    .navbar-sidebar__items--show-secondary
-    ul.menu__list
-    li:first-child {
-    display: none;
-  }
-  /* nav .navbar__inner .navbar__items .fastkafka-home {
-    display: block;
-  } */
 }
 
 .navbar__link {
@@ -562,12 +532,6 @@ html.docs-doc-page[data-theme="dark"]
     margin-left: 0;
     margin-top: 0.4rem;
   }
-  nav .navbar__inner .navbar__items .fastkafka-home > div > p {
-    font-size: 1rem;
-  }
-  nav .navbar__inner .navbar__items .fastkafka-home > div > img {
-    font-size: 14px;
-  }
 }
 
 /** Tablet view */
@@ -599,5 +563,10 @@ html.docs-doc-page[data-theme="dark"]
   .navbar__items.navbar__items--right
     .navbar__item.navbar__link.fastkafka-home-mobile {
     margin-right: 3.5rem;
+  }
+  .navbar__items.navbar__items--right
+    .navbar__item.navbar__link.fastkafka-home-mobile
+    img {
+    width: 33px;
   }
 }
