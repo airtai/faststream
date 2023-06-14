@@ -101,7 +101,7 @@ module.exports = async function configCreatorAsync() {
             target: '_blank'
           },
           items: [
-            {to: '/', html: '<div><img src="/img/home-icon.svg"><p>FastFafka</p></div>', position: 'right', className: 'fastkafka-home'},
+            {to: '/', html: '<div><img src="/img/home-icon.svg"><p>FastKafka</p></div>', position: 'right', className: 'fastkafka-home'},
             {
               type: 'docsVersionDropdown',
               position: 'right',
