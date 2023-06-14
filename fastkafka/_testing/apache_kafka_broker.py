@@ -210,6 +210,15 @@ class ApacheKafkaBroker:
 
     @property
     def is_started(self) -> bool:
+        """Property indicating whether the ApacheKafkaBroker object is started.
+
+        The is_started property indicates if the ApacheKafkaBroker object is currently
+        in a started state. This implies that Zookeeper and Kafka broker processes have
+        sucesfully started and are ready for handling events.
+
+        Returns:
+            bool: True if the object is started, False otherwise.
+        """
         return self._is_started
 
     @classmethod
