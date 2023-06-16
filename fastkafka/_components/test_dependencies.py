@@ -2,18 +2,22 @@
 
 # %% auto 0
 __all__ = ['logger', 'kafka_version', 'kafka_fname', 'kafka_url', 'local_path', 'tgz_path', 'kafka_path', 'check_java',
-           'check_kafka', 'generate_app_src', 'generate_app_in_tmp']
+           'VersionParser', 'check_kafka', 'generate_app_src', 'generate_app_in_tmp']
 
 # %% ../../nbs/098_Test_Dependencies.ipynb 2
+import re
 import platform
 import shutil
 import tarfile
 from contextlib import contextmanager
+from html.parser import HTMLParser
 from os import environ, rename
 from os.path import expanduser
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import *
+
+from packaging import version
 
 from .helpers import change_dir, in_notebook
 from .logger import get_logger
@@ -80,8 +84,20 @@ def _install_java() -> None:
         logger.info("Java installed.")
 
 # %% ../../nbs/098_Test_Dependencies.ipynb 10
+class VersionParser(HTMLParser):
+    def __init__(self):
+        HTMLParser.__init__(self)
+        self.newest_version = "0.0.0"
+
+    def handle_data(self, data):
+        match = re.search("[0-9]+\.[0-9]+\.[0-9]+", data)
+        if match is not None:
+            if version.parse(self.newest_version) < version.parse(match.group(0)):
+                self.newest_version = match.group(0)
+
+# %% ../../nbs/098_Test_Dependencies.ipynb 13
 # ToDo: move it somewhere
-kafka_version = "3.3.2"
+kafka_version = resolve_kafka_version()
 kafka_fname = f"kafka_2.13-{kafka_version}"
 kafka_url = f"https://dlcdn.apache.org/kafka/{kafka_version}/{kafka_fname}.tgz"
 local_path = (
@@ -119,7 +135,7 @@ def check_kafka(kafka_path: Path = kafka_path) -> bool:
         return True
     return False
 
-# %% ../../nbs/098_Test_Dependencies.ipynb 11
+# %% ../../nbs/098_Test_Dependencies.ipynb 14
 def _install_kafka(
     *,
     kafka_url: str = kafka_url,
@@ -180,7 +196,7 @@ def _install_kafka(
         environ["PATH"] = environ["PATH"] + kafka_binary_path
         logger.info(f"Kafka installed in {kafka_path}.")
 
-# %% ../../nbs/098_Test_Dependencies.ipynb 13
+# %% ../../nbs/098_Test_Dependencies.ipynb 16
 def _install_testing_deps() -> None:
     """Installs Java and Kafka dependencies required for testing.
 
@@ -190,7 +206,7 @@ def _install_testing_deps() -> None:
     _install_java()
     _install_kafka()
 
-# %% ../../nbs/098_Test_Dependencies.ipynb 15
+# %% ../../nbs/098_Test_Dependencies.ipynb 18
 def generate_app_src(out_path: Union[Path, str]) -> None:
     """Generates the source code for the test application based on a Jupyter notebook.
 
@@ -217,7 +233,7 @@ def generate_app_src(out_path: Union[Path, str]) -> None:
     with open(out_path, "w") as f:
         f.write(source)
 
-# %% ../../nbs/098_Test_Dependencies.ipynb 17
+# %% ../../nbs/098_Test_Dependencies.ipynb 20
 @contextmanager
 def generate_app_in_tmp() -> Generator[str, None, None]:
     """Context manager that generates the test application source code in a temporary directory.
