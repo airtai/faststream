@@ -64,6 +64,28 @@
   /* --ifm-navbar-background-color: #242526; */
 }
 
+html[data-theme="dark"] .DocSearch-Button {
+  background: #ebedf0;
+  color: #969faf;
+}
+
+html[data-theme="dark"] .DocSearch-Button:hover {
+  background: #fff;
+  box-shadow: inset 0 0 0 2px var(--docsearch-primary-color);
+  color: #1c1e21;
+}
+
+html[data-theme="dark"] .DocSearch-Button .DocSearch-Search-Icon {
+  color: #1c1e21;
+}
+
+html[data-theme="dark"] .DocSearch-Button .DocSearch-Button-Key {
+  background: linear-gradient(-225deg, #d5dbe4, #f8f8f8);
+  color: #969faf;
+  box-shadow: inset 0 -2px 0 0 #cdcde6, inset 0 0 1px 1px #fff,
+    0 1px 2px 1px rgba(30, 35, 90, 0.4);
+}
+
 /* default settings for both tablet and desktop */
 .navbar.navbar--fixed-top
   .navbar__items
@@ -203,10 +225,6 @@ html.plugin-pages
 .navbar__brand {
   margin-left: 0;
   margin-right: 0;
-}
-
-html.docs-doc-page[data-theme="dark"] .navbar {
-  background-color: #242526;
 }
 
 html.docs-doc-page main article .markdown > h2.anchor {
