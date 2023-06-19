@@ -489,7 +489,7 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
             service_task = await run_and_match(
                 service_start_script,
                 str(service_config_path),
-                pattern="INFO \[KafkaServer id=0\] started"
+                pattern="Recorded new controller, from now on will use node"
                 if service == "kafka"
                 else "INFO Snapshot taken",
                 timeout=30,
