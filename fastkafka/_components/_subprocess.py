@@ -44,11 +44,14 @@ async def terminate_asyncio_process(p: asyncio.subprocess.Process) -> None:
         if platform.system() == "Windows":
             import psutil
 
-            parent = psutil.Process(p.pid)
-            children = parent.children(recursive=True)
-            for child in children:
-                child.kill()
-            p.send_signal(signal.CTRL_BREAK_EVENT)  # type: ignore
+            try:
+                parent = psutil.Process(p.pid)
+                children = parent.children(recursive=True)
+                for child in children:
+                    child.kill()
+                p.send_signal(signal.CTRL_BREAK_EVENT)  # type: ignore
+            except psutil.NoSuchProcess:
+                pass
         else:
             p.terminate()
         try:
