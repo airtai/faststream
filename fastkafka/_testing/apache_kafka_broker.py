@@ -9,6 +9,7 @@ import asyncio
 import re
 import platform
 import socket
+import subprocess
 from datetime import datetime, timedelta
 from os import environ
 from pathlib import Path
@@ -352,11 +353,20 @@ async def run_and_match(
     # Create the subprocess; redirect the standard output
     # into a pipe.
     matched = 0
-    proc = await asyncio.create_subprocess_exec(
-        *args,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-    )
+
+    if platform.system() == "Windows":
+        proc = await asyncio.create_subprocess_shell(
+            " ".join(args),
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
+        )
+    else:
+        proc = await asyncio.create_subprocess_exec(
+            *args,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
 
     # Read one line of output.
     t = datetime.now()
@@ -498,13 +508,13 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
             )
 
         try:
-            port = (
-                self.zookeeper_kwargs["zookeeper_port"]
-                if service == "zookeeper"
-                else self.kafka_kwargs["listener_port"]
-            )
-            if is_port_in_use(port):
-                raise ValueError(f"Port {port} is already in use")
+            # port = (
+            #     self.zookeeper_kwargs["zookeeper_port"]
+            #     if service == "zookeeper"
+            #     else self.kafka_kwargs["listener_port"]
+            # )
+            # if is_port_in_use(port):
+            #     raise ValueError(f"Port {port} is already in use")
 
             script_extension = "bat" if platform.system() == "Windows" else "sh"
             service_start_script = f"{service}-server-start.{script_extension}"
