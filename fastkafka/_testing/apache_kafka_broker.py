@@ -9,7 +9,7 @@ import asyncio
 import re
 import platform
 import socket
-import subprocess
+import subprocess  # nosec
 from datetime import datetime, timedelta
 from os import environ
 from pathlib import Path
@@ -359,7 +359,7 @@ async def run_and_match(
             " ".join(args),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
-            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
+            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,  # type: ignore
         )
     else:
         proc = await asyncio.create_subprocess_exec(
