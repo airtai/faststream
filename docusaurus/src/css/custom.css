@@ -383,6 +383,27 @@ h3.anchor > code {
   text-decoration: underline;
   font-size: 0.9rem;
 }
+
+a.link-to-source {
+    margin: 0 0 1rem 0;
+    display: inline-block;
+}
+
+a.link-to-source::after {
+    content: "";
+  display: flex;
+  height: 24px;
+  width: 24px;
+  background-color: var(--ifm-link-color);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' stroke-width='1.5' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21 3L15 3M21 3L12 12M21 3V9' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M21 13V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H11' stroke='currentColor' stroke-linecap='round'/%3E%3C/svg%3E%0A");
+  mask-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' stroke-width='1.5' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21 3L15 3M21 3L12 12M21 3V9' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M21 13V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H11' stroke='currentColor' stroke-linecap='round'/%3E%3C/svg%3E%0A");
+  display: inline-block;
+  position: absolute;
+    margin-left: 0rem;
+    margin-top: 0.02rem;
+    transform: scale(0.67);
+}
+
 .footer.footer--dark .footer__col .footer__link-item::after {
   content: "";
   display: flex;
