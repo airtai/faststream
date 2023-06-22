@@ -2,13 +2,14 @@
 
 # %% auto 0
 __all__ = ['logger', 'get_zookeeper_config_string', 'get_kafka_config_string', 'ApacheKafkaBroker', 'run_and_match',
-           'get_free_port', 'write_config_and_run']
+           'is_port_in_use', 'get_free_port', 'write_config_and_run']
 
 # %% ../../nbs/002_ApacheKafkaBroker.ipynb 1
 import asyncio
 import re
 import platform
 import socket
+import subprocess  # nosec
 from datetime import datetime, timedelta
 from os import environ
 from pathlib import Path
@@ -352,11 +353,20 @@ async def run_and_match(
     # Create the subprocess; redirect the standard output
     # into a pipe.
     matched = 0
-    proc = await asyncio.create_subprocess_exec(
-        *args,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-    )
+
+    if platform.system() == "Windows":
+        proc = await asyncio.create_subprocess_shell(
+            " ".join(args),
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,  # type: ignore
+        )
+    else:
+        proc = await asyncio.create_subprocess_exec(
+            *args,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
 
     # Read one line of output.
     t = datetime.now()
@@ -398,6 +408,20 @@ async def run_and_match(
     raise TimeoutError()
 
 # %% ../../nbs/002_ApacheKafkaBroker.ipynb 20
+def is_port_in_use(port: Union[int, str]) -> bool:
+    """
+    Checks if a port is already in use.
+
+    Args:
+        port (Union[int, str]): The port number to check. It can be provided as an integer or a string.
+
+    Returns:
+        bool: True if the port is in use, False otherwise.
+    """
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(("localhost", int(port))) == 0
+
+# %% ../../nbs/002_ApacheKafkaBroker.ipynb 22
 def get_free_port() -> str:
     """Gets a port number which is available and free in the system.
 
@@ -484,12 +508,20 @@ async def _start_service(self: ApacheKafkaBroker, service: str = "kafka") -> Non
             )
 
         try:
+            port = (
+                self.zookeeper_kwargs["zookeeper_port"]
+                if service == "zookeeper"
+                else self.kafka_kwargs["listener_port"]
+            )
+            if is_port_in_use(port):
+                raise ValueError(f"Port {port} is already in use")
+
             script_extension = "bat" if platform.system() == "Windows" else "sh"
             service_start_script = f"{service}-server-start.{script_extension}"
             service_task = await run_and_match(
                 service_start_script,
                 str(service_config_path),
-                pattern="INFO \[KafkaServer id=0\] started"
+                pattern="Recorded new controller, from now on will use node"
                 if service == "kafka"
                 else "INFO Snapshot taken",
                 timeout=30,
@@ -591,7 +623,7 @@ async def _stop(self: ApacheKafkaBroker) -> None:
     self.temporary_directory.__exit__(None, None, None)  # type: ignore
     self._is_started = False
 
-# %% ../../nbs/002_ApacheKafkaBroker.ipynb 23
+# %% ../../nbs/002_ApacheKafkaBroker.ipynb 25
 @patch
 def start(self: ApacheKafkaBroker) -> str:
     """Starts a local Kafka broker and ZooKeeper instance synchronously.
