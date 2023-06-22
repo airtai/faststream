@@ -93,12 +93,15 @@ module.exports = async function configCreatorAsync() {
         //   disableSwitch: true,
         // },
         navbar: {
-          title: 'FastKafka',
+          title: 'airt',
           logo: {
-            alt: 'FastKafka Logo',
+            alt: 'airt logo',
             src: 'img/AIRT_icon_blue.svg',
+            href: 'https://airt.ai',
+            target: '_blank'
           },
           items: [
+            {to: '/', html: '<div><img src="/img/home-icon.svg"><p>FastKafka</p></div>', position: 'right', className: 'fastkafka-home'},
             {
               type: 'docsVersionDropdown',
               position: 'right',
@@ -124,6 +127,7 @@ module.exports = async function configCreatorAsync() {
               className: "header-discord-link",
               "aria-label": "Discord Link",
             },
+            {to: '/', html: '<div><img src="/img/home-icon.svg"></div>', position: 'right', className: 'fastkafka-home-mobile'},
           ],
         },
         footer: {

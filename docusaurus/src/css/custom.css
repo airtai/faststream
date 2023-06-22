@@ -64,14 +64,40 @@
   /* --ifm-navbar-background-color: #242526; */
 }
 
+html[data-theme="dark"] .DocSearch-Button {
+  background: #ebedf0;
+  color: #969faf;
+}
+
+html[data-theme="dark"] .DocSearch-Button:hover {
+  background: #fff;
+  box-shadow: inset 0 0 0 2px var(--docsearch-primary-color);
+  color: #1c1e21;
+}
+
+html[data-theme="dark"] .DocSearch-Button .DocSearch-Search-Icon {
+  color: #1c1e21;
+}
+
+html[data-theme="dark"] .DocSearch-Button .DocSearch-Button-Key {
+  background: linear-gradient(-225deg, #d5dbe4, #f8f8f8);
+  color: #969faf;
+  box-shadow: inset 0 -2px 0 0 #cdcde6, inset 0 0 1px 1px #fff,
+    0 1px 2px 1px rgba(30, 35, 90, 0.4);
+}
+
 /* default settings for both tablet and desktop */
-.navbar.navbar--fixed-top .navbar__items > a.header-discord-link + div > button,
+.navbar.navbar--fixed-top
+  .navbar__items
+  > a.fastkafka-home-mobile
+  + div
+  > button,
 .navbar-sidebar .navbar-sidebar__brand div > button {
   color: #fff;
 }
 .navbar.navbar--fixed-top
   .navbar__items
-  > a.header-discord-link
+  > a.fastkafka-home-mobile
   + div
   > button:hover,
 .navbar-sidebar .navbar-sidebar__brand div > button:hover {
@@ -81,7 +107,7 @@
 [data-theme="dark"]
   .navbar.navbar--fixed-top
   .navbar__items
-  > a.header-discord-link
+  > a.fastkafka-home-mobile
   + div
   > button:hover,
 .navbar-sidebar .navbar-sidebar__brand div > button:hover {
@@ -152,13 +178,11 @@ html.plugin-pages
 }
 .navbar__title {
   color: #fff;
-  font-size: 2.74rem;
-  position: absolute;
-  margin-top: 0.7rem;
-  margin-left: 2.4rem;
+  font-size: 3.5rem;
   font-family: var(--ifm-heading-font-family);
   font-weight: 100;
   line-height: var(--ifm-heading-line-height);
+  margin-left: -0.4rem;
 }
 
 .navbar__brand:hover {
@@ -185,9 +209,6 @@ html.plugin-pages
   .navbar__item.navbar__link.header-discord-link {
   border-right: none;
 }
-.navbar__items.navbar__items--right .navbar__item.dropdown {
-  border-left: 1px solid #214c6c;
-}
 
 .dropdown > .navbar__link:after {
   margin-left: 0.5em;
@@ -203,10 +224,7 @@ html.plugin-pages
 
 .navbar__brand {
   margin-left: 0;
-}
-
-html.docs-doc-page[data-theme="dark"] .navbar {
-  background-color: #242526;
+  margin-right: 0;
 }
 
 html.docs-doc-page main article .markdown > h2.anchor {
@@ -221,17 +239,33 @@ html.docs-doc-page main ul.table-of-contents > li > ul a > strong {
   font-weight: 500;
 }
 
-/* [data-theme="dark"] .navbar {
-  background-color: #242526;
-} */
+nav .navbar__inner .navbar__items .fastkafka-home > div {
+  margin-top: 1px;
+}
+nav .navbar__inner .navbar__items .fastkafka-home > div > p {
+  display: inline-block;
+  margin: 0;
+  color: #fff;
+  font-size: 1.2rem;
+  font-family: var(--ifm-heading-font-family);
+  font-weight: 100;
+  line-height: var(--ifm-heading-line-height);
+}
+nav .navbar__inner .navbar__items .fastkafka-home > div > img {
+  width: 15px;
+  height: auto;
+  margin-right: 5px;
+}
+.fastkafka-home-mobile {
+  display: none;
+}
 
 .navbar.navbar--fixed-top .navbar__items--right {
   justify-content: end;
 }
 @media screen and (max-width: 996px) {
-  .navbar__title {
-    margin-top: 0;
-    /* margin-left: 1.8rem; */
+  .navbar-sidebar .navbar-sidebar__items .menu__link.fastkafka-home {
+    display: none;
   }
 }
 
@@ -240,6 +274,11 @@ html.docs-doc-page main ul.table-of-contents > li > ul a > strong {
 }
 .navbar__toggle {
   color: #fff;
+}
+@media screen and (max-width: 1024px) {
+  .navbar__toggle {
+    margin-top: 0.4rem;
+  }
 }
 
 .header-discord-link:before,
@@ -480,15 +519,40 @@ h3.anchor > code {
 * ----------------------------------------------
 **/
 
+.prism-code.language-py code .token.decorator {
+  color: #c5221f !important;
+}
+
+html.docs-doc-page[data-theme="dark"]
+  .prism-code.language-py
+  code
+  .token.decorator {
+  color: #fbc02d !important;
+}
+
 /** Tablet view */
 @media screen and (max-width: 1290px) {
   .navbar__items.navbar__items--right .navbar__item.dropdown,
   .navbar__items.navbar__items--right .navbar__item.navbar__link {
     padding: 23px 18px;
   }
+  .navbar__title {
+    font-size: 2.8rem;
+    /* margin-left: 1.8rem; */
+    margin-top: -0.3rem;
+    padding: 8px 1rem 8px 0px;
+  }
+  .navbar__logo {
+    margin-top: 0.5rem;
+    width: 1.7rem;
+  }
+  .navbar__brand {
+    margin-left: 0;
+    margin-top: 0.4rem;
+  }
 }
 
-/** Mobile view */
+/** Tablet view */
 @media screen and (max-width: 996px) {
   .navbar__item.github-stars {
     display: none;
@@ -496,16 +560,31 @@ h3.anchor > code {
   ul.menu__list li {
     margin-bottom: 10px;
   }
-  .navbar__logo {
-    margin-top: 0.5rem;
-    width: 1.6rem;
+  .navbar__items.navbar__items--right
+    .navbar__item.navbar__link.fastkafka-home-mobile {
+    display: block;
+    padding: 0px;
+    margin-right: 11rem;
+    border-right: none;
+    margin-top: 7px;
   }
-  .navbar__title {
-    margin-top: 0.1rem;
-    margin-left: 2.2rem;
-    font-size: 1.95rem;
+  .navbar__items.navbar__items--right
+    .navbar__item.navbar__link.fastkafka-home-mobile
+    img {
+    width: 30px;
+    height: auto;
   }
-  .navbar__brand {
-    margin-left: 0rem;
+}
+
+/** Mobile view */
+@media screen and (max-width: 768px) {
+  .navbar__items.navbar__items--right
+    .navbar__item.navbar__link.fastkafka-home-mobile {
+    margin-right: 3.5rem;
+  }
+  .navbar__items.navbar__items--right
+    .navbar__item.navbar__link.fastkafka-home-mobile
+    img {
+    width: 33px;
   }
 }

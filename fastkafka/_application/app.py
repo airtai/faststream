@@ -300,6 +300,16 @@ class FastKafka:
 
     @property
     def is_started(self) -> bool:
+        """Property indicating whether the FastKafka object is started.
+
+        The is_started property indicates if the FastKafka object is currently
+        in a started state. This implies that all background tasks, producers,
+        and consumers have been initiated, and the object is successfully connected
+        to the Kafka broker.
+
+        Returns:
+            bool: True if the object is started, False otherwise.
+        """
         return self._is_started
 
     def set_kafka_broker(self, kafka_broker_name: str) -> None:
