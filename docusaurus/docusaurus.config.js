@@ -25,7 +25,7 @@ module.exports = async function configCreatorAsync() {
     // If you aren't using GitHub pages, you don't need these.
     organizationName: 'airt', // Usually your GitHub org/user name.
     projectName: 'fastkafka', // Usually your repo name.
-    trailingSlash: false,
+    trailingSlash: true,
     onBrokenLinks: 'warn',
     onBrokenMarkdownLinks: 'warn',
 
