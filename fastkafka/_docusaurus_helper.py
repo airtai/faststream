@@ -420,7 +420,7 @@ def _add_file_extension_to_link(url: str) -> str:
         A string of the updated URL with a file extension added to the last segment of the URL.
     """
     segments = url.split("/#")[0].split("/")[-2:]
-    return url.replace(f"/{segments[1]}", f"/{segments[1]}.md")
+    return url.replace(f"/{segments[1]}", f"/{segments[1]}.md").replace(".md/#", ".md#")
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 58
 def _fix_symbol_links(
