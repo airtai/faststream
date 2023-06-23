@@ -12,6 +12,7 @@ import json
 from contextlib import asynccontextmanager
 from itertools import groupby
 from typing import *
+from types import ModuleType
 
 from pydantic import BaseModel
 
@@ -51,9 +52,8 @@ class Tester(FastKafka):
         self,
         app: Union[FastKafka, List[FastKafka]],
         *,
-        broker: Optional[
-            Union[ApacheKafkaBroker, LocalRedpandaBroker, InMemoryBroker]
-        ] = None,
+        use_in_memory_broker: bool = True,
+        patch_module: Optional[ModuleType] = None,
     ):
         """Mirror-like object for testing a FastKafka application
 
@@ -71,72 +71,12 @@ class Tester(FastKafka):
         super().__init__()
         self.mirrors: Dict[Any, Any] = {}
         self._kafka_brokers = self.apps[0]._kafka_brokers
+        self._kafka_config["bootstrap_servers_id"] = self.apps[0]._kafka_config[
+            "bootstrap_servers_id"
+        ]
         self._create_mirrors()
-        self.broker = broker
-        unique_broker_configs = []
-        for app in self.apps:
-            for broker_config in app._override_brokers:
-                if broker_config not in unique_broker_configs:
-                    unique_broker_configs.append(broker_config)
-        self.num_brokers = len(unique_broker_configs)
-
-        self.overriden_brokers: List[Union[ApacheKafkaBroker, LocalRedpandaBroker]] = []
-
-    @delegates(LocalRedpandaBroker.__init__)
-    def using_local_redpanda(self, **kwargs: Any) -> "Tester":
-        """Starts local Redpanda broker used by the Tester instance
-
-        Args:
-            listener_port: Port on which the clients (producers and consumers) can connect
-            tag: Tag of Redpanda image to use to start container
-            seastar_core: Core(s) to use byt Seastar (the framework Redpanda uses under the hood)
-            memory: The amount of memory to make available to Redpanda
-            mode: Mode to use to load configuration properties in container
-            default_log_level: Log levels to use for Redpanda
-            topics: List of topics to create after successful redpanda broker startup
-            retries: Number of retries to create redpanda service
-            apply_nest_asyncio: set to True if running in notebook
-            port allocation if the requested port was taken
-
-        Returns:
-            An instance of tester with Redpanda as broker
-        """
-        topics = set().union(*(app.get_topics() for app in self.apps))
-        kwargs["topics"] = (
-            topics.union(kwargs["topics"]) if "topics" in kwargs else topics
-        )
-        self.broker = LocalRedpandaBroker(**kwargs)
-        self.overriden_brokers = [
-            LocalRedpandaBroker(**kwargs) for _ in range(self.num_brokers)
-        ]
-        return self
-
-    @delegates(ApacheKafkaBroker.__init__)
-    def using_local_kafka(self, **kwargs: Any) -> "Tester":
-        """Starts local Kafka broker used by the Tester instance
-
-        Args:
-            data_dir: Path to the directory where the zookeeper instance will save data
-            zookeeper_port: Port for clients (Kafka brokers) to connect
-            listener_port: Port on which the clients (producers and consumers) can connect
-            topics: List of topics to create after successful Kafka broker startup
-            retries: Number of retries to create Kafka and zookeeper services using random
-            apply_nest_asyncio: set to True if running in notebook
-            port allocation if the requested port was taken
-
-        Returns:
-            An instance of tester with Kafka as broker
-        """
-        topics = set().union(*(app.get_topics() for app in self.apps))
-        kwargs["topics"] = (
-            topics.union(kwargs["topics"]) if "topics" in kwargs else topics
-        )
-        self.broker = ApacheKafkaBroker(**kwargs)
-        self.overriden_brokers = [
-            ApacheKafkaBroker(**kwargs) for _ in range(self.num_brokers)
-        ]
-
-        return self
+        self.use_in_memory_broker = use_in_memory_broker
+        self.patch_module = patch_module
 
     async def _start_tester(self) -> None:
         """Starts the Tester"""
@@ -161,48 +101,19 @@ class Tester(FastKafka):
 
     @asynccontextmanager
     async def _create_ctx(self) -> AsyncGenerator["Tester", None]:
-        if self.broker is None:
-            topics = set().union(*(app.get_topics() for app in self.apps))
-            self.broker = InMemoryBroker()
-
-        broker_spec = _get_broker_spec(await self.broker._start())
-
-        try:
-            if isinstance(self.broker, (ApacheKafkaBroker, LocalRedpandaBroker)):
-                override_broker_configs = [
-                    list(grp)
-                    for k, grp in groupby(
-                        [
-                            broker_config
-                            for app in self.apps + [self]
-                            for broker_config in app._override_brokers
-                        ]
-                    )
-                ]
-
-                for override_brokers_config_groups, broker in zip(
-                    override_broker_configs, self.overriden_brokers
-                ):
-                    b_s = _get_broker_spec(await broker._start())
-                    for override_broker_config in override_brokers_config_groups:
-                        override_broker_config["fastkafka_tester_broker"] = b_s  # type: ignore
-
-                for app in self.apps + [self]:
-                    app._kafka_brokers.brokers["fastkafka_tester_broker"] = broker_spec
-                    app.set_kafka_broker("fastkafka_tester_broker")
-
-            else:
-                for app in self.apps + [self]:
-                    app.set_kafka_broker(list(self._kafka_brokers.brokers.keys())[0])
+        if self.use_in_memory_broker == True:
+            with InMemoryBroker(patch_module=self.patch_module):
+                await self._start_tester()
+                try:
+                    yield self
+                finally:
+                    await self._stop_tester()
+        else:
             await self._start_tester()
             try:
                 yield self
             finally:
                 await self._stop_tester()
-        finally:
-            await self.broker._stop()
-            for broker in self.overriden_brokers:
-                await broker._stop()
 
     async def __aenter__(self) -> "Tester":
         self._ctx = self._create_ctx()
@@ -211,7 +122,7 @@ class Tester(FastKafka):
     async def __aexit__(self, *args: Any) -> None:
         await self._ctx.__aexit__(*args)
 
-# %% ../../nbs/016_Tester.ipynb 19
+# %% ../../nbs/016_Tester.ipynb 16
 def mirror_producer(
     topic: str, producer_f: Callable[..., Any], brokers: str, app: FastKafka
 ) -> Callable[..., Any]:
@@ -256,7 +167,7 @@ def mirror_producer(
 
     return mirror_func
 
-# %% ../../nbs/016_Tester.ipynb 22
+# %% ../../nbs/016_Tester.ipynb 19
 def mirror_consumer(
     topic: str, consumer_f: Callable[..., Any], brokers: str, app: FastKafka
 ) -> Callable[[BaseModel], Coroutine[Any, Any, BaseModel]]:
@@ -294,7 +205,7 @@ def mirror_consumer(
     mirror_func.__signature__ = sig  # type: ignore
     return mirror_func
 
-# %% ../../nbs/016_Tester.ipynb 24
+# %% ../../nbs/016_Tester.ipynb 21
 @patch
 def _create_mirrors(self: Tester) -> None:
     """
@@ -338,7 +249,7 @@ def _create_mirrors(self: Tester) -> None:
             self.mirrors[producer_f] = mirror_f
             setattr(self, mirror_f.__name__, mirror_f)
 
-# %% ../../nbs/016_Tester.ipynb 29
+# %% ../../nbs/016_Tester.ipynb 25
 class AmbiguousWarning:
     """
     Warning class used for ambiguous topics.
@@ -362,7 +273,7 @@ class AmbiguousWarning:
             f"Ambiguous topic: {self.topic}, for functions: {self.functions}\nUse Tester.mirrors[app.function] to resolve ambiguity"
         )
 
-# %% ../../nbs/016_Tester.ipynb 31
+# %% ../../nbs/016_Tester.ipynb 27
 def set_sugar(
     *,
     tester: Tester,
@@ -400,7 +311,7 @@ def set_sugar(
             tester, f"{prefix}{topic}", AmbiguousWarning(topic, functions_for_topic)
         )
 
-# %% ../../nbs/016_Tester.ipynb 32
+# %% ../../nbs/016_Tester.ipynb 28
 @patch
 def _arrange_mirrors(self: Tester) -> None:
     """
