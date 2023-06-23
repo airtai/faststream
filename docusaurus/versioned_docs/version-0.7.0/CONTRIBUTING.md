@@ -21,7 +21,6 @@ All types of contributions are encouraged and valued. See the [Table of Contents
     - [Prepare the dev environment](#prepare-the-dev-environment)
     - [Way of working](#way-of-working)
     - [Before a PR](#before-a-pr)
-- [Join The Project Team](#join-the-project-team)
 
 
 

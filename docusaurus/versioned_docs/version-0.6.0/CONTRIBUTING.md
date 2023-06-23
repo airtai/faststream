@@ -16,12 +16,10 @@ All types of contributions are encouraged and valued. See the [Table of Contents
 - [I Want To Contribute](#i-want-to-contribute)
   - [Reporting Bugs](#reporting-bugs)
   - [Suggesting Enhancements](#suggesting-enhancements)
-  - [Your First Code Contribution](#your-first-code-contribution)
 - [Development](#development)
     - [Prepare the dev environment](#prepare-the-dev-environment)
     - [Way of working](#way-of-working)
     - [Before a PR](#before-a-pr)
-- [Join The Project Team](#join-the-project-team)
 
 
 
