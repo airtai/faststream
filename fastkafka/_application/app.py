@@ -242,10 +242,9 @@ class FastKafka:
         self._override_brokers: List[KafkaBrokers] = []
 
         self._root_path = Path(".") if root_path is None else Path(root_path)
+        self._root_path.mkdir(exist_ok=True, parents=True)
 
         self._asyncapi_path = self._root_path / "asyncapi"
-        (self._asyncapi_path / "docs").mkdir(exist_ok=True, parents=True)
-        (self._asyncapi_path / "spec").mkdir(exist_ok=True, parents=True)
 
         # this is used as default parameters for creating AIOProducer and AIOConsumer objects
         self._kafka_config = _get_kafka_config(**kwargs)
@@ -944,6 +943,8 @@ def create_docs(self: FastKafka) -> None:
     Returns:
         None
     """
+    (self._asyncapi_path / "docs").mkdir(exist_ok=True, parents=True)
+    (self._asyncapi_path / "spec").mkdir(exist_ok=True, parents=True)
     export_async_spec(
         consumers={
             remove_suffix(topic) if topic.endswith("_0") else topic: callback
