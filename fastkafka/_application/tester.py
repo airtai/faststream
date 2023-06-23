@@ -102,7 +102,7 @@ class Tester(FastKafka):
     @asynccontextmanager
     async def _create_ctx(self) -> AsyncGenerator["Tester", None]:
         if self.use_in_memory_broker == True:
-            with InMemoryBroker(patch_module=self.patch_module):
+            with InMemoryBroker(patch_module=self.patch_module):  # type: ignore
                 await self._start_tester()
                 try:
                     yield self

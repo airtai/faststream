@@ -929,8 +929,8 @@ def lifecycle(self: InMemoryBroker) -> Iterator[InMemoryBroker]:
         if self.patch_module is not None:
             old_consumer_patch_module = self.patch_module.AIOKafkaConsumer
             old_producer_patch_module = self.patch_module.AIOKafkaProducer
-            self.patch_module.AIOKafkaConsumer = InMemoryConsumer(self)
-            self.patch_module.AIOKafkaProducer = InMemoryProducer(self)
+            self.patch_module.AIOKafkaConsumer = InMemoryConsumer(self)  # type: ignore
+            self.patch_module.AIOKafkaProducer = InMemoryProducer(self)  # type: ignore
 
         old_consumer_app = fastkafka._application.app.AIOKafkaConsumer
         old_producer_app = fastkafka._application.app.AIOKafkaProducer
@@ -950,8 +950,8 @@ def lifecycle(self: InMemoryBroker) -> Iterator[InMemoryBroker]:
         logger.info("InMemoryBroker stopping")
 
         if self.patch_module is not None:
-            self.patch_module.AIOKafkaConsumer = old_consumer_patch_module
-            self.patch_module.AIOKafkaProducer = old_producer_patch_module
+            self.patch_module.AIOKafkaConsumer = old_consumer_patch_module  # type: ignore
+            self.patch_module.AIOKafkaProducer = old_producer_patch_module  # type: ignore
 
         fastkafka._application.app.AIOKafkaConsumer = old_consumer_app
         fastkafka._application.app.AIOKafkaProducer = old_producer_app
