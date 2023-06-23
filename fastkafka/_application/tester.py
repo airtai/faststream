@@ -55,7 +55,7 @@ class Tester(FastKafka):
             Union[ApacheKafkaBroker, LocalRedpandaBroker, InMemoryBroker]
         ] = None,
     ):
-        """Mirror-like object for testing a FastFafka application
+        """Mirror-like object for testing a FastKafka application
 
         Can be used as context manager
 

@@ -4,7 +4,7 @@
 
 `def __init__(self, app: Union[fastkafka.FastKafka, List[fastkafka.FastKafka]], broker: Optional[fastkafka.testing.ApacheKafkaBroker, fastkafka.testing.LocalRedpandaBroker, fastkafka._testing.in_memory_broker.InMemoryBroker] = None, topics: Iterable[str] = [], retries: int = 3, apply_nest_asyncio: bool = False, zookeeper_port: int = 2181, listener_port: int = 9092) -> None`
 
-Mirror-like object for testing a FastFafka application
+Mirror-like object for testing a FastKafka application
 
 Can be used as context manager
 

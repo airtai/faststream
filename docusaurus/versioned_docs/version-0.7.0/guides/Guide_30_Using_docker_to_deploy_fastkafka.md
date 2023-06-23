@@ -169,7 +169,7 @@ CMD ["fastkafka", "run", "--num-workers", "2", "--kafka-broker", "production", "
     `fastkafka` application location as a command argument.
 
     To learn more about `fastkafka run` command please check the [CLI
-    docs](../cli/fastkafka/#fastkafka-run).
+    docs](../../cli/fastkafka/#fastkafka-run).
 
 ### Build the Docker Image
 
