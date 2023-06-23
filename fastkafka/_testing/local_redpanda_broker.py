@@ -17,7 +17,12 @@ from .._components._subprocess import terminate_asyncio_process
 from .._components.helpers import in_notebook
 from .._components.logger import get_logger
 from .._components.meta import delegates, export, patch
-from .apache_kafka_broker import get_free_port, run_and_match
+from fastkafka._testing.apache_kafka_broker import (
+    get_free_port,
+    run_and_match,
+    _get_unique_local_brokers_to_start,
+    _start_and_stop_brokers,
+)
 
 # %% ../../nbs/003_LocalRedpandaBroker.ipynb 3
 if in_notebook():
@@ -390,70 +395,24 @@ def stop(self: LocalRedpandaBroker) -> None:
         logger.info(f"{self.__class__.__name__}.stop(): exited.")
 
 # %% ../../nbs/003_LocalRedpandaBroker.ipynb 21
-async def _start_broker(broker: LocalRedpandaBroker):
-    try:
-        await broker._start()
-        return broker
-    except Exception as e:
-        return e
-
-
-async def _stop_broker(broker: LocalRedpandaBroker):
-    try:
-        await broker._stop()
-        return broker
-    except Exception as e:
-        return e
-
-
 @asynccontextmanager
 async def start_redpanda_brokers(
     kafka_brokers_name: str,
     kafka_brokers: List[Dict[str, Dict[str, Any]]],
     duplicate_ok: bool = False,
     ignore_nonlocal_brokers: bool = False,
-):
-    brokers_to_start = [
-        x[kafka_brokers_name] for x in kafka_brokers if kafka_brokers_name in x
-    ]
-    unique_brokers_to_start = set([(x["url"], x["port"]) for x in brokers_to_start])
-
-    if len(unique_brokers_to_start) < len(brokers_to_start) and not duplicate_ok:
-        raise ValueError(
-            f"Duplicate kafka_brokers are found - {brokers_to_start}. Please change values or use 'duplicate_ok=True'"
-        )
-
-    unique_urls = set([x[0] for x in unique_brokers_to_start])
-    localhost_urls = set(["localhost", "127.0.0.1", "0.0.0.0"])
-    if not unique_urls.issubset(localhost_urls) and not ignore_nonlocal_brokers:
-        raise ValueError(
-            f"URL values other than {', '.join(sorted(localhost_urls))} are found - {unique_urls - localhost_urls}. Please change values or use 'ignore_nonlocal_brokers=True'"
-        )
-
-    unique_local_brokers_to_start = [
-        x for x in unique_brokers_to_start if x[0] in localhost_urls
-    ]
+) -> AsyncIterator[None]:
+    unique_local_brokers_to_start = await _get_unique_local_brokers_to_start(
+        kafka_brokers_name=kafka_brokers_name,
+        kafka_brokers=kafka_brokers,
+        duplicate_ok=duplicate_ok,
+        ignore_nonlocal_brokers=ignore_nonlocal_brokers,
+    )
 
     brokers = [
-        LocalRedpandaBroker(listener_port=broker[1])
+        LocalRedpandaBroker(listener_port=broker[1])  # type: ignore
         for broker in unique_local_brokers_to_start
     ]
 
-    try:
-        retvals = [await _start_broker(broker) for broker in brokers]
-        exceptions = [x for x in retvals if isinstance(x, Exception)]
-
-        if exceptions:
-            raise RuntimeError(exceptions)
-
+    async with _start_and_stop_brokers(brokers=brokers):
         yield
-    finally:
-        retvals = [
-            await _stop_broker(broker)
-            for broker in retvals
-            if not isinstance(broker, Exception)
-        ]
-        exceptions = [x for x in retvals if isinstance(x, Exception)]
-
-        if exceptions:
-            raise RuntimeError(exceptions)
