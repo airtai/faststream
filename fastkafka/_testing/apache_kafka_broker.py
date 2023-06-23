@@ -2,7 +2,7 @@
 
 # %% auto 0
 __all__ = ['logger', 'get_zookeeper_config_string', 'get_kafka_config_string', 'ApacheKafkaBroker', 'run_and_match',
-           'is_port_in_use', 'get_free_port', 'write_config_and_run']
+           'is_port_in_use', 'get_free_port', 'write_config_and_run', 'start_apache_kafka_brokers']
 
 # %% ../../nbs/002_ApacheKafkaBroker.ipynb 1
 import asyncio
@@ -10,6 +10,7 @@ import re
 import platform
 import socket
 import subprocess  # nosec
+from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 from os import environ
 from pathlib import Path
@@ -685,3 +686,80 @@ def stop(self: ApacheKafkaBroker) -> None:
         loop.run_until_complete(self._stop())
     finally:
         logger.info(f"{self.__class__.__name__}.stop(): exited.")
+
+# %% ../../nbs/002_ApacheKafkaBroker.ipynb 30
+async def _start_broker(broker: ApacheKafkaBroker):
+    try:
+        await broker._start()
+        return broker
+    except Exception as e:
+        return e
+
+
+async def _stop_broker(broker: ApacheKafkaBroker):
+    try:
+        await broker._stop()
+        return broker
+    except Exception as e:
+        return e
+
+
+@asynccontextmanager
+async def start_apache_kafka_brokers(
+    kafka_brokers_name: str,
+    kafka_brokers: List[Dict[str, Dict[str, Any]]],
+    duplicate_ok: bool = False,
+    zookeeper_ports: List[int] = [2181],
+    ignore_nonlocal_brokers: bool = False,
+):
+    brokers_to_start = [
+        x[kafka_brokers_name] for x in kafka_brokers if kafka_brokers_name in x
+    ]
+    unique_brokers_to_start = set([(x["url"], x["port"]) for x in brokers_to_start])
+
+    if len(unique_brokers_to_start) < len(brokers_to_start) and not duplicate_ok:
+        raise ValueError(
+            f"Duplicate kafka_brokers are found - {brokers_to_start}. Please change values or use 'duplicate_ok=True'"
+        )
+
+    unique_urls = set([x[0] for x in unique_brokers_to_start])
+    localhost_urls = set(["localhost", "127.0.0.1", "0.0.0.0"])
+    if not unique_urls.issubset(localhost_urls) and not ignore_nonlocal_brokers:
+        raise ValueError(
+            f"URL values other than {', '.join(sorted(localhost_urls))} are found - {unique_urls - localhost_urls}. Please change values or use 'ignore_nonlocal_brokers=True'"
+        )
+
+    unique_local_brokers_to_start = [
+        x for x in unique_brokers_to_start if x[0] in localhost_urls
+    ]
+
+    if len(zookeeper_ports) < len(unique_local_brokers_to_start):
+        raise ValueError(
+            f"Atleast {len(unique_local_brokers_to_start)} zookeeper ports are needed to start kafka. Current zookeeper_ports length is {len(zookeeper_ports)}"
+        )
+
+    brokers = [
+        ApacheKafkaBroker(listener_port=broker[1], zookeeper_port=zookeeper_port)
+        for broker, zookeeper_port in zip(
+            unique_local_brokers_to_start, zookeeper_ports
+        )
+    ]
+
+    try:
+        retvals = [await _start_broker(broker) for broker in brokers]
+        exceptions = [x for x in retvals if isinstance(x, Exception)]
+
+        if exceptions:
+            raise RuntimeError(exceptions)
+
+        yield
+    finally:
+        retvals = [
+            await _stop_broker(broker)
+            for broker in retvals
+            if not isinstance(broker, Exception)
+        ]
+        exceptions = [x for x in retvals if isinstance(x, Exception)]
+
+        if exceptions:
+            raise RuntimeError(exceptions)
