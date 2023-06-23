@@ -283,7 +283,7 @@ def _get_symbol_definition(
 
     symbol_anchor = (
         f"{'#' * header_level} {symbol.__name__}"
-        + f" {{#{symbol.__name__.strip('_')}}}\n\n"
+        + f" {{#{symbol.__module__}.{'.'.join([component.strip('_') for component in symbol.__qualname__.rsplit('.', 1)])}}}\n\n"
     )
 
     link_to_source = f"{_get_symbol_source_link(symbol, lib_version)}\n\n"
@@ -359,7 +359,7 @@ def _get_formatted_docstring_for_symbol(
         contents = traverse(symbol, contents, header_level + 1, lib_version)
     return contents
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 48
+# %% ../nbs/096_Docusaurus_Helper.ipynb 47
 def _convert_html_style_attribute_to_jsx(contents: str) -> str:
     """Converts the inline style attributes in an HTML string to JSX compatible format.
 
@@ -391,7 +391,7 @@ def _convert_html_style_attribute_to_jsx(contents: str) -> str:
 
     return contents
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 50
+# %% ../nbs/096_Docusaurus_Helper.ipynb 49
 def _get_all_markdown_files_path(docs_path: Path) -> List[Path]:
     """Get all Markdown files in a directory and its subdirectories.
 
@@ -404,12 +404,12 @@ def _get_all_markdown_files_path(docs_path: Path) -> List[Path]:
     markdown_files = [file_path for file_path in docs_path.glob("**/*.md")]
     return markdown_files
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 52
+# %% ../nbs/096_Docusaurus_Helper.ipynb 51
 def _fix_special_symbols_in_html(contents: str) -> str:
     contents = contents.replace("”", '"')
     return contents
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 54
+# %% ../nbs/096_Docusaurus_Helper.ipynb 53
 def _add_file_extension_to_link(url: str) -> str:
     """Add file extension to the last segment of a URL
 
@@ -422,7 +422,7 @@ def _add_file_extension_to_link(url: str) -> str:
     segments = url.split("/#")[0].split("/")[-2:]
     return url.replace(f"/{segments[1]}", f"/{segments[1]}.md").replace(".md/#", ".md#")
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 58
+# %% ../nbs/096_Docusaurus_Helper.ipynb 57
 def _fix_symbol_links(
     contents: str, dir_prefix: str, doc_host: str, doc_baseurl: str
 ) -> str:
@@ -448,7 +448,7 @@ def _fix_symbol_links(
         contents = contents.replace(old_url, relative_url)
     return contents
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 65
+# %% ../nbs/096_Docusaurus_Helper.ipynb 64
 def _get_relative_url_prefix(docs_path: Path, sub_path: Path) -> str:
     """Returns a relative url prefix from a sub path to a docs path.
 
@@ -471,7 +471,7 @@ def _get_relative_url_prefix(docs_path: Path, sub_path: Path) -> str:
         "../" * (len(relative_path.parts) - 1) if len(relative_path.parts) > 1 else ""
     )
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 67
+# %% ../nbs/096_Docusaurus_Helper.ipynb 66
 def fix_invalid_syntax_in_markdown(docs_path: str) -> None:
     """Fix invalid HTML syntax in markdown files and converts inline style attributes to JSX-compatible format.
 
@@ -495,7 +495,7 @@ def fix_invalid_syntax_in_markdown(docs_path: str) -> None:
 
         file.write_text(contents)
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 69
+# %% ../nbs/096_Docusaurus_Helper.ipynb 68
 def generate_markdown_docs(module_name: str, docs_path: str) -> None:
     """Generates Markdown documentation files for the symbols in the given module and save them to the given directory.
 
@@ -516,7 +516,7 @@ def generate_markdown_docs(module_name: str, docs_path: str) -> None:
         with open((Path(docs_path) / "api" / target_file_path), "w") as f:
             f.write(content)
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 72
+# %% ../nbs/096_Docusaurus_Helper.ipynb 71
 def _parse_lines(lines: List[str]) -> Tuple[List[str], int]:
     """Parse a list of lines and return a tuple containing a list of filenames and an index indicating how many lines to skip.
 
@@ -533,7 +533,7 @@ def _parse_lines(lines: List[str]) -> Tuple[List[str], int]:
     )
     return [line.split("(")[1][:-4] for line in lines[:index]], index
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 75
+# %% ../nbs/096_Docusaurus_Helper.ipynb 74
 def _parse_section(text: str, ignore_first_line: bool = False) -> List[Any]:
     """Parse the given section contents and return a list of file names in the expected format.
 
@@ -562,7 +562,7 @@ def _parse_section(text: str, ignore_first_line: bool = False) -> List[Any]:
             index += 1
     return ret_val
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 78
+# %% ../nbs/096_Docusaurus_Helper.ipynb 77
 def _get_section_from_markdown(
     markdown_text: str, section_header: str
 ) -> Optional[str]:
@@ -580,7 +580,7 @@ def _get_section_from_markdown(
     match = pattern.search(markdown_text)
     return match.group(1) if match else None
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 83
+# %% ../nbs/096_Docusaurus_Helper.ipynb 82
 def generate_sidebar(
     summary_file: str = "./docusaurus/docs/SUMMARY.md",
     summary: str = "",
@@ -636,7 +636,7 @@ tutorialSidebar: [
 };"""
         )
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 85
+# %% ../nbs/096_Docusaurus_Helper.ipynb 84
 def _get_markdown_filenames_from_sidebar(sidebar_file_path: str) -> List[str]:
     """Get a list of Markdown filenames included in the sidebar.
 
@@ -657,7 +657,7 @@ def _get_markdown_filenames_from_sidebar(sidebar_file_path: str) -> List[str]:
         ]
         return markdown_filenames
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 87
+# %% ../nbs/096_Docusaurus_Helper.ipynb 86
 def _delete_files(files: List[Path]) -> None:
     """Deletes a list of files.
 
@@ -676,7 +676,7 @@ def _delete_files(files: List[Path]) -> None:
                 f"Error deleting files from docusaurus/docs directory. Could not delete file: {file} - {e}"
             )
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 90
+# %% ../nbs/096_Docusaurus_Helper.ipynb 89
 def delete_unused_markdown_files_from_sidebar(
     docs_path: str, sidebar_file_path: str
 ) -> None:
