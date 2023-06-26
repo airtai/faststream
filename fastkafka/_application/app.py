@@ -20,7 +20,6 @@ from typing import *
 from unittest.mock import AsyncMock, MagicMock
 
 import anyio
-from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from pydantic import BaseModel
 from pydantic.main import ModelMetaclass
 
@@ -36,6 +35,8 @@ from fastkafka._components.asyncapi import (
     KafkaServiceInfo,
     export_async_spec,
 )
+
+from .._aiokafka_imports import AIOKafkaProducer, AIOKafkaConsumer
 from .._components.benchmarking import _benchmark
 from .._components.logger import get_logger
 from .._components.meta import delegates, export, filter_using_signature, patch

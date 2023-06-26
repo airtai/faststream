@@ -10,11 +10,11 @@ from typing import *
 from dataclasses import dataclass
 
 import asyncer
-from aiokafka import AIOKafkaConsumer
 from aiokafka.structs import ConsumerRecord
 from pydantic import BaseModel
 from pydantic.main import ModelMetaclass
 
+from .._aiokafka_imports import AIOKafkaConsumer
 from .logger import get_logger
 from .meta import delegates, export
 from .task_streaming import get_executor, StreamExecutor
