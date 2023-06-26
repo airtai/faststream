@@ -14,7 +14,7 @@ from typing import *
 
 import aiohttp
 import anyio
-from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
+from ._aiokafka_imports import AIOKafkaProducer, AIOKafkaConsumer
 from aiokafka.helpers import create_ssl_context
 from aiokafka.structs import RecordMetadata
 from IPython.display import Markdown

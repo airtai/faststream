@@ -15,11 +15,11 @@ from dataclasses import dataclass, field
 from typing import *
 from types import ModuleType
 
-from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from aiokafka.structs import ConsumerRecord, RecordMetadata, TopicPartition
 
-import fastkafka._application.app
 import fastkafka._components.aiokafka_consumer_loop
+import fastkafka._aiokafka_imports
+from .._aiokafka_imports import AIOKafkaConsumer, AIOKafkaProducer
 from .._components.logger import get_logger
 from fastkafka._components.meta import (
     _get_default_kwargs_from_sig,
@@ -926,37 +926,18 @@ def lifecycle(self: InMemoryBroker) -> Iterator[InMemoryBroker]:
     try:
         logger.info("InMemoryBroker starting")
 
-        if self.patch_module is not None:
-            old_consumer_patch_module = self.patch_module.AIOKafkaConsumer
-            old_producer_patch_module = self.patch_module.AIOKafkaProducer
-            self.patch_module.AIOKafkaConsumer = InMemoryConsumer(self)  # type: ignore
-            self.patch_module.AIOKafkaProducer = InMemoryProducer(self)  # type: ignore
+        old_consumer = fastkafka._aiokafka_imports.AIOKafkaConsumer
+        old_producer = fastkafka._aiokafka_imports.AIOKafkaProducer
 
-        old_consumer_app = fastkafka._application.app.AIOKafkaConsumer
-        old_producer_app = fastkafka._application.app.AIOKafkaProducer
-        old_consumer_loop = (
-            fastkafka._components.aiokafka_consumer_loop.AIOKafkaConsumer
-        )
-
-        fastkafka._application.app.AIOKafkaConsumer = InMemoryConsumer(self)
-        fastkafka._application.app.AIOKafkaProducer = InMemoryProducer(self)
-        fastkafka._components.aiokafka_consumer_loop.AIOKafkaConsumer = (
-            InMemoryConsumer(self)
-        )
+        fastkafka._aiokafka_imports.AIOKafkaConsumer = InMemoryConsumer(self)
+        fastkafka._aiokafka_imports.AIOKafkaProducer = InMemoryProducer(self)
 
         self.is_started = True
         yield self
     finally:
         logger.info("InMemoryBroker stopping")
 
-        if self.patch_module is not None:
-            self.patch_module.AIOKafkaConsumer = old_consumer_patch_module  # type: ignore
-            self.patch_module.AIOKafkaProducer = old_producer_patch_module  # type: ignore
-
-        fastkafka._application.app.AIOKafkaConsumer = old_consumer_app
-        fastkafka._application.app.AIOKafkaProducer = old_producer_app
-        fastkafka._components.aiokafka_consumer_loop.AIOKafkaConsumer = (
-            old_consumer_loop
-        )
+        fastkafka._aiokafka_imports.AIOKafkaConsumer = old_consumer
+        fastkafka._aiokafka_imports.AIOKafkaProducer = old_producer
 
         self.is_started = False

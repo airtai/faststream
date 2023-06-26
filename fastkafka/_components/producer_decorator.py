@@ -14,10 +14,10 @@ from dataclasses import dataclass
 from inspect import Parameter
 from typing import *
 
-from aiokafka import AIOKafkaProducer
 from aiokafka.producer.message_accumulator import BatchBuilder
 from pydantic import BaseModel
 
+from .._aiokafka_imports import AIOKafkaProducer
 from .meta import export
 from .helpers import remove_suffix
 
