@@ -14,7 +14,7 @@ from aiokafka.structs import ConsumerRecord
 from pydantic import BaseModel
 from pydantic.main import ModelMetaclass
 
-from .._aiokafka_imports import AIOKafkaConsumer
+import fastkafka._aiokafka_imports
 from .logger import get_logger
 from .meta import delegates, export
 from .task_streaming import get_executor, StreamExecutor
@@ -141,7 +141,7 @@ def _prepare_callback(callback: ConsumeCallable) -> AsyncConsumeMeta:
 # %% ../../nbs/011_ConsumerLoop.ipynb 24
 def _get_single_msg_handlers(  # type: ignore
     *,
-    consumer: AIOKafkaConsumer,
+    consumer: fastkafka._aiokafka_imports.AIOKafkaConsumer,
     callback: AsyncConsumeMeta,
     decoder_fn: Callable[[bytes, ModelMetaclass], Any],
     msg_type: Type[BaseModel],
@@ -156,7 +156,10 @@ def _get_single_msg_handlers(  # type: ignore
         ],
         Awaitable[None],
     ],
-    Callable[[AIOKafkaConsumer, Any], Awaitable[List[ConsumerRecord]]],
+    Callable[
+        [fastkafka._aiokafka_imports.AIOKafkaConsumer, Any],
+        Awaitable[List[ConsumerRecord]],
+    ],
 ]:
     """
     Retrieves the message handlers for consuming single messages from a Kafka topic.
@@ -184,7 +187,8 @@ def _get_single_msg_handlers(  # type: ignore
         )
 
     async def poll_consumer(  # type: ignore
-        consumer: AIOKafkaConsumer = consumer, kwargs: Any = kwargs
+        consumer: fastkafka._aiokafka_imports.AIOKafkaConsumer = consumer,
+        kwargs: Any = kwargs,
     ) -> List[ConsumerRecord]:
         msgs = await consumer.getmany(**kwargs)
         return [msg for msg_group in msgs.values() for msg in msg_group]
@@ -194,7 +198,7 @@ def _get_single_msg_handlers(  # type: ignore
 # %% ../../nbs/011_ConsumerLoop.ipynb 26
 def _get_batch_msg_handlers(  # type: ignore
     *,
-    consumer: AIOKafkaConsumer,
+    consumer: fastkafka._aiokafka_imports.AIOKafkaConsumer,
     callback: AsyncConsumeMeta,
     decoder_fn: Callable[[bytes, ModelMetaclass], Any],
     msg_type: Type[BaseModel],
@@ -209,7 +213,10 @@ def _get_batch_msg_handlers(  # type: ignore
         ],
         Awaitable[None],
     ],
-    Callable[[AIOKafkaConsumer, Any], Awaitable[List[List[ConsumerRecord]]]],
+    Callable[
+        [fastkafka._aiokafka_imports.AIOKafkaConsumer, Any],
+        Awaitable[List[List[ConsumerRecord]]],
+    ],
 ]:
     """
     Retrieves the message handlers for consuming messages in batches from a Kafka topic.
@@ -237,7 +244,8 @@ def _get_batch_msg_handlers(  # type: ignore
         )
 
     async def poll_consumer(  # type: ignore
-        consumer: AIOKafkaConsumer = consumer, kwargs: Any = kwargs
+        consumer: fastkafka._aiokafka_imports.AIOKafkaConsumer = consumer,
+        kwargs: Any = kwargs,
     ) -> List[List[ConsumerRecord]]:
         msgs = await consumer.getmany(**kwargs)
         return [value for value in msgs.values() if len(value) > 0]
@@ -245,9 +253,9 @@ def _get_batch_msg_handlers(  # type: ignore
     return handle_msg, poll_consumer
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 28
-@delegates(AIOKafkaConsumer.getmany)
+@delegates(fastkafka._aiokafka_imports.AIOKafkaConsumer.getmany)
 async def _aiokafka_consumer_loop(  # type: ignore
-    consumer: AIOKafkaConsumer,
+    consumer: fastkafka._aiokafka_imports.AIOKafkaConsumer,
     *,
     topic: str,
     decoder_fn: Callable[[bytes, ModelMetaclass], Any],
@@ -303,7 +311,7 @@ def sanitize_kafka_config(**kwargs: Any) -> Dict[str, Any]:
     return {k: "*" * len(v) if "pass" in k.lower() else v for k, v in kwargs.items()}
 
 # %% ../../nbs/011_ConsumerLoop.ipynb 37
-@delegates(AIOKafkaConsumer)
+@delegates(fastkafka._aiokafka_imports.AIOKafkaConsumer)
 @delegates(_aiokafka_consumer_loop, keep=True)
 async def aiokafka_consumer_loop(
     topic: str,
@@ -331,7 +339,7 @@ async def aiokafka_consumer_loop(
     """
     logger.info(f"aiokafka_consumer_loop() starting...")
     try:
-        consumer = AIOKafkaConsumer(
+        consumer = fastkafka._aiokafka_imports.AIOKafkaConsumer(
             **kwargs,
         )
         logger.info(

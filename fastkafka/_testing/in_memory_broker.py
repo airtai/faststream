@@ -17,7 +17,6 @@ from types import ModuleType
 
 from aiokafka.structs import ConsumerRecord, RecordMetadata, TopicPartition
 
-import fastkafka._application.app
 import fastkafka._components.aiokafka_consumer_loop
 import fastkafka._aiokafka_imports
 from .._aiokafka_imports import AIOKafkaConsumer, AIOKafkaProducer
