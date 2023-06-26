@@ -51,9 +51,10 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 # %% ../../nbs/015_FastKafka.ipynb 9
-@delegates(AIOKafkaConsumer, but=["bootstrap_servers_id"])
-@delegates(AIOKafkaProducer, but=["bootstrap_servers_id"], keep=True)
+@delegates(AIOKafkaConsumer, but=["bootstrap_servers"])
+@delegates(AIOKafkaProducer, but=["bootstrap_servers"], keep=True)
 def _get_kafka_config(
+    bootstrap_servers_id: str = "localhost",
     **kwargs: Any,
 ) -> Dict[str, Any]:
     """Get kafka config"""
@@ -67,7 +68,7 @@ def _get_kafka_config(
 
     # todo: check this values
     config_defaults = {
-        "bootstrap_servers_id": "localhost",
+        "bootstrap_servers_id": bootstrap_servers_id,
         "auto_offset_reset": "earliest",
         "max_poll_records": 100,
     }

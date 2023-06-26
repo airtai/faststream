@@ -13,6 +13,7 @@ import uuid
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import *
+from types import ModuleType
 
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from aiokafka.structs import ConsumerRecord, RecordMetadata, TopicPartition
@@ -321,11 +322,14 @@ class InMemoryBroker:
     def __init__(
         self,
         num_partitions: int = 1,
+        *,
+        patch_module: Optional[ModuleType] = None,
     ):
         self.num_partitions = num_partitions
         self.topics: Dict[Tuple[str, str], KafkaTopic] = {}
         self.topic_groups: Dict[Tuple[str, str, str], GroupMetadata] = {}
         self.is_started: bool = False
+        self.patch_module = patch_module
 
     def connect(self) -> uuid.UUID:
         return uuid.uuid4()
@@ -922,6 +926,12 @@ def lifecycle(self: InMemoryBroker) -> Iterator[InMemoryBroker]:
     try:
         logger.info("InMemoryBroker starting")
 
+        if self.patch_module is not None:
+            old_consumer_patch_module = self.patch_module.AIOKafkaConsumer
+            old_producer_patch_module = self.patch_module.AIOKafkaProducer
+            self.patch_module.AIOKafkaConsumer = InMemoryConsumer(self)  # type: ignore
+            self.patch_module.AIOKafkaProducer = InMemoryProducer(self)  # type: ignore
+
         old_consumer_app = fastkafka._application.app.AIOKafkaConsumer
         old_producer_app = fastkafka._application.app.AIOKafkaProducer
         old_consumer_loop = (
@@ -938,6 +948,10 @@ def lifecycle(self: InMemoryBroker) -> Iterator[InMemoryBroker]:
         yield self
     finally:
         logger.info("InMemoryBroker stopping")
+
+        if self.patch_module is not None:
+            self.patch_module.AIOKafkaConsumer = old_consumer_patch_module  # type: ignore
+            self.patch_module.AIOKafkaProducer = old_producer_patch_module  # type: ignore
 
         fastkafka._application.app.AIOKafkaConsumer = old_consumer_app
         fastkafka._application.app.AIOKafkaProducer = old_producer_app
