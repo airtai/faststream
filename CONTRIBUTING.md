@@ -1,4 +1,4 @@
-# Contributing to fastkafka
+# Contributing to FastKafka
 
 First off, thanks for taking the time to contribute! ❤️
 
@@ -77,7 +77,7 @@ Once it's filed:
 
 ### Suggesting Enhancements
 
-This section guides you through submitting an enhancement suggestion for fastkafka, **including completely new features and minor improvements to existing functionality**. Following these guidelines will help maintainers and the community to understand your suggestion and find related suggestions.
+This section guides you through submitting an enhancement suggestion for FastKafka, **including completely new features and minor improvements to existing functionality**. Following these guidelines will help maintainers and the community to understand your suggestion and find related suggestions.
 
 #### Before Submitting an Enhancement
 
@@ -94,7 +94,7 @@ Enhancement suggestions are tracked as [GitHub issues](https://github.com/airtai
 - Use a **clear and descriptive title** for the issue to identify the suggestion.
 - Provide a **step-by-step description of the suggested enhancement** in as many details as possible.
 - **Describe the current behavior** and **explain which behavior you expected to see instead** and why. At this point you can also tell which alternatives do not work for you.
-- **Explain why this enhancement would be useful** to most fastkafka users. You may also want to point out the other projects that solved it better and which could serve as inspiration.
+- **Explain why this enhancement would be useful** to most FastKafka users. You may also want to point out the other projects that solved it better and which could serve as inspiration.
 
 ### Your First Code Contribution
 
@@ -108,9 +108,9 @@ If you have any questions or need further assistance, feel free to reach out to 
 
 ### Prepare the dev environment
 
-To start contributing to fastkafka, you first have to prepare the development environment.
+To start contributing to FastKafka, you first have to prepare the development environment.
 
-#### Clone the fastkafka repository
+#### Clone the FastKafka repository
 
 To clone the repository, run the following command in the CLI:
 
@@ -120,7 +120,7 @@ git clone https://github.com/airtai/fastkafka.git
 
 #### Optional: create a virtual python environment
 
-To prevent library version clashes with you other projects, it is reccomended that you create a virtual python environment for your fastkafka project by running:
+To prevent library version clashes with you other projects, it is reccomended that you create a virtual python environment for your FastKafka project by running:
 
 ```shell
 python3 -m venv fastkafka-env
@@ -134,9 +134,9 @@ source fastkafka-env/bin/activate
 
 To learn more about virtual environments, please have a look at [official python documentation](https://docs.python.org/3/library/venv.html#:~:text=A%20virtual%20environment%20is%20created,the%20virtual%20environment%20are%20available.)
 
-#### Install fastkafka
+#### Install FastKafka
 
-To install fastkafka, navigate to the root directory of the cloned fastkafka project and run:
+To install FastKafka, navigate to the root directory of the cloned FastKafka project and run:
 
 ```shell
 pip install fastkafka -e [."dev"]
@@ -144,7 +144,7 @@ pip install fastkafka -e [."dev"]
 
 #### Install JRE and Kafka toolkit
 
-To be able to run tests and use all the functionalities of fastkafka, you have to have JRE and Kafka toolkit installed on your machine. To do this, you have two options:
+To be able to run tests and use all the functionalities of FastKafka, you have to have JRE and Kafka toolkit installed on your machine. To do this, you have two options:
 
 1. Use our `fastkafka testing install-deps` CLI command which will install JRE and Kafka toolkit for you in your .local folder
 OR
@@ -162,19 +162,19 @@ OR
    
 #### Install docusaurus
 
-To generate the documentation, you need docusaurus. To install it run 'docusaurus/scripts/install_docusaurus_deps.sh' in the root of fastkafka project.
+To generate the documentation, you need docusaurus. To install it run 'docusaurus/scripts/install_docusaurus_deps.sh' in the root of FastKafka project.
 
 #### Check if everything works
 
-After installing fastkafka and all the necessary dependencies, run `nbdev_test` in the root of fastkafka project. This will take a couple of minutes as it will run all the tests on fastkafka project. If everythng is setup correctly, you will get a "Success." message in your terminal, otherwise please refer to previous steps.
+After installing FastKafka and all the necessary dependencies, run `nbdev_test` in the root of FastKafka project. This will take a couple of minutes as it will run all the tests on FastKafka project. If everythng is setup correctly, you will get a "Success." message in your terminal, otherwise please refer to previous steps.
 
 ### Way of working
 
-The development of fastkafka is done in Jupyter notebooks. Inside the `nbs` directory you will find all the source code of fastkafka, this is where you will implement your changes.
+The development of FastKafka is done in Jupyter notebooks. Inside the `nbs` directory you will find all the source code of FastKafka, this is where you will implement your changes.
 
-The testing, cleanup and exporting of the code is being handled by `nbdev`, please, before starting the work on fastkafka, get familiar with it by reading [nbdev documentation](https://nbdev.fast.ai/getting_started.html).
+The testing, cleanup and exporting of the code is being handled by `nbdev`, please, before starting the work on FastKafka, get familiar with it by reading [nbdev documentation](https://nbdev.fast.ai/getting_started.html).
 
-The general philosopy you should follow when writing code for fastkafka is:
+The general philosopy you should follow when writing code for FastKafka is:
 
 - Function should be an atomic functionality, short and concise
    - Good rule of thumb: your function should be 5-10 lines long usually
@@ -188,7 +188,7 @@ The general philosopy you should follow when writing code for fastkafka is:
 
 ### Before a PR
 
-After you have implemented your changes you will want to open a pull request to merge those changes into our main branch. To make this as smooth for you and us, please do the following before opening the request (all the commands are to be run in the root of fastkafka project):
+After you have implemented your changes you will want to open a pull request to merge those changes into our main branch. To make this as smooth for you and us, please do the following before opening the request (all the commands are to be run in the root of FastKafka project):
 
 1. Format your notebooks: `nbqa black nbs`
 2. Close, shutdown, and clean the metadata from your notebooks: `nbdev_clean`

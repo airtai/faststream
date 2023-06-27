@@ -108,7 +108,7 @@
 
 ### New Features
 
-- Integrate fastkafka chat ([#208](https://github.com/airtai/fastkafka/pull/208)), thanks to [@harishmohanraj](https://github.com/harishmohanraj)
+- Integrate FastKafka chat ([#208](https://github.com/airtai/fastkafka/pull/208)), thanks to [@harishmohanraj](https://github.com/harishmohanraj)
 
 - Add benchmarking ([#206](https://github.com/airtai/fastkafka/pull/206)), thanks to [@kumaranvpl](https://github.com/kumaranvpl)
 
@@ -133,7 +133,7 @@
 
 ### New Features
 
-- Guide for fastkafka produces using partition key ([#172](https://github.com/airtai/fastkafka/pull/172)), thanks to [@Sternakt](https://github.com/Sternakt)
+- Guide for FastKafka produces using partition key ([#172](https://github.com/airtai/fastkafka/pull/172)), thanks to [@Sternakt](https://github.com/Sternakt)
   - Closes #161
 
 - Add support for Redpanda for testing and deployment ([#181](https://github.com/airtai/fastkafka/pull/181)), thanks to [@kumaranvpl](https://github.com/kumaranvpl)

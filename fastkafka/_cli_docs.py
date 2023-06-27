@@ -27,7 +27,7 @@ from ._components.logger import get_logger
 logger = get_logger(__name__)
 
 # %% ../nbs/024_CLI_Docs.ipynb 8
-_docs_app = typer.Typer(help="Commands for managing fastkafka app documentation")
+_docs_app = typer.Typer(help="Commands for managing FastKafka app documentation")
 
 # %% ../nbs/024_CLI_Docs.ipynb 9
 @_docs_app.command(
