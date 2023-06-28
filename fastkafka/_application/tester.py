@@ -61,7 +61,8 @@ class Tester(FastKafka):
 
         Args:
             app: The FastKafka application to be tested.
-            broker: An optional broker to start and to use for testing.
+            use_in_memory_broker: Whether to use an in-memory broker for testing or not.
+            patch_module: An optional module to be patched during testing.
         """
         self.apps = app if isinstance(app, list) else [app]
 
