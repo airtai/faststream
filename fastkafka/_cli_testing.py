@@ -15,7 +15,7 @@ from ._components.test_dependencies import _install_testing_deps
 logger = get_logger(__name__)
 
 # %% ../nbs/025_CLI_Testing.ipynb 8
-_testing_app = typer.Typer(help="Commands for managing fastkafka testing")
+_testing_app = typer.Typer(help="Commands for managing FastKafka testing")
 
 # %% ../nbs/025_CLI_Testing.ipynb 9
 @_testing_app.command(

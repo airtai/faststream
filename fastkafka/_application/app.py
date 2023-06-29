@@ -20,7 +20,6 @@ from typing import *
 from unittest.mock import AsyncMock, MagicMock
 
 import anyio
-from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from pydantic import BaseModel
 from pydantic.main import ModelMetaclass
 
@@ -36,6 +35,9 @@ from fastkafka._components.asyncapi import (
     KafkaServiceInfo,
     export_async_spec,
 )
+
+import fastkafka._aiokafka_imports
+from .._aiokafka_imports import AIOKafkaConsumer, AIOKafkaProducer
 from .._components.benchmarking import _benchmark
 from .._components.logger import get_logger
 from .._components.meta import delegates, export, filter_using_signature, patch
@@ -51,8 +53,10 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 # %% ../../nbs/015_FastKafka.ipynb 9
-@delegates(AIOKafkaConsumer, but=["bootstrap_servers"])
-@delegates(AIOKafkaProducer, but=["bootstrap_servers"], keep=True)
+@delegates(fastkafka._aiokafka_imports.AIOKafkaConsumer, but=["bootstrap_servers"])
+@delegates(
+    fastkafka._aiokafka_imports.AIOKafkaProducer, but=["bootstrap_servers"], keep=True
+)
 def _get_kafka_config(
     bootstrap_servers_id: str = "localhost",
     **kwargs: Any,
@@ -194,7 +198,7 @@ class FastKafka:
                 the version will be set to empty string
             contact: optional contact for the documentation. If None, the
                 contact will be set to placeholder values:
-                name='Author' url=HttpUrl(' https://www.google.com ', ) email='noreply@gmail.com'
+                name='Author' url=HttpUrl('https://www.google.com', ) email='noreply@gmail.com'
             kafka_brokers: dictionary describing kafka brokers used for setting
                 the bootstrap server when running the applicationa and for
                 generating documentation. Defaults to
@@ -266,13 +270,13 @@ class FastKafka:
             str,
             Tuple[
                 ProduceCallable,
-                AIOKafkaProducer,
+                fastkafka._aiokafka_imports.AIOKafkaProducer,
                 Optional[KafkaBrokers],
                 Dict[str, Any],
             ],
         ] = {}
 
-        self._producers_list: List[AIOKafkaProducer] = []  # type: ignore
+        self._producers_list: List[fastkafka._aiokafka_imports.AIOKafkaProducer] = []  # type: ignore
 
         self.benchmark_results: Dict[str, Dict[str, Any]] = {}
 
@@ -468,7 +472,7 @@ def _resolve_key(key: str, dictionary: Dict[str, Any]) -> str:
 
 # %% ../../nbs/015_FastKafka.ipynb 31
 @patch
-@delegates(AIOKafkaConsumer)
+@delegates(fastkafka._aiokafka_imports.AIOKafkaConsumer)
 def consumes(
     self: FastKafka,
     topic: Optional[str] = None,
@@ -576,7 +580,7 @@ def _get_encoder_fn(encoder: str) -> Callable[[BaseModel], bytes]:
 
 # %% ../../nbs/015_FastKafka.ipynb 36
 @patch
-@delegates(AIOKafkaProducer)
+@delegates(fastkafka._aiokafka_imports.AIOKafkaProducer)
 def produces(
     self: FastKafka,
     topic: Optional[str] = None,
@@ -713,7 +717,7 @@ def _populate_consumers(
     is_shutting_down_f: Callable[[], bool],
 ) -> None:
     default_config: Dict[str, Any] = filter_using_signature(
-        AIOKafkaConsumer, **self._kafka_config
+        fastkafka._aiokafka_imports.AIOKafkaConsumer, **self._kafka_config
     )
 
     bootstrap_server = self._kafka_config["bootstrap_servers_id"]
@@ -765,8 +769,8 @@ async def _create_producer(  # type: ignore
     default_config: Dict[str, Any],
     override_config: Dict[str, Any],
     bootstrap_servers: Union[str, List[str]],
-    producers_list: List[AIOKafkaProducer],
-) -> AIOKafkaProducer:
+    producers_list: List[fastkafka._aiokafka_imports.AIOKafkaProducer],
+) -> fastkafka._aiokafka_imports.AIOKafkaProducer:
     """Creates a producer
 
     Args:
@@ -782,12 +786,16 @@ async def _create_producer(  # type: ignore
     """
 
     config = {
-        **filter_using_signature(AIOKafkaProducer, **default_config),
-        **filter_using_signature(AIOKafkaProducer, **override_config),
+        **filter_using_signature(
+            fastkafka._aiokafka_imports.AIOKafkaProducer, **default_config
+        ),
+        **filter_using_signature(
+            fastkafka._aiokafka_imports.AIOKafkaProducer, **override_config
+        ),
         **{"bootstrap_servers": bootstrap_servers},
     }
 
-    producer = AIOKafkaProducer(**config)
+    producer = fastkafka._aiokafka_imports.AIOKafkaProducer(**config)
     logger.info(
         f"_create_producer() : created producer using the config: '{sanitize_kafka_config(**config)}'"
     )
