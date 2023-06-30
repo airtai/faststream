@@ -25,7 +25,12 @@ from functools import lru_cache
 
 import typer
 from docstring_parser import parse
-from docstring_parser.common import DocstringParam, DocstringRaises, DocstringReturns
+from docstring_parser.common import (
+    DocstringParam,
+    DocstringRaises,
+    DocstringReturns,
+    Docstring,
+)
 from nbdev.config import get_config
 from nbdev.doclinks import NbdevLookup, patch_name, L, _find_mod
 from nbdev_mkdocs.mkdocs import (
@@ -36,30 +41,55 @@ from nbdev_mkdocs.mkdocs import (
 )
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 4
-def _format_docstring_sections(
-    items: Union[List[DocstringParam], List[DocstringReturns], List[DocstringRaises]],
-    keyword: str,
+# todo: Construct the table here
+
+
+def _format_docstring_section_items(
+    section_items: Union[
+        List[DocstringParam], List[DocstringReturns], List[DocstringRaises]
+    ],
+    section_name: str,
 ) -> str:
-    """Format a list of docstring sections
+    if section_name == "Parameters" or section_name == "Exceptions":
+        ret_val = (
+            "".join(
+                [
+                    f"- **{section.arg_name if section_name == 'Parameters' else section.type_name }**: {section.description}\n"  # type: ignore
+                    for section in section_items
+                ]
+            )
+            + "\n"
+        )
+    else:
+        ret_val = "".join([f"- {item.description}\n" for item in section_items]) + "\n"
+
+    return ret_val
+
+# %% ../nbs/096_Docusaurus_Helper.ipynb 6
+def _format_docstring_sections(parsed_docstring: Docstring) -> str:
+    """Format the parsed docstring sections into HTML table
 
     Args:
-        items: A list of DocstringParam objects
-        keyword: The type of section to format (e.g. 'Parameters', 'Returns', 'Exceptions')
+        parsed_docstring: A Docstring object
 
     Returns:
         The formatted docstring.
     """
     formatted_docstring = ""
-    if len(items) > 0:
-        formatted_docstring += f"**{keyword}**:\n"
-        for item in items:
-            if keyword == "Parameters":
-                formatted_docstring += f"- **{item.arg_name}**: {item.description}\n"  # type: ignore
-            elif keyword == "Exceptions":
-                formatted_docstring += f"- **{item.type_name}**: {item.description}\n"
-            else:
-                formatted_docstring += f"- {item.description}\n"
-        formatted_docstring = f"{formatted_docstring}\n"
+
+    sections = [
+        ("Parameters", parsed_docstring.params),
+        ("Returns", parsed_docstring.many_returns),
+        ("Exceptions", parsed_docstring.raises),
+    ]
+
+    for section_name, section_items in sections:
+        if len(section_items) > 0:  # type: ignore
+            formatted_docstring += f"**{section_name}**:\n"
+            formatted_docstring += _format_docstring_section_items(
+                section_items, section_name  # type: ignore
+            )
+
     return formatted_docstring
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 8
@@ -95,16 +125,7 @@ def _docstring_to_markdown(docstring: str) -> str:
         if parsed_docstring.long_description
         else ""
     )
-    formatted_docstring += _format_docstring_sections(
-        parsed_docstring.params, "Parameters"
-    )
-    formatted_docstring += _format_docstring_sections(
-        parsed_docstring.many_returns, "Returns"
-    )
-    formatted_docstring += _format_docstring_sections(
-        parsed_docstring.raises, "Exceptions"
-    )
-
+    formatted_docstring += _format_docstring_sections(parsed_docstring)
     ret_val = _format_free_links(formatted_docstring)
 
     return ret_val
