@@ -53,7 +53,6 @@ class Tester(FastKafka):
         app: Union[FastKafka, List[FastKafka]],
         *,
         use_in_memory_broker: bool = True,
-        patch_module: Optional[ModuleType] = None,
     ):
         """Mirror-like object for testing a FastKafka application
 
@@ -62,7 +61,6 @@ class Tester(FastKafka):
         Args:
             app: The FastKafka application to be tested.
             use_in_memory_broker: Whether to use an in-memory broker for testing or not.
-            patch_module: An optional module to be patched during testing.
         """
         self.apps = app if isinstance(app, list) else [app]
 
@@ -77,7 +75,6 @@ class Tester(FastKafka):
         ]
         self._create_mirrors()
         self.use_in_memory_broker = use_in_memory_broker
-        self.patch_module = patch_module
 
     async def _start_tester(self) -> None:
         """Starts the Tester"""
@@ -103,7 +100,7 @@ class Tester(FastKafka):
     @asynccontextmanager
     async def _create_ctx(self) -> AsyncGenerator["Tester", None]:
         if self.use_in_memory_broker == True:
-            with InMemoryBroker(patch_module=self.patch_module):  # type: ignore
+            with InMemoryBroker():  # type: ignore
                 await self._start_tester()
                 try:
                     yield self
