@@ -191,7 +191,7 @@ application:
 
 - The `IrisInputData` class is used to represent input data for a
   predictive model. It has four fields of type
-  [`NonNegativeFloat`](https://docs.pydantic.dev/usage/types/#constrained-types),
+  [`NonNegativeFloat`](https://docs.pydantic.dev/latest/api/types/#pydantic.types.NonNegativeFloat),
   which is a subclass of float that only allows non-negative floating
   point values.
 
