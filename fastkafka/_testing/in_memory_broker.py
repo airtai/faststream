@@ -322,14 +322,11 @@ class InMemoryBroker:
     def __init__(
         self,
         num_partitions: int = 1,
-        *,
-        patch_module: Optional[ModuleType] = None,
     ):
         self.num_partitions = num_partitions
         self.topics: Dict[Tuple[str, str], KafkaTopic] = {}
         self.topic_groups: Dict[Tuple[str, str, str], GroupMetadata] = {}
         self.is_started: bool = False
-        self.patch_module = patch_module
 
     def connect(self) -> uuid.UUID:
         return uuid.uuid4()

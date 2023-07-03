@@ -198,7 +198,7 @@ class FastKafka:
                 the version will be set to empty string
             contact: optional contact for the documentation. If None, the
                 contact will be set to placeholder values:
-                name='Author' url=HttpUrl(' https://www.google.com ', ) email='noreply@gmail.com'
+                name='Author' url=HttpUrl('https://www.google.com', ) email='noreply@gmail.com'
             kafka_brokers: dictionary describing kafka brokers used for setting
                 the bootstrap server when running the applicationa and for
                 generating documentation. Defaults to
