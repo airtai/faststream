@@ -197,8 +197,9 @@ def _get_annotation(symbol: Type) -> Dict[str, Union[Dict[str, Dict[str, str]], 
         The annotations dict along with its default value
     """
     symbol = symbol.fget if isinstance(symbol, property) else symbol
-    params_dict = _get_params_annotation(signature(symbol))
-    return_annotation = _get_return_annotation(signature(symbol))
+    symbol_signature = signature(symbol)
+    params_dict = _get_params_annotation(symbol_signature)
+    return_annotation = _get_return_annotation(symbol_signature)
     return {"parameters": params_dict, "return": return_annotation}
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 36
