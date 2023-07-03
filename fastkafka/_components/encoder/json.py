@@ -8,7 +8,6 @@ import json
 from typing import *
 
 from pydantic import BaseModel
-from pydantic.main import ModelMetaclass
 
 from ..logger import get_logger
 from ..meta import export
@@ -40,7 +39,7 @@ def json_encoder(msg: BaseModel) -> bytes:
 
 # %% ../../../nbs/019_Json_Encode_Decoder.ipynb 11
 @export("fastkafka.encoder")
-def json_decoder(raw_msg: bytes, cls: ModelMetaclass) -> Any:
+def json_decoder(raw_msg: bytes, cls: Type[BaseModel]) -> Any:
     """
     Decoder to decode json string in bytes to pydantic model instance
 

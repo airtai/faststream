@@ -21,7 +21,6 @@ from unittest.mock import AsyncMock, MagicMock
 
 import anyio
 from pydantic import BaseModel
-from pydantic.main import ModelMetaclass
 
 from fastkafka._components.aiokafka_consumer_loop import (
     aiokafka_consumer_loop,
@@ -259,7 +258,7 @@ class FastKafka:
             str,
             Tuple[
                 ConsumeCallable,
-                Callable[[bytes, ModelMetaclass], Any],
+                Callable[[bytes, Type[BaseModel]], Any],
                 Union[str, StreamExecutor, None],
                 Optional[KafkaBrokers],
                 Dict[str, Any],
@@ -429,7 +428,7 @@ class FastKafka:
         raise NotImplementedError
 
 # %% ../../nbs/015_FastKafka.ipynb 27
-def _get_decoder_fn(decoder: str) -> Callable[[bytes, ModelMetaclass], Any]:
+def _get_decoder_fn(decoder: str) -> Callable[[bytes, Type[BaseModel]], Any]:
     """
     Imports and returns decoder function based on input
     """
@@ -476,7 +475,7 @@ def _resolve_key(key: str, dictionary: Dict[str, Any]) -> str:
 def consumes(
     self: FastKafka,
     topic: Optional[str] = None,
-    decoder: Union[str, Callable[[bytes, ModelMetaclass], Any]] = "json",
+    decoder: Union[str, Callable[[bytes, Type[BaseModel]], Any]] = "json",
     *,
     executor: Union[str, StreamExecutor, None] = None,
     brokers: Optional[Union[Dict[str, Any], KafkaBrokers]] = None,
@@ -525,7 +524,7 @@ def consumes(
     def _decorator(
         on_topic: ConsumeCallable,
         topic: Optional[str] = topic,
-        decoder: Union[str, Callable[[bytes, ModelMetaclass], Any]] = decoder,
+        decoder: Union[str, Callable[[bytes, Type[BaseModel]], Any]] = decoder,
         executor: Union[str, StreamExecutor, None] = executor,
         brokers: Optional[Union[Dict[str, Any], KafkaBrokers]] = brokers,
         description: Optional[str] = description,
