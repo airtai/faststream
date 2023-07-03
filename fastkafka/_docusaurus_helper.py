@@ -43,11 +43,19 @@ from nbdev_mkdocs.mkdocs import (
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 4
 def _get_return_annotation(s: Signature) -> str:
+    """Get the return annotation from the function signature.
+
+    Args:
+        s: The signature of the function from which the annotations must be extracted.
+
+    Returns:
+        The return annotation, or an empty string if not available.
+
+    """
     if s.return_annotation == None or "inspect._empty" in str(s.return_annotation):
         return ""
     if isinstance(s.return_annotation, str):
         return s.return_annotation
-
     ret_val: str = (
         str(s.return_annotation).replace("typing.", "").replace("NoneType", "None")
         if "typing." in str(s.return_annotation)
@@ -57,6 +65,15 @@ def _get_return_annotation(s: Signature) -> str:
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 19
 def _get_param_annotation(param: Parameter) -> str:
+    """Get the annotation of a function parameter.
+
+    Args:
+        param: The function parameter object.
+
+    Returns:
+        The parameter annotation, or an empty string if not available.
+
+    """
     if "typing." in str(param.annotation):
         return f'`{str(param.annotation).replace("typing.", "")}`'
     else:
@@ -68,6 +85,14 @@ def _get_param_annotation(param: Parameter) -> str:
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 21
 def _get_params_annotation(s: Signature) -> Dict[str, Dict[str, str]]:
+    """Get the annotations along with its default values for the parameters of the symbol.
+
+    Args:
+        s: The signature of the function from which the annotations must be extracted.
+
+    Returns:
+        The parameter annotations along with its default value.
+    """
     return {
         f"{param.name}": {
             "type": _get_param_annotation(param),
@@ -84,6 +109,16 @@ def _generate_parameters_table(
     section_items: Union[List[DocstringParam]],
     section_name: str,
 ) -> str:
+    """Generate parameter table in markdown format
+
+    Args:
+        symbol_annotations: Symbol annotations along with its default value
+        section_items: The parameter section of a parsed docstring
+        section_name: The name of the section
+
+    Returns:
+        The parameters of a symbol in markdown-formatted string
+    """
     nl = "\n"
     _section_template = (
         "|  Name | Type | Description | Default |\n|---|---|---|---|\n{section_body}\n"
@@ -106,6 +141,16 @@ def _generate_return_and_raises_table(
     section_items: Union[List[DocstringReturns], List[DocstringRaises]],
     section_name: str,
 ) -> str:
+    """Generate return and raises table in markdown format
+
+    Args:
+        symbol_annotations: Symbol annotations along with its default value
+        section_items: The parameter section of a parsed docstring
+        section_name: The name of the section
+
+    Returns:
+        The return and raises section of a symbol in markdown-formatted string
+    """
     nl = "\n"
     _section_template = "|  Type | Description |\n|---|---|\n{section_body}\n"
     section_body = "".join(
@@ -126,6 +171,16 @@ def _format_docstring_section_items(
     ],
     section_name: str,
 ) -> str:
+    """Format the docstring sections in a table format
+
+    Args:
+        symbol_annotations: Symbol annotations along with its default value
+        section_items: The parameter section of a parsed docstring
+        section_name: The name of the section
+
+    Returns:
+        The docstring sections of the symbol in markdown-formatted string
+    """
     if section_name == "Parameters":
         return _generate_parameters_table(symbol_annotations, section_items, section_name)  # type: ignore
     else:
@@ -133,6 +188,14 @@ def _format_docstring_section_items(
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 33
 def _get_annotation(symbol: Type) -> Dict[str, Union[Dict[str, Dict[str, str]], str]]:
+    """Get annotations along with its default value for a symbol
+
+    Args:
+        symbol: The symbol for which the annotations needs to be extracted
+
+    Returns:
+        The annotations dict along with its default value
+    """
     symbol = symbol.fget if isinstance(symbol, property) else symbol
     params_dict = _get_params_annotation(signature(symbol))
     return_annotation = _get_return_annotation(signature(symbol))
@@ -140,14 +203,14 @@ def _get_annotation(symbol: Type) -> Dict[str, Union[Dict[str, Dict[str, str]], 
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 36
 def _format_docstring_sections(symbol: Type, parsed_docstring: Docstring) -> str:
-    """Format the parsed docstring sections into HTML table
+    """Format the parsed docstring sections into markdown-formatted table
 
     Args:
         symbol: The symbol for which to parse the docstring.
         parsed_docstring: A Docstring object
 
     Returns:
-        The formatted docstring.
+        The markdown-formatted docstring.
     """
     symbol_annotations = _get_annotation(symbol)
     formatted_docstring = ""
