@@ -326,9 +326,6 @@ class FastKafka:
 
         Raises:
             ValueError: If the provided kafka_broker_name is not found in dictionary of kafka_brokers
-
-        Returns:
-            None
         """
 
         if kafka_broker_name not in self._kafka_brokers.brokers:
@@ -948,9 +945,6 @@ def create_docs(self: FastKafka) -> None:
     Note:
         The asyncapi documentation is saved to the location specified by the `_asyncapi_path`
         attribute of the FastKafka instance.
-
-    Returns:
-        None
     """
     (self._asyncapi_path / "docs").mkdir(exist_ok=True, parents=True)
     (self._asyncapi_path / "spec").mkdir(exist_ok=True, parents=True)

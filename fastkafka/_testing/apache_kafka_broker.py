@@ -244,10 +244,7 @@ class ApacheKafkaBroker:
         raise NotImplementedError
 
     def stop(self) -> None:
-        """Stops a local kafka broker and zookeeper instance synchronously
-        Returns:
-           None
-        """
+        """Stops a local kafka broker and zookeeper instance synchronously"""
         raise NotImplementedError
 
     async def _stop(self) -> None:
@@ -669,10 +666,7 @@ def start(self: ApacheKafkaBroker) -> str:
 
 @patch
 def stop(self: ApacheKafkaBroker) -> None:
-    """Stops a local kafka broker and zookeeper instance synchronously
-    Returns:
-       None
-    """
+    """Stops a local kafka broker and zookeeper instance synchronously"""
     logger.info(f"{self.__class__.__name__}.stop(): entering...")
     try:
         if not self._is_started:

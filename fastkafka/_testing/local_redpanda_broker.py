@@ -155,10 +155,7 @@ class LocalRedpandaBroker:
         raise NotImplementedError
 
     def stop(self) -> None:
-        """Stops a local redpanda broker instance synchronously
-        Returns:
-           None
-        """
+        """Stops a local redpanda broker instance synchronously"""
         raise NotImplementedError
 
     async def _stop(self) -> None:
@@ -377,10 +374,7 @@ def start(self: LocalRedpandaBroker) -> str:
 
 @patch
 def stop(self: LocalRedpandaBroker) -> None:
-    """Stops a local redpanda broker instance synchronously
-    Returns:
-       None
-    """
+    """Stops a local redpanda broker instance synchronously"""
     logger.info(f"{self.__class__.__name__}.stop(): entering...")
     try:
         if not self._is_started:

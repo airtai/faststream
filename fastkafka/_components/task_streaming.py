@@ -176,9 +176,6 @@ class StreamExecutor(ABC):
             is_shutting_down_f: Function to check if the executor is shutting down.
             generator: Generator function for retrieving consumer records.
             processor: Processor function for processing consumer records.
-
-        Returns:
-            None
         """
         pass
 
@@ -253,9 +250,6 @@ class DynamicTaskExecutor(StreamExecutor):
             is_shutting_down_f: Function to check if the executor is shutting down.
             generator: Generator function for retrieving consumer records.
             processor: Processor function for processing consumer records.
-
-        Returns:
-            None
         """
         send_stream, receive_stream = anyio.create_memory_object_stream(
             max_buffer_size=self.max_buffer_size
@@ -345,9 +339,6 @@ class SequentialExecutor(StreamExecutor):
             is_shutting_down_f: Function to check if the executor is shutting down.
             generator: Generator function for retrieving consumer records.
             processor: Processor function for processing consumer records.
-
-        Returns:
-            None
         """
 
         send_stream, receive_stream = anyio.create_memory_object_stream(
