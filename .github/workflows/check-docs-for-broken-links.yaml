@@ -1,15 +1,10 @@
 name: Check the docs for broken links
 
-on:
-  workflow_run:
-    workflows: ["pages-build-deployment"]
-    types: [completed]
+on:  [workflow_dispatch, push]
 
 jobs:
-  on-success:
-    name: Check the docs for broken links
+  check-broken-links:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Get GH Pages URL
         id: gh_pages_url
