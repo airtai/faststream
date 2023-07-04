@@ -110,16 +110,18 @@ def _get_kafka_brokers(
             brokers={
                 k: (
                     [
-                        KafkaBroker.parse_raw(
-                            unwrapped_v.json()
-                            if hasattr(unwrapped_v, "json")
+                        KafkaBroker.model_validate_json(
+                            unwrapped_v.model_dump_json()
+                            if hasattr(unwrapped_v, "model_dump_json")
                             else json.dumps(unwrapped_v)
                         )
                         for unwrapped_v in v
                     ]
                     if isinstance(v, list)
-                    else KafkaBroker.parse_raw(
-                        v.json() if hasattr(v, "json") else json.dumps(v)
+                    else KafkaBroker.model_validate_json(
+                        v.model_dump_json()
+                        if hasattr(v, "model_dump_json")
+                        else json.dumps(v)
                     )
                 )
                 for k, v in kafka_brokers.items()

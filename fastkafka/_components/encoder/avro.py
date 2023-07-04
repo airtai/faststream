@@ -37,7 +37,7 @@ class AvroBase(BaseModel):
         :return: dict with the Avro Schema for the model
         """
 
-        schema = pydantic_model.__class__.schema(by_alias=by_alias)
+        schema = pydantic_model.__class__.model_json_schema(by_alias=by_alias)
 
         if namespace is None:
             # default namespace will be based on title
@@ -60,7 +60,7 @@ class AvroBase(BaseModel):
         :return: dict with the Avro Schema for the model
         """
 
-        schema = pydantic_model.schema(by_alias=by_alias)
+        schema = pydantic_model.model_json_schema(by_alias=by_alias)
 
         if namespace is None:
             # default namespace will be based on title
@@ -199,6 +199,10 @@ class AvroBase(BaseModel):
 
             required = s.get("required", [])
             for key, value in s.get("properties", {}).items():
+                if "type" not in value and "anyOf" in value:
+                    any_of_types = value.pop("anyOf")
+                    types = [x["type"] for x in any_of_types if x["type"] != "null"]
+                    value["type"] = types[0]
                 avro_type_dict = get_type(value)
                 avro_type_dict["name"] = key
 
@@ -233,7 +237,13 @@ def avro_encoder(msg: BaseModel) -> bytes:
     """
     schema = fastavro.schema.parse_schema(AvroBase.avro_schema_for_pydantic_object(msg))
     bytes_writer = io.BytesIO()
-    fastavro.schemaless_writer(bytes_writer, schema, msg.dict())
+
+    d = msg.model_dump()
+    for k, v in d.items():
+        if "pydantic_core" in str(type(v)):
+            d[k] = str(v)
+
+    fastavro.schemaless_writer(bytes_writer, schema, d)
     raw_bytes = bytes_writer.getvalue()
     return raw_bytes
 
@@ -376,7 +386,7 @@ def avsc_to_pydantic(schema: Dict[str, Any]) -> Type[BaseModel]:
                 current += f"    {n}: {t} = {json.dumps(default)}\n"
 
         classes[name] = current
-        pydantic_model = create_model(name, **kwargs)  # type: ignore
+        pydantic_model = create_model(name, __module__=__name__, **kwargs)  # type: ignore
         return pydantic_model  # type: ignore
 
     return record_type_to_pydantic(schema)

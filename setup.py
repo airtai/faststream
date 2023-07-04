@@ -25,7 +25,7 @@ statuses = [ '1 - Planning', '2 - Pre-Alpha', '3 - Alpha',
 py_versions = '3.6 3.7 3.8 3.9 3.10 3.11'.split()
 
 requirements = [
-    "pydantic>=1.9",
+    "pydantic>=2.0",
     "anyio>=3.0",
     "aiokafka>=0.8.0",
     "asyncer>=0.0.2",
@@ -65,10 +65,10 @@ dev_requirements = [
     "pytest==7.3.1",
     "numpy>=1.21.0",
     "pandas>=1.2.0",
-    "email-validator==1.3.1",
+    "email-validator>=2.0.0",
     "scikit-learn==1.2.1",
     "ipython<8.13",
-    "fastapi>=0.95.1",
+    "fastapi>=0.100.0b2",
     "uvicorn==0.22.0",
 ]
 
