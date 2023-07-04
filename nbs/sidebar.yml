@@ -17,7 +17,8 @@ website:
           - guides/Guide_24_Using_Multiple_Kafka_Clusters.ipynb
         - section: Testing
           contents:
-          - guides/Guide_31_Using_redpanda_to_test_fastkafka.ipynb 
+          - guides/Guide_33_Using_Tester_class_to_test_fastkafka.ipynb 
+          - guides/Guide_31_Using_redpanda_to_test_fastkafka.ipynb
         - section: Documentation generation
           contents:
           - guides/Guide_04_Github_Actions_Workflow.ipynb
