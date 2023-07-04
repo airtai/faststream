@@ -35,11 +35,12 @@ logger = get_logger(__name__)
 class KafkaMessage(BaseModel):
     # TODO[pydantic]: The following keys were removed: `json_encoders`.
     # Check https://docs.pydantic.dev/dev-v2/migration/#changes-to-config for more information.
-    model_config = ConfigDict(
-        json_encoders={
-            timedelta: timedelta_isoformat,
-        }
-    )
+    model_config = ConfigDict()
+
+
+#     model_config = ConfigDict(json_encoders={
+#         timedelta: timedelta_isoformat,
+#     })
 
 # %% ../../nbs/014_AsyncAPI.ipynb 7
 class SecurityType(str, Enum):
@@ -268,7 +269,9 @@ def _get_kafka_msg_definitions(
     producers: Dict[str, ProduceCallable],
 ) -> Dict[str, Dict[str, Any]]:
     msg_classes = _get_kafka_msg_classes(consumers, producers)
-    _, msg_definitions = TypeAdapter.json_schemas([(msg_cls, "validation", TypeAdapter(msg_cls)) for msg_cls in msg_classes])  # type: ignore
+    _, msg_definitions = TypeAdapter.json_schemas(
+        [(msg_cls, "validation", TypeAdapter(msg_cls)) for msg_cls in msg_classes]
+    )
     return msg_definitions
 
 # %% ../../nbs/014_AsyncAPI.ipynb 35
@@ -276,8 +279,8 @@ def _get_example(cls: Type[BaseModel]) -> BaseModel:
     kwargs: Dict[str, Any] = {}
     for k, v in cls.model_fields.items():
         #         try:
-        if hasattr(v, "json_schema_extra") and "example" in v.json_schema_extra:
-            example = v.json_schema_extra["example"]
+        if hasattr(v, "json_schema_extra") and "example" in v.json_schema_extra:  # type: ignore
+            example = v.json_schema_extra["example"]  # type: ignore
             kwargs[k] = example
     #         except:
     #             pass
@@ -300,8 +303,10 @@ def _get_msg_definitions_with_examples(
     producers: Dict[str, ProduceCallable],
 ) -> Dict[str, Dict[str, Any]]:
     msg_classes = _get_kafka_msg_classes(consumers, producers)
-    msg_schema: Dict[str : Dict[str, Any]]
-    _, msg_schema = TypeAdapter.json_schemas([(msg_cls, "validation", TypeAdapter(msg_cls)) for msg_cls in msg_classes])  # type: ignore
+    msg_schema: Dict[str, Dict[str, Any]]
+    _, msg_schema = TypeAdapter.json_schemas(
+        [(msg_cls, "validation", TypeAdapter(msg_cls)) for msg_cls in msg_classes]
+    )
     for msg_cls in msg_classes:
         _add_example_to_msg_definitions(msg_cls, msg_schema)
     msg_schema = (
