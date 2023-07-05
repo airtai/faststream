@@ -32,7 +32,7 @@ from fastkafka._components.producer_decorator import (
 logger = get_logger(__name__)
 
 # %% ../../nbs/014_AsyncAPI.ipynb 5
-def timedelta_to_isoformat(duration):
+def timedelta_to_isoformat(duration: timedelta) -> str:
     """
     Converts a timedelta object to ISO 8601 duration format.
 
