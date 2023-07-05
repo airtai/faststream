@@ -2,7 +2,7 @@
 
 # %% auto 0
 __all__ = ['CustomNbdevLookup', 'fix_invalid_syntax_in_markdown', 'generate_markdown_docs', 'generate_sidebar',
-           'delete_unused_markdown_files_from_sidebar']
+           'delete_unused_markdown_files_from_sidebar', 'update_readme']
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 2
 import itertools
@@ -33,12 +33,16 @@ from docstring_parser.common import (
     Docstring,
 )
 from nbdev.config import get_config
+from nbdev.quarto import nbdev_readme
 from nbdev.doclinks import NbdevLookup, patch_name, L, _find_mod
 from nbdev_mkdocs.mkdocs import (
     _add_all_submodules,
     _import_all_members,
     _import_functions_and_classes,
     _import_submodules,
+)
+from nbdev_mkdocs._helpers.doc_links_utils import (
+    fix_sym_links as update_default_symbol_links,
 )
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 4
@@ -607,8 +611,28 @@ def _add_file_extension_to_link(url: str) -> str:
     return url.replace(f"/{segments[1]}", f"/{segments[1]}.md").replace(".md/#", ".md#")
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 91
+def _generate_production_url(url: str) -> str:
+    """Generate a Docusaurus compatible production URL for the given symbol URL.
+
+    Args:
+        url: The symbol URL to be converted.
+
+    Returns:
+        The production URL of the symbol.
+    """
+    url_segment, hash_segment = url.split(".md")
+    url_split = url_segment.split("/")
+    if url_split[-1].lower() == url_split[-2].lower():
+        return "/".join(url_split[:-1]) + hash_segment
+    return url.replace(".md", "")
+
+# %% ../nbs/096_Docusaurus_Helper.ipynb 93
 def _fix_symbol_links(
-    contents: str, dir_prefix: str, doc_host: str, doc_baseurl: str
+    contents: str,
+    dir_prefix: str,
+    doc_host: str,
+    doc_baseurl: str,
+    use_relative_doc_links: bool = True,
 ) -> str:
     """Fix symbol links in Markdown content.
 
@@ -617,6 +641,8 @@ def _fix_symbol_links(
         dir_prefix: Directory prefix to append in the relative URL.
         doc_host: The host URL for the documentation site.
         doc_baseurl: The base URL for the documentation site.
+        use_relative_doc_links: If set to True, then the relative link to symbols will be added else,
+            production link will be added.
 
     Returns:
         str: The Markdown content with updated symbol links.
@@ -627,12 +653,17 @@ def _fix_symbol_links(
     for match in matches:
         old_url = match[1]
         new_url = _add_file_extension_to_link(old_url).replace("/api/", "/docs/api/")
-        dir_prefix = "./" if dir_prefix == "" else dir_prefix
-        relative_url = dir_prefix + new_url.split("/docs/")[1]
-        contents = contents.replace(old_url, relative_url)
+        if use_relative_doc_links:
+            dir_prefix = "./" if dir_prefix == "" else dir_prefix
+            updated_url = dir_prefix + new_url.split("/docs/")[1]
+        else:
+            updated_url = _generate_production_url(
+                doc_host + doc_baseurl + "/docs/" + new_url.split("/docs/")[1]
+            )
+        contents = contents.replace(old_url, updated_url)
     return contents
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 98
+# %% ../nbs/096_Docusaurus_Helper.ipynb 101
 def _get_relative_url_prefix(docs_path: Path, sub_path: Path) -> str:
     """Returns a relative url prefix from a sub path to a docs path.
 
@@ -655,7 +686,7 @@ def _get_relative_url_prefix(docs_path: Path, sub_path: Path) -> str:
         "../" * (len(relative_path.parts) - 1) if len(relative_path.parts) > 1 else ""
     )
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 100
+# %% ../nbs/096_Docusaurus_Helper.ipynb 103
 def fix_invalid_syntax_in_markdown(docs_path: str) -> None:
     """Fix invalid HTML syntax in markdown files and converts inline style attributes to JSX-compatible format.
 
@@ -678,7 +709,7 @@ def fix_invalid_syntax_in_markdown(docs_path: str) -> None:
         )
         file.write_text(contents)
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 102
+# %% ../nbs/096_Docusaurus_Helper.ipynb 105
 def generate_markdown_docs(module_name: str, docs_path: str) -> None:
     """Generates Markdown documentation files for the symbols in the given module and save them to the given directory.
 
@@ -698,7 +729,7 @@ def generate_markdown_docs(module_name: str, docs_path: str) -> None:
         with open((Path(docs_path) / "api" / target_file_path), "w") as f:
             f.write(content)
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 105
+# %% ../nbs/096_Docusaurus_Helper.ipynb 108
 def _parse_lines(lines: List[str]) -> Tuple[List[str], int]:
     """Parse a list of lines and return a tuple containing a list of filenames and an index indicating how many lines to skip.
 
@@ -715,7 +746,7 @@ def _parse_lines(lines: List[str]) -> Tuple[List[str], int]:
     )
     return [line.split("(")[1][:-4] for line in lines[:index]], index
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 108
+# %% ../nbs/096_Docusaurus_Helper.ipynb 111
 def _parse_section(text: str, ignore_first_line: bool = False) -> List[Any]:
     """Parse the given section contents and return a list of file names in the expected format.
 
@@ -744,7 +775,7 @@ def _parse_section(text: str, ignore_first_line: bool = False) -> List[Any]:
             index += 1
     return ret_val
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 111
+# %% ../nbs/096_Docusaurus_Helper.ipynb 114
 def _get_section_from_markdown(
     markdown_text: str, section_header: str
 ) -> Optional[str]:
@@ -762,7 +793,7 @@ def _get_section_from_markdown(
     match = pattern.search(markdown_text)
     return match.group(1) if match else None
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 116
+# %% ../nbs/096_Docusaurus_Helper.ipynb 119
 def generate_sidebar(
     summary_file: str = "./docusaurus/docs/SUMMARY.md",
     summary: str = "",
@@ -818,7 +849,7 @@ tutorialSidebar: [
 };"""
         )
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 118
+# %% ../nbs/096_Docusaurus_Helper.ipynb 121
 def _get_markdown_filenames_from_sidebar(sidebar_file_path: str) -> List[str]:
     """Get a list of Markdown filenames included in the sidebar.
 
@@ -839,7 +870,7 @@ def _get_markdown_filenames_from_sidebar(sidebar_file_path: str) -> List[str]:
         ]
         return markdown_filenames
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 120
+# %% ../nbs/096_Docusaurus_Helper.ipynb 123
 def _delete_files(files: List[Path]) -> None:
     """Deletes a list of files.
 
@@ -858,7 +889,7 @@ def _delete_files(files: List[Path]) -> None:
                 f"Error deleting files from docusaurus/docs directory. Could not delete file: {file} - {e}"
             )
 
-# %% ../nbs/096_Docusaurus_Helper.ipynb 123
+# %% ../nbs/096_Docusaurus_Helper.ipynb 126
 def delete_unused_markdown_files_from_sidebar(
     docs_path: str, sidebar_file_path: str
 ) -> None:
@@ -880,3 +911,25 @@ def delete_unused_markdown_files_from_sidebar(
             set(all_md_files_in_docs_dir) - set(md_files_in_sidebar)
         )
         _delete_files(md_files_to_delete)
+
+# %% ../nbs/096_Docusaurus_Helper.ipynb 128
+def update_readme(root_path: str) -> None:
+    """Update the readme file and fix the symbol links
+
+    Args:
+        root_path: The root path of the project.
+    """
+    cfg = get_config()
+    readme_path = cfg.config_path / "README.md"
+    nbdev_readme.__wrapped__()
+
+    with open(readme_path, "r", encoding="utf-8") as f:
+        contents = f.read()
+
+    contents = update_default_symbol_links(
+        contents, NbdevLookup(incl_libs=cfg.lib_path.name), "", "", False
+    )
+    contents = _fix_symbol_links(contents, "./", cfg.doc_host, cfg.doc_baseurl, False)
+
+    with open(readme_path, "w", encoding="utf-8") as f:
+        f.write(contents)
