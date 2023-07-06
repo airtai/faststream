@@ -55,26 +55,26 @@ support!
 
 ## Install
 
-FastKafka works on Windows, macOS, Linux, and most Unix-style operating systems.
-You can install base version of `fastkafka` with `pip` as usual:
+FastKafka works on Windows, macOS, Linux, and most Unix-style operating
+systems. You can install base version of FastKafka with `pip` as usual:
 
 ``` sh
 pip install fastkafka
 ```
 
-To install fastkafka with testing features please use:
+To install FastKafka with testing features please use:
 
 ``` sh
 pip install fastkafka[test]
 ```
 
-To install fastkafka with asyncapi docs please use:
+To install FastKafka with asyncapi docs please use:
 
 ``` sh
 pip install fastkafka[docs]
 ```
 
-To install fastkafka with all the features please use:
+To install FastKafka with all the features please use:
 
 ``` sh
 pip install fastkafka[test,docs]
@@ -136,7 +136,7 @@ both generating the documentation and later to run the actual server
 against one of the given kafka broker.
 
 Next, an object of the
-[`FastKafka`](https://fastkafka.airt.ai/docs/api/fastkafka#fastkafka.FastKafka)
+[`FastKafka`](https://airtai.github.io/fastkafka/docs/api/fastkafka#fastkafka.FastKafka)
 class is initialized with the minimum set of arguments:
 
 - `kafka_brokers`: a dictionary used for generation of documentation
@@ -224,7 +224,7 @@ async def to_output_data(data: float) -> Data:
 ## Testing the service
 
 The service can be tested using the
-[`Tester`](https://fastkafka.airt.ai/docs/api/fastkafka/testing/Tester)
+[`Tester`](https://airtai.github.io/fastkafka/docs/api/fastkafka/testing/Tester#fastkafka.testing.Tester)
 instances which internally starts InMemory implementation of Kafka
 broker.
 
@@ -285,7 +285,7 @@ async with Tester(kafka_app) as tester:
 
 ### Recap
 
-We have created a simple fastkafka application. The app will consume the
+We have created a simple FastKafka application. The app will consume the
 `Data` from the `input_data` topic, log it and produce the incremented
 data to `output_data` topic.
 
