@@ -78,8 +78,11 @@ def _get_param_annotation(param: Parameter) -> str:
         The parameter annotation, or an empty string if not available.
 
     """
+
     if "typing." in str(param.annotation):
         return f'`{str(param.annotation).replace("typing.", "")}`'
+    elif isinstance(param.annotation, str):
+        return param.annotation
     else:
         return (
             ""

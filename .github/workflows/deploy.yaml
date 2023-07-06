@@ -1,4 +1,4 @@
-name: Deploy nbdev-mkdocs generated documentation to GitHub Pages
+name: Deploy FastKafka documentation to the GitHub Pages
 
 on:
   push:

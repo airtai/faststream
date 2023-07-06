@@ -277,7 +277,6 @@ def _get_example(cls: Type[BaseModel]) -> BaseModel:
             kwargs[k] = example
     #         except:
     #             pass
-    print(kwargs)
     return json.loads(cls(**kwargs).model_dump_json())  # type: ignore
 
 # %% ../../nbs/014_AsyncAPI.ipynb 37
