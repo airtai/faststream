@@ -30,11 +30,15 @@ class AvroBase(BaseModel):
         namespace: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
-        Return the avro schema for the pydantic object
+        Returns the Avro schema for the given Pydantic object.
 
-        :param by_alias: generate the schemas using the aliases defined, if any
-        :param namespace: Provide an optional namespace string to use in schema generation
-        :return: dict with the Avro Schema for the model
+        Args:
+            pydantic_model (BaseModel): The Pydantic object.
+            by_alias (bool, optional): Generate schemas using aliases defined. Defaults to True.
+            namespace (Optional[str], optional): Optional namespace string for schema generation.
+
+        Returns:
+            Dict[str, Any]: The Avro schema for the model.
         """
 
         schema = pydantic_model.__class__.model_json_schema(by_alias=by_alias)
@@ -53,11 +57,15 @@ class AvroBase(BaseModel):
         namespace: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
-        Return the avro schema for the pydantic class
+        Returns the Avro schema for the given Pydantic class.
 
-        :param by_alias: generate the schemas using the aliases defined, if any
-        :param namespace: Provide an optional namespace string to use in schema generation
-        :return: dict with the Avro Schema for the model
+        Args:
+            pydantic_model (Type[BaseModel]): The Pydantic class.
+            by_alias (bool, optional): Generate schemas using aliases defined. Defaults to True.
+            namespace (Optional[str], optional): Optional namespace string for schema generation.
+
+        Returns:
+            Dict[str, Any]: The Avro schema for the model.
         """
 
         schema = pydantic_model.model_json_schema(by_alias=by_alias)
@@ -73,11 +81,14 @@ class AvroBase(BaseModel):
         cls, by_alias: bool = True, namespace: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Return the avro schema for the pydantic class
+        Returns the Avro schema for the Pydantic class.
 
-        :param by_alias: generate the schemas using the aliases defined, if any
-        :param namespace: Provide an optional namespace string to use in schema generation
-        :return: dict with the Avro Schema for the model
+        Args:
+            by_alias (bool, optional): Generate schemas using aliases defined. Defaults to True.
+            namespace (Optional[str], optional): Optional namespace string for schema generation.
+
+        Returns:
+            Dict[str, Any]: The Avro schema for the model.
         """
         schema = cls.schema(by_alias=by_alias)
 
