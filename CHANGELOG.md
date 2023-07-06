@@ -2,6 +2,16 @@
 
 <!-- do not remove -->
 
+## 0.7.1
+
+### Bugs Squashed
+ 
+ - Limit pydantic version to <2.0 ([#427](https://github.com/airtai/fastkafka/issues/427))
+
+ - Fix Kafka broker version installation issues ([#427](https://github.com/airtai/fastkafka/issues/427))
+
+ - Fix ApacheKafkaBroker startup issues ([#427](https://github.com/airtai/fastkafka/issues/427))
+
 ## 0.7.0
 
 ### New Features
