@@ -2,6 +2,23 @@
 
 <!-- do not remove -->
 
+## 0.8.0
+
+### New Features
+
+- Add support for Pydantic v2 ([#408](https://github.com/airtai/fastkafka/issues/408)), thanks to [@kumaranvpl](https://github.com/kumaranvpl)
+  - FastKafka now uses Pydantic v2 for serialization/deserialization of messages
+ 
+- Enable nbdev_test on windows and run CI tests on windows ([#356](https://github.com/airtai/fastkafka/pull/356)), thanks to [@kumaranvpl](https://github.com/kumaranvpl)
+
+### Bugs Squashed
+
+- Fix ´fastkafka testing install deps´ failing ([#385](https://github.com/airtai/fastkafka/pull/385)), thanks to [@Sternakt](https://github.com/Sternakt)
+
+- Create asyncapi docs directory only while building asyncapi docs ([#368](https://github.com/airtai/fastkafka/pull/368)), thanks to [@kumaranvpl](https://github.com/kumaranvpl)
+
+- Add retries to producer in case of raised KafkaTimeoutError exception ([#423](https://github.com/airtai/fastkafka/pull/423)), thanks to [@Sternakt](https://github.com/Sternakt)
+
 ## 0.7.1
 
 ### Bugs Squashed
