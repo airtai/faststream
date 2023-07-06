@@ -12,7 +12,6 @@ from dataclasses import dataclass
 import asyncer
 from aiokafka.structs import ConsumerRecord
 from pydantic import BaseModel
-from pydantic.main import ModelMetaclass
 
 import fastkafka._aiokafka_imports
 from .logger import get_logger
@@ -143,7 +142,7 @@ def _get_single_msg_handlers(  # type: ignore
     *,
     consumer: fastkafka._aiokafka_imports.AIOKafkaConsumer,
     callback: AsyncConsumeMeta,
-    decoder_fn: Callable[[bytes, ModelMetaclass], Any],
+    decoder_fn: Callable[[bytes, Type[BaseModel]], Any],
     msg_type: Type[BaseModel],
     **kwargs: Any,
 ) -> Tuple[
@@ -151,7 +150,7 @@ def _get_single_msg_handlers(  # type: ignore
         [
             ConsumerRecord,
             AsyncConsumeMeta,
-            Callable[[bytes, ModelMetaclass], Any],
+            Callable[[bytes, Type[BaseModel]], Any],
             Type[BaseModel],
         ],
         Awaitable[None],
@@ -178,7 +177,7 @@ def _get_single_msg_handlers(  # type: ignore
     async def handle_msg(  # type: ignore
         record: ConsumerRecord,
         callback: AsyncConsumeMeta = callback,
-        decoder_fn: Callable[[bytes, ModelMetaclass], Any] = decoder_fn,
+        decoder_fn: Callable[[bytes, Type[BaseModel]], Any] = decoder_fn,
         msg_type: Type[BaseModel] = msg_type,
     ) -> None:
         await callback(
@@ -200,7 +199,7 @@ def _get_batch_msg_handlers(  # type: ignore
     *,
     consumer: fastkafka._aiokafka_imports.AIOKafkaConsumer,
     callback: AsyncConsumeMeta,
-    decoder_fn: Callable[[bytes, ModelMetaclass], Any],
+    decoder_fn: Callable[[bytes, Type[BaseModel]], Any],
     msg_type: Type[BaseModel],
     **kwargs: Any,
 ) -> Tuple[
@@ -208,7 +207,7 @@ def _get_batch_msg_handlers(  # type: ignore
         [
             List[ConsumerRecord],
             AsyncConsumeMeta,
-            Callable[[bytes, ModelMetaclass], Any],
+            Callable[[bytes, Type[BaseModel]], Any],
             Type[BaseModel],
         ],
         Awaitable[None],
@@ -235,7 +234,7 @@ def _get_batch_msg_handlers(  # type: ignore
     async def handle_msg(  # type: ignore
         records: List[ConsumerRecord],
         callback: AsyncConsumeMeta = callback,
-        decoder_fn: Callable[[bytes, ModelMetaclass], Any] = decoder_fn,
+        decoder_fn: Callable[[bytes, Type[BaseModel]], Any] = decoder_fn,
         msg_type: Type[BaseModel] = msg_type,
     ) -> None:
         await callback(
@@ -258,7 +257,7 @@ async def _aiokafka_consumer_loop(  # type: ignore
     consumer: fastkafka._aiokafka_imports.AIOKafkaConsumer,
     *,
     topic: str,
-    decoder_fn: Callable[[bytes, ModelMetaclass], Any],
+    decoder_fn: Callable[[bytes, Type[BaseModel]], Any],
     callback: ConsumeCallable,
     max_buffer_size: int = 100_000,
     msg_type: Union[Type[List[BaseModel]], Type[BaseModel]],
@@ -315,7 +314,7 @@ def sanitize_kafka_config(**kwargs: Any) -> Dict[str, Any]:
 @delegates(_aiokafka_consumer_loop, keep=True)
 async def aiokafka_consumer_loop(
     topic: str,
-    decoder_fn: Callable[[bytes, ModelMetaclass], Any],
+    decoder_fn: Callable[[bytes, Type[BaseModel]], Any],
     *,
     timeout_ms: int = 100,
     max_buffer_size: int = 100_000,
