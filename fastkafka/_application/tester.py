@@ -222,7 +222,9 @@ def _create_mirrors(self: Tester) -> None:
             mirror_f = mirror_consumer(
                 topic,
                 consumer_f,
-                brokers.json() if brokers is not None else app._kafka_brokers.json(),
+                brokers.model_dump_json()
+                if brokers is not None
+                else app._kafka_brokers.model_dump_json(),
                 app,
             )
             mirror_f = self.produces(  # type: ignore
@@ -235,7 +237,9 @@ def _create_mirrors(self: Tester) -> None:
             mirror_f = mirror_producer(
                 topic,
                 producer_f,
-                brokers.json() if brokers is not None else app._kafka_brokers.json(),
+                brokers.model_dump_json()
+                if brokers is not None
+                else app._kafka_brokers.model_dump_json(),
                 app,
             )
             mirror_f = self.consumes(
@@ -336,9 +340,9 @@ def _arrange_mirrors(self: Tester) -> None:
                 prefix="to_",
                 topic_brokers=topic_brokers,
                 topic=remove_suffix(topic),
-                brokers=brokers.json()
+                brokers=brokers.model_dump_json()
                 if brokers is not None
-                else app._kafka_brokers.json(),
+                else app._kafka_brokers.model_dump_json(),
                 origin_function_name=consumer_f.__name__,
                 function=mirror_f,
             )
@@ -358,9 +362,9 @@ def _arrange_mirrors(self: Tester) -> None:
                 prefix="on_",
                 topic_brokers=topic_brokers,
                 topic=remove_suffix(topic),
-                brokers=brokers.json()
+                brokers=brokers.model_dump_json()
                 if brokers is not None
-                else app._kafka_brokers.json(),
+                else app._kafka_brokers.model_dump_json(),
                 origin_function_name=producer_f.__name__,
                 function=getattr(self.awaited_mocks, mirror_f.__name__),
             )

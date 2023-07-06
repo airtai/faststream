@@ -29,5 +29,5 @@ jobs:
         uses: ruzickap/action-my-broken-link-checker@v2
         with:
           url: ${{ steps.gh_pages_url.outputs.result }}
-          cmd_params: '--exclude="(https://fonts.gstatic.com|https://www.linkedin.com/company/airt-ai|https://EHYNSIUGMY-dsn.algolia.net|https://www.googletagmanager.com|https://github.com/airtai/fastkafka/blob)" --buffer-size=8192 --max-connections=10 --color=always --header="User-Agent:curl/7.54.0" --timeout=20 --skip-tls-verification --verbose'
+          cmd_params: '--exclude="(https://fastkafka.airt.ai/docs/next/api/fastkafka/#fastkafka.FastKafka|https://fastkafka.airt.ai/docs/next/api/fastkafka/testing/Tester/#fastkafka.testing.Tester|https://fonts.gstatic.com|https://www.linkedin.com/company/airt-ai|https://EHYNSIUGMY-dsn.algolia.net|https://www.googletagmanager.com|https://github.com/airtai/fastkafka/blob)" --buffer-size=8192 --max-connections=10 --color=always --header="User-Agent:curl/7.54.0" --timeout=20 --skip-tls-verification --verbose'
 

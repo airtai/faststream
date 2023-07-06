@@ -10,7 +10,6 @@ from typing import *
 
 import fastavro
 from pydantic import BaseModel, create_model
-from pydantic.main import ModelMetaclass
 
 from ..logger import get_logger
 from ..meta import export
@@ -24,28 +23,52 @@ class AvroBase(BaseModel):
     """This is base pydantic class that will add some methods"""
 
     @classmethod
-    def avro_schema_for_pydantic(
+    def avro_schema_for_pydantic_object(
         cls,
-        pydantic_model: Union[BaseModel, ModelMetaclass],
+        pydantic_model: BaseModel,
         by_alias: bool = True,
         namespace: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
-        Return the avro schema for the pydantic class
+        Returns the Avro schema for the given Pydantic object.
 
-        :param by_alias: generate the schemas using the aliases defined, if any
-        :param namespace: Provide an optional namespace string to use in schema generation
-        :return: dict with the Avro Schema for the model
+        Args:
+            pydantic_model (BaseModel): The Pydantic object.
+            by_alias (bool, optional): Generate schemas using aliases defined. Defaults to True.
+            namespace (Optional[str], optional): Optional namespace string for schema generation.
+
+        Returns:
+            Dict[str, Any]: The Avro schema for the model.
         """
 
-        if isinstance(pydantic_model, BaseModel):
-            schema = pydantic_model.__class__.schema(by_alias=by_alias)
-        elif isinstance(pydantic_model, ModelMetaclass):
-            schema = pydantic_model.schema(by_alias=by_alias)
-        else:
-            raise ValueError(
-                f"Unknown type {type(pydantic_model)} given for pydantic_model parameter"
-            )
+        schema = pydantic_model.__class__.model_json_schema(by_alias=by_alias)
+
+        if namespace is None:
+            # default namespace will be based on title
+            namespace = schema["title"]
+
+        return cls._avro_schema(schema, namespace)
+
+    @classmethod
+    def avro_schema_for_pydantic_class(
+        cls,
+        pydantic_model: Type[BaseModel],
+        by_alias: bool = True,
+        namespace: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Returns the Avro schema for the given Pydantic class.
+
+        Args:
+            pydantic_model (Type[BaseModel]): The Pydantic class.
+            by_alias (bool, optional): Generate schemas using aliases defined. Defaults to True.
+            namespace (Optional[str], optional): Optional namespace string for schema generation.
+
+        Returns:
+            Dict[str, Any]: The Avro schema for the model.
+        """
+
+        schema = pydantic_model.model_json_schema(by_alias=by_alias)
 
         if namespace is None:
             # default namespace will be based on title
@@ -58,11 +81,14 @@ class AvroBase(BaseModel):
         cls, by_alias: bool = True, namespace: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Return the avro schema for the pydantic class
+        Returns the Avro schema for the Pydantic class.
 
-        :param by_alias: generate the schemas using the aliases defined, if any
-        :param namespace: Provide an optional namespace string to use in schema generation
-        :return: dict with the Avro Schema for the model
+        Args:
+            by_alias (bool, optional): Generate schemas using aliases defined. Defaults to True.
+            namespace (Optional[str], optional): Optional namespace string for schema generation.
+
+        Returns:
+            Dict[str, Any]: The Avro schema for the model.
         """
         schema = cls.schema(by_alias=by_alias)
 
@@ -184,6 +210,10 @@ class AvroBase(BaseModel):
 
             required = s.get("required", [])
             for key, value in s.get("properties", {}).items():
+                if "type" not in value and "anyOf" in value:
+                    any_of_types = value.pop("anyOf")
+                    types = [x["type"] for x in any_of_types if x["type"] != "null"]
+                    value["type"] = types[0]
                 avro_type_dict = get_type(value)
                 avro_type_dict["name"] = key
 
@@ -216,15 +246,21 @@ def avro_encoder(msg: BaseModel) -> bytes:
     Returns:
         A bytes message which is encoded from pydantic basemodel
     """
-    schema = fastavro.schema.parse_schema(AvroBase.avro_schema_for_pydantic(msg))
+    schema = fastavro.schema.parse_schema(AvroBase.avro_schema_for_pydantic_object(msg))
     bytes_writer = io.BytesIO()
-    fastavro.schemaless_writer(bytes_writer, schema, msg.dict())
+
+    d = msg.model_dump()
+    for k, v in d.items():
+        if "pydantic_core" in str(type(v)):
+            d[k] = str(v)
+
+    fastavro.schemaless_writer(bytes_writer, schema, d)
     raw_bytes = bytes_writer.getvalue()
     return raw_bytes
 
 # %% ../../../nbs/018_Avro_Encode_Decoder.ipynb 13
 @export("fastkafka.encoder")
-def avro_decoder(raw_msg: bytes, cls: ModelMetaclass) -> Any:
+def avro_decoder(raw_msg: bytes, cls: Type[BaseModel]) -> Any:
     """
     Decoder to decode avro encoded messages to pydantic model instance
 
@@ -235,7 +271,7 @@ def avro_decoder(raw_msg: bytes, cls: ModelMetaclass) -> Any:
     Returns:
         An instance of given pydantic class
     """
-    schema = fastavro.schema.parse_schema(AvroBase.avro_schema_for_pydantic(cls))
+    schema = fastavro.schema.parse_schema(AvroBase.avro_schema_for_pydantic_class(cls))
 
     bytes_reader = io.BytesIO(raw_msg)
     msg_dict = fastavro.schemaless_reader(bytes_reader, schema)
@@ -244,7 +280,7 @@ def avro_decoder(raw_msg: bytes, cls: ModelMetaclass) -> Any:
 
 # %% ../../../nbs/018_Avro_Encode_Decoder.ipynb 16
 @export("fastkafka.encoder")
-def avsc_to_pydantic(schema: Dict[str, Any]) -> ModelMetaclass:
+def avsc_to_pydantic(schema: Dict[str, Any]) -> Type[BaseModel]:
     """
     Generate pydantic model from given Avro Schema
 
@@ -332,7 +368,7 @@ def avsc_to_pydantic(schema: Dict[str, Any]) -> ModelMetaclass:
         else:
             return py_type
 
-    def record_type_to_pydantic(schema: Dict[str, Any]) -> ModelMetaclass:
+    def record_type_to_pydantic(schema: Dict[str, Any]) -> Type[BaseModel]:
         """Convert a single avro record type to a pydantic class"""
         name = (
             schema["name"]
@@ -361,7 +397,7 @@ def avsc_to_pydantic(schema: Dict[str, Any]) -> ModelMetaclass:
                 current += f"    {n}: {t} = {json.dumps(default)}\n"
 
         classes[name] = current
-        pydantic_model = create_model(name, **kwargs)  # type: ignore
+        pydantic_model = create_model(name, __module__=__name__, **kwargs)  # type: ignore
         return pydantic_model  # type: ignore
 
     return record_type_to_pydantic(schema)
