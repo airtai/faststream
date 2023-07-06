@@ -168,8 +168,8 @@ group.initial.rebalance.delay.ms=0
 class ApacheKafkaBroker:
     """ApacheKafkaBroker class, used for running unique kafka brokers in tests to prevent topic clashing."""
 
-    @delegates(get_kafka_config_string)
-    @delegates(get_zookeeper_config_string, keep=True)
+    @delegates(get_kafka_config_string, but=["data_dir"])
+    @delegates(get_zookeeper_config_string, keep=True, but=["data_dir"])
     def __init__(
         self,
         topics: Iterable[str] = [],
@@ -181,13 +181,11 @@ class ApacheKafkaBroker:
         """Initialises the ApacheKafkaBroker object
 
         Args:
-            data_dir: Path to the directory where the zookeepeer instance will save data
-            zookeeper_port: Port for clients (Kafka brokes) to connect
-            listener_port: Port on which the clients (producers and consumers) can connect
             topics: List of topics to create after sucessfull Kafka broker startup
             retries: Number of retries to create kafka and zookeeper services using random
             apply_nest_asyncio: set to True if running in notebook
-            port allocation if the requested port was taken
+            zookeeper_port: Port for clients (Kafka brokes) to connect
+            listener_port: Port on which the clients (producers and consumers) can connect
         """
         self.zookeeper_kwargs = filter_using_signature(
             get_zookeeper_config_string, **kwargs
@@ -246,10 +244,7 @@ class ApacheKafkaBroker:
         raise NotImplementedError
 
     def stop(self) -> None:
-        """Stops a local kafka broker and zookeeper instance synchronously
-        Returns:
-           None
-        """
+        """Stops a local kafka broker and zookeeper instance synchronously"""
         raise NotImplementedError
 
     async def _stop(self) -> None:
@@ -671,10 +666,7 @@ def start(self: ApacheKafkaBroker) -> str:
 
 @patch
 def stop(self: ApacheKafkaBroker) -> None:
-    """Stops a local kafka broker and zookeeper instance synchronously
-    Returns:
-       None
-    """
+    """Stops a local kafka broker and zookeeper instance synchronously"""
     logger.info(f"{self.__class__.__name__}.stop(): entering...")
     try:
         if not self._is_started:

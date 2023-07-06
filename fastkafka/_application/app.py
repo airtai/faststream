@@ -21,7 +21,6 @@ from unittest.mock import AsyncMock, MagicMock
 
 import anyio
 from pydantic import BaseModel
-from pydantic.main import ModelMetaclass
 
 from fastkafka._components.aiokafka_consumer_loop import (
     aiokafka_consumer_loop,
@@ -111,16 +110,18 @@ def _get_kafka_brokers(
             brokers={
                 k: (
                     [
-                        KafkaBroker.parse_raw(
-                            unwrapped_v.json()
-                            if hasattr(unwrapped_v, "json")
+                        KafkaBroker.model_validate_json(
+                            unwrapped_v.model_dump_json()
+                            if hasattr(unwrapped_v, "model_dump_json")
                             else json.dumps(unwrapped_v)
                         )
                         for unwrapped_v in v
                     ]
                     if isinstance(v, list)
-                    else KafkaBroker.parse_raw(
-                        v.json() if hasattr(v, "json") else json.dumps(v)
+                    else KafkaBroker.model_validate_json(
+                        v.model_dump_json()
+                        if hasattr(v, "model_dump_json")
+                        else json.dumps(v)
                     )
                 )
                 for k, v in kafka_brokers.items()
@@ -198,7 +199,7 @@ class FastKafka:
                 the version will be set to empty string
             contact: optional contact for the documentation. If None, the
                 contact will be set to placeholder values:
-                name='Author' url=HttpUrl(' https://www.google.com ', ) email='noreply@gmail.com'
+                name='Author' url=HttpUrl('https://www.google.com', ) email='noreply@gmail.com'
             kafka_brokers: dictionary describing kafka brokers used for setting
                 the bootstrap server when running the applicationa and for
                 generating documentation. Defaults to
@@ -259,7 +260,7 @@ class FastKafka:
             str,
             Tuple[
                 ConsumeCallable,
-                Callable[[bytes, ModelMetaclass], Any],
+                Callable[[bytes, Type[BaseModel]], Any],
                 Union[str, StreamExecutor, None],
                 Optional[KafkaBrokers],
                 Dict[str, Any],
@@ -326,9 +327,6 @@ class FastKafka:
 
         Raises:
             ValueError: If the provided kafka_broker_name is not found in dictionary of kafka_brokers
-
-        Returns:
-            None
         """
 
         if kafka_broker_name not in self._kafka_brokers.brokers:
@@ -429,7 +427,7 @@ class FastKafka:
         raise NotImplementedError
 
 # %% ../../nbs/015_FastKafka.ipynb 27
-def _get_decoder_fn(decoder: str) -> Callable[[bytes, ModelMetaclass], Any]:
+def _get_decoder_fn(decoder: str) -> Callable[[bytes, Type[BaseModel]], Any]:
     """
     Imports and returns decoder function based on input
     """
@@ -476,7 +474,7 @@ def _resolve_key(key: str, dictionary: Dict[str, Any]) -> str:
 def consumes(
     self: FastKafka,
     topic: Optional[str] = None,
-    decoder: Union[str, Callable[[bytes, ModelMetaclass], Any]] = "json",
+    decoder: Union[str, Callable[[bytes, Type[BaseModel]], Any]] = "json",
     *,
     executor: Union[str, StreamExecutor, None] = None,
     brokers: Optional[Union[Dict[str, Any], KafkaBrokers]] = None,
@@ -525,7 +523,7 @@ def consumes(
     def _decorator(
         on_topic: ConsumeCallable,
         topic: Optional[str] = topic,
-        decoder: Union[str, Callable[[bytes, ModelMetaclass], Any]] = decoder,
+        decoder: Union[str, Callable[[bytes, Type[BaseModel]], Any]] = decoder,
         executor: Union[str, StreamExecutor, None] = executor,
         brokers: Optional[Union[Dict[str, Any], KafkaBrokers]] = brokers,
         description: Optional[str] = description,
@@ -948,9 +946,6 @@ def create_docs(self: FastKafka) -> None:
     Note:
         The asyncapi documentation is saved to the location specified by the `_asyncapi_path`
         attribute of the FastKafka instance.
-
-    Returns:
-        None
     """
     (self._asyncapi_path / "docs").mkdir(exist_ok=True, parents=True)
     (self._asyncapi_path / "spec").mkdir(exist_ok=True, parents=True)

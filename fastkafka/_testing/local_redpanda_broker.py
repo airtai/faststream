@@ -96,16 +96,15 @@ class LocalRedpandaBroker:
         """Initialises the LocalRedpandaBroker object
 
         Args:
+            topics: List of topics to create after sucessfull redpanda broker startup
+            retries: Number of retries to create redpanda service
+            apply_nest_asyncio: set to True if running in notebook
             listener_port: Port on which the clients (producers and consumers) can connect
             tag: Tag of Redpanda image to use to start container
             seastar_core: Core(s) to use byt Seastar (the framework Redpanda uses under the hood)
             memory: The amount of memory to make available to Redpanda
             mode: Mode to use to load configuration properties in container
             default_log_level: Log levels to use for Redpanda
-            topics: List of topics to create after sucessfull redpanda broker startup
-            retries: Number of retries to create redpanda service
-            apply_nest_asyncio: set to True if running in notebook
-            port allocation if the requested port was taken
         """
         self.redpanda_kwargs = kwargs
 
@@ -156,10 +155,7 @@ class LocalRedpandaBroker:
         raise NotImplementedError
 
     def stop(self) -> None:
-        """Stops a local redpanda broker instance synchronously
-        Returns:
-           None
-        """
+        """Stops a local redpanda broker instance synchronously"""
         raise NotImplementedError
 
     async def _stop(self) -> None:
@@ -378,10 +374,7 @@ def start(self: LocalRedpandaBroker) -> str:
 
 @patch
 def stop(self: LocalRedpandaBroker) -> None:
-    """Stops a local redpanda broker instance synchronously
-    Returns:
-       None
-    """
+    """Stops a local redpanda broker instance synchronously"""
     logger.info(f"{self.__class__.__name__}.stop(): entering...")
     try:
         if not self._is_started:

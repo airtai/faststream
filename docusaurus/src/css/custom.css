@@ -239,6 +239,15 @@ html.docs-doc-page main ul.table-of-contents > li > ul a > strong {
   font-weight: 500;
 }
 
+html.docs-doc-page main article .markdown table {
+    text-align: left;
+    font-size: 0.8rem;
+}
+
+html.docs-doc-page main article .markdown table code{
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
 nav .navbar__inner .navbar__items .fastkafka-home > div {
   margin-top: 1px;
 }

@@ -53,7 +53,6 @@ class Tester(FastKafka):
         app: Union[FastKafka, List[FastKafka]],
         *,
         use_in_memory_broker: bool = True,
-        patch_module: Optional[ModuleType] = None,
     ):
         """Mirror-like object for testing a FastKafka application
 
@@ -61,7 +60,7 @@ class Tester(FastKafka):
 
         Args:
             app: The FastKafka application to be tested.
-            broker: An optional broker to start and to use for testing.
+            use_in_memory_broker: Whether to use an in-memory broker for testing or not.
         """
         self.apps = app if isinstance(app, list) else [app]
 
@@ -76,7 +75,6 @@ class Tester(FastKafka):
         ]
         self._create_mirrors()
         self.use_in_memory_broker = use_in_memory_broker
-        self.patch_module = patch_module
 
     async def _start_tester(self) -> None:
         """Starts the Tester"""
@@ -102,7 +100,7 @@ class Tester(FastKafka):
     @asynccontextmanager
     async def _create_ctx(self) -> AsyncGenerator["Tester", None]:
         if self.use_in_memory_broker == True:
-            with InMemoryBroker(patch_module=self.patch_module):  # type: ignore
+            with InMemoryBroker():  # type: ignore
                 await self._start_tester()
                 try:
                     yield self
@@ -224,7 +222,9 @@ def _create_mirrors(self: Tester) -> None:
             mirror_f = mirror_consumer(
                 topic,
                 consumer_f,
-                brokers.json() if brokers is not None else app._kafka_brokers.json(),
+                brokers.model_dump_json()
+                if brokers is not None
+                else app._kafka_brokers.model_dump_json(),
                 app,
             )
             mirror_f = self.produces(  # type: ignore
@@ -237,7 +237,9 @@ def _create_mirrors(self: Tester) -> None:
             mirror_f = mirror_producer(
                 topic,
                 producer_f,
-                brokers.json() if brokers is not None else app._kafka_brokers.json(),
+                brokers.model_dump_json()
+                if brokers is not None
+                else app._kafka_brokers.model_dump_json(),
                 app,
             )
             mirror_f = self.consumes(
@@ -338,9 +340,9 @@ def _arrange_mirrors(self: Tester) -> None:
                 prefix="to_",
                 topic_brokers=topic_brokers,
                 topic=remove_suffix(topic),
-                brokers=brokers.json()
+                brokers=brokers.model_dump_json()
                 if brokers is not None
-                else app._kafka_brokers.json(),
+                else app._kafka_brokers.model_dump_json(),
                 origin_function_name=consumer_f.__name__,
                 function=mirror_f,
             )
@@ -360,9 +362,9 @@ def _arrange_mirrors(self: Tester) -> None:
                 prefix="on_",
                 topic_brokers=topic_brokers,
                 topic=remove_suffix(topic),
-                brokers=brokers.json()
+                brokers=brokers.model_dump_json()
                 if brokers is not None
-                else app._kafka_brokers.json(),
+                else app._kafka_brokers.model_dump_json(),
                 origin_function_name=producer_f.__name__,
                 function=getattr(self.awaited_mocks, mirror_f.__name__),
             )

@@ -15,9 +15,8 @@ from enum import Enum
 from pathlib import Path
 from typing import *
 
-from pydantic import BaseModel, Field, HttpUrl
-from pydantic.json import timedelta_isoformat
-from pydantic.schema import schema
+from pydantic import ConfigDict, BaseModel, Field, HttpUrl, model_serializer
+from pydantic.type_adapter import TypeAdapter
 
 from .aiokafka_consumer_loop import ConsumeCallable
 from .docs_dependencies import _check_npm_with_local
@@ -33,12 +32,8 @@ logger = get_logger(__name__)
 
 # %% ../../nbs/014_AsyncAPI.ipynb 5
 class KafkaMessage(BaseModel):
-    class Config:
-        """This class is used for specific JSON encoders, in our case to properly format timedelta in ISO format."""
-
-        json_encoders = {
-            timedelta: timedelta_isoformat,
-        }
+    # This following config is used to properly format timedelta in ISO 8601 format
+    model_config = ConfigDict(ser_json_timedelta="iso8601")
 
 # %% ../../nbs/014_AsyncAPI.ipynb 7
 class SecurityType(str, Enum):
@@ -84,9 +79,9 @@ class SecuritySchema(BaseModel):
                 kwargs[k] = kwargs.pop(v)
         super().__init__(**kwargs)
 
-    def dict(self, *args: Any, **kwarg: Any) -> Dict[str, Any]:
+    def model_dump(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
         """Renames internal names of members ('security_type' -> 'type', 'api_key_loc' -> 'in')"""
-        d = super().dict(*args, **kwarg)
+        d = super().model_dump(*args, **kwargs)
 
         for k, v in sec_scheme_name_mapping.items():
             d[v] = d.pop(k)
@@ -96,9 +91,9 @@ class SecuritySchema(BaseModel):
 
         return d
 
-    def json(self, *args: Any, **kwargs: Any) -> str:
-        """Serialize into JSON using dict()"""
-        return json.dumps(self.dict(), *args, **kwargs)
+    def model_dump_json(self, *args: Any, **kwargs: Any) -> str:
+        """Serialize into JSON using model_dump()"""
+        return json.dumps(self.model_dump(), *args, **kwargs)
 
 # %% ../../nbs/014_AsyncAPI.ipynb 9
 class KafkaBroker(BaseModel):
@@ -106,23 +101,25 @@ class KafkaBroker(BaseModel):
 
     url: str = Field(..., example="localhost")
     description: str = Field("Kafka broker")
-    port: str = Field("9092")
+    port: Union[str, int] = Field("9092")
     protocol: str = Field("kafka")
     security: Optional[SecuritySchema] = None
 
-    def dict(self, *args: Any, **kwarg: Any) -> Dict[str, Any]:
+    def model_dump(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
         """Makes port a variable and remove it from the dictionary"""
-        d = super().dict(*args, **kwarg)
-        d["variables"] = {"port": {"default": self.port}}
+        d = super().model_dump(*args, **kwargs)
+        if self.security:
+            d["security"] = self.security.model_dump(*args, **kwargs)
+        d["variables"] = {"port": {"default": str(self.port)}}
         d.pop("port")
 
         d = {k: v for k, v in d.items() if v is not None}
 
         return d
 
-    def json(self, *args: Any, **kwargs: Any) -> str:
+    def model_dump_json(self, *args: Any, **kwargs: Any) -> str:
         """Serialize into JSON using dict()"""
-        return json.dumps(self.dict(), *args, **kwargs)
+        return json.dumps(self.model_dump(), *args, **kwargs)
 
 # %% ../../nbs/014_AsyncAPI.ipynb 12
 class ContactInfo(BaseModel):
@@ -143,26 +140,29 @@ class KafkaServiceInfo(BaseModel):
 class KafkaBrokers(BaseModel):
     brokers: Dict[str, Union[List[KafkaBroker], KafkaBroker]]
 
-    def dict(self, *args: Any, **kwarg: Any) -> Dict[str, Any]:
+    def model_dump(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
         """Transcribe brokers into bootstrap server groups"""
-        d = super().dict(*args, **kwarg)
+        d = super().model_dump(*args, **kwargs)
 
         brokers = {}
         for k, v in self.brokers.items():
             if isinstance(v, list):
                 brokers.update(
-                    {f"{k}-bootstrap-server-{i}": u_v.dict() for i, u_v in enumerate(v)}
+                    {
+                        f"{k}-bootstrap-server-{i}": u_v.model_dump()
+                        for i, u_v in enumerate(v)
+                    }
                 )
             else:
-                brokers.update({f"{k}": v.dict()})
+                brokers.update({f"{k}": v.model_dump()})
         d["brokers"] = brokers
         d = {k: v for k, v in d.items() if v is not None}
 
         return d
 
-    def json(self, *args: Any, **kwargs: Any) -> str:
+    def model_dump_json(self, *args: Any, **kwargs: Any) -> str:
         """Serialize into JSON using dict()"""
-        return json.dumps(self.dict(), *args, **kwargs)
+        return json.dumps(self.model_dump(), *args, **kwargs)
 
 # %% ../../nbs/014_AsyncAPI.ipynb 17
 # T = TypeVar("T")
@@ -261,24 +261,24 @@ def _get_kafka_msg_definitions(
     consumers: Dict[str, ConsumeCallable],
     producers: Dict[str, ProduceCallable],
 ) -> Dict[str, Dict[str, Any]]:
-    return schema(_get_kafka_msg_classes(consumers, producers))  # type: ignore
+    msg_classes = _get_kafka_msg_classes(consumers, producers)
+    _, msg_definitions = TypeAdapter.json_schemas(
+        [(msg_cls, "validation", TypeAdapter(msg_cls)) for msg_cls in msg_classes]
+    )
+    return msg_definitions
 
 # %% ../../nbs/014_AsyncAPI.ipynb 35
 def _get_example(cls: Type[BaseModel]) -> BaseModel:
     kwargs: Dict[str, Any] = {}
-    for k, v in cls.__fields__.items():
+    for k, v in cls.model_fields.items():
         #         try:
-        if (
-            hasattr(v, "field_info")
-            and hasattr(v.field_info, "extra")
-            and "example" in v.field_info.extra
-        ):
-            example = v.field_info.extra["example"]
+        if hasattr(v, "json_schema_extra") and "example" in v.json_schema_extra:  # type: ignore
+            example = v.json_schema_extra["example"]  # type: ignore
             kwargs[k] = example
     #         except:
     #             pass
-
-    return json.loads(cls(**kwargs).json())  # type: ignore
+    print(kwargs)
+    return json.loads(cls(**kwargs).model_dump_json())  # type: ignore
 
 # %% ../../nbs/014_AsyncAPI.ipynb 37
 def _add_example_to_msg_definitions(
@@ -289,7 +289,7 @@ def _add_example_to_msg_definitions(
     except Exception as e:
         example = None
     if example is not None:
-        msg_schema["definitions"][msg_cls.__name__]["example"] = example
+        msg_schema["$defs"][msg_cls.__name__]["example"] = example
 
 
 def _get_msg_definitions_with_examples(
@@ -297,13 +297,15 @@ def _get_msg_definitions_with_examples(
     producers: Dict[str, ProduceCallable],
 ) -> Dict[str, Dict[str, Any]]:
     msg_classes = _get_kafka_msg_classes(consumers, producers)
-    msg_schema: Dict[str : Dict[str, Any]] = schema(msg_classes)  # type: ignore
+    msg_schema: Dict[str, Dict[str, Any]]
+    _, msg_schema = TypeAdapter.json_schemas(
+        [(msg_cls, "validation", TypeAdapter(msg_cls)) for msg_cls in msg_classes]
+    )
     for msg_cls in msg_classes:
         _add_example_to_msg_definitions(msg_cls, msg_schema)
-
     msg_schema = (
-        {k: {"payload": v} for k, v in msg_schema["definitions"].items()}
-        if "definitions" in msg_schema
+        {k: {"payload": v} for k, v in msg_schema["$defs"].items()}
+        if "$defs" in msg_schema
         else {}
     )
 
@@ -320,7 +322,7 @@ def _get_security_schemes(kafka_brokers: KafkaBrokers) -> Dict[str, Any]:
 
         if kafka_broker.security is not None:
             security_schemes[f"{key}_default_security"] = json.loads(
-                kafka_broker.security.json()
+                kafka_broker.security.model_dump_json()
             )
     return security_schemes
 
@@ -338,7 +340,7 @@ def _get_components_schema(
         "securitySchemes": _get_security_schemes(kafka_brokers),
     }
     substitutions = {
-        f"#/definitions/{k}": f"#/components/messages/{k}"
+        f"#/$defs/{k}": f"#/components/messages/{k}"
         if k in msg_classes
         else f"#/components/schemas/{k}"
         for k in definitions.keys()
@@ -359,7 +361,7 @@ def _get_components_schema(
 
 # %% ../../nbs/014_AsyncAPI.ipynb 43
 def _get_servers_schema(kafka_brokers: KafkaBrokers) -> Dict[str, Any]:
-    servers = json.loads(kafka_brokers.json(sort_keys=False))["brokers"]
+    servers = json.loads(kafka_brokers.model_dump_json(sort_keys=False))["brokers"]
 
     for key, kafka_broker in servers.items():
         if "security" in kafka_broker:
@@ -374,7 +376,7 @@ def _get_asyncapi_schema(
     kafka_service_info: KafkaServiceInfo,
 ) -> Dict[str, Any]:
     #     # we don't use dict because we need custom JSON encoders
-    info = json.loads(kafka_service_info.json(sort_keys=False))
+    info = json.loads(kafka_service_info.model_dump_json())
     servers = _get_servers_schema(kafka_brokers)
     #     # should be in the proper format already
     channels = _get_channels_schema(consumers, producers)
