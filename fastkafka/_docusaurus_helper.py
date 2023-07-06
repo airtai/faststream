@@ -913,12 +913,8 @@ def delete_unused_markdown_files_from_sidebar(
         _delete_files(md_files_to_delete)
 
 # %% ../nbs/096_Docusaurus_Helper.ipynb 128
-def update_readme(root_path: str) -> None:
-    """Update the readme file and fix the symbol links
-
-    Args:
-        root_path: The root path of the project.
-    """
+def update_readme() -> None:
+    """Update the readme file and fix the symbol links"""
     cfg = get_config()
     readme_path = cfg.config_path / "README.md"
     nbdev_readme.__wrapped__()
