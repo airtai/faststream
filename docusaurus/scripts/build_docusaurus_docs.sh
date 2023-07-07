@@ -15,15 +15,14 @@ nbdev_mkdocs docs
 echo "Copying newly generated markdown files to docusaurus directory"
 cp -r mkdocs/docs docusaurus/
 
-echo "Generating API docs"
-python3 -c "from fastkafka._docusaurus_helper import fix_invalid_syntax_in_markdown, generate_markdown_docs; fix_invalid_syntax_in_markdown('./docusaurus/docs'); generate_markdown_docs('fastkafka', './docusaurus/docs')"
-
 echo "Generating sidebars.js"
 python3 -c "from fastkafka._docusaurus_helper import generate_sidebar; generate_sidebar('./docusaurus/docs/SUMMARY.md', './docusaurus/sidebars.js')"
 
 echo "Deleting the markdown files from the docs directory that are not present in the sidebar."
 python3 -c "from fastkafka._docusaurus_helper import delete_unused_markdown_files_from_sidebar; delete_unused_markdown_files_from_sidebar('./docusaurus/docs', './docusaurus/sidebars.js')"
 
+echo "Generating API docs"
+python3 -c "from fastkafka._docusaurus_helper import fix_invalid_syntax_in_markdown, generate_markdown_docs; fix_invalid_syntax_in_markdown('./docusaurus/docs'); generate_markdown_docs('fastkafka', './docusaurus/docs')"
 
 echo "Runing docusaurus build"
 cd docusaurus && npm run build
