@@ -350,19 +350,19 @@ async def run_and_match(
     # into a pipe.
     matched = 0
 
-    if platform.system() == "Windows":
-        proc = await asyncio.create_subprocess_shell(
-            " ".join(args),
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,  # type: ignore
-        )
-    else:
-        proc = await asyncio.create_subprocess_exec(
-            *args,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
+    #     if platform.system() == "Windows":
+    #         proc = await asyncio.create_subprocess_shell(
+    #             " ".join(args),
+    #             stdout=asyncio.subprocess.PIPE,
+    #             stderr=asyncio.subprocess.PIPE,
+    #             creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,  # type: ignore
+    #         )
+    #     else:
+    proc = await asyncio.create_subprocess_exec(
+        *args,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
 
     # Read one line of output.
     t = datetime.now()
