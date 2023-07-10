@@ -136,7 +136,11 @@ def set_level(level: int) -> None:
 
 # %% ../../nbs/Logger.ipynb 18
 def cached_log(
-    self: logging.Logger, msg: str, level: int, timeout: Union[int, float] = 5
+    self: logging.Logger,
+    msg: str,
+    level: int,
+    timeout: Union[int, float] = 5,
+    log_id: Optional[str] = None,
 ) -> None:
     """
     Logs a message with a specified level only once within a given timeout.
@@ -146,6 +150,7 @@ def cached_log(
         msg: The message to log.
         level: The logging level for the message.
         timeout: The timeout duration in seconds.
+        log_id: Id of the log to timeout for timeout time, if None, msg will be used as log_id
 
     Returns:
         None
@@ -153,7 +158,9 @@ def cached_log(
     if not hasattr(self, "_timeouted_msgs"):
         self._timeouted_msgs = {}  # type: ignore
 
-    if msg not in self._timeouted_msgs or self._timeouted_msgs[msg]():  # type: ignore
-        self._timeouted_msgs[msg] = true_after(timeout)  # type: ignore
+    key = msg if log_id is None else log_id
+
+    if msg not in self._timeouted_msgs or self._timeouted_msgs[key]():  # type: ignore
+        self._timeouted_msgs[key] = true_after(timeout)  # type: ignore
 
         self.log(level, msg)

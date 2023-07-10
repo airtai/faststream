@@ -7,6 +7,7 @@ __all__ = ['logger', 'BaseSubmodel', 'ProduceReturnTypes', 'ProduceCallable', 'K
 # %% ../../nbs/013_ProducerDecorator.ipynb 1
 import asyncio
 import functools
+import logging
 import random
 import time
 from asyncio import iscoroutinefunction  # do not use the version from inspect
@@ -20,7 +21,7 @@ from aiokafka.errors import KafkaTimeoutError, RequestTimedOutError
 from aiokafka.producer.message_accumulator import BatchBuilder
 from pydantic import BaseModel
 
-from .logger import get_logger
+from .logger import get_logger, cached_log
 from .meta import export
 from .helpers import remove_suffix
 
@@ -88,8 +89,12 @@ def release_callback(
     fut: asyncio.Future, topic: str, wrapped_val: KafkaEvent[BaseModel]
 ) -> None:
     if fut.exception() is not None:
-        logger.warning(
-            f"release_callback(): Exception {fut.exception()=}, raised when producing {wrapped_val.message=} to {topic=}"
+        cached_log(
+            logger,
+            f"release_callback(): Exception {fut.exception()=}, raised when producing {wrapped_val.message=} to {topic=}",
+            level=logging.WARNING,
+            timeout=1,
+            log_id="release_callback()",
         )
     pass
 
