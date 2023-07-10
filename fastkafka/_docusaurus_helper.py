@@ -283,7 +283,7 @@ def _docstring_to_markdown(symbol: Type) -> str:
     if symbol.__doc__ is None:
         return ""
 
-    parsed_docstring = parse(symbol.__doc__)  # type: ignore
+    parsed_docstring = parse(symbol.__doc__)
     formatted_docstring = f"{parsed_docstring.short_description}\n\n"
     formatted_docstring += (
         f"{parsed_docstring.long_description}\n\n"
