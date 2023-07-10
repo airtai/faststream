@@ -330,7 +330,7 @@ async def to_predictions(species_class: int) -> IrisPrediction:
 The service can be tested using the
 [`Tester`](../api/fastkafka/testing/Tester.md/#fastkafka.testing.Tester)
 instance which can be configured to start a [Redpanda
-broker](../api/fastkafka/testing/LocalRedpandaBroker/) for testing
+broker](../../api/fastkafka/testing/LocalRedpandaBroker/) for testing
 purposes. The `test.py` file in the cloned repository contains the
 following code for testing.
 
