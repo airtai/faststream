@@ -451,7 +451,7 @@ def _get_symbol_source_link(symbol: Type, lib_version: str) -> str:
 def _get_method_type(symbol: Type) -> str:
     try:
         source = getsource(symbol).strip()
-    except TypeError as e:
+    except (TypeError, OSError) as e:
         return ""
 
     first_line = source.split("\n")[0]
