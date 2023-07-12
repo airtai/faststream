@@ -7,19 +7,21 @@ __all__ = ['logger', 'BaseSubmodel', 'ProduceReturnTypes', 'ProduceCallable', 'K
 # %% ../../nbs/013_ProducerDecorator.ipynb 1
 import asyncio
 import functools
+import logging
 import random
 import time
 from asyncio import iscoroutinefunction  # do not use the version from inspect
 from dataclasses import dataclass
+from functools import partial
 from inspect import Parameter
 from typing import *
 
 from aiokafka import AIOKafkaProducer
-from aiokafka.errors import KafkaTimeoutError
+from aiokafka.errors import KafkaTimeoutError, RequestTimedOutError
 from aiokafka.producer.message_accumulator import BatchBuilder
 from pydantic import BaseModel
 
-from .logger import get_logger
+from .logger import get_logger, cached_log
 from .meta import export
 from .helpers import remove_suffix
 
@@ -83,7 +85,17 @@ def _wrap_in_event(
     return message if type(message) == KafkaEvent else KafkaEvent(message)
 
 # %% ../../nbs/013_ProducerDecorator.ipynb 15
-def release_callback(fut: asyncio.Future) -> None:
+def release_callback(
+    fut: asyncio.Future, topic: str, wrapped_val: KafkaEvent[BaseModel]
+) -> None:
+    if fut.exception() is not None:
+        cached_log(
+            logger,
+            f"release_callback(): Exception {fut.exception()=}, raised when producing {wrapped_val.message=} to {topic=}",
+            level=logging.WARNING,
+            timeout=1,
+            log_id="release_callback()",
+        )
     pass
 
 # %% ../../nbs/013_ProducerDecorator.ipynb 16
@@ -107,15 +119,17 @@ async def produce_single(  # type: ignore
             fut = await producer.send(
                 topic, encoder_fn(wrapped_val.message), key=wrapped_val.key
             )
-            fut.add_done_callback(release_callback)
+            fut.add_done_callback(
+                partial(release_callback, topic=topic, wrapped_val=wrapped_val)
+            )
             break
         except KafkaTimeoutError as e:
             logger.warning(
-                f"produce_single(): Exception {e} raised when producing {wrapped_val.message} to {topic=}, sleeping for 1 second and retrying.."
+                f"produce_single(): Exception {e=} raised when producing {wrapped_val.message} to {topic=}, sleeping for 1 second and retrying.."
             )
             await asyncio.sleep(1)
 
-# %% ../../nbs/013_ProducerDecorator.ipynb 20
+# %% ../../nbs/013_ProducerDecorator.ipynb 21
 async def send_batch(  # type: ignore
     producer: AIOKafkaProducer, topic: str, batch: BatchBuilder, key: Optional[bytes]
 ) -> None:
@@ -184,7 +198,7 @@ async def produce_batch(  # type: ignore
 
     await send_batch(producer, topic, batch, wrapped_val.key)
 
-# %% ../../nbs/013_ProducerDecorator.ipynb 23
+# %% ../../nbs/013_ProducerDecorator.ipynb 24
 def producer_decorator(
     producer_store: Dict[str, Any],
     func: ProduceCallable,
