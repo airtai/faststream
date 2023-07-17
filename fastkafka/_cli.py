@@ -59,8 +59,8 @@ def run(
         typer.secho(f"Unexpected internal error: {e}", err=True, fg=typer.colors.RED)
         raise typer.Exit(1)
 
-# %% ../nbs/023_CLI.ipynb 13
+# %% ../nbs/023_CLI.ipynb 12
 _app.add_typer(_cli_docs._docs_app, name="docs")
 
-# %% ../nbs/023_CLI.ipynb 21
+# %% ../nbs/023_CLI.ipynb 20
 _app.add_typer(_cli_testing._testing_app, name="testing")
