@@ -17,7 +17,12 @@ from types import ModuleType
 from pydantic import BaseModel
 
 from .. import KafkaEvent
-from .app import FastKafka, AwaitedMock, _get_kafka_brokers
+from fastkafka._application.app import (
+    FastKafka,
+    AwaitedMock,
+    _get_kafka_brokers,
+    _get_kafka_config,
+)
 from .._components.asyncapi import KafkaBroker, KafkaBrokers
 from .._components.helpers import unwrap_list_type
 from .._components.meta import delegates, export, patch
@@ -53,6 +58,7 @@ class Tester(FastKafka):
         app: Union[FastKafka, List[FastKafka]],
         *,
         use_in_memory_broker: bool = True,
+        **kwargs: Any,
     ):
         """Mirror-like object for testing a FastKafka application
 
@@ -69,11 +75,17 @@ class Tester(FastKafka):
 
         super().__init__()
         self.mirrors: Dict[Any, Any] = {}
+        self.apps_initial_brokers: Dict[FastKafka, Any] = dict()
+        self.use_external_broker: bool = False
+
         self._kafka_brokers = self.apps[0]._kafka_brokers
         self._kafka_config["bootstrap_servers_id"] = self.apps[0]._kafka_config[
             "bootstrap_servers_id"
         ]
-        self._create_mirrors()
+
+        self._kafka_brokers_init = self._kafka_brokers
+        self._kafka_config_init = self._kafka_config
+
         self.use_in_memory_broker = use_in_memory_broker
 
     async def _start_tester(self) -> None:
@@ -94,12 +106,69 @@ class Tester(FastKafka):
     def _create_mirrors(self) -> None:
         pass
 
+    def _clean_mirrors(self) -> None:
+        pass
+
     def _arrange_mirrors(self) -> None:
         pass
 
+    @delegates(_get_kafka_config)
+    def using_external_broker(
+        self,
+        brokers: Optional[Dict[str, Any]],
+        **kwargs: Any,
+    ) -> "Tester":
+        """Sets
+
+        Args:
+            brokers: dictionary describing kafka brokers used for setting
+                the bootstrap server when running the applicationa. e.g.:
+                    {
+                        "localhost": {
+                            "url": "localhost",
+                            "description": "local kafka broker",
+                            "port": "9092",
+                        }
+                    }
+        """
+        self.use_external_broker = True
+
+        self._kafka_brokers = _get_kafka_brokers(brokers)
+        self._kafka_config["bootstrap_servers_id"] = _get_kafka_config(**kwargs)[
+            "bootstrap_servers_id"
+        ]
+
+        for app in self.apps:
+            # make a copy of apps kafka_brokers and bootstrap_servers_id
+            self.apps_initial_brokers[app] = dict(
+                _kafka_brokers=app._kafka_brokers.model_copy(),
+                bootstrap_servers_id=app._kafka_config["bootstrap_servers_id"],
+            )
+
+            app._kafka_brokers = self._kafka_brokers
+            app._kafka_config["bootstrap_servers_id"] = self._kafka_config[
+                "bootstrap_servers_id"
+            ]
+
+        return self
+
+    def _deactivate_external_broker(self) -> None:
+        """Sets all attributes to the initial ones"""
+        self.use_external_broker = False
+        self._kafka_brokers = self._kafka_brokers_init
+        self._kafka_config = self._kafka_config_init
+        # for each app, set back the initial kafka_brokers and bootstrap_servers_id
+        for app in self.apps:
+            app._kafka_brokers = self.apps_initial_brokers[app]["_kafka_brokers"]
+            app._kafka_config["bootstrap_servers_id"] = self.apps_initial_brokers[app][
+                "bootstrap_servers_id"
+            ]
+
     @asynccontextmanager
     async def _create_ctx(self) -> AsyncGenerator["Tester", None]:
-        if self.use_in_memory_broker == True:
+        self._create_mirrors()
+
+        if self.use_in_memory_broker and not self.use_external_broker:
             with InMemoryBroker():  # type: ignore
                 await self._start_tester()
                 try:
@@ -112,6 +181,10 @@ class Tester(FastKafka):
                 yield self
             finally:
                 await self._stop_tester()
+                if self.use_external_broker:
+                    self._deactivate_external_broker()
+
+        self._clean_mirrors()
 
     async def __aenter__(self) -> "Tester":
         self._ctx = self._create_ctx()
@@ -251,7 +324,18 @@ def _create_mirrors(self: Tester) -> None:
             self.mirrors[producer_f] = mirror_f
             setattr(self, mirror_f.__name__, mirror_f)
 
-# %% ../../nbs/016_Tester.ipynb 25
+# %% ../../nbs/016_Tester.ipynb 26
+@patch
+def _clean_mirrors(self: Tester) -> None:
+    for mirror_f in set(self.mirrors.values()):
+        if hasattr(mirror_f, "__call__"):
+            delattr(self, mirror_f.__name__)
+
+    self._consumers_store = {}
+    self._producers_store = {}
+    self.mirrors = {}
+
+# %% ../../nbs/016_Tester.ipynb 29
 class AmbiguousWarning:
     """
     Warning class used for ambiguous topics.
@@ -275,7 +359,7 @@ class AmbiguousWarning:
             f"Ambiguous topic: {self.topic}, for functions: {self.functions}\nUse Tester.mirrors[app.function] to resolve ambiguity"
         )
 
-# %% ../../nbs/016_Tester.ipynb 27
+# %% ../../nbs/016_Tester.ipynb 31
 def set_sugar(
     *,
     tester: Tester,
@@ -313,7 +397,7 @@ def set_sugar(
             tester, f"{prefix}{topic}", AmbiguousWarning(topic, functions_for_topic)
         )
 
-# %% ../../nbs/016_Tester.ipynb 28
+# %% ../../nbs/016_Tester.ipynb 32
 @patch
 def _arrange_mirrors(self: Tester) -> None:
     """
@@ -331,6 +415,7 @@ def _arrange_mirrors(self: Tester) -> None:
     topic_brokers: Dict[str, Tuple[List[str], List[str]]] = {}
     mocks = {}
     awaited_mocks = {}
+
     for app in self.apps:
         for topic, (consumer_f, _, _, brokers, _) in app._consumers_store.items():
             mirror_f = self.mirrors[consumer_f]
