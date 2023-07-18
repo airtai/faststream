@@ -152,6 +152,7 @@ async def run_fastkafka_server(num_workers: int, app: str, kafka_broker: str) ->
         tasks = [
             tg.soonify(asyncio.create_subprocess_exec)(
                 *args,
+                limit=1024 * 1024,  # Set StreamReader buffer limit to 1MB
                 stdout=asyncio.subprocess.PIPE,
                 stdin=asyncio.subprocess.PIPE,
             )
@@ -166,9 +167,13 @@ async def run_fastkafka_server(num_workers: int, app: str, kafka_broker: str) ->
         if output is None:
             raise RuntimeError("Expected StreamReader, got None. Is stdout piped?")
         while not output.at_eof():
-            outs = await output.readline()
+            try:
+                outs = await output.readline()
+            except ValueError:
+                typer.echo(f"[{pid:03d}]: Failed to read log output", nl=False)
+                continue
             if outs != b"":
-                typer.echo(f"[{pid:03d}]: " + outs.decode("utf-8"), nl=False)
+                typer.echo(f"[{pid:03d}]: " + outs.decode("utf-8").strip(), nl=False)
 
     async with asyncer.create_task_group() as tg:
         for proc in procs:
@@ -184,7 +189,7 @@ async def run_fastkafka_server(num_workers: int, app: str, kafka_broker: str) ->
     for proc in procs:
         output, _ = await proc.communicate()
         if output:
-            typer.echo(f"[{proc.pid:03d}]: " + output.decode("utf-8"), nl=False)
+            typer.echo(f"[{proc.pid:03d}]: " + output.decode("utf-8").strip(), nl=False)
 
     returncodes = [proc.returncode for proc in procs]
     if not returncodes == [0] * len(procs):
