@@ -58,7 +58,6 @@ class Tester(FastKafka):
         app: Union[FastKafka, List[FastKafka]],
         *,
         use_in_memory_broker: bool = True,
-        **kwargs: Any,
     ):
         """Mirror-like object for testing a FastKafka application
 
@@ -118,7 +117,7 @@ class Tester(FastKafka):
         brokers: Optional[Dict[str, Any]],
         **kwargs: Any,
     ) -> "Tester":
-        """Sets
+        """Sets kafka brokers for Tester and all it's apps
 
         Args:
             brokers: dictionary describing kafka brokers used for setting
