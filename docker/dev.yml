@@ -5,9 +5,9 @@ services:
         hostname: $DOCKER_COMPOSE_PROJECT-devel
         container_name: $DOCKER_COMPOSE_PROJECT-devel
         ports:
-            - "${PORT_PREFIX}8888:8888"
-            - "${PORT_PREFIX}4000:4000"
-            - "${PORT_PREFIX}6006:6006"
+            - "${PORT_PREFIX}888:8888"
+            - "${PORT_PREFIX}400:4000"
+            - "${PORT_PREFIX}600:6006"
         volumes:
             - $AIRT_PROJECT:/work/fastkafka
             - /etc/passwd:/etc/passwd
