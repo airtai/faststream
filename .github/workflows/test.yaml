@@ -28,15 +28,15 @@ jobs:
     steps:
       - name: Configure Pagefile
         if: matrix.os == 'windows'
-        uses: al-cheb/configure-pagefile-action@v1.2
+        uses: al-cheb/configure-pagefile-action@86589fd789a4de3e62ba628dda2cb10027b66d67
         with:
           minimum-size: 8GB
           maximum-size: 8GB
           disk-root: "C:"
       - name: Install quarto
-        uses: quarto-dev/quarto-actions/setup@v2.1.3
+        uses: quarto-dev/quarto-actions/setup@163114750ae04ac05c972af5ece0f8283614366d
       - name: Prepare nbdev env
-        uses: fastai/workflows/nbdev-ci@master
+        uses: fastai/workflows/nbdev-ci@6411cbf4f8682164473daf4280e90452d50364ad
         with:
           version: ${{ matrix.version }}
           skip_test: true

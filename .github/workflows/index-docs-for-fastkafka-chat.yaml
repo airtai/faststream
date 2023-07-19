@@ -44,7 +44,7 @@ jobs:
           index_website_data
 
       - name: Push updated index to airtai/fastkafkachat repo
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@3ea6ae190baf489ba007f7c92608f33ce20ef04a
         with:
           commit_message: "Update fastkafka docs index file"
           file_pattern: "data/website_index.zip"
