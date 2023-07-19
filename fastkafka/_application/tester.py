@@ -100,7 +100,7 @@ class Tester(FastKafka):
     def _set_arguments_and_return_old(
         self, bootstrap_servers_id: Optional[str], use_in_memory_broker: bool
     ) -> Dict[Any, Any]:
-        initial_arguments = dict()
+        initial_arguments: Dict[Any, Any] = dict()
         initial_arguments["use_in_memory_broker"] = self.use_in_memory_broker
         self.use_in_memory_broker = use_in_memory_broker
 
@@ -131,14 +131,14 @@ class Tester(FastKafka):
     async def using_external_broker(
         self,
         bootstrap_servers_id: Optional[str] = None,
-    ) -> "Tester":
-        """Sets testers and each of it's apps bootstrap server
+    ) -> AsyncGenerator["Tester", None]:
+        """Tester context manager for using external broker
 
         Args:
             bootstrap_servers_id: The bootstrap server of aplications.
 
         Returns:
-            Tester: self
+            self or None
         """
         initial_arguments = self._set_arguments_and_return_old(
             bootstrap_servers_id, use_in_memory_broker=False
@@ -154,14 +154,14 @@ class Tester(FastKafka):
     async def using_inmemory_broker(
         self,
         bootstrap_servers_id: Optional[str] = None,
-    ) -> "Tester":
-        """Stats in-memory broker and sets testers and each of it's apps bootstrap server
+    ) -> AsyncGenerator["Tester", None]:
+        """Tester context manager for using in-memory broker
 
         Args:
             bootstrap_servers_id: The bootstrap server of aplications.
 
         Returns:
-            Tester: self
+            self or None
         """
         initial_arguments = self._set_arguments_and_return_old(
             bootstrap_servers_id, use_in_memory_broker=True
