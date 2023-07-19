@@ -540,6 +540,8 @@ def consumes(
         prepared_broker = _prepare_and_check_brokers(self, brokers)
         if prepared_broker is not None:
             self._override_brokers.append(prepared_broker.brokers)  # type: ignore
+        else:
+            prepared_broker = self._kafka_brokers
 
         if description is not None:
             setattr(on_topic, "description", description)
@@ -636,6 +638,8 @@ def produces(
         prepared_broker = _prepare_and_check_brokers(self, brokers)
         if prepared_broker is not None:
             self._override_brokers.append(prepared_broker.brokers)  # type: ignore
+        else:
+            prepared_broker = self._kafka_brokers
 
         if description is not None:
             setattr(to_topic, "description", description)
