@@ -5,15 +5,15 @@ jobs:
   mypy_static_analysis:
     runs-on: ubuntu-latest
     steps:
-      - uses: airtai/workflows/airt-mypy-check@main
+      - uses: airtai/workflows/airt-mypy-check@a69ffae5d0ca09a1fe628a532dd5b235a9ee13d9
   bandit_static_analysis:
     runs-on: ubuntu-latest
     steps:
-      - uses: airtai/workflows/airt-bandit-check@main
+      - uses: airtai/workflows/airt-bandit-check@a69ffae5d0ca09a1fe628a532dd5b235a9ee13d9
   semgrep_static_analysis:
     runs-on: ubuntu-latest
     steps:
-      - uses: airtai/workflows/airt-semgrep-check@main
+      - uses: airtai/workflows/airt-semgrep-check@a69ffae5d0ca09a1fe628a532dd5b235a9ee13d9
   test:
     timeout-minutes: 60
     strategy:
@@ -34,7 +34,7 @@ jobs:
           maximum-size: 8GB
           disk-root: "C:"
       - name: Install quarto
-        uses: quarto-dev/quarto-actions/setup@v2
+        uses: quarto-dev/quarto-actions/setup@v2.1.3
       - name: Prepare nbdev env
         uses: fastai/workflows/nbdev-ci@master
         with:

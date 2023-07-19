@@ -8,4 +8,4 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: airtai/workflows/fastkafka-docusaurus-ghp@main
+      - uses: airtai/workflows/fastkafka-docusaurus-ghp@a69ffae5d0ca09a1fe628a532dd5b235a9ee13d9
