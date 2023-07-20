@@ -97,6 +97,82 @@ class Tester(FastKafka):
     def _arrange_mirrors(self) -> None:
         pass
 
+    def _set_arguments_and_return_old(
+        self, bootstrap_servers_id: Optional[str], use_in_memory_broker: bool
+    ) -> Dict[Any, Any]:
+        initial_arguments: Dict[Any, Any] = dict()
+        initial_arguments["use_in_memory_broker"] = self.use_in_memory_broker
+        self.use_in_memory_broker = use_in_memory_broker
+
+        initial_arguments["bootstrap_servers_id"] = self._kafka_config[
+            "bootstrap_servers_id"
+        ]
+        if bootstrap_servers_id is None:
+            bootstrap_servers_id = self._kafka_config["bootstrap_servers_id"]
+        else:
+            self._kafka_config["bootstrap_servers_id"] = bootstrap_servers_id
+
+        for app in self.apps:
+            initial_arguments[app] = app._kafka_config["bootstrap_servers_id"]
+            app._kafka_config["bootstrap_servers_id"] = bootstrap_servers_id
+
+        return initial_arguments
+
+    def _restore_initial_arguments(self, initial_arguments: Dict[Any, Any]) -> None:
+        self.use_in_memory_broker = initial_arguments["use_in_memory_broker"]
+        self._kafka_config["bootstrap_servers_id"] = initial_arguments[
+            "bootstrap_servers_id"
+        ]
+
+        for app in self.apps:
+            app._kafka_config["bootstrap_servers_id"] = initial_arguments[app]
+
+    @asynccontextmanager
+    async def using_external_broker(
+        self,
+        bootstrap_servers_id: Optional[str] = None,
+    ) -> AsyncGenerator["Tester", None]:
+        """Tester context manager for using external broker
+
+        Args:
+            bootstrap_servers_id: The bootstrap server of aplications.
+
+        Returns:
+            self or None
+        """
+        initial_arguments = self._set_arguments_and_return_old(
+            bootstrap_servers_id, use_in_memory_broker=False
+        )
+
+        async with self._create_ctx() as ctx:
+            try:
+                yield self
+            finally:
+                self._restore_initial_arguments(initial_arguments)
+
+    @asynccontextmanager
+    async def using_inmemory_broker(
+        self,
+        bootstrap_servers_id: Optional[str] = None,
+    ) -> AsyncGenerator["Tester", None]:
+        """Tester context manager for using in-memory broker
+
+        Args:
+            bootstrap_servers_id: The bootstrap server of aplications.
+
+        Returns:
+            self or None
+        """
+        initial_arguments = self._set_arguments_and_return_old(
+            bootstrap_servers_id, use_in_memory_broker=True
+        )
+
+        async with self._create_ctx() as ctx:
+            try:
+                yield self
+            finally:
+                self._restore_initial_arguments(initial_arguments)
+
     @asynccontextmanager
     async def _create_ctx(self) -> AsyncGenerator["Tester", None]:
         if self.use_in_memory_broker == True:
