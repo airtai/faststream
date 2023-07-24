@@ -5,15 +5,15 @@ jobs:
   mypy_static_analysis:
     runs-on: ubuntu-latest
     steps:
-      - uses: airtai/workflows/airt-mypy-check@main
+      - uses: airtai/workflows/airt-mypy-check@main # nosemgrep: yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha
   bandit_static_analysis:
     runs-on: ubuntu-latest
     steps:
-      - uses: airtai/workflows/airt-bandit-check@main
+      - uses: airtai/workflows/airt-bandit-check@main # nosemgrep: yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha
   semgrep_static_analysis:
     runs-on: ubuntu-latest
     steps:
-      - uses: airtai/workflows/airt-semgrep-check@main
+      - uses: airtai/workflows/airt-semgrep-check@main # nosemgrep: yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha
   test:
     timeout-minutes: 60
     strategy:
@@ -28,15 +28,15 @@ jobs:
     steps:
       - name: Configure Pagefile
         if: matrix.os == 'windows'
-        uses: al-cheb/configure-pagefile-action@v1.2
+        uses: al-cheb/configure-pagefile-action@v1.2 # nosemgrep: yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha
         with:
           minimum-size: 8GB
           maximum-size: 8GB
           disk-root: "C:"
       - name: Install quarto
-        uses: quarto-dev/quarto-actions/setup@v2
+        uses: quarto-dev/quarto-actions/setup@v2 # nosemgrep: yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha
       - name: Prepare nbdev env
-        uses: fastai/workflows/nbdev-ci@master
+        uses: fastai/workflows/nbdev-ci@master # nosemgrep: yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha
         with:
           version: ${{ matrix.version }}
           skip_test: true
