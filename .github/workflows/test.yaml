@@ -40,6 +40,9 @@ jobs:
         with:
           version: ${{ matrix.version }}
           skip_test: true
+      - name: List pip deps
+        run: |
+          pip list
       - name: Install testing deps
         run: |
           fastkafka docs install_deps
