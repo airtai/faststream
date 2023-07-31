@@ -34,6 +34,7 @@ requirements = [
     "typer>=0.7.0",
     "nest-asyncio>=1.5.6",
     "psutil>=5.9.5;platform_system=='Windows'",
+    "yaspin==2.3.0",
 ]
 avro_requirements = [
     "fastavro>=1.7.3"
