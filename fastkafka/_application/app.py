@@ -12,6 +12,7 @@ import types
 from asyncio import iscoroutinefunction  # do not use the version from inspect
 from collections import namedtuple
 from contextlib import asynccontextmanager
+from copy import deepcopy
 from datetime import datetime, timedelta
 from functools import wraps
 from inspect import signature
@@ -1056,14 +1057,14 @@ def create_mocks(self: FastKafka) -> None:
         async def async_inner(
             *args: Any, f: Callable[..., Any] = f, mock: AsyncMock = mock, **kwargs: Any
         ) -> Any:
-            await mock(*args, **kwargs)
+            await mock(*deepcopy(args), **kwargs)
             return await f(*args, **kwargs)
 
         @functools.wraps(f)
         def sync_inner(
             *args: Any, f: Callable[..., Any] = f, mock: MagicMock = mock, **kwargs: Any
         ) -> Any:
-            mock(*args, **kwargs)
+            mock(*deepcopy(args), **kwargs)
             return f(*args, **kwargs)
 
         if inspect.iscoroutinefunction(f):
