@@ -47,12 +47,17 @@ def generate_fastkafka_app(
 ) -> None:
     """Generate a new FastKafka app(s) effortlessly with advanced AI assistance"""
     try:
-        validate_app_description(description)
-        plan = generate_plan(description)
+        validated_description, description_token = validate_app_description(description)
+        plan = generate_plan(validated_description)
         code = generate_app(plan)
         test = generate_test(code)
 
-        typer.secho(" ▶ Total tokens usage: ~32.9k", fg=typer.colors.CYAN)
+        typer.secho(f" ▶ Total tokens usage: {description_token}", fg=typer.colors.CYAN)
         typer.secho("✨  All files were successfully generated.!", fg=typer.colors.CYAN)
+
+    except ValueError as e:
+        typer.secho(e, err=True, fg=typer.colors.RED)
+        raise typer.Exit(code=1)
     except Exception as e:
         typer.secho(f"Unexpected internal error: {e}", err=True, fg=typer.colors.RED)
+        raise typer.Exit(code=1)
