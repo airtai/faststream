@@ -40,13 +40,17 @@ jobs:
         with:
           version: ${{ matrix.version }}
           skip_test: true
+      - name: List pip deps
+        run: |
+          pip list
       - name: Install testing deps
         run: |
           fastkafka docs install_deps
           fastkafka testing install_deps
       - name: Run nbdev tests
         run: |
-          nbdev_test --timing --do_print
+          nbdev_test --timing --do_print --n_workers 1 --file_glob "*_CLI*" # Run CLI tests first one by one because of npm installation clashes with other tests
+          nbdev_test --timing --do_print --skip_file_glob "*_CLI*"
       - name: Test building docs with nbdev-mkdocs
         if: matrix.os != 'windows'
         run: |
