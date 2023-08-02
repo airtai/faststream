@@ -10,7 +10,7 @@ from typing import *
 
 import typer
 
-from . import _cli_docs, _cli_testing
+from . import _cli_docs, _cli_testing, _cli_code_generator
 from ._components.logger import get_logger
 from ._server import run_fastkafka_server
 
@@ -64,3 +64,6 @@ _app.add_typer(_cli_docs._docs_app, name="docs")
 
 # %% ../nbs/023_CLI.ipynb 20
 _app.add_typer(_cli_testing._testing_app, name="testing")
+
+# %% ../nbs/023_CLI.ipynb 23
+_app.add_typer(_cli_code_generator._code_generator_app, name="code_generator")
