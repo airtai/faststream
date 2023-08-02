@@ -19,7 +19,15 @@ logger = get_logger(__name__)
 
 # %% ../nbs/026_CLI_Code_Generator.ipynb 6
 _code_generator_app = typer.Typer(
-    help="Commands for accelerating FastKafka app creation using advanced AI technology"
+    short_help="Commands for accelerating FastKafka app creation using advanced AI technology",
+    help="""Commands for accelerating FastKafka app creation using advanced AI technology.
+
+These commands uses OpenAI's GPT-3.5 API for generating FastKafka code. To access this feature, kindly sign up if you haven't already and create an API key with OpenAI. If you're unsure about creating a new OpenAI API key, check this link for guidance: https://help.openai.com/en/articles/4936850-where-do-i-find-my-secret-api-key.
+
+Once you have the key, please set it in the OPENAI_API_KEY environment variable before executing the code generation commands.
+
+Note: Accessing OpenAI API incurs charges. However, when you sign up for the first time, you usually get free credits that are more than enough to generate multiple FastKafka applications. For further information on pricing and free credicts, check this link: https://openai.com/pricing
+    """,
 )
 
 # %% ../nbs/026_CLI_Code_Generator.ipynb 7
