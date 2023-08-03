@@ -34,7 +34,7 @@ ERROR_RESPONSE = "I apologize, but I can only respond to queries related to Fast
 GENERAL_FASTKAFKA_RESPONSE = "Great to see your interest in FastKafka! Unfortunately, I can only generate FastKafka code and offer assistance in that area. For general information about FastKafka, please visit https://fastkafka.airt.ai/"
 
 # %% ../../nbs/027_App_Description_Validator.ipynb 7
-def validate_app_description(description: str) -> Optional[Tuple[str, str]]:
+def validate_app_description(description: str) -> Tuple[str, str]:
     """Validate the user's application description
 
     If the description is unrelated to FastKafka or contains insensitive/inappropriate language, show an error
