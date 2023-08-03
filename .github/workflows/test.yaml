@@ -1,6 +1,9 @@
 name: CI
 on:  [workflow_dispatch, push]
 
+env:
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
 jobs:
   mypy_static_analysis:
     runs-on: ubuntu-latest
