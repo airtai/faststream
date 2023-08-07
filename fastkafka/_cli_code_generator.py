@@ -77,11 +77,12 @@ def generate_fastkafka_app(
     try:
         _ensure_openai_api_key_set()
         validated_description, description_token = validate_app_description(description)
-        plan = generate_plan(validated_description)
-        code = generate_app(plan)
+        validated_plan, plan_token = generate_plan(validated_description)
+        code = generate_app(validated_plan)
         test = generate_test(code)
 
-        typer.secho(f" ▶ Total tokens usage: {description_token}", fg=typer.colors.CYAN)
+        total_token_usage = description_token + plan_token
+        typer.secho(f" ▶ Total tokens usage: {total_token_usage}", fg=typer.colors.CYAN)
         typer.secho("✨  All files were successfully generated.!", fg=typer.colors.CYAN)
 
     except (ValueError, KeyError) as e:

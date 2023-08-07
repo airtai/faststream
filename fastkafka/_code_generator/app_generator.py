@@ -60,7 +60,7 @@ async def to_output_data(data: float) -> Data:
 """
 
 # %% ../../nbs/029_App_Generator.ipynb 6
-def generate_app(plan: Dict[str, List[Dict[str, Any]]]) -> str:
+def generate_app(plan: str) -> str:
     """Generate code for the new FastKafka app from the validated plan
 
     Args:
