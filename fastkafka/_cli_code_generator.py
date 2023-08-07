@@ -42,7 +42,7 @@ _code_generator_app = typer.Typer(
     short_help="Commands for accelerating FastKafka app creation using advanced AI technology",
     help="""Commands for accelerating FastKafka app creation using advanced AI technology.
 
-These commands uses OpenAI's GPT-3.5 API for generating FastKafka code. To access this feature, kindly sign up if you haven't already and create an API key with OpenAI. You can generate API keys in the OpenAI web interface. See https://platform.openai.com/account/api-keys for details.
+These commands use a combination of OpenAI's gpt-3.5-turbo and gpt-3.5-turbo-16k models to generate FastKafka code. To access this feature, kindly sign up if you haven't already and create an API key with OpenAI. You can generate API keys in the OpenAI web interface. See https://platform.openai.com/account/api-keys for details.
 
 Once you have the key, please set it in the OPENAI_API_KEY environment variable before executing the code generation commands.
 
