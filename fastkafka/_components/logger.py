@@ -124,11 +124,11 @@ def set_level(level: int) -> None:
         level: Logger level to set
     """
 
-    # Getting all loggers that has either airt or __main__ in the name
+    # Getting all loggers that has either fastkafka or __main__ in the name
     loggers = [
         logging.getLogger(name)
         for name in logging.root.manager.loggerDict
-        if ("airt" in name) or ("__main__" in name)
+        if ("fastkafka" in name) or ("__main__" in name)
     ]
 
     for logger in loggers:
