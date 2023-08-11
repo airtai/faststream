@@ -94,8 +94,8 @@ button below:
 To demonstrate FastKafka simplicity of using `@produces` and `@consumes`
 decorators, we will focus on a simple app.
 
-The app will consume jsons containig positive floats from one topic, log
-them and then produce incremented values to another topic.
+The app will consume JSON messages containing positive floats from one topic, log
+them, and then produce incremented values to another topic.
 
 ### Messages
 
@@ -178,7 +178,7 @@ and `@kafka_app.produces` to allow you to delegate the actual process of
 
 - consuming and producing data to Kafka, and
 
-- decoding and encoding JSON encode messages
+- decoding and encoding JSON messages
 
 from user defined functions to the framework. The FastKafka framework
 delegates these jobs to AIOKafka and Pydantic libraries.
