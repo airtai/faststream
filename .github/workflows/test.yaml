@@ -1,65 +1,120 @@
-name: CI
-on:  [workflow_dispatch, push]
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize]
 
 jobs:
-  mypy_static_analysis:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: airtai/workflows/airt-mypy-check@main # nosemgrep: yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha
-  bandit_static_analysis:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: airtai/workflows/airt-bandit-check@main # nosemgrep: yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha
-  semgrep_static_analysis:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: airtai/workflows/airt-semgrep-check@main # nosemgrep: yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha
   test:
-    timeout-minutes: 60
+    runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
-        os:  [ubuntu, windows]
-        version: ["3.8", "3.9", "3.10", "3.11"]
-    runs-on: ${{ matrix.os }}-latest
-    defaults:
-      run:
-        shell: bash
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        pydantic-version: ["pydantic-v1", "pydantic-v2"]
+      fail-fast: false
+
+    services:
+      rabbitmq:
+        image: rabbitmq:alpine
+        ports:
+          - 5672:5672
+      
+      kafka:
+        image: bitnami/kafka
+        ports:
+          - 9092:9092
+        env:
+          KAFKA_ENABLE_KRAFT: "true"
+          KAFKA_CFG_NODE_ID: "1"
+          KAFKA_CFG_PROCESS_ROLES: "broker,controller"
+          KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+          KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
+          KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+          KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://127.0.0.1:9092"
+          KAFKA_BROKER_ID: "1"
+          KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+          ALLOW_PLAINTEXT_LISTENER: "true"
+
     steps:
-      - name: Configure Pagefile
-        if: matrix.os == 'windows'
-        uses: al-cheb/configure-pagefile-action@v1.2 # nosemgrep: yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          minimum-size: 8GB
-          maximum-size: 8GB
-          disk-root: "C:"
-      - name: Install quarto
-        uses: quarto-dev/quarto-actions/setup@v2 # nosemgrep: yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha
-      - name: Prepare nbdev env
-        uses: fastai/workflows/nbdev-ci@master # nosemgrep: yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - uses: actions/cache@v3
+        id: cache
         with:
-          version: ${{ matrix.version }}
-          skip_test: true
-      - name: List pip deps
-        run: |
-          pip list
-      - name: Install testing deps
-        run: |
-          fastkafka docs install_deps
-          fastkafka testing install_deps
-      - name: Run nbdev tests
-        run: |
-          nbdev_test --timing --do_print --n_workers 1 --file_glob "*_CLI*" # Run CLI tests first one by one because of npm installation clashes with other tests
-          nbdev_test --timing --do_print --skip_file_glob "*_CLI*"
-      - name: Test building docs with nbdev-mkdocs
-        if: matrix.os != 'windows'
-        run: |
-          nbdev_mkdocs docs
-          if [ -f "mkdocs/site/index.html" ]; then
-            echo "docs built successfully."
-          else
-            echo "index page not found in rendered docs."
-            ls -la
-            ls -la mkdocs/site/
-            exit 1
-          fi
+          path: ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}-test-v03
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install -r requirements.test.txt .[async-rabbit,async-kafka]
+      - name: Install Pydantic v1
+        if: matrix.pydantic-version == 'pydantic-v1'
+        run: pip install "pydantic>=1.10.0,<2.0.0"
+      - name: Install Pydantic v2
+        if: matrix.pydantic-version == 'pydantic-v2'
+        run: pip install --pre "pydantic>=2.0.0b2,<3.0.0"
+      - run: mkdir coverage
+      - name: Test
+        run: bash scripts/test.sh -x
+        env:
+          COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}
+          CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}
+      - name: Store coverage files
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: coverage
+
+  coverage-combine:
+    needs: [test]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+
+      - name: Get coverage files
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage
+          path: coverage
+
+      - run: pip install coverage[toml]
+
+      - run: ls -la coverage
+      - run: coverage combine coverage
+      - run: coverage report
+      - run: coverage html --show-contexts --title "Propan coverage for ${{ github.sha }}"
+
+      - name: Store coverage html
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-html
+          path: htmlcov
+
+  # https://github.com/marketplace/actions/alls-green#why
+  check: # This job does nothing and is only used for the branch protection
+    if: always()
+
+    needs:
+      - coverage-combine
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
