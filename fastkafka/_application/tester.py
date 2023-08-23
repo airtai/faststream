@@ -224,7 +224,7 @@ def mirror_producer(
 
     # adjust name, take into consideration the origin app and brokers
     # configuration so that we can differentiate those two
-    mirror_func.__name__ = f"mirror_{id(app)}_on_{remove_suffix(topic).replace('.', '_')}_{abs(hash(brokers))}"
+    mirror_func.__name__ = f"mirror_{id(app)}_on_{remove_suffix(topic).replace('.', '_').replace('-', '_')}_{abs(hash(brokers))}"
 
     # adjust arg and return val
     sig = sig.replace(
@@ -269,7 +269,7 @@ def mirror_consumer(
 
     # adjust name, take into consideration the origin app and brokers
     # configuration so that we can differentiate those two
-    mirror_func.__name__ = f"mirror_{id(app)}_to_{remove_suffix(topic).replace('.', '_')}_{abs(hash(brokers))}"
+    mirror_func.__name__ = f"mirror_{id(app)}_to_{remove_suffix(topic).replace('.', '_').replace('-', '_')}_{abs(hash(brokers))}"
 
     # adjust arg and return val
     sig = sig.replace(
@@ -415,7 +415,7 @@ def _arrange_mirrors(self: Tester) -> None:
                 tester=self,
                 prefix="to_",
                 topic_brokers=topic_brokers,
-                topic=remove_suffix(topic),
+                topic=remove_suffix(topic).replace(".", "_").replace("-", "_"),
                 brokers=brokers.model_dump_json()
                 if brokers is not None
                 else app._kafka_brokers.model_dump_json(),
@@ -423,10 +423,12 @@ def _arrange_mirrors(self: Tester) -> None:
                 function=mirror_f,
             )
 
-            mocks[f"to_{remove_suffix(topic)}"] = getattr(self.mocks, mirror_f.__name__)
-            awaited_mocks[f"to_{remove_suffix(topic)}"] = getattr(
-                self.awaited_mocks, mirror_f.__name__
-            )
+            mocks[
+                f"to_{remove_suffix(topic).replace('.', '_').replace('-', '_')}"
+            ] = getattr(self.mocks, mirror_f.__name__)
+            awaited_mocks[
+                f"to_{remove_suffix(topic).replace('.', '_').replace('-', '_')}"
+            ] = getattr(self.awaited_mocks, mirror_f.__name__)
 
         for topic, (producer_f, _, brokers, _) in app._producers_store.items():
             mirror_f = self.mirrors[producer_f]
@@ -437,17 +439,19 @@ def _arrange_mirrors(self: Tester) -> None:
                 tester=self,
                 prefix="on_",
                 topic_brokers=topic_brokers,
-                topic=remove_suffix(topic),
+                topic=remove_suffix(topic).replace(".", "_").replace("-", "_"),
                 brokers=brokers.model_dump_json()
                 if brokers is not None
                 else app._kafka_brokers.model_dump_json(),
                 origin_function_name=producer_f.__name__,
                 function=getattr(self.awaited_mocks, mirror_f.__name__),
             )
-            mocks[f"on_{remove_suffix(topic)}"] = getattr(self.mocks, mirror_f.__name__)
-            awaited_mocks[f"on_{remove_suffix(topic)}"] = getattr(
-                self.awaited_mocks, mirror_f.__name__
-            )
+            mocks[
+                f"on_{remove_suffix(topic).replace('.', '_').replace('-', '_')}"
+            ] = getattr(self.mocks, mirror_f.__name__)
+            awaited_mocks[
+                f"on_{remove_suffix(topic).replace('.', '_').replace('-', '_')}"
+            ] = getattr(self.awaited_mocks, mirror_f.__name__)
 
     AppMocks = collections.namedtuple(  # type: ignore
         f"{self.__class__.__name__}Mocks", [f_name for f_name in mocks]
