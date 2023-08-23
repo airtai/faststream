@@ -1,0 +1,8 @@
+-e .
+-e .[async-rabbit]
+-e .[async-kafka]
+-e .[docs]
+
+-r requirements.test.txt
+-r requirements.docs.txt
+-r requirements.lint.txt
