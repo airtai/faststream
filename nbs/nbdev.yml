@@ -1,9 +1,0 @@
-project:
-  output-dir: _docs
-
-website:
-  title: "fastkafka"
-  site-url: "https://airtai.github.io/fastkafka"
-  description: "FastKafka is a powerful and easy-to-use Python library for building asynchronous web services that interact with Kafka topics. Built on top of FastAPI, Starlette, Pydantic, AIOKafka and AsyncAPI, FastKafka simplifies the process of writing producers and consumers for Kafka topics."
-  repo-branch: main
-  repo-url: "https://github.com/airtai/fastkafka"
