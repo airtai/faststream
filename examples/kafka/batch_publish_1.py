@@ -1,3 +1,5 @@
+from typing import List
+
 from propan import Logger, PropanApp
 from propan.kafka import KafkaBroker
 
@@ -6,7 +8,7 @@ app = PropanApp(broker)
 
 
 @broker.subscriber("test", batch=True)
-async def handle(msg: list[str], logger: Logger):
+async def handle(msg: List[str], logger: Logger):
     logger.info(msg)
 
 

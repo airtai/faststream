@@ -12,6 +12,7 @@ from typing import (
     Tuple,
     Union,
     cast,
+    Any,
 )
 
 from fast_depends.core import CallModel
@@ -38,26 +39,26 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
     calls: Union[
         List[
             Tuple[
-                HandlerCallWrapper[MsgType, ..., SendableMessage],  # handler
+                HandlerCallWrapper[MsgType, Any, SendableMessage],  # handler
                 Callable[[PropanMessage[MsgType]], bool],  # filter
                 SyncParser[MsgType],  # parser
                 SyncDecoder[MsgType],  # decoder
                 Sequence[  # middlewares
                     Callable[[PropanMessage[MsgType]], ContextManager[None]]
                 ],
-                CallModel[..., SendableMessage],  # dependant
+                CallModel[Any, SendableMessage],  # dependant
             ]
         ],
         List[
             Tuple[
-                HandlerCallWrapper[MsgType, ..., SendableMessage],  # handler
+                HandlerCallWrapper[MsgType, Any, SendableMessage],  # handler
                 Callable[[PropanMessage[MsgType]], Awaitable[bool]],  # filter
                 AsyncParser[MsgType],  # parser
                 AsyncDecoder[MsgType],  # decoder
                 Sequence[  # middlewares
                     Callable[[PropanMessage[MsgType]], AsyncContextManager[None]]
                 ],
-                CallModel[..., SendableMessage],  # dependant
+                CallModel[Any, SendableMessage],  # dependant
             ]
         ],
     ]
@@ -121,14 +122,14 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
 class SyncHandler(BaseHandler[MsgType]):
     calls: List[
         Tuple[
-            HandlerCallWrapper[MsgType, ..., SendableMessage],  # handler
+            HandlerCallWrapper[MsgType, Any, SendableMessage],  # handler
             Callable[[PropanMessage[MsgType]], bool],  # filter
             SyncParser[MsgType],  # parser
             SyncDecoder[MsgType],  # decoder
             Sequence[  # middlewares
                 Callable[[PropanMessage[MsgType]], ContextManager[None]]
             ],
-            CallModel[..., SendableMessage],  # dependant
+            CallModel[Any, SendableMessage],  # dependant
         ]
     ]
 
@@ -137,14 +138,14 @@ class SyncHandler(BaseHandler[MsgType]):
     def add_call(
         self,
         *,
-        handler: HandlerCallWrapper[MsgType, ..., SendableMessage],
+        handler: HandlerCallWrapper[MsgType, Any, SendableMessage],
         filter: Callable[[PropanMessage[MsgType]], bool],
         parser: SyncParser[MsgType],
         decoder: SyncDecoder[MsgType],
         middlewares: Optional[
             Sequence[Callable[[PropanMessage[MsgType]], ContextManager[None]]]
         ],
-        dependant: CallModel[..., SendableMessage],
+        dependant: CallModel[Any, SendableMessage],
     ) -> None:
         self.calls.append(
             (
@@ -207,14 +208,14 @@ class SyncHandler(BaseHandler[MsgType]):
 class AsyncHandler(BaseHandler[MsgType]):
     calls: List[
         Tuple[
-            HandlerCallWrapper[MsgType, ..., SendableMessage],  # handler
+            HandlerCallWrapper[MsgType, Any, SendableMessage],  # handler
             Callable[[PropanMessage[MsgType]], Awaitable[bool]],  # filter
             AsyncParser[MsgType],  # parser
             AsyncDecoder[MsgType],  # decoder
             Sequence[  # middlewares
                 Callable[[PropanMessage[MsgType]], AsyncContextManager[None]]
             ],
-            CallModel[..., SendableMessage],  # dependant
+            CallModel[Any, SendableMessage],  # dependant
         ]
     ]
 

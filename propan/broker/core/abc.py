@@ -322,8 +322,8 @@ class BrokerUsecase(
 
 
 def extend_dependencies(
-    extra: Sequence[CallModel[..., Any]], dependant: CallModel[..., Any]
-) -> CallModel[..., Any]:
+    extra: Sequence[CallModel[Any, Any]], dependant: CallModel[Any, Any]
+) -> CallModel[Any, Any]:
     if isinstance(dependant, CallModel):
         dependant.extra_dependencies = (*dependant.extra_dependencies, *extra)
     else:  # FastAPI dependencies
