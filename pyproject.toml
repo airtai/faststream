@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "propan"
+name = "faststream-test"
 description = "Propan framework: the simplest way to work with a messaging queues"
 readme = "README.md"
 authors = [
