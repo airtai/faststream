@@ -1,8 +1,0 @@
-mkdocs-material >=8.1.4,<9.0.0
-mkdocs-static-i18n
-mdx-include >=1.4.1,<2.0.0
-mkdocs-macros-plugin
-# images zoom
-mkdocs-glightbox
-pillow
-cairosvg

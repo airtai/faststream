@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "faststream-test"
+name = "propan"
 description = "Propan framework: the simplest way to work with a messaging queues"
 readme = "README.md"
 authors = [
@@ -63,7 +63,35 @@ async-kafka = [
 docs = [
     "fastapi>=0.100.0",
     "uvicorn>=0.17.0",
+    "mkdocs-material>=8.1.4,<9.0.0",
+    "mkdocs-static-i18n",
+    "mdx-include>=1.4.1,<2.0.0",
+    "mkdocs-macros-plugin",
+    "mkdocs-glightbox",
+    "pillow",
+    "cairosvg",
 ]
+
+lint = [
+    "types-redis",
+    "mypy==1.4.1",
+    "black==23.3.0",
+    "isort>=5",
+    "ruff==0.0.275",
+    "pyupgrade-directories",
+]
+
+testing = [
+    "coverage[toml]>=7.2",
+    "pytest==7.4.0",
+    "pytest-asyncio>=0.21",
+    "dirty-equals==0.6.0",
+    "fastapi>=0.100.0b",
+    "pydantic-settings",
+    "httpx",
+]
+
+dev = ["propan[async-rabbit,async-kafka,docs,lint,testing]"]
 
 [project.urls]
 Homepage = "https://lancetnik.github.io/Propan/"
