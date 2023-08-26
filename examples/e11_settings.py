@@ -7,8 +7,8 @@ except ImportError:
     # pydantic V2
     from pydantic_settings import BaseSettings
 
-from propan import Logger, PropanApp
-from propan.rabbit import RabbitBroker
+from faststream import FastStream, Logger
+from faststream.rabbit import RabbitBroker
 
 
 class Settings(BaseSettings):
@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 settings = Settings(_env_file=os.getenv("ENV", ".env"))
 
 broker = RabbitBroker(settings.url)
-app = PropanApp(broker)
+app = FastStream(broker)
 
 
 @broker.subscriber(settings.queue)
@@ -32,5 +32,5 @@ async def test():
     await broker.publish("Hello!", settings.queue)
 
 
-# ENV=.prod.env propan run serve:app
+# ENV=.prod.env faststream run serve:app
 # ENV=.test.env pytest

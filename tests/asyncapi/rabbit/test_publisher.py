@@ -1,5 +1,5 @@
-from propan.asyncapi.generate import get_app_schema
-from propan.rabbit import ExchangeType, RabbitBroker, RabbitExchange, RabbitQueue
+from faststream.asyncapi.generate import get_app_schema
+from faststream.rabbit import ExchangeType, RabbitBroker, RabbitExchange, RabbitQueue
 from tests.asyncapi.base.publisher import PublisherTestcase
 
 

@@ -1,6 +1,6 @@
 import platform
 
-from propan.cli.main import cli
+from faststream.cli.main import cli
 
 
 def test_version(runner, version):

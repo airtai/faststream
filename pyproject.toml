@@ -3,10 +3,11 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "propan"
-description = "Propan framework: the simplest way to work with a messaging queues"
+name = "faststream"
+description = "FastStream: the simplest way to work with a messaging queues"
 readme = "README.md"
 authors = [
+    { name = "airt", email = "info@airt.ai" },
     { name = "Pastukhov Nikita", email = "diementros@yandex.ru" },
 ]
 
@@ -53,11 +54,11 @@ dependencies = [
 
 [project.optional-dependencies]
 # public distributions
-async-rabbit = [
+rabbit = [
     "aio-pika>=9",
 ]
 
-async-kafka = [
+kafka = [
     "aiokafka>=0.8",
 ]
 
@@ -96,19 +97,19 @@ testing = [
     "httpx",
 ]
 
-dev = ["propan[async-rabbit,async-kafka,docs,lint,testing,devdocs]"]
+dev = ["faststream[rabbit,kafka,docs,lint,testing,devdocs]"]
 
 [project.urls]
-Homepage = "https://lancetnik.github.io/Propan/"
-Documentation = "https://lancetnik.github.io/Propan/"
-Tracker = "https://github.com/Lancetnik/Propan/issues"
-Source = "https://github.com/Lancetnik/Propan"
+Homepage = "https://faststream.airt.ai/"
+Documentation = "https://faststream.airt.ai/docs/latest/"
+Tracker = "https://github.com/airtai/FastStream/issues"
+Source = "https://github.com/airtai/FastStream"
 
 [project.scripts]
-propan = "propan.__main__:cli"
+faststream = "faststream.__main__:cli"
 
 [tool.hatch.version]
-path = "propan/__about__.py"
+path = "faststream/__about__.py"
 
 [tool.hatch.build]
 skip-excluded-dirs = true
@@ -124,7 +125,7 @@ ignore_missing_imports = true
 
 [tool.isort]
 profile = "black"
-known_first_party = ["propan"]
+known_first_party = ["faststream"]
 
 [tool.black]
 line-length = 88
@@ -154,9 +155,9 @@ convention = "google"
 
 [tool.ruff.flake8-bugbear]
 extend-immutable-calls = [
-    "propan.Depends", "propan.Context",
-    "propan.utils.Depends", "propan.utils.Context",
-    "propan.utils.context.Depends", "propan.utils.context.Context",
+    "faststream.Depends", "faststream.Context",
+    "faststream.utils.Depends", "faststream.utils.Context",
+    "faststream.utils.context.Depends", "faststream.utils.context.Context",
     "typer.Argument", "typer.Option",
     "pydantic.Field", "rocketry.args.Arg",
     "fastapi.Depends", "fastapi.Header",
@@ -185,7 +186,7 @@ concurrency = [
     "thread"
 ]
 source = [
-    "propan",
+    "faststream",
     "tests"
 ]
 context = '${CONTEXT}'

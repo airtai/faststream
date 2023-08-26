@@ -6,7 +6,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from propan.cli.supervisors.watchfiles import WatchReloader
+from faststream.cli.supervisors.watchfiles import WatchReloader
 
 DIR = Path(__file__).resolve().parent
 

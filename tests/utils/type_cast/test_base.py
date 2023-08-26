@@ -2,7 +2,7 @@ from typing import Tuple
 
 import pytest
 
-from propan.utils import apply_types
+from faststream.utils import apply_types
 
 
 @apply_types

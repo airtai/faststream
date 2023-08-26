@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from propan.utils import Context, ContextRepo, apply_types
+from faststream.utils import Context, ContextRepo, apply_types
 
 
 def test_context_getattr(context: ContextRepo):

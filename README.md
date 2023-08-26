@@ -134,10 +134,10 @@ asyncio.run(main())
 It is not a bad way, but it can be much easier.
 
 ```python
-from propan import PropanApp, RabbitBroker
+from propan import FastStream, RabbitBroker
 
 broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
-app = PropanApp(broker)
+app = FastStream(broker)
 
 @broker.handle("test_queue")
 async def base_handler(body):
@@ -153,13 +153,13 @@ This is the **Propan** declarative way to write the same code. That is so much e
 Install using `pip`:
 
 ```shell
-pip install "propan[async-rabbit]"
+pip install "propan[rabbit]"
 # or
 pip install "propan[async-nats]"
 # or
 pip install "propan[async-redis]"
 # or
-pip install "propan[async-kafka]"
+pip install "propan[kafka]"
 # or
 pip install "propan[async-sqs]"
 ```
@@ -169,7 +169,7 @@ pip install "propan[async-sqs]"
 Create an application with the following code at `serve.py`:
 
 ```python
-from propan import PropanApp
+from propan import FastStream
 from propan import RabbitBroker
 # from propan import RedisBroker
 # from propan import NatsBroker
@@ -182,7 +182,7 @@ broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
 # broker = SQSBroker("http://localhost:9324", ...)
 # broker = KafkaBroker("localhost:9092")
 
-app = PropanApp(broker)
+app = FastStream(broker)
 
 @broker.handle("test")
 async def base_handler(body):
@@ -203,10 +203,10 @@ Propan uses `pydantic` to cast incoming function arguments to types according to
 
 ```python
 from pydantic import BaseModel
-from propan import PropanApp, RabbitBroker
+from propan import FastStream, RabbitBroker
 
 broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
-app = PropanApp(broker)
+app = FastStream(broker)
 
 class SimpleMessage(BaseModel):
     key: int
@@ -229,10 +229,10 @@ Also, you can specify your own dependencies, call dependencies functions and
 [more](https://github.com/Lancetnik/Propan/tree/main/examples/dependencies).
 
 ```python
-from propan import PropanApp, RabbitBroker, Context, Depends
+from propan import FastStream, RabbitBroker, Context, Depends
 
 rabbit_broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
-app = PropanApp(rabbit_broker)
+app = FastStream(rabbit_broker)
 
 async def dependency(user_id: int) -> bool:
     return True
@@ -252,10 +252,10 @@ async def base_handler(user_id: int,
 Also, **Propan** allows you to use **RPC** requests over your broker with a simple way:
 
 ```python
-from propan import PropanApp, RabbitBroker
+from propan import FastStream, RabbitBroker
 
 broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
-app = PropanApp(rabbit_broker)
+app = FastStream(rabbit_broker)
 
 @broker.handle("ping")
 async def base_handler():
@@ -299,13 +299,13 @@ propan run serve:app --env=.env.dev
 ```
 
 ```python
-from propan import PropanApp, RabbitBroker
+from propan import FastStream, RabbitBroker
 from propan.annotations import ContextRepo
 from pydantic import BaseSettings
 
 broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
 
-app = PropanApp(broker)
+app = FastStream(broker)
 
 class Settings(BaseSettings):
     ...
@@ -344,7 +344,7 @@ Now you can enjoy a new development experience!
 
 ### Any Framework
 
-You can use **Propan** `MQBrokers` without `PropanApp`.
+You can use **Propan** `MQBrokers` without `FastStream`.
 Just *start* and *stop* them according to your application lifespan.
 
 ```python

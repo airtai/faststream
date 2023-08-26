@@ -1,6 +1,6 @@
-from propan import PropanApp
-from propan.asyncapi.generate import get_app_schema
-from propan.kafka import KafkaBroker, KafkaRoute, KafkaRouter
+from faststream import FastStream
+from faststream.asyncapi.generate import get_app_schema
+from faststream.kafka import KafkaBroker, KafkaRoute, KafkaRouter
 from tests.asyncapi.base.arguments import ArgumentsTestcase
 from tests.asyncapi.base.publisher import PublisherTestcase
 from tests.asyncapi.base.router import RouterTestcase
@@ -22,7 +22,7 @@ class TestRouter(RouterTestcase):
 
         broker.include_router(router)
 
-        schema = get_app_schema(PropanApp(broker)).to_jsonable()
+        schema = get_app_schema(FastStream(broker)).to_jsonable()
 
         assert schema == {
             "asyncapi": "2.6.0",
@@ -56,7 +56,7 @@ class TestRouter(RouterTestcase):
                 },
             },
             "defaultContentType": "application/json",
-            "info": {"description": "", "title": "Propan", "version": "0.1.0"},
+            "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
             "servers": {
                 "development": {
                     "protocol": "kafka",
@@ -73,7 +73,7 @@ class TestRouterArguments(ArgumentsTestcase):
     def build_app(self, router):
         broker = KafkaBroker()
         broker.include_router(router)
-        return PropanApp(broker)
+        return FastStream(broker)
 
 
 class TestRouterPublisher(PublisherTestcase):
@@ -82,4 +82,4 @@ class TestRouterPublisher(PublisherTestcase):
     def build_app(self, router):
         broker = KafkaBroker()
         broker.include_router(router)
-        return PropanApp(broker)
+        return FastStream(broker)

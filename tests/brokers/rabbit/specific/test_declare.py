@@ -1,7 +1,7 @@
 import pytest
 
-from propan.rabbit import RabbitExchange, RabbitQueue
-from propan.rabbit.helpers import RabbitDeclarer
+from faststream.rabbit import RabbitExchange, RabbitQueue
+from faststream.rabbit.helpers import RabbitDeclarer
 from tests.tools.marks import needs_py38
 
 

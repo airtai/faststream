@@ -3,14 +3,14 @@ from unittest.mock import Mock
 
 import pytest
 
-from propan.rabbit import (
+from faststream.rabbit import (
     ExchangeType,
     RabbitBroker,
     RabbitExchange,
     RabbitQueue,
     TestRabbitBroker,
 )
-from propan.rabbit.annotations import RabbitMessage
+from faststream.rabbit.annotations import RabbitMessage
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 

@@ -1,16 +1,16 @@
 from typing import List
 
-from propan import Logger, PropanApp
-from propan.kafka import KafkaBroker
+from faststream import FastStream, Logger
+from faststream.kafka import KafkaBroker
 
 broker = KafkaBroker("localhost:9092")
-app = PropanApp(broker)
+app = FastStream(broker)
 
 
 @broker.subscriber("test")
 @broker.publisher("response", batch=True)
 async def handle():
-    return ("hi", "propan")
+    return ("hi", "FastStream")
 
 
 @broker.subscriber("response", batch=True)

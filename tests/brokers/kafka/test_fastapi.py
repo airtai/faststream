@@ -1,7 +1,7 @@
 import pytest
 
-from propan.kafka.fastapi import KafkaRouter
-from propan.kafka.test import TestKafkaBroker, build_message
+from faststream.kafka.fastapi import KafkaRouter
+from faststream.kafka.test import TestKafkaBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 

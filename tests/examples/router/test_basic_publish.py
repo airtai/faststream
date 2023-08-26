@@ -1,7 +1,7 @@
 import pytest
 
 from examples.router.basic_publish import app, handle, handle_response
-from propan import TestApp as T
+from faststream import TestApp as T
 
 
 @pytest.mark.asyncio

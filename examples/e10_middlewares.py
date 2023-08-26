@@ -1,9 +1,9 @@
 from types import TracebackType
 from typing import Optional, Type
 
-from propan import BaseMiddleware, PropanApp
-from propan.rabbit import RabbitBroker
-from propan.types import DecodedMessage
+from faststream import BaseMiddleware, FastStream
+from faststream.rabbit import RabbitBroker
+from faststream.types import DecodedMessage
 
 
 class TopLevelMiddleware(BaseMiddleware):
@@ -35,7 +35,7 @@ broker = RabbitBroker(
     "amqp://guest:guest@localhost:5672/",
     middlewares=(TopLevelMiddleware,),
 )
-app = PropanApp(broker)
+app = FastStream(broker)
 
 
 @broker.subscriber("test", middlewares=(HandlerMiddleware,))

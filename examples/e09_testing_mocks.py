@@ -1,10 +1,10 @@
 import pytest
 
-from propan import PropanApp
-from propan.rabbit import RabbitBroker, TestRabbitBroker
+from faststream import FastStream
+from faststream.rabbit import RabbitBroker, TestRabbitBroker
 
 broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
-app = PropanApp(broker)
+app = FastStream(broker)
 
 
 publisher1 = broker.publisher("test-resp")

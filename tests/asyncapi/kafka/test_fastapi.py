@@ -1,4 +1,4 @@
-from propan.kafka.fastapi import KafkaRouter
+from faststream.kafka.fastapi import KafkaRouter
 from tests.asyncapi.base.arguments import FastAPICompatible
 from tests.asyncapi.base.publisher import PublisherTestcase
 

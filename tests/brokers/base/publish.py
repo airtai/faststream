@@ -6,8 +6,8 @@ from unittest.mock import Mock
 import pytest
 from pydantic import BaseModel
 
-from propan.annotations import Logger
-from propan.broker.core.abc import BrokerUsecase
+from faststream.annotations import Logger
+from faststream.broker.core.abc import BrokerUsecase
 
 
 class SimpleModel(BaseModel):

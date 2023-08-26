@@ -1,9 +1,9 @@
-from propan import PropanApp
-from propan.rabbit import RabbitBroker
-from propan.rabbit.annotations import Logger, RabbitMessage
+from faststream import FastStream
+from faststream.rabbit import RabbitBroker
+from faststream.rabbit.annotations import Logger, RabbitMessage
 
 broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
-app = PropanApp(broker)
+app = FastStream(broker)
 
 
 @broker.subscriber("test-queue")

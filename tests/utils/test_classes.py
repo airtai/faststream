@@ -1,4 +1,4 @@
-from propan.utils.classes import Singleton
+from faststream.utils.classes import Singleton
 
 
 def test_singleton():

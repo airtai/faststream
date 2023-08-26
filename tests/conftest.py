@@ -2,8 +2,8 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from propan.__about__ import __version__
-from propan.utils import context as global_context
+from faststream.__about__ import __version__
+from faststream.utils import context as global_context
 
 
 @pytest.hookimpl(tryfirst=True)

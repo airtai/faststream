@@ -2,7 +2,7 @@ import signal
 
 import pytest
 
-from propan.cli.supervisors.basereload import BaseReload
+from faststream.cli.supervisors.basereload import BaseReload
 
 
 class PatchedBaseReload(BaseReload):

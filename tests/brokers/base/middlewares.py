@@ -4,8 +4,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from propan.broker.core.abc import BrokerUsecase
-from propan.broker.middlewares import BaseMiddleware
+from faststream.broker.core.abc import BrokerUsecase
+from faststream.broker.middlewares import BaseMiddleware
 
 
 @pytest.mark.asyncio

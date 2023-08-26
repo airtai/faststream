@@ -6,40 +6,40 @@ from unittest.mock import Mock, patch
 import anyio
 import pytest
 
-from propan import PropanApp
-from propan.log import logger
-from propan.rabbit import RabbitBroker
-from propan.utils import Context
+from faststream import FastStream
+from faststream.log import logger
+from faststream.rabbit import RabbitBroker
+from faststream.utils import Context
 from tests.tools.marks import needs_py38
 
 
-def test_init(app: PropanApp, context: Context, broker: RabbitBroker):
+def test_init(app: FastStream, context: Context, broker: RabbitBroker):
     assert app.broker is broker
     assert context.app is app
     assert app.logger is logger
 
 
-def test_init_without_broker(app_without_broker: PropanApp):
+def test_init_without_broker(app_without_broker: FastStream):
     assert app_without_broker.broker is None
 
 
-def test_init_without_logger(app_without_logger: PropanApp):
+def test_init_without_logger(app_without_logger: FastStream):
     assert app_without_logger.logger is None
 
 
-def test_set_broker(broker: RabbitBroker, app_without_broker: PropanApp):
+def test_set_broker(broker: RabbitBroker, app_without_broker: FastStream):
     assert app_without_broker.broker is None
     app_without_broker.set_broker(broker)
     assert app_without_broker.broker is broker
 
 
-def test_log(app: PropanApp, app_without_logger: PropanApp):
+def test_log(app: FastStream, app_without_logger: FastStream):
     app._log(logging.INFO, "test")
     app_without_logger._log(logging.INFO, "test")
 
 
 @pytest.mark.asyncio
-async def test_startup_calls_lifespans(mock: Mock, app_without_broker: PropanApp):
+async def test_startup_calls_lifespans(mock: Mock, app_without_broker: FastStream):
     def call1():
         mock.call_start1()
         assert not mock.call_start2.called
@@ -58,7 +58,7 @@ async def test_startup_calls_lifespans(mock: Mock, app_without_broker: PropanApp
 
 
 @pytest.mark.asyncio
-async def test_shutdown_calls_lifespans(mock: Mock, app_without_broker: PropanApp):
+async def test_shutdown_calls_lifespans(mock: Mock, app_without_broker: FastStream):
     def call1():
         mock.call_stop1()
         assert not mock.call_stop2.called
@@ -78,7 +78,7 @@ async def test_shutdown_calls_lifespans(mock: Mock, app_without_broker: PropanAp
 
 @pytest.mark.asyncio
 @needs_py38
-async def test_startup_lifespan_before_broker_started(async_mock, app: PropanApp):
+async def test_startup_lifespan_before_broker_started(async_mock, app: FastStream):
     @app.on_startup
     async def call():
         await async_mock.before()
@@ -100,7 +100,9 @@ async def test_startup_lifespan_before_broker_started(async_mock, app: PropanApp
 
 @pytest.mark.asyncio
 @needs_py38
-async def test_shutdown_lifespan_after_broker_stopped(mock, async_mock, app: PropanApp):
+async def test_shutdown_lifespan_after_broker_stopped(
+    mock, async_mock, app: FastStream
+):
     @app.after_shutdown
     async def call():
         await async_mock.after()
@@ -121,7 +123,7 @@ async def test_shutdown_lifespan_after_broker_stopped(mock, async_mock, app: Pro
 
 @pytest.mark.asyncio
 @needs_py38
-async def test_running(async_mock, app: PropanApp):
+async def test_running(async_mock, app: FastStream):
     app._init_async_cycle()
     app._stop_event.set()
 
@@ -135,7 +137,7 @@ async def test_running(async_mock, app: PropanApp):
 
 @pytest.mark.asyncio
 @needs_py38
-async def test_stop_with_sigint(async_mock, app: PropanApp):
+async def test_stop_with_sigint(async_mock, app: FastStream):
     app._init_async_cycle()
 
     with patch.object(app.broker, "start", async_mock.broker_run_sigint):
@@ -150,7 +152,7 @@ async def test_stop_with_sigint(async_mock, app: PropanApp):
 
 @pytest.mark.asyncio
 @needs_py38
-async def test_stop_with_sigterm(async_mock, app: PropanApp):
+async def test_stop_with_sigterm(async_mock, app: FastStream):
     app._init_async_cycle()
 
     with patch.object(app.broker, "start", async_mock.broker_run_sigterm):

@@ -3,7 +3,12 @@ from dataclasses import dataclass
 import pytest
 import pytest_asyncio
 
-from propan.rabbit import RabbitBroker, RabbitExchange, RabbitRouter, TestRabbitBroker
+from faststream.rabbit import (
+    RabbitBroker,
+    RabbitExchange,
+    RabbitRouter,
+    TestRabbitBroker,
+)
 
 
 @dataclass

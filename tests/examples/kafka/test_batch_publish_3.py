@@ -1,7 +1,7 @@
 import pytest
 
 from examples.kafka.batch_publish_3 import app, handle, handle_response
-from propan import TestApp as T
+from faststream import TestApp as T
 
 
 @pytest.mark.asyncio
@@ -12,4 +12,4 @@ async def test_example():
         await handle_response.wait_call(3)
 
     handle.mock.assert_called_with("hi")
-    assert set(handle_response.mock.call_args[0][0]) == {"hi", "propan"}
+    assert set(handle_response.mock.call_args[0][0]) == {"hi", "FastStream"}

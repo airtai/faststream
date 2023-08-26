@@ -1,7 +1,7 @@
 import pytest
 
-from propan.rabbit.fastapi import RabbitRouter
-from propan.rabbit.test import TestRabbitBroker, build_message
+from faststream.rabbit.fastapi import RabbitRouter
+from faststream.rabbit.test import TestRabbitBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 

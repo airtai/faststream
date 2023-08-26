@@ -4,10 +4,10 @@ from unittest.mock import Mock
 
 import pytest
 
-from propan import BaseMiddleware, Depends
-from propan.broker.core.asyncronous import BrokerAsyncUsecase
-from propan.broker.router import BrokerRoute, BrokerRouter
-from propan.types import AnyCallable
+from faststream import BaseMiddleware, Depends
+from faststream.broker.core.asyncronous import BrokerAsyncUsecase
+from faststream.broker.router import BrokerRoute, BrokerRouter
+from faststream.types import AnyCallable
 from tests.brokers.base.middlewares import LocalMiddlewareTestcase
 from tests.brokers.base.parser import LocalCustomParserTestcase
 

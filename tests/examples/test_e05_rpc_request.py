@@ -1,7 +1,7 @@
 import pytest
 
 from examples.e05_rpc_request import app, handle
-from propan import TestApp as T
+from faststream import TestApp as T
 
 
 @pytest.mark.asyncio

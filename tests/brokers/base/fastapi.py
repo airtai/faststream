@@ -8,16 +8,16 @@ from fastapi import Depends, FastAPI, Header
 from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
 
-from propan.broker.core.asyncronous import BrokerAsyncUsecase
-from propan.broker.fastapi.router import PropanRouter
-from propan.types import AnyCallable
+from faststream.broker.core.asyncronous import BrokerAsyncUsecase
+from faststream.broker.fastapi.router import StreamRouter
+from faststream.types import AnyCallable
 
 Broker = TypeVar("Broker", bound=BrokerAsyncUsecase)
 
 
 @pytest.mark.asyncio
 class FastAPITestcase:
-    router_class: Type[PropanRouter[BrokerAsyncUsecase]]
+    router_class: Type[StreamRouter[BrokerAsyncUsecase]]
 
     async def test_base_real(self, mock: Mock, queue: str, event: asyncio.Event):
         router = self.router_class()
@@ -100,7 +100,7 @@ class FastAPITestcase:
 
 @pytest.mark.asyncio
 class FastAPILocalTestcase:
-    router_class: Type[PropanRouter[BrokerAsyncUsecase]]
+    router_class: Type[StreamRouter[BrokerAsyncUsecase]]
     broker_test: Callable[[Broker], Broker]
     build_message: AnyCallable
 

@@ -1,7 +1,7 @@
 import pytest
 
-from propan.broker.core.abc import BrokerUsecase
-from propan.types import AnyCallable
+from faststream.broker.core.abc import BrokerUsecase
+from faststream.types import AnyCallable
 from tests.brokers.base.consume import BrokerConsumeTestcase
 from tests.brokers.base.publish import BrokerPublishTestcase
 from tests.brokers.base.rpc import BrokerRPCTestcase

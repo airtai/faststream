@@ -1,10 +1,10 @@
 from typing import List
 
-from propan import Logger, PropanApp
-from propan.kafka import KafkaBroker
+from faststream import FastStream, Logger
+from faststream.kafka import KafkaBroker
 
 broker = KafkaBroker("localhost:9092")
-app = PropanApp(broker)
+app = FastStream(broker)
 
 
 @broker.subscriber("test", batch=True)
@@ -14,4 +14,4 @@ async def handle(msg: List[str], logger: Logger):
 
 @app.after_startup
 async def test() -> None:
-    await broker.publish_batch("hi", "propan", topic="test")
+    await broker.publish_batch("hi", "FastStream", topic="test")

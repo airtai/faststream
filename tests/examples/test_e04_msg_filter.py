@@ -1,7 +1,7 @@
 import pytest
 
 from examples.e04_msg_filter import app, handle_json, handle_other_messages
-from propan import TestApp as T
+from faststream import TestApp as T
 
 
 @pytest.mark.asyncio

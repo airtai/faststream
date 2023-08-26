@@ -1,7 +1,7 @@
 import pytest
 
-from propan._compat import Annotated
-from propan.utils import Depends, apply_types
+from faststream._compat import Annotated
+from faststream.utils import Depends, apply_types
 
 
 def sync_dep(key):

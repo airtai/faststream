@@ -1,7 +1,7 @@
 import pytest
 
 from examples.e02_3_basic_publisher import app, handle, handle_response
-from propan import TestApp as T
+from faststream import TestApp as T
 
 
 @pytest.mark.asyncio

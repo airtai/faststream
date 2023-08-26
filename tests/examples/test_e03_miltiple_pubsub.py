@@ -6,7 +6,7 @@ from examples.e03_miltiple_pubsub import (
     handle_response_1,
     handle_response_2,
 )
-from propan import TestApp as T
+from faststream import TestApp as T
 
 
 @pytest.mark.asyncio

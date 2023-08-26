@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from propan.kafka import KafkaBroker, TestKafkaBroker
+from faststream.kafka import KafkaBroker, TestKafkaBroker
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 

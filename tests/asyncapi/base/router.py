@@ -1,9 +1,9 @@
 from typing import Type
 
-from propan import PropanApp
-from propan.asyncapi.generate import get_app_schema
-from propan.broker.core.abc import BrokerUsecase
-from propan.broker.router import BrokerRoute, BrokerRouter
+from faststream import FastStream
+from faststream.asyncapi.generate import get_app_schema
+from faststream.broker.core.abc import BrokerUsecase
+from faststream.broker.router import BrokerRoute, BrokerRouter
 
 
 class RouterTestcase:
@@ -23,7 +23,7 @@ class RouterTestcase:
 
         broker.include_router(router)
 
-        schema = get_app_schema(PropanApp(broker)).to_jsonable()
+        schema = get_app_schema(FastStream(broker)).to_jsonable()
 
         payload = schema["components"]["schemas"]
 

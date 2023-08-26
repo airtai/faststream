@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from propan.broker.core.asyncronous import BrokerAsyncUsecase
+from faststream.broker.core.asyncronous import BrokerAsyncUsecase
 
 
 @pytest.mark.asyncio

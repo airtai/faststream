@@ -1,9 +1,9 @@
 import aio_pika
 import pytest
 
-from propan.rabbit import RabbitBroker
-from propan.rabbit.annotations import RabbitMessage
-from propan.utils import Depends
+from faststream.rabbit import RabbitBroker
+from faststream.rabbit.annotations import RabbitMessage
+from faststream.utils import Depends
 
 
 @pytest.mark.asyncio

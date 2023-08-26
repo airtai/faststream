@@ -1,5 +1,5 @@
-from propan.asyncapi.generate import get_app_schema
-from propan.kafka import KafkaBroker
+from faststream.asyncapi.generate import get_app_schema
+from faststream.kafka import KafkaBroker
 from tests.asyncapi.base.publisher import PublisherTestcase
 
 
