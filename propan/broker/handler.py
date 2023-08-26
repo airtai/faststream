@@ -1,10 +1,9 @@
 from abc import abstractmethod
-from contextlib import AsyncExitStack, ExitStack
+from contextlib import AsyncExitStack
 from typing import (
-    AsyncContextManager,
+    Any,
     Awaitable,
     Callable,
-    ContextManager,
     Generic,
     List,
     Optional,
@@ -12,7 +11,6 @@ from typing import (
     Tuple,
     Union,
     cast,
-    Any,
 )
 
 from fast_depends.core import CallModel
@@ -21,6 +19,7 @@ from propan._compat import IS_OPTIMIZED, override
 from propan.asyncapi.base import AsyncAPIOperation
 from propan.asyncapi.utils import to_camelcase
 from propan.broker.message import PropanMessage
+from propan.broker.middlewares import BaseMiddleware
 from propan.broker.types import (
     AsyncDecoder,
     AsyncParser,
@@ -29,6 +28,7 @@ from propan.broker.types import (
     SyncDecoder,
     SyncParser,
     T_HandlerReturn,
+    WrappedReturn,
 )
 from propan.broker.wrapper import HandlerCallWrapper
 from propan.exceptions import StopConsume
@@ -43,9 +43,7 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
                 Callable[[PropanMessage[MsgType]], bool],  # filter
                 SyncParser[MsgType],  # parser
                 SyncDecoder[MsgType],  # decoder
-                Sequence[  # middlewares
-                    Callable[[PropanMessage[MsgType]], ContextManager[None]]
-                ],
+                Sequence[Callable[[Any], BaseMiddleware]],  # middlewares
                 CallModel[Any, SendableMessage],  # dependant
             ]
         ],
@@ -55,18 +53,13 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
                 Callable[[PropanMessage[MsgType]], Awaitable[bool]],  # filter
                 AsyncParser[MsgType],  # parser
                 AsyncDecoder[MsgType],  # decoder
-                Sequence[  # middlewares
-                    Callable[[PropanMessage[MsgType]], AsyncContextManager[None]]
-                ],
+                Sequence[Callable[[Any], BaseMiddleware]],  # middlewares
                 CallModel[Any, SendableMessage],  # dependant
             ]
         ],
     ]
 
-    global_middlewares: Union[
-        Sequence[Callable[[MsgType], ContextManager[None]]],
-        Sequence[Callable[[MsgType], AsyncContextManager[None]]],
-    ]
+    global_middlewares: Sequence[Callable[[Any], BaseMiddleware]]
     is_test: bool
 
     def __init__(
@@ -119,92 +112,6 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
         raise NotImplementedError()
 
 
-class SyncHandler(BaseHandler[MsgType]):
-    calls: List[
-        Tuple[
-            HandlerCallWrapper[MsgType, Any, SendableMessage],  # handler
-            Callable[[PropanMessage[MsgType]], bool],  # filter
-            SyncParser[MsgType],  # parser
-            SyncDecoder[MsgType],  # decoder
-            Sequence[  # middlewares
-                Callable[[PropanMessage[MsgType]], ContextManager[None]]
-            ],
-            CallModel[Any, SendableMessage],  # dependant
-        ]
-    ]
-
-    global_middlewares: Sequence[Callable[[MsgType], ContextManager[None]]]
-
-    def add_call(
-        self,
-        *,
-        handler: HandlerCallWrapper[MsgType, Any, SendableMessage],
-        filter: Callable[[PropanMessage[MsgType]], bool],
-        parser: SyncParser[MsgType],
-        decoder: SyncDecoder[MsgType],
-        middlewares: Optional[
-            Sequence[Callable[[PropanMessage[MsgType]], ContextManager[None]]]
-        ],
-        dependant: CallModel[Any, SendableMessage],
-    ) -> None:
-        self.calls.append(
-            (
-                handler,
-                filter,
-                parser,
-                decoder,
-                middlewares or (),
-                dependant,
-            )
-        )
-
-    def consume(self, msg: MsgType) -> SendableMessage:
-        result: SendableMessage = None
-
-        with ExitStack() as stack:
-            for m in self.global_middlewares:
-                stack.enter_context(m(msg))
-
-            processed = False
-            for handler, f, parser, decoder, middlewares, _ in self.calls:
-                message = parser(msg)
-                message.decoded_body = decoder(message)
-                message.processed = processed
-
-                if f(message):
-                    assert (
-                        not processed
-                    ), "You can't proccess a message with multiple consumers"
-
-                    try:
-                        for inner_m in middlewares:
-                            stack.enter_context(inner_m(message))
-
-                        result = cast(
-                            Optional[SendableMessage],
-                            handler.call_wrapped(message, reraise_exc=self.is_test),
-                        )
-
-                    except StopConsume:
-                        self.close()
-                        return None
-
-                    else:
-                        message.processed = processed = True
-                        if IS_OPTIMIZED:
-                            break
-
-        return result
-
-    @abstractmethod
-    def start(self) -> None:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def close(self) -> None:
-        raise NotImplementedError()
-
-
 class AsyncHandler(BaseHandler[MsgType]):
     calls: List[
         Tuple[
@@ -212,14 +119,10 @@ class AsyncHandler(BaseHandler[MsgType]):
             Callable[[PropanMessage[MsgType]], Awaitable[bool]],  # filter
             AsyncParser[MsgType],  # parser
             AsyncDecoder[MsgType],  # decoder
-            Sequence[  # middlewares
-                Callable[[PropanMessage[MsgType]], AsyncContextManager[None]]
-            ],
+            Sequence[Callable[[Any], BaseMiddleware]],  # middlewares
             CallModel[Any, SendableMessage],  # dependant
         ]
     ]
-
-    global_middlewares: Sequence[Callable[[MsgType], AsyncContextManager[None]]]
 
     def add_call(
         self,
@@ -229,9 +132,7 @@ class AsyncHandler(BaseHandler[MsgType]):
         decoder: AsyncDecoder[MsgType],
         dependant: CallModel[P_HandlerParams, T_HandlerReturn],
         filter: Callable[[PropanMessage[MsgType]], Awaitable[bool]],
-        middlewares: Optional[
-            Sequence[Callable[[PropanMessage[MsgType]], AsyncContextManager[None]]]
-        ],
+        middlewares: Optional[Sequence[Callable[[Any], BaseMiddleware]]],
     ) -> None:
         self.calls.append(
             (  # type: ignore[arg-type]
@@ -246,14 +147,25 @@ class AsyncHandler(BaseHandler[MsgType]):
 
     @override
     async def consume(self, msg: MsgType) -> SendableMessage:  # type: ignore[override]
-        result: SendableMessage = None
+        result: Optional[WrappedReturn[SendableMessage]] = None
+        result_msg: SendableMessage = None
 
         async with AsyncExitStack() as stack:
+            gl_middlewares: List[BaseMiddleware] = []
+
             for m in self.global_middlewares:
-                await stack.enter_async_context(m(msg))
+                gl_middlewares.append(await stack.enter_async_context(m(msg)))
 
             processed = False
             for handler, f, parser, decoder, middlewares, _ in self.calls:
+                local_middlewares: List[BaseMiddleware] = []
+                for local_m in middlewares:
+                    local_middlewares.append(
+                        await stack.enter_async_context(local_m(msg))
+                    )
+
+                all_middlewares = gl_middlewares + local_middlewares
+
                 # TODO: add parser & decoder cashes
                 message = await parser(msg)
                 message.decoded_body = await decoder(message)
@@ -265,24 +177,58 @@ class AsyncHandler(BaseHandler[MsgType]):
                     ), "You can't proccess a message with multiple consumers"
 
                     try:
-                        for inner_m in middlewares:
-                            await stack.enter_async_context(inner_m(message))
+                        async with AsyncExitStack() as consume_stack:
+                            for m_consume in all_middlewares:
+                                message.decoded_body = (
+                                    await consume_stack.enter_async_context(
+                                        m_consume.consume_scope(message.decoded_body)
+                                    )
+                                )
 
-                        result = await cast(
-                            Awaitable[Optional[SendableMessage]],
-                            handler.call_wrapped(message, reraise_exc=self.is_test),
-                        )
+                            result = await cast(
+                                Awaitable[Optional[WrappedReturn[SendableMessage]]],
+                                handler.call_wrapped(message),
+                            )
+
+                        if result is not None:
+                            result_msg, pub_response = result
+
+                            # TODO: suppress all publishing errors and raise them after all publisher will be tried
+                            for publisher in (pub_response, *handler._publishers):
+                                if publisher is not None:
+                                    async with AsyncExitStack() as pub_stack:
+                                        result_to_send = result_msg
+
+                                        for m_pub in all_middlewares:
+                                            result_to_send = (
+                                                await pub_stack.enter_async_context(
+                                                    m_pub.publish_scope(result_msg)
+                                                )
+                                            )
+
+                                        await publisher.publish(
+                                            message=result_to_send,
+                                            correlation_id=message.correlation_id,
+                                        )
 
                     except StopConsume:
                         await self.close()
                         return None
+
+                    except Exception as e:
+                        if self.is_test:
+                            raise e
+                        else:
+                            return None
 
                     else:
                         message.processed = processed = True
                         if IS_OPTIMIZED:  # pragma: no cover
                             break
 
-        return result
+            assert processed, "You have to consume message"
+
+        return result_msg
 
     @abstractmethod
     async def start(self) -> None:

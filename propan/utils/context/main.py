@@ -13,7 +13,7 @@ class ContextRepo(Singleton):
     _scope_context: Dict[str, ContextVar[Any]]
 
     def __init__(self) -> None:
-        self._global_context = {}
+        self._global_context = {"context": self}
         self._scope_context = {}
 
     def set_global(self, key: str, v: Any) -> None:
@@ -38,11 +38,11 @@ class ContextRepo(Singleton):
             return context_var.get()
 
     def clear(self) -> None:
-        self._global_context = {}
+        self._global_context = {"context": self}
         self._scope_context = {}
 
     def get(self, key: str) -> Any:
-        return self.context.get(key)
+        return self._global_context.get(key, self.get_local(key))
 
     def __getattr__(self, __name: str) -> Any:
         return self.get(__name)
@@ -50,16 +50,17 @@ class ContextRepo(Singleton):
     @property
     def context(self) -> AnyDict:
         return {
-            "context": self,
-            **{i: j.get() for i, j in self._scope_context.items()},
             **self._global_context,
+            **{i: j.get() for i, j in self._scope_context.items()},
         }
 
     @contextmanager
     def scope(self, key: str, value: Any) -> Iterator[None]:
         token = self.set_local(key, value)
-        yield
-        self.reset_local(key, token)
+        try:
+            yield
+        finally:
+            self.reset_local(key, token)
 
 
 context: ContextRepo = ContextRepo()

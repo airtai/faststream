@@ -1,32 +1,44 @@
-from contextlib import asynccontextmanager
+from types import TracebackType
+from typing import Optional, Type
 
-from propan import PropanApp
-from propan.rabbit import RabbitBroker, RabbitMessage
-
-
-@asynccontextmanager
-async def highlevel_middleware(message: RabbitMessage):
-    print("highlevel middleware in")
-    yield
-    print("highlevel middleware out")
+from propan import BaseMiddleware, PropanApp
+from propan.rabbit import RabbitBroker
+from propan.types import DecodedMessage
 
 
-@asynccontextmanager
-async def handler_middleware(message: RabbitMessage):
-    print("handler middleware in")
-    message.decoded_body = "fake message"
-    yield
-    print("handler middleware out")
+class TopLevelMiddleware(BaseMiddleware):
+    async def on_receive(self) -> None:
+        print(f"call toplevel middleware with msg: {self.msg}")
+        return await super().on_receive()
+
+    async def after_processed(
+        self,
+        exc_type: Optional[Type[BaseException]] = None,
+        exc_val: Optional[BaseException] = None,
+        exec_tb: Optional[TracebackType] = None,
+    ) -> bool:
+        print("highlevel middleware out")
+        return await super().after_processed(exc_type, exc_val, exec_tb)
+
+
+class HandlerMiddleware(BaseMiddleware):
+    async def on_consume(self, msg: DecodedMessage) -> DecodedMessage:
+        print(f"call handler middleware with body: {msg}")
+        return "fake message"
+
+    async def after_consume(self, err: Optional[Exception]) -> None:
+        print("handler middleware out")
+        return await super().after_consume(err)
 
 
 broker = RabbitBroker(
     "amqp://guest:guest@localhost:5672/",
-    middlewares=(highlevel_middleware,),
+    middlewares=(TopLevelMiddleware,),
 )
 app = PropanApp(broker)
 
 
-@broker.subscriber("test", middlewares=(handler_middleware,))
+@broker.subscriber("test", middlewares=(HandlerMiddleware,))
 async def handle(msg):
     assert msg == "fake message"
 

@@ -8,7 +8,7 @@ from fast_depends._compat import PYDANTIC_V2 as PYDANTIC_V2
 from fast_depends._compat import FieldInfo
 from pydantic import BaseModel
 
-# TODO: uncomment with 3.12 release
+# TODO: uncomment with py3.12 release 2023-10-02
 # if sys.version_info < (3, 12):
 #     from typing_extensions import override as override
 # else:
@@ -24,9 +24,11 @@ else:
     from typing import Self as Self
 
 if sys.version_info < (3, 10):
+    from typing_extensions import Concatenate as Concatenate
     from typing_extensions import ParamSpec as ParamSpec
     from typing_extensions import TypeAlias as TypeAlias
 else:
+    from typing import Concatenate as Concatenate
     from typing import ParamSpec as ParamSpec
     from typing import TypeAlias as TypeAlias
 

@@ -32,7 +32,7 @@ class Handler(LogicHandler, AsyncAPIOperation):
         for t in self.topics:
             if add_topic:
                 t_ = to_camelcase(t)
-                if name.lower() != t_.lower():
+                if not name.lower().endswith(t_.lower()):
                     name_ = f"{name}{t_}"
                 else:
                     name_ = name

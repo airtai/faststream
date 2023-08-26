@@ -1,18 +1,7 @@
 import logging
 from ssl import SSLContext
 from types import TracebackType
-from typing import (
-    Any,
-    AsyncContextManager,
-    Awaitable,
-    Callable,
-    Dict,
-    List,
-    Optional,
-    Sequence,
-    Type,
-    Union,
-)
+from typing import Any, Awaitable, Callable, Dict, Optional, Sequence, Type, Union
 
 import aio_pika
 import aiormq
@@ -24,12 +13,14 @@ from propan._compat import override
 from propan.asyncapi import schema as asyncapi
 from propan.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
 from propan.broker.message import PropanMessage
+from propan.broker.middlewares import BaseMiddleware
 from propan.broker.push_back_watcher import BaseWatcher
 from propan.broker.types import (
     AsyncCustomDecoder,
     AsyncCustomParser,
     P_HandlerParams,
     T_HandlerReturn,
+    WrappedReturn,
 )
 from propan.broker.wrapper import HandlerCallWrapper
 from propan.log import access_logger
@@ -79,10 +70,10 @@ class RabbitBroker(
         decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
         parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
         middlewares: Optional[
-            List[
+            Sequence[
                 Callable[
                     [aio_pika.IncomingMessage],
-                    AsyncContextManager[None],
+                    BaseMiddleware,
                 ]
             ]
         ] = None,
@@ -148,12 +139,7 @@ class RabbitBroker(
         parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
         decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
         middlewares: Optional[
-            List[
-                Callable[
-                    [RabbitMessage],
-                    AsyncContextManager[None],
-                ]
-            ]
+            Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
         retry: Union[bool, int] = False,
         # AsyncAPI information
@@ -225,11 +211,8 @@ class RabbitBroker(
     def _process_message(
         self,
         func: Callable[[RabbitMessage], Awaitable[T_HandlerReturn]],
-        call_wrapper: HandlerCallWrapper[
-            aio_pika.IncomingMessage, P_HandlerParams, T_HandlerReturn
-        ],
         watcher: BaseWatcher,
-    ) -> Callable[[RabbitMessage], Awaitable[T_HandlerReturn]]: ...
+    ) -> Callable[[RabbitMessage], Awaitable[WrappedReturn[T_HandlerReturn]],]: ...
     async def declare_queue(
         self,
         queue: RabbitQueue,

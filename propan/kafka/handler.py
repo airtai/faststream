@@ -1,14 +1,6 @@
 import asyncio
 from itertools import chain
-from typing import (
-    Any,
-    AsyncContextManager,
-    Awaitable,
-    Callable,
-    List,
-    Optional,
-    Sequence,
-)
+from typing import Any, Awaitable, Callable, Optional, Sequence
 
 import anyio
 from aiokafka import AIOKafkaConsumer, ConsumerRecord
@@ -18,6 +10,7 @@ from propan.__about__ import __version__
 from propan._compat import Never, override
 from propan.broker.handler import AsyncHandler
 from propan.broker.message import PropanMessage
+from propan.broker.middlewares import BaseMiddleware
 from propan.broker.parsers import resolve_custom_func
 from propan.broker.types import (
     AsyncCustomDecoder,
@@ -98,9 +91,7 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
         parser: Optional[AsyncCustomParser[ConsumerRecord]],
         decoder: Optional[AsyncCustomDecoder[ConsumerRecord]],
         filter: Callable[[PropanMessage[ConsumerRecord]], Awaitable[bool]],
-        middlewares: Optional[
-            List[Callable[[PropanMessage[ConsumerRecord]], AsyncContextManager[None]]]
-        ],
+        middlewares: Optional[Sequence[Callable[[ConsumerRecord], BaseMiddleware]]],
     ) -> None:
         parser_ = resolve_custom_func(
             parser,

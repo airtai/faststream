@@ -1,13 +1,4 @@
-from typing import (
-    Any,
-    AsyncContextManager,
-    Awaitable,
-    Callable,
-    List,
-    Optional,
-    Sequence,
-    Union,
-)
+from typing import Any, Awaitable, Callable, Optional, Sequence, Union
 
 import aio_pika
 from fast_depends.dependencies import Depends
@@ -15,6 +6,7 @@ from fast_depends.dependencies import Depends
 from propan._compat import override
 from propan.broker.core.asyncronous import default_filter
 from propan.broker.message import PropanMessage
+from propan.broker.middlewares import BaseMiddleware
 from propan.broker.router import BrokerRouter
 from propan.broker.types import (
     AsyncCustomDecoder,
@@ -31,12 +23,28 @@ from propan.types import AnyDict
 
 RabbitMessage = PropanMessage[aio_pika.IncomingMessage]
 
-class RabbitRouter(BrokerRouter[aio_pika.IncomingMessage]):
+class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
     def __init__(
         self,
         prefix: str = "",
         handlers: Sequence[RabbitRoute] = (),
+        *,
+        dependencies: Sequence[Depends] = (),
+        middlewares: Optional[
+            Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
+        ] = None,
+        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
+        decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
     ): ...
+    @staticmethod
+    @override
+    def _get_publisher_key(publisher: Publisher) -> int: ...  # type: ignore[override]
+    @staticmethod
+    @override
+    def _update_publisher_prefix(  # type: ignore[override]
+        prefix: str,
+        publisher: Publisher,
+    ) -> Publisher: ...
     @override
     def subscriber(  # type: ignore[override]
         self,
@@ -52,10 +60,10 @@ class RabbitRouter(BrokerRouter[aio_pika.IncomingMessage]):
         parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
         decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
         middlewares: Optional[
-            List[
+            Sequence[
                 Callable[
-                    [RabbitMessage],
-                    AsyncContextManager[None],
+                    [aio_pika.IncomingMessage],
+                    BaseMiddleware,
                 ]
             ]
         ] = None,

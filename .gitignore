@@ -1,3 +1,13 @@
 __pycache__
 dist
 .idea
+venv
+*.lock
+.vscode
+.pypirc
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.coverage*
+.cache
+htmlcov

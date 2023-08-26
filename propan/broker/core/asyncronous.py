@@ -4,11 +4,9 @@ from functools import wraps
 from types import TracebackType
 from typing import (
     Any,
-    AsyncContextManager,
     Awaitable,
     Callable,
     Dict,
-    List,
     Mapping,
     Optional,
     Sequence,
@@ -25,6 +23,7 @@ from propan._compat import Self, override
 from propan.broker.core.abc import BrokerUsecase
 from propan.broker.handler import AsyncHandler
 from propan.broker.message import PropanMessage
+from propan.broker.middlewares import BaseMiddleware
 from propan.broker.push_back_watcher import BaseWatcher
 from propan.broker.types import (
     AsyncCustomDecoder,
@@ -33,6 +32,7 @@ from propan.broker.types import (
     MsgType,
     P_HandlerParams,
     T_HandlerReturn,
+    WrappedReturn,
 )
 from propan.broker.wrapper import HandlerCallWrapper
 from propan.exceptions import AckMessage, NackMessage, RejectMessage, SkipMessage
@@ -47,7 +47,7 @@ async def default_filter(msg: PropanMessage[Any]) -> bool:
 
 class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
     handlers: Dict[Any, AsyncHandler[MsgType]]  # type: ignore[assignment]
-    middlewares: List[Callable[[MsgType], AsyncContextManager[None]]]  # type: ignore[assignment]
+    middlewares: Sequence[Callable[[MsgType], BaseMiddleware]]
     _global_parser: Optional[AsyncCustomParser[MsgType]]
     _global_decoder: Optional[AsyncCustomDecoder[MsgType]]
 
@@ -88,9 +88,8 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
     def _process_message(
         self,
         func: Callable[[PropanMessage[MsgType]], Awaitable[T_HandlerReturn]],
-        call_wrapper: HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
         watcher: BaseWatcher,
-    ) -> Callable[[PropanMessage[MsgType]], Awaitable[T_HandlerReturn]]:
+    ) -> Callable[[PropanMessage[MsgType]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
         raise NotImplementedError()
 
     @abstractmethod
@@ -115,14 +114,7 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         dependencies: Sequence[Depends] = (),
         decoder: Optional[AsyncCustomDecoder[MsgType]] = None,
         parser: Optional[AsyncCustomParser[MsgType]] = None,
-        middlewares: Optional[
-            List[
-                Callable[
-                    [PropanMessage[MsgType]],
-                    AsyncContextManager[None],
-                ]
-            ]
-        ] = None,
+        middlewares: Optional[Sequence[Callable[[MsgType], BaseMiddleware]]] = None,
         filter: Callable[[PropanMessage[MsgType]], Awaitable[bool]] = default_filter,
         _raw: bool = False,
         _get_dependant: Optional[Any] = None,
@@ -148,14 +140,7 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         dependencies: Sequence[Depends] = (),
         decoder: Optional[AsyncCustomDecoder[MsgType]] = None,
         parser: Optional[AsyncCustomParser[MsgType]] = None,
-        middlewares: Optional[
-            List[
-                Callable[
-                    [MsgType],
-                    AsyncContextManager[None],
-                ]
-            ]
-        ] = None,
+        middlewares: Optional[Sequence[Callable[[MsgType], BaseMiddleware]]] = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(
@@ -167,7 +152,7 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
             dependencies=dependencies,
             decoder=decoder,
             parser=parser,
-            middlewares=middlewares,  # type: ignore[arg-type]
+            middlewares=middlewares,
             **kwargs,
         )
 
@@ -196,7 +181,7 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         params: Sized = (),
         _raw: bool = False,
     ) -> Callable[[PropanMessage[MsgType]], Awaitable[T_HandlerReturn]]:
-        is_unwrap = len(params) > 1
+        params_ln = len(params)
 
         @wraps(func)
         async def decode_wrapper(message: PropanMessage[MsgType]) -> T_HandlerReturn:
@@ -205,13 +190,17 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
 
             msg = message.decoded_body
 
-            if is_unwrap is True:
+            if params_ln > 1:
                 if isinstance(msg, Mapping):
                     return await func(**msg)
                 elif isinstance(msg, Sequence):
                     return await func(*msg)
+            elif params_ln == 1:
+                return await func(msg)
+            else:
+                return await func()
 
-            return await func(msg)
+            raise AssertionError("unreachable")
 
         return decode_wrapper
 
@@ -260,12 +249,14 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         self,
         func: Callable[
             [PropanMessage[MsgType]],
-            Awaitable[T_HandlerReturn],
+            Awaitable[WrappedReturn[T_HandlerReturn]],
         ],
         **broker_args: Any,
-    ) -> Callable[[PropanMessage[MsgType]], Awaitable[T_HandlerReturn]]:
+    ) -> Callable[[PropanMessage[MsgType]], Awaitable[WrappedReturn[T_HandlerReturn]]]:
         @wraps(func)
-        async def log_wrapper(message: PropanMessage[MsgType]) -> T_HandlerReturn:
+        async def log_wrapper(
+            message: PropanMessage[MsgType],
+        ) -> WrappedReturn[T_HandlerReturn]:
             log_context = self._get_log_context(message=message, **broker_args)
 
             with context.scope("log_context", log_context):

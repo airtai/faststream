@@ -7,10 +7,8 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    ContextManager,
     Dict,
     Generic,
-    Iterable,
     List,
     Optional,
     Sequence,
@@ -31,7 +29,7 @@ from propan.asyncapi import schema as asyncapi
 from propan.broker.core.mixins import LoggingMixin
 from propan.broker.handler import BaseHandler
 from propan.broker.message import PropanMessage
-from propan.broker.middlewares import CriticalLogMiddleware
+from propan.broker.middlewares import BaseMiddleware, CriticalLogMiddleware
 from propan.broker.publisher import BasePublisher
 from propan.broker.push_back_watcher import BaseWatcher
 from propan.broker.router import BrokerRouter
@@ -42,13 +40,9 @@ from propan.broker.types import (
     MsgType,
     P_HandlerParams,
     T_HandlerReturn,
+    WrappedReturn,
 )
-from propan.broker.utils import (
-    change_logger_handlers,
-    get_watcher,
-    set_message_context,
-    suppress_decor,
-)
+from propan.broker.utils import change_logger_handlers, get_watcher, set_message_context
 from propan.broker.wrapper import HandlerCallWrapper
 from propan.log import access_logger
 from propan.types import AnyDict, F_Return, F_Spec
@@ -68,7 +62,7 @@ class BrokerUsecase(
 
     dependencies: Sequence[Depends]
     started: bool
-    middlewares: Sequence[Callable[[MsgType], ContextManager[None]]]
+    middlewares: Sequence[Callable[[Any], BaseMiddleware]]
     _global_parser: Optional[CustomParser[MsgType]]
     _global_decoder: Optional[CustomDecoder[MsgType]]
     _connection: Optional[ConnectionType]
@@ -89,9 +83,7 @@ class BrokerUsecase(
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = "%(asctime)s %(levelname)s - %(message)s",
         dependencies: Sequence[Depends] = (),
-        middlewares: Optional[
-            Iterable[Callable[[MsgType], ContextManager[None]]]
-        ] = None,
+        middlewares: Optional[Sequence[Callable[[MsgType], BaseMiddleware]]] = None,
         decoder: Optional[CustomDecoder[MsgType]] = None,
         parser: Optional[CustomParser[MsgType]] = None,
         **kwargs: Any,
@@ -127,11 +119,15 @@ class BrokerUsecase(
         self.description = description
         self.tags = tags
 
-    def include_router(self, router: BrokerRouter[MsgType]) -> None:
+    def include_router(self, router: BrokerRouter[Any, MsgType]) -> None:
         for r in router._handlers:
             self.subscriber(*r.args, **r.kwargs)(r.call)
 
         self._publishers.update(router._publishers)
+
+    def include_routers(self, *routers: BrokerRouter[Any, MsgType]) -> None:
+        for r in routers:
+            self.include_router(r)
 
     def _resolve_connection_kwargs(self, *args: Any, **kwargs: Any) -> AnyDict:
         arguments = get_function_positional_arguments(self.__init__)  # type: ignore
@@ -200,12 +196,15 @@ class BrokerUsecase(
         decode_f = self._wrap_decode_message(
             func=f,
             _raw=_raw,
-            params=tuple(chain(dependant.flat_params.keys(), extra)),
+            params=set(
+                chain(
+                    dependant.flat_params.keys(), *(d.flat_params.keys() for d in extra)
+                )
+            ),
         )
 
         process_f = self._process_message(
             func=decode_f,
-            call_wrapper=handler_call,
             watcher=get_watcher(self.logger, retry),
         )
 
@@ -213,9 +212,8 @@ class BrokerUsecase(
             process_f = self._log_execution(process_f, **broker_log_context_kwargs)
 
         process_f = set_message_context(process_f)
-        suppress_f = suppress_decor(process_f)
 
-        handler_call.set_wrapped(suppress_f)
+        handler_call.set_wrapped(process_f)
         return handler_call, dependant
 
     def _abc_start(self) -> None:
@@ -247,9 +245,8 @@ class BrokerUsecase(
     def _process_message(
         self,
         func: Callable[[PropanMessage[MsgType]], Awaitable[T_HandlerReturn]],
-        call_wrapper: HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
         watcher: BaseWatcher,
-    ) -> Callable[[PropanMessage[MsgType]], Awaitable[T_HandlerReturn]]:
+    ) -> Callable[[PropanMessage[MsgType]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
         raise NotImplementedError()
 
     @abstractmethod
@@ -261,10 +258,10 @@ class BrokerUsecase(
         decoder: Optional[CustomDecoder[MsgType]] = None,
         parser: Optional[CustomParser[MsgType]] = None,
         middlewares: Optional[
-            Iterable[
+            Sequence[
                 Callable[
                     [PropanMessage[MsgType]],
-                    ContextManager[None],
+                    BaseMiddleware,
                 ]
             ]
         ] = None,
@@ -314,10 +311,10 @@ class BrokerUsecase(
         self,
         func: Callable[
             [PropanMessage[MsgType]],
-            Awaitable[T_HandlerReturn],
+            Awaitable[WrappedReturn[T_HandlerReturn]],
         ],
         **broker_args: Any,
-    ) -> Callable[[PropanMessage[MsgType]], Awaitable[T_HandlerReturn],]:
+    ) -> Callable[[PropanMessage[MsgType]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
         raise NotImplementedError()
 
 

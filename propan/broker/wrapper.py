@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Awaitable, Callable, Generic, List, Optional, Protocol, Union
+from typing import Any, Awaitable, Callable, Generic, List, Optional, Union
 from unittest.mock import MagicMock
 
 import anyio
@@ -7,22 +7,27 @@ import anyio
 from propan._compat import Self
 from propan.broker.message import PropanMessage
 from propan.broker.types import (
+    AsyncPublisherProtocol,
     MsgType,
     P_HandlerParams,
     T_HandlerReturn,
     WrappedHandlerCall,
+    WrappedReturn,
 )
 from propan.types import SendableMessage
 
 
-class AsyncPublisherProtocol(Protocol):
+class FakePublisher:
+    def __init__(self, method: Callable[..., Awaitable[SendableMessage]]):
+        self.method = method
+
     async def publish(
         self,
         message: SendableMessage,
         correlation_id: Optional[str] = None,
         **kwargs: Any,
     ) -> Optional[SendableMessage]:
-        ...
+        return await self.method(message, correlation_id=correlation_id, **kwargs)
 
 
 class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
@@ -74,12 +79,14 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
     def call_wrapped(
         self,
         message: PropanMessage[MsgType],
-        reraise_exc: bool = False,
-    ) -> Union[Optional[T_HandlerReturn], Awaitable[Optional[T_HandlerReturn]]]:
+    ) -> Union[
+        Optional[WrappedReturn[T_HandlerReturn]],
+        Awaitable[Optional[WrappedReturn[T_HandlerReturn]]],
+    ]:
         assert self._wrapped_call, "You should use `set_wrapped` first"
         self.mock(message.decoded_body)
         self.event.set()
-        return self._wrapped_call(message, reraise_exc=reraise_exc)
+        return self._wrapped_call(message)
 
     async def wait_call(self, timeout: Optional[float] = None) -> None:
         with anyio.fail_after(timeout):

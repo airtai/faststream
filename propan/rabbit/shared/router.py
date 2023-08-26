@@ -16,18 +16,19 @@ __all__ = (
 )
 
 
-class RabbitRouter(BrokerRouter[IncomingMessage]):
+class RabbitRouter(BrokerRouter[int, IncomingMessage]):
     def __init__(
         self,
         prefix: str = "",
         handlers: Sequence[RabbitRoute[IncomingMessage, SendableMessage]] = (),
+        **kwargs: Any,
     ):
         for h in handlers:
             q = RabbitQueue.validate(h.kwargs.pop("queue", h.args[0]))
             new_q = model_copy(q, update={"name": prefix + q.name})
             h.args = (new_q, *h.args[1:])
 
-        super().__init__(prefix, handlers)
+        super().__init__(prefix, handlers, **kwargs)
 
     @override
     def subscriber(  # type: ignore[override]

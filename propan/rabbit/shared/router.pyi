@@ -1,19 +1,11 @@
-from typing import (
-    Any,
-    AsyncContextManager,
-    Awaitable,
-    Callable,
-    List,
-    Optional,
-    Sequence,
-    Union,
-)
+from typing import Any, Awaitable, Callable, Optional, Sequence, Union
 
 import aio_pika
 from fast_depends.dependencies import Depends
 
 from propan.broker.core.asyncronous import default_filter
 from propan.broker.message import PropanMessage
+from propan.broker.middlewares import BaseMiddleware
 from propan.broker.types import AsyncCustomDecoder, AsyncCustomParser, T_HandlerReturn
 from propan.rabbit.shared.schemas import RabbitExchange, RabbitQueue
 from propan.types import AnyDict
@@ -38,10 +30,10 @@ class RabbitRoute:
         parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
         decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
         middlewares: Optional[
-            List[
+            Sequence[
                 Callable[
-                    [RabbitMessage],
-                    AsyncContextManager[None],
+                    [aio_pika.IncomingMessage],
+                    BaseMiddleware,
                 ]
             ]
         ] = None,

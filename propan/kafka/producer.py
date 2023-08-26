@@ -37,6 +37,7 @@ class AioKafkaPropanProducer:
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
         headers: Optional[Dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
         *,
         reply_to: str = "",
     ) -> Optional[SendableMessage]:
@@ -50,15 +51,12 @@ class AioKafkaPropanProducer:
         }
 
         if reply_to:
-            correlation_id = str(uuid4())
             headers_to_send.update(
                 {
                     "reply_to": reply_to,
-                    "correlation_id": correlation_id,
+                    "correlation_id": correlation_id or str(uuid4()),
                 }
             )
-        else:
-            correlation_id = ""
 
         await self._producer.send(
             topic=topic,

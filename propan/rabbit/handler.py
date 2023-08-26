@@ -1,4 +1,4 @@
-from typing import AsyncContextManager, Awaitable, Callable, List, Optional
+from typing import Awaitable, Callable, Optional, Sequence
 
 import aio_pika
 from fast_depends.core import CallModel
@@ -6,6 +6,7 @@ from fast_depends.core import CallModel
 from propan._compat import override
 from propan.broker.handler import AsyncHandler
 from propan.broker.message import PropanMessage
+from propan.broker.middlewares import BaseMiddleware
 from propan.broker.parsers import resolve_custom_func
 from propan.broker.types import (
     AsyncCustomDecoder,
@@ -62,11 +63,7 @@ class LogicHandler(AsyncHandler[aio_pika.IncomingMessage], BaseRMQInformation):
         decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]],
         filter: Callable[[PropanMessage[aio_pika.IncomingMessage]], Awaitable[bool]],
         middlewares: Optional[
-            List[
-                Callable[
-                    [PropanMessage[aio_pika.IncomingMessage]], AsyncContextManager[None]
-                ]
-            ]
+            Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ],
     ) -> None:
         super().add_call(

@@ -8,7 +8,18 @@ from propan.rabbit.shared.types import TimeoutType
 
 
 class RabbitRouter(BaseRouter):
-    _publishers: Dict[int, Publisher]  # type: ignore[assignment]
+    _publishers: Dict[int, Publisher]
+
+    @staticmethod
+    def _get_publisher_key(publisher: Publisher) -> int:
+        return get_routing_hash(publisher.queue, publisher.exchange)
+
+    @staticmethod
+    def _update_publisher_prefix(prefix: str, publisher: Publisher) -> Publisher:
+        publisher.queue = model_copy(
+            publisher.queue, update={"name": prefix + publisher.queue.name}
+        )
+        return publisher
 
     @override
     def publisher(  # type: ignore[override]
@@ -27,15 +38,11 @@ class RabbitRouter(BaseRouter):
         description: Optional[str] = None,
         **message_kwargs: Any,
     ) -> Publisher:
-        q = RabbitQueue.validate(queue)
-        q_copy = model_copy(q, update={"name": self.prefix + q.name})
-        ex = RabbitExchange.validate(exchange)
-        key = get_routing_hash(q_copy, ex)
-        publisher = self._publishers[key] = self._publishers.get(
-            key,
+        new_publisher = self._update_publisher_prefix(
+            self.prefix,
             Publisher(
-                queue=q_copy,
-                exchange=ex,
+                queue=RabbitQueue.validate(queue),
+                exchange=RabbitExchange.validate(exchange),
                 routing_key=routing_key,
                 mandatory=mandatory,
                 immediate=immediate,
@@ -47,4 +54,6 @@ class RabbitRouter(BaseRouter):
                 _description=description,
             ),
         )
+        key = self._get_publisher_key(new_publisher)
+        publisher = self._publishers[key] = self._publishers.get(key, new_publisher)
         return publisher

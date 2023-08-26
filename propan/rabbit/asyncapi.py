@@ -105,7 +105,7 @@ class Handler(RMQAsyncAPIChannel, LogicHandler):
         name: str
         queue_ = to_camelcase(self.queue.name)
         if original is True:
-            if self.call_name.lower() != queue_.lower():
+            if not self.call_name.lower().endswith(queue_.lower()):
                 name = f"{self.call_name}{queue_}"
             else:
                 name = self.call_name

@@ -1,9 +1,7 @@
-import logging
 from functools import partial, wraps
 from types import TracebackType
 from typing import (
     Any,
-    AsyncContextManager,
     Awaitable,
     Callable,
     Dict,
@@ -24,14 +22,17 @@ from propan.__about__ import __version__
 from propan._compat import override
 from propan.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
 from propan.broker.message import PropanMessage
+from propan.broker.middlewares import BaseMiddleware
 from propan.broker.push_back_watcher import BaseWatcher, WatcherContext
 from propan.broker.types import (
     AsyncCustomDecoder,
     AsyncCustomParser,
+    AsyncPublisherProtocol,
     P_HandlerParams,
     T_HandlerReturn,
+    WrappedReturn,
 )
-from propan.broker.wrapper import HandlerCallWrapper
+from propan.broker.wrapper import FakePublisher, HandlerCallWrapper
 from propan.kafka.asyncapi import Handler, Publisher
 from propan.kafka.producer import AioKafkaPropanProducer
 from propan.kafka.shared.logging import KafkaLoggingMixin
@@ -126,42 +127,24 @@ class KafkaBroker(
     def _process_message(
         self,
         func: Callable[[KafkaMessage], Awaitable[T_HandlerReturn]],
-        call_wrapper: HandlerCallWrapper[
-            aiokafka.ConsumerRecord, P_HandlerParams, T_HandlerReturn
-        ],
         watcher: BaseWatcher,
-    ) -> Callable[[KafkaMessage], Awaitable[T_HandlerReturn]]:
+    ) -> Callable[[KafkaMessage], Awaitable[WrappedReturn[T_HandlerReturn]],]:
         @wraps(func)
-        async def process_wrapper(message: KafkaMessage) -> T_HandlerReturn:
+        async def process_wrapper(
+            message: KafkaMessage,
+        ) -> WrappedReturn[T_HandlerReturn]:
             async with WatcherContext(watcher, message):
                 r = await self._execute_handler(func, message)
-                headers = {"correlation_id": message.correlation_id}
 
+                pub_response: Optional[AsyncPublisherProtocol]
                 if message.reply_to:
-                    await self.publish(
-                        message=r or "",
-                        headers=headers,
-                        topic=message.reply_to,
+                    pub_response = FakePublisher(
+                        partial(self.publish, topic=message.reply_to)
                     )
+                else:
+                    pub_response = None
 
-                for publisher in call_wrapper._publishers:
-                    try:
-                        await publisher.publish(
-                            message=r,
-                            correlation_id=message.correlation_id,
-                        )
-                    except Exception as e:
-                        self._log(
-                            f"Publish exception: {e}",
-                            logging.ERROR,
-                            self._get_log_context(
-                                context.get_local("message"),
-                                (getattr(publisher, "topic", ""),),
-                            ),
-                            exc_info=e,
-                        )
-
-                return r
+                return r, pub_response
 
             raise AssertionError("unreachable")
 
@@ -205,10 +188,10 @@ class KafkaBroker(
         parser: Optional[AsyncCustomParser[aiokafka.ConsumerRecord]] = None,
         decoder: Optional[AsyncCustomDecoder[aiokafka.ConsumerRecord]] = None,
         middlewares: Optional[
-            List[
+            Sequence[
                 Callable[
-                    [KafkaMessage],
-                    AsyncContextManager[None],
+                    [aiokafka.ConsumerRecord],
+                    BaseMiddleware,
                 ]
             ]
         ] = None,
@@ -332,8 +315,7 @@ class KafkaBroker(
         *args: Any,
         **kwargs: Any,
     ) -> Optional[SendableMessage]:
-        if self._producer is None:
-            raise ValueError("KafkaBroker is not started yet")
+        assert self._producer, "KafkaBroker is not started yet"
         return await self._producer.publish(*args, **kwargs)
 
     async def publish_batch(
@@ -341,6 +323,5 @@ class KafkaBroker(
         *args: Any,
         **kwargs: Any,
     ) -> None:
-        if self._producer is None:
-            raise ValueError("KafkaBroker is not started yet")
+        assert self._producer, "KafkaBroker is not started yet"
         await self._producer.publish_batch(*args, **kwargs)

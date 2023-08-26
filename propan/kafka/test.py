@@ -3,6 +3,7 @@ from functools import partial
 from types import MethodType, TracebackType
 from typing import Any, Dict, Optional, Type
 from unittest.mock import AsyncMock
+from uuid import uuid4
 
 from aiokafka import ConsumerRecord
 
@@ -34,6 +35,7 @@ def build_message(
     timestamp_ms: Optional[int] = None,
     key: Optional[bytes] = None,
     headers: Optional[Dict[str, str]] = None,
+    correlation_id: Optional[str] = None,
     *,
     reply_to: str = "",
 ) -> ConsumerRecord:
@@ -41,6 +43,7 @@ def build_message(
     k = key or b""
     headers = {
         "content-type": content_type or "",
+        "correlation_id": correlation_id or str(uuid4()),
         "reply_to": reply_to,
         **(headers or {}),
     }
@@ -72,6 +75,7 @@ class FakeProducer(AioKafkaPropanProducer):
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
         headers: Optional[Dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
         *,
         reply_to: str = "",
         rpc: bool = False,
@@ -85,6 +89,7 @@ class FakeProducer(AioKafkaPropanProducer):
             partition=partition,
             timestamp_ms=timestamp_ms,
             headers=headers,
+            correlation_id=correlation_id,
             reply_to=reply_to,
         )
 

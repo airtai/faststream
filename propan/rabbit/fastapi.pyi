@@ -2,7 +2,6 @@ from enum import Enum
 from ssl import SSLContext
 from typing import (
     Any,
-    AsyncContextManager,
     Awaitable,
     Callable,
     Dict,
@@ -32,6 +31,7 @@ from propan.asyncapi import schema as asyncapi
 from propan.broker.core.asyncronous import default_filter
 from propan.broker.fastapi.router import PropanRouter
 from propan.broker.message import PropanMessage
+from propan.broker.middlewares import BaseMiddleware
 from propan.broker.types import (
     AsyncCustomDecoder,
     AsyncCustomParser,
@@ -88,12 +88,7 @@ class RabbitRouter(PropanRouter[RabbitBroker]):
         decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
         parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
         middlewares: Optional[
-            List[
-                Callable[
-                    [aio_pika.IncomingMessage],
-                    AsyncContextManager[None],
-                ]
-            ]
+            Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
         # AsyncAPI args
         protocol: str = "amqp",
@@ -117,12 +112,7 @@ class RabbitRouter(PropanRouter[RabbitBroker]):
         parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
         decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
         middlewares: Optional[
-            List[
-                Callable[
-                    [RabbitMessage],
-                    AsyncContextManager[None],
-                ]
-            ]
+            Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
         retry: Union[bool, int] = False,
         # AsyncAPI information
@@ -146,12 +136,7 @@ class RabbitRouter(PropanRouter[RabbitBroker]):
         parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
         decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
         middlewares: Optional[
-            List[
-                Callable[
-                    [RabbitMessage],
-                    AsyncContextManager[None],
-                ]
-            ]
+            Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
         retry: Union[bool, int] = False,
         # AsyncAPI information

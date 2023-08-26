@@ -1,4 +1,4 @@
-from typing import Awaitable, Callable, Optional, Protocol, TypeVar, Union
+from typing import Any, Awaitable, Callable, Optional, Protocol, Tuple, TypeVar, Union
 
 from propan._compat import ParamSpec
 from propan.broker.message import PropanMessage
@@ -59,23 +59,24 @@ HandlerWrapper = Callable[
 ]
 
 
-class AsyncWrappedHandlerCall(Protocol[MsgType, T_HandlerReturn]):
-    async def __call__(
+class AsyncPublisherProtocol(Protocol):
+    async def publish(
         self,
-        __msg: PropanMessage[MsgType],
-        reraise_exc: bool = False,
-    ) -> Optional[T_HandlerReturn]:
+        message: SendableMessage,
+        correlation_id: Optional[str] = None,
+        **kwargs: Any,
+    ) -> Optional[SendableMessage]:
         ...
 
 
-class SyncWrappedHandlerCall(Protocol[MsgType, T_HandlerReturn]):
-    def __call__(
-        self,
-        __msg: PropanMessage[MsgType],
-        reraise_exc: bool = False,
-    ) -> Optional[T_HandlerReturn]:
-        ...
+WrappedReturn = Tuple[T_HandlerReturn, Optional[AsyncPublisherProtocol]]
 
+AsyncWrappedHandlerCall = Callable[
+    [PropanMessage[MsgType]], Awaitable[Optional[WrappedReturn[T_HandlerReturn]]]
+]
+SyncWrappedHandlerCall = Callable[
+    [PropanMessage[MsgType]], Optional[WrappedReturn[T_HandlerReturn]]
+]
 
 WrappedHandlerCall = Union[
     AsyncWrappedHandlerCall[MsgType, T_HandlerReturn],

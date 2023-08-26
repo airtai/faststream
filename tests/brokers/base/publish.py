@@ -281,3 +281,36 @@ class BrokerPublishTestcase:
         assert consume2.is_set()
         assert consume.is_set()
         assert mock.call_count == 2
+
+    @pytest.mark.asyncio
+    async def test_reply_to(
+        self,
+        pub_broker: BrokerUsecase,
+        mock: Mock,
+        queue: str,
+        event: asyncio.Event,
+    ):
+        @pub_broker.subscriber(queue + "reply")
+        async def reply_handler(m):
+            event.set()
+            mock(m)
+
+        @pub_broker.subscriber(queue)
+        async def handler(m):
+            return m
+
+        async with pub_broker:
+            await pub_broker.start()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        pub_broker.publish("Hello!", queue, reply_to=queue + "reply")
+                    ),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        mock.assert_called_with("Hello!")
