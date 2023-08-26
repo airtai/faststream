@@ -52,6 +52,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# public distributions
 async-rabbit = [
     "aio-pika>=9",
 ]
@@ -63,6 +64,10 @@ async-kafka = [
 docs = [
     "fastapi>=0.100.0",
     "uvicorn>=0.17.0",
+]
+
+# dev dependencies
+devdocs = [
     "mkdocs-material>=8.1.4,<9.0.0",
     "mkdocs-static-i18n",
     "mdx-include>=1.4.1,<2.0.0",
@@ -91,7 +96,7 @@ testing = [
     "httpx",
 ]
 
-dev = ["propan[async-rabbit,async-kafka,docs,lint,testing]"]
+dev = ["propan[async-rabbit,async-kafka,docs,lint,testing,devdocs]"]
 
 [project.urls]
 Homepage = "https://lancetnik.github.io/Propan/"
