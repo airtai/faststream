@@ -7,6 +7,7 @@ from uuid import uuid4
 
 from aiokafka import ConsumerRecord
 
+from faststream._compat import override
 from faststream.broker.parsers import encode_message
 from faststream.broker.test import call_handler, patch_broker_calls
 from faststream.kafka.broker import KafkaBroker
@@ -20,7 +21,6 @@ __all__ = ("TestKafkaBroker",)
 def TestKafkaBroker(broker: KafkaBroker, with_real: bool = False) -> KafkaBroker:
     if with_real:
         return broker
-
     _fake_start(broker)
     broker.start = AsyncMock(wraps=partial(_fake_start, broker))  # type: ignore[method-assign]
     broker._connect = MethodType(_fake_connect, broker)  # type: ignore[method-assign]
@@ -67,7 +67,8 @@ class FakeProducer(AioKafkaFastProducer):
     def __init__(self, broker: KafkaBroker):
         self.broker = broker
 
-    async def publish(
+    @override
+    async def publish(  # type: ignore[override]
         self,
         message: SendableMessage,
         topic: str,
@@ -127,6 +128,7 @@ async def _fake_close(
     for h in self.handlers.values():
         for f, _, _, _, _, _ in h.calls:
             f.mock.reset_mock()
+            f.event.clear()
 
 
 def _fake_start(self: KafkaBroker, *args: Any, **kwargs: Any) -> None:

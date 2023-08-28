@@ -5,7 +5,7 @@ from typing import (
     Awaitable,
     Callable,
     Dict,
-    List,
+    Iterable,
     Literal,
     Optional,
     Sequence,
@@ -37,7 +37,6 @@ from faststream.kafka.asyncapi import Handler, Publisher
 from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.kafka.shared.logging import KafkaLoggingMixin
 from faststream.kafka.shared.schemas import ConsumerConnectionParams
-from faststream.types import SendableMessage
 from faststream.utils import context
 from faststream.utils.data import filter_by_dict
 from faststream.utils.functions import to_async
@@ -55,7 +54,7 @@ class KafkaBroker(
 
     def __init__(
         self,
-        bootstrap_servers: Union[str, List[str]] = "localhost",
+        bootstrap_servers: Union[str, Iterable[str]] = "localhost",
         *,
         protocol: str = "kafka",
         protocol_version: str = "auto",
@@ -310,11 +309,12 @@ class KafkaBroker(
         super().publisher(topic, publisher)
         return publisher
 
-    async def publish(
+    @override
+    async def publish(  # type: ignore[override]
         self,
         *args: Any,
         **kwargs: Any,
-    ) -> Optional[SendableMessage]:
+    ) -> None:
         assert self._producer, "KafkaBroker is not started yet"
         return await self._producer.publish(*args, **kwargs)
 

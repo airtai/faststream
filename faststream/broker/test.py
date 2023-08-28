@@ -1,3 +1,4 @@
+import asyncio
 from types import TracebackType
 from typing import Any, Callable, ContextManager, Dict, Optional, Type
 
@@ -44,6 +45,8 @@ class TestApp:
 
 def patch_broker_calls(broker: BrokerUsecase[Any, Any]) -> None:
     for handler in broker.handlers.values():
+        for f, _, _, _, _, _ in handler.calls:
+            f.event = asyncio.Event()
         handler.set_test()
 
 

@@ -31,6 +31,7 @@ class KafkaRouter(BaseRouter):
         timestamp_ms: Optional[int] = None,
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
+        batch: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
@@ -45,6 +46,7 @@ class KafkaRouter(BaseRouter):
                 headers=headers,
                 reply_to=reply_to,
                 title=title,
+                batch=batch,
                 _description=description,
             ),
         )

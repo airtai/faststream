@@ -157,7 +157,7 @@ class AsyncHandler(BaseHandler[MsgType]):
                 gl_middlewares.append(await stack.enter_async_context(m(msg)))
 
             processed = False
-            for handler, f, parser, decoder, middlewares, _ in self.calls:
+            for handler, filter_, parser, decoder, middlewares, _ in self.calls:
                 local_middlewares: List[BaseMiddleware] = []
                 for local_m in middlewares:
                     local_middlewares.append(
@@ -171,7 +171,7 @@ class AsyncHandler(BaseHandler[MsgType]):
                 message.decoded_body = await decoder(message)
                 message.processed = processed
 
-                if await f(message):
+                if await filter_(message):
                     assert (
                         not processed
                     ), "You can't proccess a message with multiple consumers"
@@ -193,7 +193,7 @@ class AsyncHandler(BaseHandler[MsgType]):
                         if result is not None:
                             result_msg, pub_response = result
 
-                            # TODO: suppress all publishing errors and raise them after all publisher will be tried
+                            # TODO: suppress all publishing errors and raise them after all publishers will be tried
                             for publisher in (pub_response, *handler._publishers):
                                 if publisher is not None:
                                     async with AsyncExitStack() as pub_stack:

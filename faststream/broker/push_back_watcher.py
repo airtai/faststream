@@ -8,7 +8,13 @@ from typing import Optional, Type, Union
 
 from faststream.broker.message import StreamMessage, SyncStreamMessage
 from faststream.broker.types import MsgType
-from faststream.exceptions import SkipMessage
+from faststream.exceptions import (
+    AckMessage,
+    HandlerException,
+    NackMessage,
+    RejectMessage,
+    SkipMessage,
+)
 from faststream.utils.functions import call_or_await
 
 
@@ -105,17 +111,37 @@ class WatcherContext:
         exc_type: Optional[Type[BaseException]],
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
-    ) -> None:
+    ) -> bool:
         if not exc_type:
-            await call_or_await(self.message.ack, **self.extra_ack_args)
-            self.watcher.remove(self.message.message_id)
+            await self.__ack()
 
         elif isinstance(exc_val, SkipMessage):
             self.watcher.remove(self.message.message_id)
 
+        elif isinstance(exc_val, HandlerException):
+            if isinstance(exc_val, AckMessage):
+                await self.__ack()
+            elif isinstance(exc_val, NackMessage):
+                await self.__nack()
+            elif isinstance(exc_val, RejectMessage):
+                await self.__reject()
+            return True
+
         elif self.watcher.is_max(self.message.message_id):
-            await call_or_await(self.message.reject, **self.extra_ack_args)
-            self.watcher.remove(self.message.message_id)
+            await self.__reject()
 
         else:
-            await call_or_await(self.message.nack, **self.extra_ack_args)
+            await self.__nack()
+
+        return False
+
+    async def __ack(self) -> None:
+        await call_or_await(self.message.ack, **self.extra_ack_args)
+        self.watcher.remove(self.message.message_id)
+
+    async def __nack(self) -> None:
+        await call_or_await(self.message.nack, **self.extra_ack_args)
+
+    async def __reject(self) -> None:
+        await call_or_await(self.message.reject, **self.extra_ack_args)
+        self.watcher.remove(self.message.message_id)

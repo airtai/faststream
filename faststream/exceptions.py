@@ -2,12 +2,12 @@ class SkipMessage(Exception):
     """Watcher Instruction to skip message"""
 
 
+class StopConsume(Exception):
+    """Raise it to stop Handler consuming"""
+
+
 class HandlerException(Exception):
     """Base Handler Exception"""
-
-
-class StopConsume(HandlerException):
-    """Raise it to stop Handler consuming"""
 
 
 class AckMessage(HandlerException):

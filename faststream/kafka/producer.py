@@ -40,7 +40,7 @@ class AioKafkaFastProducer:
         correlation_id: Optional[str] = None,
         *,
         reply_to: str = "",
-    ) -> Optional[SendableMessage]:
+    ) -> None:
         assert self._producer, "You need to connect broker at first"
 
         message, content_type = encode_message(message)
