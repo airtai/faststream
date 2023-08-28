@@ -204,6 +204,7 @@ async def _fake_close(
     for h in self.handlers.values():
         for f, _, _, _, _, _ in h.calls:
             f.mock.reset_mock()
+            f.event.clear()
 
 
 def _fake_start(self: RabbitBroker, *args: Any, **kwargs: Any) -> None:
@@ -213,7 +214,6 @@ def _fake_start(self: RabbitBroker, *args: Any, **kwargs: Any) -> None:
         if handler is not None:
             for f, _, _, _, _, _ in handler.calls:
                 f.mock.side_effect = p.mock
-
         else:
             p._fake_handler = True
 

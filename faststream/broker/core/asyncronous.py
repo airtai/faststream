@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from abc import abstractmethod
 from functools import wraps
@@ -54,6 +55,9 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
     @abstractmethod
     async def start(self) -> None:
         super()._abc_start()
+        for h in self.handlers.values():
+            for c, _, _, _, _, _ in h.calls:
+                c.event = asyncio.Event()
         await self.connect()
 
     @abstractmethod

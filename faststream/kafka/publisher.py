@@ -22,7 +22,7 @@ class LogicPublisher(ABCPublisher[ConsumerRecord]):
         *messages: SendableMessage,
         message: SendableMessage = "",
         correlation_id: str = "",
-    ) -> Optional[SendableMessage]:
+    ) -> None:
         assert self._producer, "Please, setup `_producer` first"
         assert (
             self.batch or len(messages) < 2

@@ -118,7 +118,12 @@ class FastAPILocalTestcase:
             with TestClient(app) as client:
                 assert client.app_state["broker"] is router.broker
 
-                r = await router.broker.publish("hi", queue, rpc=True, rpc_timeout=0.5)
+                r = await router.broker.publish(
+                    "hi",
+                    queue,
+                    rpc=True,
+                    rpc_timeout=0.5,
+                )
                 assert r == "hi"
 
     async def test_base_without_state(self, queue: str):
@@ -135,7 +140,12 @@ class FastAPILocalTestcase:
             with TestClient(app) as client:
                 assert not client.app_state.get("broker")
 
-                r = await router.broker.publish("hi", queue, rpc=True, rpc_timeout=0.5)
+                r = await router.broker.publish(
+                    "hi",
+                    queue,
+                    rpc=True,
+                    rpc_timeout=0.5,
+                )
                 assert r == "hi"
 
     async def test_invalid(self, queue: str):
@@ -165,7 +175,11 @@ class FastAPILocalTestcase:
 
         async with router.broker:
             r = await router.broker.publish(
-                "", queue, headers={"w": "hi"}, rpc=True, rpc_timeout=0.5
+                "",
+                queue,
+                headers={"w": "hi"},
+                rpc=True,
+                rpc_timeout=0.5,
             )
             assert r == "hi"
 
@@ -183,7 +197,10 @@ class FastAPILocalTestcase:
 
         async with router.broker:
             r = await router.broker.publish(
-                {"a": "hi"}, queue, rpc=True, rpc_timeout=0.5
+                {"a": "hi"},
+                queue,
+                rpc=True,
+                rpc_timeout=0.5,
             )
             assert r == "hi"
 
@@ -191,7 +208,6 @@ class FastAPILocalTestcase:
 
     async def test_yield_depends(self, mock: Mock, queue: str):
         router = self.router_class()
-        router.broker = self.broker_test(router.broker)
 
         def dep(a):
             mock.start()
@@ -204,9 +220,13 @@ class FastAPILocalTestcase:
             assert not mock.close.call_count
             return w
 
+        router.broker = self.broker_test(router.broker)
         async with router.broker:
             r = await router.broker.publish(
-                {"a": "hi"}, queue, rpc=True, rpc_timeout=0.5
+                {"a": "hi"},
+                queue,
+                rpc=True,
+                rpc_timeout=0.5,
             )
             assert r == "hi"
 
@@ -242,7 +262,12 @@ class FastAPILocalTestcase:
             return a
 
         async with router.broker:
-            r = await router.broker.publish("hi", queue, rpc=True, rpc_timeout=0.5)
+            r = await router.broker.publish(
+                "hi",
+                queue,
+                rpc=True,
+                rpc_timeout=0.5,
+            )
             assert r == "hi"
 
         mock.assert_called_once()

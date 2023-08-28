@@ -47,7 +47,9 @@ from faststream.types import AnyDict
 
 RabbitMessage = StreamMessage[aio_pika.IncomingMessage]
 
-class RabbitRouter(StreamRouter[RabbitBroker]):
+class RabbitRouter(StreamRouter[IncomingMessage]):
+    broker_class: Type[RabbitBroker]
+
     def __init__(
         self,
         url: Union[str, URL, None] = "amqp://guest:guest@localhost:5672/",
