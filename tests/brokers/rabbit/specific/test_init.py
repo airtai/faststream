@@ -1,6 +1,6 @@
 import pytest
 
-from propan.rabbit import RabbitBroker
+from faststream.rabbit import RabbitBroker
 
 
 @pytest.mark.asyncio

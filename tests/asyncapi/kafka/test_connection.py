@@ -1,12 +1,12 @@
-from propan import PropanApp
-from propan.asyncapi.generate import get_app_schema
-from propan.asyncapi.schema import Tag
-from propan.kafka import KafkaBroker
+from faststream import FastStream
+from faststream.asyncapi.generate import get_app_schema
+from faststream.asyncapi.schema import Tag
+from faststream.kafka import KafkaBroker
 
 
 def test_base():
     schema = get_app_schema(
-        PropanApp(
+        FastStream(
             KafkaBroker(
                 "kafka:9092",
                 protocol="plaintext",
@@ -22,7 +22,7 @@ def test_base():
         "channels": {},
         "components": {"messages": {}, "schemas": {}},
         "defaultContentType": "application/json",
-        "info": {"description": "", "title": "Propan", "version": "0.1.0"},
+        "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
         "servers": {
             "development": {
                 "description": "Test description",
@@ -37,7 +37,7 @@ def test_base():
 
 def test_multi():
     schema = get_app_schema(
-        PropanApp(KafkaBroker(["kafka:9092", "kafka:9093"]))
+        FastStream(KafkaBroker(["kafka:9092", "kafka:9093"]))
     ).to_jsonable()
 
     assert schema == {
@@ -45,7 +45,7 @@ def test_multi():
         "channels": {},
         "components": {"messages": {}, "schemas": {}},
         "defaultContentType": "application/json",
-        "info": {"description": "", "title": "Propan", "version": "0.1.0"},
+        "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
         "servers": {
             "Server1": {
                 "protocol": "kafka",

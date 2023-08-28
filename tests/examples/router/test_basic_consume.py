@@ -1,7 +1,7 @@
 import pytest
 
 from examples.router.basic_consume import app, handle
-from propan import TestApp as T
+from faststream import TestApp as T
 
 
 @pytest.mark.asyncio

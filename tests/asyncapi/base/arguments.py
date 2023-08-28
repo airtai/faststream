@@ -3,10 +3,10 @@ from typing import Optional, Type
 import pydantic
 from dirty_equals import IsDict, IsStr
 
-from propan import PropanApp
-from propan._compat import PYDANTIC_V2
-from propan.asyncapi.generate import get_app_schema
-from propan.broker.core.abc import BrokerUsecase
+from faststream import FastStream
+from faststream._compat import PYDANTIC_V2
+from faststream.asyncapi.generate import get_app_schema
+from faststream.broker.core.abc import BrokerUsecase
 
 
 class FastAPICompatible:
@@ -14,7 +14,7 @@ class FastAPICompatible:
 
     def build_app(self, broker):
         """Patch it to test FastAPI scheme generation too"""
-        return PropanApp(broker)
+        return FastStream(broker)
 
     def test_custom_naming(self):
         broker = self.broker_class()

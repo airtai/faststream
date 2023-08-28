@@ -1,9 +1,9 @@
-from propan import PropanApp
-from propan.exceptions import AckMessage
-from propan.rabbit import RabbitBroker
+from faststream import FastStream
+from faststream.exceptions import AckMessage
+from faststream.rabbit import RabbitBroker
 
 broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
-app = PropanApp(broker)
+app = FastStream(broker)
 
 
 @broker.subscriber("test-queue")

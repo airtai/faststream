@@ -1,10 +1,10 @@
 import pytest
 
-from propan import PropanApp
-from propan.kafka import KafkaBroker, TestKafkaBroker
+from faststream import FastStream
+from faststream.kafka import KafkaBroker, TestKafkaBroker
 
 broker = KafkaBroker("localhost:9092")
-app = PropanApp(broker)
+app = FastStream(broker)
 
 
 publisher1 = broker.publisher("test-resp")

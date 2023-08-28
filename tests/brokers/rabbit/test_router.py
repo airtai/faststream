@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from propan.rabbit import RabbitBroker, RabbitQueue, RabbitRoute, RabbitRouter
+from faststream.rabbit import RabbitBroker, RabbitQueue, RabbitRoute, RabbitRouter
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 

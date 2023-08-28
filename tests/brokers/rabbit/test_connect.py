@@ -1,6 +1,6 @@
 import pytest
 
-from propan.rabbit import RabbitBroker
+from faststream.rabbit import RabbitBroker
 from tests.brokers.base.connection import BrokerConnectionTestcase
 
 

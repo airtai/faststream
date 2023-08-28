@@ -4,9 +4,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 from aio_pika import IncomingMessage, Message
 
-from propan.exceptions import AckMessage, NackMessage, RejectMessage, SkipMessage
-from propan.rabbit import RabbitBroker, RabbitExchange, RabbitQueue
-from propan.rabbit.annotations import RabbitMessage
+from faststream.exceptions import AckMessage, NackMessage, RejectMessage, SkipMessage
+from faststream.rabbit import RabbitBroker, RabbitExchange, RabbitQueue
+from faststream.rabbit.annotations import RabbitMessage
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
 
 

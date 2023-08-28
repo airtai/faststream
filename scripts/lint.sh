@@ -1,5 +1,5 @@
-pyup_dirs --py38-plus --recursive propan tests
-mypy propan
-ruff propan examples tests --fix
-black propan examples tests
-isort propan examples tests
+pyup_dirs --py38-plus --recursive faststream tests
+mypy faststream
+ruff faststream examples tests --fix
+black faststream examples tests
+isort faststream examples tests

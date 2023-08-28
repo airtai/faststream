@@ -1,11 +1,11 @@
 import asyncio
-from contextlib import asynccontextmanager
 from typing import Type
 from unittest.mock import Mock
 
 import pytest
 
-from propan.broker.core.abc import BrokerUsecase
+from faststream.broker.core.abc import BrokerUsecase
+from faststream.broker.middlewares import BaseMiddleware
 
 
 @pytest.mark.asyncio
@@ -24,13 +24,14 @@ class LocalMiddlewareTestcase:
     async def test_local_middleware(
         self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
     ):
-        @asynccontextmanager
-        async def mid(msg):
-            mock.start(msg)
-            try:
-                yield
-            finally:
+        class mid(BaseMiddleware):
+            async def on_receive(self):
+                mock.start(self.msg)
+                return await super().on_receive()
+
+            async def after_processed(self, exc_type, exc_val, exec_tb):
                 mock.end()
+                return await super().after_processed(exc_type, exc_val, exec_tb)
 
         broker = self.broker_class()
 
@@ -61,13 +62,14 @@ class LocalMiddlewareTestcase:
         event1 = asyncio.Event()
         event2 = asyncio.Event()
 
-        @asynccontextmanager
-        async def mid(msg):
-            mock.start(msg)
-            try:
-                yield
-            finally:
+        class mid(BaseMiddleware):
+            async def on_receive(self):
+                mock.start(self.msg)
+                return await super().on_receive()
+
+            async def after_processed(self, exc_type, exc_val, exec_tb):
                 mock.end()
+                return await super().after_processed(exc_type, exc_val, exec_tb)
 
         broker = self.broker_class()
 
@@ -101,19 +103,20 @@ class LocalMiddlewareTestcase:
         mock.end.assert_called_once()
         assert mock.call_count == 2
 
-    async def test_local_middleware_not_shared_between_filters(
+    async def test_local_middleware_consume_not_shared_between_filters(
         self, queue: str, mock: Mock, raw_broker
     ):
         event1 = asyncio.Event()
         event2 = asyncio.Event()
 
-        @asynccontextmanager
-        async def mid(msg):
-            mock.start(msg)
-            try:
-                yield
-            finally:
+        class mid(BaseMiddleware):
+            async def on_consume(self, msg):
+                mock.start(msg)
+                return await super().on_consume(msg)
+
+            async def after_consume(self, err):
                 mock.end()
+                return await super().after_consume(err)
 
         broker = self.broker_class()
 
@@ -149,19 +152,56 @@ class LocalMiddlewareTestcase:
         mock.end.assert_called_once()
         assert mock.call_count == 2
 
+    async def test_error_traceback(self, queue: str, mock: Mock, event, raw_broker):
+        class Mid(BaseMiddleware):
+            async def after_processed(self, exc_type, exc_val, exec_tb) -> bool:
+                mock(issubclass(exc_type, ValueError))
+                return True
+
+            async def after_consume(self, err: Exception) -> None:
+                mock(isinstance(err, ValueError))
+                return await super().after_consume(err)
+
+        broker = self.broker_class()
+
+        @broker.subscriber(queue, middlewares=(Mid,))
+        async def handler2(m):
+            event.set()
+            raise ValueError()
+
+        broker = self.patch_broker(raw_broker, broker)
+        for h in broker.handlers.values():
+            h.set_test()
+
+        async with broker:
+            await broker.start()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(broker.publish("", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        assert mock.call_count == 2
+        mock.assert_called_with(True)
+
 
 @pytest.mark.asyncio
 class MiddlewareTestcase(LocalMiddlewareTestcase):
     async def test_global_middleware(
         self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
     ):
-        @asynccontextmanager
-        async def mid(msg):
-            mock.start(msg)
-            try:
-                yield
-            finally:
+        class mid(BaseMiddleware):
+            async def on_receive(self):
+                mock.start(self.msg)
+                return await super().on_receive()
+
+            async def after_processed(self, exc_type, exc_val, exec_tb):
                 mock.end()
+                return await super().after_processed(exc_type, exc_val, exec_tb)
 
         broker = self.broker_class(
             middlewares=(mid,),

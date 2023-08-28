@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import anyio
 import pytest
 
-from propan.broker.core.abc import BrokerUsecase
+from faststream.broker.core.abc import BrokerUsecase
 
 
 class BrokerRPCTestcase:

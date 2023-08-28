@@ -1,30 +1,30 @@
 import pytest
 from typer.testing import CliRunner
 
-from propan import PropanApp
+from faststream import FastStream
 
 
 @pytest.fixture()
 def broker():
     # separate import from e2e tests
-    from propan.rabbit import RabbitBroker
+    from faststream.rabbit import RabbitBroker
 
     yield RabbitBroker()
 
 
 @pytest.fixture()
 def app_without_logger(broker):
-    return PropanApp(broker, None)
+    return FastStream(broker, None)
 
 
 @pytest.fixture()
 def app_without_broker():
-    return PropanApp()
+    return FastStream()
 
 
 @pytest.fixture()
 def app(broker):
-    return PropanApp(broker)
+    return FastStream(broker)
 
 
 @pytest.fixture(scope="session")

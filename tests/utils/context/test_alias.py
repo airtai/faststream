@@ -2,8 +2,8 @@ from typing import Any
 
 import pytest
 
-from propan._compat import Annotated
-from propan.utils import Context, ContextRepo, apply_types
+from faststream._compat import Annotated
+from faststream.utils import Context, ContextRepo, apply_types
 
 
 @pytest.mark.asyncio

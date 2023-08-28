@@ -2,7 +2,7 @@ from asyncio import Event, wait_for
 
 import pytest
 
-from propan.rabbit import ExchangeType, RabbitBroker, RabbitExchange, RabbitQueue
+from faststream.rabbit import ExchangeType, RabbitBroker, RabbitExchange, RabbitQueue
 
 
 @pytest.mark.asyncio

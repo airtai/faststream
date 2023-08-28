@@ -1,5 +1,5 @@
-from propan import Logger, PropanApp
-from propan.kafka import KafkaBroker, KafkaRoute, KafkaRouter
+from faststream import FastStream, Logger
+from faststream.kafka import KafkaBroker, KafkaRoute, KafkaRouter
 
 
 async def handle(msg: str, logger: Logger) -> None:
@@ -14,7 +14,7 @@ router = KafkaRouter(
 broker = KafkaBroker("localhost:9092")
 broker.include_router(router)
 
-app = PropanApp(broker)
+app = FastStream(broker)
 
 
 @app.after_startup

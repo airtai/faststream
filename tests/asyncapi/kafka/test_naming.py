@@ -1,6 +1,6 @@
-from propan import PropanApp
-from propan.asyncapi.generate import get_app_schema
-from propan.kafka import KafkaBroker
+from faststream import FastStream
+from faststream.asyncapi.generate import get_app_schema
+from faststream.kafka import KafkaBroker
 from tests.asyncapi.base.naming import NamingTestCase
 
 
@@ -14,7 +14,7 @@ class TestNaming(NamingTestCase):
         async def handle():
             ...
 
-        schema = get_app_schema(PropanApp(broker)).to_jsonable()
+        schema = get_app_schema(FastStream(broker)).to_jsonable()
 
         assert schema == {
             "asyncapi": "2.6.0",
@@ -40,7 +40,7 @@ class TestNaming(NamingTestCase):
                 "schemas": {"EmptyPayload": {"title": "EmptyPayload", "type": "null"}},
             },
             "defaultContentType": "application/json",
-            "info": {"description": "", "title": "Propan", "version": "0.1.0"},
+            "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
             "servers": {
                 "development": {
                     "protocol": "kafka",

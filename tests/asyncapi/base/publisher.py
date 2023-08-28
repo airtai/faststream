@@ -3,9 +3,9 @@ from typing import Type
 import pydantic
 from dirty_equals import IsStr
 
-from propan import PropanApp
-from propan.asyncapi.generate import get_app_schema
-from propan.broker.core.abc import BrokerUsecase
+from faststream import FastStream
+from faststream.asyncapi.generate import get_app_schema
+from faststream.broker.core.abc import BrokerUsecase
 
 
 class PublisherTestcase:
@@ -13,7 +13,7 @@ class PublisherTestcase:
 
     def build_app(self, broker):
         """Patch it to test FastAPI scheme generation too"""
-        return PropanApp(broker)
+        return FastStream(broker)
 
     def test_publisher_with_name(self):
         broker = self.broker_class()

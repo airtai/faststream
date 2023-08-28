@@ -1,12 +1,12 @@
-from propan import PropanApp
-from propan.asyncapi.generate import get_app_schema
-from propan.asyncapi.schema import Tag
-from propan.rabbit import RabbitBroker
+from faststream import FastStream
+from faststream.asyncapi.generate import get_app_schema
+from faststream.asyncapi.schema import Tag
+from faststream.rabbit import RabbitBroker
 
 
 def test_base():
     schema = get_app_schema(
-        PropanApp(
+        FastStream(
             RabbitBroker(
                 "localhost",
                 protocol="amqps",
@@ -22,7 +22,7 @@ def test_base():
         "channels": {},
         "components": {"messages": {}, "schemas": {}},
         "defaultContentType": "application/json",
-        "info": {"description": "", "title": "Propan", "version": "0.1.0"},
+        "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
         "servers": {
             "development": {
                 "description": "Test description",

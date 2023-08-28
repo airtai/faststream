@@ -1,6 +1,6 @@
 import logging
 
-from propan.log.formatter import ColourizedFormatter
+from faststream.log.formatter import ColourizedFormatter
 
 
 def test_formatter():

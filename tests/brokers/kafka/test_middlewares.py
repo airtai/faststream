@@ -1,6 +1,6 @@
 import pytest
 
-from propan.kafka import KafkaBroker
+from faststream.kafka import KafkaBroker
 from tests.brokers.base.middlewares import MiddlewareTestcase
 
 

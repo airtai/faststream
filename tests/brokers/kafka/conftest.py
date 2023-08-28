@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import pytest
 import pytest_asyncio
 
-from propan.kafka import KafkaBroker, KafkaRouter, TestKafkaBroker
+from faststream.kafka import KafkaBroker, KafkaRouter, TestKafkaBroker
 
 
 @dataclass

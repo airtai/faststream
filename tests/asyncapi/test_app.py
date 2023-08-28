@@ -1,18 +1,18 @@
-from propan import PropanApp
-from propan.asyncapi.generate import get_app_schema
-from propan.asyncapi.schema import Contact, ExternalDocs, License, Tag
-from propan.kafka import KafkaBroker
+from faststream import FastStream
+from faststream.asyncapi.generate import get_app_schema
+from faststream.asyncapi.schema import Contact, ExternalDocs, License, Tag
+from faststream.kafka import KafkaBroker
 
 
 def test_base():
-    schema = get_app_schema(PropanApp(KafkaBroker())).to_jsonable()
+    schema = get_app_schema(FastStream(KafkaBroker())).to_jsonable()
 
     assert schema == {
         "asyncapi": "2.6.0",
         "channels": {},
         "components": {"messages": {}, "schemas": {}},
         "defaultContentType": "application/json",
-        "info": {"description": "", "title": "Propan", "version": "0.1.0"},
+        "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
         "servers": {
             "development": {
                 "protocol": "kafka",
@@ -25,7 +25,7 @@ def test_base():
 
 def test_with_name():
     schema = get_app_schema(
-        PropanApp(
+        FastStream(
             KafkaBroker(),
             title="My App",
             version="1.0.0",
@@ -55,7 +55,7 @@ def test_with_name():
 
 def test_full():
     schema = get_app_schema(
-        PropanApp(
+        FastStream(
             KafkaBroker(),
             title="My App",
             version="1.0.0",
@@ -99,7 +99,7 @@ def test_full():
 
 def test_full_dict():
     schema = get_app_schema(
-        PropanApp(
+        FastStream(
             KafkaBroker(),
             title="My App",
             version="1.0.0",
@@ -143,7 +143,7 @@ def test_full_dict():
 
 def test_extra():
     schema = get_app_schema(
-        PropanApp(
+        FastStream(
             KafkaBroker(),
             title="My App",
             version="1.0.0",

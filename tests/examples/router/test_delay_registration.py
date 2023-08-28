@@ -1,7 +1,7 @@
 import pytest
 
 from examples.router.delay_registration import app, broker
-from propan import TestApp as T
+from faststream import TestApp as T
 
 
 @pytest.mark.asyncio

@@ -1,6 +1,6 @@
 import pytest
 
-from propan.rabbit import RabbitBroker, RabbitRouter
+from faststream.rabbit import RabbitBroker, RabbitRouter
 
 
 @pytest.fixture(params=(RabbitBroker(), RabbitRouter()))

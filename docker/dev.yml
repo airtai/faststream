@@ -5,7 +5,7 @@ services:
         ports:
           - "5672:5672"
     kafka:
-        image: bitnami/kafka
+        image: bitnami/kafka:3.5.0
         ports:
           - "9092:9092"
         environment:

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from propan.cli.utils.imports import get_app_path, import_object
+from faststream.cli.utils.imports import get_app_path, import_object
 
 
 def test_import_wrong():

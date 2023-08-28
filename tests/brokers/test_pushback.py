@@ -2,12 +2,12 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from propan.broker.push_back_watcher import (
+from faststream.broker.push_back_watcher import (
     CounterWatcher,
     EndlessWatcher,
     WatcherContext,
 )
-from propan.exceptions import SkipMessage
+from faststream.exceptions import SkipMessage
 from tests.tools.marks import needs_py38
 
 

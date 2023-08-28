@@ -1,14 +1,14 @@
 # Security Policy
 
-Security and stability is very important for Propan.
+Security and stability is very important for FastStream.
 
 Learn more about it below. 👇
 
 ## Versions
 
-The latest version of Propan is supported.
+The latest version of FastStream is supported.
 
-You are encouraged to write tests for your application and update your Propan version frequently after ensuring that your tests are passing. This way you will benefit from the latest features, bug fixes, and **security fixes**.
+You are encouraged to write tests for your application and update your FastStream version frequently after ensuring that your tests are passing. This way you will benefit from the latest features, bug fixes, and **security fixes**.
 
 ## Reporting a Vulnerability
 
@@ -18,14 +18,14 @@ To responsibly report a security issue, please navigate to the Security tab for 
 
 ![Screenshot of repo security tab showing "Report a vulnerability" button](https://github.com/encode/.github/raw/master/img/github-demos-private-vulnerability-reporting.png)
 
-Alternatively, you can send me an email to: diementros@yandex.ru
+Alternatively, you can send me an email to: [info@airt.ai](info@airt.ai)
 
 Be sure to include as much detail as necessary in your report. As with reporting normal issues, a minimal reproducible example will help to fix the issue faster.
 
 Also, please add to your report output of following command:
 
 ```bash
-propan --version
+faststream --version
 ```
 
 ## Public Discussions

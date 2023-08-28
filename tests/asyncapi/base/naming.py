@@ -1,8 +1,8 @@
 from typing import Type
 
-from propan import PropanApp
-from propan.asyncapi.generate import get_app_schema
-from propan.broker.core.abc import BrokerUsecase
+from faststream import FastStream
+from faststream.asyncapi.generate import get_app_schema
+from faststream.broker.core.abc import BrokerUsecase
 
 
 class NamingTestCase:
@@ -15,7 +15,7 @@ class NamingTestCase:
         async def handle_user_created():
             ...
 
-        schema = get_app_schema(PropanApp(broker)).to_jsonable()
+        schema = get_app_schema(FastStream(broker)).to_jsonable()
 
         assert tuple(schema["channels"].keys())[0] == "HandleUserCreatedTest"
 
@@ -27,7 +27,7 @@ class NamingTestCase:
         async def handle_user_created():
             ...
 
-        schema = get_app_schema(PropanApp(broker)).to_jsonable()
+        schema = get_app_schema(FastStream(broker)).to_jsonable()
 
         assert set(schema["channels"].keys()) == {
             "HandleUserCreatedTest",
@@ -41,7 +41,7 @@ class NamingTestCase:
         async def handle_user_created():
             ...
 
-        schema = get_app_schema(PropanApp(broker)).to_jsonable()
+        schema = get_app_schema(FastStream(broker)).to_jsonable()
 
         assert tuple(schema["channels"].keys())[0] == "my_custom_name"
 
@@ -53,7 +53,7 @@ class NamingTestCase:
         async def handle_user_created():
             ...
 
-        schema = get_app_schema(PropanApp(broker)).to_jsonable()
+        schema = get_app_schema(FastStream(broker)).to_jsonable()
 
         assert set(schema["channels"].keys()) == {
             "TestPublisher",

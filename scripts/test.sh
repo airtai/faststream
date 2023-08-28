@@ -1,1 +1,1 @@
-coverage run -m pytest -m "all and not run" "$@" || coverage run -m pytest -m "all and not run" "$@"
+coverage run -m pytest -m "all" "$@" || coverage run -m pytest -m "all" "$@" || coverage run -m pytest -m "all" "$@"

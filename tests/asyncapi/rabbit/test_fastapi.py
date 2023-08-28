@@ -1,4 +1,4 @@
-from propan.rabbit.fastapi import RabbitRouter
+from faststream.rabbit.fastapi import RabbitRouter
 from tests.asyncapi.base.arguments import FastAPICompatible
 from tests.asyncapi.base.publisher import PublisherTestcase
 

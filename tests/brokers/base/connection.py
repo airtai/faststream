@@ -2,7 +2,7 @@ from typing import Type
 
 import pytest
 
-from propan.broker.core.abc import BrokerUsecase
+from faststream.broker.core.abc import BrokerUsecase
 
 
 class BrokerConnectionTestcase:

@@ -1,6 +1,6 @@
 import pytest
 
-from propan.utils.functions import call_or_await
+from faststream.utils.functions import call_or_await
 
 
 def sync_func(a):

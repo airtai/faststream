@@ -1,5 +1,5 @@
-from propan import apply_types
-from propan.annotations import NoCast
+from faststream import apply_types
+from faststream.annotations import NoCast
 
 
 def test_no_cast():

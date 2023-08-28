@@ -3,7 +3,7 @@ import signal
 
 import pytest
 
-from propan.cli.supervisors.multiprocess import Multiprocess
+from faststream.cli.supervisors.multiprocess import Multiprocess
 
 
 def exit(parent_id):  # pragma: no cover

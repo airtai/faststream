@@ -1,7 +1,7 @@
 import pytest
 
 from examples.e11_settings import app, handle
-from propan import TestApp as T
+from faststream import TestApp as T
 
 
 @pytest.mark.asyncio
