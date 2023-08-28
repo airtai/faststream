@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from abc import abstractmethod
 from functools import wraps
@@ -17,6 +16,7 @@ from typing import (
     Union,
 )
 
+import anyio
 from fast_depends.core import CallModel
 from fast_depends.dependencies import Depends
 
@@ -57,7 +57,7 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         super()._abc_start()
         for h in self.handlers.values():
             for c, _, _, _, _, _ in h.calls:
-                c.event = asyncio.Event()
+                c.event = anyio.Event()
         await self.connect()
 
     @abstractmethod

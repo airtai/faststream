@@ -150,7 +150,6 @@ class FastAPILocalTestcase:
 
     async def test_invalid(self, queue: str):
         router = self.router_class()
-        router.broker = self.broker_test(router.broker)
 
         app = FastAPI(lifespan=router.lifespan_context)
 
@@ -158,6 +157,7 @@ class FastAPILocalTestcase:
         async def hello(msg: int):  # pragma: no cover
             return msg
 
+        router.broker = self.broker_test(router.broker)
         app.include_router(router)
 
         async with router.broker:
@@ -167,12 +167,12 @@ class FastAPILocalTestcase:
 
     async def test_headers(self, queue: str):
         router = self.router_class()
-        router.broker = self.broker_test(router.broker)
 
         @router.subscriber(queue)
         async def hello(w=Header()):
             return w
 
+        router.broker = self.broker_test(router.broker)
         async with router.broker:
             r = await router.broker.publish(
                 "",
@@ -185,7 +185,6 @@ class FastAPILocalTestcase:
 
     async def test_depends(self, mock: Mock, queue: str):
         router = self.router_class()
-        router.broker = self.broker_test(router.broker)
 
         def dep(a):
             mock(a)
@@ -195,6 +194,7 @@ class FastAPILocalTestcase:
         async def hello(a, w=Depends(dep)):
             return w
 
+        router.broker = self.broker_test(router.broker)
         async with router.broker:
             r = await router.broker.publish(
                 {"a": "hi"},
@@ -238,12 +238,12 @@ class FastAPILocalTestcase:
             mock()
 
         router = self.router_class(dependencies=(Depends(mock_dep, use_cache=False),))
-        router.broker = self.broker_test(router.broker)
 
         @router.subscriber(queue)
         async def hello(a):
             return a
 
+        router.broker = self.broker_test(router.broker)
         async with router.broker:
             r = await router.broker.publish("hi", queue, rpc=True, rpc_timeout=0.5)
             assert r == "hi"
@@ -255,12 +255,12 @@ class FastAPILocalTestcase:
             mock()
 
         router = self.router_class()
-        router.broker = self.broker_test(router.broker)
 
         @router.subscriber(queue, dependencies=(Depends(mock_dep, use_cache=False),))
         async def hello(a):
             return a
 
+        router.broker = self.broker_test(router.broker)
         async with router.broker:
             r = await router.broker.publish(
                 "hi",
