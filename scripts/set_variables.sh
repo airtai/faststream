@@ -1,4 +1,5 @@
 #!/bin/bash
+
 if test -z "$AIRT_PROJECT"; then
       echo 'AIRT_PROJECT variable not set, setting to current directory'
       export AIRT_PROJECT=`pwd`

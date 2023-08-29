@@ -7,7 +7,7 @@ If you already cloned the repository and you know that you need to deep dive in 
 You can create a virtual environment in a directory using Python's `venv` module:
 
 ```bash
-$ python -m venv venv
+python -m venv venv
 ```
 
 That will create a directory `./venv/` with the Python binaries and then you will be able to install packages for that isolated environment.
@@ -57,11 +57,11 @@ python -m faststream ...
 To run tests with your current FastStream application and Python environment use:
 
 ```bash
-$ pytest tests
+pytest tests
 # or
-$ bash ./scripts/test.sh
+./scripts/test.sh
 # with coverage output
-$ bash ./scripts/test-cov.sh -m "all"
+./scripts/test-cov.sh -m "all"
 ```
 
 There are some *pytest marks* at project:
