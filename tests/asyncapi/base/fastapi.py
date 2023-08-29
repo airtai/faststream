@@ -2,7 +2,6 @@ from typing import Any, Callable, Type
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from loguru import logger
 
 from faststream.asyncapi.generate import get_app_schema
 from faststream.broker.core.abc import BrokerUsecase
@@ -16,7 +15,6 @@ class FastAPITestCase:
 
     def test_fastapi_asyncapi_routes(self):
         broker = self.broker_class(schema_url="/asyncapi_schema")
-        logger.debug(broker)
         broker.broker = self.broker_wrapper(broker.broker)
 
         @broker.subscriber("test")
@@ -26,7 +24,6 @@ class FastAPITestCase:
         app = FastAPI(lifespan=broker.lifespan_context)
         app.include_router(broker)
 
-        logger.debug(broker)
         schema = get_app_schema(broker)
 
         with TestClient(app) as client:
