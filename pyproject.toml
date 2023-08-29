@@ -95,6 +95,7 @@ testing = [
     "fastapi>=0.100.0b",
     "pydantic-settings",
     "httpx",
+    "PyYAML",
 ]
 
 dev = ["faststream[rabbit,kafka,docs,lint,testing,devdocs]"]

@@ -31,6 +31,7 @@ from fastapi.utils import generate_unique_id
 from kafka.coordinator.assignors.abstract import AbstractPartitionAssignor
 from kafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
 from kafka.partitioner.default import DefaultPartitioner
+from pydantic import AnyHttpUrl
 from starlette import routing
 from starlette.responses import JSONResponse, Response
 from starlette.types import AppType, ASGIApp
@@ -52,6 +53,7 @@ from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.asyncapi import Publisher
 from faststream.kafka.broker import KafkaBroker
 from faststream.log import access_logger
+from faststream.types import AnyDict
 
 KafkaMessage = StreamMessage[aiokafka.ConsumerRecord]
 Partition = TypeVar("Partition")
@@ -135,11 +137,25 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
                 ]
             ]
         ] = None,
-        # AsyncAPI information
-        protocol: str = "kafka",
-        protocol_version: str = "auto",
-        description: Optional[str] = None,
-        asyncapi_tags: Optional[Sequence[asyncapi.Tag]] = None,
+        # AsyncAPI args
+        title: str = "FastStream",
+        version: str = "0.1.0",
+        description: str = "",
+        terms_of_service: Optional[AnyHttpUrl] = None,
+        license: Optional[
+            Union[asyncapi.License, asyncapi.LicenseDict, AnyDict]
+        ] = None,
+        contact: Optional[
+            Union[asyncapi.Contact, asyncapi.ContactDict, AnyDict]
+        ] = None,
+        identifier: Optional[str] = None,
+        asyncapi_tags: Optional[
+            List[Union[asyncapi.Tag, asyncapi.TagDict, AnyDict]]
+        ] = None,
+        external_docs: Optional[
+            Union[asyncapi.ExternalDocs, asyncapi.ExternalDocsDict, AnyDict]
+        ] = None,
+        schema_url: Optional[str] = "/asyncapi",
         # logging args
         logger: Optional[logging.Logger] = access_logger,
         log_level: int = logging.INFO,

@@ -21,6 +21,7 @@ from fastapi.datastructures import Default
 from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
 from pamqp.common import FieldTable
+from pydantic import AnyHttpUrl
 from starlette import routing
 from starlette.responses import JSONResponse, Response
 from starlette.types import AppType, ASGIApp
@@ -67,6 +68,31 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         client_properties: Optional[FieldTable] = None,
         # specific args
         max_consumers: Optional[int] = None,
+        # Broker kwargs
+        decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
+        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
+        middlewares: Optional[
+            Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
+        ] = None,
+        # AsyncAPI args
+        title: str = "FastStream",
+        version: str = "0.1.0",
+        description: str = "",
+        terms_of_service: Optional[AnyHttpUrl] = None,
+        license: Optional[
+            Union[asyncapi.License, asyncapi.LicenseDict, AnyDict]
+        ] = None,
+        contact: Optional[
+            Union[asyncapi.Contact, asyncapi.ContactDict, AnyDict]
+        ] = None,
+        identifier: Optional[str] = None,
+        asyncapi_tags: Optional[
+            List[Union[asyncapi.Tag, asyncapi.TagDict, AnyDict]]
+        ] = None,
+        external_docs: Optional[
+            Union[asyncapi.ExternalDocs, asyncapi.ExternalDocsDict, AnyDict]
+        ] = None,
+        schema_url: Optional[str] = "/asyncapi",
         # FastAPI kwargs
         prefix: str = "",
         tags: Optional[List[Union[str, Enum]]] = None,
@@ -86,17 +112,6 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         generate_unique_id_function: Callable[[APIRoute], str] = Default(
             generate_unique_id
         ),
-        # Broker kwargs
-        decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
-        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
-        middlewares: Optional[
-            Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
-        ] = None,
-        # AsyncAPI args
-        protocol: str = "amqp",
-        protocol_version: Optional[str] = "0.9.1",
-        description: Optional[str] = None,
-        asyncapi_tags: Optional[Sequence[asyncapi.Tag]] = None,
     ) -> None:
         pass
     def add_api_mq_route(  # type: ignore[override]
