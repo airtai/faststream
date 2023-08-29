@@ -59,9 +59,9 @@ To run tests with your current FastStream application and Python environment use
 ```bash
 $ pytest tests
 # or
-$ bash ./scripts/test.sh
+$ ./scripts/test.sh
 # with coverage output
-$ bash ./scripts/test-cov.sh -m "all"
+$ ./scripts/test-cov.sh -m "all"
 ```
 
 There are some *pytest marks* at project:
