@@ -41,7 +41,7 @@ You can install it with `pip` as usual:
 pip install faststream
 ```
 
-## Writing server code
+## Writing app code
 
 Here is an example python app using FastStream that consumes data from a 
 topic, increments the value, and outputs the data to another topic.
@@ -123,3 +123,31 @@ This following example shows how to use the `@broker.subscriber` and
 ``` python hl_lines="14-18"
 {!> ../../docs_src/kafka/base_example/app.py!}
 ```
+
+### Testing the service
+
+The service can be tested using the `TestBroker` context managers which, by default, puts the Broker into "testing mode".
+
+The Tester will redirect your `subscriber` and `publisher` decorated functions to the InMemory brokers so that you can quickly test your app without the need for a running broker and all its dependencies.
+
+Using pytest, the test for our service would look like this:
+
+``` python
+{!> ../../docs_src/kafka/base_example/testing.py!}
+```
+
+First we pass our broker to the `TestKafkaBroker`
+
+``` python hl_lines="3 17"
+{!> ../../docs_src/kafka/base_example/testing.py!}
+```
+
+After passing the broker to the `TestKafkaBroker` wwe can publish an event to "input_data" and check if the tested broker produced a response as a reaction to it.
+
+To check the response, we registered an additional `on_output_data` subscriber which wil capture events on "output_data" topic.
+
+``` python hl_lines="13-15 19 23"
+{!> ../../docs_src/kafka/base_example/testing.py!}
+```
+
+## Running the application
