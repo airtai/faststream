@@ -1,3 +1,5 @@
+#!/bin/bash
+
 bash scripts/test.sh "$@"
 
 coverage combine

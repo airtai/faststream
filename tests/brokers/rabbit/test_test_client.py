@@ -52,6 +52,7 @@ class TestTestclient(BrokerTestclientTestcase):
         async def handler2(m):
             return 2
 
+        await test_broker.start()
         assert 1 == await test_broker.publish("", queue, rpc=True)
         assert 2 == await test_broker.publish(
             "", queue + "1", exchange="test", rpc=True
@@ -71,6 +72,7 @@ class TestTestclient(BrokerTestclientTestcase):
         async def handler(m):
             mock()
 
+        await test_broker.start()
         await test_broker.publish("", exchange=exch, rpc=True)
         assert None is await test_broker.publish("", exchange="test2", rpc=True)
 
@@ -90,6 +92,7 @@ class TestTestclient(BrokerTestclientTestcase):
         async def handler2(m):
             return 2
 
+        await test_broker.start()
         assert 1 == await test_broker.publish("", "logs.info", exchange=exch, rpc=True)
         assert 2 == await test_broker.publish("", "logs.error", exchange=exch, rpc=True)
         assert None is await test_broker.publish("", "logs.error", rpc=True)
@@ -124,6 +127,7 @@ class TestTestclient(BrokerTestclientTestcase):
         async def handler3():
             return 3
 
+        await test_broker.start()
         assert 2 == await test_broker.publish(
             exchange=exch, rpc=True, headers={"key": 2, "key2": 2}
         )
@@ -159,6 +163,7 @@ class TestTestclient(BrokerTestclientTestcase):
             consume3.set()
             raise ValueError()
 
+        await test_broker.start()
         async with test_broker:
             await test_broker.start()
             await asyncio.wait(
