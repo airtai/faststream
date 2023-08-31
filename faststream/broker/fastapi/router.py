@@ -23,23 +23,13 @@ from fastapi.datastructures import Default
 from fastapi.responses import HTMLResponse
 from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
-from pydantic import AnyHttpUrl
 from starlette import routing
 from starlette.responses import JSONResponse, Response
 from starlette.routing import _DefaultLifespan
 from starlette.types import AppType, ASGIApp, Lifespan
 
-from faststream.asyncapi.schema import (
-    Contact,
-    ContactDict,
-    ExternalDocs,
-    ExternalDocsDict,
-    License,
-    LicenseDict,
-    Schema,
-    Tag,
-    TagDict,
-)
+from faststream.asyncapi import schema as asyncapi
+from faststream.asyncapi.schema import Schema
 from faststream.asyncapi.site import get_asyncapi_html
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase
 from faststream.broker.fastapi.route import StreamRoute
@@ -59,6 +49,12 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         Callable[[AppType], Awaitable[Optional[Mapping[str, Any]]]]
     ]
     schema: Optional[Schema]
+
+    title: str
+    description: str
+    version: str
+    license: Optional[AnyDict]
+    contact: Optional[AnyDict]
 
     def __init__(
         self,
@@ -84,15 +80,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             generate_unique_id
         ),
         # AsyncAPI information
-        title: str = "FastStream",
-        version: str = "0.1.0",
-        description: str = "",
-        terms_of_service: Optional[AnyHttpUrl] = None,
-        license: Optional[Union[License, LicenseDict, AnyDict]] = None,
-        contact: Optional[Union[Contact, ContactDict, AnyDict]] = None,
-        identifier: Optional[str] = None,
-        asyncapi_tags: Optional[List[Union[Tag, TagDict, AnyDict]]] = None,
-        external_docs: Optional[Union[ExternalDocs, ExternalDocsDict, AnyDict]] = None,
+        asyncapi_tags: Optional[Sequence[Union[asyncapi.Tag, asyncapi.TagDict]]] = None,
         schema_url: Optional[str] = "/asyncapi",
         **connection_kwars: Any,
     ) -> None:
@@ -103,21 +91,25 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         self.broker = self.broker_class(
             *connection_args,
             apply_types=False,
+            tags=asyncapi_tags,
             **connection_kwars,
         )
 
         self.setup_state = setup_state
 
         # AsyncAPI information
-        self.title = title
-        self.version = version
-        self.description = description
-        self.terms_of_service = terms_of_service
-        self.license = license
-        self.contact = contact
-        self.identifier = identifier
-        self.asyncapi_tags = asyncapi_tags
-        self.external_docs = external_docs
+        # Empty
+        self.terms_of_service = None
+        self.identifier = None
+        self.asyncapi_tags = None
+        self.external_docs = None
+        # parse from FastAPI app on startup
+        self.title = ""
+        self.version = ""
+        self.description = ""
+        self.license = None
+        self.contact = None
+
         self.schema = None
 
         super().__init__(
@@ -202,6 +194,12 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             app: FastAPI,
         ) -> AsyncIterator[Mapping[str, Any]]:
             from faststream.asyncapi.generate import get_app_schema
+
+            self.title = app.title
+            self.description = app.description
+            self.version = app.version
+            self.contact = app.contact
+            self.license = app.license_info
 
             self.schema = get_app_schema(self)
             if self.docs_router:

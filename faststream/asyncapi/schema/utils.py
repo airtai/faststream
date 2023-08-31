@@ -7,7 +7,7 @@ from faststream._compat import PYDANTIC_V2, TypedDict
 
 class ExternalDocsDict(TypedDict, total=False):
     url: AnyHttpUrl
-    description: Optional[str]
+    description: str
 
 
 class ExternalDocs(BaseModel):
@@ -25,8 +25,8 @@ class ExternalDocs(BaseModel):
 
 class TagDict(TypedDict, total=False):
     name: str
-    description: Optional[str]
-    externalDocs: Optional[Union[ExternalDocs, ExternalDocsDict]]
+    description: str
+    externalDocs: Union[ExternalDocs, ExternalDocsDict]
 
 
 class Tag(BaseModel):

@@ -1,6 +1,6 @@
 import asyncio
 from itertools import chain
-from typing import Any, Awaitable, Callable, Optional, Sequence
+from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
 import anyio
 from aiokafka import AIOKafkaConsumer, ConsumerRecord
@@ -13,12 +13,14 @@ from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.parsers import resolve_custom_func
 from faststream.broker.types import (
-    AsyncCustomDecoder,
-    AsyncCustomParser,
+    CustomDecoder,
+    CustomParser,
+    Filter,
     P_HandlerParams,
     T_HandlerReturn,
 )
 from faststream.broker.wrapper import HandlerCallWrapper
+from faststream.kafka.message import KafkaMessage
 from faststream.kafka.parser import AioKafkaParser
 
 
@@ -82,15 +84,27 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
             self.task.cancel()
             self.task = None
 
-    @override
-    def add_call(  # type: ignore[override]
+    def add_call(
         self,
         *,
         handler: HandlerCallWrapper[ConsumerRecord, P_HandlerParams, T_HandlerReturn],
         dependant: CallModel[P_HandlerParams, T_HandlerReturn],
-        parser: Optional[AsyncCustomParser[ConsumerRecord]],
-        decoder: Optional[AsyncCustomDecoder[ConsumerRecord]],
-        filter: Callable[[StreamMessage[ConsumerRecord]], Awaitable[bool]],
+        parser: Optional[
+            Union[
+                CustomParser[ConsumerRecord],
+                CustomParser[Tuple[ConsumerRecord, ...]],
+            ]
+        ],
+        decoder: Optional[
+            Union[
+                CustomDecoder[ConsumerRecord],
+                CustomDecoder[Tuple[ConsumerRecord, ...]],
+            ]
+        ],
+        filter: Union[
+            Filter[KafkaMessage],
+            Filter[StreamMessage[Tuple[ConsumerRecord, ...]]],
+        ],
         middlewares: Optional[Sequence[Callable[[ConsumerRecord], BaseMiddleware]]],
     ) -> None:
         parser_ = resolve_custom_func(
@@ -112,8 +126,8 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
         super().add_call(
             handler=handler,
             parser=parser_,
-            decoder=decoder_,  # type: ignore[arg-type]
-            filter=filter,
+            decoder=decoder_,
+            filter=filter,  # type: ignore[arg-type]
             dependant=dependant,
             middlewares=middlewares,
         )

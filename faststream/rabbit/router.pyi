@@ -1,27 +1,26 @@
-from typing import Any, Awaitable, Callable, Optional, Sequence, Union
+from typing import Any, Callable, Optional, Sequence, Union
 
 import aio_pika
 from fast_depends.dependencies import Depends
 
 from faststream._compat import override
 from faststream.broker.core.asyncronous import default_filter
-from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.router import BrokerRouter
 from faststream.broker.types import (
-    AsyncCustomDecoder,
-    AsyncCustomParser,
+    CustomDecoder,
+    CustomParser,
+    Filter,
     P_HandlerParams,
     T_HandlerReturn,
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.rabbit.asyncapi import Publisher
+from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.shared.router import RabbitRoute
 from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.types import AnyDict
-
-RabbitMessage = StreamMessage[aio_pika.IncomingMessage]
 
 class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
     def __init__(
@@ -33,8 +32,8 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
         middlewares: Optional[
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
-        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
-        decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
+        parser: Optional[CustomParser[aio_pika.IncomingMessage]] = None,
+        decoder: Optional[CustomDecoder[aio_pika.IncomingMessage]] = None,
     ): ...
     @staticmethod
     @override
@@ -54,11 +53,9 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
         consume_args: Optional[AnyDict] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        filter: Union[
-            Callable[[RabbitMessage], bool], Callable[[RabbitMessage], Awaitable[bool]]
-        ] = default_filter,
-        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
-        decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
+        filter: Filter[RabbitMessage] = default_filter,
+        parser: Optional[CustomParser[aio_pika.IncomingMessage]] = None,
+        decoder: Optional[CustomDecoder[aio_pika.IncomingMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[

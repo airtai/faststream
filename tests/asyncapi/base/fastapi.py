@@ -1,5 +1,6 @@
 from typing import Any, Callable, Type
 
+from dirty_equals import IsStr
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -13,6 +14,52 @@ class FastAPITestCase:
     broker_class: Type[StreamRouter[MsgType]]
     broker_wrapper: Callable[[BrokerUsecase[MsgType, Any]], BrokerUsecase[MsgType, Any]]
 
+    def test_fastapi_full_information(self):
+        broker = self.broker_class(
+            protocol="custom",
+            protocol_version="1.1.1",
+            description="Test broker description",
+            schema_url="/asyncapi_schema",
+            asyncapi_tags=[{"name": "test"}],
+        )
+        broker.broker = self.broker_wrapper(broker.broker)
+
+        app = FastAPI(
+            lifespan=broker.lifespan_context,
+            title="CustomApp",
+            version="1.1.1",
+            description="Test description",
+            contact={"name": "support", "url": "https://support.com"},
+            license_info={"name": "some", "url": "https://some.com"},
+        )
+        app.include_router(broker)
+
+        with TestClient(app) as client:
+            response_json = client.get("/asyncapi_schema.json")
+
+            assert response_json.json() == {
+                "asyncapi": "2.6.0",
+                "defaultContentType": "application/json",
+                "info": {
+                    "title": "CustomApp",
+                    "version": "1.1.1",
+                    "description": "Test description",
+                    "contact": {"name": "support", "url": "https://support.com/"},
+                    "license": {"name": "some", "url": "https://some.com/"},
+                },
+                "servers": {
+                    "development": {
+                        "url": IsStr(),
+                        "protocol": "custom",
+                        "description": "Test broker description",
+                        "protocolVersion": "1.1.1",
+                        "tags": [{"name": "test"}],
+                    }
+                },
+                "channels": {},
+                "components": {"messages": {}, "schemas": {}},
+            }
+
     def test_fastapi_asyncapi_routes(self):
         broker = self.broker_class(schema_url="/asyncapi_schema")
         broker.broker = self.broker_wrapper(broker.broker)
@@ -24,9 +71,9 @@ class FastAPITestCase:
         app = FastAPI(lifespan=broker.lifespan_context)
         app.include_router(broker)
 
-        schema = get_app_schema(broker)
-
         with TestClient(app) as client:
+            schema = get_app_schema(broker)
+
             response_json = client.get("/asyncapi_schema.json")
             assert response_json.json() == schema.to_jsonable()
 

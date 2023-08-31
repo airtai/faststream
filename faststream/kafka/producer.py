@@ -1,33 +1,20 @@
 from typing import Dict, Optional
 from uuid import uuid4
 
-from aiokafka import AIOKafkaProducer, ConsumerRecord
+from aiokafka import AIOKafkaProducer
 
-from faststream.broker.parsers import encode_message, resolve_custom_func
-from faststream.broker.types import (
-    AsyncCustomDecoder,
-    AsyncCustomParser,
-    AsyncDecoder,
-    AsyncParser,
-)
-from faststream.kafka.parser import AioKafkaParser
+from faststream.broker.parsers import encode_message
 from faststream.types import SendableMessage
 
 
 class AioKafkaFastProducer:
     _producer: Optional[AIOKafkaProducer]
-    _decoder: AsyncDecoder[ConsumerRecord]
-    _parser: AsyncParser[ConsumerRecord]
 
     def __init__(
         self,
         producer: AIOKafkaProducer,
-        parser: Optional[AsyncCustomParser[ConsumerRecord]],
-        decoder: Optional[AsyncCustomDecoder[ConsumerRecord]],
     ):
         self._producer = producer
-        self._parser = resolve_custom_func(parser, AioKafkaParser.parse_message)
-        self._decoder = resolve_custom_func(decoder, AioKafkaParser.decode_message)
 
     async def publish(
         self,

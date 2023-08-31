@@ -58,8 +58,8 @@ else:  # pragma: no cover
 
 class ContactDict(TypedDict, total=False):
     name: str
-    url: Optional[AnyHttpUrl]
-    email: Optional[EmailStr]
+    url: AnyHttpUrl
+    email: EmailStr
 
 
 class Contact(BaseModel):
@@ -78,7 +78,7 @@ class Contact(BaseModel):
 
 class LicenseDict(TypedDict, total=False):
     name: str
-    url: Optional[AnyHttpUrl]
+    url: AnyHttpUrl
 
 
 class License(BaseModel):

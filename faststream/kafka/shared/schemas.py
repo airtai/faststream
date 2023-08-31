@@ -27,9 +27,9 @@ class ConsumerConnectionParams(TypedDict, total=False):
         "SCRAM-SHA-512",
         "OAUTHBEARER",
     ]
-    sasl_plain_password: Optional[str]
-    sasl_plain_username: Optional[str]
+    sasl_plain_password: str
+    sasl_plain_username: str
     sasl_kerberos_service_name: str
-    sasl_kerberos_domain_name: Optional[str]
-    ssl_conext: Optional[ssl.SSLContext]
-    sasl_oauth_token_provider: Optional[AbstractTokenProvider]
+    sasl_kerberos_domain_name: str
+    ssl_conext: ssl.SSLContext
+    sasl_oauth_token_provider: AbstractTokenProvider

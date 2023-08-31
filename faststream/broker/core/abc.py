@@ -37,6 +37,7 @@ from faststream.broker.types import (
     ConnectionType,
     CustomDecoder,
     CustomParser,
+    Filter,
     MsgType,
     P_HandlerParams,
     T_HandlerReturn,
@@ -80,7 +81,7 @@ class BrokerUsecase(
         protocol: str,
         protocol_version: Optional[str] = None,
         description: Optional[str] = None,
-        tags: Optional[Sequence[asyncapi.Tag]] = None,
+        tags: Optional[Sequence[Union[asyncapi.Tag, asyncapi.TagDict]]] = None,
         # broker kwargs
         apply_types: bool = True,
         logger: Optional[logging.Logger] = access_logger,
@@ -269,9 +270,7 @@ class BrokerUsecase(
                 ]
             ]
         ] = None,
-        filter: Callable[
-            [StreamMessage[MsgType]], Union[bool, Awaitable[bool]]
-        ] = lambda m: not m.processed,
+        filter: Filter[StreamMessage[MsgType]] = lambda m: not m.processed,
         _raw: bool = False,
         _get_dependant: Optional[Any] = None,
         **broker_kwargs: Any,

@@ -1,21 +1,22 @@
-from typing import Awaitable, Callable, Optional, Sequence
+from typing import Callable, Optional, Sequence
 
 import aio_pika
 from fast_depends.core import CallModel
 
 from faststream._compat import override
 from faststream.broker.handler import AsyncHandler
-from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.parsers import resolve_custom_func
 from faststream.broker.types import (
-    AsyncCustomDecoder,
-    AsyncCustomParser,
+    CustomDecoder,
+    CustomParser,
+    Filter,
     P_HandlerParams,
     T_HandlerReturn,
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.rabbit.helpers import RabbitDeclarer
+from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.shared.schemas import (
     BaseRMQInformation,
@@ -55,17 +56,16 @@ class LogicHandler(AsyncHandler[aio_pika.IncomingMessage], BaseRMQInformation):
         self._consumer_tag = None
         self._queue_obj = None
 
-    @override
-    def add_call(  # type: ignore[override]
+    def add_call(
         self,
         *,
         handler: HandlerCallWrapper[
             aio_pika.IncomingMessage, P_HandlerParams, T_HandlerReturn
         ],
         dependant: CallModel[P_HandlerParams, T_HandlerReturn],
-        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]],
-        decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]],
-        filter: Callable[[StreamMessage[aio_pika.IncomingMessage]], Awaitable[bool]],
+        parser: Optional[CustomParser[aio_pika.IncomingMessage]],
+        decoder: Optional[CustomDecoder[aio_pika.IncomingMessage]],
+        filter: Filter[RabbitMessage],
         middlewares: Optional[
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ],
@@ -74,7 +74,7 @@ class LogicHandler(AsyncHandler[aio_pika.IncomingMessage], BaseRMQInformation):
             handler=handler,
             parser=resolve_custom_func(parser, AioPikaParser.parse_message),
             decoder=resolve_custom_func(decoder, AioPikaParser.decode_message),
-            filter=filter,
+            filter=filter,  # type: ignore[arg-type]
             dependant=dependant,
             middlewares=middlewares,
         )
