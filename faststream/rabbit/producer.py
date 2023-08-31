@@ -104,7 +104,6 @@ class AioPikaFastProducer:
                 return r
 
             else:
-                # scope: Callable[[Optional[float], bool], AsyncContextManager[Any]]
                 scope: Callable[[Optional[float]], ContextManager[CancelScope]]
                 if raise_timeout:
                     scope = anyio.fail_after
