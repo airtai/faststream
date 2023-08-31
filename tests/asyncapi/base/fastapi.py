@@ -44,8 +44,8 @@ class FastAPITestCase:
                     "title": "CustomApp",
                     "version": "1.1.1",
                     "description": "Test description",
-                    "contact": {"name": "support", "url": IsStr(regex=r"https://support.com")},
-                    "license": {"name": "some", "url": IsStr(regex=r"https://some.com")},
+                    "contact": {"name": "support", "url": IsStr(regex=r"https\:\/\/support\.com\/?")},
+                    "license": {"name": "some", "url": IsStr(regex=r"https\:\/\/some\.com\/?")},
                 },
                 "servers": {
                     "development": {
