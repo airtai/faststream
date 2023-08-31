@@ -2,6 +2,7 @@ __pycache__
 dist
 .idea
 venv*
+.venv*
 *.lock
 .vscode
 .pypirc
