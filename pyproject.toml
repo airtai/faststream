@@ -80,7 +80,7 @@ devdocs = [
 
 lint = [
     "types-PyYAML",
-    "mypy==1.4.1",
+    "mypy==1.5.1",
     "black==23.3.0",
     "isort>=5",
     "ruff==0.0.275",
@@ -97,7 +97,9 @@ testing = [
     "httpx",
 ]
 
-dev = ["faststream[rabbit,kafka,docs,lint,testing,devdocs]"]
+publish = ["hatch==1.7.0"]
+
+dev = ["faststream[rabbit,kafka,docs,lint,testing,devdocs,publish]"]
 
 [project.urls]
 Homepage = "https://faststream.airt.ai/"
@@ -122,6 +124,20 @@ exclude = [
 strict = true
 python_version = "3.8"
 ignore_missing_imports = true
+install_types = true
+non_interactive = true
+
+# from https://blog.wolt.com/engineering/2021/09/30/professional-grade-mypy-configuration/
+disallow_untyped_defs = true
+no_implicit_optional = true
+check_untyped_defs = true
+warn_return_any = true
+show_error_codes = true 
+warn_unused_ignores = true
+
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+disallow_any_unimported = false
 
 [tool.isort]
 profile = "black"
