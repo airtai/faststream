@@ -1,7 +1,7 @@
 import pytest
 
 from faststream.kafka import TestKafkaBroker
-from docs_src.kafka.base_example.app_chain import (
+from .app_chain import (
     Data,
     broker,
 )
