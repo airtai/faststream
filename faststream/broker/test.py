@@ -56,7 +56,7 @@ async def call_handler(
     rpc_timeout: Optional[float] = 30.0,
     raise_timeout: bool = False,
 ) -> Optional[SendableMessage]:
-    scope: Callable[[Optional[float], bool], ContextManager[Any]]
+    scope: Callable[[Optional[float]], ContextManager[Any]]
     if raise_timeout:
         scope = anyio.fail_after
     else:
