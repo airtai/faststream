@@ -7,6 +7,7 @@ from faststream._compat import (
     CoreSchema,
     GetJsonSchemaHandler,
     JsonSchemaValue,
+    Required,
     TypedDict,
     general_plain_validator_function,
     is_installed,
@@ -57,7 +58,7 @@ else:  # pragma: no cover
 
 
 class ContactDict(TypedDict, total=False):
-    name: str
+    name: Required[str]
     url: AnyHttpUrl
     email: EmailStr
 
@@ -77,7 +78,7 @@ class Contact(BaseModel):
 
 
 class LicenseDict(TypedDict, total=False):
-    name: str
+    name: Required[str]
     url: AnyHttpUrl
 
 

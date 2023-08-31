@@ -4,11 +4,11 @@ from typing import List, Literal, Optional, Union
 
 from aiokafka.abc import AbstractTokenProvider
 
-from faststream._compat import TypedDict
+from faststream._compat import Required, TypedDict
 
 
 class ConsumerConnectionParams(TypedDict, total=False):
-    bootstrap_servers: Union[str, List[str]]
+    bootstrap_servers: Required[Union[str, List[str]]]
     loop: Optional[AbstractEventLoop]
     client_id: str
     request_timeout_ms: int
