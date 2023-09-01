@@ -9,22 +9,22 @@ repos:
     -   id: check-yaml
     -   id: check-added-large-files
 
--   repo: https://github.com/pycqa/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-        args: ["--profile", "black", "--filter-files"]
+# -   repo: https://github.com/pycqa/isort
+#     rev: 5.12.0
+#     hooks:
+#       - id: isort
+#         args: ["--profile", "black", "--filter-files"]
 
 -   repo: https://github.com/psf/black
     rev: 23.3.0
     hooks:
     -   id: black
 
-# - repo: https://github.com/astral-sh/ruff-pre-commit
-#   # Ruff version.
-#   rev: v0.0.286
-#   hooks:
-#     - id: ruff
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  # Ruff version.
+  rev: v0.0.286
+  hooks:
+    - id: ruff
 
 -   repo: local
     hooks:
