@@ -4,28 +4,15 @@ import pytest
 
 from docs_src.kafka.base_example.testing import test_base_app
 from docs_src.kafka.base_example.testing_chain import test_end_to_end
+from faststream.utils.test_utils import working_directory
 
 __all__ = ("test_run_cmd", "test_end_to_end", "test_base_app", )
-
-import os
-import contextlib
-from pathlib import Path
-
-@contextlib.contextmanager
-def working_directory(path):
-    """Changes working directory and returns to previous on exit."""
-    prev_cwd = Path.cwd()
-    os.chdir(path)
-    try:
-        yield
-    finally:
-        os.chdir(prev_cwd)
 
 
 @pytest.mark.asyncio
 async def test_run_cmd():
 
-    with working_directory("../../../../docs_src/kafka/base_example"):
+    with working_directory("docs_src/kafka/base_example"):
         with open("app_run_cmd", "r") as f:
             cmd = "".join(f.readlines())
 
