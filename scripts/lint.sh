@@ -8,6 +8,3 @@ ruff faststream examples tests --fix
 
 echo "Running black..."
 black faststream examples tests
-
-echo "Running isort..."
-isort faststream examples tests
