@@ -93,14 +93,6 @@ Next, an object of the `FastStream` class is created and a `Broker` object is pa
 ``` python hl_lines="3 4"
 # Code above omitted 👆
 
-{!> ../../../docs_src/kafka/base_example/app.py[ln:3-4]!}
-
-# Code below omitted 👇
-```
-
-``` python hl_lines="3 4"
-# Code above omitted 👆
-
 {!> ../../../docs_src/kafka/base_example/app.py[ln:13-14]!}
 
 # Code below omitted 👇
