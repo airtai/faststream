@@ -95,6 +95,7 @@ testing = [
     "fastapi>=0.100.0b",
     "pydantic-settings",
     "httpx",
+    "PyYAML",
 ]
 
 publish = ["hatch==1.7.0"]

@@ -1,14 +1,4 @@
-from typing import (
-    Any,
-    Awaitable,
-    Callable,
-    Dict,
-    Literal,
-    Optional,
-    Sequence,
-    TypeVar,
-    Union,
-)
+from typing import Any, Callable, Dict, Literal, Optional, Sequence, TypeVar, Union
 
 import aiokafka
 from fast_depends.dependencies import Depends
@@ -17,19 +7,19 @@ from kafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
 
 from faststream._compat import override
 from faststream.broker.core.asyncronous import default_filter
-from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.router import BrokerRouter
 from faststream.broker.types import (
-    AsyncCustomDecoder,
-    AsyncCustomParser,
+    CustomDecoder,
+    CustomParser,
+    Filter,
     P_HandlerParams,
     T_HandlerReturn,
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.asyncapi import Publisher
+from faststream.kafka.message import KafkaMessage
 
-KafkaMessage = StreamMessage[aiokafka.ConsumerRecord]
 Partition = TypeVar("Partition")
 
 class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
@@ -93,8 +83,8 @@ class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[AsyncCustomParser[aiokafka.ConsumerRecord]] = None,
-        decoder: Optional[AsyncCustomDecoder[aiokafka.ConsumerRecord]] = None,
+        parser: Optional[CustomParser[aiokafka.ConsumerRecord]] = None,
+        decoder: Optional[CustomDecoder[aiokafka.ConsumerRecord]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
@@ -103,9 +93,7 @@ class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
                 ]
             ]
         ] = None,
-        filter: Union[
-            Callable[[KafkaMessage], bool], Callable[[KafkaMessage], Awaitable[bool]]
-        ] = default_filter,
+        filter: Filter[KafkaMessage] = default_filter,
         batch: bool = False,
         max_records: Optional[int] = None,
         batch_timeout_ms: int = 200,

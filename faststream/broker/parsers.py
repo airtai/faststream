@@ -1,7 +1,7 @@
 import inspect
 import json
 from functools import partial
-from typing import Any, Optional, Tuple, Union, overload
+from typing import Any, Optional, Tuple, Union, cast, overload
 
 from faststream._compat import dump_json
 from faststream.broker.message import StreamMessage
@@ -83,6 +83,22 @@ def resolve_custom_func(
     ...
 
 
+@overload
+def resolve_custom_func(
+    custom_func: Optional[CustomDecoder[MsgType]],
+    default_func: Decoder[MsgType],
+) -> Decoder[MsgType]:
+    ...
+
+
+@overload
+def resolve_custom_func(
+    custom_func: Optional[CustomParser[MsgType]],
+    default_func: Parser[MsgType],
+) -> Parser[MsgType]:
+    ...
+
+
 def resolve_custom_func(
     custom_func: Optional[Union[CustomDecoder[MsgType], CustomParser[MsgType]]],
     default_func: Union[Decoder[MsgType], Parser[MsgType]],
@@ -91,8 +107,9 @@ def resolve_custom_func(
         return default_func
 
     original_params = inspect.signature(custom_func).parameters
-    assert (
-        len(original_params) == 2
-    ), "You should specify 2 incoming arguments: [<msg>, <original_function>]"
-    name = tuple(original_params.items())[1][0]
-    return partial(custom_func, **{name: default_func})  # type: ignore
+    if len(original_params) == 1:
+        return cast(Union[Decoder[MsgType], Parser[MsgType]], custom_func)
+
+    else:
+        name = tuple(original_params.items())[1][0]
+        return partial(custom_func, **{name: default_func})  # type: ignore

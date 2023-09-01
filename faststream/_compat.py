@@ -13,6 +13,7 @@ from pydantic import BaseModel
 #     from typing_extensions import override as override
 # else:
 #     from typing import override
+from typing_extensions import Required as Required
 from typing_extensions import TypedDict as TypedDict
 from typing_extensions import override as override
 

@@ -23,6 +23,9 @@ from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
     AsyncDecoder,
     AsyncParser,
+    CustomDecoder,
+    CustomParser,
+    Filter,
     MsgType,
     P_HandlerParams,
     SyncDecoder,
@@ -33,6 +36,7 @@ from faststream.broker.types import (
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.exceptions import StopConsume
 from faststream.types import SendableMessage
+from faststream.utils.functions import to_async
 
 
 class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
@@ -128,18 +132,18 @@ class AsyncHandler(BaseHandler[MsgType]):
         self,
         *,
         handler: HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
-        parser: AsyncParser[MsgType],
-        decoder: AsyncDecoder[MsgType],
+        parser: CustomParser[MsgType],
+        decoder: CustomDecoder[MsgType],
         dependant: CallModel[P_HandlerParams, T_HandlerReturn],
-        filter: Callable[[StreamMessage[MsgType]], Awaitable[bool]],
+        filter: Filter[StreamMessage[MsgType]],
         middlewares: Optional[Sequence[Callable[[Any], BaseMiddleware]]],
     ) -> None:
         self.calls.append(
             (  # type: ignore[arg-type]
                 handler,
-                filter,
-                parser,
-                decoder,
+                to_async(filter),
+                to_async(parser) if parser else None,
+                to_async(decoder) if decoder else None,
                 middlewares or (),
                 dependant,
             )

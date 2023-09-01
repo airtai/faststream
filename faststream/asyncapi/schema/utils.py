@@ -2,12 +2,12 @@ from typing import Optional, Union
 
 from pydantic import AnyHttpUrl, BaseModel, Field
 
-from faststream._compat import PYDANTIC_V2, TypedDict
+from faststream._compat import PYDANTIC_V2, Required, TypedDict
 
 
 class ExternalDocsDict(TypedDict, total=False):
-    url: AnyHttpUrl
-    description: Optional[str]
+    url: Required[AnyHttpUrl]
+    description: str
 
 
 class ExternalDocs(BaseModel):
@@ -24,9 +24,9 @@ class ExternalDocs(BaseModel):
 
 
 class TagDict(TypedDict, total=False):
-    name: str
-    description: Optional[str]
-    externalDocs: Optional[Union[ExternalDocs, ExternalDocsDict]]
+    name: Required[str]
+    description: str
+    externalDocs: Union[ExternalDocs, ExternalDocsDict]
 
 
 class Tag(BaseModel):

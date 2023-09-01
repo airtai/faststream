@@ -30,22 +30,21 @@ from faststream._compat import override
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asyncronous import default_filter
 from faststream.broker.fastapi.router import StreamRouter
-from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
-    AsyncCustomDecoder,
-    AsyncCustomParser,
+    CustomDecoder,
+    CustomParser,
+    Filter,
     P_HandlerParams,
     T_HandlerReturn,
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.rabbit.asyncapi import Publisher
 from faststream.rabbit.broker import RabbitBroker
+from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.types import AnyDict
-
-RabbitMessage = StreamMessage[aio_pika.IncomingMessage]
 
 class RabbitRouter(StreamRouter[IncomingMessage]):
     broker_class: Type[RabbitBroker]
@@ -67,6 +66,18 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         client_properties: Optional[FieldTable] = None,
         # specific args
         max_consumers: Optional[int] = None,
+        # Broker kwargs
+        decoder: Optional[CustomDecoder[aio_pika.IncomingMessage]] = None,
+        parser: Optional[CustomParser[aio_pika.IncomingMessage]] = None,
+        middlewares: Optional[
+            Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
+        ] = None,
+        # AsyncAPI args
+        protocol: str = "amqp",
+        protocol_version: Optional[str] = "0.9.1",
+        description: Optional[str] = None,
+        asyncapi_tags: Optional[Sequence[asyncapi.Tag]] = None,
+        schema_url: Optional[str] = "/asyncapi",
         # FastAPI kwargs
         prefix: str = "",
         tags: Optional[List[Union[str, Enum]]] = None,
@@ -86,17 +97,6 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         generate_unique_id_function: Callable[[APIRoute], str] = Default(
             generate_unique_id
         ),
-        # Broker kwargs
-        decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
-        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
-        middlewares: Optional[
-            Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
-        ] = None,
-        # AsyncAPI args
-        protocol: str = "amqp",
-        protocol_version: Optional[str] = "0.9.1",
-        description: Optional[str] = None,
-        asyncapi_tags: Optional[Sequence[asyncapi.Tag]] = None,
     ) -> None:
         pass
     def add_api_mq_route(  # type: ignore[override]
@@ -108,11 +108,9 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         consume_args: Optional[AnyDict] = None,
         # broker arguments
         dependencies: Sequence[params.Depends] = (),
-        filter: Union[
-            Callable[[RabbitMessage], bool], Callable[[RabbitMessage], Awaitable[bool]]
-        ] = default_filter,
-        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
-        decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
+        filter: Filter[RabbitMessage] = default_filter,
+        parser: Optional[CustomParser[aio_pika.IncomingMessage]] = None,
+        decoder: Optional[CustomDecoder[aio_pika.IncomingMessage]] = None,
         middlewares: Optional[
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
@@ -132,11 +130,9 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         consume_args: Optional[AnyDict] = None,
         # broker arguments
         dependencies: Sequence[params.Depends] = (),
-        filter: Union[
-            Callable[[RabbitMessage], bool], Callable[[RabbitMessage], Awaitable[bool]]
-        ] = default_filter,
-        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
-        decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
+        filter: Filter[RabbitMessage] = default_filter,
+        parser: Optional[CustomParser[aio_pika.IncomingMessage]] = None,
+        decoder: Optional[CustomDecoder[aio_pika.IncomingMessage]] = None,
         middlewares: Optional[
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,

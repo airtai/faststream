@@ -17,8 +17,8 @@ from fast_depends.dependencies import Depends
 from faststream.broker.message import StreamMessage
 from faststream.broker.publisher import BasePublisher
 from faststream.broker.types import (
-    AsyncCustomDecoder,
-    AsyncCustomParser,
+    CustomDecoder,
+    CustomParser,
     MsgType,
     P_HandlerParams,
     T_HandlerReturn,
@@ -76,8 +76,8 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
                 ]
             ]
         ] = None,
-        parser: Optional[AsyncCustomParser[MsgType]] = None,
-        decoder: Optional[AsyncCustomDecoder[MsgType]] = None,
+        parser: Optional[CustomParser[MsgType]] = None,
+        decoder: Optional[CustomDecoder[MsgType]] = None,
     ):
         self.prefix = prefix
         self._handlers = list(handlers)
@@ -101,8 +101,8 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
                 ]
             ]
         ] = None,
-        parser: Optional[AsyncCustomParser[MsgType]] = None,
-        decoder: Optional[AsyncCustomDecoder[MsgType]] = None,
+        parser: Optional[CustomParser[MsgType]] = None,
+        decoder: Optional[CustomDecoder[MsgType]] = None,
         **kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -122,8 +122,8 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
                 ]
             ]
         ] = None,
-        parser: Optional[AsyncCustomParser[MsgType]] = None,
-        decoder: Optional[AsyncCustomDecoder[MsgType]] = None,
+        parser: Optional[CustomParser[MsgType]] = None,
+        decoder: Optional[CustomDecoder[MsgType]] = None,
         **kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
