@@ -5,6 +5,7 @@ from typing import (
     AsyncContextManager,
     AsyncIterator,
     Callable,
+    ContextManager,
     Optional,
     Type,
     Union,
@@ -13,7 +14,8 @@ from typing import (
 import aio_pika
 import aiormq
 import anyio
-from anyio.streams.memory import MemoryObjectReceiveStream
+from anyio import CancelScope
+from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 
 from faststream.broker.parsers import resolve_custom_func
 from faststream.broker.types import (
@@ -102,7 +104,7 @@ class AioPikaFastProducer:
                 return r
 
             else:
-                scope: Callable[[Optional[float], bool], AsyncContextManager[Any]]
+                scope: Callable[[Optional[float]], ContextManager[CancelScope]]
                 if raise_timeout:
                     scope = anyio.fail_after
                 else:
@@ -159,6 +161,8 @@ class _RPCCallback:
         self.queue = callback_queue
 
     async def __aenter__(self) -> MemoryObjectReceiveStream[aio_pika.IncomingMessage]:
+        send_response_stream: MemoryObjectSendStream[Any]
+        receive_response_stream: MemoryObjectReceiveStream[aio_pika.IncomingMessage]
         (
             send_response_stream,
             receive_response_stream,

@@ -19,6 +19,7 @@ from faststream.asyncapi.schema.servers import Server
 from faststream.asyncapi.schema.utils import (
     ExternalDocs,
     ExternalDocsDict,
+    Reference,
     Tag,
     TagDict,
 )
@@ -43,6 +44,7 @@ __all__ = (
     "TagDict",
     "ExternalDocs",
     "ExternalDocsDict",
+    "Reference",
     # bindings
     "ServerBinding",
     "ChannelBinding",

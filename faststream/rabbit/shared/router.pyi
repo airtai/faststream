@@ -1,20 +1,19 @@
-from typing import Any, Awaitable, Callable, Optional, Sequence, Union
+from typing import Any, Callable, Optional, Sequence, Union
 
 import aio_pika
 from fast_depends.dependencies import Depends
 
 from faststream.broker.core.asyncronous import default_filter
-from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
     AsyncCustomDecoder,
     AsyncCustomParser,
+    Filter,
     T_HandlerReturn,
 )
+from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
 from faststream.types import AnyDict
-
-RabbitMessage = StreamMessage[aio_pika.IncomingMessage]
 
 class RabbitRoute:
     """Delayed `RabbitBroker.subscriber()` registration object"""
@@ -28,9 +27,7 @@ class RabbitRoute:
         consume_args: Optional[AnyDict] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        filter: Union[
-            Callable[[RabbitMessage], bool], Callable[[RabbitMessage], Awaitable[bool]]
-        ] = default_filter,
+        filter: Filter[RabbitMessage] = default_filter,
         parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
         decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
         middlewares: Optional[

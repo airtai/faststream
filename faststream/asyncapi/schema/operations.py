@@ -8,6 +8,7 @@ from faststream.asyncapi.schema.message import Message
 from faststream.asyncapi.schema.utils import (
     ExternalDocs,
     ExternalDocsDict,
+    Reference,
     Tag,
     TagDict,
 )
@@ -20,7 +21,7 @@ class Operation(BaseModel):
 
     bindings: Optional[OperationBinding] = None
 
-    message: Message
+    message: Union[Message, Reference]
 
     security: Optional[Dict[str, List[str]]] = None
 

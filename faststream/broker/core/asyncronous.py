@@ -14,6 +14,7 @@ from typing import (
     Tuple,
     Type,
     Union,
+    cast,
 )
 
 import anyio
@@ -30,6 +31,9 @@ from faststream.broker.types import (
     AsyncCustomDecoder,
     AsyncCustomParser,
     ConnectionType,
+    CustomDecoder,
+    CustomParser,
+    Filter,
     MsgType,
     P_HandlerParams,
     T_HandlerReturn,
@@ -40,6 +44,7 @@ from faststream.exceptions import AckMessage, NackMessage, RejectMessage, SkipMe
 from faststream.log import access_logger
 from faststream.types import SendableMessage
 from faststream.utils import context
+from faststream.utils.functions import to_async
 
 
 async def default_filter(msg: StreamMessage[Any]) -> bool:
@@ -116,10 +121,10 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         *broker_args: Any,
         retry: Union[bool, int] = False,
         dependencies: Sequence[Depends] = (),
-        decoder: Optional[AsyncCustomDecoder[MsgType]] = None,
-        parser: Optional[AsyncCustomParser[MsgType]] = None,
+        decoder: Optional[CustomDecoder[MsgType]] = None,
+        parser: Optional[CustomParser[MsgType]] = None,
         middlewares: Optional[Sequence[Callable[[MsgType], BaseMiddleware]]] = None,
-        filter: Callable[[StreamMessage[MsgType]], Awaitable[bool]] = default_filter,
+        filter: Filter[StreamMessage[MsgType]] = default_filter,
         _raw: bool = False,
         _get_dependant: Optional[Any] = None,
         **broker_kwargs: Any,
@@ -142,8 +147,8 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = "%(asctime)s %(levelname)s - %(message)s",
         dependencies: Sequence[Depends] = (),
-        decoder: Optional[AsyncCustomDecoder[MsgType]] = None,
-        parser: Optional[AsyncCustomParser[MsgType]] = None,
+        decoder: Optional[CustomDecoder[MsgType]] = None,
+        parser: Optional[CustomParser[MsgType]] = None,
         middlewares: Optional[Sequence[Callable[[MsgType], BaseMiddleware]]] = None,
         **kwargs: Any,
     ) -> None:
@@ -154,8 +159,14 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
             log_level=log_level,
             log_fmt=log_fmt,
             dependencies=dependencies,
-            decoder=decoder,
-            parser=parser,
+            decoder=cast(
+                Optional[AsyncCustomDecoder[MsgType]],
+                to_async(decoder) if decoder else None,
+            ),
+            parser=cast(
+                Optional[AsyncCustomParser[MsgType]],
+                to_async(parser) if parser else None,
+            ),
             middlewares=middlewares,
             **kwargs,
         )

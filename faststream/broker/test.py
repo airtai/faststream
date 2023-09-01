@@ -2,6 +2,7 @@ from types import TracebackType
 from typing import Any, Callable, ContextManager, Dict, Optional, Type
 
 import anyio
+from anyio import CancelScope
 from anyio.abc._tasks import TaskGroup
 
 from faststream.app import FastStream
@@ -56,7 +57,7 @@ async def call_handler(
     rpc_timeout: Optional[float] = 30.0,
     raise_timeout: bool = False,
 ) -> Optional[SendableMessage]:
-    scope: Callable[[Optional[float], bool], ContextManager[Any]]
+    scope: Callable[[Optional[float]], ContextManager[CancelScope]]
     if raise_timeout:
         scope = anyio.fail_after
     else:

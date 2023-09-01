@@ -68,3 +68,12 @@ class Schema(BaseModel):
             by_alias=True,
             exclude_none=True,
         )
+
+    def to_yaml(self) -> str:
+        from io import StringIO
+
+        import yaml
+
+        io = StringIO(initial_value="", newline="\n")
+        yaml.dump(self.to_jsonable(), io, sort_keys=False)
+        return io.getvalue()
