@@ -83,8 +83,10 @@ lint = [
     "mypy==1.5.1",
     "black==23.3.0",
     "isort>=5",
-    "ruff==0.0.275",
+    "ruff==0.0.286",
     "pyupgrade-directories",
+    "bandit==1.7.5",
+    "pre-commit==3.3.3",
 ]
 
 testing = [
@@ -133,7 +135,7 @@ disallow_untyped_defs = true
 no_implicit_optional = true
 check_untyped_defs = true
 warn_return_any = true
-show_error_codes = true 
+show_error_codes = true
 warn_unused_ignores = true
 
 disallow_incomplete_defs = true
@@ -236,3 +238,5 @@ omit = [
     '*/__init__.py',
     '*/annotations.py',
 ]
+
+[tool.bandit]

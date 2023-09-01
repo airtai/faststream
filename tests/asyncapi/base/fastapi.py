@@ -1,8 +1,8 @@
 from typing import Any, Callable, Type
 
+from dirty_equals import IsStr
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from dirty_equals import IsStr
 
 from faststream.asyncapi.generate import get_app_schema
 from faststream.broker.core.abc import BrokerUsecase
@@ -44,8 +44,14 @@ class FastAPITestCase:
                     "title": "CustomApp",
                     "version": "1.1.1",
                     "description": "Test description",
-                    "contact": {"name": "support", "url": IsStr(regex=r"https\:\/\/support\.com\/?")},
-                    "license": {"name": "some", "url": IsStr(regex=r"https\:\/\/some\.com\/?")},
+                    "contact": {
+                        "name": "support",
+                        "url": IsStr(regex=r"https\:\/\/support\.com\/?"),
+                    },
+                    "license": {
+                        "name": "some",
+                        "url": IsStr(regex=r"https\:\/\/some\.com\/?"),
+                    },
                 },
                 "servers": {
                     "development": {

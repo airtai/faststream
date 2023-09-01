@@ -1,14 +1,11 @@
 import pytest
 
+from docs_src.kafka.base_example.app_chain import Data, broker
 from faststream.kafka import TestKafkaBroker
-from docs_src.kafka.base_example.app_chain import (
-    Data,
-    broker,
-)
+
 
 @pytest.mark.asyncio
 async def test_end_to_end():
-    
     @broker.subscriber("output_data")
     async def on_output_data(msg: Data):
         pass
