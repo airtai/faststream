@@ -83,7 +83,7 @@ lint = [
     "mypy==1.5.1",
     "black==23.3.0",
     "isort>=5",
-    "ruff==0.0.275",
+    "ruff==0.0.286",
     "pyupgrade-directories",
     "bandit==1.7.5",
     "pre-commit==3.3.3",

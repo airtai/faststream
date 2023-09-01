@@ -36,3 +36,11 @@ repos:
         types: [python]
         require_serial: true
         verbose: true
+
+repos:
+- repo: https://github.com/PyCQA/bandit
+  rev: '1.7.5'
+  hooks:
+  - id: bandit
+    args: ["-c", "pyproject.toml", "-r", "faststream"]
+    additional_dependencies: ["bandit[toml]"]
