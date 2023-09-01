@@ -43,7 +43,7 @@ pip install faststream
 
 ## Writing server code
 
-Here is an example python app using FastStream that consumes data from a 
+Here is an example python app using FastStream that consumes data from a
 topic, increments the value, and outputs the data to another topic.
 
 ``` python

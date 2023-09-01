@@ -177,7 +177,9 @@ class AsyncHandler(BaseHandler[MsgType]):
 
                 if await filter_(message):
                     if processed:
-                        raise RuntimeError("You can't proccess a message with multiple consumers")
+                        raise RuntimeError(
+                            "You can't proccess a message with multiple consumers"
+                        )
 
                     try:
                         async with AsyncExitStack() as consume_stack:
