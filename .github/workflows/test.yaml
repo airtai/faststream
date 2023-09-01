@@ -2,9 +2,8 @@ name: Test
 
 on:
   push:
-    branches:
-      - FastStream
-      - FastStream-add-bandit
+   branches:
+     - FastStream
   pull_request:
     types: [opened, synchronize]
 
