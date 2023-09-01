@@ -119,8 +119,9 @@ if PYDANTIC_V2:
         return model.model_copy(**kwargs)
 
 else:
-    from pydantic.config import BaseConfig, get_config
+    from pydantic.config import BaseConfig
     from pydantic.config import ConfigDict as CD
+    from pydantic.config import get_config
     from pydantic.json import pydantic_encoder
 
     GetJsonSchemaHandler = Any  # type: ignore[assignment,misc]

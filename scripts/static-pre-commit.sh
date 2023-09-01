@@ -8,7 +8,6 @@
 set -o errexit
 
 # Change directory to the project root directory.
-echo "$(dirname "$0")"/..
 cd "$(dirname "$0")"/..
 
 # Install the dependencies into the mypy env.
@@ -29,4 +28,5 @@ pip install --editable ".[dev]" \
 # and specify the package to run on explicitly.
 # Note that we do not use --ignore-missing-imports,
 # as this can give us false confidence in our results.
-mypy faststream
+# mypy faststream
+./scripts/static-analysis.sh
