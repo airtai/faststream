@@ -136,9 +136,7 @@ jobs:
 
     needs:
       - coverage-combine
-      - mypy_static_analysis
-      - bandit_static_analysis
-      - semgrep_static_analysis
+      - static_analysis
 
     runs-on: ubuntu-latest
 
