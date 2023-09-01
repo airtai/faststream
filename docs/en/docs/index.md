@@ -187,7 +187,7 @@ First we will save our application code to `app.py` file. Here is the applicatio
 To run the service, use the FastStream CLI command and pass the module (in this case, the file where the app implementation is located) and the app simbol to the command.
 
 ``` shell
-{!> ../../../docs_src/kafka/base_example/app_run_cmd!}
+faststream run app:app
 ```
 
 After running the command you should see the following output:

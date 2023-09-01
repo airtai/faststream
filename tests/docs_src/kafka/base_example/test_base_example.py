@@ -17,8 +17,7 @@ __all__ = (
 async def test_run_cmd(request):
     rootdir = request.config.rootdir
     with working_directory(rootdir / "docs_src/kafka/base_example"):
-        with open("app_run_cmd") as f:
-            cmd = "".join(f.readlines())
+        cmd = "faststream run app:app"
 
         proc = await asyncio.create_subprocess_exec(
             *cmd.split(" "),
