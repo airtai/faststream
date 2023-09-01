@@ -33,7 +33,7 @@ class TestTestclient(BrokerTestclientTestcase):
             pass
 
         await test_broker.start()
-        await test_broker.publish("hello", topic=queue)
+        await test_broker.publish_batch("hello", topic=queue)
         m.mock.assert_called_once_with(["hello"])
 
     @pytest.mark.kafka
