@@ -1,4 +1,5 @@
 import json
+from abc import abstractmethod
 from contextlib import asynccontextmanager
 from enum import Enum
 from typing import (
@@ -25,7 +26,7 @@ from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
 from starlette import routing
 from starlette.responses import JSONResponse, Response
-from starlette.routing import _DefaultLifespan
+from starlette.routing import BaseRoute, _DefaultLifespan
 from starlette.types import AppType, ASGIApp, Lifespan
 
 from faststream.asyncapi import schema as asyncapi
@@ -350,3 +351,45 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         docs_router.get(f"{schema_url}.json")(download_app_json_schema)
         docs_router.get(f"{schema_url}.yaml")(download_app_yaml_schema)
         return docs_router
+
+    def include_router(
+        self,
+        router: "APIRouter",
+        *,
+        prefix: str = "",
+        tags: Optional[List[Union[str, Enum]]] = None,
+        dependencies: Optional[Sequence[params.Depends]] = None,
+        default_response_class: Type[Response] = Default(JSONResponse),
+        responses: Optional[Dict[Union[int, str], Dict[str, Any]]] = None,
+        callbacks: Optional[List[BaseRoute]] = None,
+        deprecated: Optional[bool] = None,
+        include_in_schema: bool = True,
+        generate_unique_id_function: Callable[[APIRoute], str] = Default(
+            generate_unique_id
+        ),
+    ) -> None:
+        if isinstance(router, StreamRouter):
+            self._setup_log_context(self.broker, router.broker)
+            self.broker.handlers.update(router.broker.handlers)
+            self.broker._publishers.update(router.broker._publishers)
+
+        super().include_router(
+            router=router,
+            prefix=prefix,
+            tags=tags,
+            dependencies=dependencies,
+            default_response_class=default_response_class,
+            responses=responses,
+            callbacks=callbacks,
+            deprecated=deprecated,
+            include_in_schema=include_in_schema,
+            generate_unique_id_function=generate_unique_id_function,
+        )
+
+    @staticmethod
+    @abstractmethod
+    def _setup_log_context(
+        main_broker: BrokerAsyncUsecase[MsgType, Any],
+        including_broker: BrokerAsyncUsecase[MsgType, Any],
+    ) -> None:
+        raise NotImplementedError()
