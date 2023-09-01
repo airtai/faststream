@@ -1,8 +1,5 @@
-import asyncio
-import pytest
-
-
 from docs_src.kafka.base_example.testing import test_base_app
+<<<<<<< HEAD
 from docs_src.kafka.base_example.testing_chain import test_end_to_end
 from faststream.utils.test_utils import working_directory
 
@@ -32,3 +29,7 @@ async def test_run_cmd():
 
         assert "FastStream app starting..." in dstderr
         assert "FastStream app started successfully! To exit press CTRL+C" in dstderr
+=======
+
+__all__ = ("test_base_app",)
+>>>>>>> 5ea166d92c6cccdad5e550ee0669caa8814a6ed8
