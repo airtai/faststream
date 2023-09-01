@@ -83,13 +83,16 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
         Optional[WrappedReturn[T_HandlerReturn]],
         Awaitable[Optional[WrappedReturn[T_HandlerReturn]]],
     ]:
-        assert self._wrapped_call, "You should use `set_wrapped` first"
-        assert self.event, "You should start the broker first"
+        if self._wrapped_call is None:
+            raise RuntimeError("You should use `set_wrapped` first")
+        if self.event is None:
+            raise RuntimeError("You should start the broker first")
         self.mock(message.decoded_body)
         self.event.set()
         return self._wrapped_call(message)
 
     async def wait_call(self, timeout: Optional[float] = None) -> None:
-        assert self.event, "You should start the broker first"
+        if self.event is None:
+            raise RuntimeError("You should start the broker first")
         with anyio.fail_after(timeout):
             await self.event.wait()

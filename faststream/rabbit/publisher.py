@@ -26,7 +26,8 @@ class LogicPublisher(ABCPublisher[IncomingMessage]):
         correlation_id: Optional[str] = None,
         **message_kwargs: Any,
     ) -> Union[aiormq.abc.ConfirmationFrameType, SendableMessage]:
-        assert self._producer, "Please, setup `_producer` first"
+        if self._producer is None:
+            raise RuntimeError("Please, setup `_producer` first")
         return await self._producer.publish(
             message=message,
             queue=self.queue,
