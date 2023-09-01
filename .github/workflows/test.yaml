@@ -44,7 +44,7 @@ jobs:
         run: bandit -c pyproject.toml -r faststream
 
   test:
-    needs: [mypy_static_analysis, bandit_static_analysis]
+#    needs: [mypy_static_analysis, bandit_static_analysis]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -147,6 +147,7 @@ jobs:
     needs:
       - coverage-combine
       - mypy_static_analysis
+      - bandit_static_analysis
 
     runs-on: ubuntu-latest
 
