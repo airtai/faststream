@@ -3,6 +3,7 @@ dist
 .idea
 venv*
 .venv*
+.env
 *.lock
 .vscode
 .pypirc
