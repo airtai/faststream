@@ -2,9 +2,8 @@ from abc import ABC, abstractmethod
 from collections import Counter
 from logging import Logger
 from types import TracebackType
-from typing import Any
+from typing import Any, Optional, Type, Union
 from typing import Counter as CounterType
-from typing import Optional, Type, Union
 
 from faststream.broker.message import StreamMessage, SyncStreamMessage
 from faststream.broker.types import MsgType

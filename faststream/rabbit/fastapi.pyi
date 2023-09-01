@@ -49,6 +49,7 @@ from faststream.types import AnyDict
 class RabbitRouter(StreamRouter[IncomingMessage]):
     broker_class: Type[RabbitBroker]
 
+    # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument.hardcoded-password-default-argument
     def __init__(
         self,
         url: Union[str, URL, None] = "amqp://guest:guest@localhost:5672/",
