@@ -25,7 +25,7 @@ class LogicPublisher(ABCPublisher[ConsumerRecord]):
     ) -> None:
         if self._producer is None:
             raise RuntimeError("Please, setup `_producer` first")
-        if not(self.batch or len(messages) < 2):
+        if not (self.batch or len(messages) < 2):
             raise RuntimeError("You can't send multiple messages without `batch` flag")
 
         if not self.batch:

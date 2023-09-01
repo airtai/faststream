@@ -21,7 +21,7 @@ Review](https://github.com/airtai/fastkafka//actions/workflows/dependency-review
 
 ------------------------------------------------------------------------
 
-[FastStream](fastkafka.airt.ai) is a powerful and easy-to-use Python
+[FastStream](https://fastkafka.airt.ai/) is a powerful and easy-to-use Python
 library for building asynchronous services that interact with Event streams
 topics. Built on top of [Pydantic](https://docs.pydantic.dev/) and
 [AsyncAPI](https://www.asyncapi.com/), FastStream simplifies the process
@@ -43,11 +43,11 @@ pip install faststream
 
 ## Writing app code
 
-Here is an example python app using FastStream that consumes data from a 
+Here is an example python app using FastStream that consumes data from a
 topic, increments the value, and outputs the data to another topic.
 
 ``` python
-{!> ../../docs_src/kafka/base_example/app.py!}
+{!> ../../../docs_src/kafka/base_example/app.py!}
 ```
 
 ### Messages
@@ -63,8 +63,19 @@ This example defines one message class for use in a FastStream
 application, `Data`.
 
 ``` python hl_lines="1 6-9"
-{!> ../../docs_src/kafka/base_example/app.py!}
+{!> ../../../docs_src/kafka/base_example/app.py[ln:1-9]!}
+
+# Code below omitted 👇
 ```
+
+<details>
+<summary>👀 Full file preview</summary>
+
+``` python
+{!> ../../../docs_src/kafka/base_example/app.py!}
+```
+
+</details>
 
 These message class will be used to parse and validate incoming data
 when consuming and to produce a JSON-encoded message when producing.
@@ -80,8 +91,21 @@ It starts by initialising a `Broker` object with the address of the Message brok
 Next, an object of the `FastStream` class is created and a `Broker` object is passed to it.
 
 ``` python hl_lines="3 4 11 12"
-{!> ../../docs_src/kafka/base_example/app.py!}
+# Code above omitted 👆
+
+{!> ../../../docs_src/kafka/base_example/app.py[ln:3-12]!}
+
+# Code below omitted 👇
 ```
+
+<details>
+<summary>👀 Full file preview</summary>
+
+``` python
+{!> ../../../docs_src/kafka/base_example/app.py!}
+```
+
+</details>
 
 ### Function decorators
 
@@ -154,9 +178,9 @@ To check the response, we registered an additional `on_output_data` subscriber w
 
 The application can be started using builtin FastStream CLI command.
 
-First we will save our application code to `app.py` file. Here is the application code:
+First we will save our application code to `app.py` file. Here is the application code again:
 
-``` python hl_lines="14-18"
+``` python
 {!> ../../docs_src/kafka/base_example/app.py!}
 ```
 
