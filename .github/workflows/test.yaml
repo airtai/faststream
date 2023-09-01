@@ -41,7 +41,7 @@ jobs:
           pip install -e ".[docs,rabbit,kafka,lint]"
       - name: Run bandit static analysis
         shell: bash
-        run: bandit -c project.toml -r faststream
+        run: bandit -c pyproject.toml -r faststream
 
   test:
     needs: [mypy_static_analysis, bandit_static_analysis]
