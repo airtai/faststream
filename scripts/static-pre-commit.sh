@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# from: https://jaredkhan.com/blog/mypy-pre-commit
+# taken from: https://jaredkhan.com/blog/mypy-pre-commit
 
 # A script for running mypy,
 # with all its dependencies installed.
