@@ -166,7 +166,7 @@ First we pass our broker to the `TestKafkaBroker`
 {!> ../../../docs_src/kafka/base_example/testing.py!}
 ```
 
-After passing the broker to the `TestKafkaBroker` wwe can publish an event to "input_data" and check if the tested broker produced a response as a reaction to it.
+After passing the broker to the `TestKafkaBroker` we can publish an event to "input_data" and check if the tested broker produced a response as a reaction to it.
 
 To check the response, we registered an additional `on_output_data` subscriber which will capture events on "output_data" topic.
 
