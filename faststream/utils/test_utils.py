@@ -1,7 +1,8 @@
-import os
 import contextlib
+import os
 from pathlib import Path
 from typing import Generator
+
 
 @contextlib.contextmanager
 def working_directory(path: str) -> Generator[None, None, None]:

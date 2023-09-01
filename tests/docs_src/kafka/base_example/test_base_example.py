@@ -1,18 +1,23 @@
 import asyncio
+
 import pytest
 
 from docs_src.kafka.base_example.testing import test_base_app
 from docs_src.kafka.base_example.testing_chain import test_end_to_end
 from faststream.utils.test_utils import working_directory
 
-__all__ = ("test_run_cmd", "test_end_to_end", "test_base_app", )
+__all__ = (
+    "test_run_cmd",
+    "test_end_to_end",
+    "test_base_app",
+)
 
 
 @pytest.mark.asyncio
 async def test_run_cmd(request):
     rootdir = request.config.rootdir
-    with working_directory(rootdir/"docs_src/kafka/base_example"):
-        with open("app_run_cmd", "r") as f:
+    with working_directory(rootdir / "docs_src/kafka/base_example"):
+        with open("app_run_cmd") as f:
             cmd = "".join(f.readlines())
 
         proc = await asyncio.create_subprocess_exec(
@@ -26,7 +31,7 @@ async def test_run_cmd(request):
         proc.terminate()
 
         stdout, stderr = await proc.communicate()
-        dstdout = stdout.decode("utf-8")
+        stdout.decode("utf-8")
         dstderr = stderr.decode("utf-8")
 
         assert "FastStream app starting..." in dstderr
