@@ -339,3 +339,39 @@ class FastAPILocalTestcase:
         async with self.broker_test(router.broker) as rb:
             await rb.publish("hello", queue)
             publisher.mock.assert_called_with("response")
+
+    async def test_include(self, queue: str):
+        router = self.router_class()
+        router2 = self.router_class()
+        router.broker = self.broker_test(router.broker)
+
+        app = FastAPI(lifespan=router.lifespan_context)
+
+        @router.subscriber(queue)
+        async def hello():
+            return "hi"
+
+        @router2.subscriber(queue + "1")
+        async def hello_router2():
+            return "hi"
+
+        router.include_router(router2)
+        async with router.broker:
+            with TestClient(app) as client:
+                assert client.app_state["broker"] is router.broker
+
+                r = await router.broker.publish(
+                    "hi",
+                    queue,
+                    rpc=True,
+                    rpc_timeout=0.5,
+                )
+                assert r == "hi"
+
+                r = await router.broker.publish(
+                    "hi",
+                    queue + "1",
+                    rpc=True,
+                    rpc_timeout=0.5,
+                )
+                assert r == "hi"

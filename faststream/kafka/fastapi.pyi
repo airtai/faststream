@@ -34,7 +34,7 @@ from kafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
 from kafka.partitioner.default import DefaultPartitioner
 from starlette import routing
 from starlette.responses import JSONResponse, Response
-from starlette.types import AppType, ASGIApp
+from starlette.types import AppType, ASGIApp, Lifespan
 
 from faststream.__about__ import __version__
 from faststream._compat import override
@@ -122,6 +122,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         on_shutdown: Optional[Sequence[Callable[[], Any]]] = None,
         deprecated: Optional[bool] = None,
         include_in_schema: bool = True,
+        lifespan: Optional[Lifespan[Any]] = None,
         generate_unique_id_function: Callable[[APIRoute], str] = Default(
             generate_unique_id
         ),
@@ -421,3 +422,9 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         self,
         func: Callable[[AppType], Awaitable[None]],
     ) -> Callable[[AppType], Awaitable[None]]: ...
+    @override
+    @staticmethod
+    def _setup_log_context(  # type: ignore[override]
+        main_broker: KafkaBroker,
+        including_broker: KafkaBroker,
+    ) -> None: ...

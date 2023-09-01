@@ -23,7 +23,7 @@ from fastapi.utils import generate_unique_id
 from pamqp.common import FieldTable
 from starlette import routing
 from starlette.responses import JSONResponse, Response
-from starlette.types import AppType, ASGIApp
+from starlette.types import AppType, ASGIApp, Lifespan
 from yarl import URL
 
 from faststream._compat import override
@@ -49,7 +49,6 @@ from faststream.types import AnyDict
 class RabbitRouter(StreamRouter[IncomingMessage]):
     broker_class: Type[RabbitBroker]
 
-    # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument.hardcoded-password-default-argument
     def __init__(
         self,
         url: Union[str, URL, None] = "amqp://guest:guest@localhost:5672/",
@@ -95,6 +94,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         on_shutdown: Optional[Sequence[Callable[[], Any]]] = None,
         deprecated: Optional[bool] = None,
         include_in_schema: bool = True,
+        lifespan: Optional[Lifespan[Any]] = None,
         generate_unique_id_function: Callable[[APIRoute], str] = Default(
             generate_unique_id
         ),
@@ -194,3 +194,9 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         self,
         func: Callable[[AppType], Awaitable[None]],
     ) -> Callable[[AppType], Awaitable[None]]: ...
+    @override
+    @staticmethod
+    def _setup_log_context(  # type: ignore[override]
+        main_broker: RabbitBroker,
+        including_broker: RabbitBroker,
+    ) -> None: ...

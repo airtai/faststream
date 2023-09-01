@@ -98,7 +98,7 @@ class FakeProducer(AioKafkaFastProducer):
             if topic in handler.topics:
                 r = await call_handler(
                     handler=handler,
-                    message=incoming,
+                    message=[incoming] if handler.batch else incoming,
                     rpc=rpc,
                     rpc_timeout=rpc_timeout,
                     raise_timeout=raise_timeout,
@@ -106,6 +106,32 @@ class FakeProducer(AioKafkaFastProducer):
 
                 if rpc:  # pragma: no branch
                     return r
+
+        return None
+
+    async def publish_batch(
+        self,
+        *msgs: SendableMessage,
+        topic: str,
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[Dict[str, str]] = None,
+    ) -> None:
+        for handler in self.broker.handlers.values():  # pragma: no branch
+            if topic in handler.topics:
+                await call_handler(
+                    handler=handler,
+                    message=[
+                        build_message(
+                            message=message,
+                            topic=topic,
+                            partition=partition,
+                            timestamp_ms=timestamp_ms,
+                            headers=headers,
+                        )
+                        for message in msgs
+                    ],
+                )
 
         return None
 
@@ -120,7 +146,7 @@ async def _fake_close(
     exc_val: Optional[BaseException] = None,
     exec_tb: Optional[TracebackType] = None,
 ) -> None:
-    for _key, p in self._publishers.items():
+    for p in self._publishers.values():
         p.mock.reset_mock()
         if getattr(p, "_fake_handler", False):
             self.handlers.pop(p.topic, None)
