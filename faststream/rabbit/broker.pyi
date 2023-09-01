@@ -47,6 +47,7 @@ class RabbitBroker(
     _connection: Optional[aio_pika.RobustConnection]
     _channel: Optional[aio_pika.RobustChannel]
 
+    # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument.hardcoded-password-default-argument
     def __init__(
         self,
         url: Union[str, URL, None] = "amqp://guest:guest@localhost:5672/",
@@ -93,6 +94,7 @@ class RabbitBroker(
         exc_val: Optional[BaseException] = None,
         exec_tb: Optional[TracebackType] = None,
     ) -> None: ...
+    # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument.hardcoded-password-default-argument
     async def connect(
         self,
         url: Union[str, URL, None] = None,
@@ -107,6 +109,7 @@ class RabbitBroker(
         timeout: aio_pika.abc.TimeoutType = None,
         client_properties: Optional[FieldTable] = None,
     ) -> aio_pika.RobustConnection: ...
+    # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument.hardcoded-password-default-argument
     @override
     async def _connect(  # type: ignore[override]
         self,
