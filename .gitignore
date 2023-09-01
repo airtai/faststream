@@ -11,3 +11,6 @@ venv
 .coverage*
 .cache
 htmlcov
+
+site/
+site_build/

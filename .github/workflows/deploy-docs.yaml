@@ -1,0 +1,23 @@
+name: Deploy Docs
+on:
+    push:
+        branches:
+            - main
+            - master
+permissions:
+    contents: write
+jobs:
+    deploy_docs:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-python@v4
+              with:
+                python-version: 3.x
+            - uses: actions/cache@v2
+              with:
+                key: ${{ github.ref }}
+                path: .cache
+            - run: pip install -e ".[dev]"
+            - run: ./scripts/build-docs.sh
+            - run: cd docs/en && mkdocs gh-deploy --force
