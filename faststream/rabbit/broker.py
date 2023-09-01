@@ -143,7 +143,8 @@ class RabbitBroker(
         )
 
         await super().start()
-        assert self.declarer, "Declarer should be initialized in `connect` method"
+        if self.declarer is None:
+            raise RuntimeError("Declarer should be initialized in `connect` method")
 
         for handler in self.handlers.values():
             c = self._get_log_context(None, handler.queue, handler.exchange)
@@ -303,12 +304,14 @@ class RabbitBroker(
         self,
         queue: RabbitQueue,
     ) -> aio_pika.RobustQueue:
-        assert self.declarer, "Declarer should be initialized in `connect` method"
+        if self.declarer is None:
+            raise RuntimeError("Declarer should be initialized in `connect` method")
         return await self.declarer.declare_queue(queue)
 
     async def declare_exchange(
         self,
         exchange: RabbitExchange,
     ) -> aio_pika.RobustExchange:
-        assert self.declarer, "Declarer should be initialized in `connect` method"
+        if self.declarer is None:
+            raise RuntimeError("Declarer should be initialized in `connect` method")
         return await self.declarer.declare_exchange(exchange)
