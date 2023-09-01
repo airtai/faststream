@@ -2,8 +2,8 @@ name: Test
 
 on:
   push:
-    branches:
-      - FastStream
+   branches:
+     - FastStream
   pull_request:
     types: [opened, synchronize]
 
@@ -25,8 +25,25 @@ jobs:
         shell: bash
         run: mypy faststream
 
+  bandit_static_analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: Install Dependencies and library
+        shell: bash
+        run: |
+          set -ux
+          python -m pip install --upgrade pip
+          pip install -e ".[docs,rabbit,kafka,lint]"
+      - name: Run bandit static analysis
+        shell: bash
+        run: bandit -c pyproject.toml -r faststream
+
   test:
-    needs: [mypy_static_analysis]
+#    needs: [mypy_static_analysis, bandit_static_analysis]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -129,6 +146,7 @@ jobs:
     needs:
       - coverage-combine
       - mypy_static_analysis
+      - bandit_static_analysis
 
     runs-on: ubuntu-latest
 

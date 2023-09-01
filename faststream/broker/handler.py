@@ -176,9 +176,8 @@ class AsyncHandler(BaseHandler[MsgType]):
                 message.processed = processed
 
                 if await filter_(message):
-                    assert (
-                        not processed
-                    ), "You can't proccess a message with multiple consumers"
+                    if processed:
+                        raise RuntimeError("You can't proccess a message with multiple consumers")
 
                     try:
                         async with AsyncExitStack() as consume_stack:
@@ -230,7 +229,8 @@ class AsyncHandler(BaseHandler[MsgType]):
                         if IS_OPTIMIZED:  # pragma: no cover
                             break
 
-            assert processed, "You have to consume message"
+            if processed is None:
+                raise RuntimeError("You have to consume message")
 
         return result_msg
 

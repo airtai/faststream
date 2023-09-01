@@ -331,7 +331,8 @@ class KafkaBroker(
         *args: Any,
         **kwargs: Any,
     ) -> None:
-        assert self._producer, "KafkaBroker is not started yet"
+        if self._producer is None:
+            raise RuntimeError("KafkaBroker is not started yet")
         return await self._producer.publish(*args, **kwargs)
 
     async def publish_batch(
@@ -339,5 +340,6 @@ class KafkaBroker(
         *args: Any,
         **kwargs: Any,
     ) -> None:
-        assert self._producer, "KafkaBroker is not started yet"
+        if self._producer is None:
+            raise RuntimeError("KafkaBroker is not started yet")
         await self._producer.publish_batch(*args, **kwargs)
