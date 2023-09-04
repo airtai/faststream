@@ -19,6 +19,16 @@ __all__ = ("TestKafkaBroker",)
 
 
 def TestKafkaBroker(broker: KafkaBroker, with_real: bool = False) -> KafkaBroker:
+    """
+    Create a test instance of a KafkaBroker.
+
+    Args:
+        broker (KafkaBroker): The KafkaBroker instance to use.
+        with_real (bool, optional): If True, use the real broker, otherwise use a test version. Defaults to False.
+
+    Returns:
+        KafkaBroker: The KafkaBroker instance for testing.
+    """
     if with_real:
         return broker
     _fake_start(broker)
@@ -39,6 +49,22 @@ def build_message(
     *,
     reply_to: str = "",
 ) -> ConsumerRecord:
+    """
+    Build a Kafka ConsumerRecord for a sendable message.
+
+    Args:
+        message (SendableMessage): The sendable message to be encoded.
+        topic (str): The Kafka topic for the message.
+        partition (Optional[int], optional): The Kafka partition for the message. Defaults to None.
+        timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.
+        key (Optional[bytes], optional): The message key. Defaults to None.
+        headers (Optional[Dict[str, str]], optional): Additional headers for the message. Defaults to None.
+        correlation_id (Optional[str], optional): The correlation ID for the message. Defaults to None.
+        reply_to (str, optional): The topic to which responses should be sent. Defaults to "".
+
+    Returns:
+        ConsumerRecord: A Kafka ConsumerRecord object.
+    """
     msg, content_type = encode_message(message)
     k = key or b""
     headers = {
@@ -64,7 +90,18 @@ def build_message(
 
 
 class FakeProducer(AioKafkaFastProducer):
+    """
+    A fake Kafka producer for testing purposes.
+
+    This class extends AioKafkaFastProducer and is used to simulate Kafka message publishing during tests.
+    """
     def __init__(self, broker: KafkaBroker):
+        """
+        Initialize the FakeProducer.
+
+        Args:
+            broker (KafkaBroker): The KafkaBroker instance to associate with this FakeProducer.
+        """
         self.broker = broker
 
     @override
@@ -83,6 +120,25 @@ class FakeProducer(AioKafkaFastProducer):
         rpc_timeout: Optional[float] = None,
         raise_timeout: bool = False,
     ) -> Optional[SendableMessage]:
+        """
+        Publish a message to the Kafka broker.
+
+        Args:
+            message (SendableMessage): The message to be published.
+            topic (str): The Kafka topic to publish the message to.
+            key (Optional[bytes], optional): The message key. Defaults to None.
+            partition (Optional[int], optional): The Kafka partition to use. Defaults to None.
+            timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.
+            headers (Optional[Dict[str, str]], optional): Additional headers for the message. Defaults to None.
+            correlation_id (Optional[str], optional): The correlation ID for the message. Defaults to None.
+            reply_to (str, optional): The topic to which responses should be sent. Defaults to "".
+            rpc (bool, optional): If True, treat the message as an RPC request. Defaults to False.
+            rpc_timeout (Optional[float], optional): Timeout for RPC requests. Defaults to None.
+            raise_timeout (bool, optional): If True, raise an exception on timeout. Defaults to False.
+
+        Returns:
+            Optional[SendableMessage]: The response message, if this was an RPC request, otherwise None.
+        """
         incoming = build_message(
             message=message,
             topic=topic,
@@ -117,6 +173,19 @@ class FakeProducer(AioKafkaFastProducer):
         timestamp_ms: Optional[int] = None,
         headers: Optional[Dict[str, str]] = None,
     ) -> None:
+        """
+        Publish a batch of messages to the Kafka broker.
+
+        Args:
+            *msgs (SendableMessage): Variable number of messages to be published.
+            topic (str): The Kafka topic to publish the messages to.
+            partition (Optional[int], optional): The Kafka partition to use. Defaults to None.
+            timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.
+            headers (Optional[Dict[str, str]], optional): Additional headers for the messages. Defaults to None.
+
+        Returns:
+            None: This method does not return a value.
+        """
         for handler in self.broker.handlers.values():  # pragma: no branch
             if topic in handler.topics:
                 await call_handler(
@@ -137,6 +206,17 @@ class FakeProducer(AioKafkaFastProducer):
 
 
 async def _fake_connect(self: KafkaBroker, *args: Any, **kwargs: Any) -> None:
+    """
+    Fake connection to Kafka.
+
+    Args:
+        self (KafkaBroker): The KafkaBroker instance.
+        *args (Any): Additional arguments.
+        **kwargs (Any): Additional keyword arguments.
+
+    Returns:
+        None: This method does not return a value.
+    """
     self._producer = FakeProducer(self)
 
 
@@ -146,6 +226,18 @@ async def _fake_close(
     exc_val: Optional[BaseException] = None,
     exec_tb: Optional[TracebackType] = None,
 ) -> None:
+    """
+    Fake closing of the KafkaBroker.
+
+    Args:
+        self (KafkaBroker): The KafkaBroker instance.
+        exc_type (Optional[Type[BaseException]], optional): Exception type. Defaults to None.
+        exc_val (Optional[BaseException], optional): Exception value. Defaults to None.
+        exec_tb (Optional[TracebackType], optional): Traceback information. Defaults to None.
+
+    Returns:
+        None: This method does not return a value.
+    """
     for p in self._publishers.values():
         p.mock.reset_mock()
         if getattr(p, "_fake_handler", False):
@@ -158,6 +250,17 @@ async def _fake_close(
 
 
 def _fake_start(self: KafkaBroker, *args: Any, **kwargs: Any) -> None:
+    """
+    Fake starting of the KafkaBroker.
+
+    Args:
+        self (KafkaBroker): The KafkaBroker instance.
+        *args (Any): Additional arguments.
+        **kwargs (Any): Additional keyword arguments.
+
+    Returns:
+        None: This method does not return a value.
+    """
     for key, p in self._publishers.items():
         handler = self.handlers.get(key)
 
