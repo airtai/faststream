@@ -4,7 +4,7 @@ from faststream import FastStream, Logger
 from faststream.kafka import KafkaBroker
 
 
-class Data(BaseModel):
+class DataBasic(BaseModel):
     data: NonNegativeFloat = Field(
         ..., examples=[0.5], description="Float data example"
     )
@@ -16,6 +16,6 @@ app = FastStream(broker)
 
 @broker.publisher("output_data")
 @broker.subscriber("input_data")
-async def on_input_data(msg: Data, logger: Logger) -> Data:
+async def on_input_data(msg: DataBasic, logger: Logger) -> DataBasic:
     logger.info(msg)
-    return Data(data=msg.data + 1.0)
+    return DataBasic(data=msg.data + 1.0)
