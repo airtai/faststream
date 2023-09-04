@@ -1,8 +1,11 @@
 import pytest
 
-from docs_src.kafka.base_example.app import Data, broker, on_input_data
 from faststream.kafka import TestKafkaBroker
-
+from .app import (
+    broker,
+    on_input_data,
+    Data
+)
 
 @pytest.mark.asyncio
 async def test_base_app():
