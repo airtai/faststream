@@ -12,12 +12,6 @@ class RabbitMessage(StreamMessage[aio_pika.IncomingMessage]):
     This class extends `StreamMessage` to provide additional functionality for acknowledging, rejecting,
     or nack-ing RabbitMQ messages.
 
-    Args:
-        raw_message (aio_pika.IncomingMessage): The raw RabbitMQ message.
-
-    Attributes:
-        raw_message (aio_pika.IncomingMessage): The raw RabbitMQ message.
-
     """
     async def ack(self, **kwargs: Any) -> None:
         """
