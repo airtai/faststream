@@ -4,11 +4,11 @@ from typing import List, Literal, Optional, Union
 
 from aiokafka.abc import AbstractTokenProvider
 
-from faststream._compat import TypedDict
+from faststream._compat import Required, TypedDict
 
 
 class ConsumerConnectionParams(TypedDict, total=False):
-    bootstrap_servers: Union[str, List[str]]
+    bootstrap_servers: Required[Union[str, List[str]]]
     loop: Optional[AbstractEventLoop]
     client_id: str
     request_timeout_ms: int
@@ -27,9 +27,9 @@ class ConsumerConnectionParams(TypedDict, total=False):
         "SCRAM-SHA-512",
         "OAUTHBEARER",
     ]
-    sasl_plain_password: Optional[str]
-    sasl_plain_username: Optional[str]
+    sasl_plain_password: str
+    sasl_plain_username: str
     sasl_kerberos_service_name: str
-    sasl_kerberos_domain_name: Optional[str]
-    ssl_conext: Optional[ssl.SSLContext]
-    sasl_oauth_token_provider: Optional[AbstractTokenProvider]
+    sasl_kerberos_domain_name: str
+    ssl_conext: ssl.SSLContext
+    sasl_oauth_token_provider: AbstractTokenProvider

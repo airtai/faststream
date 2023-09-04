@@ -16,8 +16,9 @@ from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.push_back_watcher import BaseWatcher
 from faststream.broker.types import (
-    AsyncCustomDecoder,
-    AsyncCustomParser,
+    CustomDecoder,
+    CustomParser,
+    Filter,
     P_HandlerParams,
     T_HandlerReturn,
     WrappedReturn,
@@ -26,14 +27,13 @@ from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.log import access_logger
 from faststream.rabbit.asyncapi import Handler, Publisher
 from faststream.rabbit.helpers import RabbitDeclarer
+from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.producer import AioPikaFastProducer
 from faststream.rabbit.shared.logging import RabbitLoggingMixin
 from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.rabbit.types import AioPikaSendableMessage
 from faststream.types import AnyDict, SendableMessage
-
-RabbitMessage = StreamMessage[aio_pika.IncomingMessage]
 
 class RabbitBroker(
     RabbitLoggingMixin,
@@ -47,6 +47,7 @@ class RabbitBroker(
     _connection: Optional[aio_pika.RobustConnection]
     _channel: Optional[aio_pika.RobustChannel]
 
+    # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument.hardcoded-password-default-argument
     def __init__(
         self,
         url: Union[str, URL, None] = "amqp://guest:guest@localhost:5672/",
@@ -67,8 +68,8 @@ class RabbitBroker(
         # broker args
         apply_types: bool = True,
         dependencies: Sequence[Depends] = (),
-        decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
-        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
+        decoder: Optional[CustomDecoder[aio_pika.IncomingMessage]] = None,
+        parser: Optional[CustomParser[aio_pika.IncomingMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
@@ -93,6 +94,7 @@ class RabbitBroker(
         exc_val: Optional[BaseException] = None,
         exec_tb: Optional[TracebackType] = None,
     ) -> None: ...
+    # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument.hardcoded-password-default-argument
     async def connect(
         self,
         url: Union[str, URL, None] = None,
@@ -107,6 +109,7 @@ class RabbitBroker(
         timeout: aio_pika.abc.TimeoutType = None,
         client_properties: Optional[FieldTable] = None,
     ) -> aio_pika.RobustConnection: ...
+    # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument.hardcoded-password-default-argument
     @override
     async def _connect(  # type: ignore[override]
         self,
@@ -133,11 +136,9 @@ class RabbitBroker(
         consume_args: Optional[AnyDict] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        filter: Union[
-            Callable[[RabbitMessage], bool], Callable[[RabbitMessage], Awaitable[bool]]
-        ] = default_filter,
-        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
-        decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
+        filter: Filter[RabbitMessage] = default_filter,
+        parser: Optional[CustomParser[aio_pika.IncomingMessage]] = None,
+        decoder: Optional[CustomDecoder[aio_pika.IncomingMessage]] = None,
         middlewares: Optional[
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
@@ -210,9 +211,14 @@ class RabbitBroker(
     ) -> Union[aiormq.abc.ConfirmationFrameType, SendableMessage]: ...
     def _process_message(
         self,
-        func: Callable[[RabbitMessage], Awaitable[T_HandlerReturn]],
+        func: Callable[
+            [StreamMessage[aio_pika.IncomingMessage]], Awaitable[T_HandlerReturn]
+        ],
         watcher: BaseWatcher,
-    ) -> Callable[[RabbitMessage], Awaitable[WrappedReturn[T_HandlerReturn]],]: ...
+    ) -> Callable[
+        [StreamMessage[aio_pika.IncomingMessage]],
+        Awaitable[WrappedReturn[T_HandlerReturn]],
+    ]: ...
     async def declare_queue(
         self,
         queue: RabbitQueue,

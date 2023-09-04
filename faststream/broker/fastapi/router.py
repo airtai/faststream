@@ -1,3 +1,5 @@
+import json
+from abc import abstractmethod
 from contextlib import asynccontextmanager
 from enum import Enum
 from typing import (
@@ -19,24 +21,17 @@ from typing import (
 
 from fastapi import APIRouter, FastAPI, params
 from fastapi.datastructures import Default
+from fastapi.responses import HTMLResponse
 from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
-from pydantic import AnyHttpUrl
 from starlette import routing
 from starlette.responses import JSONResponse, Response
-from starlette.routing import _DefaultLifespan
+from starlette.routing import BaseRoute, _DefaultLifespan
 from starlette.types import AppType, ASGIApp, Lifespan
 
-from faststream.asyncapi.schema import (
-    Contact,
-    ContactDict,
-    ExternalDocs,
-    ExternalDocsDict,
-    License,
-    LicenseDict,
-    Tag,
-    TagDict,
-)
+from faststream.asyncapi import schema as asyncapi
+from faststream.asyncapi.schema import Schema
+from faststream.asyncapi.site import get_asyncapi_html
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase
 from faststream.broker.fastapi.route import StreamRoute
 from faststream.broker.publisher import BasePublisher
@@ -54,6 +49,13 @@ class StreamRouter(APIRouter, Generic[MsgType]):
     _after_startup_hooks: List[
         Callable[[AppType], Awaitable[Optional[Mapping[str, Any]]]]
     ]
+    schema: Optional[Schema]
+
+    title: str
+    description: str
+    version: str
+    license: Optional[AnyDict]
+    contact: Optional[AnyDict]
 
     def __init__(
         self,
@@ -79,39 +81,36 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             generate_unique_id
         ),
         # AsyncAPI information
-        title: str = "FastStream",
-        version: str = "0.1.0",
-        description: str = "",
-        terms_of_service: Optional[AnyHttpUrl] = None,
-        license: Optional[Union[License, LicenseDict, AnyDict]] = None,
-        contact: Optional[Union[Contact, ContactDict, AnyDict]] = None,
-        identifier: Optional[str] = None,
-        asyncapi_tags: Optional[List[Union[Tag, TagDict, AnyDict]]] = None,
-        external_docs: Optional[Union[ExternalDocs, ExternalDocsDict, AnyDict]] = None,
+        asyncapi_tags: Optional[Sequence[Union[asyncapi.Tag, asyncapi.TagDict]]] = None,
+        schema_url: Optional[str] = "/asyncapi",
         **connection_kwars: Any,
     ) -> None:
-        assert (
-            self.broker_class
-        ), "You should specify `broker_class` at your implementation"
+        if self.broker_class is None:
+            RuntimeError("You should specify `broker_class` at your implementation")
 
         self.broker = self.broker_class(
             *connection_args,
             apply_types=False,
+            tags=asyncapi_tags,
             **connection_kwars,
         )
 
         self.setup_state = setup_state
 
         # AsyncAPI information
-        self.title = title
-        self.version = version
-        self.description = description
-        self.terms_of_service = terms_of_service
-        self.license = license
-        self.contact = contact
-        self.identifier = identifier
-        self.asyncapi_tags = asyncapi_tags
-        self.external_docs = external_docs
+        # Empty
+        self.terms_of_service = None
+        self.identifier = None
+        self.asyncapi_tags = None
+        self.external_docs = None
+        # parse from FastAPI app on startup
+        self.title = ""
+        self.version = ""
+        self.description = ""
+        self.license = None
+        self.contact = None
+
+        self.schema = None
 
         super().__init__(
             prefix=prefix,
@@ -132,6 +131,8 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             on_startup=on_startup,
             on_shutdown=on_shutdown,
         )
+
+        self.docs_router = self.asyncapi_router(schema_url)
 
         self._after_startup_hooks = []
 
@@ -192,7 +193,17 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         async def start_broker_lifespan(
             app: FastAPI,
         ) -> AsyncIterator[Mapping[str, Any]]:
-            app.broker = self.broker  # type: ignore
+            from faststream.asyncapi.generate import get_app_schema
+
+            self.title = app.title
+            self.description = app.description
+            self.version = app.version
+            self.contact = app.contact
+            self.license = app.license_info
+
+            self.schema = get_app_schema(self)
+            if self.docs_router:
+                app.include_router(self.docs_router)
 
             async with lifespan_context(app) as maybe_context:
                 if maybe_context is None:
@@ -207,12 +218,14 @@ class StreamRouter(APIRouter, Generic[MsgType]):
                     h_context = await h(app)
                     if h_context:  # pragma: no branch
                         context.update(h_context)
+
                 try:
                     if self.setup_state:
                         yield context
                     else:
                         # NOTE: old asgi compatibility
                         yield  # type: ignore
+
                 finally:
                     await self.broker.close()
 
@@ -274,3 +287,109 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             *publisher_args,
             **publisher_kwargs,
         )
+
+    def asyncapi_router(self, schema_url: Optional[str]) -> Optional[APIRouter]:
+        if not self.include_in_schema or not schema_url:
+            return None
+
+        def download_app_json_schema() -> Response:
+            if self.schema is None:
+                raise RuntimeError("You need to run application lifespan at first")
+
+            return Response(
+                content=json.dumps(self.schema.to_jsonable(), indent=4),
+                headers={"Content-Type": "application/octet-stream"},
+            )
+
+        def download_app_yaml_schema() -> Response:
+            if self.schema is None:
+                raise RuntimeError("You need to run application lifespan at first")
+
+            return Response(
+                content=self.schema.to_yaml(),
+                headers={
+                    "Content-Type": "application/octet-stream",
+                },
+            )
+
+        def serve_asyncapi_schema(
+            sidebar: bool = True,
+            info: bool = True,
+            servers: bool = True,
+            operations: bool = True,
+            messages: bool = True,
+            schemas: bool = True,
+            errors: bool = True,
+            expandMessageExamples: bool = True,
+        ) -> HTMLResponse:
+            if self.schema is None:
+                raise RuntimeError("You need to run application lifespan at first")
+
+            return HTMLResponse(
+                content=get_asyncapi_html(
+                    self.schema,
+                    sidebar=sidebar,
+                    info=info,
+                    servers=servers,
+                    operations=operations,
+                    messages=messages,
+                    schemas=schemas,
+                    errors=errors,
+                    expand_message_examples=expandMessageExamples,
+                    title=self.schema.info.title,
+                )
+            )
+
+        docs_router = APIRouter(
+            prefix=self.prefix,
+            tags=["asyncapi"],
+            redirect_slashes=self.redirect_slashes,
+            default=self.default,
+            deprecated=self.deprecated,
+        )
+        docs_router.get(schema_url)(serve_asyncapi_schema)
+        docs_router.get(f"{schema_url}.json")(download_app_json_schema)
+        docs_router.get(f"{schema_url}.yaml")(download_app_yaml_schema)
+        return docs_router
+
+    def include_router(
+        self,
+        router: "APIRouter",
+        *,
+        prefix: str = "",
+        tags: Optional[List[Union[str, Enum]]] = None,
+        dependencies: Optional[Sequence[params.Depends]] = None,
+        default_response_class: Type[Response] = Default(JSONResponse),
+        responses: Optional[Dict[Union[int, str], Dict[str, Any]]] = None,
+        callbacks: Optional[List[BaseRoute]] = None,
+        deprecated: Optional[bool] = None,
+        include_in_schema: bool = True,
+        generate_unique_id_function: Callable[[APIRoute], str] = Default(
+            generate_unique_id
+        ),
+    ) -> None:
+        if isinstance(router, StreamRouter):
+            self._setup_log_context(self.broker, router.broker)
+            self.broker.handlers.update(router.broker.handlers)
+            self.broker._publishers.update(router.broker._publishers)
+
+        super().include_router(
+            router=router,
+            prefix=prefix,
+            tags=tags,
+            dependencies=dependencies,
+            default_response_class=default_response_class,
+            responses=responses,
+            callbacks=callbacks,
+            deprecated=deprecated,
+            include_in_schema=include_in_schema,
+            generate_unique_id_function=generate_unique_id_function,
+        )
+
+    @staticmethod
+    @abstractmethod
+    def _setup_log_context(
+        main_broker: BrokerAsyncUsecase[MsgType, Any],
+        including_broker: BrokerAsyncUsecase[MsgType, Any],
+    ) -> None:
+        raise NotImplementedError()

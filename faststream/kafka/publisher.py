@@ -23,10 +23,10 @@ class LogicPublisher(ABCPublisher[ConsumerRecord]):
         message: SendableMessage = "",
         correlation_id: str = "",
     ) -> None:
-        assert self._producer, "Please, setup `_producer` first"
-        assert (
-            self.batch or len(messages) < 2
-        ), "You can't send multiple messages without `batch` flag"
+        if self._producer is None:
+            raise RuntimeError("Please, setup `_producer` first")
+        if not (self.batch or len(messages) < 2):
+            raise RuntimeError("You can't send multiple messages without `batch` flag")
 
         if not self.batch:
             return await self._producer.publish(

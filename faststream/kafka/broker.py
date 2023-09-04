@@ -9,6 +9,7 @@ from typing import (
     Literal,
     Optional,
     Sequence,
+    Tuple,
     Type,
     Union,
 )
@@ -25,23 +26,22 @@ from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.push_back_watcher import BaseWatcher, WatcherContext
 from faststream.broker.types import (
-    AsyncCustomDecoder,
-    AsyncCustomParser,
     AsyncPublisherProtocol,
+    CustomDecoder,
+    CustomParser,
+    Filter,
     P_HandlerParams,
     T_HandlerReturn,
     WrappedReturn,
 )
 from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
 from faststream.kafka.asyncapi import Handler, Publisher
+from faststream.kafka.message import KafkaMessage
 from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.kafka.shared.logging import KafkaLoggingMixin
 from faststream.kafka.shared.schemas import ConsumerConnectionParams
 from faststream.utils import context
 from faststream.utils.data import filter_by_dict
-from faststream.utils.functions import to_async
-
-KafkaMessage = StreamMessage[aiokafka.ConsumerRecord]
 
 
 class KafkaBroker(
@@ -105,8 +105,6 @@ class KafkaBroker(
         await producer.start()
         self._producer = AioKafkaFastProducer(
             producer=producer,
-            decoder=self._global_decoder,
-            parser=self._global_parser,
         )
         return filter_by_dict(ConsumerConnectionParams, kwargs)
 
@@ -184,8 +182,18 @@ class KafkaBroker(
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[AsyncCustomParser[aiokafka.ConsumerRecord]] = None,
-        decoder: Optional[AsyncCustomDecoder[aiokafka.ConsumerRecord]] = None,
+        parser: Optional[
+            Union[
+                CustomParser[aiokafka.ConsumerRecord],
+                CustomParser[Tuple[aiokafka.ConsumerRecord, ...]],
+            ]
+        ] = None,
+        decoder: Optional[
+            Union[
+                CustomDecoder[aiokafka.ConsumerRecord],
+                CustomDecoder[Tuple[aiokafka.ConsumerRecord, ...]],
+            ]
+        ] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
@@ -195,7 +203,8 @@ class KafkaBroker(
             ]
         ] = None,
         filter: Union[
-            Callable[[KafkaMessage], bool], Callable[[KafkaMessage], Awaitable[bool]]
+            Filter[KafkaMessage],
+            Filter[StreamMessage[Tuple[aiokafka.ConsumerRecord, ...]]],
         ] = default_filter,
         batch: bool = False,
         max_records: Optional[int] = None,
@@ -206,7 +215,14 @@ class KafkaBroker(
         **original_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
-        HandlerCallWrapper[aiokafka.ConsumerRecord, P_HandlerParams, T_HandlerReturn],
+        Union[
+            HandlerCallWrapper[
+                aiokafka.ConsumerRecord, P_HandlerParams, T_HandlerReturn
+            ],
+            HandlerCallWrapper[
+                Tuple[aiokafka.ConsumerRecord, ...], P_HandlerParams, T_HandlerReturn
+            ],
+        ],
     ]:
         super().subscriber()
 
@@ -266,7 +282,7 @@ class KafkaBroker(
 
             handler.add_call(
                 handler=handler_call,
-                filter=to_async(filter),
+                filter=filter,
                 middlewares=middlewares,
                 parser=parser or self._global_parser,
                 decoder=decoder or self._global_decoder,
@@ -315,7 +331,8 @@ class KafkaBroker(
         *args: Any,
         **kwargs: Any,
     ) -> None:
-        assert self._producer, "KafkaBroker is not started yet"
+        if self._producer is None:
+            raise RuntimeError("KafkaBroker is not started yet")
         return await self._producer.publish(*args, **kwargs)
 
     async def publish_batch(
@@ -323,5 +340,6 @@ class KafkaBroker(
         *args: Any,
         **kwargs: Any,
     ) -> None:
-        assert self._producer, "KafkaBroker is not started yet"
+        if self._producer is None:
+            raise RuntimeError("KafkaBroker is not started yet")
         await self._producer.publish_batch(*args, **kwargs)

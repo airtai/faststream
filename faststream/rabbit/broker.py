@@ -13,9 +13,10 @@ from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.push_back_watcher import BaseWatcher, WatcherContext
 from faststream.broker.types import (
-    AsyncCustomDecoder,
-    AsyncCustomParser,
     AsyncPublisherProtocol,
+    CustomDecoder,
+    CustomParser,
+    Filter,
     P_HandlerParams,
     T_HandlerReturn,
     WrappedReturn,
@@ -23,6 +24,7 @@ from faststream.broker.types import (
 from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
 from faststream.rabbit.asyncapi import Handler, Publisher
 from faststream.rabbit.helpers import RabbitDeclarer
+from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.producer import AioPikaFastProducer
 from faststream.rabbit.shared.constants import RABBIT_REPLY
 from faststream.rabbit.shared.logging import RabbitLoggingMixin
@@ -35,8 +37,6 @@ from faststream.rabbit.shared.types import TimeoutType
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils import context
 from faststream.utils.functions import to_async
-
-RabbitMessage = StreamMessage[aio_pika.IncomingMessage]
 
 
 class RabbitBroker(
@@ -143,7 +143,8 @@ class RabbitBroker(
         )
 
         await super().start()
-        assert self.declarer, "Declarer should be initialized in `connect` method"
+        if self.declarer is None:
+            raise RuntimeError("Declarer should be initialized in `connect` method")
 
         for handler in self.handlers.values():
             c = self._get_log_context(None, handler.queue, handler.exchange)
@@ -159,14 +160,12 @@ class RabbitBroker(
         consume_args: Optional[AnyDict] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
-        decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
+        parser: Optional[CustomParser[aio_pika.IncomingMessage]] = None,
+        decoder: Optional[CustomDecoder[aio_pika.IncomingMessage]] = None,
         middlewares: Optional[
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
-        filter: Union[
-            Callable[[RabbitMessage], bool], Callable[[RabbitMessage], Awaitable[bool]]
-        ] = default_filter,
+        filter: Filter[RabbitMessage] = default_filter,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
@@ -272,9 +271,14 @@ class RabbitBroker(
 
     def _process_message(
         self,
-        func: Callable[[RabbitMessage], Awaitable[T_HandlerReturn]],
+        func: Callable[
+            [StreamMessage[aio_pika.IncomingMessage]], Awaitable[T_HandlerReturn]
+        ],
         watcher: BaseWatcher,
-    ) -> Callable[[RabbitMessage], Awaitable[WrappedReturn[T_HandlerReturn]],]:
+    ) -> Callable[
+        [StreamMessage[aio_pika.IncomingMessage]],
+        Awaitable[WrappedReturn[T_HandlerReturn]],
+    ]:
         @wraps(func)
         async def process_wrapper(
             message: RabbitMessage,
@@ -300,12 +304,14 @@ class RabbitBroker(
         self,
         queue: RabbitQueue,
     ) -> aio_pika.RobustQueue:
-        assert self.declarer, "Declarer should be initialized in `connect` method"
+        if self.declarer is None:
+            raise RuntimeError("Declarer should be initialized in `connect` method")
         return await self.declarer.declare_queue(queue)
 
     async def declare_exchange(
         self,
         exchange: RabbitExchange,
     ) -> aio_pika.RobustExchange:
-        assert self.declarer, "Declarer should be initialized in `connect` method"
+        if self.declarer is None:
+            raise RuntimeError("Declarer should be initialized in `connect` method")
         return await self.declarer.declare_exchange(exchange)

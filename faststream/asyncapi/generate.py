@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Union
 
 from faststream.app import FastStream
 from faststream.asyncapi.schema import (
@@ -6,13 +6,15 @@ from faststream.asyncapi.schema import (
     Components,
     Info,
     Message,
+    Reference,
     Schema,
     Server,
 )
+from faststream.broker.fastapi.router import StreamRouter
 from faststream.constants import ContentTypes
 
 
-def get_app_schema(app: FastStream) -> Schema:
+def get_app_schema(app: Union[FastStream, StreamRouter[Any]]) -> Schema:
     servers = get_app_broker_server(app)
     channels = get_app_broker_channels(app)
 
@@ -24,30 +26,34 @@ def get_app_schema(app: FastStream) -> Schema:
         if ch.subscribe is not None:
             m = ch.subscribe.message
 
-            p = m.payload
-            p_title = p.get("title", f"{channel_name}Payload")
-            payloads[p_title] = p
-            m.payload = {"$ref": f"#/components/schemas/{p_title}"}
+            if isinstance(m, Message):
+                p = m.payload
+                p_title = p.get("title", f"{channel_name}Payload")
+                payloads[p_title] = p
+                m.payload = {"$ref": f"#/components/schemas/{p_title}"}
 
-            assert m.title
-            messages[m.title] = m
-            ch.subscribe.message = {
-                "$ref": f"#/components/messages/{m.title}"
-            }  # type: ignore
+                if m.title is None:
+                    raise RuntimeError()
+                messages[m.title] = m
+                ch.subscribe.message = Reference(
+                    **{"$ref": f"#/components/messages/{m.title}"}
+                )
 
         if ch.publish is not None:
             m = ch.publish.message
 
-            p = m.payload
-            p_title = p.get("title", f"{channel_name}Payload")
-            payloads[p_title] = p
-            m.payload = {"$ref": f"#/components/schemas/{p_title}"}
+            if isinstance(m, Message):
+                p = m.payload
+                p_title = p.get("title", f"{channel_name}Payload")
+                payloads[p_title] = p
+                m.payload = {"$ref": f"#/components/schemas/{p_title}"}
 
-            assert m.title
-            messages[m.title] = m
-            ch.publish.message = {
-                "$ref": f"#/components/messages/{m.title}"
-            }  # type: ignore
+                if m.title is None:
+                    raise RuntimeError()
+                messages[m.title] = m
+                ch.publish.message = Reference(
+                    **{"$ref": f"#/components/messages/{m.title}"}
+                )
 
     schema = Schema(
         info=Info(
@@ -72,11 +78,14 @@ def get_app_schema(app: FastStream) -> Schema:
     return schema
 
 
-def get_app_broker_server(app: FastStream) -> Dict[str, Server]:
+def get_app_broker_server(
+    app: Union[FastStream, StreamRouter[Any]]
+) -> Dict[str, Server]:
     servers = {}
 
     broker = app.broker
-    assert broker
+    if broker is None:
+        raise RuntimeError()
 
     broker_meta = {
         "protocol": broker.protocol,
@@ -105,9 +114,12 @@ def get_app_broker_server(app: FastStream) -> Dict[str, Server]:
     return servers
 
 
-def get_app_broker_channels(app: FastStream) -> Dict[str, Channel]:
+def get_app_broker_channels(
+    app: Union[FastStream, StreamRouter[Any]]
+) -> Dict[str, Channel]:
     channels = {}
-    assert app.broker
+    if app.broker is None:
+        raise RuntimeError()
 
     for h in app.broker.handlers.values():
         channels.update(h.schema())

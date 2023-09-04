@@ -13,6 +13,7 @@ from pydantic import BaseModel
 #     from typing_extensions import override as override
 # else:
 #     from typing import override
+from typing_extensions import Required as Required
 from typing_extensions import TypedDict as TypedDict
 from typing_extensions import override as override
 
@@ -118,9 +119,8 @@ if PYDANTIC_V2:
         return model.model_copy(**kwargs)
 
 else:
-    from pydantic.config import BaseConfig
+    from pydantic.config import BaseConfig, get_config
     from pydantic.config import ConfigDict as CD
-    from pydantic.config import get_config
     from pydantic.json import pydantic_encoder
 
     GetJsonSchemaHandler = Any  # type: ignore[assignment,misc]

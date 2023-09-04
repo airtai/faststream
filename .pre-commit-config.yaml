@@ -1,0 +1,31 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: check-yaml
+    -   id: check-added-large-files
+
+-   repo: local
+    hooks:
+    -   id: lint
+        name: Linter
+        entry: "scripts/lint-pre-commit.sh"
+        language: python
+        language_version: python3.8
+        types: [python]
+        require_serial: true
+        verbose: true
+
+-   repo: local
+    hooks:
+    -   id: static-analysis
+        name: Static analysis
+        entry: "scripts/static-pre-commit.sh"
+        language: python
+        language_version: python3.8
+        require_serial: true
+        verbose: true

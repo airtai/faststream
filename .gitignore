@@ -1,7 +1,9 @@
 __pycache__
 dist
 .idea
-venv
+venv*
+.venv*
+.env
 *.lock
 .vscode
 .pypirc
@@ -11,3 +13,7 @@ venv
 .coverage*
 .cache
 htmlcov
+token
+
+site/
+site_build/

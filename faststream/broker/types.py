@@ -8,22 +8,34 @@ Decoded = TypeVar("Decoded", bound=DecodedMessage)
 MsgType = TypeVar("MsgType")
 ConnectionType = TypeVar("ConnectionType")
 
+SyncFilter = Callable[[MsgType], bool]
+AsyncFilter = Callable[[MsgType], Awaitable[bool]]
+Filter = Union[SyncFilter[MsgType], AsyncFilter[MsgType]]
+
 SyncParser = Callable[
     [MsgType],
     StreamMessage[MsgType],
 ]
+SyncCustomParser = Union[
+    SyncParser[MsgType],
+    Callable[
+        [MsgType, SyncParser[MsgType]],
+        StreamMessage[MsgType],
+    ],
+]
+
 AsyncParser = Callable[
     [MsgType],
     Awaitable[StreamMessage[MsgType]],
 ]
-SyncCustomParser = Callable[
-    [MsgType, SyncParser[MsgType]],
-    StreamMessage[MsgType],
+AsyncCustomParser = Union[
+    AsyncParser[MsgType],
+    Callable[
+        [MsgType, AsyncParser[MsgType]],
+        Awaitable[StreamMessage[MsgType]],
+    ],
 ]
-AsyncCustomParser = Callable[
-    [MsgType, SyncParser[MsgType]],
-    Awaitable[StreamMessage[MsgType]],
-]
+
 Parser = Union[AsyncParser[MsgType], SyncParser[MsgType]]
 CustomParser = Union[AsyncCustomParser[MsgType], SyncCustomParser[MsgType]]
 
@@ -31,20 +43,28 @@ SyncDecoder = Callable[
     [StreamMessage[MsgType]],
     DecodedMessage,
 ]
-SyncCustomDecoder = Callable[
-    [StreamMessage[MsgType], SyncDecoder[MsgType]],
-    DecodedMessage,
+SyncCustomDecoder = Union[
+    SyncDecoder[MsgType],
+    Callable[
+        [StreamMessage[MsgType], SyncDecoder[MsgType]],
+        DecodedMessage,
+    ],
 ]
+
 AsyncDecoder = Callable[
     [
         StreamMessage[MsgType],
     ],
     Awaitable[DecodedMessage],
 ]
-AsyncCustomDecoder = Callable[
-    [StreamMessage[MsgType], AsyncDecoder[MsgType]],
-    Awaitable[DecodedMessage],
+AsyncCustomDecoder = Union[
+    AsyncDecoder[MsgType],
+    Callable[
+        [StreamMessage[MsgType], AsyncDecoder[MsgType]],
+        Awaitable[DecodedMessage],
+    ],
 ]
+
 Decoder = Union[AsyncDecoder[MsgType], SyncDecoder[MsgType]]
 CustomDecoder = Union[AsyncCustomDecoder[MsgType], SyncCustomDecoder[MsgType]]
 

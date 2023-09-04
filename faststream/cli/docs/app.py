@@ -1,7 +1,7 @@
 import json
 import sys
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
 
 import typer
 
@@ -10,7 +10,6 @@ from faststream.asyncapi.generate import get_app_schema
 from faststream.asyncapi.schema import Schema
 from faststream.asyncapi.site import serve_app
 from faststream.cli.utils.imports import get_app_path, try_import_app
-from faststream.types import AnyDict
 
 docs_app = typer.Typer(pretty_exceptions_short=True)
 
@@ -76,14 +75,24 @@ def gen(
         schema_filepath = Path.cwd() / app
         raw_schema = model_parse(Schema, schema_filepath.read_text())
 
-    schema: Union[str, AnyDict]
     if yaml:
+        try:
+            schema = raw_schema.to_yaml()
+        except ImportError as e:  # pragma: no cover
+            typer.echo(
+                "To generate YAML documentation, please install dependencies:\n"
+                "pip install PyYAML"
+            )
+            raise typer.Exit(1) from e
+
         name = out or "asyncapi.yaml"
-        schema = ""
+
+        with open(name, "w") as f:
+            f.write(schema)
 
     else:
-        name = out or "asyncapi.json"
         schema = raw_schema.to_jsonable()
+        name = out or "asyncapi.json"
 
         with open(name, "w") as f:
             json.dump(schema, f, indent=2)

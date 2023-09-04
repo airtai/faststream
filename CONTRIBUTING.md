@@ -20,7 +20,7 @@ Activate the new environment with:
 source ./venv/bin/activate
 ```
 
-Make sure you have the latest pip version on your virtual environment to 
+Make sure you have the latest pip version on your virtual environment to
 
 ```bash
 python -m pip install --upgrade pip

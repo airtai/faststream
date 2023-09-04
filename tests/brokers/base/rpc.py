@@ -1,6 +1,3 @@
-import asyncio
-from unittest.mock import Mock
-
 import anyio
 import pytest
 
@@ -58,15 +55,12 @@ class BrokerRPCTestcase:
         assert r is None
 
     @pytest.mark.asyncio
-    async def test_rpc_with_reply(
-        self, queue: str, mock: Mock, rpc_broker: BrokerUsecase, event: asyncio.Event
-    ):
+    async def test_rpc_with_reply(self, queue: str, rpc_broker: BrokerUsecase):
         reply_queue = queue + "1"
 
         @rpc_broker.subscriber(reply_queue)
         async def response_hanler(m: str):
-            event.set()
-            mock(m)
+            ...
 
         @rpc_broker.subscriber(queue)
         async def m(m):  # pragma: no cover
@@ -75,9 +69,9 @@ class BrokerRPCTestcase:
         await rpc_broker.start()
 
         await rpc_broker.publish("hello", queue, reply_to=reply_queue)
-        await asyncio.wait_for(event.wait(), 3)
+        await response_hanler.wait_call(3)
 
-        mock.assert_called_with("1")
+        response_hanler.mock.assert_called_with("1")
 
 
 class ReplyAndConsumeForbidden:

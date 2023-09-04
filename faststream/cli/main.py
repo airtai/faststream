@@ -68,6 +68,14 @@ def run(
     reload: bool = typer.Option(
         False, "--reload", is_flag=True, help="Restart app at directory files changes"
     ),
+    app_dir: Optional[str] = typer.Option(
+        None,
+        "--app-dir",
+        help=(
+            "Look for APP in the specified directory, by adding this to the PYTHONPATH."
+            " Defaults to the current working directory."
+        ),
+    ),
 ) -> None:
     """Run [MODULE:APP] FastStream application"""
     app, extra = parse_cli_args(app, *ctx.args)
@@ -75,8 +83,8 @@ def run(
 
     module, app = get_app_path(app)
 
-    app_dir = module.parent
-    sys.path.insert(0, str(app_dir))
+    if app_dir:
+        sys.path.insert(0, app_dir)
 
     args = (module, app, extra, casted_log_level)
 
@@ -86,7 +94,7 @@ def run(
     if reload is True:
         from faststream.cli.supervisors.watchfiles import WatchReloader
 
-        WatchReloader(target=_run, args=args, reload_dirs=(app_dir,)).run()
+        WatchReloader(target=_run, args=args, reload_dirs=(str(module.parent),)).run()
 
     elif workers > 1:
         from faststream.cli.supervisors.multiprocess import Multiprocess

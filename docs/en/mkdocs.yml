@@ -1,0 +1,73 @@
+site_name: FastStream
+site_url: https://faststream.airt.ai/
+nav:
+- FastStream: index.md
+- Languages:
+  - en: /
+theme:
+  name: material
+  palette:
+  - media: '(prefers-color-scheme: light)'
+    scheme: default
+    primary: indigo
+    accent: cyan
+    toggle:
+      icon: material/brightness-7
+      name: Switch to dark mode
+  - media: '(prefers-color-scheme: dark)'
+    scheme: slate
+    primary: indigo
+    accent: cyan
+    toggle:
+      icon: material/brightness-4
+      name: Switch to light mode
+  features:
+  - search.suggest
+  - search.highlight
+  - content.tabs.link
+  - navigation.indexes
+  - content.tooltips
+  - navigation.path
+  - content.code.annotation
+  - content.code.copy
+  - content.code.select
+repo_name: airtai/fastkafka
+repo_url: https://github.com/airtai/fastkafka
+edit_uri: ''
+markdown_extensions:
+  toc:
+    permalink: true
+  markdown.extensions.codehilite:
+    guess_lang: false
+  mdx_include:
+    base_path: docs
+  admonition: null
+  codehilite: null
+  extra: null
+  pymdownx.superfences:
+    custom_fences:
+    - name: mermaid
+      class: mermaid
+      format: '!!python/name:pymdownx.superfences.fence_code_format'
+  pymdownx.tabbed:
+    alternate_style: true
+  attr_list: null
+  md_in_html: null
+extra:
+  social:
+  - icon: fontawesome/brands/discord
+    link: https://discord.gg/CJWmYpyFbc
+  - icon: fontawesome/brands/github-alt
+    link: https://github.com/airtai/fastkafka
+  - icon: fontawesome/brands/twitter
+    link: https://twitter.com/airt_AI
+  - icon: fontawesome/brands/facebook
+    link: https://www.facebook.com/airt.ai.api/
+  - icon: fontawesome/brands/linkedin
+    link: https://www.linkedin.com/company/airt-ai/
+  alternate:
+  - link: /
+    name: en - English
+copyright: '&copy; 2023 <a href="https://airt.ai/" target="_blank" rel="noopener">airt</a>
+
+  '

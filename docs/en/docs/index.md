@@ -21,7 +21,7 @@ Review](https://github.com/airtai/fastkafka//actions/workflows/dependency-review
 
 ------------------------------------------------------------------------
 
-[FastStream](fastkafka.airt.ai) is a powerful and easy-to-use Python
+[FastStream](https://fastkafka.airt.ai/) is a powerful and easy-to-use Python
 library for building asynchronous services that interact with Event streams
 topics. Built on top of [Pydantic](https://docs.pydantic.dev/) and
 [AsyncAPI](https://www.asyncapi.com/), FastStream simplifies the process
@@ -41,13 +41,13 @@ You can install it with `pip` as usual:
 pip install faststream
 ```
 
-## Writing server code
+## Writing app code
 
-Here is an example python app using FastStream that consumes data from a 
+Here is an example python app using FastStream that consumes data from a
 topic, increments the value, and outputs the data to another topic.
 
 ``` python
-{!> ../../docs_src/kafka/base_example/app.py!}
+{!> ../../../docs_src/kafka/base_example/app.py!}
 ```
 
 ### Messages
@@ -62,9 +62,20 @@ the fields and types of your messages.
 This example defines one message class for use in a FastStream
 application, `Data`.
 
-``` python hl_lines="1 6-9"
-{!> ../../docs_src/kafka/base_example/app.py!}
+``` python hl_lines="1 7-9"
+{!> ../../../docs_src/kafka/base_example/app.py[ln:1-9]!}
+
+# Code below omitted 👇
 ```
+
+<details>
+<summary>👀 Full file preview</summary>
+
+``` python
+{!> ../../../docs_src/kafka/base_example/app.py!}
+```
+
+</details>
 
 These message class will be used to parse and validate incoming data
 when consuming and to produce a JSON-encoded message when producing.
@@ -79,9 +90,22 @@ It starts by initialising a `Broker` object with the address of the Message brok
 
 Next, an object of the `FastStream` class is created and a `Broker` object is passed to it.
 
-``` python hl_lines="3 4 11 12"
-{!> ../../docs_src/kafka/base_example/app.py!}
+``` python hl_lines="3 4"
+# Code above omitted 👆
+
+{!> ../../../docs_src/kafka/base_example/app.py[ln:13-14]!}
+
+# Code below omitted 👇
 ```
+
+<details>
+<summary>👀 Full file preview</summary>
+
+``` python
+{!> ../../../docs_src/kafka/base_example/app.py!}
+```
+
+</details>
 
 ### Function decorators
 
@@ -120,6 +144,56 @@ This following example shows how to use the `@broker.subscriber` and
   framework will call the `Data.json().encode("utf-8")` function
   on the returned value and produce it to the specified topic.
 
-``` python hl_lines="14-18"
-{!> ../../docs_src/kafka/base_example/app.py!}
+``` python hl_lines="17-21"
+{!> ../../../docs_src/kafka/base_example/app.py!}
+```
+
+### Testing the service
+
+The service can be tested using the `TestBroker` context managers which, by default, puts the Broker into "testing mode".
+
+The Tester will redirect your `subscriber` and `publisher` decorated functions to the InMemory brokers so that you can quickly test your app without the need for a running broker and all its dependencies.
+
+Using pytest, the test for our service would look like this:
+
+``` python
+{!> ../../../docs_src/kafka/base_example/testing.py!}
+```
+
+First we pass our broker to the `TestKafkaBroker`
+
+``` python hl_lines="3 17"
+{!> ../../../docs_src/kafka/base_example/testing.py!}
+```
+
+After passing the broker to the `TestKafkaBroker` we can publish an event to "input_data" and check if the tested broker produced a response as a reaction to it.
+
+To check the response, we registered an additional `on_output_data` subscriber which will capture events on "output_data" topic.
+
+``` python hl_lines="12-14 21"
+{!> ../../../docs_src/kafka/base_example/testing.py!}
+```
+
+## Running the application
+
+The application can be started using builtin FastStream CLI command.
+
+First we will save our application code to `app.py` file. Here is the application code again:
+
+``` python
+{!> ../../../docs_src/kafka/base_example/app.py!}
+```
+
+To run the service, use the FastStream CLI command and pass the module (in this case, the file where the app implementation is located) and the app simbol to the command.
+
+``` shell
+faststream run app:app
+```
+
+After running the command you should see the following output:
+
+``` shell
+INFO     - FastStream app starting...
+INFO     - input_data |            - `True` waiting for messages
+INFO     - FastStream app started successfully! To exit press CTRL+C
 ```
