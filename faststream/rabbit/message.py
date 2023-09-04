@@ -12,6 +12,16 @@ class RabbitMessage(StreamMessage[aio_pika.IncomingMessage]):
     This class extends `StreamMessage` to provide additional functionality for acknowledging, rejecting,
     or nack-ing RabbitMQ messages.
 
+    Methods:
+        ack(**kwargs) -> None:
+            Acknowledge the RabbitMQ message.
+
+        nack(**kwargs) -> None:
+            Negative Acknowledgment of the RabbitMQ message.
+
+        reject(**kwargs) -> None:
+            Reject the RabbitMQ message.
+
     """
     async def ack(self, **kwargs: Any) -> None:
         """
@@ -33,7 +43,7 @@ class RabbitMessage(StreamMessage[aio_pika.IncomingMessage]):
 
     async def nack(self, **kwargs: Any) -> None:
         """
-        Nack (Negative Acknowledgment) the RabbitMQ message.
+        Negative Acknowledgment of the RabbitMQ message.
 
         Nack-ing a message indicates that the message processing has failed and should be requeued.
 

@@ -9,16 +9,16 @@ class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
     """
     Represents a Kafka message in the FastStream framework.
 
-    This class extends StreamMessage and is specialized for handling Kafka ConsumerRecord objects.
+    This class extends `StreamMessage` and is specialized for handling Kafka ConsumerRecord objects.
 
     Methods:
-        ack(**kwargs: Any) -> None:
+        ack(**kwargs) -> None:
             Acknowledge the Kafka message.
 
-        nack(**kwargs: Any) -> None:
+        nack(**kwargs) -> None:
             Negative acknowledgment of the Kafka message.
 
-        reject(**kwargs: Any) -> None:
+        reject(**kwargs) -> None:
             Reject the Kafka message.
     """
     async def ack(self, **kwargs: Any) -> None:
