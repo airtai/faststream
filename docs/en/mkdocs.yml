@@ -2,6 +2,16 @@ site_name: FastStream
 site_url: https://faststream.airt.ai/
 nav:
 - FastStream: index.md
+- API:
+  - api/FastStream.md
+  - Kafka:
+    - api/kafka/KafkaBroker.md
+    - api/kafka/KafkaMessage.md
+    - api/kafka/TestKafkaBroker.md
+  - Rabbit:
+    - api/rabbit/RabbitBroker.md
+    - api/rabbit/RabbitMessage.md
+    - api/rabbit/TestRabbitBroker.md
 - Languages:
   - en: /
 theme:
@@ -34,6 +44,14 @@ theme:
 repo_name: airtai/fastkafka
 repo_url: https://github.com/airtai/fastkafka
 edit_uri: ''
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            show_source: false
 markdown_extensions:
   toc:
     permalink: true

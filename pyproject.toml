@@ -74,6 +74,7 @@ devdocs = [
     "mdx-include>=1.4.1,<2.0.0",
     "mkdocs-macros-plugin",
     "mkdocs-glightbox",
+    "mkdocstrings[python]>=0.23.0",
     "pillow",
     "cairosvg",
 ]
