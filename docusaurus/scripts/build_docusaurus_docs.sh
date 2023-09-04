@@ -71,3 +71,8 @@ elif [ "$docs_versioning_flag" == "None" ]; then
         echo "Successfully deleted all previous document versions."
     fi
 fi
+
+echo -e "\e[36;1m[INFO]\e[0m Creating a compressed archive of the generated Markdown files. This file is essential for implementing semantic search in the FastFafka-Gen library."
+cd ../ && mkdir -p .fastkafka_gen
+find "./docusaurus/docs/" -type f -name "*.md" | tar -czvf ".fastkafka_gen/site_md_archive.tar.gz" -T -
+echo -e "\e[36;1m[INFO]\e[0m Markdown files have been successfully compressed and saved in: .fastkafka_gen/site_md_archive.tar.gz"
