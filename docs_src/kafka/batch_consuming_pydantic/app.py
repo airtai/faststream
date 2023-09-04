@@ -1,8 +1,12 @@
 from typing import List
+
 from pydantic import BaseModel, Field
 
 from faststream import FastStream, Logger
 from faststream.kafka import KafkaBroker
+
+broker = KafkaBroker("localhost:9092")
+app = FastStream(broker)
 
 
 class HelloWorld(BaseModel):
@@ -12,9 +16,7 @@ class HelloWorld(BaseModel):
         description="Demo hello world message",
     )
 
-broker = KafkaBroker("localhost:9092")
-app = FastStream(broker)
 
-@broker.subscriber("hello_world", batch=True)
-async def on_hello_world(msg: List[str], logger: Logger):
+@broker.subscriber("test_batch", batch=True)
+async def handle_batch(msg: List[HelloWorld], logger: Logger):
     logger.info(msg)

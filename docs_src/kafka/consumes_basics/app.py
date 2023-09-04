@@ -11,8 +11,10 @@ class HelloWorld(BaseModel):
         description="Demo hello world message",
     )
 
+
 broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
+
 
 @broker.subscriber("hello_world")
 async def on_hello_world(msg: HelloWorld, logger: Logger):
