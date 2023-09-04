@@ -45,13 +45,13 @@ repo_name: airtai/fastkafka
 repo_url: https://github.com/airtai/fastkafka
 edit_uri: ''
 plugins:
-  - search
-  - mkdocstrings:
-      default_handler: python
-      handlers:
-        python:
-          options:
-            show_source: false
+- search
+- mkdocstrings:
+    default_handler: python
+    handlers:
+      python:
+        options:
+          show_source: false
 markdown_extensions:
   toc:
     permalink: true
