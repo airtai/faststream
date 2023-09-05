@@ -26,6 +26,7 @@ async def test_batch_publish_decorator():
             [dict(Data(data=1.0)), dict(Data(data=4.0))]
         )
 
+
 @pytest.mark.asyncio
 async def test_batch_publish_call():
     async with TestKafkaBroker(broker):

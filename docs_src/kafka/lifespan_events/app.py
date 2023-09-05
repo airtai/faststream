@@ -1,7 +1,6 @@
 from faststream import FastStream, Logger
 from faststream.kafka import KafkaBroker
 
-
 ml_models = {}  # fake ML model
 
 broker = KafkaBroker("localhost:9092")
@@ -13,17 +12,18 @@ predictions = broker.publisher("predictions_topic")
 def multiply(x: float) -> float:
     return x * 2
 
+
 @app.on_startup
-async def setup_model():
+async def setup_model(logger: Logger):
     # Load the ML model
-    print("Loading the model!")
+    logger.info("Loading the model...")
     ml_models["multiply_model"] = multiply
 
 
 @app.on_shutdown
-async def shutdown_model():
+async def shutdown_model(logger: Logger):
     # Clean up the ML models and release the resources
-    print("Exiting, clearing model dict!")
+    logger.info("Exiting, clearing model dict...")
     ml_models.clear()
 
 
@@ -34,7 +34,7 @@ async def on_input_data_1(msg: float, logger: Logger) -> float:
 
     result = ml_models["multiply_model"](msg)
     logger.info(f"{result=}")
-    
+
     return result
 
 
@@ -44,5 +44,5 @@ async def on_input_data_2(msg: float, logger: Logger) -> None:
 
     result = ml_models["multiply_model"](msg)
     logger.info(f"{result=}")
-    
+
     await predictions.publish(result)

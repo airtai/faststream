@@ -29,4 +29,6 @@ async def on_input_data_1(msg: Data, logger: Logger) -> Tuple[Data, Data]:
 @broker.subscriber("input_data_2")
 async def on_input_data_2(msg: Data, logger: Logger) -> None:
     logger.info(msg)
-    await decrease_and_increase.publish(Data(data=(msg.data * 0.5)), Data(data=(msg.data * 2.0)))
+    await decrease_and_increase.publish(
+        Data(data=(msg.data * 0.5)), Data(data=(msg.data * 2.0))
+    )
