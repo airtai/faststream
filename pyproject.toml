@@ -74,6 +74,7 @@ devdocs = [
     "mdx-include>=1.4.1,<2.0.0",
     "mkdocs-macros-plugin",
     "mkdocs-glightbox",
+    "mkdocstrings[python]>=0.23.0",
     "pillow",
     "cairosvg",
 ]
@@ -88,6 +89,7 @@ lint = [
     "bandit==1.7.5",
     "pre-commit==3.3.3",
     "semgrep==1.38.0",
+    "detect-secrets==1.4.0",
 ]
 
 testing = [
@@ -188,7 +190,6 @@ extend-immutable-calls = [
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = "-q -m 'not slow'"
-# python_files = ["test_*.py"] # check_*.py example_*.py
 testpaths = [
     "docs_src",
     "tests",

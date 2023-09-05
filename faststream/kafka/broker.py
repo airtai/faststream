@@ -48,6 +48,27 @@ class KafkaBroker(
     KafkaLoggingMixin,
     BrokerAsyncUsecase[aiokafka.ConsumerRecord, ConsumerConnectionParams],
 ):
+    """
+    KafkaBroker is a class for managing Kafka message consumption and publishing.
+    It extends BrokerAsyncUsecase to handle asynchronous operations.
+
+    Args:
+        bootstrap_servers (Union[str, Iterable[str]]): Kafka bootstrap server(s).
+        protocol (str): The protocol used (default is "kafka").
+        protocol_version (str): The Kafka protocol version (default is "auto").
+        client_id (str): The client ID for the Kafka client.
+        **kwargs: Additional keyword arguments.
+
+    Attributes:
+        handlers (Dict[str, Handler]): A dictionary of message handlers.
+        _publishers (Dict[str, Publisher]): A dictionary of message publishers.
+        _producer (Optional[AioKafkaFastProducer]): An optional Kafka producer.
+
+    Methods:
+        connect(*args, **kwargs): Establishes a connection to Kafka.
+        start(): Starts the KafkaBroker and message handlers.
+        publish(*args, **kwargs): Publishes a message to Kafka.
+    """
     handlers: Dict[str, Handler]  # type: ignore[assignment]
     _publishers: Dict[str, Publisher]  # type: ignore[assignment]
     _producer: Optional[AioKafkaFastProducer]
@@ -61,6 +82,16 @@ class KafkaBroker(
         client_id: str = "faststream-" + __version__,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a KafkaBroker instance.
+
+        Args:
+            bootstrap_servers (Union[str, Iterable[str]]): Kafka bootstrap server(s).
+            protocol (str): The protocol used (default is "kafka").
+            protocol_version (str): The Kafka protocol version (default is "auto").
+            client_id (str): The client ID for the Kafka client.
+            **kwargs: Additional keyword arguments.
+        """
         super().__init__(
             url=bootstrap_servers,
             protocol=protocol,
@@ -78,6 +109,14 @@ class KafkaBroker(
         exc_val: Optional[BaseException] = None,
         exec_tb: Optional[TracebackType] = None,
     ) -> None:
+        """
+        Close the KafkaBroker, stopping the producer and cleaning up resources.
+
+        Args:
+            exc_type (Optional[Type[BaseException]]): The exception type.
+            exc_val (Optional[BaseException]]): The exception value.
+            exec_tb (Optional[TracebackType]]): The traceback.
+        """
         if self._producer is not None:  # pragma: no branch
             await self._producer.stop()
             self._producer = None
@@ -89,6 +128,16 @@ class KafkaBroker(
         *args: Any,
         **kwargs: Any,
     ) -> ConsumerConnectionParams:
+        """
+        Establishes a connection to Kafka and returns connection parameters.
+
+        Args:
+            *args: Additional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            ConsumerConnectionParams: The connection parameters.
+        """
         connection = await super().connect(*args, **kwargs)
         for p in self._publishers.values():
             p._producer = self._producer
@@ -101,6 +150,16 @@ class KafkaBroker(
         client_id: str,
         **kwargs: Any,
     ) -> ConsumerConnectionParams:
+        """
+        Connects to Kafka, initializes the producer, and returns connection parameters.
+
+        Args:
+            client_id (str): The client ID.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            ConsumerConnectionParams: The connection parameters.
+        """
         producer = aiokafka.AIOKafkaProducer(**kwargs, client_id=client_id)
         await producer.start()
         self._producer = AioKafkaFastProducer(
@@ -109,6 +168,9 @@ class KafkaBroker(
         return filter_by_dict(ConsumerConnectionParams, kwargs)
 
     async def start(self) -> None:
+        """
+        Start the KafkaBroker and message handlers.
+        """
         context.set_local(
             "log_context",
             self._get_log_context(None, ""),
@@ -118,7 +180,11 @@ class KafkaBroker(
 
         for handler in self.handlers.values():
             c = self._get_log_context(None, handler.topics)
-            self._log(f"`{handler.name}` waiting for messages", extra=c)
+
+            if (name := handler.name) is True:
+                name = handler.call_name
+
+            self._log(f"`{name}` waiting for messages", extra=c)
             await handler.start(**(self._connection or {}))
 
     def _process_message(
@@ -126,6 +192,16 @@ class KafkaBroker(
         func: Callable[[KafkaMessage], Awaitable[T_HandlerReturn]],
         watcher: BaseWatcher,
     ) -> Callable[[KafkaMessage], Awaitable[WrappedReturn[T_HandlerReturn]],]:
+        """
+        Wrap a message processing function with a watcher and publisher.
+
+        Args:
+            func (Callable[[KafkaMessage], Awaitable[T_HandlerReturn]]): The message processing function.
+            watcher (BaseWatcher): The message watcher.
+
+        Returns:
+            Callable[[KafkaMessage], Awaitable[WrappedReturn[T_HandlerReturn]]]: The wrapped message processing function.
+        """
         @wraps(func)
         async def process_wrapper(
             message: KafkaMessage,
@@ -224,6 +300,46 @@ class KafkaBroker(
             ],
         ],
     ]:
+        """
+        Create a message subscriber for the specified topics.
+
+        Args:
+            *topics (str): The topics to subscribe to.
+            group_id (Optional[str]): The Kafka consumer group ID.
+            key_deserializer (Optional[Callable[[bytes], Any]]): Key deserializer function.
+            value_deserializer (Optional[Callable[[bytes], Any]]): Value deserializer function.
+            fetch_max_wait_ms (int): The maximum time to wait for data.
+            fetch_max_bytes (int): The maximum number of bytes to fetch.
+            fetch_min_bytes (int): The minimum number of bytes to fetch.
+            max_partition_fetch_bytes (int): The maximum bytes to fetch for a partition.
+            auto_offset_reset (Literal["latest", "earliest", "none"]): Auto offset reset policy.
+            enable_auto_commit (bool): Whether to enable auto-commit.
+            auto_commit_interval_ms (int): Auto-commit interval in milliseconds.
+            check_crcs (bool): Whether to check CRCs.
+            partition_assignment_strategy (Sequence[AbstractPartitionAssignor]): Partition assignment strategy.
+            max_poll_interval_ms (int): Maximum poll interval in milliseconds.
+            rebalance_timeout_ms (Optional[int]): Rebalance timeout in milliseconds.
+            session_timeout_ms (int): Session timeout in milliseconds.
+            heartbeat_interval_ms (int): Heartbeat interval in milliseconds.
+            consumer_timeout_ms (int): Consumer timeout in milliseconds.
+            max_poll_records (Optional[int]): Maximum number of records to poll.
+            exclude_internal_topics (bool): Whether to exclude internal topics.
+            isolation_level (Literal["read_uncommitted", "read_committed"]): Isolation level.
+            dependencies (Sequence[Depends]): Additional dependencies for message handling.
+            parser (Optional[Union[CustomParser[aiokafka.ConsumerRecord], CustomParser[Tuple[aiokafka.ConsumerRecord, ...]]]]): Message parser.
+            decoder (Optional[Union[CustomDecoder[aiokafka.ConsumerRecord], CustomDecoder[Tuple[aiokafka.ConsumerRecord, ...]]]]): Message decoder.
+            middlewares (Optional[Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]]): Message middlewares.
+            filter (Union[Filter[KafkaMessage], Filter[StreamMessage[Tuple[aiokafka.ConsumerRecord, ...]]]]): Message filter.
+            batch (bool): Whether to process messages in batches.
+            max_records (Optional[int]): Maximum number of records to process in each batch.
+            batch_timeout_ms (int): Batch timeout in milliseconds.
+            title (Optional[str]): AsyncAPI title.
+            description (Optional[str]): AsyncAPI description.
+            **original_kwargs: Additional keyword arguments.
+
+        Returns:
+            Callable: A decorator that wraps a message handler function.
+        """
         super().subscriber()
 
         self._setup_log_context(topics)
@@ -307,6 +423,23 @@ class KafkaBroker(
         title: Optional[str] = None,
         description: Optional[str] = None,
     ) -> Publisher:
+        """
+        Create a message publisher for the specified topic.
+
+        Args:
+            topic (str): The topic to publish messages to.
+            key (Optional[bytes]): Message key.
+            partition (Optional[int]): Partition to send the message to.
+            timestamp_ms (Optional[int]): Message timestamp in milliseconds.
+            headers (Optional[Dict[str, str]]): Message headers.
+            reply_to (str): The topic to which responses should be sent.
+            batch (bool): Whether to publish messages in batches.
+            title (Optional[str]): AsyncAPI title.
+            description (Optional[str]): AsyncAPI description.
+
+        Returns:
+            Publisher: A message publisher.
+        """
         publisher = self._publishers.get(
             topic,
             Publisher(
@@ -331,6 +464,16 @@ class KafkaBroker(
         *args: Any,
         **kwargs: Any,
     ) -> None:
+        """
+        Publish a message to Kafka.
+
+        Args:
+            *args: Positional arguments for message publishing.
+            **kwargs: Keyword arguments for message publishing.
+
+        Raises:
+            RuntimeError: If KafkaBroker is not started yet.
+        """
         if self._producer is None:
             raise RuntimeError("KafkaBroker is not started yet")
         return await self._producer.publish(*args, **kwargs)
@@ -340,6 +483,16 @@ class KafkaBroker(
         *args: Any,
         **kwargs: Any,
     ) -> None:
+        """
+        Publish a batch of messages to Kafka.
+
+        Args:
+            *args: Positional arguments for message publishing.
+            **kwargs: Keyword arguments for message publishing.
+
+        Raises:
+            RuntimeError: If KafkaBroker is not started yet.
+        """
         if self._producer is None:
             raise RuntimeError("KafkaBroker is not started yet")
         await self._producer.publish_batch(*args, **kwargs)

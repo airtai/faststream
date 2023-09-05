@@ -29,6 +29,22 @@ __all__ = ("TestRabbitBroker",)
 
 
 def TestRabbitBroker(broker: RabbitBroker, with_real: bool = False) -> RabbitBroker:
+    """
+    Create a test RabbitBroker instance with optional mocking.
+
+    This function creates a RabbitBroker instance, optionally replacing some of its components with mocks for testing
+    purposes. If `with_real` is True, it returns the original RabbitBroker instance without any modifications. If
+    `with_real` is False, it replaces certain components like the channel, declarer, and start/connect/close methods with
+    mock objects to isolate the broker for testing.
+
+    Args:
+        broker (RabbitBroker): The RabbitBroker instance to be used in testing.
+        with_real (bool, optional): If True, the original broker is returned; if False, components are replaced with
+            mock objects. Defaults to False.
+
+    Returns:
+        RabbitBroker: The RabbitBroker instance for testing, either with or without mocks.
+    """
     if with_real:
         return broker
 
@@ -42,6 +58,12 @@ def TestRabbitBroker(broker: RabbitBroker, with_real: bool = False) -> RabbitBro
 
 
 class PatchedMessage(IncomingMessage):
+    """
+    Patched message class for testing purposes.
+
+    This class extends aio_pika's IncomingMessage class and is used to simulate RabbitMQ message handling during tests.
+    """
+
     async def ack(self, multiple: bool = False) -> None:
         pass
 
@@ -61,6 +83,20 @@ def build_message(
     reply_to: Optional[str] = None,
     **message_kwargs: Any,
 ) -> PatchedMessage:
+    """
+    Build a patched RabbitMQ message for testing.
+
+    Args:
+        message (AioPikaSendableMessage): The message content.
+        queue (Union[RabbitQueue, str]): The message queue.
+        exchange (Union[RabbitExchange, str, None]): The message exchange.
+        routing_key (str): The message routing key.
+        reply_to (Optional[str]): The reply-to queue.
+        **message_kwargs (Any): Additional message arguments.
+
+    Returns:
+        PatchedMessage: A patched RabbitMQ message.
+    """
     que = RabbitQueue.validate(queue)
     exch = RabbitExchange.validate(exchange)
     msg = AioPikaParser.encode_message(
@@ -94,7 +130,18 @@ def build_message(
 
 
 class FakeProducer(AioPikaFastProducer):
+    """
+    A fake RabbitMQ producer for testing purposes.
+
+    This class extends AioPikaFastProducer and is used to simulate RabbitMQ message publishing during tests.
+    """
     def __init__(self, broker: RabbitBroker):
+        """
+        Initialize a FakeProducer instance.
+
+        Args:
+            broker (RabbitBroker): The RabbitBroker instance to be used for message publishing.
+        """
         self.broker = broker
 
     async def publish(
@@ -114,6 +161,27 @@ class FakeProducer(AioPikaFastProducer):
         reply_to: Optional[str] = None,
         **message_kwargs: Any,
     ) -> Optional[SendableMessage]:
+        """
+        Publish a message to a RabbitMQ queue or exchange.
+
+        Args:
+            message (AioPikaSendableMessage, optional): The message to be published.
+            queue (Union[RabbitQueue, str], optional): The target queue for the message.
+            exchange (Union[RabbitExchange, str, None], optional): The target exchange for the message.
+            routing_key (str, optional): The routing key for the message.
+            mandatory (bool, optional): Whether the message is mandatory.
+            immediate (bool, optional): Whether the message should be sent immediately.
+            timeout (TimeoutType, optional): The timeout for the message.
+            rpc (bool, optional): Whether the message is for RPC.
+            rpc_timeout (float, optional): The RPC timeout.
+            raise_timeout (bool, optional): Whether to raise a timeout exception.
+            persist (bool, optional): Whether to persist the message.
+            reply_to (str, optional): The reply-to address for RPC messages.
+            **message_kwargs (Any): Additional message properties and content.
+
+        Returns:
+            Optional[SendableMessage]: The published message if successful, or None if not.
+        """
         exch = RabbitExchange.validate(exchange)
 
         incoming = build_message(
@@ -186,6 +254,14 @@ class FakeProducer(AioPikaFastProducer):
 
 
 async def _fake_connect(self: RabbitBroker, *args: Any, **kwargs: Any) -> None:
+    """
+    Fake connection method for the RabbitBroker class.
+
+    Args:
+        self (RabbitBroker): The RabbitBroker instance.
+        *args (Any): Additional arguments.
+        **kwargs (Any): Additional keyword arguments.
+    """
     self._producer = FakeProducer(self)
 
 
@@ -195,6 +271,15 @@ async def _fake_close(
     exc_val: Optional[BaseException] = None,
     exec_tb: Optional[TracebackType] = None,
 ) -> None:
+    """
+    Fake close method for the RabbitBroker class.
+
+    Args:
+        self (RabbitBroker): The RabbitBroker instance.
+        exc_type (Optional[Type[BaseException]]): The exception type.
+        exc_val (Optional[BaseException]]): The exception value.
+        exec_tb (Optional[TracebackType]]): The exception traceback.
+    """
     for key, p in self._publishers.items():
         p.mock.reset_mock()
         if getattr(p, "_fake_handler", False):
@@ -208,6 +293,14 @@ async def _fake_close(
 
 
 def _fake_start(self: RabbitBroker, *args: Any, **kwargs: Any) -> None:
+    """
+    Fake start method for the RabbitBroker class.
+
+    Args:
+        self (RabbitBroker): The RabbitBroker instance.
+        *args (Any): Additional arguments.
+        **kwargs (Any): Additional keyword arguments.
+    """
     for key, p in self._publishers.items():
         handler = self.handlers.get(key)
 

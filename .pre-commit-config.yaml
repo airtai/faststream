@@ -7,6 +7,7 @@ repos:
     -   id: trailing-whitespace
     -   id: end-of-file-fixer
     -   id: check-yaml
+        exclude: 'docs/en/mkdocs.yml'
     -   id: check-added-large-files
 
 -   repo: local
@@ -29,3 +30,11 @@ repos:
         language_version: python3.8
         require_serial: true
         verbose: true
+
+repos:
+-   repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+    -   id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: package.lock.json

@@ -142,11 +142,9 @@ class FastStream(ABCApp):
         Args:
             broker: async broker to run (may be `None`, then specify by `set_broker`)
             logger: logger object to log startup/shutdown messages (`None` to disable)
-
-        AsyncAPI Args:
-            title: application title
-            version: application version
-            description: application description
+            title: application title - for AsyncAPI docs
+            version: application version - for AsyncAPI docs
+            description: application description - for AsyncAPI docs
         """
         super().__init__(
             broker=broker,

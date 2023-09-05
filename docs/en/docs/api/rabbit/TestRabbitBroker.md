@@ -1,0 +1,3 @@
+# TestRabbitBroker
+
+::: faststream.rabbit.TestRabbitBroker
