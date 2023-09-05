@@ -31,7 +31,6 @@ repos:
         require_serial: true
         verbose: true
 
-repos:
 -   repo: https://github.com/Yelp/detect-secrets
     rev: v1.4.0
     hooks:
