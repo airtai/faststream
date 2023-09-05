@@ -6,7 +6,6 @@ from .app import Data, broker, on_input_data, to_output_data
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip("not supported yet")
 async def test_base_app():
     async with TestKafkaBroker(broker):
         await broker.publish(Data(data=0.2), "input_data")

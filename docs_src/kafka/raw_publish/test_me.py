@@ -30,16 +30,14 @@ async def handle_data(msg: Data, logger: Logger) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip("waiting for feedback")
 async def test_raw_publish():
     async with TestKafkaBroker(broker):
         msg = Data(data=0.5)
 
-        # await broker.publish(msg, "input_data)")
         await broker.publish(
             msg.model_dump_json().encode("utf-8"),
             "input_data",
-            headers={"Content-Type": "application/json"},
+            headers={"content-type": "application/json"},
         )
 
-        # handle.mock.assert_called_once_with(Data(data=0.5))
+        handle_data.mock.assert_called_once_with(dict(msg))

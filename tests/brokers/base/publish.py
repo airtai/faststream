@@ -7,6 +7,7 @@ import anyio
 import pytest
 from pydantic import BaseModel
 
+from faststream._compat import model_to_json
 from faststream.annotations import Logger
 from faststream.broker.core.abc import BrokerUsecase
 
@@ -27,15 +28,20 @@ class BrokerPublishTestcase:
     @pytest.mark.parametrize(
         ("message", "message_type", "expected_message"),
         (
-            ("hello", str, None),
-            (b"hello", bytes, None),
-            (1, int, None),
-            (1.0, float, None),
-            (False, bool, None),
-            ({"m": 1}, Dict[str, int], None),
-            ([1, 2, 3], List[int], None),
-            (now, datetime, None),
-            (SimpleModel(r="hello!"), SimpleModel, None),
+            ("hello", str, "hello"),
+            (b"hello", bytes, b"hello"),
+            (1, int, 1),
+            (1.0, float, 1.0),
+            (False, bool, False),
+            ({"m": 1}, Dict[str, int], {"m": 1}),
+            ([1, 2, 3], List[int], [1, 2, 3]),
+            (now, datetime, now),
+            (
+                model_to_json(SimpleModel(r="hello!")).encode(),
+                SimpleModel,
+                SimpleModel(r="hello!"),
+            ),
+            (SimpleModel(r="hello!"), SimpleModel, SimpleModel(r="hello!")),
             (SimpleModel(r="hello!"), dict, {"r": "hello!"}),
         ),
     )
@@ -64,9 +70,6 @@ class BrokerPublishTestcase:
                 ),
                 timeout=3,
             )
-
-        if expected_message is None:
-            expected_message = message
 
         assert event.is_set()
         mock.assert_called_with(expected_message)

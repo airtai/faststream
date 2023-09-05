@@ -18,5 +18,5 @@ to_output_data = broker.publisher("output_data")
 
 
 @broker.subscriber("input_data")
-async def on_input_data(msg: Data) -> Data:
-    to_output_data.publish(Data(data=msg.data + 1.0), partition_key=b"key")
+async def on_input_data(msg: Data) -> None:
+    await to_output_data.publish(Data(data=msg.data + 1.0), key=b"key")
