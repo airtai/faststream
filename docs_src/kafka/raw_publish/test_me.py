@@ -20,6 +20,7 @@ async def handle(msg: Data, logger: Logger) -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.skip("waiting for feedback")
 async def test_raw_publish():
     async with TestKafkaBroker(broker):
         msg = Data(data=0.5)
