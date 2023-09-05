@@ -16,7 +16,9 @@ async def test_custom_parser():
         else:
             raw_msg = msg.json().encode("utf-8")
 
-        await broker.publish(raw_msg, "input_data", headers={"Content-Type": "application/json"})
+        await broker.publish(
+            raw_msg, "input_data", headers={"Content-Type": "application/json"}
+        )
 
         handle.mock.assert_called_once_with(Data(data=0.5))
         # handle.mock.assert_called_once_with(dict(Data(data=0.5)))
