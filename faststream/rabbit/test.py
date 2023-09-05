@@ -95,6 +95,7 @@ class TestRabbitBroker:
         if self.with_real == True:
             async with self.broker:
                 try:
+                    await self.broker.start()
                     yield self.broker
                 finally:
                     pass
