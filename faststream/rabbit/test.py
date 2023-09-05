@@ -92,6 +92,7 @@ class TestRabbitBroker:
         Yields:
             RabbitBroker: The RabbitBroker instance for testing, either with or without mocks.
         """
+        _fake_start(self.broker)
         if self.with_real == True:
             async with self.broker:
                 try:
@@ -102,7 +103,6 @@ class TestRabbitBroker:
         else:
             self.broker._channel = AsyncMock()
             self.broker.declarer = AsyncMock()
-            _fake_start(self.broker)
             self.broker.start = AsyncMock(wraps=partial(_fake_start, self.broker))  # type: ignore[method-assign]
             self.broker._connect = MethodType(_fake_connect, self.broker)  # type: ignore[method-assign]
             self.broker.close = MethodType(_fake_close, self.broker)  # type: ignore[method-assign]
