@@ -71,7 +71,7 @@ class TestKafkaBroker:
         self.broker = broker
 
     @asynccontextmanager
-    async def _create_ctx(self) -> AsyncGenerator["TestKafkaBroker", None]:
+    async def _create_ctx(self) -> AsyncGenerator[KafkaBroker, None]:
         """
         Create the context for the context manager.
 
