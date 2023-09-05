@@ -1,19 +1,25 @@
 site_name: FastStream
+site_description: ''
 site_url: https://faststream.airt.ai/
+copyright: '&copy; 2023 <a href="https://airt.ai/" target="_blank" rel="noopener">airt</a>'
+
+docs_dir: docs
+
 nav:
 - FastStream: index.md
 - API:
   - api/FastStream.md
-  - kafka:
+  - Kafka:
     - api/kafka/KafkaBroker.md
     - api/kafka/KafkaMessage.md
     - api/kafka/TestKafkaBroker.md
-  - rabbit:
+  - Rabbit:
     - api/rabbit/RabbitBroker.md
     - api/rabbit/RabbitMessage.md
     - api/rabbit/TestRabbitBroker.md
 - Languages:
   - en: /
+
 theme:
   name: material
   palette:
@@ -41,29 +47,34 @@ theme:
   - content.code.annotation
   - content.code.copy
   - content.code.select
+
 repo_name: airtai/fastkafka
 repo_url: https://github.com/airtai/fastkafka
 edit_uri: ''
+
 plugins:
-- search
-- mkdocstrings:
-    default_handler: python
-    handlers:
-      python:
-        options:
-          heading_level: 2
-          show_source: true
-          show_category_heading: true
-          show_root_heading: true
-          show_signature_annotations: true
-          show_if_no_docstring: true
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            show_source: false
+  - i18n:
+      docs_structure: folder
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+
 markdown_extensions:
   toc:
     permalink: true
   markdown.extensions.codehilite:
     guess_lang: false
   mdx_include:
-    base_path: docs
+    base_path: .
   admonition: null
   codehilite: null
   extra: null
@@ -76,21 +87,20 @@ markdown_extensions:
     alternate_style: true
   attr_list: null
   md_in_html: null
+
 extra:
   social:
-  - icon: fontawesome/brands/discord
-    link: https://discord.gg/CJWmYpyFbc
-  - icon: fontawesome/brands/github-alt
-    link: https://github.com/airtai/fastkafka
-  - icon: fontawesome/brands/twitter
-    link: https://twitter.com/airt_AI
-  - icon: fontawesome/brands/facebook
-    link: https://www.facebook.com/airt.ai.api/
-  - icon: fontawesome/brands/linkedin
-    link: https://www.linkedin.com/company/airt-ai/
-  alternate:
-  - link: /
-    name: en - English
-copyright: '&copy; 2023 <a href="https://airt.ai/" target="_blank" rel="noopener">airt</a>
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/CJWmYpyFbc
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/airtai/fastkafka
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/airt_AI
+    - icon: fontawesome/brands/facebook
+      link: https://www.facebook.com/airt.ai.api/
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/airt-ai/
 
-  '
+  alternate:
+    - link: /
+      name: en - English

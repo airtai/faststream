@@ -45,7 +45,7 @@ Here is an example python app using FastStream that consumes data from a
 topic, increments the value, and outputs the data to another topic.
 
 ``` python
-{!> ../../../docs_src/kafka/basic/basic.py!}
+{!> docs_src/kafka/basic/basic.py!}
 ```
 
 ### Messages
@@ -61,7 +61,7 @@ This example defines one message class for use in a FastStream
 application, `Data`.
 
 ``` python hl_lines="1 7-10"
-{!> ../../../docs_src/kafka/basic/basic.py[ln:1-10]!}
+{!> docs_src/kafka/basic/basic.py[ln:1-10]!}
 
 # Code below omitted 👇
 ```
@@ -70,7 +70,7 @@ application, `Data`.
 <summary>👀 Full file preview</summary>
 
 ``` python
-{!> ../../../docs_src/kafka/basic/basic.py!}
+{!> docs_src/kafka/basic/basic.py!}
 ```
 
 </details>
@@ -91,7 +91,7 @@ Next, an object of the `FastStream` class is created and a `Broker` object is pa
 ``` python hl_lines="3 4"
 # Code above omitted 👆
 
-{!> ../../../docs_src/kafka/basic/basic.py[ln:13-14]!}
+{!> docs_src/kafka/basic/basic.py[ln:13-14]!}
 
 # Code below omitted 👇
 ```
@@ -100,7 +100,7 @@ Next, an object of the `FastStream` class is created and a `Broker` object is pa
 <summary>👀 Full file preview</summary>
 
 ``` python
-{!> ../../../docs_src/kafka/basic/basic.py!}
+{!> docs_src/kafka/basic/basic.py!}
 ```
 
 </details>
@@ -143,7 +143,7 @@ This following example shows how to use the `@broker.subscriber` and
   on the returned value and produce it to the specified topic.
 
 ``` python hl_lines="17-21"
-{!> ../../../docs_src/kafka/basic/basic.py!}
+{!> docs_src/kafka/basic/basic.py!}
 ```
 
 ### Testing the service
@@ -155,13 +155,13 @@ The Tester will redirect your `subscriber` and `publisher` decorated functions t
 Using pytest, the test for our service would look like this:
 
 ``` python
-{!> ../../../docs_src/kafka/basic/test_basic.py!}
+{!> docs_src/kafka/basic/test_basic.py!}
 ```
 
 First we pass our broker to the `TestKafkaBroker`
 
 ``` python hl_lines="3 14"
-{!> ../../../docs_src/kafka/basic/test_basic.py!}
+{!> docs_src/kafka/basic/test_basic.py!}
 ```
 
 After passing the broker to the `TestKafkaBroker` we can publish an event to "input_data" and check if the tested broker produced a response as a reaction to it.
@@ -169,7 +169,7 @@ After passing the broker to the `TestKafkaBroker` we can publish an event to "in
 To check the response, we registered an additional `on_output_data` subscriber which will capture events on "output_data" topic.
 
 ``` python hl_lines="10-12 19"
-{!> ../../../docs_src/kafka/basic/test_basic.py!}
+{!> docs_src/kafka/basic/test_basic.py!}
 ```
 
 ## Running the application
@@ -179,13 +179,13 @@ The application can be started using builtin FastStream CLI command.
 First we will save our application code to `app.py` file. Here is the application code again:
 
 ``` python
-{!> ../../../docs_src/kafka/basic/basic.py!}
+{!> docs_src/kafka/basic/basic.py!}
 ```
 
 To run the service, use the FastStream CLI command and pass the module (in this case, the file where the app implementation is located) and the app simbol to the command.
 
 ``` shell
-{!> ../../../docs_src/kafka/basic/test_cmd.py[ln:11]!}
+{!> docs_src/kafka/basic/test_cmd.py[ln:11]!}
 ```
 
 After running the command you should see the following output:
