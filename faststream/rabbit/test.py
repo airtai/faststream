@@ -69,6 +69,9 @@ class TestRabbitBroker:
     ```
     """
 
+    # This is set so pytest ignores this class
+    __test__ = False
+
     def __init__(self, broker: RabbitBroker, with_real: bool = False):
         """
         Initialize a TestRabbitBroker instance.

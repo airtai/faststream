@@ -55,6 +55,9 @@ class TestKafkaBroker:
         # Use a mocked KafkaBroker instance for testing.
     """
 
+    # This is set so pytest ignores this class
+    __test__ = False
+
     def __init__(self, broker: KafkaBroker, with_real: bool = False):
         """
         Initialize a TestKafkaBroker instance.
