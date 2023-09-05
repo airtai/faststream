@@ -190,7 +190,6 @@ extend-immutable-calls = [
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = "-q -m 'not slow'"
-# python_files = ["test_*.py"] # check_*.py example_*.py
 testpaths = [
     "docs_src",
     "tests",
