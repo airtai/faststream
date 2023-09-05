@@ -1,7 +1,8 @@
+from contextlib import asynccontextmanager
 from datetime import datetime
 from functools import partial
 from types import MethodType, TracebackType
-from typing import Any, Dict, Optional, Type
+from typing import Any, AsyncGenerator, Dict, Optional, Type
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -18,24 +19,97 @@ from faststream.types import SendableMessage
 __all__ = ("TestKafkaBroker",)
 
 
-def TestKafkaBroker(broker: KafkaBroker, with_real: bool = False) -> KafkaBroker:
+class TestKafkaBroker:
     """
-    Create a test instance of a KafkaBroker.
+    A context manager for creating a test KafkaBroker instance with optional mocking.
+
+    This class serves as a context manager for creating a KafkaBroker instance for testing purposes. It can either use the
+    original KafkaBroker instance (if `with_real` is True) or replace certain components with mocks (if `with_real` is
+    False) to isolate the broker during testing.
 
     Args:
-        broker (KafkaBroker): The KafkaBroker instance to use.
-        with_real (bool, optional): If True, use the real broker, otherwise use a test version. Defaults to False.
+        broker (KafkaBroker): The KafkaBroker instance to be used in testing.
+        with_real (bool, optional): If True, the original broker is returned; if False, components are replaced with
+            mock objects. Defaults to False.
 
-    Returns:
-        KafkaBroker: The KafkaBroker instance for testing.
+    Attributes:
+        broker (KafkaBroker): The KafkaBroker instance provided for testing.
+        with_real (bool): A boolean flag indicating whether to use the original broker (True) or replace components with
+            mocks (False).
+
+    Methods:
+        __aenter__(self) -> KafkaBroker:
+            Enter the context and return the KafkaBroker instance.
+
+        __aexit__(self, *args: Any) -> None:
+            Exit the context.
+
+    Example usage:
+
+    ```python
+    real_broker = KafkaBroker()
+    with TestKafkaBroker(real_broker, with_real=True) as broker:
+        # Use the real KafkaBroker instance for testing.
+
+    with TestKafkaBroker(real_broker, with_real=False) as broker:
+        # Use a mocked KafkaBroker instance for testing.
     """
-    if with_real:
-        return broker
-    _fake_start(broker)
-    broker.start = AsyncMock(wraps=partial(_fake_start, broker))  # type: ignore[method-assign]
-    broker._connect = MethodType(_fake_connect, broker)  # type: ignore[method-assign]
-    broker.close = MethodType(_fake_close, broker)  # type: ignore[method-assign]
-    return broker
+
+    def __init__(self, broker: KafkaBroker, with_real: bool = False):
+        """
+        Initialize a TestKafkaBroker instance.
+
+        Args:
+            broker (KafkaBroker): The KafkaBroker instance to be used in testing.
+            with_real (bool, optional): If True, the original broker is returned; if False, components are replaced with
+                mock objects. Defaults to False.
+        """
+        self.with_real = with_real
+        self.broker = broker
+
+    @asynccontextmanager
+    async def _create_ctx(self) -> AsyncGenerator["TestKafkaBroker", None]:
+        """
+        Create the context for the context manager.
+
+        Yields:
+            KafkaBroker: The KafkaBroker instance for testing, either with or without mocks.
+        """
+        if self.with_real == True:
+            async with self.broker:
+                try:
+                    yield self.broker
+                finally:
+                    pass
+        else:
+            _fake_start(self.broker)
+            self.broker.start = AsyncMock(wraps=partial(_fake_start, self.broker))  # type: ignore[method-assign]
+            self.broker._connect = MethodType(_fake_connect, self.broker)  # type: ignore[method-assign]
+            self.broker.close = MethodType(_fake_close, self.broker)  # type: ignore[method-assign]
+            async with self.broker:
+                try:
+                    yield self.broker
+                finally:
+                    pass
+
+    async def __aenter__(self) -> KafkaBroker:
+        """
+        Enter the context and return the KafkaBroker instance.
+
+        Returns:
+            KafkaBroker: The KafkaBroker instance for testing, either with or without mocks.
+        """
+        self._ctx = self._create_ctx()
+        return await self._ctx.__aenter__()
+
+    async def __aexit__(self, *args: Any) -> None:
+        """
+        Exit the context.
+
+        Args:
+            *args: Variable-length argument list.
+        """
+        await self._ctx.__aexit__(*args)
 
 
 def build_message(
