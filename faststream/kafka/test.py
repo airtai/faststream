@@ -95,6 +95,7 @@ class FakeProducer(AioKafkaFastProducer):
 
     This class extends AioKafkaFastProducer and is used to simulate Kafka message publishing during tests.
     """
+
     def __init__(self, broker: KafkaBroker):
         """
         Initialize the FakeProducer.

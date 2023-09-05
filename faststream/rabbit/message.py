@@ -23,6 +23,7 @@ class RabbitMessage(StreamMessage[aio_pika.IncomingMessage]):
             Reject the RabbitMQ message.
 
     """
+
     async def ack(self, **kwargs: Any) -> None:
         """
         Acknowledge the RabbitMQ message.

@@ -21,6 +21,7 @@ class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
         reject(**kwargs) -> None:
             Reject the Kafka message.
     """
+
     async def ack(self, **kwargs: Any) -> None:
         """
         Acknowledge the Kafka message.
