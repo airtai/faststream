@@ -58,3 +58,21 @@ class TestTestclient(BrokerTestclientTestcase):
             )
 
         assert event.is_set()
+
+    @pytest.mark.kafka
+    async def test_batch_publisher_mock(
+        self,
+        test_broker: KafkaBroker,
+        queue: str,
+    ):
+        publisher = test_broker.publisher(queue + "1", batch=True)
+
+        @publisher
+        @test_broker.subscriber(queue)
+        async def m():
+            return 1, 2, 3
+
+        await test_broker.start()
+        await test_broker.publish("hello", queue)
+        m.mock.assert_called_once_with("hello")
+        publisher.mock.assert_called_once_with([1, 2, 3])
