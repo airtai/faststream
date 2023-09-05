@@ -1,8 +1,7 @@
 import pytest
 
+from docs_src.kafka.batch_consuming_primitives.app import broker, handle_batch
 from faststream.kafka import TestKafkaBroker
-
-from .app import broker, handle_batch
 
 
 @pytest.mark.asyncio

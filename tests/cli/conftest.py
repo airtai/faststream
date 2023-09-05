@@ -1,5 +1,4 @@
 import pytest
-from typer.testing import CliRunner
 
 from faststream import FastStream
 
@@ -25,10 +24,3 @@ def app_without_broker():
 @pytest.fixture()
 def app(broker):
     return FastStream(broker)
-
-
-@pytest.fixture(scope="session")
-def runner() -> CliRunner:
-    runner = CliRunner()
-    with runner.isolated_filesystem():
-        yield runner

@@ -1,8 +1,13 @@
 import pytest
 
+from docs_src.kafka.call_publish_within_subscribe.app import (
+    Data,
+    broker,
+    on_input_data,
+    to_decrement_data,
+    to_increment_data,
+)
 from faststream.kafka import TestKafkaBroker
-
-from .app import Data, broker, on_input_data, to_decrement_data, to_increment_data
 
 
 @pytest.mark.asyncio

@@ -2,11 +2,17 @@ from typing import List
 
 import pytest
 
+from docs_src.kafka.publish_batch.app import (
+    Data,
+    broker,
+    decrease_and_increase,
+    on_input_data_1,
+    on_input_data_2,
+)
 from faststream.kafka import TestKafkaBroker
 
-from .app import Data, broker, decrease_and_increase, on_input_data_1, on_input_data_2
 
-
+# TODO: remove after https://github.com/airtai/fastkafka/pull/533 merged
 @broker.subscriber("output_data", batch=True)
 async def on_decrease_and_increase(msg: List[Data]):
     pass

@@ -1,12 +1,18 @@
 import pytest
 
+from docs_src.kafka.lifespan_events.app import (
+    app,
+    broker,
+    on_input_data_1,
+    on_input_data_2,
+    predictions,
+)
 from faststream import Logger, TestApp
 from faststream.kafka import TestKafkaBroker
 
-from .app import app, broker, on_input_data_1, on_input_data_2, predictions
-
 
 # when the following block is uncomment, the test passes
+# TODO: remove after https://github.com/airtai/fastkafka/pull/533 merged
 @broker.subscriber("predictions_topic")
 async def on_output_data(msg: float, logger: Logger) -> None:
     logger.info(f"on_output_data({msg=})")

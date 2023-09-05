@@ -16,6 +16,7 @@ async def handle(msg: str) -> List[int]:
 
 
 # when the following block is uncomment, the test passes
+# TODO: remove after https://github.com/airtai/fastkafka/pull/533 merged
 @broker.subscriber("response", batch=True)
 async def handle_response(msg: List[int], logger: Logger):
     logger.info(msg)

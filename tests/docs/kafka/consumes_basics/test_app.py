@@ -1,12 +1,11 @@
 import pytest
 
-from faststream.kafka import TestKafkaBroker
-
-from .app import (
+from docs_src.kafka.consumes_basics.app import (
     HelloWorld,
     broker,
     on_hello_world,
 )
+from faststream.kafka import TestKafkaBroker
 
 
 @pytest.mark.asyncio
