@@ -22,7 +22,10 @@ async def custom_parser(
 ) -> KafkaMessage:
     kafka_msg = await original(msg)
 
-    kafka_msg.body = Data.model_validate_json(kafka_msg.body.decode("utf-8"))
+    if hasattr(Data, "model_validate_json"):
+        kafka_msg.body = Data.model_validate_json(kafka_msg.body.decode("utf-8"))
+    else:
+        kafka_msg.body = Data.parse_raw(kafka_msg.body.decode("utf-8"))
 
     return kafka_msg
 
