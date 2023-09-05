@@ -63,6 +63,7 @@ class RabbitBroker(
         _connection (Optional[aio_pika.RobustConnection]): The RabbitMQ connection instance.
         _channel (Optional[aio_pika.RobustChannel]): The RabbitMQ channel instance.
     """
+
     handlers: Dict[int, Handler]  # type: ignore[assignment]
     _publishers: Dict[int, Publisher]  # type: ignore[assignment]
 
@@ -395,6 +396,7 @@ class RabbitBroker(
         Returns:
             Callable: A wrapper function for processing messages.
         """
+
         @wraps(func)
         async def process_wrapper(
             message: RabbitMessage,

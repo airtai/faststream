@@ -4,11 +4,11 @@ nav:
 - FastStream: index.md
 - API:
   - api/FastStream.md
-  - Kafka:
+  - kafka:
     - api/kafka/KafkaBroker.md
     - api/kafka/KafkaMessage.md
     - api/kafka/TestKafkaBroker.md
-  - Rabbit:
+  - rabbit:
     - api/rabbit/RabbitBroker.md
     - api/rabbit/RabbitMessage.md
     - api/rabbit/TestRabbitBroker.md
@@ -51,7 +51,12 @@ plugins:
     handlers:
       python:
         options:
-          show_source: false
+          heading_level: 2
+          show_source: true
+          show_category_heading: true
+          show_root_heading: true
+          show_signature_annotations: true
+          show_if_no_docstring: true
 markdown_extensions:
   toc:
     permalink: true
