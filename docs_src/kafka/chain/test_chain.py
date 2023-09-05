@@ -1,13 +1,9 @@
 import pytest
 
 from faststream.kafka import TestKafkaBroker
-from .chain import (
-    Data,
-    broker,
-    on_input_data,
-    on_intermediate,
-    on_output_data
-)
+
+from .chain import Data, broker, on_input_data, on_intermediate, on_output_data
+
 
 @pytest.mark.asyncio
 async def test_end_to_end():

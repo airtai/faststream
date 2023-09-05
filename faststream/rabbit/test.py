@@ -1,5 +1,5 @@
-from contextlib import asynccontextmanager
 import re
+from contextlib import asynccontextmanager
 from functools import partial
 from types import MethodType, TracebackType
 from typing import Any, AsyncGenerator, Optional, Type, Union
@@ -93,7 +93,7 @@ class TestRabbitBroker:
             RabbitBroker: The RabbitBroker instance for testing, either with or without mocks.
         """
         _fake_start(self.broker)
-        if self.with_real == True:
+        if self.with_real is True:
             async with self.broker:
                 try:
                     await self.broker.start()
@@ -210,6 +210,7 @@ class FakeProducer(AioPikaFastProducer):
 
     This class extends AioPikaFastProducer and is used to simulate RabbitMQ message publishing during tests.
     """
+
     def __init__(self, broker: RabbitBroker):
         """
         Initialize a FakeProducer instance.

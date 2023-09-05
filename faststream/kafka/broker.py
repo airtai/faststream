@@ -69,6 +69,7 @@ class KafkaBroker(
         start(): Starts the KafkaBroker and message handlers.
         publish(*args, **kwargs): Publishes a message to Kafka.
     """
+
     handlers: Dict[str, Handler]  # type: ignore[assignment]
     _publishers: Dict[str, Publisher]  # type: ignore[assignment]
     _producer: Optional[AioKafkaFastProducer]
@@ -202,6 +203,7 @@ class KafkaBroker(
         Returns:
             Callable[[KafkaMessage], Awaitable[WrappedReturn[T_HandlerReturn]]]: The wrapped message processing function.
         """
+
         @wraps(func)
         async def process_wrapper(
             message: KafkaMessage,

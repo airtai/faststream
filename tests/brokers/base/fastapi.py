@@ -127,7 +127,7 @@ class FastAPILocalTestcase:
 
     async def test_base_without_state(self, queue: str):
         router = self.router_class(setup_state=False)
-    
+
         app = FastAPI(lifespan=router.lifespan_context)
 
         @router.subscriber(queue)

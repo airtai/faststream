@@ -79,7 +79,7 @@ class TestKafkaBroker:
             KafkaBroker: The KafkaBroker instance for testing, either with or without mocks.
         """
         _fake_start(self.broker)
-        if self.with_real == True:
+        if self.with_real is True:
             async with self.broker:
                 try:
                     await self.broker.start()
@@ -173,6 +173,7 @@ class FakeProducer(AioKafkaFastProducer):
 
     This class extends AioKafkaFastProducer and is used to simulate Kafka message publishing during tests.
     """
+
     def __init__(self, broker: KafkaBroker):
         """
         Initialize the FakeProducer.
