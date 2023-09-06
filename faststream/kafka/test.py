@@ -11,7 +11,6 @@ from faststream._compat import override
 from faststream.broker.parsers import encode_message
 from faststream.broker.test import call_handler, patch_broker_calls
 from faststream.kafka.broker import KafkaBroker
-from faststream.kafka.message import KafkaMessage
 from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.types import SendableMessage
 
@@ -31,6 +30,7 @@ def TestKafkaBroker(broker: KafkaBroker, with_real: bool = False) -> KafkaBroker
     """
     if with_real:
         return broker
+
     _fake_start(broker)
     broker.start = AsyncMock(wraps=partial(_fake_start, broker))  # type: ignore[method-assign]
     broker._connect = MethodType(_fake_connect, broker)  # type: ignore[method-assign]
@@ -272,9 +272,11 @@ def _fake_start(self: KafkaBroker, *args: Any, **kwargs: Any) -> None:
         else:
             p._fake_handler = True
 
-            @self.subscriber(p.topic, _raw=True)
-            def f(msg: KafkaMessage) -> str:
-                return ""
+            @self.subscriber(  # type: ignore[call-overload,misc]
+                p.topic, batch=p.batch, _raw=True
+            )
+            def f(msg: Any) -> None:
+                pass
 
             p.mock = f.mock
 
