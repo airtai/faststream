@@ -41,14 +41,18 @@ def extract_lines(embedded_line):
         to_expand_path, lines_spec = to_expand_path.split("[ln:")
         lines_spec = lines_spec[:-1]
 
-    to_expand_path = to_expand_path.replace("../../../", "./")
+    if Path("./docs/docs_src").exists():
+        to_expand_path = Path("./docs") / to_expand_path
+    elif Path("./docs_src").exists():
+        to_expand_path = Path("./") / to_expand_path
+    else:
+        raise ValueError(f"Couldn't find docs_src directory")
     return read_lines_from_file(to_expand_path, lines_spec)
 
 
 @app.command()
 def expand_markdown(input_markdown_path: Path = typer.Argument(...), output_markdown_path: Path = typer.Argument(...)):
     with open(input_markdown_path, "r") as input_file, open(output_markdown_path, "w") as output_file:
-        
         for line in input_file:
             # Check if the line does not contain the "{!>" pattern
             if "{!>" not in line:

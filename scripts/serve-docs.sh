@@ -3,4 +3,4 @@
 set -e
 set -x
 
-cd docs; python docs.py preview
+cd docs; python docs.py live
