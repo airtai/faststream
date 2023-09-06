@@ -30,7 +30,7 @@ BUILD_DIR = BASE_DIR / "site"
 with CONFIG.open("r") as f:
     config = load(f, Loader)
 
-DEV_SERVER = config.get("dev_addr", "0.0.0.0:8000")
+DEV_SERVER = config.get("dev_addr", "0.0.0.0:8008")
 
 
 def get_missing_translation(lng: str) -> str:
