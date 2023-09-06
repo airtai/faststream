@@ -1,10 +1,8 @@
 import os
-from pathlib import Path
+import subprocess
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from shutil import rmtree
-import subprocess
-
 from yaml import load
 
 try:
@@ -16,6 +14,8 @@ import typer
 import mkdocs.commands.build
 import mkdocs.commands.serve
 
+from expand_markdown import expand_markdown
+
 
 IGNORE_DIRS = ("assets",)
 
@@ -26,6 +26,11 @@ LANGUAGES_DIRS = tuple(
     filter(lambda f: f.is_dir() and f.name not in IGNORE_DIRS, DOCS_DIR.iterdir())
 )
 BUILD_DIR = BASE_DIR / "site"
+
+EN_DOCS_DIR = DOCS_DIR / "en"
+EN_INDEX_PATH = EN_DOCS_DIR / "index.md"
+README_PATH = BASE_DIR.parent / "README.md"
+FASTSTREAM_GEN_DOCS_PATH = BASE_DIR.parent / ".faststream_gen"
 
 with CONFIG.open("r") as f:
     config = load(f, Loader)
@@ -160,8 +165,36 @@ def mv(path: str = typer.Argument(...), new_path: str = typer.Argument(...)):
             typer.echo(f"{i / new_path} moved")
 
 
+@app.command()
+def update_readme():
+    """Update README.md by expanding embeddings in docs/en/docs/index.md
+    """
+    typer.echo(f"Updating README.md")
+    expand_markdown(input_markdown_path=EN_INDEX_PATH, output_markdown_path=README_PATH)
+
+
+@app.command()
+def update_faststream_gen_docs():
+    """Update docs for faststream gen by expanding all md files in docs/en/docs
+    """
+    typer.echo("Updating faststream-gen docs")
+    FASTSTREAM_GEN_DOCS_PATH.mkdir(exist_ok=True)
+    md_files = EN_DOCS_DIR.glob("**/*.md")
+
+    def expand_doc(input_path):
+        relative_path = os.path.relpath(input_path, FASTSTREAM_GEN_DOCS_PATH)
+        output_path = FASTSTREAM_GEN_DOCS_PATH / relative_path.replace("../docs/docs/en/", "")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        expand_markdown(input_markdown_path=input_path, output_markdown_path=output_path)
+
+    for md_file in md_files:
+        expand_doc(md_file)
+
+
 def _build():
     subprocess.run(["mkdocs", "build", "--site-dir", BUILD_DIR], check=True)
+    update_readme()
+    update_faststream_gen_docs()
 
 
 if __name__ == "__main__":

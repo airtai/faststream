@@ -258,10 +258,10 @@ async def test_base_app():
     async def on_output_data(msg: DataBasic):
         pass
 
-    async with TestKafkaBroker(broker) as tester:
-        await tester.publish(DataBasic(data=0.2), "input_data")
+    async with TestKafkaBroker(broker):
+        await broker.publish(DataBasic(data=0.2), "input_data")
 
-        on_input_data.mock.assert_called_with(dict(DataBasic(data=0.2)))
+        on_input_data.mock.assert_called_once_with(dict(DataBasic(data=0.2)))
 
         on_output_data.mock.assert_called_once_with(dict(DataBasic(data=1.2)))
 ```
@@ -282,10 +282,10 @@ async def test_base_app():
     async def on_output_data(msg: DataBasic):
         pass
 
-    async with TestKafkaBroker(broker) as tester:
-        await tester.publish(DataBasic(data=0.2), "input_data")
+    async with TestKafkaBroker(broker):
+        await broker.publish(DataBasic(data=0.2), "input_data")
 
-        on_input_data.mock.assert_called_with(dict(DataBasic(data=0.2)))
+        on_input_data.mock.assert_called_once_with(dict(DataBasic(data=0.2)))
 
         on_output_data.mock.assert_called_once_with(dict(DataBasic(data=1.2)))
 ```
@@ -308,10 +308,10 @@ async def test_base_app():
     async def on_output_data(msg: DataBasic):
         pass
 
-    async with TestKafkaBroker(broker) as tester:
-        await tester.publish(DataBasic(data=0.2), "input_data")
+    async with TestKafkaBroker(broker):
+        await broker.publish(DataBasic(data=0.2), "input_data")
 
-        on_input_data.mock.assert_called_with(dict(DataBasic(data=0.2)))
+        on_input_data.mock.assert_called_once_with(dict(DataBasic(data=0.2)))
 
         on_output_data.mock.assert_called_once_with(dict(DataBasic(data=1.2)))
 ```
@@ -320,7 +320,7 @@ async def test_base_app():
 
 The application can be started using builtin FastStream CLI command.
 
-First we will save our application code to `app.py` file. Here is the application code again:
+First we will save our application code to `basic.py` file. Here is the application code again:
 
 ``` python
 from pydantic import BaseModel, Field, NonNegativeFloat
