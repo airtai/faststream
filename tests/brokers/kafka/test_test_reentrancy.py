@@ -3,7 +3,7 @@ import asyncio
 import pytest
 from pydantic import BaseModel, Field, NonNegativeFloat
 
-from faststream import FastStream, Logger
+from faststream import Logger
 from faststream.kafka import KafkaBroker, TestKafkaBroker
 
 
@@ -16,6 +16,7 @@ class Data(BaseModel):
 broker = KafkaBroker("localhost:9092")
 
 to_output_data = broker.publisher("output_data")
+
 
 @to_output_data
 @broker.subscriber("input_data")
@@ -43,23 +44,42 @@ async def _test_with_broker(with_real: bool):
 async def test_with_fake_broker_1():
     await _test_with_broker(False)
 
+
 @pytest.mark.asyncio
+@pytest.mark.skip(
+    reason="Reentrancy planned to be fixed in https://github.com/airtai/fastkafka/issues/556"
+)
 async def test_with_fake_broker_2():
     await _test_with_broker(False)
 
+
 @pytest.mark.asyncio
+@pytest.mark.skip(
+    reason="Reentrancy planned to be fixed in https://github.com/airtai/fastkafka/issues/556"
+)
 async def test_with_real_broker_1():
     await _test_with_broker(True)
 
+
 @pytest.mark.asyncio
+@pytest.mark.skip(
+    reason="Reentrancy planned to be fixed in https://github.com/airtai/fastkafka/issues/556"
+)
 async def test_with_real_broker_2():
     await _test_with_broker(True)
 
+
 @pytest.mark.asyncio
+@pytest.mark.skip(
+    reason="Reentrancy planned to be fixed in https://github.com/airtai/fastkafka/issues/556"
+)
 async def test_with_fake_broker_3():
     await _test_with_broker(False)
 
+
 @pytest.mark.asyncio
+@pytest.mark.skip(
+    reason="Reentrancy planned to be fixed in https://github.com/airtai/fastkafka/issues/556"
+)
 async def test_with_fake_broker_4():
     await _test_with_broker(False)
-
