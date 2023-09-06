@@ -1,5 +1,6 @@
 import json
 import sys
+import yaml
 from pathlib import Path
 from typing import Optional
 
@@ -38,7 +39,16 @@ def serve(
 
     else:
         schema_filepath = Path.cwd() / app
-        raw_schema = model_parse(Schema, schema_filepath.read_text())
+        if schema_filepath.suffix == ".json":
+            data = schema_filepath.read_text()
+        elif schema_filepath.suffix == ".yaml" or schema_filepath.suffix == ".yml":
+            with schema_filepath.open("r") as f:
+                schema = yaml.safe_load(f)
+            data = json.dumps(schema)
+        else:
+            raise ValueError(f"Unknown extension given - {app}; Please provide app in format [python_module:FastStream] or [asyncapi.yaml/.json] - path to your application or documentation")
+
+        raw_schema = model_parse(Schema, data)
 
     serve_app(
         schema=raw_schema,
