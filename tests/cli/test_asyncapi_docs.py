@@ -10,10 +10,10 @@ from faststream.cli.main import cli
 
 
 def test_gen_asyncapi_json_for_kafka_app(runner: CliRunner, kafka_basic_project: Path):
-    r = runner.invoke(cli, ["docs", "gen", kafka_basic_project])
+    r = runner.invoke(cli, ["docs", "gen", "--out", "shema.json", kafka_basic_project])
     assert r.exit_code == 0
 
-    schema_path = Path.cwd() / "asyncapi.json"
+    schema_path = Path.cwd() / "shema.json"
     assert schema_path.exists()
 
     with schema_path.open("r") as f:
