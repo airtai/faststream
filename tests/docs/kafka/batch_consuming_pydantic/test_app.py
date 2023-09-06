@@ -1,8 +1,11 @@
 import pytest
 
+from docs.docs_src.kafka.batch_consuming_pydantic.app import (
+    HelloWorld,
+    broker,
+    handle_batch,
+)
 from faststream.kafka import TestKafkaBroker
-
-from .app import HelloWorld, broker, handle_batch
 
 
 @pytest.mark.asyncio

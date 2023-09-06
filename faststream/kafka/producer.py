@@ -35,16 +35,12 @@ class AioKafkaFastProducer:
 
         headers_to_send = {
             "content-type": content_type or "",
+            "correlation_id": correlation_id or str(uuid4()),
             **(headers or {}),
         }
 
         if reply_to:
-            headers_to_send.update(
-                {
-                    "reply_to": reply_to,
-                    "correlation_id": correlation_id or str(uuid4()),
-                }
-            )
+            headers_to_send.update({"reply_to": reply_to})
 
         await self._producer.send(
             topic=topic,

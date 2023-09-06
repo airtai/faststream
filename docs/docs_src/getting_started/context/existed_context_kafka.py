@@ -32,7 +32,7 @@ async def handle(
 
 
 @broker_object.subscriber("response-topic")
-async def handle(
+async def handle_response(
     msg: str,
     logger: Logger,
     message: KafkaMessage,
