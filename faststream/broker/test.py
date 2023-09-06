@@ -12,6 +12,8 @@ from faststream.types import SendableMessage, SettingField
 
 
 class TestApp:
+    # make sure pytest doesn't try to collect this class as a test class
+    __test__ = False
     app: FastStream
     _extra_options: Optional[Dict[str, SettingField]]
     _event: anyio.Event

@@ -15,6 +15,7 @@ app = FastStream(broker)
 
 to_output_data = broker.publisher("output_data")
 
+
 @to_output_data
 @broker.subscriber("input_data")
 async def on_input_data(msg: Data, logger: Logger) -> Data:

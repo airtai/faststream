@@ -19,6 +19,8 @@ import typer
 import yaml
 from jinja2 import Template
 
+from expand_markdown import expand_markdown
+
 logging.basicConfig(level=logging.INFO)
 
 app = typer.Typer()
@@ -34,6 +36,9 @@ en_docs_path = Path("docs/en")
 en_config_path: Path = en_docs_path / mkdocs_name
 site_path = Path("site").absolute()
 build_site_path = Path("site_build").absolute()
+en_index_path = en_docs_path / "docs" / "index.md"
+readme_path = Path("./README.md")
+faststream_gen_docs_path = Path(".faststream_gen")
 
 
 @lru_cache()
@@ -152,6 +157,33 @@ def build_all() -> None:
     typer.echo(f"Using process pool size: {process_pool_size}")
     with Pool(process_pool_size) as p:
         p.map(build_lang, langs)
+    update_readme()
+    update_faststream_gen_docs()
+
+
+@app.command()
+def update_readme():
+    """Update README.md by expanding embeddings in docs/en/docs/index.md
+    """
+    typer.echo(f"Updating README.md")
+    expand_markdown(input_markdown_path=en_index_path, output_markdown_path=readme_path)
+
+
+@app.command()
+def update_faststream_gen_docs():
+    """Update docs for faststream gen by expanding all md files in docs/en/docs
+    """
+    typer.echo("Updating faststream-gen docs")
+    faststream_gen_docs_path.mkdir(exist_ok=True)
+    md_files = (en_docs_path / "docs").glob("**/*.md")
+
+    def expand_doc(input_path):
+        output_path = faststream_gen_docs_path / str(input_path).replace("docs/en/docs/", "")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        expand_markdown(input_markdown_path=input_path, output_markdown_path=output_path)
+
+    for md_file in md_files:
+        expand_doc(md_file)
 
 
 @app.command()

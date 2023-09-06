@@ -7,9 +7,10 @@ from faststream.utils.test_utils import working_directory
 
 root_path = Path(__file__).parent
 
-cmd ="""
+cmd = """
 faststream run basic:app
 """
+
 
 @pytest.mark.asyncio
 async def test_run_cmd(cmd=cmd):
