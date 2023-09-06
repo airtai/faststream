@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 
 from faststream import FastStream
@@ -26,8 +24,3 @@ def app_without_broker():
 @pytest.fixture()
 def app(broker):
     return FastStream(broker)
-
-
-@pytest.fixture()
-def kafka_basic_project() -> Path:
-    return "docs.docs_src.kafka.basic.basic:app"

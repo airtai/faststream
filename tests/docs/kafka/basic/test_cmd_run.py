@@ -14,6 +14,7 @@ def test_run_cmd(
     mock: Mock,
     event: asyncio.Event,
     monkeypatch: pytest.MonkeyPatch,
+    kafka_basic_project,
 ):
     async def patched_run(self: FastStream, *args, **kwargs):
         self._stop_event = event
@@ -28,7 +29,7 @@ def test_run_cmd(
             cli,
             [
                 "run",
-                "docs.docs_src.kafka.basic.basic:app",
+                kafka_basic_project,
             ],
         )
 

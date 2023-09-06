@@ -51,3 +51,8 @@ def version():
 def context():
     yield global_context
     global_context.clear()
+
+
+@pytest.fixture()
+def kafka_basic_project():
+    return "docs.docs_src.kafka.basic.basic:app"
