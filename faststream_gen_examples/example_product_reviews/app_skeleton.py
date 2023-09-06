@@ -1,9 +1,3 @@
-"""
-Create a FastStream application using the localhost broker. 
-The application should consume from the 'product_reviews' topic which includes JSON encoded objects with attributes: product_id, customer_id and review_grade. 
-If the review_grade attribute is smaller then 5, send an alert message to the 'customer_service' topic. No authentication is needed for this function.
-"""
-
 from pydantic import BaseModel, Field, NonNegativeInt
 
 from faststream import FastStream, Logger
@@ -29,7 +23,15 @@ to_customer_service = broker.publisher("customer_service")
 
 @broker.subscriber("product_reviews")
 async def on_product_reviews(msg: ProductReview, logger: Logger) -> None:
-    logger.info(msg)
+    """
+    Consumes a message from the 'product_reviews' topic.
+    Upon reception, the function should verify if the review_grade attribute is smaller then 5. If yes, publish alert message to the 'customer_service' topic.
+    
+    Instructions:
+    1. Consume a message from 'product_reviews' topic.
+    2. Create a new message object (do not directly modify the original).
+    3. Check if the review_grade attribute is smaller then 5.
+    4. If 3. is True, publish alert message to the 'customer_service' topic.
 
-    if msg.review_grade < 5:
-        await to_customer_service.publish(msg)
+    """
+    raise NotImplementedError()

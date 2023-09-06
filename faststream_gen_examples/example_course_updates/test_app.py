@@ -5,7 +5,7 @@ from faststream.kafka import TestKafkaBroker
 from .app import CourseUpdates, broker, on_course_update
 
 
-@broker.subscriber("notify_update")
+@broker.subscriber("notify_updates")
 async def on_notify_update(msg: CourseUpdates):
     pass
 

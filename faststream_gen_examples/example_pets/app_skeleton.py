@@ -1,9 +1,3 @@
-"""
-Create a FastStream application using staging.pets.ai and prod.pets.ai for staging and production respectively. 
-Consume from the 'new_pet' topic, which includes JSON encoded object with attributes: pet_id, species, and age. 
-Whenever a new pet is added, send the new pet's information to the 'notify_adopters' topic.
-"""
-
 from pydantic import BaseModel, Field, NonNegativeInt
 
 from faststream import FastStream, Logger
@@ -29,6 +23,12 @@ app = FastStream(broker)
 @broker.publisher("notify_adopters")
 @broker.subscriber("new_pet")
 async def on_new_pet(msg: Pet, logger: Logger) -> Pet:
-    logger.info(msg)
+    """
+    Processes a message from the 'new_pet' topic and send the new pet's information to the 'notify_adopters' topic.
 
-    return msg
+    Instructions:
+    1. Consume a message from 'new_pet' topic.
+    2. Send the new pet's information to the 'notify_adopters' topic.
+
+    """
+    raise NotImplementedError()
