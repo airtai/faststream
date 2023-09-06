@@ -79,12 +79,14 @@ def preview():
     os.chdir(str(BUILD_DIR))
     addr, port = DEV_SERVER.split(":")
     server = HTTPServer((addr, int(port)), SimpleHTTPRequestHandler)
-    typer.echo(f"Serving at: {DEV_SERVER}")
+    typer.echo(f"Serving at: http://{DEV_SERVER}")
     server.serve_forever()
 
 
 @app.command()
 def live():
+    typer.echo("Serving mkdocs with live reload")
+    typer.echo(f"Serving at: http://{DEV_SERVER}")
     mkdocs.commands.serve.serve(dev_addr=DEV_SERVER)
 
 
