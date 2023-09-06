@@ -1,5 +1,7 @@
 site_name: FastStream
 site_url: https://faststream.airt.ai/
+copyright: '&copy; 2023 <a href="https://airt.ai/" target="_blank" rel="noopener">airt</a>'
+docs_dir: docs
 nav:
 - FastStream: index.md
 - API:
@@ -14,6 +16,8 @@ nav:
     - api/rabbit/TestRabbitBroker.md
 - Languages:
   - en: /
+  - docs: /docs/
+  - docs_src: /docs_src/
 theme:
   name: material
   palette:
@@ -57,13 +61,20 @@ plugins:
           show_root_heading: true
           show_signature_annotations: true
           show_if_no_docstring: true
+- i18n:
+    docs_structure: folder
+    languages:
+    - locale: en
+      default: true
+      name: English
+      build: true
 markdown_extensions:
   toc:
     permalink: true
   markdown.extensions.codehilite:
     guess_lang: false
   mdx_include:
-    base_path: docs
+    base_path: .
   admonition: null
   codehilite: null
   extra: null
@@ -91,6 +102,7 @@ extra:
   alternate:
   - link: /
     name: en - English
-copyright: '&copy; 2023 <a href="https://airt.ai/" target="_blank" rel="noopener">airt</a>
-
-  '
+  - link: /docs/
+    name: docs
+  - link: /docs_src/
+    name: docs_src
