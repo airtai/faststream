@@ -3,4 +3,4 @@
 set -e
 set -x
 
-python ./scripts/docs.py live
+cd docs; python docs.py preview

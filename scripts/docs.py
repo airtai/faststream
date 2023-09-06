@@ -118,7 +118,8 @@ def build_lang(
     print(f"Insiders file {insiders_env_file}")
     if is_mkdocs_insiders():
         print("Using insiders")
-    lang_path: Path = Path("docs") / lang
+    lang_path: Path = Path("docs") / "docs" / lang
+    print(f"{lang_path=}")
     if not lang_path.is_dir():
         typer.echo(f"The language translation doesn't seem to exist yet: {lang}")
         raise typer.Abort()
@@ -134,10 +135,11 @@ def build_lang(
     else:
         dist_path = site_path / lang
         shutil.rmtree(dist_path, ignore_errors=True)
+    mkdocs_path = (lang_path.parent.parent / "mkdocs.yml").absolute()
     current_dir = os.getcwd()
     os.chdir(lang_path)
     shutil.rmtree(build_site_dist_path, ignore_errors=True)
-    subprocess.run(["mkdocs", "build", "--site-dir", build_site_dist_path], check=True)
+    subprocess.run(["mkdocs", "build", "-f", mkdocs_path, "--site-dir", build_site_dist_path], check=True)
     shutil.copytree(build_site_dist_path, dist_path, dirs_exist_ok=True)
     os.chdir(current_dir)
     typer.secho(f"Successfully built docs for: {lang}", color=typer.colors.GREEN)
