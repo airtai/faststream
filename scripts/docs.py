@@ -33,7 +33,7 @@ missing_translation_snippet = """
 
 docs_path = Path("docs")
 en_docs_path = Path("docs/en")
-en_config_path: Path = en_docs_path / mkdocs_name
+en_config_path: Path = docs_path / mkdocs_name
 site_path = Path("site").absolute()
 build_site_path = Path("site_build").absolute()
 en_index_path = en_docs_path / "docs" / "index.md"
