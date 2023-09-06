@@ -1,5 +1,6 @@
 import inspect
 import json
+from contextlib import suppress
 from functools import partial
 from typing import Any, Optional, Tuple, Union, cast, overload
 
@@ -27,11 +28,17 @@ from faststream.types import DecodedMessage, SendableMessage
 def decode_message(message: StreamMessage[Any]) -> DecodedMessage:
     body = message.body
     m: DecodedMessage = body
-    if message.content_type is not None:
+
+    if message.content_type:
         if ContentTypes.text.value in message.content_type:
             m = body.decode()
         elif ContentTypes.json.value in message.content_type:  # pragma: no branch
-            m = json.loads(body.decode())
+            m = json.loads(body)
+
+    else:
+        with suppress(json.JSONDecodeError):
+            m = json.loads(body)
+
     return m
 
 

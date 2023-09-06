@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional, Sequence
+from typing import Dict, Optional, Sequence
 
 from aiokafka import ConsumerRecord
 
@@ -21,7 +21,11 @@ class LogicPublisher(ABCPublisher[ConsumerRecord]):
         self,
         *messages: SendableMessage,
         message: SendableMessage = "",
-        correlation_id: str = "",
+        key: Optional[bytes] = None,
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[Dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
     ) -> None:
         if self._producer is None:
             raise RuntimeError("Please, setup `_producer` first")
@@ -32,13 +36,11 @@ class LogicPublisher(ABCPublisher[ConsumerRecord]):
             return await self._producer.publish(
                 message=next(iter(messages), message),
                 topic=self.topic,
-                key=self.key,
-                partition=self.partition,
-                timestamp_ms=self.timestamp_ms,
-                headers={
-                    "correlation_id": correlation_id,
-                    **(self.headers or {}),
-                },
+                key=key or self.key,
+                partition=partition or self.partition,
+                timestamp_ms=timestamp_ms or self.timestamp_ms,
+                correlation_id=correlation_id,
+                headers=headers or self.headers,
                 reply_to=self.reply_to or "",
             )
         else:
@@ -56,8 +58,8 @@ class LogicPublisher(ABCPublisher[ConsumerRecord]):
             await self._producer.publish_batch(
                 *to_send,
                 topic=self.topic,
-                partition=self.partition,
-                timestamp_ms=self.timestamp_ms,
-                headers=self.headers,
+                partition=partition or self.partition,
+                timestamp_ms=timestamp_ms or self.timestamp_ms,
+                headers=headers or self.headers,
             )
             return None
