@@ -176,7 +176,7 @@ To check the response, we registered an additional `on_output_data` subscriber w
 
 The application can be started using builtin FastStream CLI command.
 
-First we will save our application code to `app.py` file. Here is the application code again:
+First we will save our application code to `basic.py` file. Here is the application code again:
 
 ``` python
 {!> docs_src/kafka/basic/basic.py!}

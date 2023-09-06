@@ -4,6 +4,8 @@ copyright: '&copy; 2023 <a href="https://airt.ai/" target="_blank" rel="noopener
 docs_dir: docs
 nav:
 - FastStream: index.md
+- Guides:
+  - guides/gen_serve_asyncapi_docs.md
 - API:
   - api/FastStream.md
   - kafka:
