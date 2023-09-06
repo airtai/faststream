@@ -28,7 +28,6 @@ class TestTestclient(BrokerTestclientTestcase):
             event.set()
 
         async with TestRabbitBroker(broker, with_real=True) as br:
-            await br.start()
             await asyncio.wait(
                 (
                     asyncio.create_task(br.publish("hello", queue)),
