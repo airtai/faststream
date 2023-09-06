@@ -5,15 +5,9 @@ from faststream.kafka import KafkaBroker
 
 
 class Pet(BaseModel):
-    pet_id: NonNegativeInt = Field(
-        ..., examples=[1], description="Int data example"
-    )
-    species: str = Field(
-        ..., examples=["dog"], description="Pet example"
-    )
-    age: NonNegativeInt = Field(
-        ..., examples=[1], description="Int data example"
-    )
+    pet_id: NonNegativeInt = Field(..., examples=[1], description="Int data example")
+    species: str = Field(..., examples=["dog"], description="Pet example")
+    age: NonNegativeInt = Field(..., examples=[1], description="Int data example")
 
 
 broker = KafkaBroker("localhost:9092")

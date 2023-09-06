@@ -1,14 +1,13 @@
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 from faststream import FastStream, Logger
 from faststream.kafka import KafkaBroker
-from typing import Optional
 
 
 class CourseUpdates(BaseModel):
-    course_name: str = Field(
-        ..., examples=["Biology"], description="Course example"
-    )
+    course_name: str = Field(..., examples=["Biology"], description="Course example")
     new_content: Optional[str] = Field(
         default=None, examples=["New content"], description="Content example"
     )
@@ -25,5 +24,7 @@ async def on_course_update(msg: CourseUpdates, logger: Logger) -> CourseUpdates:
 
     if msg.new_content:
         logger.info(f"Course has new content {msg.new_content=}")
-        msg = CourseUpdates(course_name=("Updated: " + msg.course_name), new_content=msg.new_content)
+        msg = CourseUpdates(
+            course_name=("Updated: " + msg.course_name), new_content=msg.new_content
+        )
     return msg

@@ -21,6 +21,7 @@ app = FastStream(broker)
 
 to_customer_service = broker.publisher("customer_service")
 
+
 @broker.subscriber("product_reviews")
 async def on_product_reviews(msg: ProductReview, logger: Logger) -> None:
     logger.info(msg)

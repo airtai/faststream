@@ -192,6 +192,7 @@ minversion = "7.0"
 addopts = "-q -m 'not slow'"
 testpaths = [
     "docs_src",
+    "faststream_gen_examples",
     "tests",
 ]
 markers = [
