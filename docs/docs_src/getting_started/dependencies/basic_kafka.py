@@ -1,6 +1,5 @@
-from faststream import FastStream, Depends
+from faststream import Depends, FastStream
 from faststream.kafka import KafkaBroker
-
 
 broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
@@ -15,7 +14,7 @@ async def get_user_from_db(name: str, user_id: int):
 
 
 @broker.subscriber("test-topic")
-async def handle(user = Depends(get_user_from_db)):
+async def handle(user=Depends(get_user_from_db)):
     assert user == {
         "name": "john",
         "user_id": 1,
@@ -24,7 +23,4 @@ async def handle(user = Depends(get_user_from_db)):
 
 @app.after_startup
 async def test():
-    await broker.publish({
-        "name": "john",
-        "user_id": 1
-    }, topic="test-topic")
+    await broker.publish({"name": "john", "user_id": 1}, topic="test-topic")

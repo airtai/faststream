@@ -1,9 +1,9 @@
 import asyncio
 import json
-import yaml
 from pathlib import Path
 
 import pytest
+import yaml
 
 from faststream.utils.test_utils import working_directory
 
@@ -87,4 +87,6 @@ async def test_run_docs_serve_cmd(cmd=serve_cmd):
         dstderr = stderr.decode("utf-8")
 
         assert "Application startup complete" in dstderr
-        assert "Uvicorn running on http://localhost:9999 (Press CTRL+C to quit)" in dstderr
+        assert (
+            "Uvicorn running on http://localhost:9999 (Press CTRL+C to quit)" in dstderr
+        )

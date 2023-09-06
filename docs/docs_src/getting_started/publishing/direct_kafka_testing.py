@@ -1,7 +1,8 @@
-from faststream.kafka import TestKafkaBroker
 import pytest
 
-from .direct_kafka import publisher, broker
+from faststream.kafka import TestKafkaBroker
+
+from .direct_kafka import broker, publisher
 
 
 @pytest.mark.asyncio

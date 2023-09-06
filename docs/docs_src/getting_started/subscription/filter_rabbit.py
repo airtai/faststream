@@ -1,14 +1,12 @@
 from faststream import FastStream
 from faststream.rabbit import RabbitBroker
 
-
 broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
 app = FastStream(broker)
 
 
 @broker.subscriber(
-    "test-queue",
-    filter=lambda msg: msg.content_type == "application/json"
+    "test-queue", filter=lambda msg: msg.content_type == "application/json"
 )
 async def handle(name: str, user_id: int):
     assert name == "john"
@@ -22,10 +20,7 @@ async def default_handler(msg: str):
 
 @app.after_startup
 async def test():
-    await broker.publish({
-        "name": "john",
-        "user_id": 1
-    }, queue="test-queue")
+    await broker.publish({"name": "john", "user_id": 1}, queue="test-queue")
 
     await broker.publish(
         "Hello, FastStream!",

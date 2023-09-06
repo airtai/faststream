@@ -1,7 +1,7 @@
+from pydantic import BaseModel, Field, NonNegativeInt
+
 from faststream import FastStream
 from faststream.rabbit import RabbitBroker
-from pydantic import Field, NonNegativeInt, BaseModel
-
 
 broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
 app = FastStream(broker)
@@ -20,7 +20,4 @@ async def handle(user: UserInfo):
 
 @app.after_startup
 async def test():
-    await broker.publish({
-        "name": "john",
-        "user_id": 1
-    }, queue="test-queue")
+    await broker.publish({"name": "john", "user_id": 1}, queue="test-queue")

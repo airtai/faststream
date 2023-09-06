@@ -1,7 +1,6 @@
-from faststream import FastStream, Context, apply_types
+from faststream import Context, FastStream, apply_types
 from faststream.kafka import KafkaBroker
 from faststream.kafka.annotations import ContextRepo, KafkaMessage
-
 
 broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
@@ -12,25 +11,22 @@ async def handle(
     msg: str,
     message: KafkaMessage,
     context: ContextRepo,
-    secret = Context(),
+    secret=Context(),
 ):
     with context.scope("correlation_id", message.correlation_id):
         call_a(secret)
 
 
 @apply_types
-def call_a(
-    s,                          # get from call
-    secret = Context()          # get from global context
-):
+def call_a(s, secret=Context()):  # get from call  # get from global context
     assert s == secret
     call_b()
 
 
 @apply_types
 def call_b(
-    message: KafkaMessage,      # get from local context
-    correlation_id = Context()  # get from local context
+    message: KafkaMessage,  # get from local context
+    correlation_id=Context(),  # get from local context
 ):
     assert correlation_id == message.correlation_id
 

@@ -1,7 +1,8 @@
-from faststream.rabbit import TestRabbitBroker
 import pytest
 
-from .object_rabbit import publisher, broker
+from faststream.rabbit import TestRabbitBroker
+
+from .object_rabbit import broker, publisher
 
 
 @pytest.mark.asyncio

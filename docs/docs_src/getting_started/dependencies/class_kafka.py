@@ -1,6 +1,5 @@
-from faststream import FastStream, Depends
+from faststream import Depends, FastStream
 from faststream.kafka import KafkaBroker
-
 
 broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
@@ -13,14 +12,11 @@ class UserSerialized:
 
 
 @broker.subscriber("test-topic")
-async def handle(user = Depends(UserSerialized)):
+async def handle(user=Depends(UserSerialized)):
     assert user.name == "john"
     assert user.user_id == 1
 
 
 @app.after_startup
 async def test():
-    await broker.publish({
-        "name": "john",
-        "user_id": 1
-    }, topic="test-topic")
+    await broker.publish({"name": "john", "user_id": 1}, topic="test-topic")

@@ -1,4 +1,4 @@
-from faststream import FastStream, ContextRepo
+from faststream import ContextRepo, FastStream
 from faststream.kafka import KafkaBroker
 from faststream.kafka.annotations import KafkaBroker as BrokerAnnotation
 
@@ -6,9 +6,9 @@ app = FastStream(KafkaBroker("localhost:9092"))
 
 
 @app.on_startup
-def cli_run(                   # sync or async function
-    context: ContextRepo,      # get from global context
-    env: str = ".env"          # get from CLI option `--env=...`
+def cli_run(  # sync or async function
+    context: ContextRepo,  # get from global context
+    env: str = ".env",  # get from CLI option `--env=...`
 ):
     context.set_global("use_env", env)
 

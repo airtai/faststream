@@ -1,7 +1,8 @@
 import pytest
 
-from .basic import DataBasic, broker, on_input_data
 from faststream.kafka import TestKafkaBroker
+
+from .basic import DataBasic, broker, on_input_data
 
 
 @pytest.mark.asyncio

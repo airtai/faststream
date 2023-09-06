@@ -1,8 +1,7 @@
 from contextlib import contextmanager
 
-from faststream import FastStream, Depends
+from faststream import Depends, FastStream
 from faststream.kafka import KafkaBroker
-
 
 broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
@@ -19,7 +18,7 @@ async def db_session():
 
 
 @broker.subscriber("test-topic")
-async def handle(db_session = Depends(db_session)):
+async def handle(db_session=Depends(db_session)):
     assert db_session == "session"
 
 

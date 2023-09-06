@@ -1,12 +1,13 @@
-from faststream import FastStream, Context
+from faststream import Context, FastStream
 from faststream.kafka import KafkaBroker
 from faststream.kafka.annotations import (
-    Logger,
     ContextRepo,
     KafkaMessage,
+    Logger,
+)
+from faststream.kafka.annotations import (
     KafkaBroker as BrokerAnnotation,
 )
-
 
 broker_object = KafkaBroker("localhost:9092")
 app = FastStream(broker_object)
@@ -15,10 +16,10 @@ app = FastStream(broker_object)
 @broker_object.subscriber("test-topic")
 async def handle(
     msg: str,
-    logger = Context(),
-    message = Context(),
-    broker = Context(),
-    context = Context(),
+    logger=Context(),
+    message=Context(),
+    broker=Context(),
+    context=Context(),
 ):
     logger.info(msg)
     context.set_global("correlation_id", message.correlation_id)
@@ -36,7 +37,7 @@ async def handle(
     logger: Logger,
     message: KafkaMessage,
     context: ContextRepo,
-    correlation_id = Context(),
+    correlation_id=Context(),
 ):
     logger.info(msg)
 

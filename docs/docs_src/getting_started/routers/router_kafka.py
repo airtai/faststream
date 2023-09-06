@@ -1,7 +1,6 @@
 from faststream import FastStream
 from faststream.kafka import KafkaBroker, KafkaRouter
 
-
 broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
 router = KafkaRouter(prefix="prefix_")
@@ -25,7 +24,4 @@ broker.include_router(router)
 
 @app.after_startup
 async def test():
-    await broker.publish({
-        "name": "john",
-        "user_id": 1
-    }, topic="prefix_test-topic")
+    await broker.publish({"name": "john", "user_id": 1}, topic="prefix_test-topic")

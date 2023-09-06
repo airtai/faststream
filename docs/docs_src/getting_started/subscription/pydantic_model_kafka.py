@@ -1,7 +1,7 @@
+from pydantic import BaseModel, Field, NonNegativeInt
+
 from faststream import FastStream
 from faststream.kafka import KafkaBroker
-from pydantic import Field, NonNegativeInt, BaseModel
-
 
 broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
@@ -20,7 +20,4 @@ async def handle(user: UserInfo):
 
 @app.after_startup
 async def test():
-    await broker.publish({
-        "name": "john",
-        "user_id": 1
-    }, topic="test-topic")
+    await broker.publish({"name": "john", "user_id": 1}, topic="test-topic")

@@ -1,7 +1,6 @@
-from faststream import FastStream, Context
+from faststream import Context, FastStream
 from faststream.kafka import KafkaBroker
 from faststream.kafka.annotations import ContextRepo
-
 
 broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
