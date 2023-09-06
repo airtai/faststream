@@ -2,7 +2,7 @@ from typing import List
 
 import pytest
 
-from faststream import FastStream, Logger
+from faststream import FastStream
 from faststream.kafka import KafkaBroker, TestKafkaBroker
 
 broker = KafkaBroker()
