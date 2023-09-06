@@ -69,14 +69,10 @@ docs = [
 
 # dev dependencies
 devdocs = [
-    "mkdocs-material>=9.0.0,<=9.2.6",
-    "mkdocs-static-i18n",
+    "mkdocs-material>=9.0.0",
+    "mkdocs-static-i18n>=1.0.0",
     "mdx-include>=1.4.1,<2.0.0",
-    "mkdocs-macros-plugin",
-    "mkdocs-glightbox",
     "mkdocstrings[python]>=0.23.0",
-    "pillow",
-    "cairosvg",
 ]
 
 lint = [
@@ -191,7 +187,8 @@ extend-immutable-calls = [
 minversion = "7.0"
 addopts = "-q -m 'not slow'"
 testpaths = [
-    "docs_src",
+    "docs/docs_src",
+    "faststream_gen_examples",
     "tests",
 ]
 markers = [

@@ -1,7 +1,8 @@
 import re
+from contextlib import asynccontextmanager
 from functools import partial
 from types import MethodType, TracebackType
-from typing import Any, Optional, Type, Union
+from typing import Any, AsyncGenerator, Optional, Type, Union
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -28,33 +29,107 @@ from faststream.types import SendableMessage
 __all__ = ("TestRabbitBroker",)
 
 
-def TestRabbitBroker(broker: RabbitBroker, with_real: bool = False) -> RabbitBroker:
-    """
-    Create a test RabbitBroker instance with optional mocking.
+class TestRabbitBroker:
 
-    This function creates a RabbitBroker instance, optionally replacing some of its components with mocks for testing
-    purposes. If `with_real` is True, it returns the original RabbitBroker instance without any modifications. If
-    `with_real` is False, it replaces certain components like the channel, declarer, and start/connect/close methods with
-    mock objects to isolate the broker for testing.
+    """
+    A context manager for creating a test RabbitBroker instance with optional mocking.
+
+    This class is designed to be used as a context manager for creating a RabbitBroker instance, optionally replacing some
+    of its components with mocks for testing purposes. If the `with_real` attribute is set to True, it operates as a
+    pass-through context manager, returning the original RabbitBroker instance without any modifications. If `with_real`
+    is set to False, it replaces certain components like the channel, declarer, and start/connect/close methods with mock
+    objects to isolate the broker for testing.
 
     Args:
         broker (RabbitBroker): The RabbitBroker instance to be used in testing.
         with_real (bool, optional): If True, the original broker is returned; if False, components are replaced with
             mock objects. Defaults to False.
 
-    Returns:
-        RabbitBroker: The RabbitBroker instance for testing, either with or without mocks.
-    """
-    if with_real:
-        return broker
+    Attributes:
+        broker (RabbitBroker): The RabbitBroker instance provided for testing.
+        with_real (bool): A boolean flag indicating whether to use the original broker (True) or replace components with
+            mocks (False).
 
-    broker._channel = AsyncMock()
-    broker.declarer = AsyncMock()
-    _fake_start(broker)
-    broker.start = AsyncMock(wraps=partial(_fake_start, broker))  # type: ignore[method-assign]
-    broker._connect = MethodType(_fake_connect, broker)  # type: ignore[method-assign]
-    broker.close = MethodType(_fake_close, broker)  # type: ignore[method-assign]
-    return broker
+    Methods:
+        __aenter__(self) -> RabbitBroker:
+            Enter the context and return the RabbitBroker instance.
+
+        __aexit__(self, *args: Any) -> None:
+            Exit the context.
+
+    Example usage:
+
+    ```python
+    real_broker = RabbitBroker()
+    with TestRabbitBroker(real_broker, with_real=True) as broker:
+        # Use the real RabbitBroker instance for testing.
+
+    with TestRabbitBroker(real_broker, with_real=False) as broker:
+        # Use a mocked RabbitBroker instance for testing.
+    ```
+    """
+
+    # This is set so pytest ignores this class
+    __test__ = False
+
+    def __init__(self, broker: RabbitBroker, with_real: bool = False):
+        """
+        Initialize a TestRabbitBroker instance.
+
+        Args:
+            broker (RabbitBroker): The RabbitBroker instance to be used in testing.
+            with_real (bool, optional): If True, the original broker is returned; if False, components are replaced with
+                mock objects. Defaults to False.
+        """
+        self.with_real = with_real
+        self.broker = broker
+
+    @asynccontextmanager
+    async def _create_ctx(self) -> AsyncGenerator[RabbitBroker, None]:
+        """
+        Create the context for the context manager.
+
+        Yields:
+            RabbitBroker: The RabbitBroker instance for testing, either with or without mocks.
+        """
+        _fake_start(self.broker)
+        if self.with_real is True:
+            async with self.broker:
+                try:
+                    await self.broker.start()
+                    yield self.broker
+                finally:
+                    pass
+        else:
+            self.broker._channel = AsyncMock()
+            self.broker.declarer = AsyncMock()
+            self.broker.start = AsyncMock(wraps=partial(_fake_start, self.broker))  # type: ignore[method-assign]
+            self.broker._connect = MethodType(_fake_connect, self.broker)  # type: ignore[method-assign]
+            self.broker.close = MethodType(_fake_close, self.broker)  # type: ignore[method-assign]
+            async with self.broker:
+                try:
+                    yield self.broker
+                finally:
+                    pass
+
+    async def __aenter__(self) -> RabbitBroker:
+        """
+        Enter the context and return the RabbitBroker instance.
+
+        Returns:
+            RabbitBroker: The RabbitBroker instance for testing, either with or without mocks.
+        """
+        self._ctx = self._create_ctx()
+        return await self._ctx.__aenter__()
+
+    async def __aexit__(self, *args: Any) -> None:
+        """
+        Exit the context.
+
+        Args:
+            *args: Variable-length argument list.
+        """
+        await self._ctx.__aexit__(*args)
 
 
 class PatchedMessage(IncomingMessage):

@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, NonNegativeFloat
 
-from faststream import FastStream
+from faststream import FastStream, Logger
 from faststream.kafka import KafkaBroker
 
 
@@ -13,10 +13,11 @@ class Data(BaseModel):
 broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
 
-
 to_output_data = broker.publisher("output_data")
 
 
+@to_output_data
 @broker.subscriber("input_data")
-async def on_input_data(msg: Data) -> Data:
-    to_output_data.publish(Data(data=msg.data + 1.0), partition_key=b"key")
+async def on_input_data(msg: Data, logger: Logger) -> Data:
+    logger.info(msg)
+    return Data(data=msg.data + 1.0)

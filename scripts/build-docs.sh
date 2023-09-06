@@ -3,4 +3,4 @@
 set -e
 set -x
 
-python ./scripts/docs.py build-all
+cd docs; python docs.py build
