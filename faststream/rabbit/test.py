@@ -361,6 +361,7 @@ async def _fake_close(
         if getattr(p, "_fake_handler", False):
             key = get_routing_hash(p.queue, p.exchange)
             self.handlers.pop(key, None)
+            p._fake_handler = False
 
     for h in self.handlers.values():
         for f, _, _, _, _, _ in h.calls:
@@ -378,6 +379,9 @@ def _fake_start(self: RabbitBroker, *args: Any, **kwargs: Any) -> None:
         **kwargs (Any): Additional keyword arguments.
     """
     for key, p in self._publishers.items():
+        if getattr(p, "_fake_handler", False):
+            continue
+
         handler = self.handlers.get(key)
 
         if handler is not None:

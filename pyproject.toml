@@ -187,8 +187,6 @@ extend-immutable-calls = [
 minversion = "7.0"
 addopts = "-q -m 'not slow'"
 testpaths = [
-    "docs/docs_src",
-    "faststream_gen_examples",
     "tests",
 ]
 markers = [

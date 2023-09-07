@@ -1,10 +1,10 @@
 import json
 import sys
-import yaml
 from pathlib import Path
 from typing import Optional
 
 import typer
+import yaml
 
 from faststream._compat import model_parse
 from faststream.asyncapi.generate import get_app_schema
@@ -46,7 +46,9 @@ def serve(
                 schema = yaml.safe_load(f)
             data = json.dumps(schema)
         else:
-            raise ValueError(f"Unknown extension given - {app}; Please provide app in format [python_module:FastStream] or [asyncapi.yaml/.json] - path to your application or documentation")
+            raise ValueError(
+                f"Unknown extension given - {app}; Please provide app in format [python_module:FastStream] or [asyncapi.yaml/.json] - path to your application or documentation"
+            )
 
         raw_schema = model_parse(Schema, data)
 

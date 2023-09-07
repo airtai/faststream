@@ -320,6 +320,7 @@ async def _fake_close(
         p.mock.reset_mock()
         if getattr(p, "_fake_handler", False):
             self.handlers.pop(p.topic, None)
+            p._fake_handler = False
 
     for h in self.handlers.values():
         for f, _, _, _, _, _ in h.calls:
@@ -340,6 +341,9 @@ def _fake_start(self: KafkaBroker, *args: Any, **kwargs: Any) -> None:
         None: This method does not return a value.
     """
     for key, p in self._publishers.items():
+        if getattr(p, "_fake_handler", False):
+            continue
+
         handler = self.handlers.get(key)
 
         if handler is not None:

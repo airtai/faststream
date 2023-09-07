@@ -176,7 +176,7 @@ To check the response, we registered an additional `on_output_data` subscriber w
 
 The application can be started using builtin FastStream CLI command.
 
-First we will save our application code to `basic.py` file. Here is the application code again:
+First we will save our application code to `app.py` file. Here is the application code again:
 
 ``` python
 {!> docs_src/kafka/basic/basic.py!}
@@ -185,13 +185,13 @@ First we will save our application code to `basic.py` file. Here is the applicat
 To run the service, use the FastStream CLI command and pass the module (in this case, the file where the app implementation is located) and the app simbol to the command.
 
 ``` shell
-{!> docs_src/kafka/basic/test_cmd.py[ln:11]!}
+faststream run basic:app
 ```
 
 After running the command you should see the following output:
 
 ``` shell
 INFO     - FastStream app starting...
-INFO     - input_data |            - `True` waiting for messages
+INFO     - input_data |            - `OnInputData` waiting for messages
 INFO     - FastStream app started successfully! To exit press CTRL+C
 ```

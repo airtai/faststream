@@ -1,23 +1,96 @@
 site_name: FastStream
+site_description: ''
 site_url: https://faststream.airt.ai/
 copyright: '&copy; 2023 <a href="https://airt.ai/" target="_blank" rel="noopener">airt</a>'
 docs_dir: docs
+
 nav:
 - FastStream: index.md
-- Guides:
-  - guides/gen_serve_asyncapi_docs.md
+- features.md
+- User Guide:
+  - getting-started/index.md
+  - Subscription and Serialization:
+    - Annotation Serialization: getting-started/subscription/annotation.md
+    - Pydantic Serialization: getting-started/subscription/pydantic.md
+    - Filtering: getting-started/subscription/filtering.md
+    - Testing: getting-started/subscription/test.md
+  - Publishing:
+    - Broker Publish: getting-started/publishing/broker.md
+    - Decorator: getting-started/publishing/decorator.md
+    - Object Decorator: getting-started/publishing/object.md
+    - Direct Publishing: getting-started/publishing/direct.md
+    - Testing: getting-started/publishing/test.md
+  - Routers:
+    - getting-started/routers/index.md
+    # routers nesting?
+  - Dependencies:
+    - getting-started/dependencies/index.md
+    - Classes as Dependencies: getting-started/dependencies/class.md
+    - Sub-dependencies: getting-started/dependencies/sub.md
+    - Global Dependencies: getting-started/dependencies/global.md
+    - Dependencies with yield: getting-started/dependencies/yield.md
+  - Context:
+    - getting-started/context/index.md
+    - Existed Fields: getting-started/context/existed.md
+    - Custom Context: getting-started/context/custom.md
+    - Fields Access: getting-started/context/fields.md
+    - Extra Options: getting-started/context/extra.md
+  - Custom Serialization:
+    - getting-started/serialization/index.md
+    - Parser: getting-started/serialization/parser.md
+    - Decoder: getting-started/serialization/decoder.md
+    - Protobuf Example: getting-started/serialization/protobuf.md
+  - Lifespan:
+    - getting-started/lifespan/index.md
+    - Lifespan Hooks: getting-started/lifespan/hooks.md
+    - Lifespan Testing: getting-started/lifespan/test.md
+  - Middlewares: getting-started/middlewares/index.md
+  - AsyncAPI:
+    - getting-started/asyncapi/index.md
+    - Schema Export: getting-started/asyncapi/export.md
+    - Schema Hosting: getting-started/asyncapi/hosting.md
+    - Customize Information: getting-started/asyncapi/custom.md
+  - CLI commands: getting-started/cli/index.md
+  - Logging: getting-started/logging.md
+  - Config Management: getting-started/config/index.md
+- Kafka:
+  - kafka/index.md
+  - Subscription: kafka/subscription.md
+  - Publishing: kafka/publishing.md
+  - Batch Pub/Sub: kafka/batch.md
+  - Message Information: kafka/message.md
+- Rabbit:
+  - rabbit/index.md
+  - Subsctiption:
+    - Direct: rabbit/examples/direct.md
+    - Fanout: rabbit/examples/fanout.md
+    - Topic: rabbit/examples/topic.md
+    - Headers: rabbit/examples/headers.md
+    - Stream: rabbit/examples/stream.md
+  - Publishing: rabbit/publishing.md
+  - RPC: rabbit/rpc.md
+  - Acknowledgement: rabbit/ack.md
+  - Message Information: rabbit/message.md
+- Integrations:
+  - integrations/index.md
+  - FastAPI: integrations/fastapi/index.md
+  - HTTP Freameworks: integrations/frameworks/index.md
 - API:
   - api/FastStream.md
-  - kafka:
+  - Kafka:
     - api/kafka/KafkaBroker.md
     - api/kafka/KafkaMessage.md
     - api/kafka/TestKafkaBroker.md
-  - rabbit:
+  - Rabbit:
     - api/rabbit/RabbitBroker.md
     - api/rabbit/RabbitMessage.md
     - api/rabbit/TestRabbitBroker.md
+- Contact FastStream: contact.md
+- Contributing: CONTRIBUTING.md
+- Release Notes: release.md
 - Languages:
   - en: /
+
 theme:
   name: material
   palette:
@@ -45,29 +118,32 @@ theme:
   - content.code.annotation
   - content.code.copy
   - content.code.select
+
 repo_name: airtai/fastkafka
 repo_url: https://github.com/airtai/fastkafka
 edit_uri: ''
+
 plugins:
-- search
-- mkdocstrings:
-    default_handler: python
-    handlers:
-      python:
-        options:
-          heading_level: 2
-          show_source: true
-          show_category_heading: true
-          show_root_heading: true
-          show_signature_annotations: true
-          show_if_no_docstring: true
-- i18n:
-    docs_structure: folder
-    languages:
-    - locale: en
-      default: true
-      name: English
-      build: true
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            heading_level: 2
+            show_source: true
+            show_category_heading: true
+            show_root_heading: true
+            show_signature_annotations: true
+            show_if_no_docstring: true
+  - i18n:
+      docs_structure: folder
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+
 markdown_extensions:
   toc:
     permalink: true
@@ -87,18 +163,20 @@ markdown_extensions:
     alternate_style: true
   attr_list: null
   md_in_html: null
+
 extra:
   social:
-  - icon: fontawesome/brands/discord
-    link: https://discord.gg/CJWmYpyFbc
-  - icon: fontawesome/brands/github-alt
-    link: https://github.com/airtai/fastkafka
-  - icon: fontawesome/brands/twitter
-    link: https://twitter.com/airt_AI
-  - icon: fontawesome/brands/facebook
-    link: https://www.facebook.com/airt.ai.api/
-  - icon: fontawesome/brands/linkedin
-    link: https://www.linkedin.com/company/airt-ai/
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/CJWmYpyFbc
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/airtai/fastkafka
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/airt_AI
+    - icon: fontawesome/brands/facebook
+      link: https://www.facebook.com/airt.ai.api/
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/airt-ai/
+
   alternate:
-  - link: /
-    name: en - English
+    - link: /
+      name: en - English

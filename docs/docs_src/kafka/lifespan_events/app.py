@@ -1,7 +1,5 @@
-from faststream import FastStream, Logger
+from faststream import Context, ContextRepo, FastStream, Logger
 from faststream.kafka import KafkaBroker
-
-ml_models = {}  # fake ML model
 
 broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
@@ -14,14 +12,14 @@ def multiply(x: float) -> float:
 
 
 @app.on_startup
-async def setup_model(logger: Logger):
+async def setup_model(logger: Logger, context: ContextRepo):
     # Load the ML model
     logger.info("Loading the model...")
-    ml_models["multiply_model"] = multiply
+    context.set_global("ml_models", {"multiply_model": multiply})  # fakt ML model
 
 
 @app.on_shutdown
-async def shutdown_model(logger: Logger):
+async def shutdown_model(logger: Logger, ml_models=Context()):
     # Clean up the ML models and release the resources
     logger.info("Exiting, clearing model dict...")
     ml_models.clear()
@@ -29,7 +27,7 @@ async def shutdown_model(logger: Logger):
 
 @predictions
 @broker.subscriber("input_data_1")
-async def on_input_data_1(msg: float, logger: Logger) -> float:
+async def on_input_data_1(msg: float, logger: Logger, ml_models=Context()) -> float:
     logger.info(f"{msg=}")
 
     result = ml_models["multiply_model"](msg)
@@ -39,7 +37,7 @@ async def on_input_data_1(msg: float, logger: Logger) -> float:
 
 
 @broker.subscriber("input_data_2")
-async def on_input_data_2(msg: float, logger: Logger) -> None:
+async def on_input_data_2(msg: float, logger: Logger, ml_models=Context()) -> None:
     logger.info(f"{msg=}")
 
     result = ml_models["multiply_model"](msg)

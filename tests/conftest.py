@@ -1,6 +1,8 @@
+import asyncio
 from unittest.mock import AsyncMock, Mock
 
 import pytest
+from typer.testing import CliRunner
 
 from faststream.__about__ import __version__
 from faststream.utils import context as global_context
@@ -14,6 +16,16 @@ def pytest_keyboard_interrupt(excinfo):  # pragma: no cover
 def pytest_collection_modifyitems(items):
     for item in items:
         item.add_marker("all")
+
+
+@pytest.fixture
+def event():
+    return asyncio.Event()
+
+
+@pytest.fixture(scope="session")
+def runner() -> CliRunner:
+    return CliRunner()
 
 
 @pytest.fixture
@@ -39,3 +51,8 @@ def version():
 def context():
     yield global_context
     global_context.clear()
+
+
+@pytest.fixture()
+def kafka_basic_project():
+    return "docs.docs_src.kafka.basic.basic:app"
