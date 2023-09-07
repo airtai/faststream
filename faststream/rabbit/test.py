@@ -6,6 +6,7 @@ from typing import Any, AsyncGenerator, Optional, Type, Union
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
+import anyio
 import aiormq
 from aio_pika.message import IncomingMessage
 from pamqp import commands as spec
@@ -363,7 +364,7 @@ async def _fake_close(
     for h in self.handlers.values():
         for f, _, _, _, _, _ in h.calls:
             f.mock.reset_mock()
-            f.event = None
+            f.event = anyio.Event()
 
 
 def _fake_start(self: RabbitBroker, *args: Any, **kwargs: Any) -> None:
