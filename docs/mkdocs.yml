@@ -112,3 +112,6 @@ extra:
   alternate:
     - link: /
       name: en - English
+
+  version:
+    provider: mike
