@@ -206,6 +206,7 @@ concurrency = [
     "thread"
 ]
 source = [
+    "docs/docs_src",
     "faststream",
     "tests"
 ]

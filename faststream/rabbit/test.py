@@ -92,25 +92,21 @@ class TestRabbitBroker:
         Yields:
             RabbitBroker: The RabbitBroker instance for testing, either with or without mocks.
         """
-        _fake_start(self.broker)
-        if self.with_real is True:
-            async with self.broker:
-                try:
-                    await self.broker.start()
-                    yield self.broker
-                finally:
-                    pass
-        else:
+        if not self.with_real:
             self.broker._channel = AsyncMock()
             self.broker.declarer = AsyncMock()
             self.broker.start = AsyncMock(wraps=partial(_fake_start, self.broker))  # type: ignore[method-assign]
             self.broker._connect = MethodType(_fake_connect, self.broker)  # type: ignore[method-assign]
             self.broker.close = MethodType(_fake_close, self.broker)  # type: ignore[method-assign]
-            async with self.broker:
-                try:
-                    yield self.broker
-                finally:
-                    pass
+        else:
+            _fake_start(self.broker)
+
+        async with self.broker:
+            try:
+                await self.broker.start()
+                yield self.broker
+            finally:
+                pass
 
     async def __aenter__(self) -> RabbitBroker:
         """
@@ -362,6 +358,7 @@ async def _fake_close(
             key = get_routing_hash(p.queue, p.exchange)
             self.handlers.pop(key, None)
             p._fake_handler = False
+            p.mock.reset_mock()
 
     for h in self.handlers.values():
         for f, _, _, _, _, _ in h.calls:
@@ -387,6 +384,7 @@ def _fake_start(self: RabbitBroker, *args: Any, **kwargs: Any) -> None:
         if handler is not None:
             for f, _, _, _, _, _ in handler.calls:
                 f.mock.side_effect = p.mock
+
         else:
             p._fake_handler = True
 

@@ -207,8 +207,9 @@ class RabbitBroker(
         )
 
         await super().start()
-        if self.declarer is None:
-            raise RuntimeError("Declarer should be initialized in `connect` method")
+        assert (  # nosec B101
+            self.declarer
+        ), "Declarer should be initialized in `connect` method"
 
         for handler in self.handlers.values():
             c = self._get_log_context(None, handler.queue, handler.exchange)
@@ -372,8 +373,7 @@ class RabbitBroker(
             Union[aiormq.abc.ConfirmationFrameType, SendableMessage]: The confirmation frame or the response message.
         """
 
-        if self._producer is None:
-            raise ValueError("RabbitBroker channel is not started yet")
+        assert self._producer, "RabbitBroker channel is not started yet"  # nosec B101
         return await self._producer.publish(*args, **kwargs)
 
     def _process_message(
@@ -434,8 +434,9 @@ class RabbitBroker(
         Raises:
             RuntimeError: If the declarer is not initialized in the `connect` method.
         """
-        if self.declarer is None:
-            raise RuntimeError("Declarer should be initialized in `connect` method")
+        assert (  # nosec B101
+            self.declarer
+        ), "Declarer should be initialized in `connect` method"
         return await self.declarer.declare_queue(queue)
 
     async def declare_exchange(
@@ -454,6 +455,7 @@ class RabbitBroker(
         Raises:
             RuntimeError: If the declarer is not initialized in the `connect` method.
         """
-        if self.declarer is None:
-            raise RuntimeError("Declarer should be initialized in `connect` method")
+        assert (  # nosec B101
+            self.declarer
+        ), "Declarer should be initialized in `connect` method"
         return await self.declarer.declare_exchange(exchange)

@@ -239,8 +239,7 @@ class FastStream(ABCApp):
         Returns:
             Block an event loop until stopped
         """
-        if self.broker is None:
-            raise RuntimeError("You should setup a broker")
+        assert self.broker, "You should setup a broker"  # nosec B101
 
         self._init_async_cycle()
         async with anyio.create_task_group() as tg:
@@ -264,8 +263,9 @@ class FastStream(ABCApp):
         )
 
     async def _stop(self, log_level: int = logging.INFO) -> None:
-        if self._stop_event is None:
-            raise RuntimeError("You should call `_init_async_cycle` first")
+        assert (  # nosec B101
+            self._stop_event
+        ), "You should call `_init_async_cycle` first"
         await self._stop_event.wait()
         self._stop_event = None
 

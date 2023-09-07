@@ -28,8 +28,7 @@ class AioKafkaFastProducer:
         *,
         reply_to: str = "",
     ) -> None:
-        if self._producer is None:
-            raise RuntimeError("You need to connect broker at first")
+        assert self._producer, "You need to connect broker at first"  # nosec B101
 
         message, content_type = encode_message(message)
 
@@ -65,8 +64,7 @@ class AioKafkaFastProducer:
         timestamp_ms: Optional[int] = None,
         headers: Optional[Dict[str, str]] = None,
     ) -> None:
-        if self._producer is None:
-            raise RuntimeError("You need to connect broker at first")
+        assert self._producer, "You need to connect broker at first"  # nosec B101
 
         batch = self._producer.create_batch()
 

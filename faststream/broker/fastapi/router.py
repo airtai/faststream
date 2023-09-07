@@ -85,8 +85,9 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         schema_url: Optional[str] = "/asyncapi",
         **connection_kwars: Any,
     ) -> None:
-        if self.broker_class is None:
-            RuntimeError("You should specify `broker_class` at your implementation")
+        assert (  # nosec B101
+            self.broker_class
+        ), "You should specify `broker_class` at your implementation"
 
         self.broker = self.broker_class(
             *connection_args,
@@ -293,8 +294,9 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             return None
 
         def download_app_json_schema() -> Response:
-            if self.schema is None:
-                raise RuntimeError("You need to run application lifespan at first")
+            assert (  # nosec B101
+                self.schema
+            ), "You need to run application lifespan at first"
 
             return Response(
                 content=json.dumps(self.schema.to_jsonable(), indent=4),
@@ -302,8 +304,9 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             )
 
         def download_app_yaml_schema() -> Response:
-            if self.schema is None:
-                raise RuntimeError("You need to run application lifespan at first")
+            assert (  # nosec B101
+                self.schema
+            ), "You need to run application lifespan at first"
 
             return Response(
                 content=self.schema.to_yaml(),
@@ -322,8 +325,9 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             errors: bool = True,
             expandMessageExamples: bool = True,
         ) -> HTMLResponse:
-            if self.schema is None:
-                raise RuntimeError("You need to run application lifespan at first")
+            assert (  # nosec B101
+                self.schema
+            ), "You need to run application lifespan at first"
 
             return HTMLResponse(
                 content=get_asyncapi_html(
