@@ -93,7 +93,7 @@ def _add_all_submodules(members: List[str]) -> List[str]:
     submodules = list(set(itertools.chain(*[_f(x) for x in members])))
     members = _merge_lists(members, submodules)
     members = list(dict.fromkeys(members))
-    return members
+    return sorted(members)
 
 
 def _get_api_summary_item(x: str) -> str:
@@ -220,8 +220,10 @@ def create_api_docs(
 ):
     api = _generate_api_docs_for_module(root_path, module)
 
+    docs_dir = Path(root_path) / "docs"
+
     # read summary template from file
-    with open(Path(root_path) / "summary_template.txt", "r", encoding="utf-8") as f:
+    with open(Path(docs_dir) / "summary_template.txt", "r", encoding="utf-8") as f:
         summary_template = f.read()
 
     summary = summary_template.format(
@@ -231,5 +233,5 @@ def create_api_docs(
         [l for l in [l.rstrip() for l in summary.split("\n")] if l != ""]
     )
 
-    with open(Path(root_path) / "SUMMARY.md", mode="w", encoding="utf-8") as f:
+    with open(Path(docs_dir) / "SUMMARY.md", mode="w", encoding="utf-8") as f:
         f.write(summary)

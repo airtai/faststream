@@ -1,7 +1,7 @@
 - [FastStream](index.md)
-- features.md
+- [Features](features.md)
 - User Guide
-    - getting-started/index.md
+    - [Getting Started](getting-started/index.md)
     - Subscription and Serialization
         - [Annotation Serialization](getting-started/subscription/annotation.md)
         - [Pydantic Serialization](getting-started/subscription/pydantic.md)
@@ -13,32 +13,31 @@
         - [Object Decorator](getting-started/publishing/object.md)
         - [Direct Publishing](getting-started/publishing/direct.md)
         - [Testing](getting-started/publishing/test.md)
-    - Routers
-        - getting-started/routers/index.md
+    - [Routers](getting-started/routers/index.md)
     - Dependencies
-        - getting-started/dependencies/index.md
+        - [Intro](getting-started/dependencies/index.md)
         - [Classes as Dependencies](getting-started/dependencies/class.md)
         - [Sub-dependencies](getting-started/dependencies/sub.md)
         - [Global Dependencies](getting-started/dependencies/global.md)
         - [Dependencies with yield](getting-started/dependencies/yield.md)
     - Context
-        - getting-started/context/index.md
+        - [Intro](getting-started/context/index.md)
         - [Existed Fields](getting-started/context/existed.md)
         - [Custom Context](getting-started/context/custom.md)
         - [Fields Access](getting-started/context/fields.md)
         - [Extra Options](getting-started/context/extra.md)
     - Custom Serialization
-        - getting-started/serialization/index.md
+        - [Intro](getting-started/serialization/index.md)
         - [Parser](getting-started/serialization/parser.md)
         - [Decoder](getting-started/serialization/decoder.md)
         - [Protobuf Example](getting-started/serialization/protobuf.md)
     - Lifespan
-        - getting-started/lifespan/index.md
+        - [Intro](getting-started/lifespan/index.md)
         - [Lifespan Hooks](getting-started/lifespan/hooks.md)
         - [Lifespan Testing](getting-started/lifespan/test.md)
     - [Middlewares](getting-started/middlewares/index.md)
     - AsyncAPI
-        - getting-started/asyncapi/index.md
+        - [Intro](getting-started/asyncapi/index.md)
         - [Schema Export](getting-started/asyncapi/export.md)
         - [Schema Hosting](getting-started/asyncapi/hosting.md)
         - [Customize Information](getting-started/asyncapi/custom.md)
@@ -46,13 +45,13 @@
     - [Logging](getting-started/logging.md)
     - [Config Management](getting-started/config/index.md)
 - Kafka
-    - kafka/index.md
+    - [Intro](kafka/index.md)
     - [Subscription](kafka/subscription.md)
     - [Publishing](kafka/publishing.md)
     - [Batch Pub/Sub](kafka/batch.md)
     - [Message Information](kafka/message.md)
 - Rabbit
-    - rabbit/index.md
+    - [Intro](rabbit/index.md)
     - Subsctiption:
         - [Direct](rabbit/examples/direct.md)
         - [Fanout](rabbit/examples/fanout.md)
@@ -64,7 +63,7 @@
     - [Acknowledgement](rabbit/ack.md)
     - [Message Information](rabbit/message.md)
 - Integrations
-    - integrations/index.md
+    - [Intro](integrations/index.md)
     - [FastAPI](integrations/fastapi/index.md)
     - [HTTP Freameworks](integrations/frameworks/index.md)
 - API
