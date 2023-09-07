@@ -17,7 +17,7 @@ Save it in a file called `basic.py`.
 Now that we have a FastStream application, we can proceed with generating the AsyncAPI specification using a CLI command.
 
 ``` shell
-{!> docs_src/kafka/basic/test_docs_cmd.py[ln:13]!}
+{!> docs_src/kafka/basic/test_docs_cmd.py[ln:9]!}
 ```
 
 The above command will generate the AsyncAPI specification and save it in a file called `asyncapi.json`.
@@ -25,7 +25,7 @@ The above command will generate the AsyncAPI specification and save it in a file
 If you prefer `yaml` instead of `json`, please run the following command to generate `asyncapi.yaml`.
 
 ``` shell
-{!> docs_src/kafka/basic/test_docs_cmd.py[ln:17]!}
+{!> docs_src/kafka/basic/test_docs_cmd.py[ln:13]!}
 ```
 
 ## Serving the AsyncAPI Documentation
@@ -33,7 +33,7 @@ If you prefer `yaml` instead of `json`, please run the following command to gene
 FastStream provides a separate command to serve the AsyncAPI documentation.
 
 ``` shell
-{!> docs_src/kafka/basic/test_docs_cmd.py[ln:21]!}
+{!> docs_src/kafka/basic/test_docs_cmd.py[ln:17]!}
 ```
 
 In the above command, we are providing the path in the format of `python_module:FastStream`. Alternatively, you can also specify `asyncapi.json` or `asyncapi.yaml` to serve the AsyncAPI documentation.
