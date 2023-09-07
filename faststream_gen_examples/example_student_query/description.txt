@@ -1,0 +1,4 @@
+Create a FastStream application using localhost as a broker. Consume from 'student_query' topic, which includes attributes: student_id, department and query.
+Each query should then be forwarded to the corresponding department based on the department attribute.
+The relevant department topics could be 'finance_department', 'academic_department', or 'admissions_department'.
+If department is not one of these topics, forward the message to the 'unclassified_query' topic.

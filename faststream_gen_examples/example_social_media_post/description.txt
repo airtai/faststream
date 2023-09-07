@@ -1,0 +1,4 @@
+FastStream application for social media.
+Create function which reads from the 'new_post' topic. Messages which come to this topic have 3 attributes: user_id, text and number_of_likes.
+If received Post has more then 10 likes, publish it to the 'popular_post' topic.
+While consuming from the popular_post topic, publish the text attribute of the post to the 'just_text' topic

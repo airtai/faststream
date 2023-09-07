@@ -1,0 +1,2 @@
+Simple FastStream application which only forwards all messages from the 'document' topic to the 'document_backup' topic.
+Each Document has two attributes: name and content.
