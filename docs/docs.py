@@ -15,6 +15,7 @@ import mkdocs.commands.build
 import mkdocs.commands.serve
 
 from expand_markdown import expand_markdown
+from create_api_docs import create_api_docs
 
 
 IGNORE_DIRS = ("assets",)
@@ -92,7 +93,7 @@ def preview():
 def live():
     typer.echo("Serving mkdocs with live reload")
     typer.echo(f"Serving at: http://{DEV_SERVER}")
-    mkdocs.commands.serve.serve(dev_addr=DEV_SERVER)
+    mkdocs.commands.serve.serve(dev_addr=DEV_SERVER, clean=True)
 
 
 @app.command()
@@ -191,8 +192,17 @@ def update_faststream_gen_docs():
         expand_doc(md_file)
 
 
+@app.command()
+def build_api_docs():
+    """Build api docs for faststream
+    """
+    typer.echo("Updating API docs")
+    create_api_docs(root_path=BASE_DIR, module="faststream")
+
+
 def _build():
     subprocess.run(["mkdocs", "build", "--site-dir", BUILD_DIR], check=True)
+    build_api_docs()
     update_readme()
     update_faststream_gen_docs()
 

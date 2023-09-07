@@ -6,11 +6,16 @@ import uvicorn
 import yaml
 from typer.testing import CliRunner
 
+from docs.docs_src.kafka.basic.test_docs_cmd import gen_json_cmd, gen_yaml_cmd, serve_cmd
 from faststream.cli.main import cli
+
+GEN_JSON_CMD = gen_json_cmd.split(" ")[1:-1]
+GEN_YAML_CMD = gen_yaml_cmd.split(" ")[1:-1]
+SERVE_CMD = serve_cmd.split(" ")[1:-1]
 
 
 def test_gen_asyncapi_json_for_kafka_app(runner: CliRunner, kafka_basic_project: Path):
-    r = runner.invoke(cli, ["docs", "gen", "--out", "shema.json", kafka_basic_project])
+    r = runner.invoke(cli, GEN_JSON_CMD + ["--out", "shema.json", kafka_basic_project])
     assert r.exit_code == 0
 
     schema_path = Path.cwd() / "shema.json"
@@ -24,7 +29,7 @@ def test_gen_asyncapi_json_for_kafka_app(runner: CliRunner, kafka_basic_project:
 
 
 def test_gen_asyncapi_yaml_for_kafka_app(runner: CliRunner, kafka_basic_project: Path):
-    r = runner.invoke(cli, ["docs", "gen", "--yaml", kafka_basic_project])
+    r = runner.invoke(cli, GEN_YAML_CMD + [kafka_basic_project])
     assert r.exit_code == 0
 
     schema_path = Path.cwd() / "asyncapi.yaml"
@@ -38,7 +43,7 @@ def test_gen_asyncapi_yaml_for_kafka_app(runner: CliRunner, kafka_basic_project:
 
 
 def test_gen_wrong_path(runner: CliRunner):
-    r = runner.invoke(cli, ["docs", "gen", "basic:app1"])
+    r = runner.invoke(cli, GEN_JSON_CMD + ["basic:app1"])
     assert r.exit_code == 2
     assert "Please, input module like [python_file:faststream_app_name]" in r.stdout
 
@@ -51,7 +56,7 @@ def test_serve_asyncapi_docs(
 ):
     with monkeypatch.context() as m:
         m.setattr(uvicorn, "run", mock)
-        r = runner.invoke(cli, ["docs", "serve", kafka_basic_project])
+        r = runner.invoke(cli, SERVE_CMD + [kafka_basic_project])
 
     assert r.exit_code == 0
     mock.assert_called_once()
@@ -63,12 +68,12 @@ def test_serve_asyncapi_json_schema(
     monkeypatch,
     mock: Mock,
 ):
-    r = runner.invoke(cli, ["docs", "gen", kafka_basic_project])
+    r = runner.invoke(cli, GEN_JSON_CMD + [kafka_basic_project])
     schema_path = Path.cwd() / "asyncapi.json"
 
     with monkeypatch.context() as m:
         m.setattr(uvicorn, "run", mock)
-        r = runner.invoke(cli, ["docs", "serve", str(schema_path)])
+        r = runner.invoke(cli, SERVE_CMD + [str(schema_path)])
 
     assert r.exit_code == 0
     mock.assert_called_once()
@@ -82,12 +87,12 @@ def test_serve_asyncapi_yaml_schema(
     monkeypatch,
     mock: Mock,
 ):
-    r = runner.invoke(cli, ["docs", "gen", "--yaml", kafka_basic_project])
+    r = runner.invoke(cli, GEN_YAML_CMD + [kafka_basic_project])
     schema_path = Path.cwd() / "asyncapi.yaml"
 
     with monkeypatch.context() as m:
         m.setattr(uvicorn, "run", mock)
-        r = runner.invoke(cli, ["docs", "serve", str(schema_path)])
+        r = runner.invoke(cli, SERVE_CMD + [str(schema_path)])
 
     assert r.exit_code == 0
     mock.assert_called_once()

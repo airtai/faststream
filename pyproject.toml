@@ -73,6 +73,8 @@ devdocs = [
     "mkdocs-static-i18n>=1.0.0",
     "mdx-include>=1.4.1,<2.0.0",
     "mkdocstrings[python]>=0.23.0",
+    "mkdocs-literate-nav>=0.6.0",
+    "griffe>=0.24.1",
 ]
 
 lint = [
