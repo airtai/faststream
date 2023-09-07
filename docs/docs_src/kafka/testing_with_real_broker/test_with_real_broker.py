@@ -14,8 +14,6 @@ async def test_base_app():
     async with TestKafkaBroker(broker, with_real=True) as tester:
         await tester.publish(Data(data=0.2), "input_data")
 
-        print(f"{type(on_input_data)=}")
-        print(f"{dir(on_input_data)=}")
         await on_input_data.wait_call(3)
         await on_output_data.wait_call(3)
 
