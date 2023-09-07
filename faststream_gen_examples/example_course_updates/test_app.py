@@ -11,7 +11,7 @@ async def on_notify_update(msg: CourseUpdates):
 
 
 @pytest.mark.asyncio
-async def test_app():
+async def test_app_without_new_content():
     async with TestKafkaBroker(broker):
         await broker.publish(CourseUpdates(course_name="Biology"), "course_updates")
         on_course_update.mock.assert_called_with(
@@ -21,6 +21,10 @@ async def test_app():
             dict(CourseUpdates(course_name="Biology"))
         )
 
+
+@pytest.mark.asyncio
+async def test_app_with_new_content():
+    async with TestKafkaBroker(broker):
         await broker.publish(
             CourseUpdates(
                 course_name="Biology", new_content="We have additional classes..."

@@ -11,7 +11,7 @@ async def on_order_executed(msg: Trade) -> None:
 
 
 @pytest.mark.asyncio
-async def test_app():
+async def test_app_without_sell_action():
     async with TestKafkaBroker(broker):
         await broker.publish(
             Trade(trader_id=1, stock_symbol="WS", action="Nothing"), "execute_trade"
@@ -21,6 +21,10 @@ async def test_app():
         )
         on_order_executed.mock.assert_not_called()
 
+
+@pytest.mark.asyncio
+async def test_app_with_sell_action():
+    async with TestKafkaBroker(broker):
         await broker.publish(
             Trade(trader_id=1, stock_symbol="WS", action="Sell!"), "execute_trade"
         )
