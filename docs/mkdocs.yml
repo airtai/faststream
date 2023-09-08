@@ -63,6 +63,8 @@ plugins:
             show_root_heading: true
             show_signature_annotations: true
             show_if_no_docstring: true
+            separate_signature: true
+            show_signature_annotations: true
   # build a site link social preview card
   - social:
       enabled: !ENV [CI, false]
@@ -78,7 +80,7 @@ plugins:
 
 markdown_extensions:
   toc:
-    permalink: true
+    permalink: "#"
   markdown.extensions.codehilite:
     guess_lang: false
   mdx_include:

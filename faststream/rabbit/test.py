@@ -6,8 +6,8 @@ from typing import Any, AsyncGenerator, Optional, Type, Union
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
-import anyio
 import aiormq
+import anyio
 from aio_pika.message import IncomingMessage
 from pamqp import commands as spec
 from pamqp.header import ContentHeader
