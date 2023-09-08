@@ -6,7 +6,11 @@ import uvicorn
 import yaml
 from typer.testing import CliRunner
 
-from docs.docs_src.kafka.basic.test_docs_cmd import gen_json_cmd, gen_yaml_cmd, serve_cmd
+from docs.docs_src.kafka.basic.test_docs_cmd import (
+    gen_json_cmd,
+    gen_yaml_cmd,
+    serve_cmd,
+)
 from faststream.cli.main import cli
 
 GEN_JSON_CMD = gen_json_cmd.split(" ")[1:-1]

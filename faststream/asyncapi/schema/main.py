@@ -24,8 +24,7 @@ class Components(BaseModel):
     # channels
     messages: Optional[Dict[str, Message]] = None
     schemas: Optional[Dict[str, Dict[str, Any]]] = None
-
-    # securitySchemes
+    securitySchemes: Optional[Dict[str, Dict[str, Any]]] = None
     # parameters
     # correlationIds
     # operationTraits

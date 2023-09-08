@@ -73,6 +73,9 @@ def get_app_schema(app: Union[FastStream, StreamRouter[Any]]) -> Schema:
         components=Components(
             messages=messages,
             schemas=payloads,
+            securitySchemes=None
+            if app.broker.security is None
+            else app.broker.security.get_schema(),
         ),
     )
     return schema
@@ -93,10 +96,12 @@ def get_app_broker_server(
         "description": broker.description,
         "tags": broker.tags,
         # TODO
-        # "security": "",
         # "variables": "",
         # "bindings": "",
     }
+
+    if broker.security is not None:
+        broker_meta["security"] = broker.security.get_requirement()
 
     if isinstance(broker.url, str):
         servers["development"] = Server(

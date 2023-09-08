@@ -33,6 +33,7 @@ from faststream.broker.middlewares import BaseMiddleware, CriticalLogMiddleware
 from faststream.broker.publisher import BasePublisher
 from faststream.broker.push_back_watcher import BaseWatcher
 from faststream.broker.router import BrokerRouter
+from faststream.broker.security import BaseSecurity
 from faststream.broker.types import (
     ConnectionType,
     CustomDecoder,
@@ -91,6 +92,7 @@ class BrokerUsecase(
         middlewares: Optional[Sequence[Callable[[MsgType], BaseMiddleware]]] = None,
         decoder: Optional[CustomDecoder[MsgType]] = None,
         parser: Optional[CustomParser[MsgType]] = None,
+        security: Optional[BaseSecurity] = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(
@@ -123,6 +125,7 @@ class BrokerUsecase(
         self.protocol_version = protocol_version
         self.description = description
         self.tags = tags
+        self.security = security
 
     def include_router(self, router: BrokerRouter[Any, MsgType]) -> None:
         for r in router._handlers:
@@ -319,6 +322,14 @@ class BrokerUsecase(
         **broker_args: Any,
     ) -> Callable[[StreamMessage[MsgType]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
         raise NotImplementedError()
+
+    def get_security_meta(
+        self,
+    ) -> Optional[Dict[str, Any]]:
+        if self.security is not None:
+            return self.security.get_meta()
+        else:
+            return None
 
 
 def extend_dependencies(
