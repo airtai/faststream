@@ -32,8 +32,7 @@ def get_app_schema(app: Union[FastStream, StreamRouter[Any]]) -> Schema:
                 payloads[p_title] = p
                 m.payload = {"$ref": f"#/components/schemas/{p_title}"}
 
-                if m.title is None:
-                    raise RuntimeError()
+                assert m.title  # nosec B101
                 messages[m.title] = m
                 ch.subscribe.message = Reference(
                     **{"$ref": f"#/components/messages/{m.title}"}
@@ -48,8 +47,7 @@ def get_app_schema(app: Union[FastStream, StreamRouter[Any]]) -> Schema:
                 payloads[p_title] = p
                 m.payload = {"$ref": f"#/components/schemas/{p_title}"}
 
-                if m.title is None:
-                    raise RuntimeError()
+                assert m.title  # nosec B101
                 messages[m.title] = m
                 ch.publish.message = Reference(
                     **{"$ref": f"#/components/messages/{m.title}"}
@@ -84,8 +82,7 @@ def get_app_broker_server(
     servers = {}
 
     broker = app.broker
-    if broker is None:
-        raise RuntimeError()
+    assert broker  # nosec B101
 
     broker_meta = {
         "protocol": broker.protocol,
@@ -118,8 +115,7 @@ def get_app_broker_channels(
     app: Union[FastStream, StreamRouter[Any]]
 ) -> Dict[str, Channel]:
     channels = {}
-    if app.broker is None:
-        raise RuntimeError()
+    assert app.broker  # nosec B101
 
     for h in app.broker.handlers.values():
         channels.update(h.schema())

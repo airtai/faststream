@@ -75,6 +75,7 @@ devdocs = [
     "mkdocstrings[python]>=0.23.0",
     "mkdocs-literate-nav>=0.6.0",
     "griffe>=0.24.1",
+    "mike>=1.1.0",  # versioning
 ]
 
 lint = [
@@ -206,6 +207,7 @@ concurrency = [
     "thread"
 ]
 source = [
+    "docs/docs_src",
     "faststream",
     "tests"
 ]

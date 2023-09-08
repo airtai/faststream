@@ -5,7 +5,7 @@ from types import FunctionType
 from typing import Any, Tuple, Type, Union
 
 import griffe
-import yaml
+from mkdocs.config import load_config
 
 
 def _add_mkdocstring_header_config(
@@ -90,22 +90,14 @@ def _get_mkdocstring_config(mkdocs_path: Path) -> Tuple[int, bool]:
         RuntimeError: If the mkdocstrings settings cannot be read from the mkdocs.yml file.
 
     """
-    with open((mkdocs_path / "mkdocs.yml"), "r", encoding="utf-8") as file:
-        # nosemgrep: python.lang.security.deserialization.avoid-pyyaml-load.avoid-pyyaml-load
-        data = yaml.load(file, Loader=yaml.Loader)  # nosec: yaml_load
-        mkdocstrings_config = [
-            i for i in data["plugins"] if isinstance(i, dict) and "mkdocstrings" in i
-        ]
-        if len(mkdocstrings_config) == 0:
-            raise ValueError(
-                f"Unexpected error: cannot read mkdocstrings settings from {mkdocs_path}/mkdocs.yml file"
-            )
+    config = load_config(str(mkdocs_path / "mkdocs.yml"))
+    mkdocstrings_config = config["plugins"]["mkdocstrings"].config
 
-        mkdocstrings_options = mkdocstrings_config[0]["mkdocstrings"]["handlers"][
-            "python"
-        ]["options"]
-        heading_level = mkdocstrings_options.get("heading_level", 2)
-        show_category_heading = mkdocstrings_options.get("show_category_heading", False)
+    mkdocstrings_options = mkdocstrings_config["handlers"][
+        "python"
+    ]["options"]
+    heading_level = mkdocstrings_options.get("heading_level", 2)
+    show_category_heading = mkdocstrings_options.get("show_category_heading", False)
 
     return heading_level, show_category_heading
 

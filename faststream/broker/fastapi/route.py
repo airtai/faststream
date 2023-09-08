@@ -121,8 +121,7 @@ class StreamMessage(Request):
         dependant: Dependant,
         dependency_overrides_provider: Optional[Any] = None,
     ) -> Callable[[NativeMessage[Any]], Awaitable[SendableMessage]]:
-        if dependant.call is None:
-            raise RuntimeError()
+        assert dependant.call  # nosec B101
 
         func = get_app(dependant, dependency_overrides_provider)
 

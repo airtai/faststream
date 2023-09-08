@@ -1,5 +1,5 @@
 """
-This file contains `faststream docs` commands. 
+This file contains `faststream docs` commands.
 These commands are referenced in guide file.
 These commands are also imported and used in tests under tests/ directory.
 """

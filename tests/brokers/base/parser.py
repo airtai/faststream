@@ -44,8 +44,8 @@ class LocalCustomParserTestcase:
                 timeout=3,
             )
 
-        assert handle.event.is_set()
-        mock.assert_called_once_with(b"hello")
+            assert handle.event.is_set()
+            mock.assert_called_once_with(b"hello")
 
     async def test_local_sync_decoder(self, mock: Mock, queue: str, raw_broker):
         broker = self.broker_class()
@@ -70,8 +70,8 @@ class LocalCustomParserTestcase:
                 timeout=3,
             )
 
-        assert handle.event.is_set()
-        mock.assert_called_once_with(b"hello")
+            assert handle.event.is_set()
+            mock.assert_called_once_with(b"hello")
 
     async def test_global_sync_decoder(self, mock: Mock, queue: str, raw_broker):
         def custom_decoder(msg):
@@ -96,8 +96,8 @@ class LocalCustomParserTestcase:
                 timeout=3,
             )
 
-        assert handle.event.is_set()
-        mock.assert_called_once_with(b"hello")
+            assert handle.event.is_set()
+            mock.assert_called_once_with(b"hello")
 
     async def test_local_parser_no_share_between_subscribers(
         self, event: asyncio.Event, mock: Mock, queue: str, raw_broker
@@ -132,9 +132,9 @@ class LocalCustomParserTestcase:
                 timeout=3,
             )
 
-        assert event.is_set()
-        assert event2.is_set()
-        mock.assert_called_once_with(b"hello")
+            assert event.is_set()
+            assert event2.is_set()
+            mock.assert_called_once_with(b"hello")
 
     async def test_local_parser_no_share_between_handlers(
         self, mock: Mock, queue: str, raw_broker
@@ -168,9 +168,9 @@ class LocalCustomParserTestcase:
                 timeout=3,
             )
 
-        assert handle.event.is_set()
-        assert handle2.event.is_set()
-        assert mock.call_count == 2  # instead 4
+            assert handle.event.is_set()
+            assert handle2.event.is_set()
+            assert mock.call_count == 2  # instead 4
 
 
 class CustomParserTestcase(LocalCustomParserTestcase):
@@ -198,5 +198,5 @@ class CustomParserTestcase(LocalCustomParserTestcase):
                 timeout=3,
             )
 
-        assert handle.event.is_set()
-        mock.assert_called_once_with(b"hello")
+            assert handle.event.is_set()
+            mock.assert_called_once_with(b"hello")

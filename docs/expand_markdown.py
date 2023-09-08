@@ -39,6 +39,7 @@ def extract_lines(embedded_line):
     lines_spec = ""
     if "[ln:" in to_expand_path:
         to_expand_path, lines_spec = to_expand_path.split("[ln:")
+        to_expand_path = to_expand_path.strip()
         lines_spec = lines_spec[:-1]
 
     if Path("./docs/docs_src").exists():
