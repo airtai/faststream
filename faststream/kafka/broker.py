@@ -38,6 +38,7 @@ from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
 from faststream.kafka.asyncapi import Handler, Publisher
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.producer import AioKafkaFastProducer
+from faststream.kafka.security import parse_security
 from faststream.kafka.shared.logging import KafkaLoggingMixin
 from faststream.kafka.shared.schemas import ConsumerConnectionParams
 from faststream.utils import context
@@ -168,7 +169,9 @@ class KafkaBroker(
         Returns:
             ConsumerConnectionParams: The connection parameters.
         """
-        producer = aiokafka.AIOKafkaProducer(**kwargs, client_id=client_id)
+        producer = aiokafka.AIOKafkaProducer(
+            **kwargs, **parse_security(self.security), client_id=client_id
+        )
         await producer.start()
         self._producer = AioKafkaFastProducer(
             producer=producer,
@@ -375,6 +378,7 @@ class KafkaBroker(
             max_poll_records=max_poll_records,
             exclude_internal_topics=exclude_internal_topics,
             isolation_level=isolation_level,
+            **parse_security(self.security),
         )
         handler = self.handlers.get(
             key,
