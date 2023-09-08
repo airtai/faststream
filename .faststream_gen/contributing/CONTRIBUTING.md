@@ -1,8 +1,8 @@
-## Developing
+# Development
 
 If you already cloned the repository and you know that you need to deep dive in the code, here are some guidelines to set up your environment.
 
-### Virtual environment with `venv`
+## Virtual environment with `venv`
 
 You can create a virtual environment in a directory using Python's `venv` module:
 
@@ -12,7 +12,7 @@ python -m venv venv
 
 That will create a directory `./venv/` with the Python binaries and then you will be able to install packages for that isolated environment.
 
-### Activate the environment
+## Activate the environment
 
 Activate the new environment with:
 
@@ -26,7 +26,7 @@ Make sure you have the latest pip version on your virtual environment to
 python -m pip install --upgrade pip
 ```
 
-### pip
+## pip
 
 After activating the environment as described above:
 
@@ -36,7 +36,7 @@ pip install -e ".[dev]"
 
 It will install all the dependencies and your local FastStream in your local environment.
 
-#### Using your local FastStream
+### Using your local FastStream
 
 If you create a Python file that imports and uses FastStream, and run it with the Python from your local environment, it will use your local FastStream source code.
 
@@ -50,9 +50,9 @@ To use your local FastStream cli type:
 python -m faststream ...
 ```
 
-### Tests
+## Tests
 
-#### Pytest
+### Pytest
 
 To run tests with your current FastStream application and Python environment use:
 
