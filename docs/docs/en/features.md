@@ -1,3 +1,8 @@
+---
+hide:
+  - navigation
+---
+
 # Features
 
 Should be as simple as possible, we are making PR for junior, not senior users

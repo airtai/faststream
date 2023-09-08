@@ -1,0 +1,3 @@
+# RabbitBroker
+
+::: faststream.rabbit.RabbitBroker

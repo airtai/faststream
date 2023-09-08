@@ -11,15 +11,15 @@ class HandlerException(Exception):
 
 
 class AckMessage(HandlerException):
-    """Raise it to stop `ack` a message immediately"""
+    """Raise it to `ack` a message immediately"""
 
 
 class NackMessage(HandlerException):
-    """Raise it to stop `nack` a message immediately"""
+    """Raise it to `nack` a message immediately"""
 
 
 class RejectMessage(HandlerException):
-    """Raise it to stop `reject` a message immediately"""
+    """Raise it to `reject` a message immediately"""
 
 
 WRONG_PUBLISH_ARGS = ValueError(
