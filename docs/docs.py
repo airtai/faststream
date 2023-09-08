@@ -26,6 +26,8 @@ BUILD_DIR = BASE_DIR / "site"
 EN_DOCS_DIR = DOCS_DIR / "en"
 EN_INDEX_PATH = EN_DOCS_DIR / "index.md"
 README_PATH = BASE_DIR.parent / "README.md"
+EN_CONTRIBUTING_PATH = EN_DOCS_DIR / "CONTRIBUTING.md"
+CONTRIBUTING_PATH = BASE_DIR.parent / "CONTRIBUTING.md"
 FASTSTREAM_GEN_DOCS_PATH = BASE_DIR.parent / ".faststream_gen"
 
 
@@ -163,10 +165,18 @@ def mv(path: str = typer.Argument(...), new_path: str = typer.Argument(...)):
 
 @app.command()
 def update_readme():
-    """Update README.md by expanding embeddings in docs/en/docs/index.md
+    """Update README.md by expanding embeddings in docs/docs/en/index.md
     """
     typer.echo(f"Updating README.md")
     expand_markdown(input_markdown_path=EN_INDEX_PATH, output_markdown_path=README_PATH)
+
+
+@app.command()
+def update_contributing():
+    """Update CONTRIBUTING.md by expanding embeddings in docs/docs/en/CONTRIBUTING.md
+    """
+    typer.echo(f"Updating CONTRIBUTING.md")
+    expand_markdown(input_markdown_path=EN_CONTRIBUTING_PATH, output_markdown_path=CONTRIBUTING_PATH)
 
 
 @app.command()
@@ -199,6 +209,7 @@ def _build():
     subprocess.run(["mkdocs", "build", "--site-dir", BUILD_DIR], check=True)
     build_api_docs()
     update_readme()
+    update_contributing()
     update_faststream_gen_docs()
 
 
