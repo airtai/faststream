@@ -110,14 +110,14 @@ def get_app_broker_server(
     if isinstance(broker.url, str):
         servers["development"] = Server(
             url=broker.url,
-            **broker_meta,  # type: ignore[arg-type]
+            **broker_meta,
         )
 
     else:
         for i, url in enumerate(broker.url, 1):
             servers[f"Server{i}"] = Server(
                 url=url,
-                **broker_meta,  # type: ignore[arg-type]
+                **broker_meta,
             )
 
     return servers
