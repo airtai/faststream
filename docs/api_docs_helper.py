@@ -115,8 +115,8 @@ def get_formatted_docstring_for_symbol(
         A formatted docstring of the symbol and its members.
 
     """
-    if symbol.__doc__ is None:
-        return ""
+    # if symbol.__doc__ is None:
+    #     return ""
 
     heading_level, show_category_heading = _get_mkdocstring_config(mkdocs_path)
     contents = _generate_autodoc_string(
