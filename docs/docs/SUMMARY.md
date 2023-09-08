@@ -40,6 +40,7 @@
     - [Middlewares](getting-started/middlewares/index.md)
     - AsyncAPI
         - [Intro](getting-started/asyncapi/index.md)
+        - [Generate and Serve](getting-started/asyncapi/gen_serve_asyncapi_docs.md)
         - [Schema Export](getting-started/asyncapi/export.md)
         - [Schema Hosting](getting-started/asyncapi/hosting.md)
         - [Customize Information](getting-started/asyncapi/custom.md)
@@ -54,7 +55,8 @@
     - [Message Information](kafka/message.md)
 - Rabbit
     - [Intro](rabbit/index.md)
-    - Subsctiption:
+    - Subsctiption
+        - [Intro](rabbit/examples/index.md)
         - [Direct](rabbit/examples/direct.md)
         - [Fanout](rabbit/examples/fanout.md)
         - [Topic](rabbit/examples/topic.md)
