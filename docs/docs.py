@@ -3,7 +3,7 @@ import subprocess
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from shutil import rmtree
-from yaml import load
+from yaml import load, safe_load
 
 try:
     from yaml import CLoader as Loader
@@ -34,7 +34,7 @@ README_PATH = BASE_DIR.parent / "README.md"
 FASTSTREAM_GEN_DOCS_PATH = BASE_DIR.parent / ".faststream_gen"
 
 with CONFIG.open("r") as f:
-    config = load(f, Loader)
+    config = safe_load(f)
 
 DEV_SERVER = config.get("dev_addr", "0.0.0.0:8008")
 
