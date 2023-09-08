@@ -1,3 +1,0 @@
-# KafkaMessage
-
-::: faststream.kafka.KafkaMessage

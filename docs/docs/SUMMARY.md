@@ -51,7 +51,7 @@
     - [Batch Pub/Sub](kafka/batch.md)
     - [Message Information](kafka/message.md)
 - [RabbitMQ](rabbit/index.md)
-    - Subsctiption
+    - [Subsctiption](rabbit/examples/index.md)
         - [Direct](rabbit/examples/direct.md)
         - [Fanout](rabbit/examples/fanout.md)
         - [Topic](rabbit/examples/topic.md)
