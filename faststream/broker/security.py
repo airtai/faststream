@@ -1,5 +1,5 @@
 from ssl import SSLContext
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
 ssl_not_set_error_msg = """
 SSL context is not set, if you don't want to use SSL encryption, set use_ssl to False.
@@ -35,10 +35,10 @@ class SASLPlaintext(BaseSecurity):
         self.username = username
         self.password = password
 
-    def get_requirement(self):
+    def get_requirement(self) -> List[Dict[str, Any]]:
         return [{"user-password": []}]
 
-    def get_schema(self):
+    def get_schema(self) -> Dict[str, Dict[str, str]]:
         return {"user-password": {"type": "userPassword"}}
 
 
@@ -54,10 +54,10 @@ class SASLScram256(BaseSecurity):
         self.username = username
         self.password = password
 
-    def get_requirement(self):
+    def get_requirement(self) -> List[Dict[str, Any]]:
         return [{"scram256": []}]
 
-    def get_schema(self):
+    def get_schema(self) -> Dict[str, Dict[str, str]]:
         return {"scram256": {"type": "scramSha256"}}
 
 
@@ -73,8 +73,8 @@ class SASLScram512(BaseSecurity):
         self.username = username
         self.password = password
 
-    def get_requirement(self):
+    def get_requirement(self) -> List[Dict[str, Any]]:
         return [{"scram512": []}]
 
-    def get_schema(self):
+    def get_schema(self) -> Dict[str, Dict[str, str]]:
         return {"scram512": {"type": "scramSha512"}}
