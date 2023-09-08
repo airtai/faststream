@@ -1,13 +1,13 @@
 import ssl
 
 from faststream import FastStream, Logger
-from faststream.broker.security import SASLScram256
+from faststream.broker.security import BaseSecurity
 from faststream.kafka import KafkaBroker
 
 ssl_context = ssl.create_default_context()
-security = SASLScram256(ssl_context=ssl_context, username="admin", password="")
+security = BaseSecurity(ssl_context=ssl_context)
 
-broker = KafkaBroker("kafka.staging.airt.ai:9092", security=security)
+broker = KafkaBroker("localhost:9092", security=security)
 app = FastStream(broker)
 
 
