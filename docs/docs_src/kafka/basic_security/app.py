@@ -12,5 +12,5 @@ app = FastStream(broker)
 
 
 @broker.subscriber("testinstallation")
-async def handle_batch(msg: bytes, logger: Logger):
+async def handle_msg(msg: bytes, logger: Logger):
     logger.info(msg)
