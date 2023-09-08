@@ -77,25 +77,6 @@ def _generate_autodoc_string(
     )
 
 
-def _filter_attributes_in_autodoc(symbol: Union[FunctionType, Type[Any]]) -> str:
-    """Add symbol attributes to exclude in the autodoc string.
-
-    Args:
-        symbol: The symbol for which the filters to be added.
-
-    Returns:
-        The autodoc string along with the filters.
-
-    """
-    members_list = [
-        f'"!^{a}$"'
-        for a in dir(symbol)
-        if callable(getattr(symbol, a)) and (not a.startswith("__"))
-    ]
-    return f"""    options:
-      filters: [{", ".join(members_list)}]"""
-
-
 def _get_mkdocstring_config(mkdocs_path: Path) -> Tuple[int, bool]:
     """Get the mkdocstring configuration from the mkdocs.yml file.
 
@@ -142,36 +123,6 @@ def get_formatted_docstring_for_symbol(
         A formatted docstring of the symbol and its members.
 
     """
-
-    def traverse(
-        symbol: Union[FunctionType, Type[Any]],
-        contents: str,
-        heading_level: int,
-        show_category_heading: bool,
-    ) -> str:
-        """Recursively traverse the members of a symbol and append their docstrings to the provided contents string.
-
-        Args:
-            symbol: A Python class or function object to parse the docstring for.
-            contents: The current formatted docstrings.
-            heading_level: The base heading level set in the mkdocs config file.
-            show_category_heading: The value of the show_category_heading flag set in the mkdocs config file.
-
-        Returns:
-            The updated formatted docstrings.
-
-        """
-        for x, y in getmembers(symbol):
-            if not x.startswith("_"):
-                if isfunction(y) and y.__doc__ is not None:
-                    contents += f"{_generate_autodoc_string(y, heading_level=heading_level, show_category_heading=show_category_heading, is_root_object=False)}\n\n"
-                elif isclass(y) and not x.startswith("__") and y.__doc__ is not None:
-                    # contents += "\n" + _filter_attributes_in_autodoc(y) + "\n\n"
-                    contents = traverse(
-                        y, contents, heading_level, show_category_heading
-                    )
-        return contents
-
     if symbol.__doc__ is None:
         return ""
 
@@ -179,7 +130,4 @@ def get_formatted_docstring_for_symbol(
     contents = _generate_autodoc_string(
         symbol, heading_level=heading_level, show_category_heading=show_category_heading
     )
-    if isclass(symbol):
-        # contents += _filter_attributes_in_autodoc(symbol) + "\n\n"
-        contents = traverse(symbol, contents, heading_level, show_category_heading)
     return contents
