@@ -31,7 +31,7 @@ FASTSTREAM_GEN_DOCS_PATH = BASE_DIR.parent / ".faststream_gen"
 
 config = load_config(str(CONFIG))
 
-DEV_SERVER = config.get("dev_addr", "0.0.0.0:8008")
+DEV_SERVER = str(config.get("dev_addr", "0.0.0.0:8008"))
 
 
 def get_missing_translation(lng: str) -> str:
@@ -88,7 +88,7 @@ def preview():
 def live():
     typer.echo("Serving mkdocs with live reload")
     typer.echo(f"Serving at: http://{DEV_SERVER}")
-    mkdocs.commands.serve.serve(dev_addr=DEV_SERVER, clean=True)
+    mkdocs.commands.serve.serve(dev_addr=DEV_SERVER)
 
 
 @app.command()
