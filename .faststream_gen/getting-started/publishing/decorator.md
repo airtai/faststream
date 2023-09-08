@@ -27,3 +27,5 @@ Can be used multiple times with the one function to broadcast function return
 async def handle(msg) -> str:
     return "Response"
 ```
+
+Also, it automatically sends a message with the same with incoming message `correlation_id`. This way you get the same `correlation_id` for the one message pipeline procces inside all services and able to collect a trace.

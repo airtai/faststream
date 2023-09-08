@@ -13,7 +13,7 @@ from expand_markdown import expand_markdown
 from create_api_docs import create_api_docs
 
 
-IGNORE_DIRS = ("assets",)
+IGNORE_DIRS = ("assets", "stylesheets")
 
 BASE_DIR = Path(__file__).resolve().parent
 CONFIG = BASE_DIR / "mkdocs.yml"
@@ -26,7 +26,7 @@ BUILD_DIR = BASE_DIR / "site"
 EN_DOCS_DIR = DOCS_DIR / "en"
 EN_INDEX_PATH = EN_DOCS_DIR / "index.md"
 README_PATH = BASE_DIR.parent / "README.md"
-EN_CONTRIBUTING_PATH = EN_DOCS_DIR / "CONTRIBUTING.md"
+EN_CONTRIBUTING_PATH = EN_DOCS_DIR / "contributing" / "CONTRIBUTING.md"
 CONTRIBUTING_PATH = BASE_DIR.parent / "CONTRIBUTING.md"
 FASTSTREAM_GEN_DOCS_PATH = BASE_DIR.parent / ".faststream_gen"
 

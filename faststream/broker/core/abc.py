@@ -159,7 +159,9 @@ class BrokerUsecase(
         self.handlers = {}
         self._publishers = {}
         empty_middleware: Sequence[Callable[[MsgType], BaseMiddleware]] = ()
-        midd_args: Sequence[Callable[[MsgType], BaseMiddleware]] = middlewares or empty_middleware
+        midd_args: Sequence[Callable[[MsgType], BaseMiddleware]] = (
+            middlewares or empty_middleware
+        )
         self.middlewares = [CriticalLogMiddleware(logger), *midd_args]  # type: ignore
         self.dependencies = dependencies
 

@@ -1,3 +1,9 @@
+---
+hide:
+  - navigation
+  - footer
+---
+
 FastStream
 ================
 
