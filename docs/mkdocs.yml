@@ -5,8 +5,6 @@ site_author: airt
 copyright: '&copy; 2023 <a href="https://airt.ai/" target="_blank" rel="noopener">airt</a>'
 docs_dir: docs
 
-dev_addr: 0.0.0.0:8008
-
 repo_name: airtai/fastkafka
 repo_url: https://github.com/airtai/fastkafka
 edit_uri: https://github.com/airtai/fastkafka/tree/FastStream/docs/docs
@@ -65,8 +63,9 @@ plugins:
             show_source: true
             show_category_heading: true
             show_root_heading: true
-            show_signature_annotations: true
             show_if_no_docstring: true
+            separate_signature: true
+            show_signature_annotations: true
   # build a site link social preview card
   - social:
       enabled: !ENV [CI, false]
@@ -86,7 +85,7 @@ plugins:
 
 markdown_extensions:
   toc:
-    permalink: true
+    permalink: "#"
   markdown.extensions.codehilite:
     guess_lang: false
   mdx_include:

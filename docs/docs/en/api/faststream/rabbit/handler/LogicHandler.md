@@ -1,0 +1,3 @@
+
+
+::: faststream.rabbit.handler.LogicHandler

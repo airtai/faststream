@@ -37,11 +37,14 @@
         - [Schema Hosting](getting-started/asyncapi/hosting.md)
         - [Customize Information](getting-started/asyncapi/custom.md)
     - [Integrations](integrations/index.md)
-      - [FastAPI](integrations/fastapi/index.md)
-      - [HTTP Frameworks](integrations/frameworks/index.md)
+        - [FastAPI](integrations/fastapi/index.md)
+        - [HTTP Frameworks](integrations/frameworks/index.md)
     - [CLI commands](getting-started/cli/index.md)
     - [Logging](getting-started/logging.md)
     - [Config Management](getting-started/config/index.md)
+    - Contributing
+        - [Development](contributing/CONTRIBUTING.md)
+        - [Documentation](contributing/docs.md)
 - [Kafka](kafka/index.md)
     - [Subscription](kafka/subscription.md)
     - [Publishing](kafka/publishing.md)
@@ -61,8 +64,5 @@
     - [Message Information](rabbit/message.md)
 - API
 {api}
-- Contributing
-    - [Development](contributing/CONTRIBUTING.md)
-    - [Documentation](contributing/docs.md)
 - [Contact](contact.md)
 - [Release Notes](release.md)
