@@ -27,10 +27,10 @@ class LogicPublisher(ABCPublisher[ConsumerRecord]):
         headers: Optional[Dict[str, str]] = None,
         correlation_id: Optional[str] = None,
     ) -> None:
-        if self._producer is None:
-            raise RuntimeError("Please, setup `_producer` first")
-        if not (self.batch or len(messages) < 2):
-            raise RuntimeError("You can't send multiple messages without `batch` flag")
+        assert self._producer, "Please, setup `_producer` first"  # nosec B101
+        assert (  # nosec B101
+            self.batch or len(messages) < 2
+        ), "You can't send multiple messages without `batch` flag"
 
         if not self.batch:
             return await self._producer.publish(

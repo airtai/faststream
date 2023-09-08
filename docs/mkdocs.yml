@@ -10,14 +10,14 @@ theme:
   palette:
   - media: '(prefers-color-scheme: light)'
     scheme: default
-    primary: indigo
+    primary: custom
     accent: cyan
     toggle:
       icon: material/brightness-7
       name: Switch to dark mode
   - media: '(prefers-color-scheme: dark)'
     scheme: slate
-    primary: indigo
+    primary: custom
     accent: cyan
     toggle:
       icon: material/brightness-4
@@ -32,6 +32,17 @@ theme:
   - content.code.annotation
   - content.code.copy
   - content.code.select
+  i18n:
+    prev: 'Previous'
+    next: 'Next'
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil-circle-outline
+  logo: assets/img/logo.svg
+  favicon: assets/img/logo.svg
+
+extra_css:
+  - stylesheets/extra.css
 
 repo_name: airtai/fastkafka
 repo_url: https://github.com/airtai/fastkafka
@@ -50,10 +61,12 @@ plugins:
             show_source: true
             show_category_heading: true
             show_root_heading: true
-            show_signature_annotations: true
             show_if_no_docstring: true
             separate_signature: true
             show_signature_annotations: true
+  # build a site link social preview card
+  - social:
+      enabled: !ENV [CI, false]
   - i18n:
       docs_structure: folder
       languages:
@@ -100,3 +113,6 @@ extra:
   alternate:
     - link: /
       name: en - English
+
+  version:
+    provider: mike
