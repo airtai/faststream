@@ -26,10 +26,6 @@ Can be used multiple times with the one function to broadcast function return
 @broker.publisher("second-out")
 async def handle(msg) -> str:
     return "Response"
-<<<<<<< HEAD
 ```
 
 Also, it automatically sends a message with the same with incoming message `correlation_id`. This way you get the same `correlation_id` for the one message pipeline procces inside all services and able to collect a trace.
-=======
-```
->>>>>>> 059c9aba72e2f42df25fa587b154fc4dbc9c0c30
