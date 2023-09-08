@@ -166,7 +166,7 @@ def get_formatted_docstring_for_symbol(
                 if isfunction(y) and y.__doc__ is not None:
                     contents += f"{_generate_autodoc_string(y, heading_level=heading_level, show_category_heading=show_category_heading, is_root_object=False)}\n\n"
                 elif isclass(y) and not x.startswith("__") and y.__doc__ is not None:
-                    contents += "\n" + _filter_attributes_in_autodoc(y) + "\n\n"
+                    # contents += "\n" + _filter_attributes_in_autodoc(y) + "\n\n"
                     contents = traverse(
                         y, contents, heading_level, show_category_heading
                     )
@@ -180,6 +180,6 @@ def get_formatted_docstring_for_symbol(
         symbol, heading_level=heading_level, show_category_heading=show_category_heading
     )
     if isclass(symbol):
-        contents += _filter_attributes_in_autodoc(symbol) + "\n\n"
+        # contents += _filter_attributes_in_autodoc(symbol) + "\n\n"
         contents = traverse(symbol, contents, heading_level, show_category_heading)
     return contents
