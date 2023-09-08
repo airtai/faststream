@@ -3,16 +3,11 @@ import subprocess
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from shutil import rmtree
-from yaml import load
-
-try:
-    from yaml import CLoader as Loader
-except ImportError:
-    from yaml import Loader
 
 import typer
 import mkdocs.commands.build
 import mkdocs.commands.serve
+from mkdocs.config import load_config
 
 from expand_markdown import expand_markdown
 from create_api_docs import create_api_docs
@@ -33,8 +28,8 @@ EN_INDEX_PATH = EN_DOCS_DIR / "index.md"
 README_PATH = BASE_DIR.parent / "README.md"
 FASTSTREAM_GEN_DOCS_PATH = BASE_DIR.parent / ".faststream_gen"
 
-with CONFIG.open("r") as f:
-    config = load(f, Loader)
+
+config = load_config(str(CONFIG))
 
 DEV_SERVER = config.get("dev_addr", "0.0.0.0:8008")
 
