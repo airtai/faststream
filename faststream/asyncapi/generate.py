@@ -55,6 +55,10 @@ def get_app_schema(app: Union[FastStream, StreamRouter[Any]]) -> Schema:
                     **{"$ref": f"#/components/messages/{m.title}"}
                 )
 
+    broker = app.broker
+    if broker is None:
+        raise RuntimeError()
+
     schema = Schema(
         info=Info(
             title=app.title,
@@ -74,8 +78,8 @@ def get_app_schema(app: Union[FastStream, StreamRouter[Any]]) -> Schema:
             messages=messages,
             schemas=payloads,
             securitySchemes=None
-            if app.broker.security is None
-            else app.broker.security.get_schema(),
+            if broker.security is None
+            else broker.security.get_schema(),
         ),
     )
     return schema
@@ -90,7 +94,7 @@ def get_app_broker_server(
     if broker is None:
         raise RuntimeError()
 
-    broker_meta = {
+    broker_meta: Dict[str, Any] = {
         "protocol": broker.protocol,
         "protocolVersion": broker.protocol_version,
         "description": broker.description,

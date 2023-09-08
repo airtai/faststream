@@ -323,14 +323,6 @@ class BrokerUsecase(
     ) -> Callable[[StreamMessage[MsgType]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
         raise NotImplementedError()
 
-    def get_security_meta(
-        self,
-    ) -> Optional[Dict[str, Any]]:
-        if self.security is not None:
-            return self.security.get_meta()
-        else:
-            return None
-
 
 def extend_dependencies(
     extra: Sequence[CallModel[Any, Any]], dependant: CallModel[Any, Any]

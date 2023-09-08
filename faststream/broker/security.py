@@ -22,6 +22,12 @@ class BaseSecurity:
         self.use_ssl = use_ssl
         self.ssl_context = ssl_context
 
+    def get_requirement(self) -> List[Dict[str, Any]]:
+        return []
+
+    def get_schema(self) -> Dict[str, Dict[str, str]]:
+        return {}
+
 
 class SASLPlaintext(BaseSecurity):
     def __init__(
