@@ -1,5 +1,6 @@
 import ssl
 
+from faststream import FastStream
 from faststream.broker.security import SASLScram512
 from faststream.kafka import KafkaBroker
 
@@ -7,6 +8,7 @@ ssl_context = ssl.create_default_context()
 security = SASLScram512(ssl_context=ssl_context, username="admin", password="password")
 
 broker = KafkaBroker("localhost:9092", security=security)
+app = FastStream(broker)
 
 
 @broker.publisher("test_2")
