@@ -78,6 +78,7 @@ class KafkaBroker(
         self,
         bootstrap_servers: Union[str, Iterable[str]] = "localhost",
         *,
+        protocol: Optional[str] = None,
         protocol_version: str = "auto",
         client_id: str = "faststream-" + __version__,
         **kwargs: Any,
@@ -92,10 +93,12 @@ class KafkaBroker(
             client_id (str): The client ID for the Kafka client.
             **kwargs: Additional keyword arguments.
         """
-        if kwargs["security"] is not None and kwargs["security"].use_ssl:
-            protocol = "kafka-secure"
-        else:
-            protocol = "kafka"
+        if protocol is None:
+            security = kwargs.get("security")
+            if security is not None and security.use_ssl:
+                protocol = "kafka-secure"
+            else:
+                protocol = "kafka"
 
         super().__init__(
             url=bootstrap_servers,
