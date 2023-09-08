@@ -52,6 +52,8 @@ plugins:
             show_root_heading: true
             show_signature_annotations: true
             show_if_no_docstring: true
+            separate_signature: true
+            show_signature_annotations: true
   - i18n:
       docs_structure: folder
       languages:
@@ -64,7 +66,7 @@ plugins:
 
 markdown_extensions:
   toc:
-    permalink: true
+    permalink: "#"
   markdown.extensions.codehilite:
     guess_lang: false
   mdx_include:
