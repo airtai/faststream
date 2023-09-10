@@ -25,7 +25,11 @@ INFO:     Uvicorn running on http://localhost:8000 (Press CTRL+C to quit)
 
 And see the following page at your browser
 
-![HTML-page](/assets/img/AsyncAPI-basic-html.png)
+=== "Short"
+    ![HTML-page](/assets/img/AsyncAPI-basic-html-short.png){ loading=lazy }
+
+=== "Expand"
+    ![HTML-page](/assets/img/AsyncAPI-basic-html-full.png){ loading=lazy }
 
 !!! tip
     The command also offers options to serve the documentation on a different host and port.

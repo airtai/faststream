@@ -32,7 +32,7 @@
         - [Lifespan Hooks](getting-started/lifespan/hooks.md)
         - [Lifespan Testing](getting-started/lifespan/test.md)
     - [Middlewares](getting-started/middlewares/index.md)
-    - [AsyncAPI](getting-started/asyncapi/index.md)
+    - AsyncAPI
         - [Schema Export](getting-started/asyncapi/export.md)
         - [Schema Hosting](getting-started/asyncapi/hosting.md)
         - [Customize Information](getting-started/asyncapi/custom.md)
