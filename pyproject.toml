@@ -77,6 +77,7 @@ devdocs = [
     "griffe>=0.24.1",
     "mkdocs-git-revision-date-localized-plugin>=1.2.0",
     "mike>=1.1.0",  # versioning
+    "mkdocs-macros-plugin>=6.0.0",  # includes with variables
 ]
 
 lint = [

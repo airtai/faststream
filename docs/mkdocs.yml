@@ -52,6 +52,8 @@ extra_css:
 
 plugins:
   - search
+  - macros:  # includes with variables
+      include_dir: includes
   - mkdocstrings:
       default_handler: python
       handlers:

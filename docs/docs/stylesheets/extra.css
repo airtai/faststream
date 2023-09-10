@@ -14,3 +14,23 @@ https://github.com/squidfunk/mkdocs-material/blob/master/src/assets/stylesheets/
     --md-footer-bg-color--dark: hsla(var(--md-hue),24%,26%,1);
     --md-typeset-a-color: #56b7e1;
 }
+
+a.external-link {
+    /* For right to left languages */
+    direction: ltr;
+    display: inline-block;
+}
+
+a.external-link::after {
+    /* \00A0 is a non-breaking space
+            to make the mark be on the same line as the link
+        */
+    content: "\00A0[↪]";
+}
+
+a.internal-link::after {
+    /* \00A0 is a non-breaking space
+            to make the mark be on the same line as the link
+        */
+    content: "\00A0↪";
+}
