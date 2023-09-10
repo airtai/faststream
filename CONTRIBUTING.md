@@ -112,7 +112,6 @@ services:
           KAFKA_BROKER_ID: "1"
           KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
           ALLOW_PLAINTEXT_LISTENER: "true"
-
 ```
 
 ```bash
