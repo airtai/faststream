@@ -60,6 +60,12 @@ When using **FastStream** as a router for **FastAPI**, the framework automatical
 
 {! includes/getting_started/integrations/fastapi/5.md !}
 
+This way you will have three routes to interact with your application **AsyncAPI** schema:
+
+* `/asyncapi` - the same with [CLI created page](../../../getting-started/asyncapi/hosting.md){.internal-link}
+* `/asyncapi.json` - download **JSON** schema representation
+* `/asyncapi.yaml` - download **YAML** schema representation
+
 ## Testing
 
 To test your **FastAPI** *StreamRouter*, you are still able to use patch it with *TestClient*
