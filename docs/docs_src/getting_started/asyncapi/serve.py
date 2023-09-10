@@ -16,3 +16,11 @@ faststream docs gen --yaml basic:app
 serve_cmd = """
 faststream docs serve basic:app
 """
+
+serve_json_cmd = """
+faststream docs serve asyncapi.json
+"""
+
+serve_yaml_cmd = """
+faststream docs serve asyncapi.yaml
+"""

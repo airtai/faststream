@@ -1,3 +1,3 @@
 # AsyncAPI Documentation
 
-https://lancetnik.github.io/Propan/gettings_started/9_documentation/
+https://lancetnik.github.io/Propan/getting_started/9_documentation/

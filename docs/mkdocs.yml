@@ -52,6 +52,7 @@ extra_css:
 
 plugins:
   - search
+  - glightbox
   - macros:  # includes with variables
       include_dir: includes
   - mkdocstrings:
