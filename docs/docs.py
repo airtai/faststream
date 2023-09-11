@@ -4,14 +4,12 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from shutil import rmtree
 
-import typer
 import mkdocs.commands.build
 import mkdocs.commands.serve
-from mkdocs.config import load_config
-
-from expand_markdown import expand_markdown
+import typer
 from create_api_docs import create_api_docs
-
+from expand_markdown import expand_markdown, remove_lines_between_dashes
+from mkdocs.config import load_config
 
 IGNORE_DIRS = ("assets", "stylesheets")
 
@@ -26,7 +24,9 @@ BUILD_DIR = BASE_DIR / "site"
 EN_DOCS_DIR = DOCS_DIR / "en"
 EN_INDEX_PATH = EN_DOCS_DIR / "index.md"
 README_PATH = BASE_DIR.parent / "README.md"
-EN_CONTRIBUTING_PATH = EN_DOCS_DIR / "getting-started" / "contributing" / "CONTRIBUTING.md"
+EN_CONTRIBUTING_PATH = (
+    EN_DOCS_DIR / "getting-started" / "contributing" / "CONTRIBUTING.md"
+)
 CONTRIBUTING_PATH = BASE_DIR.parent / "CONTRIBUTING.md"
 FASTSTREAM_GEN_DOCS_PATH = BASE_DIR.parent / ".faststream_gen"
 
@@ -165,10 +165,11 @@ def mv(path: str = typer.Argument(...), new_path: str = typer.Argument(...)):
 
 @app.command()
 def update_readme():
-    """Update README.md by expanding embeddings in docs/docs/en/index.md
-    """
+    """Update README.md by expanding embeddings in docs/docs/en/index.md"""
     typer.echo(f"Updating README.md")
     expand_markdown(input_markdown_path=EN_INDEX_PATH, output_markdown_path=README_PATH)
+
+    remove_lines_between_dashes(file_path=README_PATH)
 
     relative_path = os.path.relpath(EN_INDEX_PATH, BASE_DIR.parent)
     auto_generated = f"[Note]: # (This is an auto-generated file. Please edit {relative_path} instead)\n\n"
@@ -179,10 +180,11 @@ def update_readme():
 
 @app.command()
 def update_contributing():
-    """Update CONTRIBUTING.md by expanding embeddings in docs/docs/en/CONTRIBUTING.md
-    """
+    """Update CONTRIBUTING.md by expanding embeddings in docs/docs/en/CONTRIBUTING.md"""
     typer.echo(f"Updating CONTRIBUTING.md")
-    expand_markdown(input_markdown_path=EN_CONTRIBUTING_PATH, output_markdown_path=CONTRIBUTING_PATH)
+    expand_markdown(
+        input_markdown_path=EN_CONTRIBUTING_PATH, output_markdown_path=CONTRIBUTING_PATH
+    )
 
     relative_path = os.path.relpath(EN_CONTRIBUTING_PATH, BASE_DIR.parent)
     auto_generated = f"> **_NOTE:_**  This is an auto-generated file. Please edit {relative_path} instead.\n\n"
@@ -193,17 +195,20 @@ def update_contributing():
 
 @app.command()
 def update_faststream_gen_docs():
-    """Update docs for faststream gen by expanding all md files in docs/en/docs
-    """
+    """Update docs for faststream gen by expanding all md files in docs/en/docs"""
     typer.echo("Updating faststream-gen docs")
     FASTSTREAM_GEN_DOCS_PATH.mkdir(exist_ok=True)
     md_files = EN_DOCS_DIR.glob("**/*.md")
 
     def expand_doc(input_path):
         relative_path = os.path.relpath(input_path, FASTSTREAM_GEN_DOCS_PATH)
-        output_path = FASTSTREAM_GEN_DOCS_PATH / relative_path.replace("../docs/docs/en/", "")
+        output_path = FASTSTREAM_GEN_DOCS_PATH / relative_path.replace(
+            "../docs/docs/en/", ""
+        )
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        expand_markdown(input_markdown_path=input_path, output_markdown_path=output_path)
+        expand_markdown(
+            input_markdown_path=input_path, output_markdown_path=output_path
+        )
 
     for md_file in md_files:
         expand_doc(md_file)
@@ -211,8 +216,7 @@ def update_faststream_gen_docs():
 
 @app.command()
 def build_api_docs():
-    """Build api docs for faststream
-    """
+    """Build api docs for faststream"""
     typer.echo("Updating API docs")
     create_api_docs(root_path=BASE_DIR, module="faststream")
 
