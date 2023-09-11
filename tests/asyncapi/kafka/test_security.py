@@ -1,14 +1,15 @@
+import ssl
 from copy import deepcopy
 
-from docs.docs_src.kafka.basic_security.app import app as basic_security_app
-from docs.docs_src.kafka.plaintext_security.app import app as plaintext_security_app
-from docs.docs_src.kafka.sasl_scram256_security.app import (
-    app as sasl_scram256_security_app,
-)
-from docs.docs_src.kafka.sasl_scram512_security.app import (
-    app as sasl_scram512_security_app,
-)
+from faststream.app import FastStream
 from faststream.asyncapi.generate import get_app_schema
+from faststream.broker.security import (
+    BaseSecurity,
+    SASLPlaintext,
+    SASLScram256,
+    SASLScram512,
+)
+from faststream.kafka.annotations import KafkaBroker
 
 basic_schema = {
     "asyncapi": "2.6.0",
@@ -67,13 +68,39 @@ basic_schema = {
 
 
 def test_base_security_schema():
-    schema = get_app_schema(basic_security_app).to_jsonable()
+    ssl_context = ssl.create_default_context()
+    security = BaseSecurity(ssl_context=ssl_context)
+
+    broker = KafkaBroker("localhost:9092", security=security)
+    app = FastStream(broker)
+
+    @broker.publisher("test_2")
+    @broker.subscriber("test_1")
+    async def test_topic(msg: str) -> str:
+        pass
+
+    schema = get_app_schema(app).to_jsonable()
 
     assert schema == basic_schema
 
 
 def test_plaintext_security_schema():
-    schema = get_app_schema(plaintext_security_app).to_jsonable()
+    ssl_context = ssl.create_default_context()
+    security = SASLPlaintext(
+        ssl_context=ssl_context,
+        username="admin",
+        password="password",  # pragma: allowlist secret
+    )
+
+    broker = KafkaBroker("localhost:9092", security=security)
+    app = FastStream(broker)
+
+    @broker.publisher("test_2")
+    @broker.subscriber("test_1")
+    async def test_topic(msg: str) -> str:
+        pass
+
+    schema = get_app_schema(app).to_jsonable()
 
     plaintext_security_schema = deepcopy(basic_schema)
     plaintext_security_schema["servers"]["development"]["security"] = [
@@ -87,7 +114,22 @@ def test_plaintext_security_schema():
 
 
 def test_scram256_security_schema():
-    schema = get_app_schema(sasl_scram256_security_app).to_jsonable()
+    ssl_context = ssl.create_default_context()
+    security = SASLScram256(
+        ssl_context=ssl_context,
+        username="admin",
+        password="password",  # pragma: allowlist secret
+    )
+
+    broker = KafkaBroker("localhost:9092", security=security)
+    app = FastStream(broker)
+
+    @broker.publisher("test_2")
+    @broker.subscriber("test_1")
+    async def test_topic(msg: str) -> str:
+        pass
+
+    schema = get_app_schema(app).to_jsonable()
 
     sasl256_security_schema = deepcopy(basic_schema)
     sasl256_security_schema["servers"]["development"]["security"] = [{"scram256": []}]
@@ -99,7 +141,22 @@ def test_scram256_security_schema():
 
 
 def test_scram512_security_schema():
-    schema = get_app_schema(sasl_scram512_security_app).to_jsonable()
+    ssl_context = ssl.create_default_context()
+    security = SASLScram512(
+        ssl_context=ssl_context,
+        username="admin",
+        password="password",  # pragma: allowlist secret
+    )
+
+    broker = KafkaBroker("localhost:9092", security=security)
+    app = FastStream(broker)
+
+    @broker.publisher("test_2")
+    @broker.subscriber("test_1")
+    async def test_topic(msg: str) -> str:
+        pass
+
+    schema = get_app_schema(app).to_jsonable()
 
     sasl512_security_schema = deepcopy(basic_schema)
     sasl512_security_schema["servers"]["development"]["security"] = [{"scram512": []}]
