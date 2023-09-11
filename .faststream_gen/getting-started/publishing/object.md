@@ -18,6 +18,7 @@ Also uses the handler function return type annotation to cast function return be
     ```python linenums="1"
     {!> docs_src/getting_started/publishing/object_rabbit.py !}
     ```
+
 Can be used multiple times with the one function to broadcast function return
 
 ```python

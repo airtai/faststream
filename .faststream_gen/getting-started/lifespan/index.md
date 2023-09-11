@@ -1,6 +1,5 @@
 # Lifespan Events
 
-References:
+What is lifespans and why we need it
 
 * https://fastapi.tiangolo.com/advanced/events/
-* https://lancetnik.github.io/Propan/getting_started/6_lifespan/

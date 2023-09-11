@@ -6,7 +6,7 @@ import uvicorn
 import yaml
 from typer.testing import CliRunner
 
-from docs.docs_src.kafka.basic.test_docs_cmd import (
+from docs.docs_src.getting_started.asyncapi.serve import (
     gen_json_cmd,
     gen_yaml_cmd,
     serve_cmd,

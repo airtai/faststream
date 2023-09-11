@@ -19,6 +19,7 @@ Base application
     ```python linenums="1"
     {!> docs_src/getting_started/publishing/object_rabbit.py[ln:7-12] !}
     ```
+
 === "Direct"
 === "Kafka"
     ```python linenums="1"
@@ -29,6 +30,7 @@ Base application
     ```python linenums="1"
     {!> docs_src/getting_started/publishing/direct_rabbit.py[ln:7-11] !}
     ```
+
 Testing
 
 === "Kafka"
@@ -40,5 +42,6 @@ Testing
     ```python linenums="1"
     {!> docs_src/getting_started/publishing/object_rabbit_testing.py [ln:1-3,7-12] !}
     ```
+
 * test with real broker
 * wait consumer called

@@ -77,6 +77,8 @@ devdocs = [
     "griffe>=0.24.1",
     "mkdocs-git-revision-date-localized-plugin>=1.2.0",
     "mike>=1.1.0",  # versioning
+    "mkdocs-macros-plugin>=1.0.0",  # includes with variables
+    "mkdocs-glightbox==0.3.4",  # img zoom
     "pillow",
     "cairosvg",
 ]

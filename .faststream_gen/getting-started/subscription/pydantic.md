@@ -13,6 +13,7 @@ Able to use `pydantic.Field` in a subscriber type annotation
     ```python linenums="1" hl_lines="11-16"
     {!> docs_src/getting_started/subscription/pydantic_fields_rabbit.py !}
     ```
+
 Or make this schema reusable with the `pydantic.BaseModel`
 
 === "Kafka"

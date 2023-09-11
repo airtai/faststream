@@ -1,9 +1,7 @@
 from fastapi import Depends, FastAPI
 from pydantic import BaseModel
 
-from faststream.kafka.router import KafkaRouter
-
-app = FastAPI()
+from faststream.kafka.fastapi import KafkaRouter
 
 router = KafkaRouter("localhost:9092")
 
@@ -16,8 +14,9 @@ def call():
     return True
 
 
-@router.event("test")
-async def hello(m: Incoming, d=Depends(call)) -> dict:
+@router.subscriber("test")
+@router.publisher("response")
+async def hello(m: Incoming, d=Depends(call)):
     return {"response": "Hello, world!"}
 
 
@@ -26,4 +25,5 @@ async def hello_http():
     return "Hello, http!"
 
 
+app = FastAPI(lifespan=router.lifespan_context)
 app.include_router(router)

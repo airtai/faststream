@@ -68,16 +68,25 @@ def main(
 def run(
     ctx: typer.Context,
     app: str = typer.Argument(
-        ..., help="[python_module:FastStream] - path to your application"
+        ...,
+        help="[python_module:FastStream] - path to your application",
     ),
     workers: int = typer.Option(
-        1, show_default=False, help="Run [workers] applications with process spawning"
+        1,
+        show_default=False,
+        help="Run [workers] applications with process spawning",
     ),
     log_level: LogLevels = typer.Option(
-        LogLevels.info, case_sensitive=False, show_default=False, help="[INFO] default"
+        LogLevels.info,
+        case_sensitive=False,
+        show_default=False,
+        help="[INFO] default",
     ),
     reload: bool = typer.Option(
-        False, "--reload", is_flag=True, help="Restart app at directory files changes"
+        False,
+        "--reload",
+        is_flag=True,
+        help="Restart app at directory files changes",
     ),
     app_dir: Optional[str] = typer.Option(
         None,

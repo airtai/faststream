@@ -11,17 +11,21 @@ FastStream
 
 ------------------------------------------------------------------------
 
-![PyPI](https://img.shields.io/pypi/v/fastkafka.png) ![PyPI -
-Downloads](https://img.shields.io/pypi/dm/fastkafka.png) ![PyPI - Python
-Version](https://img.shields.io/pypi/pyversions/fastkafka.png)
-
-![GitHub Workflow
-Status](https://img.shields.io/github/actions/workflow/status/airtai/fastkafka/test.yaml)
+<a href="https://github.com/airtai/fastkafka/actions/workflows/test.yaml" target="_blank">
+  <img src="https://github.com/airtai/fastkafka/actions/workflows/test.yaml/badge.svg" alt="Test Passing"/>
+</a>
+<a href="https://pypi.org/project/faststream" target="_blank">
+  <img src="https://img.shields.io/pypi/v/faststream?label=PyPI" alt="Package version">
+</a>
+<a href="https://www.pepy.tech/projects/faststream" target="_blank">
+  <img src="https://static.pepy.tech/personalized-badge/faststream?period=month&units=international_system&left_color=grey&right_color=green&left_text=downloads/month" alt="Downloads"/>
+</a>
+<a href="https://pypi.org/project/faststream" target="_blank">
+  <img src="https://img.shields.io/pypi/pyversions/faststream.svg" alt="Supported Python versions">
+</a>
 ![CodeQL](https://github.com/airtai/fastkafka//actions/workflows/codeql.yml/badge.svg)
-![Dependency
-Review](https://github.com/airtai/fastkafka//actions/workflows/dependency-review.yml/badge.svg)
-
-![GitHub](https://img.shields.io/github/license/airtai/fastkafka.png)
+![Dependency Review](https://github.com/airtai/fastkafka//actions/workflows/dependency-review.yml/badge.svg)
+![GitHub](https://img.shields.io/github/license/airtai/faststream.png)
 
 ------------------------------------------------------------------------
 
