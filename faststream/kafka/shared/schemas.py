@@ -31,5 +31,5 @@ class ConsumerConnectionParams(TypedDict, total=False):
     sasl_plain_username: str
     sasl_kerberos_service_name: str
     sasl_kerberos_domain_name: str
-    ssl_conext: ssl.SSLContext
+    ssl_context: ssl.SSLContext
     sasl_oauth_token_provider: AbstractTokenProvider

@@ -172,14 +172,15 @@ class KafkaBroker(
         Returns:
             ConsumerConnectionParams: The connection parameters.
         """
+        security_params = parse_security(self.security)
         producer = aiokafka.AIOKafkaProducer(
-            **kwargs, **parse_security(self.security), client_id=client_id
+            **kwargs, **security_params, client_id=client_id
         )
         await producer.start()
         self._producer = AioKafkaFastProducer(
             producer=producer,
         )
-        return filter_by_dict(ConsumerConnectionParams, kwargs)
+        return filter_by_dict(ConsumerConnectionParams, {**kwargs, **security_params})
 
     async def start(self) -> None:
         """
@@ -381,7 +382,6 @@ class KafkaBroker(
             max_poll_records=max_poll_records,
             exclude_internal_topics=exclude_internal_topics,
             isolation_level=isolation_level,
-            **parse_security(self.security),
         )
         handler = self.handlers.get(
             key,
