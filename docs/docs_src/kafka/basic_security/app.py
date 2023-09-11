@@ -1,6 +1,6 @@
 import ssl
 
-from faststream import FastStream, Logger
+from faststream import FastStream
 from faststream.broker.security import BaseSecurity
 from faststream.kafka import KafkaBroker
 
@@ -11,6 +11,7 @@ broker = KafkaBroker("localhost:9092", security=security)
 app = FastStream(broker)
 
 
-@broker.subscriber("testinstallation")
-async def handle_msg(msg: bytes, logger: Logger):
-    logger.info(msg)
+@broker.publisher("test_2")
+@broker.subscriber("test_1")
+async def test_topic(msg: str) -> str:
+    pass
