@@ -1,4 +1,5 @@
 import itertools
+import multiprocessing
 from importlib import import_module
 from inspect import getmembers, isclass, isfunction
 from pathlib import Path
@@ -169,21 +170,28 @@ def _load_submodules(
     return names
 
 
+def _update_single_api_doc(
+    symbol: Union[FunctionType, Type[Any]], docs_path: Path
+) -> None:
+    en_docs_path = docs_path / "docs" / "en"
+    content = ""
+    content += get_formatted_docstring_for_symbol(symbol, docs_path)
+    target_file_path = (
+        "/".join(f"{symbol.__module__}.{symbol.__name__}".split(".")) + ".md"
+    )
+
+    with open((en_docs_path / "api" / target_file_path), "w", encoding="utf-8") as f:
+        f.write(content)
+
+
 def _update_api_docs(
     symbols: List[Union[FunctionType, Type[Any]]], docs_path: Path
 ) -> None:
-    en_docs_path = docs_path / "docs" / "en"
-    for symbol in symbols:
-        content = ""
-        content += get_formatted_docstring_for_symbol(symbol, docs_path)
-        target_file_path = (
-            "/".join(f"{symbol.__module__}.{symbol.__name__}".split(".")) + ".md"
+    num_processes = min(len(symbols), multiprocessing.cpu_count())
+    with multiprocessing.Pool(processes=num_processes) as pool:
+        pool.starmap(
+            _update_single_api_doc, [(symbol, docs_path) for symbol in symbols]
         )
-
-        with open(
-            (en_docs_path / "api" / target_file_path), "w", encoding="utf-8"
-        ) as f:
-            f.write(content)
 
 
 def _generate_api_docs_for_module(root_path: str, module_name: str) -> str:
