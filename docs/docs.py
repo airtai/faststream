@@ -171,7 +171,7 @@ def update_readme():
     expand_markdown(input_markdown_path=EN_INDEX_PATH, output_markdown_path=README_PATH)
 
     relative_path = os.path.relpath(EN_INDEX_PATH, BASE_DIR.parent)
-    auto_generated = f"> **_NOTE:_**  This is an auto-generated file. Please edit {relative_path} instead.\n\n"
+    auto_generated = f"[Note]: # (This is an auto-generated file. Please edit {relative_path} instead)\n\n"
 
     existing_content = open(README_PATH).read()
     open(README_PATH, "w").write(auto_generated + existing_content)
