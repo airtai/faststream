@@ -79,6 +79,8 @@ devdocs = [
     "mike>=1.1.0",  # versioning
     "mkdocs-macros-plugin>=1.0.0",  # includes with variables
     "mkdocs-glightbox==0.3.4",  # img zoom
+    "pillow",
+    "cairosvg",
 ]
 
 lint = [
