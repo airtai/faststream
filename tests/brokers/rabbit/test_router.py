@@ -73,6 +73,6 @@ class TestRouter(RouterTestcase):
         assert event.is_set()
 
 
-class TestRabbitRouterLocal(RouterLocalTestcase):
+class TestRouterLocal(RouterLocalTestcase):
     broker_class = RabbitRouter
     route_class = RabbitRoute

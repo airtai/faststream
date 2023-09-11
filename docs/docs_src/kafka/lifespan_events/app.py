@@ -15,7 +15,7 @@ def multiply(x: float) -> float:
 async def setup_model(logger: Logger, context: ContextRepo):
     # Load the ML model
     logger.info("Loading the model...")
-    context.set_global("ml_models", {"multiply_model": multiply})  # fake ML model
+    context.set_global("ml_models", {"multiply_model": multiply})  # fakt ML model
 
 
 @app.on_shutdown

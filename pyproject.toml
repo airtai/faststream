@@ -75,6 +75,12 @@ devdocs = [
     "mkdocstrings[python]>=0.23.0",
     "mkdocs-literate-nav>=0.6.0",
     "griffe>=0.24.1",
+    "mkdocs-git-revision-date-localized-plugin>=1.2.0",
+    "mike>=1.1.0",  # versioning
+    "mkdocs-macros-plugin>=1.0.0",  # includes with variables
+    "mkdocs-glightbox==0.3.4",  # img zoom
+    "pillow",
+    "cairosvg",
 ]
 
 lint = [
@@ -206,6 +212,7 @@ concurrency = [
     "thread"
 ]
 source = [
+    "docs/docs_src",
     "faststream",
     "tests"
 ]

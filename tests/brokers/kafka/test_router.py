@@ -10,6 +10,6 @@ class TestRouter(RouterTestcase):
     route_class = KafkaRoute
 
 
-class TestRabbitRouterLocal(RouterLocalTestcase):
+class TestRouterLocal(RouterLocalTestcase):
     broker_class = KafkaRouter
     route_class = KafkaRoute

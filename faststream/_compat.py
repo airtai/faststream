@@ -7,22 +7,27 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Type, TypeVar, 
 from fast_depends._compat import PYDANTIC_V2 as PYDANTIC_V2
 from fast_depends._compat import FieldInfo
 from pydantic import BaseModel
+from typing_extensions import TypedDict as TypedDict
+from typing_extensions import override as override
 
 # TODO: uncomment with py3.12 release 2023-10-02
 # if sys.version_info < (3, 12):
 #     from typing_extensions import override as override
+#     from typing_extensions import TypedDict as TypedDict
 # else:
 #     from typing import override
-from typing_extensions import Required as Required
-from typing_extensions import TypedDict as TypedDict
-from typing_extensions import override as override
+#     from typing import TypedDict as TypedDict
+
 
 if sys.version_info < (3, 11):
     from typing_extensions import Never as Never
+    from typing_extensions import Required as Required
     from typing_extensions import Self as Self
 else:
     from typing import Never as Never
+    from typing import Required as Required
     from typing import Self as Self
+
 
 if sys.version_info < (3, 10):
     from typing_extensions import Concatenate as Concatenate
@@ -53,7 +58,8 @@ IS_OPTIMIZED = os.getenv("PYTHONOPTIMIZE", False)
 if is_installed("fastapi"):
     from fastapi import __version__ as FASTAPI_VERSION
 
-    FASTAPI_V2 = FASTAPI_VERSION.startswith("0.10")
+    major, minor, _ = map(int, FASTAPI_VERSION.split("."))
+    FASTAPI_V2 = not (major < 0 and minor < 100)
 
     if FASTAPI_V2:
         from fastapi._compat import _normalize_errors
