@@ -20,6 +20,7 @@ def patch_aio_consumer_and_producer() -> Tuple[MagicMock, MagicMock]:
 
 
 @pytest.mark.asyncio
+@pytest.mark.kafka
 async def test_base_security():
     with patch_aio_consumer_and_producer() as (consumer, producer):
         from docs.docs_src.kafka.basic_security.app import broker as basic_broker
@@ -41,6 +42,7 @@ async def test_base_security():
 
 
 @pytest.mark.asyncio
+@pytest.mark.kafka
 async def test_scram256():
     with patch_aio_consumer_and_producer() as (consumer, producer):
         from docs.docs_src.kafka.sasl_scram256_security.app import (
@@ -67,6 +69,7 @@ async def test_scram256():
 
 
 @pytest.mark.asyncio
+@pytest.mark.kafka
 async def test_scram512():
     with patch_aio_consumer_and_producer() as (consumer, producer):
         from docs.docs_src.kafka.sasl_scram512_security.app import (
@@ -93,6 +96,7 @@ async def test_scram512():
 
 
 @pytest.mark.asyncio
+@pytest.mark.kafka
 async def test_plaintext():
     with patch_aio_consumer_and_producer() as (consumer, producer):
         from docs.docs_src.kafka.plaintext_security.app import (
