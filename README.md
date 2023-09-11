@@ -1,10 +1,5 @@
-> **_NOTE:_**  This is an auto-generated file. Please edit docs/docs/en/index.md instead.
+[Note]: # (This is an auto-generated file. Please edit docs/docs/en/index.md instead)
 
----
-hide:
-  - navigation
-  - footer
----
 
 FastStream
 ================
