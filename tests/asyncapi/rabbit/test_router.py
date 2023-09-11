@@ -79,7 +79,7 @@ class TestRouter(RouterTestcase):
                 "development": {
                     "protocol": "amqp",
                     "protocolVersion": "0.9.1",
-                    "url": "amqp://guest:guest@localhost:5672/",
+                    "url": "amqp://guest:guest@localhost:5672/",  # pragma: allowlist secret
                 }
             },
         }

@@ -1,0 +1,3 @@
+
+
+::: faststream.utils.classes.Singleton

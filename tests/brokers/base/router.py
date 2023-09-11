@@ -24,12 +24,12 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
         return br
 
     @pytest.fixture
-    def raw_broker(self, broker):
+    def pub_broker(self, broker):
         return broker
 
     @pytest.fixture
-    def pub_broker(self, broker):
-        return broker
+    def raw_broker(self, pub_broker):
+        return pub_broker
 
     async def test_empty_prefix(
         self,
