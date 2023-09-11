@@ -76,7 +76,7 @@ But this code is a too long to reuse it everywhere. Thus, you can use python `An
     ```python hl_lines="4 9"
     from types import Annotated
     from faststream import Context
-    
+
     CorrelationId = Annotated[str, Context("message.correlation_id")]
 
     @broker.subscriber("test")
@@ -91,7 +91,7 @@ But this code is a too long to reuse it everywhere. Thus, you can use python `An
     ```python hl_lines="4 9"
     from typing_extensions import Annotated
     from faststream import Context
-    
+
     CorrelationId = Annotated[str, Context("message.correlation_id")]
 
     @broker.subscriber("test")

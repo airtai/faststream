@@ -11,6 +11,7 @@ Original application
     ```python linenums="1"
     {!> docs_src/getting_started/subscription/annotation_kafka.py [ln:7-10]!}
     ```
+
 * in-memory TestClient
 * publishing (show error raising)
 * check incoming message body
@@ -25,6 +26,7 @@ Original application
     ```python linenums="1"
     {!> docs_src/getting_started/subscription/testing_rabbit.py !}
     ```
+
 * test with real broker
 * wait consumer called
 

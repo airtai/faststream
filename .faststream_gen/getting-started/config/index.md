@@ -31,11 +31,14 @@ You can use all the same validation features and tools you use for Pydantic mode
     ```python linenums='1' hl_lines="1 3" title="config.py"
 from pydantic_settings import BaseSettings
 
+
 class Settings(BaseSettings):
     url: str = ""
     queue: str = "test-queue"
 
-settings = Settings()    ```
+
+settings = Settings()
+    ```
 
 === "Pydantic v1"
     !!! info
@@ -44,11 +47,14 @@ settings = Settings()    ```
     ```python linenums='1' hl_lines="1 3" title="config.py"
 from pydantic import BaseSettings
 
+
 class Settings(BaseSettings):
     url: str = ""
     queue: str = "test-queue"
 
-settings = Settings()    ```
+
+settings = Settings()
+    ```
 
 Then, when you create an instance of that `Settings` class (in this case, in the `settings` object), Pydantic will read the environment variables in a case-insensitive way, so, an upper-case variable `APP_NAME` will still be read for the attribute `app_name`.
 
@@ -59,17 +65,29 @@ Next it will convert and validate the data. So, when you use that `settings` obj
 Then you can use the new `settings` object in your application:
 
 ```python linenums='1' hl_lines="4 6 9" title="serve.py"
+import os
+
+from pydantic_settings import BaseSettings
+
 from faststream import FastStream
 from faststream.rabbit import RabbitBroker
 
-from config import setting
+
+class Settings(BaseSettings):
+    url: str
+    queue: str = "test-queue"
+
+
+settings = Settings(_env_file=os.getenv("ENV", ".env"))
 
 broker = RabbitBroker(settings.url)
 app = FastStream(broker)
 
+
 @broker.handle(settings.queue)
 async def handler(msg):
-    ...```
+    ...
+```
 
 ### Run the application
 
@@ -114,11 +132,16 @@ And then update your `config.py` with:
 ```python linenums='1' hl_lines="1 7"
 import os
 
+from pydantic import BaseSettings
+
+
 class Settings(BaseSettings):
     url: str
     queue: str = "test-queue"
 
-settings = Settings(_env_file=os.getenv("ENV", ".env"))```
+
+settings = Settings(_env_file=os.getenv("ENV", ".env"))
+```
 
 This way you are able to specify different `.env` files right from your terminal. It can be extremely helpful in testing/production cases.
 

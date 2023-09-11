@@ -1,4 +1,5 @@
 import pytest
+
 from faststream.rabbit import TestRabbitBroker, fastapi
 
 router = fastapi.RabbitRouter()

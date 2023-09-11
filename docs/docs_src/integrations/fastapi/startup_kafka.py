@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from faststream.kafka.fastapi import KafkaRouter
 
+from faststream.kafka.fastapi import KafkaRouter
 
 router = KafkaRouter("localhost:9092")
 

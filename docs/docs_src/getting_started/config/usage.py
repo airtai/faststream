@@ -1,10 +1,21 @@
+import os
+
+from pydantic_settings import BaseSettings
+
 from faststream import FastStream
 from faststream.rabbit import RabbitBroker
 
-from config import setting
+
+class Settings(BaseSettings):
+    url: str
+    queue: str = "test-queue"
+
+
+settings = Settings(_env_file=os.getenv("ENV", ".env"))
 
 broker = RabbitBroker(settings.url)
 app = FastStream(broker)
+
 
 @broker.handle(settings.queue)
 async def handler(msg):

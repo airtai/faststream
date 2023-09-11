@@ -3,7 +3,6 @@ from pydantic import BaseModel
 
 from faststream.kafka.fastapi import KafkaRouter
 
-
 router = KafkaRouter("localhost:9092")
 
 

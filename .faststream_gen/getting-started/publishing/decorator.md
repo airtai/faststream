@@ -18,6 +18,7 @@ Uses the handler function return type annotation to cast function return before 
     ```python linenums="1"
     {!> docs_src/getting_started/publishing/decorator_rabbit.py !}
     ```
+
 Can be used multiple times with the one function to broadcast function return
 
 ```python

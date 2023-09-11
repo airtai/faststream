@@ -1,4 +1,5 @@
 import pytest
+
 from faststream.kafka import TestKafkaBroker, fastapi
 
 router = fastapi.KafkaRouter()

@@ -21,12 +21,14 @@ queue = RabbitQueue(
     },
 )
 
+
 @broker.subscriber(
     queue,
     consume_arguments={"x-stream-offset": "first"},
 )
 async def handle(msg, logger: Logger):
     logger.info(msg)
+
 
 @app.after_startup
 async def test():

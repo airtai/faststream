@@ -14,6 +14,7 @@ Can be used directly to publush a message
     ```python linenums="1"
     {!> docs_src/getting_started/publishing/direct_rabbit.py !}
     ```
+
 Suitable to publish different messages to different outputes at the same processing function
 
 ```python

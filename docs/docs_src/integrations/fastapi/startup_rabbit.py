@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from faststream.rabbit.fastapi import RabbitRouter
 
+from faststream.rabbit.fastapi import RabbitRouter
 
 router = RabbitRouter("amqp://guest:guest@localhost:5672/")
 

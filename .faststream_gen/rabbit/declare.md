@@ -7,24 +7,31 @@ This reason **RabbitBroker** provides you a methods to make it easely.
 ``` python linenums="1" hl_lines="14-16 18-20"
 from faststream import FastStream
 from faststream.rabbit import (
+    ExchangeType,
     RabbitBroker,
     RabbitExchange,
     RabbitQueue,
-    ExchangeType,
 )
 
 broker = RabbitBroker()
 app = FastStream(broker)
 
+
 @app.after_startup
 async def declare_smth():
-    await broker.declare_exchange(RabbitExchange(
-        name="some-exchange", type=ExchangeType.FANOUT,
-    ))
+    await broker.declare_exchange(
+        RabbitExchange(
+            name="some-exchange",
+            type=ExchangeType.FANOUT,
+        )
+    )
 
-    await broker.declare_queue(RabbitQueue(
-        name="some-queue", durable=True,
-    ))
+    await broker.declare_queue(
+        RabbitQueue(
+            name="some-queue",
+            durable=True,
+        )
+    )
 ```
 
 These methods require just a one argument (`RabbitQueue`/`RabbitExchange`) containing information about your *RabbitMQ* required objects. They are declare/validates *RabbitMQ* objects and returns you low-level **aio-pika** robust objects to interact with.
