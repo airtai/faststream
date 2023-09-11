@@ -25,6 +25,7 @@ from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filte
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.push_back_watcher import BaseWatcher, WatcherContext
+from faststream.broker.security import BaseSecurity
 from faststream.broker.types import (
     AsyncPublisherProtocol,
     CustomDecoder,
@@ -82,6 +83,7 @@ class KafkaBroker(
         protocol: Optional[str] = None,
         protocol_version: str = "auto",
         client_id: str = "faststream-" + __version__,
+        security: Optional[BaseSecurity] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -92,10 +94,10 @@ class KafkaBroker(
             protocol (str): The protocol used (default is "kafka").
             protocol_version (str): The Kafka protocol version (default is "auto").
             client_id (str): The client ID for the Kafka client.
+            security (Optional[BaseSecurity]): Security protocol to use in communication with the broker (default is None).
             **kwargs: Additional keyword arguments.
         """
         if protocol is None:
-            security = kwargs.get("security")
             if security is not None and security.use_ssl:
                 protocol = "kafka-secure"
             else:
@@ -105,6 +107,7 @@ class KafkaBroker(
             url=bootstrap_servers,
             protocol=protocol,
             protocol_version=protocol_version,
+            security=security,
             **kwargs,
             client_id=client_id,
             bootstrap_servers=bootstrap_servers,
