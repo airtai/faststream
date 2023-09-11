@@ -1,7 +1,6 @@
 import logging
 from asyncio import AbstractEventLoop
 from enum import Enum
-from ssl import SSLContext
 from typing import (
     Any,
     Awaitable,
@@ -22,7 +21,6 @@ from typing import (
 
 import aiokafka
 from aiokafka import ConsumerRecord
-from aiokafka.abc import AbstractTokenProvider
 from aiokafka.producer.producer import _missing
 from fast_depends.dependencies import Depends
 from fastapi import params
@@ -43,6 +41,7 @@ from faststream.broker.core.asyncronous import default_filter
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
+from faststream.broker.security import BaseSecurity
 from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
@@ -70,24 +69,9 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         request_timeout_ms: int = 40 * 1000,
         retry_backoff_ms: int = 100,
         metadata_max_age_ms: int = 5 * 60 * 1000,
-        security_protocol: Literal[
-            "SSL",
-            "PLAINTEXT",
-        ] = "PLAINTEXT",
         api_version: str = "auto",
         connections_max_idle_ms: int = 540000,
-        sasl_mechanism: Literal[
-            "PLAIN",
-            "GSSAPI",
-            "SCRAM-SHA-256",
-            "SCRAM-SHA-512",
-            "OAUTHBEARER",
-        ] = "PLAIN",
-        sasl_plain_password: Optional[str] = None,
-        sasl_plain_username: Optional[str] = None,
-        sasl_kerberos_service_name: str = "kafka",
-        sasl_kerberos_domain_name: Optional[str] = None,
-        sasl_oauth_token_provider: Optional[AbstractTokenProvider] = None,
+        security: Optional[BaseSecurity] = None,
         # publisher
         acks: Union[Literal[0, 1, -1, "all"], object] = _missing,
         key_serializer: Optional[Callable[[Any], bytes]] = None,
@@ -101,7 +85,6 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         max_request_size: int = 1048576,
         linger_ms: int = 0,
         send_backoff_ms: int = 100,
-        ssl_context: Optional[SSLContext] = None,
         enable_idempotence: bool = False,
         transactional_id: Optional[str] = None,
         transaction_timeout_ms: int = 60000,

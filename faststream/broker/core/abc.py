@@ -33,6 +33,7 @@ from faststream.broker.middlewares import BaseMiddleware, CriticalLogMiddleware
 from faststream.broker.publisher import BasePublisher
 from faststream.broker.push_back_watcher import BaseWatcher
 from faststream.broker.router import BrokerRouter
+from faststream.broker.security import BaseSecurity
 from faststream.broker.types import (
     ConnectionType,
     CustomDecoder,
@@ -125,6 +126,7 @@ class BrokerUsecase(
         middlewares: Optional[Sequence[Callable[[MsgType], BaseMiddleware]]] = None,
         decoder: Optional[CustomDecoder[MsgType]] = None,
         parser: Optional[CustomParser[MsgType]] = None,
+        security: Optional[BaseSecurity] = None,
         **kwargs: Any,
     ) -> None:
         """Initialize a broker.
@@ -183,6 +185,7 @@ class BrokerUsecase(
         self.protocol_version = protocol_version
         self.description = description
         self.tags = tags
+        self.security = security
 
     def include_router(self, router: BrokerRouter[Any, MsgType]) -> None:
         """Includes a router in the current object.

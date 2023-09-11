@@ -12,6 +12,7 @@ from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filte
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.push_back_watcher import BaseWatcher, WatcherContext
+from faststream.broker.security import BaseSecurity
 from faststream.broker.types import (
     AsyncPublisherProtocol,
     CustomDecoder,
@@ -26,6 +27,7 @@ from faststream.rabbit.asyncapi import Handler, Publisher
 from faststream.rabbit.helpers import RabbitDeclarer
 from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.producer import AioPikaFastProducer
+from faststream.rabbit.security import parse_security
 from faststream.rabbit.shared.constants import RABBIT_REPLY
 from faststream.rabbit.shared.logging import RabbitLoggingMixin
 from faststream.rabbit.shared.schemas import (
@@ -79,6 +81,7 @@ class RabbitBroker(
         max_consumers: Optional[int] = None,
         protocol: str = "amqp",
         protocol_version: Optional[str] = "0.9.1",
+        security: Optional[BaseSecurity] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -95,6 +98,7 @@ class RabbitBroker(
             url=url,
             protocol=protocol,
             protocol_version=protocol_version,
+            security=security,
             **kwargs,
         )
 
@@ -164,7 +168,7 @@ class RabbitBroker(
         """
         connection = cast(
             aio_pika.RobustConnection,
-            await aio_pika.connect_robust(**kwargs),
+            await aio_pika.connect_robust(**kwargs, **parse_security(self.security)),
         )
 
         if self._channel is None:  # pragma: no branch

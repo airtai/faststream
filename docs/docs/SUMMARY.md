@@ -188,6 +188,11 @@
             - schemas
                 - [NameRequired](api/faststream/broker/schemas/NameRequired.md)
                 - [RawDecoced](api/faststream/broker/schemas/RawDecoced.md)
+            - security
+                - [BaseSecurity](api/faststream/broker/security/BaseSecurity.md)
+                - [SASLPlaintext](api/faststream/broker/security/SASLPlaintext.md)
+                - [SASLScram256](api/faststream/broker/security/SASLScram256.md)
+                - [SASLScram512](api/faststream/broker/security/SASLScram512.md)
             - test
                 - [TestApp](api/faststream/broker/test/TestApp.md)
                 - [call_handler](api/faststream/broker/test/call_handler.md)
@@ -263,6 +268,8 @@
                 - [LogicPublisher](api/faststream/kafka/publisher/LogicPublisher.md)
             - router
                 - [KafkaRouter](api/faststream/kafka/router/KafkaRouter.md)
+            - security
+                - [parse_security](api/faststream/kafka/security/parse_security.md)
             - shared
                 - logging
                     - [KafkaLoggingMixin](api/faststream/kafka/shared/logging/KafkaLoggingMixin.md)
@@ -306,6 +313,8 @@
                 - [LogicPublisher](api/faststream/rabbit/publisher/LogicPublisher.md)
             - router
                 - [RabbitRouter](api/faststream/rabbit/router/RabbitRouter.md)
+            - security
+                - [parse_security](api/faststream/rabbit/security/parse_security.md)
             - shared
                 - constants
                     - [ExchangeType](api/faststream/rabbit/shared/constants/ExchangeType.md)

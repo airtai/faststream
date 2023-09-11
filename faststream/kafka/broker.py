@@ -25,6 +25,7 @@ from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filte
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.push_back_watcher import BaseWatcher, WatcherContext
+from faststream.broker.security import BaseSecurity
 from faststream.broker.types import (
     AsyncPublisherProtocol,
     CustomDecoder,
@@ -38,6 +39,7 @@ from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
 from faststream.kafka.asyncapi import Handler, Publisher
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.producer import AioKafkaFastProducer
+from faststream.kafka.security import parse_security
 from faststream.kafka.shared.logging import KafkaLoggingMixin
 from faststream.kafka.shared.schemas import ConsumerConnectionParams
 from faststream.utils import context
@@ -78,9 +80,10 @@ class KafkaBroker(
         self,
         bootstrap_servers: Union[str, Iterable[str]] = "localhost",
         *,
-        protocol: str = "kafka",
+        protocol: Optional[str] = None,
         protocol_version: str = "auto",
         client_id: str = "faststream-" + __version__,
+        security: Optional[BaseSecurity] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -91,12 +94,20 @@ class KafkaBroker(
             protocol (str): The protocol used (default is "kafka").
             protocol_version (str): The Kafka protocol version (default is "auto").
             client_id (str): The client ID for the Kafka client.
+            security (Optional[BaseSecurity]): Security protocol to use in communication with the broker (default is None).
             **kwargs: Additional keyword arguments.
         """
+        if protocol is None:
+            if security is not None and security.use_ssl:
+                protocol = "kafka-secure"
+            else:
+                protocol = "kafka"
+
         super().__init__(
             url=bootstrap_servers,
             protocol=protocol,
             protocol_version=protocol_version,
+            security=security,
             **kwargs,
             client_id=client_id,
             bootstrap_servers=bootstrap_servers,
@@ -161,12 +172,15 @@ class KafkaBroker(
         Returns:
             ConsumerConnectionParams: The connection parameters.
         """
-        producer = aiokafka.AIOKafkaProducer(**kwargs, client_id=client_id)
+        security_params = parse_security(self.security)
+        producer = aiokafka.AIOKafkaProducer(
+            **kwargs, **security_params, client_id=client_id
+        )
         await producer.start()
         self._producer = AioKafkaFastProducer(
             producer=producer,
         )
-        return filter_by_dict(ConsumerConnectionParams, kwargs)
+        return filter_by_dict(ConsumerConnectionParams, {**kwargs, **security_params})
 
     async def start(self) -> None:
         """

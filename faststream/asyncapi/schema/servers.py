@@ -6,7 +6,7 @@ from faststream._compat import PYDANTIC_V2
 from faststream.asyncapi.schema.bindings import ServerBinding
 from faststream.asyncapi.schema.utils import Reference, Tag, TagDict
 
-SecurityRequirement = Dict[str, List[str]]
+SecurityRequirement = List[Dict[str, List[str]]]
 
 
 class ServerVariable(BaseModel):
