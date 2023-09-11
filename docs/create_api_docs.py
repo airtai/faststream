@@ -1,13 +1,10 @@
 import itertools
-import multiprocessing
 from importlib import import_module
 from inspect import getmembers, isclass, isfunction
 from pathlib import Path
 from pkgutil import walk_packages
 from types import FunctionType, ModuleType
 from typing import Any, List, Optional, Tuple, Type, Union
-
-from api_docs_helper import get_formatted_docstring_for_symbol
 
 
 def _get_submodules(package_name: str) -> List[str]:
@@ -174,8 +171,10 @@ def _update_single_api_doc(
     symbol: Union[FunctionType, Type[Any]], docs_path: Path
 ) -> None:
     en_docs_path = docs_path / "docs" / "en"
-    content = ""
-    content += get_formatted_docstring_for_symbol(symbol, docs_path)
+
+    module = f"{symbol.__module__}.{symbol.__qualname__}"
+    content = f"\n\n::: {module}\n"
+
     target_file_path = (
         "/".join(f"{symbol.__module__}.{symbol.__name__}".split(".")) + ".md"
     )
@@ -187,11 +186,8 @@ def _update_single_api_doc(
 def _update_api_docs(
     symbols: List[Union[FunctionType, Type[Any]]], docs_path: Path
 ) -> None:
-    num_processes = min(len(symbols), multiprocessing.cpu_count())
-    with multiprocessing.Pool(processes=num_processes) as pool:
-        pool.starmap(
-            _update_single_api_doc, [(symbol, docs_path) for symbol in symbols]
-        )
+    for symbol in symbols:
+        _update_single_api_doc(symbol=symbol, docs_path=docs_path)
 
 
 def _generate_api_docs_for_module(root_path: str, module_name: str) -> str:
