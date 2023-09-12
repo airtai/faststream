@@ -1,0 +1,4 @@
+FastStream application that handles the incoming students from "student_application" topic.
+The Student is then passed to the "class" topic using student_name as key.
+Student has a name and age.
+The communication with the broker is encrypted with ssl and uses SASL Scram512 for authorization, username and pasword are hardcoded.
