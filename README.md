@@ -8,8 +8,8 @@ FastStream
 
 ------------------------------------------------------------------------
 
-<a href="https://github.com/airtai/fastkafka/actions/workflows/test.yaml" target="_blank">
-  <img src="https://github.com/airtai/fastkafka/actions/workflows/test.yaml/badge.svg" alt="Test Passing"/>
+<a href="https://github.com/airtai/faststream/actions/workflows/test.yaml" target="_blank">
+  <img src="https://github.com/airtai/faststream/actions/workflows/test.yaml/badge.svg" alt="Test Passing"/>
 </a>
 <a href="https://pypi.org/project/faststream" target="_blank">
   <img src="https://img.shields.io/pypi/v/faststream?label=PyPI" alt="Package version">
@@ -20,13 +20,19 @@ FastStream
 <a href="https://pypi.org/project/faststream" target="_blank">
   <img src="https://img.shields.io/pypi/pyversions/faststream.svg" alt="Supported Python versions">
 </a>
-![CodeQL](https://github.com/airtai/fastkafka//actions/workflows/codeql.yml/badge.svg)
-![Dependency Review](https://github.com/airtai/fastkafka//actions/workflows/dependency-review.yml/badge.svg)
-![GitHub](https://img.shields.io/github/license/airtai/faststream.png)
+<a href="https://github.com/airtai/faststream/actions/workflows/codeql.yml" target="_blank">
+  <img src="https://github.com/airtai/faststream/actions/workflows/codeql.yml/badge.svg" alt="CodeQL">
+</a>
+<a href="https://github.com/airtai/faststream/actions/workflows/dependency-review.yml" target="_blank">
+  <img src="https://github.com/airtai/faststream/actions/workflows/dependency-review.yml/badge.svg" alt="Dependency Review">
+</a>
+<a href="https://github.com/airtai/faststream" target="_blank">
+  <img src="https://img.shields.io/github/license/airtai/faststream.png" alt="Github">
+</a>
 
 ------------------------------------------------------------------------
 
-[FastStream](https://fastkafka.airt.ai/) is a powerful and easy-to-use Python
+[FastStream](https://faststream.airt.ai/) is a powerful and easy-to-use Python
 library for building asynchronous services that interact with Event streams
 topics. Built on top of [Pydantic](https://docs.pydantic.dev/) and
 [AsyncAPI](https://www.asyncapi.com/), FastStream simplifies the process
@@ -200,7 +206,7 @@ business logic of your application without worrying about the underlying
 integration.
 
 This following example shows how to use the `@broker.subscriber` and
-`@broker.publisher` decorators in a FastKafka application:
+`@broker.publisher` decorators in a FastStream application:
 
 - The `@broker.subscriber` decorator is applied to the `on_input_data`
   function, which specifies that this function should be called whenever
