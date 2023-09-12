@@ -1,5 +1,6 @@
 from typing import Any, Dict, Union
 
+from faststream._compat import is_installed
 from faststream.app import FastStream
 from faststream.asyncapi.schema import (
     Channel,
@@ -10,11 +11,12 @@ from faststream.asyncapi.schema import (
     Schema,
     Server,
 )
-from faststream.broker.fastapi.router import StreamRouter
 from faststream.constants import ContentTypes
 
+if is_installed("fastapi"):
+    from faststream.broker.fastapi.router import StreamRouter
 
-def get_app_schema(app: Union[FastStream, StreamRouter[Any]]) -> Schema:
+def get_app_schema(app: Union[FastStream, "StreamRouter[Any]"]) -> Schema:
     """Get the application schema.
 
     Args:
@@ -95,7 +97,7 @@ def get_app_schema(app: Union[FastStream, StreamRouter[Any]]) -> Schema:
 
 
 def get_app_broker_server(
-    app: Union[FastStream, StreamRouter[Any]]
+    app: Union[FastStream, "StreamRouter[Any]"]
 ) -> Dict[str, Server]:
     """Get the broker server for an application.
 
@@ -149,7 +151,7 @@ def get_app_broker_server(
 
 
 def get_app_broker_channels(
-    app: Union[FastStream, StreamRouter[Any]]
+    app: Union[FastStream, "StreamRouter[Any]"]
 ) -> Dict[str, Channel]:
     """Get the broker channels for an application.
 

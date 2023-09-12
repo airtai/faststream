@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Optional
 
 import typer
-import yaml
 
+from faststream.__about__ import INSTALL_YAML
 from faststream._compat import model_parse
 from faststream.asyncapi.generate import get_app_schema
 from faststream.asyncapi.schema import Schema
@@ -41,9 +41,17 @@ def serve(
         schema_filepath = Path.cwd() / app
         if schema_filepath.suffix == ".json":
             data = schema_filepath.read_text()
+
         elif schema_filepath.suffix == ".yaml" or schema_filepath.suffix == ".yml":
+            try:
+                import yaml
+            except ImportError as e:  # pragma: no cover
+                typer.echo(INSTALL_YAML, err=True)
+                raise typer.Exit(1) from e
+
             with schema_filepath.open("r") as f:
                 schema = yaml.safe_load(f)
+
             data = json.dumps(schema)
         else:
             raise ValueError(
@@ -91,10 +99,7 @@ def gen(
         try:
             schema = raw_schema.to_yaml()
         except ImportError as e:  # pragma: no cover
-            typer.echo(
-                "To generate YAML documentation, please install dependencies:\n"
-                "pip install PyYAML"
-            )
+            typer.echo(INSTALL_YAML, err=True)
             raise typer.Exit(1) from e
 
         name = out or "asyncapi.yaml"
@@ -108,3 +113,5 @@ def gen(
 
         with open(name, "w") as f:
             json.dump(schema, f, indent=2)
+
+    typer.echo(f"Your project AsyncAPI scheme was placed to `{name}`")
