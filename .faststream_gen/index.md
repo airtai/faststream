@@ -32,6 +32,7 @@ FastStream
 <a href="https://github.com/airtai/faststream" target="_blank">
   <img src="https://img.shields.io/github/license/airtai/faststream.png" alt="Github">
 </a>
+
 ------------------------------------------------------------------------
 
 [FastStream](https://fastkafka.airt.ai/) is a powerful and easy-to-use Python
