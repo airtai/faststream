@@ -2,10 +2,8 @@ import pytest
 
 from faststream.rabbit import RabbitExchange, RabbitQueue
 from faststream.rabbit.helpers import RabbitDeclarer
-from tests.tools.marks import needs_py38
 
 
-@needs_py38
 @pytest.mark.asyncio
 async def test_declare_queue(async_mock, queue: str):
     declarer = RabbitDeclarer(async_mock)
@@ -17,7 +15,6 @@ async def test_declare_queue(async_mock, queue: str):
     async_mock.declare_queue.assert_awaited_once()
 
 
-@needs_py38
 @pytest.mark.asyncio
 async def test_declare_exchange(
     async_mock,
@@ -32,7 +29,6 @@ async def test_declare_exchange(
     async_mock.declare_exchange.assert_awaited_once()
 
 
-@needs_py38
 @pytest.mark.asyncio
 async def test_declare_nested_exchange_cash_nested(
     async_mock,
