@@ -11,6 +11,8 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
+              with:
+                fetch-depth: 0
             - uses: actions/setup-python@v4
               with:
                 python-version: 3.x
@@ -20,12 +22,12 @@ jobs:
                 path: .cache
             - run: pip install -e ".[dev]"
             - run: ./scripts/build-docs.sh
-            - name: Deploy to GitHub Pages
-              uses: peaceiris/actions-gh-pages@v3  # nosemgrep: yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha
-              with:
-                github_token: ${{ secrets.GITHUB_TOKEN }}
-                force_orphan: true
-                publish_dir: ./docs/site
-                # The following lines assign commit authorship to the official GH-Actions bot for deploys to `gh-pages` branch.
-                user_name: github-actions[bot]
-                user_email: 41898282+github-actions[bot]@users.noreply.github.com
+            - run: echo "VERSION=$(python3 -c 'from importlib.metadata import version; print(version("""faststream"""))')" >> $GITHUB_ENV
+            - name: Configure Git user
+              run: |
+                git config --local user.email "github-actions[bot]@users.noreply.github.com"
+                git config --local user.name "github-actions[bot]"
+            - run: echo $VERSION
+            # - run: cd docs && mike delete --all
+            - run: cd docs && mike deploy --push --update-aliases $VERSION latest
+            - run: cd docs && mike set-default --push latest
