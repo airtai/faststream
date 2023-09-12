@@ -96,7 +96,7 @@ jobs:
         with:
           name: coverage
           path: coverage
-  
+
   test-macos-latest:
     runs-on: macos-latest
     steps:
@@ -112,7 +112,7 @@ jobs:
         run: pip install .[rabbit,kafka,docs,testing]
       - name: Test
         run: bash scripts/test.sh -m "not kafka and not rabbit"
-  
+
   test-windows-latest:
     runs-on: windows-latest
     steps:
@@ -160,7 +160,7 @@ jobs:
         run: pip install .[kafka,test-core]
       - name: Test
         run: bash scripts/test.sh tests/brokers/kafka/test_publish.py
-  
+
   test-rabbit-smoke:
     runs-on: ubuntu-latest
     services:
@@ -221,6 +221,10 @@ jobs:
     needs:
       - coverage-combine
       - static_analysis
+      - test-macos-latest
+      - test-windows-latest
+      - test-kafka-smoke
+      - test-rabbit-smoke
 
     runs-on: ubuntu-latest
 
