@@ -129,6 +129,27 @@ jobs:
         run: pip install .[kafka,test-core]
       - name: Test
         run: bash scripts/test.sh tests/brokers/kafka/test_publish.py
+  
+  test-rabbit-smoke:
+    runs-on: ubuntu-latest
+    services:
+      rabbitmq:
+        image: rabbitmq:alpine
+        ports:
+          - 5672:5672
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[rabbit,test-core]
+      - name: Test
+        run: bash scripts/test.sh tests/brokers/rabbit/test_publish.py
 
   coverage-combine:
     needs: [test]
