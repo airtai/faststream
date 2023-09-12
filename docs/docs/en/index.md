@@ -23,10 +23,15 @@ FastStream
 <a href="https://pypi.org/project/faststream" target="_blank">
   <img src="https://img.shields.io/pypi/pyversions/faststream.svg" alt="Supported Python versions">
 </a>
-![CodeQL](https://github.com/airtai/fastkafka//actions/workflows/codeql.yml/badge.svg)
-![Dependency Review](https://github.com/airtai/fastkafka//actions/workflows/dependency-review.yml/badge.svg)
-![GitHub](https://img.shields.io/github/license/airtai/faststream.png)
-
+<a href="https://github.com/airtai/fastkafka/actions/workflows/codeql.yml" target="_blank">
+  <img src="https://github.com/airtai/fastkafka/actions/workflows/codeql.yml/badge.svg" alt="CodeQL">
+</a>
+<a href="https://github.com/airtai/fastkafka/actions/workflows/dependency-review.yml" target="_blank">
+  <img src="https://github.com/airtai/fastkafka/actions/workflows/dependency-review.yml/badge.svg" alt="Dependency Review">
+</a>
+<a href="https://github.com/airtai/faststream" target="_blank">
+  <img src="https://img.shields.io/github/license/airtai/faststream.png" alt="Github">
+</a>
 ------------------------------------------------------------------------
 
 [FastStream](https://fastkafka.airt.ai/) is a powerful and easy-to-use Python
@@ -133,7 +138,7 @@ business logic of your application without worrying about the underlying
 integration.
 
 This following example shows how to use the `@broker.subscriber` and
-`@broker.publisher` decorators in a FastKafka application:
+`@broker.publisher` decorators in a FastStream application:
 
 - The `@broker.subscriber` decorator is applied to the `on_input_data`
   function, which specifies that this function should be called whenever
