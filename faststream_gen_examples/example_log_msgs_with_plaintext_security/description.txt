@@ -1,0 +1,3 @@
+Simple FastStream application which consumes messages from 'document' topic and prints them to log.
+Each Document has two attributes: name and content.
+The communication with the broker is encrypted with ssl, and uses SASL Plaintext authorization with username "admin" and password "password".
