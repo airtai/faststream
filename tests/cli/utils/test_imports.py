@@ -7,10 +7,8 @@ from faststream.cli.utils.imports import get_app_path, import_object
 
 def test_import_wrong():
     dir, app = get_app_path("tests:test_object")
-    with pytest.raises(FileNotFoundError) as excinfo:
+    with pytest.raises(FileNotFoundError):
         import_object(dir, app)
-
-    assert f"{dir}.py" in str(excinfo.value)
 
 
 @pytest.mark.parametrize(

@@ -1,5 +1,6 @@
 import os
 import signal
+import sys
 import time
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -16,6 +17,7 @@ def exit(parent_id):  # pragma: no cover
 
 
 @pytest.mark.slow
+@pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
 def test_base():
     processor = WatchReloader(target=exit, args=(), reload_dirs=[DIR])
 
@@ -34,6 +36,7 @@ def touch_file(file: Path):  # pragma: no cover
 
 
 @pytest.mark.slow
+@pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
 def test_restart(mock: Mock):
     file = DIR / "file.py"
 

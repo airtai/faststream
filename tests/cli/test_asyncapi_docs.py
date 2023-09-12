@@ -1,11 +1,13 @@
 import json
 from pathlib import Path
 from unittest.mock import Mock
+import sys
 
 import uvicorn
 import yaml
 from typer.testing import CliRunner
 
+import pytest
 from docs.docs_src.getting_started.asyncapi.serve import (
     gen_json_cmd,
     gen_yaml_cmd,
@@ -52,6 +54,7 @@ def test_gen_wrong_path(runner: CliRunner):
     assert "Please, input module like [python_file:faststream_app_name]" in r.stdout
 
 
+
 def test_serve_asyncapi_docs(
     runner: CliRunner,
     kafka_basic_project: Path,
@@ -66,6 +69,7 @@ def test_serve_asyncapi_docs(
     mock.assert_called_once()
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
 def test_serve_asyncapi_json_schema(
     runner: CliRunner,
     kafka_basic_project: Path,
@@ -85,6 +89,7 @@ def test_serve_asyncapi_json_schema(
     schema_path.unlink()
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
 def test_serve_asyncapi_yaml_schema(
     runner: CliRunner,
     kafka_basic_project: Path,

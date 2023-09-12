@@ -1,6 +1,7 @@
 import logging
 import os
 import signal
+import sys
 from unittest.mock import Mock, patch
 
 import anyio
@@ -10,7 +11,6 @@ from faststream import FastStream
 from faststream.log import logger
 from faststream.rabbit import RabbitBroker
 from faststream.utils import Context
-from tests.tools.marks import needs_py38
 
 
 def test_init(app: FastStream, context: Context, broker: RabbitBroker):
@@ -77,7 +77,6 @@ async def test_shutdown_calls_lifespans(mock: Mock, app_without_broker: FastStre
 
 
 @pytest.mark.asyncio
-@needs_py38
 async def test_startup_lifespan_before_broker_started(async_mock, app: FastStream):
     @app.on_startup
     async def call():
@@ -99,7 +98,6 @@ async def test_startup_lifespan_before_broker_started(async_mock, app: FastStrea
 
 
 @pytest.mark.asyncio
-@needs_py38
 async def test_shutdown_lifespan_after_broker_stopped(
     mock, async_mock, app: FastStream
 ):
@@ -122,7 +120,6 @@ async def test_shutdown_lifespan_after_broker_stopped(
 
 
 @pytest.mark.asyncio
-@needs_py38
 async def test_running(async_mock, app: FastStream):
     app._init_async_cycle()
     app._stop_event.set()
@@ -136,7 +133,7 @@ async def test_running(async_mock, app: FastStream):
 
 
 @pytest.mark.asyncio
-@needs_py38
+@pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
 async def test_stop_with_sigint(async_mock, app: FastStream):
     app._init_async_cycle()
 
@@ -151,7 +148,7 @@ async def test_stop_with_sigint(async_mock, app: FastStream):
 
 
 @pytest.mark.asyncio
-@needs_py38
+@pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
 async def test_stop_with_sigterm(async_mock, app: FastStream):
     app._init_async_cycle()
 

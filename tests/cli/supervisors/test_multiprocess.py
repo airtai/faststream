@@ -1,5 +1,6 @@
 import os
 import signal
+import sys
 
 import pytest
 
@@ -11,6 +12,7 @@ def exit(parent_id):  # pragma: no cover
 
 
 @pytest.mark.slow
+@pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
 def test_base():
     processor = Multiprocess(target=exit, args=(), workers=5)
     processor._args = (processor.pid,)

@@ -8,17 +8,14 @@ from faststream.broker.push_back_watcher import (
     WatcherContext,
 )
 from faststream.exceptions import SkipMessage
-from tests.tools.marks import needs_py38
 
 
 @pytest.fixture
-@needs_py38
 def message():
     return AsyncMock(message_id=1)
 
 
 @pytest.mark.asyncio
-@needs_py38
 async def test_push_back_correct(async_mock: AsyncMock, message):
     watcher = CounterWatcher(3)
 
@@ -36,7 +33,6 @@ async def test_push_back_correct(async_mock: AsyncMock, message):
 
 
 @pytest.mark.asyncio
-@needs_py38
 async def test_push_back_endless_correct(async_mock: AsyncMock, message):
     watcher = EndlessWatcher()
 
@@ -53,7 +49,6 @@ async def test_push_back_endless_correct(async_mock: AsyncMock, message):
 
 
 @pytest.mark.asyncio
-@needs_py38
 async def test_push_back_watcher(async_mock: AsyncMock, message):
     watcher = CounterWatcher(3)
 
@@ -75,7 +70,6 @@ async def test_push_back_watcher(async_mock: AsyncMock, message):
 
 
 @pytest.mark.asyncio
-@needs_py38
 async def test_push_endless_back_watcher(async_mock: AsyncMock, message):
     watcher = EndlessWatcher()
 
@@ -97,7 +91,6 @@ async def test_push_endless_back_watcher(async_mock: AsyncMock, message):
 
 
 @pytest.mark.asyncio
-@needs_py38
 async def test_ignore_skip(async_mock: AsyncMock, message):
     watcher = CounterWatcher(3)
 
