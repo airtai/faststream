@@ -88,8 +88,8 @@ def run(
         is_flag=True,
         help="Restart app at directory files changes",
     ),
-    app_dir: Optional[str] = typer.Option(
-        None,
+    app_dir: str = typer.Option(
+        ".",
         "--app-dir",
         help=(
             "Look for APP in the specified directory, by adding this to the PYTHONPATH."

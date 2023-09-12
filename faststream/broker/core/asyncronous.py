@@ -410,16 +410,13 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
                 return await func(message)
 
             msg = message.decoded_body
-
             if params_ln > 1:
                 if isinstance(msg, Mapping):
                     return await func(**msg)
                 elif isinstance(msg, Sequence):
                     return await func(*msg)
-            elif params_ln == 1:
-                return await func(msg)
             else:
-                return await func()
+                return await func(msg)
 
             raise AssertionError("unreachable")
 
