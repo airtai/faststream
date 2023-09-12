@@ -1,13 +1,13 @@
 import json
+import sys
 from pathlib import Path
 from unittest.mock import Mock
-import sys
 
+import pytest
 import uvicorn
 import yaml
 from typer.testing import CliRunner
 
-import pytest
 from docs.docs_src.getting_started.asyncapi.serve import (
     gen_json_cmd,
     gen_yaml_cmd,
@@ -52,7 +52,6 @@ def test_gen_wrong_path(runner: CliRunner):
     r = runner.invoke(cli, GEN_JSON_CMD + ["basic:app1"])
     assert r.exit_code == 2
     assert "Please, input module like [python_file:faststream_app_name]" in r.stdout
-
 
 
 def test_serve_asyncapi_docs(

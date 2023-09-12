@@ -16,6 +16,7 @@ from faststream.constants import ContentTypes
 if is_installed("fastapi"):
     from faststream.broker.fastapi.router import StreamRouter
 
+
 def get_app_schema(app: Union[FastStream, "StreamRouter[Any]"]) -> Schema:
     """Get the application schema.
 
