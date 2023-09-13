@@ -1,13 +1,13 @@
 from faststream import Context, FastStream
-from faststream.kafka import KafkaBroker, KafkaMessage
+from faststream.rabbit import RabbitBroker, RabbitMessage
 
-broker = KafkaBroker("localhost:9092")
+broker = RabbitBroker("amqp://guesst:guest@localhost:5672/")
 app = FastStream(broker)
 
 
-@broker.subscriber("test-topic")
+@broker.subscriber("test-queue")
 async def handle(
-    msg: KafkaMessage = Context("message"),
+    msg: RabbitMessage = Context("message"),
     correlation_id: str = Context("message.correlation_id"),
 ):
     assert msg.correlation_id == correlation_id

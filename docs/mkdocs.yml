@@ -42,7 +42,7 @@ theme:
   # - navigation.path       # (insiders) breadcrumbs
   - content.tabs.link       # sync total page tabs
   # - content.tooltips      # (insiders) improved tooltips
-  - content.code.annotation
+  - content.code.annotate
   - content.code.copy
   - content.code.select
   - content.action.edit     # add edit btn at every page
