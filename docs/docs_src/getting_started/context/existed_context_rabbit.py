@@ -1,13 +1,13 @@
 from faststream import Context, FastStream
-from faststream.kafka import KafkaBroker
-from faststream.kafka.annotations import (
+from faststream.rabbit import RabbitBroker
+from faststream.rabbit.annotations import (
     ContextRepo,
-    KafkaMessage,
     Logger,
-    KafkaBroker as BrokerAnnotation,
+    RabbitMessage,
+    RabbitBroker as BrokerAnnotation,
 )
 
-broker_object = KafkaBroker("localhost:9092")
+broker_object = RabbitBroker("amqp://guesst:guest@localhost:5672/")
 app = FastStream(broker_object)
 
 
@@ -27,7 +27,7 @@ async def handle(
 async def handle_response(
     msg: str,
     logger: Logger,
-    message: KafkaMessage,
+    message: RabbitMessage,
     context: ContextRepo,
     broker: BrokerAnnotation,
 ):
