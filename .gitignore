@@ -168,3 +168,5 @@ mkdocs/site/
 
 # Ignore trashbins
 .Trash*
+
+.vscode
