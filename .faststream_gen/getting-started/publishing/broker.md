@@ -11,7 +11,7 @@ In the FastStream project this call not represented in the AsyncAPI scheme, so y
     {!> docs_src/getting_started/publishing/broker_kafka.py !}
     ```
 
-=== "Rabbit"
+=== "RabbitMQ"
     ```python linenums="1"
     {!> docs_src/getting_started/publishing/broker_rabbit.py !}
     ```

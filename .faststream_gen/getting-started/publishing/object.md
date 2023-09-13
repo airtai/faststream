@@ -14,7 +14,7 @@ Also uses the handler function return type annotation to cast function return be
     {!> docs_src/getting_started/publishing/object_kafka.py !}
     ```
 
-=== "Rabbit"
+=== "RabbitMQ"
     ```python linenums="1"
     {!> docs_src/getting_started/publishing/object_rabbit.py !}
     ```

@@ -11,7 +11,7 @@ Reuse imported block in the different translations
     {!> docs_src/getting_started/subscription/annotation_kafka.py !}
     ```
 
-=== "Rabbit"
+=== "RabbitMQ"
     ```python linenums="1" hl_lines="8"
     {!> docs_src/getting_started/subscription/annotation_rabbit.py !}
     ```
