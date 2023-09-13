@@ -24,7 +24,7 @@ FastStream
   <img src="https://github.com/airtai/faststream/actions/workflows/codeql.yml/badge.svg" alt="CodeQL">
 </a>
 <a href="https://github.com/airtai/faststream/actions/workflows/dependency-review.yaml" target="_blank">
-  <img src="https://github.com/airtai/faststream/actions/workflows/dependency-review.yml/badge.svg" alt="Dependency Review">
+  <img src="https://github.com/airtai/faststream/actions/workflows/dependency-review.yaml/badge.svg" alt="Dependency Review">
 </a>
 <a href="https://github.com/airtai/faststream" target="_blank">
   <img src="https://img.shields.io/github/license/airtai/faststream.png" alt="Github">
