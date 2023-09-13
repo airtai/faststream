@@ -1,29 +1,22 @@
 version: "3"
 services:
-  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
-  rabbitmq:
-    image: rabbitmq:alpine
-    ports:
-      - "5672:5672"
-    # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
-    security_opt:
-      - no-new-privileges:true
-  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
-  kafka:
-    image: bitnami/kafka:3.5.0
-    ports:
-      - "9092:9092"
-    environment:
-      KAFKA_ENABLE_KRAFT: "true"
-      KAFKA_CFG_NODE_ID: "1"
-      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
-      KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
-      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://127.0.0.1:9092"
-      KAFKA_BROKER_ID: "1"
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
-      ALLOW_PLAINTEXT_LISTENER: "true"
-    # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
-    security_opt:
-      - no-new-privileges:true
+    fastkafka-devel:  #nosemgrep
+        image: ghcr.io/airtai/nbdev-mkdocs
+        hostname: $DOCKER_COMPOSE_PROJECT-devel
+        container_name: $DOCKER_COMPOSE_PROJECT-devel
+        ports:
+            - "${PORT_PREFIX}8888:8888"
+            - "${PORT_PREFIX}4000:4000"
+            - "${PORT_PREFIX}6006:6006"
+        volumes:
+            - $AIRT_PROJECT:/work/fastkafka
+            - /etc/passwd:/etc/passwd
+            - /etc/group:/etc/group
+            - /etc/shadow:/etc/shadow
+            - $HOME/.ssh:$HOME/.ssh
+            - $HOME/.gitconfig:/root/.gitconfig
+        environment:
+            USER: $USER
+            USERNAME: $USERNAME
+            PRESERVE_ENVS: $PRESERVE_ENVS
+            OPENAI_API_KEY: $OPENAI_API_KEY
