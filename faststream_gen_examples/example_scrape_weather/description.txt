@@ -1,0 +1,26 @@
+Develop a FastStream application which will fetch weather information from the web until the app shuts down.
+
+You can get the weather information by sending a GET request to "https://api.open-meteo.com/v1/forecast?current_weather=true"
+At the end of url you should add additional 'latitude' and 'longitude' parameters which are type float.
+Here is url example when you want to fetch information for latitude=52.3 and longitude=13.2:
+    "https://api.open-meteo.com/v1/forecast?current_weather=true&latitude=52.3&longitude=13.2"
+
+from the response we want to get info about the temperature (float), windspeed (float) and time (string) and you can find them in:
+    response["current_weather"]["temperature"], response["current_weather"]["windspeed"], and response["current_weather"]["time"]
+
+We need to fetch this data every 5 seconds and publish it at 'weather' topic.
+For each message you are publishing we must use a key which will be constructed as:
+    string value of latitude + '_' + string value of longitude
+
+Message that we will publish needs to have following parameters:
+    - latitude (type float)
+    - longitude (type float)
+    - temperature (type float)
+    - windspeed (type float)
+    - time (type string)
+
+We need this process for the following latitude and longitude combinations:
+    - latitude=13 and longitude=17
+    - latitude=50 and longitude=13
+    - latitude=44 and longitude=45
+    - latitude=24 and longitude=70

@@ -34,4 +34,5 @@ to_class = broker.publisher("class")
 
 @broker.subscriber("student_application")
 async def on_application(msg: Student, logger: Logger) -> None:
-    await to_class.publish(msg, key=msg.age)
+    key = str(msg.age).encode("utf-8")
+    await to_class.publish(msg, key=key)

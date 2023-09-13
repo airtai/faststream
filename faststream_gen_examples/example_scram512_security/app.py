@@ -1,3 +1,4 @@
+import os
 import ssl
 
 from pydantic import BaseModel, Field
@@ -21,8 +22,8 @@ class Student(BaseModel):
 ssl_context = ssl.create_default_context()
 security = SASLScram512(
     ssl_context=ssl_context,
-    username="admin",  # pragma: allowlist secret
-    password="password",  # pragma: allowlist secret
+    username=os.environ["USERNAME"],
+    password=os.environ["PASSWORD"],
 )
 
 broker = KafkaBroker("localhost:9092", security=security)

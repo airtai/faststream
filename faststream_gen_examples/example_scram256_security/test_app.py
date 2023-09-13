@@ -1,8 +1,23 @@
+import os
+from unittest import mock
+
 import pytest
 
+from faststream import Context
 from faststream.kafka import TestKafkaBroker
 
-from .app import Student, broker, on_application, to_class
+with mock.patch.dict(
+    os.environ,
+    {"USERNAME": "username", "PASSWORD": "password"},  # pragma: allowlist secret
+):
+    from .app import Student, broker, on_application, to_class
+
+
+@broker.subscriber("class")
+async def on_class(
+    msg: Student, key: bytes = Context("message.raw_message.key")
+) -> None:
+    pass
 
 
 @pytest.mark.asyncio
@@ -15,5 +30,8 @@ async def test_app():
             dict(Student(name="Student Studentis", age=12))
         )
         to_class.mock.assert_called_with(
-            dict(Student(name="Student Studentis", age=12)), key=12
+            dict(Student(name="Student Studentis", age=12))
+        )
+        on_class.mock.assert_called_with(
+            dict(Student(name="Student Studentis", age=12))
         )
