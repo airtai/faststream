@@ -9,7 +9,7 @@ echo AIRT_PROJECT variable set to $AIRT_PROJECT
 export UID=$(id -u)
 export GID=$(id -g)
 
-export DOCKER_COMPOSE_PROJECT="${USER}-fastkafka"
+export DOCKER_COMPOSE_PROJECT="${USER}-faststream"
 echo DOCKER_COMPOSE_PROJECT variable set to $DOCKER_COMPOSE_PROJECT
 export KAFKA_HOSTNAME="${DOCKER_COMPOSE_PROJECT}-kafka-1"
 echo KAFKA_HOSTNAME variable set to $KAFKA_HOSTNAME
