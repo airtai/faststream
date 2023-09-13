@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime
 
 import pytest
@@ -19,5 +18,5 @@ async def test_message_was_published():
     async with TestKafkaBroker(broker):
         async with TestApp(app):
             # todo: replace me better call (event based)
-            await asyncio.sleep(1)
+            await on_current_time.wait_call(3)
             on_current_time.mock.assert_called()

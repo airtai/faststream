@@ -18,4 +18,5 @@ async def test_message_was_published():
     async with TestKafkaBroker(broker):
         async with TestApp(app):
             await asyncio.sleep(1)
+            await on_weather.wait_for_call(3)
             on_weather.mock.assert_called()
