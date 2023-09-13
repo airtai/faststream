@@ -1,0 +1,3 @@
+# KafkaBroker
+
+::: faststream.kafka.KafkaBroker

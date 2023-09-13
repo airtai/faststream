@@ -1,0 +1,3 @@
+
+
+::: faststream.rabbit.test.FakeProducer

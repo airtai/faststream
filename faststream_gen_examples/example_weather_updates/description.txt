@@ -1,0 +1,3 @@
+FastStream application for consuming messages from 'weather_updates' topic where the message includes attributes: city, temperature, and conditions.
+For every consumed message, append the string 'Alert: ' to the city attribute if the temperature attribute is above 40 or below -10.
+Publish this message to 'weather_alerts' topic.

@@ -1,0 +1,33 @@
+name: Deploy Docs
+on:
+    push:
+        branches:
+            - main
+            - master
+permissions:
+    contents: write
+jobs:
+    deploy_docs:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                fetch-depth: 0
+            - uses: actions/setup-python@v4
+              with:
+                python-version: 3.x
+            - uses: actions/cache@v2
+              with:
+                key: ${{ github.ref }}
+                path: .cache
+            - run: pip install -e ".[dev]"
+            - run: ./scripts/build-docs.sh
+            - run: echo "VERSION=$(python3 -c 'from importlib.metadata import version; print(version("""faststream"""))')" >> $GITHUB_ENV
+            - name: Configure Git user
+              run: |
+                git config --local user.email "github-actions[bot]@users.noreply.github.com"
+                git config --local user.name "github-actions[bot]"
+            - run: echo $VERSION
+            # - run: cd docs && mike delete --all
+            - run: cd docs && mike deploy --push --update-aliases $VERSION latest
+            - run: cd docs && mike set-default --push latest

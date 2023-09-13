@@ -1,0 +1,5 @@
+FastStream app with one subscribes and two produces functions.
+App should subscribe to the 'new_employee' topic, The new_employee topic receives Employee object with three attributes: name, surname and email.
+For each employee received on this topic, produce two messages:
+1. Send message to the 'notify_accounting' with content 'Please prepare all the paper work for:' and add at the end of the message employee name and surname
+2. Send message to the 'notify_all_employees' with content 'Please welcome our new colleague:' and add at the end of the message employee name and surname

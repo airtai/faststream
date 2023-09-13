@@ -1,0 +1,3 @@
+
+
+::: faststream.cli.main.run

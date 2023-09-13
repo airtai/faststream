@@ -1,0 +1,3 @@
+
+
+::: faststream.broker.message.ABCStreamMessage

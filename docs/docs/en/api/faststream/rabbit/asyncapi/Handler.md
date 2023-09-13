@@ -1,0 +1,3 @@
+
+
+::: faststream.rabbit.asyncapi.Handler

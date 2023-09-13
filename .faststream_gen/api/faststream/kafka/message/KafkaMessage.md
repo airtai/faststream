@@ -1,0 +1,3 @@
+
+
+::: faststream.kafka.message.KafkaMessage
