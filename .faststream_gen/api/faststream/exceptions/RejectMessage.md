@@ -1,0 +1,3 @@
+
+
+::: faststream.exceptions.RejectMessage

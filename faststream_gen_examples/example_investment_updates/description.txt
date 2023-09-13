@@ -1,0 +1,3 @@
+Develop a FastStream application which consumes messages from the 'investment_updates' topic.
+The consumed message has following attributes: investor_id, investment_amount, and portfolio_value.
+If investment_amount exceeds a predetermined threshold (default treshold is 1000), forward the message to the 'risk_management' topic for further investigation.

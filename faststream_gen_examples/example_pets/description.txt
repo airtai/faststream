@@ -1,0 +1,3 @@
+Create a FastStream application with the localhost broker.
+Consume from the 'new_pet' topic, which includes JSON encoded object with attributes: pet_id, species, and age.
+Whenever a new pet is added, send the new pet's information to the 'notify_adopters' topic.

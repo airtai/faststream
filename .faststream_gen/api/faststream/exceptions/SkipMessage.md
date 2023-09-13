@@ -1,0 +1,3 @@
+
+
+::: faststream.exceptions.SkipMessage
