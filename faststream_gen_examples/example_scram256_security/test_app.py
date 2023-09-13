@@ -6,7 +6,10 @@ import pytest
 from faststream import Context
 from faststream.kafka import TestKafkaBroker
 
-with mock.patch.dict(os.environ, {"USERNAME": "username", "PASSWORD": "password"}):
+with mock.patch.dict(
+    os.environ,
+    {"USERNAME": "username", "PASSWORD": "password"},  # pragma: allowlist secret
+):
     from .app import Student, broker, on_application, to_class
 
 
