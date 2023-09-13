@@ -4,7 +4,6 @@ from faststream.kafka import KafkaBroker
 broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
 
-# todo: comment me
 publisher = broker.publisher("current_time")
 
 
@@ -28,7 +27,9 @@ async def app_shutdown(context: ContextRepo):
     raise NotImplementedError()
 
 
-async def publish_time(logger: Logger, context: ContextRepo, time_interval: int = 5):
+async def publish_time_task(
+    logger: Logger, context: ContextRepo, time_interval: int = 5
+):
     """
     While app_is_running variable inside context is True, repeat the following process:
         publish the current time to the 'current_time' topic.
@@ -38,9 +39,9 @@ async def publish_time(logger: Logger, context: ContextRepo, time_interval: int 
 
 
 @app.after_startup
-async def publish_weather(logger: Logger, context: ContextRepo):
+async def publish_time(logger: Logger, context: ContextRepo):
     """
-    Create asynchronous task for executing publish_time function.
+    Create asynchronous task for executing publish_time_task function.
     Save asyncio task so you can wait for it to finish at app shutdown (the function with @app.on_shutdown function)
     """
     raise NotImplementedError()

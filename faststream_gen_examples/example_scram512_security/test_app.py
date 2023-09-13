@@ -1,8 +1,12 @@
+import os
+from unittest import mock
+
 import pytest
 
 from faststream.kafka import TestKafkaBroker
 
-from .app import Student, broker, on_application, to_class
+with mock.patch.dict(os.environ, {"USERNAME": "username", "PASSWORD": "password"}):
+    from .app import Student, broker, on_application, to_class
 
 
 @broker.subscriber("class")

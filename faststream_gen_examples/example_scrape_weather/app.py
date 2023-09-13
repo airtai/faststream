@@ -12,6 +12,9 @@ broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
 
 
+publisher = broker.publisher("weather")
+
+
 class Weather(BaseModel):
     latitude: NonNegativeFloat = Field(
         ...,
@@ -74,7 +77,7 @@ async def fetch_and_publish_weather(
                 time=time,
             )
             key = str(latitude) + "_" + str(longitude)
-            await broker.publish(new_data, "weather", key=key.encode("utf-8"))
+            await publisher.publish(new_data, key=key.encode("utf-8"))
         else:
             logger.warning(f"Failed API request {uri} at time {datetime.now()}")
         await asyncio.sleep(time_interval)

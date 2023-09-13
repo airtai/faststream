@@ -1,5 +1,3 @@
-import asyncio
-
 import pytest
 
 from faststream import Context, TestApp
@@ -17,6 +15,5 @@ async def on_weather(msg: Weather, key: bytes = Context("message.raw_message.key
 async def test_message_was_published():
     async with TestKafkaBroker(broker):
         async with TestApp(app):
-            await asyncio.sleep(1)
-            await on_weather.wait_for_call(3)
+            await on_weather.wait_call(3)
             on_weather.mock.assert_called()

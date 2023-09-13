@@ -7,7 +7,6 @@ from faststream.kafka import KafkaBroker
 broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
 
-# todo: comment me
 publisher = broker.publisher("current_time")
 
 
@@ -25,7 +24,9 @@ async def app_shutdown(context: ContextRepo):
     await publish_task
 
 
-async def publish_time(logger: Logger, context: ContextRepo, time_interval: int = 5):
+async def publish_time_task(
+    logger: Logger, context: ContextRepo, time_interval: int = 5
+):
     while context.get("app_is_running"):
         current_time = datetime.now()
         await publisher.publish(current_time.isoformat())
@@ -34,10 +35,10 @@ async def publish_time(logger: Logger, context: ContextRepo, time_interval: int 
 
 
 @app.after_startup
-async def publish_weather(logger: Logger, context: ContextRepo):
+async def publish_time(logger: Logger, context: ContextRepo):
     logger.info("Starting publishing:")
 
-    publish_task = asyncio.create_task(publish_time(logger, context))
+    publish_task = asyncio.create_task(publish_time_task(logger, context))
 
     # you need to save asyncio task so you can wait for it to finish at app shutdown (the function with @app.on_shutdown function)
     context.set_global("publish_task", publish_task)
