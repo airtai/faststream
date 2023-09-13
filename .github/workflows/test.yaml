@@ -6,6 +6,7 @@ on:
      - FastStream
   pull_request:
     types: [opened, synchronize]
+  merge_group:
 
 jobs:
   static_analysis:
@@ -206,7 +207,7 @@ jobs:
       - run: ls -la coverage
       - run: coverage combine coverage
       - run: coverage report
-      - run: coverage html --show-contexts --title "FastKafka coverage for ${{ github.sha }}"
+      - run: coverage html --show-contexts --title "FastStream coverage for ${{ github.sha }}"
 
       - name: Store coverage html
         uses: actions/upload-artifact@v3

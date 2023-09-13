@@ -62,7 +62,7 @@ async def _test_with_temp_subscriber():
 @pytest.mark.skip(
     reason=(
         "Failed cuz `on_output_data` subscriber creates inside test and doesn't removed after"
-        "https://github.com/airtai/fastkafka/issues/556"
+        "https://github.com/airtai/faststream/issues/556"
     )
 )
 async def test_with_temp_subscriber():
