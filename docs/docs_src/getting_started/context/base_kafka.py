@@ -1,7 +1,7 @@
 from faststream import Context, FastStream
 from faststream.kafka import KafkaBroker
 
-broker = KafkaBroker()
+broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
 
 

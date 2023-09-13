@@ -5,7 +5,7 @@ from faststream.kafka import KafkaBroker, KafkaMessage
 
 Message = Annotated[KafkaMessage, Context()]
 
-broker = KafkaBroker()
+broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
 
 

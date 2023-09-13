@@ -5,7 +5,7 @@ from faststream.rabbit import RabbitBroker, RabbitMessage
 
 Message = Annotated[RabbitMessage, Context()]
 
-broker = RabbitBroker()
+broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
 app = FastStream(broker)
 
 

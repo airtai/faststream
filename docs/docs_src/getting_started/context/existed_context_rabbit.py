@@ -7,7 +7,7 @@ from faststream.rabbit.annotations import (
     RabbitBroker as BrokerAnnotation,
 )
 
-broker_object = RabbitBroker("amqp://guesst:guest@localhost:5672/")
+broker_object = RabbitBroker("amqp://guest:guest@localhost:5672/")
 app = FastStream(broker_object)
 
 

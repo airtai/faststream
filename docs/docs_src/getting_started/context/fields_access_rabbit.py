@@ -1,7 +1,7 @@
 from faststream import Context, FastStream
 from faststream.rabbit import RabbitBroker, RabbitMessage
 
-broker = RabbitBroker("amqp://guesst:guest@localhost:5672/")
+broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
 app = FastStream(broker)
 
 
