@@ -7,6 +7,9 @@ from faststream.kafka import KafkaBroker
 broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
 
+# todo: comment me
+publisher = broker.publisher("current_time")
+
 
 @app.on_startup
 async def app_setup(context: ContextRepo):
@@ -25,7 +28,7 @@ async def app_shutdown(context: ContextRepo):
 async def publish_time(logger: Logger, context: ContextRepo, time_interval: int = 5):
     while context.get("app_is_running"):
         current_time = datetime.now()
-        await broker.publish(current_time, "current_time")
+        await publisher.publish(current_time.isoformat())
         logger.info(f"Current time published: {current_time}")
         await asyncio.sleep(time_interval)
 

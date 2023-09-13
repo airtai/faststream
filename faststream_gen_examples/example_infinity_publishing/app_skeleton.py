@@ -4,6 +4,9 @@ from faststream.kafka import KafkaBroker
 broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
 
+# todo: comment me
+publisher = broker.publisher("current_time")
+
 
 @app.on_startup
 async def app_setup(context: ContextRepo):

@@ -19,7 +19,7 @@ Message that we will publish needs to have following parameters:
     - windspeed (type float)
     - time (type string)
 
-I need this process for the following latitude and longitude combinations:
+We need this process for the following latitude and longitude combinations:
     - latitude=13 and longitude=17
     - latitude=50 and longitude=13
     - latitude=44 and longitude=45
