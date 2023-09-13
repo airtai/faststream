@@ -77,7 +77,7 @@ Message `5` will be sent to `handler3`, because it listens to a queue whose head
 ---
 
 ```python linenums="53"
-{!> docs_src/rabbit/subscription/header.py [ln:53-66]!}
+{!> docs_src/rabbit/subscription/header.py [ln:53-55]!}
 ```
 
 Message `6` will be sent to `handler3` and `handler4`, because the message headers completely match the queue keys

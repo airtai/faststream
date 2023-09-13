@@ -74,7 +74,13 @@ class RabbitDeclarer(Singleton):
             q = cast(
                 aio_pika.RobustQueue,
                 await self.channel.declare_queue(
-                    **model_to_dict(queue, exclude={"routing_key"})
+                    **model_to_dict(
+                        queue,
+                        exclude={
+                            "routing_key",
+                            "bind_arguments",
+                        },
+                    )
                 ),
             )
             self.queues[queue] = q
@@ -103,7 +109,16 @@ class RabbitDeclarer(Singleton):
         if exch is None:
             exch = cast(
                 aio_pika.RobustExchange,
-                await self.channel.declare_exchange(**model_to_dict(exchange)),
+                await self.channel.declare_exchange(
+                    **model_to_dict(
+                        exchange,
+                        exclude={
+                            "routing_key",
+                            "bind_arguments",
+                            "bind_to",
+                        },
+                    )
+                ),
             )
             self.exchanges[exchange] = exch
 
