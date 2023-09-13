@@ -1,0 +1,3 @@
+Develop a FastStream application with localhost broker for development.
+The application should consume from the 'execute_trade' topic with messages including attributes: trader_id, stock_symbol, and action.
+Upon reception, the function should verify if the action attribute contains 'Sell'. If yes, retrieve the current price and append this detail to the message and publish the updated message to the 'order_executed' topic.

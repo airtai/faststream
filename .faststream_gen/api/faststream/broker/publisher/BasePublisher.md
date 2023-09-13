@@ -1,0 +1,3 @@
+
+
+::: faststream.broker.publisher.BasePublisher

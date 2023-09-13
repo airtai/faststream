@@ -1,0 +1,2 @@
+Create a FastStream application for consuming messages from the 'plant_growth' topic which includes JSON encoded object with attributes: plant_id, species and ready_to_sell.
+If ready_to_sell attribute is True publish plant_id to the 'sell_plant' topic, otherwise, publish plant_id to the 'still_growing' topic.

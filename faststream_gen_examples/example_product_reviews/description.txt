@@ -1,0 +1,3 @@
+Create a FastStream application using the localhost broker.
+The application should consume from the 'product_reviews' topic which includes JSON encoded objects with attributes: product_id, customer_id and review_grade.
+If the review_grade attribute is smaller then 5, send an alert message to the 'customer_service' topic.

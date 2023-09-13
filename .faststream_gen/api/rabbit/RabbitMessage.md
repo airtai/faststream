@@ -1,0 +1,3 @@
+# RabbitMessage
+
+::: faststream.rabbit.RabbitMessage

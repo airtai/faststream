@@ -1,0 +1,3 @@
+# FastStream
+
+::: faststream.FastStream

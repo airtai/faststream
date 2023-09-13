@@ -1,0 +1,2 @@
+Simple FastStream application which only forwards all messages from the 'input' topic to the 'output_1', 'output_2' and 'output_3' topic.
+Each message is a string
