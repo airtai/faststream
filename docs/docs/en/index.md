@@ -1,6 +1,7 @@
 ---
 hide:
   - navigation
+  - footer
 ---
 
 FastStream
@@ -197,13 +198,6 @@ This following example shows how to use the `@broker.subscriber` and
 
 The service can be tested using the `TestBroker` context managers which, by default, puts the Broker into "testing mode".
 
-
-In order to use tests, you have to install FastStream with `[test]` option in `pip` command to get all requirered dependancies:
-
-``` sh
-pip install faststream[test]
-```
-
 The Tester will redirect your `subscriber` and `publisher` decorated functions to the InMemory brokers so that you can quickly test your app without the need for a running broker and all its dependencies.
 
 Using pytest, the test for our service would look like this:
@@ -255,7 +249,6 @@ INFO     - FastStream app starting...
 INFO     - input_data |            - `OnInputData` waiting for messages
 INFO     - FastStream app started successfully! To exit press CTRL+C
 ```
-
 
 ## License
 

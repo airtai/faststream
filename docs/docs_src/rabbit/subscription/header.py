@@ -6,7 +6,11 @@ app = FastStream(broker)
 
 exch = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.HEADERS)
 
-queue_1 = RabbitQueue("test-queue-1", auto_delete=True, bind_arguments={"key": 1})
+queue_1 = RabbitQueue(
+    "test-queue-1",
+    auto_delete=True,
+    bind_arguments={"key": 1},
+)
 queue_2 = RabbitQueue(
     "test-queue-2",
     auto_delete=True,
@@ -46,4 +50,7 @@ async def send_messages():
     await broker.publish(exchange=exch, headers={"key": 1})  # handlers: 1
     await broker.publish(exchange=exch, headers={"key": 2})  # handlers: 3
     await broker.publish(exchange=exch, headers={"key2": 2})  # handlers: 3
-    await broker.publish(exchange=exch, headers={"key": 2, "key2": 2})  # handlers: 3, 4
+    await broker.publish(exchange=exch, headers={
+        "key": 2,
+        "key2": 2.
+    })  # handlers: 3, 4
