@@ -104,11 +104,11 @@ test-core = [
 
 testing = [
     "faststream[test-core]",
-
     "fastapi>=0.100.0b",
     "pydantic-settings",
     "httpx",
     "PyYAML",
+    "requests",
 ]
 
 publish = ["hatch==1.7.0"]
