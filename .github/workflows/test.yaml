@@ -6,6 +6,7 @@ on:
      - FastStream
   pull_request:
     types: [opened, synchronize]
+  merge_group:
 
 jobs:
   static_analysis:
