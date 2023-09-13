@@ -23,7 +23,7 @@ FastStream
 <a href="https://github.com/airtai/faststream/actions/workflows/codeql.yml" target="_blank">
   <img src="https://github.com/airtai/faststream/actions/workflows/codeql.yml/badge.svg" alt="CodeQL">
 </a>
-<a href="https://github.com/airtai/faststream/actions/workflows/dependency-review.yml" target="_blank">
+<a href="https://github.com/airtai/faststream/actions/workflows/dependency-review.yaml" target="_blank">
   <img src="https://github.com/airtai/faststream/actions/workflows/dependency-review.yml/badge.svg" alt="Dependency Review">
 </a>
 <a href="https://github.com/airtai/faststream" target="_blank">
