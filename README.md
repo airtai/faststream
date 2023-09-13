@@ -9,7 +9,7 @@ FastStream
 ------------------------------------------------------------------------
 
 <a href="https://github.com/airtai/faststream/actions/workflows/test.yaml" target="_blank">
-  <img src="https://github.com/airtai/faststream/actions/workflows/test.yaml/badge.svg" alt="Test Passing"/>
+  <img src="https://github.com/airtai/faststream/actions/workflows/test.yaml/badge.svg?branch=main" alt="Test Passing"/>
 </a>
 <a href="https://pypi.org/project/faststream" target="_blank">
   <img src="https://img.shields.io/pypi/v/faststream?label=PyPI" alt="Package version">
