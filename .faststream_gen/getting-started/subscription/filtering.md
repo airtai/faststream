@@ -11,7 +11,7 @@ Subscriber without filter - default subscriber. Consumes messages, not consumed 
     {!> docs_src/getting_started/subscription/filter_kafka.py !}
     ```
 
-=== "Rabbit"
+=== "RabbitMQ"
     ```python linenums="1" hl_lines="8 14"
     {!> docs_src/getting_started/subscription/filter_rabbit.py !}
     ```

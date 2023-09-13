@@ -7,7 +7,7 @@ Original application
     {!> docs_src/getting_started/subscription/annotation_kafka.py [ln:7-10]!}
     ```
 
-=== "Rabbit"
+=== "RabbitMQ"
     ```python linenums="1"
     {!> docs_src/getting_started/subscription/annotation_kafka.py [ln:7-10]!}
     ```
@@ -22,7 +22,7 @@ Original application
     {!> docs_src/getting_started/subscription/testing_kafka.py !}
     ```
 
-=== "Rabbit"
+=== "RabbitMQ"
     ```python linenums="1"
     {!> docs_src/getting_started/subscription/testing_rabbit.py !}
     ```

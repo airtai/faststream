@@ -24,4 +24,7 @@ broker.include_router(router)
 
 @app.after_startup
 async def test():
-    await broker.publish({"name": "john", "user_id": 1}, queue="prefix_test-queue")
+    await broker.publish(
+        {"name": "john", "user_id": 1},
+        queue="prefix_test-queue",
+    )

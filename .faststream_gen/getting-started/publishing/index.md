@@ -21,7 +21,7 @@ Just setup a message and a routing key
         await br.publish("message", "topic")
     ```
 
-=== "Rabbit"
+=== "RabbitMQ"
     ```python
     async with RabbitBroker() as br:
         await br.publish("message", "queue")

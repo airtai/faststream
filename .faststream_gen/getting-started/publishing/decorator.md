@@ -14,7 +14,7 @@ Uses the handler function return type annotation to cast function return before 
     {!> docs_src/getting_started/publishing/decorator_kafka.py !}
     ```
 
-=== "Rabbit"
+=== "RabbitMQ"
     ```python linenums="1"
     {!> docs_src/getting_started/publishing/decorator_rabbit.py !}
     ```
