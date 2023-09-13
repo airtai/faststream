@@ -63,7 +63,7 @@
     - [Acknowledgement](rabbit/ack.md)
     - [Declare Queue/Exchange](rabbit/declare.md)
     - [Message Information](rabbit/message.md)
-- API
+- Reference
     - faststream
         - app
             - [ABCApp](api/faststream/app/ABCApp.md)

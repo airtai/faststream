@@ -4,7 +4,7 @@
 FastStream
 ================
 
-<b>Effortless Event Stream integration for your services</b>
+<b>Effortless event stream integration for your services</b>
 
 ------------------------------------------------------------------------
 
@@ -33,19 +33,51 @@ FastStream
 ------------------------------------------------------------------------
 
 [FastStream](https://faststream.airt.ai/) is a powerful and easy-to-use Python
-library for building asynchronous services that interact with Event streams
-topics. Built on top of [Pydantic](https://docs.pydantic.dev/) and
+library for building asynchronous services that interact with event streams.
+ Built on top of [Pydantic](https://docs.pydantic.dev/) and
 [AsyncAPI](https://www.asyncapi.com/), FastStream simplifies the process
-of writing producers and consumers for Message Queues, handling all the
+of writing producers and consumers for message queues, handling all the
 parsing, networking, task scheduling and data generation automatically.
 With FastStream, you can quickly prototype and develop high-performance
-Event-based services with minimal code, making it an ideal choice for
+event-based services with minimal code, making it an ideal choice for
 developers looking to streamline their workflow and accelerate their
 projects.
 
+## History
+
+FastStream is a new package based on the ideas and experiences gained from
+[FastKafka](https://github.com/airtai/fastkafka) and
+[Propan](https://github.com/lancetnik/propan). By joining our forces, we
+ picked up the best from both packages and created the unified way to write
+  services capable of processing streamed data regradless of the underliying protocol.
+
+  We'll continue to maintain both packages, but new development will be in this
+  project. If you are starting a new service, this package is the recommended way to do it.
+
+
+#### ⭐⭐⭐ Stay in touch ⭐⭐⭐
+
+Please show your support and stay in touch by:
+
+- giving our [GitHub repository](https://github.com/airtai/faststream/) a
+  star, and
+
+- joining our [Discord server](https://discord.gg/CJWmYpyFbc).
+
+Your support helps us to stay in touch with you and encourages us to
+continue developing and improving the library. Thank you for your
+support!
+
+------------------------------------------------------------------------
+
+<!-- #### 🐝🐝🐝 We are quite busy lately 🐝🐝🐝
+
+![Alt](https://repobeats.axiom.co/api/embed/d2d9164b6bf69bc14af4e6eb47e437b876d0dc0f.svg "Repobeats analytics image")
+ -->
+
 ## Install
 
-FastStream works on macOS, Linux, and most Unix-style operating systems.
+FastStream works on Linux, macOS, Windows and most Unix-style operating systems.
 You can install it with `pip` as usual:
 
 ``` sh
@@ -253,6 +285,13 @@ async def on_input_data(msg: DataBasic, logger: Logger) -> DataBasic:
 
 The service can be tested using the `TestBroker` context managers which, by default, puts the Broker into "testing mode".
 
+
+In order to use tests, you have to install FastStream with `[test]` option in `pip` command to get all requirered dependancies:
+
+``` sh
+pip install faststream[test]
+```
+
 The Tester will redirect your `subscriber` and `publisher` decorated functions to the InMemory brokers so that you can quickly test your app without the need for a running broker and all its dependencies.
 
 Using pytest, the test for our service would look like this:
@@ -359,6 +398,12 @@ async def on_input_data(msg: DataBasic, logger: Logger) -> DataBasic:
     return DataBasic(data=msg.data + 1.0)
 ```
 
+In order to get all Kafka or RabbitMQ related dependancies, you must install FastStream with the `kafka` or `rabbit` options, respectively:
+
+``` sh
+pip install faststream[kafka]
+```
+
 To run the service, use the FastStream CLI command and pass the module (in this case, the file where the app implementation is located) and the app simbol to the command.
 
 ``` shell
@@ -372,3 +417,24 @@ INFO     - FastStream app starting...
 INFO     - input_data |            - `OnInputData` waiting for messages
 INFO     - FastStream app started successfully! To exit press CTRL+C
 ```
+
+
+## License
+
+FastStream is licensed under the Apache License 2.0
+
+A permissive license whose main conditions require preservation of
+copyright and license notices. Contributors provide an express grant of
+patent rights. Licensed works, modifications, and larger works may be
+distributed under different terms and without source code.
+
+The full text of the license can be found
+[here](https://raw.githubusercontent.com/airtai/faststream/main/LICENSE).
+
+## Contributors
+
+Thanks for all of these amazing peoples made the project better!
+
+<a href="https://github.com/airtai/faststream/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=airtai/faststream"/>
+</a>
