@@ -1,4 +1,3 @@
-import os
 import ssl
 
 from pydantic import BaseModel, Field
@@ -22,8 +21,8 @@ class Student(BaseModel):
 ssl_context = ssl.create_default_context()
 security = SASLScram256(
     ssl_context=ssl_context,
-    username=os.environ["USERNAME"],
-    password=os.environ["PASSWORD"],
+    username="admin",  # pragma: allowlist secret
+    password="password",  # pragma: allowlist secret
 )
 
 broker = KafkaBroker("localhost:9092", security=security)
@@ -34,4 +33,5 @@ to_class = broker.publisher("class")
 
 @broker.subscriber("student_application")
 async def on_application(msg: Student, logger: Logger) -> None:
-    await to_class.publish(msg, key=msg.age)
+    key = str(msg.age).encode("utf-8")
+    await to_class.publish(msg, key=key)
