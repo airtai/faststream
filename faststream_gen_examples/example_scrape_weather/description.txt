@@ -5,10 +5,10 @@ At the end of url you should add additional 'latitude' and 'longitude' parameter
 Here is url example when you want to fetch information for latitude=52.3 and longitude=13.2:
     "https://api.open-meteo.com/v1/forecast?current_weather=true&latitude=52.3&longitude=13.2"
 
-from the response we want to get info about the temperature (float), windspeed (float) and time (string) and you can find them in: 
+from the response we want to get info about the temperature (float), windspeed (float) and time (string) and you can find them in:
     response["current_weather"]["temperature"], response["current_weather"]["windspeed"], and response["current_weather"]["time"]
 
-We need to fetch this data every 5 seconds and publish it at 'weather' topic. 
+We need to fetch this data every 5 seconds and publish it at 'weather' topic.
 For each message you are publishing we must use a key which will be constructed as:
     string value of latitude + '_' + string value of longitude
 
