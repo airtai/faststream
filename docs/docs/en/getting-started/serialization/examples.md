@@ -73,7 +73,7 @@ This way you can reduce message size if it has some repeated blocks, but at the 
 You are still able to set custom `decoder` on the Broker or Router level too. But, if you want to encode publishing messages automatically too, you should take a look at [Middleware](../middlewares/index.md){.internal-link} serialization implimentation.
 
 [^1]:
-    For example, a message like `{ "name": "john", "age": 25 }` in *JSON* takes **27** bytes, and in *Protobuf* - **11**. With lists and more complex structures, the savings can be even more significant (up to 20x times).
+    For example, a message like `#!json { "name": "john", "age": 25 }` in *JSON* takes **27** bytes, and in *Protobuf* - **11**. With lists and more complex structures, the savings can be even more significant (up to 20x times).
 
 [^2]:
-    `{ "name": "john", "age": 25 }` with *Msgpack* serialization takes **16** bytes.
+    `#!json { "name": "john", "age": 25 }` with *Msgpack* serialization takes **16** bytes.

@@ -1,8 +1,10 @@
 site_name: FastStream
-site_description: ''
+# description to improve website indexing
+site_description: FastStream Python messaging framework documentation
 site_url: https://faststream.airt.ai/
 site_author: airt
 copyright: '&copy; 2023 <a href="https://airt.ai/" target="_blank" rel="noopener">airt</a>'
+
 docs_dir: docs
 
 repo_name: airtai/faststream
@@ -14,97 +16,94 @@ theme:
   logo: assets/img/logo.svg
   favicon: assets/img/logo.svg
   palette:
-  - media: '(prefers-color-scheme: light)'
-    scheme: default
-    primary: custom
-    toggle:
-      icon: material/brightness-7
-      name: Switch to dark mode
-  - media: '(prefers-color-scheme: dark)'
-    scheme: slate
-    primary: custom
-    toggle:
-      icon: material/brightness-4
-      name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
   icon:
     repo: fontawesome/brands/github
     edit: material/pencil-circle-outline
   features:
-  - search.suggest
-  - search.highlight
-  - navigation.tabs         # navbar navigation
-  - navigation.tabs.sticky  # navbar always expanded
-  - navigation.indexes      # attach index document direct to section
-  - navigation.tracking     # show in the page url current TOC section
-  - navigation.prune        # reduce render size
-  - navigation.top          # back-to-top btn
-  - navigation.footer       # show footer with next/prev btns
-  # - navigation.path       # (insiders) breadcrumbs
-  - content.tabs.link       # sync total page tabs
-  # - content.tooltips      # (insiders) improved tooltips
-  - content.code.annotate
-  - content.code.copy
-  - content.code.select
-  - content.action.edit     # add edit btn at every page
+    - search.suggest
+    - search.highlight
+    - navigation.tabs            # navbar navigation
+    - navigation.tabs.sticky     # navbar always expanded
+    - navigation.indexes         # attach index document direct to section
+    - navigation.tracking        # show current TOC section in the page url
+    - navigation.prune           # reduce render size
+    - navigation.top             # back-to-top btn
+    - navigation.footer          # show footer with next/prev btns
+    # - navigation.path            # (insiders) breadcrumbs
+    - content.tabs.link          # sync total page tabs
+    # - content.tooltips           # (insiders) improved tooltips
+    - content.code.copy
+    # - content.code.select        # (insiders) highlight line under cursor
+    - content.action.edit        # add edit btn at every page
 
 extra_css:
   - stylesheets/extra.css
 
 plugins:
   - search
-  - glightbox
-  - macros:  # includes with variables
+  - glightbox                    # image zoom
+  - macros:                      # Jinja templates
       include_dir: includes
-  - mkdocstrings:
+  - mkdocstrings:                # Generate References
       default_handler: python
       handlers:
         python:
+          paths: [..]
           import:
           - https://docs.python.org/3/objects.inv
           options:
-            heading_level: 2
-            show_source: true
-            show_category_heading: true
-            show_root_heading: true
+            filters:
+              - "!^_"
             show_if_no_docstring: true
             separate_signature: true
-            show_signature_annotations: true
-  # build a site link social preview card
-  - social:
+            docstring_section_style: spacy
+            show_docstring_attributes: false
+  - social:                      # render social card
       enabled: !ENV [CI, false]
+  - git-revision-date-localized: # show page edition date
+      enabled: !ENV [CI, false]
+      type: timeago
   - i18n:
       docs_structure: folder
+      reconfigure_material: true
+      reconfigure_search: true
       languages:
         - locale: en
           default: true
-          name: English
+          name: en - English
           build: true
-  - literate-nav:
+  - literate-nav:                # .md importable navigation
       nav_file: SUMMARY.md
-  # show page edition date
-  - git-revision-date-localized:
-      enabled: !ENV [CI, false]
-      type: timeago
 
 markdown_extensions:
-  toc:
-    permalink: "#"
-  mdx_include:
-    base_path: .
-  codehilite:
-    guess_lang: false
-  extra: null
-  admonition: null
-  pymdownx.details: null
-  pymdownx.superfences:
-    custom_fences:
-    - name: mermaid
-      class: mermaid
-      format: !!python/name:pymdownx.superfences.fence_code_format ''
-  pymdownx.tabbed:
-    alternate_style: true
-  attr_list: null
-  md_in_html: null
+  - toc:
+      permalink: "#"             # replace TOC block symbol
+      toc_depth: 3
+  - mdx_include:
+      base_path: .
+  - extra
+  - admonition                   # !!! note blocks support
+  - pymdownx.details             # admonition collapsible
+  - pymdownx.superfences         # highlight code syntax
+  - pymdownx.highlight:
+      anchor_linenums: true      # allows link to codeline
+  - pymdownx.inlinehilite        # inline code highlighting `#!python <code>`
+  - pymdownx.tabbed:
+      alternate_style: true      # create tabs group
+  - attr_list                    # specify html attrs in markdown
+  - md_in_html                   # render md wrapped to html tags
 
 extra:
   social:
@@ -118,10 +117,6 @@ extra:
       link: https://www.facebook.com/airt.ai.api/
     - icon: fontawesome/brands/linkedin
       link: https://www.linkedin.com/company/airt-ai/
-
-  alternate:
-    - link: /
-      name: en - English
 
   version:
     provider: mike

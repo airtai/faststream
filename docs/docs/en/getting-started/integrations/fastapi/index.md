@@ -50,7 +50,7 @@ def main(request: Request):
 
 ## @after_startup
 
-The `FastStream` application has the `after_startup` hook, which allows you to perform operations with your message broker after the connection is established. This can be extremely convenient for managing your brokers' objects and/or sending messages. This hook is also available for your **FastAPI StreamRouter**
+The `FastStream` application has the `#!python @after_startup` hook, which allows you to perform operations with your message broker after the connection is established. This can be extremely convenient for managing your brokers' objects and/or sending messages. This hook is also available for your **FastAPI StreamRouter**
 
 {! includes/getting_started/integrations/fastapi/4.md !}
 
