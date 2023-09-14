@@ -17,6 +17,6 @@ broker = RabbitBroker(settings.url)
 app = FastStream(broker)
 
 
-@broker.handle(settings.queue)
+@broker.subscriber(settings.queue)
 async def handler(msg):
     ...

@@ -28,7 +28,7 @@ The same way as with Pydantic models, you declare class attributes with type ann
 You can use all the same validation features and tools you use for Pydantic models, like different data types and additional validations with `Field()`.
 
 === "Pydantic v2"
-    ```python linenums='1' hl_lines="1 3" title="config.py"
+    ```python linenums='1' hl_lines="1 4" title="config.py"
     {!> docs_src/getting_started/config/settings_base_2.py !}
     ```
 
@@ -36,7 +36,7 @@ You can use all the same validation features and tools you use for Pydantic mode
     !!! info
         In **Pydantic v1** you would import `BaseSettings` directly from `pydantic` instead of from `pydantic_settings`.
 
-    ```python linenums='1' hl_lines="1 3" title="config.py"
+    ```python linenums='1' hl_lines="1 4" title="config.py"
     {!> docs_src/getting_started/config/settings_base_1.py !}
     ```
 
@@ -48,7 +48,7 @@ Next it will convert and validate the data. So, when you use that `settings` obj
 
 Then you can use the new `settings` object in your application:
 
-```python linenums='1' hl_lines="4 6 9" title="serve.py"
+```python linenums='1' hl_lines="3 9 14" title="serve.py"
 {!> docs_src/getting_started/config/usage.py !}
 ```
 
@@ -92,7 +92,7 @@ QUEUE="test-queue"
 
 And then update your `config.py` with:
 
-```python linenums='1' hl_lines="1 7"
+```python linenums='1' hl_lines="1 11"
 {!> docs_src/getting_started/config/settings_env.py !}
 ```
 

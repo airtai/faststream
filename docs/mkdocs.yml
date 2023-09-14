@@ -11,7 +11,6 @@ edit_uri: https://github.com/airtai/faststream/tree/main/docs/docs
 
 theme:
   name: material
-  custom_dir: overrides
   logo: assets/img/logo.svg
   favicon: assets/img/logo.svg
   palette:
@@ -43,7 +42,7 @@ theme:
   # - navigation.path       # (insiders) breadcrumbs
   - content.tabs.link       # sync total page tabs
   # - content.tooltips      # (insiders) improved tooltips
-  - content.code.annotation
+  - content.code.annotate
   - content.code.copy
   - content.code.select
   - content.action.edit     # add edit btn at every page
@@ -86,19 +85,17 @@ plugins:
   - git-revision-date-localized:
       enabled: !ENV [CI, false]
       type: timeago
-  - mike:
-      version_selector: true
 
 markdown_extensions:
   toc:
     permalink: "#"
-  markdown.extensions.codehilite:
-    guess_lang: false
   mdx_include:
     base_path: .
-  admonition: null
-  codehilite: null
+  codehilite:
+    guess_lang: false
   extra: null
+  admonition: null
+  pymdownx.details: null
   pymdownx.superfences:
     custom_fences:
     - name: mermaid

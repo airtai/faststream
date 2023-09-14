@@ -4,8 +4,6 @@ from faststream.kafka.annotations import (
     ContextRepo,
     KafkaMessage,
     Logger,
-)
-from faststream.kafka.annotations import (
     KafkaBroker as BrokerAnnotation,
 )
 
@@ -21,14 +19,8 @@ async def handle(
     broker=Context(),
     context=Context(),
 ):
-    logger.info(msg)
-    context.set_global("correlation_id", message.correlation_id)
-
-    await broker.publish(
-        "Hi!",
-        topic="response-topic",
-        correlation_id=message.correlation_id,
-    )
+    logger.info(message)
+    await broker.publish("test", "response")
 
 
 @broker_object.subscriber("response-topic")
@@ -37,14 +29,7 @@ async def handle_response(
     logger: Logger,
     message: KafkaMessage,
     context: ContextRepo,
-    correlation_id=Context(),
+    broker: BrokerAnnotation,
 ):
-    logger.info(msg)
-
-    assert msg == "Hi!"
-    assert correlation_id == message.correlation_id == context.get("correlation_id")
-
-
-@app.after_startup
-async def test(broker: BrokerAnnotation):
-    await broker.publish("Hi!", "test-topic")
+    logger.info(message)
+    await broker.publish("test", "response")

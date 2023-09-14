@@ -22,8 +22,8 @@ At the same time, in the `routing_key` of our queues, we specify the *pattern* o
 
 Then we signed up several consumers using the advertised queues to the `exchange` we created
 
-```python linenums="12" hl_lines="1 5 9"
-{!> docs_src/rabbit/subscription/topic.py [ln:12-22]!}
+```python linenums="13" hl_lines="1 6 11"
+{!> docs_src/rabbit/subscription/topic.py [ln:13-25]!}
 ```
 
 !!! note
@@ -35,32 +35,32 @@ Then we signed up several consumers using the advertised queues to the `exchange
 
 Now the distribution of messages between these consumers will look like this:
 
-```python linenums="26"
-{!> docs_src/rabbit/subscription/topic.py [ln:26]!}
+```python linenums="30"
+{!> docs_src/rabbit/subscription/topic.py [ln:30]!}
 ```
 
 Message `1` will be sent to `handler1` because it listens to `exchange` using a queue with the routing key `*.info`
 
 ---
 
-```python linenums="27"
-{!> docs_src/rabbit/subscription/topic.py [ln:27]!}
+```python linenums="31"
+{!> docs_src/rabbit/subscription/topic.py [ln:31]!}
 ```
 
 Message `2` will be sent to `handler2` because it listens to `exchange` using the same queue, but `handler1` is busy
 
 ---
 
-```python linenums="28"
-{!> docs_src/rabbit/subscription/topic.py [ln:28]!}
+```python linenums="32"
+{!> docs_src/rabbit/subscription/topic.py [ln:32]!}
 ```
 
 Message `3` will be sent to `handler1` again, because it is currently free
 
 ---
 
-```python linenums="29"
-{!> docs_src/rabbit/subscription/topic.py [ln:29]!}
+```python linenums="33"
+{!> docs_src/rabbit/subscription/topic.py [ln:33]!}
 ```
 
 Message `4` will be sent to `handler3`, because it is the only one listening to `exchange` using a queue with the routing key `*.debug`

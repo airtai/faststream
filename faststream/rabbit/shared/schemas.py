@@ -1,8 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from pydantic import Field
-
 from faststream.broker.schemas import NameRequired
 from faststream.rabbit.shared.constants import ExchangeType
 from faststream.rabbit.shared.types import TimeoutType
@@ -42,8 +40,8 @@ class RabbitQueue(NameRequired):
     timeout: TimeoutType = None
     robust: bool = True
 
-    routing_key: str = Field(default="")
-    bind_arguments: Optional[AnyDict] = Field(default=None, exclude=True)
+    routing_key: str = ""
+    bind_arguments: Optional[AnyDict] = None
 
     def __hash__(self) -> int:
         return sum(
@@ -137,9 +135,9 @@ class RabbitExchange(NameRequired):
     timeout: TimeoutType = None
     robust: bool = True
 
-    bind_to: Optional["RabbitExchange"] = Field(default=None, exclude=True)
-    bind_arguments: Optional[AnyDict] = Field(default=None, exclude=True)
-    routing_key: str = Field(default="", exclude=True)
+    bind_to: Optional["RabbitExchange"] = None
+    bind_arguments: Optional[AnyDict] = None
+    routing_key: str = ""
 
     def __hash__(self) -> int:
         return sum(

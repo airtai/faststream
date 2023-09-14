@@ -15,16 +15,16 @@ At the same time, if the queue listens to several consumers, messages will also 
 
 To begin with, we announced our **Fanout** exchange and several queues that will listen to it:
 
-```python linenums="7" hl_lines="1 5 9 13"
-{!> docs_src/rabbit/subscription/header.py [ln:7-20]!}
+```python linenums="7" hl_lines="1 6 11 16"
+{!> docs_src/rabbit/subscription/header.py [ln:7-23]!}
 ```
 
 The `x-match` argument indicates whether the arguments should match the message headers in whole or in part.
 
 Then we signed up several consumers using the advertised queues to the `exchange` we created
 
-```python linenums="22" hl_lines="1 5 9 13"
-{!> docs_src/rabbit/subscription/header.py [ln:22-36]!}
+```python linenums="26" hl_lines="1 6 11 16"
+{!> docs_src/rabbit/subscription/header.py [ln:26-43]!}
 ```
 
 !!! note
@@ -36,48 +36,48 @@ Then we signed up several consumers using the advertised queues to the `exchange
 
 Now the distribution of messages between these consumers will look like this:
 
-```python linenums="40"
-{!> docs_src/rabbit/subscription/header.py [ln:40]!}
+```python linenums="48"
+{!> docs_src/rabbit/subscription/header.py [ln:48]!}
 ```
 
 Message `1` will be sent to `handler1`, because it listens to a queue whose `key` header matches the `key` header of the message
 
 ---
 
-```python linenums="41"
-{!> docs_src/rabbit/subscription/header.py [ln:41]!}
+```python linenums="49"
+{!> docs_src/rabbit/subscription/header.py [ln:49]!}
 ```
 
 Message `2` will be sent to `handler2` because it listens to `exchange` using the same queue, but `handler1` is busy
 
 ---
 
-```python linenums="42"
-{!> docs_src/rabbit/subscription/header.py [ln:42]!}
+```python linenums="50"
+{!> docs_src/rabbit/subscription/header.py [ln:50]!}
 ```
 
 Message `3` will be sent to `handler1` again, because it is currently free
 
 ---
 
-```python linenums="43"
-{!> docs_src/rabbit/subscription/header.py [ln:43]!}
+```python linenums="51"
+{!> docs_src/rabbit/subscription/header.py [ln:51]!}
 ```
 
 Message `4` will be sent to `handler3`, because it listens to a queue whose `key` header coincided with the `key` header of the message
 
 ---
 
-```python linenums="44"
-{!> docs_src/rabbit/subscription/header.py [ln:44]!}
+```python linenums="52"
+{!> docs_src/rabbit/subscription/header.py [ln:52]!}
 ```
 
 Message `5` will be sent to `handler3`, because it listens to a queue whose header `key2` coincided with the header `key2` of the message
 
 ---
 
-```python linenums="45"
-{!> docs_src/rabbit/subscription/header.py [ln:45-46]!}
+```python linenums="53"
+{!> docs_src/rabbit/subscription/header.py [ln:53-55]!}
 ```
 
 Message `6` will be sent to `handler3` and `handler4`, because the message headers completely match the queue keys

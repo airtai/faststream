@@ -15,7 +15,7 @@ from faststream.rabbit import RabbitBroker
 
 broker = RabbitBroker()
 
-@broker.handle("test")
+@broker.subscriber("test")
 async def func(logger: Logger):
     logger.info("message received")
 ```
