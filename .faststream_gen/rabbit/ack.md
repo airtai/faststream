@@ -63,7 +63,7 @@ async def base_handler(body: str, msg: RabbitMessage):
 
 If you want to interrup a message processing at any callstack, you can raise `faststream.exceptions.AckMessage` any your code place.
 
-``` python linenums="1" hl_lines="14"
+``` python linenums="1" hl_lines="16"
 from faststream import FastStream
 from faststream.exceptions import AckMessage
 from faststream.rabbit import RabbitBroker

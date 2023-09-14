@@ -16,4 +16,3 @@ async def handle(
 @app.on_startup
 async def set_global(context: ContextRepo):
     context.set_global("secret", "my-perfect-secret")
-

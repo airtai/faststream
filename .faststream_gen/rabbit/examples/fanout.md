@@ -56,8 +56,7 @@ queue_2 = RabbitQueue("test-q-2", auto_delete=True)
 
 Then we signed up several consumers using the advertised queues to the `exchange` we created
 
-```python linenums="12" hl_lines="1 5 9"
-
+```python linenums="13" hl_lines="1 6 11"
 @broker.subscriber(queue_1, exch)
 async def base_handler1(logger: Logger):
     logger.info("base_handler1")
@@ -68,6 +67,9 @@ async def base_handler2(logger: Logger):
     logger.info("base_handler2")
 
 
+@broker.subscriber(queue_2, exch)
+async def base_handler3(logger: Logger):
+    logger.info("base_handler3")
 ```
 
 !!! note
@@ -79,32 +81,32 @@ async def base_handler2(logger: Logger):
 
 Now the distribution of messages between these consumers will look like this:
 
-```python linenums="26"
-
+```python linenums="30"
+    await broker.publish(exchange=exch)  # handlers: 1, 3
 ```
 
 Message `1` will be sent to `handler1` and `handler3`, because they listen to `exchange` using different queues
 
 ---
 
-```python linenums="27"
-
+```python linenums="31"
+    await broker.publish(exchange=exch)  # handlers: 2, 3
 ```
 
 Message `2` will be sent to `handler2` and `handler3`, because `handler2` listens to `exchange` using the same queue as `handler1`
 
 ---
 
-```python linenums="28"
-@app.after_startup
+```python linenums="32"
+    await broker.publish(exchange=exch)  # handlers: 1, 3
 ```
 
 Message `3` will be sent to `handler1` and `handler3`
 
 ---
 
-```python linenums="29"
-async def send_messages():
+```python linenums="33"
+    await broker.publish(exchange=exch)  # handlers: 2, 3
 ```
 
 Message `4` will be sent to `handler3` and `handler3`

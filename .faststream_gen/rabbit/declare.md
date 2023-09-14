@@ -4,7 +4,7 @@
 
 This reason **RabbitBroker** provides you a methods to make it easely.
 
-``` python linenums="1" hl_lines="14-16 18-20"
+``` python linenums="1" hl_lines="15-20 22-27"
 from faststream import FastStream
 from faststream.rabbit import (
     ExchangeType,

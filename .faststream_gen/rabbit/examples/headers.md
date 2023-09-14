@@ -16,7 +16,11 @@ app = FastStream(broker)
 
 exch = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.HEADERS)
 
-queue_1 = RabbitQueue("test-queue-1", auto_delete=True, bind_arguments={"key": 1})
+queue_1 = RabbitQueue(
+    "test-queue-1",
+    auto_delete=True,
+    bind_arguments={"key": 1},
+)
 queue_2 = RabbitQueue(
     "test-queue-2",
     auto_delete=True,
@@ -56,17 +60,23 @@ async def send_messages():
     await broker.publish(exchange=exch, headers={"key": 1})  # handlers: 1
     await broker.publish(exchange=exch, headers={"key": 2})  # handlers: 3
     await broker.publish(exchange=exch, headers={"key2": 2})  # handlers: 3
-    await broker.publish(exchange=exch, headers={"key": 2, "key2": 2})  # handlers: 3, 4
+    await broker.publish(
+        exchange=exch, headers={"key": 2, "key2": 2.0}
+    )  # handlers: 3, 4
 ```
 
 ### Consumer Announcement
 
 To begin with, we announced our **Fanout** exchange and several queues that will listen to it:
 
-```python linenums="7" hl_lines="1 5 9 13"
+```python linenums="7" hl_lines="1 6 11 16"
 exch = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.HEADERS)
 
-queue_1 = RabbitQueue("test-queue-1", auto_delete=True, bind_arguments={"key": 1})
+queue_1 = RabbitQueue(
+    "test-queue-1",
+    auto_delete=True,
+    bind_arguments={"key": 1},
+)
 queue_2 = RabbitQueue(
     "test-queue-2",
     auto_delete=True,
@@ -77,14 +87,13 @@ queue_3 = RabbitQueue(
     auto_delete=True,
     bind_arguments={"key": 2, "key2": 2, "x-match": "all"},
 )
-
 ```
 
 The `x-match` argument indicates whether the arguments should match the message headers in whole or in part.
 
 Then we signed up several consumers using the advertised queues to the `exchange` we created
 
-```python linenums="22" hl_lines="1 5 9 13"
+```python linenums="26" hl_lines="1 6 11 16"
 @broker.subscriber(queue_1, exch)
 async def base_handler1(logger: Logger):
     logger.info("base_handler1")
@@ -100,6 +109,9 @@ async def base_handler3(logger: Logger):
     logger.info("base_handler3")
 
 
+@broker.subscriber(queue_3, exch)
+async def base_handler4(logger: Logger):
+    logger.info("base_handler4")
 ```
 
 !!! note
@@ -111,49 +123,50 @@ async def base_handler3(logger: Logger):
 
 Now the distribution of messages between these consumers will look like this:
 
-```python linenums="40"
-
+```python linenums="48"
+    await broker.publish(exchange=exch, headers={"key": 1})  # handlers: 1
 ```
 
 Message `1` will be sent to `handler1`, because it listens to a queue whose `key` header matches the `key` header of the message
 
 ---
 
-```python linenums="41"
-
+```python linenums="49"
+    await broker.publish(exchange=exch, headers={"key": 1})  # handlers: 2
 ```
 
 Message `2` will be sent to `handler2` because it listens to `exchange` using the same queue, but `handler1` is busy
 
 ---
 
-```python linenums="42"
-@app.after_startup
+```python linenums="50"
+    await broker.publish(exchange=exch, headers={"key": 1})  # handlers: 1
 ```
 
 Message `3` will be sent to `handler1` again, because it is currently free
 
 ---
 
-```python linenums="43"
-async def send_messages():
+```python linenums="51"
+    await broker.publish(exchange=exch, headers={"key": 2})  # handlers: 3
 ```
 
 Message `4` will be sent to `handler3`, because it listens to a queue whose `key` header coincided with the `key` header of the message
 
 ---
 
-```python linenums="44"
-    await broker.publish(exchange=exch, headers={"key": 1})  # handlers: 1
+```python linenums="52"
+    await broker.publish(exchange=exch, headers={"key2": 2})  # handlers: 3
 ```
 
 Message `5` will be sent to `handler3`, because it listens to a queue whose header `key2` coincided with the header `key2` of the message
 
 ---
 
-```python linenums="45"
-    await broker.publish(exchange=exch, headers={"key": 1})  # handlers: 2
-    await broker.publish(exchange=exch, headers={"key": 1})  # handlers: 1
+```python linenums="53"
+    await broker.publish(
+        exchange=exch, headers={"key": 2, "key2": 2.0}
+    )  # handlers: 3, 4
 ```
 
 Message `6` will be sent to `handler3` and `handler4`, because the message headers completely match the queue keys
