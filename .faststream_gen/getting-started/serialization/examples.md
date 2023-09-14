@@ -33,13 +33,36 @@ python -m grpc_tools.protoc --python_out=. --pyi_out=. -I . message.proto
 At the output, we get 2 files: `message_pb2.py` and `message_pb2.pyi`. Now we are ready to use the generated class to serialize our messages.
 
 ``` python linenums="1" hl_lines="1 10-13 16 23"
-{!> docs_src/getting_started/serialization/protobuf.py !}
+from message_pb2 import Person
+
+from faststream import FastStream, Logger, NoCast
+from faststream.rabbit import RabbitBroker, RabbitMessage
+
+broker = RabbitBroker()
+app = FastStream(broker)
+
+
+async def decode_message(msg: RabbitMessage) -> Person:
+    decoded = Person()
+    decoded.ParseFromString(msg.body)
+    return decoded
+
+
+@broker.subscriber("test", decoder=decode_message)
+async def consume(body: NoCast[Person], logger: Logger):
+    logger.info(body)
+
+
+@app.after_startup
+async def publish():
+    body = Person(name="john", age=25).SerializeToString()
+    await broker.publish(body, "test")
 ```
 
 Note that we used the `NoCast` annotation, which excludes the message from the `pydantic` representation of our handler.
 
 ``` python
-{!> docs_src/getting_started/serialization/protobuf.py [ln:17] !}
+async def consume(body: NoCast[Person], logger: Logger):
 ```
 
 ## Msgpack
@@ -55,7 +78,28 @@ pip install msgpack
 And, because you need no any schema, you can easely write a *Msgpack* decoder:
 
 ``` python linenums="1" hl_lines="1 10-11 14 21"
-{!> docs_src/getting_started/serialization/msgpack_ex.py !}
+import msgpack
+
+from faststream import FastStream, Logger
+from faststream.rabbit import RabbitBroker, RabbitMessage
+
+broker = RabbitBroker()
+app = FastStream(broker)
+
+
+async def decode_message(msg: RabbitMessage):
+    return msgpack.loads(msg.body)
+
+
+@broker.subscriber("test", decoder=decode_message)
+async def consume(body, logger: Logger):
+    logger.info(body)
+
+
+@app.after_startup
+async def publish():
+    body = msgpack.dumps({"name": "john", "age": 25}, use_bin_type=True)
+    await broker.publish(body, "test")
 ```
 
 It is much easier than *Protobuf* schema usage. Thus, if you have no strict msg size limitations, you able to use *Msgpack* serialization almost everywhere.

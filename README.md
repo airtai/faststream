@@ -414,7 +414,6 @@ INFO     - input_data |            - `OnInputData` waiting for messages
 INFO     - FastStream app started successfully! To exit press CTRL+C
 ```
 
-
 ## License
 
 FastStream is licensed under the Apache License 2.0

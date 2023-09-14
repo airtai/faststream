@@ -57,7 +57,7 @@ At the same time, in case of an error, the message can also be extracted from th
 
 In most cases, **FastStream** performs all the necessary actions by itself: however, if you want to manage the message lifecycle directly, you can access the message object itself and call the appropriate methods directly. This can be useful if you want to implement an "at most once" policy and you need to confirm receipt of the message before it is actually processed.
 
-### **FastStream** specific
+## **FastStream** specific
 
 **FastStream** omits the ability to create `bindings` directly, since in most cases you do not need to subscribe one queue to several `exchanges` or subscribe `exchanges` to each other. On the contrary, this practice leads to over-complication of the message routing scheme, which makes it difficult to maintain and further develop the entire infrastructure of services.
 

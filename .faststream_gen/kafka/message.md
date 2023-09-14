@@ -69,7 +69,7 @@ async def base_handler(
     print(key)
 ```
 
-But this code is a too long to reuse it everywhere. Thus, you can use python `Annotated` feature:
+But this code is a too long to reuse it everywhere. Thus, you can use python [`Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated){.external-link target="_blank"} feature:
 
 
 === "python 3.9+"
