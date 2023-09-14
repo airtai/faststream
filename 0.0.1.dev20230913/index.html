@@ -131,18 +131,6 @@
     
       <div data-md-color-scheme="default" data-md-component="outdated" hidden>
         
-          <aside class="md-banner md-banner--warning">
-            <div class="md-banner__inner md-grid md-typeset">
-              
-  You're not viewing the latest version.
-  <a href="../.">  <!-- nosemgrep -->
-    <strong>Click here to go to latest.</strong>
-  </a>
-
-            </div>
-            <script>var el=document.querySelector("[data-md-component=outdated]"),outdated=__md_get("__outdated",sessionStorage);!0===outdated&&el&&(el.hidden=!1)</script>
-          </aside>
-        
       </div>
     
     
@@ -425,23 +413,6 @@
   
   
     <li class="md-tabs__item">
-      <a href="contact/" class="md-tabs__link">
-        
-  
-    
-  
-  Contact
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-    <li class="md-tabs__item">
       <a href="release/" class="md-tabs__link">
         
   
@@ -708,6 +679,12 @@
         
       
         
+          
+        
+      
+        
+          
+        
       
         
           
@@ -907,25 +884,6 @@
   
   
     <li class="md-nav__item">
-      <a href="contact/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Contact
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-    <li class="md-nav__item">
       <a href="release/" class="md-nav__link">
         
   
@@ -1084,6 +1042,9 @@
 <hr />
 <p><a href="https://github.com/airtai/faststream/actions/workflows/test.yaml" target="_blank">
   <img src="https://github.com/airtai/faststream/actions/workflows/test.yaml/badge.svg?branch=main" alt="Test Passing"/>
+</a>
+<a href="https://coverage-badge.samuelcolvin.workers.dev/redirect/airtai/faststream" target="_blank">
+    <img src="https://coverage-badge.samuelcolvin.workers.dev/airtai/faststream.svg" alt="Coverage">
 </a>
 <a href="https://pypi.org/project/faststream" target="_blank">
   <img src="https://img.shields.io/pypi/v/faststream?label=PyPI" alt="Package version">
@@ -1329,9 +1290,6 @@ integration.</p>
 </span></code></pre></div>
 <h3 id="testing-the-service">Testing the service<a class="headerlink" href="#testing-the-service" title="Permanent link">#</a></h3>
 <p>The service can be tested using the <code>TestBroker</code> context managers which, by default, puts the Broker into "testing mode".</p>
-<p>In order to use tests, you have to install FastStream with <code>[test]</code> option in <code>pip</code> command to get all requirered dependancies:</p>
-<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>faststream<span class="o">[</span>test<span class="o">]</span>
-</code></pre></div>
 <p>The Tester will redirect your <code>subscriber</code> and <code>publisher</code> decorated functions to the InMemory brokers so that you can quickly test your app without the need for a running broker and all its dependencies.</p>
 <p>Using pytest, the test for our service would look like this:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">pytest</span>
@@ -1452,7 +1410,7 @@ distributed under different terms and without source code.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-13T16:29:17+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-13</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-14T06:38:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-14</span>
       
     
   </small>
@@ -1487,7 +1445,7 @@ distributed under different terms and without source code.</p>
       
         
       
-      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      <nav class="md-footer__inner md-grid" aria-label="Footer" hidden>
         
         
           
@@ -1593,7 +1551,7 @@ distributed under different terms and without source code.</p>
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": ".", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotation", "content.code.copy", "content.code.select", "content.action.edit"], "search": "assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": ".", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotate", "content.code.copy", "content.code.select", "content.action.edit"], "search": "assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="assets/javascripts/bundle.dff1b7c8.min.js"></script>

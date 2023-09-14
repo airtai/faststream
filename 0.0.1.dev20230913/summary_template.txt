@@ -28,7 +28,7 @@
     - [Custom Serialization](getting-started/serialization/index.md)
         - [Parser](getting-started/serialization/parser.md)
         - [Decoder](getting-started/serialization/decoder.md)
-        - [Protobuf Example](getting-started/serialization/protobuf.md)
+        - [Examples](getting-started/serialization/examples.md)
     - [Lifespan](getting-started/lifespan/index.md)
         - [Lifespan Hooks](getting-started/lifespan/hooks.md)
         - [Lifespan Testing](getting-started/lifespan/test.md)
@@ -37,9 +37,8 @@
         - [Schema Export](getting-started/asyncapi/export.md)
         - [Schema Hosting](getting-started/asyncapi/hosting.md)
         - [Customize Information](getting-started/asyncapi/custom.md)
-    - [Integrations](getting-started/integrations/index.md)
-        - [HTTP Frameworks](getting-started/integrations/frameworks/index.md)
-        - [FastAPI](getting-started/integrations/fastapi/index.md)
+    - [Integrations](getting-started/integrations/frameworks/index.md)
+    - [FastAPI Plugin](getting-started/integrations/fastapi/index.md)
     - [CLI commands](getting-started/cli/index.md)
     - [Logging](getting-started/logging.md)
     - [Config Management](getting-started/config/index.md)
@@ -65,5 +64,4 @@
     - [Message Information](rabbit/message.md)
 - Reference
 {api}
-- [Contact](contact.md)
 - [Release Notes](release.md)

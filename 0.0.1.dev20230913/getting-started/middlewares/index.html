@@ -121,24 +121,17 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#middlewares" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
     </div>
     
       <div data-md-color-scheme="default" data-md-component="outdated" hidden>
-        
-          <aside class="md-banner md-banner--warning">
-            <div class="md-banner__inner md-grid md-typeset">
-              
-  You're not viewing the latest version.
-  <a href="../../..">  <!-- nosemgrep -->
-    <strong>Click here to go to latest.</strong>
-  </a>
-
-            </div>
-            <script>var el=document.querySelector("[data-md-component=outdated]"),outdated=__md_get("__outdated",sessionStorage);!0===outdated&&el&&(el.hidden=!1)</script>
-          </aside>
         
       </div>
     
@@ -422,23 +415,6 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../contact/" class="md-tabs__link">
-        
-  
-    
-  
-  Contact
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-    <li class="md-tabs__item">
       <a href="../../release/" class="md-tabs__link">
         
   
@@ -575,6 +551,12 @@
       
         
       
+        
+          
+        
+      
+        
+          
         
       
         
@@ -957,6 +939,19 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Middlewares
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
         
@@ -967,6 +962,46 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#message-receive-wrapper" class="md-nav__link">
+    Message receive wrapper
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#message-consuming-wrapper" class="md-nav__link">
+    Message consuming wrapper
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#message-publishing-wrapper" class="md-nav__link">
+    Message publishing wrapper
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1022,46 +1057,36 @@
   
   
   
-    
-    
-      
+    <li class="md-nav__item">
+      <a href="../integrations/frameworks/" class="md-nav__link">
         
-          
-        
-      
-        
-          
-        
-      
-        
-          
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../integrations/" class="md-nav__link">
-      
   
   <span class="md-ellipsis">
     Integrations
   </span>
   
 
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
+      </a>
+    </li>
   
 
-      
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/fastapi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FastAPI Plugin
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1333,25 +1358,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contact/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Contact
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../release/" class="md-nav__link">
         
   
@@ -1382,6 +1388,37 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#message-receive-wrapper" class="md-nav__link">
+    Message receive wrapper
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#message-consuming-wrapper" class="md-nav__link">
+    Message consuming wrapper
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#message-publishing-wrapper" class="md-nav__link">
+    Message publishing wrapper
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -1404,16 +1441,76 @@
   
 
 
-  <h1>Middlewares</h1>
+<h1 id="middlewares">Middlewares<a class="headerlink" href="#middlewares" title="Permanent link">#</a></h1>
+<p><strong>Middlewares</strong> - is a powerfull mechanizm allows you to add extra logic to any message processing pipeline stage.</p>
+<p>This way you can extreamly extend your <strong>FastStream</strong> application by features:</p>
+<ul>
+<li>integrate with any logging/metrics systems</li>
+<li>application-level message serialization logic</li>
+<li>rich publishing messages with extra information</li>
+<li>and many other stuff</li>
+</ul>
+<p><strong>Middlewares</strong> has a several methods to overwride. You can implement some or all of them, use middlewares at broker, router or subscriber level. Thus middlewares is a most flexible <strong>FastStream</strong> feature.</p>
+<h2 id="message-receive-wrapper">Message receive wrapper<a class="headerlink" href="#message-receive-wrapper" title="Permanent link">#</a></h2>
+<p>Unfortunatelly, powerfull feature has a pretty complex signature too.</p>
+<p>Using middlewares you can wrap total message processing pipeline. In this case you need to specify <code>on_receive</code> and <code>after_processed</code> methods:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">BaseMiddleware</span><span class="p">:</span>
 
+<span class="k">class</span> <span class="nc">MyMiddleware</span><span class="p">(</span><span class="n">BaseMiddleware</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">on_receive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">on_receive</span><span class="p">()</span>
 
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">after_processed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exec_tb</span><span class="p">):</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">after_processed</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exec_tb</span><span class="p">)</span>
+</code></pre></div>
+<p>These methods should be overwritten only in a Broker-level middlewares.</p>
+<div class="highlight"><pre><span></span><code><span class="n">Broker</span><span class="p">(</span><span class="n">middlewares</span><span class="o">=</span><span class="p">[</span><span class="n">MyMiddleware</span><span class="p">])</span>
+</code></pre></div>
+<p>In the other cases <code>on_receive</code> will be called at every subscriber filter function calling.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Please, always call <code>super()</code> methods at the end of your function - this is important for correct errors processing</p>
+</div>
+<h2 id="message-consuming-wrapper">Message consuming wrapper<a class="headerlink" href="#message-consuming-wrapper" title="Permanent link">#</a></h2>
+<p>Also, using middlewares you are able to wrap consumer function calling directly.</p>
+<p>In this case you need to specify <code>on_receive</code> and <code>after_processed</code> methods:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">BaseMiddleware</span><span class="p">:</span>
+<span class="kn">from</span> <span class="nn">faststream.types</span> <span class="kn">import</span> <span class="n">DecodedMessage</span>
+
+<span class="k">class</span> <span class="nc">MyMiddleware</span><span class="p">(</span><span class="n">BaseMiddleware</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">on_consume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">DecodedMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DecodedMessage</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">on_consume</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">after_consume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">Exception</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">after_consume</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+</code></pre></div>
+<p>This way you can patch incoming message body right before passing it to you consumer subscriber.</p>
+<p>Also, if you have multiple filters for one subscriber, these methods will be called at once: then the filtering complete success.</p>
+<h2 id="message-publishing-wrapper">Message publishing wrapper<a class="headerlink" href="#message-publishing-wrapper" title="Permanent link">#</a></h2>
+<p>Finally, using middlewares you are able to patch outcoming message too. This way, (as an example) you can compress/encode outcoming message at Application level.</p>
+<p>In this case you need to specify <code>on_publish</code> and <code>after_publish</code> methods:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">BaseMiddleware</span><span class="p">:</span>
+<span class="kn">from</span> <span class="nn">faststream.types</span> <span class="kn">import</span> <span class="n">SendableMessage</span>
+
+<span class="k">class</span> <span class="nc">MyMiddleware</span><span class="p">(</span><span class="n">BaseMiddleware</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">on_publish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SendableMessage</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">on_publish</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">after_publish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">Exception</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">after_publish</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+</code></pre></div>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-07T06:58:22+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-07</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-14T06:38:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-14</span>
       
     
   </small>
@@ -1566,7 +1663,7 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotation", "content.code.copy", "content.code.select", "content.action.edit"], "search": "../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotate", "content.code.copy", "content.code.select", "content.action.edit"], "search": "../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.dff1b7c8.min.js"></script>

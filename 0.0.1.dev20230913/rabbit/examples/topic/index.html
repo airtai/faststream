@@ -133,18 +133,6 @@
     
       <div data-md-color-scheme="default" data-md-component="outdated" hidden>
         
-          <aside class="md-banner md-banner--warning">
-            <div class="md-banner__inner md-grid md-typeset">
-              
-  You're not viewing the latest version.
-  <a href="../../../..">  <!-- nosemgrep -->
-    <strong>Click here to go to latest.</strong>
-  </a>
-
-            </div>
-            <script>var el=document.querySelector("[data-md-component=outdated]"),outdated=__md_get("__outdated",sessionStorage);!0===outdated&&el&&(el.hidden=!1)</script>
-          </aside>
-        
       </div>
     
     
@@ -427,23 +415,6 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../contact/" class="md-tabs__link">
-        
-  
-    
-  
-  Contact
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-    <li class="md-tabs__item">
       <a href="../../../release/" class="md-tabs__link">
         
   
@@ -578,6 +549,12 @@
       
         
       
+        
+          
+        
+      
+        
+          
         
       
         
@@ -1133,25 +1110,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../contact/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Contact
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../../release/" class="md-nav__link">
         
   
@@ -1323,21 +1281,31 @@
 </span></code></pre></div></td></tr></table></div>
 <p>At the same time, in the <code>routing_key</code> of our queues, we specify the <em>pattern</em> of routing keys that will be processed by this queue.</p>
 <p>Then we signed up several consumers using the advertised queues to the <code>exchange</code> we created</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">12</span>
-<span class="normal">13</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">13</span>
 <span class="normal">14</span>
 <span class="normal">15</span>
 <span class="normal">16</span>
 <span class="normal">17</span>
 <span class="normal">18</span>
-<span class="normal">19</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_1</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_1</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
 </span><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler1</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler1&quot;</span><span class="p">)</span>
 
-<span class="hll">
-</span><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_1</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler2</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
+
+<span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_1</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
+</span><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler2</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler2&quot;</span><span class="p">)</span>
+
+
+<span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_2</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
+</span><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler3</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler3&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1347,19 +1315,19 @@ Here we emulate the work of several consumers and load balancing between them.</
 </div>
 <h3 id="message-distribution">Message distribution<a class="headerlink" href="#message-distribution" title="Permanent link">#</a></h3>
 <p>Now the distribution of messages between these consumers will look like this:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">26</span></pre></div></td><td class="code"><div><pre><span></span><code>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">30</span></pre></div></td><td class="code"><div><pre><span></span><code>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.info&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 1</span>
 </code></pre></div></td></tr></table></div>
 <p>Message <code>1</code> will be sent to <code>handler1</code> because it listens to <code>exchange</code> using a queue with the routing key <code>*.info</code></p>
 <hr />
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">27</span></pre></div></td><td class="code"><div><pre><span></span><code>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">31</span></pre></div></td><td class="code"><div><pre><span></span><code>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.info&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 2</span>
 </code></pre></div></td></tr></table></div>
 <p>Message <code>2</code> will be sent to <code>handler2</code> because it listens to <code>exchange</code> using the same queue, but <code>handler1</code> is busy</p>
 <hr />
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">28</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">after_startup</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.info&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 1</span>
 </code></pre></div></td></tr></table></div>
 <p>Message <code>3</code> will be sent to <code>handler1</code> again, because it is currently free</p>
 <hr />
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">29</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">send_messages</span><span class="p">():</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">33</span></pre></div></td><td class="code"><div><pre><span></span><code>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.debug&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 3</span>
 </code></pre></div></td></tr></table></div>
 <p>Message <code>4</code> will be sent to <code>handler3</code>, because it is the only one listening to <code>exchange</code> using a queue with the routing key <code>*.debug</code></p>
 
@@ -1368,7 +1336,7 @@ Here we emulate the work of several consumers and load balancing between them.</
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-11T11:31:30+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-11</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-14T06:38:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-14</span>
       
     
   </small>
@@ -1521,7 +1489,7 @@ Here we emulate the work of several consumers and load balancing between them.</
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotation", "content.code.copy", "content.code.select", "content.action.edit"], "search": "../../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotate", "content.code.copy", "content.code.select", "content.action.edit"], "search": "../../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../../assets/javascripts/bundle.dff1b7c8.min.js"></script>

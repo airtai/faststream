@@ -133,18 +133,6 @@
     
       <div data-md-color-scheme="default" data-md-component="outdated" hidden>
         
-          <aside class="md-banner md-banner--warning">
-            <div class="md-banner__inner md-grid md-typeset">
-              
-  You're not viewing the latest version.
-  <a href="../..">  <!-- nosemgrep -->
-    <strong>Click here to go to latest.</strong>
-  </a>
-
-            </div>
-            <script>var el=document.querySelector("[data-md-component=outdated]"),outdated=__md_get("__outdated",sessionStorage);!0===outdated&&el&&(el.hidden=!1)</script>
-          </aside>
-        
       </div>
     
     
@@ -427,23 +415,6 @@
   
   
     <li class="md-tabs__item">
-      <a href="../contact/" class="md-tabs__link">
-        
-  
-    
-  
-  Contact
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-    <li class="md-tabs__item">
       <a href="../release/" class="md-tabs__link">
         
   
@@ -578,6 +549,12 @@
       
         
       
+        
+          
+        
+      
+        
+          
         
       
         
@@ -948,25 +925,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../contact/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Contact
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../release/" class="md-nav__link">
         
   
@@ -1042,15 +1000,15 @@
   
 </li>
         
-          <li class="md-nav__item">
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#faststream-specific" class="md-nav__link">
     FastStream specific
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1120,7 +1078,7 @@ In <strong>FastStream</strong>, queues are connected to this <code>exchange</cod
 <p>Confirmation can be either positive (<code>Acknowledgment - ack</code>) if the message was successfully processed, or negative (<code>Negative Acknowledgment - nack</code>) if the message was processed with an error.</p>
 <p>At the same time, in case of an error, the message can also be extracted from the queue (<code>reject</code>), otherwise, after a negative confirmation, it will be requeued for processing again.</p>
 <p>In most cases, <strong>FastStream</strong> performs all the necessary actions by itself: however, if you want to manage the message lifecycle directly, you can access the message object itself and call the appropriate methods directly. This can be useful if you want to implement an "at most once" policy and you need to confirm receipt of the message before it is actually processed.</p>
-<h3 id="faststream-specific"><strong>FastStream</strong> specific<a class="headerlink" href="#faststream-specific" title="Permanent link">#</a></h3>
+<h2 id="faststream-specific"><strong>FastStream</strong> specific<a class="headerlink" href="#faststream-specific" title="Permanent link">#</a></h2>
 <p><strong>FastStream</strong> omits the ability to create <code>bindings</code> directly, since in most cases you do not need to subscribe one queue to several <code>exchanges</code> or subscribe <code>exchanges</code> to each other. On the contrary, this practice leads to over-complication of the message routing scheme, which makes it difficult to maintain and further develop the entire infrastructure of services.</p>
 <p><strong>FastStream</strong> suggests you adhere to the scheme <code>exchange:queue</code> as <code>1:N</code>, which will greatly simplify the scheme of interaction between your services. It is better to create an additional queue for a new <code>exchange</code> than to subscribe to an existing one.</p>
 <p>However, if you want to reduce the number of entities in your RabbitMQ, and thereby optimize its performance (or you know exactly what you are doing), <strong>FastStream</strong> leaves you the option to create <code>bindings</code> directly. In other cases, the connection parameters are an integral part of the entities <em>RabbitQueue</em> and <em>RabbitExchange</em> in <strong>FastStream</strong>.</p>
@@ -1130,7 +1088,7 @@ In <strong>FastStream</strong>, queues are connected to this <code>exchange</cod
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-11T11:31:30+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-11</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-14T06:38:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-14</span>
       
     
   </small>
@@ -1283,7 +1241,7 @@ In <strong>FastStream</strong>, queues are connected to this <code>exchange</cod
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotation", "content.code.copy", "content.code.select", "content.action.edit"], "search": "../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotate", "content.code.copy", "content.code.select", "content.action.edit"], "search": "../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.dff1b7c8.min.js"></script>

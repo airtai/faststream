@@ -133,18 +133,6 @@
     
       <div data-md-color-scheme="default" data-md-component="outdated" hidden>
         
-          <aside class="md-banner md-banner--warning">
-            <div class="md-banner__inner md-grid md-typeset">
-              
-  You're not viewing the latest version.
-  <a href="../../../../../..">  <!-- nosemgrep -->
-    <strong>Click here to go to latest.</strong>
-  </a>
-
-            </div>
-            <script>var el=document.querySelector("[data-md-component=outdated]"),outdated=__md_get("__outdated",sessionStorage);!0===outdated&&el&&(el.hidden=!1)</script>
-          </aside>
-        
       </div>
     
     
@@ -431,23 +419,6 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../../../../contact/" class="md-tabs__link">
-        
-  
-    
-  
-  Contact
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-    <li class="md-tabs__item">
       <a href="../../../../../release/" class="md-tabs__link">
         
   
@@ -582,6 +553,12 @@
       
         
       
+        
+          
+        
+      
+        
+          
         
       
         
@@ -2094,25 +2071,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../../contact/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Contact
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../../../../release/" class="md-nav__link">
         
   
@@ -2478,7 +2436,22 @@ Declares an exchange and returns the declared exchange object.</p>
 <span class="normal">115</span>
 <span class="normal">116</span>
 <span class="normal">117</span>
-<span class="normal">118</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">RabbitDeclarer</span><span class="p">(</span><span class="n">Singleton</span><span class="p">):</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">RabbitDeclarer</span><span class="p">(</span><span class="n">Singleton</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A class to declare RabbitMQ queues and exchanges.</span>
 
 <span class="sd">    Attributes:</span>
@@ -2545,7 +2518,13 @@ Declares an exchange and returns the declared exchange object.</p>
             <span class="n">q</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
                 <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustQueue</span><span class="p">,</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">declare_queue</span><span class="p">(</span>
-                    <span class="o">**</span><span class="n">model_to_dict</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;routing_key&quot;</span><span class="p">})</span>
+                    <span class="o">**</span><span class="n">model_to_dict</span><span class="p">(</span>
+                        <span class="n">queue</span><span class="p">,</span>
+                        <span class="n">exclude</span><span class="o">=</span><span class="p">{</span>
+                            <span class="s2">&quot;routing_key&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;bind_arguments&quot;</span><span class="p">,</span>
+                        <span class="p">},</span>
+                    <span class="p">)</span>
                 <span class="p">),</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">queues</span><span class="p">[</span><span class="n">queue</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span>
@@ -2574,7 +2553,16 @@ Declares an exchange and returns the declared exchange object.</p>
         <span class="k">if</span> <span class="n">exch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">exch</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
                 <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustExchange</span><span class="p">,</span>
-                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">declare_exchange</span><span class="p">(</span><span class="o">**</span><span class="n">model_to_dict</span><span class="p">(</span><span class="n">exchange</span><span class="p">)),</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">declare_exchange</span><span class="p">(</span>
+                    <span class="o">**</span><span class="n">model_to_dict</span><span class="p">(</span>
+                        <span class="n">exchange</span><span class="p">,</span>
+                        <span class="n">exclude</span><span class="o">=</span><span class="p">{</span>
+                            <span class="s2">&quot;routing_key&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;bind_arguments&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;bind_to&quot;</span><span class="p">,</span>
+                        <span class="p">},</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exchanges</span><span class="p">[</span><span class="n">exchange</span><span class="p">]</span> <span class="o">=</span> <span class="n">exch</span>
 
@@ -2918,13 +2906,7 @@ Declares an exchange and returns the declared exchange object.</p>
 
           <details class="quote">
             <summary>Source code in <code>/home/runner/work/faststream/faststream/faststream/rabbit/helpers.py</code></summary>
-            <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
+            <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 89</span>
 <span class="normal"> 90</span>
 <span class="normal"> 91</span>
 <span class="normal"> 92</span>
@@ -2953,7 +2935,22 @@ Declares an exchange and returns the declared exchange object.</p>
 <span class="normal">115</span>
 <span class="normal">116</span>
 <span class="normal">117</span>
-<span class="normal">118</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">declare_exchange</span><span class="p">(</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">declare_exchange</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">exchange</span><span class="p">:</span> <span class="n">RabbitExchange</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustExchange</span><span class="p">:</span>
@@ -2976,7 +2973,16 @@ Declares an exchange and returns the declared exchange object.</p>
     <span class="k">if</span> <span class="n">exch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">exch</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
             <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustExchange</span><span class="p">,</span>
-            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">declare_exchange</span><span class="p">(</span><span class="o">**</span><span class="n">model_to_dict</span><span class="p">(</span><span class="n">exchange</span><span class="p">)),</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">declare_exchange</span><span class="p">(</span>
+                <span class="o">**</span><span class="n">model_to_dict</span><span class="p">(</span>
+                    <span class="n">exchange</span><span class="p">,</span>
+                    <span class="n">exclude</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">&quot;routing_key&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;bind_arguments&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;bind_to&quot;</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">)</span>
+            <span class="p">),</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exchanges</span><span class="p">[</span><span class="n">exchange</span><span class="p">]</span> <span class="o">=</span> <span class="n">exch</span>
 
@@ -3101,7 +3107,13 @@ Declares an exchange and returns the declared exchange object.</p>
 <span class="normal">78</span>
 <span class="normal">79</span>
 <span class="normal">80</span>
-<span class="normal">81</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">declare_queue</span><span class="p">(</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">declare_queue</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">queue</span><span class="p">:</span> <span class="n">RabbitQueue</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustQueue</span><span class="p">:</span>
@@ -3121,7 +3133,13 @@ Declares an exchange and returns the declared exchange object.</p>
         <span class="n">q</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
             <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustQueue</span><span class="p">,</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">declare_queue</span><span class="p">(</span>
-                <span class="o">**</span><span class="n">model_to_dict</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;routing_key&quot;</span><span class="p">})</span>
+                <span class="o">**</span><span class="n">model_to_dict</span><span class="p">(</span>
+                    <span class="n">queue</span><span class="p">,</span>
+                    <span class="n">exclude</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">&quot;routing_key&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;bind_arguments&quot;</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">)</span>
             <span class="p">),</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">queues</span><span class="p">[</span><span class="n">queue</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span>
@@ -3298,7 +3316,7 @@ Declares an exchange and returns the declared exchange object.</p>
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../../../../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotation", "content.code.copy", "content.code.select", "content.action.edit"], "search": "../../../../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../../../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotate", "content.code.copy", "content.code.select", "content.action.edit"], "search": "../../../../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../../../../assets/javascripts/bundle.dff1b7c8.min.js"></script>

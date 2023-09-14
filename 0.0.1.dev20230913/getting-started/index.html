@@ -122,7 +122,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#first-steps" class="md-skip">
+        <a href="#quick-start" class="md-skip">
           Skip to content
         </a>
       
@@ -132,18 +132,6 @@
     </div>
     
       <div data-md-color-scheme="default" data-md-component="outdated" hidden>
-        
-          <aside class="md-banner md-banner--warning">
-            <div class="md-banner__inner md-grid md-typeset">
-              
-  You're not viewing the latest version.
-  <a href="../..">  <!-- nosemgrep -->
-    <strong>Click here to go to latest.</strong>
-  </a>
-
-            </div>
-            <script>var el=document.querySelector("[data-md-component=outdated]"),outdated=__md_get("__outdated",sessionStorage);!0===outdated&&el&&(el.hidden=!1)</script>
-          </aside>
         
       </div>
     
@@ -427,23 +415,6 @@
   
   
     <li class="md-tabs__item">
-      <a href="../contact/" class="md-tabs__link">
-        
-  
-    
-  
-  Contact
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-    <li class="md-tabs__item">
       <a href="../release/" class="md-tabs__link">
         
   
@@ -472,6 +443,8 @@
         <div class="md-main__inner md-grid">
           
             
+              
+                
               
               <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
                 <div class="md-sidebar__scrollwrap">
@@ -580,6 +553,12 @@
       
         
       
+        
+          
+        
+      
+        
+          
         
       
         
@@ -1019,46 +998,36 @@
   
   
   
-    
-    
-      
+    <li class="md-nav__item">
+      <a href="integrations/frameworks/" class="md-nav__link">
         
-          
-        
-      
-        
-          
-        
-      
-        
-          
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="integrations/" class="md-nav__link">
-      
   
   <span class="md-ellipsis">
     Integrations
   </span>
   
 
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
+      </a>
+    </li>
   
 
-      
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="integrations/fastapi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FastAPI Plugin
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1330,25 +1299,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../contact/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Contact
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../release/" class="md-nav__link">
         
   
@@ -1370,7 +1320,9 @@
             
             
               
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" hidden>
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -1381,6 +1333,21 @@
   
     
   
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    Basic usage
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -1403,47 +1370,126 @@
   
 
 
-<h1 id="first-steps">First Steps<a class="headerlink" href="#first-steps" title="Permanent link">#</a></h1>
-<p>Inspiration: https://lancetnik.github.io/Propan/getting_started/1_quick-start/</p>
-<ul>
-<li>
-<p>Installation with various distributions</p>
-</li>
-<li>
-<p>Simple application</p>
-</li>
-</ul>
+<h1 id="quick-start">QUICK START<a class="headerlink" href="#quick-start" title="Permanent link">#</a></h1>
+<p>Install using <code>pip</code>:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Kafka</label><label for="__tabbed_1_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p>app</p>
+<div class="highlight"><pre><span></span><code><span class="go">pip install &quot;faststream[kafka]&quot;</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>To start a new project we need a test broker container
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--rm<span class="w"> </span>-p<span class="w"> </span><span class="m">9092</span>:9092<span class="w"> </span>--name<span class="w"> </span>test-mq<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">KAFKA_ENABLE_KRAFT</span><span class="o">=</span>yes<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">KAFKA_CFG_NODE_ID</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">KAFKA_CFG_PROCESS_ROLES</span><span class="o">=</span>broker,controller<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">KAFKA_CFG_CONTROLLER_LISTENER_NAMES</span><span class="o">=</span>CONTROLLER<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">KAFKA_CFG_LISTENERS</span><span class="o">=</span>PLAINTEXT://:9092,CONTROLLER://:9093<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP</span><span class="o">=</span>CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">KAFKA_CFG_ADVERTISED_LISTENERS</span><span class="o">=</span>PLAINTEXT://127.0.0.1:9092<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">KAFKA_BROKER_ID</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">KAFKA_CFG_CONTROLLER_QUORUM_VOTERS</span><span class="o">=</span><span class="m">1</span>@kafka:9093<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">ALLOW_PLAINTEXT_LISTENER</span><span class="o">=</span>yes<span class="w"> </span><span class="se">\</span>
+bitnami/kafka:3.5.0
+</code></pre></div></p>
+</div>
 </div>
 <div class="tabbed-block">
-<p>app</p>
+<div class="highlight"><pre><span></span><code><span class="go">pip install &quot;faststream[rabbit]&quot;</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>To start a new project we need a test broker container
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--rm<span class="w"> </span>-p<span class="w"> </span><span class="m">5672</span>:5672<span class="w"> </span>--name<span class="w"> </span>test-mq<span class="w"> </span>rabbitmq:alpine
+</code></pre></div></p>
 </div>
 </div>
 </div>
-<ul>
-<li>
-<p>Broker docker container run</p>
-</li>
-<li>
-<p>Run application</p>
-</li>
-</ul>
+</div>
+<h2 id="basic-usage">Basic usage<a class="headerlink" href="#basic-usage" title="Permanent link">#</a></h2>
+<p>To create a basic application, add the following code to a new file (e.g. <code>serve.py</code>):</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Kafka</label><label for="__tabbed_2_2">RabbitMQ</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">serve.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span>
+<span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
+
+<span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
+
+
+<span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">serve.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span>
+<span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span>
+
+<span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">(</span><span class="s2">&quot;amqp://guest:guest@localhost:5672/&quot;</span><span class="p">)</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
+
+
+<span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<p>And just run this command:</p>
+<div class="highlight"><pre><span></span><code>faststream<span class="w"> </span>run<span class="w"> </span>serve:app
+</code></pre></div>
+<p>After running the command you should see the following output:</p>
+<div class="highlight"><pre><span></span><code>INFO<span class="w">     </span>-<span class="w"> </span>FastStream<span class="w"> </span>app<span class="w"> </span>starting...
+INFO<span class="w">     </span>-<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="p">|</span><span class="w">            </span>-<span class="w"> </span><span class="sb">`</span>BaseHandler<span class="sb">`</span><span class="w"> </span>waiting<span class="w"> </span><span class="k">for</span><span class="w"> </span>messages
+INFO<span class="w">     </span>-<span class="w"> </span>FastStream<span class="w"> </span>app<span class="w"> </span>started<span class="w"> </span>successfully!<span class="w"> </span>To<span class="w"> </span><span class="nb">exit</span><span class="w"> </span>press<span class="w"> </span>CTRL+C
+</code></pre></div>
+<p>Enjoy your new development experience!</p>
+<details class="tip">
+<summary>Don't forget to stop the test broker container</summary>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>container<span class="w"> </span>stop<span class="w"> </span>test-mq
+</code></pre></div>
+</details>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-08T09:19:27+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-08</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-14T06:38:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-14</span>
       
     
   </small>
 </div>
 
 
+
+  
 
 
 
@@ -1467,6 +1513,8 @@
         <footer class="md-footer">
   
     
+      
+        
       
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
@@ -1590,7 +1638,7 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotation", "content.code.copy", "content.code.select", "content.action.edit"], "search": "../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotate", "content.code.copy", "content.code.select", "content.action.edit"], "search": "../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.dff1b7c8.min.js"></script>

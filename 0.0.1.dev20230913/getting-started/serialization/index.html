@@ -24,7 +24,7 @@
     
     
       
-        <title>Index - FastStream</title>
+        <title>Custom Serialization - FastStream</title>
       
     
     
@@ -65,7 +65,7 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="Index - FastStream" >
+        <meta  property="og:title"  content="Custom Serialization - FastStream" >
       
         <meta  property="og:description"  content="" >
       
@@ -81,7 +81,7 @@
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="Index - FastStream" >
+        <meta  name="twitter:title"  content="Custom Serialization - FastStream" >
       
         <meta  name="twitter:description"  content="" >
       
@@ -121,24 +121,17 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#custom-serialization" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
     </div>
     
       <div data-md-color-scheme="default" data-md-component="outdated" hidden>
-        
-          <aside class="md-banner md-banner--warning">
-            <div class="md-banner__inner md-grid md-typeset">
-              
-  You're not viewing the latest version.
-  <a href="../../..">  <!-- nosemgrep -->
-    <strong>Click here to go to latest.</strong>
-  </a>
-
-            </div>
-            <script>var el=document.querySelector("[data-md-component=outdated]"),outdated=__md_get("__outdated",sessionStorage);!0===outdated&&el&&(el.hidden=!1)</script>
-          </aside>
         
       </div>
     
@@ -168,7 +161,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Index
+              Custom Serialization
             
           </span>
         </div>
@@ -422,23 +415,6 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../contact/" class="md-tabs__link">
-        
-  
-    
-  
-  Contact
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-    <li class="md-tabs__item">
       <a href="../../release/" class="md-tabs__link">
         
   
@@ -575,6 +551,12 @@
       
         
       
+        
+          
+        
+      
+        
+          
         
       
         
@@ -955,11 +937,11 @@
   
   
     <li class="md-nav__item">
-      <a href="protobuf/" class="md-nav__link">
+      <a href="examples/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Protobuf Example
+    Examples
   </span>
   
 
@@ -1092,46 +1074,36 @@
   
   
   
-    
-    
-      
+    <li class="md-nav__item">
+      <a href="../integrations/frameworks/" class="md-nav__link">
         
-          
-        
-      
-        
-          
-        
-      
-        
-          
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../integrations/" class="md-nav__link">
-      
   
   <span class="md-ellipsis">
     Integrations
   </span>
   
 
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
+      </a>
+    </li>
   
 
-      
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/fastapi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FastAPI Plugin
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1403,25 +1375,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contact/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Contact
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../release/" class="md-nav__link">
         
   
@@ -1452,6 +1405,43 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#serialization-steps" class="md-nav__link">
+    Serialization Steps
+  </a>
+  
+    <nav class="md-nav" aria-label="Serialization Steps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#message-parsing" class="md-nav__link">
+    Message Parsing
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#message-decoding" class="md-nav__link">
+    Message Decoding
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -1474,16 +1464,25 @@
   
 
 
-  <h1>Index</h1>
-
-
+<h1 id="custom-serialization">Custom Serialization<a class="headerlink" href="#custom-serialization" title="Permanent link">#</a></h1>
+<p>By default, <strong>FastStream</strong> uses the <em>JSON</em> format to send and receive messages. However, if you need to handle messages in other formats or with extra serialization steps such as <em>gzip</em>, <em>lz4</em>, <em>Avro</em>, <em>Protobuf</em> or <em>Msgpack</em>, you can easily modify the serialization logic.</p>
+<h2 id="serialization-steps">Serialization Steps<a class="headerlink" href="#serialization-steps" title="Permanent link">#</a></h2>
+<p>Before the message gets into your subscriber, <strong>FastStream</strong> applies 2 functions to it sequentially: <code>parse_message</code> and <code>decode_message</code>. You can modify one or both stages depending on your needs.</p>
+<h3 id="message-parsing">Message Parsing<a class="headerlink" href="#message-parsing" title="Permanent link">#</a></h3>
+<p>At this stage, <strong>FastStream</strong> serializes an incoming message of the framework that is used to work with the broker into a general view - <strong>StreamMessage</strong>. At this stage, the message body remains in the form of raw bytes.</p>
+<div class="admonition warning">
+<p>This stage is strongly related to the features of the broker used and in most cases, its redefinition is not necessary.</p>
+</div>
+<p>The parser declared at the <code>broker</code> level will be applied to all subscribers. The parser declared at the <code>subscriber</code> level is applied only to this subscriber (it ignores the `broker' parser if it was specified earlier).</p>
+<h3 id="message-decoding">Message Decoding<a class="headerlink" href="#message-decoding" title="Permanent link">#</a></h3>
+<p>At this stage, the body of <strong>StreamMessage</strong> is transformed to the form in which it enters your subscriber function. This method you will have to redefine more often.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-07T06:58:22+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-07</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-14T06:38:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-14</span>
       
     
   </small>
@@ -1636,7 +1635,7 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotation", "content.code.copy", "content.code.select", "content.action.edit"], "search": "../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotate", "content.code.copy", "content.code.select", "content.action.edit"], "search": "../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.dff1b7c8.min.js"></script>
