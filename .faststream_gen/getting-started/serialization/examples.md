@@ -108,7 +108,7 @@ It is much easier than *Protobuf* schema usage. Thus, if you have no strict msg 
 
 ### Data compression
 
-Also, if you are sending a really huge messages, you should try to compress them too. As an example, take a look at [**lz4**](https://github.com/python-lz4/python-lz4){.external-link targer="_blank"} and [](){.external-link targer="_blank"} algorythms.
+Also, if you are sending a really huge messages, you should try to compress them too. As an example, take a look at [**lz4**](https://github.com/python-lz4/python-lz4){.external-link targer="_blank"} or [**zstd**](https://github.com/sergey-dryabzhinsky/python-zstd){.external-link targer="_blank"} algorythms.
 
 This way you can reduce message size if it has some repeated blocks, but at the small message body cases data compressing able to extend it. So, you need to check compression effort in your application specific case.
 
@@ -117,7 +117,7 @@ This way you can reduce message size if it has some repeated blocks, but at the 
 You are still able to set custom `decoder` on the Broker or Router level too. But, if you want to encode publishing messages automatically too, you should take a look at [Middleware](../middlewares/index.md){.internal-link} serialization implimentation.
 
 [^1]:
-    For example, a message like `{ "name": "john", "age": 25 }` in *JSON* takes **27** bytes, and in *Protobuf* - **11**. With lists and more complex structures, the savings can be even more significant (up to 20x times).
+    For example, a message like `#!json { "name": "john", "age": 25 }` in *JSON* takes **27** bytes, and in *Protobuf* - **11**. With lists and more complex structures, the savings can be even more significant (up to 20x times).
 
 [^2]:
-    `{ "name": "john", "age": 25 }` with *Msgpack* serialization takes **16** bytes.
+    `#!json {"name": "john", "age": 25 }` with *Msgpack* serialization takes **16** bytes.

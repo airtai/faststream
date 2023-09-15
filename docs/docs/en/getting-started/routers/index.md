@@ -26,7 +26,7 @@ First you need to import *Broker Router* from the same module from where you imp
 {{ includes }}
 
 !!! tip
-    Also, at *Broker Router* creation you can specify [middleware](../middlewares/index.md), [dependencies](../dependencies/global.md), [decoder](../serialization/parser.md) and [decoder](../serialization/decoder.md) to apply them to all subscribers, declared via this router.
+    Also, at *Broker Router* creation you can specify [middleware](../middlewares/index.md), [dependencies](../dependencies/global.md), [parser](../serialization/parser.md) and [decoder](../serialization/decoder.md) to apply them to all subscribers, declared via this router.
 
 ## Delay handler registration
 

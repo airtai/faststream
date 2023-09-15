@@ -6,7 +6,7 @@ With this container you are able to get access to application scope or message p
 
 {!> includes/getting_started/context/base.md !}
 
-But, with the [`Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated){.external-docs target="_blank"} python feature usage it is much closer to `pytest.fixture`.
+But, with the [`Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated){.external-docs target="_blank"} python feature usage it is much closer to `#!python @pytest.fixture`.
 
 {!> includes/getting_started/context/annotated.md !}
 
@@ -20,7 +20,7 @@ By default, the context is available in the same place as `Depends`:
 
 ## Regular functions compatibility
 
-To use context at other functions use the decorator `@apply_types`. This case, the called function context will correspond to the context of the event handler from which it was called.
+To use context at other functions use the decorator `#!python @apply_types`. This case, the called function context will correspond to the context of the event handler from which it was called.
 
 ```python linenums="1" hl_lines="6 8 11"
 {!> docs_src/getting_started/context/nested.py !}
