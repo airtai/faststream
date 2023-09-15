@@ -70,6 +70,8 @@ plugins:
             separate_signature: true
             docstring_section_style: spacy
             show_docstring_attributes: false
+            show_root_heading: true
+            show_signature_annotations: true
   - social:                      # render social card
       enabled: !ENV [CI, false]
   - git-revision-date-localized: # show page edition date
