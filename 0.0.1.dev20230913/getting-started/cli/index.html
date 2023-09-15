@@ -6,6 +6,8 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
+        <meta name="description" content="FastStream Python messaging framework documentation">
+      
       
         <meta name="author" content="airt">
       
@@ -59,6 +61,16 @@
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-HDTMP5FFHP"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-HDTMP5FFHP",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-HDTMP5FFHP",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
 
     
     
@@ -67,7 +79,7 @@
       
         <meta  property="og:title"  content="CLI commands - FastStream" >
       
-        <meta  property="og:description"  content="" >
+        <meta  property="og:description"  content="FastStream Python messaging framework documentation" >
       
         <meta  property="og:image"  content="https://faststream.airt.ai/0.0.1.dev20230913/assets/images/social/en/getting-started/cli/index.png" >
       
@@ -83,7 +95,7 @@
       
         <meta  name="twitter:title"  content="CLI commands - FastStream" >
       
-        <meta  name="twitter:description"  content="" >
+        <meta  name="twitter:description"  content="FastStream Python messaging framework documentation" >
       
         <meta  name="twitter:image"  content="https://faststream.airt.ai/0.0.1.dev20230913/assets/images/social/en/getting-started/cli/index.png" >
       
@@ -194,26 +206,6 @@
 </form>
       
     
-    
-      <div class="md-header__option">
-  <div class="md-select">
-    
-    <button class="md-header__button md-icon" aria-label="Select language">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7 1.62-4.33L19.12 17h-3.24Z"/></svg>
-    </button>
-    <div class="md-select__inner">
-      <ul class="md-select__list">
-        
-          <li class="md-select__item">
-            <a href="/" hreflang="" class="md-select__link">
-              en - English
-            </a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-</div>
     
     
       <label class="md-header__button md-icon" for="__search">
@@ -368,44 +360,6 @@
 
         </a>
       </li>
-    
-  
-
-      
-        
-  
-  
-  
-    
-    
-      
-  
-  
-  
-    
-    
-      
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="../../api/faststream/app/ABCApp/" class="md-tabs__link">
-          
-  
-    
-  
-  Reference
-
-        </a>
-      </li>
-    
-  
-
-    
-  
-
     
   
 
@@ -1046,6 +1000,17 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    CLI commands
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -1055,6 +1020,66 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#run-the-project" class="md-nav__link">
+    Run the project
+  </a>
+  
+    <nav class="md-nav" aria-label="Run the project">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multiprocessing-scaling" class="md-nav__link">
+    Multiprocessing scaling
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hotreload" class="md-nav__link">
+    Hotreload
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-management" class="md-nav__link">
+    Environment Management
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#asyncapi-schema" class="md-nav__link">
+    AsyncAPI Schema
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1257,55 +1282,6 @@
   
   
   
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    
-  
-  
-    
-  
-  
-    <a href="../../api/faststream/app/ABCApp/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    Reference
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-  
-
-  
-
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
     <li class="md-nav__item">
       <a href="../../release/" class="md-nav__link">
         
@@ -1340,6 +1316,55 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#run-the-project" class="md-nav__link">
+    Run the project
+  </a>
+  
+    <nav class="md-nav" aria-label="Run the project">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multiprocessing-scaling" class="md-nav__link">
+    Multiprocessing scaling
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hotreload" class="md-nav__link">
+    Hotreload
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-management" class="md-nav__link">
+    Environment Management
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#asyncapi-schema" class="md-nav__link">
+    AsyncAPI Schema
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1362,23 +1387,178 @@
 
 
 <h1 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">#</a></h1>
-<p>https://lancetnik.github.io/Propan/getting_started/2_cli/</p>
-<ul>
-<li>multiprocessing</li>
-<li>AsyncAPI documentation (with references to asyncapi pages)</li>
-</ul>
+<p><strong>FastStream</strong> has its own built-in <strong>CLI</strong> tool for your maximum comfort as a developer.</p>
+<div class="admonition quote">
+<p>Thanks to <a class="external-link" href="https://typer.tiangolo.com/" target="_blank"><em>typer</em></a> and <a class="external-link" href="https://watchfiles.helpmanual.io/" target="_blank"><em>watchfiles</em></a>. Their work is the basis of this tool.</p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>faststream<span class="w"> </span>--help
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="go">Usage: faststream [OPTIONS] COMMAND [ARGS]...</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="go">  Generate, run and manage FastStream apps to greater development experience</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="go">Options:</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="go">  -v, --version                   Show current platform, python and FastStream</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="go">                                  version</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="go">  --install-completion [bash|zsh|fish|powershell|pwsh]</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="go">                                  Install completion for the specified shell.</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="go">  --show-completion [bash|zsh|fish|powershell|pwsh]</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="go">                                  Show completion for the specified shell, to</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="go">                                  copy it or customize the installation.</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="go">  --help                          Show this message and exit.</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="go">Commands:</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="go">  docs  AsyncAPI schema commands</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="go">  run   Run [MODULE:APP] FastStream application</span>
+</code></pre></div>
+<h2 id="run-the-project">Run the project<a class="headerlink" href="#run-the-project" title="Permanent link">#</a></h2>
+<h3 id="multiprocessing-scaling">Multiprocessing scaling<a class="headerlink" href="#multiprocessing-scaling" title="Permanent link">#</a></h3>
+<p><strong>FastStream</strong> allows you to scale application right from the command line by running you application in the Process pool.</p>
+<p>Just set <code>--worker</code> option to scale your application:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>serve:app<span class="w"> </span>--workers<span class="w"> </span><span class="m">2</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="go">2023-09-14 21:24:49,726 INFO     - Started parent process [7591]</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="go">2023-09-14 21:24:49,731 INFO     - Started child process [7593]</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="go">2023-09-14 21:24:49,735 INFO     - Started child process [7594]</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="go">2023-09-14 21:24:50,543 INFO     - test |            - `Handle` waiting for messages</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="go">2023-09-14 21:24:50,600 INFO     - test |            - `Handle` waiting for messages</span>
+</code></pre></div>
+<h3 id="hotreload">Hotreload<a class="headerlink" href="#hotreload" title="Permanent link">#</a></h3>
+<p>Thanks to <a class="external-link" href="https://watchfiles.helpmanual.io/" target="_blank"><em>watchfiles</em></a>, written in <em>Rust</em>, you can
+work with your project easily. Edit the code as much as you like - the new version has already been launched and is waiting for your requests!</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>serve:app<span class="w"> </span>--reload
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="go">2023-09-14 21:27:20,727 INFO     - Started reloader process [7902] using WatchFiles</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="go">2023-09-14 21:27:21,638 INFO     - FastStream app starting...</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="go">2023-09-14 21:27:21,655 INFO     - test |            - `Handle` waiting for messages</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="go">2023-09-14 21:27:21,676 INFO     - FastStream app started successfully! To exit press CTRL+C</span>
+</code></pre></div>
+<h3 id="environment-management">Environment Management<a class="headerlink" href="#environment-management" title="Permanent link">#</a></h3>
+<p>You can pass any custom flags and launch options to the <strong>FastStream CLI</strong> even without first registering them. Just use them when launching the application - and they will be right in your environment.</p>
+<p>Use this option to select environment files, configure logging, or at your discretion.</p>
+<p>For example, we will pass the <em>.env</em> file to the context of our application:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>serve:app<span class="w"> </span>--env<span class="o">=</span>.env.dev
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="go">2023-09-14 21:28:38,191 INFO     - FastStream app starting...</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="go">2023-09-14 21:28:38,213 INFO     - test |            - `Handle` waiting for messages</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="go">2023-09-14 21:28:38,230 INFO     - FastStream app started successfully! To exit press CTRL+C</span>
+</code></pre></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Kafka</label><label for="__tabbed_1_2">RabbitMQ</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-8-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-8-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-8-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-8-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-8-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-8-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-8-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-8-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-8-10">10</a></span>
+<span class="normal"><a href="#__codelineno-8-11">11</a></span>
+<span class="normal"><a href="#__codelineno-8-12">12</a></span>
+<span class="normal"><a href="#__codelineno-8-13">13</a></span>
+<span class="normal"><a href="#__codelineno-8-14">14</a></span>
+<span class="normal"><a href="#__codelineno-8-15">15</a></span>
+<span class="normal"><a href="#__codelineno-8-16">16</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span><span class="p">,</span> <span class="n">ContextRepo</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="kn">from</span> <span class="nn">pydantic_settings</span> <span class="kn">import</span> <span class="n">BaseSettings</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4"></a>
+<a id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">()</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6"></a>
+<a id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8"></a>
+<a id="__codelineno-8-9" name="__codelineno-8-9"></a><span class="k">class</span> <span class="nc">Settings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10"></a>    <span class="n">host</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;localhost:9092&quot;</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11"></a>
+<a id="__codelineno-8-12" name="__codelineno-8-12"></a><span class="nd">@app</span><span class="o">.</span><span class="n">on_startup</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">env</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">ContextRepo</span><span class="p">):</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14"></a><span class="hll">    <span class="n">settings</span> <span class="o">=</span> <span class="n">Settings</span><span class="p">(</span><span class="n">_env_file</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
+</span><a id="__codelineno-8-15" name="__codelineno-8-15"></a><span class="hll">    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">host</span><span class="p">)</span>
+</span><a id="__codelineno-8-16" name="__codelineno-8-16"></a><span class="hll">    <span class="n">context</span><span class="o">.</span><span class="n">set_global</span><span class="p">(</span><span class="s2">&quot;settings&quot;</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-9-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-9-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-9-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-9-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-9-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-9-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-9-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-9-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-9-10">10</a></span>
+<span class="normal"><a href="#__codelineno-9-11">11</a></span>
+<span class="normal"><a href="#__codelineno-9-12">12</a></span>
+<span class="normal"><a href="#__codelineno-9-13">13</a></span>
+<span class="normal"><a href="#__codelineno-9-14">14</a></span>
+<span class="normal"><a href="#__codelineno-9-15">15</a></span>
+<span class="normal"><a href="#__codelineno-9-16">16</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span><span class="p">,</span> <span class="n">ContextRepo</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="kn">from</span> <span class="nn">pydantic_settings</span> <span class="kn">import</span> <span class="n">BaseSettings</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4"></a>
+<a id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">()</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6"></a>
+<a id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8"></a>
+<a id="__codelineno-9-9" name="__codelineno-9-9"></a><span class="k">class</span> <span class="nc">Settings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10"></a>    <span class="n">host</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;amqp://guest:guest@localhost:5672/&quot;</span> <span class="c1"># pragma: allowlist secret</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11"></a>
+<a id="__codelineno-9-12" name="__codelineno-9-12"></a><span class="nd">@app</span><span class="o">.</span><span class="n">on_startup</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">env</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">ContextRepo</span><span class="p">):</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14"></a><span class="hll">    <span class="n">settings</span> <span class="o">=</span> <span class="n">Settings</span><span class="p">(</span><span class="n">_env_file</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
+</span><a id="__codelineno-9-15" name="__codelineno-9-15"></a><span class="hll">    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">host</span><span class="p">)</span>
+</span><a id="__codelineno-9-16" name="__codelineno-9-16"></a><span class="hll">    <span class="n">context</span><span class="o">.</span><span class="n">set_global</span><span class="p">(</span><span class="s2">&quot;settings&quot;</span><span class="p">,</span> <span class="n">settings</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note that the <code>env</code> parameter was passed to the <code>setup</code> function directly from the command line</p>
+</div>
+<p>All passed values can be of type <code class="highlight"><span class="nb">bool</span></code>, <code class="highlight"><span class="nb">str</span></code> or <code class="highlight"><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></code>.</p>
+<p>In this case, the flags will be interpreted as follows:</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>app:app<span class="w"> </span>--flag<span class="w">       </span><span class="c1"># flag = True</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>faststream<span class="w"> </span>run<span class="w"> </span>app:app<span class="w"> </span>--no-flag<span class="w">    </span><span class="c1"># flag = False</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>faststream<span class="w"> </span>run<span class="w"> </span>app:app<span class="w"> </span>--my-flag<span class="w">    </span><span class="c1"># my_flag = True</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>faststream<span class="w"> </span>run<span class="w"> </span>app:app<span class="w"> </span>--key<span class="w"> </span>value<span class="w">  </span><span class="c1"># key = &quot;value&quot;</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>faststream<span class="w"> </span>run<span class="w"> </span>app:app<span class="w"> </span>--key<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w">    </span><span class="c1"># key = [&quot;1&quot;, &quot;2&quot;]</span>
+</code></pre></div>
+You can use them both individually and together in unlimited quantities.</p>
+<h2 id="asyncapi-schema">AsyncAPI Schema<a class="headerlink" href="#asyncapi-schema" title="Permanent link">#</a></h2>
+<p>Also, <strong>FastStream CLI</strong> allows you to work with the <strong>AsyncAPI</strong> schema in a simple way.</p>
+<p>You are able to generate <code>.json</code> or <code>.yaml</code> files by your application code or host <strong>HTML</strong> representation directly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>faststream<span class="w"> </span>docs<span class="w"> </span>--help
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="go">Usage: faststream docs [OPTIONS] COMMAND [ARGS]...</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="go">  AsyncAPI schema commands</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="go">Options:</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="go">  --help  Show this message and exit.</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="go">Commands:</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="go">  gen    Generate project AsyncAPI schema</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="go">  serve  Serve project AsyncAPI schema</span>
+</code></pre></div>
+<p>To know more about the commands above, please visit <a class="internal-link" href="../asyncapi/export/"><strong>AsyncAPI</strong> export</a> and <a class="internal-link" href="../asyncapi/hosting/"><strong>AsyncAPI</strong> hosting</a>.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-11T11:31:30+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-11</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-15T07:56:23+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-15</span>
       
     
   </small>
 </div>
 
+
+  
 
 
 
@@ -1526,7 +1706,7 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotate", "content.code.copy", "content.code.select", "content.action.edit"], "search": "../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.copy", "content.action.edit"], "search": "../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.dff1b7c8.min.js"></script>

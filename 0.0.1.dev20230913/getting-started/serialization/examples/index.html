@@ -6,6 +6,8 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
+        <meta name="description" content="FastStream Python messaging framework documentation">
+      
       
         <meta name="author" content="airt">
       
@@ -59,6 +61,16 @@
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-HDTMP5FFHP"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-HDTMP5FFHP",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-HDTMP5FFHP",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
 
     
     
@@ -67,7 +79,7 @@
       
         <meta  property="og:title"  content="Examples - FastStream" >
       
-        <meta  property="og:description"  content="" >
+        <meta  property="og:description"  content="FastStream Python messaging framework documentation" >
       
         <meta  property="og:image"  content="https://faststream.airt.ai/0.0.1.dev20230913/assets/images/social/en/getting-started/serialization/examples.png" >
       
@@ -83,7 +95,7 @@
       
         <meta  name="twitter:title"  content="Examples - FastStream" >
       
-        <meta  name="twitter:description"  content="" >
+        <meta  name="twitter:description"  content="FastStream Python messaging framework documentation" >
       
         <meta  name="twitter:image"  content="https://faststream.airt.ai/0.0.1.dev20230913/assets/images/social/en/getting-started/serialization/examples.png" >
       
@@ -194,26 +206,6 @@
 </form>
       
     
-    
-      <div class="md-header__option">
-  <div class="md-select">
-    
-    <button class="md-header__button md-icon" aria-label="Select language">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7 1.62-4.33L19.12 17h-3.24Z"/></svg>
-    </button>
-    <div class="md-select__inner">
-      <ul class="md-select__list">
-        
-          <li class="md-select__item">
-            <a href="/" hreflang="" class="md-select__link">
-              en - English
-            </a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-</div>
     
     
       <label class="md-header__button md-icon" for="__search">
@@ -368,44 +360,6 @@
 
         </a>
       </li>
-    
-  
-
-      
-        
-  
-  
-  
-    
-    
-      
-  
-  
-  
-    
-    
-      
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="../../../api/faststream/app/ABCApp/" class="md-tabs__link">
-          
-  
-    
-  
-  Reference
-
-        </a>
-      </li>
-    
-  
-
-    
-  
-
     
   
 
@@ -1406,55 +1360,6 @@
   
   
   
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    
-  
-  
-    
-  
-  
-    <a href="../../../api/faststream/app/ABCApp/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    Reference
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-  
-
-  
-
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
     <li class="md-nav__item">
       <a href="../../../release/" class="md-nav__link">
         
@@ -1567,125 +1472,125 @@
 <p><em>Protobuf</em> is an alternative message serialization method commonly used in <em>GRPC</em>. Its main advantage is much smaller <sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> message size (compared to <em>JSON</em>), but it requires a message schema (<code>.proto</code> files) both on the client side and on the server side.</p>
 </details>
 <p>To begin with, install the dependencies:</p>
-<div class="highlight"><pre><span></span><code><span class="go">pip install grpcio-tools</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="go">pip install grpcio-tools</span>
 </code></pre></div>
 <p>Then we will describe the scheme of our message</p>
-<div class="highlight"><span class="filename">message.proto</span><pre><span></span><code><span class="k">syntax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;proto3&quot;</span><span class="p">;</span>
-
-<span class="kd">message</span><span class="w"> </span><span class="nc">Person</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="na">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="na">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
-<span class="p">}</span>
+<div class="highlight"><span class="filename">message.proto</span><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">syntax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;proto3&quot;</span><span class="p">;</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kd">message</span><span class="w"> </span><span class="nc">Person</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="na">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="na">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">}</span>
 </code></pre></div>
 <p>Now we will generate a <em>Python</em> class for working with messages in the <em>Protobuf format</em></p>
-<div class="highlight"><pre><span></span><code><span class="go">python -m grpc_tools.protoc --python_out=. --pyi_out=. -I . message.proto</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="go">python -m grpc_tools.protoc --python_out=. --pyi_out=. -I . message.proto</span>
 </code></pre></div>
 <p>At the output, we get 2 files: <code>message_pb2.py</code> and <code>message_pb2.pyi</code>. Now we are ready to use the generated class to serialize our messages.</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="hll"><span class="kn">from</span> <span class="nn">message_pb2</span> <span class="kn">import</span> <span class="n">Person</span>
-</span>
-<span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span><span class="p">,</span> <span class="n">Logger</span><span class="p">,</span> <span class="n">NoCast</span>
-<span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span><span class="p">,</span> <span class="n">RabbitMessage</span>
-
-<span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">()</span>
-<span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
-
-
-<span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">decode_message</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n">RabbitMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Person</span><span class="p">:</span>
-</span><span class="hll">    <span class="n">decoded</span> <span class="o">=</span> <span class="n">Person</span><span class="p">()</span>
-</span><span class="hll">    <span class="n">decoded</span><span class="o">.</span><span class="n">ParseFromString</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
-</span><span class="hll">    <span class="k">return</span> <span class="n">decoded</span>
-</span>
-
-<span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">decoder</span><span class="o">=</span><span class="n">decode_message</span><span class="p">)</span>
-</span><span class="k">async</span> <span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="n">body</span><span class="p">:</span> <span class="n">NoCast</span><span class="p">[</span><span class="n">Person</span><span class="p">],</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
-
-
-<span class="nd">@app</span><span class="o">.</span><span class="n">after_startup</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">():</span>
-<span class="hll">    <span class="n">body</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;john&quot;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">()</span>
-</span>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">)</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-3-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-3-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-3-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-3-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-3-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-3-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-3-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-3-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-3-10">10</a></span>
+<span class="normal"><a href="#__codelineno-3-11">11</a></span>
+<span class="normal"><a href="#__codelineno-3-12">12</a></span>
+<span class="normal"><a href="#__codelineno-3-13">13</a></span>
+<span class="normal"><a href="#__codelineno-3-14">14</a></span>
+<span class="normal"><a href="#__codelineno-3-15">15</a></span>
+<span class="normal"><a href="#__codelineno-3-16">16</a></span>
+<span class="normal"><a href="#__codelineno-3-17">17</a></span>
+<span class="normal"><a href="#__codelineno-3-18">18</a></span>
+<span class="normal"><a href="#__codelineno-3-19">19</a></span>
+<span class="normal"><a href="#__codelineno-3-20">20</a></span>
+<span class="normal"><a href="#__codelineno-3-21">21</a></span>
+<span class="normal"><a href="#__codelineno-3-22">22</a></span>
+<span class="normal"><a href="#__codelineno-3-23">23</a></span>
+<span class="normal"><a href="#__codelineno-3-24">24</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="hll"><span class="kn">from</span> <span class="nn">message_pb2</span> <span class="kn">import</span> <span class="n">Person</span>
+</span><a id="__codelineno-3-2" name="__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span><span class="p">,</span> <span class="n">Logger</span><span class="p">,</span> <span class="n">NoCast</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span><span class="p">,</span> <span class="n">RabbitMessage</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">()</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8"></a>
+<a id="__codelineno-3-9" name="__codelineno-3-9"></a>
+<a id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">decode_message</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n">RabbitMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Person</span><span class="p">:</span>
+</span><a id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="hll">    <span class="n">decoded</span> <span class="o">=</span> <span class="n">Person</span><span class="p">()</span>
+</span><a id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="hll">    <span class="n">decoded</span><span class="o">.</span><span class="n">ParseFromString</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+</span><a id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="hll">    <span class="k">return</span> <span class="n">decoded</span>
+</span><a id="__codelineno-3-14" name="__codelineno-3-14"></a>
+<a id="__codelineno-3-15" name="__codelineno-3-15"></a>
+<a id="__codelineno-3-16" name="__codelineno-3-16"></a><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">decoder</span><span class="o">=</span><span class="n">decode_message</span><span class="p">)</span>
+</span><a id="__codelineno-3-17" name="__codelineno-3-17"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="n">body</span><span class="p">:</span> <span class="n">NoCast</span><span class="p">[</span><span class="n">Person</span><span class="p">],</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19"></a>
+<a id="__codelineno-3-20" name="__codelineno-3-20"></a>
+<a id="__codelineno-3-21" name="__codelineno-3-21"></a><span class="nd">@app</span><span class="o">.</span><span class="n">after_startup</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">():</span>
+<a id="__codelineno-3-23" name="__codelineno-3-23"></a><span class="hll">    <span class="n">body</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;john&quot;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">()</span>
+</span><a id="__codelineno-3-24" name="__codelineno-3-24"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 <p>Note that we used the <code>NoCast</code> annotation, which excludes the message from the <code>pydantic</code> representation of our handler.</p>
-<div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="n">body</span><span class="p">:</span> <span class="n">NoCast</span><span class="p">[</span><span class="n">Person</span><span class="p">],</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="n">body</span><span class="p">:</span> <span class="n">NoCast</span><span class="p">[</span><span class="n">Person</span><span class="p">],</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
 </code></pre></div>
 <h2 id="msgpack">Msgpack<a class="headerlink" href="#msgpack" title="Permanent link">#</a></h2>
 <p><em>Msgpack</em> is an alternative binary data format too. Its main advantage is smaller <sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup> than <em>JSON</em> message size (but a little bigger than <em>Protobuf</em>) and it doesn't require any message schema (<em>Protobuf</em> does). So, you can easily use it in the most cases.</p>
 <p>First of all, install the dependencies:</p>
-<div class="highlight"><pre><span></span><code><span class="go">pip install msgpack</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="go">pip install msgpack</span>
 </code></pre></div>
 <p>And, because you need no any schema, you can easely write a <em>Msgpack</em> decoder:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="hll"><span class="kn">import</span> <span class="nn">msgpack</span>
-</span>
-<span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span><span class="p">,</span> <span class="n">Logger</span>
-<span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span><span class="p">,</span> <span class="n">RabbitMessage</span>
-
-<span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">()</span>
-<span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
-
-
-<span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">decode_message</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n">RabbitMessage</span><span class="p">):</span>
-</span><span class="hll">    <span class="k">return</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
-</span>
-
-<span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">decoder</span><span class="o">=</span><span class="n">decode_message</span><span class="p">)</span>
-</span><span class="k">async</span> <span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
-
-
-<span class="nd">@app</span><span class="o">.</span><span class="n">after_startup</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">():</span>
-<span class="hll">    <span class="n">body</span> <span class="o">=</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;john&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">},</span> <span class="n">use_bin_type</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">)</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-6-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-6-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-6-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-6-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-6-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-6-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-6-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-6-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-6-10">10</a></span>
+<span class="normal"><a href="#__codelineno-6-11">11</a></span>
+<span class="normal"><a href="#__codelineno-6-12">12</a></span>
+<span class="normal"><a href="#__codelineno-6-13">13</a></span>
+<span class="normal"><a href="#__codelineno-6-14">14</a></span>
+<span class="normal"><a href="#__codelineno-6-15">15</a></span>
+<span class="normal"><a href="#__codelineno-6-16">16</a></span>
+<span class="normal"><a href="#__codelineno-6-17">17</a></span>
+<span class="normal"><a href="#__codelineno-6-18">18</a></span>
+<span class="normal"><a href="#__codelineno-6-19">19</a></span>
+<span class="normal"><a href="#__codelineno-6-20">20</a></span>
+<span class="normal"><a href="#__codelineno-6-21">21</a></span>
+<span class="normal"><a href="#__codelineno-6-22">22</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="hll"><span class="kn">import</span> <span class="nn">msgpack</span>
+</span><a id="__codelineno-6-2" name="__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span><span class="p">,</span> <span class="n">Logger</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span><span class="p">,</span> <span class="n">RabbitMessage</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5"></a>
+<a id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">()</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8"></a>
+<a id="__codelineno-6-9" name="__codelineno-6-9"></a>
+<a id="__codelineno-6-10" name="__codelineno-6-10"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">decode_message</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="n">RabbitMessage</span><span class="p">):</span>
+</span><a id="__codelineno-6-11" name="__codelineno-6-11"></a><span class="hll">    <span class="k">return</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+</span><a id="__codelineno-6-12" name="__codelineno-6-12"></a>
+<a id="__codelineno-6-13" name="__codelineno-6-13"></a>
+<a id="__codelineno-6-14" name="__codelineno-6-14"></a><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">decoder</span><span class="o">=</span><span class="n">decode_message</span><span class="p">)</span>
+</span><a id="__codelineno-6-15" name="__codelineno-6-15"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17"></a>
+<a id="__codelineno-6-18" name="__codelineno-6-18"></a>
+<a id="__codelineno-6-19" name="__codelineno-6-19"></a><span class="nd">@app</span><span class="o">.</span><span class="n">after_startup</span>
+<a id="__codelineno-6-20" name="__codelineno-6-20"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">():</span>
+<a id="__codelineno-6-21" name="__codelineno-6-21"></a><span class="hll">    <span class="n">body</span> <span class="o">=</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;john&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">},</span> <span class="n">use_bin_type</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><a id="__codelineno-6-22" name="__codelineno-6-22"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 <p>It is much easier than <em>Protobuf</em> schema usage. Thus, if you have no strict msg size limitations, you able to use <em>Msgpack</em> serialization almost everywhere.</p>
 <h2 id="tips">Tips<a class="headerlink" href="#tips" title="Permanent link">#</a></h2>
 <h3 id="data-compression">Data compression<a class="headerlink" href="#data-compression" title="Permanent link">#</a></h3>
-<p>Also, if you are sending a really huge messages, you should try to compress them too. As an example, take a look at <a class="external-link" href="https://github.com/python-lz4/python-lz4" targer="_blank"><strong>lz4</strong></a> and <a class="external-link" href="" targer="_blank"></a> algorythms.</p>
+<p>Also, if you are sending a really huge messages, you should try to compress them too. As an example, take a look at <a class="external-link" href="https://github.com/python-lz4/python-lz4" targer="_blank"><strong>lz4</strong></a> or <a class="external-link" href="https://github.com/sergey-dryabzhinsky/python-zstd" targer="_blank"><strong>zstd</strong></a> algorythms.</p>
 <p>This way you can reduce message size if it has some repeated blocks, but at the small message body cases data compressing able to extend it. So, you need to check compression effort in your application specific case.</p>
 <h3 id="broker-level-serialization">Broker-level serialization<a class="headerlink" href="#broker-level-serialization" title="Permanent link">#</a></h3>
 <p>You are still able to set custom <code>decoder</code> on the Broker or Router level too. But, if you want to encode publishing messages automatically too, you should take a look at <a class="internal-link" href="../../middlewares/">Middleware</a> serialization implimentation.</p>
@@ -1693,10 +1598,10 @@
 <hr />
 <ol>
 <li id="fn:1">
-<p>For example, a message like <code>{ "name": "john", "age": 25 }</code> in <em>JSON</em> takes <strong>27</strong> bytes, and in <em>Protobuf</em> - <strong>11</strong>. With lists and more complex structures, the savings can be even more significant (up to 20x times).&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+<p>For example, a message like <code class="highlight"><span class="p">{</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;john&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;age&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="w"> </span><span class="p">}</span></code> in <em>JSON</em> takes <strong>27</strong> bytes, and in <em>Protobuf</em> - <strong>11</strong>. With lists and more complex structures, the savings can be even more significant (up to 20x times).&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
 </li>
 <li id="fn:2">
-<p><code>{ "name": "john", "age": 25 }</code> with <em>Msgpack</em> serialization takes <strong>16</strong> bytes.&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+<p><code class="highlight"><span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;john&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;age&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="w"> </span><span class="p">}</span></code> with <em>Msgpack</em> serialization takes <strong>16</strong> bytes.&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
 </li>
 </ol>
 </div>
@@ -1706,12 +1611,14 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-14T06:38:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-14</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-15T07:56:23+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-15</span>
       
     
   </small>
 </div>
 
+
+  
 
 
 
@@ -1859,7 +1766,7 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotate", "content.code.copy", "content.code.select", "content.action.edit"], "search": "../../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.copy", "content.action.edit"], "search": "../../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../../assets/javascripts/bundle.dff1b7c8.min.js"></script>

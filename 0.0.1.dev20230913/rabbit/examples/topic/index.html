@@ -6,6 +6,8 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
+        <meta name="description" content="FastStream Python messaging framework documentation">
+      
       
         <meta name="author" content="airt">
       
@@ -59,6 +61,16 @@
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-HDTMP5FFHP"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-HDTMP5FFHP",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-HDTMP5FFHP",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
 
     
     
@@ -67,7 +79,7 @@
       
         <meta  property="og:title"  content="Topic - FastStream" >
       
-        <meta  property="og:description"  content="" >
+        <meta  property="og:description"  content="FastStream Python messaging framework documentation" >
       
         <meta  property="og:image"  content="https://faststream.airt.ai/0.0.1.dev20230913/assets/images/social/en/rabbit/examples/topic.png" >
       
@@ -83,7 +95,7 @@
       
         <meta  name="twitter:title"  content="Topic - FastStream" >
       
-        <meta  name="twitter:description"  content="" >
+        <meta  name="twitter:description"  content="FastStream Python messaging framework documentation" >
       
         <meta  name="twitter:image"  content="https://faststream.airt.ai/0.0.1.dev20230913/assets/images/social/en/rabbit/examples/topic.png" >
       
@@ -194,26 +206,6 @@
 </form>
       
     
-    
-      <div class="md-header__option">
-  <div class="md-select">
-    
-    <button class="md-header__button md-icon" aria-label="Select language">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7 1.62-4.33L19.12 17h-3.24Z"/></svg>
-    </button>
-    <div class="md-select__inner">
-      <ul class="md-select__list">
-        
-          <li class="md-select__item">
-            <a href="/" hreflang="" class="md-select__link">
-              en - English
-            </a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-</div>
     
     
       <label class="md-header__button md-icon" for="__search">
@@ -368,44 +360,6 @@
 
         </a>
       </li>
-    
-  
-
-      
-        
-  
-  
-  
-    
-    
-      
-  
-  
-  
-    
-    
-      
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="../../../api/faststream/app/ABCApp/" class="md-tabs__link">
-          
-  
-    
-  
-  Reference
-
-        </a>
-      </li>
-    
-  
-
-    
-  
-
     
   
 
@@ -1060,55 +1014,6 @@
   
   
   
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    
-  
-  
-    
-  
-  
-    <a href="../../../api/faststream/app/ABCApp/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    Reference
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-  
-
-  
-
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
     <li class="md-nav__item">
       <a href="../../../release/" class="md-nav__link">
         
@@ -1203,109 +1108,109 @@
 <p><strong>Topic</strong> Exchange is a powerful <em>RabbitMQ</em> routing tool. This type of <code>exchange</code> sends messages to the queue in accordance with the <em>pattern</em> specified when they are connected to <code>exchange</code> and the <code>routing_key</code> of the message itself.</p>
 <p>At the same time, if the queue listens to several consumers, messages will also be distributed among them.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">#</a></h2>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
-<span class="normal"> 2</span>
-<span class="normal"> 3</span>
-<span class="normal"> 4</span>
-<span class="normal"> 5</span>
-<span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span><span class="p">,</span> <span class="n">Logger</span>
-<span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">ExchangeType</span><span class="p">,</span> <span class="n">RabbitBroker</span><span class="p">,</span> <span class="n">RabbitExchange</span><span class="p">,</span> <span class="n">RabbitQueue</span>
-
-<span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">()</span>
-<span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
-
-<span class="n">exch</span> <span class="o">=</span> <span class="n">RabbitExchange</span><span class="p">(</span><span class="s2">&quot;exchange&quot;</span><span class="p">,</span> <span class="n">auto_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">ExchangeType</span><span class="o">.</span><span class="n">TOPIC</span><span class="p">)</span>
-
-<span class="n">queue_1</span> <span class="o">=</span> <span class="n">RabbitQueue</span><span class="p">(</span><span class="s2">&quot;test-queue-1&quot;</span><span class="p">,</span> <span class="n">auto_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;*.info&quot;</span><span class="p">)</span>
-<span class="n">queue_2</span> <span class="o">=</span> <span class="n">RabbitQueue</span><span class="p">(</span><span class="s2">&quot;test-queue-2&quot;</span><span class="p">,</span> <span class="n">auto_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;*.debug&quot;</span><span class="p">)</span>
-
-
-<span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_1</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler1</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler1&quot;</span><span class="p">)</span>
-
-
-<span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_1</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler2</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler2&quot;</span><span class="p">)</span>
-
-
-<span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_2</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler3</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler3&quot;</span><span class="p">)</span>
-
-
-<span class="nd">@app</span><span class="o">.</span><span class="n">after_startup</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">send_messages</span><span class="p">():</span>
-    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.info&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 1</span>
-    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.info&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 2</span>
-    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.info&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 1</span>
-    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.debug&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 3</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-0-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-0-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-0-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-0-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-0-10">10</a></span>
+<span class="normal"><a href="#__codelineno-0-11">11</a></span>
+<span class="normal"><a href="#__codelineno-0-12">12</a></span>
+<span class="normal"><a href="#__codelineno-0-13">13</a></span>
+<span class="normal"><a href="#__codelineno-0-14">14</a></span>
+<span class="normal"><a href="#__codelineno-0-15">15</a></span>
+<span class="normal"><a href="#__codelineno-0-16">16</a></span>
+<span class="normal"><a href="#__codelineno-0-17">17</a></span>
+<span class="normal"><a href="#__codelineno-0-18">18</a></span>
+<span class="normal"><a href="#__codelineno-0-19">19</a></span>
+<span class="normal"><a href="#__codelineno-0-20">20</a></span>
+<span class="normal"><a href="#__codelineno-0-21">21</a></span>
+<span class="normal"><a href="#__codelineno-0-22">22</a></span>
+<span class="normal"><a href="#__codelineno-0-23">23</a></span>
+<span class="normal"><a href="#__codelineno-0-24">24</a></span>
+<span class="normal"><a href="#__codelineno-0-25">25</a></span>
+<span class="normal"><a href="#__codelineno-0-26">26</a></span>
+<span class="normal"><a href="#__codelineno-0-27">27</a></span>
+<span class="normal"><a href="#__codelineno-0-28">28</a></span>
+<span class="normal"><a href="#__codelineno-0-29">29</a></span>
+<span class="normal"><a href="#__codelineno-0-30">30</a></span>
+<span class="normal"><a href="#__codelineno-0-31">31</a></span>
+<span class="normal"><a href="#__codelineno-0-32">32</a></span>
+<span class="normal"><a href="#__codelineno-0-33">33</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span><span class="p">,</span> <span class="n">Logger</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">ExchangeType</span><span class="p">,</span> <span class="n">RabbitBroker</span><span class="p">,</span> <span class="n">RabbitExchange</span><span class="p">,</span> <span class="n">RabbitQueue</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">()</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="n">exch</span> <span class="o">=</span> <span class="n">RabbitExchange</span><span class="p">(</span><span class="s2">&quot;exchange&quot;</span><span class="p">,</span> <span class="n">auto_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">ExchangeType</span><span class="o">.</span><span class="n">TOPIC</span><span class="p">)</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="n">queue_1</span> <span class="o">=</span> <span class="n">RabbitQueue</span><span class="p">(</span><span class="s2">&quot;test-queue-1&quot;</span><span class="p">,</span> <span class="n">auto_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;*.info&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="n">queue_2</span> <span class="o">=</span> <span class="n">RabbitQueue</span><span class="p">(</span><span class="s2">&quot;test-queue-2&quot;</span><span class="p">,</span> <span class="n">auto_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;*.debug&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12"></a>
+<a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_1</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler1</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler1&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16"></a>
+<a id="__codelineno-0-17" name="__codelineno-0-17"></a>
+<a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_1</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler2</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler2&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21"></a>
+<a id="__codelineno-0-22" name="__codelineno-0-22"></a>
+<a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_2</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler3</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler3&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26"></a>
+<a id="__codelineno-0-27" name="__codelineno-0-27"></a>
+<a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="nd">@app</span><span class="o">.</span><span class="n">after_startup</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">send_messages</span><span class="p">():</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.info&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 1</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.info&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 2</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.info&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 1</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.debug&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 3</span>
 </code></pre></div></td></tr></table></div>
 <h3 id="consumer-announcement">Consumer Announcement<a class="headerlink" href="#consumer-announcement" title="Permanent link">#</a></h3>
 <p>To begin with, we announced our <strong>Topic</strong> exchange and several queues that will listen to it:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="hll"><span class="n">exch</span> <span class="o">=</span> <span class="n">RabbitExchange</span><span class="p">(</span><span class="s2">&quot;exchange&quot;</span><span class="p">,</span> <span class="n">auto_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">ExchangeType</span><span class="o">.</span><span class="n">TOPIC</span><span class="p">)</span>
-</span>
-<span class="hll"><span class="n">queue_1</span> <span class="o">=</span> <span class="n">RabbitQueue</span><span class="p">(</span><span class="s2">&quot;test-queue-1&quot;</span><span class="p">,</span> <span class="n">auto_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;*.info&quot;</span><span class="p">)</span>
-</span><span class="hll"><span class="n">queue_2</span> <span class="o">=</span> <span class="n">RabbitQueue</span><span class="p">(</span><span class="s2">&quot;test-queue-2&quot;</span><span class="p">,</span> <span class="n">auto_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;*.debug&quot;</span><span class="p">)</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-1-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-1-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-1-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="hll"><span class="n">exch</span> <span class="o">=</span> <span class="n">RabbitExchange</span><span class="p">(</span><span class="s2">&quot;exchange&quot;</span><span class="p">,</span> <span class="n">auto_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">ExchangeType</span><span class="o">.</span><span class="n">TOPIC</span><span class="p">)</span>
+</span><a id="__codelineno-1-8" name="__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="hll"><span class="n">queue_1</span> <span class="o">=</span> <span class="n">RabbitQueue</span><span class="p">(</span><span class="s2">&quot;test-queue-1&quot;</span><span class="p">,</span> <span class="n">auto_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;*.info&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="hll"><span class="n">queue_2</span> <span class="o">=</span> <span class="n">RabbitQueue</span><span class="p">(</span><span class="s2">&quot;test-queue-2&quot;</span><span class="p">,</span> <span class="n">auto_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;*.debug&quot;</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
 <p>At the same time, in the <code>routing_key</code> of our queues, we specify the <em>pattern</em> of routing keys that will be processed by this queue.</p>
 <p>Then we signed up several consumers using the advertised queues to the <code>exchange</code> we created</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_1</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
-</span><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler1</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler1&quot;</span><span class="p">)</span>
-
-
-<span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_1</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
-</span><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler2</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler2&quot;</span><span class="p">)</span>
-
-
-<span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_2</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
-</span><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler3</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler3&quot;</span><span class="p">)</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-13">13</a></span>
+<span class="normal"><a href="#__codelineno-2-14">14</a></span>
+<span class="normal"><a href="#__codelineno-2-15">15</a></span>
+<span class="normal"><a href="#__codelineno-2-16">16</a></span>
+<span class="normal"><a href="#__codelineno-2-17">17</a></span>
+<span class="normal"><a href="#__codelineno-2-18">18</a></span>
+<span class="normal"><a href="#__codelineno-2-19">19</a></span>
+<span class="normal"><a href="#__codelineno-2-20">20</a></span>
+<span class="normal"><a href="#__codelineno-2-21">21</a></span>
+<span class="normal"><a href="#__codelineno-2-22">22</a></span>
+<span class="normal"><a href="#__codelineno-2-23">23</a></span>
+<span class="normal"><a href="#__codelineno-2-24">24</a></span>
+<span class="normal"><a href="#__codelineno-2-25">25</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-2-13" name="__codelineno-2-13"></a><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_1</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
+</span><a id="__codelineno-2-14" name="__codelineno-2-14"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler1</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler1&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16"></a>
+<a id="__codelineno-2-17" name="__codelineno-2-17"></a>
+<a id="__codelineno-2-18" name="__codelineno-2-18"></a><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_1</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
+</span><a id="__codelineno-2-19" name="__codelineno-2-19"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler2</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler2&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21"></a>
+<a id="__codelineno-2-22" name="__codelineno-2-22"></a>
+<a id="__codelineno-2-23" name="__codelineno-2-23"></a><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_2</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
+</span><a id="__codelineno-2-24" name="__codelineno-2-24"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler3</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
+<a id="__codelineno-2-25" name="__codelineno-2-25"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler3&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1315,19 +1220,19 @@ Here we emulate the work of several consumers and load balancing between them.</
 </div>
 <h3 id="message-distribution">Message distribution<a class="headerlink" href="#message-distribution" title="Permanent link">#</a></h3>
 <p>Now the distribution of messages between these consumers will look like this:</p>
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">30</span></pre></div></td><td class="code"><div><pre><span></span><code>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.info&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 1</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-30">30</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-30" name="__codelineno-3-30"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.info&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 1</span>
 </code></pre></div></td></tr></table></div>
 <p>Message <code>1</code> will be sent to <code>handler1</code> because it listens to <code>exchange</code> using a queue with the routing key <code>*.info</code></p>
 <hr />
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">31</span></pre></div></td><td class="code"><div><pre><span></span><code>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.info&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 2</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-31">31</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-4-31" name="__codelineno-4-31"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.info&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 2</span>
 </code></pre></div></td></tr></table></div>
 <p>Message <code>2</code> will be sent to <code>handler2</code> because it listens to <code>exchange</code> using the same queue, but <code>handler1</code> is busy</p>
 <hr />
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.info&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 1</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-32">32</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-5-32" name="__codelineno-5-32"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.info&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 1</span>
 </code></pre></div></td></tr></table></div>
 <p>Message <code>3</code> will be sent to <code>handler1</code> again, because it is currently free</p>
 <hr />
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">33</span></pre></div></td><td class="code"><div><pre><span></span><code>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.debug&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 3</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-33">33</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-6-33" name="__codelineno-6-33"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.debug&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 3</span>
 </code></pre></div></td></tr></table></div>
 <p>Message <code>4</code> will be sent to <code>handler3</code>, because it is the only one listening to <code>exchange</code> using a queue with the routing key <code>*.debug</code></p>
 
@@ -1342,6 +1247,8 @@ Here we emulate the work of several consumers and load balancing between them.</
   </small>
 </div>
 
+
+  
 
 
 
@@ -1489,7 +1396,7 @@ Here we emulate the work of several consumers and load balancing between them.</
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotate", "content.code.copy", "content.code.select", "content.action.edit"], "search": "../../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.copy", "content.action.edit"], "search": "../../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../../assets/javascripts/bundle.dff1b7c8.min.js"></script>

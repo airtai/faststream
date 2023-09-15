@@ -6,6 +6,8 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
+        <meta name="description" content="FastStream Python messaging framework documentation">
+      
       
         <meta name="author" content="airt">
       
@@ -13,10 +15,6 @@
         <link rel="canonical" href="https://faststream.airt.ai/0.0.1.dev20230913/api/faststream/kafka/test/FakeProducer/">
       
       
-        <link rel="prev" href="../../shared/schemas/ConsumerConnectionParams/">
-      
-      
-        <link rel="next" href="../TestKafkaBroker/">
       
       
       <link rel="icon" href="../../../../../assets/img/logo.svg">
@@ -59,6 +57,16 @@
     <script>__md_scope=new URL("../../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-HDTMP5FFHP"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-HDTMP5FFHP",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-HDTMP5FFHP",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
 
     
     
@@ -67,7 +75,7 @@
       
         <meta  property="og:title"  content="FakeProducer - FastStream" >
       
-        <meta  property="og:description"  content="" >
+        <meta  property="og:description"  content="FastStream Python messaging framework documentation" >
       
         <meta  property="og:image"  content="https://faststream.airt.ai/0.0.1.dev20230913/assets/images/social/en/api/faststream/kafka/test/FakeProducer.png" >
       
@@ -83,7 +91,7 @@
       
         <meta  name="twitter:title"  content="FakeProducer - FastStream" >
       
-        <meta  name="twitter:description"  content="" >
+        <meta  name="twitter:description"  content="FastStream Python messaging framework documentation" >
       
         <meta  name="twitter:image"  content="https://faststream.airt.ai/0.0.1.dev20230913/assets/images/social/en/api/faststream/kafka/test/FakeProducer.png" >
       
@@ -194,26 +202,6 @@
 </form>
       
     
-    
-      <div class="md-header__option">
-  <div class="md-select">
-    
-    <button class="md-header__button md-icon" aria-label="Select language">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7 1.62-4.33L19.12 17h-3.24Z"/></svg>
-    </button>
-    <div class="md-select__inner">
-      <ul class="md-select__list">
-        
-          <li class="md-select__item">
-            <a href="/" hreflang="" class="md-select__link">
-              en - English
-            </a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-</div>
     
     
       <label class="md-header__button md-icon" for="__search">
@@ -366,50 +354,6 @@
 
         </a>
       </li>
-    
-  
-
-      
-        
-  
-  
-    
-  
-  
-    
-    
-      
-  
-  
-    
-  
-  
-    
-    
-      
-  
-  
-    
-  
-  
-    
-    
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../../app/ABCApp/" class="md-tabs__link">
-          
-  
-    
-  
-  Reference
-
-        </a>
-      </li>
-    
-  
-
-    
-  
-
     
   
 
@@ -708,1347 +652,6 @@
       
   
   
-    
-  
-  
-    
-    
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
-        
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Reference
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_6">
-            <span class="md-nav__icon md-icon"></span>
-            Reference
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-    
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1" checked>
-        
-          <label class="md-nav__link" for="__nav_6_1" id="__nav_6_1_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    faststream
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_1_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_6_1">
-            <span class="md-nav__icon md-icon"></span>
-            faststream
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../../app/ABCApp/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    app
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    
-  
-  
-    <a href="../../../asyncapi/base/AsyncAPIOperation/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    asyncapi
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    
-  
-  
-    
-  
-  
-    <a href="../../../broker/core/abc/BrokerUsecase/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    broker
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-  
-
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    
-  
-  
-    
-  
-  
-    <a href="../../../cli/docs/app/gen/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    cli
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-  
-
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../../constants/ContentTypes/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    constants
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../../exceptions/AckMessage/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    exceptions
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_7" checked>
-        
-          <label class="md-nav__link" for="__nav_6_1_7" id="__nav_6_1_7_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    kafka
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_7_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_6_1_7">
-            <span class="md-nav__icon md-icon"></span>
-            kafka
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../asyncapi/Handler/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    asyncapi
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../broker/KafkaBroker/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    broker
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../fastapi/KafkaRouter/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    fastapi
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../handler/LogicHandler/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    handler
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../message/KafkaMessage/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    message
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../parser/AioKafkaParser/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    parser
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../producer/AioKafkaFastProducer/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    producer
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../publisher/LogicPublisher/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    publisher
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../router/KafkaRouter/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    router
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../security/parse_security/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    security
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    
-  
-  
-    <a href="../../shared/logging/KafkaLoggingMixin/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    shared
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_7_12" checked>
-        
-          <label class="md-nav__link" for="__nav_6_1_7_12" id="__nav_6_1_7_12_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    test
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_1_7_12_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_6_1_7_12">
-            <span class="md-nav__icon md-icon"></span>
-            test
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-    
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    FakeProducer
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  <span class="md-ellipsis">
-    FakeProducer
-  </span>
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#faststream.kafka.test.FakeProducer" class="md-nav__link">
-    FakeProducer
-  </a>
-  
-    <nav class="md-nav" aria-label="FakeProducer">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#faststream.kafka.test.FakeProducer-attributes" class="md-nav__link">
-    Attributes
-  </a>
-  
-    <nav class="md-nav" aria-label="Attributes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#faststream.kafka.test.FakeProducer.broker" class="md-nav__link">
-    broker
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#faststream.kafka.test.FakeProducer-functions" class="md-nav__link">
-    Functions
-  </a>
-  
-    <nav class="md-nav" aria-label="Functions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#faststream.kafka.test.FakeProducer.__init__" class="md-nav__link">
-    __init__()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#faststream.kafka.test.FakeProducer.publish" class="md-nav__link">
-    publish()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#faststream.kafka.test.FakeProducer.publish_batch" class="md-nav__link">
-    publish_batch()
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../TestKafkaBroker/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    TestKafkaBroker
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../build_message/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    build_message
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    
-  
-  
-    <a href="../../../log/formatter/ColourizedFormatter/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    log
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    
-  
-  
-    <a href="../../../rabbit/asyncapi/Handler/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    rabbit
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    
-  
-  
-    <a href="../../../utils/classes/Singleton/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    utils
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-  
-
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
   
     <li class="md-nav__item">
       <a href="../../../../../release/" class="md-nav__link">
@@ -2097,36 +700,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#faststream.kafka.test.FakeProducer-attributes" class="md-nav__link">
-    Attributes
-  </a>
-  
-    <nav class="md-nav" aria-label="Attributes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#faststream.kafka.test.FakeProducer.broker" class="md-nav__link">
     broker
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#faststream.kafka.test.FakeProducer-functions" class="md-nav__link">
-    Functions
-  </a>
-  
-    <nav class="md-nav" aria-label="Functions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#faststream.kafka.test.FakeProducer.__init__" class="md-nav__link">
-    __init__()
   </a>
   
 </li>
@@ -2142,11 +717,6 @@
   <a href="#faststream.kafka.test.FakeProducer.publish_batch" class="md-nav__link">
     publish_batch()
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -2202,235 +772,235 @@
 
             <details class="quote">
               <summary>Source code in <code>/home/runner/work/faststream/faststream/faststream/kafka/test.py</code></summary>
-              <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span>
-<span class="normal">242</span>
-<span class="normal">243</span>
-<span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span>
-<span class="normal">261</span>
-<span class="normal">262</span>
-<span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
-<span class="normal">272</span>
-<span class="normal">273</span>
-<span class="normal">274</span>
-<span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
-<span class="normal">279</span>
-<span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">FakeProducer</span><span class="p">(</span><span class="n">AioKafkaFastProducer</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A fake Kafka producer for testing purposes.</span>
-
-<span class="sd">    This class extends AioKafkaFastProducer and is used to simulate Kafka message publishing during tests.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">broker</span><span class="p">:</span> <span class="n">KafkaBroker</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialize the FakeProducer.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            broker (KafkaBroker): The KafkaBroker instance to associate with this FakeProducer.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">broker</span> <span class="o">=</span> <span class="n">broker</span>
-
-    <span class="nd">@override</span>
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">message</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
-        <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">correlation_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">reply_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="n">rpc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">rpc_timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">raise_timeout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SendableMessage</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Publish a message to the Kafka broker.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            message (SendableMessage): The message to be published.</span>
-<span class="sd">            topic (str): The Kafka topic to publish the message to.</span>
-<span class="sd">            key (Optional[bytes], optional): The message key. Defaults to None.</span>
-<span class="sd">            partition (Optional[int], optional): The Kafka partition to use. Defaults to None.</span>
-<span class="sd">            timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.</span>
-<span class="sd">            headers (Optional[Dict[str, str]], optional): Additional headers for the message. Defaults to None.</span>
-<span class="sd">            correlation_id (Optional[str], optional): The correlation ID for the message. Defaults to None.</span>
-<span class="sd">            reply_to (str, optional): The topic to which responses should be sent. Defaults to &quot;&quot;.</span>
-<span class="sd">            rpc (bool, optional): If True, treat the message as an RPC request. Defaults to False.</span>
-<span class="sd">            rpc_timeout (Optional[float], optional): Timeout for RPC requests. Defaults to None.</span>
-<span class="sd">            raise_timeout (bool, optional): If True, raise an exception on timeout. Defaults to False.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Optional[SendableMessage]: The response message, if this was an RPC request, otherwise None.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">incoming</span> <span class="o">=</span> <span class="n">build_message</span><span class="p">(</span>
-            <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
-            <span class="n">topic</span><span class="o">=</span><span class="n">topic</span><span class="p">,</span>
-            <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
-            <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
-            <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">timestamp_ms</span><span class="p">,</span>
-            <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
-            <span class="n">correlation_id</span><span class="o">=</span><span class="n">correlation_id</span><span class="p">,</span>
-            <span class="n">reply_to</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  <span class="c1"># pragma: no branch</span>
-            <span class="k">if</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">topics</span><span class="p">:</span>
-                <span class="n">r</span> <span class="o">=</span> <span class="k">await</span> <span class="n">call_handler</span><span class="p">(</span>
-                    <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
-                    <span class="n">message</span><span class="o">=</span><span class="p">[</span><span class="n">incoming</span><span class="p">]</span> <span class="k">if</span> <span class="n">handler</span><span class="o">.</span><span class="n">batch</span> <span class="k">else</span> <span class="n">incoming</span><span class="p">,</span>
-                    <span class="n">rpc</span><span class="o">=</span><span class="n">rpc</span><span class="p">,</span>
-                    <span class="n">rpc_timeout</span><span class="o">=</span><span class="n">rpc_timeout</span><span class="p">,</span>
-                    <span class="n">raise_timeout</span><span class="o">=</span><span class="n">raise_timeout</span><span class="p">,</span>
-                <span class="p">)</span>
-
-                <span class="k">if</span> <span class="n">rpc</span><span class="p">:</span>  <span class="c1"># pragma: no branch</span>
-                    <span class="k">return</span> <span class="n">r</span>
-
-        <span class="k">return</span> <span class="kc">None</span>
-
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">publish_batch</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="n">msgs</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
-        <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Publish a batch of messages to the Kafka broker.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            *msgs (SendableMessage): Variable number of messages to be published.</span>
-<span class="sd">            topic (str): The Kafka topic to publish the messages to.</span>
-<span class="sd">            partition (Optional[int], optional): The Kafka partition to use. Defaults to None.</span>
-<span class="sd">            timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.</span>
-<span class="sd">            headers (Optional[Dict[str, str]], optional): Additional headers for the messages. Defaults to None.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            None: This method does not return a value.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  <span class="c1"># pragma: no branch</span>
-            <span class="k">if</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">topics</span><span class="p">:</span>
-                <span class="k">await</span> <span class="n">call_handler</span><span class="p">(</span>
-                    <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
-                    <span class="n">message</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">build_message</span><span class="p">(</span>
-                            <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
-                            <span class="n">topic</span><span class="o">=</span><span class="n">topic</span><span class="p">,</span>
-                            <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
-                            <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">timestamp_ms</span><span class="p">,</span>
-                            <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
-                        <span class="p">)</span>
-                        <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">msgs</span>
-                    <span class="p">],</span>
-                <span class="p">)</span>
-
-        <span class="k">return</span> <span class="kc">None</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-166">166</a></span>
+<span class="normal"><a href="#__codelineno-0-167">167</a></span>
+<span class="normal"><a href="#__codelineno-0-168">168</a></span>
+<span class="normal"><a href="#__codelineno-0-169">169</a></span>
+<span class="normal"><a href="#__codelineno-0-170">170</a></span>
+<span class="normal"><a href="#__codelineno-0-171">171</a></span>
+<span class="normal"><a href="#__codelineno-0-172">172</a></span>
+<span class="normal"><a href="#__codelineno-0-173">173</a></span>
+<span class="normal"><a href="#__codelineno-0-174">174</a></span>
+<span class="normal"><a href="#__codelineno-0-175">175</a></span>
+<span class="normal"><a href="#__codelineno-0-176">176</a></span>
+<span class="normal"><a href="#__codelineno-0-177">177</a></span>
+<span class="normal"><a href="#__codelineno-0-178">178</a></span>
+<span class="normal"><a href="#__codelineno-0-179">179</a></span>
+<span class="normal"><a href="#__codelineno-0-180">180</a></span>
+<span class="normal"><a href="#__codelineno-0-181">181</a></span>
+<span class="normal"><a href="#__codelineno-0-182">182</a></span>
+<span class="normal"><a href="#__codelineno-0-183">183</a></span>
+<span class="normal"><a href="#__codelineno-0-184">184</a></span>
+<span class="normal"><a href="#__codelineno-0-185">185</a></span>
+<span class="normal"><a href="#__codelineno-0-186">186</a></span>
+<span class="normal"><a href="#__codelineno-0-187">187</a></span>
+<span class="normal"><a href="#__codelineno-0-188">188</a></span>
+<span class="normal"><a href="#__codelineno-0-189">189</a></span>
+<span class="normal"><a href="#__codelineno-0-190">190</a></span>
+<span class="normal"><a href="#__codelineno-0-191">191</a></span>
+<span class="normal"><a href="#__codelineno-0-192">192</a></span>
+<span class="normal"><a href="#__codelineno-0-193">193</a></span>
+<span class="normal"><a href="#__codelineno-0-194">194</a></span>
+<span class="normal"><a href="#__codelineno-0-195">195</a></span>
+<span class="normal"><a href="#__codelineno-0-196">196</a></span>
+<span class="normal"><a href="#__codelineno-0-197">197</a></span>
+<span class="normal"><a href="#__codelineno-0-198">198</a></span>
+<span class="normal"><a href="#__codelineno-0-199">199</a></span>
+<span class="normal"><a href="#__codelineno-0-200">200</a></span>
+<span class="normal"><a href="#__codelineno-0-201">201</a></span>
+<span class="normal"><a href="#__codelineno-0-202">202</a></span>
+<span class="normal"><a href="#__codelineno-0-203">203</a></span>
+<span class="normal"><a href="#__codelineno-0-204">204</a></span>
+<span class="normal"><a href="#__codelineno-0-205">205</a></span>
+<span class="normal"><a href="#__codelineno-0-206">206</a></span>
+<span class="normal"><a href="#__codelineno-0-207">207</a></span>
+<span class="normal"><a href="#__codelineno-0-208">208</a></span>
+<span class="normal"><a href="#__codelineno-0-209">209</a></span>
+<span class="normal"><a href="#__codelineno-0-210">210</a></span>
+<span class="normal"><a href="#__codelineno-0-211">211</a></span>
+<span class="normal"><a href="#__codelineno-0-212">212</a></span>
+<span class="normal"><a href="#__codelineno-0-213">213</a></span>
+<span class="normal"><a href="#__codelineno-0-214">214</a></span>
+<span class="normal"><a href="#__codelineno-0-215">215</a></span>
+<span class="normal"><a href="#__codelineno-0-216">216</a></span>
+<span class="normal"><a href="#__codelineno-0-217">217</a></span>
+<span class="normal"><a href="#__codelineno-0-218">218</a></span>
+<span class="normal"><a href="#__codelineno-0-219">219</a></span>
+<span class="normal"><a href="#__codelineno-0-220">220</a></span>
+<span class="normal"><a href="#__codelineno-0-221">221</a></span>
+<span class="normal"><a href="#__codelineno-0-222">222</a></span>
+<span class="normal"><a href="#__codelineno-0-223">223</a></span>
+<span class="normal"><a href="#__codelineno-0-224">224</a></span>
+<span class="normal"><a href="#__codelineno-0-225">225</a></span>
+<span class="normal"><a href="#__codelineno-0-226">226</a></span>
+<span class="normal"><a href="#__codelineno-0-227">227</a></span>
+<span class="normal"><a href="#__codelineno-0-228">228</a></span>
+<span class="normal"><a href="#__codelineno-0-229">229</a></span>
+<span class="normal"><a href="#__codelineno-0-230">230</a></span>
+<span class="normal"><a href="#__codelineno-0-231">231</a></span>
+<span class="normal"><a href="#__codelineno-0-232">232</a></span>
+<span class="normal"><a href="#__codelineno-0-233">233</a></span>
+<span class="normal"><a href="#__codelineno-0-234">234</a></span>
+<span class="normal"><a href="#__codelineno-0-235">235</a></span>
+<span class="normal"><a href="#__codelineno-0-236">236</a></span>
+<span class="normal"><a href="#__codelineno-0-237">237</a></span>
+<span class="normal"><a href="#__codelineno-0-238">238</a></span>
+<span class="normal"><a href="#__codelineno-0-239">239</a></span>
+<span class="normal"><a href="#__codelineno-0-240">240</a></span>
+<span class="normal"><a href="#__codelineno-0-241">241</a></span>
+<span class="normal"><a href="#__codelineno-0-242">242</a></span>
+<span class="normal"><a href="#__codelineno-0-243">243</a></span>
+<span class="normal"><a href="#__codelineno-0-244">244</a></span>
+<span class="normal"><a href="#__codelineno-0-245">245</a></span>
+<span class="normal"><a href="#__codelineno-0-246">246</a></span>
+<span class="normal"><a href="#__codelineno-0-247">247</a></span>
+<span class="normal"><a href="#__codelineno-0-248">248</a></span>
+<span class="normal"><a href="#__codelineno-0-249">249</a></span>
+<span class="normal"><a href="#__codelineno-0-250">250</a></span>
+<span class="normal"><a href="#__codelineno-0-251">251</a></span>
+<span class="normal"><a href="#__codelineno-0-252">252</a></span>
+<span class="normal"><a href="#__codelineno-0-253">253</a></span>
+<span class="normal"><a href="#__codelineno-0-254">254</a></span>
+<span class="normal"><a href="#__codelineno-0-255">255</a></span>
+<span class="normal"><a href="#__codelineno-0-256">256</a></span>
+<span class="normal"><a href="#__codelineno-0-257">257</a></span>
+<span class="normal"><a href="#__codelineno-0-258">258</a></span>
+<span class="normal"><a href="#__codelineno-0-259">259</a></span>
+<span class="normal"><a href="#__codelineno-0-260">260</a></span>
+<span class="normal"><a href="#__codelineno-0-261">261</a></span>
+<span class="normal"><a href="#__codelineno-0-262">262</a></span>
+<span class="normal"><a href="#__codelineno-0-263">263</a></span>
+<span class="normal"><a href="#__codelineno-0-264">264</a></span>
+<span class="normal"><a href="#__codelineno-0-265">265</a></span>
+<span class="normal"><a href="#__codelineno-0-266">266</a></span>
+<span class="normal"><a href="#__codelineno-0-267">267</a></span>
+<span class="normal"><a href="#__codelineno-0-268">268</a></span>
+<span class="normal"><a href="#__codelineno-0-269">269</a></span>
+<span class="normal"><a href="#__codelineno-0-270">270</a></span>
+<span class="normal"><a href="#__codelineno-0-271">271</a></span>
+<span class="normal"><a href="#__codelineno-0-272">272</a></span>
+<span class="normal"><a href="#__codelineno-0-273">273</a></span>
+<span class="normal"><a href="#__codelineno-0-274">274</a></span>
+<span class="normal"><a href="#__codelineno-0-275">275</a></span>
+<span class="normal"><a href="#__codelineno-0-276">276</a></span>
+<span class="normal"><a href="#__codelineno-0-277">277</a></span>
+<span class="normal"><a href="#__codelineno-0-278">278</a></span>
+<span class="normal"><a href="#__codelineno-0-279">279</a></span>
+<span class="normal"><a href="#__codelineno-0-280">280</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-166" name="__codelineno-0-166"></a><span class="k">class</span> <span class="nc">FakeProducer</span><span class="p">(</span><span class="n">AioKafkaFastProducer</span><span class="p">):</span>
+<a id="__codelineno-0-167" name="__codelineno-0-167"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-168" name="__codelineno-0-168"></a><span class="sd">    A fake Kafka producer for testing purposes.</span>
+<a id="__codelineno-0-169" name="__codelineno-0-169"></a>
+<a id="__codelineno-0-170" name="__codelineno-0-170"></a><span class="sd">    This class extends AioKafkaFastProducer and is used to simulate Kafka message publishing during tests.</span>
+<a id="__codelineno-0-171" name="__codelineno-0-171"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-172" name="__codelineno-0-172"></a>
+<a id="__codelineno-0-173" name="__codelineno-0-173"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">broker</span><span class="p">:</span> <span class="n">KafkaBroker</span><span class="p">):</span>
+<a id="__codelineno-0-174" name="__codelineno-0-174"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-175" name="__codelineno-0-175"></a><span class="sd">        Initialize the FakeProducer.</span>
+<a id="__codelineno-0-176" name="__codelineno-0-176"></a>
+<a id="__codelineno-0-177" name="__codelineno-0-177"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-178" name="__codelineno-0-178"></a><span class="sd">            broker (KafkaBroker): The KafkaBroker instance to associate with this FakeProducer.</span>
+<a id="__codelineno-0-179" name="__codelineno-0-179"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-180" name="__codelineno-0-180"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">broker</span> <span class="o">=</span> <span class="n">broker</span>
+<a id="__codelineno-0-181" name="__codelineno-0-181"></a>
+<a id="__codelineno-0-182" name="__codelineno-0-182"></a>    <span class="nd">@override</span>
+<a id="__codelineno-0-183" name="__codelineno-0-183"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
+<a id="__codelineno-0-184" name="__codelineno-0-184"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-185" name="__codelineno-0-185"></a>        <span class="n">message</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
+<a id="__codelineno-0-186" name="__codelineno-0-186"></a>        <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-187" name="__codelineno-0-187"></a>        <span class="n">key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-188" name="__codelineno-0-188"></a>        <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-189" name="__codelineno-0-189"></a>        <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-190" name="__codelineno-0-190"></a>        <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-191" name="__codelineno-0-191"></a>        <span class="n">correlation_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-192" name="__codelineno-0-192"></a>        <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-0-193" name="__codelineno-0-193"></a>        <span class="n">reply_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-194" name="__codelineno-0-194"></a>        <span class="n">rpc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-195" name="__codelineno-0-195"></a>        <span class="n">rpc_timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-196" name="__codelineno-0-196"></a>        <span class="n">raise_timeout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-197" name="__codelineno-0-197"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SendableMessage</span><span class="p">]:</span>
+<a id="__codelineno-0-198" name="__codelineno-0-198"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-199" name="__codelineno-0-199"></a><span class="sd">        Publish a message to the Kafka broker.</span>
+<a id="__codelineno-0-200" name="__codelineno-0-200"></a>
+<a id="__codelineno-0-201" name="__codelineno-0-201"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-202" name="__codelineno-0-202"></a><span class="sd">            message (SendableMessage): The message to be published.</span>
+<a id="__codelineno-0-203" name="__codelineno-0-203"></a><span class="sd">            topic (str): The Kafka topic to publish the message to.</span>
+<a id="__codelineno-0-204" name="__codelineno-0-204"></a><span class="sd">            key (Optional[bytes], optional): The message key. Defaults to None.</span>
+<a id="__codelineno-0-205" name="__codelineno-0-205"></a><span class="sd">            partition (Optional[int], optional): The Kafka partition to use. Defaults to None.</span>
+<a id="__codelineno-0-206" name="__codelineno-0-206"></a><span class="sd">            timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.</span>
+<a id="__codelineno-0-207" name="__codelineno-0-207"></a><span class="sd">            headers (Optional[Dict[str, str]], optional): Additional headers for the message. Defaults to None.</span>
+<a id="__codelineno-0-208" name="__codelineno-0-208"></a><span class="sd">            correlation_id (Optional[str], optional): The correlation ID for the message. Defaults to None.</span>
+<a id="__codelineno-0-209" name="__codelineno-0-209"></a><span class="sd">            reply_to (str, optional): The topic to which responses should be sent. Defaults to &quot;&quot;.</span>
+<a id="__codelineno-0-210" name="__codelineno-0-210"></a><span class="sd">            rpc (bool, optional): If True, treat the message as an RPC request. Defaults to False.</span>
+<a id="__codelineno-0-211" name="__codelineno-0-211"></a><span class="sd">            rpc_timeout (Optional[float], optional): Timeout for RPC requests. Defaults to None.</span>
+<a id="__codelineno-0-212" name="__codelineno-0-212"></a><span class="sd">            raise_timeout (bool, optional): If True, raise an exception on timeout. Defaults to False.</span>
+<a id="__codelineno-0-213" name="__codelineno-0-213"></a>
+<a id="__codelineno-0-214" name="__codelineno-0-214"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-215" name="__codelineno-0-215"></a><span class="sd">            Optional[SendableMessage]: The response message, if this was an RPC request, otherwise None.</span>
+<a id="__codelineno-0-216" name="__codelineno-0-216"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-217" name="__codelineno-0-217"></a>        <span class="n">incoming</span> <span class="o">=</span> <span class="n">build_message</span><span class="p">(</span>
+<a id="__codelineno-0-218" name="__codelineno-0-218"></a>            <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
+<a id="__codelineno-0-219" name="__codelineno-0-219"></a>            <span class="n">topic</span><span class="o">=</span><span class="n">topic</span><span class="p">,</span>
+<a id="__codelineno-0-220" name="__codelineno-0-220"></a>            <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
+<a id="__codelineno-0-221" name="__codelineno-0-221"></a>            <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
+<a id="__codelineno-0-222" name="__codelineno-0-222"></a>            <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">timestamp_ms</span><span class="p">,</span>
+<a id="__codelineno-0-223" name="__codelineno-0-223"></a>            <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+<a id="__codelineno-0-224" name="__codelineno-0-224"></a>            <span class="n">correlation_id</span><span class="o">=</span><span class="n">correlation_id</span><span class="p">,</span>
+<a id="__codelineno-0-225" name="__codelineno-0-225"></a>            <span class="n">reply_to</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
+<a id="__codelineno-0-226" name="__codelineno-0-226"></a>        <span class="p">)</span>
+<a id="__codelineno-0-227" name="__codelineno-0-227"></a>
+<a id="__codelineno-0-228" name="__codelineno-0-228"></a>        <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  <span class="c1"># pragma: no branch</span>
+<a id="__codelineno-0-229" name="__codelineno-0-229"></a>            <span class="k">if</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">topics</span><span class="p">:</span>
+<a id="__codelineno-0-230" name="__codelineno-0-230"></a>                <span class="n">r</span> <span class="o">=</span> <span class="k">await</span> <span class="n">call_handler</span><span class="p">(</span>
+<a id="__codelineno-0-231" name="__codelineno-0-231"></a>                    <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
+<a id="__codelineno-0-232" name="__codelineno-0-232"></a>                    <span class="n">message</span><span class="o">=</span><span class="p">[</span><span class="n">incoming</span><span class="p">]</span> <span class="k">if</span> <span class="n">handler</span><span class="o">.</span><span class="n">batch</span> <span class="k">else</span> <span class="n">incoming</span><span class="p">,</span>
+<a id="__codelineno-0-233" name="__codelineno-0-233"></a>                    <span class="n">rpc</span><span class="o">=</span><span class="n">rpc</span><span class="p">,</span>
+<a id="__codelineno-0-234" name="__codelineno-0-234"></a>                    <span class="n">rpc_timeout</span><span class="o">=</span><span class="n">rpc_timeout</span><span class="p">,</span>
+<a id="__codelineno-0-235" name="__codelineno-0-235"></a>                    <span class="n">raise_timeout</span><span class="o">=</span><span class="n">raise_timeout</span><span class="p">,</span>
+<a id="__codelineno-0-236" name="__codelineno-0-236"></a>                <span class="p">)</span>
+<a id="__codelineno-0-237" name="__codelineno-0-237"></a>
+<a id="__codelineno-0-238" name="__codelineno-0-238"></a>                <span class="k">if</span> <span class="n">rpc</span><span class="p">:</span>  <span class="c1"># pragma: no branch</span>
+<a id="__codelineno-0-239" name="__codelineno-0-239"></a>                    <span class="k">return</span> <span class="n">r</span>
+<a id="__codelineno-0-240" name="__codelineno-0-240"></a>
+<a id="__codelineno-0-241" name="__codelineno-0-241"></a>        <span class="k">return</span> <span class="kc">None</span>
+<a id="__codelineno-0-242" name="__codelineno-0-242"></a>
+<a id="__codelineno-0-243" name="__codelineno-0-243"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">publish_batch</span><span class="p">(</span>
+<a id="__codelineno-0-244" name="__codelineno-0-244"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-245" name="__codelineno-0-245"></a>        <span class="o">*</span><span class="n">msgs</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
+<a id="__codelineno-0-246" name="__codelineno-0-246"></a>        <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-247" name="__codelineno-0-247"></a>        <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-248" name="__codelineno-0-248"></a>        <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-249" name="__codelineno-0-249"></a>        <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-250" name="__codelineno-0-250"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-251" name="__codelineno-0-251"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-252" name="__codelineno-0-252"></a><span class="sd">        Publish a batch of messages to the Kafka broker.</span>
+<a id="__codelineno-0-253" name="__codelineno-0-253"></a>
+<a id="__codelineno-0-254" name="__codelineno-0-254"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-255" name="__codelineno-0-255"></a><span class="sd">            *msgs (SendableMessage): Variable number of messages to be published.</span>
+<a id="__codelineno-0-256" name="__codelineno-0-256"></a><span class="sd">            topic (str): The Kafka topic to publish the messages to.</span>
+<a id="__codelineno-0-257" name="__codelineno-0-257"></a><span class="sd">            partition (Optional[int], optional): The Kafka partition to use. Defaults to None.</span>
+<a id="__codelineno-0-258" name="__codelineno-0-258"></a><span class="sd">            timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.</span>
+<a id="__codelineno-0-259" name="__codelineno-0-259"></a><span class="sd">            headers (Optional[Dict[str, str]], optional): Additional headers for the messages. Defaults to None.</span>
+<a id="__codelineno-0-260" name="__codelineno-0-260"></a>
+<a id="__codelineno-0-261" name="__codelineno-0-261"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-262" name="__codelineno-0-262"></a><span class="sd">            None: This method does not return a value.</span>
+<a id="__codelineno-0-263" name="__codelineno-0-263"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-264" name="__codelineno-0-264"></a>        <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  <span class="c1"># pragma: no branch</span>
+<a id="__codelineno-0-265" name="__codelineno-0-265"></a>            <span class="k">if</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">topics</span><span class="p">:</span>
+<a id="__codelineno-0-266" name="__codelineno-0-266"></a>                <span class="k">await</span> <span class="n">call_handler</span><span class="p">(</span>
+<a id="__codelineno-0-267" name="__codelineno-0-267"></a>                    <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
+<a id="__codelineno-0-268" name="__codelineno-0-268"></a>                    <span class="n">message</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-0-269" name="__codelineno-0-269"></a>                        <span class="n">build_message</span><span class="p">(</span>
+<a id="__codelineno-0-270" name="__codelineno-0-270"></a>                            <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
+<a id="__codelineno-0-271" name="__codelineno-0-271"></a>                            <span class="n">topic</span><span class="o">=</span><span class="n">topic</span><span class="p">,</span>
+<a id="__codelineno-0-272" name="__codelineno-0-272"></a>                            <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
+<a id="__codelineno-0-273" name="__codelineno-0-273"></a>                            <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">timestamp_ms</span><span class="p">,</span>
+<a id="__codelineno-0-274" name="__codelineno-0-274"></a>                            <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+<a id="__codelineno-0-275" name="__codelineno-0-275"></a>                        <span class="p">)</span>
+<a id="__codelineno-0-276" name="__codelineno-0-276"></a>                        <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">msgs</span>
+<a id="__codelineno-0-277" name="__codelineno-0-277"></a>                    <span class="p">],</span>
+<a id="__codelineno-0-278" name="__codelineno-0-278"></a>                <span class="p">)</span>
+<a id="__codelineno-0-279" name="__codelineno-0-279"></a>
+<a id="__codelineno-0-280" name="__codelineno-0-280"></a>        <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
             </details>
 
@@ -2442,14 +1012,14 @@
 
 
 
-<h3 id="faststream.kafka.test.FakeProducer-attributes">Attributes<a href="#faststream.kafka.test.FakeProducer-attributes" class="headerlink" title="Permanent link">#</a></h3>
+
 
 <div class="doc doc-object doc-attribute">
 
 
 
 
-<h4 id="faststream.kafka.test.FakeProducer.broker" class="doc doc-heading">
+<h3 id="faststream.kafka.test.FakeProducer.broker" class="doc doc-heading">
           <span class="doc doc-object-name doc-attribute-name">broker</span>
 
   
@@ -2457,8 +1027,8 @@
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
-<a href="#faststream.kafka.test.FakeProducer.broker" class="headerlink" title="Permanent link">#</a></h4>
-<div class="doc-signature codehilite"><pre><span></span><code><span class="n">broker</span> <span class="o">=</span> <span class="n">broker</span>
+<a href="#faststream.kafka.test.FakeProducer.broker" class="headerlink" title="Permanent link">#</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">broker</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -2466,7 +1036,7 @@
 
 </div>
 
-<h3 id="faststream.kafka.test.FakeProducer-functions">Functions<a href="#faststream.kafka.test.FakeProducer-functions" class="headerlink" title="Permanent link">#</a></h3>
+
 
 
 <div class="doc doc-object doc-function">
@@ -2474,78 +1044,7 @@
 
 
 
-<h4 id="faststream.kafka.test.FakeProducer.__init__" class="doc doc-heading">
-          <span class="doc doc-object-name doc-function-name">__init__</span>
-
-
-<a href="#faststream.kafka.test.FakeProducer.__init__" class="headerlink" title="Permanent link">#</a></h4>
-<div class="doc-signature codehilite"><pre><span></span><code><span class="fm">__init__</span><span class="p">(</span><span class="n">broker</span><span class="p">:</span> <span class="n">KafkaBroker</span><span class="p">)</span>
-</code></pre></div>
-
-  <div class="doc doc-contents ">
-  
-      <p>Initialize the FakeProducer.</p>
-
-
-
-  <p><strong>Parameters:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code>broker</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="faststream.kafka.broker.KafkaBroker" href="../../broker/KafkaBroker/#faststream.kafka.broker.KafkaBroker">KafkaBroker</a></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>The KafkaBroker instance to associate with this FakeProducer.</p>
-            </div>
-          </td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-
-          <details class="quote">
-            <summary>Source code in <code>/home/runner/work/faststream/faststream/faststream/kafka/test.py</code></summary>
-            <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">broker</span><span class="p">:</span> <span class="n">KafkaBroker</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Initialize the FakeProducer.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        broker (KafkaBroker): The KafkaBroker instance to associate with this FakeProducer.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">broker</span> <span class="o">=</span> <span class="n">broker</span>
-</code></pre></div></td></tr></table></div>
-          </details>
-  </div>
-
-</div>
-
-
-<div class="doc doc-object doc-function">
-
-
-
-
-<h4 id="faststream.kafka.test.FakeProducer.publish" class="doc doc-heading">
+<h3 id="faststream.kafka.test.FakeProducer.publish" class="doc doc-heading">
           <span class="doc doc-object-name doc-function-name">publish</span>
 
   
@@ -2553,21 +1052,21 @@
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#faststream.kafka.test.FakeProducer.publish" class="headerlink" title="Permanent link">#</a></h4>
-<div class="doc-signature codehilite"><pre><span></span><code><span class="n">publish</span><span class="p">(</span>
-    <span class="n">message</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
-    <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">correlation_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">reply_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-    <span class="n">rpc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">rpc_timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">raise_timeout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SendableMessage</span><span class="p">]</span>
+<a href="#faststream.kafka.test.FakeProducer.publish" class="headerlink" title="Permanent link">#</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">publish</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">message</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">correlation_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">reply_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">rpc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">rpc_timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">raise_timeout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SendableMessage</span><span class="p">]</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -2576,169 +1075,202 @@
 
 
 
-  <p><strong>Parameters:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td><code>message</code></td>
-          <td>
-                <code><span title="faststream.types.SendableMessage">SendableMessage</span></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>The message to be published.</p>
             </div>
-          </td>
-          <td>
-              <em>required</em>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="faststream.types.SendableMessage">SendableMessage</span></code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>topic</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>The Kafka topic to publish the message to.</p>
             </div>
-          </td>
-          <td>
-              <em>required</em>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>key</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#bytes">bytes</a>]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>The message key. Defaults to None.</p>
             </div>
-          </td>
-          <td>
-                <code>None</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#bytes">bytes</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>partition</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>The Kafka partition to use. Defaults to None.</p>
             </div>
-          </td>
-          <td>
-                <code>None</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>timestamp_ms</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>The message timestamp in milliseconds. Defaults to None.</p>
             </div>
-          </td>
-          <td>
-                <code>None</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>headers</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="typing.Dict" href="https://docs.python.org/3/library/typing.html#typing.Dict">Dict</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Additional headers for the message. Defaults to None.</p>
             </div>
-          </td>
-          <td>
-                <code>None</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="typing.Dict" href="https://docs.python.org/3/library/typing.html#typing.Dict">Dict</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>correlation_id</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>The correlation ID for the message. Defaults to None.</p>
             </div>
-          </td>
-          <td>
-                <code>None</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>reply_to</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>The topic to which responses should be sent. Defaults to "".</p>
             </div>
-          </td>
-          <td>
-                <code>&#39;&#39;</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>&#39;&#39;</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>rpc</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>If True, treat the message as an RPC request. Defaults to False.</p>
             </div>
-          </td>
-          <td>
-                <code>False</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>rpc_timeout</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a>]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Timeout for RPC requests. Defaults to None.</p>
             </div>
-          </td>
-          <td>
-                <code>None</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>raise_timeout</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>If True, raise an exception on timeout. Defaults to False.</p>
             </div>
-          </td>
-          <td>
-                <code>False</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
           </td>
         </tr>
     </tbody>
@@ -2746,20 +1278,21 @@
 
 
 
-  <p><strong>Returns:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Type</th>
-        <th>Description</th>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td>
-                <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<span title="faststream.types.SendableMessage">SendableMessage</span>]</code>
+              <span class="doc-returns-annotation">
+                  <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<span title="faststream.types.SendableMessage">SendableMessage</span>]</code>
+              </span>
           </td>
-          <td>
+          <td class="doc-returns-details">
             <div class="doc-md-description">
               <p>Optional[SendableMessage]: The response message, if this was an RPC request, otherwise None.</p>
             </div>
@@ -2770,125 +1303,125 @@
 
           <details class="quote">
             <summary>Source code in <code>/home/runner/work/faststream/faststream/faststream/kafka/test.py</code></summary>
-            <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@override</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
-    <span class="bp">self</span><span class="p">,</span>
-    <span class="n">message</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
-    <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">correlation_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">reply_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-    <span class="n">rpc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">rpc_timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">raise_timeout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SendableMessage</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Publish a message to the Kafka broker.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        message (SendableMessage): The message to be published.</span>
-<span class="sd">        topic (str): The Kafka topic to publish the message to.</span>
-<span class="sd">        key (Optional[bytes], optional): The message key. Defaults to None.</span>
-<span class="sd">        partition (Optional[int], optional): The Kafka partition to use. Defaults to None.</span>
-<span class="sd">        timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.</span>
-<span class="sd">        headers (Optional[Dict[str, str]], optional): Additional headers for the message. Defaults to None.</span>
-<span class="sd">        correlation_id (Optional[str], optional): The correlation ID for the message. Defaults to None.</span>
-<span class="sd">        reply_to (str, optional): The topic to which responses should be sent. Defaults to &quot;&quot;.</span>
-<span class="sd">        rpc (bool, optional): If True, treat the message as an RPC request. Defaults to False.</span>
-<span class="sd">        rpc_timeout (Optional[float], optional): Timeout for RPC requests. Defaults to None.</span>
-<span class="sd">        raise_timeout (bool, optional): If True, raise an exception on timeout. Defaults to False.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        Optional[SendableMessage]: The response message, if this was an RPC request, otherwise None.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">incoming</span> <span class="o">=</span> <span class="n">build_message</span><span class="p">(</span>
-        <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
-        <span class="n">topic</span><span class="o">=</span><span class="n">topic</span><span class="p">,</span>
-        <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
-        <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
-        <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">timestamp_ms</span><span class="p">,</span>
-        <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
-        <span class="n">correlation_id</span><span class="o">=</span><span class="n">correlation_id</span><span class="p">,</span>
-        <span class="n">reply_to</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  <span class="c1"># pragma: no branch</span>
-        <span class="k">if</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">topics</span><span class="p">:</span>
-            <span class="n">r</span> <span class="o">=</span> <span class="k">await</span> <span class="n">call_handler</span><span class="p">(</span>
-                <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
-                <span class="n">message</span><span class="o">=</span><span class="p">[</span><span class="n">incoming</span><span class="p">]</span> <span class="k">if</span> <span class="n">handler</span><span class="o">.</span><span class="n">batch</span> <span class="k">else</span> <span class="n">incoming</span><span class="p">,</span>
-                <span class="n">rpc</span><span class="o">=</span><span class="n">rpc</span><span class="p">,</span>
-                <span class="n">rpc_timeout</span><span class="o">=</span><span class="n">rpc_timeout</span><span class="p">,</span>
-                <span class="n">raise_timeout</span><span class="o">=</span><span class="n">raise_timeout</span><span class="p">,</span>
-            <span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">rpc</span><span class="p">:</span>  <span class="c1"># pragma: no branch</span>
-                <span class="k">return</span> <span class="n">r</span>
-
-    <span class="k">return</span> <span class="kc">None</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-182">182</a></span>
+<span class="normal"><a href="#__codelineno-0-183">183</a></span>
+<span class="normal"><a href="#__codelineno-0-184">184</a></span>
+<span class="normal"><a href="#__codelineno-0-185">185</a></span>
+<span class="normal"><a href="#__codelineno-0-186">186</a></span>
+<span class="normal"><a href="#__codelineno-0-187">187</a></span>
+<span class="normal"><a href="#__codelineno-0-188">188</a></span>
+<span class="normal"><a href="#__codelineno-0-189">189</a></span>
+<span class="normal"><a href="#__codelineno-0-190">190</a></span>
+<span class="normal"><a href="#__codelineno-0-191">191</a></span>
+<span class="normal"><a href="#__codelineno-0-192">192</a></span>
+<span class="normal"><a href="#__codelineno-0-193">193</a></span>
+<span class="normal"><a href="#__codelineno-0-194">194</a></span>
+<span class="normal"><a href="#__codelineno-0-195">195</a></span>
+<span class="normal"><a href="#__codelineno-0-196">196</a></span>
+<span class="normal"><a href="#__codelineno-0-197">197</a></span>
+<span class="normal"><a href="#__codelineno-0-198">198</a></span>
+<span class="normal"><a href="#__codelineno-0-199">199</a></span>
+<span class="normal"><a href="#__codelineno-0-200">200</a></span>
+<span class="normal"><a href="#__codelineno-0-201">201</a></span>
+<span class="normal"><a href="#__codelineno-0-202">202</a></span>
+<span class="normal"><a href="#__codelineno-0-203">203</a></span>
+<span class="normal"><a href="#__codelineno-0-204">204</a></span>
+<span class="normal"><a href="#__codelineno-0-205">205</a></span>
+<span class="normal"><a href="#__codelineno-0-206">206</a></span>
+<span class="normal"><a href="#__codelineno-0-207">207</a></span>
+<span class="normal"><a href="#__codelineno-0-208">208</a></span>
+<span class="normal"><a href="#__codelineno-0-209">209</a></span>
+<span class="normal"><a href="#__codelineno-0-210">210</a></span>
+<span class="normal"><a href="#__codelineno-0-211">211</a></span>
+<span class="normal"><a href="#__codelineno-0-212">212</a></span>
+<span class="normal"><a href="#__codelineno-0-213">213</a></span>
+<span class="normal"><a href="#__codelineno-0-214">214</a></span>
+<span class="normal"><a href="#__codelineno-0-215">215</a></span>
+<span class="normal"><a href="#__codelineno-0-216">216</a></span>
+<span class="normal"><a href="#__codelineno-0-217">217</a></span>
+<span class="normal"><a href="#__codelineno-0-218">218</a></span>
+<span class="normal"><a href="#__codelineno-0-219">219</a></span>
+<span class="normal"><a href="#__codelineno-0-220">220</a></span>
+<span class="normal"><a href="#__codelineno-0-221">221</a></span>
+<span class="normal"><a href="#__codelineno-0-222">222</a></span>
+<span class="normal"><a href="#__codelineno-0-223">223</a></span>
+<span class="normal"><a href="#__codelineno-0-224">224</a></span>
+<span class="normal"><a href="#__codelineno-0-225">225</a></span>
+<span class="normal"><a href="#__codelineno-0-226">226</a></span>
+<span class="normal"><a href="#__codelineno-0-227">227</a></span>
+<span class="normal"><a href="#__codelineno-0-228">228</a></span>
+<span class="normal"><a href="#__codelineno-0-229">229</a></span>
+<span class="normal"><a href="#__codelineno-0-230">230</a></span>
+<span class="normal"><a href="#__codelineno-0-231">231</a></span>
+<span class="normal"><a href="#__codelineno-0-232">232</a></span>
+<span class="normal"><a href="#__codelineno-0-233">233</a></span>
+<span class="normal"><a href="#__codelineno-0-234">234</a></span>
+<span class="normal"><a href="#__codelineno-0-235">235</a></span>
+<span class="normal"><a href="#__codelineno-0-236">236</a></span>
+<span class="normal"><a href="#__codelineno-0-237">237</a></span>
+<span class="normal"><a href="#__codelineno-0-238">238</a></span>
+<span class="normal"><a href="#__codelineno-0-239">239</a></span>
+<span class="normal"><a href="#__codelineno-0-240">240</a></span>
+<span class="normal"><a href="#__codelineno-0-241">241</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-182" name="__codelineno-0-182"></a><span class="nd">@override</span>
+<a id="__codelineno-0-183" name="__codelineno-0-183"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
+<a id="__codelineno-0-184" name="__codelineno-0-184"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-185" name="__codelineno-0-185"></a>    <span class="n">message</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
+<a id="__codelineno-0-186" name="__codelineno-0-186"></a>    <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-187" name="__codelineno-0-187"></a>    <span class="n">key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-188" name="__codelineno-0-188"></a>    <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-189" name="__codelineno-0-189"></a>    <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-190" name="__codelineno-0-190"></a>    <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-191" name="__codelineno-0-191"></a>    <span class="n">correlation_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-192" name="__codelineno-0-192"></a>    <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-0-193" name="__codelineno-0-193"></a>    <span class="n">reply_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-194" name="__codelineno-0-194"></a>    <span class="n">rpc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-195" name="__codelineno-0-195"></a>    <span class="n">rpc_timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-196" name="__codelineno-0-196"></a>    <span class="n">raise_timeout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-197" name="__codelineno-0-197"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SendableMessage</span><span class="p">]:</span>
+<a id="__codelineno-0-198" name="__codelineno-0-198"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-199" name="__codelineno-0-199"></a><span class="sd">    Publish a message to the Kafka broker.</span>
+<a id="__codelineno-0-200" name="__codelineno-0-200"></a>
+<a id="__codelineno-0-201" name="__codelineno-0-201"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-202" name="__codelineno-0-202"></a><span class="sd">        message (SendableMessage): The message to be published.</span>
+<a id="__codelineno-0-203" name="__codelineno-0-203"></a><span class="sd">        topic (str): The Kafka topic to publish the message to.</span>
+<a id="__codelineno-0-204" name="__codelineno-0-204"></a><span class="sd">        key (Optional[bytes], optional): The message key. Defaults to None.</span>
+<a id="__codelineno-0-205" name="__codelineno-0-205"></a><span class="sd">        partition (Optional[int], optional): The Kafka partition to use. Defaults to None.</span>
+<a id="__codelineno-0-206" name="__codelineno-0-206"></a><span class="sd">        timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.</span>
+<a id="__codelineno-0-207" name="__codelineno-0-207"></a><span class="sd">        headers (Optional[Dict[str, str]], optional): Additional headers for the message. Defaults to None.</span>
+<a id="__codelineno-0-208" name="__codelineno-0-208"></a><span class="sd">        correlation_id (Optional[str], optional): The correlation ID for the message. Defaults to None.</span>
+<a id="__codelineno-0-209" name="__codelineno-0-209"></a><span class="sd">        reply_to (str, optional): The topic to which responses should be sent. Defaults to &quot;&quot;.</span>
+<a id="__codelineno-0-210" name="__codelineno-0-210"></a><span class="sd">        rpc (bool, optional): If True, treat the message as an RPC request. Defaults to False.</span>
+<a id="__codelineno-0-211" name="__codelineno-0-211"></a><span class="sd">        rpc_timeout (Optional[float], optional): Timeout for RPC requests. Defaults to None.</span>
+<a id="__codelineno-0-212" name="__codelineno-0-212"></a><span class="sd">        raise_timeout (bool, optional): If True, raise an exception on timeout. Defaults to False.</span>
+<a id="__codelineno-0-213" name="__codelineno-0-213"></a>
+<a id="__codelineno-0-214" name="__codelineno-0-214"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-215" name="__codelineno-0-215"></a><span class="sd">        Optional[SendableMessage]: The response message, if this was an RPC request, otherwise None.</span>
+<a id="__codelineno-0-216" name="__codelineno-0-216"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-217" name="__codelineno-0-217"></a>    <span class="n">incoming</span> <span class="o">=</span> <span class="n">build_message</span><span class="p">(</span>
+<a id="__codelineno-0-218" name="__codelineno-0-218"></a>        <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
+<a id="__codelineno-0-219" name="__codelineno-0-219"></a>        <span class="n">topic</span><span class="o">=</span><span class="n">topic</span><span class="p">,</span>
+<a id="__codelineno-0-220" name="__codelineno-0-220"></a>        <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
+<a id="__codelineno-0-221" name="__codelineno-0-221"></a>        <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
+<a id="__codelineno-0-222" name="__codelineno-0-222"></a>        <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">timestamp_ms</span><span class="p">,</span>
+<a id="__codelineno-0-223" name="__codelineno-0-223"></a>        <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+<a id="__codelineno-0-224" name="__codelineno-0-224"></a>        <span class="n">correlation_id</span><span class="o">=</span><span class="n">correlation_id</span><span class="p">,</span>
+<a id="__codelineno-0-225" name="__codelineno-0-225"></a>        <span class="n">reply_to</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
+<a id="__codelineno-0-226" name="__codelineno-0-226"></a>    <span class="p">)</span>
+<a id="__codelineno-0-227" name="__codelineno-0-227"></a>
+<a id="__codelineno-0-228" name="__codelineno-0-228"></a>    <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  <span class="c1"># pragma: no branch</span>
+<a id="__codelineno-0-229" name="__codelineno-0-229"></a>        <span class="k">if</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">topics</span><span class="p">:</span>
+<a id="__codelineno-0-230" name="__codelineno-0-230"></a>            <span class="n">r</span> <span class="o">=</span> <span class="k">await</span> <span class="n">call_handler</span><span class="p">(</span>
+<a id="__codelineno-0-231" name="__codelineno-0-231"></a>                <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
+<a id="__codelineno-0-232" name="__codelineno-0-232"></a>                <span class="n">message</span><span class="o">=</span><span class="p">[</span><span class="n">incoming</span><span class="p">]</span> <span class="k">if</span> <span class="n">handler</span><span class="o">.</span><span class="n">batch</span> <span class="k">else</span> <span class="n">incoming</span><span class="p">,</span>
+<a id="__codelineno-0-233" name="__codelineno-0-233"></a>                <span class="n">rpc</span><span class="o">=</span><span class="n">rpc</span><span class="p">,</span>
+<a id="__codelineno-0-234" name="__codelineno-0-234"></a>                <span class="n">rpc_timeout</span><span class="o">=</span><span class="n">rpc_timeout</span><span class="p">,</span>
+<a id="__codelineno-0-235" name="__codelineno-0-235"></a>                <span class="n">raise_timeout</span><span class="o">=</span><span class="n">raise_timeout</span><span class="p">,</span>
+<a id="__codelineno-0-236" name="__codelineno-0-236"></a>            <span class="p">)</span>
+<a id="__codelineno-0-237" name="__codelineno-0-237"></a>
+<a id="__codelineno-0-238" name="__codelineno-0-238"></a>            <span class="k">if</span> <span class="n">rpc</span><span class="p">:</span>  <span class="c1"># pragma: no branch</span>
+<a id="__codelineno-0-239" name="__codelineno-0-239"></a>                <span class="k">return</span> <span class="n">r</span>
+<a id="__codelineno-0-240" name="__codelineno-0-240"></a>
+<a id="__codelineno-0-241" name="__codelineno-0-241"></a>    <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -2901,7 +1434,7 @@
 
 
 
-<h4 id="faststream.kafka.test.FakeProducer.publish_batch" class="doc doc-heading">
+<h3 id="faststream.kafka.test.FakeProducer.publish_batch" class="doc doc-heading">
           <span class="doc doc-object-name doc-function-name">publish_batch</span>
 
   
@@ -2909,14 +1442,14 @@
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#faststream.kafka.test.FakeProducer.publish_batch" class="headerlink" title="Permanent link">#</a></h4>
-<div class="doc-signature codehilite"><pre><span></span><code><span class="n">publish_batch</span><span class="p">(</span>
-    <span class="o">*</span><span class="n">msgs</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
-    <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+<a href="#faststream.kafka.test.FakeProducer.publish_batch" class="headerlink" title="Permanent link">#</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">publish_batch</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="o">*</span><span class="n">msgs</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -2925,85 +1458,98 @@
 
 
 
-  <p><strong>Parameters:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td><code>*msgs</code></td>
-          <td>
-                <code><span title="faststream.types.SendableMessage">SendableMessage</span></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Variable number of messages to be published.</p>
             </div>
-          </td>
-          <td>
-                <code>()</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="faststream.types.SendableMessage">SendableMessage</span></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>topic</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>The Kafka topic to publish the messages to.</p>
             </div>
-          </td>
-          <td>
-              <em>required</em>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>partition</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>The Kafka partition to use. Defaults to None.</p>
             </div>
-          </td>
-          <td>
-                <code>None</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>timestamp_ms</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>The message timestamp in milliseconds. Defaults to None.</p>
             </div>
-          </td>
-          <td>
-                <code>None</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>headers</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="typing.Dict" href="https://docs.python.org/3/library/typing.html#typing.Dict">Dict</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Additional headers for the messages. Defaults to None.</p>
             </div>
-          </td>
-          <td>
-                <code>None</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="typing.Dict" href="https://docs.python.org/3/library/typing.html#typing.Dict">Dict</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
           </td>
         </tr>
     </tbody>
@@ -3011,23 +1557,28 @@
 
 
 
-  <p><strong>Returns:</strong></p>
   <table>
     <thead>
       <tr>
-<th>Name</th>        <th>Type</th>
-        <th>Description</th>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
-<td><code>None</code></td>          <td>
-                <code>None</code>
-          </td>
           <td>
+              <code>None</code>
+          </td>
+          <td class="doc-returns-details">
             <div class="doc-md-description">
               <p>This method does not return a value.</p>
             </div>
+              <p>
+                <span class="doc-returns-annotation">
+                  <b>TYPE:</b>
+                    <code>None</code>
+                </span>
+              </p>
           </td>
         </tr>
     </tbody>
@@ -3035,81 +1586,81 @@
 
           <details class="quote">
             <summary>Source code in <code>/home/runner/work/faststream/faststream/faststream/kafka/test.py</code></summary>
-            <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">243</span>
-<span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span>
-<span class="normal">261</span>
-<span class="normal">262</span>
-<span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
-<span class="normal">272</span>
-<span class="normal">273</span>
-<span class="normal">274</span>
-<span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
-<span class="normal">279</span>
-<span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">publish_batch</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span>
-    <span class="o">*</span><span class="n">msgs</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
-    <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Publish a batch of messages to the Kafka broker.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        *msgs (SendableMessage): Variable number of messages to be published.</span>
-<span class="sd">        topic (str): The Kafka topic to publish the messages to.</span>
-<span class="sd">        partition (Optional[int], optional): The Kafka partition to use. Defaults to None.</span>
-<span class="sd">        timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.</span>
-<span class="sd">        headers (Optional[Dict[str, str]], optional): Additional headers for the messages. Defaults to None.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        None: This method does not return a value.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  <span class="c1"># pragma: no branch</span>
-        <span class="k">if</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">topics</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">call_handler</span><span class="p">(</span>
-                <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
-                <span class="n">message</span><span class="o">=</span><span class="p">[</span>
-                    <span class="n">build_message</span><span class="p">(</span>
-                        <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
-                        <span class="n">topic</span><span class="o">=</span><span class="n">topic</span><span class="p">,</span>
-                        <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
-                        <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">timestamp_ms</span><span class="p">,</span>
-                        <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
-                    <span class="p">)</span>
-                    <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">msgs</span>
-                <span class="p">],</span>
-            <span class="p">)</span>
-
-    <span class="k">return</span> <span class="kc">None</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-243">243</a></span>
+<span class="normal"><a href="#__codelineno-0-244">244</a></span>
+<span class="normal"><a href="#__codelineno-0-245">245</a></span>
+<span class="normal"><a href="#__codelineno-0-246">246</a></span>
+<span class="normal"><a href="#__codelineno-0-247">247</a></span>
+<span class="normal"><a href="#__codelineno-0-248">248</a></span>
+<span class="normal"><a href="#__codelineno-0-249">249</a></span>
+<span class="normal"><a href="#__codelineno-0-250">250</a></span>
+<span class="normal"><a href="#__codelineno-0-251">251</a></span>
+<span class="normal"><a href="#__codelineno-0-252">252</a></span>
+<span class="normal"><a href="#__codelineno-0-253">253</a></span>
+<span class="normal"><a href="#__codelineno-0-254">254</a></span>
+<span class="normal"><a href="#__codelineno-0-255">255</a></span>
+<span class="normal"><a href="#__codelineno-0-256">256</a></span>
+<span class="normal"><a href="#__codelineno-0-257">257</a></span>
+<span class="normal"><a href="#__codelineno-0-258">258</a></span>
+<span class="normal"><a href="#__codelineno-0-259">259</a></span>
+<span class="normal"><a href="#__codelineno-0-260">260</a></span>
+<span class="normal"><a href="#__codelineno-0-261">261</a></span>
+<span class="normal"><a href="#__codelineno-0-262">262</a></span>
+<span class="normal"><a href="#__codelineno-0-263">263</a></span>
+<span class="normal"><a href="#__codelineno-0-264">264</a></span>
+<span class="normal"><a href="#__codelineno-0-265">265</a></span>
+<span class="normal"><a href="#__codelineno-0-266">266</a></span>
+<span class="normal"><a href="#__codelineno-0-267">267</a></span>
+<span class="normal"><a href="#__codelineno-0-268">268</a></span>
+<span class="normal"><a href="#__codelineno-0-269">269</a></span>
+<span class="normal"><a href="#__codelineno-0-270">270</a></span>
+<span class="normal"><a href="#__codelineno-0-271">271</a></span>
+<span class="normal"><a href="#__codelineno-0-272">272</a></span>
+<span class="normal"><a href="#__codelineno-0-273">273</a></span>
+<span class="normal"><a href="#__codelineno-0-274">274</a></span>
+<span class="normal"><a href="#__codelineno-0-275">275</a></span>
+<span class="normal"><a href="#__codelineno-0-276">276</a></span>
+<span class="normal"><a href="#__codelineno-0-277">277</a></span>
+<span class="normal"><a href="#__codelineno-0-278">278</a></span>
+<span class="normal"><a href="#__codelineno-0-279">279</a></span>
+<span class="normal"><a href="#__codelineno-0-280">280</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-243" name="__codelineno-0-243"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">publish_batch</span><span class="p">(</span>
+<a id="__codelineno-0-244" name="__codelineno-0-244"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-245" name="__codelineno-0-245"></a>    <span class="o">*</span><span class="n">msgs</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
+<a id="__codelineno-0-246" name="__codelineno-0-246"></a>    <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-247" name="__codelineno-0-247"></a>    <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-248" name="__codelineno-0-248"></a>    <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-249" name="__codelineno-0-249"></a>    <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-250" name="__codelineno-0-250"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-251" name="__codelineno-0-251"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-252" name="__codelineno-0-252"></a><span class="sd">    Publish a batch of messages to the Kafka broker.</span>
+<a id="__codelineno-0-253" name="__codelineno-0-253"></a>
+<a id="__codelineno-0-254" name="__codelineno-0-254"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-255" name="__codelineno-0-255"></a><span class="sd">        *msgs (SendableMessage): Variable number of messages to be published.</span>
+<a id="__codelineno-0-256" name="__codelineno-0-256"></a><span class="sd">        topic (str): The Kafka topic to publish the messages to.</span>
+<a id="__codelineno-0-257" name="__codelineno-0-257"></a><span class="sd">        partition (Optional[int], optional): The Kafka partition to use. Defaults to None.</span>
+<a id="__codelineno-0-258" name="__codelineno-0-258"></a><span class="sd">        timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.</span>
+<a id="__codelineno-0-259" name="__codelineno-0-259"></a><span class="sd">        headers (Optional[Dict[str, str]], optional): Additional headers for the messages. Defaults to None.</span>
+<a id="__codelineno-0-260" name="__codelineno-0-260"></a>
+<a id="__codelineno-0-261" name="__codelineno-0-261"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-262" name="__codelineno-0-262"></a><span class="sd">        None: This method does not return a value.</span>
+<a id="__codelineno-0-263" name="__codelineno-0-263"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-264" name="__codelineno-0-264"></a>    <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  <span class="c1"># pragma: no branch</span>
+<a id="__codelineno-0-265" name="__codelineno-0-265"></a>        <span class="k">if</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">topics</span><span class="p">:</span>
+<a id="__codelineno-0-266" name="__codelineno-0-266"></a>            <span class="k">await</span> <span class="n">call_handler</span><span class="p">(</span>
+<a id="__codelineno-0-267" name="__codelineno-0-267"></a>                <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
+<a id="__codelineno-0-268" name="__codelineno-0-268"></a>                <span class="n">message</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-0-269" name="__codelineno-0-269"></a>                    <span class="n">build_message</span><span class="p">(</span>
+<a id="__codelineno-0-270" name="__codelineno-0-270"></a>                        <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
+<a id="__codelineno-0-271" name="__codelineno-0-271"></a>                        <span class="n">topic</span><span class="o">=</span><span class="n">topic</span><span class="p">,</span>
+<a id="__codelineno-0-272" name="__codelineno-0-272"></a>                        <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
+<a id="__codelineno-0-273" name="__codelineno-0-273"></a>                        <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">timestamp_ms</span><span class="p">,</span>
+<a id="__codelineno-0-274" name="__codelineno-0-274"></a>                        <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+<a id="__codelineno-0-275" name="__codelineno-0-275"></a>                    <span class="p">)</span>
+<a id="__codelineno-0-276" name="__codelineno-0-276"></a>                    <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">msgs</span>
+<a id="__codelineno-0-277" name="__codelineno-0-277"></a>                <span class="p">],</span>
+<a id="__codelineno-0-278" name="__codelineno-0-278"></a>            <span class="p">)</span>
+<a id="__codelineno-0-279" name="__codelineno-0-279"></a>
+<a id="__codelineno-0-280" name="__codelineno-0-280"></a>    <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -3136,6 +1687,8 @@
 </div>
 
 
+  
+
 
 
 
@@ -3158,44 +1711,6 @@
       
         <footer class="md-footer">
   
-    
-      
-      <nav class="md-footer__inner md-grid" aria-label="Footer" >
-        
-          
-          <a href="../../shared/schemas/ConsumerConnectionParams/" class="md-footer__link md-footer__link--prev" aria-label="Previous: ConsumerConnectionParams" rel="prev">
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
-            </div>
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              <div class="md-ellipsis">
-                ConsumerConnectionParams
-              </div>
-            </div>
-          </a>
-        
-        
-          
-          <a href="../TestKafkaBroker/" class="md-footer__link md-footer__link--next" aria-label="Next: TestKafkaBroker" rel="next">
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              <div class="md-ellipsis">
-                TestKafkaBroker
-              </div>
-            </div>
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
-            </div>
-          </a>
-        
-      </nav>
     
   
   <div class="md-footer-meta md-typeset">
@@ -3282,7 +1797,7 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../../../../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotate", "content.code.copy", "content.code.select", "content.action.edit"], "search": "../../../../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../../../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.copy", "content.action.edit"], "search": "../../../../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../../../../assets/javascripts/bundle.dff1b7c8.min.js"></script>

@@ -6,6 +6,8 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
+        <meta name="description" content="FastStream Python messaging framework documentation">
+      
       
         <meta name="author" content="airt">
       
@@ -13,10 +15,6 @@
         <link rel="canonical" href="https://faststream.airt.ai/0.0.1.dev20230913/api/faststream/rabbit/shared/constants/ExchangeType/">
       
       
-        <link rel="prev" href="../../../security/parse_security/">
-      
-      
-        <link rel="next" href="../../logging/RabbitLoggingMixin/">
       
       
       <link rel="icon" href="../../../../../../assets/img/logo.svg">
@@ -59,6 +57,16 @@
     <script>__md_scope=new URL("../../../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-HDTMP5FFHP"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-HDTMP5FFHP",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-HDTMP5FFHP",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
 
     
     
@@ -67,7 +75,7 @@
       
         <meta  property="og:title"  content="ExchangeType - FastStream" >
       
-        <meta  property="og:description"  content="" >
+        <meta  property="og:description"  content="FastStream Python messaging framework documentation" >
       
         <meta  property="og:image"  content="https://faststream.airt.ai/0.0.1.dev20230913/assets/images/social/en/api/faststream/rabbit/shared/constants/ExchangeType.png" >
       
@@ -83,7 +91,7 @@
       
         <meta  name="twitter:title"  content="ExchangeType - FastStream" >
       
-        <meta  name="twitter:description"  content="" >
+        <meta  name="twitter:description"  content="FastStream Python messaging framework documentation" >
       
         <meta  name="twitter:image"  content="https://faststream.airt.ai/0.0.1.dev20230913/assets/images/social/en/api/faststream/rabbit/shared/constants/ExchangeType.png" >
       
@@ -194,26 +202,6 @@
 </form>
       
     
-    
-      <div class="md-header__option">
-  <div class="md-select">
-    
-    <button class="md-header__button md-icon" aria-label="Select language">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7 1.62-4.33L19.12 17h-3.24Z"/></svg>
-    </button>
-    <div class="md-select__inner">
-      <ul class="md-select__list">
-        
-          <li class="md-select__item">
-            <a href="/" hreflang="" class="md-select__link">
-              en - English
-            </a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-</div>
     
     
       <label class="md-header__button md-icon" for="__search">
@@ -366,50 +354,6 @@
 
         </a>
       </li>
-    
-  
-
-      
-        
-  
-  
-    
-  
-  
-    
-    
-      
-  
-  
-    
-  
-  
-    
-    
-      
-  
-  
-    
-  
-  
-    
-    
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../../../app/ABCApp/" class="md-tabs__link">
-          
-  
-    
-  
-  Reference
-
-        </a>
-      </li>
-    
-  
-
-    
-  
-
     
   
 
@@ -708,1570 +652,6 @@
       
   
   
-    
-  
-  
-    
-    
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
-        
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    Reference
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_6">
-            <span class="md-nav__icon md-icon"></span>
-            Reference
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-    
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1" checked>
-        
-          <label class="md-nav__link" for="__nav_6_1" id="__nav_6_1_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    faststream
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_1_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_6_1">
-            <span class="md-nav__icon md-icon"></span>
-            faststream
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../../../app/ABCApp/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    app
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    
-  
-  
-    <a href="../../../../asyncapi/base/AsyncAPIOperation/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    asyncapi
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    
-  
-  
-    
-  
-  
-    <a href="../../../../broker/core/abc/BrokerUsecase/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    broker
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-  
-
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    
-  
-  
-    
-  
-  
-    <a href="../../../../cli/docs/app/gen/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    cli
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-  
-
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../../../constants/ContentTypes/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    constants
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../../../exceptions/AckMessage/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    exceptions
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    
-  
-  
-    <a href="../../../../kafka/asyncapi/Handler/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    kafka
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    
-  
-  
-    <a href="../../../../log/formatter/ColourizedFormatter/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    log
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_9" checked>
-        
-          <label class="md-nav__link" for="__nav_6_1_9" id="__nav_6_1_9_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    rabbit
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_9_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_6_1_9">
-            <span class="md-nav__icon md-icon"></span>
-            rabbit
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../../asyncapi/Handler/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    asyncapi
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../../broker/RabbitBroker/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    broker
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../../fastapi/RabbitRouter/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    fastapi
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../../handler/LogicHandler/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    handler
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../../helpers/RabbitDeclarer/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    helpers
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../../message/RabbitMessage/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    message
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../../parser/AioPikaParser/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    parser
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../../producer/AioPikaFastProducer/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    producer
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../../publisher/LogicPublisher/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    publisher
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../../router/RabbitRouter/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    router
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../../security/parse_security/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    security
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_9_12" checked>
-        
-          <label class="md-nav__link" for="__nav_6_1_9_12" id="__nav_6_1_9_12_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    shared
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_1_9_12_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_6_1_9_12">
-            <span class="md-nav__icon md-icon"></span>
-            shared
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-    
-  
-  
-    
-    
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_9_12_1" checked>
-        
-          <label class="md-nav__link" for="__nav_6_1_9_12_1" id="__nav_6_1_9_12_1_label" tabindex="0">
-            
-  
-  <span class="md-ellipsis">
-    constants
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_1_9_12_1_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_6_1_9_12_1">
-            <span class="md-nav__icon md-icon"></span>
-            constants
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-    
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    ExchangeType
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  <span class="md-ellipsis">
-    ExchangeType
-  </span>
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#faststream.rabbit.shared.constants.ExchangeType" class="md-nav__link">
-    ExchangeType
-  </a>
-  
-    <nav class="md-nav" aria-label="ExchangeType">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#faststream.rabbit.shared.constants.ExchangeType-attributes" class="md-nav__link">
-    Attributes
-  </a>
-  
-    <nav class="md-nav" aria-label="Attributes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#faststream.rabbit.shared.constants.ExchangeType.DIRECT" class="md-nav__link">
-    DIRECT
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#faststream.rabbit.shared.constants.ExchangeType.FANOUT" class="md-nav__link">
-    FANOUT
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#faststream.rabbit.shared.constants.ExchangeType.HEADERS" class="md-nav__link">
-    HEADERS
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#faststream.rabbit.shared.constants.ExchangeType.TOPIC" class="md-nav__link">
-    TOPIC
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#faststream.rabbit.shared.constants.ExchangeType.X_CONSISTENT_HASH" class="md-nav__link">
-    X_CONSISTENT_HASH
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#faststream.rabbit.shared.constants.ExchangeType.X_DELAYED_MESSAGE" class="md-nav__link">
-    X_DELAYED_MESSAGE
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#faststream.rabbit.shared.constants.ExchangeType.X_MODULUS_HASH" class="md-nav__link">
-    X_MODULUS_HASH
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../logging/RabbitLoggingMixin/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    logging
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../publisher/ABCPublisher/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    publisher
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../router/RabbitRouter/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    router
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../schemas/BaseRMQInformation/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    schemas
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    <a href="../../../test/FakeProducer/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    test
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-      
-      
-    
-    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
-      
-        
-  
-  
-    
-  
-  
-    <a href="../../../../utils/classes/Singleton/" class="md-nav__link">
-      
-  
-  <span class="md-ellipsis">
-    utils
-  </span>
-  
-
-      
-        <span class="md-nav__icon md-icon"></span>
-      
-    </a>
-  
-
-  
-
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
   
     <li class="md-nav__item">
       <a href="../../../../../../release/" class="md-nav__link">
@@ -2320,14 +700,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#faststream.rabbit.shared.constants.ExchangeType-attributes" class="md-nav__link">
-    Attributes
-  </a>
-  
-    <nav class="md-nav" aria-label="Attributes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#faststream.rabbit.shared.constants.ExchangeType.DIRECT" class="md-nav__link">
     DIRECT
   </a>
@@ -2373,11 +745,6 @@
   <a href="#faststream.rabbit.shared.constants.ExchangeType.X_MODULUS_HASH" class="md-nav__link">
     X_MODULUS_HASH
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -2429,91 +796,6 @@
 
   
       <p>A class to represent the exchange type.</p>
-
-
-
-  <p><strong>Attributes:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code>FANOUT</code></td>
-          <td>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>fanout exchange type</p>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td><code>DIRECT</code></td>
-          <td>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>direct exchange type</p>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td><code>TOPIC</code></td>
-          <td>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>topic exchange type</p>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td><code>HEADERS</code></td>
-          <td>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>headers exchange type</p>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td><code>X_DELAYED_MESSAGE</code></td>
-          <td>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>x-delayed-message exchange type</p>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td><code>X_CONSISTENT_HASH</code></td>
-          <td>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>x-consistent-hash exchange type</p>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td><code>X_MODULUS_HASH</code></td>
-          <td>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>x-modulus-hash exchange type</p>
-            </div>
-          </td>
-        </tr>
-    </tbody>
-  </table>
       <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</p>
@@ -2521,53 +803,53 @@
 
             <details class="quote">
               <summary>Source code in <code>/home/runner/work/faststream/faststream/faststream/rabbit/shared/constants.py</code></summary>
-              <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@unique</span>
-<span class="k">class</span> <span class="nc">ExchangeType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A class to represent the exchange type.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        FANOUT : fanout exchange type</span>
-<span class="sd">        DIRECT : direct exchange type</span>
-<span class="sd">        TOPIC : topic exchange type</span>
-<span class="sd">        HEADERS : headers exchange type</span>
-<span class="sd">        X_DELAYED_MESSAGE : x-delayed-message exchange type</span>
-<span class="sd">        X_CONSISTENT_HASH : x-consistent-hash exchange type</span>
-<span class="sd">        X_MODULUS_HASH : x-modulus-hash exchange type</span>
-<span class="sd">    !!! note</span>
-
-<span class="sd">        The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">FANOUT</span> <span class="o">=</span> <span class="s2">&quot;fanout&quot;</span>
-    <span class="n">DIRECT</span> <span class="o">=</span> <span class="s2">&quot;direct&quot;</span>
-    <span class="n">TOPIC</span> <span class="o">=</span> <span class="s2">&quot;topic&quot;</span>
-    <span class="n">HEADERS</span> <span class="o">=</span> <span class="s2">&quot;headers&quot;</span>
-    <span class="n">X_DELAYED_MESSAGE</span> <span class="o">=</span> <span class="s2">&quot;x-delayed-message&quot;</span>
-    <span class="n">X_CONSISTENT_HASH</span> <span class="o">=</span> <span class="s2">&quot;x-consistent-hash&quot;</span>
-    <span class="n">X_MODULUS_HASH</span> <span class="o">=</span> <span class="s2">&quot;x-modulus-hash&quot;</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-0-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-0-10">10</a></span>
+<span class="normal"><a href="#__codelineno-0-11">11</a></span>
+<span class="normal"><a href="#__codelineno-0-12">12</a></span>
+<span class="normal"><a href="#__codelineno-0-13">13</a></span>
+<span class="normal"><a href="#__codelineno-0-14">14</a></span>
+<span class="normal"><a href="#__codelineno-0-15">15</a></span>
+<span class="normal"><a href="#__codelineno-0-16">16</a></span>
+<span class="normal"><a href="#__codelineno-0-17">17</a></span>
+<span class="normal"><a href="#__codelineno-0-18">18</a></span>
+<span class="normal"><a href="#__codelineno-0-19">19</a></span>
+<span class="normal"><a href="#__codelineno-0-20">20</a></span>
+<span class="normal"><a href="#__codelineno-0-21">21</a></span>
+<span class="normal"><a href="#__codelineno-0-22">22</a></span>
+<span class="normal"><a href="#__codelineno-0-23">23</a></span>
+<span class="normal"><a href="#__codelineno-0-24">24</a></span>
+<span class="normal"><a href="#__codelineno-0-25">25</a></span>
+<span class="normal"><a href="#__codelineno-0-26">26</a></span>
+<span class="normal"><a href="#__codelineno-0-27">27</a></span>
+<span class="normal"><a href="#__codelineno-0-28">28</a></span>
+<span class="normal"><a href="#__codelineno-0-29">29</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="nd">@unique</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="k">class</span> <span class="nc">ExchangeType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A class to represent the exchange type.</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="sd">    Attributes:</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="sd">        FANOUT : fanout exchange type</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="sd">        DIRECT : direct exchange type</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="sd">        TOPIC : topic exchange type</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="sd">        HEADERS : headers exchange type</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="sd">        X_DELAYED_MESSAGE : x-delayed-message exchange type</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="sd">        X_CONSISTENT_HASH : x-consistent-hash exchange type</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="sd">        X_MODULUS_HASH : x-modulus-hash exchange type</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="sd">    !!! note</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19"></a>
+<a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="sd">        The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22"></a>
+<a id="__codelineno-0-23" name="__codelineno-0-23"></a>    <span class="n">FANOUT</span> <span class="o">=</span> <span class="s2">&quot;fanout&quot;</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24"></a>    <span class="n">DIRECT</span> <span class="o">=</span> <span class="s2">&quot;direct&quot;</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25"></a>    <span class="n">TOPIC</span> <span class="o">=</span> <span class="s2">&quot;topic&quot;</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26"></a>    <span class="n">HEADERS</span> <span class="o">=</span> <span class="s2">&quot;headers&quot;</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27"></a>    <span class="n">X_DELAYED_MESSAGE</span> <span class="o">=</span> <span class="s2">&quot;x-delayed-message&quot;</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28"></a>    <span class="n">X_CONSISTENT_HASH</span> <span class="o">=</span> <span class="s2">&quot;x-consistent-hash&quot;</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29"></a>    <span class="n">X_MODULUS_HASH</span> <span class="o">=</span> <span class="s2">&quot;x-modulus-hash&quot;</span>
 </code></pre></div></td></tr></table></div>
             </details>
 
@@ -2579,14 +861,14 @@
 
 
 
-<h3 id="faststream.rabbit.shared.constants.ExchangeType-attributes">Attributes<a href="#faststream.rabbit.shared.constants.ExchangeType-attributes" class="headerlink" title="Permanent link">#</a></h3>
+
 
 <div class="doc doc-object doc-attribute">
 
 
 
 
-<h4 id="faststream.rabbit.shared.constants.ExchangeType.DIRECT" class="doc doc-heading">
+<h3 id="faststream.rabbit.shared.constants.ExchangeType.DIRECT" class="doc doc-heading">
           <span class="doc doc-object-name doc-attribute-name">DIRECT</span>
 
   
@@ -2595,8 +877,8 @@
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
-<a href="#faststream.rabbit.shared.constants.ExchangeType.DIRECT" class="headerlink" title="Permanent link">#</a></h4>
-<div class="doc-signature codehilite"><pre><span></span><code><span class="n">DIRECT</span> <span class="o">=</span> <span class="s1">&#39;direct&#39;</span>
+<a href="#faststream.rabbit.shared.constants.ExchangeType.DIRECT" class="headerlink" title="Permanent link">#</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">DIRECT</span> <span class="o">=</span> <span class="s1">&#39;direct&#39;</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -2609,7 +891,7 @@
 
 
 
-<h4 id="faststream.rabbit.shared.constants.ExchangeType.FANOUT" class="doc doc-heading">
+<h3 id="faststream.rabbit.shared.constants.ExchangeType.FANOUT" class="doc doc-heading">
           <span class="doc doc-object-name doc-attribute-name">FANOUT</span>
 
   
@@ -2618,8 +900,8 @@
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
-<a href="#faststream.rabbit.shared.constants.ExchangeType.FANOUT" class="headerlink" title="Permanent link">#</a></h4>
-<div class="doc-signature codehilite"><pre><span></span><code><span class="n">FANOUT</span> <span class="o">=</span> <span class="s1">&#39;fanout&#39;</span>
+<a href="#faststream.rabbit.shared.constants.ExchangeType.FANOUT" class="headerlink" title="Permanent link">#</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">FANOUT</span> <span class="o">=</span> <span class="s1">&#39;fanout&#39;</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -2632,7 +914,7 @@
 
 
 
-<h4 id="faststream.rabbit.shared.constants.ExchangeType.HEADERS" class="doc doc-heading">
+<h3 id="faststream.rabbit.shared.constants.ExchangeType.HEADERS" class="doc doc-heading">
           <span class="doc doc-object-name doc-attribute-name">HEADERS</span>
 
   
@@ -2641,8 +923,8 @@
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
-<a href="#faststream.rabbit.shared.constants.ExchangeType.HEADERS" class="headerlink" title="Permanent link">#</a></h4>
-<div class="doc-signature codehilite"><pre><span></span><code><span class="n">HEADERS</span> <span class="o">=</span> <span class="s1">&#39;headers&#39;</span>
+<a href="#faststream.rabbit.shared.constants.ExchangeType.HEADERS" class="headerlink" title="Permanent link">#</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">HEADERS</span> <span class="o">=</span> <span class="s1">&#39;headers&#39;</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -2655,7 +937,7 @@
 
 
 
-<h4 id="faststream.rabbit.shared.constants.ExchangeType.TOPIC" class="doc doc-heading">
+<h3 id="faststream.rabbit.shared.constants.ExchangeType.TOPIC" class="doc doc-heading">
           <span class="doc doc-object-name doc-attribute-name">TOPIC</span>
 
   
@@ -2664,8 +946,8 @@
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
-<a href="#faststream.rabbit.shared.constants.ExchangeType.TOPIC" class="headerlink" title="Permanent link">#</a></h4>
-<div class="doc-signature codehilite"><pre><span></span><code><span class="n">TOPIC</span> <span class="o">=</span> <span class="s1">&#39;topic&#39;</span>
+<a href="#faststream.rabbit.shared.constants.ExchangeType.TOPIC" class="headerlink" title="Permanent link">#</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">TOPIC</span> <span class="o">=</span> <span class="s1">&#39;topic&#39;</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -2678,7 +960,7 @@
 
 
 
-<h4 id="faststream.rabbit.shared.constants.ExchangeType.X_CONSISTENT_HASH" class="doc doc-heading">
+<h3 id="faststream.rabbit.shared.constants.ExchangeType.X_CONSISTENT_HASH" class="doc doc-heading">
           <span class="doc doc-object-name doc-attribute-name">X_CONSISTENT_HASH</span>
 
   
@@ -2687,8 +969,8 @@
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
-<a href="#faststream.rabbit.shared.constants.ExchangeType.X_CONSISTENT_HASH" class="headerlink" title="Permanent link">#</a></h4>
-<div class="doc-signature codehilite"><pre><span></span><code><span class="n">X_CONSISTENT_HASH</span> <span class="o">=</span> <span class="s1">&#39;x-consistent-hash&#39;</span>
+<a href="#faststream.rabbit.shared.constants.ExchangeType.X_CONSISTENT_HASH" class="headerlink" title="Permanent link">#</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">X_CONSISTENT_HASH</span> <span class="o">=</span> <span class="s1">&#39;x-consistent-hash&#39;</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -2701,7 +983,7 @@
 
 
 
-<h4 id="faststream.rabbit.shared.constants.ExchangeType.X_DELAYED_MESSAGE" class="doc doc-heading">
+<h3 id="faststream.rabbit.shared.constants.ExchangeType.X_DELAYED_MESSAGE" class="doc doc-heading">
           <span class="doc doc-object-name doc-attribute-name">X_DELAYED_MESSAGE</span>
 
   
@@ -2710,8 +992,8 @@
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
-<a href="#faststream.rabbit.shared.constants.ExchangeType.X_DELAYED_MESSAGE" class="headerlink" title="Permanent link">#</a></h4>
-<div class="doc-signature codehilite"><pre><span></span><code><span class="n">X_DELAYED_MESSAGE</span> <span class="o">=</span> <span class="s1">&#39;x-delayed-message&#39;</span>
+<a href="#faststream.rabbit.shared.constants.ExchangeType.X_DELAYED_MESSAGE" class="headerlink" title="Permanent link">#</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">X_DELAYED_MESSAGE</span> <span class="o">=</span> <span class="s1">&#39;x-delayed-message&#39;</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -2724,7 +1006,7 @@
 
 
 
-<h4 id="faststream.rabbit.shared.constants.ExchangeType.X_MODULUS_HASH" class="doc doc-heading">
+<h3 id="faststream.rabbit.shared.constants.ExchangeType.X_MODULUS_HASH" class="doc doc-heading">
           <span class="doc doc-object-name doc-attribute-name">X_MODULUS_HASH</span>
 
   
@@ -2733,8 +1015,8 @@
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
-<a href="#faststream.rabbit.shared.constants.ExchangeType.X_MODULUS_HASH" class="headerlink" title="Permanent link">#</a></h4>
-<div class="doc-signature codehilite"><pre><span></span><code><span class="n">X_MODULUS_HASH</span> <span class="o">=</span> <span class="s1">&#39;x-modulus-hash&#39;</span>
+<a href="#faststream.rabbit.shared.constants.ExchangeType.X_MODULUS_HASH" class="headerlink" title="Permanent link">#</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">X_MODULUS_HASH</span> <span class="o">=</span> <span class="s1">&#39;x-modulus-hash&#39;</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -2764,6 +1046,8 @@
 </div>
 
 
+  
+
 
 
 
@@ -2786,44 +1070,6 @@
       
         <footer class="md-footer">
   
-    
-      
-      <nav class="md-footer__inner md-grid" aria-label="Footer" >
-        
-          
-          <a href="../../../security/parse_security/" class="md-footer__link md-footer__link--prev" aria-label="Previous: parse_security" rel="prev">
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
-            </div>
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              <div class="md-ellipsis">
-                parse_security
-              </div>
-            </div>
-          </a>
-        
-        
-          
-          <a href="../../logging/RabbitLoggingMixin/" class="md-footer__link md-footer__link--next" aria-label="Next: RabbitLoggingMixin" rel="next">
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              <div class="md-ellipsis">
-                RabbitLoggingMixin
-              </div>
-            </div>
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
-            </div>
-          </a>
-        
-      </nav>
     
   
   <div class="md-footer-meta md-typeset">
@@ -2910,7 +1156,7 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../../../../../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.annotate", "content.code.copy", "content.code.select", "content.action.edit"], "search": "../../../../../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../../../../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.copy", "content.action.edit"], "search": "../../../../../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../../../../../assets/javascripts/bundle.dff1b7c8.min.js"></script>
