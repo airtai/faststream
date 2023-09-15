@@ -112,6 +112,7 @@ extra:
   analytics:
     provider: google
     property: G-HDTMP5FFHP
+  social_image: https://opengraph.githubassets.com/1671805243.560327/airtai/faststream
   social:
     - icon: fontawesome/brands/discord
       link: https://discord.gg/CJWmYpyFbc
