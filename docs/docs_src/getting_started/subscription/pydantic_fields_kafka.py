@@ -9,15 +9,12 @@ app = FastStream(broker)
 
 @broker.subscriber("test-topic")
 async def handle(
-    name: str = Field(..., examples=["john"], description="Registered user name"),
+    name: str = Field(
+        ..., examples=["John"], description="Registered user name"
+    ),
     user_id: NonNegativeInt = Field(
         ..., examples=[1], description="Registered user id"
     ),
 ):
-    assert name == "john"
+    assert name == "John"
     assert user_id == 1
-
-
-@app.after_startup
-async def test():
-    await broker.publish({"name": "john", "user_id": 1}, topic="test-topic")

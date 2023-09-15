@@ -5,7 +5,7 @@ from faststream.kafka import KafkaBroker
 async def validate_user(name: str, user_id: int):
     """Emulate DB request"""
     user = {
-        "name": "john",
+        "name": "John",
         "user_id": user_id,
     }
 
@@ -19,9 +19,9 @@ app = FastStream(broker)
 
 @broker.subscriber("test-topic")
 async def handle(name: str):
-    assert name == "john"
+    assert name == "John"
 
 
 @app.after_startup
 async def test():
-    await broker.publish({"name": "john", "user_id": 1}, topic="test-topic")
+    await broker.publish({"name": "John", "user_id": 1}, topic="test-topic")

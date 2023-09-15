@@ -8,7 +8,7 @@ app = FastStream(broker)
 async def validate_user(name: str, user_id: int):
     """Emulate DB request"""
     user = {
-        "name": "john",
+        "name": "John",
         "user_id": user_id,
     }
 
@@ -18,9 +18,9 @@ async def validate_user(name: str, user_id: int):
 
 @broker.subscriber("test-topic", dependencies=(Depends(validate_user),))
 async def handle(name: str):
-    assert name == "john"
+    assert name == "John"
 
 
 @app.after_startup
 async def test():
-    await broker.publish({"name": "john", "user_id": 1}, topic="test-topic")
+    await broker.publish({"name": "John", "user_id": 1}, topic="test-topic")

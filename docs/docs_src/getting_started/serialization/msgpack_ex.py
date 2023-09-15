@@ -18,5 +18,5 @@ async def consume(body, logger: Logger):
 
 @app.after_startup
 async def publish():
-    body = msgpack.dumps({"name": "john", "age": 25}, use_bin_type=True)
+    body = msgpack.dumps({"name": "John", "age": 25}, use_bin_type=True)
     await broker.publish(body, "test")

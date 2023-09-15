@@ -20,5 +20,5 @@ async def consume(body: NoCast[Person], logger: Logger):
 
 @app.after_startup
 async def publish():
-    body = Person(name="john", age=25).SerializeToString()
+    body = Person(name="John", age=25).SerializeToString()
     await broker.publish(body, "test")
