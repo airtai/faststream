@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import BaseModel, Field
 
-from faststream import Context, FastStream, Logger
+from faststream import Context, ContextRepo, FastStream, Logger
 from faststream.kafka import KafkaBroker
 
 
@@ -21,15 +21,25 @@ app = FastStream(broker)
 
 to_output_data = broker.publisher("output_data")
 
-message_history: List[Point] = []
+
+@app.on_startup
+async def app_setup(context: ContextRepo):
+    message_history: List[Point] = []
+    context.set_global("message_history", message_history)
 
 
 @broker.subscriber("input_data")
 async def on_input_data(
-    msg: Point, logger: Logger, key: bytes = Context("message.raw_message.key")
+    msg: Point,
+    logger: Logger,
+    context: ContextRepo,
+    key: bytes = Context("message.raw_message.key"),
 ) -> None:
     logger.info(f"{msg=}")
+
+    message_history = context.get("message_history")
     message_history.append(msg)
+    context.set_global("message_history", message_history)
 
     x_sum = 0
     y_sum = 0

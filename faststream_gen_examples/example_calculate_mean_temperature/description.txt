@@ -1,0 +1,10 @@
+Create faststream application for consuming messages from the weather topic.
+This topic needs to use partition key.
+
+weather messages use JSON with two attributes:
+    - temperature (type float)
+    - windspeed (type float)
+
+Application should save each message to a dictionary (global variable) - partition key should be usded as a dictionary key and value should be a List of temperatures.
+Calculate the temperature mean of the last 5 messages for the given partition key
+Publish the temperature price mean to the temperature_mean topic and use the same partition key which the weather topic is using.
