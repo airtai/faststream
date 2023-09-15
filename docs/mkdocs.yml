@@ -11,6 +11,7 @@ edit_uri: https://github.com/airtai/faststream/tree/main/docs/docs
 
 theme:
   name: material
+  custom_dir: overrides
   logo: assets/img/logo.svg
   favicon: assets/img/logo.svg
   palette:
