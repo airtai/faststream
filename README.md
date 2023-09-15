@@ -225,7 +225,7 @@ async def on_input_data(msg: DataBasic, logger: Logger) -> DataBasic:
 
 ### Function decorators
 
-FastStream brokers provide convenient function decorators `broker.subscriber`
+FastStream brokers provide convenient function decorators `@broker.subscriber`
 and `@broker.publisher` to allow you to delegate the actual process of
 
 - consuming and producing data to Event queues, and

@@ -20,8 +20,8 @@ msg = await broker.publish(
 
 Also, you have a two extra options to control this behavior:
 
-* `rpc_timeout: Optional[float] = 30.0` - controls how long you are waiting for response
-* `raise_timeout: bool = False` - by default timeout request returns `None`, but if you need to raise TimeoutException directly, you can specify this option
+* `#!python rpc_timeout: Optional[float] = 30.0` - controls how long you are waiting for response
+* `#!python raise_timeout: bool = False` - by default timeout request returns `None`, but if you need to raise TimeoutException directly, you can specify this option
 
 ## Reply-To
 

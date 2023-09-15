@@ -2,7 +2,7 @@
 
 If you know nothing about **RabbitMQ** and how it works you still able to use **FastStream RabbitBroker**.
 
-Just use `@broker.subscriber` method with a string as a routing key.
+Just use `#!python @broker.subscriber(...)` method with a string as a routing key.
 
 ```python linenums="1"
 {!> docs_src/rabbit/subscription/index.py !}

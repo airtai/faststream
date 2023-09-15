@@ -61,7 +61,7 @@ pytest tests
 # or
 ./scripts/test.sh
 # with coverage output
-./scripts/test-cov.sh -m "all"
+./scripts/test-cov.sh
 ```
 
 There are some *pytest marks* at project:

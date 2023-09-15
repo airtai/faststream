@@ -54,32 +54,32 @@ If you specify not-existed exchange, RabbitBroker creates a required one and the
 
 The `publish` method takes the following arguments:
 
-* `message = ""` - message to send
-* `exchange: str | RabbitExchange | None = None` - the exchange where the message will be sent to. If not specified - *default* is used
-* `queue: str | RabbitQueue = ""` - the queue where the message will be sent (since most queues use their name as the routing key, this is a human-readable version of `routing_key`)
-* `routing_key: str = ""` - also a message routing key, if not specified, the `queue` argument will be used
+* `#!python message = ""` - message to send
+* `#!python exchange: str | RabbitExchange | None = None` - the exchange where the message will be sent to. If not specified - *default* is used
+* `#!python queue: str | RabbitQueue = ""` - the queue where the message will be sent (since most queues use their name as the routing key, this is a human-readable version of `routing_key`)
+* `#!python routing_key: str = ""` - also a message routing key, if not specified, the `queue` argument will be used
 
 ## Message parameters
 
 You can read more about all the flags in the [RabbitMQ documentation](https://www.rabbitmq.com/consumers.html){.external-link target="_blank"}
 
-* `headers: dict[str, Any] | None = None` - message headers (used by consumers)
-* `content_type: str | None = None` - the content_type of the message being sent (setted automatically, used by consumers)
-* `content_encoding: str | None = None` - encoding of the message (used by consumers)
-* `persist: bool = False` - restore messages on *RabbitMQ* reboot
-* `priority: int | None = None` - the priority of the message
-* `correlation_id: str | None = None` - message id, which helps to match the original message with the reply to it (generated automatically)
-* `message_id: str | None = None` - message ID (generated automatically)
-* `timestamp: int | float | time delta | datetime | None = None` - message sending time (setted automatically)
-* `expiration: int | float | time delta | datetime | None = None` - message lifetime (in seconds)
-* `type: str | None = None` - the type of message (used by consumers)
-* `user_id: str | None = None` - ID of the *RabbitMQ* user who sent the message
-* `app_id: str | None = None` - ID of the application that sent the message (used by consumers)
+* `#!python headers: dict[str, Any] | None = None` - message headers (used by consumers)
+* `#!python content_type: str | None = None` - the content_type of the message being sent (setted automatically, used by consumers)
+* `#!python content_encoding: str | None = None` - encoding of the message (used by consumers)
+* `#!python persist: bool = False` - restore messages on *RabbitMQ* reboot
+* `#!python priority: int | None = None` - the priority of the message
+* `#!python correlation_id: str | None = None` - message id, which helps to match the original message with the reply to it (generated automatically)
+* `#!python message_id: str | None = None` - message ID (generated automatically)
+* `#!python timestamp: int | float | time delta | datetime | None = None` - message sending time (setted automatically)
+* `#!python expiration: int | float | time delta | datetime | None = None` - message lifetime (in seconds)
+* `#!python type: str | None = None` - the type of message (used by consumers)
+* `#!python user_id: str | None = None` - ID of the *RabbitMQ* user who sent the message
+* `#!python app_id: str | None = None` - ID of the application that sent the message (used by consumers)
 
 ## Send flags
 
 Arguments for sending a message:
 
-* `mandatory: bool = True` - the client is waiting for confirmation that the message will be placed in some queue (if there are no queues, return it to the sender)
-* `immediate: bool = False` - the client expects that there is a consumer ready to take the message to work "right now" (if there is no consumer, return it to the sender)
-* `timeout: int | float | None = None` - send confirmation time from *RabbitMQ*
+* `#!python mandatory: bool = True` - the client is waiting for confirmation that the message will be placed in some queue (if there are no queues, return it to the sender)
+* `#!python immediate: bool = False` - the client expects that there is a consumer ready to take the message to work "right now" (if there is no consumer, return it to the sender)
+* `#!python timeout: int | float | None = None` - send confirmation time from *RabbitMQ*

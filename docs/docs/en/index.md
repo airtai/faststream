@@ -158,7 +158,7 @@ Next, an object of the `FastStream` class is created and a `Broker` object is pa
 
 ### Function decorators
 
-FastStream brokers provide convenient function decorators `broker.subscriber`
+FastStream brokers provide convenient function decorators `@broker.subscriber`
 and `@broker.publisher` to allow you to delegate the actual process of
 
 - consuming and producing data to Event queues, and

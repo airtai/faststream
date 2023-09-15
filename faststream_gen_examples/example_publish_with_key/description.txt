@@ -1,0 +1,8 @@
+Develop a FastStream application using localhost kafka broker.
+The app should consume messages from the input_data topic.
+The input message is a JSON encoded object including two attributes:
+    - x: float
+    - y: float
+
+While consuming the message, increment x and y attributes by 1 and publish that message to the output_data topic.
+Use messages attribute x as a partition key when publishing to output_data topic.
