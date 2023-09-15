@@ -13,10 +13,10 @@ class UserSerialized:
 
 @broker.subscriber("test-topic")
 async def handle(user=Depends(UserSerialized)):
-    assert user.name == "john"
+    assert user.name == "John"
     assert user.user_id == 1
 
 
 @app.after_startup
 async def test():
-    await broker.publish({"name": "john", "user_id": 1}, topic="test-topic")
+    await broker.publish({"name": "John", "user_id": 1}, topic="test-topic")

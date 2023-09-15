@@ -5,11 +5,11 @@
 !!! quote ""
     Thanks to [*typer*](https://typer.tiangolo.com/){.external-link target="_blank"} and [*watchfiles*](https://watchfiles.helpmanual.io/){.external-link target="_blank"}. Their work is the basis of this tool.
 
-```bash
+```shell
 faststream --help
 ```
 
-```console
+```{ .shell .no-copy }
 Usage: faststream [OPTIONS] COMMAND [ARGS]...
 
   Generate, run and manage FastStream apps to greater development experience
@@ -37,16 +37,16 @@ Commands:
 
 Just set `--worker` option to scale your application:
 
-```bash
+```shell
 faststream run serve:app --workers 2
 ```
 
-```console
-2023-09-14 21:24:49,726 INFO     - Started parent process [7591]
-2023-09-14 21:24:49,731 INFO     - Started child process [7593]
-2023-09-14 21:24:49,735 INFO     - Started child process [7594]
-2023-09-14 21:24:50,543 INFO     - test |            - `Handle` waiting for messages
-2023-09-14 21:24:50,600 INFO     - test |            - `Handle` waiting for messages
+```{ .shell .no-copy }
+INFO     - Started parent process [7591]
+INFO     - Started child process [7593]
+INFO     - Started child process [7594]
+INFO     - test |            - `Handle` waiting for messages
+INFO     - test |            - `Handle` waiting for messages
 ```
 
 ### Hotreload
@@ -54,15 +54,15 @@ faststream run serve:app --workers 2
 Thanks to [*watchfiles*](https://watchfiles.helpmanual.io/){.external-link target="_blank"}, written in *Rust*, you can
 work with your project easily. Edit the code as much as you like - the new version has already been launched and is waiting for your requests!
 
-```bash
+```shell
 faststream run serve:app --reload
 ```
 
-```console
-2023-09-14 21:27:20,727 INFO     - Started reloader process [7902] using WatchFiles
-2023-09-14 21:27:21,638 INFO     - FastStream app starting...
-2023-09-14 21:27:21,655 INFO     - test |            - `Handle` waiting for messages
-2023-09-14 21:27:21,676 INFO     - FastStream app started successfully! To exit press CTRL+C
+```{ .shell .no-copy }
+INFO     - Started reloader process [7902] using WatchFiles
+INFO     - FastStream app starting...
+INFO     - test |            - `Handle` waiting for messages
+INFO     - FastStream app started successfully! To exit press CTRL+C
 ```
 
 ### Environment Management
@@ -73,14 +73,14 @@ Use this option to select environment files, configure logging, or at your discr
 
 For example, we will pass the *.env* file to the context of our application:
 
-```bash
+```shell
 faststream run serve:app --env=.env.dev
 ```
 
-```console
-2023-09-14 21:28:38,191 INFO     - FastStream app starting...
-2023-09-14 21:28:38,213 INFO     - test |            - `Handle` waiting for messages
-2023-09-14 21:28:38,230 INFO     - FastStream app started successfully! To exit press CTRL+C
+```{ .shell .no-copy }
+INFO     - FastStream app starting...
+INFO     - test |            - `Handle` waiting for messages
+INFO     - FastStream app started successfully! To exit press CTRL+C
 ```
 
 {! includes/getting_started/cli/env.md !}
@@ -92,7 +92,7 @@ All passed values can be of type `#!python bool`, `#!python str` or `#!python li
 
 In this case, the flags will be interpreted as follows:
 
-```bash
+```{ .shell .no-copy }
 faststream run app:app --flag       # flag = True
 faststream run app:app --no-flag    # flag = False
 faststream run app:app --my-flag    # my_flag = True
@@ -107,11 +107,11 @@ Also, **FastStream CLI** allows you to work with the **AsyncAPI** schema in a si
 
 You are able to generate `.json` or `.yaml` files by your application code or host **HTML** representation directly:
 
-```bash
+```shell
 faststream docs --help
 ```
 
-```console
+```{ .shell .no-copy }
 Usage: faststream docs [OPTIONS] COMMAND [ARGS]...
 
   AsyncAPI schema commands

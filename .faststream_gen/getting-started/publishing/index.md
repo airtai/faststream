@@ -11,7 +11,7 @@ Several usecases
 
 Allows to publish any JSON-serializable messages (python types, pydantic models, e.t.c.) or raw bytes.
 
-Automatically setups all required headers (expecially correlation_id, which using to trace message processing pipeline through all services)
+Automatically setups all required headers (especially correlation_id, which using to trace message processing pipeline through all services)
 
 Just setup a message and a routing key
 

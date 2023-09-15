@@ -12,7 +12,7 @@ Original application
 {!> includes/getting_started/subscription/testing/2.md !}
 
 * test with real broker
-* wait consumer called
+* wait consumer for calling
 
 Show pytests setup toggle example (details in the application [config](../config/index.md){.internal-link}):
 
