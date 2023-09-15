@@ -18,6 +18,9 @@ By default, the context is available in the same place as `Depends`:
 * message subscribers
 * nested dependencies
 
+!!! tip
+    Fields getting from the `Context` are editable, so editing them in the function, you are editing them everywhere.
+
 ## Regular functions compatibility
 
 To use context at other functions use the decorator `#!python @apply_types`. This case, the called function context will correspond to the context of the event handler from which it was called.

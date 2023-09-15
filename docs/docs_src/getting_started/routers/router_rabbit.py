@@ -9,7 +9,7 @@ router = RabbitRouter(prefix="prefix_")
 @router.subscriber("test-queue")
 @router.publisher("another-queue")
 async def handle(name: str, user_id: int) -> str:
-    assert name == "john"
+    assert name == "John"
     assert user_id == 1
     return "Hi!"
 
@@ -25,6 +25,6 @@ broker.include_router(router)
 @app.after_startup
 async def test():
     await broker.publish(
-        {"name": "john", "user_id": 1},
+        {"name": "John", "user_id": 1},
         queue="prefix_test-queue",
     )

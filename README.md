@@ -12,8 +12,8 @@ FastStream
   <img src="https://github.com/airtai/faststream/actions/workflows/test.yaml/badge.svg?branch=main" alt="Test Passing"/>
 </a>
 <!-- <a href="https://coverage-badge.samuelcolvin.workers.dev/redirect/airtai/faststream" target="_blank">
-    <img src="https://coverage-badge.samuelcolvin.workers.dev/airtai/faststream.svg" alt="Coverage"> -->
-</a>
+    <img src="https://coverage-badge.samuelcolvin.workers.dev/airtai/faststream.svg" alt="Coverage">
+</a> -->
 <a href="https://pypi.org/project/faststream" target="_blank">
   <img src="https://img.shields.io/pypi/v/faststream?label=PyPI" alt="Package version">
 </a>

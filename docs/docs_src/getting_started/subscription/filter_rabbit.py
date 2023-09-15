@@ -6,10 +6,11 @@ app = FastStream(broker)
 
 
 @broker.subscriber(
-    "test-queue", filter=lambda msg: msg.content_type == "application/json"
+    "test-queue",
+    filter=lambda msg: msg.content_type == "application/json",
 )
 async def handle(name: str, user_id: int):
-    assert name == "john"
+    assert name == "John"
     assert user_id == 1
 
 
@@ -20,7 +21,10 @@ async def default_handler(msg: str):
 
 @app.after_startup
 async def test():
-    await broker.publish({"name": "john", "user_id": 1}, queue="test-queue")
+    await broker.publish(
+        {"name": "John", "user_id": 1},
+        queue="test-queue",
+    )
 
     await broker.publish(
         "Hello, FastStream!",

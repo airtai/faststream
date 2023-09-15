@@ -13,7 +13,6 @@ edit_uri: https://github.com/airtai/faststream/tree/main/docs/docs
 
 theme:
   name: material
-  custom_dir: overrides
   logo: assets/img/logo.svg
   favicon: assets/img/logo.svg
   palette:
@@ -109,10 +108,6 @@ markdown_extensions:
   - md_in_html                   # render md wrapped to html tags
 
 extra:
-  analytics:
-    provider: google
-    property: G-HDTMP5FFHP
-  social_image: https://opengraph.githubassets.com/1671805243.560327/airtai/faststream
   social:
     - icon: fontawesome/brands/discord
       link: https://discord.gg/CJWmYpyFbc

@@ -16,11 +16,11 @@ async def get_user_from_db(name: str, user_id: int):
 @broker.subscriber("test-topic")
 async def handle(user=Depends(get_user_from_db)):
     assert user == {
-        "name": "john",
+        "name": "John",
         "user_id": 1,
     }
 
 
 @app.after_startup
 async def test():
-    await broker.publish({"name": "john", "user_id": 1}, topic="test-topic")
+    await broker.publish({"name": "John", "user_id": 1}, topic="test-topic")
