@@ -107,6 +107,9 @@ markdown_extensions:
   md_in_html: null
 
 extra:
+  analytics:
+    provider: google
+    property: G-HDTMP5FFHP
   social:
     - icon: fontawesome/brands/discord
       link: https://discord.gg/CJWmYpyFbc
