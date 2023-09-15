@@ -8,7 +8,7 @@ But, sometimes you want to use a differ *ack* logic.
 
 ## Retries
 
-If you want to use *nack* instead *reject* at message processing error, you can specify `retry` flag in the `@broker.subscriber` method, which is responsible for error handling logic.
+If you want to use *nack* instead *reject* at message processing error, you can specify `retry` flag in the `#!python  @broker.subscriber(...)` method, which is responsible for error handling logic.
 
 By default, this flag has the value `False`, which indicates that if an error has occurred during message processing, it can still be retrieved from the queue:
 
