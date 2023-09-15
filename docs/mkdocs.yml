@@ -108,6 +108,9 @@ markdown_extensions:
   - md_in_html                   # render md wrapped to html tags
 
 extra:
+  analytics:
+    provider: google
+    property: G-HDTMP5FFHP
   social:
     - icon: fontawesome/brands/discord
       link: https://discord.gg/CJWmYpyFbc
