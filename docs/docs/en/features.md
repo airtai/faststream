@@ -11,7 +11,7 @@ Making streaming microservices has never been easier. Designed with junior devel
 
 - **Pydantic Validation**: Leverage Pydantic's powerful validation capabilities to ensure your data models are always correct. Both annotation-based and model-based validations are supported.
 
-- **Automatic Docs**: Stay ahead with automatic documentation that even includes images. No need to manually keep your API docs up to date.
+- **Automatic Docs**: Stay ahead with automatic [AsyncAPI](https://www.asyncapi.com/){.external-link target="_blank"} documentation. No need to manually keep your API docs up to date.
 
 - **Editor Support**: Enjoy full typed editor support that makes your development experience smooth, catching errors before they reach runtime.
 
