@@ -3,13 +3,13 @@
 Original application
 
 === "Kafka"
-    ```python linenums="1"
-    {!> docs_src/getting_started/subscription/annotation_kafka.py [ln:7-10]!}
+    ```python linenums="1" title="annotation_kafka.py"
+    {!> docs_src/getting_started/subscription/annotation_kafka.py !}
     ```
 
 === "RabbitMQ"
-    ```python linenums="1"
-    {!> docs_src/getting_started/subscription/annotation_kafka.py [ln:7-10]!}
+    ```python linenums="1" title="annotation_rabbit.py"
+    {!> docs_src/getting_started/subscription/annotation_rabbit.py !}
     ```
 
 * in-memory TestClient
@@ -28,7 +28,7 @@ Original application
     ```
 
 * test with real broker
-* wait consumer called
+* wait consumer for calling
 
 Show pytests setup toggle example (details in the application [config](../config/index.md){.internal-link}):
 
