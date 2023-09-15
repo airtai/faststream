@@ -38,7 +38,7 @@ Broker(middlewares=[MyMiddleware])
 In the other cases `on_receive` will be called at every subscriber filter function calling.
 
 !!! tip
-    Please, always call `super()` methods at the end of your function - this is important for correct errors processing
+    Please, always call `#!python super()` methods at the end of your function - this is important for correct errors processing
 
 ## Message consuming wrapper
 

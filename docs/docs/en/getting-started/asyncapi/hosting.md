@@ -2,6 +2,9 @@
 
 FastStream provides a separate command to serve the AsyncAPI documentation.
 
+!!! note
+    This feature requires Internet connection to get **AsyncAPI HTML** by **CDN**
+
 ``` shell
 {!> docs_src/getting_started/asyncapi/serve.py[ln:17]!}
 ```

@@ -42,7 +42,7 @@ The next step is to declare the arguments that our function will receive
 In this case, the `env` field will be passed to the `setup` function from the arguments with the command line
 
 !!! tip
-    The default lifecycle functions are used with the decorator `@apply_types`,
+    The default lifecycle functions are used with the decorator `#!python @apply_types`,
     therefore, all [context fields](../context/index.md){.internal-link} and [dependencies](../dependencies/index.md){.internal-link} are available in them
 
 Then, we initialized the settings of our application using the file passed to us from the command line
@@ -75,9 +75,9 @@ Initialization of such models usually takes a long time. It would be wise to do 
 You can initialize your model somewhere at the top of your module/file. However, in this case, this code will be run even just in case of importing
 this module, for example, during testing. It is unlikely that you want to run your model on every test run...
 
-Therefore, it is worth initializing the model in the `@app.on_startup` hook.
+Therefore, it is worth initializing the model in the `#!python @app.on_startup` hook.
 
-Also, we don't want the model to finish its work incorrectly when the application is stopped. To avoid this, we need the hook `@app.on_shutdown`
+Also, we don't want the model to finish its work incorrectly when the application is stopped. To avoid this, we need the hook `#!python @app.on_shutdown`
 
 {! includes/getting_started/lifespan/7.md !}
 
@@ -110,10 +110,10 @@ In the synchronous version, only synchronous methods are available.
 
 ### Command line arguments
 
-Command line arguments are available in all `@app.on_startup` hooks. To use them in other parts of the application, put them in the `ContextRepo`.
+Command line arguments are available in all `#!python @app.on_startup` hooks. To use them in other parts of the application, put them in the `ContextRepo`.
 
 ### Broker initialization
 
-The `@app.on_startup` hooks are called **BEFORE** the broker is launched by the application. The `@app.after_shutdown` hooks are triggered **AFTER** stopping the broker.
+The `#!python @app.on_startup` hooks are called **BEFORE** the broker is launched by the application. The `#!python @app.after_shutdown` hooks are triggered **AFTER** stopping the broker.
 
-If you want to perform some actions **AFTER** initializing the broker: send messages, initialize objects, etc., you should use the `@app.after_startup` hook.
+If you want to perform some actions **AFTER** initializing the broker: send messages, initialize objects, etc., you should use the `#!python @app.after_startup` hook.

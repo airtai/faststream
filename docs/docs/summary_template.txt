@@ -62,6 +62,4 @@
     - [Acknowledgement](rabbit/ack.md)
     - [Declare Queue/Exchange](rabbit/declare.md)
     - [Message Information](rabbit/message.md)
-- Reference
-{api}
 - [Release Notes](release.md)

@@ -8,13 +8,13 @@ You can get it in a simple way too: just acces to the message object in the [Con
 
 It is an unified **FastStream** wrapper around native broker library message (`aiokafka.ConsumerRecord` in the *Kafka* case). It contains most part of required information like:
 
-* `body: bytes`
-* `decoded_body: Any`
-* `content_type: str`
-* `reply_to: str`
-* `headers: dict[str, Any]`
-* `message_id: str`
-* `correlation_id: str`
+* `#!python body: bytes`
+* `#!python decoded_body: Any`
+* `#!python content_type: str`
+* `#!python reply_to: str`
+* `#!python headers: dict[str, Any]`
+* `#!python message_id: str`
+* `#!python correlation_id: str`
 
 ```python hl_lines="1 6"
 from faststream.kafka import KafkaMessage
