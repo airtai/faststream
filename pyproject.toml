@@ -85,7 +85,7 @@ devdocs = [
 lint = [
     "types-PyYAML",
     "mypy==1.5.1",
-    "black==23.3.0",
+    "black==23.9.1",
     "isort>=5",
     "ruff==0.0.286",
     "pyupgrade-directories",
