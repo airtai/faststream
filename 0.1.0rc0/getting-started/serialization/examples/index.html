@@ -1561,7 +1561,7 @@
 <a id="__codelineno-3-20" name="__codelineno-3-20"></a>
 <a id="__codelineno-3-21" name="__codelineno-3-21"></a><span class="nd">@app</span><span class="o">.</span><span class="n">after_startup</span>
 <a id="__codelineno-3-22" name="__codelineno-3-22"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">():</span>
-<a id="__codelineno-3-23" name="__codelineno-3-23"></a><span class="hll">    <span class="n">body</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;john&quot;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">()</span>
+<a id="__codelineno-3-23" name="__codelineno-3-23"></a><span class="hll">    <span class="n">body</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;John&quot;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">()</span>
 </span><a id="__codelineno-3-24" name="__codelineno-3-24"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 <p>Note that we used the <code>NoCast</code> annotation, which excludes the message from the <code>pydantic</code> representation of our handler.</p>
@@ -1614,7 +1614,7 @@
 <a id="__codelineno-6-18" name="__codelineno-6-18"></a>
 <a id="__codelineno-6-19" name="__codelineno-6-19"></a><span class="nd">@app</span><span class="o">.</span><span class="n">after_startup</span>
 <a id="__codelineno-6-20" name="__codelineno-6-20"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">():</span>
-<a id="__codelineno-6-21" name="__codelineno-6-21"></a><span class="hll">    <span class="n">body</span> <span class="o">=</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;john&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">},</span> <span class="n">use_bin_type</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-6-21" name="__codelineno-6-21"></a><span class="hll">    <span class="n">body</span> <span class="o">=</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">},</span> <span class="n">use_bin_type</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </span><a id="__codelineno-6-22" name="__codelineno-6-22"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 <p>It is much easier than <em>Protobuf</em> schema usage. Thus, if you have no strict msg size limitations, you able to use <em>Msgpack</em> serialization almost everywhere.</p>
@@ -1628,10 +1628,10 @@
 <hr />
 <ol>
 <li id="fn:1">
-<p>For example, a message like <code class="highlight"><span class="p">{</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;john&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;age&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="w"> </span><span class="p">}</span></code> in <em>JSON</em> takes <strong>27</strong> bytes, and in <em>Protobuf</em> - <strong>11</strong>. With lists and more complex structures, the savings can be even more significant (up to 20x times).&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+<p>For example, a message like <code class="highlight"><span class="p">{</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;John&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;age&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="w"> </span><span class="p">}</span></code> in <em>JSON</em> takes <strong>27</strong> bytes, and in <em>Protobuf</em> - <strong>11</strong>. With lists and more complex structures, the savings can be even more significant (up to 20x times).&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
 </li>
 <li id="fn:2">
-<p><code class="highlight"><span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;john&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;age&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="w"> </span><span class="p">}</span></code> with <em>Msgpack</em> serialization takes <strong>16</strong> bytes.&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+<p><code class="highlight"><span class="p">{</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;John&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;age&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="w"> </span><span class="p">}</span></code> with <em>Msgpack</em> serialization takes <strong>16</strong> bytes.&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
 </li>
 </ol>
 </div>
@@ -1641,7 +1641,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-15T07:56:23+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-15</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-15T17:07:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-15</span>
       
     
   </small>

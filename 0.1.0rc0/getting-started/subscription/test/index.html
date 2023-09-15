@@ -1399,19 +1399,51 @@
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Kafka</label><label for="__tabbed_1_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span>
-<span class="normal"><a href="#__codelineno-0-2">2</a></span>
-<span class="normal"><a href="#__codelineno-0-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test-topic&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3"></a>    <span class="k">assert</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;john&quot;</span>
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">annotation_kafka.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-0-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-0-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-0-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-0-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-0-10">10</a></span>
+<span class="normal"><a href="#__codelineno-0-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test-topic&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10"></a>    <span class="k">assert</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;John&quot;</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11"></a>    <span class="k">assert</span> <span class="n">user_id</span> <span class="o">==</span> <span class="mi">1</span>
 </code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span>
-<span class="normal"><a href="#__codelineno-1-2">2</a></span>
-<span class="normal"><a href="#__codelineno-1-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test-topic&quot;</span><span class="p">)</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3"></a>    <span class="k">assert</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;john&quot;</span>
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">annotation_rabbit.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-1-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-1-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-1-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-1-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-1-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-1-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-1-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-1-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-1-10">10</a></span>
+<span class="normal"><a href="#__codelineno-1-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">(</span><span class="s2">&quot;amqp://guest:guest@localhost:5672/&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test-queue&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10"></a>    <span class="k">assert</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;John&quot;</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11"></a>    <span class="k">assert</span> <span class="n">user_id</span> <span class="o">==</span> <span class="mi">1</span>
 </code></pre></div></td></tr></table></div>
 </div>
 </div>
@@ -1458,9 +1490,9 @@
 <a id="__codelineno-2-9" name="__codelineno-2-9"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <a id="__codelineno-2-10" name="__codelineno-2-10"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">test_handle</span><span class="p">():</span>
 <a id="__codelineno-2-11" name="__codelineno-2-11"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">TestKafkaBroker</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span> <span class="k">as</span> <span class="n">br</span><span class="p">:</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12"></a>        <span class="k">await</span> <span class="n">br</span><span class="o">.</span><span class="n">publish</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;john&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="n">topic</span><span class="o">=</span><span class="s2">&quot;test-topic&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12"></a>        <span class="k">await</span> <span class="n">br</span><span class="o">.</span><span class="n">publish</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="n">topic</span><span class="o">=</span><span class="s2">&quot;test-topic&quot;</span><span class="p">)</span>
 <a id="__codelineno-2-13" name="__codelineno-2-13"></a>
-<a id="__codelineno-2-14" name="__codelineno-2-14"></a>        <span class="n">handle</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;john&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14"></a>        <span class="n">handle</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
 <a id="__codelineno-2-15" name="__codelineno-2-15"></a>
 <a id="__codelineno-2-16" name="__codelineno-2-16"></a>
 <a id="__codelineno-2-17" name="__codelineno-2-17"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
@@ -1506,9 +1538,9 @@
 <a id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <a id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">test_handle</span><span class="p">():</span>
 <a id="__codelineno-3-11" name="__codelineno-3-11"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">TestRabbitBroker</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span> <span class="k">as</span> <span class="n">br</span><span class="p">:</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12"></a>        <span class="k">await</span> <span class="n">br</span><span class="o">.</span><span class="n">publish</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;john&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="n">queue</span><span class="o">=</span><span class="s2">&quot;test-queue&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12"></a>        <span class="k">await</span> <span class="n">br</span><span class="o">.</span><span class="n">publish</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="n">queue</span><span class="o">=</span><span class="s2">&quot;test-queue&quot;</span><span class="p">)</span>
 <a id="__codelineno-3-13" name="__codelineno-3-13"></a>
-<a id="__codelineno-3-14" name="__codelineno-3-14"></a>        <span class="n">handle</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;john&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14"></a>        <span class="n">handle</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
 <a id="__codelineno-3-15" name="__codelineno-3-15"></a>
 <a id="__codelineno-3-16" name="__codelineno-3-16"></a>
 <a id="__codelineno-3-17" name="__codelineno-3-17"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
@@ -1524,7 +1556,7 @@
 </div>
 <ul>
 <li>test with real broker</li>
-<li>wait consumer called</li>
+<li>wait consumer for calling</li>
 </ul>
 <p>Show pytests setup toggle example (details in the application <a class="internal-link" href="../../config/">config</a>):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="go">REAL=True/False pytest tests</span>
@@ -1535,7 +1567,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-11T11:31:30+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-11</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-15T17:07:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-15</span>
       
     
   </small>

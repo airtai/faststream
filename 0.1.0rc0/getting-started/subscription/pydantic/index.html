@@ -688,6 +688,17 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Pydantic Serialization
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -697,6 +708,39 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pydanticfield" class="md-nav__link">
+    pydantic.Field
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pydanticbasemodel" class="md-nav__link">
+    pydantic.BaseModel
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1373,6 +1417,28 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pydanticfield" class="md-nav__link">
+    pydantic.Field
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pydanticbasemodel" class="md-nav__link">
+    pydantic.BaseModel
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1395,8 +1461,10 @@
 
 
 <h1 id="pydantic-serialization">Pydantic Serialization<a class="headerlink" href="#pydantic-serialization" title="Permanent link">#</a></h1>
-<p>For the most specific cases, where you need to setup extra validations, add something documentation information or smth else</p>
-<p>Able to use <code>pydantic.Field</code> in a subscriber type annotation</p>
+<h2 id="pydanticfield">pydantic.Field<a class="headerlink" href="#pydanticfield" title="Permanent link">#</a></h2>
+<p>Besides, <strong>FastStream</strong> uses your handlers' annotations to collect information about apllication schema and generate <a class="external-link" href="https://www.asyncapi.com" target="_blank"><strong>AsyncAPI</strong></a> schema.</p>
+<p>You may reach this information by extra details using <code>pydantic.Field</code> (like title, description and examples). Also <a class="external-link" href="https://docs.pydantic.dev/latest/usage/fields/" target="_blank">Fields</a> usage allows you to add some extra validations to your message schema.</p>
+<p>Just use <code>pydantic.Field</code> as a function default argument</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Kafka</label><label for="__tabbed_1_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1419,10 +1487,7 @@
 <span class="normal"><a href="#__codelineno-0-17">17</a></span>
 <span class="normal"><a href="#__codelineno-0-18">18</a></span>
 <span class="normal"><a href="#__codelineno-0-19">19</a></span>
-<span class="normal"><a href="#__codelineno-0-20">20</a></span>
-<span class="normal"><a href="#__codelineno-0-21">21</a></span>
-<span class="normal"><a href="#__codelineno-0-22">22</a></span>
-<span class="normal"><a href="#__codelineno-0-23">23</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">NonNegativeInt</span>
+<span class="normal"><a href="#__codelineno-0-20">20</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">NonNegativeInt</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2"></a>
 <a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
@@ -1432,19 +1497,16 @@
 <a id="__codelineno-0-8" name="__codelineno-0-8"></a>
 <a id="__codelineno-0-9" name="__codelineno-0-9"></a>
 <a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test-topic&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span>
-</span><a id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="hll">    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;john&quot;</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Registered user name&quot;</span><span class="p">),</span>
-</span><a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="hll">    <span class="n">user_id</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-</span><a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="hll">        <span class="o">...</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Registered user id&quot;</span>
-</span><a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="hll">    <span class="p">),</span>
-</span><a id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="hll"><span class="p">):</span>
-</span><a id="__codelineno-0-17" name="__codelineno-0-17"></a>    <span class="k">assert</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;john&quot;</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18"></a>    <span class="k">assert</span> <span class="n">user_id</span> <span class="o">==</span> <span class="mi">1</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19"></a>
-<a id="__codelineno-0-20" name="__codelineno-0-20"></a>
-<a id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="nd">@app</span><span class="o">.</span><span class="n">after_startup</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;john&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="n">topic</span><span class="o">=</span><span class="s2">&quot;test-topic&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="hll">    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="hll">        <span class="o">...</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;John&quot;</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Registered user name&quot;</span>
+</span><a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="hll">    <span class="p">),</span>
+</span><a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="hll">    <span class="n">user_id</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><a id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="hll">        <span class="o">...</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Registered user id&quot;</span>
+</span><a id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="hll">    <span class="p">),</span>
+</span><a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="p">):</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19"></a>    <span class="k">assert</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;John&quot;</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20"></a>    <span class="k">assert</span> <span class="n">user_id</span> <span class="o">==</span> <span class="mi">1</span>
 </code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
@@ -1467,10 +1529,7 @@
 <span class="normal"><a href="#__codelineno-1-17">17</a></span>
 <span class="normal"><a href="#__codelineno-1-18">18</a></span>
 <span class="normal"><a href="#__codelineno-1-19">19</a></span>
-<span class="normal"><a href="#__codelineno-1-20">20</a></span>
-<span class="normal"><a href="#__codelineno-1-21">21</a></span>
-<span class="normal"><a href="#__codelineno-1-22">22</a></span>
-<span class="normal"><a href="#__codelineno-1-23">23</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">NonNegativeInt</span>
+<span class="normal"><a href="#__codelineno-1-20">20</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">NonNegativeInt</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2"></a>
 <a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span>
@@ -1480,24 +1539,22 @@
 <a id="__codelineno-1-8" name="__codelineno-1-8"></a>
 <a id="__codelineno-1-9" name="__codelineno-1-9"></a>
 <a id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test-queue&quot;</span><span class="p">)</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span>
-</span><a id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="hll">    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;john&quot;</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Registered user name&quot;</span><span class="p">),</span>
-</span><a id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="hll">    <span class="n">user_id</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-</span><a id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="hll">        <span class="o">...</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Registered user id&quot;</span>
-</span><a id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="hll">    <span class="p">),</span>
-</span><a id="__codelineno-1-16" name="__codelineno-1-16"></a><span class="hll"><span class="p">):</span>
-</span><a id="__codelineno-1-17" name="__codelineno-1-17"></a>    <span class="k">assert</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;john&quot;</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18"></a>    <span class="k">assert</span> <span class="n">user_id</span> <span class="o">==</span> <span class="mi">1</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19"></a>
-<a id="__codelineno-1-20" name="__codelineno-1-20"></a>
-<a id="__codelineno-1-21" name="__codelineno-1-21"></a><span class="nd">@app</span><span class="o">.</span><span class="n">after_startup</span>
-<a id="__codelineno-1-22" name="__codelineno-1-22"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
-<a id="__codelineno-1-23" name="__codelineno-1-23"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;john&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="n">queue</span><span class="o">=</span><span class="s2">&quot;test-queue&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="hll">    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><a id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="hll">        <span class="o">...</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;John&quot;</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Registered user name&quot;</span>
+</span><a id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="hll">    <span class="p">),</span>
+</span><a id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="hll">    <span class="n">user_id</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+</span><a id="__codelineno-1-16" name="__codelineno-1-16"></a><span class="hll">        <span class="o">...</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Registered user id&quot;</span>
+</span><a id="__codelineno-1-17" name="__codelineno-1-17"></a><span class="hll">    <span class="p">),</span>
+</span><a id="__codelineno-1-18" name="__codelineno-1-18"></a><span class="p">):</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19"></a>    <span class="k">assert</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;John&quot;</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20"></a>    <span class="k">assert</span> <span class="n">user_id</span> <span class="o">==</span> <span class="mi">1</span>
 </code></pre></div></td></tr></table></div>
 </div>
 </div>
 </div>
-<p>Or make this schema reusable with the <code>pydantic.BaseModel</code></p>
+<h2 id="pydanticbasemodel">pydantic.BaseModel<a class="headerlink" href="#pydanticbasemodel" title="Permanent link">#</a></h2>
+<p>To make your message schema reusable between different subscribers and publishers you can decalre it as a <code>pydantic.BaseModel</code> and use as a single message annotation</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Kafka</label><label for="__tabbed_2_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1522,9 +1579,8 @@
 <span class="normal"><a href="#__codelineno-2-19">19</a></span>
 <span class="normal"><a href="#__codelineno-2-20">20</a></span>
 <span class="normal"><a href="#__codelineno-2-21">21</a></span>
-<span class="normal"><a href="#__codelineno-2-22">22</a></span>
-<span class="normal"><a href="#__codelineno-2-23">23</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">NonNegativeInt</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2"></a>
+<span class="normal"><a href="#__codelineno-2-22">22</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="hll"><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">NonNegativeInt</span>
+</span><a id="__codelineno-2-2" name="__codelineno-2-2"></a>
 <a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
 <a id="__codelineno-2-5" name="__codelineno-2-5"></a>
@@ -1533,19 +1589,18 @@
 <a id="__codelineno-2-8" name="__codelineno-2-8"></a>
 <a id="__codelineno-2-9" name="__codelineno-2-9"></a>
 <a id="__codelineno-2-10" name="__codelineno-2-10"></a><span class="hll"><span class="k">class</span> <span class="nc">UserInfo</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><a id="__codelineno-2-11" name="__codelineno-2-11"></a><span class="hll">    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;john&quot;</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Registered user name&quot;</span><span class="p">)</span>
-</span><a id="__codelineno-2-12" name="__codelineno-2-12"></a>    <span class="n">user_id</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Registered user id&quot;</span><span class="p">)</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13"></a>
-<a id="__codelineno-2-14" name="__codelineno-2-14"></a><span class="hll">
-</span><a id="__codelineno-2-15" name="__codelineno-2-15"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test-topic&quot;</span><span class="p">)</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">UserInfo</span><span class="p">):</span>
-<a id="__codelineno-2-17" name="__codelineno-2-17"></a>    <span class="k">assert</span> <span class="n">user</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;john&quot;</span>
-<a id="__codelineno-2-18" name="__codelineno-2-18"></a>    <span class="k">assert</span> <span class="n">user</span><span class="o">.</span><span class="n">user_id</span> <span class="o">==</span> <span class="mi">1</span>
-<a id="__codelineno-2-19" name="__codelineno-2-19"></a>
-<a id="__codelineno-2-20" name="__codelineno-2-20"></a>
-<a id="__codelineno-2-21" name="__codelineno-2-21"></a><span class="nd">@app</span><span class="o">.</span><span class="n">after_startup</span>
-<a id="__codelineno-2-22" name="__codelineno-2-22"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
-<a id="__codelineno-2-23" name="__codelineno-2-23"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;john&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="n">topic</span><span class="o">=</span><span class="s2">&quot;test-topic&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-2-11" name="__codelineno-2-11"></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12"></a>        <span class="o">...</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;John&quot;</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Registered user name&quot;</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13"></a>    <span class="p">)</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14"></a>    <span class="n">user_id</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15"></a>        <span class="o">...</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Registered user id&quot;</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16"></a>    <span class="p">)</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17"></a>
+<a id="__codelineno-2-18" name="__codelineno-2-18"></a>
+<a id="__codelineno-2-19" name="__codelineno-2-19"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test-topic&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">UserInfo</span><span class="p">):</span>
+</span><a id="__codelineno-2-21" name="__codelineno-2-21"></a>    <span class="k">assert</span> <span class="n">user</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;John&quot;</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22"></a>    <span class="k">assert</span> <span class="n">user</span><span class="o">.</span><span class="n">user_id</span> <span class="o">==</span> <span class="mi">1</span>
 </code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
@@ -1570,9 +1625,8 @@
 <span class="normal"><a href="#__codelineno-3-19">19</a></span>
 <span class="normal"><a href="#__codelineno-3-20">20</a></span>
 <span class="normal"><a href="#__codelineno-3-21">21</a></span>
-<span class="normal"><a href="#__codelineno-3-22">22</a></span>
-<span class="normal"><a href="#__codelineno-3-23">23</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">NonNegativeInt</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2"></a>
+<span class="normal"><a href="#__codelineno-3-22">22</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="hll"><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">NonNegativeInt</span>
+</span><a id="__codelineno-3-2" name="__codelineno-3-2"></a>
 <a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span>
 <a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span>
 <a id="__codelineno-3-5" name="__codelineno-3-5"></a>
@@ -1581,19 +1635,18 @@
 <a id="__codelineno-3-8" name="__codelineno-3-8"></a>
 <a id="__codelineno-3-9" name="__codelineno-3-9"></a>
 <a id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="hll"><span class="k">class</span> <span class="nc">UserInfo</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><a id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="hll">    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;john&quot;</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Registered user name&quot;</span><span class="p">)</span>
-</span><a id="__codelineno-3-12" name="__codelineno-3-12"></a>    <span class="n">user_id</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Registered user id&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13"></a>
-<a id="__codelineno-3-14" name="__codelineno-3-14"></a><span class="hll">
-</span><a id="__codelineno-3-15" name="__codelineno-3-15"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test-queue&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">UserInfo</span><span class="p">):</span>
-<a id="__codelineno-3-17" name="__codelineno-3-17"></a>    <span class="k">assert</span> <span class="n">user</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;john&quot;</span>
-<a id="__codelineno-3-18" name="__codelineno-3-18"></a>    <span class="k">assert</span> <span class="n">user</span><span class="o">.</span><span class="n">user_id</span> <span class="o">==</span> <span class="mi">1</span>
-<a id="__codelineno-3-19" name="__codelineno-3-19"></a>
-<a id="__codelineno-3-20" name="__codelineno-3-20"></a>
-<a id="__codelineno-3-21" name="__codelineno-3-21"></a><span class="nd">@app</span><span class="o">.</span><span class="n">after_startup</span>
-<a id="__codelineno-3-22" name="__codelineno-3-22"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
-<a id="__codelineno-3-23" name="__codelineno-3-23"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;john&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="n">queue</span><span class="o">=</span><span class="s2">&quot;test-queue&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-3-11" name="__codelineno-3-11"></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12"></a>        <span class="o">...</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;John&quot;</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Registered user name&quot;</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13"></a>    <span class="p">)</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14"></a>    <span class="n">user_id</span><span class="p">:</span> <span class="n">NonNegativeInt</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15"></a>        <span class="o">...</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Registered user id&quot;</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16"></a>    <span class="p">)</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17"></a>
+<a id="__codelineno-3-18" name="__codelineno-3-18"></a>
+<a id="__codelineno-3-19" name="__codelineno-3-19"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test-queue&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-20" name="__codelineno-3-20"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">UserInfo</span><span class="p">):</span>
+</span><a id="__codelineno-3-21" name="__codelineno-3-21"></a>    <span class="k">assert</span> <span class="n">user</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;John&quot;</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22"></a>    <span class="k">assert</span> <span class="n">user</span><span class="o">.</span><span class="n">user_id</span> <span class="o">==</span> <span class="mi">1</span>
 </code></pre></div></td></tr></table></div>
 </div>
 </div>
@@ -1604,7 +1657,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-08T09:19:27+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-08</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-15T17:07:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-15</span>
       
     
   </small>
