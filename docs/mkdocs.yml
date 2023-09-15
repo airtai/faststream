@@ -74,9 +74,6 @@ plugins:
             show_signature_annotations: true
   - social:                      # render social card
       enabled: !ENV [CI, false]
-  - git-revision-date-localized: # show page edition date
-      enabled: !ENV [CI, false]
-      type: timeago
   - i18n:
       docs_structure: folder
       reconfigure_material: true
@@ -86,6 +83,9 @@ plugins:
           default: true
           name: en - English
           build: true
+  - git-revision-date-localized: # show page edition date
+      enabled: !ENV [CI, false]
+      type: timeago
   - literate-nav:                # .md importable navigation
       nav_file: SUMMARY.md
 
