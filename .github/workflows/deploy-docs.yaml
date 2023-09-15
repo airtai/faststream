@@ -29,5 +29,18 @@ jobs:
                 git config --local user.name "github-actions[bot]"
             - run: echo $VERSION
             # - run: cd docs && mike delete --all
-            - run: cd docs && mike deploy --push --update-aliases $VERSION latest
-            - run: cd docs && mike set-default --push latest
+            - run: cd docs && mike deploy --update-aliases $VERSION latest
+            - run: cd docs && mike set-default latest
+            - name: Add social tags
+              run: |
+                og_tags_to_add=$(grep -E '<meta property="og:|<meta name="twitter:' "docs/site/index.html")
+                echo "$og_tags_to_add"
+                git checkout gh-pages
+                destination_html_file="index.html"
+                destination_html=$(cat "$destination_html_file")
+                modified_destination_html=${destination_html/\<\/head\>/"$og_tags_to_add"$'\n'\<\/head\>}
+                echo "$modified_destination_html" > "$destination_html_file"
+
+                git add "$destination_html_file"
+                git commit -m "Add og meta tags in index.html"
+                git push -u origin gh-pages
