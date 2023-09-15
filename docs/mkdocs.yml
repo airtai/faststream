@@ -7,6 +7,12 @@ copyright: '&copy; 2023 <a href="https://airt.ai/" target="_blank" rel="noopener
 
 docs_dir: docs
 
+watch:
+  - docs
+  - docs_src
+  - includes
+  - overrides
+
 repo_name: airtai/faststream
 repo_url: https://github.com/airtai/faststream
 edit_uri: https://github.com/airtai/faststream/tree/main/docs/docs
