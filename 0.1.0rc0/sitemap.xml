@@ -13,12 +13,6 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.1.0rc0/"/>
     </url>
     <url>
-        <loc>https://faststream.airt.ai/0.1.0rc0/features/</loc>
-        <lastmod>2023-09-16</lastmod>
-        <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.1.0rc0/features/"/>
-    </url>
-    <url>
         <loc>https://faststream.airt.ai/0.1.0rc0/release/</loc>
         <lastmod>2023-09-16</lastmod>
         <changefreq>daily</changefreq>
