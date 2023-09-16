@@ -58,6 +58,7 @@ async def fetch_and_publish_weather(
     context: ContextRepo,
     time_interval: int = 5,
 ) -> None:
+    # Always use context: ContextRepo for storing app_is_running variable
     while context.get("app_is_running"):
         uri = f"https://api.open-meteo.com/v1/forecast?current_weather=true&latitude={latitude}&longitude={longitude}"
         response = requests.get(uri)

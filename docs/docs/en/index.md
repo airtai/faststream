@@ -4,200 +4,149 @@ hide:
   - footer
 ---
 
-FastStream
-================
+# Features of FastStream
 
 <b>Effortless event stream integration for your services</b>
 
-------------------------------------------------------------------------
+---
 
-<a href="https://github.com/airtai/faststream/actions/workflows/test.yaml" target="_blank">
-  <img src="https://github.com/airtai/faststream/actions/workflows/test.yaml/badge.svg?branch=main" alt="Test Passing"/>
-</a>
-<!-- <a href="https://coverage-badge.samuelcolvin.workers.dev/redirect/airtai/faststream" target="_blank">
-    <img src="https://coverage-badge.samuelcolvin.workers.dev/airtai/faststream.svg" alt="Coverage">
-</a> -->
-<a href="https://pypi.org/project/faststream" target="_blank">
-  <img src="https://img.shields.io/pypi/v/faststream?label=PyPI" alt="Package version">
-</a>
-<a href="https://www.pepy.tech/projects/faststream" target="_blank">
-  <img src="https://static.pepy.tech/personalized-badge/faststream?period=month&units=international_system&left_color=grey&right_color=green&left_text=downloads/month" alt="Downloads"/>
-</a>
-<a href="https://pypi.org/project/faststream" target="_blank">
-  <img src="https://img.shields.io/pypi/pyversions/faststream.svg" alt="Supported Python versions">
-</a>
-<a href="https://github.com/airtai/faststream/actions/workflows/codeql.yml" target="_blank">
-  <img src="https://github.com/airtai/faststream/actions/workflows/codeql.yml/badge.svg" alt="CodeQL">
-</a>
-<a href="https://github.com/airtai/faststream/actions/workflows/dependency-review.yaml" target="_blank">
-  <img src="https://github.com/airtai/faststream/actions/workflows/dependency-review.yaml/badge.svg" alt="Dependency Review">
-</a>
-<a href="https://github.com/airtai/faststream/blob/main/LICENSE" target="_blank">
-  <img src="https://img.shields.io/github/license/airtai/faststream.png" alt="Github">
-</a>
+<p align="center">
+  <a href="https://github.com/airtai/faststream/actions/workflows/test.yaml" target="_blank">
+    <img src="https://github.com/airtai/faststream/actions/workflows/test.yaml/badge.svg?branch=main" alt="Test Passing"/>
+  </a>
 
-------------------------------------------------------------------------
+  <a href="https://coverage-badge.samuelcolvin.workers.dev/redirect/airtai/faststream" target="_blank">
+      <img src="https://coverage-badge.samuelcolvin.workers.dev/airtai/faststream.svg" alt="Coverage">
+  </a>
 
-[FastStream](https://faststream.airt.ai/) is a powerful and easy-to-use Python
-library for building asynchronous services that interact with event streams.
- Built on top of [Pydantic](https://docs.pydantic.dev/) and
-[AsyncAPI](https://www.asyncapi.com/), FastStream simplifies the process
-of writing producers and consumers for message queues, handling all the
-parsing, networking, task scheduling and data generation automatically.
-With FastStream, you can quickly prototype and develop high-performance
-event-based services with minimal code, making it an ideal choice for
-developers looking to streamline their workflow and accelerate their
-projects.
+  <a href="https://www.pepy.tech/projects/faststream" target="_blank">
+    <img src="https://static.pepy.tech/personalized-badge/faststream?period=month&units=international_system&left_color=grey&right_color=green&left_text=downloads/month" alt="Downloads"/>
+  </a>
+
+  <a href="https://pypi.org/project/faststream" target="_blank">
+    <img src="https://img.shields.io/pypi/v/faststream?label=PyPI" alt="Package version">
+  </a>
+
+  <a href="https://pypi.org/project/faststream" target="_blank">
+    <img src="https://img.shields.io/pypi/pyversions/faststream.svg" alt="Supported Python versions">
+  </a>
+
+  <br/>
+
+  <a href="https://github.com/airtai/faststream/actions/workflows/codeql.yml" target="_blank">
+    <img src="https://github.com/airtai/faststream/actions/workflows/codeql.yml/badge.svg" alt="CodeQL">
+  </a>
+
+  <a href="https://github.com/airtai/faststream/actions/workflows/dependency-review.yaml" target="_blank">
+    <img src="https://github.com/airtai/faststream/actions/workflows/dependency-review.yaml/badge.svg" alt="Dependency Review">
+  </a>
+
+  <a href="https://github.com/airtai/faststream/blob/main/LICENSE" target="_blank">
+    <img src="https://img.shields.io/github/license/airtai/faststream.png" alt="Github">
+  </a>
+
+  <a href="https://discord.gg/CJWmYpyFbc" target="_blank">
+      <img alt="Discord" src="https://img.shields.io/discord/1085457301214855171?logo=discord">
+  </a>
+</p>
+
+---
+
+[**FastStream**](https://faststream.airt.ai/) simplifies the process of writing producers and consumers for message queues, handling all the
+parsing, networking and documentatino generation automatically.
+
+Making streaming microservices has never been easier. Designed with junior developers in mind, **FastStream** simplifies your work while keeping the door open for more advanced use-cases. Here's a look at the core features that make **FastStream** a go-to framework for modern, data-centric microservices.
+
+- **Multiple Brokers**: **FastStream** provides a unified API to work across multiple message brokers (**Kafka**, **RabbitMQ** support)
+
+- [**Pydantic Validation**](#writing-app-code): Leverage [**Pydantic's**](https://docs.pydantic.dev/){.external-link target="_blank"} validation capabilities to serialize and validates incoming messages
+
+- [**Automatic Docs**](#project-documentation): Stay ahead with automatic [AsyncAPI](https://www.asyncapi.com/){.external-link target="_blank"} documentation.
+
+- **Intuitive**: full typed editor support makes your development experience smooth, catching errors before they reach runtime
+
+- [**Powerful Dependency Injection System**](#dependencies): Manage your service dependencies efficiently with **FastStream**'s built-in DI system.
+
+- [**Testable**](#testing-the-service): supports in-memory tests, making your CI/CD pipeline faster and more reliable
+
+- **Extendable**: use extensions for lifespans, custom serialization and middlewares
+
+- [**Integrations**](#any-framework): **FastStream** is fully compatible with any HTTP framework you want ([**FastAPI**](#fastapi-plugin) especially)
+
+- **Built for Automatic Code Generation**: **FastStream** is optimized for automatic code generation using advanced models like GPT and Llama
+
+That's **FastStream** in a nutshell—easy, efficient, and powerful. Whether you're just starting with streaming microservices or looking to scale, **FastStream** has got you covered.
+
+---
 
 ## History
 
-FastStream is a new package based on the ideas and experiences gained from
-[FastKafka](https://github.com/airtai/fastkafka) and
-[Propan](https://github.com/lancetnik/propan). By joining our forces, we
- picked up the best from both packages and created the unified way to write
-  services capable of processing streamed data regradless of the underliying protocol.
+**FastStream** is a new package based on the ideas and experiences gained from [FastKafka](https://github.com/airtai/fastkafka){.external-link target="_blank"} and [Propan](https://github.com/lancetnik/propan){.external-link target="_blank"}. By joining our forces, we picked up the best from both packages and created the unified way to write services capable of processing streamed data regradless of the underliying protocol. We'll continue to maintain both packages, but new development will be in this project. If you are starting a new service, this package is the recommended way to do it.
 
-  We'll continue to maintain both packages, but new development will be in this
-  project. If you are starting a new service, this package is the recommended way to do it.
-
-
-#### ⭐⭐⭐ Stay in touch ⭐⭐⭐
-
-Please show your support and stay in touch by:
-
-- giving our [GitHub repository](https://github.com/airtai/faststream/) a
-  star, and
-
-- joining our [Discord server](https://discord.gg/CJWmYpyFbc).
-
-Your support helps us to stay in touch with you and encourages us to
-continue developing and improving the library. Thank you for your
-support!
-
-------------------------------------------------------------------------
-
-<!-- #### 🐝🐝🐝 We are quite busy lately 🐝🐝🐝
-
-![Alt](https://repobeats.axiom.co/api/embed/d2d9164b6bf69bc14af4e6eb47e437b876d0dc0f.svg "Repobeats analytics image")
- -->
+---
 
 ## Install
 
-FastStream works on Linux, macOS, Windows and most Unix-style operating systems.
+**FastStream** works on **Linux**, **macOS**, **Windows** and most **Unix**-style operating systems.
 You can install it with `pip` as usual:
 
-``` sh
-pip install faststream
-```
+=== "Kafka"
+    ```sh
+    pip install faststream[kafka]
+    ```
+
+=== "RabbitMQ"
+    ```sh
+    pip install faststream[rabbit]
+    ```
+
+!!! tip ""
+    By default **FastStream** uses **PydanticV2** written in **Rust**, but you can downgrade it manually, if your platform has no **Rust** support - **FastStream** will works with the **PydanticV1** correctly as well.
+
+---
 
 ## Writing app code
 
-Here is an example python app using FastStream that consumes data from a
-topic, increments the value, and outputs the data to another topic.
-
-``` python
-{!> docs_src/kafka/basic/basic.py!}
-```
-
-### Messages
-
-FastStream uses [Pydantic](https://docs.pydantic.dev/) to parse input
-JSON-encoded data into Python objects, making it easy to work with
-structured data in your Kafka-based applications. Pydantic’s
-[`BaseModel`](https://docs.pydantic.dev/usage/models/) class allows you
-to define messages using a declarative syntax, making it easy to specify
-the fields and types of your messages.
-
-This example defines one message class for use in a FastStream
-application, `Data`.
-
-``` python hl_lines="1 7-10"
-{!> docs_src/kafka/basic/basic.py[ln:1-10]!}
-
-# Code below omitted 👇
-```
-
-<details>
-<summary>👀 Full file preview</summary>
-
-``` python
-{!> docs_src/kafka/basic/basic.py!}
-```
-
-</details>
-
-These message class will be used to parse and validate incoming data
-when consuming and to produce a JSON-encoded message when producing.
-Using Pydantic’s BaseModel in combination with FastStream makes it easy
-to work with structured data in your Event-based applications.
-
-### Application
-
-This example shows how to initialize a FastStream application.
-
-It starts by initialising a `Broker` object with the address of the Message broker.
-
-Next, an object of the `FastStream` class is created and a `Broker` object is passed to it.
-
-``` python hl_lines="3 4"
-# Code above omitted 👆
-
-{!> docs_src/kafka/basic/basic.py[ln:13-14]!}
-
-# Code below omitted 👇
-```
-
-<details>
-<summary>👀 Full file preview</summary>
-
-``` python
-{!> docs_src/kafka/basic/basic.py!}
-```
-
-</details>
-
-### Function decorators
-
-FastStream brokers provide convenient function decorators `@broker.subscriber`
-and `@broker.publisher` to allow you to delegate the actual process of
+**FastStream** brokers provide convenient function decorators `#!python @broker.subscriber`
+and `#!python @broker.publisher` to allow you to delegate the actual process of
 
 - consuming and producing data to Event queues, and
 
 - decoding and encoding JSON encoded messages
 
-from user defined functions to the framework. The FastStream framework
-delegates these jobs to AIOKafka and Pydantic libraries.
+These decorators make it easy to specify the processing logic for your consumers and producers, allowing you to focus on the core business logic of your application without worrying about the underlying integration.
 
-These decorators make it easy to specify the processing logic for your
-consumers and producers, allowing you to focus on the core
-business logic of your application without worrying about the underlying
-integration.
+Also, **FastStream** uses [**Pydantic**](https://docs.pydantic.dev/){.external-link target="_blank"} to parse input
+JSON-encoded data into Python objects, making it easy to work with structured data in your applications, so you can serialize you input messages just using type annotations.
 
-This following example shows how to use the `@broker.subscriber` and
-`@broker.publisher` decorators in a FastStream application:
+Here is an example python app using **FastStream** that consumes data from an incoming data stream and outputs the data to another one.
 
-- The `@broker.subscriber` decorator is applied to the `on_input_data`
-  function, which specifies that this function should be called whenever
-  a message is received on the “input_data” Kafka topic. The
-  `on_input_data` function takes a single argument which is expected to
-  be an instance of the `Data` message class. Specifying the type
-  of the single argument is instructing the Pydantic to use
-  `InputData.parse_raw()` on the consumed message before passing it to
-  the user defined function `on_input_data`.
+=== "Kafka"
+    ```python linenums="1" hl_lines="9"
+    {!> docs_src/index/basic_kafka.py!}
+    ```
 
-- The `@broker.publisher` decorator is applied also to the `on_input_data` function,
-  which specifies that this function should produce a message to the
-  “output_data” topic whenever it is called. The `on_input_data`
-  function takes the input data and creates a new
-  `Data` message with incremented value and then returns it. The
-  framework will call the `Data.json().encode("utf-8")` function
-  on the returned value and produce it to the specified topic.
+=== "RabbitMQ"
+    ```python linenums="1" hl_lines="9"
+    {!> docs_src/index/basic_rabbit.py!}
+    ```
 
-``` python hl_lines="17-21"
-{!> docs_src/kafka/basic/basic.py!}
-```
+Also, **Pydantic**’s [`BaseModel`](https://docs.pydantic.dev/usage/models/){.external-link target="_blank"} class allows you
+to define messages using a declarative syntax, making it easy to specify the fields and types of your messages.
 
-### Testing the service
+=== "Kafka"
+    ```python linenums="1" hl_lines="1 8 14"
+    {!> docs_src/index/pydantic_kafka.py !}
+    ```
+
+=== "RabbitMQ"
+    ```python linenums="1" hl_lines="1 8 14"
+    {!> docs_src/index/pydantic_rabbit.py !}
+    ```
+
+---
+
+## Testing the service
 
 The service can be tested using the `TestBroker` context managers which, by default, puts the Broker into "testing mode".
 
@@ -205,41 +154,25 @@ The Tester will redirect your `subscriber` and `publisher` decorated functions t
 
 Using pytest, the test for our service would look like this:
 
-``` python
-{!> docs_src/kafka/basic/test_basic.py!}
-```
+=== "Kafka"
+    ```python linenums="1" hl_lines="3 10 18-19"
+    # Code above omitted 👆
 
-First we pass our broker to the `TestKafkaBroker`
+    {!> docs_src/index/test_kafka.py [ln:3-21] !}
+    ```
 
-``` python hl_lines="3 14"
-{!> docs_src/kafka/basic/test_basic.py!}
-```
+=== "RabbitMQ"
+    ```python linenums="1" hl_lines="3 10 18-19"
+    # Code above omitted 👆
 
-After passing the broker to the `TestKafkaBroker` we can publish an event to "input_data" and check if the tested broker produced a response as a reaction to it.
-
-To check the response, we registered an additional `on_output_data` subscriber which will capture events on "output_data" topic.
-
-``` python hl_lines="10-12 19"
-{!> docs_src/kafka/basic/test_basic.py!}
-```
+    {!> docs_src/index/test_rabbit.py [ln:3-21] !}
+    ```
 
 ## Running the application
 
-The application can be started using builtin FastStream CLI command.
+The application can be started using builtin **FastStream** CLI command.
 
-First we will save our application code to `app.py` file. Here is the application code again:
-
-``` python
-{!> docs_src/kafka/basic/basic.py!}
-```
-
-In order to get all Kafka or RabbitMQ related dependancies, you must install FastStream with the `kafka` or `rabbit` options, respectively:
-
-``` sh
-pip install faststream[kafka]
-```
-
-To run the service, use the FastStream CLI command and pass the module (in this case, the file where the app implementation is located) and the app simbol to the command.
+To run the service, use the **FastStream CLI** command and pass the module (in this case, the file where the app implementation is located) and the app simbol to the command.
 
 ``` shell
 faststream run basic:app
@@ -249,21 +182,85 @@ After running the command you should see the following output:
 
 ``` shell
 INFO     - FastStream app starting...
-INFO     - input_data |            - `OnInputData` waiting for messages
+INFO     - input_data |            - `HandleMsg` waiting for messages
 INFO     - FastStream app started successfully! To exit press CTRL+C
 ```
 
-## License
+Also, **FastStream** provides you a great hotreload feature to improve your Development Experience
 
-FastStream is licensed under the Apache License 2.0
+``` shell
+faststream run basic:app --reload
+```
 
-A permissive license whose main conditions require preservation of
-copyright and license notices. Contributors provide an express grant of
-patent rights. Licensed works, modifications, and larger works may be
-distributed under different terms and without source code.
+And multiprocessing horizontal scaling feature as well
 
-The full text of the license can be found
-[here](https://raw.githubusercontent.com/airtai/faststream/main/LICENSE).
+``` shell
+faststream run basic:app --workers 3
+```
+
+You can know more about **CLI** features [here](./getting-started/cli/index.md){.internal-link}
+
+---
+
+## Project Documentation
+
+**FastStream** automatically generates documentation for your project according to the [**AsyncAPI**](https://www.asyncapi.com/){.external-link target="_blank"} specification. You can work with both generated artifacts and place a Web view of your documentation on resources available to related teams.
+
+The availability of such documentation significantly simplifies the integration of services: you can immediately see what channels and message format the application works with. And most importantly, it won't cost anything - **FastStream** has already created the docs for you!
+
+![HTML-page](../assets/img/AsyncAPI-basic-html-short.png)
+
+---
+
+## Dependencies
+
+**FastStream** (thanks to [**FastDepend**](https://lancetnik.github.io/FastDepends/){.external-link target="_blank"}) has a dependency management system close to `pytest fixtures` and `FastAPI Depends` at the same time. Function arguments declare which dependencies you want are needed, and a special decorator delivers them from the global Context object.
+
+```python linenums="1" hl_lines="9-10"
+{!> docs_src/index/dependencies.py [ln:1,6-14] !}
+```
+
+---
+
+## HTTP Frameworks integrations
+
+### Any Framework
+
+You can use **FastStream** `MQBrokers` without `FastStream` application.
+Just *start* and *stop* them according to your application lifespan.
+
+{! includes/index/integrations.md !}
+
+### **FastAPI** Plugin
+
+Also, **FastStream** can be used as part of **FastAPI**.
+
+Just import a **StreamRouter** you need and declare message handler with the same `#!python @router.subscriber(...)` and `#!python @router.publisher(...)` decorators.
+
+!!! tip
+    When used this way, **FastStream** does not utilize its own dependency and serialization system, but integrates into **FastAPI**.
+    That is, you can use `Depends`, `BackgroundTasks` and other **FastAPI** tools as if it were a regular HTTP endpoint.
+
+{! includes/getting_started/integrations/fastapi/1.md !}
+
+!!! note
+    More integration features can be found [here](./getting-started/integrations/fastapi/index.md){.internal-link}
+
+---
+
+## Stay in touch
+
+Please show your support and stay in touch by:
+
+- giving our [GitHub repository](https://github.com/airtai/faststream/) a star, and
+
+- joining our [Discord server](https://discord.gg/CJWmYpyFbc)
+
+Your support helps us to stay in touch with you and encourages us to
+continue developing and improving the library. Thank you for your
+support!
+
+---
 
 ## Contributors
 

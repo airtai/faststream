@@ -32,18 +32,16 @@ async def app_setup(context: ContextRepo):
 async def on_input_data(
     msg: Point,
     logger: Logger,
-    context: ContextRepo,
+    message_history: List[Point] = Context(),
     key: bytes = Context("message.raw_message.key"),
 ) -> None:
     logger.info(f"{msg=}")
 
-    message_history = context.get("message_history")
     message_history.append(msg)
 
     if len(message_history) > 100:
         message_history.pop(0)
 
-    context.set_global("message_history", message_history)
     last_100_messages = message_history[-10:]
 
     x_sum = 0
