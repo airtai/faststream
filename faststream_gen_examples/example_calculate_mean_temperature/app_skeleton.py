@@ -1,3 +1,5 @@
+from typing import Dict, List
+
 from pydantic import BaseModel, Field, NonNegativeFloat
 
 from faststream import Context, ContextRepo, FastStream, Logger
@@ -32,7 +34,7 @@ async def app_setup(context: ContextRepo):
 async def on_weather(
     msg: Weather,
     logger: Logger,
-    context: ContextRepo,
+    message_history: Dict[str, List[float]] = Context(),
     key: bytes = Context("message.raw_message.key"),
 ) -> None:
     """

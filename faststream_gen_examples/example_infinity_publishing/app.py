@@ -27,6 +27,7 @@ async def app_shutdown(context: ContextRepo):
 async def publish_time_task(
     logger: Logger, context: ContextRepo, time_interval: int = 5
 ):
+    # Always use context: ContextRepo for storing app_is_running variable
     while context.get("app_is_running"):
         current_time = datetime.now()
         await publisher.publish(current_time.isoformat())
