@@ -1,5 +1,4 @@
 - [FastStream](index.md)
-- [Features](features.md)
 - Tutorial
     - [Getting Started](getting-started/index.md)
     - [Subscription and Serialization](getting-started/subscription/index.md)
@@ -42,9 +41,6 @@
     - [CLI commands](getting-started/cli/index.md)
     - [Logging](getting-started/logging.md)
     - [Config Management](getting-started/config/index.md)
-    - Contributing
-        - [Development](getting-started/contributing/CONTRIBUTING.md)
-        - [Documentation](getting-started/contributing/docs.md)
 - [Kafka](kafka/index.md)
     - [Subscription](kafka/subscription.md)
     - [Publishing](kafka/publishing.md)
@@ -62,4 +58,7 @@
     - [Acknowledgement](rabbit/ack.md)
     - [Declare Queue/Exchange](rabbit/declare.md)
     - [Message Information](rabbit/message.md)
+- Contributing
+    - [Development](getting-started/contributing/CONTRIBUTING.md)
+    - [Documentation](getting-started/contributing/docs.md)
 - [Release Notes](release.md)
