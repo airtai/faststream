@@ -32,19 +32,16 @@ async def app_setup(context: ContextRepo):
 async def on_weather(
     msg: Weather,
     logger: Logger,
-    context: ContextRepo,
+    message_history: Dict[str, List[float]] = Context(),
     key: bytes = Context("message.raw_message.key"),
 ) -> None:
     logger.info(f"Weather info {msg=}")
-
-    message_history = context.get("message_history")
 
     weather_key = key.decode("utf-8")
     if weather_key not in message_history:
         message_history[weather_key] = []
 
     message_history[weather_key].append(msg.temperature)
-    context.set_global("message_history", message_history)
 
     mean_temperature = mean(message_history[weather_key][-5:])
     await publisher.publish(mean_temperature, key=key)

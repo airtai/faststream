@@ -1,3 +1,5 @@
+from typing import List
+
 from pydantic import BaseModel, Field
 
 from faststream import Context, ContextRepo, FastStream, Logger
@@ -33,7 +35,7 @@ async def app_setup(context: ContextRepo):
 async def on_input_data(
     msg: Point,
     logger: Logger,
-    context: ContextRepo,
+    message_history: List[Point] = Context(),
     key: bytes = Context("message.raw_message.key"),
 ) -> None:
     """
