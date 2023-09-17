@@ -1,6 +1,6 @@
 # Basic Subscriber
 
-To start consuming from a Kafka topic just decorate your consuming function with a `@broker.subscriber(...)` decorator passing a string as a topic key.
+To start consuming from a Kafka topic just decorate your consuming function with a `#!python @broker.subscriber(...)` decorator passing a string as a topic key.
 
 In the folowing example we will create a simple FastStream app that will consume `HelloWorld` messages from a **hello_world** topic.
 
@@ -71,7 +71,7 @@ async def on_hello_world(msg: HelloWorld, logger: Logger):
     logger.info(msg)
 ```
 
-The function decorated with the `@subscriber` decorator will be called when a message is produced to Kafka.
+The function decorated with the `#!python @broker.subscriber(...)` decorator will be called when a message is produced to Kafka.
 
 The message will then be injected into the typed msg argument of the function and its type will be used to parse the message.
 

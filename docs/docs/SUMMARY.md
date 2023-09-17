@@ -45,7 +45,6 @@
     - [Subscribing](kafka/Subscriber/index.md)
         - [Batch Subscriber](kafka/Subscriber/batch_subscriber.md)
     - [Publishing](kafka/Publisher/index.md)
-        - [Publisher Creation](kafka/Publisher/how_to_create_a_publisher.md)
         - [Batch Publishing](kafka/Publisher/batch_publisher.md)
         - [Publish With Key](kafka/Publisher/using_a_key.md)
     - [Message Information](kafka/message.md)

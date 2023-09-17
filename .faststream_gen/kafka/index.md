@@ -4,7 +4,7 @@
 
 ### What is Kafka?
 
-[Kafka](https://kafka.apache.org/) is an open-source distributed streaming platform developed by the Apache Software Foundation. It is designed to handle high-throughput, fault-tolerant, real-time data streaming. Kafka is widely used for building real-time data pipelines and streaming applications.
+[Kafka](https://kafka.apache.org/){.external-link target="_blank"} is an open-source distributed streaming platform developed by the Apache Software Foundation. It is designed to handle high-throughput, fault-tolerant, real-time data streaming. Kafka is widely used for building real-time data pipelines and streaming applications.
 
 ### Key Kafka Concepts
 
@@ -39,11 +39,11 @@ To connect to Kafka using the FastStream KafkaBroker module, follow these steps:
 
 2. **Create your processing logic:** Write a function that will consume the incoming messages in the defined format and produce a response to the defined topic
 
-3. **Decorate your processing function:** To connect your processing function to the desired Kafka topics you need to decorate it with `broker.subscriber` and `broker.publisher` decorators. Now after you start your application, your processing function will be called whenever a new message in the subscribed topic is available and produce the function return value to the topic defined in the publisher decorator.
+3. **Decorate your processing function:** To connect your processing function to the desired Kafka topics you need to decorate it with `#!python @broker.subscriber` and `#!python @broker.publisher` decorators. Now after you start your application, your processing function will be called whenever a new message in the subscribed topic is available and produce the function return value to the topic defined in the publisher decorator.
 
 Here's a simplified code example demonstrating how to establish a connection to Kafka using FastStream's KafkaBroker module:
 
-```python
+```python linenums="1"
 from faststream import FastStream
 from faststream.kafka import KafkaBroker
 
@@ -58,4 +58,4 @@ async def handle_msg(user: str, user_id: int) -> str:
 
 This minimal example illustrates how FastStream simplifies the process of connecting to Kafka and performing basic message processing from the **in_topic** to the **out-topic**. Depending on your specific use case and requirements, you can further customize your Kafka integration with FastStream to build robust and efficient streaming applications.
 
-For more advanced configuration options and detailed usage instructions, please refer to the FastStream Kafka documentation and the [offical Kafka documentation](https://kafka.apache.org/).
+For more advanced configuration options and detailed usage instructions, please refer to the FastStream Kafka documentation and the [offical Kafka documentation](https://kafka.apache.org/){.external-link target="_blank"}.

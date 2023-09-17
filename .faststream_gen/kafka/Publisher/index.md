@@ -1,6 +1,5 @@
-# Basic Publisher
+# Publishing
 
-You can use a `KafkaBroker.publisher` to produce messages to Kafka topics.
+**FastStream** KafkaBroker supports all regular [publishing usecases](../../getting-started/publishing/index.md){.internal-link}, you can use them without any changes.
 
-In this guide we will create a simple FastKafka app that will produce hello world messages to hello_world topic.
-
+In the following chapters, we will demonstrate how to use a KafkaBroker publisher in specific use cases, such as publishing batches or publishing with a key.
