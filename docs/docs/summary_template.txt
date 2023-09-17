@@ -18,7 +18,6 @@
         - [Sub-dependencies](getting-started/dependencies/sub.md)
         - [Global Dependencies](getting-started/dependencies/global.md)
         - [Dependencies with yield](getting-started/dependencies/yield.md)
-        - [Testing](getting-started/dependencies/testing.md)
     - [Context](getting-started/context/index.md)
         - [Existed Fields](getting-started/context/existed.md)
         - [Custom Context](getting-started/context/custom.md)
