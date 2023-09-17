@@ -8,7 +8,6 @@ You can easily access this information by referring to the message object in the
 
 This object serves as a unified **FastStream** wrapper around the native broker library message (for example, `aiokafka.ConsumerRecord` in the case of *Kafka*). It contains most of the required information, including:
 
-
 * `#!python body: bytes`
 * `#!python checksum: int`
 * `#!python headers: Sequence[Tuple[str, bytes]]`
