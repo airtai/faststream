@@ -1,3 +1,0 @@
-# TestKafkaBroker
-
-::: faststream.kafka.TestKafkaBroker
