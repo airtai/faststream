@@ -8,7 +8,7 @@ You can define your partition keys when using the `#!python @KafkaBroker.publish
 
 To publish a message to a Kafka topic using a key, simpliy pass the `key` parameter to the `publish` function call, like this:
 
-```python linenums="1"
+```python
 {!> docs_src/kafka/publish_with_partition_key/app.py [ln:25] !}
 ```
 
