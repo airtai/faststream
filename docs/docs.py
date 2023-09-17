@@ -164,18 +164,22 @@ def mv(path: str = typer.Argument(...), new_path: str = typer.Argument(...)):
 
 
 @app.command()
-def update_readme():
+def update_readme() -> None:
     """Update README.md by expanding embeddings in docs/docs/en/index.md"""
-    typer.echo(f"Updating README.md")
-    expand_markdown(input_markdown_path=EN_INDEX_PATH, output_markdown_path=README_PATH)
+    # todo: fix this function
+    typer.echo(f"Skipping updating README.md for now")
+    return None
 
-    remove_lines_between_dashes(file_path=README_PATH)
+    # typer.echo(f"Updating README.md")
+    # expand_markdown(input_markdown_path=EN_INDEX_PATH, output_markdown_path=README_PATH)
 
-    relative_path = os.path.relpath(EN_INDEX_PATH, BASE_DIR.parent)
-    auto_generated = f"[Note]: # (This is an auto-generated file. Please edit {relative_path} instead)\n\n"
+    # remove_lines_between_dashes(file_path=README_PATH)
 
-    existing_content = open(README_PATH).read()
-    open(README_PATH, "w").write(auto_generated + existing_content)
+    # relative_path = os.path.relpath(EN_INDEX_PATH, BASE_DIR.parent)
+    # auto_generated = f"[Note]: # (This is an auto-generated file. Please edit {relative_path} instead)\n\n"
+
+    # existing_content = open(README_PATH).read()
+    # open(README_PATH, "w").write(auto_generated + existing_content)
 
 
 @app.command()

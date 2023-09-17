@@ -104,7 +104,8 @@ def simple_dependency(a: int, b: int = 3):
 def method(a: int, d: int = Depends(simple_dependency)):
     return a + d
 
-assert method("1") == 5    ```
+assert method("1") == 5
+    ```
 
 === "Async"
     ```python hl_lines="4-5 7-8" linenums="1"
@@ -125,7 +126,8 @@ async def method(
 ):
     return a + b + c
 
-assert asyncio.run(method("1")) == 6    ```
+assert asyncio.run(method("1")) == 6
+    ```
 
     !!! tip "Be careful"
         In asynchronous code, you can use both synchronous and asynchronous dependencies.
