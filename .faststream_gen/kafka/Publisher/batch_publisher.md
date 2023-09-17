@@ -1,6 +1,6 @@
 # Publishing in batches
 
-If you want to send your data in batches `@publisher` decorator makes that possible for you. 
+If you want to send your data in batches `@publisher` decorator makes that possible for you.
 To produce in batches you need to do two things:
 
 1. When creating your publisher, set the `batch` argument to `True`
