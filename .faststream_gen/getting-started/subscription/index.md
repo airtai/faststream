@@ -31,6 +31,30 @@ The basic syntax is same in for all brokers:
     If you want to use Message Broker specific features, please visit corresponding broker documentation section.
     In the **Tutorial** section the general features are described.
 
+Also, synchronous functions are supported as well:
+
+=== "Kafka"
+    ```python
+    from faststream.kafka import KafkaBroker
+
+    broker = KafkaBroker()
+
+    @broker.subscriber("test")  # topic name
+    def handle_msg(msg_body):
+        ...
+    ```
+
+=== "RabbitMQ"
+    ```python
+    from faststream.rabbit import RabbitBroker
+
+    broker = RabbitBroker()
+
+    @broker.subscriber("test")  # queue name
+    def handle_msg(msg_body):
+        ...
+    ```
+
 ## Message body serialization
 
 Generally, **FastStream** uses your function type annotation to serialize incoming message body by [**Pydantic**](https://docs.pydantic.dev){.external-link target="_blank"}. It is pretty close to how [**FastAPI**](https://fastapi.tiangolo.com){.external-link target="_blank"} works (if you are familiar with it).
