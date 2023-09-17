@@ -12,28 +12,28 @@
         <meta name="author" content="airt">
       
       
-        <link rel="canonical" href="https://faststream.airt.ai/0.1.0rc0/kafka/subscription/">
+        <link rel="canonical" href="https://faststream.airt.ai/0.1.0rc0/kafka/Publisher/using_a_key/">
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../batch_publisher/">
       
       
-        <link rel="next" href="../publishing/">
+        <link rel="next" href="../../message/">
       
       
-      <link rel="icon" href="../../assets/img/logo.svg">
+      <link rel="icon" href="../../../assets/img/logo.svg">
       <meta name="generator" content="mkdocs-1.5.2, mkdocs-material-9.3.1">
     
     
       
-        <title>Subscription - FastStream</title>
+        <title>Publish With Key - FastStream</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.046329b4.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.046329b4.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.85d0ee34.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.85d0ee34.min.css">
       
       
 
@@ -52,13 +52,13 @@
       
     
     
-      <link rel="stylesheet" href="../../css/timeago.css">
+      <link rel="stylesheet" href="../../../css/timeago.css">
     
-      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
   
@@ -77,11 +77,11 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="Subscription - FastStream" >
+        <meta  property="og:title"  content="Publish With Key - FastStream" >
       
         <meta  property="og:description"  content="FastStream Python messaging framework documentation" >
       
-        <meta  property="og:image"  content="https://faststream.airt.ai/0.1.0rc0/assets/images/social/en/kafka/subscription.png" >
+        <meta  property="og:image"  content="https://faststream.airt.ai/0.1.0rc0/assets/images/social/en/kafka/Publisher/using_a_key.png" >
       
         <meta  property="og:image:type"  content="image/png" >
       
@@ -89,15 +89,15 @@
       
         <meta  property="og:image:height"  content="630" >
       
-        <meta  property="og:url"  content="https://faststream.airt.ai/0.1.0rc0/kafka/subscription/" >
+        <meta  property="og:url"  content="https://faststream.airt.ai/0.1.0rc0/kafka/Publisher/using_a_key/" >
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="Subscription - FastStream" >
+        <meta  name="twitter:title"  content="Publish With Key - FastStream" >
       
         <meta  name="twitter:description"  content="FastStream Python messaging framework documentation" >
       
-        <meta  name="twitter:image"  content="https://faststream.airt.ai/0.1.0rc0/assets/images/social/en/kafka/subscription.png" >
+        <meta  name="twitter:image"  content="https://faststream.airt.ai/0.1.0rc0/assets/images/social/en/kafka/Publisher/using_a_key.png" >
       
     
     
@@ -106,20 +106,20 @@
     
   
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="FastStream - Subscription" />
+  <meta property="og:title" content="FastStream - Publish With Key" />
   <meta property="og:description" content="FastStream Python messaging framework documentation" />
-  <meta property="og:url" content="https://faststream.airt.ai/0.1.0rc0/kafka/subscription/" />
+  <meta property="og:url" content="https://faststream.airt.ai/0.1.0rc0/kafka/Publisher/using_a_key/" />
   <meta property="og:image" content="https://opengraph.githubassets.com/1671805243.560327/airtai/faststream" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="FastStream - Subscription" />
+  <meta name="twitter:title" content="FastStream - Publish With Key" />
   <meta name="twitter:description" content="FastStream Python messaging framework documentation" />
   <meta name="twitter:image" content="https://opengraph.githubassets.com/1671805243.560327/airtai/faststream" />
 
-   <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+   <link href="../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
         html.glightbox-open { overflow: initial; height: 100%; }
         .gslide-title { margin-top: 0px; user-select: text; }
         .gslide-desc { color: #666; user-select: text; }
@@ -130,7 +130,7 @@
             body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
             body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
             body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}
-            </style> <script src="../../assets/javascripts/glightbox.min.js"></script></head>
+            </style> <script src="../../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -151,6 +151,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#defining-a-partition-key" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -162,7 +167,7 @@
             <div class="md-banner__inner md-grid md-typeset">
               
   You're not viewing the latest version.
-  <a href="../../..">  <!-- nosemgrep -->
+  <a href="../../../..">  <!-- nosemgrep -->
     <strong>Click here to go to latest.</strong>
   </a>
 
@@ -179,9 +184,9 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="FastStream" class="md-header__button md-logo" aria-label="FastStream" data-md-component="logo">
+    <a href="../../.." title="FastStream" class="md-header__button md-logo" aria-label="FastStream" data-md-component="logo">
       
-  <img src="../../assets/img/logo.svg" alt="logo">
+  <img src="../../../assets/img/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -198,7 +203,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Subscription
+              Publish With Key
             
           </span>
         </div>
@@ -298,7 +303,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
+      <a href="../../.." class="md-tabs__link">
         
   
     
@@ -317,7 +322,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../getting-started/" class="md-tabs__link">
+        <a href="../../../getting-started/" class="md-tabs__link">
           
   
     
@@ -339,7 +344,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+        <a href="../../" class="md-tabs__link">
           
   
     
@@ -359,7 +364,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../rabbit/" class="md-tabs__link">
+        <a href="../../../rabbit/" class="md-tabs__link">
           
   
     
@@ -379,7 +384,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../getting-started/contributing/CONTRIBUTING/" class="md-tabs__link">
+        <a href="../../../getting-started/contributing/CONTRIBUTING/" class="md-tabs__link">
           
   
     
@@ -397,7 +402,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../release/" class="md-tabs__link">
+      <a href="../../../release/" class="md-tabs__link">
         
   
     
@@ -437,9 +442,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="FastStream" class="md-nav__button md-logo" aria-label="FastStream" data-md-component="logo">
+    <a href="../../.." title="FastStream" class="md-nav__button md-logo" aria-label="FastStream" data-md-component="logo">
       
-  <img src="../../assets/img/logo.svg" alt="logo">
+  <img src="../../../assets/img/logo.svg" alt="logo">
 
     </a>
     FastStream
@@ -465,7 +470,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -498,6 +503,8 @@
           
         
       
+        
+          
         
       
         
@@ -540,7 +547,7 @@
         
   
   
-    <a href="../../getting-started/" class="md-nav__link">
+    <a href="../../../getting-started/" class="md-nav__link">
       
   
   <span class="md-ellipsis">
@@ -579,8 +586,6 @@
       
         
       
-        
-      
     
     
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
@@ -594,7 +599,7 @@
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -623,6 +628,126 @@
                 
   
   
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../Subscriber/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Subscribing
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Publishing
+  </span>
+  
+
+            </a>
+            
+              <label class="md-nav__link " for="__nav_3_3">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            Publishing
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../batch_publisher/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Batch Publishing
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -631,16 +756,70 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Publish With Key
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
-    Subscription
+    Publish With Key
   </span>
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#calling-publish-with-a-key" class="md-nav__link">
+    Calling publish with a key
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#app-example" class="md-nav__link">
+    App example
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -653,47 +832,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../publishing/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Publishing
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../batch/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Batch Pub/Sub
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../message/" class="md-nav__link">
+      <a href="../../message/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -748,7 +887,7 @@
         
   
   
-    <a href="../../rabbit/" class="md-nav__link">
+    <a href="../../../rabbit/" class="md-nav__link">
       
   
   <span class="md-ellipsis">
@@ -789,7 +928,7 @@
         
   
   
-    <a href="../../getting-started/contributing/CONTRIBUTING/" class="md-nav__link">
+    <a href="../../../getting-started/contributing/CONTRIBUTING/" class="md-nav__link">
       
   
   <span class="md-ellipsis">
@@ -814,7 +953,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../release/" class="md-nav__link">
+      <a href="../../../release/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -844,6 +983,30 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#calling-publish-with-a-key" class="md-nav__link">
+    Calling publish with a key
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#app-example" class="md-nav__link">
+    App example
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -858,7 +1021,7 @@
                   
 
   
-    <a href="https://github.com/airtai/faststream/tree/main/docs/docs/en/kafka/subscription.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/airtai/faststream/tree/main/docs/docs/en/kafka/Publisher/using_a_key.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m7 14.94 6.06-6.06 2.06 2.06L9.06 17H7v-2.06M12 20a8 8 0 0 0 8-8 8 8 0 0 0-8-8 8 8 0 0 0-8 8 8 8 0 0 0 8 8m4.7-10.65-1 1-2.05-2.05 1-1c.21-.22.56-.22.77 0l1.28 1.28c.22.21.22.56 0 .77M12 2a10 10 0 0 1 10 10 10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2"/></svg>
     </a>
@@ -866,16 +1029,73 @@
   
 
 
-  <h1>Subscription</h1>
-
-
+<h1 id="defining-a-partition-key">Defining a partition key<a class="headerlink" href="#defining-a-partition-key" title="Permanent link">#</a></h1>
+<p>Partition keys are used in Apache Kafka to determine which partition a message should be written to. This ensures that related messages are kept together in the same partition, which can be useful for ensuring order or for grouping related messages together for efficient processing. Additionally, partitioning data across multiple partitions allows Kafka to distribute load across multiple brokers and scale horizontally, while replicating data across multiple brokers provides fault tolerance.</p>
+<p>You can define your partition keys when using the <code class="highlight"><span class="nd">@KafkaBroker</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code>, this guide will demonstrate to you this feature.</p>
+<h2 id="calling-publish-with-a-key">Calling <code>publish</code> with a key<a class="headerlink" href="#calling-publish-with-a-key" title="Permanent link">#</a></h2>
+<p>To publish a message to a Kafka topic using a key, simpliy pass the <code>key</code> parameter to the <code>publish</code> function call, like this:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>    <span class="k">await</span> <span class="n">to_output_data</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">Data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">msg</span><span class="o">.</span><span class="n">data</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;key&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="app-example">App example<a class="headerlink" href="#app-example" title="Permanent link">#</a></h2>
+<p>Lest take a look at the whole app example that will consume from the <strong>input_data</strong> topic and publish with key to the <strong>output_data</strong> topic.</p>
+<p>You can see that the only difference from normal publishing is that now we pass the key to the publisher call.</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-1-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-1-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-1-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-1-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-1-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-1-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-1-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-1-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-1-10">10</a></span>
+<span class="normal"><a href="#__codelineno-1-11">11</a></span>
+<span class="normal"><a href="#__codelineno-1-12">12</a></span>
+<span class="normal"><a href="#__codelineno-1-13">13</a></span>
+<span class="normal"><a href="#__codelineno-1-14">14</a></span>
+<span class="normal"><a href="#__codelineno-1-15">15</a></span>
+<span class="normal"><a href="#__codelineno-1-16">16</a></span>
+<span class="normal"><a href="#__codelineno-1-17">17</a></span>
+<span class="normal"><a href="#__codelineno-1-18">18</a></span>
+<span class="normal"><a href="#__codelineno-1-19">19</a></span>
+<span class="normal"><a href="#__codelineno-1-20">20</a></span>
+<span class="normal"><a href="#__codelineno-1-21">21</a></span>
+<span class="normal"><a href="#__codelineno-1-22">22</a></span>
+<span class="normal"><a href="#__codelineno-1-23">23</a></span>
+<span class="normal"><a href="#__codelineno-1-24">24</a></span>
+<span class="normal"><a href="#__codelineno-1-25">25</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">NonNegativeFloat</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">FastStream</span><span class="p">,</span> <span class="n">Logger</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="k">class</span> <span class="nc">Data</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8"></a>    <span class="n">data</span><span class="p">:</span> <span class="n">NonNegativeFloat</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9"></a>        <span class="o">...</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Float data example&quot;</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10"></a>    <span class="p">)</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11"></a>
+<a id="__codelineno-1-12" name="__codelineno-1-12"></a>
+<a id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15"></a>
+<a id="__codelineno-1-16" name="__codelineno-1-16"></a>
+<a id="__codelineno-1-17" name="__codelineno-1-17"></a><span class="n">to_output_data</span> <span class="o">=</span> <span class="n">broker</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="s2">&quot;output_data&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18"></a>
+<a id="__codelineno-1-19" name="__codelineno-1-19"></a>
+<a id="__codelineno-1-20" name="__codelineno-1-20"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;input_data&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">on_input_data</span><span class="p">(</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22"></a>    <span class="n">msg</span><span class="p">:</span> <span class="n">Data</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="s2">&quot;message.raw_message.key&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;on_input_data(</span><span class="si">{</span><span class="n">msg</span><span class="si">=}</span><span class="s2">)&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-25" name="__codelineno-1-25"></a><span class="hll">    <span class="k">await</span> <span class="n">to_output_data</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">Data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">msg</span><span class="o">.</span><span class="n">data</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;key&quot;</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-07T06:58:22+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-07</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T17:55:08+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
       
     
   </small>
@@ -911,7 +1131,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Index" rel="prev">
+          <a href="../batch_publisher/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Batch Publishing" rel="prev">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -921,20 +1141,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Index
+                Batch Publishing
               </div>
             </div>
           </a>
         
         
           
-          <a href="../publishing/" class="md-footer__link md-footer__link--next" aria-label="Next: Publishing" rel="next">
+          <a href="../../message/" class="md-footer__link md-footer__link--next" aria-label="Next: Message Information" rel="next">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Publishing
+                Message Information
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -1030,14 +1250,14 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.copy", "content.action.edit"], "search": "../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.copy", "content.code.annotate", "content.action.edit"], "search": "../../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.dff1b7c8.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.dff1b7c8.min.js"></script>
       
-        <script src="../../js/timeago.min.js"></script>
+        <script src="../../../js/timeago.min.js"></script>
       
-        <script src="../../js/timeago_mkdocs_material.js"></script>
+        <script src="../../../js/timeago_mkdocs_material.js"></script>
       
     
   <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>

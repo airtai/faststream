@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://faststream.airt.ai/0.1.0rc0/kafka/message/">
       
       
-        <link rel="prev" href="../batch/">
+        <link rel="prev" href="../Publisher/using_a_key/">
       
       
         <link rel="next" href="../../rabbit/">
@@ -504,6 +504,8 @@
         
       
         
+          
+        
       
         
       
@@ -584,8 +586,6 @@
       
         
       
-        
-      
     
     
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
@@ -629,16 +629,40 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../subscription/" class="md-nav__link">
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
         
   
+  
+    <a href="../Subscriber/" class="md-nav__link">
+      
+  
   <span class="md-ellipsis">
-    Subscription
+    Subscribing
   </span>
   
 
-      </a>
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
     </li>
   
 
@@ -649,36 +673,42 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../publishing/" class="md-nav__link">
+    
+    
+      
         
+          
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../Publisher/" class="md-nav__link">
+      
   
   <span class="md-ellipsis">
     Publishing
   </span>
   
 
-      </a>
-    </li>
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
   
 
-              
-            
-              
-                
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../batch/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Batch Pub/Sub
-  </span>
-  
-
-      </a>
+      
     </li>
   
 
@@ -737,7 +767,7 @@
       
         <li class="md-nav__item">
   <a href="#message-access" class="md-nav__link">
-    Message access
+    Message Access
   </a>
   
 </li>
@@ -906,7 +936,7 @@
       
         <li class="md-nav__item">
   <a href="#message-access" class="md-nav__link">
-    Message access
+    Message Access
   </a>
   
 </li>
@@ -941,20 +971,26 @@
   
 
 
-<h1 id="access-to-message-information">Access to Message information<a class="headerlink" href="#access-to-message-information" title="Permanent link">#</a></h1>
-<p>As you know, <strong>FastStream</strong> serializes a message body and provides you access to it by function arguments. But sometimes you want to access to message_id, headers or other meta information.</p>
-<h2 id="message-access">Message access<a class="headerlink" href="#message-access" title="Permanent link">#</a></h2>
-<p>You can get it in a simple way too: just acces to the message object in the <a class="internal-link" href="../../getting-started/context/existed/">Context</a>!</p>
-<p>It is an unified <strong>FastStream</strong> wrapper around native broker library message (<code>aiokafka.ConsumerRecord</code> in the <em>Kafka</em> case). It contains most part of required information like:</p>
+<h1 id="access-to-message-information">Access to Message Information<a class="headerlink" href="#access-to-message-information" title="Permanent link">#</a></h1>
+<p>As you may know, <strong>FastStream</strong> serializes a message body and provides you access to it through function arguments. However, there are times when you need to access additional message attributes such as offsets, headers, or other metadata.</p>
+<h2 id="message-access">Message Access<a class="headerlink" href="#message-access" title="Permanent link">#</a></h2>
+<p>You can easily access this information by referring to the message object in the <a href="../../getting-started/context/existed/">Context</a>!</p>
+<p>This object serves as a unified <strong>FastStream</strong> wrapper around the native broker library message (for example, <code>aiokafka.ConsumerRecord</code> in the case of <em>Kafka</em>). It contains most of the required information, including:</p>
 <ul>
 <li><code class="highlight"><span class="n">body</span><span class="p">:</span> <span class="nb">bytes</span></code></li>
-<li><code class="highlight"><span class="n">decoded_body</span><span class="p">:</span> <span class="n">Any</span></code></li>
-<li><code class="highlight"><span class="n">content_type</span><span class="p">:</span> <span class="nb">str</span></code></li>
-<li><code class="highlight"><span class="n">reply_to</span><span class="p">:</span> <span class="nb">str</span></code></li>
-<li><code class="highlight"><span class="n">headers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span></code></li>
-<li><code class="highlight"><span class="n">message_id</span><span class="p">:</span> <span class="nb">str</span></code></li>
-<li><code class="highlight"><span class="n">correlation_id</span><span class="p">:</span> <span class="nb">str</span></code></li>
+<li><code class="highlight"><span class="n">checksum</span><span class="p">:</span> <span class="nb">int</span></code></li>
+<li><code class="highlight"><span class="n">headers</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]]</span></code></li>
+<li><code class="highlight"><span class="n">key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">aiokafka</span><span class="o">.</span><span class="n">structs</span><span class="o">.</span><span class="n">KT</span><span class="p">]</span></code></li>
+<li><code class="highlight"><span class="n">offset</span><span class="p">:</span> <span class="nb">int</span></code></li>
+<li><code class="highlight"><span class="n">partition</span><span class="p">:</span> <span class="nb">int</span></code></li>
+<li><code class="highlight"><span class="n">serialized_key_size</span><span class="p">:</span> <span class="nb">int</span></code></li>
+<li><code class="highlight"><span class="n">serialized_value_size</span><span class="p">:</span> <span class="nb">int</span></code></li>
+<li><code class="highlight"><span class="n">timestamp</span><span class="p">:</span> <span class="nb">int</span></code></li>
+<li><code class="highlight"><span class="n">timestamp_type</span><span class="p">:</span> <span class="nb">int</span></code></li>
+<li><code class="highlight"><span class="n">topic</span><span class="p">:</span> <span class="nb">str</span></code></li>
+<li><code class="highlight"><span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">aiokafka</span><span class="o">.</span><span class="n">structs</span><span class="o">.</span><span class="n">VT</span><span class="p">]</span></code></li>
 </ul>
+<p>For example, if you would like to access the headers of an incoming message, you would do so like this:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaMessage</span>
 </span><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
@@ -962,79 +998,28 @@
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">body</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="hll">    <span class="n">msg</span><span class="p">:</span> <span class="n">KafkaMessage</span><span class="p">,</span>
 </span><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">):</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">correlation_id</span><span class="p">)</span>
-</code></pre></div>
-<p>Also, if you doesn't find information you reqiure, you can get access right to the wrapped <code>aiokafka.ConsumerRecord</code>, contains total message information.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">aiokafka</span> <span class="kn">import</span> <span class="n">ConsumerRecord</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaMessage</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span><span class="n">body</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">KafkaMessage</span><span class="p">):</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="hll">    <span class="n">raw</span><span class="p">:</span> <span class="n">ConsumerRecord</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">raw_message</span>
-</span><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="message-fields-access">Message Fields access<a class="headerlink" href="#message-fields-access" title="Permanent link">#</a></h2>
-<p>But in the most cases you don't need all message fields, you need to know just one of them. You can use <a class="internal-link" href="../../getting-started/context/fields/">Context Fields access</a> feature for this reason.</p>
-<p>Like an example, you can get access to the <code>correlation_id</code> like this:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Context</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">body</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="hll">    <span class="n">cor_id</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="s2">&quot;message.correlation_id&quot;</span><span class="p">),</span>
-</span><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">):</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">cor_id</span><span class="p">)</span>
+<p>But in the most cases you don't need all message fields, you need to know just a part of them.
+You can use <a href="../../getting-started/context/fields/">Context Fields access</a> feature for this.</p>
+<p>For an example, you can get access to the <code>headers</code> like this:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Context</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">body</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="hll">    <span class="n">headers</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="s2">&quot;message.headers&quot;</span><span class="p">),</span>
+</span><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">):</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">headers</span><span class="p">)</span>
 </code></pre></div>
-<p>Or even directly to the raw message partition key:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Context</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">body</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="hll">    <span class="n">key</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="s2">&quot;message.raw_message.key&quot;</span><span class="p">),</span>
-</span><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">):</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-</code></pre></div>
-<p>But this code is a too long to reuse it everywhere. Thus, you can use python <a class="external-link" href="https://docs.python.org/3/library/typing.html#typing.Annotated" target="_blank"><code>Annotated</code></a> feature:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">python 3.9+</label><label for="__tabbed_1_2">python 3.6+</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">Annotated</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Context</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="hll"><span class="n">PartitionKey</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Context</span><span class="p">(</span><span class="s2">&quot;message.raw_message.key&quot;</span><span class="p">)]</span>
-</span><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="n">body</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="hll">    <span class="n">key</span><span class="p">:</span> <span class="n">PartitionKey</span><span class="p">,</span>
-</span><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="p">):</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Annotated</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Context</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="hll"><span class="n">PartitionKey</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Context</span><span class="p">(</span><span class="s2">&quot;message.raw_message.key&quot;</span><span class="p">)]</span>
-</span><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="n">body</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="hll">    <span class="n">key</span><span class="p">:</span> <span class="n">PartitionKey</span><span class="p">,</span>
-</span><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="p">):</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-</code></pre></div>
-</div>
-</div>
-</div>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-15T07:56:23+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-15</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T17:55:08+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
       
     
   </small>
@@ -1070,7 +1055,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../batch/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Batch Pub/Sub" rel="prev">
+          <a href="../Publisher/using_a_key/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Publish With Key" rel="prev">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -1080,7 +1065,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Batch Pub/Sub
+                Publish With Key
               </div>
             </div>
           </a>
@@ -1189,7 +1174,7 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.copy", "content.action.edit"], "search": "../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.copy", "content.code.annotate", "content.action.edit"], "search": "../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.dff1b7c8.min.js"></script>

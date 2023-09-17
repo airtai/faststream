@@ -18,7 +18,7 @@
         <link rel="prev" href="../getting-started/config/">
       
       
-        <link rel="next" href="subscription/">
+        <link rel="next" href="Subscriber/">
       
       
       <link rel="icon" href="../assets/img/logo.svg">
@@ -26,7 +26,7 @@
     
     
       
-        <title>Index - FastStream</title>
+        <title>Kafka routing - FastStream</title>
       
     
     
@@ -77,7 +77,7 @@
       
         <meta  property="og:type"  content="website" >
       
-        <meta  property="og:title"  content="Index - FastStream" >
+        <meta  property="og:title"  content="Kafka routing - FastStream" >
       
         <meta  property="og:description"  content="FastStream Python messaging framework documentation" >
       
@@ -93,7 +93,7 @@
       
         <meta  name="twitter:card"  content="summary_large_image" >
       
-        <meta  name="twitter:title"  content="Index - FastStream" >
+        <meta  name="twitter:title"  content="Kafka routing - FastStream" >
       
         <meta  name="twitter:description"  content="FastStream Python messaging framework documentation" >
       
@@ -106,7 +106,7 @@
     
   
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="FastStream - Index" />
+  <meta property="og:title" content="FastStream - Kafka routing" />
   <meta property="og:description" content="FastStream Python messaging framework documentation" />
   <meta property="og:url" content="https://faststream.airt.ai/0.1.0rc0/kafka/" />
   <meta property="og:image" content="https://opengraph.githubassets.com/1671805243.560327/airtai/faststream" />
@@ -115,7 +115,7 @@
   <meta property="og:image:height" content="630" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="FastStream - Index" />
+  <meta name="twitter:title" content="FastStream - Kafka routing" />
   <meta name="twitter:description" content="FastStream Python messaging framework documentation" />
   <meta name="twitter:image" content="https://opengraph.githubassets.com/1671805243.560327/airtai/faststream" />
 
@@ -150,6 +150,11 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
+      
+        
+        <a href="#kafka-routing" class="md-skip">
+          Skip to content
+        </a>
       
     </div>
     <div data-md-component="announce">
@@ -198,7 +203,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Index
+              Kafka routing
             
           </span>
         </div>
@@ -499,6 +504,8 @@
         
       
         
+          
+        
       
         
       
@@ -579,8 +586,6 @@
       
         
       
-        
-      
     
     
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
@@ -624,16 +629,40 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="subscription/" class="md-nav__link">
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
         
   
+  
+    <a href="Subscriber/" class="md-nav__link">
+      
+  
   <span class="md-ellipsis">
-    Subscription
+    Subscribing
   </span>
   
 
-      </a>
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
     </li>
   
 
@@ -644,36 +673,42 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="publishing/" class="md-nav__link">
+    
+    
+      
         
+          
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="Publisher/" class="md-nav__link">
+      
   
   <span class="md-ellipsis">
     Publishing
   </span>
   
 
-      </a>
-    </li>
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
   
 
-              
-            
-              
-                
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="batch/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Batch Pub/Sub
-  </span>
-  
-
-      </a>
+      
     </li>
   
 
@@ -836,6 +871,77 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#kafka-overview" class="md-nav__link">
+    Kafka Overview
+  </a>
+  
+    <nav class="md-nav" aria-label="Kafka Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-is-kafka" class="md-nav__link">
+    What is Kafka?
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-kafka-concepts" class="md-nav__link">
+    Key Kafka Concepts
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kafka-topics" class="md-nav__link">
+    Kafka Topics
+  </a>
+  
+    <nav class="md-nav" aria-label="Kafka Topics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#understanding-kafka-topics" class="md-nav__link">
+    Understanding Kafka Topics
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#faststream-kafkabroker" class="md-nav__link">
+    FastStream KafkaBroker
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#establishing-a-connection" class="md-nav__link">
+    Establishing a Connection
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -858,16 +964,69 @@
   
 
 
-  <h1>Index</h1>
-
-
+<h1 id="kafka-routing">Kafka routing<a class="headerlink" href="#kafka-routing" title="Permanent link">#</a></h1>
+<h2 id="kafka-overview">Kafka Overview<a class="headerlink" href="#kafka-overview" title="Permanent link">#</a></h2>
+<h3 id="what-is-kafka">What is Kafka?<a class="headerlink" href="#what-is-kafka" title="Permanent link">#</a></h3>
+<p><a class="external-link" href="https://kafka.apache.org/" target="_blank">Kafka</a> is an open-source distributed streaming platform developed by the Apache Software Foundation. It is designed to handle high-throughput, fault-tolerant, real-time data streaming. Kafka is widely used for building real-time data pipelines and streaming applications.</p>
+<h3 id="key-kafka-concepts">Key Kafka Concepts<a class="headerlink" href="#key-kafka-concepts" title="Permanent link">#</a></h3>
+<h4 id="1-publish-subscribe-model">1. Publish-Subscribe Model<a class="headerlink" href="#1-publish-subscribe-model" title="Permanent link">#</a></h4>
+<p>Kafka is built around the publish-subscribe messaging model. In this model, data is published to topics, and multiple consumers can subscribe to these topics to receive the data. This decouples the producers of data from the consumers, allowing for flexibility and scalability.</p>
+<h4 id="2-topics">2. Topics<a class="headerlink" href="#2-topics" title="Permanent link">#</a></h4>
+<p>A <strong>topic</strong> in Kafka is a logical channel or category to which messages are published by producers and from which messages are consumed by consumers. Topics are used to organize and categorize data streams. Each topic can have multiple <strong>partitions</strong>, which enable Kafka to distribute data and provide parallelism for both producers and consumers.</p>
+<h2 id="kafka-topics">Kafka Topics<a class="headerlink" href="#kafka-topics" title="Permanent link">#</a></h2>
+<h3 id="understanding-kafka-topics">Understanding Kafka Topics<a class="headerlink" href="#understanding-kafka-topics" title="Permanent link">#</a></h3>
+<p>Topics are fundamental to Kafka and serve as the central point of data distribution. Here are some key points about topics:</p>
+<ul>
+<li>Topics allow you to logically group and categorize messages.</li>
+<li>Each message sent to Kafka is associated with a specific topic.</li>
+<li>Topics can have one or more partitions to enable parallel processing and scaling.</li>
+<li>Consumers subscribe to topics to receive messages.</li>
+</ul>
+<h3 id="faststream-kafkabroker">FastStream KafkaBroker<a class="headerlink" href="#faststream-kafkabroker" title="Permanent link">#</a></h3>
+<p>The FastStream KafkaBroker is a key component of the FastStream library that enables seamless integration with Apache Kafka. With the KafkaBroker, developers can easily connect to Kafka brokers, produce messages to Kafka topics, and consume messages from Kafka topics within their FastStream applications.</p>
+<h3 id="establishing-a-connection">Establishing a Connection<a class="headerlink" href="#establishing-a-connection" title="Permanent link">#</a></h3>
+<p>To connect to Kafka using the FastStream KafkaBroker module, follow these steps:</p>
+<ol>
+<li>
+<p><strong>Initialize the KafkaBroker instance:</strong> Start by initializing a KafkaBroker instance with the necessary configuration, including Kafka broker address.</p>
+</li>
+<li>
+<p><strong>Create your processing logic:</strong> Write a function that will consume the incoming messages in the defined format and produce a response to the defined topic</p>
+</li>
+<li>
+<p><strong>Decorate your processing function:</strong> To connect your processing function to the desired Kafka topics you need to decorate it with <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span></code> and <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">publisher</span></code> decorators. Now after you start your application, your processing function will be called whenever a new message in the subscribed topic is available and produce the function return value to the topic defined in the publisher decorator.</p>
+</li>
+</ol>
+<p>Here's a simplified code example demonstrating how to establish a connection to Kafka using FastStream's KafkaBroker module:</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-0-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-0-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-0-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-0-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-0-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;in-topic&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="s2">&quot;out-topic&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle_msg</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10"></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;User: </span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">user</span><span class="si">}</span><span class="s2"> registered&quot;</span>
+</code></pre></div></td></tr></table></div>
+<p>This minimal example illustrates how FastStream simplifies the process of connecting to Kafka and performing basic message processing from the <strong>in_topic</strong> to the <strong>out-topic</strong>. Depending on your specific use case and requirements, you can further customize your Kafka integration with FastStream to build robust and efficient streaming applications.</p>
+<p>For more advanced configuration options and detailed usage instructions, please refer to the FastStream Kafka documentation and the <a class="external-link" href="https://kafka.apache.org/" target="_blank">offical Kafka documentation</a>.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-07T06:58:22+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-07</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T17:55:08+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
       
     
   </small>
@@ -920,13 +1079,13 @@
         
         
           
-          <a href="subscription/" class="md-footer__link md-footer__link--next" aria-label="Next: Subscription" rel="next">
+          <a href="Subscriber/" class="md-footer__link md-footer__link--next" aria-label="Next: Basic Subscriber" rel="next">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Subscription
+                Basic Subscriber
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -1022,7 +1181,7 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.copy", "content.action.edit"], "search": "../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.copy", "content.code.annotate", "content.action.edit"], "search": "../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.dff1b7c8.min.js"></script>

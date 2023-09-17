@@ -504,6 +504,8 @@
         
       
         
+          
+        
       
         
       
@@ -574,8 +576,6 @@
       
         
           
-        
-      
         
       
         
@@ -1111,18 +1111,15 @@
 </code></pre></div></td></tr></table></div>
 <p>This way all <strong>FastStream</strong> brokers are working: you don't need to learn them deeper if you want to <em>just send a message</em></p>
 <h2 id="rabbitmq-details">RabbitMQ details<a class="headerlink" href="#rabbitmq-details" title="Permanent link">#</a></h2>
-<p>If you are already known about <strong>RabbitMQ</strong> logic, you should know about the example above inner logic too.
-In this case <strong>FastStream</strong> creates or validates <strong>routing_key</strong> name queue and bind it to the <strong>RabbitMQ</strong> default exchange.</p>
-<p>If you want to specify <em>queue</em>-<em>exchange</em> pair with any arguments, <strong>FastStream</strong> provides you with we ability to make it too.
-You can use special <code>RabbitQueue</code> and <code>RabbitExchange</code> objects to setup any RabbitMQ queues, exchanges and bindings properties.
-The examples of various exchanges usage you can find in the following articles.</p>
+<p>If you are already familiar with the <strong>RabbitMQ</strong> logic, you should also understand the inner logic explained above. In this case, <strong>FastStream</strong> creates or validates a queue with the specified <strong>routing_key</strong> name and binds it to the <strong>RabbitMQ</strong> default exchange.</p>
+<p>If you want to specify a <em>queue</em>-<em>exchange</em> pair with additional arguments, <strong>FastStream</strong> provides you with the ability to do so. You can use the special <code>RabbitQueue</code> and <code>RabbitExchange</code> objects to configure RabbitMQ queues, exchanges, and binding properties. Examples of various exchange usages can be found in the following articles.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-15T07:56:23+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-15</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T17:55:08+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
       
     
   </small>
@@ -1277,7 +1274,7 @@ The examples of various exchanges usage you can find in the following articles.<
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.copy", "content.action.edit"], "search": "../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["search.suggest", "search.highlight", "navigation.tabs", "navigation.tabs.sticky", "navigation.indexes", "navigation.tracking", "navigation.prune", "navigation.top", "navigation.footer", "content.tabs.link", "content.code.copy", "content.code.annotate", "content.action.edit"], "search": "../../assets/javascripts/workers/search.dfff1995.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.dff1b7c8.min.js"></script>
