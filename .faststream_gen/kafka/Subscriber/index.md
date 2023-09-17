@@ -32,7 +32,7 @@ async def on_hello_world(msg: HelloWorld, logger: Logger):
 
 ## Import FastStream and KafkaBroker
 
-To use the `@subscriber` decorator, first we need to import the base FastStream app KafkaBroker to create our broker.
+To use the `#!python @broker.subscriber(...)` decorator, first we need to import the base FastStream app KafkaBroker to create our broker.
 
 ```python linenums="1"
 from faststream import FastStream, Logger
