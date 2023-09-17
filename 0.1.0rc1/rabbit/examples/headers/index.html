@@ -1158,9 +1158,8 @@
 
 
 <h1 id="header-exchange">Header Exchange<a class="headerlink" href="#header-exchange" title="Permanent link">#</a></h1>
-<p><strong>Header</strong> Exchange is the most complex and flexible way to route messages in <em>RabbitMQ</em>. This <code>exchange</code> type sends messages
-to queues in according the matching of a queues binding arguments  with message headers.</p>
-<p>At the same time, if the queue listens to several consumers, messages will also be distributed among them.</p>
+<p><strong>Header</strong> Exchange is the most complex and flexible way to route messages in <em>RabbitMQ</em>. This <code>exchange</code> type sends messages to queues according by matching the queue binding arguments with message headers.</p>
+<p>At the same time, if several consumers are subscribed to the queue, messages will also be distributed among them.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">#</a></h2>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
@@ -1273,7 +1272,7 @@ to queues in according the matching of a queues binding arguments  with message 
 <a id="__codelineno-0-55" name="__codelineno-0-55"></a>    <span class="p">)</span>  <span class="c1"># handlers: 3, 4</span>
 </code></pre></div></td></tr></table></div>
 <h3 id="consumer-announcement">Consumer Announcement<a class="headerlink" href="#consumer-announcement" title="Permanent link">#</a></h3>
-<p>To begin with, we announced our <strong>Fanout</strong> exchange and several queues that will listen to it:</p>
+<p>First, we announce our <strong>Fanout</strong> exchange and several queues that will listen to it:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-7"> 7</a></span>
 <span class="normal"><a href="#__codelineno-1-8"> 8</a></span>
 <span class="normal"><a href="#__codelineno-1-9"> 9</a></span>
@@ -1397,7 +1396,7 @@ Here we emulate the work of several consumers and load balancing between them.</
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-14T06:38:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-14</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T19:52:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
       
     
   </small>

@@ -1043,11 +1043,11 @@
 
 <h1 id="publishing">Publishing<a class="headerlink" href="#publishing" title="Permanent link">#</a></h1>
 <p><strong>FastStream</strong> RabbitBroker supports all regular <a class="internal-link" href="../../getting-started/publishing/">publishing usecases</a>, you can use them without any changes.</p>
-<p>The only one RMQ specific thing - these methods parameters, so you should know about all of them.</p>
+<p>However, if you whish to further customize the publishing logic further, you should take a more deep-dive look at specific RabbitBroker parameters.</p>
 <h2 id="rabbit-publishing">Rabbit Publishing<a class="headerlink" href="#rabbit-publishing" title="Permanent link">#</a></h2>
-<p><code>RabbitBroker</code> also uses the unified <code>publish</code> method (as a <code>publisher</code> object too) to send a message.</p>
+<p><code>RabbitBroker</code> also uses the unified <code>publish</code> method (from a <code>publisher</code> object) to send messages.</p>
 <p>However, in this case, an object of the <code>aio_pika.Message</code> class (if necessary) can be used as a message (in addition to python primitives and <code>pydantic.BaseModel</code>).</p>
-<p>You can specify queue (uses as a routing_key) and exchange (optionally) to send by their name.</p>
+<p>You can specify queue (used as a routing_key) and exchange (optionally) to send by their name.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span> <span class="nn">asyncio</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -1061,7 +1061,7 @@
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">pub</span><span class="p">())</span>
 </code></pre></div>
-<p>If you don't specify any exchange, message will be send to the default one.</p>
+<p>If you don't specify any exchange, the message will be send to the default one.</p>
 <p>Also, you able to use special <strong>RabbitQueue</strong> and <strong>RabbitExchange</strong> objects as a <code>queue</code> and <code>exchange</code> arguments:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitExchange</span><span class="p">,</span> <span class="n">RabbitQueue</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
@@ -1071,12 +1071,11 @@
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">exchange</span><span class="o">=</span><span class="n">RabbitExchange</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">)</span>
 </code></pre></div>
-<p>If you specify not-existed exchange, RabbitBroker creates a required one and then publish a message.</p>
+<p>If you specify exchange that doesn't exist, RabbitBroker will create a required one and then publish a message to it.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Be accurate with it: if you have already created <strong>Exchange</strong> with specific parameters and try to send a message by exchange name to it,
-<strong>FastStream</strong> converts your string to <strong>RabbitExchange</strong> object with default parameters and broker will try to create it. So, <strong>Exchange</strong> parameters conflict will occure.</p>
-<p>If you are trying to send a message to specific <strong>Exchange</strong> - sending with a <strong>RabbitExchange</strong> object is a preffered way.</p>
+<p>Be accurate with it: if you have already created an <strong>Exchange</strong> with specific parameters and try to send a message by exchange name to it, the broker will try to create it. So, <strong>Exchange</strong> parameters conflict will occure.</p>
+<p>If you are trying to send a message to specific <strong>Exchange</strong> - sending it with a defined <strong>RabbitExchange</strong> object is the preffered way.</p>
 </div>
 <h2 id="basic-arguments">Basic arguments<a class="headerlink" href="#basic-arguments" title="Permanent link">#</a></h2>
 <p>The <code>publish</code> method takes the following arguments:</p>
@@ -1087,16 +1086,16 @@
 <li><code class="highlight"><span class="n">routing_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span></code> - also a message routing key, if not specified, the <code>queue</code> argument will be used</li>
 </ul>
 <h2 id="message-parameters">Message parameters<a class="headerlink" href="#message-parameters" title="Permanent link">#</a></h2>
-<p>You can read more about all the flags in the <a class="external-link" href="https://www.rabbitmq.com/consumers.html" target="_blank">RabbitMQ documentation</a></p>
+<p>You can read more about all the available flags in the <a class="external-link" href="https://www.rabbitmq.com/consumers.html" target="_blank">RabbitMQ documentation</a></p>
 <ul>
 <li><code class="highlight"><span class="n">headers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></code> - message headers (used by consumers)</li>
-<li><code class="highlight"><span class="n">content_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></code> - the content_type of the message being sent (setted automatically, used by consumers)</li>
+<li><code class="highlight"><span class="n">content_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></code> - the content_type of the message being sent (set automatically, used by consumers)</li>
 <li><code class="highlight"><span class="n">content_encoding</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></code> - encoding of the message (used by consumers)</li>
 <li><code class="highlight"><span class="n">persist</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></code> - restore messages on <em>RabbitMQ</em> reboot</li>
 <li><code class="highlight"><span class="n">priority</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></code> - the priority of the message</li>
 <li><code class="highlight"><span class="n">correlation_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></code> - message id, which helps to match the original message with the reply to it (generated automatically)</li>
 <li><code class="highlight"><span class="n">message_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></code> - message ID (generated automatically)</li>
-<li><code class="highlight"><span class="n">timestamp</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">time</span> <span class="n">delta</span> <span class="o">|</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></code> - message sending time (setted automatically)</li>
+<li><code class="highlight"><span class="n">timestamp</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">time</span> <span class="n">delta</span> <span class="o">|</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></code> - message sending time (set automatically)</li>
 <li><code class="highlight"><span class="n">expiration</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">time</span> <span class="n">delta</span> <span class="o">|</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></code> - message lifetime (in seconds)</li>
 <li><code class="highlight"><span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></code> - the type of message (used by consumers)</li>
 <li><code class="highlight"><span class="n">user_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></code> - ID of the <em>RabbitMQ</em> user who sent the message</li>
@@ -1115,7 +1114,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-15T07:56:23+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-15</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T19:52:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
       
     
   </small>

@@ -948,8 +948,8 @@
 
 
 <h1 id="rabbitmq-queueexchange-declaration">RabbitMQ Queue/Exchange Declaration<a class="headerlink" href="#rabbitmq-queueexchange-declaration" title="Permanent link">#</a></h1>
-<p><strong>FastStream</strong> declares and validates all using by <em>publishers</em> and <em>subscribers</em> <em>RabbitMQ</em> objects manually, but sometimes you need to declare not-using object manually.</p>
-<p>This reason <strong>RabbitBroker</strong> provides you a methods to make it easely.</p>
+<p><strong>FastStream</strong> declares and validates all exchanges and queues using <em>publishers</em> and <em>subscribers</em> <em>RabbitMQ</em> objects, but sometimes you need to declare them manually.</p>
+<p><strong>RabbitBroker</strong> provides a way to achieve this easily.</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
@@ -1004,10 +1004,10 @@
 </span><a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="hll">        <span class="p">)</span>
 </span><a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="hll">    <span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
-<p>These methods require just a one argument (<code>RabbitQueue</code>/<code>RabbitExchange</code>) containing information about your <em>RabbitMQ</em> required objects. They are declare/validates <em>RabbitMQ</em> objects and returns you low-level <strong>aio-pika</strong> robust objects to interact with.</p>
+<p>These methods require just a one argument (<code>RabbitQueue</code>/<code>RabbitExchange</code>) containing information about your <em>RabbitMQ</em> required objects. They declare/validate <em>RabbitMQ</em> objects and return low-level <strong>aio-pika</strong> robust objects to interact with.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Also, these methods are indempotence, so you can call them with the same arguments multiple times, but the objects will creates just at once, next times the method will return already stored in memory object. This way you can get access to any queue/exchange created automatically.</p>
+<p>Also, these methods are indempotent, so you can call them with the same arguments multiple times, but the objects will be created once, next time the method will return already stored object. This way you can get access to any queue/exchange created automatically.</p>
 </div>
 
   <hr>
@@ -1015,7 +1015,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-14T06:38:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-14</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T19:52:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
       
     
   </small>

@@ -996,16 +996,16 @@
 <h1 id="rabbit-routing">Rabbit Routing<a class="headerlink" href="#rabbit-routing" title="Permanent link">#</a></h1>
 <h2 id="advantages">Advantages<a class="headerlink" href="#advantages" title="Permanent link">#</a></h2>
 <p>The advantage of <em>RabbitMQ</em> is the ability to configure flexible and complex message routing scenarios.</p>
-<p><em>RabbitMQ</em> covers the whole range of routing: from one queue - one consumer, to a queue retrieved from several sources, and the prioritization of messages also works.</p>
+<p><em>RabbitMQ</em> covers the whole range of routing: from one queue - one consumer, to a queue retrieved from several sources, including message prioritization.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For more information about <em>RabbitMQ</em>, please visit the <a class="external-link" href="https://www.rabbitmq.com/tutorials/amqp-concepts.html" target="_blank">official documentation</a></p>
 </div>
-<p>At the same time, it supports the ability to successfully process messages, mark them as processed with an error, remove them from the queue (it is also impossible to receive more messages processed, unlike <strong>Kafka</strong>), lock it for the processing duration, and monitor its current status.</p>
-<p>Having to keep track of the current status of all messages is a cause of the <strong>RabbitMQ</strong> performance falling. With really large message volumes, <strong>RabbitMQ</strong> starts to degrade. However, if this was a "one-time influx", then as consumers will free it, the "health" of <strong>RabbitMQ</strong> will be restored.</p>
+<p>It supports the ability to successfully process messages, mark them as processed with an error, remove them from the queue (it is also impossible to re-receive processed messages, unlike <strong>Kafka</strong>), lock it for the processing duration, and monitor its current status.</p>
+<p>Having to keep track of the current status of all messages is a cause of the <strong>RabbitMQ</strong> performance issues. With really large message volumes, <strong>RabbitMQ</strong> starts to degrade. However, if this was a "one-time influx", then consumers will free the queue of messages and the "health" of <strong>RabbitMQ</strong> will be stable.</p>
 <p>If your scenario is not based on processing millions of messages, and also requires building complex routing logic - <strong>RabbitMQ</strong> you will be right choice.</p>
 <h2 id="basic-concepts">Basic concepts<a class="headerlink" href="#basic-concepts" title="Permanent link">#</a></h2>
-<p>If you want to totally understand how <em>RabbitMQ</em> works, you should visit their official website. Here you will find top-level comments about the basic concepts and usage examples.</p>
+<p>If you want to totally understand how <em>RabbitMQ</em> works, you should visit their official website. There you will find top-level comments about the basic concepts and usage examples.</p>
 <h3 id="entities">Entities<a class="headerlink" href="#entities" title="Permanent link">#</a></h3>
 <p><em>RabbitMQ</em> works with three main entities:</p>
 <ul>
@@ -1026,16 +1026,15 @@
 <p class="admonition-title">Tip</p>
 <p>By default, all queues have <code>binding</code> to <code>default exchange</code> (<strong>Direct</strong> type) with <strong>routing key</strong> corresponding to their name.
 In <strong>FastStream</strong>, queues are connected to this <code>exchange</code> and messages are sent by default unless another <code>exchange</code> is explicitly specified.</p>
-<div class="admonition warning">
-<p>With connecting the queue to any other <code>exchange</code>, it still remains subscribed to the `default exchange'. Be careful with this.</p>
-</div>
+<div class="admonition warning"></div>
+<p>Connecting the queue to any other <code>exchange</code> will still leave it subscribed to the `default exchange'. Be careful with this.</p>
 </div>
 <p>At this stage, the message gets into your application - and you start processing it.</p>
 <h3 id="message-statuses">Message statuses<a class="headerlink" href="#message-statuses" title="Permanent link">#</a></h3>
-<p><em>RabbitMQ</em> requires confirmation of message processing: only after that it will be removed from a queue.</p>
+<p><em>RabbitMQ</em> requires confirmation of message processing: only after that it will be removed from the queue.</p>
 <p>Confirmation can be either positive (<code>Acknowledgment - ack</code>) if the message was successfully processed, or negative (<code>Negative Acknowledgment - nack</code>) if the message was processed with an error.</p>
 <p>At the same time, in case of an error, the message can also be extracted from the queue (<code>reject</code>), otherwise, after a negative confirmation, it will be requeued for processing again.</p>
-<p>In most cases, <strong>FastStream</strong> performs all the necessary actions by itself: however, if you want to manage the message lifecycle directly, you can access the message object itself and call the appropriate methods directly. This can be useful if you want to implement an "at most once" policy and you need to confirm receipt of the message before it is actually processed.</p>
+<p>In most cases, <strong>FastStream</strong> performs all the necessary actions by itself: however, if you want to manage the message lifecycle directly, you can access the message object itself and call the appropriate methods directly. This can be useful if you want to implement an "at most once" policy and you need to confirm the consuming of the message before it is actually processed.</p>
 <h2 id="faststream-specific"><strong>FastStream</strong> specific<a class="headerlink" href="#faststream-specific" title="Permanent link">#</a></h2>
 <p><strong>FastStream</strong> omits the ability to create <code>bindings</code> directly, since in most cases you do not need to subscribe one queue to several <code>exchanges</code> or subscribe <code>exchanges</code> to each other. On the contrary, this practice leads to over-complication of the message routing scheme, which makes it difficult to maintain and further develop the entire infrastructure of services.</p>
 <p><strong>FastStream</strong> suggests you adhere to the scheme <code>exchange:queue</code> as <code>1:N</code>, which will greatly simplify the scheme of interaction between your services. It is better to create an additional queue for a new <code>exchange</code> than to subscribe to an existing one.</p>
@@ -1046,7 +1045,7 @@ In <strong>FastStream</strong>, queues are connected to this <code>exchange</cod
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-14T06:38:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-14</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T19:52:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
       
     
   </small>

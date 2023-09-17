@@ -1071,7 +1071,7 @@
 
 
 <h1 id="basic-subscriber">Basic Subscriber<a class="headerlink" href="#basic-subscriber" title="Permanent link">#</a></h1>
-<p>If you know nothing about <strong>RabbitMQ</strong> and how it works you still able to use <strong>FastStream RabbitBroker</strong>.</p>
+<p>If you know nothing about <strong>RabbitMQ</strong> and how it works you will still able to use <strong>FastStream RabbitBroker</strong>.</p>
 <p>Just use <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> method with a string as a routing key.</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
@@ -1109,17 +1109,18 @@
 <a id="__codelineno-0-17" name="__codelineno-0-17"></a>        <span class="s2">&quot;routing_key&quot;</span><span class="p">,</span>  <span class="c1"># publish message with routing key</span>
 <a id="__codelineno-0-18" name="__codelineno-0-18"></a>    <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-<p>This way all <strong>FastStream</strong> brokers are working: you don't need to learn them deeper if you want to <em>just send a message</em></p>
+<p>This is the principle all <strong>FastStream</strong> brokers work by: you don't need to learn them in-depth if you want to <em>just send a message</em></p>
 <h2 id="rabbitmq-details">RabbitMQ details<a class="headerlink" href="#rabbitmq-details" title="Permanent link">#</a></h2>
-<p>If you are already familiar with the <strong>RabbitMQ</strong> logic, you should also understand the inner logic explained above. In this case, <strong>FastStream</strong> creates or validates a queue with the specified <strong>routing_key</strong> name and binds it to the <strong>RabbitMQ</strong> default exchange.</p>
-<p>If you want to specify a <em>queue</em>-<em>exchange</em> pair with additional arguments, <strong>FastStream</strong> provides you with the ability to do so. You can use the special <code>RabbitQueue</code> and <code>RabbitExchange</code> objects to configure RabbitMQ queues, exchanges, and binding properties. Examples of various exchange usages can be found in the following articles.</p>
+<p>If you are already familiar with <strong>RabbitMQ</strong> logic, you should also be acquainted with the inner workings of the example mentioned above.</p>
+<p>In this case, <strong>FastStream</strong> either creates or validates a queue with a specified <strong>routing_key</strong> and binds it to the default <strong>RabbitMQ</strong> exchange.</p>
+<p>If you want to specify a <em>queue</em>-<em>exchange</em> pair with additional arguments, <strong>FastStream</strong> provides you with the ability to do so. You can use special <code>RabbitQueue</code> and <code>RabbitExchange</code> objects to configure RabbitMQ queues, exchanges, and binding properties. For examples of using various types of exchanges, please refer to the following articles.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T17:55:08+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T19:52:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
       
     
   </small>

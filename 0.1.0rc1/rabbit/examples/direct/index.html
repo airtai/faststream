@@ -1258,7 +1258,7 @@ of the message flow from the queue by launching additional instances of a consum
 <a id="__codelineno-1-33" name="__codelineno-1-33"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="s2">&quot;test-q-2&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 3</span>
 </code></pre></div></td></tr></table></div>
 <h3 id="consumer-announcement">Consumer Announcement<a class="headerlink" href="#consumer-announcement" title="Permanent link">#</a></h3>
-<p>To begin with, we announced our <strong>Direct</strong> exchange and several queues that will listen to it:</p>
+<p>First, we announce our <strong>Direct</strong> exchange and several queues that will listen to it:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-7"> 7</a></span>
 <span class="normal"><a href="#__codelineno-2-8"> 8</a></span>
 <span class="normal"><a href="#__codelineno-2-9"> 9</a></span>
@@ -1267,7 +1267,7 @@ of the message flow from the queue by launching additional instances of a consum
 <a id="__codelineno-2-9" name="__codelineno-2-9"></a><span class="n">queue_1</span> <span class="o">=</span> <span class="n">RabbitQueue</span><span class="p">(</span><span class="s2">&quot;test-q-1&quot;</span><span class="p">,</span> <span class="n">auto_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <a id="__codelineno-2-10" name="__codelineno-2-10"></a><span class="n">queue_2</span> <span class="o">=</span> <span class="n">RabbitQueue</span><span class="p">(</span><span class="s2">&quot;test-q-2&quot;</span><span class="p">,</span> <span class="n">auto_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-<p>Then we signed up several consumers using the advertised queues to the <code>exchange</code> we created</p>
+<p>Then we sign up several consumers using the advertised queues to the <code>exchange</code> we created</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-13">13</a></span>
 <span class="normal"><a href="#__codelineno-3-14">14</a></span>
 <span class="normal"><a href="#__codelineno-3-15">15</a></span>
@@ -1323,7 +1323,7 @@ Here we emulate the work of several consumers and load balancing between them.</
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-14T06:38:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-14</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T19:52:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
       
     
   </small>
