@@ -1,12 +1,13 @@
-# Access to Message information
+# Access to Message Information
 
-As you know, **FastStream** serializes a message body and provides you access to it by function arguments. But sometimes you want to access a message offset, headers or other meta information.
+As you may know, **FastStream** serializes a message body and provides you access to it through function arguments. However, there are times when you need to access additional message attributes such as offsets, headers, or other metadata.
 
-## Message access
+## Message Access
 
-You can get it in a simple way too: just acces to the message object in the [Context](../getting-started/context/existed.md)!
+You can easily access this information by referring to the message object in the [Context](../getting-started/context/existed.md)!
 
-It is an unified **FastStream** wrapper around native broker library message (`aiokafka.ConsumerRecord` in the *Kafka* case). It contains most part of required information like:
+This object serves as a unified **FastStream** wrapper around the native broker library message (for example, `aiokafka.ConsumerRecord` in the case of *Kafka*). It contains most of the required information, including:
+
 
 * `#!python body: bytes`
 * `#!python checksum: int`
@@ -36,9 +37,10 @@ async def base_handler(
 
 ## Message Fields access
 
-But in the most cases you don't need all message fields, you need to know just one of them. You can use [Context Fields access](../getting-started/context/fields.md) feature for this reason.
+But in the most cases you don't need all message fields, you need to know just a part of them. 
+You can use [Context Fields access](../getting-started/context/fields.md) feature for this.
 
-Like an example, you can get access to the `headers` like this:
+For an example, you can get access to the `headers` like this:
 
 ```python hl_lines="6"
 from faststream import Context

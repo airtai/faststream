@@ -215,13 +215,13 @@ async def test_correct():
         await br.publish({
             "user": "John",
             "user_id": 1,
-        })
+        }, "in-topic")
 
 @pytest.mark.asyncio
 async def test_invalid():
     async with TestKafkaBroker(broker) as br:
         with pytest.raises(pydantic.ValidationError):
-            await br.publish("wrong message")
+            await br.publish("wrong message", "in-topic")
     ```
 
 === "RabbitMQ"
@@ -239,13 +239,13 @@ async def test_correct():
         await br.publish({
             "user": "John",
             "user_id": 1,
-        })
+        }, "in-queue")
 
 @pytest.mark.asyncio
 async def test_invalid():
     async with TestRabbitBroker(broker) as br:
         with pytest.raises(pydantic.ValidationError):
-            await br.publish("wrong message")
+            await br.publish("wrong message", "in-queue")
     ```
 
 ## Running the application
