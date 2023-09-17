@@ -2,15 +2,15 @@
 
 **FastStream** RabbitBroker supports all regular [publishing usecases](../getting-started/publishing/index.md){.internal-link}, you can use them without any changes.
 
-The only one RMQ specific thing - these methods parameters, so you should know about all of them.
+However, if you whish to further customize the publishing logic further, you should take a more deep-dive look at specific RabbitBroker parameters.
 
 ## Rabbit Publishing
 
-`RabbitBroker` also uses the unified `publish` method (as a `publisher` object too) to send a message.
+`RabbitBroker` also uses the unified `publish` method (from a `publisher` object) to send messages.
 
 However, in this case, an object of the `aio_pika.Message` class (if necessary) can be used as a message (in addition to python primitives and `pydantic.BaseModel`).
 
-You can specify queue (uses as a routing_key) and exchange (optionally) to send by their name.
+You can specify queue (used as a routing_key) and exchange (optionally) to send by their name.
 
 ``` python
 import asyncio
@@ -27,7 +27,7 @@ async def pub():
 asyncio.run(pub())
 ```
 
-If you don't specify any exchange, message will be send to the default one.
+If you don't specify any exchange, the message will be send to the default one.
 
 Also, you able to use special **RabbitQueue** and **RabbitExchange** objects as a `queue` and `exchange` arguments:
 
@@ -42,13 +42,12 @@ await broker.publish(
 )
 ```
 
-If you specify not-existed exchange, RabbitBroker creates a required one and then publish a message.
+If you specify exchange that doesn't exist, RabbitBroker will create a required one and then publish a message to it.
 
 !!! tip
-    Be accurate with it: if you have already created **Exchange** with specific parameters and try to send a message by exchange name to it,
-    **FastStream** converts your string to **RabbitExchange** object with default parameters and broker will try to create it. So, **Exchange** parameters conflict will occure.
+    Be accurate with it: if you have already created an **Exchange** with specific parameters and try to send a message by exchange name to it, the broker will try to create it. So, **Exchange** parameters conflict will occure.
 
-    If you are trying to send a message to specific **Exchange** - sending with a **RabbitExchange** object is a preffered way.
+    If you are trying to send a message to specific **Exchange** - sending it with a defined **RabbitExchange** object is the preffered way.
 
 ## Basic arguments
 
@@ -61,16 +60,16 @@ The `publish` method takes the following arguments:
 
 ## Message parameters
 
-You can read more about all the flags in the [RabbitMQ documentation](https://www.rabbitmq.com/consumers.html){.external-link target="_blank"}
+You can read more about all the available flags in the [RabbitMQ documentation](https://www.rabbitmq.com/consumers.html){.external-link target="_blank"}
 
 * `#!python headers: dict[str, Any] | None = None` - message headers (used by consumers)
-* `#!python content_type: str | None = None` - the content_type of the message being sent (setted automatically, used by consumers)
+* `#!python content_type: str | None = None` - the content_type of the message being sent (set automatically, used by consumers)
 * `#!python content_encoding: str | None = None` - encoding of the message (used by consumers)
 * `#!python persist: bool = False` - restore messages on *RabbitMQ* reboot
 * `#!python priority: int | None = None` - the priority of the message
 * `#!python correlation_id: str | None = None` - message id, which helps to match the original message with the reply to it (generated automatically)
 * `#!python message_id: str | None = None` - message ID (generated automatically)
-* `#!python timestamp: int | float | time delta | datetime | None = None` - message sending time (setted automatically)
+* `#!python timestamp: int | float | time delta | datetime | None = None` - message sending time (set automatically)
 * `#!python expiration: int | float | time delta | datetime | None = None` - message lifetime (in seconds)
 * `#!python type: str | None = None` - the type of message (used by consumers)
 * `#!python user_id: str | None = None` - ID of the *RabbitMQ* user who sent the message

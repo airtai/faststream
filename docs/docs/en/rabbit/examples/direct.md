@@ -31,13 +31,13 @@ The argument `auto_delete=True` in this and subsequent examples is used only to 
 
 ### Consumer Announcement
 
-To begin with, we announced our **Direct** exchange and several queues that will listen to it:
+First, we announce our **Direct** exchange and several queues that will listen to it:
 
 ```python linenums="7"
 {!> docs_src/rabbit/subscription/direct.py [ln:7-10]!}
 ```
 
-Then we signed up several consumers using the advertised queues to the `exchange` we created
+Then we sign up several consumers using the advertised queues to the `exchange` we created
 
 ```python linenums="13" hl_lines="1 6 11"
 {!> docs_src/rabbit/subscription/direct.py [ln:13-25]!}
