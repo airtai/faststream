@@ -4,7 +4,7 @@ hide:
   - footer
 ---
 
-# Features of FastStream
+# FastStream
 
 <b>Effortless event stream integration for your services</b>
 
@@ -51,6 +51,8 @@ hide:
 </p>
 
 ---
+
+## Features
 
 [**FastStream**](https://faststream.airt.ai/) simplifies the process of writing producers and consumers for message queues, handling all the
 parsing, networking and documentatino generation automatically.
