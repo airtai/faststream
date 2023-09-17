@@ -1,9 +1,8 @@
 # Header Exchange
 
-**Header** Exchange is the most complex and flexible way to route messages in *RabbitMQ*. This `exchange` type sends messages
-to queues in according the matching of a queues binding arguments  with message headers.
+**Header** Exchange is the most complex and flexible way to route messages in *RabbitMQ*. This `exchange` type sends messages to queues according by matching the queue binding arguments with message headers.
 
-At the same time, if the queue listens to several consumers, messages will also be distributed among them.
+At the same time, if several consumers are subscribed to the queue, messages will also be distributed among them.
 
 ## Example
 
@@ -13,7 +12,7 @@ At the same time, if the queue listens to several consumers, messages will also 
 
 ### Consumer Announcement
 
-To begin with, we announced our **Fanout** exchange and several queues that will listen to it:
+First, we announce our **Fanout** exchange and several queues that will listen to it:
 
 ```python linenums="7" hl_lines="1 6 11 16"
 {!> docs_src/rabbit/subscription/header.py [ln:7-23]!}

@@ -2,7 +2,7 @@
 
 **Topic** Exchange is a powerful *RabbitMQ* routing tool. This type of `exchange` sends messages to the queue in accordance with the *pattern* specified when they are connected to `exchange` and the `routing_key` of the message itself.
 
-At the same time, if the queue listens to several consumers, messages will also be distributed among them.
+At the same time, if several consumers are subscribed to the queue, messages will be distributed among them.
 
 ## Example
 
@@ -12,7 +12,7 @@ At the same time, if the queue listens to several consumers, messages will also 
 
 ### Consumer Announcement
 
-To begin with, we announced our **Topic** exchange and several queues that will listen to it:
+First, we announce our **Topic** exchange and several queues that will listen to it:
 
 ```python linenums="7" hl_lines="1 3-4"
 {!> docs_src/rabbit/subscription/topic.py [ln:7-10]!}
@@ -20,7 +20,7 @@ To begin with, we announced our **Topic** exchange and several queues that will 
 
 At the same time, in the `routing_key` of our queues, we specify the *pattern* of routing keys that will be processed by this queue.
 
-Then we signed up several consumers using the advertised queues to the `exchange` we created
+Then we sign up several consumers using the advertised queues to the `exchange` we created
 
 ```python linenums="13" hl_lines="1 6 11"
 {!> docs_src/rabbit/subscription/topic.py [ln:13-25]!}

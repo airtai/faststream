@@ -63,7 +63,7 @@ async def send_messages():
 
 ### Consumer Announcement
 
-To begin with, we announced our **Direct** exchange and several queues that will listen to it:
+First, we announce our **Direct** exchange and several queues that will listen to it:
 
 ```python linenums="7"
 exch = RabbitExchange("exchange", auto_delete=True)
@@ -72,7 +72,7 @@ queue_1 = RabbitQueue("test-q-1", auto_delete=True)
 queue_2 = RabbitQueue("test-q-2", auto_delete=True)
 ```
 
-Then we signed up several consumers using the advertised queues to the `exchange` we created
+Then we sign up several consumers using the advertised queues to the `exchange` we created
 
 ```python linenums="13" hl_lines="1 6 11"
 @broker.subscriber(queue_1, exch)
