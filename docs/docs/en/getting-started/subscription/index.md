@@ -11,6 +11,10 @@ The basic syntax is same in for all brokers:
     If you want to use Message Broker specific features, please visit corresponding broker documentation section.
     In the **Tutorial** section the general features are described.
 
+Also, synchronous functions are supported as well:
+
+{!> includes/getting_started/subscription/index/sync.md !}
+
 ## Message body serialization
 
 Generally, **FastStream** uses your function type annotation to serialize incoming message body by [**Pydantic**](https://docs.pydantic.dev){.external-link target="_blank"}. It is pretty close to how [**FastAPI**](https://fastapi.tiangolo.com){.external-link target="_blank"} works (if you are familiar with it).
