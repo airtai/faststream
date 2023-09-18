@@ -2,7 +2,7 @@
 
 # Development
 
-If you already cloned the repository and you know that you need to deep dive in the code, here are some guidelines to set up your environment.
+Ofter cloning the project, you will need to setup the development envirionment, here are the guidelines on how to do this.
 
 ## Virtual environment with `venv`
 
@@ -22,7 +22,7 @@ Activate the new environment with:
 source ./venv/bin/activate
 ```
 
-Make sure you have the latest pip version on your virtual environment to
+Make sure you have the latest pip version in your virtual environment
 
 ```bash
 python -m pip install --upgrade pip
@@ -30,7 +30,7 @@ python -m pip install --upgrade pip
 
 ## pip
 
-After activating the environment as described above:
+After activating the environment as described above, run:
 
 ```bash
 pip install -e ".[dev]"
@@ -81,13 +81,13 @@ To run all tests use:
 pytest -m 'all'
 ```
 
-Also if you didn't up local rabbit or kafka intance, run tests without that dependencies
+Also if you don't have a local rabbit or kafka intance running, run tests without that dependencies
 
 ```bash
 pytest -m 'not rabbit and not kafka'
 ```
 
-To run all tests based on RabbitMQ, Kafka or another dependencies you should run first following *docker-compose.yml*
+To run all tests based on RabbitMQ, Kafka or another dependencies you should first run the following *docker-compose.yml*
 
 ```yaml
 version: "3"
