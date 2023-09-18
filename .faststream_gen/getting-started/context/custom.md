@@ -1,6 +1,6 @@
 # Context fields Declaration
 
-Also, you are able to store your own objects in the `Context` for sure.
+Also, you are able to store your own objects in the `Context`.
 
 ## Global
 
