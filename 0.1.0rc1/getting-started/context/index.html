@@ -1357,7 +1357,7 @@
 
 <h1 id="application-context">Application Context<a class="headerlink" href="#application-context" title="Permanent link">#</a></h1>
 <p><strong>FastStreams</strong> has it's own Dependency Injection container - <strong>Context</strong>, using to store application runtime object and variables.</p>
-<p>With this container you are able to get access to application scope or message processing scope objects both. This functional is pretty close to <a class="internal-link" href="../dependencies/"><code>Depends</code></a> usage.</p>
+<p>With this container you are able to get access to application scope or message processing scope objects both. This functionality is pretty close to <a class="internal-link" href="../dependencies/"><code>Depends</code></a> usage.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Kafka</label><label for="__tabbed_1_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1507,7 +1507,25 @@
 <p>Fields getting from the <code>Context</code> are editable, so editing them in the function, you are editing them everywhere.</p>
 </div>
 <h2 id="regular-functions-compatibility">Regular functions compatibility<a class="headerlink" href="#regular-functions-compatibility" title="Permanent link">#</a></h2>
-<p>To use context at other functions use the decorator <code class="highlight"><span class="nd">@apply_types</span></code>. This case, the called function context will correspond to the context of the event handler from which it was called.</p>
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+To use context at other functions use the decorator <code class="highlight"><span class="nd">@apply_types</span></code>. This case, the called function context will correspond to the context of the event handler from which it was called.
+=======
+To use context at other functions use the decorator <code>@apply_types</code>. In this case, the called function context will correspond to the context of the event handler from which it was called.</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>615edfb2ce0cb805ee6e4c799651bd8cc5cdbec5</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-4-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-4-3"> 3</a></span>
@@ -1537,7 +1555,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-15T17:07:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-15</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-18T10:39:59+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-18</span>
       
     
   </small>
