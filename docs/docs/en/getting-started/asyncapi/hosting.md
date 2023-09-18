@@ -1,6 +1,6 @@
 # Serving the AsyncAPI Documentation
 
-FastStream provides a separate command to serve the AsyncAPI documentation.
+FastStream provides command to serve the AsyncAPI documentation.
 
 ``` shell
 {!> docs_src/getting_started/asyncapi/serve.py[ln:17]!}
@@ -23,7 +23,7 @@ INFO:     Application startup complete.
 INFO:     Uvicorn running on http://localhost:8000 (Press CTRL+C to quit)
 ```
 
-And see the following page at your browser
+And you should be able to see the following page in your browser
 
 === "Short"
     ![HTML-page](/assets/img/AsyncAPI-basic-html-short.png){ loading=lazy }
