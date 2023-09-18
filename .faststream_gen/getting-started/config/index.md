@@ -1,8 +1,8 @@
 # Settings and Environment Variables
 
-In many cases your application could need some external settings or configurations, for example Message Broker connection or database credentials.
+In many cases your application could need some external settings or configurations, for example, a broker connection or database credentials.
 
-For this reason it's common to provide them in environment variables that are read by the application.
+For this reason its common to provide them in environment variables can be then read by the application.
 
 ## Pydantic `Settings`
 
@@ -17,13 +17,13 @@ pip install pydantic-settings
 ```
 
 !!! info
-    In **Pydantic v1** it came included with the main package. Now it is distributed as this independent package so that you can choose to install it or not if you don't need that functionality.
+    In **Pydantic v1** this functionality came included with the main package. Now it is distributed as an independent package so that you can choose not to install it if you don't need that functionality.
 
 ### Create the `Settings` object
 
-Import `BaseSettings` from Pydantic and create a sub-class, very much like with a Pydantic model.
+Import `BaseSettings` from Pydantic and create a sub-class, very much like you would do with a Pydantic model.
 
-The same way as with Pydantic models, you declare class attributes with type annotations, and possibly default values.
+The same way as with Pydantic models, you declare class attributes with type annotations.
 
 You can use all the same validation features and tools you use for Pydantic models, like different data types and additional validations with `Field()`.
 
@@ -58,7 +58,7 @@ settings = Settings()
 
 Then, when you create an instance of that `Settings` class (in this case, in the `settings` object), Pydantic will read the environment variables in a case-insensitive way, so, an upper-case variable `APP_NAME` will still be read for the attribute `app_name`.
 
-Next it will convert and validate the data. So, when you use that `settings` object, you will have data of the types you declared (e.g. `items_per_user` will be an `int`).
+Next it will convert and validate the data. So, when you use that `settings` object, you will have data of the type you declared (e.g. `items_per_user` will be an `int`).
 
 ### Use the `settings`
 
@@ -91,7 +91,7 @@ async def handler(msg):
 
 ### Run the application
 
-Next, you would run the application passing the configurations as environment variables, for example you could set an `URL`:
+Now you can run the application passing the configuration parameters as environment variables, for example you could set an `URL`:
 
 ```console
 URL="amqp://guest:guest@localhost:5672" faststream run serve:app
@@ -102,7 +102,7 @@ URL="amqp://guest:guest@localhost:5672" faststream run serve:app
 
 ## Reading a `.env` file
 
-If you have many settings that possibly change a lot, maybe in different environments, it might be useful to put them on a file and then read them from it as if they were environment variables.
+If you have many settings that possibly change a lot, maybe in different environments, it might be useful to put them in a file and then read them from it as if they were environment variables.
 
 This practice is common enough that it has a name, these environment variables are commonly placed in a file `.env`, and the file is called a "dotenv".
 
@@ -146,7 +146,7 @@ settings = Settings(_env_file=os.getenv("ENV", ".env"))
 This way you are able to specify different `.env` files right from your terminal. It can be extremely helpful in testing/production cases.
 
 !!! note
-    By default Pydantic tries to find `.env` field in this case, but it is OK, if there are no any `.env` file. Pydantic just use a default fields values.
+    By default Pydantic tries to find `.env` field in this case. If there is no `.env` file, Pydantic will just use default fields values.
 
 ### Choose `.env` file at start
 

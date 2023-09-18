@@ -1,6 +1,6 @@
 [Note]: # (This is an auto-generated file. Please edit docs/docs/en/index.md instead)
 
-# Features of FastStream
+# FastStream
 
 <b>Effortless event stream integration for your services</b>
 
@@ -47,6 +47,8 @@
 </p>
 
 ---
+
+## Features
 
 [**FastStream**](https://faststream.airt.ai/) simplifies the process of writing producers and consumers for message queues, handling all the
 parsing, networking and documentatino generation automatically.
@@ -221,13 +223,13 @@ You can know more about **CLI** features [here](https://faststream.airt.ai/0.1.0
 
 The availability of such documentation significantly simplifies the integration of services: you can immediately see what channels and message format the application works with. And most importantly, it won't cost anything - **FastStream** has already created the docs for you!
 
-![HTML-page](https://faststream.airt.ai/0.1.0rc0/assets/img/AsyncAPI-basic-html-short.png)
+![HTML-page](https://github.com/airtai/faststream/blob/main/docs/docs/assets/img/AsyncAPI-basic-html-short.png)
 
 ---
 
 ## Dependencies
 
-**FastStream** (thanks to [**FastDepend**](https://lancetnik.github.io/FastDepends/){.external-link target="_blank"}) has a dependency management system close to `pytest fixtures` and `FastAPI Depends` at the same time. Function arguments declare which dependencies you want are needed, and a special decorator delivers them from the global Context object.
+**FastStream** (thanks to [**FastDepend**](https://lancetnik.github.io/FastDepends/)) has a dependency management system close to `pytest fixtures` and `FastAPI Depends` at the same time. Function arguments declare which dependencies you want are needed, and a special decorator delivers them from the global Context object.
 
 ```python linenums="1" hl_lines="9-10"
 from faststream import Depends, Logger

@@ -2,7 +2,7 @@
 
 **Topic** Exchange is a powerful *RabbitMQ* routing tool. This type of `exchange` sends messages to the queue in accordance with the *pattern* specified when they are connected to `exchange` and the `routing_key` of the message itself.
 
-At the same time, if the queue listens to several consumers, messages will also be distributed among them.
+At the same time, if several consumers are subscribed to the queue, messages will be distributed among them.
 
 ## Example
 
@@ -44,7 +44,7 @@ async def send_messages():
 
 ### Consumer Announcement
 
-To begin with, we announced our **Topic** exchange and several queues that will listen to it:
+First, we announce our **Topic** exchange and several queues that will listen to it:
 
 ```python linenums="7" hl_lines="1 3-4"
 exch = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.TOPIC)
@@ -55,7 +55,7 @@ queue_2 = RabbitQueue("test-queue-2", auto_delete=True, routing_key="*.debug")
 
 At the same time, in the `routing_key` of our queues, we specify the *pattern* of routing keys that will be processed by this queue.
 
-Then we signed up several consumers using the advertised queues to the `exchange` we created
+Then we sign up several consumers using the advertised queues to the `exchange` we created
 
 ```python linenums="13" hl_lines="1 6 11"
 @broker.subscriber(queue_1, exch)

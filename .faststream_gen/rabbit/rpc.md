@@ -2,13 +2,13 @@
 
 ## Blocking request
 
-**FastStream** provides you with the ability to send low-cost blocking RPC request over *RabbitMQ* in a very simple way.
+**FastStream** provides you with the ability to send blocking RPC request over *RabbitMQ* in a very simple way.
 
-It uses the [**Direct Reply-To**](https://www.rabbitmq.com/direct-reply-to.html){.external-link target="_blank"} *RabbitMQ* feature, so you need no to create any queues to consume a response.
+It uses the [**Direct Reply-To**](https://www.rabbitmq.com/direct-reply-to.html){.external-link target="_blank"} *RabbitMQ* feature, so you don't need to create any queues to consume a response.
 
 Just send a message like a regular one and get a response synchronously.
 
-It is a very close to common **requests** syntax, so you shouldn't have any problems with it
+It is a very close to common **requests** syntax:
 
 ``` python hl_lines="1 4"
 msg = await broker.publish(

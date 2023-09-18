@@ -4,20 +4,20 @@
 
 The advantage of *RabbitMQ* is the ability to configure flexible and complex message routing scenarios.
 
-*RabbitMQ* covers the whole range of routing: from one queue - one consumer, to a queue retrieved from several sources, and the prioritization of messages also works.
+*RabbitMQ* covers the whole range of routing: from one queue - one consumer, to a queue retrieved from several sources, including message prioritization.
 
 !!! note
       For more information about *RabbitMQ*, please visit the [official documentation](https://www.rabbitmq.com/tutorials/amqp-concepts.html){.external-link target="_blank"}
 
-At the same time, it supports the ability to successfully process messages, mark them as processed with an error, remove them from the queue (it is also impossible to receive more messages processed, unlike **Kafka**), lock it for the processing duration, and monitor its current status.
+It supports the ability to successfully process messages, mark them as processed with an error, remove them from the queue (it is also impossible to re-receive processed messages, unlike **Kafka**), lock it for the processing duration, and monitor its current status.
 
-Having to keep track of the current status of all messages is a cause of the **RabbitMQ** performance falling. With really large message volumes, **RabbitMQ** starts to degrade. However, if this was a "one-time influx", then as consumers will free it, the "health" of **RabbitMQ** will be restored.
+Having to keep track of the current status of all messages is a cause of the **RabbitMQ** performance issues. With really large message volumes, **RabbitMQ** starts to degrade. However, if this was a "one-time influx", then consumers will free the queue of messages and the "health" of **RabbitMQ** will be stable.
 
 If your scenario is not based on processing millions of messages, and also requires building complex routing logic - **RabbitMQ** you will be right choice.
 
 ## Basic concepts
 
-If you want to totally understand how *RabbitMQ* works, you should visit their official website. Here you will find top-level comments about the basic concepts and usage examples.
+If you want to totally understand how *RabbitMQ* works, you should visit their official website. There you will find top-level comments about the basic concepts and usage examples.
 
 ### Entities
 
@@ -43,19 +43,19 @@ In general, the message path looks so:
     In **FastStream**, queues are connected to this `exchange` and messages are sent by default unless another `exchange` is explicitly specified.
 
     !!! warning ""
-        With connecting the queue to any other `exchange`, it still remains subscribed to the `default exchange'. Be careful with this.
+       Connecting the queue to any other `exchange` will still leave it subscribed to the `default exchange'. Be careful with this.
 
 At this stage, the message gets into your application - and you start processing it.
 
 ### Message statuses
 
-*RabbitMQ* requires confirmation of message processing: only after that it will be removed from a queue.
+*RabbitMQ* requires confirmation of message processing: only after that it will be removed from the queue.
 
 Confirmation can be either positive (`Acknowledgment - ack`) if the message was successfully processed, or negative (`Negative Acknowledgment - nack`) if the message was processed with an error.
 
 At the same time, in case of an error, the message can also be extracted from the queue (`reject`), otherwise, after a negative confirmation, it will be requeued for processing again.
 
-In most cases, **FastStream** performs all the necessary actions by itself: however, if you want to manage the message lifecycle directly, you can access the message object itself and call the appropriate methods directly. This can be useful if you want to implement an "at most once" policy and you need to confirm receipt of the message before it is actually processed.
+In most cases, **FastStream** performs all the necessary actions by itself: however, if you want to manage the message lifecycle directly, you can access the message object itself and call the appropriate methods directly. This can be useful if you want to implement an "at most once" policy and you need to confirm the consuming of the message before it is actually processed.
 
 ## **FastStream** specific
 
