@@ -3,6 +3,7 @@ import subprocess
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from shutil import rmtree
+from typing import Optional
 
 import mkdocs.commands.build
 import mkdocs.commands.serve
@@ -10,6 +11,7 @@ import typer
 from create_api_docs import create_api_docs
 from expand_markdown import expand_markdown, remove_lines_between_dashes
 from mkdocs.config import load_config
+from typing_extensions import Annotated
 
 IGNORE_DIRS = ("assets", "stylesheets")
 
@@ -87,10 +89,14 @@ def preview():
 
 
 @app.command()
-def live():
+def live(port: Annotated[Optional[str], typer.Argument()] = None):
+    if port:
+        dev_server = f"0.0.0.0:{port}"
+    else:
+        dev_server = DEV_SERVER
     typer.echo("Serving mkdocs with live reload")
-    typer.echo(f"Serving at: http://{DEV_SERVER}")
-    mkdocs.commands.serve.serve(dev_addr=DEV_SERVER)
+    typer.echo(f"Serving at: http://{dev_server}")
+    mkdocs.commands.serve.serve(dev_addr=dev_server)
 
 
 @app.command()
