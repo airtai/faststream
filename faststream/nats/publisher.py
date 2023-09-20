@@ -1,13 +1,13 @@
 from dataclasses import dataclass, field
-from typing import Optional, Dict, Any, Union
+from typing import Any, Dict, Optional, Union
 
 from nats.aio.msg import Msg
 
 from faststream._compat import override
 from faststream.broker.publisher import BasePublisher
-from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.js_stream import JsStream
-from faststream.types import SendableMessage, DecodedMessage
+from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
+from faststream.types import DecodedMessage, SendableMessage
 
 
 @dataclass
@@ -18,7 +18,9 @@ class LogicPublisher(BasePublisher[Msg]):
     stream: Optional[JsStream] = field(default=None)
     timeout: Optional[float] = field(default=None)
 
-    _producer: Union[NatsFastProducer, NatsJSFastProducer, None] = field(default=None, init=False)
+    _producer: Union[NatsFastProducer, NatsJSFastProducer, None] = field(
+        default=None, init=False
+    )
 
     @override
     async def publish(  # type: ignore[override]
@@ -31,7 +33,7 @@ class LogicPublisher(BasePublisher[Msg]):
     ) -> Optional[DecodedMessage]:
         assert self._producer, "Please, setup `_producer` first"  # nosec B101
         assert self.subject, "You have to specify outcome subject"
-        
+
         if self.stream is not None:
             extra = {
                 "stream": self.stream.name,

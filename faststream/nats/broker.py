@@ -1,27 +1,26 @@
 import logging
-from typing import Awaitable, Callable, Union, Sequence, Any, Optional, Type, Dict, List
+from functools import partial, wraps
 from types import TracebackType
-from functools import wraps, partial
+from typing import Any, Awaitable, Callable, Dict, Optional, Sequence, Type, Union
 
 import nats
+from fast_depends.dependencies import Depends
+from nats.aio.client import Callback, Client, ErrorCallback
+from nats.aio.msg import Msg
+from nats.aio.subscription import (
+    DEFAULT_SUB_PENDING_BYTES_LIMIT,
+    DEFAULT_SUB_PENDING_MSGS_LIMIT,
+)
 from nats.js import api
 from nats.js.client import (
     DEFAULT_JS_SUB_PENDING_BYTES_LIMIT,
     DEFAULT_JS_SUB_PENDING_MSGS_LIMIT,
     JetStreamContext,
 )
-from nats.aio.msg import Msg
-from nats.aio.client import Client, Callback, ErrorCallback
-from nats.aio.subscription import (
-    DEFAULT_SUB_PENDING_BYTES_LIMIT,
-    DEFAULT_SUB_PENDING_MSGS_LIMIT,
-)
-from fast_depends.dependencies import Depends
 
 from faststream._compat import override
-from faststream.types import DecodedMessage
-from faststream.broker.wrapper import HandlerCallWrapper, FakePublisher
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
+from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.push_back_watcher import BaseWatcher, WatcherContext
 from faststream.broker.types import (
     AsyncPublisherProtocol,
@@ -32,15 +31,15 @@ from faststream.broker.types import (
     T_HandlerReturn,
     WrappedReturn,
 )
-from faststream.broker.middlewares import BaseMiddleware
-from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
-from faststream.nats.shared.logging import NatsLoggingMixin
-from faststream.nats.message import NatsMessage
+from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
 from faststream.nats.asyncapi import Handler, Publisher
 from faststream.nats.js_stream import JsStream
+from faststream.nats.message import NatsMessage
+from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
+from faststream.nats.shared.logging import NatsLoggingMixin
+from faststream.types import DecodedMessage
 from faststream.utils.context.main import context
 from faststream.utils.functions import to_async
-
 
 Subject = str
 
@@ -66,7 +65,7 @@ class NatsBroker(
         super().__init__(
             url=servers,  # AsyncAPI information
             protocol=protocol,
-            servers=list(servers), # nats-py connect argument
+            servers=list(servers),  # nats-py connect argument
             **kwargs,
         )
 
@@ -156,9 +155,7 @@ class NatsBroker(
                     )
 
                 except nats.js.errors.BadRequestError as e:
-                    old_config = (
-                        await self._stream.stream_info(stream.name)
-                    ).config
+                    old_config = (await self._stream.stream_info(stream.name)).config
 
                     c = self._get_log_context(None, "")
                     if (
@@ -168,7 +165,9 @@ class NatsBroker(
                         self._log(e, logging.WARNING, c)
                         await self._stream.update_stream(
                             config=stream.config,
-                            subjects=tuple(set(old_config.subjects).union(stream.subjects)),
+                            subjects=tuple(
+                                set(old_config.subjects).union(stream.subjects)
+                            ),
                         )
 
                     else:  # pragma: no cover
@@ -269,9 +268,7 @@ class NatsBroker(
         dependencies: Sequence[Depends] = (),
         parser: Optional[CustomParser[Msg]] = None,
         decoder: Optional[CustomDecoder[Msg]] = None,
-        middlewares: Optional[
-            Sequence[Callable[[Msg], BaseMiddleware]]
-        ] = None,
+        middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
         filter: Filter[NatsMessage] = default_filter,
         # AsyncAPI information
         title: Optional[str] = None,
@@ -292,30 +289,40 @@ class NatsBroker(
         super().subscriber()
 
         extra_options = {
-            "pending_msgs_limit": pending_msgs_limit or (
-                DEFAULT_JS_SUB_PENDING_MSGS_LIMIT if is_js else DEFAULT_SUB_PENDING_MSGS_LIMIT
+            "pending_msgs_limit": pending_msgs_limit
+            or (
+                DEFAULT_JS_SUB_PENDING_MSGS_LIMIT
+                if is_js
+                else DEFAULT_SUB_PENDING_MSGS_LIMIT
             ),
-            "pending_bytes_limit": pending_bytes_limit or (
-                DEFAULT_JS_SUB_PENDING_BYTES_LIMIT if is_js else DEFAULT_SUB_PENDING_BYTES_LIMIT
-            )
+            "pending_bytes_limit": pending_bytes_limit
+            or (
+                DEFAULT_JS_SUB_PENDING_BYTES_LIMIT
+                if is_js
+                else DEFAULT_SUB_PENDING_BYTES_LIMIT
+            ),
         }
 
         if is_js:
             stream.subjects.append(subject)
-            extra_options.update({
-                "durable": durable,
-                "config": config,
-                "ordered_consumer": ordered_consumer,
-                "idle_heartbeat": idle_heartbeat,
-                "flow_control": flow_control,
-                "deliver_policy": deliver_policy,
-                "headers_only": headers_only,
-                "manual_ack": not ack_first,
-            })
+            extra_options.update(
+                {
+                    "durable": durable,
+                    "config": config,
+                    "ordered_consumer": ordered_consumer,
+                    "idle_heartbeat": idle_heartbeat,
+                    "flow_control": flow_control,
+                    "deliver_policy": deliver_policy,
+                    "headers_only": headers_only,
+                    "manual_ack": not ack_first,
+                }
+            )
         else:
-            extra_options.update({
-                "max_msgs": max_msgs,
-            })
+            extra_options.update(
+                {
+                    "max_msgs": max_msgs,
+                }
+            )
 
         handler = self.handlers[subject] = self.handlers.get(
             subject,
@@ -326,14 +333,12 @@ class NatsBroker(
                 extra_options=extra_options,
                 title=title,
                 description=description,
-            )
+            ),
         )
 
         def consumer_wrapper(
             func: Callable[P_HandlerParams, T_HandlerReturn],
-        ) -> HandlerCallWrapper[
-            Msg, P_HandlerParams, T_HandlerReturn,
-        ]:
+        ) -> HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn,]:
             handler_call, dependant = self._wrap_handler(
                 func,
                 extra_dependencies=dependencies,
@@ -355,7 +360,7 @@ class NatsBroker(
             return handler_call
 
         return consumer_wrapper
-    
+
     @override
     def publisher(  # type: ignore[override]
         self,
@@ -387,7 +392,7 @@ class NatsBroker(
         )
         super().publisher(subject, publisher)
         return publisher
-    
+
     @override
     async def publish(  # type: ignore[override]
         self,

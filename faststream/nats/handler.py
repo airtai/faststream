@@ -1,10 +1,10 @@
-from typing import Callable, Optional, Sequence, Dict, Any, Union
+from typing import Any, Callable, Dict, Optional, Sequence, Union
 
-from nats.aio.subscription import Subscription
-from nats.aio.msg import Msg
-from nats.aio.client import Client
-from nats.js import JetStreamContext
 from fast_depends.core import CallModel
+from nats.aio.client import Client
+from nats.aio.msg import Msg
+from nats.aio.subscription import Subscription
+from nats.js import JetStreamContext
 
 from faststream._compat import override
 from faststream.broker.handler import AsyncHandler
@@ -20,7 +20,7 @@ from faststream.broker.types import (
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.nats.js_stream import JsStream
 from faststream.nats.message import NatsMessage
-from faststream.nats.parser import Parser, JsParser
+from faststream.nats.parser import JsParser, Parser
 
 
 class LogicNatsHandler(AsyncHandler[Msg]):
@@ -52,16 +52,12 @@ class LogicNatsHandler(AsyncHandler[Msg]):
     def add_call(
         self,
         *,
-        handler: HandlerCallWrapper[
-            Msg, P_HandlerParams, T_HandlerReturn
-        ],
+        handler: HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn],
         dependant: CallModel[P_HandlerParams, T_HandlerReturn],
         parser: Optional[CustomParser[Msg]],
         decoder: Optional[CustomDecoder[Msg]],
         filter: Filter[NatsMessage],
-        middlewares: Optional[
-            Sequence[Callable[[Msg], BaseMiddleware]]
-        ],
+        middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]],
     ) -> None:
         parser_ = Parser if self.stream is None else JsParser
         super().add_call(
@@ -79,7 +75,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
             subject=self.subject,
             queue=self.queue,
             cb=self.consume,
-            **self.extra_options
+            **self.extra_options,
         )
 
     async def close(self) -> None:

@@ -1,7 +1,7 @@
 import asyncio
-from typing import Optional, Dict, Any
-from uuid import uuid4
 from secrets import token_hex
+from typing import Any, Dict, Optional
+from uuid import uuid4
 
 import anyio
 import nats
@@ -9,7 +9,7 @@ from nats.aio.client import Client
 from nats.aio.msg import Msg
 from nats.js import JetStreamContext
 
-from faststream.broker.parsers import resolve_custom_func, encode_message
+from faststream.broker.parsers import encode_message, resolve_custom_func
 from faststream.broker.types import (
     AsyncCustomDecoder,
     AsyncCustomParser,
@@ -132,7 +132,7 @@ class NatsJSFastProducer:
             "correlation_id": correlation_id or str(uuid4()),
             **(headers or {}),
         }
-        
+
         await self._connection.publish(
             subject=subject,
             payload=payload,

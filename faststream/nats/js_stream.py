@@ -1,12 +1,18 @@
-from typing import List, Any, Optional
+from typing import Any, List, Optional
 
 from nats.js.api import (
-    StreamConfig, RetentionPolicy, DiscardPolicy, StorageType, Placement, StreamSource, ExternalStream, RePublish,
+    DiscardPolicy,
+    ExternalStream,
+    Placement,
+    RePublish,
+    RetentionPolicy,
+    StorageType,
+    StreamConfig,
+    StreamSource,
 )
 from pydantic import Field
 
 from faststream.broker.schemas import NameRequired
-
 
 __all__ = (
     "JsStream",

@@ -9,6 +9,7 @@ class TestRouter(RouterTestcase):
     broker_class = NatsRouter
     route_class = NatsRoute
 
+
 class TestRouterLocal(RouterLocalTestcase):
     broker_class = NatsRouter
     route_class = NatsRoute

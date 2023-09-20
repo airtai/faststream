@@ -13,7 +13,8 @@ class NatsParser:
         self.is_js = is_js
 
     async def parse_message(
-        self, message: Msg,
+        self,
+        message: Msg,
     ) -> StreamMessage[Msg]:
         headers = message.header or {}
         return NatsMessage(

@@ -13,7 +13,7 @@ from faststream.broker.parsers import encode_message
 from faststream.broker.test import call_handler, patch_broker_calls
 from faststream.nats.broker import NatsBroker
 from faststream.nats.producer import NatsFastProducer
-from faststream.types import SendableMessage, DecodedMessage
+from faststream.types import DecodedMessage, SendableMessage
 
 __all__ = ("TestNatsBroker",)
 
@@ -87,7 +87,6 @@ def build_message(
             **(headers or {}),
         },
     )
-
 
 
 class FakeProducer(NatsFastProducer):

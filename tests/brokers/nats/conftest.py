@@ -4,9 +4,9 @@ import pytest
 import pytest_asyncio
 
 from faststream.nats import (
-    TestNatsBroker,
     NatsBroker,
     NatsRouter,
+    TestNatsBroker,
 )
 
 
