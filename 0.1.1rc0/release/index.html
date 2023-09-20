@@ -722,6 +722,17 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Release Notes
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -731,6 +742,32 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -758,6 +795,21 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -780,13 +832,48 @@
 
 
 <h1 id="release-notes">Release Notes<a class="headerlink" href="#release-notes" title="Permanent link">#</a></h1>
+<p><strong>FastStream</strong> is a new package based on the ideas and experiences gained from <a href="https://github.com/airtai/fastkafka">FastKafka</a> and <a href="https://github.com/lancetnik/propan">Propan</a>. By joining our forces, we picked up the best from both packages and created the unified way to write services capable of processing streamed data regradless of the underliying protocol. We'll continue to maintain both packages, but new development will be in this project. If you are starting a new service, this package is the recommended way to do it.</p>
+<h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">#</a></h2>
+<p><a href="https://faststream.airt.ai/"><strong>FastStream</strong></a> simplifies the process of writing producers and consumers for message queues, handling all the
+parsing, networking and documentatino generation automatically.</p>
+<p>Making streaming microservices has never been easier. Designed with junior developers in mind, <strong>FastStream</strong> simplifies your work while keeping the door open for more advanced use-cases. Here's a look at the core features that make <strong>FastStream</strong> a go-to framework for modern, data-centric microservices.</p>
+<ul>
+<li>
+<p><strong>Multiple Brokers</strong>: <strong>FastStream</strong> provides a unified API to work across multiple message brokers (<strong>Kafka</strong>, <strong>RabbitMQ</strong> support)</p>
+</li>
+<li>
+<p><a href="#writing-app-code"><strong>Pydantic Validation</strong></a>: Leverage <a href="https://docs.pydantic.dev/"><strong>Pydantic's</strong></a> validation capabilities to serialize and validates incoming messages</p>
+</li>
+<li>
+<p><a href="#project-documentation"><strong>Automatic Docs</strong></a>: Stay ahead with automatic <a href="https://www.asyncapi.com/">AsyncAPI</a> documentation.</p>
+</li>
+<li>
+<p><strong>Intuitive</strong>: full typed editor support makes your development experience smooth, catching errors before they reach runtime</p>
+</li>
+<li>
+<p><a href="#dependencies"><strong>Powerful Dependency Injection System</strong></a>: Manage your service dependencies efficiently with <strong>FastStream</strong>'s built-in DI system.</p>
+</li>
+<li>
+<p><a href="#testing-the-service"><strong>Testable</strong></a>: supports in-memory tests, making your CI/CD pipeline faster and more reliable</p>
+</li>
+<li>
+<p><strong>Extendable</strong>: use extensions for lifespans, custom serialization and middlewares</p>
+</li>
+<li>
+<p><a href="#any-framework"><strong>Integrations</strong></a>: <strong>FastStream</strong> is fully compatible with any HTTP framework you want (<a href="#fastapi-plugin"><strong>FastAPI</strong></a> especially)</p>
+</li>
+<li>
+<p><strong>Built for Automatic Code Generation</strong>: <strong>FastStream</strong> is optimized for automatic code generation using advanced models like GPT and Llama</p>
+</li>
+</ul>
+<p>That's <strong>FastStream</strong> in a nutshell—easy, efficient, and powerful. Whether you're just starting with streaming microservices or looking to scale, <strong>FastStream</strong> has got you covered.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-08T21:47:03+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-08</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-20T07:51:50+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-20</span>
       
     
   </small>
