@@ -5,8 +5,10 @@ on:
     workflows: [Test]
     types: [completed]
 
+
 permissions:
   statuses: write
+
 
 jobs:
   smokeshow:
