@@ -1065,19 +1065,19 @@ parsing, networking and documentatino generation automatically.</p>
 <p><a href="#writing-app-code"><strong>Pydantic Validation</strong></a>: Leverage <a class="external-link" href="https://docs.pydantic.dev/" target="_blank"><strong>Pydantic's</strong></a> validation capabilities to serialize and validates incoming messages</p>
 </li>
 <li>
-<p><a href="#project-documentation"><strong>Automatic Docs</strong></a>: Stay ahead with automatic <a class="external-link" href="https://www.asyncapi.com/" target="_blank">AsyncAPI</a> documentation.</p>
+<p><a href="#project-documentation"><strong>Automatic Docs</strong></a>: Stay ahead with automatic <a class="external-link" href="https://www.asyncapi.com/" target="_blank"><strong>AsyncAPI</strong></a> documentation</p>
 </li>
 <li>
-<p><strong>Intuitive</strong>: full typed editor support makes your development experience smooth, catching errors before they reach runtime</p>
+<p><strong>Intuitive</strong>: Full-typed editor support makes your development experience smooth, catching errors before they reach runtime</p>
 </li>
 <li>
-<p><a href="#dependencies"><strong>Powerful Dependency Injection System</strong></a>: Manage your service dependencies efficiently with <strong>FastStream</strong>'s built-in DI system.</p>
+<p><a href="#dependencies"><strong>Powerful Dependency Injection System</strong></a>: Manage your service dependencies efficiently with <strong>FastStream</strong>'s built-in DI system</p>
 </li>
 <li>
-<p><a href="#testing-the-service"><strong>Testable</strong></a>: supports in-memory tests, making your CI/CD pipeline faster and more reliable</p>
+<p><a href="#testing-the-service"><strong>Testable</strong></a>: Supports in-memory tests, making your CI/CD pipeline faster and more reliable</p>
 </li>
 <li>
-<p><strong>Extendable</strong>: use extensions for lifespans, custom serialization and middlewares</p>
+<p><strong>Extendable</strong>: Use extensions for lifespans, custom serialization and middlewares</p>
 </li>
 <li>
 <p><a href="#any-framework"><strong>Integrations</strong></a>: <strong>FastStream</strong> is fully compatible with any HTTP framework you want (<a href="#fastapi-plugin"><strong>FastAPI</strong></a> especially)</p>
@@ -1089,7 +1089,7 @@ parsing, networking and documentatino generation automatically.</p>
 <p>That's <strong>FastStream</strong> in a nutshell—easy, efficient, and powerful. Whether you're just starting with streaming microservices or looking to scale, <strong>FastStream</strong> has got you covered.</p>
 <hr />
 <h2 id="history">History<a class="headerlink" href="#history" title="Permanent link">#</a></h2>
-<p><strong>FastStream</strong> is a new package based on the ideas and experiences gained from <a class="external-link" href="https://github.com/airtai/fastkafka" target="_blank">FastKafka</a> and <a class="external-link" href="https://github.com/lancetnik/propan" target="_blank">Propan</a>. By joining our forces, we picked up the best from both packages and created the unified way to write services capable of processing streamed data regradless of the underliying protocol. We'll continue to maintain both packages, but new development will be in this project. If you are starting a new service, this package is the recommended way to do it.</p>
+<p><strong>FastStream</strong> is a new package based on the ideas and experiences gained from <a class="external-link" href="https://github.com/airtai/fastkafka" target="_blank"><strong>FastKafka</strong></a> and <a class="external-link" href="https://github.com/lancetnik/propan" target="_blank"><strong>Propan</strong></a>. By joining our forces, we picked up the best from both packages and created a unified way to write services capable of processing streamed data regradless of the underliying protocol. We'll continue to maintain both packages, but new development will be in this project. If you are starting a new service, this package is the recommended way to do it.</p>
 <hr />
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">#</a></h2>
 <p><strong>FastStream</strong> works on <strong>Linux</strong>, <strong>macOS</strong>, <strong>Windows</strong> and most <strong>Unix</strong>-style operating systems.
@@ -1107,12 +1107,12 @@ You can install it with <code>pip</code> as usual:</p>
 </div>
 </div>
 <div class="admonition tip">
-<p>By default <strong>FastStream</strong> uses <strong>PydanticV2</strong> written in <strong>Rust</strong>, but you can downgrade it manually, if your platform has no <strong>Rust</strong> support - <strong>FastStream</strong> will works with the <strong>PydanticV1</strong> correctly as well.</p>
+<p>By default <strong>FastStream</strong> uses <strong>PydanticV2</strong> written in <strong>Rust</strong>, but you can downgrade it manually, if your platform has no <strong>Rust</strong> support - <strong>FastStream</strong> will work correctly with <strong>PydanticV1</strong> as well.</p>
 </div>
 <hr />
 <h2 id="writing-app-code">Writing app code<a class="headerlink" href="#writing-app-code" title="Permanent link">#</a></h2>
 <p><strong>FastStream</strong> brokers provide convenient function decorators <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span></code>
-and <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">publisher</span></code> to allow you to delegate the actual process of</p>
+and <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">publisher</span></code> to allow you to delegate the actual process of:</p>
 <ul>
 <li>
 <p>consuming and producing data to Event queues, and</p>
@@ -1123,8 +1123,8 @@ and <code class="highlight"><span class="nd">@broker</span><span class="o">.</sp
 </ul>
 <p>These decorators make it easy to specify the processing logic for your consumers and producers, allowing you to focus on the core business logic of your application without worrying about the underlying integration.</p>
 <p>Also, <strong>FastStream</strong> uses <a class="external-link" href="https://docs.pydantic.dev/" target="_blank"><strong>Pydantic</strong></a> to parse input
-JSON-encoded data into Python objects, making it easy to work with structured data in your applications, so you can serialize you input messages just using type annotations.</p>
-<p>Here is an example python app using <strong>FastStream</strong> that consumes data from an incoming data stream and outputs the data to another one.</p>
+JSON-encoded data into Python objects, making it easy to work with structured data in your applications, so you can serialize your input messages just using type annotations.</p>
+<p>Here is an example python app using <strong>FastStream</strong> that consumes data from an incoming data stream and outputs the data to another one:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Kafka</label><label for="__tabbed_2_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1245,8 +1245,8 @@ to define messages using a declarative syntax, making it easy to specify the fie
 </div>
 <hr />
 <h2 id="testing-the-service">Testing the service<a class="headerlink" href="#testing-the-service" title="Permanent link">#</a></h2>
-<p>The service can be tested using the <code>TestBroker</code> context managers which, by default, puts the Broker into "testing mode".</p>
-<p>The Tester will redirect your <code>subscriber</code> and <code>publisher</code> decorated functions to the InMemory brokers so that you can quickly test your app without the need for a running broker and all its dependencies.</p>
+<p>The service can be tested using the <code>TestBroker</code> context managers, which, by default, puts the Broker into "testing mode".</p>
+<p>The Tester will redirect your <code>subscriber</code> and <code>publisher</code> decorated functions to the InMemory brokers, allowing you to quickly test your app without the need for a running broker and all its dependencies.</p>
 <p>Using pytest, the test for our service would look like this:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">Kafka</label><label for="__tabbed_4_2">RabbitMQ</label></div>
 <div class="tabbed-content">
@@ -1337,30 +1337,30 @@ to define messages using a declarative syntax, making it easy to specify the fie
 </div>
 </div>
 <h2 id="running-the-application">Running the application<a class="headerlink" href="#running-the-application" title="Permanent link">#</a></h2>
-<p>The application can be started using builtin <strong>FastStream</strong> CLI command.</p>
-<p>To run the service, use the <strong>FastStream CLI</strong> command and pass the module (in this case, the file where the app implementation is located) and the app simbol to the command.</p>
+<p>The application can be started using built-in <strong>FastStream</strong> CLI command.</p>
+<p>To run the service, use the <strong>FastStream CLI</strong> command and pass the module (in this case, the file where the app implementation is located) and the app symbol to the command.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>basic:app
 </code></pre></div>
-<p>After running the command you should see the following output:</p>
+<p>After running the command, you should see the following output:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>INFO<span class="w">     </span>-<span class="w"> </span>FastStream<span class="w"> </span>app<span class="w"> </span>starting...
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>INFO<span class="w">     </span>-<span class="w"> </span>input_data<span class="w"> </span><span class="p">|</span><span class="w">            </span>-<span class="w"> </span><span class="sb">`</span>HandleMsg<span class="sb">`</span><span class="w"> </span>waiting<span class="w"> </span><span class="k">for</span><span class="w"> </span>messages
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>INFO<span class="w">     </span>-<span class="w"> </span>FastStream<span class="w"> </span>app<span class="w"> </span>started<span class="w"> </span>successfully!<span class="w"> </span>To<span class="w"> </span><span class="nb">exit</span><span class="w"> </span>press<span class="w"> </span>CTRL+C
 </code></pre></div>
-<p>Also, <strong>FastStream</strong> provides you a great hotreload feature to improve your Development Experience</p>
+<p>Also, <strong>FastStream</strong> provides you a great hot reload feature to improve your Development Experience</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>basic:app<span class="w"> </span>--reload
 </code></pre></div>
-<p>And multiprocessing horizontal scaling feature as well</p>
+<p>And multiprocessing horizontal scaling feature as well:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>basic:app<span class="w"> </span>--workers<span class="w"> </span><span class="m">3</span>
 </code></pre></div>
 <p>You can know more about <strong>CLI</strong> features <a class="internal-link" href="getting-started/cli/">here</a></p>
 <hr />
 <h2 id="project-documentation">Project Documentation<a class="headerlink" href="#project-documentation" title="Permanent link">#</a></h2>
-<p><strong>FastStream</strong> automatically generates documentation for your project according to the <a class="external-link" href="https://www.asyncapi.com/" target="_blank"><strong>AsyncAPI</strong></a> specification. You can work with both generated artifacts and place a Web view of your documentation on resources available to related teams.</p>
-<p>The availability of such documentation significantly simplifies the integration of services: you can immediately see what channels and message format the application works with. And most importantly, it won't cost anything - <strong>FastStream</strong> has already created the docs for you!</p>
+<p><strong>FastStream</strong> automatically generates documentation for your project according to the <a class="external-link" href="https://www.asyncapi.com/" target="_blank"><strong>AsyncAPI</strong></a> specification. You can work with both generated artifacts and place a web view of your documentation on resources available to related teams.</p>
+<p>The availability of such documentation significantly simplifies the integration of services: you can immediately see what channels and message formats the application works with. And most importantly, it won't cost anything - <strong>FastStream</strong> has already created the docs for you!</p>
 <p><a class="glightbox" href="assets/img/AsyncAPI-basic-html-short.png" data-type="image" data-width="100%" data-height="auto" data-desc-position="bottom"><img alt="HTML-page" src="assets/img/AsyncAPI-basic-html-short.png" /></a></p>
 <hr />
 <h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">#</a></h2>
-<p><strong>FastStream</strong> (thanks to <a class="external-link" href="https://lancetnik.github.io/FastDepends/" target="_blank"><strong>FastDepend</strong></a>) has a dependency management system close to <code>pytest fixtures</code> and <code>FastAPI Depends</code> at the same time. Function arguments declare which dependencies you want are needed, and a special decorator delivers them from the global Context object.</p>
+<p><strong>FastStream</strong> (thanks to <a class="external-link" href="https://lancetnik.github.io/FastDepends/" target="_blank"><strong>FastDepend</strong></a>) has a dependency management system similar to <code>pytest fixtures</code> and <code>FastAPI Depends</code> at the same time. Function arguments declare which dependencies you want are needed, and a special decorator delivers them from the global Context object.</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-12-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-12-3"> 3</a></span>
@@ -1388,8 +1388,8 @@ to define messages using a declarative syntax, making it easy to specify the fie
 <hr />
 <h2 id="http-frameworks-integrations">HTTP Frameworks integrations<a class="headerlink" href="#http-frameworks-integrations" title="Permanent link">#</a></h2>
 <h3 id="any-framework">Any Framework<a class="headerlink" href="#any-framework" title="Permanent link">#</a></h3>
-<p>You can use <strong>FastStream</strong> <code>MQBrokers</code> without <code>FastStream</code> application.
-Just <em>start</em> and <em>stop</em> them according to your application lifespan.</p>
+<p>You can use <strong>FastStream</strong> <code>MQBrokers</code> without a <code>FastStream</code> application.
+Just <em>start</em> and <em>stop</em> them according to your application's lifespan.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="5:5"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><input id="__tabbed_5_3" name="__tabbed_5" type="radio" /><input id="__tabbed_5_4" name="__tabbed_5" type="radio" /><input id="__tabbed_5_5" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">Aiohttp</label><label for="__tabbed_5_2">Blacksheep</label><label for="__tabbed_5_3">Falcon</label><label for="__tabbed_5_4">Quart</label><label for="__tabbed_5_5">Sanic</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1706,11 +1706,11 @@ Just <em>start</em> and <em>stop</em> them according to your application lifespa
 </div>
 <h3 id="fastapi-plugin"><strong>FastAPI</strong> Plugin<a class="headerlink" href="#fastapi-plugin" title="Permanent link">#</a></h3>
 <p>Also, <strong>FastStream</strong> can be used as part of <strong>FastAPI</strong>.</p>
-<p>Just import a <strong>StreamRouter</strong> you need and declare message handler with the same <code class="highlight"><span class="nd">@router</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> and <code class="highlight"><span class="nd">@router</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorators.</p>
+<p>Just import a <strong>StreamRouter</strong> you need and declare the message handler with the same <code class="highlight"><span class="nd">@router</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> and <code class="highlight"><span class="nd">@router</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorators.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>When used this way, <strong>FastStream</strong> does not utilize its own dependency and serialization system, but integrates into <strong>FastAPI</strong>.
-That is, you can use <code>Depends</code>, <code>BackgroundTasks</code> and other <strong>FastAPI</strong> tools as if it were a regular HTTP endpoint.</p>
+<p>When used this way, <strong>FastStream</strong> does not utilize its own dependency and serialization system but integrates seamlessly into <strong>FastAPI</strong>.
+This means you can use <code>Depends</code>, <code>BackgroundTasks</code> and other <strong>FastAPI</strong> tools as if it were a regular HTTP endpoint.</p>
 </div>
 <div class="tabbed-set tabbed-alternate" data-tabs="6:2"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">Kafka</label><label for="__tabbed_6_2">RabbitMQ</label></div>
 <div class="tabbed-content">
@@ -1856,7 +1856,7 @@ continue developing and improving the library. Thank you for your
 support!</p>
 <hr />
 <h2 id="contributors">Contributors<a class="headerlink" href="#contributors" title="Permanent link">#</a></h2>
-<p>Thanks for all of these amazing peoples made the project better!</p>
+<p>Thanks to all of these amazing people who made the project better!</p>
 <p><a href="https://github.com/airtai/faststream/graphs/contributors">
   <a class="glightbox" href="https://contrib.rocks/image?repo=airtai/faststream" data-type="image" data-width="100%" data-height="auto" data-desc-position="bottom"><img src="https://contrib.rocks/image?repo=airtai/faststream"/></a>
 </a></p>
@@ -1866,7 +1866,7 @@ support!</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T18:36:45+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-20T08:07:49+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-20</span>
       
     
   </small>
