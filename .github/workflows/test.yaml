@@ -63,6 +63,13 @@ jobs:
         image: rabbitmq:alpine
         ports:
           - 5672:5672
+      
+      # using own container with already included JetStream
+      # https://github.com/nats-io/nats-docker/issues/110
+      nats:
+        image: diementros/nats:js
+        ports:
+          - 4222:4222
 
     steps:
       - uses: actions/checkout@v3
@@ -79,7 +86,7 @@ jobs:
           key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}-test-v03
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[rabbit,kafka,docs,testing]
+        run: pip install .[rabbit,kafka,nats,docs,testing]
       - name: Install Pydantic v1
         if: matrix.pydantic-version == 'pydantic-v1'
         run: pip install "pydantic>=1.10.0,<2.0.0"
@@ -110,7 +117,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[rabbit,kafka,docs,testing]
+        run: pip install .[rabbit,kafka,nats,docs,testing]
       - name: Test
         run: bash scripts/test.sh -m "not kafka and not rabbit"
 
@@ -126,7 +133,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[rabbit,kafka,docs,testing]
+        run: pip install .[rabbit,kafka,nats,docs,testing]
       - name: Test
         run: bash scripts/test.sh -vv -m "not kafka and not rabbit"
 
