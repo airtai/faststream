@@ -119,7 +119,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: pip install .[rabbit,kafka,nats,docs,testing]
       - name: Test
-        run: bash scripts/test.sh -m "not kafka and not rabbit"
+        run: bash scripts/test.sh -m "not kafka and not rabbit and not nats"
 
   test-windows-latest:
     runs-on: windows-latest
@@ -135,7 +135,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: pip install .[rabbit,kafka,nats,docs,testing]
       - name: Test
-        run: bash scripts/test.sh -vv -m "not kafka and not rabbit"
+        run: bash scripts/test.sh -vv -m "not kafka and not rabbit and not nats"
 
   test-kafka-smoke:
     runs-on: ubuntu-latest
