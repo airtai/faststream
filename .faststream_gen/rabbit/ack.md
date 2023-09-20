@@ -61,7 +61,7 @@ async def base_handler(body: str, msg: RabbitMessage):
 
 ## Interrupt Process
 
-If you want to interrupt message processing at any callstack, you can raise `faststream.exceptions.AckMessage` 
+If you want to interrupt message processing at any callstack, you can raise `faststream.exceptions.AckMessage`
 
 ``` python linenums="1" hl_lines="16"
 from faststream import FastStream

@@ -17,4 +17,3 @@ If you are already familiar with **RabbitMQ** logic, you should also be acquaint
 In this case, **FastStream** either creates or validates a queue with a specified **routing_key** and binds it to the default **RabbitMQ** exchange.
 
 If you want to specify a *queue*-*exchange* pair with additional arguments, **FastStream** provides you with the ability to do so. You can use special `RabbitQueue` and `RabbitExchange` objects to configure RabbitMQ queues, exchanges, and binding properties. For examples of using various types of exchanges, please refer to the following articles.
-
