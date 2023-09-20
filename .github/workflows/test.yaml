@@ -4,6 +4,7 @@ on:
   push:
    branches:
      - main
+     - 630-upload-coveragehtml-to-smokeshow
   pull_request:
     types: [opened, synchronize]
   merge_group:
