@@ -4,16 +4,13 @@ on:
   workflow_run:
     workflows: [Test]
     types: [completed]
-    # branches:
-    #     - main
-    #     - 630-upload-coveragehtml-to-smokeshow
 
 permissions:
   statuses: write
 
 jobs:
   smokeshow:
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
