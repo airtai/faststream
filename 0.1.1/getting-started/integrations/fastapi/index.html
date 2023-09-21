@@ -999,15 +999,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#handle-messages" class="md-nav__link">
-    Handle messages
+  <a href="#handling-messages" class="md-nav__link">
+    Handling messages
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#broker-object-access" class="md-nav__link">
-    Broker object access
+  <a href="#accessing-the-broker-object" class="md-nav__link">
+    Accessing the Broker Object
   </a>
   
 </li>
@@ -1296,15 +1296,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#handle-messages" class="md-nav__link">
-    Handle messages
+  <a href="#handling-messages" class="md-nav__link">
+    Handling messages
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#broker-object-access" class="md-nav__link">
-    Broker object access
+  <a href="#accessing-the-broker-object" class="md-nav__link">
+    Accessing the Broker Object
   </a>
   
 </li>
@@ -1354,13 +1354,13 @@
 
 
 <h1 id="fastapi-plugin"><strong>FastAPI</strong> Plugin<a class="headerlink" href="#fastapi-plugin" title="Permanent link">#</a></h1>
-<h2 id="handle-messages">Handle messages<a class="headerlink" href="#handle-messages" title="Permanent link">#</a></h2>
+<h2 id="handling-messages">Handling messages<a class="headerlink" href="#handling-messages" title="Permanent link">#</a></h2>
 <p><strong>FastStream</strong> can be used as a part of <strong>FastAPI</strong>.</p>
-<p>Just import a <strong>StreamRouter</strong> you need and declare the message handler using the same with a regular <strong>FastStream</strong> application way.</p>
+<p>Just import a <strong>StreamRouter</strong> you need and declare the message handler in the same way as with a regular <strong>FastStream</strong> application.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>When used in this way, <strong>FastStream</strong> does not use its own dependency system, but integrates into <strong>FastAPI</strong>.
-That is, you can use <code>Depends</code>, <code>BackgroundTasks</code> and other original <strong>FastAPI</strong> features as if it were a regular HTTP endpoint, but can't use <code>faststream.Context</code> and <code>faststream.Depends</code>.</p>
+<p>When used in this way, <strong>FastStream</strong> does not use its own dependency system but integrates into <strong>FastAPI</strong>.
+That is, you can use <code>Depends</code>, <code>BackgroundTasks</code> and other original <strong>FastAPI</strong> features as if it were a regular HTTP endpoint, but you can't use <code>faststream.Context</code> and <code>faststream.Depends</code>.</p>
 <p>Note that the code below uses <code>fastapi.Depends</code>, not <code>faststream.Depends</code>.</p>
 </div>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Kafka</label><label for="__tabbed_1_2">RabbitMQ</label></div>
@@ -1487,18 +1487,18 @@ That is, you can use <code>Depends</code>, <code>BackgroundTasks</code> and othe
 </div>
 </div>
 </div>
-<p>When processing a message from a broker, the entire message body is placed simultaneously in both the <code>body</code> and <code>path</code> request parameters: you can get access to them in any way convenient for you. The message header is placed in <code>headers</code>.</p>
-<p>Also, this router can be fully used as an <code>HttpRouter</code> (of which it is the inheritor). So you can
-use it to declare any <code>get</code>, <code>post</code>, <code>put</code> and other HTTP methods. For example, this is done at  <strong>19</strong> line.</p>
+<p>When processing a message from a broker, the entire message body is placed simultaneously in both the <code>body</code> and <code>path</code> request parameters. You can access them in any way convenient for you. The message header is placed in <code>headers</code>.</p>
+<p>Also, this router can be fully used as an <code>HttpRouter</code> (of which it is the inheritor). So, you can
+use it to declare any <code>get</code>, <code>post</code>, <code>put</code> and other HTTP methods. For example, this is done at <strong>line 19</strong>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>If your <strong>ASGI</strong> server does not support installing <strong>state</strong> inside <strong>lifespan</strong>, you can disable this behavior as follows:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">router</span> <span class="o">=</span> <span class="n">StreamRouter</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">setup_state</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </code></pre></div>
-<p>However, after that you will not be able to access the broker from your application's <strong>state</strong> (but it is still available as the <code>router.broker</code>)</p>
+<p>However, after that, you will not be able to access the broker from your application's <strong>state</strong> (but it is still available as the <code>router.broker</code>).</p>
 </div>
-<h2 id="broker-object-access">Broker object access<a class="headerlink" href="#broker-object-access" title="Permanent link">#</a></h2>
-<p>Inside each router there is a broker. You can easily access it if you need to send a message to MQ.</p>
+<h2 id="accessing-the-broker-object">Accessing the Broker Object<a class="headerlink" href="#accessing-the-broker-object" title="Permanent link">#</a></h2>
+<p>Inside each router, there is a broker. You can easily access it if you need to send a message to MQ:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Kafka</label><label for="__tabbed_2_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1571,7 +1571,7 @@ use it to declare any <code>get</code>, <code>post</code>, <code>put</code> and 
 </div>
 </div>
 </div>
-<p>You can use the following <code>Depends</code> to access the broker if you want to use it at different parts of your program.</p>
+<p>You can use the following <code>Depends</code> to access the broker if you want to use it at different parts of your program:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Kafka</label><label for="__tabbed_3_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1664,14 +1664,14 @@ use it to declare any <code>get</code>, <code>post</code>, <code>put</code> and 
 </div>
 </div>
 </div>
-<p>Or you can access broker from a <strong>FastAPI</strong> application state</p>
+<p>Or you can access the broker from a <strong>FastAPI</strong> application state:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">Request</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
 <a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
 <a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="n">broker</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">broker</span>
 </code></pre></div>
-<h2 id="after_startup">@after_startup<a class="headerlink" href="#after_startup" title="Permanent link">#</a></h2>
+<h2 id="after_startup"><code>@after_startup</code><a class="headerlink" href="#after_startup" title="Permanent link">#</a></h2>
 <p>The <code>FastStream</code> application has the <code class="highlight"><span class="nd">@after_startup</span></code> hook, which allows you to perform operations with your message broker after the connection is established. This can be extremely convenient for managing your brokers' objects and/or sending messages. This hook is also available for your <strong>FastAPI StreamRouter</strong></p>
 <div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">Kafka</label><label for="__tabbed_4_2">RabbitMQ</label></div>
 <div class="tabbed-content">
@@ -1783,14 +1783,14 @@ use it to declare any <code>get</code>, <code>post</code>, <code>put</code> and 
 </div>
 </div>
 </div>
-<p>This way you will have three routes to interact with your application <strong>AsyncAPI</strong> schema:</p>
+<p>This way, you will have three routes to interact with your application's <strong>AsyncAPI</strong> schema:</p>
 <ul>
-<li><code>/asyncapi</code> - the same with <a class="internal-link" href="../../asyncapi/hosting/">CLI created page</a></li>
-<li><code>/asyncapi.json</code> - download <strong>JSON</strong> schema representation</li>
-<li><code>/asyncapi.yaml</code> - download <strong>YAML</strong> schema representation</li>
+<li><code>/asyncapi</code> - the same as the <a class="internal-link" href="../../asyncapi/hosting/">CLI created page</a></li>
+<li><code>/asyncapi.json</code> - download the <strong>JSON</strong> schema representation</li>
+<li><code>/asyncapi.yaml</code> - download the <strong>YAML</strong> schema representation</li>
 </ul>
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">#</a></h2>
-<p>To test your <strong>FastAPI</strong> <em>StreamRouter</em>, you are still able to use patch it with <em>TestClient</em></p>
+<p>To test your <strong>FastAPI StreamRouter</strong>, you can still use it with the <em>TestClient</em>:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="6:2"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">Kafka</label><label for="__tabbed_6_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1877,7 +1877,7 @@ use it to declare any <code>get</code>, <code>post</code>, <code>put</code> and 
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-15T07:56:23+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-15</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>

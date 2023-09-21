@@ -1390,9 +1390,9 @@
 
 
 <h1 id="custom-decoder">Custom Decoder<a class="headerlink" href="#custom-decoder" title="Permanent link">#</a></h1>
-<p>At this stage, the body of <strong>StreamMessage</strong> is transformed to the form in which it enters your handler function. This method you will have to redefine more often.</p>
+<p>At this stage, the body of a <strong>StreamMessage</strong> is transformed into the format that it will take when it enters your handler function. This stage is the one you will need to redefine more often.</p>
 <h2 id="signature">Signature<a class="headerlink" href="#signature" title="Permanent link">#</a></h2>
-<p>In the original, its signature is quite simple (this is a simplified version):</p>
+<p>The original decoder function has a relatively simple signature (this is a simplified version):</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Kafka</label><label for="__tabbed_1_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1413,7 +1413,7 @@
 </div>
 </div>
 </div>
-<p>Also, you are able to reuse the original decoder function by using next signature</p>
+<p>Alternatively, you can reuse the original decoder function with the following signature:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Kafka</label><label for="__tabbed_2_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1444,18 +1444,18 @@
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Original decoder is always async function, so your custom one should be an async too</p>
+<p>The original decoder is always an asynchronous function, so your custom decoder should also be asynchronous.</p>
 </div>
-<p>After you can set this decoder at broker or subsriber level both.</p>
+<p>Afterward, you can set this custom decoder at the broker or subscriber level.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">#</a></h2>
-<p>You can find <em>Protobuf</em> and <em>Msgpack</em> serialization examples in the <a class="internal-link" href="../examples/">next</a> article.</p>
+<p>You can find examples of <em>Protobuf</em> and <em>Msgpack</em> serialization in the <a class="internal-link" href="../examples/">next article</a>.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-14T06:38:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-14</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>

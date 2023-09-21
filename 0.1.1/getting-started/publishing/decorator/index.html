@@ -1364,11 +1364,9 @@
 
 
 <h1 id="publisher-decorator">Publisher Decorator<a class="headerlink" href="#publisher-decorator" title="Permanent link">#</a></h1>
-<p>The second easy way to publish messages. Has an AsyncAPI representation.
-Suitable for fast application creation, but doesn't provide all testing features.</p>
-<p>Creates a structured DataPipeline unit with an input and output</p>
-<p>Subscriber and publisher decorators order has no matter, but can be used only with a functions decorated by a <code>subscriber</code> too.</p>
-<p>Uses the handler function return type annotation to cast function return before sending (be accurate with it)</p>
+<p>The second easiest way to publish messages is by using the Publisher Decorator. This method has an AsyncAPI representation and is suitable for quickly creating applications. However, it doesn't provide all testing features.</p>
+<p>It creates a structured DataPipeline unit with an input and output. The order of Subscriber and Publisher decorators doesn't matter, but they can only be used with functions decorated by a <code>subscriber</code> as well.</p>
+<p>It uses the handler function's return type annotation to cast the function's return value before sending, so be accurate with it:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Kafka</label><label for="__tabbed_1_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1461,21 +1459,21 @@ Suitable for fast application creation, but doesn't provide all testing features
 </div>
 </div>
 </div>
-<p>Can be used multiple times with the one function to broadcast function return</p>
+<p>It can be used multiple times with one function to broadcast the function's return:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;in&quot;</span><span class="p">)</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="s2">&quot;first-out&quot;</span><span class="p">)</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="s2">&quot;second-out&quot;</span><span class="p">)</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="k">return</span> <span class="s2">&quot;Response&quot;</span>
 </code></pre></div>
-<p>Also, it automatically sends a message with the same with incoming message <code>correlation_id</code>. This way you get the same <code>correlation_id</code> for the one message pipeline procces inside all services and able to collect a trace.</p>
+<p>Additionally, it automatically sends a message with the same <code>correlation_id</code> as the incoming message. This way, you get the same <code>correlation_id</code> for the entire message pipeline process across all services, allowing you to collect a trace.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-08T21:47:03+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-08</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>

@@ -1343,13 +1343,13 @@
   
 
 
-<h1 id="application-level-filtering">Application-level filtering<a class="headerlink" href="#application-level-filtering" title="Permanent link">#</a></h1>
-<p>Also, <strong>FastStream</strong> allows you to specify message processing way by message headers, body type or smth else. Using <code>filter</code> feature you are able to consume various messages with different schemas in the one event stream.</p>
+<h1 id="application-level-filtering">Application-level Filtering<a class="headerlink" href="#application-level-filtering" title="Permanent link">#</a></h1>
+<p><strong>FastStream</strong> also allows you to specify the message processing way using message headers, body type or something else. The <code>filter</code> feature enables you to consume various messages with different schemas within a single event stream.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>Message must be consumed at ONCE (crossing filters are not allowed)</p>
 </div>
-<p>As an example lets create a subscriber for <code>JSON</code> and not-<code>JSON</code> messages both:</p>
+<p>As an example, let's create a subscriber for both <code>JSON</code> and non-<code>JSON</code> messages:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Kafka</label><label for="__tabbed_1_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1436,7 +1436,7 @@
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Subscriber without filter is a default subscriber. It consumes messages, not consumed yet.</p>
+<p>A subscriber without a filter is a default subscriber. It consumes messages that have not been consumed yet.</p>
 </div>
 <p>For now, the following message will be delivered to the <code>handle</code> function</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Kafka</label><label for="__tabbed_2_2">RabbitMQ</label></div>
@@ -1482,7 +1482,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-15T17:07:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-15</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>

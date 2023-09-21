@@ -1075,21 +1075,21 @@
         
           <li class="md-nav__item">
   <a href="#create-the-settings-object" class="md-nav__link">
-    Create the Settings object
+    Create the Settings Object
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#use-the-settings" class="md-nav__link">
-    Use the settings
+  <a href="#using-the-settings" class="md-nav__link">
+    Using the settings
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#run-the-application" class="md-nav__link">
-    Run the application
+  <a href="#running-the-application" class="md-nav__link">
+    Running the Application
   </a>
   
 </li>
@@ -1101,29 +1101,29 @@
       
         <li class="md-nav__item">
   <a href="#reading-a-env-file" class="md-nav__link">
-    Reading a .env file
+    Reading a .env File
   </a>
   
-    <nav class="md-nav" aria-label="Reading a .env file">
+    <nav class="md-nav" aria-label="Reading a .env File">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#the-env-file" class="md-nav__link">
-    The .env file
+    The .env File
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#read-settings-from-env" class="md-nav__link">
-    Read settings from .env
+  <a href="#reading-settings-from-env" class="md-nav__link">
+    Reading Settings from .env
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#choose-env-file-at-start" class="md-nav__link">
-    Choose .env file at start
+  <a href="#choosing-the-env-file-at-startup" class="md-nav__link">
+    Choosing the .env File at Startup
   </a>
   
 </li>
@@ -1352,21 +1352,21 @@
         
           <li class="md-nav__item">
   <a href="#create-the-settings-object" class="md-nav__link">
-    Create the Settings object
+    Create the Settings Object
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#use-the-settings" class="md-nav__link">
-    Use the settings
+  <a href="#using-the-settings" class="md-nav__link">
+    Using the settings
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#run-the-application" class="md-nav__link">
-    Run the application
+  <a href="#running-the-application" class="md-nav__link">
+    Running the Application
   </a>
   
 </li>
@@ -1378,29 +1378,29 @@
       
         <li class="md-nav__item">
   <a href="#reading-a-env-file" class="md-nav__link">
-    Reading a .env file
+    Reading a .env File
   </a>
   
-    <nav class="md-nav" aria-label="Reading a .env file">
+    <nav class="md-nav" aria-label="Reading a .env File">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#the-env-file" class="md-nav__link">
-    The .env file
+    The .env File
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#read-settings-from-env" class="md-nav__link">
-    Read settings from .env
+  <a href="#reading-settings-from-env" class="md-nav__link">
+    Reading Settings from .env
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#choose-env-file-at-start" class="md-nav__link">
-    Choose .env file at start
+  <a href="#choosing-the-env-file-at-startup" class="md-nav__link">
+    Choosing the .env File at Startup
   </a>
   
 </li>
@@ -1434,22 +1434,21 @@
 
 
 <h1 id="settings-and-environment-variables">Settings and Environment Variables<a class="headerlink" href="#settings-and-environment-variables" title="Permanent link">#</a></h1>
-<p>In many cases your application could need some external settings or configurations, for example, a broker connection or database credentials.</p>
-<p>For this reason its common to provide them in environment variables can be then read by the application.</p>
+<p>n many cases, your application may require external settings or configurations, such as a broker connection or database credentials.</p>
+<p>To manage these settings effectively, it's common to provide them through environment variables that can be read by the application.</p>
 <h2 id="pydantic-settings">Pydantic <code>Settings</code><a class="headerlink" href="#pydantic-settings" title="Permanent link">#</a></h2>
-<p>Fortunately, <strong>Pydantic</strong> provides a great utility to handle these settings coming from environment variables with <a class="external-link" href="https://docs.pydantic.dev/latest/usage/pydantic_settings/" target="_blank">Pydantic: Settings management</a>.</p>
+<p>Fortunately, <strong>Pydantic</strong>  provides a useful utility for handling settings coming from environment variables with <a class="external-link" href="https://docs.pydantic.dev/latest/usage/pydantic_settings/" target="_blank">Pydantic: Settings management</a>.</p>
 <h3 id="install-pydantic-settings">Install <code>pydantic-settings</code><a class="headerlink" href="#install-pydantic-settings" title="Permanent link">#</a></h3>
 <p>First, install the <code>pydantic-settings</code> package:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="go">pip install pydantic-settings</span>
 </code></pre></div>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>In <strong>Pydantic v1</strong> this functionality came included with the main package. Now it is distributed as an independent package so that you can choose not to install it if you don't need that functionality.</p>
+<p>In <strong>Pydantic v1</strong>, this functionality was included with the main package. Now it is distributed as an independent package so that you can choose not to install it if you don't need that functionality.</p>
 </div>
-<h3 id="create-the-settings-object">Create the <code>Settings</code> object<a class="headerlink" href="#create-the-settings-object" title="Permanent link">#</a></h3>
-<p>Import <code>BaseSettings</code> from Pydantic and create a sub-class, very much like you would do with a Pydantic model.</p>
-<p>The same way as with Pydantic models, you declare class attributes with type annotations.</p>
-<p>You can use all the same validation features and tools you use for Pydantic models, like different data types and additional validations with <code>Field()</code>.</p>
+<h3 id="create-the-settings-object">Create the <code>Settings</code> Object<a class="headerlink" href="#create-the-settings-object" title="Permanent link">#</a></h3>
+<p>Import <code>BaseSettings</code> from Pydantic and create a subclass, similar to what you would do with a Pydantic model.</p>
+<p>Just like with Pydantic models, you declare class attributes with type annotations and can use all the same validation features and tools, including different data types and additional validations with <code>Field()</code>.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Pydantic v2</label><label for="__tabbed_1_2">Pydantic v1</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1498,10 +1497,10 @@
 </div>
 </div>
 </div>
-<p>Then, when you create an instance of that <code>Settings</code> class (in this case, in the <code>settings</code> object), Pydantic will read the environment variables in a case-insensitive way, so, an upper-case variable <code>APP_NAME</code> will still be read for the attribute <code>app_name</code>.</p>
-<p>Next it will convert and validate the data. So, when you use that <code>settings</code> object, you will have data of the type you declared (e.g. <code>items_per_user</code> will be an <code>int</code>).</p>
-<h3 id="use-the-settings">Use the <code>settings</code><a class="headerlink" href="#use-the-settings" title="Permanent link">#</a></h3>
-<p>Then you can use the new <code>settings</code> object in your application:</p>
+<p>When you create an instance of that <code>Settings</code> class (in this case, in the <code>settings</code> object), Pydantic will read the environment variables in a case-insensitive way. For example, an upper-case variable <code>APP_NAME</code> will still be read for the attribute <code>app_name</code>.</p>
+<p>It will also convert and validate the data, so when you use that <code>settings</code> object, you will have data of the type you declared (e.g. <code>items_per_user</code> will be an <code>int</code>).</p>
+<h3 id="using-the-settings">Using the <code>settings</code><a class="headerlink" href="#using-the-settings" title="Permanent link">#</a></h3>
+<p>Now you can use the new <code>settings</code> object in your application:</p>
 <div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">serve.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-3-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-3-3"> 3</a></span>
@@ -1546,34 +1545,34 @@
 <a id="__codelineno-3-21" name="__codelineno-3-21"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
 <a id="__codelineno-3-22" name="__codelineno-3-22"></a>    <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
-<h3 id="run-the-application">Run the application<a class="headerlink" href="#run-the-application" title="Permanent link">#</a></h3>
-<p>Now you can run the application passing the configuration parameters as environment variables, for example you could set an <code>URL</code>:</p>
+<h3 id="running-the-application">Running the Application<a class="headerlink" href="#running-the-application" title="Permanent link">#</a></h3>
+<p>You can run the application while passing the configuration parameters as environment variables. For example, you could set an <code>URL</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="go">URL=&quot;amqp://guest:guest@localhost:5672&quot; faststream run serve:app</span>
 </code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>To set multiple env vars for a single command just separate them with a space, and put them all before the command.</p>
+<p>To set multiple environment variables for a single command, separate them with spaces and put them all before the command.</p>
 </div>
-<h2 id="reading-a-env-file">Reading a <code>.env</code> file<a class="headerlink" href="#reading-a-env-file" title="Permanent link">#</a></h2>
-<p>If you have many settings that possibly change a lot, maybe in different environments, it might be useful to put them in a file and then read them from it as if they were environment variables.</p>
-<p>This practice is common enough that it has a name, these environment variables are commonly placed in a file <code>.env</code>, and the file is called a "dotenv".</p>
+<h2 id="reading-a-env-file">Reading a <code>.env</code> File<a class="headerlink" href="#reading-a-env-file" title="Permanent link">#</a></h2>
+<p>If you have many settings that may change frequently, especially in different environments, it might be useful to store them in a file and then read them as if they were environment variables.</p>
+<p>This practice is common enough that it has a name; these environment variables are typically placed in a file named <code>.env</code>, commonly referred to as a "dotenv" file.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>A file starting with a dot (<code>.</code>) is a hidden file in Unix-like systems, like Linux and macOS.</p>
+<p>In Unix-like systems like Linux and macOS, a file starting with a dot (<code>.</code>) is considered a hidden file.</p>
 <p>But a dotenv file doesn't really have to have that exact filename.</p>
 </div>
-<p>Pydantic has support for reading from these types of files using an external library. You can read more at <a class="external-link" href="https://docs.pydantic.dev/latest/usage/pydantic_settings/#dotenv-env-support" target="_blank">Pydantic Settings: Dotenv (.env) support</a>.</p>
+<p>Pydantic supports reading from these types of files using an external library. You can learn more at <a class="external-link" href="https://docs.pydantic.dev/latest/usage/pydantic_settings/#dotenv-env-support" target="_blank">Pydantic Settings: Dotenv (.env) support</a>.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>For this to work, you need to <code>pip install python-dotenv</code>.</p>
+<p>To use this feature, you need to install the <code>python-dotenv</code> library.</p>
 </div>
-<h3 id="the-env-file">The <code>.env</code> file<a class="headerlink" href="#the-env-file" title="Permanent link">#</a></h3>
-<p>You could have a <code>.env</code> file with:</p>
+<h3 id="the-env-file">The <code>.env</code> File<a class="headerlink" href="#the-env-file" title="Permanent link">#</a></h3>
+<p>You can create a <code>.env</code> file with contents like this:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nv">URL</span><span class="o">=</span><span class="s2">&quot;amqp://guest:guest@localhost:5672&quot;</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nv">QUEUE</span><span class="o">=</span><span class="s2">&quot;test-queue&quot;</span>
 </code></pre></div>
-<h3 id="read-settings-from-env">Read settings from <code>.env</code><a class="headerlink" href="#read-settings-from-env" title="Permanent link">#</a></h3>
-<p>And then update your <code>config.py</code> with:</p>
+<h3 id="reading-settings-from-env">Reading Settings from <code>.env</code><a class="headerlink" href="#reading-settings-from-env" title="Permanent link">#</a></h3>
+<p>Then update your <code>config.py</code> as follows:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-6-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-6-3"> 3</a></span>
@@ -1596,19 +1595,19 @@
 <a id="__codelineno-6-10" name="__codelineno-6-10"></a>
 <a id="__codelineno-6-11" name="__codelineno-6-11"></a><span class="hll"><span class="n">settings</span> <span class="o">=</span> <span class="n">Settings</span><span class="p">(</span><span class="n">_env_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;ENV&quot;</span><span class="p">,</span> <span class="s2">&quot;.env&quot;</span><span class="p">))</span>
 </span></code></pre></div></td></tr></table></div>
-<p>This way you are able to specify different <code>.env</code> files right from your terminal. It can be extremely helpful in testing/production cases.</p>
+<p>This way, you can specify different <code>.env</code> files directly from your terminal, which can be extremely helpful for various testing and production scenarios.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>By default Pydantic tries to find <code>.env</code> field in this case. If there is no <code>.env</code> file, Pydantic will just use default fields values.</p>
+<p>By default, Pydantic will attempt to find a <code>.env</code> file. If it's not present, Pydantic will use the default field values.</p>
 </div>
-<h3 id="choose-env-file-at-start">Choose <code>.env</code> file at start<a class="headerlink" href="#choose-env-file-at-start" title="Permanent link">#</a></h3>
-<p>Now you can run the apllication with various <code>.env</code> files like:</p>
+<h3 id="choosing-the-env-file-at-startup">Choosing the <code>.env</code> File at Startup<a class="headerlink" href="#choosing-the-env-file-at-startup" title="Permanent link">#</a></h3>
+<p>Now you can run the apllication with different <code>.env</code> files like so:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="go">ENV=.local.env faststream run serve:app</span>
 </code></pre></div>
-<p>Or, probably, production</p>
+<p>Or, for a production environment:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="go">ENV=.production.env faststream run serve:app</span>
 </code></pre></div>
-<p>Or even test environment</p>
+<p>Or even for a test environment:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="go">ENV=.test.env pytest</span>
 </code></pre></div>
 
@@ -1617,7 +1616,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-18T10:39:59+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-18</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>

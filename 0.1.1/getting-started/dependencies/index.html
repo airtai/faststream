@@ -752,7 +752,7 @@
       
         <li class="md-nav__item">
   <a href="#type-casting" class="md-nav__link">
-    Type casting
+    Type Casting
   </a>
   
 </li>
@@ -766,28 +766,28 @@
       
         <li class="md-nav__item">
   <a href="#top-level-dependencies" class="md-nav__link">
-    Top-level dependencies
+    Top-level Dependencies
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#nested-dependencies" class="md-nav__link">
-    Nested dependencies
+    Nested Dependencies
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#use-with-regular-functions" class="md-nav__link">
-    Use with regular functions
+    Use with Regular Functions
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#casting-dependency-types" class="md-nav__link">
-    Casting dependency types
+    Casting Dependency Types
   </a>
   
 </li>
@@ -1304,7 +1304,7 @@
       
         <li class="md-nav__item">
   <a href="#type-casting" class="md-nav__link">
-    Type casting
+    Type Casting
   </a>
   
 </li>
@@ -1318,28 +1318,28 @@
       
         <li class="md-nav__item">
   <a href="#top-level-dependencies" class="md-nav__link">
-    Top-level dependencies
+    Top-level Dependencies
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#nested-dependencies" class="md-nav__link">
-    Nested dependencies
+    Nested Dependencies
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#use-with-regular-functions" class="md-nav__link">
-    Use with regular functions
+    Use with Regular Functions
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#casting-dependency-types" class="md-nav__link">
-    Casting dependency types
+    Casting Dependency Types
   </a>
   
 </li>
@@ -1369,11 +1369,11 @@
 
 <h1 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">#</a></h1>
 <p><strong>FastStream</strong> uses the secondary library <a class="external-link" href="https://lancetnik.github.io/FastDepends/" target="_blank"><strong>FastDepends</strong></a> for dependency management.
-This dependency system is literally borrowed from <strong>FastAPI</strong>, so if you know how to work with this framework, you know how to work with dependencies in <strong>FastStream</strong>.</p>
-<p>You can go to the <a class="external-link" href="https://lancetnik.github.io/FastDepends/" target="_blank"><strong>FastDepends</strong></a> documentation if you want to get more details, however, the key points and <strong>additions</strong> will be covered here.</p>
-<h2 id="type-casting">Type casting<a class="headerlink" href="#type-casting" title="Permanent link">#</a></h2>
-<p>The key function in the dependency management and type conversion system in <strong>FastStream</strong> is the decorator <code class="highlight"><span class="nd">@apply_types</span></code> (<code class="highlight"><span class="nd">@inject</span></code> in <strong>FastDepends</strong>).</p>
-<p>By default, it applies to all event handlers, unless you disabled the same option at a broker creation.</p>
+This dependency system is literally borrowed from <strong>FastAPI</strong>, so if you know how to work with that framework, you'll be comfortable with dependencies in <strong>FastStream</strong>.</p>
+<p>You can visit the <a class="external-link" href="https://lancetnik.github.io/FastDepends/" target="_blank"><strong>FastDepends</strong></a> documentation for more details, but the key points and <strong>additions</strong> are covered here.</p>
+<h2 id="type-casting">Type Casting<a class="headerlink" href="#type-casting" title="Permanent link">#</a></h2>
+<p>The key function in the dependency management and type conversion system in <strong>FastStream</strong> is the decorator <code class="highlight"><span class="nd">@apply_types</span></code> (also known as <code class="highlight"><span class="nd">@inject</span></code> in <strong>FastDepends</strong>).</p>
+<p>By default, it applies to all event handlers, unless you disabled the same option when creating the broker.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Kafka</label><label for="__tabbed_1_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1390,12 +1390,11 @@ This dependency system is literally borrowed from <strong>FastAPI</strong>, so i
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>By setting the <code>apply_types=False</code> flag, you disable not only type casting, but also <code>Depends</code> and <code>Context</code>.</p>
+<p>Setting the <code>apply_types=False</code> flag not only disables type casting but also <code>Depends</code> and <code>Context</code>.</p>
 </div>
-<p>This flag can be useful if you are using <strong>FastStream</strong> within another framework and you do not need to use
-a native dependency system.</p>
+<p>This flag can be useful if you are using <strong>FastStream</strong> within another framework and you need to use its native dependency system.</p>
 <h2 id="dependency-injection">Dependency Injection<a class="headerlink" href="#dependency-injection" title="Permanent link">#</a></h2>
-<p>To implement dependencies in <strong>FastStream</strong>, a special class <strong>Depends</strong> is used</p>
+<p>To implement dependencies in <strong>FastStream</strong>, a special class called <strong>Depends</strong> is used</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Kafka</label><label for="__tabbed_2_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1452,11 +1451,11 @@ a native dependency system.</p>
 </div>
 </div>
 </div>
-<p><strong>The first step</strong>: we need to declare a dependency - it can be any <code>Callable</code> object.</p>
+<p><strong>The first step</strong>: You need to declare a dependency, which can be any <code>Callable</code> object.</p>
 <details class="note">
 <summary>Callable</summary>
-<p>"Callable" is an object that can be "called". It can be a function, a class, or a class method.</p>
-<p>In other words: if you can write such code <code>my_object()</code> - <code>my_object</code> will be <code>Callable</code></p>
+<p>A "Callable" is an object that can be "called". It can be a function, a class, or a class method.</p>
+<p>In other words, if you can write code like <code>my_object()</code> - <code>my_object</code> is <code>Callable</code></p>
 </details>
 <div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Kafka</label><label for="__tabbed_3_2">RabbitMQ</label></div>
 <div class="tabbed-content">
@@ -1496,21 +1495,21 @@ a native dependency system.</p>
 <div class="admonition tip">
 <p class="admonition-title">Auto <code class="highlight"><span class="nd">@apply_types</span></code></p>
 <p>In the code above, we didn't use this decorator for our dependencies. However, it still applies
-to all functions used as dependencies. Keep this in your mind.</p>
+to all functions used as dependencies. Please keep this in your mind.</p>
 </div>
-<h2 id="top-level-dependencies">Top-level dependencies<a class="headerlink" href="#top-level-dependencies" title="Permanent link">#</a></h2>
-<p>If you don't need a dependency result you can use the following code:</p>
+<h2 id="top-level-dependencies">Top-level Dependencies<a class="headerlink" href="#top-level-dependencies" title="Permanent link">#</a></h2>
+<p>If you don't need a dependency result, you can use the following code:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">def</span> <span class="nf">method</span><span class="p">(</span><span class="n">_</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="o">...</span><span class="p">)):</span> <span class="o">...</span>
 </code></pre></div>
-<p>But, using a special <code>subscriber</code> parameter is much suitable:</p>
+<p>But, using a special <code>subscriber</code> parameter is much more suitable:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">dependencies</span><span class="o">=</span><span class="p">[</span><span class="n">Depends</span><span class="p">(</span><span class="o">...</span><span class="p">)])</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">def</span> <span class="nf">method</span><span class="p">():</span> <span class="o">...</span>
 </code></pre></div>
-<p>Also, you are able to declare broker-level dependencies: they will be applied to all brokers' handlers.</p>
+<p>You can also declare broker-level dependencies, which will be applied to all broker's handlers:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">(</span><span class="n">dependencies</span><span class="o">=</span><span class="p">[</span><span class="n">Depends</span><span class="p">(</span><span class="o">...</span><span class="p">)])</span>
 </code></pre></div>
-<h2 id="nested-dependencies">Nested dependencies<a class="headerlink" href="#nested-dependencies" title="Permanent link">#</a></h2>
+<h2 id="nested-dependencies">Nested Dependencies<a class="headerlink" href="#nested-dependencies" title="Permanent link">#</a></h2>
 <p>Dependencies can also contain other dependencies. This works in a very predictable way: just declare
 <code>Depends</code> in the dependent function.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="5:2"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">Kafka</label><label for="__tabbed_5_2">RabbitMQ</label></div>
@@ -1601,15 +1600,15 @@ to all functions used as dependencies. Keep this in your mind.</p>
 </div>
 <div class="admonition tip">
 <p class="admonition-title">Caching</p>
-<p>In the example above, the <code>another_dependency</code> function will be called at <strong>ONCE!</strong>.
+<p>In the example above, the <code>another_dependency</code> function will be called at <strong>ONCE</strong>!
 <strong>FastDepends</strong> caches all dependency execution results within <strong>ONE</strong> <code class="highlight"><span class="nd">@apply_types</span></code> call stack.
 This means that all nested dependencies will receive the cached result of dependency execution.
 But, between different calls of the main function, these results will be different.</p>
 <p>To prevent this behavior, just use <code class="highlight"><span class="n">Depends</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>. In this case, the dependency will be used for each function
 in the call stack where it is used.</p>
 </div>
-<h2 id="use-with-regular-functions">Use with regular functions<a class="headerlink" href="#use-with-regular-functions" title="Permanent link">#</a></h2>
-<p>You can use the decorator <code class="highlight"><span class="nd">@apply_types</span></code> not only together with your <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code>, but also with the usual functions: both synchronous and asynchronous.</p>
+<h2 id="use-with-regular-functions">Use with Regular Functions<a class="headerlink" href="#use-with-regular-functions" title="Permanent link">#</a></h2>
+<p>You can use the decorator <code class="highlight"><span class="nd">@apply_types</span></code> not only with <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code>, but also with regular functions, both synchronous and asynchronous.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="6:2"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">Sync</label><label for="__tabbed_6_2">Async</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1679,9 +1678,9 @@ But in synchronous code, only synchronous dependencies are available to you.</p>
 </div>
 </div>
 </div>
-<h2 id="casting-dependency-types">Casting dependency types<a class="headerlink" href="#casting-dependency-types" title="Permanent link">#</a></h2>
+<h2 id="casting-dependency-types">Casting Dependency Types<a class="headerlink" href="#casting-dependency-types" title="Permanent link">#</a></h2>
 <p><strong>FastDepends</strong>, used by <strong>FastStream</strong>, also gives the type <code>return</code>. This means that the value returned by the dependency will be
-be cast to the type twice: as <code>return</code> these are dependencies and as the input argument of the main function. This does not incur additional costs if
+be cast to the type twice: as <code>return</code> for dependencies and as the input argument of the main function. This does not incur additional costs if
 these types have the same annotation. Just keep it in mind. Or not... Anyway, I've warned you.</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-15-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-15-2"> 2</a></span>
@@ -1715,7 +1714,7 @@ of types in your project.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T15:36:19+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>

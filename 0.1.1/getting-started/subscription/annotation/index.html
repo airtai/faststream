@@ -697,7 +697,7 @@
       
         <li class="md-nav__item">
   <a href="#json-basic-serialization" class="md-nav__link">
-    JSON Basic serialization
+    JSON Basic Serialization
   </a>
   
 </li>
@@ -1381,7 +1381,7 @@
       
         <li class="md-nav__item">
   <a href="#json-basic-serialization" class="md-nav__link">
-    JSON Basic serialization
+    JSON Basic Serialization
   </a>
   
 </li>
@@ -1411,7 +1411,7 @@
 
 <h1 id="annotation-serialization">Annotation Serialization<a class="headerlink" href="#annotation-serialization" title="Permanent link">#</a></h1>
 <h2 id="basic-usage">Basic usage<a class="headerlink" href="#basic-usage" title="Permanent link">#</a></h2>
-<p>As you already know, <strong>FastStream</strong> serialize your incoming message body in according to the function type annotations using <a class="external-link" href="https://docs.pydantic.dev" target="_blank"><strong>Pydantic</strong></a>.</p>
+<p>As you already know, <strong>FastStream</strong> serializes your incoming message body according to the function type annotations using <a class="external-link" href="https://docs.pydantic.dev" target="_blank"><strong>Pydantic</strong></a>.</p>
 <p>So, there are some valid usecases:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
@@ -1425,14 +1425,14 @@
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="o">...</span>
 </code></pre></div>
-<p>As an other Python primitive types too (<code class="highlight"><span class="nb">float</span></code>, <code class="highlight"><span class="nb">bool</span></code>, <code class="highlight"><span class="n">datetime</span></code>, etc)</p>
+<p>As with other Python primitive types as well (<code class="highlight"><span class="nb">float</span></code>, <code class="highlight"><span class="nb">bool</span></code>, <code class="highlight"><span class="n">datetime</span></code>, etc)</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If incoming message can not be serialized by described schema, <strong>FastStream</strong> raises <code>pydantic.ValidationError</code> with correct log message.</p>
+<p>If the incoming message cannot be serialized by the described schema, <strong>FastStream</strong> raises a <code>pydantic.ValidationError</code> with a correct log message.</p>
 </div>
-<p>Also, thanks to <strong>Pydantic</strong> (again), <strong>FastStream</strong> is able to serialize (and validates) more complex types like <code>pydantic.HttpUrl</code>, <code>pydantic.PostitiveInt</code>, etc.</p>
-<h2 id="json-basic-serialization">JSON Basic serialization<a class="headerlink" href="#json-basic-serialization" title="Permanent link">#</a></h2>
-<p>But how we can serialize more complex message, like <code class="highlight"><span class="p">{</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;John&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span></code> ?</p>
+<p>Also, thanks to <strong>Pydantic</strong> (again), <strong>FastStream</strong> is able to serialize (and validate) more complex types like <code>pydantic.HttpUrl</code>, <code>pydantic.PostitiveInt</code>, etc.</p>
+<h2 id="json-basic-serialization">JSON Basic Serialization<a class="headerlink" href="#json-basic-serialization" title="Permanent link">#</a></h2>
+<p>But how can we serialize more complex message, like <code class="highlight"><span class="p">{</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;John&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">}</span></code> ?</p>
 <p>For sure, we can serialize it as a simple <code class="highlight"><span class="nb">dict</span></code></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
@@ -1440,8 +1440,8 @@
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="o">...</span>
 </code></pre></div>
-<p>But it doesn't look like a correct message validation, isn't it?</p>
-<p>This reason <strong>FastStream</strong> supports per-argument message serialization: you can declare multiple arguments with various types and your message will unpack to them:</p>
+<p>But it doesn't looks like a correct message validation, does it?</p>
+<p>For this reason, <strong>FastStream</strong> supports per-argument message serialization: you can declare multiple arguments with various types and your message will unpack to them:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Kafka</label><label for="__tabbed_1_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1466,7 +1466,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-15T17:07:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-15</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>

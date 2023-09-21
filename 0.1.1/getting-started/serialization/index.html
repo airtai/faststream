@@ -1349,24 +1349,24 @@
 
 
 <h1 id="custom-serialization">Custom Serialization<a class="headerlink" href="#custom-serialization" title="Permanent link">#</a></h1>
-<p>By default, <strong>FastStream</strong> uses the <em>JSON</em> format to send and receive messages. However, if you need to handle messages in other formats or with extra serialization steps such as <em>gzip</em>, <em>lz4</em>, <em>Avro</em>, <em>Protobuf</em> or <em>Msgpack</em>, you can easily modify the serialization logic.</p>
+<p>By default, <strong>FastStream</strong> uses the <em>JSON</em> format to send and receive messages. However, if you need to handle messages in other formats or with additional serialization steps, such as <em>gzip</em>, <em>lz4</em>, <em>Avro</em>, <em>Protobuf</em> or <em>Msgpack</em>, you can easily modify the serialization logic.</p>
 <h2 id="serialization-steps">Serialization Steps<a class="headerlink" href="#serialization-steps" title="Permanent link">#</a></h2>
-<p>Before the message gets into your subscriber, <strong>FastStream</strong> applies 2 functions to it sequentially: <code>parse_message</code> and <code>decode_message</code>. You can modify one or both stages depending on your needs.</p>
+<p>Before the message reaches your subscriber, <strong>FastStream</strong> applies two functions to it sequentially: <code>parse_message</code> and <code>decode_message</code>. You can modify one or both stages depending on your needs.</p>
 <h3 id="message-parsing">Message Parsing<a class="headerlink" href="#message-parsing" title="Permanent link">#</a></h3>
-<p>At this stage, <strong>FastStream</strong> serializes an incoming message of the framework that is used to work with the broker into a general view - <strong>StreamMessage</strong>. At this stage, the message body remains in the form of raw bytes.</p>
+<p>At this stage, <strong>FastStream</strong> serializes an incoming message from the broker's framework into a general format called - <strong>StreamMessage</strong>. During this stage, the message body remains in the form of raw bytes.</p>
 <div class="admonition warning">
-<p>This stage is strongly related to the features of the broker used and in most cases, its redefinition is not necessary.</p>
+<p>This stage is closely related to the features of the broker used, and in most cases, redefining it is not necessary.</p>
 </div>
-<p>The parser declared at the <code>broker</code> level will be applied to all subscribers. The parser declared at the <code>subscriber</code> level is applied only to this subscriber (it ignores the `broker' parser if it was specified earlier).</p>
+<p>The parser declared at the <code>broker</code> level will be applied to all subscribers. The parser declared at the <code>subscriber</code> level is applied only to that specific subscriber and overrides the `broker' parser if specified.</p>
 <h3 id="message-decoding">Message Decoding<a class="headerlink" href="#message-decoding" title="Permanent link">#</a></h3>
-<p>At this stage, the body of <strong>StreamMessage</strong> is transformed to the form in which it enters your subscriber function. This method you will have to redefine more often.</p>
+<p>At this stage, the body of the <strong>StreamMessage</strong> is transformed into a format suitable for processing within your subscriber function. This is the stage you may need to redefine more often.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-14T06:38:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-14</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>

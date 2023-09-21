@@ -1390,11 +1390,11 @@
 
 
 <h1 id="custom-parser">Custom Parser<a class="headerlink" href="#custom-parser" title="Permanent link">#</a></h1>
-<p>At this stage, <strong>FastStream</strong> serializes an incoming message of the framework that is used to work with the broker into a general view - <strong>StreamMessage</strong>. At this stage, the message body remains in the form of raw bytes.</p>
-<p><strong>StreamMessage</strong> - is a general <strong>FastStream</strong> message view. It contains total information about message required inside <strong>FastStreams</strong>. It is using to represent even a messages batches, so the only one reason to customize it - <strong>FastStream</strong> message metainformation redefinition.</p>
-<p>As an example: you can specify your own header with the <code>message_id</code> semantic. So, you can inform <strong>FastStream</strong> about it by parser customization.</p>
+<p>At this stage, <strong>FastStream</strong> serializes an incoming message from the broker's framework into a general format called <strong>StreamMessage</strong>. During this stage, the message body remains in the form of raw bytes.</p>
+<p><strong>StreamMessage</strong> is a general representation of a message within <strong>FastStream</strong>. It contains all the information required for message processing within <strong>FastStreams</strong>.  It is even used to represent message batches, so the primary reason to customize it is to redefine the metadata associated with <strong>FastStream</strong> messages.</p>
+<p>For example, you can specify your own header with the <code>message_id</code> semantic. This allows you to inform <strong>FastStream</strong> about this custom header through parser customization.</p>
 <h2 id="signature">Signature<a class="headerlink" href="#signature" title="Permanent link">#</a></h2>
-<p>To create a custom message parser you should write a regular (sync or async) python function with the following signature:</p>
+<p>To create a custom message parser, you should write a regular Python function (synchronous or asynchronous) with the following signature:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Kafka</label><label for="__tabbed_1_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1415,7 +1415,7 @@
 </div>
 </div>
 </div>
-<p>Also, you are able to reuse the original parser function by using next signature</p>
+<p>Alternatively, you can reuse the original parser function with the following signature:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Kafka</label><label for="__tabbed_2_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1444,14 +1444,14 @@
 </div>
 </div>
 </div>
-<p>All arguments naming has no matter, parser will be always placed to the second one.</p>
+<p>The argument naming doesn't matter; the parser will always be placed as the second argument.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Original parser is always async function, so your custom one should be an async too</p>
+<p>The original parser is always an asynchronous function, so your custom parser should also be asynchronous.</p>
 </div>
-<p>After you can set this parser at broker or subsriber level both.</p>
+<p>Afterward, you can set this custom parser at the broker or subscriber level.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">#</a></h2>
-<p>As an example, let's redefine <code>message_id</code> to the custom header</p>
+<p>As an example, let's redefine <code>message_id</code> to a custom header:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Kafka</label><label for="__tabbed_3_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1490,18 +1490,18 @@
 <a id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span>
 <a id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span><span class="p">,</span> <span class="n">KafkaMessage</span>
 <a id="__codelineno-4-7" name="__codelineno-4-7"></a>
-<a id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="hll">
-</span><a id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">custom_parser</span><span class="p">(</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8"></a>
+<a id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">custom_parser</span><span class="p">(</span>
 </span><a id="__codelineno-4-10" name="__codelineno-4-10"></a><span class="hll">    <span class="n">msg</span><span class="p">:</span> <span class="n">ConsumerRecord</span><span class="p">,</span>
 </span><a id="__codelineno-4-11" name="__codelineno-4-11"></a><span class="hll">    <span class="n">original_parser</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">ConsumerRecord</span><span class="p">],</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">KafkaMessage</span><span class="p">]],</span>
 </span><a id="__codelineno-4-12" name="__codelineno-4-12"></a><span class="hll"><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">KafkaMessage</span><span class="p">:</span>
 </span><a id="__codelineno-4-13" name="__codelineno-4-13"></a><span class="hll">    <span class="n">parsed_msg</span> <span class="o">=</span> <span class="k">await</span> <span class="n">original_parser</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 </span><a id="__codelineno-4-14" name="__codelineno-4-14"></a><span class="hll">    <span class="n">parsed_msg</span><span class="o">.</span><span class="n">message_id</span> <span class="o">=</span> <span class="n">parsed_msg</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;custom_message_id&quot;</span><span class="p">]</span>
-</span><a id="__codelineno-4-15" name="__codelineno-4-15"></a>    <span class="k">return</span> <span class="n">parsed_msg</span>
-<a id="__codelineno-4-16" name="__codelineno-4-16"></a>
-<a id="__codelineno-4-17" name="__codelineno-4-17"></a><span class="hll">
-</span><a id="__codelineno-4-18" name="__codelineno-4-18"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="n">parser</span><span class="o">=</span><span class="n">custom_parser</span><span class="p">)</span>
-<a id="__codelineno-4-19" name="__codelineno-4-19"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
+</span><a id="__codelineno-4-15" name="__codelineno-4-15"></a><span class="hll">    <span class="k">return</span> <span class="n">parsed_msg</span>
+</span><a id="__codelineno-4-16" name="__codelineno-4-16"></a>
+<a id="__codelineno-4-17" name="__codelineno-4-17"></a>
+<a id="__codelineno-4-18" name="__codelineno-4-18"></a><span class="hll"><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="n">parser</span><span class="o">=</span><span class="n">custom_parser</span><span class="p">)</span>
+</span><a id="__codelineno-4-19" name="__codelineno-4-19"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
 <a id="__codelineno-4-20" name="__codelineno-4-20"></a>
 <a id="__codelineno-4-21" name="__codelineno-4-21"></a>
 <a id="__codelineno-4-22" name="__codelineno-4-22"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
@@ -1550,18 +1550,18 @@
 <a id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span>
 <a id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span><span class="p">,</span> <span class="n">RabbitMessage</span>
 <a id="__codelineno-5-7" name="__codelineno-5-7"></a>
-<a id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="hll">
-</span><a id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">custom_parser</span><span class="p">(</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">custom_parser</span><span class="p">(</span>
 </span><a id="__codelineno-5-10" name="__codelineno-5-10"></a><span class="hll">    <span class="n">msg</span><span class="p">:</span> <span class="n">IncomingMessage</span><span class="p">,</span>
 </span><a id="__codelineno-5-11" name="__codelineno-5-11"></a><span class="hll">    <span class="n">original_parser</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">IncomingMessage</span><span class="p">],</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">RabbitMessage</span><span class="p">]],</span>
 </span><a id="__codelineno-5-12" name="__codelineno-5-12"></a><span class="hll"><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RabbitMessage</span><span class="p">:</span>
 </span><a id="__codelineno-5-13" name="__codelineno-5-13"></a><span class="hll">    <span class="n">parsed_msg</span> <span class="o">=</span> <span class="k">await</span> <span class="n">original_parser</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 </span><a id="__codelineno-5-14" name="__codelineno-5-14"></a><span class="hll">    <span class="n">parsed_msg</span><span class="o">.</span><span class="n">message_id</span> <span class="o">=</span> <span class="n">parsed_msg</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;custom_message_id&quot;</span><span class="p">]</span>
-</span><a id="__codelineno-5-15" name="__codelineno-5-15"></a>    <span class="k">return</span> <span class="n">parsed_msg</span>
-<a id="__codelineno-5-16" name="__codelineno-5-16"></a>
-<a id="__codelineno-5-17" name="__codelineno-5-17"></a><span class="hll">
-</span><a id="__codelineno-5-18" name="__codelineno-5-18"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">(</span><span class="n">parser</span><span class="o">=</span><span class="n">custom_parser</span><span class="p">)</span>
-<a id="__codelineno-5-19" name="__codelineno-5-19"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
+</span><a id="__codelineno-5-15" name="__codelineno-5-15"></a><span class="hll">    <span class="k">return</span> <span class="n">parsed_msg</span>
+</span><a id="__codelineno-5-16" name="__codelineno-5-16"></a>
+<a id="__codelineno-5-17" name="__codelineno-5-17"></a>
+<a id="__codelineno-5-18" name="__codelineno-5-18"></a><span class="hll"><span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">(</span><span class="n">parser</span><span class="o">=</span><span class="n">custom_parser</span><span class="p">)</span>
+</span><a id="__codelineno-5-19" name="__codelineno-5-19"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
 <a id="__codelineno-5-20" name="__codelineno-5-20"></a>
 <a id="__codelineno-5-21" name="__codelineno-5-21"></a>
 <a id="__codelineno-5-22" name="__codelineno-5-22"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
@@ -1582,7 +1582,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-14T06:38:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-14</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>

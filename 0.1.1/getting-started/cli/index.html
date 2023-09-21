@@ -1019,23 +1019,23 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#run-the-project" class="md-nav__link">
-    Run the project
+  <a href="#running-the-project" class="md-nav__link">
+    Running the Project
   </a>
   
-    <nav class="md-nav" aria-label="Run the project">
+    <nav class="md-nav" aria-label="Running the Project">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#multiprocessing-scaling" class="md-nav__link">
-    Multiprocessing scaling
+    Multiprocessing Scaling
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#hotreload" class="md-nav__link">
-    Hotreload
+  <a href="#hot-reload" class="md-nav__link">
+    Hot Reload
   </a>
   
 </li>
@@ -1302,23 +1302,23 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#run-the-project" class="md-nav__link">
-    Run the project
+  <a href="#running-the-project" class="md-nav__link">
+    Running the Project
   </a>
   
-    <nav class="md-nav" aria-label="Run the project">
+    <nav class="md-nav" aria-label="Running the Project">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#multiprocessing-scaling" class="md-nav__link">
-    Multiprocessing scaling
+    Multiprocessing Scaling
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#hotreload" class="md-nav__link">
-    Hotreload
+  <a href="#hot-reload" class="md-nav__link">
+    Hot Reload
   </a>
   
 </li>
@@ -1390,10 +1390,10 @@
 <a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="w">  </span>docs<span class="w">  </span>AsyncAPI<span class="w"> </span>schema<span class="w"> </span>commands
 <a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">  </span>run<span class="w">   </span>Run<span class="w"> </span><span class="o">[</span>MODULE:APP<span class="o">]</span><span class="w"> </span>FastStream<span class="w"> </span>application
 </code></pre></div>
-<h2 id="run-the-project">Run the project<a class="headerlink" href="#run-the-project" title="Permanent link">#</a></h2>
-<h3 id="multiprocessing-scaling">Multiprocessing scaling<a class="headerlink" href="#multiprocessing-scaling" title="Permanent link">#</a></h3>
+<h2 id="running-the-project">Running the Project<a class="headerlink" href="#running-the-project" title="Permanent link">#</a></h2>
+<h3 id="multiprocessing-scaling">Multiprocessing Scaling<a class="headerlink" href="#multiprocessing-scaling" title="Permanent link">#</a></h3>
 <p><strong>FastStream</strong> allows you to scale application right from the command line by running you application in the Process pool.</p>
-<p>Just set <code>--worker</code> option to scale your application:</p>
+<p>Just set the <code>--worker</code> option to scale your application:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>serve:app<span class="w"> </span>--workers<span class="w"> </span><span class="m">2</span>
 </code></pre></div>
 <div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>INFO<span class="w">     </span>-<span class="w"> </span>Started<span class="w"> </span>parent<span class="w"> </span>process<span class="w"> </span><span class="o">[</span><span class="m">7591</span><span class="o">]</span>
@@ -1402,7 +1402,7 @@
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>INFO<span class="w">     </span>-<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="p">|</span><span class="w">            </span>-<span class="w"> </span><span class="sb">`</span>Handle<span class="sb">`</span><span class="w"> </span>waiting<span class="w"> </span><span class="k">for</span><span class="w"> </span>messages
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>INFO<span class="w">     </span>-<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="p">|</span><span class="w">            </span>-<span class="w"> </span><span class="sb">`</span>Handle<span class="sb">`</span><span class="w"> </span>waiting<span class="w"> </span><span class="k">for</span><span class="w"> </span>messages
 </code></pre></div>
-<h3 id="hotreload">Hotreload<a class="headerlink" href="#hotreload" title="Permanent link">#</a></h3>
+<h3 id="hot-reload">Hot Reload<a class="headerlink" href="#hot-reload" title="Permanent link">#</a></h3>
 <p>Thanks to <a class="external-link" href="https://watchfiles.helpmanual.io/" target="_blank"><em>watchfiles</em></a>, written in <em>Rust</em>, you can
 work with your project easily. Edit the code as much as you like - the new version has already been launched and is waiting for your requests!</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>serve:app<span class="w"> </span>--reload
@@ -1500,15 +1500,15 @@ work with your project easily. Edit the code as much as you like - the new versi
 </div>
 <p>All passed values can be of type <code class="highlight"><span class="nb">bool</span></code>, <code class="highlight"><span class="nb">str</span></code> or <code class="highlight"><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></code>.</p>
 <p>In this case, the flags will be interpreted as follows:</p>
-<p><div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>app:app<span class="w"> </span>--flag<span class="w">       </span><span class="c1"># flag = True</span>
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>app:app<span class="w"> </span>--flag<span class="w">       </span><span class="c1"># flag = True</span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>faststream<span class="w"> </span>run<span class="w"> </span>app:app<span class="w"> </span>--no-flag<span class="w">    </span><span class="c1"># flag = False</span>
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>faststream<span class="w"> </span>run<span class="w"> </span>app:app<span class="w"> </span>--my-flag<span class="w">    </span><span class="c1"># my_flag = True</span>
 <a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>faststream<span class="w"> </span>run<span class="w"> </span>app:app<span class="w"> </span>--key<span class="w"> </span>value<span class="w">  </span><span class="c1"># key = &quot;value&quot;</span>
 <a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>faststream<span class="w"> </span>run<span class="w"> </span>app:app<span class="w"> </span>--key<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w">    </span><span class="c1"># key = [&quot;1&quot;, &quot;2&quot;]</span>
 </code></pre></div>
-You can use them both individually and together in unlimited quantities.</p>
+<p>You can use them both individually and together in unlimited quantities.</p>
 <h2 id="asyncapi-schema">AsyncAPI Schema<a class="headerlink" href="#asyncapi-schema" title="Permanent link">#</a></h2>
-<p>Also, <strong>FastStream CLI</strong> allows you to work with the <strong>AsyncAPI</strong> schema in a simple way.</p>
+<p>Also, the <strong>FastStream CLI</strong> allows you to work with the <strong>AsyncAPI</strong> schema in a simple way.</p>
 <p>You are able to generate <code>.json</code> or <code>.yaml</code> files by your application code or host <strong>HTML</strong> representation directly:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>faststream<span class="w"> </span>docs<span class="w"> </span>--help
 </code></pre></div>
@@ -1523,14 +1523,14 @@ You can use them both individually and together in unlimited quantities.</p>
 <a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">  </span>gen<span class="w">    </span>Generate<span class="w"> </span>project<span class="w"> </span>AsyncAPI<span class="w"> </span>schema
 <a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">  </span>serve<span class="w">  </span>Serve<span class="w"> </span>project<span class="w"> </span>AsyncAPI<span class="w"> </span>schema
 </code></pre></div>
-<p>To know more about the commands above, please visit <a class="internal-link" href="../asyncapi/export/"><strong>AsyncAPI</strong> export</a> and <a class="internal-link" href="../asyncapi/hosting/"><strong>AsyncAPI</strong> hosting</a>.</p>
+<p>To learn more about the commands above, please visit <a class="internal-link" href="../asyncapi/export/"><strong>AsyncAPI export</strong></a> and <a class="internal-link" href="../asyncapi/hosting/"><strong>AsyncAPI hosting</strong></a>.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-15T17:07:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-15</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>

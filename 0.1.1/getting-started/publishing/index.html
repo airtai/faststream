@@ -1354,17 +1354,17 @@
 
 
 <h1 id="publishing-basics">Publishing Basics<a class="headerlink" href="#publishing-basics" title="Permanent link">#</a></h1>
-<p>Broker agnostic, easy to use (even as a client in the not-FastStream apps)</p>
-<p>Several usecases</p>
+<p><strong>FastStream</strong> is broker-agnostic and easy to use, even as a client in non-FastStream applications.</p>
+<p>It offers several use cases for publishing messages:</p>
 <ul>
-<li>broker.publish</li>
-<li>decorator</li>
-<li>publisher object decorator</li>
-<li>publisher object direct</li>
+<li>Using `broker.publish``</li>
+<li>Using a decorator</li>
+<li>Using a publisher object decorator</li>
+<li>Using a publisher object directly</li>
 </ul>
-<p>Allows to publish any JSON-serializable messages (python types, pydantic models, e.t.c.) or raw bytes.</p>
-<p>Automatically setups all required headers (especially correlation_id, which using to trace message processing pipeline through all services)</p>
-<p>Just setup a message and a routing key</p>
+<p><strong>FastStream</strong> allows you to publish any JSON-serializable messages (Python types, Pydantic models, e.t.c.) or raw bytes.</p>
+<p>It automatically sets up all required headers, especially the correlation_id, which is used to trace message processing pipelines across all services.</p>
+<p>To publish a message, simply set up the message content and a routing key:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Kafka</label><label for="__tabbed_1_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1385,7 +1385,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-15T17:07:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-15</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>

@@ -732,14 +732,14 @@
       
         <li class="md-nav__item">
   <a href="#router-usage" class="md-nav__link">
-    Router usage
+    Router Usage
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#delay-handler-registration" class="md-nav__link">
-    Delay handler registration
+    Delay Handler Registration
   </a>
   
 </li>
@@ -1276,14 +1276,14 @@
       
         <li class="md-nav__item">
   <a href="#router-usage" class="md-nav__link">
-    Router usage
+    Router Usage
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#delay-handler-registration" class="md-nav__link">
-    Delay handler registration
+    Delay Handler Registration
   </a>
   
 </li>
@@ -1314,15 +1314,15 @@
 <h1 id="broker-router">Broker Router<a class="headerlink" href="#broker-router" title="Permanent link">#</a></h1>
 <p>Sometimes you want to:</p>
 <ul>
-<li>split an application to includable modules</li>
-<li>separate business logic from you handler registration</li>
-<li>apply some <a href="../serialization/">decoder</a>/<a href="../middlewares/">middleware</a>/<a href="../dependencies/global/">dependencies</a> to subscribers group</li>
+<li>split an application into includable modules</li>
+<li>separate business logic from your handler registration</li>
+<li>apply some <a href="../serialization/">decoder</a>/<a href="../middlewares/">middleware</a>/<a href="../dependencies/global/">dependencies</a> to a subscribers group</li>
 </ul>
-<p>This reason <strong>FastStream</strong> has a special <em>Broker Router</em>.</p>
-<h2 id="router-usage">Router usage<a class="headerlink" href="#router-usage" title="Permanent link">#</a></h2>
-<p>First you need to import <em>Broker Router</em> from the same module from where you imported the broker.</p>
+<p>For these reasons, <strong>FastStream</strong> has a special <em>Broker Router</em>.</p>
+<h2 id="router-usage">Router Usage<a class="headerlink" href="#router-usage" title="Permanent link">#</a></h2>
+<p>First, you need to import the <em>Broker Router</em> from the same module from where you imported the broker.</p>
 <div class="admonition note">
-<p>When creating, you can specify a prefix that will be automatically applied to all subscribers and publishers of this router.</p>
+<p>When creating a <em>Broker Router</em>, you can specify a prefix that will be automatically applied to all subscribers and publishers of this router.</p>
 </div>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Kafka</label><label for="__tabbed_1_2">RabbitMQ</label></div>
 <div class="tabbed-content">
@@ -1413,10 +1413,10 @@
 </div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Also, at <em>Broker Router</em> creation you can specify <a href="../middlewares/">middleware</a>, <a href="../dependencies/global/">dependencies</a>, <a href="../serialization/parser/">parser</a> and <a href="../serialization/decoder/">decoder</a> to apply them to all subscribers, declared via this router.</p>
+<p>Also, when creating a <em>Broker Router</em>, you can specify <a href="../middlewares/">middleware</a>, <a href="../dependencies/global/">dependencies</a>, <a href="../serialization/parser/">parser</a> and <a href="../serialization/decoder/">decoder</a> to apply them to all subscribers declared via this router.</p>
 </div>
-<h2 id="delay-handler-registration">Delay handler registration<a class="headerlink" href="#delay-handler-registration" title="Permanent link">#</a></h2>
-<p>If you want to separate your application core logic from <strong>FastStream</strong> routing one, you can just write some core functions and use them as a <em>Broker Router</em> <code>handlers</code> lately:</p>
+<h2 id="delay-handler-registration">Delay Handler Registration<a class="headerlink" href="#delay-handler-registration" title="Permanent link">#</a></h2>
+<p>If you want to separate your application's core logic from <strong>FastStream</strong>'s routing logic, you can write some core functions and use them as <em>Broker Router</em> <code>handlers</code> later:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="5:2"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">Kafka</label><label for="__tabbed_5_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1487,7 +1487,7 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Be careful, this way you have no ability to test you handlers with a <a href="../subscription/test/"><code>mock</code></a> object.</p>
+<p>Be careful, this way you won't be able to test your handlers with a <a href="../subscription/test/"><code>mock</code></a> object.</p>
 </div>
 
   <hr>
@@ -1495,7 +1495,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-15T07:56:23+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-15</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>

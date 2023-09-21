@@ -1364,9 +1364,7 @@
 
 
 <h1 id="publisher-direct-usage">Publisher Direct Usage<a class="headerlink" href="#publisher-direct-usage" title="Permanent link">#</a></h1>
-<p>Full-featured way to publish messages (has AsyncAPI representation + testable feaures).
-Creates reusable Publisher object.</p>
-<p>Can be used directly to publush a message</p>
+<p>The Publisher Direct Usage is a full-featured way to publish messages. It has AsyncAPI representation and includes testable features. This method creates a reusable Publisher object that can be used directly to publish a message:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Kafka</label><label for="__tabbed_1_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1463,7 +1461,7 @@ Creates reusable Publisher object.</p>
 </div>
 </div>
 </div>
-<p>Suitable to publish different messages to different outputes at the same processing function</p>
+<p>It is suitable for publishing different messages to different outputs within the same processing function:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;in&quot;</span><span class="p">)</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="k">await</span> <span class="n">publisher1</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;Response-1&quot;</span><span class="p">)</span>
@@ -1475,7 +1473,7 @@ Creates reusable Publisher object.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-11T11:31:30+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-11</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>

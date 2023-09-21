@@ -1320,7 +1320,7 @@
       
         <li class="md-nav__item">
   <a href="#message-body-serialization" class="md-nav__link">
-    Message body serialization
+    Message Body Serialization
   </a>
   
 </li>
@@ -1356,9 +1356,9 @@
 
 
 <h1 id="subscription-basics">Subscription Basics<a class="headerlink" href="#subscription-basics" title="Permanent link">#</a></h1>
-<p><strong>FastStream</strong> provides you Message Broker agnostic way to subscribe on event streams.</p>
-<p>You need no even know about topic/queue/subject or any broker inner objects you use.
-The basic syntax is same in for all brokers:</p>
+<p><strong>FastStream</strong> provides a Message Broker agnostic way to subscribe to event streams.</p>
+<p>You need not even know about topics/queues/subjects or any broker inner objects you use.
+The basic syntax is the same for all brokers:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Kafka</label><label for="__tabbed_1_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1385,8 +1385,8 @@ The basic syntax is same in for all brokers:</p>
 </div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>If you want to use Message Broker specific features, please visit corresponding broker documentation section.
-In the <strong>Tutorial</strong> section the general features are described.</p>
+<p>If you want to use Message Broker specific features, please visit the corresponding broker documentation section.
+In the <strong>Tutorial</strong> section, the general features are described.</p>
 </div>
 <p>Also, synchronous functions are supported as well:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Kafka</label><label for="__tabbed_2_2">RabbitMQ</label></div>
@@ -1413,14 +1413,14 @@ In the <strong>Tutorial</strong> section the general features are described.</p>
 </div>
 </div>
 </div>
-<h2 id="message-body-serialization">Message body serialization<a class="headerlink" href="#message-body-serialization" title="Permanent link">#</a></h2>
-<p>Generally, <strong>FastStream</strong> uses your function type annotation to serialize incoming message body by <a class="external-link" href="https://docs.pydantic.dev" target="_blank"><strong>Pydantic</strong></a>. It is pretty close to how <a class="external-link" href="https://fastapi.tiangolo.com" target="_blank"><strong>FastAPI</strong></a> works (if you are familiar with it).</p>
+<h2 id="message-body-serialization">Message Body Serialization<a class="headerlink" href="#message-body-serialization" title="Permanent link">#</a></h2>
+<p>Generally, <strong>FastStream</strong> uses your function type annotation to serialize incoming message body with <a class="external-link" href="https://docs.pydantic.dev" target="_blank"><strong>Pydantic</strong></a>. This is similar to how <a class="external-link" href="https://fastapi.tiangolo.com" target="_blank"><strong>FastAPI</strong></a> works (if you are familiar with it).</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle_str</span><span class="p">(</span><span class="n">msg_body</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="o">...</span>
 </code></pre></div>
-<p>Also, through the function arguments you can get access to some extra features: <a class="internal-link" href="../dependencies/">Depends</a> and <a class="internal-link" href="../context/existed/">Context</a> if it is required.</p>
-<p>But you can easely disable pydantic validation by creation a broker with the following option <code class="highlight"><span class="n">Broker</span><span class="p">(</span><span class="n">apply_types</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code> (disables Context and Depends features too)</p>
+<p>You can also access some extra features through the function arguments, such as <a class="internal-link" href="../dependencies/">Depends</a> and <a class="internal-link" href="../context/existed/">Context</a> if required.</p>
+<p>However, you can easily disable Pydantic validation by creating a broker with the following option <code class="highlight"><span class="n">Broker</span><span class="p">(</span><span class="n">apply_types</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code> (this also disables Context and Depends features).</p>
 <p>This way <strong>FastStream</strong> still consumes <code class="highlight"><span class="n">json</span><span class="o">.</span><span class="n">loads</span></code> result, but without pydantic validation and casting.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Kafka</label><label for="__tabbed_3_2">RabbitMQ</label></div>
 <div class="tabbed-content">
@@ -1447,7 +1447,7 @@ In the <strong>Tutorial</strong> section the general features are described.</p>
 </div>
 </div>
 <h2 id="multiple-subscriptions">Multiple Subscriptions<a class="headerlink" href="#multiple-subscriptions" title="Permanent link">#</a></h2>
-<p>Also, you are able to subscribe on multiple event streams in the same time with the one function. Just wrap it by multiple <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorators (they have no effect on each other)</p>
+<p>You can also subscribe to multiple event streams at the same time with one function. Just wrap it with multiple <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorators (they have no effect on each other).</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;first_sub&quot;</span><span class="p">)</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;second_sub&quot;</span><span class="p">)</span>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
@@ -1459,7 +1459,7 @@ In the <strong>Tutorial</strong> section the general features are described.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T15:36:19+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>

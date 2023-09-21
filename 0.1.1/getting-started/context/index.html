@@ -789,7 +789,7 @@
         
   
   <span class="md-ellipsis">
-    Existed Fields
+    Existing Fields
   </span>
   
 
@@ -1326,8 +1326,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#regular-functions-compatibility" class="md-nav__link">
-    Regular functions compatibility
+  <a href="#compatibility-with-regular-functions" class="md-nav__link">
+    Compatibility with Regular Functions
   </a>
   
 </li>
@@ -1356,8 +1356,8 @@
 
 
 <h1 id="application-context">Application Context<a class="headerlink" href="#application-context" title="Permanent link">#</a></h1>
-<p><strong>FastStreams</strong> has it's own Dependency Injection container - <strong>Context</strong>, using to store application runtime object and variables.</p>
-<p>With this container you are able to get access to application scope or message processing scope objects both. This functionality is pretty close to <a class="internal-link" href="../dependencies/"><code>Depends</code></a> usage.</p>
+<p><strong>FastStreams</strong> has its own Dependency Injection container - <strong>Context</strong>, used to store application runtime objects and variables.</p>
+<p>With this container, you can access both application scope and message processing scope objects. This functionality is similar to <a class="internal-link" href="../dependencies/"><code>Depends</code></a> usage.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Kafka</label><label for="__tabbed_1_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1418,7 +1418,7 @@
 </div>
 </div>
 </div>
-<p>But, with the <a class="external-docs" href="https://docs.python.org/3/library/typing.html#typing.Annotated" target="_blank"><code>Annotated</code></a> python feature usage it is much closer to <code class="highlight"><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span></code>.</p>
+<p>But, with the <a class="external-docs" href="https://docs.python.org/3/library/typing.html#typing.Annotated" target="_blank"><code>Annotated</code></a> Python feature usage, it is much closer to <code class="highlight"><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span></code>.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Kafka</label><label for="__tabbed_2_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1504,28 +1504,10 @@
 </ul>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Fields getting from the <code>Context</code> are editable, so editing them in the function, you are editing them everywhere.</p>
+<p>Fields obtained from the <code>Context</code> are editable, so editing them in a function means editing them everywhere.</p>
 </div>
-<h2 id="regular-functions-compatibility">Regular functions compatibility<a class="headerlink" href="#regular-functions-compatibility" title="Permanent link">#</a></h2>
-<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
-To use context at other functions use the decorator <code class="highlight"><span class="nd">@apply_types</span></code>. This case, the called function context will correspond to the context of the event handler from which it was called.
-=======
-To use context at other functions use the decorator <code>@apply_types</code>. In this case, the called function context will correspond to the context of the event handler from which it was called.</p>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<p>615edfb2ce0cb805ee6e4c799651bd8cc5cdbec5</p>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
+<h2 id="compatibility-with-regular-functions">Compatibility with Regular Functions<a class="headerlink" href="#compatibility-with-regular-functions" title="Permanent link">#</a></h2>
+<p>To use context in other functions, use the <code class="highlight"><span class="nd">@apply_types</span></code> decorator. In this case, the context of the called function will correspond to the context of the event handler from which it was called.</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-4-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-4-3"> 3</a></span>
@@ -1548,14 +1530,14 @@ To use context at other functions use the decorator <code>@apply_types</code>. I
 <a id="__codelineno-4-10" name="__codelineno-4-10"></a><span class="k">def</span> <span class="nf">nested_func</span><span class="p">(</span><span class="n">body</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">Context</span><span class="p">()):</span>
 <a id="__codelineno-4-11" name="__codelineno-4-11"></a><span class="hll">    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
-<p>In the example above, we did not pass the <code>logger</code> function at calling, it was placed out of context.</p>
+<p>In the example above, we did not pass the <code>logger</code> function at calling it; it was placed outside of context.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-18T10:39:59+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-18</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>
@@ -1608,13 +1590,13 @@ To use context at other functions use the decorator <code>@apply_types</code>. I
         
         
           
-          <a href="existed/" class="md-footer__link md-footer__link--next" aria-label="Next: Existed Fields" rel="next">
+          <a href="existed/" class="md-footer__link md-footer__link--next" aria-label="Next: Existing Fields" rel="next">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Existed Fields
+                Existing Fields
               </div>
             </div>
             <div class="md-footer__button md-icon">

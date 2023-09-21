@@ -1226,7 +1226,7 @@
       
         <li class="md-nav__item">
   <a href="#basic-usage" class="md-nav__link">
-    Basic usage
+    Basic Usage
   </a>
   
 </li>
@@ -1263,7 +1263,7 @@
 </code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>To start a new project we need a test broker container
+<p>To start a new project, we need a test broker container
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--rm<span class="w"> </span>-p<span class="w"> </span><span class="m">9092</span>:9092<span class="w"> </span>--name<span class="w"> </span>test-mq<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>-e<span class="w"> </span><span class="nv">KAFKA_ENABLE_KRAFT</span><span class="o">=</span>yes<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>-e<span class="w"> </span><span class="nv">KAFKA_CFG_NODE_ID</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
@@ -1284,14 +1284,14 @@
 </code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>To start a new project we need a test broker container
+<p>To start a new project, we need a test broker container
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--rm<span class="w"> </span>-p<span class="w"> </span><span class="m">5672</span>:5672<span class="w"> </span>--name<span class="w"> </span>test-mq<span class="w"> </span>rabbitmq:alpine
 </code></pre></div></p>
 </div>
 </div>
 </div>
 </div>
-<h2 id="basic-usage">Basic usage<a class="headerlink" href="#basic-usage" title="Permanent link">#</a></h2>
+<h2 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">#</a></h2>
 <p>To create a basic application, add the following code to a new file (e.g. <code>serve.py</code>):</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Kafka</label><label for="__tabbed_2_2">RabbitMQ</label></div>
 <div class="tabbed-content">
@@ -1348,10 +1348,10 @@
 <p>And just run this command:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>serve:app
 </code></pre></div>
-<p>After running the command you should see the following output:</p>
+<p>After running the command, you should see the following output:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>INFO<span class="w">     </span>-<span class="w"> </span>FastStream<span class="w"> </span>app<span class="w"> </span>starting...
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>INFO<span class="w">     </span>-<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="p">|</span><span class="w">            </span>-<span class="w"> </span><span class="sb">`</span>BaseHandler<span class="sb">`</span><span class="w"> </span>waiting<span class="w"> </span><span class="k">for</span><span class="w"> </span>messages
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>INFO<span class="w">     </span>-<span class="w"> </span>FastStream<span class="w"> </span>app<span class="w"> </span>started<span class="w"> </span>successfully!<span class="w"> </span>To<span class="w"> </span><span class="nb">exit</span><span class="w"> </span>press<span class="w"> </span>CTRL+C
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>INFO<span class="w">     </span>-<span class="w"> </span>FastStream<span class="w"> </span>app<span class="w"> </span>started<span class="w"> </span>successfully!<span class="w"> </span>To<span class="w"> </span>exit,<span class="w"> </span>press<span class="w"> </span>CTRL+C
 </code></pre></div>
 <p>Enjoy your new development experience!</p>
 <details class="tip">
@@ -1365,7 +1365,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-14T06:38:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-14</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>

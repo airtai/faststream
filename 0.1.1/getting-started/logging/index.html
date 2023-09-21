@@ -1040,35 +1040,35 @@
       
         <li class="md-nav__item">
   <a href="#logging-requests" class="md-nav__link">
-    Logging requests
+    Logging Requests
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#logging-levels" class="md-nav__link">
-    Logging levels
+    Logging Levels
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#formatting-logs" class="md-nav__link">
-    Formatting logs
+    Formatting Logs
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#using-your-own-loggers" class="md-nav__link">
-    Using your own loggers
+    Using Your Own Loggers
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#logger-access" class="md-nav__link">
-    Logger access
+    Logger Access
   </a>
   
 </li>
@@ -1297,35 +1297,35 @@
       
         <li class="md-nav__item">
   <a href="#logging-requests" class="md-nav__link">
-    Logging requests
+    Logging Requests
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#logging-levels" class="md-nav__link">
-    Logging levels
+    Logging Levels
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#formatting-logs" class="md-nav__link">
-    Formatting logs
+    Formatting Logs
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#using-your-own-loggers" class="md-nav__link">
-    Using your own loggers
+    Using Your Own Loggers
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#logger-access" class="md-nav__link">
-    Logger access
+    Logger Access
   </a>
   
 </li>
@@ -1354,13 +1354,13 @@
 
 
 <h1 id="application-and-access-logging">Application and Access Logging<a class="headerlink" href="#application-and-access-logging" title="Permanent link">#</a></h1>
-<p><strong>FastStream</strong> uses 2 previously configured loggers:</p>
+<p><strong>FastStream</strong> uses two previously configured loggers:</p>
 <ul>
-<li><code>faststream</code> - using by <code>FastStream</code> app</li>
-<li><code>faststream.access</code> - using by broker</li>
+<li><code>faststream</code> - used by <code>FastStream</code> app</li>
+<li><code>faststream.access</code> - used by the broker</li>
 </ul>
-<h2 id="logging-requests">Logging requests<a class="headerlink" href="#logging-requests" title="Permanent link">#</a></h2>
-<p>To log requests, it is strongly recommended to use the <code>access_logger</code> of your broker, since it is available from the <a class="internal-link" href="../context/existed/">Context</a> of your application.</p>
+<h2 id="logging-requests">Logging Requests<a class="headerlink" href="#logging-requests" title="Permanent link">#</a></h2>
+<p>To log requests, it is strongly recommended to use the <code>access_logger</code> of your broker, as it is available from the <a class="internal-link" href="../context/existed/">Context</a> of your application.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Logger</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -1370,42 +1370,42 @@
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;message received&quot;</span><span class="p">)</span>
 </code></pre></div>
-<p>This approach has several advantages:</p>
+<p>This approach offers several advantages:</p>
 <ul>
-<li>the logger already contains the request context: message ID, broker-based params</li>
-<li>by replacing the <code>logger</code> at broker initializing, you will automatically replace all loggers inside your functions</li>
+<li>The logger already contains the request context, including the message ID and broker-based parameters.</li>
+<li>By replacing the <code>logger</code> when initializing the broker, you will automatically replace all loggers inside your functions.</li>
 </ul>
-<h2 id="logging-levels">Logging levels<a class="headerlink" href="#logging-levels" title="Permanent link">#</a></h2>
+<h2 id="logging-levels">Logging Levels<a class="headerlink" href="#logging-levels" title="Permanent link">#</a></h2>
 <p>If you use the <strong>FastStream CLI</strong>, you can change the current logging level of the entire application directly from the command line.</p>
-<p>The <code>--log-level</code> flag sets the current logging level for both a broker and a <code>FastStream</code> app. This way you can configure the levels of not only default loggers, but also your own, if you use them inside <strong>FastStream</strong></p>
+<p>The <code>--log-level</code> flag sets the current logging level for both the broker and the <code>FastStream</code> app. This allows you to configure the levels of not only the default loggers but also your custom loggers, if you use them inside <strong>FastStream</strong>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="go">faststream run serve:app --log-level debug</span>
 </code></pre></div>
-<p>If you want to completely disable the default logging of <code>Propan</code>, you can set <code>logger=None</code></p>
+<p>If you want to completely disable the default logging of <code>FastStream</code>, you can set <code>logger=None</code></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="c1"># disables broker logs</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="c1"># disables application logs</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>  <span class="c1"># Disables broker logs</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>  <span class="c1"># Disables application logs</span>
 </code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Be careful: the <code>logger</code> that you get from the context will also have the value `None' if you turn off the broker logging</p>
+<p>Be careful: the <code>logger</code> that you get from the context will also have the value <code>None</code> if you turn off broker logging.</p>
 </div>
-<p>If you don't want to lose access to the `logger' inside your context, but want to get rid of the default logs <strong>FastStream</strong>, you can lower the level of logs that the broker publishes itself.</p>
+<p>If you don't want to lose access to the `logger' inside your context but want to disable the default logs of <strong>FastStream</strong>, you can lower the level of logs that the broker publishes itself.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span> <span class="nn">logging</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># sets the broker logs to the DEBUG level</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Sets the broker logs to the DEBUG level</span>
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">(</span><span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
 </code></pre></div>
-<h2 id="formatting-logs">Formatting logs<a class="headerlink" href="#formatting-logs" title="Permanent link">#</a></h2>
-<p>If you are not satisfied with the current format of your application logs, you can change it directly in your broker's constructor</p>
+<h2 id="formatting-logs">Formatting Logs<a class="headerlink" href="#formatting-logs" title="Permanent link">#</a></h2>
+<p>If you are not satisfied with the current format of your application logs, you can change it directly in your broker's constructor.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">(</span><span class="n">log_fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> </span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div>
-<h2 id="using-your-own-loggers">Using your own loggers<a class="headerlink" href="#using-your-own-loggers" title="Permanent link">#</a></h2>
+<h2 id="using-your-own-loggers">Using Your Own Loggers<a class="headerlink" href="#using-your-own-loggers" title="Permanent link">#</a></h2>
 <p>Since <strong>FastStream</strong> works with the standard <code>logging.Logger</code> object, you can initiate an application and a broker
-using your own logger</p>
+using your own logger.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span> <span class="nn">logging</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span>
@@ -1415,17 +1415,17 @@ using your own logger</p>
 <a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
 <a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
 </code></pre></div>
-<p>Doing so, you will lose information about the context of the current request. However, you can get it directly from the context anywhere in your code:</p>
+<p>By doing this, you will lose information about the context of the current request. However, you can retrieve it directly from the context anywhere in your code.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">context</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">log_context</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_local</span><span class="p">(</span><span class="s2">&quot;log_context&quot;</span><span class="p">)</span>
 </code></pre></div>
-<h2 id="logger-access">Logger access<a class="headerlink" href="#logger-access" title="Permanent link">#</a></h2>
-<p>If you want to override default loggers behavior, you can access them directly via <code>logging</code>:</p>
+<h2 id="logger-access">Logger Access<a class="headerlink" href="#logger-access" title="Permanent link">#</a></h2>
+<p>If you want to override default logger's behavior, you can access them directly via <code>logging</code>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">import</span> <span class="nn">logging</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;faststream&quot;</span><span class="p">)</span>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">access_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;faststream.access&quot;</span><span class="p">)</span>
 </code></pre></div>
-<p>Or by importing them from <strong>FastStream</strong></p>
+<p>Or you can import them from <strong>FastStream</strong>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span> <span class="nn">faststream.log</span> <span class="kn">import</span> <span class="n">access_logger</span><span class="p">,</span> <span class="n">logger</span>
 </code></pre></div>
 
@@ -1434,7 +1434,7 @@ using your own logger</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-14T06:38:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-14</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>

@@ -942,14 +942,14 @@
         
           <li class="md-nav__item">
   <a href="#data-compression" class="md-nav__link">
-    Data compression
+    Data Compression
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#broker-level-serialization" class="md-nav__link">
-    Broker-level serialization
+    Broker-Level Serialization
   </a>
   
 </li>
@@ -1403,14 +1403,14 @@
         
           <li class="md-nav__item">
   <a href="#data-compression" class="md-nav__link">
-    Data compression
+    Data Compression
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#broker-level-serialization" class="md-nav__link">
-    Broker-level serialization
+    Broker-Level Serialization
   </a>
   
 </li>
@@ -1445,15 +1445,15 @@
 
 <h1 id="serialization-examples">Serialization examples<a class="headerlink" href="#serialization-examples" title="Permanent link">#</a></h1>
 <h2 id="protobuf">Protobuf<a class="headerlink" href="#protobuf" title="Permanent link">#</a></h2>
-<p>In this section, we will look at an example using <em>Protobuf</em>, however, it is also applicable for any other serialization methods.</p>
+<p>In this section, we will explore an example using <em>Protobuf</em>. However, this approach is also applicable to other serialization methods.</p>
 <details class="- note">
 <summary>Protobuf</summary>
-<p><em>Protobuf</em> is an alternative message serialization method commonly used in <em>GRPC</em>. Its main advantage is much smaller <sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> message size (compared to <em>JSON</em>), but it requires a message schema (<code>.proto</code> files) both on the client side and on the server side.</p>
+<p><em>Protobuf</em> is an alternative message serialization method commonly used in <em>GRPC</em>.  Its main advantage is that it results in much smaller message sizes<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> compared to <em>JSON</em>, but it requires a message schema (<code>.proto</code> files) on both the client and server sides.</p>
 </details>
-<p>To begin with, install the dependencies:</p>
+<p>To begin, install the necessary dependencies:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="go">pip install grpcio-tools</span>
 </code></pre></div>
-<p>Then we will describe the scheme of our message</p>
+<p>Next, let's define the schema for our message:</p>
 <div class="highlight"><span class="filename">message.proto</span><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">syntax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;proto3&quot;</span><span class="p">;</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kd">message</span><span class="w"> </span><span class="nc">Person</span><span class="w"> </span><span class="p">{</span>
@@ -1461,10 +1461,10 @@
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="na">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">}</span>
 </code></pre></div>
-<p>Now we will generate a <em>Python</em> class for working with messages in the <em>Protobuf format</em></p>
+<p>Now, generate a <em>Python</em> class to work with messages in <em>Protobuf format</em>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="go">python -m grpc_tools.protoc --python_out=. --pyi_out=. -I . message.proto</span>
 </code></pre></div>
-<p>At the output, we get 2 files: <code>message_pb2.py</code> and <code>message_pb2.pyi</code>. Now we are ready to use the generated class to serialize our messages.</p>
+<p>This generates two files: <code>message_pb2.py</code> and <code>message_pb2.pyi</code>. We can use the generated class to serialize our messages:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-3-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-3-3"> 3</a></span>
@@ -1513,15 +1513,15 @@
 <a id="__codelineno-3-23" name="__codelineno-3-23"></a><span class="hll">    <span class="n">body</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;John&quot;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">()</span>
 </span><a id="__codelineno-3-24" name="__codelineno-3-24"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-<p>Note that we used the <code>NoCast</code> annotation, which excludes the message from the <code>pydantic</code> representation of our handler.</p>
+<p>Note that we used the <code>NoCast</code> annotation to exclude the message from the <code>pydantic</code> representation of our handler.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="n">body</span><span class="p">:</span> <span class="n">NoCast</span><span class="p">[</span><span class="n">Person</span><span class="p">],</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
 </code></pre></div>
 <h2 id="msgpack">Msgpack<a class="headerlink" href="#msgpack" title="Permanent link">#</a></h2>
-<p><em>Msgpack</em> is an alternative binary data format too. Its main advantage is smaller <sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup> than <em>JSON</em> message size (but a little bigger than <em>Protobuf</em>) and it doesn't require any message schema (<em>Protobuf</em> does). So, you can easily use it in the most cases.</p>
-<p>First of all, install the dependencies:</p>
+<p><em>Msgpack</em> is another alternative binary data format. Its main advantage is that it results in smaller message sizes<sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup> compared to <em>JSON</em>, although slightly larger than <em>Protobuf</em>. The key advantage is that it doesn't require a message schema, making it easy to use in most cases.</p>
+<p>To get started, install the necessary dependencies:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="go">pip install msgpack</span>
 </code></pre></div>
-<p>And, because you need no any schema, you can easely write a <em>Msgpack</em> decoder:</p>
+<p>Since there is no need for a schema, you can easily write a <em>Msgpack</em> decoder:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-6-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-6-3"> 3</a></span>
@@ -1566,21 +1566,21 @@
 <a id="__codelineno-6-21" name="__codelineno-6-21"></a><span class="hll">    <span class="n">body</span> <span class="o">=</span> <span class="n">msgpack</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">},</span> <span class="n">use_bin_type</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </span><a id="__codelineno-6-22" name="__codelineno-6-22"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-<p>It is much easier than <em>Protobuf</em> schema usage. Thus, if you have no strict msg size limitations, you able to use <em>Msgpack</em> serialization almost everywhere.</p>
+<p>Using <em>Msgpack</em> is much simpler than using <em>Protobuf</em> schemas. Therefore, if you don't have strict message size limitations, you can use <em>Msgpack</em> serialization in most cases.</p>
 <h2 id="tips">Tips<a class="headerlink" href="#tips" title="Permanent link">#</a></h2>
-<h3 id="data-compression">Data compression<a class="headerlink" href="#data-compression" title="Permanent link">#</a></h3>
-<p>Also, if you are sending a really huge messages, you should try to compress them too. As an example, take a look at <a class="external-link" href="https://github.com/python-lz4/python-lz4" targer="_blank"><strong>lz4</strong></a> or <a class="external-link" href="https://github.com/sergey-dryabzhinsky/python-zstd" targer="_blank"><strong>zstd</strong></a> algorythms.</p>
-<p>This way you can reduce message size if it has some repeated blocks, but at the small message body cases data compressing able to extend it. So, you need to check compression effort in your application specific case.</p>
-<h3 id="broker-level-serialization">Broker-level serialization<a class="headerlink" href="#broker-level-serialization" title="Permanent link">#</a></h3>
-<p>You are still able to set custom <code>decoder</code> on the Broker or Router level too. But, if you want to encode publishing messages automatically too, you should take a look at <a class="internal-link" href="../../middlewares/">Middleware</a> serialization implimentation.</p>
+<h3 id="data-compression">Data Compression<a class="headerlink" href="#data-compression" title="Permanent link">#</a></h3>
+<p>If you are dealing with very large messages, consider compressing them as well. You can explore libraries such as <a class="external-link" href="https://github.com/python-lz4/python-lz4" targer="_blank"><strong>lz4</strong></a> or <a class="external-link" href="https://github.com/sergey-dryabzhinsky/python-zstd" targer="_blank"><strong>zstd</strong></a> for compression algorithms.</p>
+<p>Compression can significantly reduce message size, especially if there are repeated blocks. However, in the case of small message bodies, data compression may increase the message size. Therefore, you should assess the compression impact based on your specific application requirements.</p>
+<h3 id="broker-level-serialization">Broker-Level Serialization<a class="headerlink" href="#broker-level-serialization" title="Permanent link">#</a></h3>
+<p>You can still set a custom <code>decoder</code> at the Broker or Router level. However, if you want to automatically encode publishing messages as well, you should explore <a class="internal-link" href="../../middlewares/">Middleware</a> for serialization implimentation.</p>
 <div class="footnote">
 <hr />
 <ol>
 <li id="fn:1">
-<p>For example, a message like <code class="highlight"><span class="p">{</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;John&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;age&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="w"> </span><span class="p">}</span></code> in <em>JSON</em> takes <strong>27</strong> bytes, and in <em>Protobuf</em> - <strong>11</strong>. With lists and more complex structures, the savings can be even more significant (up to 20x times).&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+<p>For example, a message like <code class="highlight"><span class="p">{</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;John&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;age&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="w"> </span><span class="p">}</span></code> in <em>JSON</em> takes <strong>27</strong> bytes, while in <em>Protobuf</em>, it takes only <strong>11</strong> bytes. With lists and more complex structures, the savings can be even more significant (up to 20x times).&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
 </li>
 <li id="fn:2">
-<p><code class="highlight"><span class="p">{</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;John&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;age&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="w"> </span><span class="p">}</span></code> with <em>Msgpack</em> serialization takes <strong>16</strong> bytes.&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+<p>A message with <em>Msgpack</em> serialization, such as <code class="highlight"><span class="p">{</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;John&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;age&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="w"> </span><span class="p">}</span></code>, takes <strong>16</strong> bytes.&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
 </li>
 </ol>
 </div>
@@ -1590,7 +1590,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-15T17:07:58+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-15</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>

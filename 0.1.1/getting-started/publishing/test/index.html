@@ -784,6 +784,17 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Testing
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -793,6 +804,39 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#base-application" class="md-nav__link">
+    Base application
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    Testing
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1342,6 +1386,28 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#base-application" class="md-nav__link">
+    Base application
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    Testing
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1364,14 +1430,14 @@
 
 
 <h1 id="publisher-testing">Publisher Testing<a class="headerlink" href="#publisher-testing" title="Permanent link">#</a></h1>
-<p>If you are working with Publisher object (decorator/direct), you able to check outcoming message too</p>
+<p>If you are working with a Publisher object (either decorator or direct), you can check outgoing messages as well. There are several testing features available:</p>
 <ul>
-<li>in-memory TestClient</li>
-<li>publishing (show error raising)</li>
-<li>check incoming message body</li>
-<li>note about mock clearing after context exit</li>
+<li>In-memory TestClient</li>
+<li>Publishing (including error handling)</li>
+<li>Checking the incoming message body</li>
+<li>Note about mock clearing after the context exits</li>
 </ul>
-<p>Base application</p>
+<h2 id="base-application">Base application<a class="headerlink" href="#base-application" title="Permanent link">#</a></h2>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Decorator</label><label for="__tabbed_1_2">Direct</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1440,7 +1506,7 @@
 </div>
 </div>
 </div>
-<p>Testing</p>
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">#</a></h2>
 <div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">Kafka</label><label for="__tabbed_4_2">RabbitMQ</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1490,8 +1556,8 @@
 </div>
 </div>
 <ul>
-<li>test with real broker</li>
-<li>wait consumer called</li>
+<li>Testing with a real broker</li>
+<li>Waiting for the consumer to be called</li>
 </ul>
 
   <hr>
@@ -1499,7 +1565,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-08T09:19:27+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-08</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
       
     
   </small>
