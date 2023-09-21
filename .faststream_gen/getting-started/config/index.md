@@ -1,12 +1,12 @@
 # Settings and Environment Variables
 
-In many cases your application could need some external settings or configurations, for example, a broker connection or database credentials.
+n many cases, your application may require external settings or configurations, such as a broker connection or database credentials.
 
-For this reason its common to provide them in environment variables can be then read by the application.
+To manage these settings effectively, it's common to provide them through environment variables that can be read by the application.
 
 ## Pydantic `Settings`
 
-Fortunately, **Pydantic** provides a great utility to handle these settings coming from environment variables with [Pydantic: Settings management](https://docs.pydantic.dev/latest/usage/pydantic_settings/){.external-link target="_blank"}.
+Fortunately, **Pydantic**  provides a useful utility for handling settings coming from environment variables with [Pydantic: Settings management](https://docs.pydantic.dev/latest/usage/pydantic_settings/){.external-link target="_blank"}.
 
 ### Install `pydantic-settings`
 
@@ -17,15 +17,13 @@ pip install pydantic-settings
 ```
 
 !!! info
-    In **Pydantic v1** this functionality came included with the main package. Now it is distributed as an independent package so that you can choose not to install it if you don't need that functionality.
+    In **Pydantic v1**, this functionality was included with the main package. Now it is distributed as an independent package so that you can choose not to install it if you don't need that functionality.
 
-### Create the `Settings` object
+### Create the `Settings` Object
 
-Import `BaseSettings` from Pydantic and create a sub-class, very much like you would do with a Pydantic model.
+Import `BaseSettings` from Pydantic and create a subclass, similar to what you would do with a Pydantic model.
 
-The same way as with Pydantic models, you declare class attributes with type annotations.
-
-You can use all the same validation features and tools you use for Pydantic models, like different data types and additional validations with `Field()`.
+Just like with Pydantic models, you declare class attributes with type annotations and can use all the same validation features and tools, including different data types and additional validations with `Field()`.
 
 === "Pydantic v2"
     ```python linenums='1' hl_lines="1 4" title="config.py"
@@ -56,13 +54,13 @@ class Settings(BaseSettings):
 settings = Settings()
     ```
 
-Then, when you create an instance of that `Settings` class (in this case, in the `settings` object), Pydantic will read the environment variables in a case-insensitive way, so, an upper-case variable `APP_NAME` will still be read for the attribute `app_name`.
+When you create an instance of that `Settings` class (in this case, in the `settings` object), Pydantic will read the environment variables in a case-insensitive way. For example, an upper-case variable `APP_NAME` will still be read for the attribute `app_name`.
 
-Next it will convert and validate the data. So, when you use that `settings` object, you will have data of the type you declared (e.g. `items_per_user` will be an `int`).
+It will also convert and validate the data, so when you use that `settings` object, you will have data of the type you declared (e.g. `items_per_user` will be an `int`).
 
-### Use the `settings`
+### Using the `settings`
 
-Then you can use the new `settings` object in your application:
+Now you can use the new `settings` object in your application:
 
 ```python linenums='1' hl_lines="3 9 14" title="serve.py"
 import os
@@ -89,45 +87,45 @@ async def handler(msg):
     ...
 ```
 
-### Run the application
+### Running the Application
 
-Now you can run the application passing the configuration parameters as environment variables, for example you could set an `URL`:
+You can run the application while passing the configuration parameters as environment variables. For example, you could set an `URL`:
 
 ```console
 URL="amqp://guest:guest@localhost:5672" faststream run serve:app
 ```
 
 !!! tip
-    To set multiple env vars for a single command just separate them with a space, and put them all before the command.
+    To set multiple environment variables for a single command, separate them with spaces and put them all before the command.
 
-## Reading a `.env` file
+## Reading a `.env` File
 
-If you have many settings that possibly change a lot, maybe in different environments, it might be useful to put them in a file and then read them from it as if they were environment variables.
+If you have many settings that may change frequently, especially in different environments, it might be useful to store them in a file and then read them as if they were environment variables.
 
-This practice is common enough that it has a name, these environment variables are commonly placed in a file `.env`, and the file is called a "dotenv".
+This practice is common enough that it has a name; these environment variables are typically placed in a file named `.env`, commonly referred to as a "dotenv" file.
 
 !!! tip
-    A file starting with a dot (`.`) is a hidden file in Unix-like systems, like Linux and macOS.
+    In Unix-like systems like Linux and macOS, a file starting with a dot (`.`) is considered a hidden file.
 
     But a dotenv file doesn't really have to have that exact filename.
 
-Pydantic has support for reading from these types of files using an external library. You can read more at [Pydantic Settings: Dotenv (.env) support](https://docs.pydantic.dev/latest/usage/pydantic_settings/#dotenv-env-support){.external-link target="_blank"}.
+Pydantic supports reading from these types of files using an external library. You can learn more at [Pydantic Settings: Dotenv (.env) support](https://docs.pydantic.dev/latest/usage/pydantic_settings/#dotenv-env-support){.external-link target="_blank"}.
 
 !!! tip
-    For this to work, you need to `pip install python-dotenv`.
+    To use this feature, you need to install the `python-dotenv` library.
 
-### The `.env` file
+### The `.env` File
 
-You could have a `.env` file with:
+You can create a `.env` file with contents like this:
 
 ```bash
 URL="amqp://guest:guest@localhost:5672"
 QUEUE="test-queue"
 ```
 
-### Read settings from `.env`
+### Reading Settings from `.env`
 
-And then update your `config.py` with:
+Then update your `config.py` as follows:
 
 ```python linenums='1' hl_lines="1 11"
 import os
@@ -143,26 +141,26 @@ class Settings(BaseSettings):
 settings = Settings(_env_file=os.getenv("ENV", ".env"))
 ```
 
-This way you are able to specify different `.env` files right from your terminal. It can be extremely helpful in testing/production cases.
+This way, you can specify different `.env` files directly from your terminal, which can be extremely helpful for various testing and production scenarios.
 
 !!! note
-    By default Pydantic tries to find `.env` field in this case. If there is no `.env` file, Pydantic will just use default fields values.
+    By default, Pydantic will attempt to find a `.env` file. If it's not present, Pydantic will use the default field values.
 
-### Choose `.env` file at start
+### Choosing the `.env` File at Startup
 
-Now you can run the apllication with various `.env` files like:
+Now you can run the apllication with different `.env` files like so:
 
 ```console
 ENV=.local.env faststream run serve:app
 ```
 
-Or, probably, production
+Or, for a production environment:
 
 ```console
 ENV=.production.env faststream run serve:app
 ```
 
-Or even test environment
+Or even for a test environment:
 
 ```console
 ENV=.test.env pytest

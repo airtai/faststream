@@ -29,13 +29,13 @@ Commands:
   run   Run [MODULE:APP] FastStream application
 ```
 
-## Run the project
+## Running the Project
 
-### Multiprocessing scaling
+### Multiprocessing Scaling
 
 **FastStream** allows you to scale application right from the command line by running you application in the Process pool.
 
-Just set `--worker` option to scale your application:
+Just set the `--worker` option to scale your application:
 
 ```shell
 faststream run serve:app --workers 2
@@ -49,7 +49,7 @@ INFO     - test |            - `Handle` waiting for messages
 INFO     - test |            - `Handle` waiting for messages
 ```
 
-### Hotreload
+### Hot Reload
 
 Thanks to [*watchfiles*](https://watchfiles.helpmanual.io/){.external-link target="_blank"}, written in *Rust*, you can
 work with your project easily. Edit the code as much as you like - the new version has already been launched and is waiting for your requests!
@@ -99,11 +99,12 @@ faststream run app:app --my-flag    # my_flag = True
 faststream run app:app --key value  # key = "value"
 faststream run app:app --key 1 2    # key = ["1", "2"]
 ```
+
 You can use them both individually and together in unlimited quantities.
 
 ## AsyncAPI Schema
 
-Also, **FastStream CLI** allows you to work with the **AsyncAPI** schema in a simple way.
+Also, the **FastStream CLI** allows you to work with the **AsyncAPI** schema in a simple way.
 
 You are able to generate `.json` or `.yaml` files by your application code or host **HTML** representation directly:
 
@@ -124,4 +125,4 @@ Commands:
   serve  Serve project AsyncAPI schema
 ```
 
-To know more about the commands above, please visit [**AsyncAPI** export](../asyncapi/export.md){.internal-link} and [**AsyncAPI** hosting](../asyncapi/hosting.md){.internal-link}.
+To learn more about the commands above, please visit [**AsyncAPI export**](../asyncapi/export.md){.internal-link} and [**AsyncAPI hosting**](../asyncapi/hosting.md){.internal-link}.
