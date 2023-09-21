@@ -48,6 +48,7 @@ from faststream.types import AnyDict
 
 class RabbitRouter(StreamRouter[IncomingMessage]):
     broker_class: Type[RabbitBroker]
+    broker: RabbitBroker
 
     # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument.hardcoded-password-default-argument
     def __init__(
