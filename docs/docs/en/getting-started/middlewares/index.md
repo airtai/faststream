@@ -1,24 +1,24 @@
 # Middlewares
 
-**Middlewares** - is a powerfull mechanizm allows you to add extra logic to any message processing pipeline stage.
+**Middlewares** are a powerful mechanism that allows you to add additional logic to any stage of the message processing pipeline.
 
-This way you can extreamly extend your **FastStream** application by features:
+This way, you can greatly extend your **FastStream** application with features such as:
 
-* integrate with any logging/metrics systems
-* application-level message serialization logic
-* rich publishing messages with extra information
-* and many other stuff
+* Integration with any logging/metrics systems
+* Application-level message serialization logic
+* Rich publishing of messages with extra information
+* And many other capabilities
 
-**Middlewares** has a several methods to overwride. You can implement some or all of them, use middlewares at broker, router or subscriber level. Thus middlewares is a most flexible **FastStream** feature.
+**Middlewares** have several methods to override. You can implement some or all of them and use middlewares at the broker, router, or subscriber level. Thus, middlewares are the most flexible  **FastStream** feature.
 
-## Message receive wrapper
+## Message Receive Wrapper
 
-Unfortunatelly, powerfull feature has a pretty complex signature too.
+Unfortunately, this powerful feature has a somewhat complex signature too.
 
-Using middlewares you can wrap total message processing pipeline. In this case you need to specify `on_receive` and `after_processed` methods:
+Using middlewares, you can wrap the entire message processing pipeline. In this case, you need to specify `on_receive` and `after_processed` methods:
 
 ``` python
-from faststream import BaseMiddleware:
+from faststream import BaseMiddleware
 
 class MyMiddleware(BaseMiddleware):
     async def on_receive(self):
@@ -29,22 +29,22 @@ class MyMiddleware(BaseMiddleware):
         return await super().after_processed(exc_type, exc_val, exec_tb)
 ```
 
-These methods should be overwritten only in a Broker-level middlewares.
+These methods should be overwritten only in a broker-level middlewares.
 
 ```python
 Broker(middlewares=[MyMiddleware])
 ```
 
-In the other cases `on_receive` will be called at every subscriber filter function calling.
+In other cases, `on_receive` will be called at every subscriber filter function call.
 
 !!! tip
-    Please, always call `#!python super()` methods at the end of your function - this is important for correct errors processing
+    Please always call `#!python super()` methods at the end of your function; this is important for correct error processing.
 
-## Message consuming wrapper
+## Message Consuming Wrapper
 
-Also, using middlewares you are able to wrap consumer function calling directly.
+Also, using middlewares, you are able to wrap consumer function calls directly.
 
-In this case you need to specify `on_receive` and `after_processed` methods:
+In this case, you need to specify `on_receive` and `after_processed` methods:
 
 ``` python
 from typing import Optional
@@ -60,15 +60,15 @@ class MyMiddleware(BaseMiddleware):
         return await super().after_consume(err)
 ```
 
-This way you can patch incoming message body right before passing it to you consumer subscriber.
+This way, you can patch the incoming message body right before passing it to your consumer subscriber.
 
-Also, if you have multiple filters for one subscriber, these methods will be called at once: then the filtering complete success.
+Also, if you have multiple filters for one subscriber, these methods will be called at once when the filtering is completed successfully.
 
-## Message publishing wrapper
+## Message Publishing Wrapper
 
-Finally, using middlewares you are able to patch outcoming message too. This way, (as an example) you can compress/encode outcoming message at Application level.
+Finally, using middlewares, you are able to patch outgoing messages too. For example, you can compress/encode outgoing messages at the application level.
 
-In this case you need to specify `on_publish` and `after_publish` methods:
+In this, case you need to specify `on_publish` and `after_publish` methods:
 
 ``` python
 from typing import Optional
