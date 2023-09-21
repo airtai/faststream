@@ -359,7 +359,7 @@ class FastStream(ABCApp):
         self._log(log_level, "FastStream app starting...")
         await self._startup(**(run_extra_options or {}))
         self._log(
-            log_level, "FastStream app started successfully! To exit press CTRL+C"
+            log_level, "FastStream app started successfully! To exit, press CTRL+C"
         )
 
     async def _stop(self, log_level: int = logging.INFO) -> None:

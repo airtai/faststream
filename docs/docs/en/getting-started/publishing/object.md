@@ -1,17 +1,14 @@
 # Publisher Object
 
-Full-featured way to publish messages (has AsyncAPI representation + testable feaures).
-Creates reusable Publisher object.
+The Publisher Object provides a full-featured way to publish messages. It has **AsyncAPI** representation and includes testable features. This method creates a reusable Publisher object.
 
-Can be used as a function decorator
+It can be used as a function decorator. The order of Subscriber and Publisher decorators doesn't matter, but they can only be used with functions decorated by a `subscriber` decorator.
 
-Subscriber and publisher decorators order has no matter, but can be used only with a functions decorated by a `subscriber` too.
-
-Also uses the handler function return type annotation to cast function return before sending (be accurate with it)
+It also uses the handler function's return type annotation to cast the function's return value before sending, so be accurate with it:
 
 {!> includes/getting_started/publishing/object/1.md !}
 
-Can be used multiple times with the one function to broadcast function return
+You can use it multiple times with one function to broadcast the function's return:
 
 ```python
 @publisher1
@@ -21,4 +18,4 @@ async def handle(msg) -> str:
     return "Response"
 ```
 
-Also, it automatically sends a message with the same with incoming message `correlation_id`. This way you get the same `correlation_id` for the one message pipeline procces inside all services and able to collect a trace.
+Additionally, it automatically sends a message with the same `correlation_id` as the incoming message. This way, you get the same correlation_id for the entire message pipeline process across all services, allowing you to collect a trace.

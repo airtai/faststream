@@ -1,17 +1,17 @@
-# Existing fields
+# Existing Fields
 
 **Context** already contains some global objects that you can always access:
 
-* **broker** - current broker
+* **broker** - the current broker
 * **context** - the context itself, in which you can write your own fields
-* **logger** - logger used for your broker (tags messages with *message_id*)
-* **message** - raw message (if you need access to it)
+* **logger** - the logger used for your broker (tags messages with *message_id*)
+* **message** - the raw message (if you need access to it)
 
 At the same time, thanks to `contextlib.ContextVar`, **message** is local for you current consumer scope.
 
-## Access to context fields
+## Access to Context Fields
 
-By default the context searches for an object based on the argument name.
+By default, the context searches for an object based on the argument name.
 
 === "Kafka"
     ```python linenums="1" hl_lines="1 12-15"
@@ -23,9 +23,9 @@ By default the context searches for an object based on the argument name.
     {!> docs_src/getting_started/context/existed_context_rabbit.py [ln:1-2,10-11,14-23] !}
     ```
 
-## Annotated aliases
+## Annotated Aliases
 
-Also, **FastStream** has already created `Annotated` aliases to provide you comfortable access to already existing objects. You can import them right from `faststream` or your broker-specific modules:
+Also, **FastStream** has already created `Annotated` aliases to provide you with comfortable access to existing objects. You can import them directly from `faststream` or your broker-specific modules:
 
 * Shared aliases
 
@@ -49,7 +49,7 @@ from faststream.rabbit.annotations import (
 )
 ```
 
-To apply them, just import and use as a subscriber argument annotation
+To use them, simply import and use them as subscriber argument annotations.
 
 === "Kafka"
     ```python linenums="1" hl_lines="3-8 17-20"

@@ -1,17 +1,14 @@
 # Publisher Decorator
 
-The second easy way to publish messages. Has an AsyncAPI representation.
-Suitable for fast application creation, but doesn't provide all testing features.
+The second easiest way to publish messages is by using the Publisher Decorator. This method has an AsyncAPI representation and is suitable for quickly creating applications. However, it doesn't provide all testing features.
 
-Creates a structured DataPipeline unit with an input and output
+It creates a structured DataPipeline unit with an input and output. The order of Subscriber and Publisher decorators doesn't matter, but they can only be used with functions decorated by a `subscriber` as well.
 
-Subscriber and publisher decorators order has no matter, but can be used only with a functions decorated by a `subscriber` too.
-
-Uses the handler function return type annotation to cast function return before sending (be accurate with it)
+It uses the handler function's return type annotation to cast the function's return value before sending, so be accurate with it:
 
 {!> includes/getting_started/publishing/decorator/1.md !}
 
-Can be used multiple times with the one function to broadcast function return
+It can be used multiple times with one function to broadcast the function's return:
 
 ```python
 @broker.subscriber("in")
@@ -21,4 +18,4 @@ async def handle(msg) -> str:
     return "Response"
 ```
 
-Also, it automatically sends a message with the same with incoming message `correlation_id`. This way you get the same `correlation_id` for the one message pipeline procces inside all services and able to collect a trace.
+Additionally, it automatically sends a message with the same `correlation_id` as the incoming message. This way, you get the same `correlation_id` for the entire message pipeline process across all services, allowing you to collect a trace.

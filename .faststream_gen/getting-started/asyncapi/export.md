@@ -44,13 +44,13 @@ The above command will generate the AsyncAPI specification and save it in a file
 
 If you prefer `yaml` instead of `json`, please run the following command to generate `asyncapi.yaml`.
 
+``` shell
+faststream docs gen --yaml basic:app
+```
+
 !!! note
-    To generate the documentation in yaml format, please install the necessary dependency to work with **YAML** file format at first
+    To generate the documentation in yaml format, please install the necessary dependency to work with **YAML** file format at first.
 
     ``` shell
     pip install PyYAML
     ```
-
-``` shell
-faststream docs gen --yaml basic:app
-```

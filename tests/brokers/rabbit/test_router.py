@@ -53,7 +53,7 @@ class TestRouter(RouterTestcase):
         r_queue = RabbitQueue(queue)
 
         r = type(router)(
-            prefix="test/", handlers=(self.route_class(response, r_queue),)
+            prefix="test/", handlers=(self.route_class(response, queue=r_queue),)
         )
 
         pub_broker.include_router(r)

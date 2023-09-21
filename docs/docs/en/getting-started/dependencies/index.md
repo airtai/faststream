@@ -5,36 +5,35 @@ nested: A nested dependency is called here
 # Dependencies
 
 **FastStream** uses the secondary library [**FastDepends**](https://lancetnik.github.io/FastDepends/){.external-link target="_blank"} for dependency management.
-This dependency system is literally borrowed from **FastAPI**, so if you know how to work with this framework, you know how to work with dependencies in **FastStream**.
+This dependency system is literally borrowed from **FastAPI**, so if you know how to work with that framework, you'll be comfortable with dependencies in **FastStream**.
 
-You can go to the [**FastDepends**](https://lancetnik.github.io/FastDepends/){.external-link target="_blank"} documentation if you want to get more details, however, the key points and **additions** will be covered here.
+You can visit the [**FastDepends**](https://lancetnik.github.io/FastDepends/){.external-link target="_blank"} documentation for more details, but the key points and **additions** are covered here.
 
-## Type casting
+## Type Casting
 
-The key function in the dependency management and type conversion system in **FastStream** is the decorator `#!python @apply_types` (`#!python @inject` in **FastDepends**).
+The key function in the dependency management and type conversion system in **FastStream** is the decorator `#!python @apply_types` (also known as `#!python @inject` in **FastDepends**).
 
-By default, it applies to all event handlers, unless you disabled the same option at a broker creation.
+By default, it applies to all event handlers, unless you disabled the same option when creating the broker.
 
 {! includes/getting_started/dependencies/1.md !}
 
 !!! warning
-    By setting the `apply_types=False` flag, you disable not only type casting, but also `Depends` and `Context`.
+    Setting the `apply_types=False` flag not only disables type casting but also `Depends` and `Context`.
 
-This flag can be useful if you are using **FastStream** within another framework and you do not need to use
-a native dependency system.
+This flag can be useful if you are using **FastStream** within another framework and you need to use its native dependency system.
 
 ## Dependency Injection
 
-To implement dependencies in **FastStream**, a special class **Depends** is used
+To implement dependencies in **FastStream**, a special class called **Depends** is used
 
 {! includes/getting_started/dependencies/2.md !}
 
-**The first step**: we need to declare a dependency - it can be any `Callable` object.
+**The first step**: You need to declare a dependency, which can be any `Callable` object.
 
 ??? note "Callable"
-    "Callable" is an object that can be "called". It can be a function, a class, or a class method.
+    A "Callable" is an object that can be "called". It can be a function, a class, or a class method.
 
-    In other words: if you can write such code `my_object()` - `my_object` will be `Callable`
+    In other words, if you can write code like `my_object()` - `my_object` is `Callable`
 
 {! includes/getting_started/dependencies/3.md !}
 
@@ -48,31 +47,31 @@ It's easy, isn't it?
 
 !!! tip "Auto `#!python @apply_types`"
     In the code above, we didn't use this decorator for our dependencies. However, it still applies
-    to all functions used as dependencies. Keep this in your mind.
+    to all functions used as dependencies. Please keep this in your mind.
 
-## Top-level dependencies
+## Top-level Dependencies
 
-If you don't need a dependency result you can use the following code:
+If you don't need a dependency result, you can use the following code:
 
 ```python
 @broker.subscriber("test")
 def method(_ = Depends(...)): ...
 ```
 
-But, using a special `subscriber` parameter is much suitable:
+But, using a special `subscriber` parameter is much more suitable:
 
 ```python
 @broker.subscriber("test", dependencies=[Depends(...)])
 def method(): ...
 ```
 
-Also, you are able to declare broker-level dependencies: they will be applied to all brokers' handlers.
+You can also declare broker-level dependencies, which will be applied to all broker's handlers:
 
 ```python
 broker = RabbitBroker(dependencies=[Depends(...)])
 ```
 
-## Nested dependencies
+## Nested Dependencies
 
 Dependencies can also contain other dependencies. This works in a very predictable way: just declare
 `Depends` in the dependent function.
@@ -81,7 +80,7 @@ Dependencies can also contain other dependencies. This works in a very predictab
 {{ includes }}
 
 !!! Tip "Caching"
-    In the example above, the `another_dependency` function will be called at **ONCE!**.
+    In the example above, the `another_dependency` function will be called at **ONCE**!
     **FastDepends** caches all dependency execution results within **ONE** `#!python @apply_types` call stack.
     This means that all nested dependencies will receive the cached result of dependency execution.
     But, between different calls of the main function, these results will be different.
@@ -89,9 +88,9 @@ Dependencies can also contain other dependencies. This works in a very predictab
     To prevent this behavior, just use `#!python Depends(..., cache=False)`. In this case, the dependency will be used for each function
     in the call stack where it is used.
 
-## Use with regular functions
+## Use with Regular Functions
 
-You can use the decorator `#!python @apply_types` not only together with your `#!python @broker.subscriber(...)`, but also with the usual functions: both synchronous and asynchronous.
+You can use the decorator `#!python @apply_types` not only with `#!python @broker.subscriber(...)`, but also with regular functions, both synchronous and asynchronous.
 
 === "Sync"
     ```python hl_lines="3-4" linenums="1"
@@ -107,10 +106,10 @@ You can use the decorator `#!python @apply_types` not only together with your `#
         In asynchronous code, you can use both synchronous and asynchronous dependencies.
         But in synchronous code, only synchronous dependencies are available to you.
 
-## Casting dependency types
+## Casting Dependency Types
 
 **FastDepends**, used by **FastStream**, also gives the type `return`. This means that the value returned by the dependency will be
-be cast to the type twice: as `return` these are dependencies and as the input argument of the main function. This does not incur additional costs if
+be cast to the type twice: as `return` for dependencies and as the input argument of the main function. This does not incur additional costs if
 these types have the same annotation. Just keep it in mind. Or not... Anyway, I've warned you.
 
 ```python linenums="1"
