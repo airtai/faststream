@@ -1,9 +1,9 @@
 # Subscription Basics
 
-**FastStream** provides you Message Broker agnostic way to subscribe on event streams.
+**FastStream** provides a Message Broker agnostic way to subscribe to event streams.
 
-You need no even know about topic/queue/subject or any broker inner objects you use.
-The basic syntax is same in for all brokers:
+You need not even know about topics/queues/subjects or any broker inner objects you use.
+The basic syntax is the same for all brokers:
 
 === "Kafka"
     ```python
@@ -28,8 +28,8 @@ The basic syntax is same in for all brokers:
     ```
 
 !!! tip
-    If you want to use Message Broker specific features, please visit corresponding broker documentation section.
-    In the **Tutorial** section the general features are described.
+    If you want to use Message Broker specific features, please visit the corresponding broker documentation section.
+    In the **Tutorial** section, the general features are described.
 
 Also, synchronous functions are supported as well:
 
@@ -55,9 +55,9 @@ Also, synchronous functions are supported as well:
         ...
     ```
 
-## Message body serialization
+## Message Body Serialization
 
-Generally, **FastStream** uses your function type annotation to serialize incoming message body by [**Pydantic**](https://docs.pydantic.dev){.external-link target="_blank"}. It is pretty close to how [**FastAPI**](https://fastapi.tiangolo.com){.external-link target="_blank"} works (if you are familiar with it).
+Generally, **FastStream** uses your function type annotation to serialize incoming message body with [**Pydantic**](https://docs.pydantic.dev){.external-link target="_blank"}. This is similar to how [**FastAPI**](https://fastapi.tiangolo.com){.external-link target="_blank"} works (if you are familiar with it).
 
 ```python
 @broker.subscriber("test")
@@ -65,9 +65,9 @@ async def handle_str(msg_body: str):
     ...
 ```
 
-Also, through the function arguments you can get access to some extra features: [Depends](../dependencies/index.md){.internal-link} and [Context](../context/existed.md){.internal-link} if it is required.
+You can also access some extra features through the function arguments, such as [Depends](../dependencies/index.md){.internal-link} and [Context](../context/existed.md){.internal-link} if required.
 
-But you can easely disable pydantic validation by creation a broker with the following option `#!python Broker(apply_types=False)` (disables Context and Depends features too)
+However, you can easily disable Pydantic validation by creating a broker with the following option `#!python Broker(apply_types=False)` (this also disables Context and Depends features).
 
 This way **FastStream** still consumes `#!python json.loads` result, but without pydantic validation and casting.
 
@@ -95,7 +95,7 @@ This way **FastStream** still consumes `#!python json.loads` result, but without
 
 ## Multiple Subscriptions
 
-Also, you are able to subscribe on multiple event streams in the same time with the one function. Just wrap it by multiple `#!python @broker.subscriber(...)` decorators (they have no effect on each other)
+You can also subscribe to multiple event streams at the same time with one function. Just wrap it with multiple `#!python @broker.subscriber(...)` decorators (they have no effect on each other).
 
 ```python
 @broker.subscriber("first_sub")
