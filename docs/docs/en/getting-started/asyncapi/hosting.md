@@ -29,10 +29,10 @@ INFO:     Uvicorn running on http://localhost:8000 (Press CTRL+C to quit)
 And you should be able to see the following page in your browser:
 
 === "Short"
-    ![HTML-page](https://raw.githubusercontent.com/airtai/faststream/main/docs/docs/assets/img/AsyncAPI-basic-html-short.png){ loading=lazy }
+    ![HTML-page](../../../assets/img/AsyncAPI-basic-html-short.png){ loading=lazy }
 
 === "Expand"
-    ![HTML-page](https://raw.githubusercontent.com/airtai/faststream/main/docs/docs/assets/img/AsyncAPI-basic-html-full.png){ loading=lazy }
+    ![HTML-page](../../../assets/img/AsyncAPI-basic-html-full.png){ loading=lazy }
 
 !!! tip
     The command also offers options to serve the documentation on a different host and port.

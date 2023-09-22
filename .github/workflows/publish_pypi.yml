@@ -6,7 +6,6 @@ on:
     types: [completed]
     branches:
       - main
-      - 709-create-workflow-for-publishing-to-pypi-automatically
 
 jobs:
   publish:
