@@ -213,7 +213,7 @@ And multiprocessing horizontal scaling feature as well:
 faststream run basic:app --workers 3
 ```
 
-You can know more about **CLI** features [here](https://faststream.airt.ai/0.1.0rc0/getting-started/cli/)
+You can know more about **CLI** features [here](https://faststream.airt.ai/latest/getting-started/cli/)
 
 ---
 
@@ -309,7 +309,7 @@ app = FastAPI(lifespan=router.lifespan_context)
 app.include_router(router)
 ```
 
-More integration features can be found [here](https://faststream.airt.ai/0.1.0rc0/getting-started/integrations/fastapi/)
+More integration features can be found [here](https://faststream.airt.ai/latest/getting-started/integrations/fastapi/)
 
 ---
 
