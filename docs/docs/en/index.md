@@ -251,7 +251,8 @@ Just import a **StreamRouter** you need and declare the message handler with the
 
 ---
 
-## Code generator for FastStream
+## Code generator
+
 As evident, **FastStream** is an incredibly user-friendly library. However, we've taken it a step further and made it even more user-friendly! Introducing [faststream-gen](https://faststream-gen.airt.ai), a Python library that harnesses the power of generative AI to effortlessly generate **FastStream** applications.. Simply describe your application requirements, and [faststream-gen](https://faststream-gen.airt.ai) will generate a production-grade **FastStream** project that is ready to deploy in no time.
 
 Save application description inside `description.txt`:
@@ -276,8 +277,8 @@ faststream_gen -i description.txt
 ✨  All files were successfully generated!
 ```
 
-### Tutorials
-We also invite you to explore our tutorials, where we will guide you through the process of utilizing the [faststream-gen](https://faststream-gen.airt.ai) Python library to effortlessly create **FastStream** applications:
+### Tutorial
+We also invite you to explore our tutorial, where we will guide you through the process of utilizing the [faststream-gen](https://faststream-gen.airt.ai) Python library to effortlessly create **FastStream** applications:
 
 - [Cryptocurrency analysis with FastStream](https://faststream-gen.airt.ai/Tutorial/Cryptocurrency_Tutorial/)
 
