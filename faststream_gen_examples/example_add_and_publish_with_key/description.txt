@@ -3,6 +3,7 @@ The app should consume messages from the input_data topic.
 The input message is a JSON encoded object including two attributes:
     - x: float
     - y: float
+    - time: datetime
 
 input_data topic should use partition key.
 

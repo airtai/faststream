@@ -55,7 +55,7 @@ hide:
 ## Features
 
 [**FastStream**](https://faststream.airt.ai/) simplifies the process of writing producers and consumers for message queues, handling all the
-parsing, networking and documentatino generation automatically.
+parsing, networking and documentation generation automatically.
 
 Making streaming microservices has never been easier. Designed with junior developers in mind, **FastStream** simplifies your work while keeping the door open for more advanced use-cases. Here's a look at the core features that make **FastStream** a go-to framework for modern, data-centric microservices.
 
@@ -340,11 +340,26 @@ Just import a **StreamRouter** you need and declare the message handler with the
 
 ---
 
-## Code generator for FastStream
+## Code generator
+
 As evident, **FastStream** is an incredibly user-friendly library. However, we've taken it a step further and made it even more user-friendly! Introducing [faststream-gen](https://faststream-gen.airt.ai), a Python library that harnesses the power of generative AI to effortlessly generate **FastStream** applications.. Simply describe your application requirements, and [faststream-gen](https://faststream-gen.airt.ai) will generate a production-grade **FastStream** project that is ready to deploy in no time.
 
+Save application description inside `description.txt`:
+```
+Create a FastStream application using localhost broker for testing and use the
+default port number.
+
+It should consume messages from the 'input_data' topic, where each message is a
+JSON encoded object containing a single attribute: 'data'.
+
+While consuming from the topic, increment the value of the data attribute by 1.
+
+Finally, send message to the 'output_data' topic.
+```
+
+and run the following command to create a new **FastStream** project:
 ``` shell
-faststream_gen "Create a FastStream application using localhost broker for testing and use the default port number. It should consume messages from the 'input_data' topic, where each message is a JSON encoded object containing a single attribute: 'data'. While consuming from the topic, increment the value of the data attribute by 1. Finally, send message to the 'output_data' topic." -o "./my-awesome-project"
+faststream_gen -i description.txt
 ```
 
 ``` shell
@@ -359,8 +374,8 @@ faststream_gen "Create a FastStream application using localhost broker for testi
 ✨  All files were successfully generated!
 ```
 
-### Tutorials
-We also invite you to explore our tutorials, where we will guide you through the process of utilizing the [faststream-gen](https://faststream-gen.airt.ai) Python library to effortlessly create **FastStream** applications:
+### Tutorial
+We also invite you to explore our tutorial, where we will guide you through the process of utilizing the [faststream-gen](https://faststream-gen.airt.ai) Python library to effortlessly create **FastStream** applications:
 
 - [Cryptocurrency analysis with FastStream](https://faststream-gen.airt.ai/Tutorial/Cryptocurrency_Tutorial/)
 

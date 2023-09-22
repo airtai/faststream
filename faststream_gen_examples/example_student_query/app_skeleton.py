@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field, NonNegativeInt
 
 from faststream import FastStream, Logger
@@ -13,6 +15,11 @@ class StudentQuery(BaseModel):
     )
     query: str = Field(
         ..., examples=["Please help me with..."], description="Query example"
+    )
+    time: datetime = Field(
+        ...,
+        examples=["2020-04-23 10:20:30.400000"],
+        description="The timestamp of the record",
     )
 
 
