@@ -109,6 +109,7 @@ testing = [
     "httpx",
     "PyYAML",
     "requests",
+    "freezegun",
 ]
 
 publish = ["hatch==1.7.0"]
