@@ -59,6 +59,7 @@ Partition = TypeVar("Partition")
 
 class KafkaRouter(StreamRouter[ConsumerRecord]):
     broker_class: Type[KafkaBroker]
+    broker: KafkaBroker
 
     def __init__(
         self,
