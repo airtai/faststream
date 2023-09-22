@@ -1,5 +1,6 @@
 import os
 import ssl
+from datetime import date
 
 from pydantic import BaseModel, Field
 
@@ -10,12 +11,10 @@ from faststream.kafka import KafkaBroker
 
 class Student(BaseModel):
     name: str = Field(..., examples=["Student Studentis"], description="Name example")
-    age: int = Field(
+    birthdate: date = Field(
         ...,
-        examples=[
-            20,
-        ],
-        description="Student age",
+        examples=["2023-09-05"],
+        description="Students birthdate",
     )
 
 
@@ -34,5 +33,5 @@ to_class = broker.publisher("class")
 
 @broker.subscriber("student_application")
 async def on_application(msg: Student, logger: Logger) -> None:
-    key = str(msg.age).encode("utf-8")
+    key = msg.name.encode("utf-8")
     await to_class.publish(msg, key=key)
