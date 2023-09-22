@@ -597,16 +597,16 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#code-generator-for-faststream" class="md-nav__link">
-    Code generator for FastStream
+  <a href="#code-generator" class="md-nav__link">
+    Code generator
   </a>
   
-    <nav class="md-nav" aria-label="Code generator for FastStream">
+    <nav class="md-nav" aria-label="Code generator">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#tutorials" class="md-nav__link">
-    Tutorials
+  <a href="#tutorial" class="md-nav__link">
+    Tutorial
   </a>
   
 </li>
@@ -993,16 +993,16 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#code-generator-for-faststream" class="md-nav__link">
-    Code generator for FastStream
+  <a href="#code-generator" class="md-nav__link">
+    Code generator
   </a>
   
-    <nav class="md-nav" aria-label="Code generator for FastStream">
+    <nav class="md-nav" aria-label="Code generator">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#tutorials" class="md-nav__link">
-    Tutorials
+  <a href="#tutorial" class="md-nav__link">
+    Tutorial
   </a>
   
 </li>
@@ -1881,22 +1881,34 @@ This means you can use <code>Depends</code>, <code>BackgroundTasks</code> and ot
 <p>More integration features can be found <a class="internal-link" href="getting-started/integrations/fastapi/">here</a></p>
 </div>
 <hr />
-<h2 id="code-generator-for-faststream">Code generator for FastStream<a class="headerlink" href="#code-generator-for-faststream" title="Permanent link">#</a></h2>
+<h2 id="code-generator">Code generator<a class="headerlink" href="#code-generator" title="Permanent link">#</a></h2>
 <p>As evident, <strong>FastStream</strong> is an incredibly user-friendly library. However, we've taken it a step further and made it even more user-friendly! Introducing <a href="https://faststream-gen.airt.ai">faststream-gen</a>, a Python library that harnesses the power of generative AI to effortlessly generate <strong>FastStream</strong> applications.. Simply describe your application requirements, and <a href="https://faststream-gen.airt.ai">faststream-gen</a> will generate a production-grade <strong>FastStream</strong> project that is ready to deploy in no time.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>faststream_gen<span class="w"> </span><span class="s2">&quot;Create a FastStream application using localhost broker for testing and use the default port number. It should consume messages from the &#39;input_data&#39; topic, where each message is a JSON encoded object containing a single attribute: &#39;data&#39;. While consuming from the topic, increment the value of the data attribute by 1. Finally, send message to the &#39;output_data&#39; topic.&quot;</span><span class="w"> </span>-o<span class="w"> </span><span class="s2">&quot;./my-awesome-project&quot;</span>
+<p>Save application description inside <code>description.txt</code>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>Create a FastStream application using localhost broker for testing and use the
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>default port number.
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>It should consume messages from the &#39;input_data&#39; topic, where each message is a
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>JSON encoded object containing a single attribute: &#39;data&#39;.
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>While consuming from the topic, increment the value of the data attribute by 1.
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>Finally, send message to the &#39;output_data&#39; topic.
+</code></pre></div></p>
+<p>and run the following command to create a new <strong>FastStream</strong> project:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>faststream_gen<span class="w"> </span>-i<span class="w"> </span>description.txt
+</code></pre></div></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>✨<span class="w">  </span>Generating<span class="w"> </span>a<span class="w"> </span>new<span class="w"> </span>FastStream<span class="w"> </span>application!
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w"> </span>✔<span class="w"> </span>Application<span class="w"> </span>description<span class="w"> </span>validated.
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w"> </span>✔<span class="w"> </span>FastStream<span class="w"> </span>app<span class="w"> </span>skeleton<span class="w"> </span>code<span class="w"> </span>generated.<span class="w"> </span>akes<span class="w"> </span>around<span class="w"> </span><span class="m">15</span><span class="w"> </span>to<span class="w"> </span><span class="m">45</span><span class="w"> </span>seconds<span class="o">)</span>...
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w"> </span>✔<span class="w"> </span>The<span class="w"> </span>app<span class="w"> </span>and<span class="w"> </span>the<span class="w"> </span>tests<span class="w"> </span>are<span class="w"> </span>generated.<span class="w">  </span>around<span class="w"> </span><span class="m">30</span><span class="w"> </span>to<span class="w"> </span><span class="m">90</span><span class="w"> </span>seconds<span class="o">)</span>...
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="w"> </span>✔<span class="w"> </span>New<span class="w"> </span>FastStream<span class="w"> </span>project<span class="w"> </span>created.
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="w"> </span>✔<span class="w"> </span>Integration<span class="w"> </span>tests<span class="w"> </span>were<span class="w"> </span>successfully<span class="w"> </span>completed.
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="w"> </span>Tokens<span class="w"> </span>used:<span class="w"> </span><span class="m">10768</span>
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a><span class="w"> </span>Total<span class="w"> </span>Cost<span class="w"> </span><span class="o">(</span>USD<span class="o">)</span>:<span class="w"> </span><span class="nv">$0</span>.03284
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>✨<span class="w">  </span>All<span class="w"> </span>files<span class="w"> </span>were<span class="w"> </span>successfully<span class="w"> </span>generated!
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>✨<span class="w">  </span>Generating<span class="w"> </span>a<span class="w"> </span>new<span class="w"> </span>FastStream<span class="w"> </span>application!
-<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w"> </span>✔<span class="w"> </span>Application<span class="w"> </span>description<span class="w"> </span>validated.
-<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w"> </span>✔<span class="w"> </span>FastStream<span class="w"> </span>app<span class="w"> </span>skeleton<span class="w"> </span>code<span class="w"> </span>generated.<span class="w"> </span>akes<span class="w"> </span>around<span class="w"> </span><span class="m">15</span><span class="w"> </span>to<span class="w"> </span><span class="m">45</span><span class="w"> </span>seconds<span class="o">)</span>...
-<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w"> </span>✔<span class="w"> </span>The<span class="w"> </span>app<span class="w"> </span>and<span class="w"> </span>the<span class="w"> </span>tests<span class="w"> </span>are<span class="w"> </span>generated.<span class="w">  </span>around<span class="w"> </span><span class="m">30</span><span class="w"> </span>to<span class="w"> </span><span class="m">90</span><span class="w"> </span>seconds<span class="o">)</span>...
-<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="w"> </span>✔<span class="w"> </span>New<span class="w"> </span>FastStream<span class="w"> </span>project<span class="w"> </span>created.
-<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="w"> </span>✔<span class="w"> </span>Integration<span class="w"> </span>tests<span class="w"> </span>were<span class="w"> </span>successfully<span class="w"> </span>completed.
-<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="w"> </span>Tokens<span class="w"> </span>used:<span class="w"> </span><span class="m">10768</span>
-<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="w"> </span>Total<span class="w"> </span>Cost<span class="w"> </span><span class="o">(</span>USD<span class="o">)</span>:<span class="w"> </span><span class="nv">$0</span>.03284
-<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>✨<span class="w">  </span>All<span class="w"> </span>files<span class="w"> </span>were<span class="w"> </span>successfully<span class="w"> </span>generated!
-</code></pre></div>
-<h3 id="tutorials">Tutorials<a class="headerlink" href="#tutorials" title="Permanent link">#</a></h3>
-<p>We also invite you to explore our tutorials, where we will guide you through the process of utilizing the <a href="https://faststream-gen.airt.ai">faststream-gen</a> Python library to effortlessly create <strong>FastStream</strong> applications:</p>
+<h3 id="tutorial">Tutorial<a class="headerlink" href="#tutorial" title="Permanent link">#</a></h3>
+<p>We also invite you to explore our tutorial, where we will guide you through the process of utilizing the <a href="https://faststream-gen.airt.ai">faststream-gen</a> Python library to effortlessly create <strong>FastStream</strong> applications:</p>
 <ul>
 <li><a href="https://faststream-gen.airt.ai/Tutorial/Cryptocurrency_Tutorial/">Cryptocurrency analysis with FastStream</a></li>
 </ul>
@@ -1926,7 +1938,7 @@ support!</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-22T06:27:50+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-22</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-22T08:05:54+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-22</span>
       
     
   </small>
