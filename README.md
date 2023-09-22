@@ -223,7 +223,7 @@ You can know more about **CLI** features [here](https://faststream.airt.ai/lates
 
 The availability of such documentation significantly simplifies the integration of services: you can immediately see what channels and message formats the application works with. And most importantly, it won't cost anything - **FastStream** has already created the docs for you!
 
-![HTML-page](https://github.com/airtai/faststream/blob/main/docs/docs/assets/img/AsyncAPI-basic-html-short.png?raw=true)
+![HTML-page](https://raw.githubusercontent.com/airtai/faststream/main/docs/docs/assets/img/AsyncAPI-basic-html-short.png)
 
 ---
 
