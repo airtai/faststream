@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 from faststream import Context, FastStream, Logger
@@ -10,6 +12,11 @@ class Point(BaseModel):
     )
     y: float = Field(
         ..., examples=[0.5], description="The Y Coordinate in the coordinate system"
+    )
+    time: datetime = Field(
+        ...,
+        examples=["2020-04-23 10:20:30.400000"],
+        description="The timestamp of the record",
     )
 
 
