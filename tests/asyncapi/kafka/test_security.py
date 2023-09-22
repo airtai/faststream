@@ -24,39 +24,32 @@ basic_schema = {
         }
     },
     "channels": {
-        "TestTopicTest1": {
+        "test_1": {
             "servers": ["development"],
             "bindings": {"kafka": {"topic": "test_1", "bindingVersion": "0.4.0"}},
-            "subscribe": {
-                "message": {"$ref": "#/components/messages/TestTopicTest1Message"}
-            },
+            "subscribe": {"message": {"$ref": "#/components/messages/test_1_message"}},
         },
-        "Test_2Publisher": {
+        "test_2": {
             "servers": ["development"],
             "bindings": {"kafka": {"topic": "test_2", "bindingVersion": "0.4.0"}},
-            "publish": {
-                "message": {"$ref": "#/components/messages/Test_2PublisherMessage"}
-            },
+            "publish": {"message": {"$ref": "#/components/messages/test_2_message"}},
         },
     },
     "components": {
         "messages": {
-            "TestTopicTest1Message": {
-                "title": "TestTopicTest1Message",
+            "test_1_message": {
+                "title": "test_1_message",
                 "correlationId": {"location": "$message.header#/correlation_id"},
-                "payload": {"$ref": "#/components/schemas/TestTopicTest1MsgPayload"},
+                "payload": {"$ref": "#/components/schemas/test_1MsgPayload"},
             },
-            "Test_2PublisherMessage": {
-                "title": "Test_2PublisherMessage",
+            "test_2_message": {
+                "title": "test_2_message",
                 "correlationId": {"location": "$message.header#/correlation_id"},
                 "payload": {"$ref": "#/components/schemas/TestTopicResponsePayload"},
             },
         },
         "schemas": {
-            "TestTopicTest1MsgPayload": {
-                "title": "TestTopicTest1MsgPayload",
-                "type": "string",
-            },
+            "test_1MsgPayload": {"title": "test_1MsgPayload", "type": "string"},
             "TestTopicResponsePayload": {
                 "title": "TestTopicResponsePayload",
                 "type": "string",
@@ -80,6 +73,8 @@ def test_base_security_schema():
         pass
 
     schema = get_app_schema(app).to_jsonable()
+
+    print(schema)
 
     assert schema == basic_schema
 
