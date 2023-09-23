@@ -10,6 +10,7 @@ on:
 
 jobs:
   static_analysis:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -35,6 +36,7 @@ jobs:
         run: semgrep scan --config auto --error
 
   test:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -106,6 +108,7 @@ jobs:
           path: coverage
 
   test-macos-latest:
+    if: github.event.pull_request.draft == false
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
@@ -122,6 +125,7 @@ jobs:
         run: bash scripts/test.sh -m "not kafka and not rabbit and not nats"
 
   test-windows-latest:
+    if: github.event.pull_request.draft == false
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -138,6 +142,7 @@ jobs:
         run: bash scripts/test.sh -vv -m "not kafka and not rabbit and not nats"
 
   test-kafka-smoke:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     services:
       kafka:
@@ -170,6 +175,7 @@ jobs:
         run: bash scripts/test.sh tests/brokers/kafka/test_publish.py
 
   test-rabbit-smoke:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     services:
       rabbitmq:
@@ -191,6 +197,7 @@ jobs:
         run: bash scripts/test.sh tests/brokers/rabbit/test_publish.py
 
   coverage-combine:
+    if: github.event.pull_request.draft == false
     needs: [test]
     runs-on: ubuntu-latest
 

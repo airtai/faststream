@@ -96,7 +96,7 @@ class NatsFastProducer:
                         raise nats.errors.NoRespondersError
                 return await self._decoder(await self._parser(msg))
 
-from loguru import logger
+
 class NatsJSFastProducer:
     _connection: JetStreamContext
     _decoder: AsyncDecoder[Msg]
@@ -148,17 +148,13 @@ class NatsJSFastProducer:
                 "reply_to": reply_to
             })
 
-        try:
-            await self._connection.publish(
-                subject="Wtf",
-                payload=payload,
-                headers=headers_to_send,
-                stream=stream,
-                timeout=timeout,
-            )
-        except Exception as e:
-            logger.error(e)
-            raise e
+        await self._connection.publish(
+            subject=subject,
+            payload=payload,
+            headers=headers_to_send,
+            stream=stream,
+            timeout=timeout,
+        )
 
         if rpc:
             if raise_timeout:
