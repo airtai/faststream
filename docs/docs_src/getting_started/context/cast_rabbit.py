@@ -1,7 +1,7 @@
 from faststream import Context, FastStream, context
-from faststream.kafka import KafkaBroker
+from faststream.rabbit import RabbitBroker
 
-broker = KafkaBroker("localhost:9092")
+broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
 app = FastStream(broker)
 context.set_global("secret", "1")
 
@@ -11,7 +11,7 @@ async def handle(
 ):
     assert secret == "1"
 
-@broker.subscriber("test-queue")
+@broker.subscriber("test-queue2")
 async def handle_int(
     secret: int = Context(cast=True),
 ):
