@@ -56,3 +56,33 @@ class TestTestclient(BrokerTestclientTestcase):
         await test_broker.start()
         await test_broker.publish("hello", queue, stream=stream.name)
         publisher.mock.assert_called_with("response")
+
+    @pytest.mark.asyncio
+    async def test_any_subject_routing(self, test_broker: NatsBroker):
+        @test_broker.subscriber("test.*.subj.*")
+        def subscriber():
+            ...
+
+        await test_broker.start()
+        await test_broker.publish("hello", "test.a.subj.b")
+        subscriber.mock.assert_called_once_with("hello")
+
+    @pytest.mark.asyncio
+    async def test_ending_subject_routing(self, test_broker: NatsBroker):
+        @test_broker.subscriber("test.>")
+        def subscriber():
+            ...
+
+        await test_broker.start()
+        await test_broker.publish("hello", "test.a.subj.b")
+        subscriber.mock.assert_called_once_with("hello")
+
+    @pytest.mark.asyncio
+    async def test_mixed_subject_routing(self, test_broker: NatsBroker):
+        @test_broker.subscriber("*.*.subj.>")
+        def subscriber():
+            ...
+
+        await test_broker.start()
+        await test_broker.publish("hello", "test.a.subj.b.c")
+        subscriber.mock.assert_called_once_with("hello")

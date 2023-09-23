@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from functools import partial
+from itertools import zip_longest
 from types import MethodType, TracebackType
 from typing import Any, AsyncGenerator, Dict, Optional, Type, Union
 from unittest.mock import AsyncMock
@@ -116,18 +117,38 @@ class FakeProducer(NatsFastProducer):
         )
 
         for handler in self.broker.handlers.values():  # pragma: no branch
+            call = False
+
             if getattr(handler.stream, "name", None) == stream:
                 if subject == handler.subject:
-                    r = await call_handler(
-                        handler=handler,
-                        message=incoming,
-                        rpc=rpc,
-                        rpc_timeout=rpc_timeout,
-                        raise_timeout=raise_timeout,
-                    )
+                    call = True
 
-                    if rpc:  # pragma: no branch
-                        return r
+                else:
+                    call = True
+
+                    for control, base in zip_longest(
+                        subject.split("."),
+                        handler.subject.split("."),
+                        fillvalue=None,
+                    ):
+                        if base == ">":
+                            break
+
+                        if base != "*" and control != base:
+                            call = False
+                            break
+
+            if call:
+                r = await call_handler(
+                    handler=handler,
+                    message=incoming,
+                    rpc=rpc,
+                    rpc_timeout=rpc_timeout,
+                    raise_timeout=raise_timeout,
+                )
+
+                if rpc:  # pragma: no branch
+                    return r
 
         return None
 
