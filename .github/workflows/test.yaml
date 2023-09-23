@@ -231,7 +231,7 @@ jobs:
 
   # https://github.com/marketplace/actions/alls-green#why
   check: # This job does nothing and is only used for the branch protection
-    if: always()
+    if: github.event.pull_request.draft == false
 
     needs:
       - coverage-combine
