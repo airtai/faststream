@@ -101,7 +101,6 @@ def patch_broker_calls(broker: BrokerUsecase[Any, Any]) -> None:
     for handler in broker.handlers.values():
         for f, _, _, _, _, _ in handler.calls:
             f.event = anyio.Event()
-        handler.set_test()
 
 
 async def call_handler(
