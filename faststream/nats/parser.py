@@ -21,7 +21,7 @@ class NatsParser:
             is_js=self.is_js,
             raw_message=message,
             body=message.data,
-            reply_to=message.reply,
+            reply_to=headers.get("reply_to", "") if self.is_js else message.reply,
             headers=headers,
             content_type=headers.get("content-type", ""),
             message_id=headers.get("message_id", str(uuid4())),

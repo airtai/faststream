@@ -1,3 +1,5 @@
+from nats.js.api import AckPolicy, ConsumerConfig, DeliverPolicy, ReplayPolicy
+
 from faststream.nats.broker import NatsBroker
 from faststream.nats.js_stream import JsStream
 from faststream.nats.message import NatsMessage
@@ -12,4 +14,9 @@ __all__ = (
     "NatsRouter",
     "NatsRoute",
     "JsStream",
+    # Nats imports
+    "ConsumerConfig",
+    "DeliverPolicy",
+    "AckPolicy",
+    "ReplayPolicy",
 )

@@ -170,8 +170,6 @@ class LocalMiddlewareTestcase:
             raise ValueError()
 
         broker = self.patch_broker(raw_broker, broker)
-        for h in broker.handlers.values():
-            h.set_test()
 
         async with broker:
             await broker.start()

@@ -96,7 +96,7 @@ class NatsFastProducer:
                         raise nats.errors.NoRespondersError
                 return await self._decoder(await self._parser(msg))
 
-
+from loguru import logger
 class NatsJSFastProducer:
     _connection: JetStreamContext
     _decoder: AsyncDecoder[Msg]
@@ -117,6 +117,7 @@ class NatsJSFastProducer:
         message: SendableMessage,
         subject: str,
         headers: Optional[Dict[str, str]] = None,
+        reply_to: str = "",
         correlation_id: Optional[str] = None,
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
@@ -133,10 +134,47 @@ class NatsJSFastProducer:
             **(headers or {}),
         }
 
-        await self._connection.publish(
-            subject=subject,
-            payload=payload,
-            headers=headers_to_send,
-            stream=stream,
-            timeout=timeout,
-        )
+        if rpc:
+            if reply_to:
+                raise WRONG_PUBLISH_ARGS
+
+            reply_to = str(uuid4())
+            future: asyncio.Future[Msg] = asyncio.Future()
+            sub = await self._connection._nc.subscribe(reply_to, future=future, max_msgs=1)
+            await sub.unsubscribe(limit=1)
+
+        if reply_to:
+            headers_to_send.update({
+                "reply_to": reply_to
+            })
+
+        try:
+            await self._connection.publish(
+                subject="Wtf",
+                payload=payload,
+                headers=headers_to_send,
+                stream=stream,
+                timeout=timeout,
+            )
+        except Exception as e:
+            logger.error(e)
+            raise e
+
+        if rpc:
+            if raise_timeout:
+                scope = anyio.fail_after
+            else:
+                scope = anyio.move_on_after
+
+            msg: Any = None
+            with scope(rpc_timeout):
+                msg = await future
+
+            if msg:
+                if msg.headers:  # pragma: no branch
+                    if (
+                        msg.headers.get(nats.js.api.Header.STATUS)
+                        == nats.aio.client.NO_RESPONDERS_STATUS
+                    ):
+                        raise nats.errors.NoRespondersError
+                return await self._decoder(await self._parser(msg))

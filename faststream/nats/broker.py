@@ -37,6 +37,7 @@ from faststream.nats.js_stream import JsStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.shared.logging import NatsLoggingMixin
+from faststream.nats.helpers import stream_builder
 from faststream.types import DecodedMessage
 from faststream.utils.context.main import context
 from faststream.utils.functions import to_async
@@ -278,7 +279,7 @@ class NatsBroker(
         [Callable[P_HandlerParams, T_HandlerReturn]],
         HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn],
     ]:
-        stream = JsStream.validate(stream)
+        stream = stream_builder.stream(stream)
         is_js = stream is not None
 
         self._setup_log_context(
@@ -384,7 +385,7 @@ class NatsBroker(
                 reply_to=reply_to,
                 # JS
                 timeout=timeout,
-                stream=JsStream.validate(stream),
+                stream=stream_builder.stream(stream),
                 # AsyncAPI
                 title=title,
                 _description=description,
@@ -397,7 +398,12 @@ class NatsBroker(
     async def publish(  # type: ignore[override]
         self,
         *args: Any,
+        stream: Optional[str] = None,
         **kwargs: Any,
     ) -> Optional[DecodedMessage]:
-        assert self._producer, "NatsBroker is not started yet"  # nosec B101
-        return await self._producer.publish(*args, **kwargs)
+        if stream is None:
+            assert self._producer, "NatsBroker is not started yet"  # nosec B101
+            return await self._producer.publish(*args, **kwargs)
+        else:
+            assert self._js_producer, "NatsBroker is not started yet"  # nosec B101
+            return await self._js_producer.publish(*args, stream=stream, **kwargs)
