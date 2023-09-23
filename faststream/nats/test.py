@@ -126,7 +126,7 @@ class FakeProducer(NatsFastProducer):
                 else:
                     call = True
 
-                    for control, base in zip_longest(
+                    for current, base in zip_longest(
                         subject.split("."),
                         handler.subject.split("."),
                         fillvalue=None,
@@ -134,7 +134,7 @@ class FakeProducer(NatsFastProducer):
                         if base == ">":
                             break
 
-                        if base != "*" and control != base:
+                        if base != "*" and current != base:
                             call = False
                             break
 

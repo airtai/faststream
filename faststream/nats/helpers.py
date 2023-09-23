@@ -6,7 +6,7 @@ from faststream.nats.js_stream import JsStream
 class StreamBuilder:
     streams: Dict[str, JsStream]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.streams = {}
 
     def stream(
