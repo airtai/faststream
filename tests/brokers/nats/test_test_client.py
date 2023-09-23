@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from faststream.nats import NatsBroker, TestNatsBroker
+from faststream.nats import JsStream, NatsBroker, TestNatsBroker
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
@@ -29,3 +29,30 @@ class TestTestclient(BrokerTestclientTestcase):
             )
 
         assert event.is_set()
+
+    @pytest.mark.asyncio
+    async def test_js_subscriber_mock(
+        self, queue: str, test_broker: NatsBroker, stream: JsStream
+    ):
+        @test_broker.subscriber(queue, stream=stream)
+        async def m():
+            pass
+
+        await test_broker.start()
+        await test_broker.publish("hello", queue, stream=stream.name)
+        m.mock.assert_called_once_with("hello")
+
+    @pytest.mark.asyncio
+    async def test_js_publisher_mock(
+        self, queue: str, test_broker: NatsBroker, stream: JsStream
+    ):
+        publisher = test_broker.publisher(queue + "resp")
+
+        @publisher
+        @test_broker.subscriber(queue, stream=stream)
+        async def m():
+            return "response"
+
+        await test_broker.start()
+        await test_broker.publish("hello", queue, stream=stream.name)
+        publisher.mock.assert_called_with("response")

@@ -33,11 +33,11 @@ from faststream.broker.types import (
 )
 from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
 from faststream.nats.asyncapi import Handler, Publisher
+from faststream.nats.helpers import stream_builder
 from faststream.nats.js_stream import JsStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.shared.logging import NatsLoggingMixin
-from faststream.nats.helpers import stream_builder
 from faststream.types import DecodedMessage
 from faststream.utils.context.main import context
 from faststream.utils.functions import to_async
@@ -309,6 +309,7 @@ class NatsBroker(
             extra_options.update(
                 {
                     "durable": durable,
+                    "stream": stream.name,
                     "config": config,
                     "ordered_consumer": ordered_consumer,
                     "idle_heartbeat": idle_heartbeat,
@@ -376,6 +377,9 @@ class NatsBroker(
         title: Optional[str] = None,
         description: Optional[str] = None,
     ) -> Publisher:
+        if (stream := stream_builder.stream(stream)) is not None:
+            stream.subjects.append(subject)
+
         publisher = self._publishers.get(
             subject,
             Publisher(
@@ -385,7 +389,7 @@ class NatsBroker(
                 reply_to=reply_to,
                 # JS
                 timeout=timeout,
-                stream=stream_builder.stream(stream),
+                stream=stream,
                 # AsyncAPI
                 title=title,
                 _description=description,

@@ -1,4 +1,4 @@
-from typing import Dict, Any, Union, Optional
+from typing import Any, Dict, Optional, Union
 
 from faststream.nats.js_stream import JsStream
 
@@ -19,10 +19,7 @@ class StreamBuilder:
         stream = JsStream.validate(name)
 
         if stream is not None:
-            stream = self.streams[stream.name] = self.streams.get(
-                stream.name,
-                stream
-            )
+            stream = self.streams[stream.name] = self.streams.get(stream.name, stream)
 
         return stream
 

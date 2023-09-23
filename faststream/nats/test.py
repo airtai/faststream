@@ -100,6 +100,7 @@ class FakeProducer(NatsFastProducer):
         subject: str,
         reply_to: str = "",
         headers: Optional[Dict[str, str]] = None,
+        stream: Optional[str] = None,
         correlation_id: Optional[str] = None,
         *,
         rpc: bool = False,
@@ -115,23 +116,24 @@ class FakeProducer(NatsFastProducer):
         )
 
         for handler in self.broker.handlers.values():  # pragma: no branch
-            if subject == handler.subject:
-                r = await call_handler(
-                    handler=handler,
-                    message=incoming,
-                    rpc=rpc,
-                    rpc_timeout=rpc_timeout,
-                    raise_timeout=raise_timeout,
-                )
+            if getattr(handler.stream, "name", None) == stream:
+                if subject == handler.subject:
+                    r = await call_handler(
+                        handler=handler,
+                        message=incoming,
+                        rpc=rpc,
+                        rpc_timeout=rpc_timeout,
+                        raise_timeout=raise_timeout,
+                    )
 
-                if rpc:  # pragma: no branch
-                    return r
+                    if rpc:  # pragma: no branch
+                        return r
 
         return None
 
 
 async def _fake_connect(self: NatsBroker, *args: Any, **kwargs: Any) -> None:
-    self._producer = FakeProducer(self)
+    self._js_producer = self._producer = FakeProducer(self)
 
 
 async def _fake_close(

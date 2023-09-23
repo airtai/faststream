@@ -4,6 +4,7 @@ import pytest
 import pytest_asyncio
 
 from faststream.nats import (
+    JsStream,
     NatsBroker,
     NatsRouter,
     TestNatsBroker,
@@ -18,6 +19,11 @@ class Settings:
 @pytest.fixture(scope="session")
 def settings():
     return Settings()
+
+
+@pytest.fixture()
+def stream(queue):
+    return JsStream(queue)
 
 
 @pytest.fixture

@@ -140,13 +140,13 @@ class NatsJSFastProducer:
 
             reply_to = str(uuid4())
             future: asyncio.Future[Msg] = asyncio.Future()
-            sub = await self._connection._nc.subscribe(reply_to, future=future, max_msgs=1)
+            sub = await self._connection._nc.subscribe(
+                reply_to, future=future, max_msgs=1
+            )
             await sub.unsubscribe(limit=1)
 
         if reply_to:
-            headers_to_send.update({
-                "reply_to": reply_to
-            })
+            headers_to_send.update({"reply_to": reply_to})
 
         await self._connection.publish(
             subject=subject,
