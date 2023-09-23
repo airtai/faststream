@@ -195,6 +195,28 @@ jobs:
         run: pip install .[rabbit,test-core]
       - name: Test
         run: bash scripts/test.sh tests/brokers/rabbit/test_publish.py
+  
+  test-nats-smoke:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    services:
+      nats:
+        image: diementros/nats:js
+        ports:
+          - 4222:4222
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[nats,test-core]
+      - name: Test
+        run: bash scripts/test.sh tests/brokers/nats/test_publish.py
 
   coverage-combine:
     if: github.event.pull_request.draft == false
@@ -240,6 +262,7 @@ jobs:
       - test-windows-latest
       - test-kafka-smoke
       - test-rabbit-smoke
+      - test-nats-smoke
 
     runs-on: ubuntu-latest
 
