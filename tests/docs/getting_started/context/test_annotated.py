@@ -2,8 +2,10 @@ import pytest
 
 from faststream.kafka import TestKafkaBroker
 from faststream.rabbit import TestRabbitBroker
+from tests.marks import python39
 
 
+@python39
 @pytest.mark.asyncio
 async def test_annotated_kafka():
     from docs.docs_src.getting_started.context.annotated_kafka import (
@@ -17,6 +19,7 @@ async def test_annotated_kafka():
         base_handler.mock.assert_called_once_with("Hi!")
 
 
+@python39
 @pytest.mark.asyncio
 async def test():
     from docs.docs_src.getting_started.context.annotated_rabbit import (
