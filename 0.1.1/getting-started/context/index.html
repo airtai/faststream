@@ -1522,14 +1522,14 @@
 <a id="__codelineno-4-2" name="__codelineno-4-2"></a>
 <a id="__codelineno-4-3" name="__codelineno-4-3"></a>
 <a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">body</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="hll">    <span class="n">nested_func</span><span class="p">()</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="hll">    <span class="n">nested_func</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
 </span><a id="__codelineno-4-7" name="__codelineno-4-7"></a>
-<a id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="hll">
-</span><a id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="nd">@apply_types</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10"></a><span class="k">def</span> <span class="nf">nested_func</span><span class="p">(</span><span class="n">body</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">Context</span><span class="p">()):</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11"></a><span class="hll">    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
-</span></code></pre></div></td></tr></table></div>
+<a id="__codelineno-4-8" name="__codelineno-4-8"></a>
+<a id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="hll"><span class="nd">@apply_types</span>
+</span><a id="__codelineno-4-10" name="__codelineno-4-10"></a><span class="hll"><span class="k">def</span> <span class="nf">nested_func</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">Context</span><span class="p">()):</span>
+</span><a id="__codelineno-4-11" name="__codelineno-4-11"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
 <p>In the example above, we did not pass the <code>logger</code> function at calling it; it was placed outside of context.</p>
 
   <hr>
@@ -1537,7 +1537,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-24T15:38:35+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-24</span>
       
     
   </small>
