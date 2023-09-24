@@ -29,7 +29,7 @@ Topics are fundamental to Kafka and serve as the central point of data distribut
 
 ### FastStream KafkaBroker
 
-The FastStream KafkaBroker is a key component of the FastStream library that enables seamless integration with Apache Kafka. With the KafkaBroker, developers can easily connect to Kafka brokers, produce messages to Kafka topics, and consume messages from Kafka topics within their FastStream applications.
+The FastStream KafkaBroker is a key component of the FastStream framework that enables seamless integration with Apache Kafka. With the KafkaBroker, developers can easily connect to Kafka brokers, produce messages to Kafka topics, and consume messages from Kafka topics within their FastStream applications.
 
 ### Establishing a Connection
 
