@@ -1485,9 +1485,9 @@
 <span class="normal"><a href="#__codelineno-3-10">10</a></span>
 <span class="normal"><a href="#__codelineno-3-11">11</a></span>
 <span class="normal"><a href="#__codelineno-3-12">12</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">FastStream</span><span class="p">,</span> <span class="n">context</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">(</span><span class="s2">&quot;amqp://guest:guest@localhost:5672/&quot;</span><span class="p">)</span>
 <a id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
 <a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="hll"><span class="n">context</span><span class="o">.</span><span class="n">set_global</span><span class="p">(</span><span class="s2">&quot;secret&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
 </span><a id="__codelineno-3-7" name="__codelineno-3-7"></a>
@@ -1508,7 +1508,7 @@
 <span class="normal"><a href="#__codelineno-4-2">2</a></span>
 <span class="normal"><a href="#__codelineno-4-3">3</a></span>
 <span class="normal"><a href="#__codelineno-4-4">4</a></span>
-<span class="normal"><a href="#__codelineno-4-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test-topic&quot;</span><span class="p">)</span>
+<span class="normal"><a href="#__codelineno-4-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test-topic2&quot;</span><span class="p">)</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle_int</span><span class="p">(</span>
 <a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="hll">    <span class="n">secret</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="n">cast</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
 </span><a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="p">):</span>
@@ -1520,7 +1520,7 @@
 <span class="normal"><a href="#__codelineno-5-2">2</a></span>
 <span class="normal"><a href="#__codelineno-5-3">3</a></span>
 <span class="normal"><a href="#__codelineno-5-4">4</a></span>
-<span class="normal"><a href="#__codelineno-5-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test-queue&quot;</span><span class="p">)</span>
+<span class="normal"><a href="#__codelineno-5-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test-queue2&quot;</span><span class="p">)</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle_int</span><span class="p">(</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="hll">    <span class="n">secret</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="n">cast</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
 </span><a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="p">):</span>

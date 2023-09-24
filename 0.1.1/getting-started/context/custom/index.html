@@ -1434,7 +1434,7 @@
 <a id="__codelineno-0-7" name="__codelineno-0-7"></a>
 <a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="nd">@app</span><span class="o">.</span><span class="n">on_startup</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">set_global</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">ContextRepo</span><span class="p">):</span>
-</span><a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="hll">    <span class="n">context</span><span class="o">.</span><span class="n">set_global</span><span class="p">(</span><span class="s2">&quot;secret&quot;</span><span class="p">,</span> <span class="s2">&quot;my-perfect-secret&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="hll">    <span class="n">context</span><span class="o">.</span><span class="n">set_global</span><span class="p">(</span><span class="s2">&quot;secret_str&quot;</span><span class="p">,</span> <span class="s2">&quot;my-perfect-secret&quot;</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
@@ -1456,7 +1456,7 @@
 <a id="__codelineno-1-7" name="__codelineno-1-7"></a>
 <a id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="nd">@app</span><span class="o">.</span><span class="n">on_startup</span>
 <a id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">set_global</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">ContextRepo</span><span class="p">):</span>
-</span><a id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="hll">    <span class="n">context</span><span class="o">.</span><span class="n">set_global</span><span class="p">(</span><span class="s2">&quot;secret&quot;</span><span class="p">,</span> <span class="s2">&quot;my-perfect-secret&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="hll">    <span class="n">context</span><span class="o">.</span><span class="n">set_global</span><span class="p">(</span><span class="s2">&quot;secret_str&quot;</span><span class="p">,</span> <span class="s2">&quot;my-perfect-secret&quot;</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 </div>
@@ -1473,9 +1473,9 @@
 <span class="normal"><a href="#__codelineno-2-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test-topic&quot;</span><span class="p">)</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3"></a>    <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="hll">    <span class="n">secret</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="n">Context</span><span class="p">(),</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="hll">    <span class="n">secret_str</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="n">Context</span><span class="p">(),</span>
 </span><a id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="p">):</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6"></a>    <span class="k">assert</span> <span class="n">secret</span> <span class="o">==</span> <span class="s2">&quot;my-perfect-secret&quot;</span> <span class="c1"># pragma: allowlist secret</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6"></a>    <span class="k">assert</span> <span class="n">secret_str</span> <span class="o">==</span> <span class="s2">&quot;my-perfect-secret&quot;</span> <span class="c1"># pragma: allowlist secret</span>
 </code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
@@ -1487,9 +1487,9 @@
 <span class="normal"><a href="#__codelineno-3-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test-queue&quot;</span><span class="p">)</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3"></a>    <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="hll">    <span class="n">secret</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="n">Context</span><span class="p">(),</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="hll">    <span class="n">secret_str</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="n">Context</span><span class="p">(),</span>
 </span><a id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="p">):</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6"></a>    <span class="k">assert</span> <span class="n">secret</span> <span class="o">==</span> <span class="s2">&quot;my-perfect-secret&quot;</span> <span class="c1"># pragma: allowlist secret</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6"></a>    <span class="k">assert</span> <span class="n">secret_str</span> <span class="o">==</span> <span class="s2">&quot;my-perfect-secret&quot;</span> <span class="c1"># pragma: allowlist secret</span>
 </code></pre></div></td></tr></table></div>
 </div>
 </div>
@@ -1631,7 +1631,8 @@
 <span class="normal"><a href="#__codelineno-7-21">21</a></span>
 <span class="normal"><a href="#__codelineno-7-22">22</a></span>
 <span class="normal"><a href="#__codelineno-7-23">23</a></span>
-<span class="normal"><a href="#__codelineno-7-24">24</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">FastStream</span><span class="p">,</span> <span class="n">apply_types</span><span class="p">,</span> <span class="n">context</span>
+<span class="normal"><a href="#__codelineno-7-24">24</a></span>
+<span class="normal"><a href="#__codelineno-7-25">25</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">FastStream</span><span class="p">,</span> <span class="n">apply_types</span><span class="p">,</span> <span class="n">context</span>
 </span><a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
 <a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="kn">from</span> <span class="nn">faststream.kafka.annotations</span> <span class="kn">import</span> <span class="n">KafkaMessage</span>
 <a id="__codelineno-7-4" name="__codelineno-7-4"></a>
@@ -1644,17 +1645,18 @@
 <a id="__codelineno-7-11" name="__codelineno-7-11"></a>    <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <a id="__codelineno-7-12" name="__codelineno-7-12"></a>    <span class="n">message</span><span class="p">:</span> <span class="n">KafkaMessage</span><span class="p">,</span>
 <a id="__codelineno-7-13" name="__codelineno-7-13"></a><span class="p">):</span>
-<a id="__codelineno-7-14" name="__codelineno-7-14"></a><span class="hll">    <span class="n">context</span><span class="o">.</span><span class="n">set_local</span><span class="p">(</span><span class="s2">&quot;correlation_id&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">.</span><span class="n">correlation_id</span><span class="p">)</span>
-</span><a id="__codelineno-7-15" name="__codelineno-7-15"></a>    <span class="n">call</span><span class="p">()</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14"></a><span class="hll">    <span class="n">tag</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">set_local</span><span class="p">(</span><span class="s2">&quot;correlation_id&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">.</span><span class="n">correlation_id</span><span class="p">)</span>
+</span><a id="__codelineno-7-15" name="__codelineno-7-15"></a>    <span class="n">call</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
 <a id="__codelineno-7-16" name="__codelineno-7-16"></a>
 <a id="__codelineno-7-17" name="__codelineno-7-17"></a>
 <a id="__codelineno-7-18" name="__codelineno-7-18"></a><span class="nd">@apply_types</span>
 <a id="__codelineno-7-19" name="__codelineno-7-19"></a><span class="k">def</span> <span class="nf">call</span><span class="p">(</span>
-<a id="__codelineno-7-20" name="__codelineno-7-20"></a>    <span class="n">message</span><span class="p">:</span> <span class="n">KafkaMessage</span><span class="p">,</span>
-<a id="__codelineno-7-21" name="__codelineno-7-21"></a>    <span class="n">correlation_id</span><span class="o">=</span><span class="n">Context</span><span class="p">(),</span>
-<a id="__codelineno-7-22" name="__codelineno-7-22"></a><span class="p">):</span>
-<a id="__codelineno-7-23" name="__codelineno-7-23"></a>    <span class="k">assert</span> <span class="n">correlation_id</span> <span class="o">==</span> <span class="n">message</span><span class="o">.</span><span class="n">correlation_id</span>
-<a id="__codelineno-7-24" name="__codelineno-7-24"></a><span class="hll">    <span class="n">context</span><span class="o">.</span><span class="n">reset_local</span><span class="p">(</span><span class="s2">&quot;correlation_id&quot;</span><span class="p">)</span>
+<a id="__codelineno-7-20" name="__codelineno-7-20"></a>    <span class="n">tag</span><span class="p">,</span>
+<a id="__codelineno-7-21" name="__codelineno-7-21"></a>    <span class="n">message</span><span class="p">:</span> <span class="n">KafkaMessage</span><span class="p">,</span>
+<a id="__codelineno-7-22" name="__codelineno-7-22"></a>    <span class="n">correlation_id</span><span class="o">=</span><span class="n">Context</span><span class="p">(),</span>
+<a id="__codelineno-7-23" name="__codelineno-7-23"></a><span class="p">):</span>
+<a id="__codelineno-7-24" name="__codelineno-7-24"></a>    <span class="k">assert</span> <span class="n">correlation_id</span> <span class="o">==</span> <span class="n">message</span><span class="o">.</span><span class="n">correlation_id</span>
+<a id="__codelineno-7-25" name="__codelineno-7-25"></a><span class="hll">    <span class="n">context</span><span class="o">.</span><span class="n">reset_local</span><span class="p">(</span><span class="s2">&quot;correlation_id&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
@@ -1681,7 +1683,8 @@
 <span class="normal"><a href="#__codelineno-8-21">21</a></span>
 <span class="normal"><a href="#__codelineno-8-22">22</a></span>
 <span class="normal"><a href="#__codelineno-8-23">23</a></span>
-<span class="normal"><a href="#__codelineno-8-24">24</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">FastStream</span><span class="p">,</span> <span class="n">apply_types</span><span class="p">,</span> <span class="n">context</span>
+<span class="normal"><a href="#__codelineno-8-24">24</a></span>
+<span class="normal"><a href="#__codelineno-8-25">25</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">FastStream</span><span class="p">,</span> <span class="n">apply_types</span><span class="p">,</span> <span class="n">context</span>
 </span><a id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span>
 <a id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="kn">from</span> <span class="nn">faststream.rabbit.annotations</span> <span class="kn">import</span> <span class="n">RabbitMessage</span>
 <a id="__codelineno-8-4" name="__codelineno-8-4"></a>
@@ -1694,17 +1697,18 @@
 <a id="__codelineno-8-11" name="__codelineno-8-11"></a>    <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <a id="__codelineno-8-12" name="__codelineno-8-12"></a>    <span class="n">message</span><span class="p">:</span> <span class="n">RabbitMessage</span><span class="p">,</span>
 <a id="__codelineno-8-13" name="__codelineno-8-13"></a><span class="p">):</span>
-<a id="__codelineno-8-14" name="__codelineno-8-14"></a><span class="hll">    <span class="n">context</span><span class="o">.</span><span class="n">set_local</span><span class="p">(</span><span class="s2">&quot;correlation_id&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">.</span><span class="n">correlation_id</span><span class="p">)</span>
-</span><a id="__codelineno-8-15" name="__codelineno-8-15"></a>    <span class="n">call</span><span class="p">()</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14"></a><span class="hll">    <span class="n">tag</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">set_local</span><span class="p">(</span><span class="s2">&quot;correlation_id&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">.</span><span class="n">correlation_id</span><span class="p">)</span>
+</span><a id="__codelineno-8-15" name="__codelineno-8-15"></a>    <span class="n">call</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
 <a id="__codelineno-8-16" name="__codelineno-8-16"></a>
 <a id="__codelineno-8-17" name="__codelineno-8-17"></a>
 <a id="__codelineno-8-18" name="__codelineno-8-18"></a><span class="nd">@apply_types</span>
 <a id="__codelineno-8-19" name="__codelineno-8-19"></a><span class="k">def</span> <span class="nf">call</span><span class="p">(</span>
-<a id="__codelineno-8-20" name="__codelineno-8-20"></a>    <span class="n">message</span><span class="p">:</span> <span class="n">RabbitMessage</span><span class="p">,</span>
-<a id="__codelineno-8-21" name="__codelineno-8-21"></a>    <span class="n">correlation_id</span><span class="o">=</span><span class="n">Context</span><span class="p">(),</span>
-<a id="__codelineno-8-22" name="__codelineno-8-22"></a><span class="p">):</span>
-<a id="__codelineno-8-23" name="__codelineno-8-23"></a>    <span class="k">assert</span> <span class="n">correlation_id</span> <span class="o">==</span> <span class="n">message</span><span class="o">.</span><span class="n">correlation_id</span>
-<a id="__codelineno-8-24" name="__codelineno-8-24"></a><span class="hll">    <span class="n">context</span><span class="o">.</span><span class="n">reset_local</span><span class="p">(</span><span class="s2">&quot;correlation_id&quot;</span><span class="p">)</span>
+<a id="__codelineno-8-20" name="__codelineno-8-20"></a>    <span class="n">tag</span><span class="p">,</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21"></a>    <span class="n">message</span><span class="p">:</span> <span class="n">RabbitMessage</span><span class="p">,</span>
+<a id="__codelineno-8-22" name="__codelineno-8-22"></a>    <span class="n">correlation_id</span><span class="o">=</span><span class="n">Context</span><span class="p">(),</span>
+<a id="__codelineno-8-23" name="__codelineno-8-23"></a><span class="p">):</span>
+<a id="__codelineno-8-24" name="__codelineno-8-24"></a>    <span class="k">assert</span> <span class="n">correlation_id</span> <span class="o">==</span> <span class="n">message</span><span class="o">.</span><span class="n">correlation_id</span>
+<a id="__codelineno-8-25" name="__codelineno-8-25"></a><span class="hll">    <span class="n">context</span><span class="o">.</span><span class="n">reset_local</span><span class="p">(</span><span class="s2">&quot;correlation_id&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 </div>
