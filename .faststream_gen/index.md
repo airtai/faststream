@@ -75,7 +75,7 @@ Making streaming microservices has never been easier. Designed with junior devel
 
 - [**Integrations**](#any-framework): **FastStream** is fully compatible with any HTTP framework you want ([**FastAPI**](#fastapi-plugin) especially)
 
-- **Built for Automatic Code Generation**: **FastStream** is optimized for automatic code generation using advanced models like GPT and Llama
+- [**Built for Automatic Code Generation**](#code-generator): **FastStream** is optimized for automatic code generation using advanced models like GPT and Llama
 
 That's **FastStream** in a nutshell—easy, efficient, and powerful. Whether you're just starting with streaming microservices or looking to scale, **FastStream** has got you covered.
 
@@ -342,7 +342,7 @@ Just import a **StreamRouter** you need and declare the message handler with the
 
 ## Code generator
 
-As evident, **FastStream** is an incredibly user-friendly library. However, we've taken it a step further and made it even more user-friendly! Introducing [faststream-gen](https://faststream-gen.airt.ai), a Python library that harnesses the power of generative AI to effortlessly generate **FastStream** applications.. Simply describe your application requirements, and [faststream-gen](https://faststream-gen.airt.ai) will generate a production-grade **FastStream** project that is ready to deploy in no time.
+As evident, **FastStream** is an incredibly user-friendly library. However, we've taken it a step further and made it even more user-friendly! Introducing [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"}, a Python library that harnesses the power of generative AI to effortlessly generate **FastStream** applications.. Simply describe your application requirements, and [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"} will generate a production-grade **FastStream** project that is ready to deploy in no time.
 
 Save application description inside `description.txt`:
 ```
@@ -375,9 +375,9 @@ faststream_gen -i description.txt
 ```
 
 ### Tutorial
-We also invite you to explore our tutorial, where we will guide you through the process of utilizing the [faststream-gen](https://faststream-gen.airt.ai) Python library to effortlessly create **FastStream** applications:
+We also invite you to explore our tutorial, where we will guide you through the process of utilizing the [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"} Python library to effortlessly create **FastStream** applications:
 
-- [Cryptocurrency analysis with FastStream](https://faststream-gen.airt.ai/Tutorial/Cryptocurrency_Tutorial/)
+- [Cryptocurrency analysis with FastStream](https://faststream-gen.airt.ai/Tutorial/Cryptocurrency_Tutorial/){.external-link target="_blank"}
 
 ---
 
@@ -385,9 +385,9 @@ We also invite you to explore our tutorial, where we will guide you through the 
 
 Please show your support and stay in touch by:
 
-- giving our [GitHub repository](https://github.com/airtai/faststream/) a star, and
+- giving our [GitHub repository](https://github.com/airtai/faststream/){.external-link target="_blank"} a star, and
 
-- joining our [Discord server](https://discord.gg/CJWmYpyFbc)
+- joining our [Discord server](https://discord.gg/CJWmYpyFbc){.external-link target="_blank"}
 
 Your support helps us to stay in touch with you and encourages us to
 continue developing and improving the library. Thank you for your

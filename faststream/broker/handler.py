@@ -45,11 +45,9 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
     Attributes:
         calls : List of tuples representing handler calls, filters, parsers, decoders, middlewares, and dependants.
         global_middlewares : Sequence of global middlewares.
-        is_test : Boolean indicating if the handler is in test mode.
 
     Methods:
         __init__ : Initializes the BaseHandler object.
-        set_test : Sets the handler to test mode.
         name : Returns the name of the handler.
         call_name : Returns the name of the handler call.
         description : Returns the description of the handler.
@@ -85,7 +83,6 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
     ]
 
     global_middlewares: Sequence[Callable[[Any], BaseMiddleware]]
-    is_test: bool
 
     def __init__(
         self,
@@ -107,10 +104,6 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
         # AsyncAPI information
         self._description = description
         self._title = title
-        self.is_test = False
-
-    def set_test(self) -> None:
-        self.is_test = True
 
     @override
     @property
@@ -316,12 +309,6 @@ class AsyncHandler(BaseHandler[MsgType]):
                     except StopConsume:
                         await self.close()
                         return None
-
-                    except Exception as e:
-                        if self.is_test:
-                            raise e
-                        else:
-                            return None
 
                     else:
                         message.processed = processed = True

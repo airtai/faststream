@@ -10,6 +10,7 @@ import anyio
 from aiokafka import ConsumerRecord
 
 from faststream._compat import override
+from faststream.broker.middlewares import CriticalLogMiddleware
 from faststream.broker.parsers import encode_message
 from faststream.broker.test import call_handler, patch_broker_calls
 from faststream.kafka.broker import KafkaBroker
@@ -81,7 +82,7 @@ class TestKafkaBroker:
         if not self.with_real:
             self.broker.start = AsyncMock(wraps=partial(_fake_start, self.broker))  # type: ignore[method-assign]
             self.broker._connect = MethodType(_fake_connect, self.broker)  # type: ignore[method-assign]
-            self.broker.close = MethodType(_fake_close, self.broker)  # type: ignore[method-assign]
+            self.broker.close = AsyncMock()  # type: ignore[method-assign]
         else:
             _fake_start(self.broker)
 
@@ -90,7 +91,7 @@ class TestKafkaBroker:
                 await self.broker.start()
                 yield self.broker
             finally:
-                pass
+                _fake_close(self.broker)
 
     async def __aenter__(self) -> KafkaBroker:
         """
@@ -295,8 +296,8 @@ async def _fake_connect(self: KafkaBroker, *args: Any, **kwargs: Any) -> None:
     self._producer = FakeProducer(self)
 
 
-async def _fake_close(
-    self: KafkaBroker,
+def _fake_close(
+    broker: KafkaBroker,
     exc_type: Optional[Type[BaseException]] = None,
     exc_val: Optional[BaseException] = None,
     exec_tb: Optional[TracebackType] = None,
@@ -313,20 +314,22 @@ async def _fake_close(
     Returns:
         None: This method does not return a value.
     """
-    for p in self._publishers.values():
+    broker.middlewares = [CriticalLogMiddleware(broker.logger), *broker.middlewares]
+
+    for p in broker._publishers.values():
         p.mock.reset_mock()
         if getattr(p, "_fake_handler", False):
-            self.handlers.pop(p.topic, None)
+            broker.handlers.pop(p.topic, None)
             p._fake_handler = False
             p.mock.reset_mock()
 
-    for h in self.handlers.values():
+    for h in broker.handlers.values():
         for f, _, _, _, _, _ in h.calls:
             f.mock.reset_mock()
             f.event = anyio.Event()
 
 
-def _fake_start(self: KafkaBroker, *args: Any, **kwargs: Any) -> None:
+def _fake_start(broker: KafkaBroker, *args: Any, **kwargs: Any) -> None:
     """
     Fake starting of the KafkaBroker.
 
@@ -338,18 +341,19 @@ def _fake_start(self: KafkaBroker, *args: Any, **kwargs: Any) -> None:
     Returns:
         None: This method does not return a value.
     """
-    for key, p in self._publishers.items():
+
+    for key, p in broker._publishers.items():
         if getattr(p, "_fake_handler", False):
             continue
 
-        handler = self.handlers.get(key)
+        handler = broker.handlers.get(key)
         if handler is not None:
             for f, _, _, _, _, _ in handler.calls:
                 f.mock.side_effect = p.mock
         else:
             p._fake_handler = True
 
-            @self.subscriber(  # type: ignore[call-overload,misc]
+            @broker.subscriber(  # type: ignore[call-overload,misc]
                 p.topic, batch=p.batch, _raw=True
             )
             def f(msg: Any) -> None:
@@ -357,6 +361,6 @@ def _fake_start(self: KafkaBroker, *args: Any, **kwargs: Any) -> None:
 
             p.mock = f.mock
 
-        p._producer = self._producer
+        p._producer = broker._producer
 
-    patch_broker_calls(self)
+    patch_broker_calls(broker)

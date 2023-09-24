@@ -3,7 +3,7 @@ from pydantic import ValidationError
 
 from faststream.kafka import TestKafkaBroker
 
-from .annotation_kafka import broker, handle
+from .pydantic_fields_kafka import broker, handle
 
 
 @pytest.mark.asyncio
