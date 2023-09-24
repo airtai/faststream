@@ -4,6 +4,7 @@ from typing import Any, Callable, Optional, Sequence, Tuple, Union
 
 import anyio
 from aiokafka import AIOKafkaConsumer, ConsumerRecord
+from aiokafka.errors import KafkaError
 from fast_depends.core import CallModel
 
 from faststream.__about__ import __version__
@@ -216,7 +217,7 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
                 else:
                     msg = await self.consumer.getone()
 
-            except Exception:
+            except KafkaError:
                 if connected is True:
                     connected = False
                 await anyio.sleep(5)
