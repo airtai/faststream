@@ -1439,7 +1439,7 @@
         
           <li class="md-nav__item">
   <a href="#message-distribution" class="md-nav__link">
-    Message distribution
+    Message Distribution
   </a>
   
 </li>
@@ -1814,7 +1814,7 @@
         
           <li class="md-nav__item">
   <a href="#message-distribution" class="md-nav__link">
-    Message distribution
+    Message Distribution
   </a>
   
 </li>
@@ -1848,25 +1848,24 @@
 
 
 <h1 id="direct-exchange">Direct Exchange<a class="headerlink" href="#direct-exchange" title="Permanent link">#</a></h1>
-<p><strong>Direct</strong> Exchange is the basic way to route messages in <em>RabbitMQ</em>. Its core is very simple: <code>exchange</code> sends messages to those queues, <code>routing_key</code> which matches the <code>routing_key</code> of the message being sent.</p>
+<p>The <strong>Direct</strong> Exchange is the basic way to route messages in <em>RabbitMQ</em>. Its core is very simple: the <code>exchange</code> sends messages to those queues whose <code>routing_key</code> matches the <code>routing_key</code> of the message being sent.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><strong>Default</strong> Exchange, to which all queues in <em>RabbitMQ</em> are subscribed, has the <strong>Direct</strong> type by default</p>
+<p>The <strong>Default</strong> Exchange, to which all queues in <em>RabbitMQ</em> are subscribed, has the <strong>Direct</strong> type by default.</p>
 </div>
 <h2 id="scaling">Scaling<a class="headerlink" href="#scaling" title="Permanent link">#</a></h2>
-<p>If several consumers are listening to the same queue, messages will go to the one of them (round-robin). This behavior is common for all types of <code>exchange</code>, because it refers to the queue itself. The type of <code>exchange</code> affects which queues the message gets into.</p>
-<p>Thus, <em>RabbitMQ</em> can independently balance the load on queue consumers. You can increase the processing speed
-of the message flow from the queue by launching additional instances of a consumer service. You don't need to make changes to the current infrastructure configuration: <em>RabbitMQ</em> will take care of how to distribute messages between your services.</p>
+<p>If several consumers are listening to the same queue, messages will be distributed to one of them (round-robin). This behavior is common for all types of <code>exchange</code> because it refers to the queue itself. The type of <code>exchange</code> affects which queues the message gets into.</p>
+<p>Thus, <em>RabbitMQ</em> can independently balance the load on queue consumers. You can increase the processing speed of the message flow from the queue by launching additional instances of a consumer service. You don't need to make changes to the current infrastructure configuration: RabbitMQ will take care of how to distribute messages between your services.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">#</a></h2>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p><strong>Direct</strong> Exchange is the type used in <strong>FastStream</strong> by default: you can simply declare it as follows</p>
+<p>The <strong>Direct</strong> Exchange is the type used in <strong>FastStream</strong> by default. You can simply declare it as follows:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test_queue&quot;</span><span class="p">,</span> <span class="s2">&quot;test_exchange&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handler</span><span class="p">():</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="o">...</span>
 </code></pre></div>
 </div>
-<p>The argument <code>auto_delete=True</code> in this and subsequent examples is used only to clear the state of <em>RabbitMQ</em> after example runs</p>
+<p>The argument <code>auto_delete=True</code> in this and subsequent examples is used only to clear the state of <em>RabbitMQ</em> after example runs.</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-1-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-1-3"> 3</a></span>
@@ -1943,7 +1942,7 @@ of the message flow from the queue by launching additional instances of a consum
 <a id="__codelineno-2-9" name="__codelineno-2-9"></a><span class="n">queue_1</span> <span class="o">=</span> <span class="n">RabbitQueue</span><span class="p">(</span><span class="s2">&quot;test-q-1&quot;</span><span class="p">,</span> <span class="n">auto_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <a id="__codelineno-2-10" name="__codelineno-2-10"></a><span class="n">queue_2</span> <span class="o">=</span> <span class="n">RabbitQueue</span><span class="p">(</span><span class="s2">&quot;test-q-2&quot;</span><span class="p">,</span> <span class="n">auto_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-<p>Then we sign up several consumers using the advertised queues to the <code>exchange</code> we created</p>
+<p>Then we sign up several consumers using the advertised queues to the <code>exchange</code> we created:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-13">13</a></span>
 <span class="normal"><a href="#__codelineno-3-14">14</a></span>
 <span class="normal"><a href="#__codelineno-3-15">15</a></span>
@@ -1973,33 +1972,33 @@ of the message flow from the queue by launching additional instances of a consum
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><code>handler1</code> and <code>handler2</code> are subscribed to the same <code>exchange</code> using the same queue:
-within a single service, this does not make a sense, since messages will come to these handlers in turn.
+within a single service, this does not make sense, since messages will come to these handlers in turn.
 Here we emulate the work of several consumers and load balancing between them.</p>
 </div>
-<h3 id="message-distribution">Message distribution<a class="headerlink" href="#message-distribution" title="Permanent link">#</a></h3>
-<p>Now the distribution of messages between these consumers will look like this:</p>
+<h3 id="message-distribution">Message Distribution<a class="headerlink" href="#message-distribution" title="Permanent link">#</a></h3>
+<p>Now, the distribution of messages between these consumers will look like this:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-30">30</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-4-30" name="__codelineno-4-30"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="s2">&quot;test-q-1&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 1</span>
 </code></pre></div></td></tr></table></div>
-<p>Message <code>1</code> will be sent to <code>handler1</code> because it listens to <code>exchange</code> using a queue with the routing key <code>test-q-1</code></p>
+<p>Message <code>1</code> will be sent to <code>handler1</code> because it listens to the <code>exchange</code> using a queue with the routing key <code>test-q-1</code>.</p>
 <hr />
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-31">31</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-5-31" name="__codelineno-5-31"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="s2">&quot;test-q-1&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 2</span>
 </code></pre></div></td></tr></table></div>
-<p>Message <code>2</code> will be sent to <code>handler2</code> because it listens to <code>exchange</code> using the same queue, but <code>handler1</code> is busy</p>
+<p>Message <code>2</code> will be sent to <code>handler2</code> because it listens to the <code>exchange</code> using the same queue, but <code>handler1</code> is busy.</p>
 <hr />
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-32">32</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-6-32" name="__codelineno-6-32"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="s2">&quot;test-q-1&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 1</span>
 </code></pre></div></td></tr></table></div>
-<p>Message <code>3</code> will be sent to <code>handler1</code> again, because it is currently free</p>
+<p>Message <code>3</code> will be sent to <code>handler1</code> again because it is currently free.</p>
 <hr />
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-33">33</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-7-33" name="__codelineno-7-33"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">queue</span><span class="o">=</span><span class="s2">&quot;test-q-2&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 3</span>
 </code></pre></div></td></tr></table></div>
-<p>Message <code>4</code> will be sent to <code>handler3</code>, because it is the only one listening to <code>exchange</code> using a queue with the routing key <code>test-q-2</code></p>
+<p>Message <code>4</code> will be sent to <code>handler3</code> because it is the only one listening to the <code>exchange</code> using a queue with the routing key <code>test-q-2</code>.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T19:52:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-25T17:19:18+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-25</span>
       
     
   </small>

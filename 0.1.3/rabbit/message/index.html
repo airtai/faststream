@@ -1487,14 +1487,14 @@
       
         <li class="md-nav__item">
   <a href="#message-access" class="md-nav__link">
-    Message access
+    Message Access
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#message-fields-access" class="md-nav__link">
-    Message Fields access
+    Message Fields Access
   </a>
   
 </li>
@@ -1654,14 +1654,14 @@
       
         <li class="md-nav__item">
   <a href="#message-access" class="md-nav__link">
-    Message access
+    Message Access
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#message-fields-access" class="md-nav__link">
-    Message Fields access
+    Message Fields Access
   </a>
   
 </li>
@@ -1689,9 +1689,9 @@
   
 
 
-<h1 id="access-to-message-information">Access to Message information<a class="headerlink" href="#access-to-message-information" title="Permanent link">#</a></h1>
-<p>As you know, <strong>FastStream</strong> serializes a message body and provides you access to it by function arguments. But sometimes you want access to a message_id, headers or other meta information.</p>
-<h2 id="message-access">Message access<a class="headerlink" href="#message-access" title="Permanent link">#</a></h2>
+<h1 id="access-to-message-information">Access to Message Information<a class="headerlink" href="#access-to-message-information" title="Permanent link">#</a></h1>
+<p>As you know, <strong>FastStream</strong> serializes a message body and provides you access to it through function arguments. But sometimes you want access to a message_id, headers, or other meta-information.</p>
+<h2 id="message-access">Message Access<a class="headerlink" href="#message-access" title="Permanent link">#</a></h2>
 <p>You can get it in a simple way: just acces to the message object in the <a class="internal-link" href="../../getting-started/context/existed/">Context</a>!</p>
 <p>It is a <strong>FastStream</strong> wrapper around a native broker library message (<code>aio_pika.IncomingMessage</code> in the <em>RabbitMQ</em> case). It contains the required information such as:</p>
 <ul>
@@ -1712,7 +1712,7 @@
 </span><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">):</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">correlation_id</span><span class="p">)</span>
 </code></pre></div>
-<p>Also, if you can't find the information you reqiure, you can get access right to the wrapped <code>aio_pika.IncomingMessage</code> which contains complete message information.</p>
+<p>Also, if you can't find the information you reqiure, you can get access directly to the wrapped <code>aio_pika.IncomingMessage</code>, which contains complete message information.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">aio_pika</span> <span class="kn">import</span> <span class="n">IncomingMessage</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitMessage</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
@@ -1721,8 +1721,8 @@
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="hll">    <span class="n">raw</span><span class="p">:</span> <span class="n">IncomingMessage</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">raw_message</span>
 </span><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
 </code></pre></div>
-<h2 id="message-fields-access">Message Fields access<a class="headerlink" href="#message-fields-access" title="Permanent link">#</a></h2>
-<p>But in the most cases you don't need all message fields, you need to access some of them. You can use <a class="internal-link" href="../../getting-started/context/fields/">Context Fields access</a> feature for this reason.</p>
+<h2 id="message-fields-access">Message Fields Access<a class="headerlink" href="#message-fields-access" title="Permanent link">#</a></h2>
+<p>But in the most cases, you don't need all message fields; you need to access some of them. You can use <a class="internal-link" href="../../getting-started/context/fields/">Context Fields access</a> feature for this reason.</p>
 <p>For example, you can get access to the <code>correlation_id</code> like this:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Context</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
@@ -1743,7 +1743,7 @@
 </span><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">):</span>
 <a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">cor_id</span><span class="p">)</span>
 </code></pre></div>
-<p>But this code is a too long to be reused everywhere.In this case, you can use a python <a class="external-link" href="https://docs.python.org/3/library/typing.html#typing.Annotated" target="_blank"><code>Annotated</code></a> feature:</p>
+<p>But this code is too long to be reused everywhere. In this case, you can use a Python <a class="external-link" href="https://docs.python.org/3/library/typing.html#typing.Annotated" target="_blank"><code>Annotated</code></a> feature:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">python 3.9+</label><label for="__tabbed_1_2">python 3.6+</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -1782,7 +1782,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T19:52:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-25T17:19:18+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-25</span>
       
     
   </small>

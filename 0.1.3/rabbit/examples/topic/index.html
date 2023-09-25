@@ -1472,7 +1472,7 @@
         
           <li class="md-nav__item">
   <a href="#message-distribution" class="md-nav__link">
-    Message distribution
+    Message Distribution
   </a>
   
 </li>
@@ -1800,7 +1800,7 @@
         
           <li class="md-nav__item">
   <a href="#message-distribution" class="md-nav__link">
-    Message distribution
+    Message Distribution
   </a>
   
 </li>
@@ -1834,7 +1834,7 @@
 
 
 <h1 id="topic-exchange">Topic Exchange<a class="headerlink" href="#topic-exchange" title="Permanent link">#</a></h1>
-<p><strong>Topic</strong> Exchange is a powerful <em>RabbitMQ</em> routing tool. This type of <code>exchange</code> sends messages to the queue in accordance with the <em>pattern</em> specified when they are connected to <code>exchange</code> and the <code>routing_key</code> of the message itself.</p>
+<p>The <strong>Topic</strong> Exchange is a powerful <em>RabbitMQ</em> routing tool. This type of <code>exchange</code> sends messages to the queue in accordance with the <em>pattern</em> specified when they are connected to <code>exchange</code> and the <code>routing_key</code> of the message itself.</p>
 <p>At the same time, if several consumers are subscribed to the queue, messages will be distributed among them.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">#</a></h2>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
@@ -1914,7 +1914,7 @@
 </span><a id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="hll"><span class="n">queue_2</span> <span class="o">=</span> <span class="n">RabbitQueue</span><span class="p">(</span><span class="s2">&quot;test-queue-2&quot;</span><span class="p">,</span> <span class="n">auto_delete</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;*.debug&quot;</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
 <p>At the same time, in the <code>routing_key</code> of our queues, we specify the <em>pattern</em> of routing keys that will be processed by this queue.</p>
-<p>Then we sign up several consumers using the advertised queues to the <code>exchange</code> we created</p>
+<p>Then we sign up several consumers using the advertised queues to the <code>exchange</code> we created:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-13">13</a></span>
 <span class="normal"><a href="#__codelineno-2-14">14</a></span>
 <span class="normal"><a href="#__codelineno-2-15">15</a></span>
@@ -1944,33 +1944,33 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><code>handler1</code> and <code>handler2</code> are subscribed to the same <code>exchange</code> using the same queue:
-within a single service, this does not make a sense, since messages will come to these handlers in turn.
+within a single service, this does not make sense, since messages will come to these handlers in turn.
 Here we emulate the work of several consumers and load balancing between them.</p>
 </div>
-<h3 id="message-distribution">Message distribution<a class="headerlink" href="#message-distribution" title="Permanent link">#</a></h3>
+<h3 id="message-distribution">Message Distribution<a class="headerlink" href="#message-distribution" title="Permanent link">#</a></h3>
 <p>Now the distribution of messages between these consumers will look like this:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-30">30</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-30" name="__codelineno-3-30"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.info&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 1</span>
 </code></pre></div></td></tr></table></div>
-<p>Message <code>1</code> will be sent to <code>handler1</code> because it listens to <code>exchange</code> using a queue with the routing key <code>*.info</code></p>
+<p>Message <code>1</code> will be sent to <code>handler1</code> because it listens to <code>exchange</code> using a queue with the routing key <code>*.info</code>.</p>
 <hr />
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-31">31</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-4-31" name="__codelineno-4-31"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.info&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 2</span>
 </code></pre></div></td></tr></table></div>
-<p>Message <code>2</code> will be sent to <code>handler2</code> because it listens to <code>exchange</code> using the same queue, but <code>handler1</code> is busy</p>
+<p>Message <code>2</code> will be sent to <code>handler2</code> because it listens to <code>exchange</code> using the same queue, but <code>handler1</code> is busy.</p>
 <hr />
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-32">32</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-5-32" name="__codelineno-5-32"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.info&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 1</span>
 </code></pre></div></td></tr></table></div>
-<p>Message <code>3</code> will be sent to <code>handler1</code> again, because it is currently free</p>
+<p>Message <code>3</code> will be sent to <code>handler1</code> again because it is currently free.</p>
 <hr />
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-33">33</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-6-33" name="__codelineno-6-33"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">routing_key</span><span class="o">=</span><span class="s2">&quot;logs.debug&quot;</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">)</span>  <span class="c1"># handlers: 3</span>
 </code></pre></div></td></tr></table></div>
-<p>Message <code>4</code> will be sent to <code>handler3</code>, because it is the only one listening to <code>exchange</code> using a queue with the routing key <code>*.debug</code></p>
+<p>Message <code>4</code> will be sent to <code>handler3</code> because it is the only one listening to <code>exchange</code> using a queue with the routing key <code>*.debug</code>.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T19:52:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-25T17:19:18+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-25</span>
       
     
   </small>

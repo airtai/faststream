@@ -1289,14 +1289,14 @@
       
         <li class="md-nav__item">
   <a href="#calling-publish-with-a-key" class="md-nav__link">
-    Calling publish with a key
+    Calling publish with a Key
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#app-example" class="md-nav__link">
-    App example
+    App Example
   </a>
   
 </li>
@@ -1712,14 +1712,14 @@
       
         <li class="md-nav__item">
   <a href="#calling-publish-with-a-key" class="md-nav__link">
-    Calling publish with a key
+    Calling publish with a Key
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#app-example" class="md-nav__link">
-    App example
+    App Example
   </a>
   
 </li>
@@ -1747,15 +1747,15 @@
   
 
 
-<h1 id="defining-a-partition-key">Defining a partition key<a class="headerlink" href="#defining-a-partition-key" title="Permanent link">#</a></h1>
+<h1 id="defining-a-partition-key">Defining a Partition Key<a class="headerlink" href="#defining-a-partition-key" title="Permanent link">#</a></h1>
 <p>Partition keys are used in Apache Kafka to determine which partition a message should be written to. This ensures that related messages are kept together in the same partition, which can be useful for ensuring order or for grouping related messages together for efficient processing. Additionally, partitioning data across multiple partitions allows Kafka to distribute load across multiple brokers and scale horizontally, while replicating data across multiple brokers provides fault tolerance.</p>
-<p>You can define your partition keys when using the <code class="highlight"><span class="nd">@KafkaBroker</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code>, this guide will demonstrate to you this feature.</p>
-<h2 id="calling-publish-with-a-key">Calling <code>publish</code> with a key<a class="headerlink" href="#calling-publish-with-a-key" title="Permanent link">#</a></h2>
-<p>To publish a message to a Kafka topic using a key, simpliy pass the <code>key</code> parameter to the <code>publish</code> function call, like this:</p>
+<p>You can define your partition keys when using the <code class="highlight"><span class="nd">@KafkaBroker</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorator. This guide will demonstrate this feature to you.</p>
+<h2 id="calling-publish-with-a-key">Calling <code>publish</code> with a Key<a class="headerlink" href="#calling-publish-with-a-key" title="Permanent link">#</a></h2>
+<p>To publish a message to a Kafka topic using a key, simply pass the <code>key</code> parameter to the <code>publish</code> function call, like this:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>    <span class="k">await</span> <span class="n">to_output_data</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">Data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">msg</span><span class="o">.</span><span class="n">data</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;key&quot;</span><span class="p">)</span>
 </code></pre></div>
-<h2 id="app-example">App example<a class="headerlink" href="#app-example" title="Permanent link">#</a></h2>
-<p>Lest take a look at the whole app example that will consume from the <strong>input_data</strong> topic and publish with key to the <strong>output_data</strong> topic.</p>
+<h2 id="app-example">App Example<a class="headerlink" href="#app-example" title="Permanent link">#</a></h2>
+<p>Let's take a look at the whole app example that will consume from the <strong>input_data</strong> topic and publish with a key to the <strong>output_data</strong> topic.</p>
 <p>You can see that the only difference from normal publishing is that now we pass the key to the publisher call.</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-1-2"> 2</a></span>
@@ -1813,7 +1813,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T17:55:08+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-25T17:19:18+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-25</span>
       
     
   </small>

@@ -1680,10 +1680,10 @@
 </span><a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="hll">        <span class="p">)</span>
 </span><a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="hll">    <span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
-<p>These methods require just a one argument (<code>RabbitQueue</code>/<code>RabbitExchange</code>) containing information about your <em>RabbitMQ</em> required objects. They declare/validate <em>RabbitMQ</em> objects and return low-level <strong>aio-pika</strong> robust objects to interact with.</p>
+<p>These methods require just one argument (<code>RabbitQueue</code>/<code>RabbitExchange</code>) containing information about your <em>RabbitMQ</em> required objects. They declare/validate <em>RabbitMQ</em> objects and return low-level <strong>aio-pika</strong> robust objects to interact with.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Also, these methods are indempotent, so you can call them with the same arguments multiple times, but the objects will be created once, next time the method will return already stored object. This way you can get access to any queue/exchange created automatically.</p>
+<p>Also, these methods are idempotent, so you can call them with the same arguments multiple times, but the objects will be created once; next time the method will return an already stored object. This way you can get access to any queue/exchange created automatically.</p>
 </div>
 
   <hr>
@@ -1691,7 +1691,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T19:52:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-25T17:19:18+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-25</span>
       
     
   </small>

@@ -1427,7 +1427,7 @@
       
         <li class="md-nav__item">
   <a href="#blocking-request" class="md-nav__link">
-    Blocking request
+    Blocking Request
   </a>
   
 </li>
@@ -1654,7 +1654,7 @@
       
         <li class="md-nav__item">
   <a href="#blocking-request" class="md-nav__link">
-    Blocking request
+    Blocking Request
   </a>
   
 </li>
@@ -1690,25 +1690,25 @@
 
 
 <h1 id="rpc-over-rmq">RPC over RMQ<a class="headerlink" href="#rpc-over-rmq" title="Permanent link">#</a></h1>
-<h2 id="blocking-request">Blocking request<a class="headerlink" href="#blocking-request" title="Permanent link">#</a></h2>
-<p><strong>FastStream</strong> provides you with the ability to send blocking RPC request over <em>RabbitMQ</em> in a very simple way.</p>
+<h2 id="blocking-request">Blocking Request<a class="headerlink" href="#blocking-request" title="Permanent link">#</a></h2>
+<p><strong>FastStream</strong> provides you with the ability to send a blocking RPC request over <em>RabbitMQ</em> in a very simple way.</p>
 <p>It uses the <a class="external-link" href="https://www.rabbitmq.com/direct-reply-to.html" target="_blank"><strong>Direct Reply-To</strong></a> <em>RabbitMQ</em> feature, so you don't need to create any queues to consume a response.</p>
 <p>Just send a message like a regular one and get a response synchronously.</p>
-<p>It is a very close to common <strong>requests</strong> syntax:</p>
+<p>It is very close to common <strong>requests</strong> syntax:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="hll"><span class="n">msg</span> <span class="o">=</span> <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span>
 </span><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="s2">&quot;Hi!&quot;</span><span class="p">,</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">queue</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">,</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="hll">    <span class="n">rpc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 </span><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span>
 </code></pre></div>
-<p>Also, you have a two extra options to control this behavior:</p>
+<p>Also, you have two extra options to control this behavior:</p>
 <ul>
-<li><code class="highlight"><span class="n">rpc_timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">30.0</span></code> - controls how long you are waiting for response</li>
-<li><code class="highlight"><span class="n">raise_timeout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></code> - by default timeout request returns <code>None</code>, but if you need to raise TimeoutException directly, you can specify this option</li>
+<li><code class="highlight"><span class="n">rpc_timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">30.0</span></code> - controls how long you are waiting for a response</li>
+<li><code class="highlight"><span class="n">raise_timeout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></code> - by default, a timeout request returns <code>None</code>, but if you need to raise a TimeoutException directly, you can specify this option</li>
 </ul>
 <h2 id="reply-to">Reply-To<a class="headerlink" href="#reply-to" title="Permanent link">#</a></h2>
-<p>Also, if you want to create permanent request-reply data flow, probably, you should create a permanent queue to consume responses.</p>
-<p>So, if you have a such one, you can specify it with <code>reply_to</code> argument. This way <strong>FastStream</strong> will send a response in this queue automatically.</p>
+<p>Also, if you want to create a permanent request-reply data flow, probably, you should create a permanent queue to consume responses.</p>
+<p>So, if you have such one, you can specify it with the <code>reply_to</code> argument. This way, <strong>FastStream</strong> will send a response to this queue automatically.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;response-queue&quot;</span><span class="p">)</span>
 </span><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">consume_responses</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="o">...</span>
@@ -1725,7 +1725,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T19:52:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-25T17:19:18+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-25</span>
       
     
   </small>

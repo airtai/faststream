@@ -1221,7 +1221,7 @@
       
         <li class="md-nav__item">
   <a href="#subscriber-function-with-batching" class="md-nav__link">
-    Subscriber function with batching
+    Subscriber Function with Batching
   </a>
   
 </li>
@@ -1685,7 +1685,7 @@
       
         <li class="md-nav__item">
   <a href="#subscriber-function-with-batching" class="md-nav__link">
-    Subscriber function with batching
+    Subscriber Function with Batching
   </a>
   
 </li>
@@ -1714,10 +1714,10 @@
 
 
 <h1 id="batch-subscriber">Batch Subscriber<a class="headerlink" href="#batch-subscriber" title="Permanent link">#</a></h1>
-<p>If you want to consume data in batches <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorator makes that possible for you. By typing a consumed msg object as a list of messages and setting the <code>batch</code> parameter to <code>True</code> the subscriber will call your consuming function with a batch of messages consumed from a single partition. Let’s demonstrate that now.</p>
-<h2 id="subscriber-function-with-batching">Subscriber function with batching<a class="headerlink" href="#subscriber-function-with-batching" title="Permanent link">#</a></h2>
-<p>To consume messages in batches, you need to wrap you message type into a list and and set the <code>batch</code> parameter to <code>True</code>, the <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorator will take care of the rest for you. Your subscribed function will be called with batches grouped by partition now.</p>
-<p>Here is an example of consuming in batches from <strong>test_batch</strong> topic:</p>
+<p>If you want to consume data in batches, the <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorator makes that possible for you. By typing a consumed <code>msg</code> object as a list of messages and setting the <code>batch</code> parameter to <code>True</code>, the subscriber will call your consuming function with a batch of messages consumed from a single partition. Let’s demonstrate that now.</p>
+<h2 id="subscriber-function-with-batching">Subscriber Function with Batching<a class="headerlink" href="#subscriber-function-with-batching" title="Permanent link">#</a></h2>
+<p>To consume messages in batches, you need to wrap your message type into a list and and set the <code>batch</code> parameter to <code>True</code>. The <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorator will take care of the rest for you. Your subscribed function will be called with batches grouped by partition now.</p>
+<p>Here is an example of consuming in batches from the <strong>test_batch</strong> topic:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span>
 <span class="normal"><a href="#__codelineno-0-2">2</a></span>
 <span class="normal"><a href="#__codelineno-0-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test_batch&quot;</span><span class="p">,</span> <span class="n">batch</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1730,7 +1730,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T17:55:08+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-25T17:19:18+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-25</span>
       
     
   </small>

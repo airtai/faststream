@@ -1645,7 +1645,7 @@
       
         <li class="md-nav__item">
   <a href="#define-the-helloworld-message-structure" class="md-nav__link">
-    Define the HelloWorld message structure
+    Define the HelloWorld Message Structure
   </a>
   
 </li>
@@ -1659,7 +1659,7 @@
       
         <li class="md-nav__item">
   <a href="#create-a-function-that-will-consume-messages-from-a-kafka-hello-world-topic" class="md-nav__link">
-    Create a function that will consume messages from a Kafka hello-world topic
+    Create a Function that will Consume Messages from a Kafka hello-world Topic
   </a>
   
 </li>
@@ -1688,8 +1688,8 @@
 
 
 <h1 id="basic-subscriber">Basic Subscriber<a class="headerlink" href="#basic-subscriber" title="Permanent link">#</a></h1>
-<p>To start consuming from a Kafka topic just decorate your consuming function with a <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorator passing a string as a topic key.</p>
-<p>In the folowing example we will create a simple FastStream app that will consume <code>HelloWorld</code> messages from a <strong>hello_world</strong> topic.</p>
+<p>To start consuming from a Kafka topic, just decorate your consuming function with a <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorator, passing a string as a topic key.</p>
+<p>In the folowing example, we will create a simple FastStream app that will consume <code>HelloWorld</code> messages from a <strong>hello_world</strong> topic.</p>
 <p>The full app code looks like this:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
@@ -1739,8 +1739,8 @@
 <span class="normal"><a href="#__codelineno-1-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">FastStream</span><span class="p">,</span> <span class="n">Logger</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
 </code></pre></div></td></tr></table></div>
-<h2 id="define-the-helloworld-message-structure">Define the HelloWorld message structure<a class="headerlink" href="#define-the-helloworld-message-structure" title="Permanent link">#</a></h2>
-<p>Next, you need to define the structure of the messages you want to consume from the topic using pydantic. For the guide we’ll stick to something basic, but you are free to define any complex message structure you wish in your project.</p>
+<h2 id="define-the-helloworld-message-structure">Define the HelloWorld Message Structure<a class="headerlink" href="#define-the-helloworld-message-structure" title="Permanent link">#</a></h2>
+<p>Next, you need to define the structure of the messages you want to consume from the topic using Pydantic. For the guide, we’ll stick to something basic, but you are free to define any complex message structure you wish in your project.</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span>
 <span class="normal"><a href="#__codelineno-2-2">2</a></span>
 <span class="normal"><a href="#__codelineno-2-3">3</a></span>
@@ -1759,7 +1759,7 @@
 <span class="normal"><a href="#__codelineno-3-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-<h2 id="create-a-function-that-will-consume-messages-from-a-kafka-hello-world-topic">Create a function that will consume messages from a Kafka hello-world topic<a class="headerlink" href="#create-a-function-that-will-consume-messages-from-a-kafka-hello-world-topic" title="Permanent link">#</a></h2>
+<h2 id="create-a-function-that-will-consume-messages-from-a-kafka-hello-world-topic">Create a Function that will Consume Messages from a Kafka hello-world Topic<a class="headerlink" href="#create-a-function-that-will-consume-messages-from-a-kafka-hello-world-topic" title="Permanent link">#</a></h2>
 <p>Let’s create a consumer function that will consume <code>HelloWorld</code> messages from <strong>hello_world</strong> topic and log them.</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
 <span class="normal"><a href="#__codelineno-4-2">2</a></span>
@@ -1768,15 +1768,15 @@
 <a id="__codelineno-4-3" name="__codelineno-4-3"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 <p>The function decorated with the <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorator will be called when a message is produced to Kafka.</p>
-<p>The message will then be injected into the typed msg argument of the function and its type will be used to parse the message.</p>
-<p>In this example case, when the message is sent into a <strong>hello_world</strong> topic, it will be parsed into a <code>HelloWorld</code> class and <code>on_hello_world</code> function will be called with the parsed class as msg argument value.</p>
+<p>The message will then be injected into the typed <code>msg</code> argument of the function, and its type will be used to parse the message.</p>
+<p>In this example case, when the message is sent to a <strong>hello_world</strong> topic, it will be parsed into a <code>HelloWorld</code> class, and the <code>on_hello_world</code> function will be called with the parsed class as the <code>msg</code> argument value.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T17:55:08+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-25T17:19:18+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-25</span>
       
     
   </small>
@@ -1812,7 +1812,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Kafka routing">
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Kafka Routing">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -1822,7 +1822,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Kafka routing
+                Kafka Routing
               </div>
             </div>
           </a>

@@ -1607,10 +1607,10 @@
       
         <li class="md-nav__item">
   <a href="#basic-concepts" class="md-nav__link">
-    Basic concepts
+    Basic Concepts
   </a>
   
-    <nav class="md-nav" aria-label="Basic concepts">
+    <nav class="md-nav" aria-label="Basic Concepts">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1622,14 +1622,14 @@
         
           <li class="md-nav__item">
   <a href="#routing-rules" class="md-nav__link">
-    Routing rules
+    Routing Rules
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#message-statuses" class="md-nav__link">
-    Message statuses
+    Message Statuses
   </a>
   
 </li>
@@ -1641,7 +1641,7 @@
       
         <li class="md-nav__item">
   <a href="#faststream-specific" class="md-nav__link">
-    FastStream specific
+    FastStream Specific
   </a>
   
 </li>
@@ -1679,8 +1679,8 @@
 </div>
 <p>It supports the ability to successfully process messages, mark them as processed with an error, remove them from the queue (it is also impossible to re-receive processed messages, unlike <strong>Kafka</strong>), lock it for the processing duration, and monitor its current status.</p>
 <p>Having to keep track of the current status of all messages is a cause of the <strong>RabbitMQ</strong> performance issues. With really large message volumes, <strong>RabbitMQ</strong> starts to degrade. However, if this was a "one-time influx", then consumers will free the queue of messages and the "health" of <strong>RabbitMQ</strong> will be stable.</p>
-<p>If your scenario is not based on processing millions of messages, and also requires building complex routing logic - <strong>RabbitMQ</strong> you will be right choice.</p>
-<h2 id="basic-concepts">Basic concepts<a class="headerlink" href="#basic-concepts" title="Permanent link">#</a></h2>
+<p>If your scenario is not based on processing millions of messages and also requires building complex routing logic, <strong>RabbitMQ</strong> will be the right choice.</p>
+<h2 id="basic-concepts">Basic Concepts<a class="headerlink" href="#basic-concepts" title="Permanent link">#</a></h2>
 <p>If you want to totally understand how <em>RabbitMQ</em> works, you should visit their official website. There you will find top-level comments about the basic concepts and usage examples.</p>
 <h3 id="entities">Entities<a class="headerlink" href="#entities" title="Permanent link">#</a></h3>
 <p><em>RabbitMQ</em> works with three main entities:</p>
@@ -1689,39 +1689,39 @@
 <li><code>Queue</code> - the point of pushing messages to <em>consumer</em></li>
 <li><code>Binding</code> - the relationship between <em>queue-exchange</em> or <em>exchange-exchange</em></li>
 </ul>
-<h3 id="routing-rules">Routing rules<a class="headerlink" href="#routing-rules" title="Permanent link">#</a></h3>
+<h3 id="routing-rules">Routing Rules<a class="headerlink" href="#routing-rules" title="Permanent link">#</a></h3>
 <p>The rules for delivering messages to consumers depend on the <strong>type of exchange</strong> and <strong>binding</strong> parameters. All the main options will be discussed at <a class="internal-link" href="examples/direct/">examples</a>.</p>
 <p>In general, the message path looks so:</p>
 <ol>
-<li><em>Publisher</em> sends a message to <code>exchange</code>, specify its <code>routing_key</code> and headers according to which routing will take place</li>
-<li><code>exchange</code>, depending on the message parameters, determines which of the subscribed <code>bindings</code> to send the message to</li>
-<li><code>binding</code> delivers the message to <code>queue</code> or another <code>exchange</code> (in this case it will send it further by its own rules)</li>
-<li><code>queue</code>, after receiving a message, sends it to one of subscribed consumers (<strong>PUSH API</strong>)</li>
+<li><em>Publisher</em> sends a message to <code>exchange</code>, specify its <code>routing_key</code> and headers according to which routing will take place.</li>
+<li><code>Exchange</code>, depending on the message parameters, determines which of the subscribed <code>bindings</code> to send the message to.</li>
+<li><code>Binding</code> delivers the message to <code>queue</code> or another <code>exchange</code> (in this case it will send it further by its own rules).</li>
+<li><code>Queue</code>, after receiving a message, sends it to one of subscribed consumers (<strong>PUSH API</strong>).</li>
 </ol>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>By default, all queues have <code>binding</code> to <code>default exchange</code> (<strong>Direct</strong> type) with <strong>routing key</strong> corresponding to their name.
-In <strong>FastStream</strong>, queues are connected to this <code>exchange</code> and messages are sent by default unless another <code>exchange</code> is explicitly specified.</p>
+<p>By default, all queues have a <code>binding</code> to the <code>default exchange</code> (<strong>Direct</strong> type) with a <strong>routing key</strong> corresponding to their name.
+In <strong>FastStream</strong>, queues are connected to this <code>exchange</code>, and messages are sent by default unless another <code>exchange</code> is explicitly specified.</p>
 <div class="admonition warning"></div>
 <p>Connecting the queue to any other <code>exchange</code> will still leave it subscribed to the `default exchange'. Be careful with this.</p>
 </div>
 <p>At this stage, the message gets into your application - and you start processing it.</p>
-<h3 id="message-statuses">Message statuses<a class="headerlink" href="#message-statuses" title="Permanent link">#</a></h3>
-<p><em>RabbitMQ</em> requires confirmation of message processing: only after that it will be removed from the queue.</p>
-<p>Confirmation can be either positive (<code>Acknowledgment - ack</code>) if the message was successfully processed, or negative (<code>Negative Acknowledgment - nack</code>) if the message was processed with an error.</p>
-<p>At the same time, in case of an error, the message can also be extracted from the queue (<code>reject</code>), otherwise, after a negative confirmation, it will be requeued for processing again.</p>
-<p>In most cases, <strong>FastStream</strong> performs all the necessary actions by itself: however, if you want to manage the message lifecycle directly, you can access the message object itself and call the appropriate methods directly. This can be useful if you want to implement an "at most once" policy and you need to confirm the consuming of the message before it is actually processed.</p>
-<h2 id="faststream-specific"><strong>FastStream</strong> specific<a class="headerlink" href="#faststream-specific" title="Permanent link">#</a></h2>
-<p><strong>FastStream</strong> omits the ability to create <code>bindings</code> directly, since in most cases you do not need to subscribe one queue to several <code>exchanges</code> or subscribe <code>exchanges</code> to each other. On the contrary, this practice leads to over-complication of the message routing scheme, which makes it difficult to maintain and further develop the entire infrastructure of services.</p>
+<h3 id="message-statuses">Message Statuses<a class="headerlink" href="#message-statuses" title="Permanent link">#</a></h3>
+<p><em>RabbitMQ</em> requires confirmation of message processing: only after that, it will be removed from the queue.</p>
+<p>Confirmation can be either positive (<code>Acknowledgment - ack</code>) if the message was successfully processed or negative (<code>Negative Acknowledgment - nack</code>) if the message was processed with an error.</p>
+<p>At the same time, in case of an error, the message can also be extracted from the queue (<code>reject</code>); otherwise, after a negative confirmation, it will be requeued for processing again.</p>
+<p>In most cases, <strong>FastStream</strong> performs all the necessary actions by itself. However, if you want to manage the message lifecycle directly, you can access the message object itself and call the appropriate methods directly. This can be useful if you want to implement an "at most once" policy and you need to confirm the consuming of the message before it is actually processed.</p>
+<h2 id="faststream-specific"><strong>FastStream</strong> Specific<a class="headerlink" href="#faststream-specific" title="Permanent link">#</a></h2>
+<p><strong>FastStream</strong> omits the ability to create <code>bindings</code> directly, since in most cases, you do not need to subscribe one queue to several <code>exchanges</code> or subscribe <code>exchanges</code> to each other. On the contrary, this practice leads to over-complication of the message routing scheme, which makes it difficult to maintain and further develop the entire infrastructure of services.</p>
 <p><strong>FastStream</strong> suggests you adhere to the scheme <code>exchange:queue</code> as <code>1:N</code>, which will greatly simplify the scheme of interaction between your services. It is better to create an additional queue for a new <code>exchange</code> than to subscribe to an existing one.</p>
-<p>However, if you want to reduce the number of entities in your RabbitMQ, and thereby optimize its performance (or you know exactly what you are doing), <strong>FastStream</strong> leaves you the option to create <code>bindings</code> directly. In other cases, the connection parameters are an integral part of the entities <em>RabbitQueue</em> and <em>RabbitExchange</em> in <strong>FastStream</strong>.</p>
+<p>However, if you want to reduce the number of entities in your <strong>RabbitMQ</strong>, and thereby optimize its performance (or you know exactly what you are doing), <strong>FastStream</strong> leaves you the option to create <code>bindings</code> directly. In other cases, the connection parameters are an integral part of the entities <strong>RabbitQueue</strong> and <strong>RabbitExchange</strong> in <strong>FastStream</strong>.</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T19:52:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-25T17:19:18+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-25</span>
       
     
   </small>

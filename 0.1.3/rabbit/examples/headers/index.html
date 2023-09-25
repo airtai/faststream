@@ -1492,7 +1492,7 @@
         
           <li class="md-nav__item">
   <a href="#message-distribution" class="md-nav__link">
-    Message distribution
+    Message Distribution
   </a>
   
 </li>
@@ -1800,7 +1800,7 @@
         
           <li class="md-nav__item">
   <a href="#message-distribution" class="md-nav__link">
-    Message distribution
+    Message Distribution
   </a>
   
 </li>
@@ -1834,7 +1834,7 @@
 
 
 <h1 id="header-exchange">Header Exchange<a class="headerlink" href="#header-exchange" title="Permanent link">#</a></h1>
-<p><strong>Header</strong> Exchange is the most complex and flexible way to route messages in <em>RabbitMQ</em>. This <code>exchange</code> type sends messages to queues according by matching the queue binding arguments with message headers.</p>
+<p>The <strong>Header</strong> Exchange is the most complex and flexible way to route messages in <em>RabbitMQ</em>. This <code>exchange</code> type sends messages to queues according by matching the queue binding arguments with message headers.</p>
 <p>At the same time, if several consumers are subscribed to the queue, messages will also be distributed among them.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">#</a></h2>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
@@ -1948,7 +1948,7 @@
 <a id="__codelineno-0-55" name="__codelineno-0-55"></a>    <span class="p">)</span>  <span class="c1"># handlers: 3, 4</span>
 </code></pre></div></td></tr></table></div>
 <h3 id="consumer-announcement">Consumer Announcement<a class="headerlink" href="#consumer-announcement" title="Permanent link">#</a></h3>
-<p>First, we announce our <strong>Fanout</strong> exchange and several queues that will listen to it:</p>
+<p>First, we announce our <strong>Header</strong> exchange and several queues that will listen to it:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-7"> 7</a></span>
 <span class="normal"><a href="#__codelineno-1-8"> 8</a></span>
 <span class="normal"><a href="#__codelineno-1-9"> 9</a></span>
@@ -1984,7 +1984,7 @@
 </span><a id="__codelineno-1-23" name="__codelineno-1-23"></a><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 <p>The <code>x-match</code> argument indicates whether the arguments should match the message headers in whole or in part.</p>
-<p>Then we signed up several consumers using the advertised queues to the <code>exchange</code> we created</p>
+<p>Then we signed up several consumers using the advertised queues to the <code>exchange</code> we created:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-26">26</a></span>
 <span class="normal"><a href="#__codelineno-2-27">27</a></span>
 <span class="normal"><a href="#__codelineno-2-28">28</a></span>
@@ -2024,30 +2024,30 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><code>handler1</code> and <code>handler2</code> are subscribed to the same <code>exchange</code> using the same queue:
-within a single service, this does not make a sense, since messages will come to these handlers in turn.
+within a single service, this does not make sense, since messages will come to these handlers in turn.
 Here we emulate the work of several consumers and load balancing between them.</p>
 </div>
-<h3 id="message-distribution">Message distribution<a class="headerlink" href="#message-distribution" title="Permanent link">#</a></h3>
+<h3 id="message-distribution">Message Distribution<a class="headerlink" href="#message-distribution" title="Permanent link">#</a></h3>
 <p>Now the distribution of messages between these consumers will look like this:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-48">48</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-48" name="__codelineno-3-48"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>  <span class="c1"># handlers: 1</span>
 </code></pre></div></td></tr></table></div>
-<p>Message <code>1</code> will be sent to <code>handler1</code>, because it listens to a queue whose <code>key</code> header matches the <code>key</code> header of the message</p>
+<p>Message <code>1</code> will be sent to <code>handler1</code> because it listens to a queue whose <code>key</code> header matches the <code>key</code> header of the message.</p>
 <hr />
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-49">49</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-4-49" name="__codelineno-4-49"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>  <span class="c1"># handlers: 2</span>
 </code></pre></div></td></tr></table></div>
-<p>Message <code>2</code> will be sent to <code>handler2</code> because it listens to <code>exchange</code> using the same queue, but <code>handler1</code> is busy</p>
+<p>Message <code>2</code> will be sent to <code>handler2</code> because it listens to <code>exchange</code> using the same queue, but <code>handler1</code> is busy.</p>
 <hr />
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-50">50</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-5-50" name="__codelineno-5-50"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>  <span class="c1"># handlers: 1</span>
 </code></pre></div></td></tr></table></div>
-<p>Message <code>3</code> will be sent to <code>handler1</code> again, because it is currently free</p>
+<p>Message <code>3</code> will be sent to <code>handler1</code> again because it is currently free.</p>
 <hr />
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-51">51</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-6-51" name="__codelineno-6-51"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>  <span class="c1"># handlers: 3</span>
 </code></pre></div></td></tr></table></div>
-<p>Message <code>4</code> will be sent to <code>handler3</code>, because it listens to a queue whose <code>key</code> header coincided with the <code>key</code> header of the message</p>
+<p>Message <code>4</code> will be sent to <code>handler3</code> because it listens to a queue whose <code>key</code> header coincided with the <code>key</code> header of the message.</p>
 <hr />
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-52">52</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-7-52" name="__codelineno-7-52"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;key2&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>  <span class="c1"># handlers: 3</span>
 </code></pre></div></td></tr></table></div>
-<p>Message <code>5</code> will be sent to <code>handler3</code>, because it listens to a queue whose header <code>key2</code> coincided with the header <code>key2</code> of the message</p>
+<p>Message <code>5</code> will be sent to <code>handler3</code> because it listens to a queue whose header <code>key2</code> coincided with the header <code>key2</code> of the message.</p>
 <hr />
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-53">53</a></span>
 <span class="normal"><a href="#__codelineno-8-54">54</a></span>
@@ -2055,7 +2055,7 @@ Here we emulate the work of several consumers and load balancing between them.</
 <a id="__codelineno-8-54" name="__codelineno-8-54"></a>        <span class="n">exchange</span><span class="o">=</span><span class="n">exch</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;key2&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">}</span>
 <a id="__codelineno-8-55" name="__codelineno-8-55"></a>    <span class="p">)</span>  <span class="c1"># handlers: 3, 4</span>
 </code></pre></div></td></tr></table></div>
-<p>Message <code>6</code> will be sent to <code>handler3</code> and <code>handler4</code>, because the message headers completely match the queue keys</p>
+<p>Message <code>6</code> will be sent to <code>handler3</code> and <code>handler4</code> because the message headers completely match the queue keys.</p>
 <hr />
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -2072,7 +2072,7 @@ Here we emulate the work of several consumers and load balancing between them.</
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T19:52:56+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-25T17:19:18+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-25</span>
       
     
   </small>

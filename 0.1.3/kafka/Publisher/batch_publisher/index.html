@@ -1681,18 +1681,18 @@
   
 
 
-<h1 id="publishing-in-batches">Publishing in batches<a class="headerlink" href="#publishing-in-batches" title="Permanent link">#</a></h1>
-<p>If you want to send your data in batches <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorator makes that possible for you.
-To produce in batches you need to do two things:</p>
+<h1 id="publishing-in-batches">Publishing in Batches<a class="headerlink" href="#publishing-in-batches" title="Permanent link">#</a></h1>
+<p>If you want to send your data in batches, <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorator makes that possible for you.
+To produce in batches, you need to do two things:</p>
 <ol>
-<li>When creating your publisher, set the <code>batch</code> argument to <code>True</code></li>
+<li>When creating your publisher, set the <code>batch</code> argument to <code>True</code>.</li>
 <li>Return a tuple of the messages you wish to send in a batch. This action will prompt the producer to collect the messages and send them in a batch to a Kafka broker.</li>
 </ol>
 <p>Here is an example of an app producing in batches to <strong>output_data</strong> topic when consuming from <strong>input_data_1</strong>.</p>
 <p>In the highligted lines, we can see the steps of creating and using a batch publisher:</p>
 <ol>
-<li>Creation of publisher</li>
-<li>Publishing an actual batch of messages</li>
+<li>Creation of the publisher.</li>
+<li>Publishing an actual batch of messages.</li>
 </ol>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
@@ -1752,7 +1752,7 @@ To produce in batches you need to do two things:</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-17T17:55:08+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-17</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-25T17:19:18+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-25</span>
       
     
   </small>

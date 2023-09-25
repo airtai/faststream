@@ -1718,7 +1718,7 @@
       
         <li class="md-nav__item">
   <a href="#rabbitmq-details" class="md-nav__link">
-    RabbitMQ details
+    RabbitMQ Details
   </a>
   
 </li>
@@ -1747,8 +1747,8 @@
 
 
 <h1 id="basic-subscriber">Basic Subscriber<a class="headerlink" href="#basic-subscriber" title="Permanent link">#</a></h1>
-<p>If you know nothing about <strong>RabbitMQ</strong> and how it works you will still able to use <strong>FastStream RabbitBroker</strong>.</p>
-<p>Just use <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> method with a string as a routing key.</p>
+<p>If you know nothing about <strong>RabbitMQ</strong> and how it works, you will still able to use <strong>FastStream RabbitBroker</strong>.</p>
+<p>Just use the <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> method with a string as a routing key.</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
@@ -1785,8 +1785,8 @@
 <a id="__codelineno-0-17" name="__codelineno-0-17"></a>        <span class="s2">&quot;routing_key&quot;</span><span class="p">,</span>  <span class="c1"># publish message with routing key</span>
 <a id="__codelineno-0-18" name="__codelineno-0-18"></a>    <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-<p>This is the principle all <strong>FastStream</strong> brokers work by: you don't need to learn them in-depth if you want to <em>just send a message</em></p>
-<h2 id="rabbitmq-details">RabbitMQ details<a class="headerlink" href="#rabbitmq-details" title="Permanent link">#</a></h2>
+<p>This is the principle all <strong>FastStream</strong> brokers work by: you don't need to learn them in-depth if you want to <em>just send a message</em>.</p>
+<h2 id="rabbitmq-details">RabbitMQ Details<a class="headerlink" href="#rabbitmq-details" title="Permanent link">#</a></h2>
 <p>If you are already familiar with <strong>RabbitMQ</strong> logic, you should also be acquainted with the inner workings of the example mentioned above.</p>
 <p>In this case, <strong>FastStream</strong> either creates or validates a queue with a specified <strong>routing_key</strong> and binds it to the default <strong>RabbitMQ</strong> exchange.</p>
 <p>If you want to specify a <em>queue</em>-<em>exchange</em> pair with additional arguments, <strong>FastStream</strong> provides you with the ability to do so. You can use special <code>RabbitQueue</code> and <code>RabbitExchange</code> objects to configure RabbitMQ queues, exchanges, and binding properties. For examples of using various types of exchanges, please refer to the following articles.</p>
@@ -1796,7 +1796,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-20T07:51:50+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-20</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-25T17:19:18+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-25</span>
       
     
   </small>
