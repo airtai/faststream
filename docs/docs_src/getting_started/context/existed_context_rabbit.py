@@ -2,8 +2,8 @@ from faststream import Context, FastStream
 from faststream.rabbit import RabbitBroker
 from faststream.rabbit.annotations import (
     ContextRepo,
-    Logger,
     RabbitMessage,
+    Logger,
     RabbitBroker as BrokerAnnotation,
 )
 

@@ -41,17 +41,15 @@ By default, the context is available in the same place as `Depends`:
 
 To use context in other functions, use the `#!python @apply_types` decorator. In this case, the context of the called function will correspond to the context of the event handler from which it was called.
 
-```python linenums="1" hl_lines="6 8 11"
+```python linenums="1" hl_lines="6 9-10"
 from faststream import Context, apply_types
-
-
 @broker.subscriber("test")
-async def handler(body: dict):
-    nested_func()
+async def handler(body):
+    nested_func(body)
 
 
 @apply_types
-def nested_func(body: dict, logger=Context()):
+def nested_func(body, logger=Context()):
     logger.info(body)
 ```
 

@@ -12,6 +12,7 @@ from aio_pika.message import IncomingMessage
 from pamqp import commands as spec
 from pamqp.header import ContentHeader
 
+from faststream.broker.middlewares import CriticalLogMiddleware
 from faststream.broker.test import call_handler, patch_broker_calls
 from faststream.rabbit.broker import RabbitBroker
 from faststream.rabbit.message import RabbitMessage
@@ -98,7 +99,7 @@ class TestRabbitBroker:
             self.broker.declarer = AsyncMock()
             self.broker.start = AsyncMock(wraps=partial(_fake_start, self.broker))  # type: ignore[method-assign]
             self.broker._connect = MethodType(_fake_connect, self.broker)  # type: ignore[method-assign]
-            self.broker.close = MethodType(_fake_close, self.broker)  # type: ignore[method-assign]
+            self.broker.close = AsyncMock()  # type: ignore[method-assign]
         else:
             _fake_start(self.broker)
 
@@ -107,7 +108,7 @@ class TestRabbitBroker:
                 await self.broker.start()
                 yield self.broker
             finally:
-                pass
+                _fake_close(self.broker)
 
     async def __aenter__(self) -> RabbitBroker:
         """
@@ -372,8 +373,8 @@ async def _fake_connect(self: RabbitBroker, *args: Any, **kwargs: Any) -> None:
     self._producer = FakeProducer(self)
 
 
-async def _fake_close(
-    self: RabbitBroker,
+def _fake_close(
+    broker: RabbitBroker,
     exc_type: Optional[Type[BaseException]] = None,
     exc_val: Optional[BaseException] = None,
     exec_tb: Optional[TracebackType] = None,
@@ -387,21 +388,23 @@ async def _fake_close(
         exc_val (Optional[BaseException]]): The exception value.
         exec_tb (Optional[TracebackType]]): The exception traceback.
     """
-    for key, p in self._publishers.items():
+    broker.middlewares = [CriticalLogMiddleware(broker.logger), *broker.middlewares]
+
+    for key, p in broker._publishers.items():
         p.mock.reset_mock()
         if getattr(p, "_fake_handler", False):
             key = get_routing_hash(p.queue, p.exchange)
-            self.handlers.pop(key, None)
+            broker.handlers.pop(key, None)
             p._fake_handler = False
             p.mock.reset_mock()
 
-    for h in self.handlers.values():
+    for h in broker.handlers.values():
         for f, _, _, _, _, _ in h.calls:
             f.mock.reset_mock()
             f.event = anyio.Event()
 
 
-def _fake_start(self: RabbitBroker, *args: Any, **kwargs: Any) -> None:
+def _fake_start(broker: RabbitBroker, *args: Any, **kwargs: Any) -> None:
     """
     Fake start method for the RabbitBroker class.
 
@@ -410,11 +413,11 @@ def _fake_start(self: RabbitBroker, *args: Any, **kwargs: Any) -> None:
         *args (Any): Additional arguments.
         **kwargs (Any): Additional keyword arguments.
     """
-    for key, p in self._publishers.items():
+    for key, p in broker._publishers.items():
         if getattr(p, "_fake_handler", False):
             continue
 
-        handler = self.handlers.get(key)
+        handler = broker.handlers.get(key)
 
         if handler is not None:
             for f, _, _, _, _, _ in handler.calls:
@@ -423,7 +426,7 @@ def _fake_start(self: RabbitBroker, *args: Any, **kwargs: Any) -> None:
         else:
             p._fake_handler = True
 
-            @self.subscriber(
+            @broker.subscriber(
                 queue=p.queue,
                 exchange=p.exchange,
                 _raw=True,
@@ -433,6 +436,6 @@ def _fake_start(self: RabbitBroker, *args: Any, **kwargs: Any) -> None:
 
             p.mock = f.mock
 
-        p._producer = self._producer
+        p._producer = broker._producer
 
-    patch_broker_calls(self)
+    patch_broker_calls(broker)

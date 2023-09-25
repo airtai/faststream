@@ -11,7 +11,7 @@ async def handle(
 ):
     assert secret == "1"
 
-@broker.subscriber("test-topic")
+@broker.subscriber("test-topic2")
 async def handle_int(
     secret: int = Context(cast=True),
 ):

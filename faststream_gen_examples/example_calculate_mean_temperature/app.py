@@ -1,3 +1,4 @@
+from datetime import datetime
 from statistics import mean
 from typing import Dict, List
 
@@ -16,6 +17,11 @@ class Weather(BaseModel):
     )
     windspeed: NonNegativeFloat = Field(
         ..., examples=[20], description="Wind speed in kilometers per hour"
+    )
+    timestamp: datetime = Field(
+        ...,
+        examples=["2020-04-23 10:20:30.400000"],
+        description="The timestamp of the record",
     )
 
 
