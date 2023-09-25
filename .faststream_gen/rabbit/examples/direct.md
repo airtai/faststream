@@ -1,21 +1,20 @@
 # Direct Exchange
 
-**Direct** Exchange is the basic way to route messages in *RabbitMQ*. Its core is very simple: `exchange` sends messages to those queues, `routing_key` which matches the `routing_key` of the message being sent.
+The **Direct** Exchange is the basic way to route messages in *RabbitMQ*. Its core is very simple: the `exchange` sends messages to those queues whose `routing_key` matches the `routing_key` of the message being sent.
 
 !!! note
-    **Default** Exchange, to which all queues in *RabbitMQ* are subscribed, has the **Direct** type by default
+    The **Default** Exchange, to which all queues in *RabbitMQ* are subscribed, has the **Direct** type by default.
 
 ## Scaling
 
-If several consumers are listening to the same queue, messages will go to the one of them (round-robin). This behavior is common for all types of `exchange`, because it refers to the queue itself. The type of `exchange` affects which queues the message gets into.
+If several consumers are listening to the same queue, messages will be distributed to one of them (round-robin). This behavior is common for all types of `exchange` because it refers to the queue itself. The type of `exchange` affects which queues the message gets into.
 
-Thus, *RabbitMQ* can independently balance the load on queue consumers. You can increase the processing speed
-of the message flow from the queue by launching additional instances of a consumer service. You don't need to make changes to the current infrastructure configuration: *RabbitMQ* will take care of how to distribute messages between your services.
+Thus, *RabbitMQ* can independently balance the load on queue consumers. You can increase the processing speed of the message flow from the queue by launching additional instances of a consumer service. You don't need to make changes to the current infrastructure configuration: RabbitMQ will take care of how to distribute messages between your services.
 
 ## Example
 
 !!! tip
-    **Direct** Exchange is the type used in **FastStream** by default: you can simply declare it as follows
+    The **Direct** Exchange is the type used in **FastStream** by default. You can simply declare it as follows:
 
     ```python
     @broker.subscriber("test_queue", "test_exchange")
@@ -23,7 +22,7 @@ of the message flow from the queue by launching additional instances of a consum
         ...
     ```
 
-The argument `auto_delete=True` in this and subsequent examples is used only to clear the state of *RabbitMQ* after example runs
+The argument `auto_delete=True` in this and subsequent examples is used only to clear the state of *RabbitMQ* after example runs.
 
 ```python linenums="1"
 from faststream import FastStream, Logger
@@ -72,7 +71,7 @@ queue_1 = RabbitQueue("test-q-1", auto_delete=True)
 queue_2 = RabbitQueue("test-q-2", auto_delete=True)
 ```
 
-Then we sign up several consumers using the advertised queues to the `exchange` we created
+Then we sign up several consumers using the advertised queues to the `exchange` we created:
 
 ```python linenums="13" hl_lines="1 6 11"
 @broker.subscriber(queue_1, exch)
@@ -92,18 +91,18 @@ async def base_handler3(logger: Logger):
 
 !!! note
     `handler1` and `handler2` are subscribed to the same `exchange` using the same queue:
-    within a single service, this does not make a sense, since messages will come to these handlers in turn.
+    within a single service, this does not make sense, since messages will come to these handlers in turn.
     Here we emulate the work of several consumers and load balancing between them.
 
-### Message distribution
+### Message Distribution
 
-Now the distribution of messages between these consumers will look like this:
+Now, the distribution of messages between these consumers will look like this:
 
 ```python linenums="30"
     await broker.publish(queue="test-q-1", exchange=exch)  # handlers: 1
 ```
 
-Message `1` will be sent to `handler1` because it listens to `exchange` using a queue with the routing key `test-q-1`
+Message `1` will be sent to `handler1` because it listens to the `exchange` using a queue with the routing key `test-q-1`.
 
 ---
 
@@ -111,7 +110,7 @@ Message `1` will be sent to `handler1` because it listens to `exchange` using a 
     await broker.publish(queue="test-q-1", exchange=exch)  # handlers: 2
 ```
 
-Message `2` will be sent to `handler2` because it listens to `exchange` using the same queue, but `handler1` is busy
+Message `2` will be sent to `handler2` because it listens to the `exchange` using the same queue, but `handler1` is busy.
 
 ---
 
@@ -119,7 +118,7 @@ Message `2` will be sent to `handler2` because it listens to `exchange` using th
     await broker.publish(queue="test-q-1", exchange=exch)  # handlers: 1
 ```
 
-Message `3` will be sent to `handler1` again, because it is currently free
+Message `3` will be sent to `handler1` again because it is currently free.
 
 ---
 
@@ -127,4 +126,4 @@ Message `3` will be sent to `handler1` again, because it is currently free
     await broker.publish(queue="test-q-2", exchange=exch)  # handlers: 3
 ```
 
-Message `4` will be sent to `handler3`, because it is the only one listening to `exchange` using a queue with the routing key `test-q-2`
+Message `4` will be sent to `handler3` because it is the only one listening to the `exchange` using a queue with the routing key `test-q-2`.

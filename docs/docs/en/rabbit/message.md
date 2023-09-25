@@ -1,8 +1,8 @@
-# Access to Message information
+# Access to Message Information
 
-As you know, **FastStream** serializes a message body and provides you access to it by function arguments. But sometimes you want access to a message_id, headers or other meta information.
+As you know, **FastStream** serializes a message body and provides you access to it through function arguments. But sometimes you want access to a message_id, headers, or other meta-information.
 
-## Message access
+## Message Access
 
 You can get it in a simple way: just acces to the message object in the [Context](../getting-started/context/existed.md){.internal-link}!
 
@@ -27,7 +27,7 @@ async def base_handler(
     print(msg.correlation_id)
 ```
 
-Also, if you can't find the information you reqiure, you can get access right to the wrapped `aio_pika.IncomingMessage` which contains complete message information.
+Also, if you can't find the information you reqiure, you can get access directly to the wrapped `aio_pika.IncomingMessage`, which contains complete message information.
 
 ```python hl_lines="6"
 from aio_pika import IncomingMessage
@@ -39,9 +39,9 @@ async def base_handler(body: str, msg: RabbitMessage):
     print(raw)
 ```
 
-## Message Fields access
+## Message Fields Access
 
-But in the most cases you don't need all message fields, you need to access some of them. You can use [Context Fields access](../getting-started/context/fields.md){.internal-link} feature for this reason.
+But in the most cases, you don't need all message fields; you need to access some of them. You can use [Context Fields access](../getting-started/context/fields.md){.internal-link} feature for this reason.
 
 For example, you can get access to the `correlation_id` like this:
 
@@ -69,7 +69,7 @@ async def base_handler(
     print(cor_id)
 ```
 
-But this code is a too long to be reused everywhere.In this case, you can use a python [`Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated){.external-link target="_blank"} feature:
+But this code is too long to be reused everywhere. In this case, you can use a Python [`Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated){.external-link target="_blank"} feature:
 
 
 === "python 3.9+"

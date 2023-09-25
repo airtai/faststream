@@ -1,6 +1,6 @@
 # Header Exchange
 
-**Header** Exchange is the most complex and flexible way to route messages in *RabbitMQ*. This `exchange` type sends messages to queues according by matching the queue binding arguments with message headers.
+The **Header** Exchange is the most complex and flexible way to route messages in *RabbitMQ*. This `exchange` type sends messages to queues according by matching the queue binding arguments with message headers.
 
 At the same time, if several consumers are subscribed to the queue, messages will also be distributed among them.
 
@@ -66,7 +66,7 @@ async def send_messages():
 
 ### Consumer Announcement
 
-First, we announce our **Fanout** exchange and several queues that will listen to it:
+First, we announce our **Header** exchange and several queues that will listen to it:
 
 ```python linenums="7" hl_lines="1 6 11 16"
 exch = RabbitExchange("exchange", auto_delete=True, type=ExchangeType.HEADERS)
@@ -90,7 +90,7 @@ queue_3 = RabbitQueue(
 
 The `x-match` argument indicates whether the arguments should match the message headers in whole or in part.
 
-Then we signed up several consumers using the advertised queues to the `exchange` we created
+Then we signed up several consumers using the advertised queues to the `exchange` we created:
 
 ```python linenums="26" hl_lines="1 6 11 16"
 @broker.subscriber(queue_1, exch)
@@ -115,10 +115,10 @@ async def base_handler4(logger: Logger):
 
 !!! note
     `handler1` and `handler2` are subscribed to the same `exchange` using the same queue:
-    within a single service, this does not make a sense, since messages will come to these handlers in turn.
+    within a single service, this does not make sense, since messages will come to these handlers in turn.
     Here we emulate the work of several consumers and load balancing between them.
 
-### Message distribution
+### Message Distribution
 
 Now the distribution of messages between these consumers will look like this:
 
@@ -126,7 +126,7 @@ Now the distribution of messages between these consumers will look like this:
     await broker.publish(exchange=exch, headers={"key": 1})  # handlers: 1
 ```
 
-Message `1` will be sent to `handler1`, because it listens to a queue whose `key` header matches the `key` header of the message
+Message `1` will be sent to `handler1` because it listens to a queue whose `key` header matches the `key` header of the message.
 
 ---
 
@@ -134,7 +134,7 @@ Message `1` will be sent to `handler1`, because it listens to a queue whose `key
     await broker.publish(exchange=exch, headers={"key": 1})  # handlers: 2
 ```
 
-Message `2` will be sent to `handler2` because it listens to `exchange` using the same queue, but `handler1` is busy
+Message `2` will be sent to `handler2` because it listens to `exchange` using the same queue, but `handler1` is busy.
 
 ---
 
@@ -142,7 +142,7 @@ Message `2` will be sent to `handler2` because it listens to `exchange` using th
     await broker.publish(exchange=exch, headers={"key": 1})  # handlers: 1
 ```
 
-Message `3` will be sent to `handler1` again, because it is currently free
+Message `3` will be sent to `handler1` again because it is currently free.
 
 ---
 
@@ -150,7 +150,7 @@ Message `3` will be sent to `handler1` again, because it is currently free
     await broker.publish(exchange=exch, headers={"key": 2})  # handlers: 3
 ```
 
-Message `4` will be sent to `handler3`, because it listens to a queue whose `key` header coincided with the `key` header of the message
+Message `4` will be sent to `handler3` because it listens to a queue whose `key` header coincided with the `key` header of the message.
 
 ---
 
@@ -158,7 +158,7 @@ Message `4` will be sent to `handler3`, because it listens to a queue whose `key
     await broker.publish(exchange=exch, headers={"key2": 2})  # handlers: 3
 ```
 
-Message `5` will be sent to `handler3`, because it listens to a queue whose header `key2` coincided with the header `key2` of the message
+Message `5` will be sent to `handler3` because it listens to a queue whose header `key2` coincided with the header `key2` of the message.
 
 ---
 
@@ -168,7 +168,7 @@ Message `5` will be sent to `handler3`, because it listens to a queue whose head
     )  # handlers: 3, 4
 ```
 
-Message `6` will be sent to `handler3` and `handler4`, because the message headers completely match the queue keys
+Message `6` will be sent to `handler3` and `handler4` because the message headers completely match the queue keys.
 
 ---
 
