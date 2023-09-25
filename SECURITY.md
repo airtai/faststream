@@ -1,28 +1,28 @@
 # Security Policy
 
-Security and stability is very important for FastStream.
+Security and stability are paramount for FastStream.
 
-Learn more about it below. 👇
+Learn more below. 👇
 
 ## Versions
 
-The latest version of FastStream is supported.
+The latest version of FastStream is actively supported.
 
-You are encouraged to write tests for your application and update your FastStream version frequently after ensuring that your tests are passing. This way you will benefit from the latest features, bug fixes, and **security fixes**.
+We strongly encourage you to write tests for your application and regularly update your FastStream version after confirming that your tests pass. This ensures you benefit from the latest features, bug fixes, and **security updates**.
 
 ## Reporting a Vulnerability
 
-If you think you have identified a security issue, and even if you are not sure about it, please report it right away. But, **do not open a public issue**.
+If you suspect a security issue, even if you are uncertain, please report it promptly. However, **do not create a public issue**.
 
-To responsibly report a security issue, please navigate to the Security tab for the repo and click *"Report a vulnerability"*.
+To responsibly report a security concern, navigate to the Security tab of the repository and click on *"Report a vulnerability"*.
 
 ![Screenshot of repo security tab showing "Report a vulnerability" button](https://github.com/encode/.github/raw/master/img/github-demos-private-vulnerability-reporting.png)
 
-Alternatively, you can send me an email to: [info@airt.ai](info@airt.ai)
+Alternatively, you can send an email to: [info@airt.ai](info@airt.ai).
 
-Be sure to include as much detail as necessary in your report. As with reporting normal issues, a minimal reproducible example will help to fix the issue faster.
+Ensure your report contains sufficient detail. As with standard issue reports, a minimal, reproducible example expedites issue resolution.
 
-Also, please add to your report output of following command:
+Also, include the output of the following command in your report: 
 
 ```bash
 faststream --version
@@ -30,9 +30,9 @@ faststream --version
 
 ## Public Discussions
 
-Please restrain from publicly discussing a potential security vulnerability. 🙊
+Please restrain from publicly discussing potential security vulnerabilities. 🙊
 
-It's better to discuss privately and try to find a solution first, to limit the potential impact as much as possible.
+It is advisable to engage in private discussions and seek solutions first to minimize potential impact.
 
 ---
 
