@@ -5,9 +5,7 @@ from pydantic import BaseModel
 from faststream._compat import PYDANTIC_V2
 from faststream.asyncapi.schema.utils import (
     ExternalDocs,
-    ExternalDocsDict,
     Tag,
-    TagDict,
 )
 
 
@@ -72,8 +70,12 @@ class Message(BaseModel):
     # examples
     # traits
 
-    tags: Optional[List[Union[Tag, TagDict, Dict[str, Any]]]] = None
-    externalDocs: Optional[Union[ExternalDocs, ExternalDocsDict, Dict[str, Any]]] = None
+    tags: Optional[
+        List[Union[Tag, Dict[str, Any]]]
+    ] = None  # TODO: weird TagDict behavior
+    externalDocs: Optional[
+        Union[ExternalDocs, Dict[str, Any]]
+    ] = None  # TODO: weird ExternalDocsDict behavior
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}

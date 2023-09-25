@@ -9,7 +9,7 @@ from faststream._compat import (
     JsonSchemaValue,
     Required,
     TypedDict,
-    general_plain_validator_function,
+    with_info_plain_validator_function,
     is_installed,
 )
 from faststream.log import logger
@@ -54,7 +54,7 @@ else:  # pragma: no cover
             source: Type[Any],
             handler: Callable[[Any], CoreSchema],
         ) -> JsonSchemaValue:
-            return general_plain_validator_function(cls._validate)
+            return with_info_plain_validator_function(cls._validate)
 
 
 class ContactDict(TypedDict, total=False):
