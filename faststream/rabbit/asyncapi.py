@@ -103,7 +103,7 @@ class Publisher(RMQAsyncAPIChannel, LogicPublisher):
 
     @property
     def name(self) -> str:
-        return self.title or f"{self.queue.name.title()}Publisher"
+        return self.title or self.queue.name
 
     def get_payloads(self) -> List[AnyDict]:
         payloads = []
@@ -134,19 +134,7 @@ class Handler(RMQAsyncAPIChannel, LogicHandler):
     def name(self) -> str:
         original = super().name
 
-        name: str
-        queue_ = to_camelcase(self.queue.name)
-        if original is True:
-            if not self.call_name.lower().endswith(queue_.lower()):
-                name = f"{self.call_name}{queue_}"
-            else:
-                name = self.call_name
-        elif original is False:  # pragma: no cover
-            name = f"Handler{queue_}"
-        else:
-            name = original
-
-        return name
+        return original if isinstance(original, str) else self.queue.name
 
     def get_payloads(self) -> List[AnyDict]:
         payloads = []

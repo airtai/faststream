@@ -26,43 +26,37 @@ class TestRouter(RouterTestcase):
 
         assert schema == {
             "asyncapi": "2.6.0",
+            "defaultContentType": "application/json",
+            "info": {"title": "FastStream", "version": "0.1.0", "description": ""},
+            "servers": {
+                "development": {
+                    "url": "localhost",
+                    "protocol": "kafka",
+                    "protocolVersion": "auto",
+                }
+            },
             "channels": {
-                "HandleTestTest": {
-                    "bindings": {
-                        "kafka": {"bindingVersion": "0.4.0", "topic": "test_test"}
-                    },
+                "test_test": {
                     "servers": ["development"],
+                    "bindings": {
+                        "kafka": {"topic": "test_test", "bindingVersion": "0.4.0"}
+                    },
                     "subscribe": {
-                        "message": {
-                            "$ref": "#/components/messages/HandleTestTestMessage"
-                        }
+                        "message": {"$ref": "#/components/messages/test_test_message"}
                     },
                 }
             },
             "components": {
                 "messages": {
-                    "HandleTestTestMessage": {
+                    "test_test_message": {
+                        "title": "test_test_message",
                         "correlationId": {
                             "location": "$message.header#/correlation_id"
                         },
-                        "payload": {
-                            "$ref": "#/components/schemas/HandleTestTestMsgPayload"
-                        },
-                        "title": "HandleTestTestMessage",
+                        "payload": {"$ref": "#/components/schemas/test_testMsgPayload"},
                     }
                 },
-                "schemas": {
-                    "HandleTestTestMsgPayload": {"title": "HandleTestTestMsgPayload"}
-                },
-            },
-            "defaultContentType": "application/json",
-            "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
-            "servers": {
-                "development": {
-                    "protocol": "kafka",
-                    "protocolVersion": "auto",
-                    "url": "localhost",
-                }
+                "schemas": {"test_testMsgPayload": {"title": "test_testMsgPayload"}},
             },
         }
 

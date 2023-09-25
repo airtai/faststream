@@ -36,7 +36,7 @@ class Handler(LogicHandler, AsyncAPIOperation):
                 body = parse_handler_params(dep, prefix=t)
                 payloads.append(body)
 
-            channels[t] = Channel(
+            channels[self.name if isinstance(self.name, str) else t] = Channel(
                 description=self.description,
                 subscribe=Operation(
                     message=Message(
@@ -81,7 +81,8 @@ class Publisher(LogicPublisher, AsyncAPIOperation):
                 payloads.append(body)
 
         return {
-            self.topic: Channel(
+            self.title
+            or self.topic: Channel(
                 description=self.description,
                 publish=Operation(
                     message=Message(

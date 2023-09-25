@@ -54,7 +54,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == IsStr(regex=r"test\w*Payload"), key
             assert v == {"title": key}
 
     def test_simple_type(self):
@@ -70,7 +70,7 @@ class FastAPICompatible:
         assert tuple(schema["channels"].values())[0].get("description") is None
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == IsStr(regex=r"test\w*Payload")
             assert v == {"title": key, "type": "integer"}
 
     def test_simple_optional_type(self):
@@ -85,7 +85,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == IsStr(regex=r"test\w*Payload")
             assert v == IsDict(
                 {
                     "anyOf": [{"type": "integer"}, {"type": "null"}],
@@ -110,7 +110,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == IsStr(regex=r"test\w*Payload")
             assert v == {
                 "default": 1,
                 "title": key,
@@ -129,7 +129,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == IsStr(regex=r"test\w*Payload")
             assert v == {
                 "properties": {
                     "another": {"title": "Another"},
@@ -152,7 +152,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == IsStr(regex=r"test\w*Payload")
             assert v == {
                 "properties": {
                     "another": {"title": "Another", "type": "integer"},
@@ -175,7 +175,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == IsStr(regex=r"test\w*Payload")
 
             assert v == {
                 "properties": {
@@ -242,7 +242,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == IsStr(regex=r"test\w*Payload")
             assert v == {
                 "$defs": {
                     "User": {
@@ -356,16 +356,16 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == IsStr(regex=r"test\w*Payload")
             assert v == {
                 "oneOf": {
-                    "HandleTestIdPayload": {
-                        "title": "HandleTestIdPayload",
+                    "testIdPayload": {
+                        "title": "testIdPayload",
                         "type": "integer",
                     },
-                    "HandleTestMsgPayload": {"title": "HandleTestMsgPayload"},
+                    "testMsgPayload": {"title": "testMsgPayload"},
                 }
-            }
+            }, v
 
 
 class ArgumentsTestcase(FastAPICompatible):

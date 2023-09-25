@@ -19,7 +19,7 @@ class TestNaming(NamingTestCase):
         assert schema == {
             "asyncapi": "2.6.0",
             "channels": {
-                "HandleTest": {
+                "test": {
                     "bindings": {
                         "amqp": {
                             "bindingVersion": "0.2.0",
@@ -43,18 +43,18 @@ class TestNaming(NamingTestCase):
                                 "cc": "test",
                             }
                         },
-                        "message": {"$ref": "#/components/messages/HandleTestMessage"},
+                        "message": {"$ref": "#/components/messages/testMessage"},
                     },
                 }
             },
             "components": {
                 "messages": {
-                    "HandleTestMessage": {
+                    "testMessage": {
                         "correlationId": {
                             "location": "$message.header#/correlation_id"
                         },
                         "payload": {"$ref": "#/components/schemas/EmptyPayload"},
-                        "title": "HandleTestMessage",
+                        "title": "testMessage",
                     }
                 },
                 "schemas": {"EmptyPayload": {"title": "EmptyPayload", "type": "null"}},

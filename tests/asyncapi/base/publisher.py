@@ -26,7 +26,7 @@ class PublisherTestcase:
 
         key = tuple(schema["channels"].keys())[0]
 
-        assert key == "custom_name"
+        assert key == "custom_name", key
         assert schema["channels"][key]["description"] == "test description"
 
     def test_basic_publisher(self):
