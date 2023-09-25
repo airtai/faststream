@@ -34,12 +34,12 @@ async def base_handler(
     print(msg.headers)
 ```
 
-## Message Fields access
+## Message Fields Access
 
-But in the most cases you don't need all message fields, you need to know just a part of them.
+In most cases, you don't need all message fields; you need to know just a part of them.
 You can use [Context Fields access](../getting-started/context/fields.md) feature for this.
 
-For an example, you can get access to the `headers` like this:
+For example, you can get access to the `headers` like this:
 
 ```python hl_lines="6"
 from faststream import Context

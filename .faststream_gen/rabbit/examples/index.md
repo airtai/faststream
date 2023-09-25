@@ -1,8 +1,8 @@
 # Basic Subscriber
 
-If you know nothing about **RabbitMQ** and how it works you will still able to use **FastStream RabbitBroker**.
+If you know nothing about **RabbitMQ** and how it works, you will still able to use **FastStream RabbitBroker**.
 
-Just use `#!python @broker.subscriber(...)` method with a string as a routing key.
+Just use the `#!python @broker.subscriber(...)` method with a string as a routing key.
 
 ```python linenums="1"
 from faststream import FastStream
@@ -25,9 +25,9 @@ async def test_publish():
     )
 ```
 
-This is the principle all **FastStream** brokers work by: you don't need to learn them in-depth if you want to *just send a message*
+This is the principle all **FastStream** brokers work by: you don't need to learn them in-depth if you want to *just send a message*.
 
-## RabbitMQ details
+## RabbitMQ Details
 
 If you are already familiar with **RabbitMQ** logic, you should also be acquainted with the inner workings of the example mentioned above.
 

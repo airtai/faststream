@@ -1,6 +1,6 @@
 # Topic Exchange
 
-**Topic** Exchange is a powerful *RabbitMQ* routing tool. This type of `exchange` sends messages to the queue in accordance with the *pattern* specified when they are connected to `exchange` and the `routing_key` of the message itself.
+The **Topic** Exchange is a powerful *RabbitMQ* routing tool. This type of `exchange` sends messages to the queue in accordance with the *pattern* specified when they are connected to `exchange` and the `routing_key` of the message itself.
 
 At the same time, if several consumers are subscribed to the queue, messages will be distributed among them.
 
@@ -55,7 +55,7 @@ queue_2 = RabbitQueue("test-queue-2", auto_delete=True, routing_key="*.debug")
 
 At the same time, in the `routing_key` of our queues, we specify the *pattern* of routing keys that will be processed by this queue.
 
-Then we sign up several consumers using the advertised queues to the `exchange` we created
+Then we sign up several consumers using the advertised queues to the `exchange` we created:
 
 ```python linenums="13" hl_lines="1 6 11"
 @broker.subscriber(queue_1, exch)
@@ -75,10 +75,10 @@ async def base_handler3(logger: Logger):
 
 !!! note
     `handler1` and `handler2` are subscribed to the same `exchange` using the same queue:
-    within a single service, this does not make a sense, since messages will come to these handlers in turn.
+    within a single service, this does not make sense, since messages will come to these handlers in turn.
     Here we emulate the work of several consumers and load balancing between them.
 
-### Message distribution
+### Message Distribution
 
 Now the distribution of messages between these consumers will look like this:
 
@@ -86,7 +86,7 @@ Now the distribution of messages between these consumers will look like this:
     await broker.publish(routing_key="logs.info", exchange=exch)  # handlers: 1
 ```
 
-Message `1` will be sent to `handler1` because it listens to `exchange` using a queue with the routing key `*.info`
+Message `1` will be sent to `handler1` because it listens to `exchange` using a queue with the routing key `*.info`.
 
 ---
 
@@ -94,7 +94,7 @@ Message `1` will be sent to `handler1` because it listens to `exchange` using a 
     await broker.publish(routing_key="logs.info", exchange=exch)  # handlers: 2
 ```
 
-Message `2` will be sent to `handler2` because it listens to `exchange` using the same queue, but `handler1` is busy
+Message `2` will be sent to `handler2` because it listens to `exchange` using the same queue, but `handler1` is busy.
 
 ---
 
@@ -102,7 +102,7 @@ Message `2` will be sent to `handler2` because it listens to `exchange` using th
     await broker.publish(routing_key="logs.info", exchange=exch)  # handlers: 1
 ```
 
-Message `3` will be sent to `handler1` again, because it is currently free
+Message `3` will be sent to `handler1` again because it is currently free.
 
 ---
 
@@ -110,4 +110,4 @@ Message `3` will be sent to `handler1` again, because it is currently free
     await broker.publish(routing_key="logs.debug", exchange=exch)  # handlers: 3
 ```
 
-Message `4` will be sent to `handler3`, because it is the only one listening to `exchange` using a queue with the routing key `*.debug`
+Message `4` will be sent to `handler3` because it is the only one listening to `exchange` using a queue with the routing key `*.debug`.
