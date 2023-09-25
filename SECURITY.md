@@ -22,7 +22,7 @@ Alternatively, you can send an email to: [info@airt.ai](info@airt.ai).
 
 Ensure your report contains sufficient detail. As with standard issue reports, a minimal, reproducible example expedites issue resolution.
 
-Also, include the output of the following command in your report: 
+Also, include the output of the following command in your report:
 
 ```bash
 faststream --version
