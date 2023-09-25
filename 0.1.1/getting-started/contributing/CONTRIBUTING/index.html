@@ -1559,29 +1559,29 @@
       
         <li class="md-nav__item">
   <a href="#virtual-environment-with-venv" class="md-nav__link">
-    Virtual environment with venv
+    Virtual Environment with venv
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#activate-the-environment" class="md-nav__link">
-    Activate the environment
+    Activate the Environment
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#pip" class="md-nav__link">
-    pip
+  <a href="#installing-dependencies" class="md-nav__link">
+    Installing Dependencies
   </a>
   
-    <nav class="md-nav" aria-label="pip">
+    <nav class="md-nav" aria-label="Installing Dependencies">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#using-your-local-faststream" class="md-nav__link">
-    Using your local FastStream
+    Using Your local FastStream
   </a>
   
 </li>
@@ -1592,11 +1592,11 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
-    Tests
+  <a href="#running-tests" class="md-nav__link">
+    Running Tests
   </a>
   
-    <nav class="md-nav" aria-label="Tests">
+    <nav class="md-nav" aria-label="Running Tests">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1694,29 +1694,29 @@
       
         <li class="md-nav__item">
   <a href="#virtual-environment-with-venv" class="md-nav__link">
-    Virtual environment with venv
+    Virtual Environment with venv
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#activate-the-environment" class="md-nav__link">
-    Activate the environment
+    Activate the Environment
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#pip" class="md-nav__link">
-    pip
+  <a href="#installing-dependencies" class="md-nav__link">
+    Installing Dependencies
   </a>
   
-    <nav class="md-nav" aria-label="pip">
+    <nav class="md-nav" aria-label="Installing Dependencies">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#using-your-local-faststream" class="md-nav__link">
-    Using your local FastStream
+    Using Your local FastStream
   </a>
   
 </li>
@@ -1727,11 +1727,11 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
-    Tests
+  <a href="#running-tests" class="md-nav__link">
+    Running Tests
   </a>
   
-    <nav class="md-nav" aria-label="Tests">
+    <nav class="md-nav" aria-label="Running Tests">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1770,55 +1770,55 @@
 
 
 <h1 id="development">Development<a class="headerlink" href="#development" title="Permanent link">#</a></h1>
-<p>Ofter cloning the project, you will need to setup the development envirionment, here are the guidelines on how to do this.</p>
-<h2 id="virtual-environment-with-venv">Virtual environment with <code>venv</code><a class="headerlink" href="#virtual-environment-with-venv" title="Permanent link">#</a></h2>
-<p>You can create a virtual environment in a directory using Python's <code>venv</code> module:</p>
+<p>After cloning the project, you'll need to set up the development environment. Here are the guidelines on how to do this.</p>
+<h2 id="virtual-environment-with-venv">Virtual Environment with <code>venv</code><a class="headerlink" href="#virtual-environment-with-venv" title="Permanent link">#</a></h2>
+<p>Create a virtual environment in a directory using Python's <code>venv</code> module:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
 </code></pre></div>
-<p>That will create a directory <code>./venv/</code> with the Python binaries and then you will be able to install packages for that isolated environment.</p>
-<h2 id="activate-the-environment">Activate the environment<a class="headerlink" href="#activate-the-environment" title="Permanent link">#</a></h2>
+<p>That will create a <code>./venv/</code> directory with Python binaries, allowing you to install packages in an isolated environment.</p>
+<h2 id="activate-the-environment">Activate the Environment<a class="headerlink" href="#activate-the-environment" title="Permanent link">#</a></h2>
 <p>Activate the new environment with:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">source</span><span class="w"> </span>./venv/bin/activate
 </code></pre></div>
-<p>Make sure you have the latest pip version in your virtual environment</p>
+<p>Ensure you have the latest pip version in your virtual environment:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip
 </code></pre></div>
-<h2 id="pip">pip<a class="headerlink" href="#pip" title="Permanent link">#</a></h2>
-<p>After activating the environment as described above, run:</p>
+<h2 id="installing-dependencies">Installing Dependencies<a class="headerlink" href="#installing-dependencies" title="Permanent link">#</a></h2>
+<p>After activating the virtual environment as described above, run:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
 </code></pre></div>
-<p>It will install all the dependencies and your local FastStream in your local environment.</p>
-<h3 id="using-your-local-faststream">Using your local FastStream<a class="headerlink" href="#using-your-local-faststream" title="Permanent link">#</a></h3>
+<p>This will install all the dependencies and your local FastStream in your virtual environment.</p>
+<h3 id="using-your-local-faststream">Using Your local FastStream<a class="headerlink" href="#using-your-local-faststream" title="Permanent link">#</a></h3>
 <p>If you create a Python file that imports and uses FastStream, and run it with the Python from your local environment, it will use your local FastStream source code.</p>
-<p>And if you update that local FastStream source code, as it is installed with <code>-e</code>, when you run that Python file again, it will use the fresh version of FastStream you just edited.</p>
-<p>That way, you don't have to "install" your local version to be able to test every change.</p>
-<p>To use your local FastStream cli type:</p>
+<p>Whenever you update your local FastStream source code, it will automatically use the latest version when you run your Python file again. This is because it is installed with <code>-e</code>.</p>
+<p>This way, you don't have to "install" your local version to be able to test every change.</p>
+<p>To use your local FastStream CLI, type:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python<span class="w"> </span>-m<span class="w"> </span>faststream<span class="w"> </span>...
 </code></pre></div>
-<h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">#</a></h2>
+<h2 id="running-tests">Running Tests<a class="headerlink" href="#running-tests" title="Permanent link">#</a></h2>
 <h3 id="pytest">Pytest<a class="headerlink" href="#pytest" title="Permanent link">#</a></h3>
-<p>To run tests with your current FastStream application and Python environment use:</p>
+<p>To run tests with your current FastStream application and Python environment, use:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pytest<span class="w"> </span>tests
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="c1"># or</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>./scripts/test.sh
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># with coverage output</span>
 <a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>./scripts/test-cov.sh
 </code></pre></div>
-<p>There are some <em>pytest marks</em> at project:</p>
+<p>In your project, you'll find some <em>pytest marks</em>:</p>
 <ul>
 <li><strong>slow</strong></li>
 <li><strong>rabbit</strong></li>
 <li><strong>kafka</strong></li>
 <li><strong>all</strong></li>
 </ul>
-<p>Default <em>pytest</em> calling runs "not slow" tests.</p>
+<p>By default, running <em>pytest</em> will execute "not slow" tests.</p>
 <p>To run all tests use:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pytest<span class="w"> </span>-m<span class="w"> </span><span class="s1">&#39;all&#39;</span>
 </code></pre></div>
-<p>Also if you don't have a local rabbit or kafka intance running, run tests without that dependencies</p>
+<p>If you don't have a local RabbitMQ or Kafka instance running, you can run tests without those dependencies:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pytest<span class="w"> </span>-m<span class="w"> </span><span class="s1">&#39;not rabbit and not kafka&#39;</span>
 </code></pre></div>
-<p>To run all tests based on RabbitMQ, Kafka or another dependencies you should first run the following <em>docker-compose.yml</em></p>
+<p>To run tests based on RabbitMQ, Kafka, or other dependencies, the following dependencies are needed to be started as docker containers:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3&quot;</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nt">services</span><span class="p">:</span>
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="c1"># nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service</span>
@@ -1849,7 +1849,11 @@
 <a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a><span class="w">    </span><span class="nt">security_opt</span><span class="p">:</span>
 <a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">no-new-privileges:true</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+<p>You can start the dependencies easily using provided script by running:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>./scripts/start_test_env.sh
+</code></pre></div>
+<p>Once you are done with development and running tests, you can stop the dependencies' docker containers by running:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>./scripts/stop_test_env.sh
 </code></pre></div>
 
   <hr>
@@ -1857,7 +1861,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-18T10:39:59+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-18</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-25T09:31:44+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-25</span>
       
     
   </small>
