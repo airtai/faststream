@@ -84,7 +84,7 @@ JsonSchemaValue = Mapping[str, Any]
 
 if PYDANTIC_V2:
     from pydantic import ConfigDict as ConfigDict
-    from pydantic._internal._annotated_handlers import (
+    from pydantic.annotated_handlers import (
         GetJsonSchemaHandler as GetJsonSchemaHandler,
     )
     from pydantic_core import CoreSchema as CoreSchema
