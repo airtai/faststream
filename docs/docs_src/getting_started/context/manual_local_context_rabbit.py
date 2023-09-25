@@ -11,14 +11,15 @@ async def handle(
     msg: str,
     message: RabbitMessage,
 ):
-    context.set_local("correlation_id", message.correlation_id)
-    call()
+    tag = context.set_local("correlation_id", message.correlation_id)
+    call(tag)
 
 
 @apply_types
 def call(
+    tag,
     message: RabbitMessage,
     correlation_id=Context(),
 ):
     assert correlation_id == message.correlation_id
-    context.reset_local("correlation_id")
+    context.reset_local("correlation_id", tag)

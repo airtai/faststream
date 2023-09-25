@@ -130,7 +130,7 @@ Then update your `config.py` as follows:
 ```python linenums='1' hl_lines="1 11"
 import os
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):

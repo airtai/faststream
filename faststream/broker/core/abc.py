@@ -165,7 +165,7 @@ class BrokerUsecase(
         midd_args: Sequence[Callable[[MsgType], BaseMiddleware]] = (
             middlewares or empty_middleware
         )
-        self.middlewares = [CriticalLogMiddleware(logger), *midd_args]  # type: ignore
+        self.middlewares = [CriticalLogMiddleware(logger), *midd_args]
         self.dependencies = dependencies
 
         self._connection_args = args

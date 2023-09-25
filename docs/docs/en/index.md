@@ -253,7 +253,7 @@ Just import a **StreamRouter** you need and declare the message handler with the
 
 ## Code generator
 
-As evident, **FastStream** is an incredibly user-friendly library. However, we've taken it a step further and made it even more user-friendly! Introducing [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"}, a Python library that harnesses the power of generative AI to effortlessly generate **FastStream** applications.. Simply describe your application requirements, and [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"} will generate a production-grade **FastStream** project that is ready to deploy in no time.
+As evident, **FastStream** is an incredibly user-friendly framework. However, we've taken it a step further and made it even more user-friendly! Introducing [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"}, a Python library that harnesses the power of generative AI to effortlessly generate **FastStream** applications. Simply describe your application requirements, and [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"} will generate a production-grade **FastStream** project that is ready to deploy in no time.
 
 Save application description inside `description.txt`:
 ```
@@ -293,7 +293,7 @@ Please show your support and stay in touch by:
 - joining our [Discord server](https://discord.gg/CJWmYpyFbc){.external-link target="_blank"}
 
 Your support helps us to stay in touch with you and encourages us to
-continue developing and improving the library. Thank you for your
+continue developing and improving the framework. Thank you for your
 support!
 
 ---

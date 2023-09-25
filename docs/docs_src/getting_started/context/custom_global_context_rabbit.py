@@ -8,11 +8,11 @@ app = FastStream(broker)
 @broker.subscriber("test-queue")
 async def handle(
     msg: str,
-    secret: str=Context(),
+    secret_str: str=Context(),
 ):
-    assert secret == "my-perfect-secret" # pragma: allowlist secret
+    assert secret_str == "my-perfect-secret" # pragma: allowlist secret
 
 
 @app.on_startup
 async def set_global(context: ContextRepo):
-    context.set_global("secret", "my-perfect-secret")
+    context.set_global("secret_str", "my-perfect-secret")
