@@ -168,7 +168,7 @@ class BrokerUsecase(
         self.middlewares = [CriticalLogMiddleware(logger), *midd_args]
         self.dependencies = dependencies
 
-        self._connection_args = args
+        self._connection_args = (url, *args)
         self._connection_kwargs = kwargs
 
         self._global_parser = parser
