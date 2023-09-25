@@ -1,4 +1,4 @@
-# Kafka routing
+# Kafka Routing
 
 ## Kafka Overview
 
@@ -39,7 +39,7 @@ To connect to Kafka using the FastStream KafkaBroker module, follow these steps:
 
 2. **Create your processing logic:** Write a function that will consume the incoming messages in the defined format and produce a response to the defined topic
 
-3. **Decorate your processing function:** To connect your processing function to the desired Kafka topics you need to decorate it with `#!python @broker.subscriber` and `#!python @broker.publisher` decorators. Now after you start your application, your processing function will be called whenever a new message in the subscribed topic is available and produce the function return value to the topic defined in the publisher decorator.
+3. **Decorate your processing function:** To connect your processing function to the desired Kafka topics you need to decorate it with `#!python @broker.subscriber` and `#!python @broker.publisher` decorators. Now, after you start your application, your processing function will be called whenever a new message in the subscribed topic is available and produce the function return value to the topic defined in the publisher decorator.
 
 Here's a simplified code example demonstrating how to establish a connection to Kafka using FastStream's KafkaBroker module:
 
