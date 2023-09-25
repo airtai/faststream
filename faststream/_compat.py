@@ -84,13 +84,13 @@ JsonSchemaValue = Mapping[str, Any]
 
 if PYDANTIC_V2:
     from pydantic import ConfigDict as ConfigDict
-    from pydantic._internal._annotated_handlers import (
+    from pydantic.annotated_handlers import (
         GetJsonSchemaHandler as GetJsonSchemaHandler,
     )
     from pydantic_core import CoreSchema as CoreSchema
     from pydantic_core import to_jsonable_python
     from pydantic_core.core_schema import (
-        general_plain_validator_function as general_plain_validator_function,
+        with_info_plain_validator_function as with_info_plain_validator_function,
     )
 
     SCHEMA_FIELD = "json_schema_extra"
@@ -168,7 +168,8 @@ else:
     def model_copy(model: ModelVar, **kwargs: Any) -> ModelVar:
         return model.copy(**kwargs)
 
-    def general_plain_validator_function(  # type: ignore[misc]
+    # TODO: pydantic types misc
+    def with_info_plain_validator_function(  # type: ignore[misc]
         function: Callable[..., Any],
         *,
         ref: Optional[str] = None,
