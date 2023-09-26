@@ -374,7 +374,7 @@ class KafkaBroker(
 
         self._setup_log_context(topics)
 
-        key = "".join(topics)
+        key = Handler.get_routing_hash(topics, group_id)
         builder = partial(
             aiokafka.AIOKafkaConsumer,
             key_deserializer=key_deserializer,
