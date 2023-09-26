@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch
 import anyio
 import pytest
 
-from faststream import FastStream
+from faststream import FastStream, TestApp
 from faststream.log import logger
 from faststream.rabbit import RabbitBroker
 from faststream.utils import Context
@@ -160,6 +160,35 @@ async def test_stop_with_sigterm(async_mock, app: FastStream):
 
     async_mock.broker_run_sigterm.assert_called_once()
     async_mock.broker_stopped_sigterm.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_test_broker(mock: Mock):
+    app = FastStream()
+
+    app.on_startup(mock.on)
+    app.on_shutdown(mock.off)
+
+    async with TestApp(app):
+        pass
+
+    mock.on.assert_called_once()
+    mock.off.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_test_broker_with_excp(mock: Mock):
+    app = FastStream()
+
+    app.on_startup(mock.on)
+    app.on_shutdown(mock.off)
+
+    with pytest.raises(ValueError):
+        async with TestApp(app):
+            raise ValueError()
+
+    mock.on.assert_called_once()
+    mock.off.assert_called_once()
 
 
 async def _kill(sig):
