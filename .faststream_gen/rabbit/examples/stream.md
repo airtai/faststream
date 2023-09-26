@@ -1,6 +1,6 @@
 # RabbitMQ Streams
 
-*RabbitMQ* has a [Streams](https://www.rabbitmq.com/streams.html){.exteranl-link target="_blank"} feature, which logic is closely related to *Kafka* topics.
+*RabbitMQ* has a [Streams](https://www.rabbitmq.com/streams.html){.exteranl-link target="_blank"} feature, which is closely related to *Kafka* topics.
 
 The main difference from regular *RabbitMQ* queues is that the messages are not deleted after consuming.
 
@@ -24,7 +24,7 @@ queue = RabbitQueue(
 
 @broker.subscriber(
     queue,
-    consume_arguments={"x-stream-offset": "first"},
+    consume_args={"x-stream-offset": "first"},
 )
 async def handle(msg, logger: Logger):
     logger.info(msg)

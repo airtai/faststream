@@ -1,9 +1,6 @@
 # Publisher Direct Usage
 
-Full-featured way to publish messages (has AsyncAPI representation + testable feaures).
-Creates reusable Publisher object.
-
-Can be used directly to publush a message
+The Publisher Direct Usage is a full-featured way to publish messages. It has AsyncAPI representation and includes testable features. This method creates a reusable Publisher object that can be used directly to publish a message:
 
 === "Kafka"
     ```python linenums="1"
@@ -15,7 +12,7 @@ Can be used directly to publush a message
     {!> docs_src/getting_started/publishing/direct_rabbit.py !}
     ```
 
-Suitable to publish different messages to different outputes at the same processing function
+It is suitable for publishing different messages to different outputs within the same processing function:
 
 ```python
 @broker.subscriber("in")

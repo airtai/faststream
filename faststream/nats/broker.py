@@ -64,9 +64,10 @@ class NatsBroker(
         **kwargs: Any,
     ) -> None:
         super().__init__(
-            url=servers,  # AsyncAPI information
+            url=list(servers)
+            if isinstance(servers, Sequence)
+            else [servers],  # AsyncAPI information
             protocol=protocol,
-            servers=list(servers),  # nats-py connect argument
             **kwargs,
         )
 
@@ -335,6 +336,12 @@ class NatsBroker(
                 extra_options=extra_options,
                 title=title,
                 description=description,
+                log_context_builder=partial(
+                    self._get_log_context,
+                    stream=stream.name if stream else "",
+                    subject=subject,
+                    queue=queue,
+                ),
             ),
         )
 
@@ -345,9 +352,6 @@ class NatsBroker(
                 func,
                 extra_dependencies=dependencies,
                 **original_kwargs,
-                stream=stream.name if stream else "",
-                subject=subject,
-                queue=queue,
             )
 
             handler.add_call(

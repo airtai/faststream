@@ -1,9 +1,11 @@
 import os
+from datetime import date
 from unittest import mock
 
 import pytest
 
 from faststream import Context
+from faststream._compat import model_to_jsonable
 from faststream.kafka import TestKafkaBroker
 
 with mock.patch.dict(
@@ -23,15 +25,16 @@ async def on_class(
 @pytest.mark.asyncio
 async def test_app():
     async with TestKafkaBroker(broker):
+        birthdate = date(2020, 9, 5)
         await broker.publish(
-            Student(name="Student Studentis", age=12), "student_application"
+            Student(name="Student Studentis", birthdate=birthdate),
+            "student_application",
         )
-        on_application.mock.assert_called_with(
-            dict(Student(name="Student Studentis", age=12))
+
+        student_json = model_to_jsonable(
+            Student(name="Student Studentis", birthdate=birthdate)
         )
-        to_class.mock.assert_called_with(
-            dict(Student(name="Student Studentis", age=12))
-        )
-        on_class.mock.assert_called_with(
-            dict(Student(name="Student Studentis", age=12))
-        )
+
+        on_application.mock.assert_called_with(student_json)
+        to_class.mock.assert_called_with(student_json)
+        on_class.mock.assert_called_with(student_json)

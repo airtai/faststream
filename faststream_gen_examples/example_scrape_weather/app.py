@@ -48,7 +48,7 @@ async def shutdown(context: ContextRepo):
 
     # Get all the running tasks and wait them to finish
     publish_tasks = context.get("publish_tasks")
-    await asyncio.wait(publish_tasks)
+    await asyncio.gather(*publish_tasks)
 
 
 async def fetch_and_publish_weather(

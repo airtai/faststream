@@ -1,21 +1,21 @@
-# Context Extra options
+# Context Extra Options
 
-Also, `Context` provides you some extra abilities to work with a containing object.
+Additionally, `Context` provides you with some extra capabilities for working with containing objects.
 
-## Default values
+## Default Values
 
-As an example, if you try to access a field that does not exist in the global context, you will get the `pydantic.ValidationError` exception.
+For instance, if you attempt to access a field that doesn't exist in the global context, you will receive a `pydantic.ValidationError` exception.
 
-However, you can set the default value if you feel the need.
+However, you can set default values if needed.
 
 {!> includes/getting_started/context/default.md !}
 
-## Cast context types
+## Cast Context Types
 
 By default, context fields are **NOT CAST** to the type specified in their annotation.
 
 {!> includes/getting_started/context/not_cast.md !}
 
-If you need this functionality, you can set the appropriate flag.
+If you require this functionality, you can enable the appropriate flag.
 
 {!> includes/getting_started/context/cast.md !}

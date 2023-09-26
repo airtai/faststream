@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 
 from pydantic import BaseModel, Field
@@ -12,6 +13,11 @@ class Point(BaseModel):
     )
     y: float = Field(
         ..., examples=[0.5], description="The Y Coordinate in the coordinate system"
+    )
+    time: datetime = Field(
+        ...,
+        examples=["2020-04-23 10:20:30.400000"],
+        description="The timestamp of the record",
     )
 
 
@@ -45,5 +51,5 @@ async def on_input_data(
         x_sum += msg.x
         y_sum += msg.y
 
-    point_sum = Point(x=x_sum, y=y_sum)
+    point_sum = Point(x=x_sum, y=y_sum, time=datetime.now())
     await to_output_data.publish(point_sum, key=key)

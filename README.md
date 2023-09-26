@@ -38,7 +38,11 @@
   </a>
 
   <a href="https://github.com/airtai/faststream/blob/main/LICENSE" target="_blank">
-    <img src="https://img.shields.io/github/license/airtai/faststream.png" alt="Github">
+    <img src="https://img.shields.io/github/license/airtai/faststream.png" alt="License">
+  </a>
+
+  <a href="https://github.com/airtai/faststream/blob/main/CODE_OF_CONDUCT.md" target="_blank">
+    <img src="https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg" alt="Code of Conduct">
   </a>
 
   <a href="https://discord.gg/CJWmYpyFbc" target="_blank">
@@ -51,7 +55,7 @@
 ## Features
 
 [**FastStream**](https://faststream.airt.ai/) simplifies the process of writing producers and consumers for message queues, handling all the
-parsing, networking and documentatino generation automatically.
+parsing, networking and documentation generation automatically.
 
 Making streaming microservices has never been easier. Designed with junior developers in mind, **FastStream** simplifies your work while keeping the door open for more advanced use-cases. Here's a look at the core features that make **FastStream** a go-to framework for modern, data-centric microservices.
 
@@ -71,9 +75,13 @@ Making streaming microservices has never been easier. Designed with junior devel
 
 - [**Integrations**](#any-framework): **FastStream** is fully compatible with any HTTP framework you want ([**FastAPI**](#fastapi-plugin) especially)
 
-- **Built for Automatic Code Generation**: **FastStream** is optimized for automatic code generation using advanced models like GPT and Llama
+- [**Built for Automatic Code Generation**](#code-generator): **FastStream** is optimized for automatic code generation using advanced models like GPT and Llama
 
 That's **FastStream** in a nutshell—easy, efficient, and powerful. Whether you're just starting with streaming microservices or looking to scale, **FastStream** has got you covered.
+
+---
+
+**Documentation**: <a href="https://faststream.airt.ai/" target="_blank">https://faststream.airt.ai/</a>
 
 ---
 
@@ -213,7 +221,7 @@ And multiprocessing horizontal scaling feature as well:
 faststream run basic:app --workers 3
 ```
 
-You can know more about **CLI** features [here](https://faststream.airt.ai/0.1.0rc0/getting-started/cli/)
+You can know more about **CLI** features [here](https://faststream.airt.ai/latest/getting-started/cli/)
 
 ---
 
@@ -231,8 +239,9 @@ The availability of such documentation significantly simplifies the integration 
 
 **FastStream** (thanks to [**FastDepend**](https://lancetnik.github.io/FastDepends/)) has a dependency management system similar to `pytest fixtures` and `FastAPI Depends` at the same time. Function arguments declare which dependencies you want are needed, and a special decorator delivers them from the global Context object.
 
-```python linenums="1" hl_lines="9-10"
+```python
 from faststream import Depends, Logger
+
 async def base_dep(user_id: int) -> bool:
     return True
 
@@ -308,7 +317,49 @@ app = FastAPI(lifespan=router.lifespan_context)
 app.include_router(router)
 ```
 
-More integration features can be found [here](https://faststream.airt.ai/0.1.0rc0/getting-started/integrations/fastapi/)
+More integration features can be found [here](https://faststream.airt.ai/latest/getting-started/integrations/fastapi/)
+
+---
+
+## Code generator
+
+As evident, **FastStream** is an incredibly user-friendly framework. However, we've taken it a step further and made it even more user-friendly! Introducing [faststream-gen](https://faststream-gen.airt.ai), a Python library that harnesses the power of generative AI to effortlessly generate **FastStream** applications. Simply describe your application requirements, and [faststream-gen](https://faststream-gen.airt.ai) will generate a production-grade **FastStream** project that is ready to deploy in no time.
+
+Save application description inside `description.txt`:
+```
+Create a FastStream application using localhost broker for testing and use the
+default port number.
+
+It should consume messages from the 'input_data' topic, where each message is a
+JSON encoded object containing a single attribute: 'data'.
+
+While consuming from the topic, increment the value of the data attribute by 1.
+
+Finally, send message to the 'output_data' topic.
+```
+
+and run the following command to create a new **FastStream** project:
+``` shell
+faststream_gen -i description.txt
+```
+
+``` shell
+✨  Generating a new FastStream application!
+ ✔ Application description validated.
+ ✔ FastStream app skeleton code generated. akes around 15 to 45 seconds)...
+ ✔ The app and the tests are generated.  around 30 to 90 seconds)...
+ ✔ New FastStream project created.
+ ✔ Integration tests were successfully completed.
+ Tokens used: 10768
+ Total Cost (USD): $0.03284
+✨  All files were successfully generated!
+```
+
+### Tutorial
+
+We also invite you to explore our tutorial, where we will guide you through the process of utilizing the [faststream-gen](https://faststream-gen.airt.ai) Python library to effortlessly create **FastStream** applications:
+
+- [Cryptocurrency analysis with FastStream](https://faststream-gen.airt.ai/Tutorial/Cryptocurrency_Tutorial/)
 
 ---
 
@@ -321,7 +372,7 @@ Please show your support and stay in touch by:
 - joining our [Discord server](https://discord.gg/CJWmYpyFbc)
 
 Your support helps us to stay in touch with you and encourages us to
-continue developing and improving the library. Thank you for your
+continue developing and improving the framework. Thank you for your
 support!
 
 ---

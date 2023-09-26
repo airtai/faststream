@@ -15,5 +15,5 @@ async def handle():
 async def test_lifespan():
     async with TestRabbitBroker(app.broker):
         async with TestApp(app):
-            # test smth
+            # test something
             pass

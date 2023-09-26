@@ -1,17 +1,16 @@
-# Application-level filtering
+# Application-level Filtering
 
-Also, **FastStream** allows you to specify message processing way by message headers, body type or smth else. Using `filter` feature you are able to consume various messages with different schemas in the one event stream.
+**FastStream** also allows you to specify the message processing way using message headers, body type or something else. The `filter` feature enables you to consume various messages with different schemas within a single event stream.
 
 !!! tip
     Message must be consumed at ONCE (crossing filters are not allowed)
 
-As an example lets create a subscriber for `JSON` and not-`JSON` messages both:
+As an example, let's create a subscriber for both `JSON` and non-`JSON` messages:
 
 {!> includes/getting_started/subscription/filtering/1.md !}
 
 !!! note
-    Subscriber without filter is a default subscriber. It consumes messages, not consumed yet.
-
+    A subscriber without a filter is a default subscriber. It consumes messages that have not been consumed yet.
 
 For now, the following message will be delivered to the `handle` function
 

@@ -267,6 +267,9 @@ class RabbitBroker(
         handler = self.handlers.get(
             key,
             Handler(
+                log_context_builder=partial(
+                    self._get_log_context, queue=r_queue, exchange=r_exchange
+                ),
                 queue=r_queue,
                 exchange=r_exchange,
                 consume_args=consume_args,
@@ -300,8 +303,6 @@ class RabbitBroker(
                 func,
                 extra_dependencies=dependencies,
                 **original_kwargs,
-                queue=r_queue,
-                exchange=r_exchange,
             )
 
             handler.add_call(
@@ -445,8 +446,6 @@ class RabbitBroker(
                     pub_response = None
 
                 return r, pub_response
-
-            raise AssertionError("unreachable")
 
         return process_wrapper
 

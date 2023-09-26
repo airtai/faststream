@@ -249,8 +249,6 @@ class KafkaBroker(
 
                 return r, pub_response
 
-            raise AssertionError("unreachable")
-
         return process_wrapper
 
     @override
@@ -374,7 +372,7 @@ class KafkaBroker(
 
         self._setup_log_context(topics)
 
-        key = "".join(topics)
+        key = Handler.get_routing_hash(topics, group_id)
         builder = partial(
             aiokafka.AIOKafkaConsumer,
             key_deserializer=key_deserializer,
@@ -401,6 +399,7 @@ class KafkaBroker(
             key,
             Handler(
                 *topics,
+                log_context_builder=partial(self._get_log_context, topics=topics),
                 group_id=group_id,
                 client_id=self.client_id,
                 builder=builder,
@@ -437,7 +436,6 @@ class KafkaBroker(
                 func=func,
                 extra_dependencies=dependencies,
                 **original_kwargs,
-                topics=topics,
             )
 
             handler.add_call(

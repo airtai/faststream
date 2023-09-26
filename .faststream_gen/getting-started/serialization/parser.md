@@ -1,14 +1,14 @@
 # Custom Parser
 
-At this stage, **FastStream** serializes an incoming message of the framework that is used to work with the broker into a general view - **StreamMessage**. At this stage, the message body remains in the form of raw bytes.
+At this stage, **FastStream** serializes an incoming message from the broker's framework into a general format called **StreamMessage**. During this stage, the message body remains in the form of raw bytes.
 
-**StreamMessage** - is a general **FastStream** message view. It contains total information about message required inside **FastStreams**. It is using to represent even a messages batches, so the only one reason to customize it - **FastStream** message metainformation redefinition.
+**StreamMessage** is a general representation of a message within **FastStream**. It contains all the information required for message processing within **FastStreams**.  It is even used to represent message batches, so the primary reason to customize it is to redefine the metadata associated with **FastStream** messages.
 
-As an example: you can specify your own header with the `message_id` semantic. So, you can inform **FastStream** about it by parser customization.
+For example, you can specify your own header with the `message_id` semantic. This allows you to inform **FastStream** about this custom header through parser customization.
 
 ## Signature
 
-To create a custom message parser you should write a regular (sync or async) python function with the following signature:
+To create a custom message parser, you should write a regular Python function (synchronous or asynchronous) with the following signature:
 
 === "Kafka"
     ``` python
@@ -28,7 +28,7 @@ To create a custom message parser you should write a regular (sync or async) pyt
         ...
     ```
 
-Also, you are able to reuse the original parser function by using next signature
+Alternatively, you can reuse the original parser function with the following signature:
 
 === "Kafka"
     ``` python
@@ -56,24 +56,24 @@ Also, you are able to reuse the original parser function by using next signature
         return await original_parser(msg)
     ```
 
-All arguments naming has no matter, parser will be always placed to the second one.
+The argument naming doesn't matter; the parser will always be placed as the second argument.
 
 !!! note
-    Original parser is always async function, so your custom one should be an async too
+    The original parser is always an asynchronous function, so your custom parser should also be asynchronous.
 
-After you can set this parser at broker or subsriber level both.
+Afterward, you can set this custom parser at the broker or subscriber level.
 
 ## Example
 
-As an example, let's redefine `message_id` to the custom header
+As an example, let's redefine `message_id` to a custom header:
 
 
 === "Kafka"
-    ``` python linenums="1" hl_lines="8-14 17 28"
+    ``` python linenums="1" hl_lines="9-15 18 28"
     {!> docs_src/getting_started/serialization/parser_kafka.py !}
     ```
 
 === "RabbitMQ"
-    ``` python linenums="1" hl_lines="8-14 17 28"
+    ``` python linenums="1" hl_lines="9-15 18 28"
     {!> docs_src/getting_started/serialization/parser_rabbit.py !}
     ```

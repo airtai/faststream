@@ -4,6 +4,7 @@ from typing import (
     Any,
     Awaitable,
     Callable,
+    Dict,
     Generic,
     List,
     Optional,
@@ -34,8 +35,9 @@ from faststream.broker.types import (
     WrappedReturn,
 )
 from faststream.broker.wrapper import HandlerCallWrapper
-from faststream.exceptions import StopConsume
+from faststream.exceptions import HandlerException, StopConsume
 from faststream.types import SendableMessage
+from faststream.utils.context.main import context
 from faststream.utils.functions import to_async
 
 
@@ -87,6 +89,7 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
     def __init__(
         self,
         *,
+        log_context_builder: Callable[[StreamMessage[Any]], Dict[str, str]],
         description: Optional[str] = None,
         title: Optional[str] = None,
     ):
@@ -104,6 +107,7 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
         # AsyncAPI information
         self._description = description
         self._title = title
+        self.log_context_builder = log_context_builder
 
     @override
     @property
@@ -245,6 +249,7 @@ class AsyncHandler(BaseHandler[MsgType]):
         result: Optional[WrappedReturn[SendableMessage]] = None
         result_msg: SendableMessage = None
 
+        logged = False
         async with AsyncExitStack() as stack:
             gl_middlewares: List[BaseMiddleware] = []
 
@@ -263,6 +268,12 @@ class AsyncHandler(BaseHandler[MsgType]):
 
                 # TODO: add parser & decoder cashes
                 message = await parser(msg)
+
+                if not logged:
+                    log_context_tag = context.set_local(
+                        "log_context", self.log_context_builder(message)
+                    )
+
                 message.decoded_body = await decoder(message)
                 message.processed = processed
 
@@ -308,15 +319,25 @@ class AsyncHandler(BaseHandler[MsgType]):
 
                     except StopConsume:
                         await self.close()
-                        return None
+                        handler.trigger()
+
+                    except HandlerException as e:
+                        handler.trigger()
+                        raise e
+
+                    except Exception as e:
+                        handler.trigger(error=e)
+                        raise e
 
                     else:
+                        handler.trigger(result=result[0] if result else None)
                         message.processed = processed = True
                         if IS_OPTIMIZED:  # pragma: no cover
                             break
 
             assert processed, "You have to consume message"  # nosec B101
 
+        context.reset_local("log_context", log_context_tag)
         return result_msg
 
     @abstractmethod

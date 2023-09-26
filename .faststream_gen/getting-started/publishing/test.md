@@ -1,13 +1,13 @@
 # Publisher Testing
 
-If you are working with Publisher object (decorator/direct), you able to check outcoming message too
+If you are working with a Publisher object (either decorator or direct), you can check outgoing messages as well. There are several testing features available:
 
-* in-memory TestClient
-* publishing (show error raising)
-* check incoming message body
-* note about mock clearing after context exit
+* In-memory TestClient
+* Publishing (including error handling)
+* Checking the incoming message body
+* Note about mock clearing after the context exits
 
-Base application
+## Base application
 
 === "Decorator"
 === "Kafka"
@@ -31,7 +31,7 @@ Base application
     {!> docs_src/getting_started/publishing/direct_rabbit.py[ln:7-11] !}
     ```
 
-Testing
+## Testing
 
 === "Kafka"
     ```python linenums="1"
@@ -43,5 +43,5 @@ Testing
     {!> docs_src/getting_started/publishing/object_rabbit_testing.py [ln:1-3,7-12] !}
     ```
 
-* test with real broker
-* wait consumer called
+* Testing with a real broker
+* Waiting for the consumer to be called

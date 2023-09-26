@@ -8,6 +8,7 @@ from nats.js import JetStreamContext
 
 from faststream._compat import override
 from faststream.broker.handler import AsyncHandler
+from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.parsers import resolve_custom_func
 from faststream.broker.types import (
@@ -29,6 +30,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
     def __init__(
         self,
         subject: str,
+        log_context_builder: Callable[[StreamMessage[Any]], Dict[str, str]],
         queue: str = "",
         stream: Optional[JsStream] = None,
         extra_options: Optional[Dict[str, Any]] = None,
@@ -43,6 +45,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         self.extra_options = extra_options or {}
 
         super().__init__(
+            log_context_builder=log_context_builder,
             description=description,
             title=title,
         )
