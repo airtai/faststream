@@ -1,10 +1,9 @@
 import pytest
+from fastapi.testclient import TestClient
 
 from faststream.kafka import TestKafkaBroker
-from faststream.rabbit import TestRabbitBroker
 from faststream.nats import TestNatsBroker
-
-from fastapi.testclient import TestClient
+from faststream.rabbit import TestRabbitBroker
 
 
 @pytest.mark.asyncio

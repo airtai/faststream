@@ -41,6 +41,16 @@ from faststream.rabbit.annotations import (
 )
 ```
 
+* *NATS* aliases
+
+```python
+from faststream.rabbit.annotations import (
+    Logger, ContextRepo, NatsMessage,
+    NatsBroker, NatsProducer, NatsJsProducer,
+    Client, JsClient,
+)
+```
+
 To use them, simply import and use them as subscriber argument annotations.
 
 {!> includes/getting_started/context/existed_annotations.md !}

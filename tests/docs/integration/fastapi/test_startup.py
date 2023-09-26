@@ -1,15 +1,14 @@
 import pytest
+from fastapi.testclient import TestClient
 
 from faststream.kafka import TestKafkaBroker
-from faststream.rabbit import TestRabbitBroker
 from faststream.nats import TestNatsBroker
-
-from fastapi.testclient import TestClient
+from faststream.rabbit import TestRabbitBroker
 
 
 @pytest.mark.asyncio
 async def test_fastapi_kafka_startup():
-    from docs.docs_src.integrations.fastapi.startup_kafka import app, router, hello
+    from docs.docs_src.integrations.fastapi.startup_kafka import app, hello, router
 
     @router.subscriber("test")
     async def handler():
@@ -22,7 +21,7 @@ async def test_fastapi_kafka_startup():
 
 @pytest.mark.asyncio
 async def test_fastapi_rabbit_startup():
-    from docs.docs_src.integrations.fastapi.startup_rabbit import app, router, hello
+    from docs.docs_src.integrations.fastapi.startup_rabbit import app, hello, router
 
     @router.subscriber("test")
     async def handler():
@@ -35,7 +34,7 @@ async def test_fastapi_rabbit_startup():
 
 @pytest.mark.asyncio
 async def test_fastapi_nats_startup():
-    from docs.docs_src.integrations.fastapi.startup_nats import app, router, hello
+    from docs.docs_src.integrations.fastapi.startup_nats import app, hello, router
 
     @router.subscriber("test")
     async def handler():

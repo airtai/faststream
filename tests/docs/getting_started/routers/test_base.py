@@ -2,8 +2,8 @@ import pytest
 
 from faststream import TestApp
 from faststream.kafka import TestKafkaBroker
-from faststream.rabbit import TestRabbitBroker
 from faststream.nats import TestNatsBroker
+from faststream.rabbit import TestRabbitBroker
 
 
 @pytest.mark.asyncio

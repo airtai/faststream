@@ -6,19 +6,18 @@ from docs.docs_src.getting_started.subscription.real_testing_kafka import (
 from docs.docs_src.getting_started.subscription.real_testing_kafka import (
     test_validation_error as test_validation_error_k,
 )
-from docs.docs_src.getting_started.subscription.real_testing_rabbit import (
-    test_handle as test_handle_r,
-)
-from docs.docs_src.getting_started.subscription.real_testing_rabbit import (
-    test_validation_error as test_validation_error_r,
-)
 from docs.docs_src.getting_started.subscription.real_testing_nats import (
     test_handle as test_handle_n,
 )
 from docs.docs_src.getting_started.subscription.real_testing_nats import (
     test_validation_error as test_validation_error_n,
 )
-
+from docs.docs_src.getting_started.subscription.real_testing_rabbit import (
+    test_handle as test_handle_r,
+)
+from docs.docs_src.getting_started.subscription.real_testing_rabbit import (
+    test_validation_error as test_validation_error_r,
+)
 
 pytest.mark.kafka(test_handle_k)
 pytest.mark.kafka(test_validation_error_k)
