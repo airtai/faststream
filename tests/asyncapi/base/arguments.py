@@ -353,19 +353,25 @@ class FastAPICompatible:
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
-        payload = schema["components"]["schemas"]
+        assert (
+            len(list(schema["components"]["messages"].values())[0]["payload"]["oneOf"])
+            == 2
+        )
 
-        for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
-            assert v == {
-                "oneOf": {
-                    "HandleTestIdPayload": {
-                        "title": "HandleTestIdPayload",
-                        "type": "integer",
-                    },
-                    "HandleTestMsgPayload": {"title": "HandleTestMsgPayload"},
-                }
-            }
+        items = list(schema["components"]["schemas"].items())
+
+        assert items[0] == (
+            IsStr(regex=r"Handle\w*Payload"),
+            {
+                "title": "HandleTestIdPayload",
+                "type": "integer",
+            },
+        )
+
+        assert items[1] == (
+            IsStr(regex=r"Handle\w*Payload"),
+            {"title": "HandleTestMsgPayload"},
+        )
 
 
 class ArgumentsTestcase(FastAPICompatible):

@@ -1,4 +1,4 @@
-from typing import Any, Dict, Union
+from typing import Any, Dict, List, Union
 
 from faststream._compat import is_installed
 from faststream.app import FastStream
@@ -41,30 +41,22 @@ def get_app_schema(app: Union[FastStream, "StreamRouter[Any]"]) -> Schema:
             m = ch.subscribe.message
 
             if isinstance(m, Message):
-                p = m.payload
-                p_title = p.get("title", f"{channel_name}Payload")
-                payloads[p_title] = p
-                m.payload = {"$ref": f"#/components/schemas/{p_title}"}
-
-                assert m.title  # nosec B101
-                messages[m.title] = m
-                ch.subscribe.message = Reference(
-                    **{"$ref": f"#/components/messages/{m.title}"}
+                ch.subscribe.message = _resolve_msg_payloads(
+                    m,
+                    channel_name,
+                    payloads,
+                    messages,
                 )
 
         if ch.publish is not None:
             m = ch.publish.message
 
             if isinstance(m, Message):
-                p = m.payload
-                p_title = p.get("title", f"{channel_name}Payload")
-                payloads[p_title] = p
-                m.payload = {"$ref": f"#/components/schemas/{p_title}"}
-
-                assert m.title  # nosec B101
-                messages[m.title] = m
-                ch.publish.message = Reference(
-                    **{"$ref": f"#/components/messages/{m.title}"}
+                ch.publish.message = _resolve_msg_payloads(
+                    m,
+                    channel_name,
+                    payloads,
+                    messages,
                 )
 
     broker = app.broker
@@ -178,3 +170,28 @@ def get_app_broker_channels(
         channels.update(p.schema())
 
     return channels
+
+
+def _resolve_msg_payloads(
+    m: Message,
+    channel_name: str,
+    payloads: Dict[str, Any],
+    messages: Dict[str, Any],
+) -> Reference:
+    one_of_list: List[Reference] = []
+    for p_title, p in m.payload.get("oneOf", {}).items():
+        payloads[p_title] = p
+        one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{p_title}"}))
+
+    if not one_of_list:
+        p = m.payload
+        p_title = p.get("title", f"{channel_name}Payload")
+        payloads[p_title] = p
+        m.payload = {"$ref": f"#/components/schemas/{p_title}"}
+
+    else:
+        m.payload["oneOf"] = one_of_list
+
+    assert m.title  # nosec B101
+    messages[m.title] = m
+    return Reference(**{"$ref": f"#/components/messages/{m.title}"})
