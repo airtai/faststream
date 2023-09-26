@@ -109,6 +109,7 @@ If you want to test your application in a real environment, you shouldn't have t
     When you're using a patched broker to test your consumers, the publish method is called synchronously with a consumer one, so you need not wait until your message is consumed. But in the real broker's case, it doesn't.
 
     For this reason, you have to wait for message consumption manually with the special `#!python handler.wait_call(timeout)` method.
+    Also, inner handler exceptions will be raised in this function, not `#!python broker.publish(...)`.
 
 ### A Little Tip
 
