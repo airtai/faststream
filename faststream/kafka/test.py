@@ -6,7 +6,6 @@ from typing import Any, AsyncGenerator, Dict, Optional, Type
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
-import anyio
 from aiokafka import ConsumerRecord
 
 from faststream._compat import override
@@ -314,7 +313,10 @@ def _fake_close(
     Returns:
         None: This method does not return a value.
     """
-    broker.middlewares = [CriticalLogMiddleware(broker.logger), *broker.middlewares]
+    broker.middlewares = [
+        CriticalLogMiddleware(broker.logger, broker.log_level),
+        *broker.middlewares,
+    ]
 
     for p in broker._publishers.values():
         p.mock.reset_mock()
@@ -325,8 +327,7 @@ def _fake_close(
 
     for h in broker.handlers.values():
         for f, _, _, _, _, _ in h.calls:
-            f.mock.reset_mock()
-            f.event = anyio.Event()
+            f.refresh(with_mock=True)
 
 
 def _fake_start(broker: KafkaBroker, *args: Any, **kwargs: Any) -> None:
