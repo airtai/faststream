@@ -64,9 +64,9 @@ class NatsBroker(
         **kwargs: Any,
     ) -> None:
         super().__init__(
-            url=list(servers)
-            if isinstance(servers, Sequence)
-            else [servers],  # AsyncAPI information
+            url=[servers]
+            if isinstance(servers, str)
+            else list(servers),  # AsyncAPI information
             protocol=protocol,
             **kwargs,
         )

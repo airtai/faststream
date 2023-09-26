@@ -158,7 +158,7 @@ async def _fake_connect(self: NatsBroker, *args: Any, **kwargs: Any) -> None:
     self._js_producer = self._producer = FakeProducer(self)
 
 
-async def _fake_close(
+def _fake_close(
     broker: NatsBroker,
     exc_type: Optional[Type[BaseException]] = None,
     exc_val: Optional[BaseException] = None,

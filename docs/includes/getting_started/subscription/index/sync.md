@@ -19,3 +19,14 @@
     def handle_msg(msg_body):
         ...
     ```
+
+=== "NATS"
+    ```python
+    from faststream.nats import NatsBroker
+
+    broker = NatsBroker()
+
+    @broker.subscriber("test")  # subject name
+    def handle_msg(msg_body):
+        ...
+    ```
