@@ -77,6 +77,10 @@ That's **FastStream** in a nutshell—easy, efficient, and powerful. Whether you
 
 ---
 
+**Documentation**: <a href="https://faststream.airt.ai/" target="_blank">https://faststream.airt.ai/</a>
+
+---
+
 ## History
 
 **FastStream** is a new package based on the ideas and experiences gained from [**FastKafka**](https://github.com/airtai/fastkafka) and [**Propan**](https://github.com/lancetnik/propan). By joining our forces, we picked up the best from both packages and created a unified way to write services capable of processing streamed data regradless of the underliying protocol. We'll continue to maintain both packages, but new development will be in this project. If you are starting a new service, this package is the recommended way to do it.
