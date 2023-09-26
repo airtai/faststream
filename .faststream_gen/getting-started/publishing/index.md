@@ -9,7 +9,8 @@ It offers several use cases for publishing messages:
 * Using a publisher object decorator
 * Using a publisher object directly
 
-**FastStream** allows you to publish any JSON-serializable messages (Python types, Pydantic models, et.c.) or raw bytes.
+
+**FastStream** allows you to publish any JSON-serializable messages (Python types, Pydantic models, etc.) or raw bytes.
 
 It automatically sets up all required headers, especially the correlation_id, which is used to trace message processing pipelines across all services.
 
