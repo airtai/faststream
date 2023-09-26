@@ -38,7 +38,11 @@
   </a>
 
   <a href="https://github.com/airtai/faststream/blob/main/LICENSE" target="_blank">
-    <img src="https://img.shields.io/github/license/airtai/faststream.png" alt="Github">
+    <img src="https://img.shields.io/github/license/airtai/faststream.png" alt="License">
+  </a>
+
+  <a href="https://github.com/airtai/faststream/blob/main/CODE_OF_CONDUCT.md" target="_blank">
+    <img src="https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg" alt="Code of Conduct">
   </a>
 
   <a href="https://discord.gg/CJWmYpyFbc" target="_blank">
