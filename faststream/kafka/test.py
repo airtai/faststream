@@ -12,6 +12,7 @@ from faststream._compat import override
 from faststream.broker.middlewares import CriticalLogMiddleware
 from faststream.broker.parsers import encode_message
 from faststream.broker.test import call_handler, patch_broker_calls
+from faststream.kafka.asyncapi import Handler
 from faststream.kafka.broker import KafkaBroker
 from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.types import SendableMessage
@@ -321,7 +322,7 @@ def _fake_close(
     for p in broker._publishers.values():
         p.mock.reset_mock()
         if getattr(p, "_fake_handler", False):
-            broker.handlers.pop(p.topic, None)
+            broker.handlers.pop(Handler.get_routing_hash((p.topic,)), None)
             p._fake_handler = False
             p.mock.reset_mock()
 

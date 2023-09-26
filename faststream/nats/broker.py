@@ -327,8 +327,9 @@ class NatsBroker(
                 }
             )
 
-        handler = self.handlers[subject] = self.handlers.get(
-            subject,
+        key = Handler.get_routing_hash(subject)
+        handler = self.handlers[key] = self.handlers.get(
+            key,
             Handler(
                 subject=subject,
                 queue=queue,

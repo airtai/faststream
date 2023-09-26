@@ -85,3 +85,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         if self.subscription is not None:
             await self.subscription.unsubscribe()
             self.subscription = None
+
+    @staticmethod
+    def get_routing_hash(subject: str) -> str:
+        return subject

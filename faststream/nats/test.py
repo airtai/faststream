@@ -6,12 +6,13 @@ from typing import Any, AsyncGenerator, Dict, Optional, Type, Union
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
-import anyio
 from nats.aio.msg import Msg
 
 from faststream._compat import override
+from faststream.broker.middlewares import CriticalLogMiddleware
 from faststream.broker.parsers import encode_message
 from faststream.broker.test import call_handler, patch_broker_calls
+from faststream.nats.asyncapi import Handler
 from faststream.nats.broker import NatsBroker
 from faststream.nats.producer import NatsFastProducer
 from faststream.types import DecodedMessage, SendableMessage
@@ -32,7 +33,7 @@ class TestNatsBroker:
         if not self.with_real:
             self.broker.start = AsyncMock(wraps=partial(_fake_start, self.broker))  # type: ignore[method-assign]
             self.broker._connect = MethodType(_fake_connect, self.broker)  # type: ignore[method-assign]
-            self.broker.close = MethodType(_fake_close, self.broker)  # type: ignore[method-assign]
+            self.broker.close = AsyncMock()  # type: ignore[method-assign]
         else:
             _fake_start(self.broker)
 
@@ -41,7 +42,7 @@ class TestNatsBroker:
                 await self.broker.start()
                 yield self.broker
             finally:
-                pass
+                _fake_close(self.broker)
 
     async def __aenter__(self) -> NatsBroker:
         self._ctx = self._create_ctx()
@@ -158,42 +159,46 @@ async def _fake_connect(self: NatsBroker, *args: Any, **kwargs: Any) -> None:
 
 
 async def _fake_close(
-    self: NatsBroker,
+    broker: NatsBroker,
     exc_type: Optional[Type[BaseException]] = None,
     exc_val: Optional[BaseException] = None,
     exec_tb: Optional[TracebackType] = None,
 ) -> None:
-    for p in self._publishers.values():
+    broker.middlewares = [
+        CriticalLogMiddleware(broker.logger, broker.log_level),
+        *broker.middlewares,
+    ]
+
+    for p in broker._publishers.values():
         p.mock.reset_mock()
         if getattr(p, "_fake_handler", False):
-            self.handlers.pop(p.subject, None)
+            broker.handlers.pop(Handler.get_routing_hash(p.subject), None)
             p._fake_handler = False
             p.mock.reset_mock()
 
-    for h in self.handlers.values():
+    for h in broker.handlers.values():
         for f, _, _, _, _, _ in h.calls:
-            f.mock.reset_mock()
-            f.event = anyio.Event()
+            f.refresh(with_mock=True)
 
 
-def _fake_start(self: NatsBroker, *args: Any, **kwargs: Any) -> None:
-    for key, p in self._publishers.items():
+def _fake_start(broker: NatsBroker, *args: Any, **kwargs: Any) -> None:
+    for key, p in broker._publishers.items():
         if getattr(p, "_fake_handler", False):
             continue
 
-        handler = self.handlers.get(key)
+        handler = broker.handlers.get(key)
         if handler is not None:
             for f, _, _, _, _, _ in handler.calls:
                 f.mock.side_effect = p.mock
         else:
             p._fake_handler = True
 
-            @self.subscriber(p.subject, _raw=True)
+            @broker.subscriber(p.subject, _raw=True)
             def f(msg: Any) -> None:
                 pass
 
             p.mock = f.mock
 
-        p._producer = self._producer
+        p._producer = broker._producer
 
-    patch_broker_calls(self)
+    patch_broker_calls(broker)
