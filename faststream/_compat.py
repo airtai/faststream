@@ -5,6 +5,9 @@ import sys
 from typing import Any, Callable, Dict, List, Mapping, Optional, Type, TypeVar, Union
 
 from fast_depends._compat import PYDANTIC_V2 as PYDANTIC_V2
+from fast_depends._compat import (  # type: ignore[attr-defined]
+    PYDANTIC_VERSION as PYDANTIC_VERSION,
+)
 from fast_depends._compat import FieldInfo
 from pydantic import BaseModel
 from typing_extensions import TypedDict as TypedDict
@@ -84,14 +87,23 @@ JsonSchemaValue = Mapping[str, Any]
 
 if PYDANTIC_V2:
     from pydantic import ConfigDict as ConfigDict
-    from pydantic.annotated_handlers import (
-        GetJsonSchemaHandler as GetJsonSchemaHandler,
-    )
+
+    if PYDANTIC_VERSION >= "2.4.0":
+        from pydantic.annotated_handlers import (
+            GetJsonSchemaHandler as GetJsonSchemaHandler,
+        )
+        from pydantic_core.core_schema import (  # type: ignore[attr-defined]
+            with_info_plain_validator_function as with_info_plain_validator_function,
+        )
+    else:
+        from pydantic._internal._annotated_handlers import (  # type: ignore[no-redef]
+            GetJsonSchemaHandler as GetJsonSchemaHandler,
+        )
+        from pydantic_core.core_schema import (
+            general_plain_validator_function as with_info_plain_validator_function,
+        )
     from pydantic_core import CoreSchema as CoreSchema
     from pydantic_core import to_jsonable_python
-    from pydantic_core.core_schema import (
-        with_info_plain_validator_function as with_info_plain_validator_function,
-    )
 
     SCHEMA_FIELD = "json_schema_extra"
 
