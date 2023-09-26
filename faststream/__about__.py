@@ -1,5 +1,5 @@
 """Simple and fast framework to create message brokers based microservices"""
-__version__ = "0.1.5"
+__version__ = "0.2.0"
 
 
 INSTALL_YAML = """
