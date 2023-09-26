@@ -54,7 +54,7 @@ else:  # pragma: no cover
             source: Type[Any],
             handler: Callable[[Any], CoreSchema],
         ) -> JsonSchemaValue:
-            return with_info_plain_validator_function(cls._validate)
+            return with_info_plain_validator_function(cls._validate)  # type: ignore[no-any-return]
 
 
 class ContactDict(TypedDict, total=False):
