@@ -9,8 +9,8 @@ from faststream._compat import (
     JsonSchemaValue,
     Required,
     TypedDict,
-    with_info_plain_validator_function,
     is_installed,
+    with_info_plain_validator_function,
 )
 from faststream.log import logger
 

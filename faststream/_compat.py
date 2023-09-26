@@ -83,15 +83,25 @@ if is_installed("fastapi"):
 JsonSchemaValue = Mapping[str, Any]
 
 if PYDANTIC_V2:
+    import pydantic
     from pydantic import ConfigDict as ConfigDict
-    from pydantic.annotated_handlers import (
-        GetJsonSchemaHandler as GetJsonSchemaHandler,
-    )
+
+    if pydantic.__version__ >= "2.4.0":
+        from pydantic.annotated_handlers import (
+            GetJsonSchemaHandler as GetJsonSchemaHandler,
+        )
+        from pydantic_core.core_schema import (
+            with_info_plain_validator_function as with_info_plain_validator_function,
+        )
+    else:
+        from pydantic._internal._annotated_handlers import (
+            GetJsonSchemaHandler as GetJsonSchemaHandler,
+        )
+        from pydantic_core.core_schema import (
+            general_plain_validator_function as with_info_plain_validator_function,
+        )
     from pydantic_core import CoreSchema as CoreSchema
     from pydantic_core import to_jsonable_python
-    from pydantic_core.core_schema import (
-        with_info_plain_validator_function as with_info_plain_validator_function,
-    )
 
     SCHEMA_FIELD = "json_schema_extra"
 
