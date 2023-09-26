@@ -22,7 +22,7 @@ async def hello(m: Incoming, d=Depends(call)):
 
 @router.get("/")
 async def hello_http():
-    return "Hello, http!"
+    return "Hello, HTTP!"
 
 
 app = FastAPI(lifespan=router.lifespan_context)
