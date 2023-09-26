@@ -15,14 +15,4 @@ It automatically sets up all required headers, especially the correlation_id, wh
 
 To publish a message, simply set up the message content and a routing key:
 
-=== "Kafka"
-    ```python
-    async with KafkaBroker() as br:
-        await br.publish("message", "topic")
-    ```
-
-=== "RabbitMQ"
-    ```python
-    async with RabbitBroker() as br:
-        await br.publish("message", "queue")
-    ```
+{!> includes/getting_started/publishing/index.md !}
