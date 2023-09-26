@@ -1669,7 +1669,8 @@
 
             <details class="quote">
               <summary>Source code in <code>/home/runner/work/faststream/faststream/faststream/kafka/test.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-167">167</a></span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-166">166</a></span>
+<span class="normal"><a href="#__codelineno-0-167">167</a></span>
 <span class="normal"><a href="#__codelineno-0-168">168</a></span>
 <span class="normal"><a href="#__codelineno-0-169">169</a></span>
 <span class="normal"><a href="#__codelineno-0-170">170</a></span>
@@ -1782,122 +1783,121 @@
 <span class="normal"><a href="#__codelineno-0-277">277</a></span>
 <span class="normal"><a href="#__codelineno-0-278">278</a></span>
 <span class="normal"><a href="#__codelineno-0-279">279</a></span>
-<span class="normal"><a href="#__codelineno-0-280">280</a></span>
-<span class="normal"><a href="#__codelineno-0-281">281</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-167" name="__codelineno-0-167"></a><span class="k">class</span> <span class="nc">FakeProducer</span><span class="p">(</span><span class="n">AioKafkaFastProducer</span><span class="p">):</span>
-<a id="__codelineno-0-168" name="__codelineno-0-168"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-169" name="__codelineno-0-169"></a><span class="sd">    A fake Kafka producer for testing purposes.</span>
-<a id="__codelineno-0-170" name="__codelineno-0-170"></a>
-<a id="__codelineno-0-171" name="__codelineno-0-171"></a><span class="sd">    This class extends AioKafkaFastProducer and is used to simulate Kafka message publishing during tests.</span>
-<a id="__codelineno-0-172" name="__codelineno-0-172"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-173" name="__codelineno-0-173"></a>
-<a id="__codelineno-0-174" name="__codelineno-0-174"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">broker</span><span class="p">:</span> <span class="n">KafkaBroker</span><span class="p">):</span>
-<a id="__codelineno-0-175" name="__codelineno-0-175"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-176" name="__codelineno-0-176"></a><span class="sd">        Initialize the FakeProducer.</span>
-<a id="__codelineno-0-177" name="__codelineno-0-177"></a>
-<a id="__codelineno-0-178" name="__codelineno-0-178"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-179" name="__codelineno-0-179"></a><span class="sd">            broker (KafkaBroker): The KafkaBroker instance to associate with this FakeProducer.</span>
-<a id="__codelineno-0-180" name="__codelineno-0-180"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-181" name="__codelineno-0-181"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">broker</span> <span class="o">=</span> <span class="n">broker</span>
-<a id="__codelineno-0-182" name="__codelineno-0-182"></a>
-<a id="__codelineno-0-183" name="__codelineno-0-183"></a>    <span class="nd">@override</span>
-<a id="__codelineno-0-184" name="__codelineno-0-184"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
-<a id="__codelineno-0-185" name="__codelineno-0-185"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-186" name="__codelineno-0-186"></a>        <span class="n">message</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
-<a id="__codelineno-0-187" name="__codelineno-0-187"></a>        <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-0-188" name="__codelineno-0-188"></a>        <span class="n">key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-189" name="__codelineno-0-189"></a>        <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-190" name="__codelineno-0-190"></a>        <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-191" name="__codelineno-0-191"></a>        <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-192" name="__codelineno-0-192"></a>        <span class="n">correlation_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-193" name="__codelineno-0-193"></a>        <span class="o">*</span><span class="p">,</span>
-<a id="__codelineno-0-194" name="__codelineno-0-194"></a>        <span class="n">reply_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-195" name="__codelineno-0-195"></a>        <span class="n">rpc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<a id="__codelineno-0-196" name="__codelineno-0-196"></a>        <span class="n">rpc_timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-197" name="__codelineno-0-197"></a>        <span class="n">raise_timeout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<a id="__codelineno-0-198" name="__codelineno-0-198"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SendableMessage</span><span class="p">]:</span>
-<a id="__codelineno-0-199" name="__codelineno-0-199"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-200" name="__codelineno-0-200"></a><span class="sd">        Publish a message to the Kafka broker.</span>
-<a id="__codelineno-0-201" name="__codelineno-0-201"></a>
-<a id="__codelineno-0-202" name="__codelineno-0-202"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-203" name="__codelineno-0-203"></a><span class="sd">            message (SendableMessage): The message to be published.</span>
-<a id="__codelineno-0-204" name="__codelineno-0-204"></a><span class="sd">            topic (str): The Kafka topic to publish the message to.</span>
-<a id="__codelineno-0-205" name="__codelineno-0-205"></a><span class="sd">            key (Optional[bytes], optional): The message key. Defaults to None.</span>
-<a id="__codelineno-0-206" name="__codelineno-0-206"></a><span class="sd">            partition (Optional[int], optional): The Kafka partition to use. Defaults to None.</span>
-<a id="__codelineno-0-207" name="__codelineno-0-207"></a><span class="sd">            timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.</span>
-<a id="__codelineno-0-208" name="__codelineno-0-208"></a><span class="sd">            headers (Optional[Dict[str, str]], optional): Additional headers for the message. Defaults to None.</span>
-<a id="__codelineno-0-209" name="__codelineno-0-209"></a><span class="sd">            correlation_id (Optional[str], optional): The correlation ID for the message. Defaults to None.</span>
-<a id="__codelineno-0-210" name="__codelineno-0-210"></a><span class="sd">            reply_to (str, optional): The topic to which responses should be sent. Defaults to &quot;&quot;.</span>
-<a id="__codelineno-0-211" name="__codelineno-0-211"></a><span class="sd">            rpc (bool, optional): If True, treat the message as an RPC request. Defaults to False.</span>
-<a id="__codelineno-0-212" name="__codelineno-0-212"></a><span class="sd">            rpc_timeout (Optional[float], optional): Timeout for RPC requests. Defaults to None.</span>
-<a id="__codelineno-0-213" name="__codelineno-0-213"></a><span class="sd">            raise_timeout (bool, optional): If True, raise an exception on timeout. Defaults to False.</span>
-<a id="__codelineno-0-214" name="__codelineno-0-214"></a>
-<a id="__codelineno-0-215" name="__codelineno-0-215"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-216" name="__codelineno-0-216"></a><span class="sd">            Optional[SendableMessage]: The response message, if this was an RPC request, otherwise None.</span>
-<a id="__codelineno-0-217" name="__codelineno-0-217"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-218" name="__codelineno-0-218"></a>        <span class="n">incoming</span> <span class="o">=</span> <span class="n">build_message</span><span class="p">(</span>
-<a id="__codelineno-0-219" name="__codelineno-0-219"></a>            <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
-<a id="__codelineno-0-220" name="__codelineno-0-220"></a>            <span class="n">topic</span><span class="o">=</span><span class="n">topic</span><span class="p">,</span>
-<a id="__codelineno-0-221" name="__codelineno-0-221"></a>            <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
-<a id="__codelineno-0-222" name="__codelineno-0-222"></a>            <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
-<a id="__codelineno-0-223" name="__codelineno-0-223"></a>            <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">timestamp_ms</span><span class="p">,</span>
-<a id="__codelineno-0-224" name="__codelineno-0-224"></a>            <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
-<a id="__codelineno-0-225" name="__codelineno-0-225"></a>            <span class="n">correlation_id</span><span class="o">=</span><span class="n">correlation_id</span><span class="p">,</span>
-<a id="__codelineno-0-226" name="__codelineno-0-226"></a>            <span class="n">reply_to</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
-<a id="__codelineno-0-227" name="__codelineno-0-227"></a>        <span class="p">)</span>
-<a id="__codelineno-0-228" name="__codelineno-0-228"></a>
-<a id="__codelineno-0-229" name="__codelineno-0-229"></a>        <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  <span class="c1"># pragma: no branch</span>
-<a id="__codelineno-0-230" name="__codelineno-0-230"></a>            <span class="k">if</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">topics</span><span class="p">:</span>
-<a id="__codelineno-0-231" name="__codelineno-0-231"></a>                <span class="n">r</span> <span class="o">=</span> <span class="k">await</span> <span class="n">call_handler</span><span class="p">(</span>
-<a id="__codelineno-0-232" name="__codelineno-0-232"></a>                    <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
-<a id="__codelineno-0-233" name="__codelineno-0-233"></a>                    <span class="n">message</span><span class="o">=</span><span class="p">[</span><span class="n">incoming</span><span class="p">]</span> <span class="k">if</span> <span class="n">handler</span><span class="o">.</span><span class="n">batch</span> <span class="k">else</span> <span class="n">incoming</span><span class="p">,</span>
-<a id="__codelineno-0-234" name="__codelineno-0-234"></a>                    <span class="n">rpc</span><span class="o">=</span><span class="n">rpc</span><span class="p">,</span>
-<a id="__codelineno-0-235" name="__codelineno-0-235"></a>                    <span class="n">rpc_timeout</span><span class="o">=</span><span class="n">rpc_timeout</span><span class="p">,</span>
-<a id="__codelineno-0-236" name="__codelineno-0-236"></a>                    <span class="n">raise_timeout</span><span class="o">=</span><span class="n">raise_timeout</span><span class="p">,</span>
-<a id="__codelineno-0-237" name="__codelineno-0-237"></a>                <span class="p">)</span>
-<a id="__codelineno-0-238" name="__codelineno-0-238"></a>
-<a id="__codelineno-0-239" name="__codelineno-0-239"></a>                <span class="k">if</span> <span class="n">rpc</span><span class="p">:</span>  <span class="c1"># pragma: no branch</span>
-<a id="__codelineno-0-240" name="__codelineno-0-240"></a>                    <span class="k">return</span> <span class="n">r</span>
-<a id="__codelineno-0-241" name="__codelineno-0-241"></a>
-<a id="__codelineno-0-242" name="__codelineno-0-242"></a>        <span class="k">return</span> <span class="kc">None</span>
-<a id="__codelineno-0-243" name="__codelineno-0-243"></a>
-<a id="__codelineno-0-244" name="__codelineno-0-244"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">publish_batch</span><span class="p">(</span>
-<a id="__codelineno-0-245" name="__codelineno-0-245"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-246" name="__codelineno-0-246"></a>        <span class="o">*</span><span class="n">msgs</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
-<a id="__codelineno-0-247" name="__codelineno-0-247"></a>        <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-0-248" name="__codelineno-0-248"></a>        <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-249" name="__codelineno-0-249"></a>        <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-250" name="__codelineno-0-250"></a>        <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-251" name="__codelineno-0-251"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-252" name="__codelineno-0-252"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-253" name="__codelineno-0-253"></a><span class="sd">        Publish a batch of messages to the Kafka broker.</span>
-<a id="__codelineno-0-254" name="__codelineno-0-254"></a>
-<a id="__codelineno-0-255" name="__codelineno-0-255"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-256" name="__codelineno-0-256"></a><span class="sd">            *msgs (SendableMessage): Variable number of messages to be published.</span>
-<a id="__codelineno-0-257" name="__codelineno-0-257"></a><span class="sd">            topic (str): The Kafka topic to publish the messages to.</span>
-<a id="__codelineno-0-258" name="__codelineno-0-258"></a><span class="sd">            partition (Optional[int], optional): The Kafka partition to use. Defaults to None.</span>
-<a id="__codelineno-0-259" name="__codelineno-0-259"></a><span class="sd">            timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.</span>
-<a id="__codelineno-0-260" name="__codelineno-0-260"></a><span class="sd">            headers (Optional[Dict[str, str]], optional): Additional headers for the messages. Defaults to None.</span>
-<a id="__codelineno-0-261" name="__codelineno-0-261"></a>
-<a id="__codelineno-0-262" name="__codelineno-0-262"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-263" name="__codelineno-0-263"></a><span class="sd">            None: This method does not return a value.</span>
-<a id="__codelineno-0-264" name="__codelineno-0-264"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-265" name="__codelineno-0-265"></a>        <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  <span class="c1"># pragma: no branch</span>
-<a id="__codelineno-0-266" name="__codelineno-0-266"></a>            <span class="k">if</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">topics</span><span class="p">:</span>
-<a id="__codelineno-0-267" name="__codelineno-0-267"></a>                <span class="k">await</span> <span class="n">call_handler</span><span class="p">(</span>
-<a id="__codelineno-0-268" name="__codelineno-0-268"></a>                    <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
-<a id="__codelineno-0-269" name="__codelineno-0-269"></a>                    <span class="n">message</span><span class="o">=</span><span class="p">[</span>
-<a id="__codelineno-0-270" name="__codelineno-0-270"></a>                        <span class="n">build_message</span><span class="p">(</span>
-<a id="__codelineno-0-271" name="__codelineno-0-271"></a>                            <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
-<a id="__codelineno-0-272" name="__codelineno-0-272"></a>                            <span class="n">topic</span><span class="o">=</span><span class="n">topic</span><span class="p">,</span>
-<a id="__codelineno-0-273" name="__codelineno-0-273"></a>                            <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
-<a id="__codelineno-0-274" name="__codelineno-0-274"></a>                            <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">timestamp_ms</span><span class="p">,</span>
-<a id="__codelineno-0-275" name="__codelineno-0-275"></a>                            <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
-<a id="__codelineno-0-276" name="__codelineno-0-276"></a>                        <span class="p">)</span>
-<a id="__codelineno-0-277" name="__codelineno-0-277"></a>                        <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">msgs</span>
-<a id="__codelineno-0-278" name="__codelineno-0-278"></a>                    <span class="p">],</span>
-<a id="__codelineno-0-279" name="__codelineno-0-279"></a>                <span class="p">)</span>
-<a id="__codelineno-0-280" name="__codelineno-0-280"></a>
-<a id="__codelineno-0-281" name="__codelineno-0-281"></a>        <span class="k">return</span> <span class="kc">None</span>
+<span class="normal"><a href="#__codelineno-0-280">280</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-166" name="__codelineno-0-166"></a><span class="k">class</span> <span class="nc">FakeProducer</span><span class="p">(</span><span class="n">AioKafkaFastProducer</span><span class="p">):</span>
+<a id="__codelineno-0-167" name="__codelineno-0-167"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-168" name="__codelineno-0-168"></a><span class="sd">    A fake Kafka producer for testing purposes.</span>
+<a id="__codelineno-0-169" name="__codelineno-0-169"></a>
+<a id="__codelineno-0-170" name="__codelineno-0-170"></a><span class="sd">    This class extends AioKafkaFastProducer and is used to simulate Kafka message publishing during tests.</span>
+<a id="__codelineno-0-171" name="__codelineno-0-171"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-172" name="__codelineno-0-172"></a>
+<a id="__codelineno-0-173" name="__codelineno-0-173"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">broker</span><span class="p">:</span> <span class="n">KafkaBroker</span><span class="p">):</span>
+<a id="__codelineno-0-174" name="__codelineno-0-174"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-175" name="__codelineno-0-175"></a><span class="sd">        Initialize the FakeProducer.</span>
+<a id="__codelineno-0-176" name="__codelineno-0-176"></a>
+<a id="__codelineno-0-177" name="__codelineno-0-177"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-178" name="__codelineno-0-178"></a><span class="sd">            broker (KafkaBroker): The KafkaBroker instance to associate with this FakeProducer.</span>
+<a id="__codelineno-0-179" name="__codelineno-0-179"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-180" name="__codelineno-0-180"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">broker</span> <span class="o">=</span> <span class="n">broker</span>
+<a id="__codelineno-0-181" name="__codelineno-0-181"></a>
+<a id="__codelineno-0-182" name="__codelineno-0-182"></a>    <span class="nd">@override</span>
+<a id="__codelineno-0-183" name="__codelineno-0-183"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
+<a id="__codelineno-0-184" name="__codelineno-0-184"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-185" name="__codelineno-0-185"></a>        <span class="n">message</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
+<a id="__codelineno-0-186" name="__codelineno-0-186"></a>        <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-187" name="__codelineno-0-187"></a>        <span class="n">key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-188" name="__codelineno-0-188"></a>        <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-189" name="__codelineno-0-189"></a>        <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-190" name="__codelineno-0-190"></a>        <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-191" name="__codelineno-0-191"></a>        <span class="n">correlation_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-192" name="__codelineno-0-192"></a>        <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-0-193" name="__codelineno-0-193"></a>        <span class="n">reply_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-194" name="__codelineno-0-194"></a>        <span class="n">rpc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-195" name="__codelineno-0-195"></a>        <span class="n">rpc_timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-196" name="__codelineno-0-196"></a>        <span class="n">raise_timeout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-197" name="__codelineno-0-197"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SendableMessage</span><span class="p">]:</span>
+<a id="__codelineno-0-198" name="__codelineno-0-198"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-199" name="__codelineno-0-199"></a><span class="sd">        Publish a message to the Kafka broker.</span>
+<a id="__codelineno-0-200" name="__codelineno-0-200"></a>
+<a id="__codelineno-0-201" name="__codelineno-0-201"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-202" name="__codelineno-0-202"></a><span class="sd">            message (SendableMessage): The message to be published.</span>
+<a id="__codelineno-0-203" name="__codelineno-0-203"></a><span class="sd">            topic (str): The Kafka topic to publish the message to.</span>
+<a id="__codelineno-0-204" name="__codelineno-0-204"></a><span class="sd">            key (Optional[bytes], optional): The message key. Defaults to None.</span>
+<a id="__codelineno-0-205" name="__codelineno-0-205"></a><span class="sd">            partition (Optional[int], optional): The Kafka partition to use. Defaults to None.</span>
+<a id="__codelineno-0-206" name="__codelineno-0-206"></a><span class="sd">            timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.</span>
+<a id="__codelineno-0-207" name="__codelineno-0-207"></a><span class="sd">            headers (Optional[Dict[str, str]], optional): Additional headers for the message. Defaults to None.</span>
+<a id="__codelineno-0-208" name="__codelineno-0-208"></a><span class="sd">            correlation_id (Optional[str], optional): The correlation ID for the message. Defaults to None.</span>
+<a id="__codelineno-0-209" name="__codelineno-0-209"></a><span class="sd">            reply_to (str, optional): The topic to which responses should be sent. Defaults to &quot;&quot;.</span>
+<a id="__codelineno-0-210" name="__codelineno-0-210"></a><span class="sd">            rpc (bool, optional): If True, treat the message as an RPC request. Defaults to False.</span>
+<a id="__codelineno-0-211" name="__codelineno-0-211"></a><span class="sd">            rpc_timeout (Optional[float], optional): Timeout for RPC requests. Defaults to None.</span>
+<a id="__codelineno-0-212" name="__codelineno-0-212"></a><span class="sd">            raise_timeout (bool, optional): If True, raise an exception on timeout. Defaults to False.</span>
+<a id="__codelineno-0-213" name="__codelineno-0-213"></a>
+<a id="__codelineno-0-214" name="__codelineno-0-214"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-215" name="__codelineno-0-215"></a><span class="sd">            Optional[SendableMessage]: The response message, if this was an RPC request, otherwise None.</span>
+<a id="__codelineno-0-216" name="__codelineno-0-216"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-217" name="__codelineno-0-217"></a>        <span class="n">incoming</span> <span class="o">=</span> <span class="n">build_message</span><span class="p">(</span>
+<a id="__codelineno-0-218" name="__codelineno-0-218"></a>            <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
+<a id="__codelineno-0-219" name="__codelineno-0-219"></a>            <span class="n">topic</span><span class="o">=</span><span class="n">topic</span><span class="p">,</span>
+<a id="__codelineno-0-220" name="__codelineno-0-220"></a>            <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
+<a id="__codelineno-0-221" name="__codelineno-0-221"></a>            <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
+<a id="__codelineno-0-222" name="__codelineno-0-222"></a>            <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">timestamp_ms</span><span class="p">,</span>
+<a id="__codelineno-0-223" name="__codelineno-0-223"></a>            <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+<a id="__codelineno-0-224" name="__codelineno-0-224"></a>            <span class="n">correlation_id</span><span class="o">=</span><span class="n">correlation_id</span><span class="p">,</span>
+<a id="__codelineno-0-225" name="__codelineno-0-225"></a>            <span class="n">reply_to</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
+<a id="__codelineno-0-226" name="__codelineno-0-226"></a>        <span class="p">)</span>
+<a id="__codelineno-0-227" name="__codelineno-0-227"></a>
+<a id="__codelineno-0-228" name="__codelineno-0-228"></a>        <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  <span class="c1"># pragma: no branch</span>
+<a id="__codelineno-0-229" name="__codelineno-0-229"></a>            <span class="k">if</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">topics</span><span class="p">:</span>
+<a id="__codelineno-0-230" name="__codelineno-0-230"></a>                <span class="n">r</span> <span class="o">=</span> <span class="k">await</span> <span class="n">call_handler</span><span class="p">(</span>
+<a id="__codelineno-0-231" name="__codelineno-0-231"></a>                    <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
+<a id="__codelineno-0-232" name="__codelineno-0-232"></a>                    <span class="n">message</span><span class="o">=</span><span class="p">[</span><span class="n">incoming</span><span class="p">]</span> <span class="k">if</span> <span class="n">handler</span><span class="o">.</span><span class="n">batch</span> <span class="k">else</span> <span class="n">incoming</span><span class="p">,</span>
+<a id="__codelineno-0-233" name="__codelineno-0-233"></a>                    <span class="n">rpc</span><span class="o">=</span><span class="n">rpc</span><span class="p">,</span>
+<a id="__codelineno-0-234" name="__codelineno-0-234"></a>                    <span class="n">rpc_timeout</span><span class="o">=</span><span class="n">rpc_timeout</span><span class="p">,</span>
+<a id="__codelineno-0-235" name="__codelineno-0-235"></a>                    <span class="n">raise_timeout</span><span class="o">=</span><span class="n">raise_timeout</span><span class="p">,</span>
+<a id="__codelineno-0-236" name="__codelineno-0-236"></a>                <span class="p">)</span>
+<a id="__codelineno-0-237" name="__codelineno-0-237"></a>
+<a id="__codelineno-0-238" name="__codelineno-0-238"></a>                <span class="k">if</span> <span class="n">rpc</span><span class="p">:</span>  <span class="c1"># pragma: no branch</span>
+<a id="__codelineno-0-239" name="__codelineno-0-239"></a>                    <span class="k">return</span> <span class="n">r</span>
+<a id="__codelineno-0-240" name="__codelineno-0-240"></a>
+<a id="__codelineno-0-241" name="__codelineno-0-241"></a>        <span class="k">return</span> <span class="kc">None</span>
+<a id="__codelineno-0-242" name="__codelineno-0-242"></a>
+<a id="__codelineno-0-243" name="__codelineno-0-243"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">publish_batch</span><span class="p">(</span>
+<a id="__codelineno-0-244" name="__codelineno-0-244"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-245" name="__codelineno-0-245"></a>        <span class="o">*</span><span class="n">msgs</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
+<a id="__codelineno-0-246" name="__codelineno-0-246"></a>        <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-247" name="__codelineno-0-247"></a>        <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-248" name="__codelineno-0-248"></a>        <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-249" name="__codelineno-0-249"></a>        <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-250" name="__codelineno-0-250"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-251" name="__codelineno-0-251"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-252" name="__codelineno-0-252"></a><span class="sd">        Publish a batch of messages to the Kafka broker.</span>
+<a id="__codelineno-0-253" name="__codelineno-0-253"></a>
+<a id="__codelineno-0-254" name="__codelineno-0-254"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-255" name="__codelineno-0-255"></a><span class="sd">            *msgs (SendableMessage): Variable number of messages to be published.</span>
+<a id="__codelineno-0-256" name="__codelineno-0-256"></a><span class="sd">            topic (str): The Kafka topic to publish the messages to.</span>
+<a id="__codelineno-0-257" name="__codelineno-0-257"></a><span class="sd">            partition (Optional[int], optional): The Kafka partition to use. Defaults to None.</span>
+<a id="__codelineno-0-258" name="__codelineno-0-258"></a><span class="sd">            timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.</span>
+<a id="__codelineno-0-259" name="__codelineno-0-259"></a><span class="sd">            headers (Optional[Dict[str, str]], optional): Additional headers for the messages. Defaults to None.</span>
+<a id="__codelineno-0-260" name="__codelineno-0-260"></a>
+<a id="__codelineno-0-261" name="__codelineno-0-261"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-262" name="__codelineno-0-262"></a><span class="sd">            None: This method does not return a value.</span>
+<a id="__codelineno-0-263" name="__codelineno-0-263"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-264" name="__codelineno-0-264"></a>        <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  <span class="c1"># pragma: no branch</span>
+<a id="__codelineno-0-265" name="__codelineno-0-265"></a>            <span class="k">if</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">topics</span><span class="p">:</span>
+<a id="__codelineno-0-266" name="__codelineno-0-266"></a>                <span class="k">await</span> <span class="n">call_handler</span><span class="p">(</span>
+<a id="__codelineno-0-267" name="__codelineno-0-267"></a>                    <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
+<a id="__codelineno-0-268" name="__codelineno-0-268"></a>                    <span class="n">message</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-0-269" name="__codelineno-0-269"></a>                        <span class="n">build_message</span><span class="p">(</span>
+<a id="__codelineno-0-270" name="__codelineno-0-270"></a>                            <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
+<a id="__codelineno-0-271" name="__codelineno-0-271"></a>                            <span class="n">topic</span><span class="o">=</span><span class="n">topic</span><span class="p">,</span>
+<a id="__codelineno-0-272" name="__codelineno-0-272"></a>                            <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
+<a id="__codelineno-0-273" name="__codelineno-0-273"></a>                            <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">timestamp_ms</span><span class="p">,</span>
+<a id="__codelineno-0-274" name="__codelineno-0-274"></a>                            <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+<a id="__codelineno-0-275" name="__codelineno-0-275"></a>                        <span class="p">)</span>
+<a id="__codelineno-0-276" name="__codelineno-0-276"></a>                        <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">msgs</span>
+<a id="__codelineno-0-277" name="__codelineno-0-277"></a>                    <span class="p">],</span>
+<a id="__codelineno-0-278" name="__codelineno-0-278"></a>                <span class="p">)</span>
+<a id="__codelineno-0-279" name="__codelineno-0-279"></a>
+<a id="__codelineno-0-280" name="__codelineno-0-280"></a>        <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
             </details>
 
@@ -2200,7 +2200,8 @@
 
           <details class="quote">
             <summary>Source code in <code>/home/runner/work/faststream/faststream/faststream/kafka/test.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-183">183</a></span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-182">182</a></span>
+<span class="normal"><a href="#__codelineno-0-183">183</a></span>
 <span class="normal"><a href="#__codelineno-0-184">184</a></span>
 <span class="normal"><a href="#__codelineno-0-185">185</a></span>
 <span class="normal"><a href="#__codelineno-0-186">186</a></span>
@@ -2258,67 +2259,66 @@
 <span class="normal"><a href="#__codelineno-0-238">238</a></span>
 <span class="normal"><a href="#__codelineno-0-239">239</a></span>
 <span class="normal"><a href="#__codelineno-0-240">240</a></span>
-<span class="normal"><a href="#__codelineno-0-241">241</a></span>
-<span class="normal"><a href="#__codelineno-0-242">242</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-183" name="__codelineno-0-183"></a><span class="nd">@override</span>
-<a id="__codelineno-0-184" name="__codelineno-0-184"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
-<a id="__codelineno-0-185" name="__codelineno-0-185"></a>    <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-186" name="__codelineno-0-186"></a>    <span class="n">message</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
-<a id="__codelineno-0-187" name="__codelineno-0-187"></a>    <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-0-188" name="__codelineno-0-188"></a>    <span class="n">key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-189" name="__codelineno-0-189"></a>    <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-190" name="__codelineno-0-190"></a>    <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-191" name="__codelineno-0-191"></a>    <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-192" name="__codelineno-0-192"></a>    <span class="n">correlation_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-193" name="__codelineno-0-193"></a>    <span class="o">*</span><span class="p">,</span>
-<a id="__codelineno-0-194" name="__codelineno-0-194"></a>    <span class="n">reply_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-195" name="__codelineno-0-195"></a>    <span class="n">rpc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<a id="__codelineno-0-196" name="__codelineno-0-196"></a>    <span class="n">rpc_timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-197" name="__codelineno-0-197"></a>    <span class="n">raise_timeout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<a id="__codelineno-0-198" name="__codelineno-0-198"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SendableMessage</span><span class="p">]:</span>
-<a id="__codelineno-0-199" name="__codelineno-0-199"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-200" name="__codelineno-0-200"></a><span class="sd">    Publish a message to the Kafka broker.</span>
-<a id="__codelineno-0-201" name="__codelineno-0-201"></a>
-<a id="__codelineno-0-202" name="__codelineno-0-202"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-203" name="__codelineno-0-203"></a><span class="sd">        message (SendableMessage): The message to be published.</span>
-<a id="__codelineno-0-204" name="__codelineno-0-204"></a><span class="sd">        topic (str): The Kafka topic to publish the message to.</span>
-<a id="__codelineno-0-205" name="__codelineno-0-205"></a><span class="sd">        key (Optional[bytes], optional): The message key. Defaults to None.</span>
-<a id="__codelineno-0-206" name="__codelineno-0-206"></a><span class="sd">        partition (Optional[int], optional): The Kafka partition to use. Defaults to None.</span>
-<a id="__codelineno-0-207" name="__codelineno-0-207"></a><span class="sd">        timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.</span>
-<a id="__codelineno-0-208" name="__codelineno-0-208"></a><span class="sd">        headers (Optional[Dict[str, str]], optional): Additional headers for the message. Defaults to None.</span>
-<a id="__codelineno-0-209" name="__codelineno-0-209"></a><span class="sd">        correlation_id (Optional[str], optional): The correlation ID for the message. Defaults to None.</span>
-<a id="__codelineno-0-210" name="__codelineno-0-210"></a><span class="sd">        reply_to (str, optional): The topic to which responses should be sent. Defaults to &quot;&quot;.</span>
-<a id="__codelineno-0-211" name="__codelineno-0-211"></a><span class="sd">        rpc (bool, optional): If True, treat the message as an RPC request. Defaults to False.</span>
-<a id="__codelineno-0-212" name="__codelineno-0-212"></a><span class="sd">        rpc_timeout (Optional[float], optional): Timeout for RPC requests. Defaults to None.</span>
-<a id="__codelineno-0-213" name="__codelineno-0-213"></a><span class="sd">        raise_timeout (bool, optional): If True, raise an exception on timeout. Defaults to False.</span>
-<a id="__codelineno-0-214" name="__codelineno-0-214"></a>
-<a id="__codelineno-0-215" name="__codelineno-0-215"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-0-216" name="__codelineno-0-216"></a><span class="sd">        Optional[SendableMessage]: The response message, if this was an RPC request, otherwise None.</span>
-<a id="__codelineno-0-217" name="__codelineno-0-217"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-218" name="__codelineno-0-218"></a>    <span class="n">incoming</span> <span class="o">=</span> <span class="n">build_message</span><span class="p">(</span>
-<a id="__codelineno-0-219" name="__codelineno-0-219"></a>        <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
-<a id="__codelineno-0-220" name="__codelineno-0-220"></a>        <span class="n">topic</span><span class="o">=</span><span class="n">topic</span><span class="p">,</span>
-<a id="__codelineno-0-221" name="__codelineno-0-221"></a>        <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
-<a id="__codelineno-0-222" name="__codelineno-0-222"></a>        <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
-<a id="__codelineno-0-223" name="__codelineno-0-223"></a>        <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">timestamp_ms</span><span class="p">,</span>
-<a id="__codelineno-0-224" name="__codelineno-0-224"></a>        <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
-<a id="__codelineno-0-225" name="__codelineno-0-225"></a>        <span class="n">correlation_id</span><span class="o">=</span><span class="n">correlation_id</span><span class="p">,</span>
-<a id="__codelineno-0-226" name="__codelineno-0-226"></a>        <span class="n">reply_to</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
-<a id="__codelineno-0-227" name="__codelineno-0-227"></a>    <span class="p">)</span>
-<a id="__codelineno-0-228" name="__codelineno-0-228"></a>
-<a id="__codelineno-0-229" name="__codelineno-0-229"></a>    <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  <span class="c1"># pragma: no branch</span>
-<a id="__codelineno-0-230" name="__codelineno-0-230"></a>        <span class="k">if</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">topics</span><span class="p">:</span>
-<a id="__codelineno-0-231" name="__codelineno-0-231"></a>            <span class="n">r</span> <span class="o">=</span> <span class="k">await</span> <span class="n">call_handler</span><span class="p">(</span>
-<a id="__codelineno-0-232" name="__codelineno-0-232"></a>                <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
-<a id="__codelineno-0-233" name="__codelineno-0-233"></a>                <span class="n">message</span><span class="o">=</span><span class="p">[</span><span class="n">incoming</span><span class="p">]</span> <span class="k">if</span> <span class="n">handler</span><span class="o">.</span><span class="n">batch</span> <span class="k">else</span> <span class="n">incoming</span><span class="p">,</span>
-<a id="__codelineno-0-234" name="__codelineno-0-234"></a>                <span class="n">rpc</span><span class="o">=</span><span class="n">rpc</span><span class="p">,</span>
-<a id="__codelineno-0-235" name="__codelineno-0-235"></a>                <span class="n">rpc_timeout</span><span class="o">=</span><span class="n">rpc_timeout</span><span class="p">,</span>
-<a id="__codelineno-0-236" name="__codelineno-0-236"></a>                <span class="n">raise_timeout</span><span class="o">=</span><span class="n">raise_timeout</span><span class="p">,</span>
-<a id="__codelineno-0-237" name="__codelineno-0-237"></a>            <span class="p">)</span>
-<a id="__codelineno-0-238" name="__codelineno-0-238"></a>
-<a id="__codelineno-0-239" name="__codelineno-0-239"></a>            <span class="k">if</span> <span class="n">rpc</span><span class="p">:</span>  <span class="c1"># pragma: no branch</span>
-<a id="__codelineno-0-240" name="__codelineno-0-240"></a>                <span class="k">return</span> <span class="n">r</span>
-<a id="__codelineno-0-241" name="__codelineno-0-241"></a>
-<a id="__codelineno-0-242" name="__codelineno-0-242"></a>    <span class="k">return</span> <span class="kc">None</span>
+<span class="normal"><a href="#__codelineno-0-241">241</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-182" name="__codelineno-0-182"></a><span class="nd">@override</span>
+<a id="__codelineno-0-183" name="__codelineno-0-183"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
+<a id="__codelineno-0-184" name="__codelineno-0-184"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-185" name="__codelineno-0-185"></a>    <span class="n">message</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
+<a id="__codelineno-0-186" name="__codelineno-0-186"></a>    <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-187" name="__codelineno-0-187"></a>    <span class="n">key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-188" name="__codelineno-0-188"></a>    <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-189" name="__codelineno-0-189"></a>    <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-190" name="__codelineno-0-190"></a>    <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-191" name="__codelineno-0-191"></a>    <span class="n">correlation_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-192" name="__codelineno-0-192"></a>    <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-0-193" name="__codelineno-0-193"></a>    <span class="n">reply_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-194" name="__codelineno-0-194"></a>    <span class="n">rpc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-195" name="__codelineno-0-195"></a>    <span class="n">rpc_timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-196" name="__codelineno-0-196"></a>    <span class="n">raise_timeout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-197" name="__codelineno-0-197"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SendableMessage</span><span class="p">]:</span>
+<a id="__codelineno-0-198" name="__codelineno-0-198"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-199" name="__codelineno-0-199"></a><span class="sd">    Publish a message to the Kafka broker.</span>
+<a id="__codelineno-0-200" name="__codelineno-0-200"></a>
+<a id="__codelineno-0-201" name="__codelineno-0-201"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-202" name="__codelineno-0-202"></a><span class="sd">        message (SendableMessage): The message to be published.</span>
+<a id="__codelineno-0-203" name="__codelineno-0-203"></a><span class="sd">        topic (str): The Kafka topic to publish the message to.</span>
+<a id="__codelineno-0-204" name="__codelineno-0-204"></a><span class="sd">        key (Optional[bytes], optional): The message key. Defaults to None.</span>
+<a id="__codelineno-0-205" name="__codelineno-0-205"></a><span class="sd">        partition (Optional[int], optional): The Kafka partition to use. Defaults to None.</span>
+<a id="__codelineno-0-206" name="__codelineno-0-206"></a><span class="sd">        timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.</span>
+<a id="__codelineno-0-207" name="__codelineno-0-207"></a><span class="sd">        headers (Optional[Dict[str, str]], optional): Additional headers for the message. Defaults to None.</span>
+<a id="__codelineno-0-208" name="__codelineno-0-208"></a><span class="sd">        correlation_id (Optional[str], optional): The correlation ID for the message. Defaults to None.</span>
+<a id="__codelineno-0-209" name="__codelineno-0-209"></a><span class="sd">        reply_to (str, optional): The topic to which responses should be sent. Defaults to &quot;&quot;.</span>
+<a id="__codelineno-0-210" name="__codelineno-0-210"></a><span class="sd">        rpc (bool, optional): If True, treat the message as an RPC request. Defaults to False.</span>
+<a id="__codelineno-0-211" name="__codelineno-0-211"></a><span class="sd">        rpc_timeout (Optional[float], optional): Timeout for RPC requests. Defaults to None.</span>
+<a id="__codelineno-0-212" name="__codelineno-0-212"></a><span class="sd">        raise_timeout (bool, optional): If True, raise an exception on timeout. Defaults to False.</span>
+<a id="__codelineno-0-213" name="__codelineno-0-213"></a>
+<a id="__codelineno-0-214" name="__codelineno-0-214"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-215" name="__codelineno-0-215"></a><span class="sd">        Optional[SendableMessage]: The response message, if this was an RPC request, otherwise None.</span>
+<a id="__codelineno-0-216" name="__codelineno-0-216"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-217" name="__codelineno-0-217"></a>    <span class="n">incoming</span> <span class="o">=</span> <span class="n">build_message</span><span class="p">(</span>
+<a id="__codelineno-0-218" name="__codelineno-0-218"></a>        <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
+<a id="__codelineno-0-219" name="__codelineno-0-219"></a>        <span class="n">topic</span><span class="o">=</span><span class="n">topic</span><span class="p">,</span>
+<a id="__codelineno-0-220" name="__codelineno-0-220"></a>        <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
+<a id="__codelineno-0-221" name="__codelineno-0-221"></a>        <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
+<a id="__codelineno-0-222" name="__codelineno-0-222"></a>        <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">timestamp_ms</span><span class="p">,</span>
+<a id="__codelineno-0-223" name="__codelineno-0-223"></a>        <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+<a id="__codelineno-0-224" name="__codelineno-0-224"></a>        <span class="n">correlation_id</span><span class="o">=</span><span class="n">correlation_id</span><span class="p">,</span>
+<a id="__codelineno-0-225" name="__codelineno-0-225"></a>        <span class="n">reply_to</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
+<a id="__codelineno-0-226" name="__codelineno-0-226"></a>    <span class="p">)</span>
+<a id="__codelineno-0-227" name="__codelineno-0-227"></a>
+<a id="__codelineno-0-228" name="__codelineno-0-228"></a>    <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  <span class="c1"># pragma: no branch</span>
+<a id="__codelineno-0-229" name="__codelineno-0-229"></a>        <span class="k">if</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">topics</span><span class="p">:</span>
+<a id="__codelineno-0-230" name="__codelineno-0-230"></a>            <span class="n">r</span> <span class="o">=</span> <span class="k">await</span> <span class="n">call_handler</span><span class="p">(</span>
+<a id="__codelineno-0-231" name="__codelineno-0-231"></a>                <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
+<a id="__codelineno-0-232" name="__codelineno-0-232"></a>                <span class="n">message</span><span class="o">=</span><span class="p">[</span><span class="n">incoming</span><span class="p">]</span> <span class="k">if</span> <span class="n">handler</span><span class="o">.</span><span class="n">batch</span> <span class="k">else</span> <span class="n">incoming</span><span class="p">,</span>
+<a id="__codelineno-0-233" name="__codelineno-0-233"></a>                <span class="n">rpc</span><span class="o">=</span><span class="n">rpc</span><span class="p">,</span>
+<a id="__codelineno-0-234" name="__codelineno-0-234"></a>                <span class="n">rpc_timeout</span><span class="o">=</span><span class="n">rpc_timeout</span><span class="p">,</span>
+<a id="__codelineno-0-235" name="__codelineno-0-235"></a>                <span class="n">raise_timeout</span><span class="o">=</span><span class="n">raise_timeout</span><span class="p">,</span>
+<a id="__codelineno-0-236" name="__codelineno-0-236"></a>            <span class="p">)</span>
+<a id="__codelineno-0-237" name="__codelineno-0-237"></a>
+<a id="__codelineno-0-238" name="__codelineno-0-238"></a>            <span class="k">if</span> <span class="n">rpc</span><span class="p">:</span>  <span class="c1"># pragma: no branch</span>
+<a id="__codelineno-0-239" name="__codelineno-0-239"></a>                <span class="k">return</span> <span class="n">r</span>
+<a id="__codelineno-0-240" name="__codelineno-0-240"></a>
+<a id="__codelineno-0-241" name="__codelineno-0-241"></a>    <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -2483,7 +2483,8 @@
 
           <details class="quote">
             <summary>Source code in <code>/home/runner/work/faststream/faststream/faststream/kafka/test.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-244">244</a></span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-243">243</a></span>
+<span class="normal"><a href="#__codelineno-0-244">244</a></span>
 <span class="normal"><a href="#__codelineno-0-245">245</a></span>
 <span class="normal"><a href="#__codelineno-0-246">246</a></span>
 <span class="normal"><a href="#__codelineno-0-247">247</a></span>
@@ -2519,45 +2520,44 @@
 <span class="normal"><a href="#__codelineno-0-277">277</a></span>
 <span class="normal"><a href="#__codelineno-0-278">278</a></span>
 <span class="normal"><a href="#__codelineno-0-279">279</a></span>
-<span class="normal"><a href="#__codelineno-0-280">280</a></span>
-<span class="normal"><a href="#__codelineno-0-281">281</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-244" name="__codelineno-0-244"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">publish_batch</span><span class="p">(</span>
-<a id="__codelineno-0-245" name="__codelineno-0-245"></a>    <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-246" name="__codelineno-0-246"></a>    <span class="o">*</span><span class="n">msgs</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
-<a id="__codelineno-0-247" name="__codelineno-0-247"></a>    <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-0-248" name="__codelineno-0-248"></a>    <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-249" name="__codelineno-0-249"></a>    <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-250" name="__codelineno-0-250"></a>    <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-251" name="__codelineno-0-251"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-252" name="__codelineno-0-252"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-253" name="__codelineno-0-253"></a><span class="sd">    Publish a batch of messages to the Kafka broker.</span>
-<a id="__codelineno-0-254" name="__codelineno-0-254"></a>
-<a id="__codelineno-0-255" name="__codelineno-0-255"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-256" name="__codelineno-0-256"></a><span class="sd">        *msgs (SendableMessage): Variable number of messages to be published.</span>
-<a id="__codelineno-0-257" name="__codelineno-0-257"></a><span class="sd">        topic (str): The Kafka topic to publish the messages to.</span>
-<a id="__codelineno-0-258" name="__codelineno-0-258"></a><span class="sd">        partition (Optional[int], optional): The Kafka partition to use. Defaults to None.</span>
-<a id="__codelineno-0-259" name="__codelineno-0-259"></a><span class="sd">        timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.</span>
-<a id="__codelineno-0-260" name="__codelineno-0-260"></a><span class="sd">        headers (Optional[Dict[str, str]], optional): Additional headers for the messages. Defaults to None.</span>
-<a id="__codelineno-0-261" name="__codelineno-0-261"></a>
-<a id="__codelineno-0-262" name="__codelineno-0-262"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-0-263" name="__codelineno-0-263"></a><span class="sd">        None: This method does not return a value.</span>
-<a id="__codelineno-0-264" name="__codelineno-0-264"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-265" name="__codelineno-0-265"></a>    <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  <span class="c1"># pragma: no branch</span>
-<a id="__codelineno-0-266" name="__codelineno-0-266"></a>        <span class="k">if</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">topics</span><span class="p">:</span>
-<a id="__codelineno-0-267" name="__codelineno-0-267"></a>            <span class="k">await</span> <span class="n">call_handler</span><span class="p">(</span>
-<a id="__codelineno-0-268" name="__codelineno-0-268"></a>                <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
-<a id="__codelineno-0-269" name="__codelineno-0-269"></a>                <span class="n">message</span><span class="o">=</span><span class="p">[</span>
-<a id="__codelineno-0-270" name="__codelineno-0-270"></a>                    <span class="n">build_message</span><span class="p">(</span>
-<a id="__codelineno-0-271" name="__codelineno-0-271"></a>                        <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
-<a id="__codelineno-0-272" name="__codelineno-0-272"></a>                        <span class="n">topic</span><span class="o">=</span><span class="n">topic</span><span class="p">,</span>
-<a id="__codelineno-0-273" name="__codelineno-0-273"></a>                        <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
-<a id="__codelineno-0-274" name="__codelineno-0-274"></a>                        <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">timestamp_ms</span><span class="p">,</span>
-<a id="__codelineno-0-275" name="__codelineno-0-275"></a>                        <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
-<a id="__codelineno-0-276" name="__codelineno-0-276"></a>                    <span class="p">)</span>
-<a id="__codelineno-0-277" name="__codelineno-0-277"></a>                    <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">msgs</span>
-<a id="__codelineno-0-278" name="__codelineno-0-278"></a>                <span class="p">],</span>
-<a id="__codelineno-0-279" name="__codelineno-0-279"></a>            <span class="p">)</span>
-<a id="__codelineno-0-280" name="__codelineno-0-280"></a>
-<a id="__codelineno-0-281" name="__codelineno-0-281"></a>    <span class="k">return</span> <span class="kc">None</span>
+<span class="normal"><a href="#__codelineno-0-280">280</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-243" name="__codelineno-0-243"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">publish_batch</span><span class="p">(</span>
+<a id="__codelineno-0-244" name="__codelineno-0-244"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-245" name="__codelineno-0-245"></a>    <span class="o">*</span><span class="n">msgs</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
+<a id="__codelineno-0-246" name="__codelineno-0-246"></a>    <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-247" name="__codelineno-0-247"></a>    <span class="n">partition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-248" name="__codelineno-0-248"></a>    <span class="n">timestamp_ms</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-249" name="__codelineno-0-249"></a>    <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-250" name="__codelineno-0-250"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-251" name="__codelineno-0-251"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-252" name="__codelineno-0-252"></a><span class="sd">    Publish a batch of messages to the Kafka broker.</span>
+<a id="__codelineno-0-253" name="__codelineno-0-253"></a>
+<a id="__codelineno-0-254" name="__codelineno-0-254"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-255" name="__codelineno-0-255"></a><span class="sd">        *msgs (SendableMessage): Variable number of messages to be published.</span>
+<a id="__codelineno-0-256" name="__codelineno-0-256"></a><span class="sd">        topic (str): The Kafka topic to publish the messages to.</span>
+<a id="__codelineno-0-257" name="__codelineno-0-257"></a><span class="sd">        partition (Optional[int], optional): The Kafka partition to use. Defaults to None.</span>
+<a id="__codelineno-0-258" name="__codelineno-0-258"></a><span class="sd">        timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.</span>
+<a id="__codelineno-0-259" name="__codelineno-0-259"></a><span class="sd">        headers (Optional[Dict[str, str]], optional): Additional headers for the messages. Defaults to None.</span>
+<a id="__codelineno-0-260" name="__codelineno-0-260"></a>
+<a id="__codelineno-0-261" name="__codelineno-0-261"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-262" name="__codelineno-0-262"></a><span class="sd">        None: This method does not return a value.</span>
+<a id="__codelineno-0-263" name="__codelineno-0-263"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-264" name="__codelineno-0-264"></a>    <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  <span class="c1"># pragma: no branch</span>
+<a id="__codelineno-0-265" name="__codelineno-0-265"></a>        <span class="k">if</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">handler</span><span class="o">.</span><span class="n">topics</span><span class="p">:</span>
+<a id="__codelineno-0-266" name="__codelineno-0-266"></a>            <span class="k">await</span> <span class="n">call_handler</span><span class="p">(</span>
+<a id="__codelineno-0-267" name="__codelineno-0-267"></a>                <span class="n">handler</span><span class="o">=</span><span class="n">handler</span><span class="p">,</span>
+<a id="__codelineno-0-268" name="__codelineno-0-268"></a>                <span class="n">message</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-0-269" name="__codelineno-0-269"></a>                    <span class="n">build_message</span><span class="p">(</span>
+<a id="__codelineno-0-270" name="__codelineno-0-270"></a>                        <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
+<a id="__codelineno-0-271" name="__codelineno-0-271"></a>                        <span class="n">topic</span><span class="o">=</span><span class="n">topic</span><span class="p">,</span>
+<a id="__codelineno-0-272" name="__codelineno-0-272"></a>                        <span class="n">partition</span><span class="o">=</span><span class="n">partition</span><span class="p">,</span>
+<a id="__codelineno-0-273" name="__codelineno-0-273"></a>                        <span class="n">timestamp_ms</span><span class="o">=</span><span class="n">timestamp_ms</span><span class="p">,</span>
+<a id="__codelineno-0-274" name="__codelineno-0-274"></a>                        <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+<a id="__codelineno-0-275" name="__codelineno-0-275"></a>                    <span class="p">)</span>
+<a id="__codelineno-0-276" name="__codelineno-0-276"></a>                    <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">msgs</span>
+<a id="__codelineno-0-277" name="__codelineno-0-277"></a>                <span class="p">],</span>
+<a id="__codelineno-0-278" name="__codelineno-0-278"></a>            <span class="p">)</span>
+<a id="__codelineno-0-279" name="__codelineno-0-279"></a>
+<a id="__codelineno-0-280" name="__codelineno-0-280"></a>    <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
