@@ -1,13 +1,13 @@
 from fastapi import FastAPI
 
-from faststream.kafka.fastapi import KafkaRouter
+from faststream.nats.fastapi import NatsRouter
 
-router = KafkaRouter("localhost:9092")
+router = NatsRouter("nats://localhost:4222")
 
 
 @router.subscriber("test")
 async def hello(msg: str):
-    return {"response": "Hello, Kafka!"}
+    return {"response": "Hello, NATS!"}
 
 
 @router.after_startup

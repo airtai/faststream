@@ -1,9 +1,9 @@
 from fastapi import Depends, FastAPI
 from pydantic import BaseModel
 
-from faststream.rabbit.fastapi import RabbitRouter
+from faststream.nats.fastapi import NatsRouter
 
-router = RabbitRouter("amqp://guest:guest@localhost:5672/")
+router = NatsRouter("nats://localhost:4222")
 
 
 class Incoming(BaseModel):
@@ -17,7 +17,7 @@ def call():
 @router.subscriber("test")
 @router.publisher("response")
 async def hello(m: Incoming, d=Depends(call)):
-    return {"response": "Hello, Rabbit!"}
+    return {"response": "Hello, NATS!"}
 
 
 @router.get("/")

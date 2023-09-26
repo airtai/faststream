@@ -6,7 +6,7 @@ from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
 @pytest.mark.kafka
-class TestRouter(FastAPITestcase):
+class TestRabbitRouter(FastAPITestcase):
     router_class = KafkaRouter
 
 

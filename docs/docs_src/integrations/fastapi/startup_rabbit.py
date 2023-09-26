@@ -7,7 +7,7 @@ router = RabbitRouter("amqp://guest:guest@localhost:5672/")
 
 @router.subscriber("test")
 async def hello(msg: str):
-    return {"response": "Hello, world!"}
+    return {"response": "Hello, Rabbit!"}
 
 
 @router.after_startup

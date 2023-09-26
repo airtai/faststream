@@ -17,7 +17,7 @@ def call():
 @router.subscriber("test")
 @router.publisher("response")
 async def hello(m: Incoming, d=Depends(call)):
-    return {"response": "Hello, world!"}
+    return {"response": "Hello, Kafka!"}
 
 
 @router.get("/")

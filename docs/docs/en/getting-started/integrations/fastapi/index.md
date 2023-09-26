@@ -34,11 +34,11 @@ Inside each router, there is a broker. You can easily access it if you need to s
 
 {! includes/getting_started/integrations/fastapi/2.md !}
 
-You can use the following `Depends` to access the broker if you want to use it at different parts of your program:
+Also, you can use the following `Depends` to access the broker if you want to use it at different parts of your program:
 
 {! includes/getting_started/integrations/fastapi/3.md !}
 
-Or you can access the broker from a **FastAPI** application state:
+Or you can access the broker from a **FastAPI** application state (if you not disable `#!python setup_state=False`):
 
 ```python
 from fastapi import Request
