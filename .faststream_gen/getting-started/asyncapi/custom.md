@@ -61,7 +61,7 @@ async def on_input_data(msg):
 
 faststream docs serve basic:app
 
-![HTML-page](../../../assets/img/AsyncAPI-basic-html-short.png)
+![HTML-page](../../../assets/img/AsyncAPI-custom-info.png)
 
 Now, your documentation reflects your application's identity and purpose.
 
@@ -93,7 +93,7 @@ async def on_input_data(msg):
 
 faststream docs serve basic:app
 
-![HTML-page](../../../assets/img/AsyncAPI-basic-html-short.png)
+![HTML-page](../../../assets/img/AsyncAPI-custom-broker.png)
 
 Your AsyncAPI documentation now provides clear insights into the messaging infrastructure you're using.
 
@@ -124,7 +124,7 @@ async def on_input_data(msg):
 
 faststream docs serve basic:app
 
-![HTML-page](../../../assets/img/AsyncAPI-basic-html-short.png)
+![HTML-page](../../../assets/img/AsyncAPI-custom-handler.png)
 
 Now, your documentation is enriched with meaningful details about each message handler.
 
@@ -166,7 +166,7 @@ async def on_input_data(msg: DataBasic) -> DataBasic:
 
 faststream docs serve basic:app
 
-![HTML-page](../../../assets/img/AsyncAPI-basic-html-short.png)
+![HTML-page](../../../assets/img/AsyncAPI-payload-info.png)
 
 Your AsyncAPI documentation now showcases well-structured payload information.
 

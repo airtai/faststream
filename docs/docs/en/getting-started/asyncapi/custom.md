@@ -31,9 +31,9 @@ Copy the following code in your basic.py file, we have highligted the additional
     {!> docs_src/getting_started/asyncapi/asyncapi_customization/custom_info.py !}
 ```
 
-Now, when you run ```{!> docs_src/getting_started/asyncapi/serve.py [ln:17] !}``` you should see the following documentation:
+Now, when you run ```{!> docs_src/getting_started/asyncapi/serve.py [ln:17] !}``` you should see the following in your general app documentation:
 
-![HTML-page](../../../assets/img/AsyncAPI-basic-html-short.png)
+![HTML-page](../../../assets/img/AsyncAPI-custom-info.png)
 
 Now, your documentation reflects your application's identity and purpose.
 
@@ -52,9 +52,9 @@ Copy the following code in your basic.py file, we have highligted the additional
     {!> docs_src/getting_started/asyncapi/asyncapi_customization/custom_broker.py !}
 ```
 
-Now, when you run ```{!> docs_src/getting_started/asyncapi/serve.py [ln:17] !}``` you should see the following documentation:
+Now, when you run ```{!> docs_src/getting_started/asyncapi/serve.py [ln:17] !}``` you should see the description in your broker documentation:
 
-![HTML-page](../../../assets/img/AsyncAPI-basic-html-short.png)
+![HTML-page](../../../assets/img/AsyncAPI-custom-broker.png)
 
 Your AsyncAPI documentation now provides clear insights into the messaging infrastructure you're using.
 
@@ -73,9 +73,9 @@ Copy the following code in your basic.py file, we have highligted the additional
     {!> docs_src/getting_started/asyncapi/asyncapi_customization/custom_handler.py !}
 ```
 
-Now, when you run ```{!> docs_src/getting_started/asyncapi/serve.py [ln:17] !}``` you should see the following documentation:
+Now, when you run ```{!> docs_src/getting_started/asyncapi/serve.py [ln:17] !}``` you should see the descriptions in your handlers:
 
-![HTML-page](../../../assets/img/AsyncAPI-basic-html-short.png)
+![HTML-page](../../../assets/img/AsyncAPI-custom-handler.png)
 
 Now, your documentation is enriched with meaningful details about each message handler.
 
@@ -95,9 +95,9 @@ Copy the following code in your basic.py file, we have highligted the creation o
     {!> docs_src/getting_started/asyncapi/asyncapi_customization/payload_info.py !}
 ```
 
-Now, when you run ```{!> docs_src/getting_started/asyncapi/serve.py [ln:17] !}``` you should see the following documentation:
+Now, when you run ```{!> docs_src/getting_started/asyncapi/serve.py [ln:17] !}``` you should see the payload schema described in your documentation:
 
-![HTML-page](../../../assets/img/AsyncAPI-basic-html-short.png)
+![HTML-page](../../../assets/img/AsyncAPI-payload-info.png)
 
 Your AsyncAPI documentation now showcases well-structured payload information.
 
