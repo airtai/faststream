@@ -5,7 +5,6 @@ site_url: https://faststream.airt.ai/
 site_author: airt
 copyright: '&copy; 2023 <a href="https://airt.ai/" target="_blank" rel="noopener">airt</a>'
 
-dev_addr: 0.0.0.0:8000
 docs_dir: docs
 
 watch:
@@ -70,8 +69,8 @@ plugins:
       handlers:
         python:
           paths: [..]
-          # import:
-          # - https://docs.python.org/3/objects.inv
+          import:
+          - https://docs.python.org/3/objects.inv
           options:
             filters:
               - "!^_"
@@ -92,9 +91,9 @@ plugins:
           default: true
           name: en - English
           build: true
-  # - git-revision-date-localized: # show page edition date
-  #     enabled: !ENV [CI, false]
-  #     type: timeago
+  - git-revision-date-localized: # show page edition date
+      enabled: !ENV [CI, false]
+      type: timeago
   - literate-nav:                # .md importable navigation
       nav_file: SUMMARY.md
 
