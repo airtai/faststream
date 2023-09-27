@@ -5,8 +5,8 @@ from faststream._compat import Annotated
 from faststream.annotations import ContextRepo, Logger, NoCast
 from faststream.nats.broker import NatsBroker as NB
 from faststream.nats.message import NatsMessage as NM
-from faststream.utils.context import Context
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
+from faststream.utils.context import Context
 
 __all__ = (
     "Logger",

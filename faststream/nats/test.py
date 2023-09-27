@@ -24,9 +24,15 @@ class TestNatsBroker:
     # This is set so pytest ignores this class
     __test__ = False
 
-    def __init__(self, broker: NatsBroker, with_real: bool = False):
+    def __init__(
+        self,
+        broker: NatsBroker,
+        with_real: bool = False,
+        connect_only: bool = False,
+    ):
         self.with_real = with_real
         self.broker = broker
+        self.connect_only = connect_only
 
     @asynccontextmanager
     async def _create_ctx(self) -> AsyncGenerator[NatsBroker, None]:
@@ -39,7 +45,8 @@ class TestNatsBroker:
 
         async with self.broker:
             try:
-                await self.broker.start()
+                if not self.connect_only:
+                    await self.broker.start()
                 yield self.broker
             finally:
                 _fake_close(self.broker)
@@ -120,24 +127,23 @@ class FakeProducer(NatsFastProducer):
         for handler in self.broker.handlers.values():  # pragma: no branch
             call = False
 
-            if getattr(handler.stream, "name", None) == stream:
-                if subject == handler.subject:
-                    call = True
+            if subject == handler.subject:
+                call = True
 
-                else:
-                    call = True
+            else:
+                call = True
 
-                    for current, base in zip_longest(
-                        subject.split("."),
-                        handler.subject.split("."),
-                        fillvalue=None,
-                    ):
-                        if base == ">":
-                            break
+                for current, base in zip_longest(
+                    subject.split("."),
+                    handler.subject.split("."),
+                    fillvalue=None,
+                ):
+                    if base == ">":
+                        break
 
-                        if base != "*" and current != base:
-                            call = False
-                            break
+                    if base != "*" and current != base:
+                        call = False
+                        break
 
             if call:
                 r = await call_handler(

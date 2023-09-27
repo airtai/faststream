@@ -49,7 +49,7 @@ class NatsBroker(
     NatsLoggingMixin,
     BrokerAsyncUsecase[Msg, Client],
 ):
-    _stream: Optional[JetStreamContext]
+    stream: Optional[JetStreamContext]
 
     handlers: Dict[Subject, Handler]
     _publishers: Dict[Subject, Publisher]
@@ -75,7 +75,7 @@ class NatsBroker(
         self._producer = None
 
         # JS options
-        self._stream = None
+        self.stream = None
         self._js_producer = None
 
     async def connect(
@@ -111,7 +111,7 @@ class NatsBroker(
             parser=self._global_parser,
         )
 
-        stream = self._stream = connect.jetstream()
+        stream = self.stream = connect.jetstream()
 
         self._js_producer = NatsJSFastProducer(
             stream,
@@ -129,7 +129,7 @@ class NatsBroker(
     ) -> None:
         self._producer = None
         self._js_producer = None
-        self._stream = None
+        self.stream = None
 
         if self._connection is not None:
             await self._connection.drain()
@@ -151,13 +151,13 @@ class NatsBroker(
 
             if (is_js := stream is not None) and stream.declare:
                 try:  # pragma: no branch
-                    await self._stream.add_stream(
+                    await self.stream.add_stream(
                         config=stream.config,
                         subjects=stream.subjects,
                     )
 
                 except nats.js.errors.BadRequestError as e:
-                    old_config = (await self._stream.stream_info(stream.name)).config
+                    old_config = (await self.stream.stream_info(stream.name)).config
 
                     c = self._get_log_context(None, "")
                     if (
@@ -165,7 +165,7 @@ class NatsBroker(
                         == "stream name already in use with a different configuration"
                     ):
                         self._log(e, logging.WARNING, c)
-                        await self._stream.update_stream(
+                        await self.stream.update_stream(
                             config=stream.config,
                             subjects=tuple(
                                 set(old_config.subjects).union(stream.subjects)
@@ -186,7 +186,7 @@ class NatsBroker(
                 stream=stream.name if stream else "",
             )
             self._log(f"`{handler.name}` waiting for messages", extra=c)
-            await handler.start(self._stream if is_js else self._connection)
+            await handler.start(self.stream if is_js else self._connection)
 
     def _process_message(
         self,

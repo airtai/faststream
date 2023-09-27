@@ -13,7 +13,7 @@ async def handle():
 
 @pytest.mark.asyncio
 async def test_lifespan():
-    async with TestNatsBroker(app.broker):
+    async with TestNatsBroker(app.broker, connect_only=True):
         async with TestApp(app):
             # test something
             pass

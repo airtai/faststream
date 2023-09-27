@@ -2,8 +2,8 @@ import pytest
 
 from faststream import TestApp, context
 from faststream.kafka import TestKafkaBroker
-from faststream.rabbit import TestRabbitBroker
 from faststream.nats import TestNatsBroker
+from faststream.rabbit import TestRabbitBroker
 from tests.marks import pydanticV2
 from tests.mocks import mock_pydantic_settings_env
 

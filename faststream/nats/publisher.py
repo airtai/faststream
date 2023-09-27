@@ -34,15 +34,16 @@ class LogicPublisher(BasePublisher[Msg]):
         assert self._producer, "Please, setup `_producer` first"  # nosec B101
         assert self.subject, "You have to specify outcome subject"
 
+        extra = {
+            "reply_to": reply_to or self.reply_to,
+        }
         if self.stream is not None:
-            extra = {
-                "stream": self.stream.name,
-                "timeout": self.timeout,
-            }
-        else:
-            extra = {
-                "reply_to": reply_to or self.reply_to,
-            }
+            extra.update(
+                {
+                    "stream": self.stream.name,
+                    "timeout": self.timeout,
+                }
+            )
 
         return await self._producer.publish(
             message=message,

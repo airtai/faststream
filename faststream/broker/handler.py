@@ -249,13 +249,13 @@ class AsyncHandler(BaseHandler[MsgType]):
         result: Optional[WrappedReturn[SendableMessage]] = None
         result_msg: SendableMessage = None
 
-        logged = False
         async with AsyncExitStack() as stack:
             gl_middlewares: List[BaseMiddleware] = []
 
             for m in self.global_middlewares:
                 gl_middlewares.append(await stack.enter_async_context(m(msg)))
 
+            logged = False
             processed = False
             for handler, filter_, parser, decoder, middlewares, _ in self.calls:
                 local_middlewares: List[BaseMiddleware] = []

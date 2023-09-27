@@ -2,8 +2,8 @@ import pytest
 
 from faststream import TestApp
 from faststream.kafka import TestKafkaBroker
-from faststream.rabbit import TestRabbitBroker
 from faststream.nats import TestNatsBroker
+from faststream.rabbit import TestRabbitBroker
 
 
 @pytest.mark.asyncio
@@ -26,6 +26,7 @@ async def test_kafka_ml_lifespan():
             assert {"result": 42.0} == await broker.publish(1.0, "test", rpc=True)
 
             predict.mock.assert_called_once_with(1.0)
+
 
 @pytest.mark.asyncio
 async def test_nats_ml_lifespan():
