@@ -228,3 +228,7 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
                 if connected is False:
                     connected = True
                 await self.consume(msg)
+
+    @staticmethod
+    def get_routing_hash(topics: Sequence[str], group_id: Optional[str] = None) -> str:
+        return "".join((*topics, group_id or ""))
