@@ -1219,6 +1219,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.1.5/getting-started/dependencies/yield/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/0.1.5/getting-started/faststream-template/</loc>
+        <lastmod>2023-09-28</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.1.5/getting-started/faststream-template/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/0.1.5/getting-started/integrations/fastapi/</loc>
         <lastmod>2023-09-28</lastmod>
         <changefreq>daily</changefreq>
