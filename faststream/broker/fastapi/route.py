@@ -232,8 +232,8 @@ class StreamMessage(Request):
             """
             body = message.decoded_body
             if first_arg is not None:
-                if not isinstance(body, dict):  # pragma: no branch
-                    fastapi_body: AnyDict = {first_arg: body}
+                if not isinstance(body, dict) and not isinstance(body, list):
+                    fastapi_body: Any = {first_arg: body}
                 else:
                     fastapi_body = body
 
