@@ -3,8 +3,7 @@ on:
     push:
         branches:
             - main
-            - master
-            - 776-docs-publish-docs-for-minor-version-not-for-every-patch
+
 permissions:
     contents: write
 jobs:
