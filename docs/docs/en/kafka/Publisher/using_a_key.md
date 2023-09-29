@@ -12,17 +12,25 @@ To publish a message to a Kafka topic using a partition key, follow these steps:
 
 In your FastStream application, define the publisher using the `@KafkaBroker.publisher(...)` decorator. This decorator allows you to configure various aspects of message publishing, including the partition key.
 
+```python linenums="1"
+{!> docs_src/kafka/publish_with_partition_key/app.py [ln:17] !}
+```
+
 ### Step 2: Pass the Key
 
 When you're ready to publish a message with a specific key, simply include the `key` parameter in the `publish` function call. This key parameter is used to determine the appropriate partition for the message.
 
-Put code here
+```python linenums="1"
+{!> docs_src/kafka/publish_with_partition_key/app.py [ln:25] !}
+```
 
 ## Example Application
 
 Let's examine a complete application example that consumes messages from the **input_data** topic and publishes them with a specified key to the **output_data** topic. This example will illustrate how to incorporate partition keys into your Kafka-based applications:
 
-Put code here
+```python linenums="1"
+{!> docs_src/kafka/publish_with_partition_key/app.py [ln:1-25] !}
+```
 
 As you can see, the primary difference from standard publishing is the inclusion of the `key` parameter in the `publish` call. This key parameter is essential for controlling how Kafka partitions and processes your messages.
 
