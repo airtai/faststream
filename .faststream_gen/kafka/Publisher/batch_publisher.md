@@ -61,9 +61,25 @@ decrease_and_increase = broker.publisher("output_data", batch=True)
 
 Step 2: Publishing an Actual Batch of Messages
 
+You can publish a batch by directly calling the publisher with a batch of messages you want to publish, like shown here:
+
 ```python linenums="1"
+    await decrease_and_increase.publish(
+        Data(data=(msg.data * 0.5)), Data(data=(msg.data * 2.0))
+    )
+```
+
+Or you can decorate your processing function and return a batch of messages like shown here:
+
+```python linenums="1"
+@decrease_and_increase
+@broker.subscriber("input_data_1")
+async def on_input_data_1(msg: Data, logger: Logger) -> Tuple[Data, Data]:
+    logger.info(msg)
     return Data(data=(msg.data * 0.5)), Data(data=(msg.data * 2.0))
 ```
+
+The application in the example imelements both of these ways, feel free to use whatever option fits your needs better.
 
 ## Why publish in batches?
 

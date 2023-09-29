@@ -28,9 +28,19 @@ Step 1: Creation of the Publisher
 
 Step 2: Publishing an Actual Batch of Messages
 
+You can publish a batch by directly calling the publisher with a batch of messages you want to publish, like shown here:
+
 ```python linenums="1"
-{!> docs_src/kafka/publish_batch/app.py [ln:26] !}
+{!> docs_src/kafka/publish_batch/app.py [ln:32-34] !}
 ```
+
+Or you can decorate your processing function and return a batch of messages like shown here:
+
+```python linenums="1"
+{!> docs_src/kafka/publish_batch/app.py [ln:22-26] !}
+```
+
+The application in the example imelements both of these ways, feel free to use whatever option fits your needs better.
 
 ## Why publish in batches?
 
