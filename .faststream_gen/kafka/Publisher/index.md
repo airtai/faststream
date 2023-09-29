@@ -12,39 +12,51 @@ In this case, you can use Python primitives and `pydantic.BaseModel` to define t
 
 You can specify the topic to send by its name.
 
-```python
-import asyncio
-from faststream.kafka import KafkaBroker
+1. Create your KafkaBroker instance
 
-async def pub():
-    async with KafkaBroker() as broker:
+```python linenums="1"
+broker = KafkaBroker("localhost:9092")
+```
+
+2. Publish a message using the `publish` method
+
+```python linenums="1"
+        msg = Data(data=0.5)
+
         await broker.publish(
-            "hello_topic",
-            "hello!"
+            model_to_json(msg),
+            "input_data",
+            headers={"content-type": "application/json"},
         )
-
-asyncio.run(pub())
 ```
 
 This is the most basic way of using the KafkaBroker to publish a message.
-You can see that the broker is used as an async context maanger, which takes care of the startup and shutdown procedures for you.
 
 ## Creating a publisher object
 
 The simplest way to use a KafkaBroker for publishing has a significant limitation: your publishers won't be documented in the AsyncAPI documentation. This might be acceptable for sending occasional one-off messages. However, if you're building a comprehensive service, it's recommended to create publisher objects. These objects can then be parsed and documented in your service's AsyncAPI documentation. Let's go ahead and create those publisher objects!
 
-```python
-import asyncio
-from faststream.kafka import KafkaBroker
+1. Create your KafkaBroker instance
 
-broker = KafkaBroker()
-publisher = broker.publisher("hello_topic")
+```python linenums="1"
+broker = KafkaBroker("localhost:9092")
+```
 
-async def pub():
-    async with KafkaBroker() as broker:
-        publisher.publish("Hello!")
+2. Create a publisher instance
 
-asyncio.run(pub())
+```python linenums="1"
+prepared_publisher = broker.publisher("input_data")
+```
+
+2. Publish a message using the `publish` method of the prepared publisher
+
+```python linenums="1"
+        msg = Data(data=0.5)
+
+        await prepared_publisher.publish(
+            model_to_json(msg),
+            headers={"content-type": "application/json"},
+        )
 ```
 
 Now, when you wrap your broker into a FastStream object, the publisher will be exported to the AsyncAPI documentation.
@@ -79,6 +91,34 @@ app = FastStream(broker)
 to_output_data = broker.publisher("output_data")
 
 
+@to_output_data
+@broker.subscriber("input_data")
+async def on_input_data(msg: Data) -> Data:
+    return Data(data=msg.data + 1.0)
+```
+
+1. **Initialize the KafkaBroker instance:** Start by initializing a KafkaBroker instance with the necessary configuration, including Kafka broker address.
+
+```python linenums="1"
+broker = KafkaBroker("localhost:9092")
+```
+
+2. **Prepare your publisher object to use later as a decorator:**
+
+```python linenums="1"
+to_output_data = broker.publisher("output_data")
+```
+
+3. **Create your processing logic:** Write a function that will consume the incoming messages in the defined format and produce a response to the defined topic
+
+```python linenums="1"
+async def on_input_data(msg: Data) -> Data:
+    return Data(data=msg.data + 1.0)
+```
+
+4. **Decorate your processing function:** To connect your processing function to the desired Kafka topics you need to decorate it with `#!python @broker.subscriber` and `#!python @broker.publisher` decorators. Now, after you start your application, your processing function will be called whenever a new message in the subscribed topic is available and produce the function return value to the topic defined in the publisher decorator.
+
+```python linenums="1"
 @to_output_data
 @broker.subscriber("input_data")
 async def on_input_data(msg: Data) -> Data:
