@@ -26,8 +26,8 @@
 
 To set up your development environment, follow these steps:
 
-1. In the [FastStream Template](https://github.com/airtai/faststream-template/tree/main) repository, click on **Use this template** -> **Create a new repository**.
-   In the next screen, fill out details such as repository name, description, etc.
+1. In the [FastStream Template](https://github.com/airtai/faststream-template/tree/main) repository, click on **Use this template** -> **Create a new repository**:![use-this-template](https://github.com/airtai/faststream/assets/7011056/6e4e913c-8cd5-4e14-95dc-3bc13b6989be)
+   In the next screen, fill out details such as repository name, description, etc:![create-repo](https://github.com/airtai/faststream/assets/7011056/77734648-6356-4388-b8c4-279a38fb5f65)
 
 2. Clone this repository to your local machine:
    ```bash
