@@ -42,5 +42,10 @@ If you want to separate your application's core logic from **FastStream**'s rout
     {!> docs_src/getting_started/routers/router_delay_rabbit.py [ln:1-15] !}
     ```
 
+=== "NATS"
+    ```python linenums="1" hl_lines="2 8 13 15"
+    {!> docs_src/getting_started/routers/router_delay_nats.py [ln:1-15] !}
+    ```
+
 !!! warning
     Be careful, this way you won't be able to test your handlers with a [`mock`](../subscription/test.md) object.

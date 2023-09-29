@@ -37,7 +37,7 @@
     - [Logging](getting-started/logging.md)
     - [Config Management](getting-started/config/index.md)
 - [Kafka](kafka/index.md)
-    - [Subscription](kafka/Subscriber/index.md)
+    - [Subscribing](kafka/Subscriber/index.md)
         - [Batch Subscriber](kafka/Subscriber/batch_subscriber.md)
     - [Publishing](kafka/Publisher/index.md)
         - [Batch Publishing](kafka/Publisher/batch_publisher.md)

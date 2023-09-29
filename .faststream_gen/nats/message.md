@@ -6,7 +6,7 @@ As you know, **FastStream** serializes a message body and provides you access to
 
 You can get it in a simple way: just acces to the message object in the [Context](../getting-started/context/existed.md){.internal-link}!
 
-This message contains the required information such as:
+It contains the required information such as:
 
 * `#!python body: bytes`
 * `#!python decoded_body: Any`
@@ -16,28 +16,28 @@ This message contains the required information such as:
 * `#!python message_id: str`
 * `#!python correlation_id: str`
 
-Also, it is a **FastStream** wrapper around a native broker library message (`aio_pika.IncomingMessage` in the *RabbitMQ* case), you can access with `raw_message`.
+It is a **FastStream** wrapper around a native broker library message (`nats.aio.msg.Msg` in the *NATS* case), you can access with `raw_message`.
 
 ```python hl_lines="1 6"
-from faststream.rabbit.annotations import RabbitMessage
+from faststream.nats.annotations import NatsMessage
 
 @broker.subscriber("test")
 async def base_handler(
     body: str,
-    msg: RabbitMessage,
+    msg: NatsMessage,
 ):
     print(msg.correlation_id)
 ```
 
-Also, if you can't find the information you reqiure, you can get access directly to the wrapped `aio_pika.IncomingMessage`, which contains complete message information.
+Also, if you can't find the information you reqiure, you can get access directly to the wrapped `nats.aio.msg.Msg`, which contains complete message information.
 
 ```python hl_lines="6"
-from aio_pika import IncomingMessage
-from faststream.rabbit.annotations import RabbitMessage
+from nats.aio.msg import Msg
+from faststream.nats.annotations import NatsMessage
 
 @broker.subscriber("test")
-async def base_handler(body: str, msg: RabbitMessage):
-    raw: IncomingMessage = msg.raw_message
+async def base_handler(body: str, msg: NatsMessage):
+    raw: Msg = msg.raw_message
     print(raw)
 ```
 
