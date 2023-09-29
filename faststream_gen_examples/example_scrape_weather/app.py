@@ -2,7 +2,7 @@ import asyncio
 import json
 from datetime import datetime
 
-import requests
+import httpx
 from pydantic import BaseModel, Field, NonNegativeFloat
 
 from faststream import ContextRepo, FastStream, Logger
@@ -61,26 +61,28 @@ async def fetch_and_publish_weather(
     # Always use context: ContextRepo for storing app_is_running variable
     while context.get("app_is_running"):
         uri = f"https://api.open-meteo.com/v1/forecast?current_weather=true&latitude={latitude}&longitude={longitude}"
-        response = requests.get(uri)
+        async with httpx.AsyncClient() as client:
+            response = await client.get(uri)
 
-        if response.status_code == 200:
-            # read json response
-            raw_data = json.loads(response.content)
-            temperature = raw_data["current_weather"]["temperature"]
-            windspeed = raw_data["current_weather"]["windspeed"]
-            time = raw_data["current_weather"]["time"]
+            if response.status_code == 200:
+                # read json response
+                raw_data = json.loads(response.content)
+                temperature = raw_data["current_weather"]["temperature"]
+                windspeed = raw_data["current_weather"]["windspeed"]
+                time = raw_data["current_weather"]["time"]
 
-            new_data = Weather(
-                latitude=latitude,
-                longitude=longitude,
-                temperature=temperature,
-                windspeed=windspeed,
-                time=time,
-            )
-            key = str(latitude) + "_" + str(longitude)
-            await publisher.publish(new_data, key=key.encode("utf-8"))
-        else:
-            logger.warning(f"Failed API request {uri} at time {datetime.now()}")
+                new_data = Weather(
+                    latitude=latitude,
+                    longitude=longitude,
+                    temperature=temperature,
+                    windspeed=windspeed,
+                    time=time,
+                )
+                key = str(latitude) + "_" + str(longitude)
+                await publisher.publish(new_data, key=key.encode("utf-8"))
+            else:
+                logger.warning(f"Failed API request {uri} at time {datetime.now()}")
+
         await asyncio.sleep(time_interval)
 
 
