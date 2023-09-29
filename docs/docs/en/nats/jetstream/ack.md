@@ -4,7 +4,7 @@ As you may know, *Nats* employs a rather extensive [Acknowledgement](https://doc
 
 In most cases, **FastStream** automatically acknowledges (*acks*) messages on your behalf. When your function executes correctly, including sending all responses, a message will be acknowledged (and rejected in case of an exception).
 
-However, there are situations where you might want to use a different acknowledgement logic.
+However, there are situations where you might want to use different acknowledgement logic.
 
 ## Retries
 
@@ -29,7 +29,7 @@ async def base_handler(body: str):
 !!! tip
     For more complex error handling cases, you can use [tenacity](https://tenacity.readthedocs.io/en/latest/){.external-link target="_blank"}
 
-## Manual acknowledgement
+## Manual Acknowledgement
 
 If you want to acknowledge a message manually, you can get access directy to the message object via the [Context](../getting-started/context/existed.md){.internal-link} and call the method.
 
@@ -45,7 +45,7 @@ async def base_handler(body: str, msg: NatsMessage):
     await msg.reject()
 ```
 
-**FastStream** will see that the message was already acknowledged and will do nothing at process end.
+**FastStream** will see that the message was already acknowledged and will do nothing at the end of the process.
 
 ## Interrupt Process
 

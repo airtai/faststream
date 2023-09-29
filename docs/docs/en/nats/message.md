@@ -1,10 +1,10 @@
 # Access to Message Information
 
-As you know, **FastStream** serializes a message body and provides you access to it through function arguments. But sometimes you want access to a message_id, headers, or other meta-information.
+As you know, **FastStream** serializes a message body and provides you access to it through function arguments. But sometimes you want access to message_id, headers, or other meta-information.
 
 ## Message Access
 
-You can get it in a simple way: just acces to the message object in the [Context](../getting-started/context/existed.md){.internal-link}!
+You can get it in a simple way: just acces the message object in the [Context](../getting-started/context/existed.md){.internal-link}!
 
 It contains the required information such as:
 
@@ -16,7 +16,7 @@ It contains the required information such as:
 * `#!python message_id: str`
 * `#!python correlation_id: str`
 
-It is a **FastStream** wrapper around a native broker library message (`nats.aio.msg.Msg` in the *NATS* case), you can access with `raw_message`.
+It is a **FastStream** wrapper around a native broker library message (`nats.aio.msg.Msg` in the *NATS*' case), you can access with `raw_message`.
 
 ```python hl_lines="1 6"
 from faststream.nats.annotations import NatsMessage
@@ -43,7 +43,7 @@ async def base_handler(body: str, msg: NatsMessage):
 
 ## Message Fields Access
 
-But in the most cases, you don't need all message fields; you need to access some of them. You can use [Context Fields access](../getting-started/context/fields.md){.internal-link} feature for this reason.
+But in most cases, you don't need all message fields; you need to access some of them. You can use [Context Fields access](../getting-started/context/fields.md){.internal-link} feature for this reason.
 
 For example, you can get access to the `correlation_id` like this:
 
@@ -71,6 +71,6 @@ async def base_handler(
     print(cor_id)
 ```
 
-But this code is too long to be reused everywhere. In this case, you can use a Python [`Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated){.external-link target="_blank"} feature:
+But this code is too long to reuse everywhere. In this case, you can use a Python [`Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated){.external-link target="_blank"} feature:
 
 {!> includes/message/annotated.md !}

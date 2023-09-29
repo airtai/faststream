@@ -1,9 +1,9 @@
 # RPC over NATS
 
-Because **NATS** has zero-cost for a new subjects creation, we can easely setup a new subject consumer just for the one response message. This way your request message will be published to the one topic, and response message will be consumed from another one (temprorary subject), what allows you to use regular **FastStream RPC** syntax in the **NATS** case too.
+Because **NATS** has zero cost for creating new subjects, we can easily set up a new subject consumer just for the one response message. This way, your request message will be published to one topic, and the response message will be consumed from another one (temporary subject), which allows you to use regular **FastStream RPC** syntax in the **NATS** case too.
 
 !!! tip
-    **FastStream RPC** over **NATS** works in the *NATS-Core* and *NATS-JS* cases as well, but in the *NATS-JS* case you have to specify expected `stream` as a publish argument. 
+    **FastStream RPC** over **NATS** works in both the *NATS-Core* and *NATS-JS* cases as well, but in the *NATS-JS* case, you have to specify the expected `stream` as a publish argument.
 
 ## Blocking Request
 
@@ -11,7 +11,7 @@ Because **NATS** has zero-cost for a new subjects creation, we can easely setup 
 
 Just send a message like a regular one and get a response synchronously.
 
-It is very close to common **requests** syntax:
+It is very close to the common **requests** syntax:
 
 ``` python hl_lines="1 4"
 msg = await broker.publish(
@@ -23,8 +23,8 @@ msg = await broker.publish(
 
 Also, you have two extra options to control this behavior:
 
-* `#!python rpc_timeout: Optional[float] = 30.0` - controls how long you are waiting for a response
-* `#!python raise_timeout: bool = False` - by default, a timeout request returns `None`, but if you need to raise a `TimeoutException` directly, you can specify this option
+* `#!python rpc_timeout: Optional[float] = 30.0` - controls how long you are waiting for a response.
+* `#!python raise_timeout: bool = False` - by default, a timeout request returns `None`, but if you need to raise a `TimeoutException` directly, you can specify this option.
 
 ## Reply-To
 
