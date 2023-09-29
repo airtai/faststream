@@ -1,32 +1,32 @@
 # FastStream Template
 
-[FastStream Template](https://github.com/airtai/faststream-template/tree/main) is a versatile repository that provides a solid foundation for your Python projects. It comes with a basic application, testing infrastructure, linting scripts, and various development tools to kickstart your development process. Whether you're building a new application from scratch or want to enhance an existing one, this template will save you time and help you maintain high code quality.
+[FastStream Template](https://github.com/airtai/faststream-template/tree/main){.external-link target="_blank"} is a versatile repository that provides a solid foundation for your Python projects. It comes with a basic application, testing infrastructure, linting scripts, and various development tools to kickstart your development process. Whether you're building a new application from scratch or want to enhance an existing one, this template will save you time and help you maintain high code quality.
 
 ## Features
 
-* **Basic Application**: [FastStream Template](https://github.com/airtai/faststream-template/tree/main) includes a basic Python application as a starting point for your project. You can easily replace it with your own code.
+* **Basic Application**: [FastStream Template](https://github.com/airtai/faststream-template/tree/main){.external-link target="_blank"} includes a basic Python application as a starting point for your project. You can easily replace it with your own code.
 
-* **Testing Framework**: We've set up [`pytest`](https://pytest.org/) for running unit tests. Write your tests in the tests directory and use the provided workflow for automated testing.
+* **Testing Framework**: We've set up [`pytest`](https://pytest.org/){.external-link target="_blank"} for running unit tests. Write your tests in the tests directory and use the provided workflow for automated testing.
 
-* **Linting**: Keep your code clean and consistent with linting tools. The repository includes linting scripts and configurations for [`mypy`](https://mypy.readthedocs.io/en/stable/), [`black`](https://github.com/psf/black), [`ruff`](https://github.com/astral-sh/ruff) and [`bandit`](https://bandit.readthedocs.io/en/latest/)
+* **Linting**: Keep your code clean and consistent with linting tools. The repository includes linting scripts and configurations for [`mypy`](https://mypy.readthedocs.io/en/stable/){.external-link target="_blank"}, [`black`](https://github.com/psf/black){.external-link target="_blank"}, [`ruff`](https://github.com/astral-sh/ruff){.external-link target="_blank"} and [`bandit`](https://bandit.readthedocs.io/en/latest/){.external-link target="_blank"}
 
-* **Docker Support**: The included Dockerfile allows you to containerize your [`FastStream`](https://github.com/airtai/faststream) application. Build and run your application in a containerized environment with ease.
+* **Docker Support**: The included Dockerfile allows you to containerize your [`FastStream`](https://github.com/airtai/faststream){.external-link target="_blank"} application. Build and run your application in a containerized environment with ease.
 
-* **Dependency Management**: All application requirements and development dependencies are specified in the `pyproject.toml` file. This includes not only your project's dependencies but also configurations for various tools like [`pytest`](https://pytest.org/), [`mypy`](https://mypy.readthedocs.io/en/stable/), [`black`](https://github.com/psf/black), [`ruff`](https://github.com/astral-sh/ruff), and [`bandit`](https://bandit.readthedocs.io/en/latest/).
+* **Dependency Management**: All application requirements and development dependencies are specified in the `pyproject.toml` file. This includes not only your project's dependencies but also configurations for various tools like [`pytest`](https://pytest.org/){.external-link target="_blank"}, [`mypy`](https://mypy.readthedocs.io/en/stable/){.external-link target="_blank"}, [`black`](https://github.com/psf/black){.external-link target="_blank"}, [`ruff`](https://github.com/astral-sh/ruff){.external-link target="_blank"}, and [`bandit`](https://bandit.readthedocs.io/en/latest/){.external-link target="_blank"}.
 
-* **Continuous Integration (CI)**: [FastStream Template](https://github.com/airtai/faststream-template/tree/main) comes with three [GitHub Actions](https://github.com/features/actions) workflows under the `.github/workflows` directory:
+* **Continuous Integration (CI)**: [FastStream Template](https://github.com/airtai/faststream-template/tree/main){.external-link target="_blank"} comes with three [GitHub Actions](https://github.com/features/actions){.external-link target="_blank"} workflows under the `.github/workflows` directory:
 
-  1. **Static Analysis and Testing**: This workflow consists of two jobs. The first job runs static analysis tools ([`mypy`](https://mypy.readthedocs.io/en/stable/) and [`bandit`](https://bandit.readthedocs.io/en/latest/)) to check your code for potential issues. If successful, the second job runs [`pytest`](https://pytest.org/) to execute your test suite.
+  1. **Static Analysis and Testing**: This workflow consists of two jobs. The first job runs static analysis tools ([`mypy`](https://mypy.readthedocs.io/en/stable/){.external-link target="_blank"} and [`bandit`](https://bandit.readthedocs.io/en/latest/){.external-link target="_blank"}) to check your code for potential issues. If successful, the second job runs [`pytest`](https://pytest.org/){.external-link target="_blank"} to execute your test suite.
 
-  2. **Docker Build and Push**: This workflow automates the process of building a [`Docker`](https://www.docker.com/) image for your [`FastStream`](https://github.com/airtai/faststream) application and pushing it to the [GitHub Container Registry](https://ghcr.io).
+  2. **Docker Build and Push**: This workflow automates the process of building a [`Docker`](https://www.docker.com/){.external-link target="_blank"} image for your [`FastStream`](https://github.com/airtai/faststream){.external-link target="_blank"} application and pushing it to the [GitHub Container Registry](https://ghcr.io){.external-link target="_blank"}.
 
-  3. **AsyncAPI Documentation**: The third workflow builds [`AsyncAPI`](https://www.asyncapi.com/) documentation for your [`FastStream`](https://github.com/airtai/faststream) application and deploys it to [GitHub Pages](https://pages.github.com/). This is useful for documenting your API and making it accessible to others.
+  3. **AsyncAPI Documentation**: The third workflow builds [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} documentation for your [`FastStream`](https://github.com/airtai/faststream){.external-link target="_blank"} application and deploys it to [GitHub Pages](https://pages.github.com/){.external-link target="_blank"}. This is useful for documenting your API and making it accessible to others.
 
 ## Getting Started
 
 To set up your development environment, follow these steps:
 
-1. In the [FastStream Template](https://github.com/airtai/faststream-template/tree/main) repository, click on **Use this template** -> **Create a new repository**:![use-this-template](https://github.com/airtai/faststream/assets/7011056/6e4e913c-8cd5-4e14-95dc-3bc13b6989be)
+1. In the [FastStream Template](https://github.com/airtai/faststream-template/tree/main){.external-link target="_blank"} repository, click on **Use this template** -> **Create a new repository**:![use-this-template](https://github.com/airtai/faststream/assets/7011056/6e4e913c-8cd5-4e14-95dc-3bc13b6989be)
    In the next screen, fill out details such as repository name, description, etc:![create-repo](https://github.com/airtai/faststream/assets/7011056/77734648-6356-4388-b8c4-279a38fb5f65)
 
 2. Clone this repository to your local machine:
@@ -47,7 +47,7 @@ The application code is located in the `app/` directory. You can add new feature
 
 ## Running Tests
 
-Once you have updated tests, you can execute the tests using [`pytest`](https://pytest.org/):
+Once you have updated tests, you can execute the tests using [`pytest`](https://pytest.org/){.external-link target="_blank"}:
 
 ```bash
 pytest
@@ -55,14 +55,14 @@ pytest
 
 ## Running FastStream Application Locally
 
-To run the [`FastStream`](https://github.com/airtai/faststream) application locally, follow these steps:
+To run the [`FastStream`](https://github.com/airtai/faststream){.external-link target="_blank"} application locally, follow these steps:
 
 1. Start the Kafka Docker container locally using the provided script:
    ```bash
    ./scripts/start_kafka_broker_locally.sh
    ```
 
-2. Start the [`FastStream`](https://github.com/airtai/faststream) application with the following command:
+2. Start the [`FastStream`](https://github.com/airtai/faststream){.external-link target="_blank"} application with the following command:
    ```bash
    faststream run app.application:app --workers 1
    ```
@@ -72,7 +72,7 @@ To run the [`FastStream`](https://github.com/airtai/faststream) application loca
    ./scripts/subscribe_to_kafka_broker_locally.sh <topic_name>
    ```
 
-4. To stop the [`FastStream`](https://github.com/airtai/faststream) application, press `Ctrl+C`.
+4. To stop the [`FastStream`](https://github.com/airtai/faststream){.external-link target="_blank"} application, press `Ctrl+C`.
 
 5. Finally, stop the Kafka Docker container by running the script:
    ```bash
@@ -81,30 +81,30 @@ To run the [`FastStream`](https://github.com/airtai/faststream) application loca
 
 ## Building and Testing Docker Image Locally
 
-If you'd like to build and test the [`Docker`](https://www.docker.com/) image locally, follow these steps:
+If you'd like to build and test the [`Docker`](https://www.docker.com/){.external-link target="_blank"} image locally, follow these steps:
 
-1. Run the provided script to build the [`Docker`](https://www.docker.com/) image locally. Use the following command:
+1. Run the provided script to build the [`Docker`](https://www.docker.com/){.external-link target="_blank"} image locally. Use the following command:
    ```bash
    ./scripts/build_docker.sh <username> <repo-name>
    ```
-   This script will build the [`Docker`](https://www.docker.com/) image locally with the same name as the one built in `CI`.
+   This script will build the [`Docker`](https://www.docker.com/){.external-link target="_blank"} image locally with the same name as the one built in `CI`.
 
-2. Before starting the [`Docker`](https://www.docker.com/) container, ensure that a Kafka [`Docker`](https://www.docker.com/) container is running locally. You can start it using the provided script:
+2. Before starting the [`Docker`](https://www.docker.com/){.external-link target="_blank"} container, ensure that a Kafka [`Docker`](https://www.docker.com/){.external-link target="_blank"} container is running locally. You can start it using the provided script:
    ```bash
    ./scripts/start_kafka_broker_locally.sh
    ```
 
-3. Once Kafka is up and running, you can start the local [`Docker`](https://www.docker.com/) container using the following command:
+3. Once Kafka is up and running, you can start the local [`Docker`](https://www.docker.com/){.external-link target="_blank"} container using the following command:
    ```bash
    docker run --rm --name faststream-app --net=host ghcr.io/<username>/<repo-name>:latest
    ```
    `--rm`: This flag removes the container once it stops running, ensuring that it doesn't clutter your system with unused containers.
    `--name faststream-app`: Assigns a name to the running container, in this case, "faststream-app".
-   `--net=host`: This flag allows the [`Docker`](https://www.docker.com/) container to share the host's network namespace.
+   `--net=host`: This flag allows the [`Docker`](https://www.docker.com/){.external-link target="_blank"} container to share the host's network namespace.
 
-4. To stop the local [`Docker`](https://www.docker.com/) container, simply press `Ctrl+C` in your terminal.
+4. To stop the local [`Docker`](https://www.docker.com/){.external-link target="_blank"} container, simply press `Ctrl+C` in your terminal.
 
-5. Finally, stop the Kafka [`Docker`](https://www.docker.com/) container by running the provided script:
+5. Finally, stop the Kafka [`Docker`](https://www.docker.com/){.external-link target="_blank"} container by running the provided script:
    ```bash
    ./scripts/stop_kafka_broker_locally.sh
    ```
@@ -121,7 +121,7 @@ After making changes to the code, it's essential to ensure it adheres to coding 
 
 ## Static Analysis
 
-Static analysis tools [`mypy`](https://mypy.readthedocs.io/en/stable/) and [`bandit`](https://bandit.readthedocs.io/en/latest/) can help identify potential issues in your code. To run static analysis, use the following script:
+Static analysis tools [`mypy`](https://mypy.readthedocs.io/en/stable/){.external-link target="_blank"} and [`bandit`](https://bandit.readthedocs.io/en/latest/){.external-link target="_blank"} can help identify potential issues in your code. To run static analysis, use the following script:
 
 ```bash
 ./scripts/static-analysis.sh
@@ -131,17 +131,17 @@ If there are any static analysis errors, resolve them in your code and rerun the
 
 ## Viewing AsyncAPI Documentation
 
-[`FastStream`](https://github.com/airtai/faststream) framework supports [`AsyncAPI`](https://www.asyncapi.com/) documentation. To ensure that your changes are reflected in the [`AsyncAPI`](https://www.asyncapi.com/) documentation, follow these steps:
+[`FastStream`](https://github.com/airtai/faststream){.external-link target="_blank"} framework supports [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} documentation. To ensure that your changes are reflected in the [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} documentation, follow these steps:
 
-1. Run the following command to view the [`AsyncAPI`](https://www.asyncapi.com/) documentation:
+1. Run the following command to view the [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} documentation:
    ```bash
    faststream docs serve app.application:app
    ```
-   This command builds the [`AsyncAPI`](https://www.asyncapi.com/) specification file, generates [`AsyncAPI`](https://www.asyncapi.com/) documentation based on the specification, and serves it at `localhost:8000`.
+   This command builds the [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} specification file, generates [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} documentation based on the specification, and serves it at `localhost:8000`.
 
-2. Open your web browser and navigate to <http://localhost:8000> to view the [`AsyncAPI`](https://www.asyncapi.com/) documentation reflecting your changes.
+2. Open your web browser and navigate to <http://localhost:8000> to view the [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} documentation reflecting your changes.
 
-3. To stop the [`AsyncAPI`](https://www.asyncapi.com/) documentation server, press `Ctrl+C`.
+3. To stop the [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} documentation server, press `Ctrl+C`.
 
 ## Contributing
 
@@ -166,17 +166,17 @@ This repository is equipped with GitHub Actions that automate static analysis an
 
 This repository has three workflows, each triggered when code is pushed:
 
-1. **Tests Workflow**: This workflow is named "Tests" and consists of two jobs. The first job runs static analysis tools [`mypy`](https://mypy.readthedocs.io/en/stable/) and [`bandit`](https://bandit.readthedocs.io/en/latest/) to identify potential issues in the codebase. The second job runs tests using [`pytest`](https://pytest.org/) to ensure the functionality of the application. Both jobs run simultaneously to expedite the `CI` process.
+1. **Tests Workflow**: This workflow is named "Tests" and consists of two jobs. The first job runs static analysis tools [`mypy`](https://mypy.readthedocs.io/en/stable/){.external-link target="_blank"} and [`bandit`](https://bandit.readthedocs.io/en/latest/){.external-link target="_blank"} to identify potential issues in the codebase. The second job runs tests using [`pytest`](https://pytest.org/){.external-link target="_blank"} to ensure the functionality of the application. Both jobs run simultaneously to expedite the `CI` process.
 
-2. **Build Docker Image Workflow**: This workflow is named "Build Docker Image" and has one job. In this job, a [`Docker`](https://www.docker.com/) image is built based on the provided Dockerfile. The built image is then pushed to the [**GitHub Container Registry**](https://ghcr.io), making it available for deployment or other purposes.
+2. **Build Docker Image Workflow**: This workflow is named "Build Docker Image" and has one job. In this job, a [`Docker`](https://www.docker.com/){.external-link target="_blank"} image is built based on the provided Dockerfile. The built image is then pushed to the [**GitHub Container Registry**](https://ghcr.io){.external-link target="_blank"}, making it available for deployment or other purposes.
 
-3. **Deploy FastStream AsyncAPI Docs Workflow**: The final workflow is named "Deploy FastStream AsyncAPI Docs" and also consists of a single job. In this job, the [`AsyncAPI`](https://www.asyncapi.com/) documentation is built from the specification, and the resulting documentation is deployed to [**GitHub Pages**](https://pages.github.com/). This allows for easy access and sharing of the [`AsyncAPI`](https://www.asyncapi.com/) documentation with the project's stakeholders.
+3. **Deploy FastStream AsyncAPI Docs Workflow**: The final workflow is named "Deploy FastStream AsyncAPI Docs" and also consists of a single job. In this job, the [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} documentation is built from the specification, and the resulting documentation is deployed to [**GitHub Pages**](https://pages.github.com/){.external-link target="_blank"}. This allows for easy access and sharing of the [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} documentation with the project's stakeholders.
 
 ## Viewing AsyncAPI Documentation Hosted at GitHub Pages
 
-After the **Deploy FastStream AsyncAPI Docs** workflow in `CI` has been successfully completed, the [`AsyncAPI`](https://www.asyncapi.com/) documentation is automatically deployed to [**GitHub Pages**](https://pages.github.com/). This provides a convenient way to access and share the documentation with project stakeholders.
+After the **Deploy FastStream AsyncAPI Docs** workflow in `CI` has been successfully completed, the [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} documentation is automatically deployed to [**GitHub Pages**](https://pages.github.com/){.external-link target="_blank"}. This provides a convenient way to access and share the documentation with project stakeholders.
 
-To view the deployed [`AsyncAPI`](https://www.asyncapi.com/) documentation, open your web browser and navigate to the following URL:
+To view the deployed [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} documentation, open your web browser and navigate to the following URL:
 
 ```txt
 https://<username>.github.io/<repo-name>/
@@ -184,24 +184,24 @@ https://<username>.github.io/<repo-name>/
 
 > **_NOTE:_** Replace `<username>` with your GitHub username and `<repo-name>` with the name of your repository.
 
-You will be directed to the [**GitHub Pages**](https://pages.github.com/) site where your [`AsyncAPI`](https://www.asyncapi.com/) documentation is hosted. This hosted documentation allows you to easily share your [`AsyncAPI`](https://www.asyncapi.com/) specifications with others and provides a centralized location for reviewing the [`AsyncAPI`](https://www.asyncapi.com/) documentation.
+You will be directed to the [**GitHub Pages**](https://pages.github.com/){.external-link target="_blank"} site where your [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} documentation is hosted. This hosted documentation allows you to easily share your [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} specifications with others and provides a centralized location for reviewing the [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} documentation.
 
 ## Deploying Docker Container
 
-Once the **Build Docker Image** workflow in `CI` has successfully completed, the built [`Docker`](https://www.docker.com/) image is pushed to the [**GitHub Container Registry**](https://ghcr.io). You can then deploy this image on your server by following these steps:
+Once the **Build Docker Image** workflow in `CI` has successfully completed, the built [`Docker`](https://www.docker.com/){.external-link target="_blank"} image is pushed to the [**GitHub Container Registry**](https://ghcr.io){.external-link target="_blank"}. You can then deploy this image on your server by following these steps:
 
-1. Pull the [`Docker`](https://www.docker.com/) image from the [**GitHub Container Registry**](https://ghcr.io) to your server using the following command:
+1. Pull the [`Docker`](https://www.docker.com/){.external-link target="_blank"} image from the [**GitHub Container Registry**](https://ghcr.io){.external-link target="_blank"} to your server using the following command:
    ```bash
    docker pull ghcr.io/<username>/<repo-name>:latest
    ```
    > **_NOTE:_** Replace `<username>` with your GitHub username and `<repo-name>` with the name of your repository.
 
-2. After successfully pulling the image, start the [`Docker`](https://www.docker.com/) container using the following command:
+2. After successfully pulling the image, start the [`Docker`](https://www.docker.com/){.external-link target="_blank"} container using the following command:
    ```bash
    docker run --rm --name faststream-app --env-file /path/to/env-file ghcr.io/<username>/<repo-name>:latest
    ```
    `--rm`: This flag removes the container once it stops running, ensuring that it doesn't clutter your system with unused containers.
    `--name faststream-app`: Assigns a name to the running container, in this case, "faststream-app".
-   `--env-file /path/to/env-file`: Specifies the path to an environment file (commonly a `.env` file) that contains environment variables required by your [`FastStream`](https://github.com/airtai/faststream) application. Storing secrets and configuration in an environment file is a secure and best practice for handling sensitive information such as Kafka host, port, and authentication details.
+   `--env-file /path/to/env-file`: Specifies the path to an environment file (commonly a `.env` file) that contains environment variables required by your [`FastStream`](https://github.com/airtai/faststream){.external-link target="_blank"} application. Storing secrets and configuration in an environment file is a secure and best practice for handling sensitive information such as Kafka host, port, and authentication details.
 
-By following these steps, you can easily deploy your [`FastStream`](https://github.com/airtai/faststream) application as a [`Docker`](https://www.docker.com/) container on your server. Remember to customize the `env-file` and other environment variables as needed to suit your specific application requirements.
+By following these steps, you can easily deploy your [`FastStream`](https://github.com/airtai/faststream){.external-link target="_blank"} application as a [`Docker`](https://www.docker.com/){.external-link target="_blank"} container on your server. Remember to customize the `env-file` and other environment variables as needed to suit your specific application requirements.
