@@ -194,7 +194,7 @@ class KafkaBroker(
         await super().start()
 
         for handler in self.handlers.values():
-            c = self._get_log_context(None, handler.topics)
+            c = self._get_log_context(None, handler.topics, handler.group_id)
 
             if (name := handler.name) is True:
                 name = handler.call_name
@@ -370,7 +370,7 @@ class KafkaBroker(
         """
         super().subscriber()
 
-        self._setup_log_context(topics)
+        self._setup_log_context(topics, group_id)
 
         key = Handler.get_routing_hash(topics, group_id)
         builder = partial(
@@ -399,7 +399,11 @@ class KafkaBroker(
             key,
             Handler(
                 *topics,
-                log_context_builder=partial(self._get_log_context, topics=topics),
+                log_context_builder=partial(
+                    self._get_log_context,
+                    topics=topics,
+                    group_id=group_id,
+                ),
                 group_id=group_id,
                 client_id=self.client_id,
                 builder=builder,
