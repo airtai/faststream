@@ -17,6 +17,11 @@ As an example, let's create a subscriber for both `JSON` and non-`JSON` messages
     {!> docs_src/getting_started/subscription/filter_rabbit.py [ln:1-19] !}
     ```
 
+=== "NATS"
+    ```python linenums="1" hl_lines="10 17"
+    {!> docs_src/getting_started/subscription/filter_nats.py [ln:1-19] !}
+    ```
+
 !!! note
     A subscriber without a filter is a default subscriber. It consumes messages that have not been consumed yet.
 
@@ -32,6 +37,11 @@ For now, the following message will be delivered to the `handle` function
     {!> docs_src/getting_started/subscription/filter_rabbit.py [ln:24-27] !}
     ```
 
+=== "NATS"
+    ```python hl_lines="2"
+    {!> docs_src/getting_started/subscription/filter_nats.py [ln:24-27] !}
+    ```
+
 And this one will be delivered to the `default_handler`
 
 === "Kafka"
@@ -42,4 +52,9 @@ And this one will be delivered to the `default_handler`
 === "RabbitMQ"
     ```python hl_lines="2"
     {!> docs_src/getting_started/subscription/filter_rabbit.py [ln:29-32] !}
+    ```
+
+=== "NATS"
+    ```python hl_lines="2"
+    {!> docs_src/getting_started/subscription/filter_nats.py [ln:29-32] !}
     ```

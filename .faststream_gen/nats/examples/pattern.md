@@ -11,7 +11,29 @@ Thus, *NATS* can independently balance the load on queue consumers. You can incr
 ## Example
 
 ```python linenums="1"
-{!> docs_src/nats/pattern.py !}
+from faststream import FastStream, Logger
+from faststream.nats import NatsBroker
+
+broker = NatsBroker()
+app = FastStream(broker)
+
+@broker.subscriber("*.info", "workers")
+async def base_handler1(logger: Logger):
+    logger.info("base_handler1")
+
+@broker.subscriber("*.info", "workers")
+async def base_handler2(logger: Logger):
+    logger.info("base_handler2")
+
+@broker.subscriber("*.error", "workers")
+async def base_handler3(logger: Logger):
+    logger.info("base_handler3")
+
+@app.after_startup
+async def send_messages():
+    await broker.publish("", "logs.info")  # handlers: 1 or 2
+    await broker.publish("", "logs.info")  # handlers: 1 or 2
+    await broker.publish("", "logs.error") # handlers: 3
 ```
 
 ### Consumer Announcement
@@ -19,7 +41,17 @@ Thus, *NATS* can independently balance the load on queue consumers. You can incr
 To begin with, we have announced several consumers for two `subjects`: `*.info` and `*.error`:
 
 ```python linenums="7" hl_lines="1 5 9"
-{!> docs_src/nats/pattern.py [ln:7-17]!}
+@broker.subscriber("*.info", "workers")
+async def base_handler1(logger: Logger):
+    logger.info("base_handler1")
+
+@broker.subscriber("*.info", "workers")
+async def base_handler2(logger: Logger):
+    logger.info("base_handler2")
+
+@broker.subscriber("*.error", "workers")
+async def base_handler3(logger: Logger):
+    logger.info("base_handler3")
 ```
 
 At the same time, in the `subject` of our consumers, we specify the *pattern* that will be processed by these consumers.
@@ -33,7 +65,7 @@ At the same time, in the `subject` of our consumers, we specify the *pattern* th
 Now the distribution of messages between these consumers will look like this:
 
 ```python
-{!> docs_src/nats/pattern.py [ln:21]!}
+    await broker.publish("", "logs.info")  # handlers: 1 or 2
 ```
 
 The message `1` will be sent to `handler1` or `handler2` because they listen to the same `subject` template within the same `queue group`.
@@ -41,7 +73,7 @@ The message `1` will be sent to `handler1` or `handler2` because they listen to 
 ---
 
 ```python
-{!> docs_src/nats/pattern.py [ln:22]!}
+    await broker.publish("", "logs.info")  # handlers: 1 or 2
 ```
 
 Message `2` will be sent similarly to message `1`.
@@ -49,7 +81,7 @@ Message `2` will be sent similarly to message `1`.
 ---
 
 ```python
-{!> docs_src/nats/pattern.py [ln:23]!}
+    await broker.publish("", "logs.error") # handlers: 3
 ```
 
 The message `3` will be sent to `handler3` because it is the only one listening to the pattern `*.error*`.

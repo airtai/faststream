@@ -100,9 +100,9 @@ app = FastStream(broker, logger=logger)
 ```
 
 !!! note
-    Doing this, you doesn't change the **CLI** logs behavior (*multiprocessing* and *hot reload* logs). This was made to clear your log storage from nozing stuff.
+    Doing this, you doesn't change the **CLI** logs behavior (*multiprocessing* and *hot reload* logs).  This was done to keep your log storage clear of unnecessary stuff.
 
-    This logger will be used only for `FastStream` and `StreamBroker` service messages and passing to your function through the **Context**.
+    This logger will be used only for `FastStream` and `StreamBroker` service messages and will be passed to your function through the **Context**.
 
 By doing this, you will lose information about the context of the current request. However, you can retrieve it directly from the context anywhere in your code.
 
@@ -111,7 +111,7 @@ from faststream import context
 log_context: dict[str, str] = context.get_local("log_context")
 ```
 
-This way, all broker hanlers able to get access to you broker right from the context:
+This way, all broker handlers can get access to your broker logger right from the context:
 
 ```python
 from faststream import Logger
@@ -124,13 +124,13 @@ async def handler(
     logger.info(msg)
 ```
 
-### Structlog example
+### Structlog Example
 
-[**Structlog**](https://www.structlog.org/en/stable){.external-link target="_blank"} - is the production-ready logging solution for Python. It can be easely integrated with any log storage system, so you can use it in your production projects.
+[**Structlog**](https://www.structlog.org/en/stable){.external-link target="_blank"} is a production-ready logging solution for Python. It can be easely integrated with any log storage system, making it suitable for use in production projects.
 
-There is a little tutorial about **structlog FastStream** integration.
+Here is a quick tutorial on integrating **Structlog** with **FastStream**:
 
-Just take a *quickstart* example from the **structlog** [guide](https://www.structlog.org/en/stable/logging-best-practices.html#pretty-printing-vs-structured-output){.external-link target="_blank"}:
+Start with the **Structlog** [guide](https://www.structlog.org/en/stable/logging-best-practices.html#pretty-printing-vs-structured-output){.external-link target="_blank"} example:
 
 ```python linenums="1" hl_lines="11 14 20"
 import sys
@@ -164,9 +164,9 @@ structlog.configure(
 logger = structlog.get_logger()
 ```
 
-We created a logger, printing messages to console in a pretty enough look at development environment and **JSON** - formated logs at production.
+We created a logger that prints messages to the console in a user-friendly format during development and uses **JSON**-formatted logs in production.
 
-To integrate this logger with our **FastStream** application we just need to reach it by context information and pass it to our objects:
+To integrate this logger with our **FastStream** application, we just need to access it through context information and pass it to our objects:
 
 ```python linenums="1" hl_lines="11 15 20 26-27"
 import logging
@@ -198,7 +198,7 @@ broker = KafkaBroker(logger=logger, log_level=logging.DEBUG)
 app = FastStream(broker, logger=logger)
 ```
 
-And the job is done! Now your have a perfect-structured logs using **structlog**
+And the job is done! Now you have a perfectly structured logs using **Structlog**.
 
 ```bash
 TIMESPAMP [info     ] FastStream app starting...     extra={}

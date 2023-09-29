@@ -52,7 +52,27 @@ async def base_handler(body: str, msg: NatsMessage):
 If you want to interrupt message processing at any call stack, you can raise `faststream.exceptions.AckMessage`
 
 ``` python linenums="1" hl_lines="2 16"
-{!> docs_src/nats/ack/errors.py !}
+from faststream import FastStream
+from faststream.exceptions import AckMessage
+from faststream.nats import NatsBroker
+
+broker = NatsBroker("nats://localhost:4222")
+app = FastStream(broker)
+
+
+@broker.subscriber("test-subject")
+async def handle(body):
+    smth_processing(body)
+
+
+def smth_processing(body):
+    if True:
+        raise AckMessage()
+
+
+@app.after_startup
+async def test_publishing():
+    await broker.publish("Hello!", "test-subject")
 ```
 
 This way, **FastStream** interrupts the current message proccessing and acknowledges it immediately. Also, you can raise `NackMessage` and `RejectMessage` too.

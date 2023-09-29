@@ -19,7 +19,17 @@ This interface provides you with rich abilities to use it like a regular *KV* st
 First of all, you need to create a *Key-Value* storage object and pass it into the context:
 
 ```python linenums="1" hl_lines="14-15"
-{!> docs_src/nats/js/key_value.py [ln:5-7,11-12,22-27] !}
+from faststream import Context, FastStream, Logger
+from faststream.nats import NatsBroker
+from faststream.nats.annotations import ContextRepo
+broker = NatsBroker()
+app = FastStream(broker)
+@app.on_startup
+async def setup_broker(context: ContextRepo):
+    await broker.connect()
+
+    kv = await broker.stream.create_key_value(bucket="bucket")
+    context.set_global("kv", kv)
 ```
 
 !!! tip
@@ -34,22 +44,65 @@ Next, we are ready to use this object right in our handlers.
 Let's create an annotated object to shorten context object access:
 
 ```python linenums="1" hl_lines="5"
-{!> docs_src/nats/js/key_value.py [ln:1-2,9] !}
+from nats.js.kv import KeyValue as KV
+from typing_extensions import Annotated
+KeyValue = Annotated[KV, Context("kv")]
 ```
 
 And just use it in a handler:
 
 ```python linenums="1" hl_lines="4 7-8"
-{!> docs_src/nats/js/key_value.py [ln:4,15-19] !}
+from faststream import Logger
+@broker.subscriber("subject")
+async def handler(msg: str, kv: KeyValue, logger: Logger):
+    logger.info(msg)
+    kv_data = await kv.get("key")
+    assert kv_data.value == b"Hello!"
 ```
 
 Finally, let's test our code behavior by putting something into the KV storage and sending a message:
 
 ```python linenums="1" hl_lines="3-4"
-{!> docs_src/nats/js/key_value.py [ln:30-33] !}
+@app.after_startup
+async def test_send(kv: KeyValue):
+    await kv.put("key", b"Hello!")
+    await broker.publish("Hi!", "subject")
 ```
 
 ??? example "Full listing"
     ```python linenums="1"
-    {!> docs_src/nats/js/key_value.py !}
+from nats.js.kv import KeyValue as KV
+from typing_extensions import Annotated
+
+from faststream import Logger
+from faststream import Context, FastStream, Logger
+from faststream.nats import NatsBroker
+from faststream.nats.annotations import ContextRepo
+
+KeyValue = Annotated[KV, Context("kv")]
+
+broker = NatsBroker()
+app = FastStream(broker)
+
+
+@broker.subscriber("subject")
+async def handler(msg: str, kv: KeyValue, logger: Logger):
+    logger.info(msg)
+    kv_data = await kv.get("key")
+    assert kv_data.value == b"Hello!"
+
+
+@app.on_startup
+async def setup_broker(context: ContextRepo):
+    await broker.connect()
+
+    kv = await broker.stream.create_key_value(bucket="bucket")
+    context.set_global("kv", kv)
+
+
+@app.after_startup
+async def test_send(kv: KeyValue):
+    await kv.put("key", b"Hello!")
+    await broker.publish("Hi!", "subject")
+
     ```

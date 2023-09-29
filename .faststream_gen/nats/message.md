@@ -73,4 +73,32 @@ async def base_handler(
 
 But this code is too long to reuse everywhere. In this case, you can use a Python [`Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated){.external-link target="_blank"} feature:
 
-{!> includes/message/annotated.md !}
+=== "python 3.9+"
+    ```python hl_lines="4 9"
+    from types import Annotated
+    from faststream import Context
+
+    CorrelationId = Annotated[str, Context("message.correlation_id")]
+
+    @broker.subscriber("test")
+    async def base_handler(
+        body: str,
+        cor_id: CorrelationId,
+    ):
+        print(cor_id)
+    ```
+
+=== "python 3.6+"
+    ```python hl_lines="4 9"
+    from typing_extensions import Annotated
+    from faststream import Context
+
+    CorrelationId = Annotated[str, Context("message.correlation_id")]
+
+    @broker.subscriber("test")
+    async def base_handler(
+        body: str,
+        cor_id: CorrelationId,
+    ):
+        print(cor_id)
+    ```

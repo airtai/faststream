@@ -24,6 +24,15 @@ The original decoder function has a relatively simple signature (this is a simpl
         ...
     ```
 
+=== "NATS"
+    ``` python
+    from faststream.types import DecodedMessage
+    from faststream.nats import NatsMessage
+
+    def decoder(msg: NatsMessage) -> DecodedMessage:
+        ...
+    ```
+
 Alternatively, you can reuse the original decoder function with the following signature:
 
 === "Kafka"
@@ -48,6 +57,19 @@ Alternatively, you can reuse the original decoder function with the following si
     async def decoder(
         msg: RabbitMessage,
         original_decoder: Callable[[RabbitMessage], Awaitable[DecodedMessage]],
+    ) -> DecodedMessage:
+        return await original_decoder(msg)
+    ```
+
+=== "NATS"
+    ``` python
+    from types import Callable, Awaitable
+    from faststream.types import DecodedMessage
+    from faststream.nats import NatsMessage
+
+    async def decoder(
+        msg: NatsMessage,
+        original_decoder: Callable[[NatsMessage], Awaitable[DecodedMessage]],
     ) -> DecodedMessage:
         return await original_decoder(msg)
     ```

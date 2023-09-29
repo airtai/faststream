@@ -22,7 +22,29 @@ async def handler():
 Full example:
 
 ```python linenums="1"
-{!> docs_src/nats/direct.py !}
+from faststream import FastStream, Logger
+from faststream.nats import NatsBroker
+
+broker = NatsBroker()
+app = FastStream(broker)
+
+@broker.subscriber("test-subj-1", "workers")
+async def base_handler1(logger: Logger):
+    logger.info("base_handler1")
+
+@broker.subscriber("test-subj-1", "workers")
+async def base_handler2(logger: Logger):
+    logger.info("base_handler2")
+
+@broker.subscriber("test-subj-2", "workers")
+async def base_handler3(logger: Logger):
+    logger.info("base_handler3")
+
+@app.after_startup
+async def send_messages():
+    await broker.publish("", "test-subj-1")  # handlers: 1 or 2
+    await broker.publish("", "test-subj-1")  # handlers: 1 or 2
+    await broker.publish("", "test-subj-2")  # handlers: 3
 ```
 
 ### Consumer Announcement
@@ -30,7 +52,17 @@ Full example:
 To begin with, we have declared several consumers for two `subjects`: `test-subj-1` and `test-subj-2`:
 
 ```python linenums="7" hl_lines="1 5 9"
-{!> docs_src/nats/direct.py [ln:7-17]!}
+@broker.subscriber("test-subj-1", "workers")
+async def base_handler1(logger: Logger):
+    logger.info("base_handler1")
+
+@broker.subscriber("test-subj-1", "workers")
+async def base_handler2(logger: Logger):
+    logger.info("base_handler2")
+
+@broker.subscriber("test-subj-2", "workers")
+async def base_handler3(logger: Logger):
+    logger.info("base_handler3")
 ```
 
 !!! note
@@ -42,7 +74,7 @@ To begin with, we have declared several consumers for two `subjects`: `test-subj
 Now the distribution of messages between these consumers will look like this:
 
 ```python
-{!> docs_src/nats/direct.py [ln:21]!}
+    await broker.publish("", "test-subj-1")  # handlers: 1 or 2
 ```
 
 The message `1` will be sent to `handler1` or `handler2` because they are listening to one `subject` within one `queue group`.
@@ -50,7 +82,7 @@ The message `1` will be sent to `handler1` or `handler2` because they are listen
 ---
 
 ```python
-{!> docs_src/nats/direct.py [ln:22]!}
+    await broker.publish("", "test-subj-1")  # handlers: 1 or 2
 ```
 
 Message `2` will be sent similarly to message `1`.
@@ -58,7 +90,7 @@ Message `2` will be sent similarly to message `1`.
 ---
 
 ```python
-{!> docs_src/nats/direct.py [ln:23]!}
+    await broker.publish("", "test-subj-2")  # handlers: 3
 ```
 
 The message `3` will be sent to `handler3` because it is the only one listening to `test-subj-2`.

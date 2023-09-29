@@ -26,5 +26,25 @@ Also, **NATS JetStream** has built-in `key-value` (similar to **Redis**) and `ob
 **FastStream** does not provide access to this functionality directly, but it is covered by the [nats-py](https://github.com/nats-io/nats.py){.external-link target="_blank"} library used. You can access the **JS** object from the application context:
 
 ```python linenums="1" hl_lines="2 7 11-12 21"
-{!> docs_src/nats/js/main.py !}
+from faststream import FastStream, Logger
+from faststream.nats import JsStream, NatsBroker
+
+broker = NatsBroker()
+app = FastStream(broker)
+
+stream = JsStream(name="stream")
+
+@broker.subscriber(
+    "js-subject",
+    stream=stream,
+    deliver_policy="new",
+)
+async def handler(msg: str, logger: Logger):
+    logger.info(msg)
+
+@app.after_startup
+async def test_send():
+    await broker.publish("Hi!", "js-subject")
+    # publish with stream verification
+    await broker.publish("Hi!", "js-subject", stream="stream")
 ```

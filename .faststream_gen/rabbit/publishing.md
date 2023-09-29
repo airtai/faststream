@@ -1,6 +1,6 @@
 # Publishing
 
-**FastStream** RabbitBroker supports all regular [publishing usecases](../getting-started/publishing/index.md){.internal-link}. you can use them without any changes.
+**FastStream** `RabbitBroker` supports all regular [publishing usecases](../getting-started/publishing/index.md){.internal-link}. you can use them without any changes.
 
 However, if you wish to further customize the publishing logic further, you should take a more deep-dive look at specific RabbitBroker parameters.
 

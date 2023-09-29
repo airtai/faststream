@@ -17,7 +17,17 @@ The main difference between *KV* and *Object* storages is that in the *Object* s
 First of all, you need to create an *Object* storage object and pass in to the context:
 
 ```python linenums="1" hl_lines="14-15"
-{!> docs_src/nats/js/object.py [ln:7-9,13-14,24-29] !}
+from faststream import Context, FastStream
+from faststream.nats import NatsBroker
+from faststream.nats.annotations import ContextRepo
+broker = NatsBroker()
+app = FastStream(broker)
+@app.on_startup
+async def setup_broker(context: ContextRepo):
+    await broker.connect()
+
+    os = await broker.stream.create_object_store("bucket")
+    context.set_global("OS", os)
 ```
 
 !!! tip
@@ -32,19 +42,30 @@ Next, we are ready to use this object right in the our handlers.
 Let's create an Annotated object to shorten `Context` object access:
 
 ```python linenums="1" hl_lines="5"
-{!> docs_src/nats/js/object.py [ln:3-4,11] !}
+from nats.js.object_store import ObjectStore as OS
+from typing_extensions import Annotated
+ObjectStorage = Annotated[OS, Context("OS")]
 ```
 
 And just use it in a handler:
 
 ```python linenums="1" hl_lines="8 10-11"
-{!> docs_src/nats/js/object.py [ln:1,6,17-21] !}
+from io import BytesIO
+from faststream import Logger
+@broker.subscriber("subject")
+async def handler(msg: str, os: ObjectStorage, logger: Logger):
+    logger.info(msg)
+    obj = await os.get("file")
+    assert obj.data == b"File mock"
 ```
 
 Finally, let's test our code behavior by putting something into the *Object storage* and sending a message:
 
 ```python linenums="1" hl_lines="3-4"
-{!> docs_src/nats/js/object.py [ln:32-35] !}
+@app.after_startup
+async def test_send(os: ObjectStorage):
+    await os.put("file", BytesIO(b"File mock"))
+    await broker.publish("Hi!", "subject")
 ```
 
 !!! tip
@@ -52,5 +73,39 @@ Finally, let's test our code behavior by putting something into the *Object stor
 
 ??? example "Full listing"
     ```python linenums="1"
-    {!> docs_src/nats/js/object.py !}
+from io import BytesIO
+
+from nats.js.object_store import ObjectStore as OS
+from typing_extensions import Annotated
+
+from faststream import Logger
+from faststream import Context, FastStream
+from faststream.nats import NatsBroker
+from faststream.nats.annotations import ContextRepo
+
+ObjectStorage = Annotated[OS, Context("OS")]
+
+broker = NatsBroker()
+app = FastStream(broker)
+
+
+@broker.subscriber("subject")
+async def handler(msg: str, os: ObjectStorage, logger: Logger):
+    logger.info(msg)
+    obj = await os.get("file")
+    assert obj.data == b"File mock"
+
+
+@app.on_startup
+async def setup_broker(context: ContextRepo):
+    await broker.connect()
+
+    os = await broker.stream.create_object_store("bucket")
+    context.set_global("OS", os)
+
+
+@app.after_startup
+async def test_send(os: ObjectStorage):
+    await os.put("file", BytesIO(b"File mock"))
+    await broker.publish("Hi!", "subject")
     ```
