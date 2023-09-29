@@ -15,13 +15,13 @@ You can specify the topic to send by its name.
 1. Create your KafkaBroker instance
 
 ```python linenums="1"
-{!> docs_src/kafka/raw_publish/test_me.py [ln:8] !}
+{!> docs_src/kafka/raw_publish/example.py [ln:8] !}
 ```
 
 2. Publish a message using the `publish` method
 
 ```python linenums="1"
-{!> docs_src/kafka/raw_publish/test_me.py [ln:26-32] !}
+{!> docs_src/kafka/raw_publish/example.py [ln:26-32] !}
 ```
 
 This is the most basic way of using the KafkaBroker to publish a message.
@@ -33,19 +33,19 @@ The simplest way to use a KafkaBroker for publishing has a significant limitatio
 1. Create your KafkaBroker instance
 
 ```python linenums="1"
-{!> docs_src/kafka/publisher_object/test_me.py [ln:8] !}
+{!> docs_src/kafka/publisher_object/example.py [ln:8] !}
 ```
 
 2. Create a publisher instance
 
 ```python linenums="1"
-{!> docs_src/kafka/publisher_object/test_me.py [ln:17] !}
+{!> docs_src/kafka/publisher_object/example.py [ln:17] !}
 ```
 
 2. Publish a message using the `publish` method of the prepared publisher
 
 ```python linenums="1"
-{!> docs_src/kafka/publisher_object/test_me.py [ln:26-31] !}
+{!> docs_src/kafka/publisher_object/example.py [ln:26-31] !}
 ```
 
 Now, when you wrap your broker into a FastStream object, the publisher will be exported to the AsyncAPI documentation.
