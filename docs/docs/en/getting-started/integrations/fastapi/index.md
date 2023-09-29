@@ -38,7 +38,7 @@ Also, you can use the following `Depends` to access the broker if you want to us
 
 {! includes/getting_started/integrations/fastapi/3.md !}
 
-Or you can access the broker from a **FastAPI** application state (if you not disable `#!python setup_state=False`):
+Or you can access the broker from a **FastAPI** application state (if you don't disable it with `#!python setup_state=False`):
 
 ```python
 from fastapi import Request
