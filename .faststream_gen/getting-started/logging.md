@@ -111,7 +111,7 @@ from faststream import context
 log_context: dict[str, str] = context.get_local("log_context")
 ```
 
-This way, all broker handlers cant get access to your broker right from the context:
+This way, all broker handlers can get access to your broker logger right from the context:
 
 ```python
 from faststream import Logger
