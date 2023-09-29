@@ -51,7 +51,7 @@ async def shutdown(context: ContextRepo):
     await asyncio.gather(*publish_tasks)
 
 
-async def fetch_and_publish_weather(
+async def _fetch_and_publish_weather(
     latitude: float,
     longitude: float,
     logger: Logger,
@@ -95,7 +95,7 @@ async def publish_weather(logger: Logger, context: ContextRepo):
     # start scraping and producing to kafka topic
     publish_tasks = [
         asyncio.create_task(
-            fetch_and_publish_weather(latitude, longitude, logger, context)
+            _fetch_and_publish_weather(latitude, longitude, logger, context)
         )
         for latitude, longitude in zip(latitudes, longitudes)
     ]
