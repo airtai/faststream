@@ -36,6 +36,7 @@
     - [CLI commands](getting-started/cli/index.md)
     - [Logging](getting-started/logging.md)
     - [Config Management](getting-started/config/index.md)
+    - [Using FastStream Template](getting-started/template/index.md)
 - [Kafka](kafka/index.md)
     - [Subscribing](kafka/Subscriber/index.md)
         - [Batch Subscriber](kafka/Subscriber/batch_subscriber.md)
