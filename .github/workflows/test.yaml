@@ -22,7 +22,7 @@ jobs:
         run: |
           set -ux
           python -m pip install --upgrade pip
-          pip install -e ".[docs,rabbit,kafka,lint]"
+          pip install -e ".[docs,rabbit,kafka,nats,lint]"
       - name: Run mypy
         shell: bash
         run: mypy faststream
@@ -271,4 +271,3 @@ jobs:
         uses: re-actors/alls-green@release/v1 # nosemgrep
         with:
           jobs: ${{ toJSON(needs) }}
-
