@@ -114,7 +114,6 @@ testing = [
     "pydantic-settings",
     "httpx",
     "PyYAML",
-    "requests",
     "freezegun",
 ]
 
