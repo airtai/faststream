@@ -1,1 +1,4 @@
-from faststream.nats import NatsBroker, NatsRouter, NatsRoute, TestNatsBroker
+from faststream.nats import NatsBroker, NatsRouter, NatsRoute, TestNatsBroker, JStream
+
+
+JStream()
