@@ -1,4 +1,14 @@
-from typing import Any, Callable, Literal, Optional, Sequence, Tuple, Union, overload
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Literal,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+    overload,
+)
 
 import aiokafka
 from fast_depends.dependencies import Depends
@@ -17,7 +27,7 @@ class KafkaRoute:
     @overload
     def __init__(
         self,
-        call: Callable[..., T_HandlerReturn],
+        call: Callable[..., Union[T_HandlerReturn, Awaitable[T_HandlerReturn]]],
         *topics: str,
         group_id: Optional[str] = None,
         key_deserializer: Optional[Callable[[bytes], Any]] = None,

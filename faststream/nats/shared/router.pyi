@@ -1,5 +1,5 @@
 from abc import ABCMeta
-from typing import Any, Callable, Optional, Sequence, Union
+from typing import Any, Awaitable, Callable, Optional, Sequence, Union
 
 from fast_depends.dependencies import Depends
 from nats.aio.msg import Msg
@@ -68,6 +68,6 @@ class NatsRouter(BrokerRouter[str, Msg], metaclass=ABCMeta):
         subject: str,
         **broker_kwargs: Any,
     ) -> Callable[
-        [Callable[P_HandlerParams, T_HandlerReturn]],
+        [Callable[P_HandlerParams, Union[T_HandlerReturn, Awaitable[T_HandlerReturn]]]],
         HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn],
     ]: ...

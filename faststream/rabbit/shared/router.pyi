@@ -1,4 +1,4 @@
-from typing import Any, Callable, Optional, Sequence, Union
+from typing import Any, Awaitable, Callable, Optional, Sequence, Union
 
 import aio_pika
 from fast_depends.dependencies import Depends
@@ -20,7 +20,7 @@ class RabbitRoute:
 
     def __init__(
         self,
-        call: Callable[..., T_HandlerReturn],
+        call: Callable[..., Union[T_HandlerReturn, Awaitable[T_HandlerReturn]]],
         queue: Union[str, RabbitQueue],
         exchange: Union[str, RabbitExchange, None] = None,
         *,
