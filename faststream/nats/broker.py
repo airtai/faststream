@@ -62,6 +62,7 @@ class NatsBroker(
         servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),  # noqa: B006
         *,
         protocol: str = "nats",
+        protocol_version: Optional[str] = "custom",
         **kwargs: Any,
     ) -> None:
         super().__init__(
@@ -69,6 +70,7 @@ class NatsBroker(
             if isinstance(servers, str)
             else list(servers),  # AsyncAPI information
             protocol=protocol,
+            protocol_version=protocol_version,
             **kwargs,
         )
 
