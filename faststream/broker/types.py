@@ -69,9 +69,13 @@ Decoder = Union[AsyncDecoder[MsgType], SyncDecoder[MsgType]]
 CustomDecoder = Union[AsyncCustomDecoder[MsgType], SyncCustomDecoder[MsgType]]
 
 P_HandlerParams = ParamSpec("P_HandlerParams")
-T_HandlerReturn = TypeVar("T_HandlerReturn", bound=SendableMessage, covariant=True)
+T_HandlerReturn = TypeVar(
+    "T_HandlerReturn",
+    bound=Union[SendableMessage, Awaitable[SendableMessage]],
+    covariant=True,
+)
 
-HandlerCallable = Callable[..., Union[T_HandlerReturn, Awaitable[T_HandlerReturn]]]
+HandlerCallable = Callable[..., T_HandlerReturn]
 
 HandlerWrapper = Callable[
     [HandlerCallable[T_HandlerReturn]],

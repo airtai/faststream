@@ -207,7 +207,7 @@ class NatsRouter(StreamRouter[Msg]):
         description: Optional[str] = None,
         **__service_kwargs: Any,
     ) -> Callable[
-        [Callable[P_HandlerParams, Union[T_HandlerReturn, Awaitable[T_HandlerReturn]]]],
+        [Callable[P_HandlerParams, T_HandlerReturn]],
         HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn],
     ]: ...
     @override

@@ -1,6 +1,5 @@
 from typing import (
     Any,
-    Awaitable,
     Callable,
     Literal,
     Optional,
@@ -27,7 +26,7 @@ class KafkaRoute:
     @overload
     def __init__(
         self,
-        call: Callable[..., Union[T_HandlerReturn, Awaitable[T_HandlerReturn]]],
+        call: Callable[..., T_HandlerReturn],
         *topics: str,
         group_id: Optional[str] = None,
         key_deserializer: Optional[Callable[[bytes], Any]] = None,
