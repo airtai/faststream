@@ -75,13 +75,6 @@ T_HandlerReturn = TypeVar(
     covariant=True,
 )
 
-HandlerCallable = Callable[..., T_HandlerReturn]
-
-HandlerWrapper = Callable[
-    [HandlerCallable[T_HandlerReturn]],
-    HandlerCallable[T_HandlerReturn],
-]
-
 
 class AsyncPublisherProtocol(Protocol):
     """A protocol for an asynchronous publisher.
