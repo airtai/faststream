@@ -4,12 +4,6 @@ from types import TracebackType
 from typing import Any, Awaitable, Callable, Dict, Optional, Sequence, Type, Union
 
 from fast_depends.dependencies import Depends
-from nats.aio.client import Callback, Client, ErrorCallback
-from nats.aio.msg import Msg
-from nats.js import api
-from nats.js.client import (
-    JetStreamContext,
-)
 from nats.aio.client import (
     DEFAULT_CONNECT_TIMEOUT,
     DEFAULT_DRAIN_TIMEOUT,
@@ -27,10 +21,14 @@ from nats.aio.client import (
     JWTCallback,
     SignatureCallback,
 )
+from nats.aio.msg import Msg
+from nats.js import api
+from nats.js.client import (
+    JetStreamContext,
+)
 
-from faststream.types import SendableMessage
-from faststream.asyncapi import schema as asyncapi
 from faststream._compat import override
+from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
@@ -44,16 +42,15 @@ from faststream.broker.types import (
     WrappedReturn,
 )
 from faststream.broker.wrapper import HandlerCallWrapper
+from faststream.log import access_logger
 from faststream.nats.asyncapi import Handler, Publisher
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.shared.logging import NatsLoggingMixin
-from faststream.types import DecodedMessage
-from faststream.log import access_logger
+from faststream.types import DecodedMessage, SendableMessage
 
 Subject = str
-
 
 class NatsBroker(
     NatsLoggingMixin,
@@ -122,9 +119,7 @@ class NatsBroker(
         logger: Optional[logging.Logger] = access_logger,
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = None,
-    ) -> None:
-        ...
-
+    ) -> None: ...
     async def connect(
         self,
         servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),  # noqa: B006
@@ -159,9 +154,7 @@ class NatsBroker(
         inbox_prefix: Union[str, bytes] = DEFAULT_INBOX_PREFIX,
         pending_size: int = DEFAULT_PENDING_SIZE,
         flush_timeout: Optional[float] = None,
-    ) -> Client:
-        ...
-
+    ) -> Client: ...
     async def _connect(
         self,
         servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),  # noqa: B006
@@ -196,20 +189,14 @@ class NatsBroker(
         inbox_prefix: Union[str, bytes] = DEFAULT_INBOX_PREFIX,
         pending_size: int = DEFAULT_PENDING_SIZE,
         flush_timeout: Optional[float] = None,
-    ) -> Client:
-        ...
-
+    ) -> Client: ...
     async def _close(
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exec_tb: Optional[TracebackType] = None,
-    ) -> None:
-        ...
-
-    async def start(self) -> None:
-        ...
-
+    ) -> None: ...
+    async def start(self) -> None: ...
     def _process_message(
         self,
         func: Callable[
@@ -217,21 +204,15 @@ class NatsBroker(
             Awaitable[T_HandlerReturn],
         ],
         watcher: BaseWatcher,
-    ) -> Callable[[StreamMessage[Msg]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
-        ...
-
+    ) -> Callable[[StreamMessage[Msg]], Awaitable[WrappedReturn[T_HandlerReturn]],]: ...
     def _log_connection_broken(
         self,
         error_cb: Optional[ErrorCallback] = None,
-    ) -> ErrorCallback:
-        ...
-
+    ) -> ErrorCallback: ...
     def _log_reconnected(
         self,
         cb: Optional[Callback] = None,
-    ) -> Callback:
-        ...
-
+    ) -> Callback: ...
     @override
     def subscriber(  # type: ignore[override]
         self,
@@ -265,9 +246,7 @@ class NatsBroker(
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
         HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn],
-    ]:
-        ...
-
+    ]: ...
     @override
     def publisher(  # type: ignore[override]
         self,
@@ -281,9 +260,7 @@ class NatsBroker(
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
-    ) -> Publisher:
-        ...
-
+    ) -> Publisher: ...
     @override
     async def publish(  # type: ignore[override]
         self,
@@ -299,5 +276,4 @@ class NatsBroker(
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
-    ) -> Optional[DecodedMessage]:
-        ...
+    ) -> Optional[DecodedMessage]: ...
