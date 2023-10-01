@@ -1,17 +1,22 @@
+from abc import ABCMeta
 from typing import Any, Callable, Optional, Sequence, Union
 
 from fast_depends.dependencies import Depends
 from nats.aio.msg import Msg
 from nats.js import api
 
+from faststream._compat import override
 from faststream.broker.core.asyncronous import default_filter
 from faststream.broker.middlewares import BaseMiddleware
+from faststream.broker.router import BrokerRouter
 from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
     Filter,
+    P_HandlerParams,
     T_HandlerReturn,
 )
+from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 
@@ -49,3 +54,20 @@ class NatsRoute:
         description: Optional[str] = None,
         **__service_kwargs: Any,
     ) -> None: ...
+
+class NatsRouter(BrokerRouter[str, Msg], metaclass=ABCMeta):
+    def __init__(
+        self,
+        prefix: str = "",
+        handlers: Sequence[NatsRoute] = (),
+        **kwargs: Any,
+    ): ...
+    @override
+    def subscriber(  # type: ignore[override]
+        self,
+        subject: str,
+        **broker_kwargs: Any,
+    ) -> Callable[
+        [Callable[P_HandlerParams, T_HandlerReturn]],
+        HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn],
+    ]: ...

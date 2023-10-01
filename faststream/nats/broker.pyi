@@ -155,7 +155,8 @@ class NatsBroker(
         pending_size: int = DEFAULT_PENDING_SIZE,
         flush_timeout: Optional[float] = None,
     ) -> Client: ...
-    async def _connect(
+    @override
+    async def _connect(  # type: ignore[override]
         self,
         servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),  # noqa: B006
         *,
