@@ -25,7 +25,7 @@ class NatsRoute:
 
     def __init__(
         self,
-        call: Callable[..., T_HandlerReturn],
+        call: Callable[..., Union[T_HandlerReturn, Awaitable[T_HandlerReturn]]],
         subject: str,
         queue: str = "",
         pending_msgs_limit: Optional[int] = None,
