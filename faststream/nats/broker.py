@@ -20,6 +20,7 @@ from nats.js.client import (
 
 from faststream._compat import override
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
+from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.push_back_watcher import BaseWatcher, WatcherContext
 from faststream.broker.types import (
@@ -34,7 +35,7 @@ from faststream.broker.types import (
 from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
 from faststream.nats.asyncapi import Handler, Publisher
 from faststream.nats.helpers import stream_builder
-from faststream.nats.js_stream import JsStream
+from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.shared.logging import NatsLoggingMixin
@@ -51,8 +52,8 @@ class NatsBroker(
 ):
     stream: Optional[JetStreamContext]
 
-    handlers: Dict[Subject, Handler]
-    _publishers: Dict[Subject, Publisher]
+    handlers: Dict[Subject, Handler]  # type: ignore[assignment]
+    _publishers: Dict[Subject, Publisher]  # type: ignore[assignment]
     _producer: Optional[NatsFastProducer]
     _js_producer: Optional[NatsJSFastProducer]
 
@@ -144,7 +145,9 @@ class NatsBroker(
         )
 
         await super().start()
-        assert self._connection
+        assert (
+            self._connection and self.stream
+        ), "Broker should be started already"  # nosec B101
 
         for handler in self.handlers.values():
             stream = handler.stream
@@ -164,16 +167,16 @@ class NatsBroker(
                         e.description
                         == "stream name already in use with a different configuration"
                     ):
-                        self._log(e, logging.WARNING, c)
+                        self._log(str(e), logging.WARNING, c)
                         await self.stream.update_stream(
                             config=stream.config,
                             subjects=tuple(
-                                set(old_config.subjects).union(stream.subjects)
+                                set(old_config.subjects or ()).union(stream.subjects)
                             ),
                         )
 
                     else:  # pragma: no cover
-                        self._log(e, logging.ERROR, c, exc_info=e)
+                        self._log(str(e), logging.ERROR, c, exc_info=e)
 
                 finally:
                     # prevent from double declaration
@@ -190,12 +193,15 @@ class NatsBroker(
 
     def _process_message(
         self,
-        func: Callable[[NatsMessage], Awaitable[T_HandlerReturn]],
+        func: Callable[
+            [StreamMessage[Msg]],
+            Awaitable[T_HandlerReturn],
+        ],
         watcher: BaseWatcher,
-    ) -> Callable[[NatsMessage], Awaitable[WrappedReturn[T_HandlerReturn]]]:
+    ) -> Callable[[StreamMessage[Msg]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
         @wraps(func)
         async def process_wrapper(
-            message: NatsMessage,
+            message: StreamMessage[Msg],
         ) -> WrappedReturn[T_HandlerReturn]:
             async with WatcherContext(watcher, message):
                 r = await self._execute_handler(func, message)
@@ -208,9 +214,7 @@ class NatsBroker(
                 else:
                     pub_response = None
 
-                return r, pub_response
-
-            raise AssertionError("unreachable")
+            return r, pub_response
 
         return process_wrapper
 
@@ -225,7 +229,7 @@ class NatsBroker(
                 await error_cb(err)
 
             if self.__is_connected is True:
-                self._log(err, logging.WARNING, c, exc_info=err)
+                self._log(str(err), logging.WARNING, c, exc_info=err)
                 self.__is_connected = False
 
         return wrapper
@@ -265,7 +269,7 @@ class NatsBroker(
         headers_only: Optional[bool] = None,
         # custom
         ack_first: bool = False,
-        stream: Union[str, JsStream, None] = None,
+        stream: Union[str, JStream, None] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
         parser: Optional[CustomParser[Msg]] = None,
@@ -281,31 +285,30 @@ class NatsBroker(
         HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn],
     ]:
         stream = stream_builder.stream(stream)
-        is_js = stream is not None
 
         self._setup_log_context(
             queue=queue,
             subject=subject,
-            stream=stream.name if is_js else None,
+            stream=stream.name if stream else None,
         )
         super().subscriber()
 
-        extra_options = {
+        extra_options: Dict[str, Any] = {
             "pending_msgs_limit": pending_msgs_limit
             or (
                 DEFAULT_JS_SUB_PENDING_MSGS_LIMIT
-                if is_js
+                if stream
                 else DEFAULT_SUB_PENDING_MSGS_LIMIT
             ),
             "pending_bytes_limit": pending_bytes_limit
             or (
                 DEFAULT_JS_SUB_PENDING_BYTES_LIMIT
-                if is_js
+                if stream
                 else DEFAULT_SUB_PENDING_BYTES_LIMIT
             ),
         }
 
-        if is_js:
+        if stream:
             stream.subjects.append(subject)
             extra_options.update(
                 {
@@ -376,7 +379,7 @@ class NatsBroker(
         # Core
         reply_to: str = "",
         # JS
-        stream: Union[str, JsStream, None] = None,
+        stream: Union[str, JStream, None] = None,
         timeout: Optional[float] = None,
         # AsyncAPI information
         title: Optional[str] = None,
@@ -415,4 +418,8 @@ class NatsBroker(
             return await self._producer.publish(*args, **kwargs)
         else:
             assert self._js_producer, "NatsBroker is not started yet"  # nosec B101
-            return await self._js_producer.publish(*args, stream=stream, **kwargs)
+            return await self._js_producer.publish(
+                *args,
+                stream=stream,
+                **kwargs,  # type: ignore[misc]
+            )

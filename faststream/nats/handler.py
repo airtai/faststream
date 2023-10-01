@@ -19,7 +19,7 @@ from faststream.broker.types import (
     T_HandlerReturn,
 )
 from faststream.broker.wrapper import HandlerCallWrapper
-from faststream.nats.js_stream import JsStream
+from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.parser import JsParser, Parser
 
@@ -32,7 +32,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         subject: str,
         log_context_builder: Callable[[StreamMessage[Any]], Dict[str, str]],
         queue: str = "",
-        stream: Optional[JsStream] = None,
+        stream: Optional[JStream] = None,
         extra_options: Optional[Dict[str, Any]] = None,
         # AsyncAPI information
         description: Optional[str] = None,
@@ -77,7 +77,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         self.subscription = await connection.subscribe(
             subject=self.subject,
             queue=self.queue,
-            cb=self.consume,
+            cb=self.consume,  # type: ignore[arg-type]
             **self.extra_options,
         )
 

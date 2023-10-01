@@ -1,7 +1,7 @@
 from nats.js.api import AckPolicy, ConsumerConfig, DeliverPolicy, ReplayPolicy
 
 from faststream.nats.broker import NatsBroker
-from faststream.nats.js_stream import JsStream
+from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.router import NatsRouter
 from faststream.nats.shared.router import NatsRoute
@@ -13,7 +13,7 @@ __all__ = (
     "NatsBroker",
     "NatsRouter",
     "NatsRoute",
-    "JsStream",
+    "JStream",
     # Nats imports
     "ConsumerConfig",
     "DeliverPolicy",

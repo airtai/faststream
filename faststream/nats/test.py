@@ -15,7 +15,7 @@ from faststream.broker.test import call_handler, patch_broker_calls
 from faststream.nats.asyncapi import Handler
 from faststream.nats.broker import NatsBroker
 from faststream.nats.producer import NatsFastProducer
-from faststream.types import DecodedMessage, SendableMessage
+from faststream.types import SendableMessage
 
 __all__ = ("TestNatsBroker",)
 
@@ -63,8 +63,8 @@ class PatchedMessage(Msg):
     async def ack(self) -> None:
         pass
 
-    async def ack_sync(self, timeout: float = 1) -> None:
-        pass
+    async def ack_sync(self, timeout: float = 1) -> "PatchedMessage":
+        return self
 
     async def nak(self, delay: Union[int, float, None] = None) -> None:
         pass
@@ -103,7 +103,7 @@ class FakeProducer(NatsFastProducer):
         self.broker = broker
 
     @override
-    async def publish(
+    async def publish(  # type: ignore[override]
         self,
         message: SendableMessage,
         subject: str,
@@ -115,7 +115,7 @@ class FakeProducer(NatsFastProducer):
         rpc: bool = False,
         rpc_timeout: Optional[float] = None,
         raise_timeout: bool = False,
-    ) -> Optional[DecodedMessage]:
+    ) -> Optional[SendableMessage]:
         incoming = build_message(
             message=message,
             subject=subject,
@@ -161,7 +161,7 @@ class FakeProducer(NatsFastProducer):
 
 
 async def _fake_connect(self: NatsBroker, *args: Any, **kwargs: Any) -> None:
-    self._js_producer = self._producer = FakeProducer(self)
+    self._js_producer = self._producer = FakeProducer(self)  # type: ignore[assignment]
 
 
 def _fake_close(

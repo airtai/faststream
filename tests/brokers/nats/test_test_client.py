@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from faststream.nats import JsStream, NatsBroker, TestNatsBroker
+from faststream.nats import JStream, NatsBroker, TestNatsBroker
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
@@ -32,7 +32,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
     @pytest.mark.asyncio
     async def test_js_subscriber_mock(
-        self, queue: str, test_broker: NatsBroker, stream: JsStream
+        self, queue: str, test_broker: NatsBroker, stream: JStream
     ):
         @test_broker.subscriber(queue, stream=stream)
         async def m():
@@ -44,7 +44,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
     @pytest.mark.asyncio
     async def test_js_publisher_mock(
-        self, queue: str, test_broker: NatsBroker, stream: JsStream
+        self, queue: str, test_broker: NatsBroker, stream: JStream
     ):
         publisher = test_broker.publisher(queue + "resp")
 

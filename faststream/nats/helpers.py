@@ -1,22 +1,22 @@
 from typing import Any, Dict, Optional, Union
 
-from faststream.nats.js_stream import JsStream
+from faststream.nats.js_stream import JStream
 
 
 class StreamBuilder:
-    streams: Dict[str, JsStream]
+    streams: Dict[str, JStream]
 
     def __init__(self) -> None:
         self.streams = {}
 
     def stream(
         self,
-        name: Union[str, JsStream, None],
+        name: Union[str, JStream, None],
         *args: Any,
         declare: bool = True,
         **kwargs: Any,
-    ) -> Optional[JsStream]:
-        stream = JsStream.validate(name)
+    ) -> Optional[JStream]:
+        stream = JStream.validate(name)
 
         if stream is not None:
             stream = self.streams[stream.name] = self.streams.get(stream.name, stream)

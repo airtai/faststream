@@ -28,3 +28,6 @@ Also, **NATS JetStream** has built-in `key-value` (similar to **Redis**) and `ob
 ```python linenums="1" hl_lines="2 7 11-12 21"
 {!> docs_src/nats/js/main.py !}
 ```
+
+!!! tip
+    Using `JStream` object **FastStream** is trying to create/update stream with the object settings. To prevent this behavior and *just get already created stream*, please use `#!python JStream(..., declare=False)` option.

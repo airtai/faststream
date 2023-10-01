@@ -4,8 +4,6 @@ from typing import (
     Any,
     AsyncContextManager,
     AsyncIterator,
-    Callable,
-    ContextManager,
     Optional,
     Type,
     Union,
@@ -14,7 +12,6 @@ from typing import (
 import aio_pika
 import aiormq
 import anyio
-from anyio import CancelScope
 from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 
 from faststream.broker.parsers import resolve_custom_func
@@ -32,6 +29,7 @@ from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.rabbit.types import AioPikaSendableMessage
 from faststream.types import SendableMessage
+from faststream.utils.functions import timeout_scope
 
 
 class AioPikaFastProducer:
@@ -166,14 +164,8 @@ class AioPikaFastProducer:
                 return r
 
             else:
-                scope: Callable[[Optional[float]], ContextManager[CancelScope]]
-                if raise_timeout:
-                    scope = anyio.fail_after
-                else:
-                    scope = anyio.move_on_after
-
                 msg: Optional[aio_pika.IncomingMessage] = None
-                with scope(rpc_timeout):
+                with timeout_scope(rpc_timeout, raise_timeout):
                     msg = await response_queue.receive()
 
                 if msg:

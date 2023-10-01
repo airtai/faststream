@@ -1,10 +1,10 @@
 from faststream import FastStream, Logger
-from faststream.nats import JsStream, NatsBroker
+from faststream.nats import JStream, NatsBroker
 
 broker = NatsBroker()
 app = FastStream(broker)
 
-stream = JsStream(name="stream")
+stream = JStream(name="stream")
 
 
 @broker.subscriber("core-subject")

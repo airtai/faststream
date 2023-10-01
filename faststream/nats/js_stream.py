@@ -15,7 +15,7 @@ from pydantic import Field
 from faststream.broker.schemas import NameRequired
 
 __all__ = (
-    "JsStream",
+    "JStream",
     # import to prevent Pydantic ForwardRef error
     "RetentionPolicy",
     "DiscardPolicy",
@@ -28,7 +28,7 @@ __all__ = (
 )
 
 
-class JsStream(NameRequired):
+class JStream(NameRequired):
     config: StreamConfig
 
     subjects: List[str] = Field(default_factory=list)
@@ -45,5 +45,9 @@ class JsStream(NameRequired):
             name=name,
             declare=declare,
             subjects=[],
-            config=StreamConfig(*args, name=name, **kwargs),
+            config=StreamConfig(
+                *args,
+                name=name,
+                **kwargs,  # type: ignore[misc]
+            ),
         )

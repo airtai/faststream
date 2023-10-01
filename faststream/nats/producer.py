@@ -3,7 +3,6 @@ from secrets import token_hex
 from typing import Any, Dict, Optional
 from uuid import uuid4
 
-import anyio
 import nats
 from nats.aio.client import Client
 from nats.aio.msg import Msg
@@ -19,6 +18,7 @@ from faststream.broker.types import (
 from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.nats.parser import Parser
 from faststream.types import DecodedMessage, SendableMessage
+from faststream.utils.functions import timeout_scope
 
 
 class NatsFastProducer:
@@ -78,13 +78,8 @@ class NatsFastProducer:
         )
 
         if rpc:
-            if raise_timeout:
-                scope = anyio.fail_after
-            else:
-                scope = anyio.move_on_after
-
             msg: Any = None
-            with scope(rpc_timeout):
+            with timeout_scope(rpc_timeout, raise_timeout):
                 msg = await future
 
             if msg:
@@ -95,6 +90,8 @@ class NatsFastProducer:
                     ):
                         raise nats.errors.NoRespondersError
                 return await self._decoder(await self._parser(msg))
+
+        return None
 
 
 class NatsJSFastProducer:
@@ -157,13 +154,8 @@ class NatsJSFastProducer:
         )
 
         if rpc:
-            if raise_timeout:
-                scope = anyio.fail_after
-            else:
-                scope = anyio.move_on_after
-
             msg: Any = None
-            with scope(rpc_timeout):
+            with timeout_scope(rpc_timeout, raise_timeout):
                 msg = await future
 
             if msg:
@@ -174,3 +166,5 @@ class NatsJSFastProducer:
                     ):
                         raise nats.errors.NoRespondersError
                 return await self._decoder(await self._parser(msg))
+
+        return None

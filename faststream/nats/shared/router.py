@@ -2,6 +2,7 @@ from typing import Any, Callable, Sequence
 
 from nats.aio.msg import Msg
 
+from faststream._compat import override
 from faststream.broker.router import BrokerRoute as NatsRoute
 from faststream.broker.router import BrokerRouter
 from faststream.broker.types import P_HandlerParams, T_HandlerReturn
@@ -27,7 +28,8 @@ class NatsRouter(BrokerRouter[str, Msg]):
             h.args = (prefix + subj, *h.args)
         super().__init__(prefix, handlers, **kwargs)
 
-    def subscriber(
+    @override
+    def subscriber(  # type: ignore[override]
         self,
         subject: str,
         **broker_kwargs: Any,

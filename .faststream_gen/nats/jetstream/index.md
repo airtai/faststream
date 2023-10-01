@@ -27,12 +27,12 @@ Also, **NATS JetStream** has built-in `key-value` (similar to **Redis**) and `ob
 
 ```python linenums="1" hl_lines="2 7 11-12 21"
 from faststream import FastStream, Logger
-from faststream.nats import JsStream, NatsBroker
+from faststream.nats import JStream, NatsBroker
 
 broker = NatsBroker()
 app = FastStream(broker)
 
-stream = JsStream(name="stream")
+stream = JStream(name="stream")
 
 @broker.subscriber(
     "js-subject",

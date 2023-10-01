@@ -291,9 +291,9 @@ class AsyncHandler(BaseHandler[MsgType]):
                                     )
                                 )
 
-                            result = cast(
-                                Optional[WrappedReturn[SendableMessage]],
-                                await handler.call_wrapped(message),
+                            result = await cast(
+                                Awaitable[Optional[WrappedReturn[SendableMessage]]],
+                                handler.call_wrapped(message),
                             )
 
                         if result is not None:
