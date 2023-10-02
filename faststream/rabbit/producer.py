@@ -4,8 +4,6 @@ from typing import (
     Any,
     AsyncContextManager,
     AsyncIterator,
-    Callable,
-    ContextManager,
     Optional,
     Type,
     Union,
@@ -14,7 +12,6 @@ from typing import (
 import aio_pika
 import aiormq
 import anyio
-from anyio import CancelScope
 from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 
 from faststream.broker.parsers import resolve_custom_func
@@ -26,12 +23,14 @@ from faststream.broker.types import (
 )
 from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.rabbit.helpers import RabbitDeclarer
+from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.shared.constants import RABBIT_REPLY
 from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.rabbit.types import AioPikaSendableMessage
 from faststream.types import SendableMessage
+from faststream.utils.functions import timeout_scope
 
 
 class AioPikaFastProducer:
@@ -42,7 +41,7 @@ class AioPikaFastProducer:
             The channel used for publishing messages.
         _rpc_lock : anyio.Lock
             Lock used for RPC calls.
-        _decoder : AsyncDecoder[aio_pika.IncomingMessage]
+        _decoder : AsyncDecoder
             Decoder used for decoding incoming messages.
         _parser : AsyncParser[aio_pika.IncomingMessage]
             Parser used for parsing incoming messages.
@@ -62,16 +61,16 @@ class AioPikaFastProducer:
 
     _channel: aio_pika.RobustChannel
     _rpc_lock: anyio.Lock
-    _decoder: AsyncDecoder[aio_pika.IncomingMessage]
-    _parser: AsyncParser[aio_pika.IncomingMessage]
+    _decoder: AsyncDecoder[Any]
+    _parser: AsyncParser[aio_pika.IncomingMessage, Any]
     declarer: RabbitDeclarer
 
     def __init__(
         self,
         channel: aio_pika.RobustChannel,
         declarer: RabbitDeclarer,
-        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]],
-        decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]],
+        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage, RabbitMessage]],
+        decoder: Optional[AsyncCustomDecoder[RabbitMessage]],
     ):
         """Initialize a class instance.
 
@@ -166,14 +165,8 @@ class AioPikaFastProducer:
                 return r
 
             else:
-                scope: Callable[[Optional[float]], ContextManager[CancelScope]]
-                if raise_timeout:
-                    scope = anyio.fail_after
-                else:
-                    scope = anyio.move_on_after
-
                 msg: Optional[aio_pika.IncomingMessage] = None
-                with scope(rpc_timeout):
+                with timeout_scope(rpc_timeout, raise_timeout):
                     msg = await response_queue.receive()
 
                 if msg:

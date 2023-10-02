@@ -194,7 +194,7 @@ class KafkaBroker(
         await super().start()
 
         for handler in self.handlers.values():
-            c = self._get_log_context(None, handler.topics)
+            c = self._get_log_context(None, handler.topics, handler.group_id)
 
             if (name := handler.name) is True:
                 name = handler.call_name
@@ -249,8 +249,6 @@ class KafkaBroker(
 
                 return r, pub_response
 
-            raise AssertionError("unreachable")
-
         return process_wrapper
 
     @override
@@ -290,16 +288,11 @@ class KafkaBroker(
         dependencies: Sequence[Depends] = (),
         parser: Optional[
             Union[
-                CustomParser[aiokafka.ConsumerRecord],
-                CustomParser[Tuple[aiokafka.ConsumerRecord, ...]],
+                CustomParser[aiokafka.ConsumerRecord, KafkaMessage],
+                CustomParser[Tuple[aiokafka.ConsumerRecord, ...], KafkaMessage],
             ]
         ] = None,
-        decoder: Optional[
-            Union[
-                CustomDecoder[aiokafka.ConsumerRecord],
-                CustomDecoder[Tuple[aiokafka.ConsumerRecord, ...]],
-            ]
-        ] = None,
+        decoder: Optional[CustomDecoder] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
@@ -357,7 +350,7 @@ class KafkaBroker(
             isolation_level (Literal["read_uncommitted", "read_committed"]): Isolation level.
             dependencies (Sequence[Depends]): Additional dependencies for message handling.
             parser (Optional[Union[CustomParser[aiokafka.ConsumerRecord], CustomParser[Tuple[aiokafka.ConsumerRecord, ...]]]]): Message parser.
-            decoder (Optional[Union[CustomDecoder[aiokafka.ConsumerRecord], CustomDecoder[Tuple[aiokafka.ConsumerRecord, ...]]]]): Message decoder.
+            decoder (Optional[CustomDecoder]): Message decoder.
             middlewares (Optional[Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]]): Message middlewares.
             filter (Union[Filter[KafkaMessage], Filter[StreamMessage[Tuple[aiokafka.ConsumerRecord, ...]]]]): Message filter.
             batch (bool): Whether to process messages in batches.
@@ -372,9 +365,9 @@ class KafkaBroker(
         """
         super().subscriber()
 
-        self._setup_log_context(topics)
+        self._setup_log_context(topics, group_id)
 
-        key = "".join(topics)
+        key = Handler.get_routing_hash(topics, group_id)
         builder = partial(
             aiokafka.AIOKafkaConsumer,
             key_deserializer=key_deserializer,
@@ -401,6 +394,11 @@ class KafkaBroker(
             key,
             Handler(
                 *topics,
+                log_context_builder=partial(
+                    self._get_log_context,
+                    topics=topics,
+                    group_id=group_id,
+                ),
                 group_id=group_id,
                 client_id=self.client_id,
                 builder=builder,
@@ -437,7 +435,6 @@ class KafkaBroker(
                 func=func,
                 extra_dependencies=dependencies,
                 **original_kwargs,
-                topics=topics,
             )
 
             handler.add_call(

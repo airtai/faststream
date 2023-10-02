@@ -1,8 +1,8 @@
 # Publishing
 
-**FastStream** RabbitBroker supports all regular [publishing usecases](../getting-started/publishing/index.md){.internal-link}, you can use them without any changes.
+**FastStream** `RabbitBroker` supports all regular [publishing usecases](../getting-started/publishing/index.md){.internal-link}. you can use them without any changes.
 
-However, if you whish to further customize the publishing logic further, you should take a more deep-dive look at specific RabbitBroker parameters.
+However, if you wish to further customize the publishing logic further, you should take a more deep-dive look at specific RabbitBroker parameters.
 
 ## Rabbit Publishing
 
@@ -29,8 +29,7 @@ asyncio.run(pub())
 
 If you don't specify any exchange, the message will be send to the default one.
 
-Also, you able to use special **RabbitQueue** and **RabbitExchange** objects as a `queue` and `exchange` arguments:
-
+Also, you are able to use special **RabbitQueue** and **RabbitExchange** objects as `queue` and `exchange` arguments:
 
 ``` python
 from faststream.rabbit import RabbitExchange, RabbitQueue
@@ -45,11 +44,11 @@ await broker.publish(
 If you specify exchange that doesn't exist, RabbitBroker will create a required one and then publish a message to it.
 
 !!! tip
-    Be accurate with it: if you have already created an **Exchange** with specific parameters and try to send a message by exchange name to it, the broker will try to create it. So, **Exchange** parameters conflict will occure.
+    Be accurate with it: if you have already created an **Exchange** with specific parameters and try to send a message by exchange name to it, the broker will try to create it. So, **Exchange** parameters conflict will occur.
 
-    If you are trying to send a message to specific **Exchange** - sending it with a defined **RabbitExchange** object is the preffered way.
+    If you are trying to send a message to a specific **Exchange**, sending it with a defined **RabbitExchange** object is the preffered way.
 
-## Basic arguments
+## Basic Arguments
 
 The `publish` method takes the following arguments:
 
@@ -58,7 +57,7 @@ The `publish` method takes the following arguments:
 * `#!python queue: str | RabbitQueue = ""` - the queue where the message will be sent (since most queues use their name as the routing key, this is a human-readable version of `routing_key`)
 * `#!python routing_key: str = ""` - also a message routing key, if not specified, the `queue` argument will be used
 
-## Message parameters
+## Message Parameters
 
 You can read more about all the available flags in the [RabbitMQ documentation](https://www.rabbitmq.com/consumers.html){.external-link target="_blank"}
 
@@ -75,7 +74,7 @@ You can read more about all the available flags in the [RabbitMQ documentation](
 * `#!python user_id: str | None = None` - ID of the *RabbitMQ* user who sent the message
 * `#!python app_id: str | None = None` - ID of the application that sent the message (used by consumers)
 
-## Send flags
+## Send Flags
 
 Arguments for sending a message:
 

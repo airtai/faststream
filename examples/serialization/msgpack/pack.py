@@ -12,11 +12,11 @@ async def decode_message(msg: RabbitMessage):
 
 
 @broker.subscriber("test", decoder=decode_message)
-async def consume(body, logger: Logger):
-    logger.info(body)
+async def consume(name: str, age: int, logger: Logger):
+    logger.info(f"{name}: {age}")
 
 
 @app.after_startup
 async def publish():
-    body = msgpack.dumps({"name": "john", "age": 25}, use_bin_type=True)
+    body = msgpack.dumps({"name": "John", "age": 25}, use_bin_type=True)
     await broker.publish(body, "test")

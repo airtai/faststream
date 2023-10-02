@@ -1,7 +1,8 @@
 import inspect
 from functools import wraps
-from typing import Awaitable, Callable, List, Union, overload
+from typing import Awaitable, Callable, ContextManager, List, Optional, Union, overload
 
+import anyio
 from fast_depends.utils import run_async as call_or_await
 
 from faststream.types import AnyCallable, F_Return, F_Spec
@@ -113,3 +114,15 @@ def get_function_positional_arguments(func: AnyCallable) -> List[str]:
     return [
         param.name for param in signature.parameters.values() if param.kind in arg_kinds
     ]
+
+
+def timeout_scope(
+    timeout: Optional[float] = 30, raise_timeout: bool = False
+) -> ContextManager[anyio.CancelScope]:
+    scope: Callable[[Optional[float]], ContextManager[anyio.CancelScope]]
+    if raise_timeout:
+        scope = anyio.fail_after
+    else:
+        scope = anyio.move_on_after
+
+    return scope(timeout)

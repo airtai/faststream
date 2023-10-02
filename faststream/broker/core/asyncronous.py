@@ -17,7 +17,6 @@ from typing import (
     cast,
 )
 
-import anyio
 from fast_depends.core import CallModel
 from fast_depends.dependencies import Depends
 
@@ -40,10 +39,9 @@ from faststream.broker.types import (
     WrappedReturn,
 )
 from faststream.broker.wrapper import HandlerCallWrapper
-from faststream.exceptions import AckMessage, NackMessage, RejectMessage, SkipMessage
+from faststream.exceptions import AckMessage, NackMessage, RejectMessage
 from faststream.log import access_logger
 from faststream.types import SendableMessage
-from faststream.utils import context
 from faststream.utils.functions import to_async
 
 
@@ -85,15 +83,15 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
 
     handlers: Dict[Any, AsyncHandler[MsgType]]  # type: ignore[assignment]
     middlewares: Sequence[Callable[[MsgType], BaseMiddleware]]
-    _global_parser: Optional[AsyncCustomParser[MsgType]]
-    _global_decoder: Optional[AsyncCustomDecoder[MsgType]]
+    _global_parser: Optional[AsyncCustomParser[MsgType, StreamMessage[MsgType]]]
+    _global_decoder: Optional[AsyncCustomDecoder[StreamMessage[MsgType]]]
 
     @abstractmethod
     async def start(self) -> None:
         super()._abc_start()
         for h in self.handlers.values():
-            for c, _, _, _, _, _ in h.calls:
-                c.event = anyio.Event()
+            for f, _, _, _, _, _ in h.calls:
+                f.refresh(with_mock=False)
         await self.connect()
 
     @abstractmethod
@@ -230,8 +228,8 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         *broker_args: Any,
         retry: Union[bool, int] = False,
         dependencies: Sequence[Depends] = (),
-        decoder: Optional[CustomDecoder[MsgType]] = None,
-        parser: Optional[CustomParser[MsgType]] = None,
+        decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
+        parser: Optional[CustomParser[MsgType, StreamMessage[MsgType]]] = None,
         middlewares: Optional[Sequence[Callable[[MsgType], BaseMiddleware]]] = None,
         filter: Filter[StreamMessage[MsgType]] = default_filter,
         _raw: bool = False,
@@ -278,8 +276,8 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = "%(asctime)s %(levelname)s - %(message)s",
         dependencies: Sequence[Depends] = (),
-        decoder: Optional[CustomDecoder[MsgType]] = None,
-        parser: Optional[CustomParser[MsgType]] = None,
+        decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
+        parser: Optional[CustomParser[MsgType, StreamMessage[MsgType]]] = None,
         middlewares: Optional[Sequence[Callable[[MsgType], BaseMiddleware]]] = None,
         **kwargs: Any,
     ) -> None:
@@ -308,11 +306,11 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
             log_fmt=log_fmt,
             dependencies=dependencies,
             decoder=cast(
-                Optional[AsyncCustomDecoder[MsgType]],
+                Optional[AsyncCustomDecoder[StreamMessage[MsgType]]],
                 to_async(decoder) if decoder else None,
             ),
             parser=cast(
-                Optional[AsyncCustomParser[MsgType]],
+                Optional[AsyncCustomParser[MsgType, StreamMessage[MsgType]]],
                 to_async(parser) if parser else None,
             ),
             middlewares=middlewares,
@@ -431,7 +429,6 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         extra_dependencies: Sequence[Depends] = (),
         _raw: bool = False,
         _get_dependant: Optional[Any] = None,
-        **broker_log_context_kwargs: Any,
     ) -> Tuple[
         HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
         CallModel[P_HandlerParams, T_HandlerReturn],
@@ -458,7 +455,6 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
             extra_dependencies=extra_dependencies,
             _raw=_raw,
             _get_dependant=_get_dependant,
-            **broker_log_context_kwargs,
         )
 
     async def _execute_handler(
@@ -494,68 +490,3 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         except RejectMessage as e:
             await message.reject()
             raise e
-
-    @override
-    def _log_execution(
-        self,
-        func: Callable[
-            [StreamMessage[MsgType]],
-            Awaitable[WrappedReturn[T_HandlerReturn]],
-        ],
-        **broker_args: Any,
-    ) -> Callable[[StreamMessage[MsgType]], Awaitable[WrappedReturn[T_HandlerReturn]]]:
-        """Decorator to log the execution of a function.
-
-        Args:
-            func: The function to be decorated.
-
-        Returns:
-            The decorated function.
-
-        Raises:
-            SkipMessage: If the message should be skipped.
-
-        Note:
-            This decorator logs the execution of the function, including the received message and any exceptions that occur during execution.
-        !!! note
-
-            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)
-        """
-
-        @wraps(func)
-        async def log_wrapper(
-            message: StreamMessage[MsgType],
-        ) -> WrappedReturn[T_HandlerReturn]:
-            """A wrapper function for logging.
-
-            Args:
-                message : The message to be logged.
-
-            Returns:
-                The wrapped return value.
-
-            Raises:
-                SkipMessage: If the message is to be skipped.
-                Exception: If an exception occurs during processing.
-            !!! note
-
-                The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)
-            """
-            log_context = self._get_log_context(message=message, **broker_args)
-
-            with context.scope("log_context", log_context):
-                self._log("Received", extra=log_context)
-
-                try:
-                    r = await func(message)
-                except SkipMessage as e:
-                    self._log("Skipped", extra=log_context)
-                    raise e
-                except Exception as e:
-                    self._log(f"{type(e).__name__}: {e}", logging.ERROR, exc_info=e)
-                    raise e
-                else:
-                    self._log("Processed", extra=log_context)
-                    return r
-
-        return log_wrapper

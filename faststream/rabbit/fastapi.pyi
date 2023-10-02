@@ -69,8 +69,8 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         # specific args
         max_consumers: Optional[int] = None,
         # Broker kwargs
-        decoder: Optional[CustomDecoder[aio_pika.IncomingMessage]] = None,
-        parser: Optional[CustomParser[aio_pika.IncomingMessage]] = None,
+        decoder: Optional[CustomDecoder[RabbitMessage]] = None,
+        parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
         middlewares: Optional[
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
@@ -112,8 +112,8 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         # broker arguments
         dependencies: Sequence[params.Depends] = (),
         filter: Filter[RabbitMessage] = default_filter,
-        parser: Optional[CustomParser[aio_pika.IncomingMessage]] = None,
-        decoder: Optional[CustomDecoder[aio_pika.IncomingMessage]] = None,
+        parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
+        decoder: Optional[CustomDecoder[RabbitMessage]] = None,
         middlewares: Optional[
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
@@ -134,8 +134,8 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         # broker arguments
         dependencies: Sequence[params.Depends] = (),
         filter: Filter[RabbitMessage] = default_filter,
-        parser: Optional[CustomParser[aio_pika.IncomingMessage]] = None,
-        decoder: Optional[CustomDecoder[aio_pika.IncomingMessage]] = None,
+        parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
+        decoder: Optional[CustomDecoder[RabbitMessage]] = None,
         middlewares: Optional[
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,

@@ -42,7 +42,11 @@ hide:
   </a>
 
   <a href="https://github.com/airtai/faststream/blob/main/LICENSE" target="_blank">
-    <img src="https://img.shields.io/github/license/airtai/faststream.png" alt="Github">
+    <img src="https://img.shields.io/github/license/airtai/faststream.png" alt="License">
+  </a>
+
+  <a href="https://github.com/airtai/faststream/blob/main/CODE_OF_CONDUCT.md" target="_blank">
+    <img src="https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg" alt="Code of Conduct">
   </a>
 
   <a href="https://discord.gg/CJWmYpyFbc" target="_blank">
@@ -59,7 +63,7 @@ parsing, networking and documentation generation automatically.
 
 Making streaming microservices has never been easier. Designed with junior developers in mind, **FastStream** simplifies your work while keeping the door open for more advanced use-cases. Here's a look at the core features that make **FastStream** a go-to framework for modern, data-centric microservices.
 
-- **Multiple Brokers**: **FastStream** provides a unified API to work across multiple message brokers (**Kafka**, **RabbitMQ** support)
+- **Multiple Brokers**: **FastStream** provides a unified API to work across multiple message brokers (**Kafka**, **RabbitMQ**, **NATS** support)
 
 - [**Pydantic Validation**](#writing-app-code): Leverage [**Pydantic's**](https://docs.pydantic.dev/){.external-link target="_blank"} validation capabilities to serialize and validates incoming messages
 
@@ -75,7 +79,7 @@ Making streaming microservices has never been easier. Designed with junior devel
 
 - [**Integrations**](#any-framework): **FastStream** is fully compatible with any HTTP framework you want ([**FastAPI**](#fastapi-plugin) especially)
 
-- **Built for Automatic Code Generation**: **FastStream** is optimized for automatic code generation using advanced models like GPT and Llama
+- [**Built for Automatic Code Generation**](#code-generator): **FastStream** is optimized for automatic code generation using advanced models like GPT and Llama
 
 That's **FastStream** in a nutshell—easy, efficient, and powerful. Whether you're just starting with streaming microservices or looking to scale, **FastStream** has got you covered.
 
@@ -102,6 +106,11 @@ You can install it with `pip` as usual:
     pip install faststream[rabbit]
     ```
 
+=== "NATS"
+    ```sh
+    pip install faststream[nats]
+    ```
+
 !!! tip ""
     By default **FastStream** uses **PydanticV2** written in **Rust**, but you can downgrade it manually, if your platform has no **Rust** support - **FastStream** will work correctly with **PydanticV1** as well.
 
@@ -125,30 +134,17 @@ Here is an example python app using **FastStream** that consumes data from an in
 
 === "Kafka"
     ```python linenums="1" hl_lines="9"
-from faststream import FastStream
-from faststream.kafka import KafkaBroker
-
-broker = KafkaBroker("localhost:9092")
-app = FastStream(broker)
-
-@broker.subscriber("in-topic")
-@broker.publisher("out-topic")
-async def handle_msg(user: str, user_id: int) -> str:
-    return f"User: {user_id} - {user} registered"
+    {!> docs_src/index/basic_kafka.py!}
     ```
 
 === "RabbitMQ"
     ```python linenums="1" hl_lines="9"
-from faststream import FastStream
-from faststream.rabbit import RabbitBroker
+    {!> docs_src/index/basic_rabbit.py!}
+    ```
 
-broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
-app = FastStream(broker)
-
-@broker.subscriber("in-queue")
-@broker.publisher("out-queue")
-async def handle_msg(user: str, user_id: int) -> str:
-    return f"User: {user_id} - {user} registered"
+=== "NATS"
+    ```python linenums="1" hl_lines="9"
+    {!> docs_src/index/basic_nats.py!}
     ```
 
 Also, **Pydantic**’s [`BaseModel`](https://docs.pydantic.dev/usage/models/){.external-link target="_blank"} class allows you
@@ -156,40 +152,17 @@ to define messages using a declarative syntax, making it easy to specify the fie
 
 === "Kafka"
     ```python linenums="1" hl_lines="1 8 14"
-from pydantic import BaseModel, Field, PositiveInt
-from faststream import FastStream
-from faststream.kafka import KafkaBroker
-
-broker = KafkaBroker("localhost:9092")
-app = FastStream(broker)
-
-class User(BaseModel):
-    user: str = Field(..., examples=["John"])
-    user_id: PositiveInt = Field(..., examples=["1"])
-
-@broker.subscriber("in-topic")
-@broker.publisher("out-topic")
-async def handle_msg(data: User) -> str:
-    return f"User: {data.user} - {data.user_id} registered"
+    {!> docs_src/index/pydantic_kafka.py !}
     ```
 
 === "RabbitMQ"
     ```python linenums="1" hl_lines="1 8 14"
-from pydantic import BaseModel, Field, PositiveInt
-from faststream import FastStream
-from faststream.rabbit import RabbitBroker
+    {!> docs_src/index/pydantic_rabbit.py !}
+    ```
 
-broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
-app = FastStream(broker)
-
-class User(BaseModel):
-    user: str = Field(..., examples=["John"])
-    user_id: PositiveInt = Field(..., examples=["1"])
-
-@broker.subscriber("in-queue")
-@broker.publisher("out-queue")
-async def handle_msg(data: User) -> str:
-    return f"User: {data.user} - {data.user_id} registered"
+=== "NATS"
+    ```python linenums="1" hl_lines="1 8 14"
+    {!> docs_src/index/pydantic_nats.py !}
     ```
 
 ---
@@ -203,51 +176,24 @@ The Tester will redirect your `subscriber` and `publisher` decorated functions t
 Using pytest, the test for our service would look like this:
 
 === "Kafka"
-    ```python linenums="1" hl_lines="3 10 18-19"
+    ```python linenums="1" hl_lines="5 10 18-19"
     # Code above omitted 👆
 
-import pytest
-import pydantic
-from faststream.kafka import TestKafkaBroker
-
-
-@pytest.mark.asyncio
-async def test_correct():
-    async with TestKafkaBroker(broker) as br:
-        await br.publish({
-            "user": "John",
-            "user_id": 1,
-        }, "in-topic")
-
-@pytest.mark.asyncio
-async def test_invalid():
-    async with TestKafkaBroker(broker) as br:
-        with pytest.raises(pydantic.ValidationError):
-            await br.publish("wrong message", "in-topic")
+    {!> docs_src/index/test_kafka.py [ln:3-21] !}
     ```
 
 === "RabbitMQ"
-    ```python linenums="1" hl_lines="3 10 18-19"
+    ```python linenums="1" hl_lines="5 10 18-19"
     # Code above omitted 👆
 
-import pytest
-import pydantic
-from faststream.rabbit import TestRabbitBroker
+    {!> docs_src/index/test_rabbit.py [ln:3-21] !}
+    ```
 
+=== "NATS"
+    ```python linenums="1" hl_lines="5 10 18-19"
+    # Code above omitted 👆
 
-@pytest.mark.asyncio
-async def test_correct():
-    async with TestRabbitBroker(broker) as br:
-        await br.publish({
-            "user": "John",
-            "user_id": 1,
-        }, "in-queue")
-
-@pytest.mark.asyncio
-async def test_invalid():
-    async with TestRabbitBroker(broker) as br:
-        with pytest.raises(pydantic.ValidationError):
-            await br.publish("wrong message", "in-queue")
+    {!> docs_src/index/test_nats.py [ln:3-21] !}
     ```
 
 ## Running the application
@@ -296,7 +242,7 @@ The availability of such documentation significantly simplifies the integration 
 
 ## Dependencies
 
-**FastStream** (thanks to [**FastDepend**](https://lancetnik.github.io/FastDepends/){.external-link target="_blank"}) has a dependency management system similar to `pytest fixtures` and `FastAPI Depends` at the same time. Function arguments declare which dependencies you want are needed, and a special decorator delivers them from the global Context object.
+**FastStream** (thanks to [**FastDepends**](https://lancetnik.github.io/FastDepends/){.external-link target="_blank"}) has a dependency management system similar to `pytest fixtures` and `FastAPI Depends` at the same time. Function arguments declare which dependencies you want are needed, and a special decorator delivers them from the global Context object.
 
 ```python linenums="1" hl_lines="9-10"
 from faststream import Depends, Logger
@@ -337,14 +283,14 @@ Just import a **StreamRouter** you need and declare the message handler with the
 !!! note
     More integration features can be found [here](./getting-started/integrations/fastapi/index.md){.internal-link}
 
-
 ---
 
 ## Code generator
 
-As evident, **FastStream** is an incredibly user-friendly library. However, we've taken it a step further and made it even more user-friendly! Introducing [faststream-gen](https://faststream-gen.airt.ai), a Python library that harnesses the power of generative AI to effortlessly generate **FastStream** applications.. Simply describe your application requirements, and [faststream-gen](https://faststream-gen.airt.ai) will generate a production-grade **FastStream** project that is ready to deploy in no time.
+As evident, **FastStream** is an incredibly user-friendly framework. However, we've taken it a step further and made it even more user-friendly! Introducing [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"}, a Python library that harnesses the power of generative AI to effortlessly generate **FastStream** applications. Simply describe your application requirements, and [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"} will generate a production-grade **FastStream** project that is ready to deploy in no time.
 
 Save application description inside `description.txt`:
+
 ```
 Create a FastStream application using localhost broker for testing and use the
 default port number.
@@ -358,6 +304,7 @@ Finally, send message to the 'output_data' topic.
 ```
 
 and run the following command to create a new **FastStream** project:
+
 ``` shell
 faststream_gen -i description.txt
 ```
@@ -375,9 +322,10 @@ faststream_gen -i description.txt
 ```
 
 ### Tutorial
-We also invite you to explore our tutorial, where we will guide you through the process of utilizing the [faststream-gen](https://faststream-gen.airt.ai) Python library to effortlessly create **FastStream** applications:
 
-- [Cryptocurrency analysis with FastStream](https://faststream-gen.airt.ai/Tutorial/Cryptocurrency_Tutorial/)
+We also invite you to explore our tutorial, where we will guide you through the process of utilizing the [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"} Python library to effortlessly create **FastStream** applications:
+
+- [Cryptocurrency analysis with FastStream](https://faststream-gen.airt.ai/Tutorial/Cryptocurrency_Tutorial/){.external-link target="_blank"}
 
 ---
 
@@ -385,12 +333,12 @@ We also invite you to explore our tutorial, where we will guide you through the 
 
 Please show your support and stay in touch by:
 
-- giving our [GitHub repository](https://github.com/airtai/faststream/) a star, and
+- giving our [GitHub repository](https://github.com/airtai/faststream/){.external-link target="_blank"} a star, and
 
-- joining our [Discord server](https://discord.gg/CJWmYpyFbc)
+- joining our [Discord server](https://discord.gg/CJWmYpyFbc){.external-link target="_blank"}
 
 Your support helps us to stay in touch with you and encourages us to
-continue developing and improving the library. Thank you for your
+continue developing and improving the framework. Thank you for your
 support!
 
 ---

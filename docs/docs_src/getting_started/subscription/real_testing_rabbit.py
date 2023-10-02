@@ -3,7 +3,7 @@ from pydantic import ValidationError
 
 from faststream.rabbit import TestRabbitBroker
 
-from .annotation_rabbit import broker, handle
+from .pydantic_fields_rabbit import broker, handle
 
 
 @pytest.mark.asyncio

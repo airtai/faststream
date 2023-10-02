@@ -1,6 +1,6 @@
 # Settings and Environment Variables
 
-n many cases, your application may require external settings or configurations, such as a broker connection or database credentials.
+In many cases, your application may require external settings or configurations, such as a broker connection or database credentials.
 
 To manage these settings effectively, it's common to provide them through environment variables that can be read by the application.
 
@@ -130,7 +130,7 @@ Then update your `config.py` as follows:
 ```python linenums='1' hl_lines="1 11"
 import os
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):

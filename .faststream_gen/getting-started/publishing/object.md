@@ -16,6 +16,11 @@ It also uses the handler function's return type annotation to cast the function'
     {!> docs_src/getting_started/publishing/object_rabbit.py !}
     ```
 
+=== "NATS"
+    ```python linenums="1"
+    {!> docs_src/getting_started/publishing/object_nats.py !}
+    ```
+
 You can use it multiple times with one function to broadcast the function's return:
 
 ```python

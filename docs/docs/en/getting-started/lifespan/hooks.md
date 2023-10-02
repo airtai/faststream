@@ -86,7 +86,7 @@ Also, we don't want the model to finish its work incorrectly when the applicatio
 If you want to declare multiple lifecycle hooks, they will be used in the order they are registered:
 
 ```python linenums="1" hl_lines="6 11"
-{!> docs_src/getting_started/lifespan/3_multiple.py !}
+{!> docs_src/getting_started/lifespan/multiple.py !}
 ```
 
 ## Some more details

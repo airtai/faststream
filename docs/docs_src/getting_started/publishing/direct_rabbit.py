@@ -6,7 +6,6 @@ app = FastStream(broker)
 
 publisher = broker.publisher("another-queue")
 
-
 @broker.subscriber("test-queue")
 async def handle():
     await publisher.publish("Hi!")

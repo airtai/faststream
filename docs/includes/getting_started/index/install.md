@@ -30,3 +30,15 @@
         ```bash
         docker run -d --rm -p 5672:5672 --name test-mq rabbitmq:alpine
         ```
+
+
+=== "NATS"
+    ```console
+    pip install "faststream[nats]"
+    ```
+
+    !!! tip
+        {{ run_docker }}
+        ```bash
+        bash docker run -d --rm -p 4222:4222 --name test-mq nats -js
+        ```

@@ -38,7 +38,11 @@
   </a>
 
   <a href="https://github.com/airtai/faststream/blob/main/LICENSE" target="_blank">
-    <img src="https://img.shields.io/github/license/airtai/faststream.png" alt="Github">
+    <img src="https://img.shields.io/github/license/airtai/faststream.png" alt="License">
+  </a>
+
+  <a href="https://github.com/airtai/faststream/blob/main/CODE_OF_CONDUCT.md" target="_blank">
+    <img src="https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg" alt="Code of Conduct">
   </a>
 
   <a href="https://discord.gg/CJWmYpyFbc" target="_blank">
@@ -74,6 +78,10 @@ Making streaming microservices has never been easier. Designed with junior devel
 - [**Built for Automatic Code Generation**](#code-generator): **FastStream** is optimized for automatic code generation using advanced models like GPT and Llama
 
 That's **FastStream** in a nutshell—easy, efficient, and powerful. Whether you're just starting with streaming microservices or looking to scale, **FastStream** has got you covered.
+
+---
+
+**Documentation**: <a href="https://faststream.airt.ai/" target="_blank">https://faststream.airt.ai/</a>
 
 ---
 
@@ -315,7 +323,7 @@ More integration features can be found [here](https://faststream.airt.ai/latest/
 
 ## Code generator
 
-As evident, **FastStream** is an incredibly user-friendly library. However, we've taken it a step further and made it even more user-friendly! Introducing [faststream-gen](https://faststream-gen.airt.ai), a Python library that harnesses the power of generative AI to effortlessly generate **FastStream** applications.. Simply describe your application requirements, and [faststream-gen](https://faststream-gen.airt.ai) will generate a production-grade **FastStream** project that is ready to deploy in no time.
+As evident, **FastStream** is an incredibly user-friendly framework. However, we've taken it a step further and made it even more user-friendly! Introducing [faststream-gen](https://faststream-gen.airt.ai), a Python library that harnesses the power of generative AI to effortlessly generate **FastStream** applications. Simply describe your application requirements, and [faststream-gen](https://faststream-gen.airt.ai) will generate a production-grade **FastStream** project that is ready to deploy in no time.
 
 Save application description inside `description.txt`:
 ```
@@ -364,7 +372,7 @@ Please show your support and stay in touch by:
 - joining our [Discord server](https://discord.gg/CJWmYpyFbc)
 
 Your support helps us to stay in touch with you and encourages us to
-continue developing and improving the library. Thank you for your
+continue developing and improving the framework. Thank you for your
 support!
 
 ---

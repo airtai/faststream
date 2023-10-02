@@ -1,6 +1,6 @@
 # Topic Exchange
 
-**Topic** Exchange is a powerful *RabbitMQ* routing tool. This type of `exchange` sends messages to the queue in accordance with the *pattern* specified when they are connected to `exchange` and the `routing_key` of the message itself.
+The **Topic** Exchange is a powerful *RabbitMQ* routing tool. This type of `exchange` sends messages to the queue in accordance with the *pattern* specified when they are connected to `exchange` and the `routing_key` of the message itself.
 
 At the same time, if several consumers are subscribed to the queue, messages will be distributed among them.
 
@@ -20,7 +20,7 @@ First, we announce our **Topic** exchange and several queues that will listen to
 
 At the same time, in the `routing_key` of our queues, we specify the *pattern* of routing keys that will be processed by this queue.
 
-Then we sign up several consumers using the advertised queues to the `exchange` we created
+Then we sign up several consumers using the advertised queues to the `exchange` we created:
 
 ```python linenums="13" hl_lines="1 6 11"
 {!> docs_src/rabbit/subscription/topic.py [ln:13-25]!}
@@ -28,10 +28,10 @@ Then we sign up several consumers using the advertised queues to the `exchange` 
 
 !!! note
     `handler1` and `handler2` are subscribed to the same `exchange` using the same queue:
-    within a single service, this does not make a sense, since messages will come to these handlers in turn.
+    within a single service, this does not make sense, since messages will come to these handlers in turn.
     Here we emulate the work of several consumers and load balancing between them.
 
-### Message distribution
+### Message Distribution
 
 Now the distribution of messages between these consumers will look like this:
 
@@ -39,7 +39,7 @@ Now the distribution of messages between these consumers will look like this:
 {!> docs_src/rabbit/subscription/topic.py [ln:30]!}
 ```
 
-Message `1` will be sent to `handler1` because it listens to `exchange` using a queue with the routing key `*.info`
+Message `1` will be sent to `handler1` because it listens to `exchange` using a queue with the routing key `*.info`.
 
 ---
 
@@ -47,7 +47,7 @@ Message `1` will be sent to `handler1` because it listens to `exchange` using a 
 {!> docs_src/rabbit/subscription/topic.py [ln:31]!}
 ```
 
-Message `2` will be sent to `handler2` because it listens to `exchange` using the same queue, but `handler1` is busy
+Message `2` will be sent to `handler2` because it listens to `exchange` using the same queue, but `handler1` is busy.
 
 ---
 
@@ -55,7 +55,7 @@ Message `2` will be sent to `handler2` because it listens to `exchange` using th
 {!> docs_src/rabbit/subscription/topic.py [ln:32]!}
 ```
 
-Message `3` will be sent to `handler1` again, because it is currently free
+Message `3` will be sent to `handler1` again because it is currently free.
 
 ---
 
@@ -63,4 +63,4 @@ Message `3` will be sent to `handler1` again, because it is currently free
 {!> docs_src/rabbit/subscription/topic.py [ln:33]!}
 ```
 
-Message `4` will be sent to `handler3`, because it is the only one listening to `exchange` using a queue with the routing key `*.debug`
+Message `4` will be sent to `handler3` because it is the only one listening to `exchange` using a queue with the routing key `*.debug`.
