@@ -16,6 +16,7 @@ from faststream.broker.types import (
     AsyncParser,
 )
 from faststream.exceptions import WRONG_PUBLISH_ARGS
+from faststream.nats.message import NatsMessage
 from faststream.nats.parser import Parser
 from faststream.types import DecodedMessage, SendableMessage
 from faststream.utils.functions import timeout_scope
@@ -23,14 +24,14 @@ from faststream.utils.functions import timeout_scope
 
 class NatsFastProducer:
     _connection: Client
-    _decoder: AsyncDecoder[Msg]
-    _parser: AsyncParser[Msg]
+    _decoder: AsyncDecoder[Any]
+    _parser: AsyncParser[Msg, Any]
 
     def __init__(
         self,
         connection: Client,
-        parser: Optional[AsyncCustomParser[Msg]],
-        decoder: Optional[AsyncCustomDecoder[Msg]],
+        parser: Optional[AsyncCustomParser[Msg, NatsMessage]],
+        decoder: Optional[AsyncCustomDecoder[NatsMessage]],
     ):
         self._connection = connection
         self._parser = resolve_custom_func(parser, Parser.parse_message)
@@ -96,14 +97,14 @@ class NatsFastProducer:
 
 class NatsJSFastProducer:
     _connection: JetStreamContext
-    _decoder: AsyncDecoder[Msg]
-    _parser: AsyncParser[Msg]
+    _decoder: AsyncDecoder[Any]
+    _parser: AsyncParser[Msg, Any]
 
     def __init__(
         self,
         connection: JetStreamContext,
-        parser: Optional[AsyncCustomParser[Msg]],
-        decoder: Optional[AsyncCustomDecoder[Msg]],
+        parser: Optional[AsyncCustomParser[Msg, NatsMessage]],
+        decoder: Optional[AsyncCustomDecoder[NatsMessage]],
     ):
         self._connection = connection
         self._parser = resolve_custom_func(parser, Parser.parse_message)

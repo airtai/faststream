@@ -44,8 +44,8 @@ class NatsRoute:
         headers_only: Optional[bool] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[Msg]] = None,
-        decoder: Optional[CustomDecoder[Msg]] = None,
+        parser: Optional[CustomParser[Msg, NatsMessage]] = None,
+        decoder: Optional[CustomDecoder[NatsMessage]] = None,
         middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
         filter: Filter[NatsMessage] = default_filter,
         retry: bool = False,

@@ -1,17 +1,4 @@
-from nats.js.api import (
-    AckPolicy,
-    ConsumerConfig,
-    DeliverPolicy,
-    DiscardPolicy,
-    ExternalStream,
-    Placement,
-    ReplayPolicy,
-    RePublish,
-    RetentionPolicy,
-    StorageType,
-    StreamConfig,
-    StreamSource,
-)
+from nats.js.api import AckPolicy, ConsumerConfig, DeliverPolicy, ReplayPolicy
 
 from faststream.nats.broker import NatsBroker
 from faststream.nats.js_stream import JStream
@@ -32,12 +19,4 @@ __all__ = (
     "DeliverPolicy",
     "AckPolicy",
     "ReplayPolicy",
-    "DiscardPolicy",
-    "ExternalStream",
-    "Placement",
-    "RePublish",
-    "RetentionPolicy",
-    "StorageType",
-    "StreamConfig",
-    "StreamSource",
 )

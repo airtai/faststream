@@ -100,8 +100,8 @@ class NatsBroker(
         # broker args
         apply_types: bool = True,
         dependencies: Sequence[Depends] = (),
-        decoder: Optional[CustomDecoder[Msg]] = None,
-        parser: Optional[CustomParser[Msg]] = None,
+        decoder: Optional[CustomDecoder[NatsMessage]] = None,
+        parser: Optional[CustomParser[Msg, NatsMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
@@ -235,8 +235,8 @@ class NatsBroker(
         headers_only: Optional[bool] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[Msg]] = None,
-        decoder: Optional[CustomDecoder[Msg]] = None,
+        parser: Optional[CustomParser[Msg, NatsMessage]] = None,
+        decoder: Optional[CustomDecoder[NatsMessage]] = None,
         middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
         filter: Filter[NatsMessage] = default_filter,
         retry: bool = False,

@@ -133,6 +133,12 @@ def get_app_broker_server(
             **broker_meta,
         )
 
+    elif len(broker.url) == 1:
+        servers["development"] = Server(
+            url=broker.url[0],
+            **broker_meta,
+        )
+
     else:
         for i, url in enumerate(broker.url, 1):
             servers[f"Server{i}"] = Server(

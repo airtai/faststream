@@ -39,7 +39,7 @@ class AioKafkaParser:
     @staticmethod
     async def parse_message_batch(
         message: Tuple[ConsumerRecord, ...],
-    ) -> StreamMessage[Tuple[ConsumerRecord, ...]]:
+    ) -> KafkaMessage:
         """Parses a batch of messages from a Kafka consumer.
 
         Args:

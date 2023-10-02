@@ -288,16 +288,11 @@ class KafkaBroker(
         dependencies: Sequence[Depends] = (),
         parser: Optional[
             Union[
-                CustomParser[aiokafka.ConsumerRecord],
-                CustomParser[Tuple[aiokafka.ConsumerRecord, ...]],
+                CustomParser[aiokafka.ConsumerRecord, KafkaMessage],
+                CustomParser[Tuple[aiokafka.ConsumerRecord, ...], KafkaMessage],
             ]
         ] = None,
-        decoder: Optional[
-            Union[
-                CustomDecoder[aiokafka.ConsumerRecord],
-                CustomDecoder[Tuple[aiokafka.ConsumerRecord, ...]],
-            ]
-        ] = None,
+        decoder: Optional[CustomDecoder] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
@@ -355,7 +350,7 @@ class KafkaBroker(
             isolation_level (Literal["read_uncommitted", "read_committed"]): Isolation level.
             dependencies (Sequence[Depends]): Additional dependencies for message handling.
             parser (Optional[Union[CustomParser[aiokafka.ConsumerRecord], CustomParser[Tuple[aiokafka.ConsumerRecord, ...]]]]): Message parser.
-            decoder (Optional[Union[CustomDecoder[aiokafka.ConsumerRecord], CustomDecoder[Tuple[aiokafka.ConsumerRecord, ...]]]]): Message decoder.
+            decoder (Optional[CustomDecoder]): Message decoder.
             middlewares (Optional[Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]]): Message middlewares.
             filter (Union[Filter[KafkaMessage], Filter[StreamMessage[Tuple[aiokafka.ConsumerRecord, ...]]]]): Message filter.
             batch (bool): Whether to process messages in batches.

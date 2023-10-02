@@ -41,7 +41,6 @@ from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.shared.logging import NatsLoggingMixin
 from faststream.types import DecodedMessage
 from faststream.utils.context.main import context
-from faststream.utils.functions import to_async
 
 Subject = str
 
@@ -274,8 +273,8 @@ class NatsBroker(
         stream: Union[str, JStream, None] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[Msg]] = None,
-        decoder: Optional[CustomDecoder[Msg]] = None,
+        parser: Optional[CustomParser[Msg, NatsMessage]] = None,
+        decoder: Optional[CustomDecoder[NatsMessage]] = None,
         middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
         filter: Filter[NatsMessage] = default_filter,
         # AsyncAPI information
@@ -362,7 +361,7 @@ class NatsBroker(
 
             handler.add_call(
                 handler=handler_call,
-                filter=to_async(filter),
+                filter=filter,
                 middlewares=middlewares,
                 parser=parser or self._global_parser,
                 decoder=decoder or self._global_decoder,

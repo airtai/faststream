@@ -19,12 +19,25 @@ from faststream.broker.types import (
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.asyncapi import Publisher
 from faststream.kafka.message import KafkaMessage
+from faststream.kafka.shared.router import KafkaRoute
 
 Partition = TypeVar("Partition")
 
 class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
     _publishers: Dict[str, Publisher]  # type: ignore[assignment]
 
+    def __init__(
+        self,
+        prefix: str = "",
+        handlers: Sequence[KafkaRoute] = (),
+        *,
+        dependencies: Sequence[Depends] = (),
+        middlewares: Optional[
+            Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
+        ] = None,
+        parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
+        decoder: Optional[CustomDecoder[KafkaMessage]] = None,
+    ): ...
     @override
     @staticmethod
     def _get_publisher_key(publisher: Publisher) -> str: ...  # type: ignore[override]
@@ -83,8 +96,8 @@ class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[aiokafka.ConsumerRecord]] = None,
-        decoder: Optional[CustomDecoder[aiokafka.ConsumerRecord]] = None,
+        parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
+        decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[

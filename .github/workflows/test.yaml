@@ -25,7 +25,7 @@ jobs:
           pip install -e ".[docs,rabbit,kafka,nats,lint]"
       - name: Run mypy
         shell: bash
-        run: mypy faststream
+        run: mypy faststream tests/mypy
 
       - name: Run bandit
         shell: bash

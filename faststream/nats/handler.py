@@ -57,8 +57,8 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         *,
         handler: HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn],
         dependant: CallModel[P_HandlerParams, T_HandlerReturn],
-        parser: Optional[CustomParser[Msg]],
-        decoder: Optional[CustomDecoder[Msg]],
+        parser: Optional[CustomParser[Msg, NatsMessage]],
+        decoder: Optional[CustomDecoder[NatsMessage]],
         filter: Filter[NatsMessage],
         middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]],
     ) -> None:

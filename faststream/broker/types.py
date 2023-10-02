@@ -6,67 +6,63 @@ from faststream.types import DecodedMessage, SendableMessage
 
 Decoded = TypeVar("Decoded", bound=DecodedMessage)
 MsgType = TypeVar("MsgType")
+StreamMsg = TypeVar("StreamMsg", bound=StreamMessage[Any])
 ConnectionType = TypeVar("ConnectionType")
 
-SyncFilter = Callable[[MsgType], bool]
-AsyncFilter = Callable[[MsgType], Awaitable[bool]]
-Filter = Union[SyncFilter[MsgType], AsyncFilter[MsgType]]
+SyncFilter = Callable[[StreamMsg], bool]
+AsyncFilter = Callable[[StreamMsg], Awaitable[bool]]
+Filter = Union[
+    SyncFilter[StreamMsg],
+    AsyncFilter[StreamMsg],
+]
 
 SyncParser = Callable[
     [MsgType],
-    StreamMessage[MsgType],
+    StreamMsg,
 ]
-SyncCustomParser = Union[
-    SyncParser[MsgType],
-    Callable[
-        [MsgType, SyncParser[MsgType]],
-        StreamMessage[MsgType],
-    ],
-]
-
 AsyncParser = Callable[
     [MsgType],
-    Awaitable[StreamMessage[MsgType]],
+    Awaitable[StreamMsg],
 ]
 AsyncCustomParser = Union[
-    AsyncParser[MsgType],
+    AsyncParser[MsgType, StreamMsg],
     Callable[
-        [MsgType, AsyncParser[MsgType]],
-        Awaitable[StreamMessage[MsgType]],
+        [MsgType, AsyncParser[MsgType, StreamMsg]],
+        Awaitable[StreamMsg],
     ],
 ]
-
-Parser = Union[AsyncParser[MsgType], SyncParser[MsgType]]
-CustomParser = Union[AsyncCustomParser[MsgType], SyncCustomParser[MsgType]]
+Parser = Union[
+    AsyncParser[MsgType, StreamMsg],
+    SyncParser[MsgType, StreamMsg],
+]
+CustomParser = Union[
+    AsyncCustomParser[MsgType, StreamMsg],
+    SyncParser[MsgType, StreamMsg],
+]
 
 SyncDecoder = Callable[
-    [StreamMessage[MsgType]],
+    [StreamMsg],
     DecodedMessage,
 ]
-SyncCustomDecoder = Union[
-    SyncDecoder[MsgType],
-    Callable[
-        [StreamMessage[MsgType], SyncDecoder[MsgType]],
-        DecodedMessage,
-    ],
-]
-
 AsyncDecoder = Callable[
-    [
-        StreamMessage[MsgType],
-    ],
+    [StreamMsg],
     Awaitable[DecodedMessage],
 ]
 AsyncCustomDecoder = Union[
-    AsyncDecoder[MsgType],
+    AsyncDecoder[StreamMsg],
     Callable[
-        [StreamMessage[MsgType], AsyncDecoder[MsgType]],
+        [StreamMsg, AsyncDecoder[StreamMsg]],
         Awaitable[DecodedMessage],
     ],
 ]
-
-Decoder = Union[AsyncDecoder[MsgType], SyncDecoder[MsgType]]
-CustomDecoder = Union[AsyncCustomDecoder[MsgType], SyncCustomDecoder[MsgType]]
+Decoder = Union[
+    AsyncDecoder[StreamMsg],
+    SyncDecoder[StreamMsg],
+]
+CustomDecoder = Union[
+    AsyncCustomDecoder[StreamMsg],
+    SyncDecoder[StreamMsg],
+]
 
 P_HandlerParams = ParamSpec("P_HandlerParams")
 T_HandlerReturn = TypeVar(
@@ -120,12 +116,13 @@ class AsyncPublisherProtocol(Protocol):
 WrappedReturn = Tuple[T_HandlerReturn, Optional[AsyncPublisherProtocol]]
 
 AsyncWrappedHandlerCall = Callable[
-    [StreamMessage[MsgType]], Awaitable[Optional[WrappedReturn[T_HandlerReturn]]]
+    [StreamMessage[MsgType]],
+    Awaitable[Optional[WrappedReturn[T_HandlerReturn]]],
 ]
 SyncWrappedHandlerCall = Callable[
-    [StreamMessage[MsgType]], Optional[WrappedReturn[T_HandlerReturn]]
+    [StreamMessage[MsgType]],
+    Optional[WrappedReturn[T_HandlerReturn]],
 ]
-
 WrappedHandlerCall = Union[
     AsyncWrappedHandlerCall[MsgType, T_HandlerReturn],
     SyncWrappedHandlerCall[MsgType, T_HandlerReturn],

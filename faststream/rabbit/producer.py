@@ -23,6 +23,7 @@ from faststream.broker.types import (
 )
 from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.rabbit.helpers import RabbitDeclarer
+from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.shared.constants import RABBIT_REPLY
 from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
@@ -40,7 +41,7 @@ class AioPikaFastProducer:
             The channel used for publishing messages.
         _rpc_lock : anyio.Lock
             Lock used for RPC calls.
-        _decoder : AsyncDecoder[aio_pika.IncomingMessage]
+        _decoder : AsyncDecoder
             Decoder used for decoding incoming messages.
         _parser : AsyncParser[aio_pika.IncomingMessage]
             Parser used for parsing incoming messages.
@@ -60,16 +61,16 @@ class AioPikaFastProducer:
 
     _channel: aio_pika.RobustChannel
     _rpc_lock: anyio.Lock
-    _decoder: AsyncDecoder[aio_pika.IncomingMessage]
-    _parser: AsyncParser[aio_pika.IncomingMessage]
+    _decoder: AsyncDecoder[Any]
+    _parser: AsyncParser[aio_pika.IncomingMessage, Any]
     declarer: RabbitDeclarer
 
     def __init__(
         self,
         channel: aio_pika.RobustChannel,
         declarer: RabbitDeclarer,
-        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]],
-        decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]],
+        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage, RabbitMessage]],
+        decoder: Optional[AsyncCustomDecoder[RabbitMessage]],
     ):
         """Initialize a class instance.
 

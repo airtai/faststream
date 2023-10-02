@@ -1,13 +1,4 @@
-from typing import (
-    Any,
-    Callable,
-    Literal,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-    overload,
-)
+from typing import Any, Callable, Literal, Optional, Sequence, Tuple, Union, overload
 
 import aiokafka
 from fast_depends.dependencies import Depends
@@ -17,12 +8,7 @@ from kafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
 from faststream.broker.core.asyncronous import default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
-from faststream.broker.types import (
-    CustomDecoder,
-    CustomParser,
-    Filter,
-    T_HandlerReturn,
-)
+from faststream.broker.types import CustomDecoder, CustomParser, Filter, T_HandlerReturn
 from faststream.kafka.message import KafkaMessage
 
 class KafkaRoute:
@@ -64,8 +50,10 @@ class KafkaRoute:
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[Tuple[aiokafka.ConsumerRecord, ...]]] = None,
-        decoder: Optional[CustomDecoder[Tuple[aiokafka.ConsumerRecord, ...]]] = None,
+        parser: Optional[
+            CustomParser[Tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
+        ] = None,
+        decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
@@ -122,8 +110,8 @@ class KafkaRoute:
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[aiokafka.ConsumerRecord]] = None,
-        decoder: Optional[CustomDecoder[aiokafka.ConsumerRecord]] = None,
+        parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
+        decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
