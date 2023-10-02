@@ -9,10 +9,12 @@
     let foundVersion = false
     versions.forEach(version => {
         const versionedPath = `${basePath}/${version}`;
+        console.log("At for loop " + versionedPath)
         if (window.location.pathname.startsWith(versionedPath)) {
              // we need this foundVersion guard because the browser is fast and
              // will keep the executing code below until the redirect happens
             foundVersion = true;
+            console.log("At for loop if " + versionedPath)
             window.location.href = `${versionedPath}/${targetRedirectPath}`
         }
     });
@@ -21,6 +23,7 @@
     // Replace it in href, so we keep hashes and query params
     // Only replace first occurence of basePath
     if (!foundVersion){
+        console.log("At outside if " + basePath)
         window.location.href = window.location.href.replace(basePath, `${basePath}/${defaultVersion}`)
     }
 </script>
