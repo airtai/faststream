@@ -21,9 +21,8 @@
 
     // if path doesn't start with any version, redirect to defaultVersion
     // Replace it in href, so we keep hashes and query params
-    // Only replace first occurence of basePath
     if (!foundVersion){
-        console.log("At outside if " + basePath)
+        console.log("At outside if ")
         window.location.href = window.location.href.replace(window.location.pathname, `/${defaultVersion}`)
     }
 </script>
