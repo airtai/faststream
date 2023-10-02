@@ -36,6 +36,7 @@ To create a custom message parser, you should write a regular Python function (s
     def parser(msg: Msg) -> NatsMessage:
         ...
     ```
+
 Alternatively, you can reuse the original parser function with the following signature:
 
 === "Kafka"

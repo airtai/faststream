@@ -65,7 +65,7 @@ jobs:
         image: rabbitmq:alpine
         ports:
           - 5672:5672
-      
+
       # using own container with already included JetStream
       # https://github.com/nats-io/nats-docker/issues/110
       nats:
@@ -195,7 +195,7 @@ jobs:
         run: pip install .[rabbit,test-core]
       - name: Test
         run: bash scripts/test.sh tests/brokers/rabbit/test_publish.py
-  
+
   test-nats-smoke:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest

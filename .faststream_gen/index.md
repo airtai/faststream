@@ -146,6 +146,7 @@ Here is an example python app using **FastStream** that consumes data from an in
     ```python linenums="1" hl_lines="9"
     {!> docs_src/index/basic_nats.py!}
     ```
+
 Also, **Pydantic**’s [`BaseModel`](https://docs.pydantic.dev/usage/models/){.external-link target="_blank"} class allows you
 to define messages using a declarative syntax, making it easy to specify the fields and types of your messages.
 
@@ -163,6 +164,7 @@ to define messages using a declarative syntax, making it easy to specify the fie
     ```python linenums="1" hl_lines="1 8 14"
     {!> docs_src/index/pydantic_nats.py !}
     ```
+
 ---
 
 ## Testing the service
@@ -193,6 +195,7 @@ Using pytest, the test for our service would look like this:
 
     {!> docs_src/index/test_nats.py [ln:3-21] !}
     ```
+
 ## Running the application
 
 The application can be started using built-in **FastStream** CLI command.

@@ -48,3 +48,6 @@ async def test_send():
     # publish with stream verification
     await broker.publish("Hi!", "js-subject", stream="stream")
 ```
+
+!!! tip
+    Using `JStream` object **FastStream** is trying to create/update stream with the object settings. To prevent this behavior and *just get already created stream*, please use `#!python JStream(..., declare=False)` option.

@@ -31,4 +31,3 @@ async def setup_broker(context: ContextRepo):
 async def test_send(kv: KeyValue):
     await kv.put("key", b"Hello!")
     await broker.publish("Hi!", "subject")
-

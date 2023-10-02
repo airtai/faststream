@@ -27,6 +27,7 @@ By default, the context searches for an object based on the argument name.
     ```python linenums="1" hl_lines="1 12-15"
     {!> docs_src/getting_started/context/existed_context_nats.py [ln:1-2,10-11,14-23] !}
     ```
+
 ## Annotated Aliases
 
 Also, **FastStream** has already created `Annotated` aliases to provide you with comfortable access to existing objects. You can import them directly from `faststream` or your broker-specific modules:

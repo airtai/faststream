@@ -20,6 +20,7 @@ It uses the handler function's return type annotation to cast the function's ret
     ```python linenums="1"
     {!> docs_src/getting_started/publishing/decorator_nats.py !}
     ```
+
 It can be used multiple times with one function to broadcast the function's return:
 
 ```python
