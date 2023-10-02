@@ -260,7 +260,6 @@ class CriticalLogMiddleware(BaseMiddleware):
         """
         self.logger = logger
         self.log_level = log_level
-        self.is_log_enabled = bool(logger and logger.isEnabledFor(self.log_level))
 
     def __call__(self, msg: Any) -> Self:
         """Call the object with a message.
@@ -277,9 +276,9 @@ class CriticalLogMiddleware(BaseMiddleware):
         return self
 
     async def on_consume(self, msg: DecodedMessage) -> DecodedMessage:
-        if self.is_log_enabled and self.logger is not None:
+        if self.logger is not None:
             c = context.get("log_context")
-            self.logger._log(self.log_level, msg="Received", args=(), extra=c)
+            self.logger.log(self.log_level, "Received", extra=c)
 
         return await super().on_consume(msg)
 
@@ -312,6 +311,5 @@ class CriticalLogMiddleware(BaseMiddleware):
                     extra=c,
                 )
 
-            if self.is_log_enabled:
-                self.logger._log(self.log_level, msg="Processed", args=(), extra=c)
+            self.logger.log(self.log_level, "Processed", extra=c)
         return True

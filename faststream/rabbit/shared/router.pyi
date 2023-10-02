@@ -6,8 +6,8 @@ from fast_depends.dependencies import Depends
 from faststream.broker.core.asyncronous import default_filter
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
-    AsyncCustomDecoder,
-    AsyncCustomParser,
+    CustomDecoder,
+    CustomParser,
     Filter,
     T_HandlerReturn,
 )
@@ -28,8 +28,8 @@ class RabbitRoute:
         # broker arguments
         dependencies: Sequence[Depends] = (),
         filter: Filter[RabbitMessage] = default_filter,
-        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]] = None,
-        decoder: Optional[AsyncCustomDecoder[aio_pika.IncomingMessage]] = None,
+        parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
+        decoder: Optional[CustomDecoder[RabbitMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[

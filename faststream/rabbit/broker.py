@@ -38,7 +38,6 @@ from faststream.rabbit.shared.schemas import (
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils import context
-from faststream.utils.functions import to_async
 
 
 class RabbitBroker(
@@ -229,8 +228,8 @@ class RabbitBroker(
         consume_args: Optional[AnyDict] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[aio_pika.IncomingMessage]] = None,
-        decoder: Optional[CustomDecoder[aio_pika.IncomingMessage]] = None,
+        parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
+        decoder: Optional[CustomDecoder[RabbitMessage]] = None,
         middlewares: Optional[
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
@@ -307,7 +306,7 @@ class RabbitBroker(
 
             handler.add_call(
                 handler=handler_call,
-                filter=to_async(filter),
+                filter=filter,
                 middlewares=middlewares,
                 parser=parser or self._global_parser,
                 decoder=decoder or self._global_decoder,

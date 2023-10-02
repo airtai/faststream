@@ -119,6 +119,16 @@ services:
     # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
     security_opt:
       - no-new-privileges:true
+  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
+  nats:
+    image: nats
+    command: -js
+    ports:
+      - 4222:4222
+      - 8222:8222  # management
+    # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
+    security_opt:
+      - no-new-privileges:true
 ```
 
 You can start the dependencies easily using provided script by running:

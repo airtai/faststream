@@ -237,6 +237,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
             self.event and self.future
         ), "You should start the broker first"  # nosec B101
         self.event.set()
+
         if self.future.done():
             self.future = asyncio.Future()
 

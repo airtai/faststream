@@ -100,8 +100,8 @@ class LoggingMixin:
         """
         if self.logger is not None:
             self.logger.log(
-                level=(log_level or self.log_level),
-                msg=message,
+                (log_level or self.log_level),
+                message,
                 extra=extra,
                 exc_info=exc_info,
             )

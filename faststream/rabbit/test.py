@@ -73,7 +73,12 @@ class TestRabbitBroker:
     # This is set so pytest ignores this class
     __test__ = False
 
-    def __init__(self, broker: RabbitBroker, with_real: bool = False):
+    def __init__(
+        self,
+        broker: RabbitBroker,
+        with_real: bool = False,
+        connect_only: bool = False,
+    ):
         """
         Initialize a TestRabbitBroker instance.
 
@@ -84,6 +89,7 @@ class TestRabbitBroker:
         """
         self.with_real = with_real
         self.broker = broker
+        self.connect_only = connect_only
 
     @asynccontextmanager
     async def _create_ctx(self) -> AsyncGenerator[RabbitBroker, None]:
@@ -104,7 +110,8 @@ class TestRabbitBroker:
 
         async with self.broker:
             try:
-                await self.broker.start()
+                if not self.connect_only:
+                    await self.broker.start()
                 yield self.broker
             finally:
                 _fake_close(self.broker)

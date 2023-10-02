@@ -28,6 +28,15 @@ To create a custom message parser, you should write a regular Python function (s
         ...
     ```
 
+=== "NATS"
+    ``` python
+    from nats.aio.msg import Msg
+    from faststream.nats import NatsMessage
+
+    def parser(msg: Msg) -> NatsMessage:
+        ...
+    ```
+
 Alternatively, you can reuse the original parser function with the following signature:
 
 === "Kafka"
@@ -56,6 +65,19 @@ Alternatively, you can reuse the original parser function with the following sig
         return await original_parser(msg)
     ```
 
+=== "NATS"
+    ``` python
+    from types import Callable, Awaitable
+    from nats.aio.msg import Msg
+    from faststream.nats import NatsMessage
+
+    async def parser(
+        msg: Msg,
+        original_parser: Callable[[Msg], Awaitable[NatsMessage]],
+    ) -> RabbitMessage:
+        return await original_parser(msg)
+    ```
+
 The argument naming doesn't matter; the parser will always be placed as the second argument.
 
 !!! note
@@ -76,4 +98,9 @@ As an example, let's redefine `message_id` to a custom header:
 === "RabbitMQ"
     ``` python linenums="1" hl_lines="9-15 18 28"
     {!> docs_src/getting_started/serialization/parser_rabbit.py !}
+    ```
+
+=== "NATS"
+    ``` python linenums="1" hl_lines="9-15 18 28"
+    {!> docs_src/getting_started/serialization/parser_nats.py !}
     ```

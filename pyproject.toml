@@ -11,7 +11,7 @@ authors = [
     { name = "Pastukhov Nikita", email = "diementros@yandex.ru" },
 ]
 
-keywords = ["rabbitmq", "kafka", "framework", "message brokers"]
+keywords = ["rabbitmq", "kafka", "framework", "nats", "message brokers"]
 
 requires-python = ">=3.8"
 
@@ -62,6 +62,10 @@ kafka = [
     "aiokafka>=0.8",
 ]
 
+nats = [
+    "nats-py>=2.3.1"
+]
+
 docs = [
     "fastapi>=0.100.0",
     "uvicorn>=0.17.0",
@@ -93,7 +97,7 @@ lint = [
     "pyupgrade-directories",
     "bandit==1.7.5",
     "pre-commit==3.4.0",
-    "semgrep==1.41.0",
+    "semgrep==1.42.0",
     "detect-secrets==1.4.0",
 ]
 
@@ -110,13 +114,12 @@ testing = [
     "pydantic-settings",
     "httpx",
     "PyYAML",
-    "requests",
     "freezegun",
 ]
 
 publish = ["hatch==1.7.0"]
 
-dev = ["faststream[rabbit,kafka,docs,lint,testing,devdocs,publish]"]
+dev = ["faststream[rabbit,kafka,nats,docs,lint,testing,devdocs,publish]"]
 
 [project.urls]
 Homepage = "https://faststream.airt.ai/"
@@ -207,6 +210,7 @@ testpaths = [
 markers = [
     "rabbit",
     "kafka",
+    "nats",
     "slow",
     "all",
 ]

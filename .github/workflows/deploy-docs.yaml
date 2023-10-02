@@ -3,7 +3,7 @@ on:
     push:
         branches:
             - main
-            - master
+
 permissions:
     contents: write
 jobs:
@@ -22,7 +22,7 @@ jobs:
                 path: .cache
             - run: pip install -e ".[dev]"
             - run: ./scripts/build-docs.sh
-            - run: echo "VERSION=$(python3 -c 'from importlib.metadata import version; print(version("""faststream"""))')" >> $GITHUB_ENV
+            - run: echo "VERSION=$(python3 -c 'from importlib.metadata import version; print(".".join(version("faststream").split(".")[:2]))')" >> $GITHUB_ENV
             - name: Configure Git user
               run: |
                 git config --local user.email "github-actions[bot]@users.noreply.github.com"

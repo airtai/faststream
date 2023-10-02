@@ -12,6 +12,11 @@ The Publisher Direct Usage is a full-featured way to publish messages. It has As
     {!> docs_src/getting_started/publishing/direct_rabbit.py !}
     ```
 
+=== "NATS"
+    ```python linenums="1"
+    {!> docs_src/getting_started/publishing/direct_nats.py !}
+    ```
+
 It is suitable for publishing different messages to different outputs within the same processing function:
 
 ```python
