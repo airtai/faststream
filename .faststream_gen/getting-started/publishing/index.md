@@ -26,3 +26,10 @@ To publish a message, simply set up the message content and a routing key:
     async with RabbitBroker() as br:
         await br.publish("message", "queue")
     ```
+
+
+=== "NATS"
+    ```python
+    async with NatsBroker() as br:
+        await br.publish("message", "queue")
+    ```

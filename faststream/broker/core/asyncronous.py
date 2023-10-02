@@ -83,8 +83,8 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
 
     handlers: Dict[Any, AsyncHandler[MsgType]]  # type: ignore[assignment]
     middlewares: Sequence[Callable[[MsgType], BaseMiddleware]]
-    _global_parser: Optional[AsyncCustomParser[MsgType]]
-    _global_decoder: Optional[AsyncCustomDecoder[MsgType]]
+    _global_parser: Optional[AsyncCustomParser[MsgType, StreamMessage[MsgType]]]
+    _global_decoder: Optional[AsyncCustomDecoder[StreamMessage[MsgType]]]
 
     @abstractmethod
     async def start(self) -> None:
@@ -228,8 +228,8 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         *broker_args: Any,
         retry: Union[bool, int] = False,
         dependencies: Sequence[Depends] = (),
-        decoder: Optional[CustomDecoder[MsgType]] = None,
-        parser: Optional[CustomParser[MsgType]] = None,
+        decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
+        parser: Optional[CustomParser[MsgType, StreamMessage[MsgType]]] = None,
         middlewares: Optional[Sequence[Callable[[MsgType], BaseMiddleware]]] = None,
         filter: Filter[StreamMessage[MsgType]] = default_filter,
         _raw: bool = False,
@@ -276,8 +276,8 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = "%(asctime)s %(levelname)s - %(message)s",
         dependencies: Sequence[Depends] = (),
-        decoder: Optional[CustomDecoder[MsgType]] = None,
-        parser: Optional[CustomParser[MsgType]] = None,
+        decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
+        parser: Optional[CustomParser[MsgType, StreamMessage[MsgType]]] = None,
         middlewares: Optional[Sequence[Callable[[MsgType], BaseMiddleware]]] = None,
         **kwargs: Any,
     ) -> None:
@@ -306,11 +306,11 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
             log_fmt=log_fmt,
             dependencies=dependencies,
             decoder=cast(
-                Optional[AsyncCustomDecoder[MsgType]],
+                Optional[AsyncCustomDecoder[StreamMessage[MsgType]]],
                 to_async(decoder) if decoder else None,
             ),
             parser=cast(
-                Optional[AsyncCustomParser[MsgType]],
+                Optional[AsyncCustomParser[MsgType, StreamMessage[MsgType]]],
                 to_async(parser) if parser else None,
             ),
             middlewares=middlewares,

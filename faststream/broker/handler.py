@@ -66,8 +66,8 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
             Tuple[
                 HandlerCallWrapper[MsgType, Any, SendableMessage],  # handler
                 Callable[[StreamMessage[MsgType]], bool],  # filter
-                SyncParser[MsgType],  # parser
-                SyncDecoder[MsgType],  # decoder
+                SyncParser[MsgType, StreamMessage[MsgType]],  # parser
+                SyncDecoder[StreamMessage[MsgType]],  # decoder
                 Sequence[Callable[[Any], BaseMiddleware]],  # middlewares
                 CallModel[Any, SendableMessage],  # dependant
             ]
@@ -76,8 +76,8 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
             Tuple[
                 HandlerCallWrapper[MsgType, Any, SendableMessage],  # handler
                 Callable[[StreamMessage[MsgType]], Awaitable[bool]],  # filter
-                AsyncParser[MsgType],  # parser
-                AsyncDecoder[MsgType],  # decoder
+                AsyncParser[MsgType, StreamMessage[MsgType]],  # parser
+                AsyncDecoder[StreamMessage[MsgType]],  # decoder
                 Sequence[Callable[[Any], BaseMiddleware]],  # middlewares
                 CallModel[Any, SendableMessage],  # dependant
             ]
@@ -183,8 +183,8 @@ class AsyncHandler(BaseHandler[MsgType]):
         Tuple[
             HandlerCallWrapper[MsgType, Any, SendableMessage],  # handler
             Callable[[StreamMessage[MsgType]], Awaitable[bool]],  # filter
-            AsyncParser[MsgType],  # parser
-            AsyncDecoder[MsgType],  # decoder
+            AsyncParser[MsgType, Any],  # parser
+            AsyncDecoder[StreamMessage[MsgType]],  # decoder
             Sequence[Callable[[Any], BaseMiddleware]],  # middlewares
             CallModel[Any, SendableMessage],  # dependant
         ]
@@ -194,8 +194,8 @@ class AsyncHandler(BaseHandler[MsgType]):
         self,
         *,
         handler: HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
-        parser: CustomParser[MsgType],
-        decoder: CustomDecoder[MsgType],
+        parser: CustomParser[MsgType, Any],
+        decoder: CustomDecoder[Any],
         dependant: CallModel[P_HandlerParams, T_HandlerReturn],
         filter: Filter[StreamMessage[MsgType]],
         middlewares: Optional[Sequence[Callable[[Any], BaseMiddleware]]],
@@ -249,13 +249,13 @@ class AsyncHandler(BaseHandler[MsgType]):
         result: Optional[WrappedReturn[SendableMessage]] = None
         result_msg: SendableMessage = None
 
-        logged = False
         async with AsyncExitStack() as stack:
             gl_middlewares: List[BaseMiddleware] = []
 
             for m in self.global_middlewares:
                 gl_middlewares.append(await stack.enter_async_context(m(msg)))
 
+            logged = False
             processed = False
             for handler, filter_, parser, decoder, middlewares, _ in self.calls:
                 local_middlewares: List[BaseMiddleware] = []

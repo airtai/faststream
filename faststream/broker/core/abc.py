@@ -102,8 +102,8 @@ class BrokerUsecase(
     dependencies: Sequence[Depends]
     started: bool
     middlewares: Sequence[Callable[[Any], BaseMiddleware]]
-    _global_parser: Optional[CustomParser[MsgType]]
-    _global_decoder: Optional[CustomDecoder[MsgType]]
+    _global_parser: Optional[CustomParser[MsgType, StreamMessage[MsgType]]]
+    _global_decoder: Optional[CustomDecoder[StreamMessage[MsgType]]]
     _connection: Optional[ConnectionType]
     _fmt: Optional[str]
 
@@ -123,8 +123,8 @@ class BrokerUsecase(
         log_fmt: Optional[str] = "%(asctime)s %(levelname)s - %(message)s",
         dependencies: Sequence[Depends] = (),
         middlewares: Optional[Sequence[Callable[[MsgType], BaseMiddleware]]] = None,
-        decoder: Optional[CustomDecoder[MsgType]] = None,
-        parser: Optional[CustomParser[MsgType]] = None,
+        decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
+        parser: Optional[CustomParser[MsgType, StreamMessage[MsgType]]] = None,
         security: Optional[BaseSecurity] = None,
         **kwargs: Any,
     ) -> None:
@@ -415,8 +415,8 @@ class BrokerUsecase(
         *broker_args: Any,
         retry: Union[bool, int] = False,
         dependencies: Sequence[Depends] = (),
-        decoder: Optional[CustomDecoder[MsgType]] = None,
-        parser: Optional[CustomParser[MsgType]] = None,
+        decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
+        parser: Optional[CustomParser[MsgType, StreamMessage[MsgType]]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[

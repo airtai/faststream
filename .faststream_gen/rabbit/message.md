@@ -6,7 +6,7 @@ As you know, **FastStream** serializes a message body and provides you access to
 
 You can get it in a simple way: just acces to the message object in the [Context](../getting-started/context/existed.md){.internal-link}!
 
-It is a **FastStream** wrapper around a native broker library message (`aio_pika.IncomingMessage` in the *RabbitMQ* case). It contains the required information such as:
+This message contains the required information such as:
 
 * `#!python body: bytes`
 * `#!python decoded_body: Any`
@@ -16,8 +16,10 @@ It is a **FastStream** wrapper around a native broker library message (`aio_pika
 * `#!python message_id: str`
 * `#!python correlation_id: str`
 
+Also, it is a **FastStream** wrapper around a native broker library message (`aio_pika.IncomingMessage` in the *RabbitMQ* case), you can access with `raw_message`.
+
 ```python hl_lines="1 6"
-from faststream.rabbit import RabbitMessage
+from faststream.rabbit.annotations import RabbitMessage
 
 @broker.subscriber("test")
 async def base_handler(
@@ -31,7 +33,7 @@ Also, if you can't find the information you reqiure, you can get access directly
 
 ```python hl_lines="6"
 from aio_pika import IncomingMessage
-from faststream.rabbit import RabbitMessage
+from faststream.rabbit.annotations import RabbitMessage
 
 @broker.subscriber("test")
 async def base_handler(body: str, msg: RabbitMessage):
@@ -70,7 +72,6 @@ async def base_handler(
 ```
 
 But this code is too long to be reused everywhere. In this case, you can use a Python [`Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated){.external-link target="_blank"} feature:
-
 
 === "python 3.9+"
     ```python hl_lines="4 9"

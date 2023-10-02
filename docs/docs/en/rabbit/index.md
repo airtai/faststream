@@ -1,5 +1,8 @@
 # Rabbit Routing
 
+!!! note ""
+      **FastStream** *RabbitMQ* support is implemented on top of [**aio-pika**](https://aio-pika.readthedocs.io/en/latest/){.external-link target="_blank"}. You can always get access to objects of it, if you need to use some low-level methods, not represented in **FastStream**.
+
 ## Advantages
 
 The advantage of *RabbitMQ* is the ability to configure flexible and complex message routing scenarios.
@@ -11,9 +14,9 @@ The advantage of *RabbitMQ* is the ability to configure flexible and complex mes
 
 It supports the ability to successfully process messages, mark them as processed with an error, remove them from the queue (it is also impossible to re-receive processed messages, unlike **Kafka**), lock it for the processing duration, and monitor its current status.
 
-Having to keep track of the current status of all messages is a cause of the **RabbitMQ** performance issues. With really large message volumes, **RabbitMQ** starts to degrade. However, if this was a "one-time influx", then consumers will free the queue of messages and the "health" of **RabbitMQ** will be stable.
+Having to keep track of the current status of all messages is a cause of the *RabbitMQ* performance issues. With really large message volumes, *RabbitMQ* starts to degrade. However, if this was a "one-time influx", then consumers will free the queue of messages and the "health" of *RabbitMQ* will be stable.
 
-If your scenario is not based on processing millions of messages and also requires building complex routing logic, **RabbitMQ** will be the right choice.
+If your scenario is not based on processing millions of messages and also requires building complex routing logic, *RabbitMQ* will be the right choice.
 
 ## Basic Concepts
 
@@ -43,7 +46,7 @@ In general, the message path looks so:
     In **FastStream**, queues are connected to this `exchange`, and messages are sent by default unless another `exchange` is explicitly specified.
 
     !!! warning ""
-       Connecting the queue to any other `exchange` will still leave it subscribed to the `default exchange'. Be careful with this.
+        Connecting the queue to any other `exchange` will still leave it subscribed to the `default exchange'. Be careful with this.
 
 At this stage, the message gets into your application - and you start processing it.
 
@@ -63,4 +66,4 @@ In most cases, **FastStream** performs all the necessary actions by itself. Howe
 
 **FastStream** suggests you adhere to the scheme `exchange:queue` as `1:N`, which will greatly simplify the scheme of interaction between your services. It is better to create an additional queue for a new `exchange` than to subscribe to an existing one.
 
-However, if you want to reduce the number of entities in your **RabbitMQ**, and thereby optimize its performance (or you know exactly what you are doing), **FastStream** leaves you the option to create `bindings` directly. In other cases, the connection parameters are an integral part of the entities **RabbitQueue** and **RabbitExchange** in **FastStream**.
+However, if you want to reduce the number of entities in your *RabbitMQ*, and thereby optimize its performance (or you know exactly what you are doing), **FastStream** leaves you the option to create `bindings` directly. In other cases, the connection parameters are an integral part of the entities **RabbitQueue** and **RabbitExchange** in **FastStream**.

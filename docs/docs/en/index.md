@@ -63,7 +63,7 @@ parsing, networking and documentation generation automatically.
 
 Making streaming microservices has never been easier. Designed with junior developers in mind, **FastStream** simplifies your work while keeping the door open for more advanced use-cases. Here's a look at the core features that make **FastStream** a go-to framework for modern, data-centric microservices.
 
-- **Multiple Brokers**: **FastStream** provides a unified API to work across multiple message brokers (**Kafka**, **RabbitMQ** support)
+- **Multiple Brokers**: **FastStream** provides a unified API to work across multiple message brokers (**Kafka**, **RabbitMQ**, **NATS** support)
 
 - [**Pydantic Validation**](#writing-app-code): Leverage [**Pydantic's**](https://docs.pydantic.dev/){.external-link target="_blank"} validation capabilities to serialize and validates incoming messages
 
@@ -96,15 +96,7 @@ That's **FastStream** in a nutshell—easy, efficient, and powerful. Whether you
 **FastStream** works on **Linux**, **macOS**, **Windows** and most **Unix**-style operating systems.
 You can install it with `pip` as usual:
 
-=== "Kafka"
-    ```sh
-    pip install faststream[kafka]
-    ```
-
-=== "RabbitMQ"
-    ```sh
-    pip install faststream[rabbit]
-    ```
+{!> includes/index/1.md !}
 
 !!! tip ""
     By default **FastStream** uses **PydanticV2** written in **Rust**, but you can downgrade it manually, if your platform has no **Rust** support - **FastStream** will work correctly with **PydanticV1** as well.
@@ -127,28 +119,12 @@ JSON-encoded data into Python objects, making it easy to work with structured da
 
 Here is an example python app using **FastStream** that consumes data from an incoming data stream and outputs the data to another one:
 
-=== "Kafka"
-    ```python linenums="1" hl_lines="9"
-    {!> docs_src/index/basic_kafka.py!}
-    ```
-
-=== "RabbitMQ"
-    ```python linenums="1" hl_lines="9"
-    {!> docs_src/index/basic_rabbit.py!}
-    ```
+{!> includes/index/2.md !}
 
 Also, **Pydantic**’s [`BaseModel`](https://docs.pydantic.dev/usage/models/){.external-link target="_blank"} class allows you
 to define messages using a declarative syntax, making it easy to specify the fields and types of your messages.
 
-=== "Kafka"
-    ```python linenums="1" hl_lines="1 8 14"
-    {!> docs_src/index/pydantic_kafka.py !}
-    ```
-
-=== "RabbitMQ"
-    ```python linenums="1" hl_lines="1 8 14"
-    {!> docs_src/index/pydantic_rabbit.py !}
-    ```
+{!> includes/index/3.md !}
 
 ---
 
@@ -160,19 +136,7 @@ The Tester will redirect your `subscriber` and `publisher` decorated functions t
 
 Using pytest, the test for our service would look like this:
 
-=== "Kafka"
-    ```python linenums="1" hl_lines="3 10 18-19"
-    # Code above omitted 👆
-
-    {!> docs_src/index/test_kafka.py [ln:3-21] !}
-    ```
-
-=== "RabbitMQ"
-    ```python linenums="1" hl_lines="3 10 18-19"
-    # Code above omitted 👆
-
-    {!> docs_src/index/test_rabbit.py [ln:3-21] !}
-    ```
+{!> includes/index/4.md !}
 
 ## Running the application
 
@@ -252,7 +216,6 @@ Just import a **StreamRouter** you need and declare the message handler with the
 !!! note
     More integration features can be found [here](./getting-started/integrations/fastapi/index.md){.internal-link}
 
-
 ---
 
 ## Code generator
@@ -260,11 +223,13 @@ Just import a **StreamRouter** you need and declare the message handler with the
 As evident, **FastStream** is an incredibly user-friendly framework. However, we've taken it a step further and made it even more user-friendly! Introducing [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"}, a Python library that harnesses the power of generative AI to effortlessly generate **FastStream** applications. Simply describe your application requirements, and [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"} will generate a production-grade **FastStream** project that is ready to deploy in no time.
 
 Save application description inside `description.txt`:
+
 ```
 {!> docs_src/index/app_description.txt !}
 ```
 
 and run the following command to create a new **FastStream** project:
+
 ``` shell
 faststream_gen -i description.txt
 ```
@@ -282,6 +247,7 @@ faststream_gen -i description.txt
 ```
 
 ### Tutorial
+
 We also invite you to explore our tutorial, where we will guide you through the process of utilizing the [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"} Python library to effortlessly create **FastStream** applications:
 
 - [Cryptocurrency analysis with FastStream](https://faststream-gen.airt.ai/Tutorial/Cryptocurrency_Tutorial/){.external-link target="_blank"}

@@ -32,8 +32,8 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
         middlewares: Optional[
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
-        parser: Optional[CustomParser[aio_pika.IncomingMessage]] = None,
-        decoder: Optional[CustomDecoder[aio_pika.IncomingMessage]] = None,
+        parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
+        decoder: Optional[CustomDecoder[RabbitMessage]] = None,
     ): ...
     @staticmethod
     @override
@@ -54,8 +54,8 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
         # broker arguments
         dependencies: Sequence[Depends] = (),
         filter: Filter[RabbitMessage] = default_filter,
-        parser: Optional[CustomParser[aio_pika.IncomingMessage]] = None,
-        decoder: Optional[CustomDecoder[aio_pika.IncomingMessage]] = None,
+        parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
+        decoder: Optional[CustomDecoder[RabbitMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[

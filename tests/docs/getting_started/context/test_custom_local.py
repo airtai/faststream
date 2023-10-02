@@ -1,6 +1,7 @@
 import pytest
 
 from faststream.kafka import TestKafkaBroker
+from faststream.nats import TestNatsBroker
 from faststream.rabbit import TestRabbitBroker
 
 
@@ -26,5 +27,18 @@ async def test_custom_local_context_rabbit():
 
     async with TestRabbitBroker(broker) as br:
         await br.publish("Hi!", "test-queue")
+
+        handle.mock.assert_called_once_with("Hi!")
+
+
+@pytest.mark.asyncio
+async def test_custom_local_context_nats():
+    from docs.docs_src.getting_started.context.custom_local_context_nats import (
+        broker,
+        handle,
+    )
+
+    async with TestNatsBroker(broker) as br:
+        await br.publish("Hi!", "test-subject")
 
         handle.mock.assert_called_once_with("Hi!")

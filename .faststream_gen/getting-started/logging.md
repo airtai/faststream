@@ -67,6 +67,22 @@ from faststream.rabbit import RabbitBroker
 broker = RabbitBroker(log_fmt="%(asctime)s %(levelname)s - %(message)s")
 ```
 
+## Logger Access
+
+If you want to override default logger's behavior, you can access them directly via `logging`.
+
+```python
+import logging
+logger = logging.getLogger("faststream")
+access_logger = logging.getLogger("faststream.access")
+```
+
+Or you can import them from **FastStream**.
+
+```python
+from faststream.log import access_logger, logger
+```
+
 ## Using Your Own Loggers
 
 Since **FastStream** works with the standard `logging.Logger` object, you can initiate an application and a broker
@@ -83,6 +99,11 @@ broker = RabbitBroker(logger=logger)
 app = FastStream(broker, logger=logger)
 ```
 
+!!! note
+    Doing this, you doesn't change the **CLI** logs behavior (*multiprocessing* and *hot reload* logs).  This was done to keep your log storage clear of unnecessary stuff.
+
+    This logger will be used only for `FastStream` and `StreamBroker` service messages and will be passed to your function through the **Context**.
+
 By doing this, you will lose information about the context of the current request. However, you can retrieve it directly from the context anywhere in your code.
 
 ```python
@@ -90,18 +111,98 @@ from faststream import context
 log_context: dict[str, str] = context.get_local("log_context")
 ```
 
-## Logger Access
-
-If you want to override default logger's behavior, you can access them directly via `logging`.
+This way, all broker handlers can get access to your broker logger right from the context:
 
 ```python
-import logging
-logger = logging.getLogger("faststream")
-access_logger = logging.getLogger("faststream.access")
+from faststream import Logger
+
+@broker.subscriber(...)
+async def handler(
+    msg,
+    logger: Logger,  # <-- YOUR logger here
+):
+    logger.info(msg)
 ```
 
-Or you can import them from **FastStream**.
+### Structlog Example
 
-```python
-from faststream.log import access_logger, logger
+[**Structlog**](https://www.structlog.org/en/stable){.external-link target="_blank"} is a production-ready logging solution for Python. It can be easely integrated with any log storage system, making it suitable for use in production projects.
+
+Here is a quick tutorial on integrating **Structlog** with **FastStream**:
+
+Start with the **Structlog** [guide](https://www.structlog.org/en/stable/logging-best-practices.html#pretty-printing-vs-structured-output){.external-link target="_blank"} example:
+
+```python linenums="1" hl_lines="11 14 20"
+import sys
+import structlog
+
+shared_processors = [
+    structlog.processors.add_log_level,
+    structlog.processors.StackInfoRenderer(),
+    structlog.dev.set_exc_info,
+    structlog.processors.TimeStamper(fmt="iso"),
+]
+
+if sys.stderr.isatty():
+    # terminal session
+    processors = shared_processors + [
+        structlog.dev.ConsoleRenderer()
+    ]
+else:
+    # Docker container session
+    processors = shared_processors + [
+        structlog.processors.dict_tracebacks,
+        structlog.processors.JSONRenderer(),
+    ]
+
+structlog.configure(
+    processors=processors,
+    logger_factory=structlog.PrintLoggerFactory(),
+    cache_logger_on_first_use=False,
+)
+
+logger = structlog.get_logger()
+```
+
+We created a logger that prints messages to the console in a user-friendly format during development and uses **JSON**-formatted logs in production.
+
+To integrate this logger with our **FastStream** application, we just need to access it through context information and pass it to our objects:
+
+```python linenums="1" hl_lines="11 15 20 26-27"
+import logging
+
+import structlog
+
+from faststream import FastStream, context
+from faststream.kafka import KafkaBroker
+
+def merge_contextvars(
+    logger: structlog.types.WrappedLogger,
+    method_name: str,
+    event_dict: structlog.types.EventDict,
+) -> structlog.types.EventDict:
+    event_dict["extra"] = event_dict.get(
+        "extra",
+        context.get("log_context", {}),
+    )
+    return event_dict
+
+shared_processors = [
+    merge_contextvars,
+    ...
+]
+
+...
+
+broker = KafkaBroker(logger=logger, log_level=logging.DEBUG)
+app = FastStream(broker, logger=logger)
+```
+
+And the job is done! Now you have a perfectly structured logs using **Structlog**.
+
+```bash
+TIMESPAMP [info     ] FastStream app starting...     extra={}
+TIMESPAMP [debug    ] `Handler` waiting for messages extra={'topic': 'topic', 'group_id': 'group', 'message_id': ''}
+TIMESPAMP [debug    ] `Handler` waiting for messages extra={'topic': 'topic', 'group_id': 'group2', 'message_id': ''}
+TIMESPAMP [info     ] FastStream app started successfully! To exit, press CTRL+C extra={'topic': '', 'group_id': '', 'message_id': ''}
 ```

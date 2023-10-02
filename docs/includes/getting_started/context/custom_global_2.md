@@ -7,3 +7,8 @@
     ```python linenums="1" hl_lines="4"
     {!> docs_src/getting_started/context/custom_global_context_rabbit.py [ln:8-13] !}
     ```
+
+=== "NATS"
+    ```python linenums="1" hl_lines="4"
+    {!> docs_src/getting_started/context/custom_global_context_nats.py [ln:8-13] !}
+    ```

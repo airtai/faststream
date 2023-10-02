@@ -46,7 +46,7 @@ async def base_handler(body: str):
 If you want to acknowledge a message manually, you can get access directy to the message object via the [Context](../getting-started/context/existed.md){.internal-link} and call the method.
 
 ```python
-from faststream.rabbit import RabbitMessage
+from faststream.rabbit.annotations import RabbitMessage
 
 @broker.subscriber("test")
 async def base_handler(body: str, msg: RabbitMessage):
@@ -63,7 +63,7 @@ async def base_handler(body: str, msg: RabbitMessage):
 
 If you want to interrupt message processing at any call stack, you can raise `faststream.exceptions.AckMessage`
 
-``` python linenums="1" hl_lines="16"
+``` python linenums="1" hl_lines="2 16"
 {!> docs_src/rabbit/ack/errors.py !}
 ```
 

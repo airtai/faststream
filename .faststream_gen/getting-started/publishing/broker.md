@@ -13,3 +13,8 @@ In the **FastStream** project, this call is not represented in the **AsyncAPI** 
     ```python linenums="1"
     {!> docs_src/getting_started/publishing/broker_rabbit.py !}
     ```
+
+=== "NATS"
+    ```python linenums="1"
+    {!> docs_src/getting_started/publishing/broker_nats.py !}
+    ```

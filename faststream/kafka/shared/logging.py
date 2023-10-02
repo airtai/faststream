@@ -59,12 +59,14 @@ class KafkaLoggingMixin(LoggingMixin):
             **kwargs,
         )
         self._max_topic_len = 4
+        self._max_group_len = 0
 
     @override
     def _get_log_context(  # type: ignore[override]
         self,
         message: Optional[StreamMessage[ConsumerRecord]],
         topics: Sequence[str] = (),
+        group_id: Optional[str] = None,
     ) -> AnyDict:
         """Get the log context.
 
@@ -87,6 +89,7 @@ class KafkaLoggingMixin(LoggingMixin):
 
         context = {
             "topic": topic,
+            "group_id": group_id or "",
             **super()._get_log_context(message),
         }
         return context
@@ -95,12 +98,15 @@ class KafkaLoggingMixin(LoggingMixin):
     def fmt(self) -> str:
         return super().fmt or (
             "%(asctime)s %(levelname)s - "
-            f"%(topic)-{self._max_topic_len}s | "
-            "%(message_id)-10s "
-            "- %(message)s"
+            + f"%(topic)-{self._max_topic_len}s | "
+            + (f"%(group_id)-{self._max_group_len}s | " if self._max_group_len else "")
+            + "%(message_id)-10s "
+            + "- %(message)s"
         )
 
-    def _setup_log_context(self, topics: Iterable[str]) -> None:
+    def _setup_log_context(
+        self, topics: Iterable[str], group_id: Optional[str] = None
+    ) -> None:
         """Set up log context.
 
         Args:
@@ -114,3 +120,6 @@ class KafkaLoggingMixin(LoggingMixin):
         """
         for t in topics:
             self._max_topic_len = max((self._max_topic_len, len(t)))
+
+        if group_id:
+            self._max_group_len = max((self._max_group_len, len(group_id)))

@@ -1,6 +1,7 @@
 import pytest
 
 from faststream.kafka import TestKafkaBroker
+from faststream.nats import TestNatsBroker
 from faststream.rabbit import TestRabbitBroker
 
 
@@ -26,5 +27,18 @@ async def test_fields_access_rabbit():
 
     async with TestRabbitBroker(broker) as br:
         await br.publish("Hi!", "test-queue")
+
+        handle.mock.assert_called_once_with("Hi!")
+
+
+@pytest.mark.asyncio
+async def test_fields_access_nats():
+    from docs.docs_src.getting_started.context.fields_access_nats import (
+        broker,
+        handle,
+    )
+
+    async with TestNatsBroker(broker) as br:
+        await br.publish("Hi!", "test-subject")
 
         handle.mock.assert_called_once_with("Hi!")

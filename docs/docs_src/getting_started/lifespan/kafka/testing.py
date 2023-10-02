@@ -13,7 +13,7 @@ async def handle():
 
 @pytest.mark.asyncio
 async def test_lifespan():
-    async with TestKafkaBroker(app.broker):
+    async with TestKafkaBroker(app.broker, connect_only=True):
         async with TestApp(app):
             # test something
             pass

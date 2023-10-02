@@ -1,0 +1,3 @@
+
+
+::: faststream.nats.parser.NatsParser
