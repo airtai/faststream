@@ -8,12 +8,18 @@
     // if path starts with version, redirect to versioned 404
     let foundVersion = false
     versions.forEach(version => {
-        const versionedPath = `/${version}`;
-        if (window.location.pathname.startsWith(versionedPath)) {
+        // const versionedPath = `/${version}`;
+
+        if (window.location.pathname.startsWith(`/${version}`) && !window.location.pathname.startsWith(`/${version}/`)) {
+            const versionToReplace = location.pathname.split('/')[1];
+            foundVersion = true;
+            window.location.href = window.location.href.replace(versionToReplace, version)
+        }
+        else if (window.location.pathname.startsWith(`/${version}/`)) {
              // we need this foundVersion guard because the browser is fast and
              // will keep the executing code below until the redirect happens
             foundVersion = true;
-            window.location.href = `${versionedPath}/${targetRedirectPath}`
+            window.location.href = `/${version}/${targetRedirectPath}`
         }
     });
 
