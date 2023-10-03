@@ -22,6 +22,19 @@ class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
             Reject the Kafka message.
     """
 
+    def __init__(
+        self,
+        *args: Any,
+        consumer: aiokafka.AIOKafkaConsumer,
+        is_manual: bool = False,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.is_manual = is_manual
+        self.consumer = consumer
+        self.commited = False
+
     async def ack(self, **kwargs: Any) -> None:
         """
         Acknowledge the Kafka message.
@@ -32,7 +45,9 @@ class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
         Returns:
             None: This method does not return a value.
         """
-        return None
+        if self.is_manual and not self.commited:
+            await self.consumer.commit()
+            self.commited = True
 
     async def nack(self, **kwargs: Any) -> None:
         """
@@ -44,7 +59,7 @@ class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
         Returns:
             None: This method does not return a value.
         """
-        return None
+        self.commited = True
 
     async def reject(self, **kwargs: Any) -> None:
         """
@@ -56,4 +71,4 @@ class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
         Returns:
             None: This method does not return a value.
         """
-        return None
+        self.commited = True
