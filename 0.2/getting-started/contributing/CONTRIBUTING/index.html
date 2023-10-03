@@ -2081,14 +2081,15 @@
 <li><strong>slow</strong></li>
 <li><strong>rabbit</strong></li>
 <li><strong>kafka</strong></li>
+<li><strong>nats</strong></li>
 <li><strong>all</strong></li>
 </ul>
 <p>By default, running <em>pytest</em> will execute "not slow" tests.</p>
 <p>To run all tests use:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pytest<span class="w"> </span>-m<span class="w"> </span><span class="s1">&#39;all&#39;</span>
 </code></pre></div>
-<p>If you don't have a local RabbitMQ or Kafka instance running, you can run tests without those dependencies:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pytest<span class="w"> </span>-m<span class="w"> </span><span class="s1">&#39;not rabbit and not kafka&#39;</span>
+<p>If you don't have a local broker instance running, you can run tests without those dependencies:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pytest<span class="w"> </span>-m<span class="w"> </span><span class="s1">&#39;not rabbit and not kafka and not nats&#39;</span>
 </code></pre></div>
 <p>To run tests based on RabbitMQ, Kafka, or other dependencies, the following dependencies are needed to be started as docker containers:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3&quot;</span>
@@ -2143,7 +2144,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-25T09:31:44+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-25</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-10-03T09:03:11+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-10-03</span>
       
     
   </small>
