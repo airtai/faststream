@@ -7,6 +7,7 @@ from faststream.asyncapi.generate import get_app_schema
 def test_broker_customization():
     schema = get_app_schema(app).to_jsonable()
 
+    print(schema)
     assert schema == {
         "asyncapi": "2.6.0",
         "defaultContentType": "application/json",
@@ -19,36 +20,34 @@ def test_broker_customization():
             }
         },
         "channels": {
-            "OnInputData": {
+            "input_data": {
                 "servers": ["development"],
                 "bindings": {
                     "kafka": {"topic": "input_data", "bindingVersion": "0.4.0"}
                 },
                 "subscribe": {
-                    "message": {"$ref": "#/components/messages/OnInputDataMessage"}
+                    "message": {"$ref": "#/components/messages/input_data_message"}
                 },
             },
-            "Output_DataPublisher": {
+            "output_data": {
                 "servers": ["development"],
                 "bindings": {
                     "kafka": {"topic": "output_data", "bindingVersion": "0.4.0"}
                 },
                 "publish": {
-                    "message": {
-                        "$ref": "#/components/messages/Output_DataPublisherMessage"
-                    }
+                    "message": {"$ref": "#/components/messages/output_data_message"}
                 },
             },
         },
         "components": {
             "messages": {
-                "OnInputDataMessage": {
-                    "title": "OnInputDataMessage",
+                "input_data_message": {
+                    "title": "input_data_message",
                     "correlationId": {"location": "$message.header#/correlation_id"},
                     "payload": {"$ref": "#/components/schemas/DataBasic"},
                 },
-                "Output_DataPublisherMessage": {
-                    "title": "Output_DataPublisherMessage",
+                "output_data_message": {
+                    "title": "output_data_message",
                     "correlationId": {"location": "$message.header#/correlation_id"},
                     "payload": {"$ref": "#/components/schemas/DataBasic"},
                 },

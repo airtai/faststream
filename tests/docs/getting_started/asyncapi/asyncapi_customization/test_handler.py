@@ -19,47 +19,43 @@ def test_broker_customization():
             }
         },
         "channels": {
-            "OnInputData": {
+            "input_data": {
                 "description": "My subscriber description",
                 "servers": ["development"],
                 "bindings": {
                     "kafka": {"topic": "input_data", "bindingVersion": "0.4.0"}
                 },
                 "subscribe": {
-                    "message": {"$ref": "#/components/messages/OnInputDataMessage"}
+                    "message": {"$ref": "#/components/messages/input_data_message"}
                 },
             },
-            "Output_DataPublisher": {
+            "output_data": {
                 "description": "My publisher description",
                 "servers": ["development"],
                 "bindings": {
                     "kafka": {"topic": "output_data", "bindingVersion": "0.4.0"}
                 },
                 "publish": {
-                    "message": {
-                        "$ref": "#/components/messages/Output_DataPublisherMessage"
-                    }
+                    "message": {"$ref": "#/components/messages/output_data_message"}
                 },
             },
         },
         "components": {
             "messages": {
-                "OnInputDataMessage": {
-                    "title": "OnInputDataMessage",
+                "input_data_message": {
+                    "title": "input_data_message",
                     "correlationId": {"location": "$message.header#/correlation_id"},
-                    "payload": {"$ref": "#/components/schemas/OnInputDataMsgPayload"},
+                    "payload": {"$ref": "#/components/schemas/input_dataMsgPayload"},
                 },
-                "Output_DataPublisherMessage": {
-                    "title": "Output_DataPublisherMessage",
+                "output_data_message": {
+                    "title": "output_data_message",
                     "correlationId": {"location": "$message.header#/correlation_id"},
-                    "payload": {
-                        "$ref": "#/components/schemas/Output_DataPublisherPayload"
-                    },
+                    "payload": {"$ref": "#/components/schemas/output_dataPayload"},
                 },
             },
             "schemas": {
-                "OnInputDataMsgPayload": {"title": "OnInputDataMsgPayload"},
-                "Output_DataPublisherPayload": {},
+                "input_dataMsgPayload": {"title": "input_dataMsgPayload"},
+                "output_dataPayload": {},
             },
         },
     }

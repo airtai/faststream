@@ -358,17 +358,15 @@ class FastAPICompatible:
             == 2
         )
 
-        for key, v in payload.items():
-            assert key == IsStr(regex=r"test\w*Payload")
-            assert v == {
-                "oneOf": {
-                    "testIdPayload": {
-                        "title": "testIdPayload",
-                        "type": "integer",
-                    },
-                    "testMsgPayload": {"title": "testMsgPayload"},
-                }
-            }, v
+        payload = schema["components"]["schemas"]
+
+        assert payload == {
+            "testIdPayload": {
+                "title": "testIdPayload",
+                "type": "integer",
+            },
+            "testMsgPayload": {"title": "testMsgPayload"},
+        }
 
 
 class ArgumentsTestcase(FastAPICompatible):
