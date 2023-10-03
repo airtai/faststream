@@ -54,3 +54,8 @@ For this reason, **FastStream** supports per-argument message serialization: you
     ```python
     {!> docs_src/getting_started/subscription/annotation_rabbit.py [ln:8-11] !}
     ```
+
+=== "NATS"
+    ```python
+    {!> docs_src/getting_started/subscription/annotation_nats.py [ln:8-11] !}
+    ```

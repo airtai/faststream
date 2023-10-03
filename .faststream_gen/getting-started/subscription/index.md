@@ -27,6 +27,17 @@ The basic syntax is the same for all brokers:
         ...
     ```
 
+=== "NATS"
+    ```python
+    from faststream.nats import NatsBroker
+
+    broker = NatsBroker()
+
+    @broker.subscriber("test")  # subject name
+    async def handle_msg(msg_body):
+        ...
+    ```
+
 !!! tip
     If you want to use Message Broker specific features, please visit the corresponding broker documentation section.
     In the **Tutorial** section, the general features are described.
@@ -51,6 +62,17 @@ Also, synchronous functions are supported as well:
     broker = RabbitBroker()
 
     @broker.subscriber("test")  # queue name
+    def handle_msg(msg_body):
+        ...
+    ```
+
+=== "NATS"
+    ```python
+    from faststream.nats import NatsBroker
+
+    broker = NatsBroker()
+
+    @broker.subscriber("test")  # subject name
     def handle_msg(msg_body):
         ...
     ```
@@ -87,6 +109,17 @@ This way **FastStream** still consumes `#!python json.loads` result, but without
     from faststream.rabbit import RabbitBroker
 
     broker = RabbitBroker(apply_types=False)
+
+    @broker.subscriber("test")
+    async def handle_msg(msg_body: str):  # just an annotation, has no real effect
+        ...
+    ```
+
+=== "NATS"
+    ```python
+    from faststream.nats import NatsBroker
+
+    broker = NatsBroker(apply_types=False)
 
     @broker.subscriber("test")
     async def handle_msg(msg_body: str):  # just an annotation, has no real effect

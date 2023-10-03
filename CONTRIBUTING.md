@@ -2,19 +2,19 @@
 
 # Development
 
-Ofter cloning the project, you will need to setup the development envirionment, here are the guidelines on how to do this.
+After cloning the project, you'll need to set up the development environment. Here are the guidelines on how to do this.
 
-## Virtual environment with `venv`
+## Virtual Environment with `venv`
 
-You can create a virtual environment in a directory using Python's `venv` module:
+Create a virtual environment in a directory using Python's `venv` module:
 
 ```bash
 python -m venv venv
 ```
 
-That will create a directory `./venv/` with the Python binaries and then you will be able to install packages for that isolated environment.
+That will create a `./venv/` directory with Python binaries, allowing you to install packages in an isolated environment.
 
-## Activate the environment
+## Activate the Environment
 
 Activate the new environment with:
 
@@ -22,41 +22,41 @@ Activate the new environment with:
 source ./venv/bin/activate
 ```
 
-Make sure you have the latest pip version in your virtual environment
+Ensure you have the latest pip version in your virtual environment:
 
 ```bash
 python -m pip install --upgrade pip
 ```
 
-## pip
+## Installing Dependencies
 
-After activating the environment as described above, run:
+After activating the virtual environment as described above, run:
 
 ```bash
 pip install -e ".[dev]"
 ```
 
-It will install all the dependencies and your local FastStream in your local environment.
+This will install all the dependencies and your local FastStream in your virtual environment.
 
-### Using your local FastStream
+### Using Your local FastStream
 
 If you create a Python file that imports and uses FastStream, and run it with the Python from your local environment, it will use your local FastStream source code.
 
-And if you update that local FastStream source code, as it is installed with `-e`, when you run that Python file again, it will use the fresh version of FastStream you just edited.
+Whenever you update your local FastStream source code, it will automatically use the latest version when you run your Python file again. This is because it is installed with `-e`.
 
-That way, you don't have to "install" your local version to be able to test every change.
+This way, you don't have to "install" your local version to be able to test every change.
 
-To use your local FastStream cli type:
+To use your local FastStream CLI, type:
 
 ```bash
 python -m faststream ...
 ```
 
-## Tests
+## Running Tests
 
 ### Pytest
 
-To run tests with your current FastStream application and Python environment use:
+To run tests with your current FastStream application and Python environment, use:
 
 ```bash
 pytest tests
@@ -66,14 +66,14 @@ pytest tests
 ./scripts/test-cov.sh
 ```
 
-There are some *pytest marks* at project:
+In your project, you'll find some *pytest marks*:
 
 * **slow**
 * **rabbit**
 * **kafka**
 * **all**
 
-Default *pytest* calling runs "not slow" tests.
+By default, running *pytest* will execute "not slow" tests.
 
 To run all tests use:
 
@@ -81,13 +81,13 @@ To run all tests use:
 pytest -m 'all'
 ```
 
-Also if you don't have a local rabbit or kafka intance running, run tests without that dependencies
+If you don't have a local RabbitMQ or Kafka instance running, you can run tests without those dependencies:
 
 ```bash
 pytest -m 'not rabbit and not kafka'
 ```
 
-To run all tests based on RabbitMQ, Kafka or another dependencies you should first run the following *docker-compose.yml*
+To run tests based on RabbitMQ, Kafka, or other dependencies, the following dependencies are needed to be started as docker containers:
 
 ```yaml
 version: "3"
@@ -119,8 +119,26 @@ services:
     # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
     security_opt:
       - no-new-privileges:true
+  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
+  nats:
+    image: nats
+    command: -js
+    ports:
+      - 4222:4222
+      - 8222:8222  # management
+    # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
+    security_opt:
+      - no-new-privileges:true
 ```
 
+You can start the dependencies easily using provided script by running:
+
 ```bash
-docker compose up -d
+./scripts/start_test_env.sh
+```
+
+Once you are done with development and running tests, you can stop the dependencies' docker containers by running:
+
+```bash
+./scripts/stop_test_env.sh
 ```

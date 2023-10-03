@@ -1,23 +1,37 @@
-# Defining a partition key
+# Using a Partition Key
 
-Partition keys are used in Apache Kafka to determine which partition a message should be written to. This ensures that related messages are kept together in the same partition, which can be useful for ensuring order or for grouping related messages together for efficient processing. Additionally, partitioning data across multiple partitions allows Kafka to distribute load across multiple brokers and scale horizontally, while replicating data across multiple brokers provides fault tolerance.
+Partition keys are a crucial concept in Apache Kafka, enabling you to determine the appropriate partition for a message. This ensures that related messages are kept together in the same partition, which can be invaluable for maintaining order or grouping related messages for efficient processing. Additionally, Kafka utilizes partitioning to distribute load across multiple brokers and scale horizontally, while replicating data across brokers provides fault tolerance.
 
-You can define your partition keys when using the `#!python @KafkaBroker.publisher(...)`, this guide will demonstrate to you this feature.
+You can specify your partition keys when utilizing the `@KafkaBroker.publisher(...)` decorator in FastStream. This guide will walk you through the process of using partition keys effectively.
 
-## Calling `publish` with a key
+## Publishing with a Partition Key
 
-To publish a message to a Kafka topic using a key, simpliy pass the `key` parameter to the `publish` function call, like this:
+To publish a message to a Kafka topic using a partition key, follow these steps:
 
-```python
+### Step 1: Define the Publisher
+
+In your FastStream application, define the publisher using the `@KafkaBroker.publisher(...)` decorator. This decorator allows you to configure various aspects of message publishing, including the partition key.
+
+```python linenums="1"
+{!> docs_src/kafka/publish_with_partition_key/app.py [ln:17] !}
+```
+
+### Step 2: Pass the Key
+
+When you're ready to publish a message with a specific key, simply include the `key` parameter in the `publish` function call. This key parameter is used to determine the appropriate partition for the message.
+
+```python linenums="1"
 {!> docs_src/kafka/publish_with_partition_key/app.py [ln:25] !}
 ```
 
-## App example
+## Example Application
 
-Lest take a look at the whole app example that will consume from the **input_data** topic and publish with key to the **output_data** topic.
+Let's examine a complete application example that consumes messages from the **input_data** topic and publishes them with a specified key to the **output_data** topic. This example will illustrate how to incorporate partition keys into your Kafka-based applications:
 
-You can see that the only difference from normal publishing is that now we pass the key to the publisher call.
-
-```python linenums="1" hl_lines="25"
+```python linenums="1"
 {!> docs_src/kafka/publish_with_partition_key/app.py [ln:1-25] !}
 ```
+
+As you can see, the primary difference from standard publishing is the inclusion of the `key` parameter in the `publish` call. This key parameter is essential for controlling how Kafka partitions and processes your messages.
+
+In summary, using partition keys in Apache Kafka is a fundamental practice for optimizing message distribution, maintaining order, and achieving efficient processing. It is a key technique for ensuring that your Kafka-based applications scale gracefully and handle large volumes of data effectively.

@@ -353,7 +353,10 @@ class FastAPICompatible:
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
-        payload = schema["components"]["schemas"]
+        assert (
+            len(list(schema["components"]["messages"].values())[0]["payload"]["oneOf"])
+            == 2
+        )
 
         for key, v in payload.items():
             assert key == IsStr(regex=r"test\w*Payload")

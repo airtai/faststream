@@ -68,8 +68,8 @@ class RabbitBroker(
         # broker args
         apply_types: bool = True,
         dependencies: Sequence[Depends] = (),
-        decoder: Optional[CustomDecoder[aio_pika.IncomingMessage]] = None,
-        parser: Optional[CustomParser[aio_pika.IncomingMessage]] = None,
+        decoder: Optional[CustomDecoder[RabbitMessage]] = None,
+        parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
@@ -137,8 +137,8 @@ class RabbitBroker(
         # broker arguments
         dependencies: Sequence[Depends] = (),
         filter: Filter[RabbitMessage] = default_filter,
-        parser: Optional[CustomParser[aio_pika.IncomingMessage]] = None,
-        decoder: Optional[CustomDecoder[aio_pika.IncomingMessage]] = None,
+        parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
+        decoder: Optional[CustomDecoder[RabbitMessage]] = None,
         middlewares: Optional[
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,

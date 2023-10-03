@@ -18,6 +18,11 @@ However, you can set default values if needed.
     {!> docs_src/getting_started/context/default_arguments_rabbit.py [ln:7-11] !}
     ```
 
+=== "NATS"
+    ```python linenums="1" hl_lines="3 5"
+    {!> docs_src/getting_started/context/default_arguments_nats.py [ln:7-11] !}
+    ```
+
 ## Cast Context Types
 
 By default, context fields are **NOT CAST** to the type specified in their annotation.
@@ -32,6 +37,11 @@ By default, context fields are **NOT CAST** to the type specified in their annot
     {!> docs_src/getting_started/context/cast_rabbit.py [ln:1-12] !}
     ```
 
+=== "NATS"
+    ```python linenums="1" hl_lines="6 10 12"
+    {!> docs_src/getting_started/context/cast_nats.py [ln:1-12] !}
+    ```
+
 If you require this functionality, you can enable the appropriate flag.
 
 === "Kafka"
@@ -42,4 +52,9 @@ If you require this functionality, you can enable the appropriate flag.
 === "RabbitMQ"
     ```python linenums="1" hl_lines="3 5"
     {!> docs_src/getting_started/context/cast_rabbit.py [ln:14-18] !}
+    ```
+
+=== "NATS"
+    ```python linenums="1" hl_lines="3 5"
+    {!> docs_src/getting_started/context/cast_nats.py [ln:14-18] !}
     ```

@@ -7,7 +7,6 @@ from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import aiormq
-import anyio
 from aio_pika.message import IncomingMessage
 from pamqp import commands as spec
 from pamqp.header import ContentHeader
@@ -74,7 +73,12 @@ class TestRabbitBroker:
     # This is set so pytest ignores this class
     __test__ = False
 
-    def __init__(self, broker: RabbitBroker, with_real: bool = False):
+    def __init__(
+        self,
+        broker: RabbitBroker,
+        with_real: bool = False,
+        connect_only: bool = False,
+    ):
         """
         Initialize a TestRabbitBroker instance.
 
@@ -85,6 +89,7 @@ class TestRabbitBroker:
         """
         self.with_real = with_real
         self.broker = broker
+        self.connect_only = connect_only
 
     @asynccontextmanager
     async def _create_ctx(self) -> AsyncGenerator[RabbitBroker, None]:
@@ -105,7 +110,8 @@ class TestRabbitBroker:
 
         async with self.broker:
             try:
-                await self.broker.start()
+                if not self.connect_only:
+                    await self.broker.start()
                 yield self.broker
             finally:
                 _fake_close(self.broker)
@@ -388,7 +394,10 @@ def _fake_close(
         exc_val (Optional[BaseException]]): The exception value.
         exec_tb (Optional[TracebackType]]): The exception traceback.
     """
-    broker.middlewares = [CriticalLogMiddleware(broker.logger), *broker.middlewares]
+    broker.middlewares = [
+        CriticalLogMiddleware(broker.logger, broker.log_level),
+        *broker.middlewares,
+    ]
 
     for key, p in broker._publishers.items():
         p.mock.reset_mock()
@@ -400,8 +409,7 @@ def _fake_close(
 
     for h in broker.handlers.values():
         for f, _, _, _, _, _ in h.calls:
-            f.mock.reset_mock()
-            f.event = anyio.Event()
+            f.refresh(with_mock=True)
 
 
 def _fake_start(broker: RabbitBroker, *args: Any, **kwargs: Any) -> None:

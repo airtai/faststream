@@ -92,8 +92,8 @@ class KafkaBroker(
         # broker args
         apply_types: bool = True,
         dependencies: Sequence[Depends] = (),
-        decoder: Optional[CustomDecoder[aiokafka.ConsumerRecord]] = None,
-        parser: Optional[CustomParser[aiokafka.ConsumerRecord]] = None,
+        decoder: Optional[CustomDecoder[KafkaMessage]] = None,
+        parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
@@ -191,6 +191,7 @@ class KafkaBroker(
         [StreamMessage[aiokafka.ConsumerRecord]],
         Awaitable[WrappedReturn[T_HandlerReturn]],
     ]: ...
+    @override  # type: ignore[override]
     @overload
     def subscriber(
         self,
@@ -226,8 +227,8 @@ class KafkaBroker(
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[aiokafka.ConsumerRecord]] = None,
-        decoder: Optional[CustomDecoder[aiokafka.ConsumerRecord]] = None,
+        parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
+        decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
@@ -284,8 +285,10 @@ class KafkaBroker(
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[Tuple[aiokafka.ConsumerRecord, ...]]] = None,
-        decoder: Optional[CustomDecoder[Tuple[aiokafka.ConsumerRecord, ...]]] = None,
+        parser: Optional[
+            CustomParser[Tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
+        ] = None,
+        decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[

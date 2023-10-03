@@ -8,6 +8,11 @@
     {!> docs_src/getting_started/context/fields_access_rabbit.py !}
     ```
 
+=== "NATS"
+    ```python linenums="1" hl_lines="10-11"
+    {!> docs_src/getting_started/context/fields_access_nats.py !}
+    ```
+
 {{ comment_1 }}
 
 === "Kafka"
@@ -20,6 +25,11 @@
     {!> docs_src/getting_started/context/fields_access_rabbit.py [ln:10] !}
     ```
 
+=== "NATS"
+    ```python
+    {!> docs_src/getting_started/context/fields_access_nats.py [ln:10] !}
+    ```
+
 {{ comment_2 }}
 
 === "Kafka"
@@ -30,4 +40,9 @@
 === "RabbitMQ"
     ```python
     {!> docs_src/getting_started/context/fields_access_rabbit.py [ln:11] !}
+    ```
+
+=== "NATS"
+    ```python
+    {!> docs_src/getting_started/context/fields_access_nats.py [ln:11] !}
     ```

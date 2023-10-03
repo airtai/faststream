@@ -20,6 +20,11 @@ If you are working with a Publisher object (either decorator or direct), you can
     {!> docs_src/getting_started/publishing/object_rabbit.py[ln:7-12] !}
     ```
 
+=== "NATS"
+    ```python linenums="1"
+    {!> docs_src/getting_started/publishing/object_nats.py[ln:7-12] !}
+    ```
+
 === "Direct"
 === "Kafka"
     ```python linenums="1"
@@ -29,6 +34,11 @@ If you are working with a Publisher object (either decorator or direct), you can
 === "RabbitMQ"
     ```python linenums="1"
     {!> docs_src/getting_started/publishing/direct_rabbit.py[ln:7-11] !}
+    ```
+
+=== "NATS"
+    ```python linenums="1"
+    {!> docs_src/getting_started/publishing/direct_nats.py[ln:7-11] !}
     ```
 
 ## Testing
@@ -41,6 +51,11 @@ If you are working with a Publisher object (either decorator or direct), you can
 === "RabbitMQ"
     ```python linenums="1"
     {!> docs_src/getting_started/publishing/object_rabbit_testing.py [ln:1-3,7-12] !}
+    ```
+
+=== "NATS"
+    ```python linenums="1"
+    {!> docs_src/getting_started/publishing/object_nats_testing.py [ln:1-3,7-12] !}
     ```
 
 * Testing with a real broker

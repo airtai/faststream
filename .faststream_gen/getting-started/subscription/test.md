@@ -16,6 +16,11 @@ Let's take a look at the original application to test
     {!> docs_src/getting_started/subscription/annotation_rabbit.py !}
     ```
 
+=== "NATS"
+    ```python linenums="1" title="annotation_rabbit.py"
+    {!> docs_src/getting_started/subscription/annotation_nats.py !}
+    ```
+
 It consumes **JSON** messages like `#!json { "name": "username", "user_id": 1 }`
 
 You can test your consume function like a regular one, for sure:
@@ -46,6 +51,11 @@ Just use it like a regular async context manager - all published messages will b
     {!> docs_src/getting_started/subscription/testing_rabbit.py [ln:1-12] !}
     ```
 
+=== "NATS"
+    ```python linenums="1" hl_lines="4 11-12"
+    {!> docs_src/getting_started/subscription/testing_nats.py [ln:1-12] !}
+    ```
+
 ### Catching Exceptions
 
 This way you can catch any exceptions that occur inside your handler:
@@ -60,6 +70,11 @@ This way you can catch any exceptions that occur inside your handler:
     {!> docs_src/getting_started/subscription/testing_rabbit.py [ln:18-23] !}
     ```
 
+=== "NATS"
+    ```python linenums="1" hl_lines="4"
+    {!> docs_src/getting_started/subscription/testing_nats.py [ln:18-23] !}
+    ```
+
 ### Validates Input
 
 Also, your handler has a mock object to validate your input or call counts.
@@ -72,6 +87,11 @@ Also, your handler has a mock object to validate your input or call counts.
 === "RabbitMQ"
     ```python linenums="1" hl_lines="6"
     {!> docs_src/getting_started/subscription/testing_rabbit.py [ln:9-14] !}
+    ```
+
+=== "NATS"
+    ```python linenums="1" hl_lines="6"
+    {!> docs_src/getting_started/subscription/testing_nats.py [ln:9-14] !}
     ```
 
 !!! note
@@ -91,6 +111,11 @@ You should be careful with this feature: all mock objects will be cleared when t
     {!> docs_src/getting_started/subscription/testing_rabbit.py [ln:9-16] !}
     ```
 
+=== "NATS"
+    ```python linenums="1" hl_lines="6 8"
+    {!> docs_src/getting_started/subscription/testing_nats.py [ln:9-16] !}
+    ```
+
 ## Real Broker Testing
 
 If you want to test your application in a real environment, you shouldn't have to rewrite all you tests: just pass `with_real` optional parameter to your `TestClient` context manager. This way, `TestClient` supports all the testing features but uses an unpatched broker to send and consume messages.
@@ -105,10 +130,16 @@ If you want to test your application in a real environment, you shouldn't have t
     {!> docs_src/getting_started/subscription/real_testing_rabbit.py !}
     ```
 
+=== "NATS"
+    ```python linenums="1" hl_lines="4 11 13 20 23"
+    {!> docs_src/getting_started/subscription/real_testing_nats.py !}
+    ```
+
 !!! tip
     When you're using a patched broker to test your consumers, the publish method is called synchronously with a consumer one, so you need not wait until your message is consumed. But in the real broker's case, it doesn't.
 
     For this reason, you have to wait for message consumption manually with the special `#!python handler.wait_call(timeout)` method.
+    Also, inner handler exceptions will be raised in this function, not `#!python broker.publish(...)`.
 
 ### A Little Tip
 

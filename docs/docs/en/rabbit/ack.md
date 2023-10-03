@@ -26,7 +26,7 @@ async def base_handler(body: str):
     ...
 ```
 
-If the `retry` flag is set to `int`, the message will be placed back in the queue and the number of retries will be limited to this number:
+If the `retry` flag is set to an `int`, the message will be placed back in the queue, and the number of retries will be limited to this number:
 
 ```python
 @broker.subscriber("test", retry=3)     # make up to 3 attempts
@@ -39,14 +39,14 @@ async def base_handler(body: str):
     Subsequently, this logic will be reworked.
 
 !!! tip
-    For more complex error handling cases you can use [tenacity](https://tenacity.readthedocs.io/en/latest/){.external-link target="_blank"}
+    For more complex error handling cases, you can use [tenacity](https://tenacity.readthedocs.io/en/latest/){.external-link target="_blank"}
 
-## Manual Ack
+## Manual acknowledgement
 
-If you want to *ack* message manually, you can get access directy to the message object via the [Context](../getting-started/context/existed.md){.internal-link} and call the method.
+If you want to acknowledge a message manually, you can get access directy to the message object via the [Context](../getting-started/context/existed.md){.internal-link} and call the method.
 
 ```python
-from faststream.rabbit import RabbitMessage
+from faststream.rabbit.annotations import RabbitMessage
 
 @broker.subscriber("test")
 async def base_handler(body: str, msg: RabbitMessage):
@@ -57,14 +57,14 @@ async def base_handler(body: str, msg: RabbitMessage):
     await msg.reject()
 ```
 
-**FastStream** will see that the message was already *ack*ed and will do nothing at process end.
+**FastStream** will see that the message was already acknowledged and will do nothing at process end.
 
 ## Interrupt Process
 
-If you want to interrupt message processing at any callstack, you can raise `faststream.exceptions.AckMessage`
+If you want to interrupt message processing at any call stack, you can raise `faststream.exceptions.AckMessage`
 
-``` python linenums="1" hl_lines="16"
+``` python linenums="1" hl_lines="2 16"
 {!> docs_src/rabbit/ack/errors.py !}
 ```
 
-This way **FastStream** interrupts the current message proccessing and *ack* it immediately. Also, you can raise `NackMessage` and `RejectMessage` too.
+This way, **FastStream** interrupts the current message proccessing and acknowledges it immediately. Also, you can raise `NackMessage` and `RejectMessage` too.

@@ -23,6 +23,11 @@ By default, the context searches for an object based on the argument name.
     {!> docs_src/getting_started/context/existed_context_rabbit.py [ln:1-2,10-11,14-23] !}
     ```
 
+=== "NATS"
+    ```python linenums="1" hl_lines="1 12-15"
+    {!> docs_src/getting_started/context/existed_context_nats.py [ln:1-2,10-11,14-23] !}
+    ```
+
 ## Annotated Aliases
 
 Also, **FastStream** has already created `Annotated` aliases to provide you with comfortable access to existing objects. You can import them directly from `faststream` or your broker-specific modules:
@@ -49,6 +54,16 @@ from faststream.rabbit.annotations import (
 )
 ```
 
+* *NATS* aliases
+
+```python
+from faststream.rabbit.annotations import (
+    Logger, ContextRepo, NatsMessage,
+    NatsBroker, NatsProducer, NatsJsProducer,
+    Client, JsClient,
+)
+```
+
 To use them, simply import and use them as subscriber argument annotations.
 
 === "Kafka"
@@ -59,4 +74,9 @@ To use them, simply import and use them as subscriber argument annotations.
 === "RabbitMQ"
     ```python linenums="1" hl_lines="3-8 17-20"
     {!> docs_src/getting_started/context/existed_context_rabbit.py [ln:1-11,26-35] !}
+    ```
+
+=== "NATS"
+    ```python linenums="1" hl_lines="3-8 17-20"
+    {!> docs_src/getting_started/context/existed_context_nats.py [ln:1-11,26-35] !}
     ```

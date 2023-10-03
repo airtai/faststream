@@ -8,7 +8,7 @@
 {!> docs_src/rabbit/declare.py !}
 ```
 
-These methods require just a one argument (`RabbitQueue`/`RabbitExchange`) containing information about your *RabbitMQ* required objects. They declare/validate *RabbitMQ* objects and return low-level **aio-pika** robust objects to interact with.
+These methods require just one argument (`RabbitQueue`/`RabbitExchange`) containing information about your *RabbitMQ* required objects. They declare/validate *RabbitMQ* objects and return low-level **aio-pika** robust objects to interact with.
 
 !!! tip
-    Also, these methods are indempotent, so you can call them with the same arguments multiple times, but the objects will be created once, next time the method will return already stored object. This way you can get access to any queue/exchange created automatically.
+    Also, these methods are idempotent, so you can call them with the same arguments multiple times, but the objects will be created once; next time the method will return an already stored object. This way you can get access to any queue/exchange created automatically.

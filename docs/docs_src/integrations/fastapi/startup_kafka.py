@@ -7,7 +7,7 @@ router = KafkaRouter("localhost:9092")
 
 @router.subscriber("test")
 async def hello(msg: str):
-    return {"response": "Hello, world!"}
+    return {"response": "Hello, Kafka!"}
 
 
 @router.after_startup

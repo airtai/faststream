@@ -18,6 +18,11 @@ Just use `pydantic.Field` as a function default argument:
     {!> docs_src/getting_started/subscription/pydantic_fields_rabbit.py !}
     ```
 
+=== "NATS"
+    ```python linenums="1" hl_lines="12-17"
+    {!> docs_src/getting_started/subscription/pydantic_fields_nats.py !}
+    ```
+
 ## pydantic.BaseModel
 
 To make your message schema reusable between different subscribers and publishers, you can decalre it as a `pydantic.BaseModel` and use it as a single message annotation:
@@ -30,4 +35,9 @@ To make your message schema reusable between different subscribers and publisher
 === "RabbitMQ"
     ```python linenums="1" hl_lines="1 10 20"
     {!> docs_src/getting_started/subscription/pydantic_model_rabbit.py !}
+    ```
+
+=== "NATS"
+    ```python linenums="1" hl_lines="1 10 20"
+    {!> docs_src/getting_started/subscription/pydantic_model_nats.py !}
     ```
