@@ -82,7 +82,7 @@ To run all tests use:
 pytest -m 'all'
 ```
 
-If you don't have a local Broker instance running, you can run tests without those dependencies:
+If you don't have a local broker instance running, you can run tests without those dependencies:
 
 ```bash
 pytest -m 'not rabbit and not kafka and not nats'
