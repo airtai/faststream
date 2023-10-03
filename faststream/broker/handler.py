@@ -308,7 +308,7 @@ class AsyncHandler(BaseHandler[MsgType]):
                                         for m_pub in all_middlewares:
                                             result_to_send = (
                                                 await pub_stack.enter_async_context(
-                                                    m_pub.publish_scope(result_msg)
+                                                    m_pub.publish_scope(result_to_send)
                                                 )
                                             )
 

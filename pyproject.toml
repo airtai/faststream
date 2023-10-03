@@ -230,6 +230,7 @@ source = [
 context = '${CONTEXT}'
 omit = [
     "**/__init__.py",
+    "tests/mypy/*",
 ]
 
 [tool.coverage.report]

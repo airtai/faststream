@@ -10,17 +10,12 @@ from fast_depends._compat import (  # type: ignore[attr-defined]
 )
 from fast_depends._compat import FieldInfo
 from pydantic import BaseModel
-from typing_extensions import TypedDict as TypedDict
-from typing_extensions import override as override
 
-# TODO: uncomment with py3.12 release 2023-10-02
-# if sys.version_info < (3, 12):
-#     from typing_extensions import override as override
-#     from typing_extensions import TypedDict as TypedDict
-# else:
-#     from typing import override
-#     from typing import TypedDict as TypedDict
-
+if sys.version_info < (3, 12):
+    from typing_extensions import TypedDict as TypedDict
+    from typing_extensions import override as override
+else:
+    from typing import TypedDict as TypedDict
 
 if sys.version_info < (3, 11):
     from typing_extensions import Never as Never
