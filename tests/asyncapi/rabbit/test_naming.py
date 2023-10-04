@@ -27,7 +27,7 @@ class TestNaming(NamingTestCase):
                 }
             },
             "channels": {
-                "test/_/Handle": {
+                "test:_:Handle": {
                     "servers": ["development"],
                     "bindings": {
                         "amqp": {
@@ -52,15 +52,15 @@ class TestNaming(NamingTestCase):
                             }
                         },
                         "message": {
-                            "$ref": "#/components/messages/test/_/Handle/Message"
+                            "$ref": "#/components/messages/test:_:Handle:Message"
                         },
                     },
                 }
             },
             "components": {
                 "messages": {
-                    "test/_/Handle/Message": {
-                        "title": "test/_/Handle/Message",
+                    "test:_:Handle:Message": {
+                        "title": "test:_:Handle:Message",
                         "correlationId": {
                             "location": "$message.header#/correlation_id"
                         },

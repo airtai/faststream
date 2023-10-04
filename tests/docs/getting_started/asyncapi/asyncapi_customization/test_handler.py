@@ -8,13 +8,13 @@ def test_handler_customization():
     schema = get_app_schema(app).to_jsonable()
 
     assert schema["channels"] == {
-        "input_data/OnInputData": {
+        "input_data:OnInputData": {
             "description": "My subscriber description",
             "servers": ["development"],
             "bindings": {"kafka": {"topic": "input_data", "bindingVersion": "0.4.0"}},
             "subscribe": {
                 "message": {
-                    "$ref": "#/components/messages/input_data/OnInputData/Message"
+                    "$ref": "#/components/messages/input_data:OnInputData:Message"
                 }
             },
         },
@@ -23,7 +23,7 @@ def test_handler_customization():
             "servers": ["development"],
             "bindings": {"kafka": {"topic": "output_data", "bindingVersion": "0.4.0"}},
             "publish": {
-                "message": {"$ref": "#/components/messages/output_data/Message"}
+                "message": {"$ref": "#/components/messages/output_data:Message"}
             },
         },
     }

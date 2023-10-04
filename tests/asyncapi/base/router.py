@@ -30,8 +30,8 @@ class RouterTestcase:
         payload = schema["components"]["schemas"]
 
         assert list(payload.keys())[0] == IsStr(
-            regex=r"test/[\w/]*Handle/Message/Msg/Payload"
+            regex=r"test:[\w:]*Handle:Message:Msg:Payload"
         )
         assert payload[list(payload.keys())[0]]["title"] == IsStr(
-            regex=r"test/[\w/]*Handle/Message/Msg/Payload"
+            regex=r"test:[\w:]*Handle:Message:Msg:Payload"
         )

@@ -202,6 +202,6 @@ def get_model_schema(
 
     camel_body = to_camelcase(body["title"])
     if not use_original_model:
-        body["title"] = f"{prefix}{camel_body}/Payload"
+        body["title"] = f"{prefix}{camel_body}:Payload"
 
     return body

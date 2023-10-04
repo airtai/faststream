@@ -28,18 +28,18 @@ class TestNaming(NamingTestCase):
                 }
             },
             "channels": {
-                "test/Handle": {
+                "test:Handle": {
                     "servers": ["development"],
                     "bindings": {"kafka": {"topic": "test", "bindingVersion": "0.4.0"}},
                     "subscribe": {
-                        "message": {"$ref": "#/components/messages/test/Handle/Message"}
+                        "message": {"$ref": "#/components/messages/test:Handle:Message"}
                     },
                 }
             },
             "components": {
                 "messages": {
-                    "test/Handle/Message": {
-                        "title": "test/Handle/Message",
+                    "test:Handle:Message": {
+                        "title": "test:Handle:Message",
                         "correlationId": {
                             "location": "$message.header#/correlation_id"
                         },

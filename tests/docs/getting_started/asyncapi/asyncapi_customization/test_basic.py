@@ -4,7 +4,6 @@ from faststream.asyncapi.generate import get_app_schema
 
 def test_basic_customization():
     schema = get_app_schema(app).to_jsonable()
-
     assert schema == {
         "asyncapi": "2.6.0",
         "defaultContentType": "application/json",
@@ -17,14 +16,14 @@ def test_basic_customization():
             }
         },
         "channels": {
-            "input_data/OnInputData": {
+            "input_data:OnInputData": {
                 "servers": ["development"],
                 "bindings": {
                     "kafka": {"topic": "input_data", "bindingVersion": "0.4.0"}
                 },
                 "subscribe": {
                     "message": {
-                        "$ref": "#/components/messages/input_data/OnInputData/Message"
+                        "$ref": "#/components/messages/input_data:OnInputData:Message"
                     }
                 },
             },
@@ -34,28 +33,28 @@ def test_basic_customization():
                     "kafka": {"topic": "output_data", "bindingVersion": "0.4.0"}
                 },
                 "publish": {
-                    "message": {"$ref": "#/components/messages/output_data/Message"}
+                    "message": {"$ref": "#/components/messages/output_data:Message"}
                 },
             },
         },
         "components": {
             "messages": {
-                "input_data/OnInputData/Message": {
-                    "title": "input_data/OnInputData/Message",
+                "input_data:OnInputData:Message": {
+                    "title": "input_data:OnInputData:Message",
                     "correlationId": {"location": "$message.header#/correlation_id"},
                     "payload": {
-                        "$ref": "#/components/schemas/input_data/OnInputData/Message/Msg/Payload"
+                        "$ref": "#/components/schemas/input_data:OnInputData:Message:Msg:Payload"
                     },
                 },
-                "output_data/Message": {
-                    "title": "output_data/Message",
+                "output_data:Message": {
+                    "title": "output_data:Message",
                     "correlationId": {"location": "$message.header#/correlation_id"},
                     "payload": {"$ref": "#/components/schemas/output_dataPayload"},
                 },
             },
             "schemas": {
-                "input_data/OnInputData/Message/Msg/Payload": {
-                    "title": "input_data/OnInputData/Message/Msg/Payload"
+                "input_data:OnInputData:Message:Msg:Payload": {
+                    "title": "input_data:OnInputData:Message:Msg:Payload"
                 },
                 "output_dataPayload": {},
             },

@@ -9,13 +9,13 @@ def test_payload_customization():
 
     assert schema["components"] == {
         "messages": {
-            "input_data/OnInputData/Message": {
-                "title": "input_data/OnInputData/Message",
+            "input_data:OnInputData:Message": {
+                "title": "input_data:OnInputData:Message",
                 "correlationId": {"location": "$message.header#/correlation_id"},
                 "payload": {"$ref": "#/components/schemas/DataBasic"},
             },
-            "output_data/Message": {
-                "title": "output_data/Message",
+            "output_data:Message": {
+                "title": "output_data:Message",
                 "correlationId": {"location": "$message.header#/correlation_id"},
                 "payload": {"$ref": "#/components/schemas/DataBasic"},
             },

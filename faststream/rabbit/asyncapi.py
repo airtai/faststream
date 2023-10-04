@@ -52,7 +52,7 @@ class RMQAsyncAPIChannel(AsyncAPIOperation, BaseRMQInformation):
                     if _is_exchange(self.exchange)
                     else None,
                     message=Message(
-                        title=f"{self.name}/Message",
+                        title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads),
                         correlationId=CorrelationId(
                             location="$message.header#/correlation_id"
@@ -104,7 +104,7 @@ class Publisher(RMQAsyncAPIChannel, LogicPublisher):
     @property
     def name(self) -> str:
         return (
-            self.title or f"{self.queue.name}/{self.exchange if self.exchange else '_'}"
+            self.title or f"{self.queue.name}:{self.exchange if self.exchange else '_'}"
         )
 
     def get_payloads(self) -> List[AnyDict]:
@@ -113,7 +113,7 @@ class Publisher(RMQAsyncAPIChannel, LogicPublisher):
             call_model = build_call_model(call)
             body = get_response_schema(
                 call_model,
-                prefix=self.name + "/Message/",
+                prefix=self.name + ":Message:",
             )
             if body:
                 payloads.append(body)
@@ -135,14 +135,14 @@ class Handler(RMQAsyncAPIChannel, LogicHandler):
     @property
     def name(self) -> str:
         original = super().name
-        parsed_name = f"{self.queue.name}/{self.exchange if self.exchange else '_'}/{self.call_name}"
+        parsed_name = f"{self.queue.name}:{self.exchange if self.exchange else '_'}:{self.call_name}"
 
         return original if isinstance(original, str) else parsed_name
 
     def get_payloads(self) -> List[AnyDict]:
         payloads = []
         for _, _, _, _, _, dep in self.calls:
-            body = parse_handler_params(dep, prefix=self.name + "/Message/")
+            body = parse_handler_params(dep, prefix=self.name + ":Message:")
             payloads.append(body)
 
         return payloads

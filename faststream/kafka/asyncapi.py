@@ -33,18 +33,17 @@ class Handler(LogicHandler, AsyncAPIOperation):
         for t in self.topics:
             payloads = []
             handler_name = (
-                self.name if isinstance(self.name, str) else f"{t}/{self.call_name}"
+                self.name if isinstance(self.name, str) else f"{t}:{self.call_name}"
             )
             for _, _, _, _, _, dep in self.calls:
-                body = parse_handler_params(dep, prefix=handler_name + "/Message/")
+                body = parse_handler_params(dep, prefix=handler_name + ":Message:")
                 payloads.append(body)
 
-            print(payloads)
             channels[handler_name] = Channel(
                 description=self.description,
                 subscribe=Operation(
                     message=Message(
-                        title=f"{handler_name}/Message",
+                        title=f"{handler_name}:Message",
                         payload=resolve_payloads(payloads),
                         correlationId=CorrelationId(
                             location="$message.header#/correlation_id"
@@ -79,18 +78,18 @@ class Publisher(LogicPublisher, AsyncAPIOperation):
             call_model = build_call_model(call)
             body = get_response_schema(
                 call_model,
-                prefix=self.topic + "/Message/",
+                prefix=self.topic + ":Message:",
             )
             if body:
                 payloads.append(body)
-
+        print(payloads)
         return {
             self.title
             or self.topic: Channel(
                 description=self.description,
                 publish=Operation(
                     message=Message(
-                        title=f"{self.topic}/Message",
+                        title=f"{self.topic}:Message",
                         payload=resolve_payloads(payloads),
                         correlationId=CorrelationId(
                             location="$message.header#/correlation_id"

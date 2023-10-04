@@ -36,7 +36,7 @@ class TestRouter(RouterTestcase):
                 }
             },
             "channels": {
-                "test_test/_/Handle": {
+                "test_test:_:Handle": {
                     "servers": ["development"],
                     "bindings": {
                         "amqp": {
@@ -61,26 +61,26 @@ class TestRouter(RouterTestcase):
                             }
                         },
                         "message": {
-                            "$ref": "#/components/messages/test_test/_/Handle/Message"
+                            "$ref": "#/components/messages/test_test:_:Handle:Message"
                         },
                     },
                 }
             },
             "components": {
                 "messages": {
-                    "test_test/_/Handle/Message": {
-                        "title": "test_test/_/Handle/Message",
+                    "test_test:_:Handle:Message": {
+                        "title": "test_test:_:Handle:Message",
                         "correlationId": {
                             "location": "$message.header#/correlation_id"
                         },
                         "payload": {
-                            "$ref": "#/components/schemas/test_test/_/Handle/Message/Msg/Payload"
+                            "$ref": "#/components/schemas/test_test:_:Handle:Message:Msg:Payload"
                         },
                     }
                 },
                 "schemas": {
-                    "test_test/_/Handle/Message/Msg/Payload": {
-                        "title": "test_test/_/Handle/Message/Msg/Payload"
+                    "test_test:_:Handle:Message:Msg:Payload": {
+                        "title": "test_test:_:Handle:Message:Msg:Payload"
                     }
                 },
             },

@@ -20,7 +20,7 @@ class NamingTestCase:
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
         assert tuple(schema["channels"].keys())[0] == IsStr(
-            regex=r"test[\w/]*HandleUserCreated"
+            regex=r"test[\w:]*HandleUserCreated"
         ), tuple(schema["channels"].keys())[0]
 
     def test_not_duplicate_subject(self):
@@ -33,7 +33,7 @@ class NamingTestCase:
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
         assert tuple(schema["channels"].keys())[0] == IsStr(
-            regex=r"test[\w/]*HandleTest"
+            regex=r"test[\w:]*HandleTest"
         )
 
     def test_multi_subscribers_naming(self):
@@ -47,8 +47,8 @@ class NamingTestCase:
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
         assert list(schema["channels"].keys()) == [
-            IsStr(regex=r"test[/\w]*/HandleUserCreated"),
-            IsStr(regex=r"test2[/\w]*/HandleUserCreated"),
+            IsStr(regex=r"test[\w:]*:HandleUserCreated"),
+            IsStr(regex=r"test2[\w:]*:HandleUserCreated"),
         ], list(schema["channels"].keys())
 
     def test_naming_manual(self):
@@ -73,6 +73,6 @@ class NamingTestCase:
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
         assert list(schema["channels"].keys()) == [
-            IsStr(regex=r"test[/\w]*"),
-            IsStr(regex=r"test2[/\w]*"),
+            IsStr(regex=r"test[\w:]*"),
+            IsStr(regex=r"test2[\w:]*"),
         ]

@@ -36,33 +36,33 @@ class TestRouter(RouterTestcase):
                 }
             },
             "channels": {
-                "test_test/Handle": {
+                "test_test:Handle": {
                     "servers": ["development"],
                     "bindings": {
                         "kafka": {"topic": "test_test", "bindingVersion": "0.4.0"}
                     },
                     "subscribe": {
                         "message": {
-                            "$ref": "#/components/messages/test_test/Handle/Message"
+                            "$ref": "#/components/messages/test_test:Handle:Message"
                         }
                     },
                 }
             },
             "components": {
                 "messages": {
-                    "test_test/Handle/Message": {
-                        "title": "test_test/Handle/Message",
+                    "test_test:Handle:Message": {
+                        "title": "test_test:Handle:Message",
                         "correlationId": {
                             "location": "$message.header#/correlation_id"
                         },
                         "payload": {
-                            "$ref": "#/components/schemas/test_test/Handle/Message/Msg/Payload"
+                            "$ref": "#/components/schemas/test_test:Handle:Message:Msg:Payload"
                         },
                     }
                 },
                 "schemas": {
-                    "test_test/Handle/Message/Msg/Payload": {
-                        "title": "test_test/Handle/Message/Msg/Payload"
+                    "test_test:Handle:Message:Msg:Payload": {
+                        "title": "test_test:Handle:Message:Msg:Payload"
                     }
                 },
             },
