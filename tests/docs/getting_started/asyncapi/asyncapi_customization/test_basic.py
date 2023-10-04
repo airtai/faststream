@@ -5,8 +5,6 @@ from faststream.asyncapi.generate import get_app_schema
 def test_broker_customization():
     schema = get_app_schema(app).to_jsonable()
 
-    print(schema)
-
     assert schema == {
         "asyncapi": "2.6.0",
         "defaultContentType": "application/json",

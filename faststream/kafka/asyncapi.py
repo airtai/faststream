@@ -12,7 +12,7 @@ from faststream.asyncapi.schema import (
     Operation,
 )
 from faststream.asyncapi.schema.bindings import kafka
-from faststream.asyncapi.utils import resolve_payloads, to_camelcase
+from faststream.asyncapi.utils import resolve_payloads
 from faststream.kafka.handler import LogicHandler
 from faststream.kafka.publisher import LogicPublisher
 
@@ -32,15 +32,19 @@ class Handler(LogicHandler, AsyncAPIOperation):
 
         for t in self.topics:
             payloads = []
+            handler_name = (
+                self.name if isinstance(self.name, str) else f"{t}/{self.call_name}"
+            )
             for _, _, _, _, _, dep in self.calls:
-                body = parse_handler_params(dep, prefix=t)
+                body = parse_handler_params(dep, prefix=handler_name + "/Message/")
                 payloads.append(body)
 
-            channels[self.name if isinstance(self.name, str) else t] = Channel(
+            print(payloads)
+            channels[handler_name] = Channel(
                 description=self.description,
                 subscribe=Operation(
                     message=Message(
-                        title=f"{t}_message",
+                        title=f"{handler_name}/Message",
                         payload=resolve_payloads(payloads),
                         correlationId=CorrelationId(
                             location="$message.header#/correlation_id"
@@ -75,7 +79,7 @@ class Publisher(LogicPublisher, AsyncAPIOperation):
             call_model = build_call_model(call)
             body = get_response_schema(
                 call_model,
-                prefix=to_camelcase(call_model.call_name),
+                prefix=self.topic + "/Message/",
             )
             if body:
                 payloads.append(body)
@@ -86,7 +90,7 @@ class Publisher(LogicPublisher, AsyncAPIOperation):
                 description=self.description,
                 publish=Operation(
                     message=Message(
-                        title=f"{self.topic}_message",
+                        title=f"{self.topic}/Message",
                         payload=resolve_payloads(payloads),
                         correlationId=CorrelationId(
                             location="$message.header#/correlation_id"

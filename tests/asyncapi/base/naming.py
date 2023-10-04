@@ -17,7 +17,9 @@ class NamingTestCase:
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
-        assert tuple(schema["channels"].keys())[0] == "test"
+        assert tuple(schema["channels"].keys())[0] == "test/HandleUserCreated", tuple(
+            schema["channels"].keys()
+        )[0]
 
     def test_not_duplicate_subject(self):
         broker = self.broker_class()
@@ -28,7 +30,7 @@ class NamingTestCase:
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
-        assert tuple(schema["channels"].keys())[0] == "test"
+        assert tuple(schema["channels"].keys())[0] == "test/HandleTest"
 
     def test_multi_subscribers_naming(self):
         broker = self.broker_class()
@@ -41,8 +43,8 @@ class NamingTestCase:
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
         assert set(schema["channels"].keys()) == {
-            "test",
-            "test2",
+            "test/HandleUserCreated",
+            "test2/HandleUserCreated",
         }
 
     def test_naming_manual(self):

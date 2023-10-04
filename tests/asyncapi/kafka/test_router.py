@@ -23,7 +23,7 @@ class TestRouter(RouterTestcase):
         broker.include_router(router)
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
-
+        print(schema)
         assert schema == {
             "asyncapi": "2.6.0",
             "defaultContentType": "application/json",
@@ -36,27 +36,35 @@ class TestRouter(RouterTestcase):
                 }
             },
             "channels": {
-                "test_test": {
+                "test_test/Handle": {
                     "servers": ["development"],
                     "bindings": {
                         "kafka": {"topic": "test_test", "bindingVersion": "0.4.0"}
                     },
                     "subscribe": {
-                        "message": {"$ref": "#/components/messages/test_test_message"}
+                        "message": {
+                            "$ref": "#/components/messages/test_test/Handle/Message"
+                        }
                     },
                 }
             },
             "components": {
                 "messages": {
-                    "test_test_message": {
-                        "title": "test_test_message",
+                    "test_test/Handle/Message": {
+                        "title": "test_test/Handle/Message",
                         "correlationId": {
                             "location": "$message.header#/correlation_id"
                         },
-                        "payload": {"$ref": "#/components/schemas/test_testMsgPayload"},
+                        "payload": {
+                            "$ref": "#/components/schemas/test_test/Handle/Message/Msg/Payload"
+                        },
                     }
                 },
-                "schemas": {"test_testMsgPayload": {"title": "test_testMsgPayload"}},
+                "schemas": {
+                    "test_test/Handle/Message/Msg/Payload": {
+                        "title": "test_test/Handle/Message/Msg/Payload"
+                    }
+                },
             },
         }
 
