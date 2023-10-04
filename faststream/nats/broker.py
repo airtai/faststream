@@ -215,7 +215,7 @@ class NatsBroker(
                 else:
                     pub_response = None
 
-            return r, pub_response
+                return r, pub_response
 
         return process_wrapper
 

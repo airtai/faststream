@@ -83,11 +83,15 @@ class TestTestclient(BrokerTestclientTestcase):
     ):
         exch = RabbitExchange("test", type=ExchangeType.TOPIC)
 
-        @test_broker.subscriber("*.info", exchange=exch)
+        @test_broker.subscriber(
+            RabbitQueue("logs", routing_key="*.info"), exchange=exch
+        )
         async def handler(m):
             return 1
 
-        @test_broker.subscriber("*.error", exchange=exch)
+        @test_broker.subscriber(
+            RabbitQueue("logs2", routing_key="*.error"), exchange=exch
+        )
         async def handler2(m):
             return 2
 
