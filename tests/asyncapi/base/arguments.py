@@ -93,10 +93,10 @@ class FastAPICompatible:
                 }
             ) | IsDict(
                 {  # TODO: remove when deprecating PydanticV1
-                    "title": "HandleTestMsgPayload",
+                    "title": key,
                     "type": "integer",
                 }
-            )
+            ), v
 
     def test_simple_type_with_default(self):
         broker = self.broker_class()
