@@ -10,7 +10,6 @@ from faststream.broker.test import TestBroker, call_handler
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.asyncapi import Publisher
 from faststream.kafka.broker import KafkaBroker
-from faststream.kafka.message import KafkaMessage
 from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.types import SendableMessage
 
@@ -36,8 +35,8 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
             batch=publisher.batch,
             _raw=True,
         )
-        def f(msg: KafkaMessage) -> str:
-            return ""
+        def f(msg: Any) -> None:
+            pass
 
         return f  # type: ignore[no-any-return]
 

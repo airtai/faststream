@@ -10,7 +10,6 @@ from faststream.broker.test import TestBroker, call_handler
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.nats.asyncapi import Handler, Publisher
 from faststream.nats.broker import NatsBroker
-from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer
 from faststream.types import SendableMessage
 
@@ -28,7 +27,7 @@ class TestNatsBroker(TestBroker[NatsBroker]):
         publisher: Publisher,
     ) -> HandlerCallWrapper[Any, Any, Any]:
         @broker.subscriber(publisher.subject, _raw=True)
-        def f(msg: NatsMessage) -> None:
+        def f(msg: Any) -> None:
             pass
 
         return f

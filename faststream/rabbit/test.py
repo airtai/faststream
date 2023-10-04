@@ -12,7 +12,6 @@ from faststream.broker.test import TestBroker, call_handler
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.rabbit.asyncapi import Publisher
 from faststream.rabbit.broker import RabbitBroker
-from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.producer import AioPikaFastProducer
 from faststream.rabbit.shared.constants import ExchangeType
@@ -53,8 +52,8 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
             exchange=publisher.exchange,
             _raw=True,
         )
-        def f(msg: RabbitMessage) -> str:
-            return ""
+        def f(msg: Any) -> None:
+            pass
 
         return f
 
