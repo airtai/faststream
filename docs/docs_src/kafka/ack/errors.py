@@ -1,12 +1,14 @@
 from faststream import FastStream
 from faststream.exceptions import AckMessage
-from faststream.nats import NatsBroker
+from faststream.kafka import KafkaBroker
 
-broker = NatsBroker("nats://localhost:4222")
+broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
 
 
-@broker.subscriber("test-subject", stream="test-stream")
+@broker.subscriber(
+    "test-topic", group_id="test-group", auto_commit=False
+)
 async def handle(body):
     smth_processing(body)
 
@@ -18,4 +20,4 @@ def smth_processing(body):
 
 @app.after_startup
 async def test_publishing():
-    await broker.publish("Hello!", "test-subject")
+    await broker.publish("Hello!", "test-topic")

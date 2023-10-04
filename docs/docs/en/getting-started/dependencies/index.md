@@ -94,12 +94,12 @@ You can use the decorator `#!python @apply_types` not only with `#!python @broke
 
 === "Sync"
     ```python hl_lines="3-4" linenums="1"
-    {!> docs_src/getting_started/dependencies/basic/3_sync.py !}
+    {!> docs_src/getting_started/dependencies/basic/sync.py !}
     ```
 
 === "Async"
-    ```python hl_lines="4-5 7-8" linenums="1"
-    {!> docs_src/getting_started/dependencies/basic/3_async.py !}
+    ```python hl_lines="5-6 8-9" linenums="1"
+    {!> docs_src/getting_started/dependencies/basic/async_.py !}
     ```
 
     !!! tip "Be careful"
