@@ -258,13 +258,15 @@ class FakeProducer(AioPikaFastProducer):
                 elif handler.exchange.type == ExchangeType.TOPIC:
                     call = bool(
                         re.match(
-                            handler.queue.name.replace(".", r"\.").replace("*", ".*"),
+                            handler.queue.routing_key.replace(".", r"\.").replace(
+                                "*", ".*"
+                            ),
                             incoming.routing_key or "",
                         )
                     )
 
                 elif handler.exchange.type == ExchangeType.HEADERS:  # pramga: no branch
-                    queue_headers = handler.queue.bind_arguments
+                    queue_headers = (handler.queue.bind_arguments or {}).copy()
                     msg_headers = incoming.headers
 
                     if not queue_headers:
