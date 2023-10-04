@@ -23,7 +23,7 @@ class TestRouter(RouterTestcase):
         broker.include_router(router)
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
-
+        print(schema)
         assert schema == {
             "asyncapi": "2.6.0",
             "defaultContentType": "application/json",
@@ -36,7 +36,7 @@ class TestRouter(RouterTestcase):
                 }
             },
             "channels": {
-                "test_test": {
+                "test_test/_/Handle": {
                     "servers": ["development"],
                     "bindings": {
                         "amqp": {
@@ -60,21 +60,29 @@ class TestRouter(RouterTestcase):
                                 "bindingVersion": "0.2.0",
                             }
                         },
-                        "message": {"$ref": "#/components/messages/test_testMessage"},
+                        "message": {
+                            "$ref": "#/components/messages/test_test/_/Handle/Message"
+                        },
                     },
                 }
             },
             "components": {
                 "messages": {
-                    "test_testMessage": {
-                        "title": "test_testMessage",
+                    "test_test/_/Handle/Message": {
+                        "title": "test_test/_/Handle/Message",
                         "correlationId": {
                             "location": "$message.header#/correlation_id"
                         },
-                        "payload": {"$ref": "#/components/schemas/test_testMsgPayload"},
+                        "payload": {
+                            "$ref": "#/components/schemas/test_test/_/Handle/Message/Msg/Payload"
+                        },
                     }
                 },
-                "schemas": {"test_testMsgPayload": {"title": "test_testMsgPayload"}},
+                "schemas": {
+                    "test_test/_/Handle/Message/Msg/Payload": {
+                        "title": "test_test/_/Handle/Message/Msg/Payload"
+                    }
+                },
             },
         }
 

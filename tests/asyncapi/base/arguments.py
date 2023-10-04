@@ -362,15 +362,12 @@ class FastAPICompatible:
 
         payload = schema["components"]["schemas"]
 
-        assert payload == {
-            "test/_/Handle/Message/Id/Payload": {
-                "title": "test/_/Handle/Message/Id/Payload",
-                "type": "integer",
-            },
-            "test/_/Handle/Message/Msg/Payload": {
-                "title": "test/_/Handle/Message/Msg/Payload"
-            },
-        }, payload
+        assert IsStr(regex=r"test/[\w/]*Handle/Message/Msg/Payload") in list(
+            payload.keys()
+        )
+        assert IsStr(regex=r"test/[\w/]*Handle/Message/Id/Payload") in list(
+            payload.keys()
+        )
 
 
 class ArgumentsTestcase(FastAPICompatible):

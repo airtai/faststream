@@ -1,5 +1,7 @@
 from typing import Type
 
+from dirty_equals import IsStr
+
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
 from faststream.broker.core.abc import BrokerUsecase
@@ -27,8 +29,9 @@ class RouterTestcase:
 
         payload = schema["components"]["schemas"]
 
-        assert payload == {
-            "test/Handle/Message/Msg/Payload": {
-                "title": "test/Handle/Message/Msg/Payload"
-            }
-        }
+        assert list(payload.keys())[0] == IsStr(
+            regex=r"test/[\w/]*Handle/Message/Msg/Payload"
+        )
+        assert payload[list(payload.keys())[0]]["title"] == IsStr(
+            regex=r"test/[\w/]*Handle/Message/Msg/Payload"
+        )

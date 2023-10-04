@@ -15,57 +15,58 @@ class TestNaming(NamingTestCase):
             ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
-
         assert schema == {
             "asyncapi": "2.6.0",
+            "defaultContentType": "application/json",
+            "info": {"title": "FastStream", "version": "0.1.0", "description": ""},
+            "servers": {
+                "development": {
+                    "url": "amqp://guest:guest@localhost:5672/",  # pragma: allowlist secret
+                    "protocol": "amqp",
+                    "protocolVersion": "0.9.1",
+                }
+            },
             "channels": {
-                "test": {
+                "test/_/Handle": {
+                    "servers": ["development"],
                     "bindings": {
                         "amqp": {
-                            "bindingVersion": "0.2.0",
-                            "exchange": {"type": "default", "vhost": "/"},
                             "is": "routingKey",
+                            "bindingVersion": "0.2.0",
                             "queue": {
-                                "autoDelete": False,
+                                "name": "test",
                                 "durable": False,
                                 "exclusive": False,
-                                "name": "test",
+                                "autoDelete": False,
                                 "vhost": "/",
                             },
+                            "exchange": {"type": "default", "vhost": "/"},
                         }
                     },
-                    "servers": ["development"],
                     "subscribe": {
                         "bindings": {
                             "amqp": {
+                                "cc": "test",
                                 "ack": True,
                                 "bindingVersion": "0.2.0",
-                                "cc": "test",
                             }
                         },
-                        "message": {"$ref": "#/components/messages/testMessage"},
+                        "message": {
+                            "$ref": "#/components/messages/test/_/Handle/Message"
+                        },
                     },
                 }
             },
             "components": {
                 "messages": {
-                    "testMessage": {
+                    "test/_/Handle/Message": {
+                        "title": "test/_/Handle/Message",
                         "correlationId": {
                             "location": "$message.header#/correlation_id"
                         },
                         "payload": {"$ref": "#/components/schemas/EmptyPayload"},
-                        "title": "testMessage",
                     }
                 },
                 "schemas": {"EmptyPayload": {"title": "EmptyPayload", "type": "null"}},
-            },
-            "defaultContentType": "application/json",
-            "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
-            "servers": {
-                "development": {
-                    "protocol": "amqp",
-                    "protocolVersion": "0.9.1",
-                    "url": "amqp://guest:guest@localhost:5672/",  # pragma: allowlist secret
-                }
             },
         }
