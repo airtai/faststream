@@ -14,7 +14,7 @@ from faststream.asyncapi.schema import (
     OperationBinding,
 )
 from faststream.asyncapi.schema.bindings import amqp
-from faststream.asyncapi.utils import resolve_payloads, to_camelcase
+from faststream.asyncapi.utils import resolve_payloads
 from faststream.rabbit.handler import LogicHandler
 from faststream.rabbit.publisher import LogicPublisher
 from faststream.rabbit.shared.constants import ExchangeType
@@ -103,7 +103,9 @@ class Publisher(RMQAsyncAPIChannel, LogicPublisher):
 
     @property
     def name(self) -> str:
-        return self.title or f"{self.queue}/{self.exchange if self.exchange else '_'}"
+        return (
+            self.title or f"{self.queue.name}/{self.exchange if self.exchange else '_'}"
+        )
 
     def get_payloads(self) -> List[AnyDict]:
         payloads = []
@@ -111,7 +113,7 @@ class Publisher(RMQAsyncAPIChannel, LogicPublisher):
             call_model = build_call_model(call)
             body = get_response_schema(
                 call_model,
-                prefix=to_camelcase(call_model.call_name),
+                prefix=self.name + "/Message/",
             )
             if body:
                 payloads.append(body)
@@ -133,16 +135,14 @@ class Handler(RMQAsyncAPIChannel, LogicHandler):
     @property
     def name(self) -> str:
         original = super().name
-        parsed_name = (
-            f"{self.queue}/{self.exchange if self.exchange else '_'}/{self.call_name}"
-        )
+        parsed_name = f"{self.queue.name}/{self.exchange if self.exchange else '_'}/{self.call_name}"
 
         return original if isinstance(original, str) else parsed_name
 
     def get_payloads(self) -> List[AnyDict]:
         payloads = []
         for _, _, _, _, _, dep in self.calls:
-            body = parse_handler_params(dep, prefix=self.name)
+            body = parse_handler_params(dep, prefix=self.name + "/Message/")
             payloads.append(body)
 
         return payloads

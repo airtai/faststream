@@ -363,12 +363,12 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         assert payload == {
-            "test/Handle/Message/Id/Payload": {
-                "title": "test/Handle/Message/Id/Payload",
+            "test/_/Handle/Message/Id/Payload": {
+                "title": "test/_/Handle/Message/Id/Payload",
                 "type": "integer",
             },
-            "test/Handle/Message/Msg/Payload": {
-                "title": "test/Handle/Message/Msg/Payload"
+            "test/_/Handle/Message/Msg/Payload": {
+                "title": "test/_/Handle/Message/Msg/Payload"
             },
         }, payload
 

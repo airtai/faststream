@@ -1,5 +1,7 @@
 from typing import Type
 
+from dirty_equals import IsStr
+
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
 from faststream.broker.core.abc import BrokerUsecase
@@ -17,9 +19,9 @@ class NamingTestCase:
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
-        assert tuple(schema["channels"].keys())[0] == "test/HandleUserCreated", tuple(
-            schema["channels"].keys()
-        )[0]
+        assert tuple(schema["channels"].keys())[0] == IsStr(
+            regex=r"test[\w/]*HandleUserCreated"
+        ), tuple(schema["channels"].keys())[0]
 
     def test_not_duplicate_subject(self):
         broker = self.broker_class()
@@ -30,7 +32,9 @@ class NamingTestCase:
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
-        assert tuple(schema["channels"].keys())[0] == "test/HandleTest"
+        assert tuple(schema["channels"].keys())[0] == IsStr(
+            regex=r"test[\w/]*HandleTest"
+        )
 
     def test_multi_subscribers_naming(self):
         broker = self.broker_class()
@@ -42,10 +46,10 @@ class NamingTestCase:
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
-        assert set(schema["channels"].keys()) == {
-            "test/HandleUserCreated",
-            "test2/HandleUserCreated",
-        }
+        assert list(schema["channels"].keys()) == [
+            IsStr(regex=r"test[/\w]*/HandleUserCreated"),
+            IsStr(regex=r"test2[/\w]*/HandleUserCreated"),
+        ], list(schema["channels"].keys())
 
     def test_naming_manual(self):
         broker = self.broker_class()
@@ -68,7 +72,7 @@ class NamingTestCase:
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
-        assert set(schema["channels"].keys()) == {
-            "test",
-            "test2",
-        }
+        assert list(schema["channels"].keys()) == [
+            IsStr(regex=r"test[/\w]*"),
+            IsStr(regex=r"test2[/\w]*"),
+        ]

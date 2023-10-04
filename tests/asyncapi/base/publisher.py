@@ -43,7 +43,7 @@ class PublisherTestcase:
 
         payload = schema["components"]["schemas"]
         for key, v in payload.items():
-            assert key == IsStr(regex=r"\w*Payload")
+            assert key == IsStr(regex=r"[\w/]*Payload")
             assert v == {}
 
     def test_none_publisher(self):
@@ -57,7 +57,7 @@ class PublisherTestcase:
 
         payload = schema["components"]["schemas"]
         for key, v in payload.items():
-            assert key == IsStr(regex=r"\w*Payload")
+            assert key == IsStr(regex=r"[\w/]*Payload")
             assert v == {}
 
     def test_typed_publisher(self):
@@ -72,7 +72,8 @@ class PublisherTestcase:
         payload = schema["components"]["schemas"]
         for key, v in payload.items():
             assert key == IsStr(regex=r"test/[\w/]*Message/Response/Payload")
-            assert v == {"title": "test/Message/Response/Payload", "type": "integer"}
+            assert v["title"] == IsStr(regex=r"test/[\w/]*Message/Response/Payload")
+            assert v["type"] == "integer"
 
     def test_pydantic_model_publisher(self):
         class User(pydantic.BaseModel):
@@ -115,4 +116,5 @@ class PublisherTestcase:
         payload = schema["components"]["schemas"]
         for key, v in payload.items():
             assert key == IsStr(regex=r"test/[\w/]*Message/Response/Payload")
-            assert v == {"title": "test/Message/Response/Payload", "type": "integer"}
+            assert v["title"] == IsStr(regex=r"test/[\w/]*Message/Response/Payload")
+            assert v["type"] == "integer"
