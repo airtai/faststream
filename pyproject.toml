@@ -126,6 +126,7 @@ Homepage = "https://faststream.airt.ai/"
 Documentation = "https://faststream.airt.ai/latest/getting-started/"
 Tracker = "https://github.com/airtai/FastStream/issues"
 Source = "https://github.com/airtai/FastStream"
+Discord = "https://discord.gg/CJWmYpyFbc"
 
 [project.scripts]
 faststream = "faststream.__main__:cli"
