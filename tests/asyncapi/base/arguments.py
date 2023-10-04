@@ -353,8 +353,6 @@ class FastAPICompatible:
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
-        print(schema)
-
         assert (
             len(list(schema["components"]["messages"].values())[0]["payload"]["oneOf"])
             == 2

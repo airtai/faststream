@@ -82,7 +82,7 @@ def test_base_security_schema():
         pass
 
     schema = get_app_schema(app).to_jsonable()
-    print(schema)
+
     assert schema == basic_schema
 
 

@@ -82,7 +82,6 @@ class Publisher(LogicPublisher, AsyncAPIOperation):
             )
             if body:
                 payloads.append(body)
-        print(payloads)
         return {
             self.title
             or self.topic: Channel(
