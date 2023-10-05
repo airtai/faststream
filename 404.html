@@ -2,14 +2,11 @@
     // Check if the current path is versioned, if not, redirect to the default versioned path
     const versions = ["0.2", "0.1", "latest"]
     const defaultVersion = "latest"
-    // const basePath = ""
     const targetRedirectPath = "404" // path to redirect to
 
     // if path starts with version, redirect to versioned 404
     let foundVersion = false
     versions.forEach(version => {
-        // const versionedPath = `/${version}`;
-
         if (window.location.pathname.startsWith(`/${version}`) && !window.location.pathname.startsWith(`/${version}/`)) {
             const versionToReplace = location.pathname.split('/')[1];
             foundVersion = true;
@@ -26,6 +23,12 @@
     // if path doesn't start with any version, redirect to defaultVersion
     // Replace it in href, so we keep hashes and query params
     if (!foundVersion){
-        window.location.href = window.location.href.replace(window.location.pathname, `/${defaultVersion}`)
+        const l = location.pathname.split('/')
+        if (l.length >= 2) {
+            const stringToReplace = l[1];
+            window.location.href = window.location.href.replace(stringToReplace, "latest")
+        } else {
+            window.location.href = `/${defaultVersion}/${targetRedirectPath}`
+        }
     }
 </script>
