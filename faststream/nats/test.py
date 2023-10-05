@@ -86,7 +86,7 @@ def build_message(
 ) -> PatchedMessage:
     msg, content_type = encode_message(message)
     return PatchedMessage(
-        _client=None,  # type: ignore
+        _client=None,  # type: ignore[arg-type]
         subject=subject,
         reply=reply_to,
         data=msg,
