@@ -1,15 +1,15 @@
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
-from faststream.kafka import KafkaBroker, KafkaRoute, KafkaRouter
+from faststream.nats import NatsBroker, NatsRoute, NatsRouter
 from tests.asyncapi.base.arguments import ArgumentsTestcase
 from tests.asyncapi.base.publisher import PublisherTestcase
 from tests.asyncapi.base.router import RouterTestcase
 
 
 class TestRouter(RouterTestcase):
-    broker_class = KafkaBroker
-    router_class = KafkaRouter
-    route_class = KafkaRoute
+    broker_class = NatsBroker
+    router_class = NatsRouter
+    route_class = NatsRoute
 
     def test_prefix(self):
         broker = self.broker_class()
@@ -24,22 +24,24 @@ class TestRouter(RouterTestcase):
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
+        print(schema)
+
         assert schema == {
             "asyncapi": "2.6.0",
             "defaultContentType": "application/json",
             "info": {"title": "FastStream", "version": "0.1.0", "description": ""},
             "servers": {
                 "development": {
-                    "url": "localhost",
-                    "protocol": "kafka",
-                    "protocolVersion": "auto",
+                    "url": "nats://localhost:4222",
+                    "protocol": "nats",
+                    "protocolVersion": "custom",
                 }
             },
             "channels": {
                 "test_test:Handle": {
                     "servers": ["development"],
                     "bindings": {
-                        "kafka": {"topic": "test_test", "bindingVersion": "0.4.0"}
+                        "nats": {"subject": "test_test", "bindingVersion": "custom"}
                     },
                     "subscribe": {
                         "message": {
@@ -70,18 +72,18 @@ class TestRouter(RouterTestcase):
 
 
 class TestRouterArguments(ArgumentsTestcase):
-    broker_class = KafkaRouter
+    broker_class = NatsRouter
 
     def build_app(self, router):
-        broker = KafkaBroker()
+        broker = NatsBroker()
         broker.include_router(router)
         return FastStream(broker)
 
 
 class TestRouterPublisher(PublisherTestcase):
-    broker_class = KafkaRouter
+    broker_class = NatsRouter
 
     def build_app(self, router):
-        broker = KafkaBroker()
+        broker = NatsBroker()
         broker.include_router(router)
         return FastStream(broker)

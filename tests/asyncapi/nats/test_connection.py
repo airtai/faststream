@@ -37,7 +37,7 @@ def test_base():
 
 def test_multi():
     schema = get_app_schema(
-        FastStream(NatsBroker(["kafka:9092", "kafka:9093"]))
+        FastStream(NatsBroker(["nats:9092", "nats:9093"]))
     ).to_jsonable()
 
     assert schema == {
@@ -48,14 +48,14 @@ def test_multi():
         "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
         "servers": {
             "Server1": {
-                "protocol": "kafka",
-                "protocolVersion": "auto",
-                "url": "kafka:9092",
+                "protocol": "nats",
+                "protocolVersion": "custom",
+                "url": "nats:9092",
             },
             "Server2": {
-                "protocol": "kafka",
-                "protocolVersion": "auto",
-                "url": "kafka:9093",
+                "protocol": "nats",
+                "protocolVersion": "custom",
+                "url": "nats:9093",
             },
         },
     }
