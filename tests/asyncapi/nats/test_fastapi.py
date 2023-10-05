@@ -1,7 +1,7 @@
 from typing import Type
 
-from faststream.nats.fastapi import NatsRouter
 from faststream.kafka.test import TestKafkaBroker
+from faststream.nats.fastapi import NatsRouter
 from tests.asyncapi.base.arguments import FastAPICompatible
 from tests.asyncapi.base.fastapi import FastAPITestCase
 from tests.asyncapi.base.publisher import PublisherTestcase
