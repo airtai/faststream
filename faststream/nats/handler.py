@@ -77,7 +77,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         self.subscription = await connection.subscribe(
             subject=self.subject,
             queue=self.queue,
-            cb=self.consume,  # type: ignore[arg-type]
+            cb=self.consume,
             **self.extra_options,
         )
 
