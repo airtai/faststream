@@ -1945,7 +1945,7 @@
 <a id="__codelineno-0-86" name="__codelineno-0-86"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PatchedMessage</span><span class="p">:</span>
 <a id="__codelineno-0-87" name="__codelineno-0-87"></a>    <span class="n">msg</span><span class="p">,</span> <span class="n">content_type</span> <span class="o">=</span> <span class="n">encode_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 <a id="__codelineno-0-88" name="__codelineno-0-88"></a>    <span class="k">return</span> <span class="n">PatchedMessage</span><span class="p">(</span>
-<a id="__codelineno-0-89" name="__codelineno-0-89"></a>        <span class="n">_client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+<a id="__codelineno-0-89" name="__codelineno-0-89"></a>        <span class="n">_client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type]</span>
 <a id="__codelineno-0-90" name="__codelineno-0-90"></a>        <span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span>
 <a id="__codelineno-0-91" name="__codelineno-0-91"></a>        <span class="n">reply</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
 <a id="__codelineno-0-92" name="__codelineno-0-92"></a>        <span class="n">data</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span>
