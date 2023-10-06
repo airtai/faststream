@@ -12,7 +12,7 @@ from faststream.asyncapi.schema import (
     Operation,
 )
 from faststream.asyncapi.schema.bindings import kafka
-from faststream.asyncapi.utils import resolve_payloads
+from faststream.asyncapi.utils import resolve_payloads, to_camelcase
 from faststream.kafka.handler import LogicHandler
 from faststream.kafka.publisher import LogicPublisher
 
@@ -32,13 +32,14 @@ class Handler(LogicHandler, AsyncAPIOperation):
 
         for t in self.topics:
             payloads = []
-            handler_name = (
-                self.name if isinstance(self.name, str) else f"{t}:{self.call_name}"
-            )
-            for _, _, _, _, _, dep in self.calls:
-                body = parse_handler_params(dep, prefix=handler_name + ":Message:")
-                payloads.append(body)
 
+            for h, _, _, _, _, dep in self.calls:
+                body = parse_handler_params(
+                    dep, prefix=f"{self._title or self.call_name}:Message"
+                )
+                payloads.append((body, to_camelcase(h._original_call.__name__)))
+
+            handler_name = self._title or f"{t}:{self.call_name}"
             channels[handler_name] = Channel(
                 description=self.description,
                 subscribe=Operation(
@@ -74,22 +75,23 @@ class Publisher(LogicPublisher, AsyncAPIOperation):
 
     def schema(self) -> Dict[str, Channel]:
         payloads = []
+
         for call in self.calls:
             call_model = build_call_model(call)
             body = get_response_schema(
                 call_model,
-                prefix=self.topic + ":Message:",
+                prefix=f"{self.name}:Message",
             )
             if body:
-                payloads.append(body)
+                payloads.append((body, to_camelcase(call.__name__)))
+
         return {
-            self.title
-            or self.topic: Channel(
+            self.name: Channel(
                 description=self.description,
                 publish=Operation(
                     message=Message(
-                        title=f"{self.topic}:Message",
-                        payload=resolve_payloads(payloads),
+                        title=f"{self.name}:Message",
+                        payload=resolve_payloads(payloads, "Publisher"),
                         correlationId=CorrelationId(
                             location="$message.header#/correlation_id"
                         ),
@@ -98,3 +100,7 @@ class Publisher(LogicPublisher, AsyncAPIOperation):
                 bindings=ChannelBinding(kafka=kafka.ChannelBinding(topic=self.topic)),
             )
         }
+
+    @property
+    def name(self) -> str:
+        return self.title or f"{self.topic}:Publisher"

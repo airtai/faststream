@@ -189,7 +189,7 @@ class NatsBroker(
                 queue=handler.queue,
                 stream=stream.name if stream else "",
             )
-            self._log(f"`{handler.name}` waiting for messages", extra=c)
+            self._log(f"`{handler.call_name}` waiting for messages", extra=c)
             await handler.start(self.stream if is_js else self._connection)
 
     def _process_message(

@@ -109,17 +109,9 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
         self._title = title
         self.log_context_builder = log_context_builder
 
-    @override
     @property
-    def name(self) -> Union[str, bool]:  # type: ignore[override]
-        if self._title:
-            return self._title
-
-        if not self.calls:  # pragma: no cover
-            return False
-
-        else:
-            return True
+    def name(self) -> str:
+        return self._title or self.call_name
 
     @property
     def call_name(self) -> str:

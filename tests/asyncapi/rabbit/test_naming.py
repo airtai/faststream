@@ -1,3 +1,5 @@
+from typing import Type
+
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
 from faststream.rabbit import RabbitBroker
@@ -5,7 +7,37 @@ from tests.asyncapi.base.naming import NamingTestCase
 
 
 class TestNaming(NamingTestCase):
-    broker_class = RabbitBroker
+    broker_class: Type[RabbitBroker] = RabbitBroker
+
+    def test_subscriber_with_exchange(self):
+        broker = self.broker_class()
+
+        @broker.subscriber("test", "exchange")
+        async def handle():
+            ...
+
+        schema = get_app_schema(FastStream(broker)).to_jsonable()
+
+        assert list(schema["channels"].keys()) == ["test:exchange:Handle"]
+
+        assert list(schema["components"]["messages"].keys()) == [
+            "test:exchange:Handle:Message"
+        ]
+
+    def test_publisher_with_exchange(self):
+        broker = self.broker_class()
+
+        @broker.publisher("test", "exchange")
+        async def handle():
+            ...
+
+        schema = get_app_schema(FastStream(broker)).to_jsonable()
+
+        assert list(schema["channels"].keys()) == ["test:exchange:Publisher"]
+
+        assert list(schema["components"]["messages"].keys()) == [
+            "test:exchange:Publisher:Message"
+        ]
 
     def test_base(self):
         broker = self.broker_class()
@@ -15,6 +47,7 @@ class TestNaming(NamingTestCase):
             ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
+
         assert schema == {
             "asyncapi": "2.6.0",
             "defaultContentType": "application/json",
