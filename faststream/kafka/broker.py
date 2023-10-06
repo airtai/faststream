@@ -467,6 +467,7 @@ class KafkaBroker(
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        schema: Optional[Any] = None,
     ) -> Publisher:
         """
         Create a message publisher for the specified topic.
@@ -498,6 +499,7 @@ class KafkaBroker(
                 reply_to=reply_to,
                 title=title,
                 _description=description,
+                _schema=schema,
             ),
         )
         super().publisher(topic, publisher)

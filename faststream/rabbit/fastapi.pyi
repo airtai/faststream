@@ -163,6 +163,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        schema: Optional[Any] = None,
         # message args
         headers: Optional[aio_pika.abc.HeadersType] = None,
         content_type: Optional[str] = None,

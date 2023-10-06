@@ -261,6 +261,7 @@ class NatsBroker(
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        schema: Optional[Any] = None,
     ) -> Publisher: ...
     @override
     async def publish(  # type: ignore[override]

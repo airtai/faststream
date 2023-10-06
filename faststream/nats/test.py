@@ -11,7 +11,7 @@ from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.nats.asyncapi import Handler, Publisher
 from faststream.nats.broker import NatsBroker
 from faststream.nats.producer import NatsFastProducer
-from faststream.types import SendableMessage
+from faststream.types import AnyDict, SendableMessage
 
 __all__ = ("TestNatsBroker",)
 
@@ -111,7 +111,7 @@ def build_message(
     *,
     reply_to: str = "",
     correlation_id: Optional[str] = None,
-    headers: Optional[Dict[str, Any]] = None,
+    headers: Optional[AnyDict] = None,
 ) -> "PatchedMessage":
     msg, content_type = encode_message(message)
     return PatchedMessage(
