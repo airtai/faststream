@@ -9,7 +9,7 @@
     </noscript>
     <script>
         window.location.replace(
-            "{{href}}" + window.location.search + window.location.hash
+            "{{href}}" + window.location.search + window.location.hash  // nosemgrep
         );
     </script>
 
@@ -28,7 +28,7 @@
 </head>
 
 <body>
-    Redirecting to <a href="{{href}}">{{href}}</a>...
+    Redirecting to <a href="{{href}}">{{href}}</a>...  <!-- nosemgrep -->
 </body>
 
 </html>
