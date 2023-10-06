@@ -333,13 +333,14 @@ class BrokerUsecase(
         return handler_call, dependant
 
     def _abc_start(self) -> None:
-        self.started = True
+        if not self.started:
+            self.started = True
 
-        for h in self.handlers.values():
-            h.global_middlewares = (*self.middlewares, *h.global_middlewares)
+            for h in self.handlers.values():
+                h.global_middlewares = (*self.middlewares, *h.global_middlewares)
 
-        if self.logger is not None:
-            change_logger_handlers(self.logger, self.fmt)
+            if self.logger is not None:
+                change_logger_handlers(self.logger, self.fmt)
 
     def _abc_close(
         self,

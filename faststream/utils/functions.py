@@ -117,7 +117,8 @@ def get_function_positional_arguments(func: AnyCallable) -> List[str]:
 
 
 def timeout_scope(
-    timeout: Optional[float] = 30, raise_timeout: bool = False
+    timeout: Optional[float] = 30,
+    raise_timeout: bool = False,
 ) -> ContextManager[anyio.CancelScope]:
     scope: Callable[[Optional[float]], ContextManager[anyio.CancelScope]]
     if raise_timeout:
