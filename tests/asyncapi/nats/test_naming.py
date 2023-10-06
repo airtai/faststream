@@ -16,7 +16,6 @@ class TestNaming(NamingTestCase):
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
-        print(schema)
         assert schema == {
             "asyncapi": "2.6.0",
             "defaultContentType": "application/json",
