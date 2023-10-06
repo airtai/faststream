@@ -11,6 +11,11 @@ authors = [
     { name = "Pastukhov Nikita", email = "diementros@yandex.ru" },
 ]
 
+maintainers = [
+    { name = "airt", email = "info@airt.ai" },
+    { name = "Pastukhov Nikita", email = "diementros@yandex.ru" },
+]
+
 keywords = ["rabbitmq", "kafka", "framework", "nats", "message brokers"]
 
 requires-python = ">=3.8"
@@ -126,6 +131,7 @@ Homepage = "https://faststream.airt.ai/"
 Documentation = "https://faststream.airt.ai/latest/getting-started/"
 Tracker = "https://github.com/airtai/FastStream/issues"
 Source = "https://github.com/airtai/FastStream"
+Discord = "https://discord.gg/CJWmYpyFbc"
 
 [project.scripts]
 faststream = "faststream.__main__:cli"
@@ -230,6 +236,7 @@ source = [
 context = '${CONTEXT}'
 omit = [
     "**/__init__.py",
+    "tests/mypy/*",
 ]
 
 [tool.coverage.report]

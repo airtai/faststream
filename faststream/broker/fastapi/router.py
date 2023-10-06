@@ -601,7 +601,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         tags: Optional[List[Union[str, Enum]]] = None,
         dependencies: Optional[Sequence[params.Depends]] = None,
         default_response_class: Type[Response] = Default(JSONResponse),
-        responses: Optional[Dict[Union[int, str], Dict[str, Any]]] = None,
+        responses: Optional[Dict[Union[int, str], AnyDict]] = None,
         callbacks: Optional[List[BaseRoute]] = None,
         deprecated: Optional[bool] = None,
         include_in_schema: bool = True,
@@ -617,7 +617,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             tags (List[Union[str, Enum]], optional): The tags to assign to all paths defined in the router. Defaults to None.
             dependencies (Sequence[params.Depends], optional): The dependencies to apply to all paths defined in the router. Defaults to None.
             default_response_class (Type[Response], optional): The default response class to use for all paths defined in the router. Defaults to Default(JSONResponse).
-            responses (Dict[Union[int, str], Dict[str, Any]], optional): The responses to define for all paths defined in the router. Defaults to None.
+            responses (Dict[Union[int, str], AnyDict], optional): The responses to define for all paths defined in the router. Defaults to None.
             callbacks (List[BaseRoute], optional): The callbacks to apply to all paths defined in the router. Defaults to None.
             deprecated (bool, optional): Whether the router is deprecated. Defaults to None.
             include_in_schema (bool, optional): Whether to include the router in the API schema. Defaults to True.

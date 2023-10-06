@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from faststream._compat import override
 from faststream.nats.asyncapi import Publisher
@@ -31,6 +31,7 @@ class NatsRouter(BaseRouter):
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        schema: Optional[Any] = None,
     ) -> Publisher:
         new_publisher = self._update_publisher_prefix(
             self.prefix,
@@ -40,6 +41,7 @@ class NatsRouter(BaseRouter):
                 headers=headers,
                 title=title,
                 _description=description,
+                _schema=schema,
             ),
         )
         publisher_key = self._get_publisher_key(new_publisher)

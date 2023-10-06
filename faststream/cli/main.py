@@ -156,7 +156,10 @@ def _run(
     app_obj = try_import_app(module, app)
     set_log_level(log_level, app_obj)
 
-    if sys.platform not in ("win32", "cygwin", "cli"):  # pragma: no cover
+    if sys.platform not in ("win32", "cygwin", "cli") and sys.version_info < (
+        3,
+        12,
+    ):  # pragma: no cover
         try:
             import uvloop
         except ImportError:

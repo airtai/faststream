@@ -14,8 +14,3 @@ async def handle():
 @broker.subscriber("another-queue")
 async def handle_next(msg: str):
     assert msg == "Hi!"
-
-
-@app.after_startup
-async def test():
-    await broker.publish("", queue="test-queue")

@@ -3,6 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 
+from faststream import BaseMiddleware
 from faststream.rabbit import (
     ExchangeType,
     RabbitBroker,
@@ -83,11 +84,15 @@ class TestTestclient(BrokerTestclientTestcase):
     ):
         exch = RabbitExchange("test", type=ExchangeType.TOPIC)
 
-        @test_broker.subscriber("*.info", exchange=exch)
+        @test_broker.subscriber(
+            RabbitQueue("logs", routing_key="*.info"), exchange=exch
+        )
         async def handler(m):
             return 1
 
-        @test_broker.subscriber("*.error", exchange=exch)
+        @test_broker.subscriber(
+            RabbitQueue("logs2", routing_key="*.error"), exchange=exch
+        )
         async def handler2(m):
             return 2
 
@@ -190,3 +195,56 @@ class TestTestclient(BrokerTestclientTestcase):
         assert consume.is_set()
         assert consume2.is_set()
         assert consume3.is_set()
+
+    async def test_respect_middleware(self, queue):
+        routes = []
+
+        class Middleware(BaseMiddleware):
+            async def on_receive(self) -> None:
+                routes.append(None)
+                return await super().on_receive()
+
+        broker = RabbitBroker()
+        broker.middlewares = (Middleware,)
+
+        @broker.subscriber(queue)
+        async def h1():
+            ...
+
+        @broker.subscriber(queue + "1")
+        async def h2():
+            ...
+
+        async with TestRabbitBroker(broker) as br:
+            await br.publish("", queue)
+            await br.publish("", queue + "1")
+
+        assert len(routes) == 2
+
+    @pytest.mark.rabbit
+    async def test_real_respect_middleware(self, queue):
+        routes = []
+
+        class Middleware(BaseMiddleware):
+            async def on_receive(self) -> None:
+                routes.append(None)
+                return await super().on_receive()
+
+        broker = RabbitBroker()
+        broker.middlewares = (Middleware,)
+
+        @broker.subscriber(queue)
+        async def h1():
+            ...
+
+        @broker.subscriber(queue + "1")
+        async def h2():
+            ...
+
+        async with TestRabbitBroker(broker, with_real=True) as br:
+            await br.publish("", queue)
+            await br.publish("", queue + "1")
+            await h1.wait_call(3)
+            await h2.wait_call(3)
+
+        assert len(routes) == 2

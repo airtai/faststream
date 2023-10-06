@@ -306,7 +306,7 @@ class BrokerUsecase(
         if getattr(dependant, "flat_params", None) is None:  # handle FastAPI Dependant
             dependant = _patch_fastapi_dependant(dependant)
 
-        if self._is_apply_types is True:
+        if self._is_apply_types is True and not _raw:
             apply_wrapper: _InjectWrapper[
                 P_HandlerParams, Awaitable[T_HandlerReturn]
             ] = apply_types(None)
@@ -333,13 +333,14 @@ class BrokerUsecase(
         return handler_call, dependant
 
     def _abc_start(self) -> None:
-        self.started = True
+        if not self.started:
+            self.started = True
 
-        for h in self.handlers.values():
-            h.global_middlewares = (*self.middlewares, *h.global_middlewares)
+            for h in self.handlers.values():
+                h.global_middlewares = (*self.middlewares, *h.global_middlewares)
 
-        if self.logger is not None:
-            change_logger_handlers(self.logger, self.fmt)
+            if self.logger is not None:
+                change_logger_handlers(self.logger, self.fmt)
 
     def _abc_close(
         self,

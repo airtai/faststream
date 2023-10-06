@@ -6,7 +6,7 @@ broker = NatsBroker("nats://localhost:4222")
 app = FastStream(broker)
 
 
-@broker.subscriber("test-subject")
+@broker.subscriber("test-subject", stream="test-stream")
 async def handle(body):
     smth_processing(body)
 

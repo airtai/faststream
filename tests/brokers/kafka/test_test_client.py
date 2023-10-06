@@ -2,6 +2,7 @@ import asyncio
 
 import pytest
 
+from faststream import BaseMiddleware
 from faststream.kafka import KafkaBroker, TestKafkaBroker
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
@@ -72,3 +73,56 @@ class TestTestclient(BrokerTestclientTestcase):
         await test_broker.publish("hello", queue)
         m.mock.assert_called_once_with("hello")
         publisher.mock.assert_called_once_with([1, 2, 3])
+
+    async def test_respect_middleware(self, queue):
+        routes = []
+
+        class Middleware(BaseMiddleware):
+            async def on_receive(self) -> None:
+                routes.append(None)
+                return await super().on_receive()
+
+        broker = KafkaBroker()
+        broker.middlewares = (Middleware,)
+
+        @broker.subscriber(queue)
+        async def h1():
+            ...
+
+        @broker.subscriber(queue + "1")
+        async def h2():
+            ...
+
+        async with TestKafkaBroker(broker) as br:
+            await br.publish("", queue)
+            await br.publish("", queue + "1")
+
+        assert len(routes) == 2
+
+    @pytest.mark.kafka
+    async def test_real_respect_middleware(self, queue):
+        routes = []
+
+        class Middleware(BaseMiddleware):
+            async def on_receive(self) -> None:
+                routes.append(None)
+                return await super().on_receive()
+
+        broker = KafkaBroker()
+        broker.middlewares = (Middleware,)
+
+        @broker.subscriber(queue)
+        async def h1():
+            ...
+
+        @broker.subscriber(queue + "1")
+        async def h2():
+            ...
+
+        async with TestKafkaBroker(broker, with_real=True) as br:
+            await br.publish("", queue)
+            await br.publish("", queue + "1")
+            await h1.wait_call(3)
+            await h2.wait_call(3)
+
+        assert len(routes) == 2

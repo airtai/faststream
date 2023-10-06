@@ -1,17 +1,14 @@
-from contextlib import asynccontextmanager
 from datetime import datetime
-from functools import partial
-from types import MethodType, TracebackType
-from typing import Any, AsyncGenerator, Dict, Optional, Type
-from unittest.mock import AsyncMock
+from typing import Any, Dict, Optional
 from uuid import uuid4
 
 from aiokafka import ConsumerRecord
 
 from faststream._compat import override
-from faststream.broker.middlewares import CriticalLogMiddleware
 from faststream.broker.parsers import encode_message
-from faststream.broker.test import call_handler, patch_broker_calls
+from faststream.broker.test import TestBroker, call_handler
+from faststream.broker.wrapper import HandlerCallWrapper
+from faststream.kafka.asyncapi import Publisher
 from faststream.kafka.broker import KafkaBroker
 from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.types import SendableMessage
@@ -19,155 +16,35 @@ from faststream.types import SendableMessage
 __all__ = ("TestKafkaBroker",)
 
 
-class TestKafkaBroker:
-    """
-    A context manager for creating a test KafkaBroker instance with optional mocking.
+class TestKafkaBroker(TestBroker[KafkaBroker]):
+    @staticmethod
+    async def _fake_connect(broker: KafkaBroker, *args: Any, **kwargs: Any) -> None:
+        broker._producer = FakeProducer(broker)
 
-    This class serves as a context manager for creating a KafkaBroker instance for testing purposes. It can either use the
-    original KafkaBroker instance (if `with_real` is True) or replace certain components with mocks (if `with_real` is
-    False) to isolate the broker during testing.
+    @staticmethod
+    def patch_publisher(broker: KafkaBroker, publisher: Any) -> None:
+        publisher._producer = broker._producer
 
-    Args:
-        broker (KafkaBroker): The KafkaBroker instance to be used in testing.
-        with_real (bool, optional): If True, the original broker is returned; if False, components are replaced with
-            mock objects. Defaults to False.
-
-    Attributes:
-        broker (KafkaBroker): The KafkaBroker instance provided for testing.
-        with_real (bool): A boolean flag indicating whether to use the original broker (True) or replace components with
-            mocks (False).
-
-    Methods:
-        __aenter__(self) -> KafkaBroker:
-            Enter the context and return the KafkaBroker instance.
-
-        __aexit__(self, *args: Any) -> None:
-            Exit the context.
-
-    Example usage:
-
-    ```python
-    real_broker = KafkaBroker()
-    with TestKafkaBroker(real_broker, with_real=True) as broker:
-        # Use the real KafkaBroker instance for testing.
-
-    with TestKafkaBroker(real_broker, with_real=False) as broker:
-        # Use a mocked KafkaBroker instance for testing.
-    """
-
-    # This is set so pytest ignores this class
-    __test__ = False
-
-    def __init__(
-        self,
+    @staticmethod
+    def create_publisher_fake_subscriber(
         broker: KafkaBroker,
-        with_real: bool = False,
-        connect_only: bool = False,
-    ):
-        """
-        Initialize a TestKafkaBroker instance.
+        publisher: Publisher,
+    ) -> HandlerCallWrapper[Any, Any, Any]:
+        @broker.subscriber(  # type: ignore[call-overload,misc]
+            publisher.topic,
+            batch=publisher.batch,
+            _raw=True,
+        )
+        def f(msg: Any) -> None:
+            pass
 
-        Args:
-            broker (KafkaBroker): The KafkaBroker instance to be used in testing.
-            with_real (bool, optional): If True, the original broker is returned; if False, components are replaced with
-                mock objects. Defaults to False.
-        """
-        self.with_real = with_real
-        self.broker = broker
-        self.connect_only = connect_only
+        return f  # type: ignore[no-any-return]
 
-    @asynccontextmanager
-    async def _create_ctx(self) -> AsyncGenerator[KafkaBroker, None]:
-        """
-        Create the context for the context manager.
-
-        Yields:
-            KafkaBroker: The KafkaBroker instance for testing, either with or without mocks.
-        """
-        if not self.with_real:
-            self.broker.start = AsyncMock(wraps=partial(_fake_start, self.broker))  # type: ignore[method-assign]
-            self.broker._connect = MethodType(_fake_connect, self.broker)  # type: ignore[method-assign]
-            self.broker.close = AsyncMock()  # type: ignore[method-assign]
-        else:
-            _fake_start(self.broker)
-
-        async with self.broker:
-            try:
-                if not self.connect_only:
-                    await self.broker.start()
-                yield self.broker
-            finally:
-                _fake_close(self.broker)
-
-    async def __aenter__(self) -> KafkaBroker:
-        """
-        Enter the context and return the KafkaBroker instance.
-
-        Returns:
-            KafkaBroker: The KafkaBroker instance for testing, either with or without mocks.
-        """
-        self._ctx = self._create_ctx()
-        return await self._ctx.__aenter__()
-
-    async def __aexit__(self, *args: Any) -> None:
-        """
-        Exit the context.
-
-        Args:
-            *args: Variable-length argument list.
-        """
-        await self._ctx.__aexit__(*args)
-
-
-def build_message(
-    message: SendableMessage,
-    topic: str,
-    partition: Optional[int] = None,
-    timestamp_ms: Optional[int] = None,
-    key: Optional[bytes] = None,
-    headers: Optional[Dict[str, str]] = None,
-    correlation_id: Optional[str] = None,
-    *,
-    reply_to: str = "",
-) -> ConsumerRecord:
-    """
-    Build a Kafka ConsumerRecord for a sendable message.
-
-    Args:
-        message (SendableMessage): The sendable message to be encoded.
-        topic (str): The Kafka topic for the message.
-        partition (Optional[int], optional): The Kafka partition for the message. Defaults to None.
-        timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.
-        key (Optional[bytes], optional): The message key. Defaults to None.
-        headers (Optional[Dict[str, str]], optional): Additional headers for the message. Defaults to None.
-        correlation_id (Optional[str], optional): The correlation ID for the message. Defaults to None.
-        reply_to (str, optional): The topic to which responses should be sent. Defaults to "".
-
-    Returns:
-        ConsumerRecord: A Kafka ConsumerRecord object.
-    """
-    msg, content_type = encode_message(message)
-    k = key or b""
-    headers = {
-        "content-type": content_type or "",
-        "correlation_id": correlation_id or str(uuid4()),
-        "reply_to": reply_to,
-        **(headers or {}),
-    }
-
-    return ConsumerRecord(
-        value=msg,
-        topic=topic,
-        partition=partition or 0,
-        timestamp=timestamp_ms or int(datetime.now().timestamp()),
-        timestamp_type=0,
-        key=k,
-        serialized_key_size=len(k),
-        serialized_value_size=len(msg),
-        checksum=sum(msg),
-        offset=0,
-        headers=[(i, j.encode()) for i, j in headers.items()],
-    )
+    @staticmethod
+    def remove_publisher_fake_subscriber(
+        broker: KafkaBroker, publisher: Publisher
+    ) -> None:
+        broker.handlers.pop(publisher.topic, None)
 
 
 class FakeProducer(AioKafkaFastProducer):
@@ -287,88 +164,52 @@ class FakeProducer(AioKafkaFastProducer):
         return None
 
 
-async def _fake_connect(self: KafkaBroker, *args: Any, **kwargs: Any) -> None:
+def build_message(
+    message: SendableMessage,
+    topic: str,
+    partition: Optional[int] = None,
+    timestamp_ms: Optional[int] = None,
+    key: Optional[bytes] = None,
+    headers: Optional[Dict[str, str]] = None,
+    correlation_id: Optional[str] = None,
+    *,
+    reply_to: str = "",
+) -> ConsumerRecord:
     """
-    Fake connection to Kafka.
+    Build a Kafka ConsumerRecord for a sendable message.
 
     Args:
-        self (KafkaBroker): The KafkaBroker instance.
-        *args (Any): Additional arguments.
-        **kwargs (Any): Additional keyword arguments.
+        message (SendableMessage): The sendable message to be encoded.
+        topic (str): The Kafka topic for the message.
+        partition (Optional[int], optional): The Kafka partition for the message. Defaults to None.
+        timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.
+        key (Optional[bytes], optional): The message key. Defaults to None.
+        headers (Optional[Dict[str, str]], optional): Additional headers for the message. Defaults to None.
+        correlation_id (Optional[str], optional): The correlation ID for the message. Defaults to None.
+        reply_to (str, optional): The topic to which responses should be sent. Defaults to "".
 
     Returns:
-        None: This method does not return a value.
+        ConsumerRecord: A Kafka ConsumerRecord object.
     """
-    self._producer = FakeProducer(self)
+    msg, content_type = encode_message(message)
+    k = key or b""
+    headers = {
+        "content-type": content_type or "",
+        "correlation_id": correlation_id or str(uuid4()),
+        "reply_to": reply_to,
+        **(headers or {}),
+    }
 
-
-def _fake_close(
-    broker: KafkaBroker,
-    exc_type: Optional[Type[BaseException]] = None,
-    exc_val: Optional[BaseException] = None,
-    exec_tb: Optional[TracebackType] = None,
-) -> None:
-    """
-    Fake closing of the KafkaBroker.
-
-    Args:
-        self (KafkaBroker): The KafkaBroker instance.
-        exc_type (Optional[Type[BaseException]], optional): Exception type. Defaults to None.
-        exc_val (Optional[BaseException], optional): Exception value. Defaults to None.
-        exec_tb (Optional[TracebackType], optional): Traceback information. Defaults to None.
-
-    Returns:
-        None: This method does not return a value.
-    """
-    broker.middlewares = [
-        CriticalLogMiddleware(broker.logger, broker.log_level),
-        *broker.middlewares,
-    ]
-
-    for p in broker._publishers.values():
-        p.mock.reset_mock()
-        if getattr(p, "_fake_handler", False):
-            broker.handlers.pop(p.topic, None)
-            p._fake_handler = False
-            p.mock.reset_mock()
-
-    for h in broker.handlers.values():
-        for f, _, _, _, _, _ in h.calls:
-            f.refresh(with_mock=True)
-
-
-def _fake_start(broker: KafkaBroker, *args: Any, **kwargs: Any) -> None:
-    """
-    Fake starting of the KafkaBroker.
-
-    Args:
-        self (KafkaBroker): The KafkaBroker instance.
-        *args (Any): Additional arguments.
-        **kwargs (Any): Additional keyword arguments.
-
-    Returns:
-        None: This method does not return a value.
-    """
-
-    for key, p in broker._publishers.items():
-        if getattr(p, "_fake_handler", False):
-            continue
-
-        handler = broker.handlers.get(key)
-        if handler is not None:
-            for f, _, _, _, _, _ in handler.calls:
-                f.mock.side_effect = p.mock
-        else:
-            p._fake_handler = True
-
-            @broker.subscriber(  # type: ignore[call-overload,misc]
-                p.topic, batch=p.batch, _raw=True
-            )
-            def f(msg: Any) -> None:
-                pass
-
-            p.mock = f.mock
-
-        p._producer = broker._producer
-
-    patch_broker_calls(broker)
+    return ConsumerRecord(
+        value=msg,
+        topic=topic,
+        partition=partition or 0,
+        timestamp=timestamp_ms or int(datetime.now().timestamp()),
+        timestamp_type=0,
+        key=k,
+        serialized_key_size=len(k),
+        serialized_value_size=len(msg),
+        checksum=sum(msg),
+        offset=0,
+        headers=[(i, j.encode()) for i, j in headers.items()],
+    )

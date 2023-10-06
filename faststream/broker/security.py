@@ -1,5 +1,7 @@
 from ssl import SSLContext
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
+
+from faststream.types import AnyDict
 
 ssl_not_set_error_msg = """
 SSL context is not set; if you don't want to use SSL encryption, set use_ssl to False.
@@ -23,7 +25,7 @@ class BaseSecurity:
         ssl_context (Optional[SSLContext]): An SSLContext object for SSL encryption. None if SSL is not used.
 
     Methods:
-        get_requirement(self) -> List[Dict[str, Any]]:
+        get_requirement(self) -> List[AnyDict]:
             Get the security requirements in the form of a list of dictionaries.
 
         get_schema(self) -> Dict[str, Dict[str, str]]:
@@ -45,12 +47,12 @@ class BaseSecurity:
         self.use_ssl = use_ssl
         self.ssl_context = ssl_context
 
-    def get_requirement(self) -> List[Dict[str, Any]]:
+    def get_requirement(self) -> List[AnyDict]:
         """
         Get the security requirements.
 
         Returns:
-            List[Dict[str, Any]]: A list of dictionaries representing security requirements.
+            List[AnyDict]: A list of dictionaries representing security requirements.
         """
         return []
 
@@ -77,7 +79,7 @@ class SASLPlaintext(BaseSecurity):
         use_ssl (Optional[bool]): A boolean indicating whether to use SSL encryption. Defaults to True.
 
     Methods:
-        get_requirement(self) -> List[Dict[str, Any]]:
+        get_requirement(self) -> List[AnyDict]:
             Get the security requirements for SASL/PLAINTEXT authentication.
 
         get_schema(self) -> Dict[str, Dict[str, str]]:
@@ -96,12 +98,12 @@ class SASLPlaintext(BaseSecurity):
         self.username = username
         self.password = password
 
-    def get_requirement(self) -> List[Dict[str, Any]]:
+    def get_requirement(self) -> List[AnyDict]:
         """
         Get the security requirements for SASL/PLAINTEXT authentication.
 
         Returns:
-            List[Dict[str, Any]]: A list of dictionaries representing security requirements.
+            List[AnyDict]: A list of dictionaries representing security requirements.
         """
         return [{"user-password": []}]
 
@@ -128,7 +130,7 @@ class SASLScram256(BaseSecurity):
         use_ssl (Optional[bool]): A boolean indicating whether to use SSL encryption. Defaults to True.
 
     Methods:
-        get_requirement(self) -> List[Dict[str, Any]]:
+        get_requirement(self) -> List[AnyDict]:
             Get the security requirements for SASL/SCRAM-SHA-256 authentication.
 
         get_schema(self) -> Dict[str, Dict[str, str]]:
@@ -147,12 +149,12 @@ class SASLScram256(BaseSecurity):
         self.username = username
         self.password = password
 
-    def get_requirement(self) -> List[Dict[str, Any]]:
+    def get_requirement(self) -> List[AnyDict]:
         """
         Get the security requirements for SASL/SCRAM-SHA-256 authentication.
 
         Returns:
-            List[Dict[str, Any]]: A list of dictionaries representing security requirements.
+            List[AnyDict]: A list of dictionaries representing security requirements.
         """
         return [{"scram256": []}]
 
@@ -179,7 +181,7 @@ class SASLScram512(BaseSecurity):
         use_ssl (Optional[bool]): A boolean indicating whether to use SSL encryption. Defaults to True.
 
     Methods:
-        get_requirement(self) -> List[Dict[str, Any]]:
+        get_requirement(self) -> List[AnyDict]:
             Get the security requirements for SASL/SCRAM-SHA-512 authentication.
 
         get_schema(self) -> Dict[str, Dict[str, str]]:
@@ -198,12 +200,12 @@ class SASLScram512(BaseSecurity):
         self.username = username
         self.password = password
 
-    def get_requirement(self) -> List[Dict[str, Any]]:
+    def get_requirement(self) -> List[AnyDict]:
         """
         Get the security requirements for SASL/SCRAM-SHA-512 authentication.
 
         Returns:
-            List[Dict[str, Any]]: A list of dictionaries representing security requirements.
+            List[AnyDict]: A list of dictionaries representing security requirements.
         """
         return [{"scram512": []}]
 

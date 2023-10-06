@@ -10,7 +10,7 @@ from tests.mocks import mock_pydantic_settings_env
 @pytest.mark.asyncio
 async def test():
     with mock_pydantic_settings_env({"host": "localhost"}):
-        from docs.docs_src.getting_started.cli.kafka_context import app, broker
+        from docs.docs_src.getting_started.cli.nats_context import app, broker
 
         async with TestNatsBroker(broker):
             async with TestApp(app, {"env": ""}):
