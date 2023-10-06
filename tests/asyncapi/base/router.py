@@ -1,7 +1,5 @@
 from typing import Type
 
-from dirty_equals import IsStr
-
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
 from faststream.broker.core.abc import BrokerUsecase
@@ -28,10 +26,5 @@ class RouterTestcase:
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
         payload = schema["components"]["schemas"]
-
-        assert list(payload.keys())[0] == IsStr(
-            regex=r"test:[\w:]*Handle:Message:Msg:Payload"
-        )
-        assert payload[list(payload.keys())[0]]["title"] == IsStr(
-            regex=r"test:[\w:]*Handle:Message:Msg:Payload"
-        )
+        key = list(payload.keys())[0]
+        assert payload[key]["title"] == key == "Handle:Message:Payload"

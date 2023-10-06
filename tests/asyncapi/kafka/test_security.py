@@ -13,58 +13,58 @@ from faststream.kafka.annotations import KafkaBroker
 
 basic_schema = {
     "asyncapi": "2.6.0",
-    "defaultContentType": "application/json",
-    "info": {"title": "FastStream", "version": "0.1.0", "description": ""},
-    "servers": {
-        "development": {
-            "url": "localhost:9092",
-            "protocol": "kafka-secure",
-            "protocolVersion": "auto",
-            "security": [],
-        }
-    },
     "channels": {
         "test_1:TestTopic": {
+            "bindings": {"kafka": {"bindingVersion": "0.4.0", "topic": "test_1"}},
             "servers": ["development"],
-            "bindings": {"kafka": {"topic": "test_1", "bindingVersion": "0.4.0"}},
             "subscribe": {
                 "message": {"$ref": "#/components/messages/test_1:TestTopic:Message"}
             },
         },
-        "test_2": {
+        "test_2:Publisher": {
+            "bindings": {"kafka": {"bindingVersion": "0.4.0", "topic": "test_2"}},
+            "publish": {
+                "message": {"$ref": "#/components/messages/test_2:Publisher:Message"}
+            },
             "servers": ["development"],
-            "bindings": {"kafka": {"topic": "test_2", "bindingVersion": "0.4.0"}},
-            "publish": {"message": {"$ref": "#/components/messages/test_2:Message"}},
         },
     },
     "components": {
         "messages": {
             "test_1:TestTopic:Message": {
+                "correlationId": {"location": "$message.header#/correlation_id"},
+                "payload": {"$ref": "#/components/schemas/TestTopic:Message:Payload"},
                 "title": "test_1:TestTopic:Message",
-                "correlationId": {"location": "$message.header#/correlation_id"},
-                "payload": {
-                    "$ref": "#/components/schemas/test_1:TestTopic:Message:Msg:Payload"
-                },
             },
-            "test_2:Message": {
-                "title": "test_2:Message",
+            "test_2:Publisher:Message": {
                 "correlationId": {"location": "$message.header#/correlation_id"},
                 "payload": {
-                    "$ref": "#/components/schemas/test_2:Message:Response:Payload"
+                    "$ref": "#/components/schemas/test_2:Publisher:Message:Payload"
                 },
+                "title": "test_2:Publisher:Message",
             },
         },
         "schemas": {
-            "test_1:TestTopic:Message:Msg:Payload": {
-                "title": "test_1:TestTopic:Message:Msg:Payload",
+            "TestTopic:Message:Payload": {
+                "title": "TestTopic:Message:Payload",
                 "type": "string",
             },
-            "test_2:Message:Response:Payload": {
-                "title": "test_2:Message:Response:Payload",
+            "test_2:Publisher:Message:Payload": {
+                "title": "test_2:Publisher:Message:Payload",
                 "type": "string",
             },
         },
         "securitySchemes": {},
+    },
+    "defaultContentType": "application/json",
+    "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
+    "servers": {
+        "development": {
+            "protocol": "kafka-secure",
+            "protocolVersion": "auto",
+            "security": [],
+            "url": "localhost:9092",
+        }
     },
 }
 

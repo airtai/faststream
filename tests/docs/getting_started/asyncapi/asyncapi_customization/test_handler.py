@@ -9,21 +9,23 @@ def test_handler_customization():
 
     assert schema["channels"] == {
         "input_data:OnInputData": {
-            "description": "My subscriber description",
+            "bindings": {"kafka": {"bindingVersion": "0.4.0", "topic": "input_data"}},
+            "description": "My subscriber " "description",
             "servers": ["development"],
-            "bindings": {"kafka": {"topic": "input_data", "bindingVersion": "0.4.0"}},
             "subscribe": {
                 "message": {
                     "$ref": "#/components/messages/input_data:OnInputData:Message"
                 }
             },
         },
-        "output_data": {
-            "description": "My publisher description",
-            "servers": ["development"],
-            "bindings": {"kafka": {"topic": "output_data", "bindingVersion": "0.4.0"}},
+        "output_data:Publisher": {
+            "bindings": {"kafka": {"bindingVersion": "0.4.0", "topic": "output_data"}},
+            "description": "My publisher " "description",
             "publish": {
-                "message": {"$ref": "#/components/messages/output_data:Message"}
+                "message": {
+                    "$ref": "#/components/messages/output_data:Publisher:Message"
+                }
             },
+            "servers": ["development"],
         },
     }

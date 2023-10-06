@@ -74,14 +74,12 @@ class TestRouter(RouterTestcase):
                             "location": "$message.header#/correlation_id"
                         },
                         "payload": {
-                            "$ref": "#/components/schemas/test_test:_:Handle:Message:Msg:Payload"
+                            "$ref": "#/components/schemas/Handle:Message:Payload"
                         },
                     }
                 },
                 "schemas": {
-                    "test_test:_:Handle:Message:Msg:Payload": {
-                        "title": "test_test:_:Handle:Message:Msg:Payload"
-                    }
+                    "Handle:Message:Payload": {"title": "Handle:Message:Payload"}
                 },
             },
         }

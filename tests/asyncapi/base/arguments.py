@@ -1,7 +1,7 @@
 from typing import Optional, Type
 
 import pydantic
-from dirty_equals import IsDict, IsStr
+from dirty_equals import IsDict
 
 from faststream import FastStream
 from faststream._compat import PYDANTIC_V2
@@ -54,7 +54,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"test[\w:]*Payload"), key
+            assert key == "Handle:Message:Payload"
             assert v == {"title": key}
 
     def test_simple_type(self):
@@ -70,7 +70,7 @@ class FastAPICompatible:
         assert tuple(schema["channels"].values())[0].get("description") is None
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"test[\w:]*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == {"title": key, "type": "integer"}
 
     def test_simple_optional_type(self):
@@ -85,7 +85,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"test[\w:]*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == IsDict(
                 {
                     "anyOf": [{"type": "integer"}, {"type": "null"}],
@@ -110,7 +110,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"test[\w:]*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == {
                 "default": 1,
                 "title": key,
@@ -129,7 +129,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"test[\w:]*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == {
                 "properties": {
                     "another": {"title": "Another"},
@@ -152,7 +152,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"test[\w:]*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == {
                 "properties": {
                     "another": {"title": "Another", "type": "integer"},
@@ -175,7 +175,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"test[\w:]*Payload")
+            assert key == "Handle:Message:Payload"
 
             assert v == {
                 "properties": {
@@ -242,7 +242,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"test[\w:]*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == {
                 "$defs": {
                     "User": {
@@ -360,12 +360,8 @@ class FastAPICompatible:
 
         payload = schema["components"]["schemas"]
 
-        assert IsStr(regex=r"test:[\w:]*Handle:Message:Msg:Payload") in list(
-            payload.keys()
-        )
-        assert IsStr(regex=r"test:[\w:]*Handle:Message:Id:Payload") in list(
-            payload.keys()
-        )
+        assert "Handle:Message:Payload" in list(payload.keys())
+        assert "HandleDefault:Message:Payload" in list(payload.keys())
 
 
 class ArgumentsTestcase(FastAPICompatible):
