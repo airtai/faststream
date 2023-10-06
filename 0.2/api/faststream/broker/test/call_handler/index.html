@@ -1105,6 +1105,8 @@
       
         
       
+        
+      
     
     
     
@@ -1237,6 +1239,26 @@
   
 
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../kafka/ack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Acknowledgement
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -2070,69 +2092,69 @@
 
           <details class="quote">
             <summary>Source code in <code>faststream/broker/test.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-111">111</a></span>
-<span class="normal"><a href="#__codelineno-0-112">112</a></span>
-<span class="normal"><a href="#__codelineno-0-113">113</a></span>
-<span class="normal"><a href="#__codelineno-0-114">114</a></span>
-<span class="normal"><a href="#__codelineno-0-115">115</a></span>
-<span class="normal"><a href="#__codelineno-0-116">116</a></span>
-<span class="normal"><a href="#__codelineno-0-117">117</a></span>
-<span class="normal"><a href="#__codelineno-0-118">118</a></span>
-<span class="normal"><a href="#__codelineno-0-119">119</a></span>
-<span class="normal"><a href="#__codelineno-0-120">120</a></span>
-<span class="normal"><a href="#__codelineno-0-121">121</a></span>
-<span class="normal"><a href="#__codelineno-0-122">122</a></span>
-<span class="normal"><a href="#__codelineno-0-123">123</a></span>
-<span class="normal"><a href="#__codelineno-0-124">124</a></span>
-<span class="normal"><a href="#__codelineno-0-125">125</a></span>
-<span class="normal"><a href="#__codelineno-0-126">126</a></span>
-<span class="normal"><a href="#__codelineno-0-127">127</a></span>
-<span class="normal"><a href="#__codelineno-0-128">128</a></span>
-<span class="normal"><a href="#__codelineno-0-129">129</a></span>
-<span class="normal"><a href="#__codelineno-0-130">130</a></span>
-<span class="normal"><a href="#__codelineno-0-131">131</a></span>
-<span class="normal"><a href="#__codelineno-0-132">132</a></span>
-<span class="normal"><a href="#__codelineno-0-133">133</a></span>
-<span class="normal"><a href="#__codelineno-0-134">134</a></span>
-<span class="normal"><a href="#__codelineno-0-135">135</a></span>
-<span class="normal"><a href="#__codelineno-0-136">136</a></span>
-<span class="normal"><a href="#__codelineno-0-137">137</a></span>
-<span class="normal"><a href="#__codelineno-0-138">138</a></span>
-<span class="normal"><a href="#__codelineno-0-139">139</a></span>
-<span class="normal"><a href="#__codelineno-0-140">140</a></span>
-<span class="normal"><a href="#__codelineno-0-141">141</a></span>
-<span class="normal"><a href="#__codelineno-0-142">142</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-111" name="__codelineno-0-111"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">call_handler</span><span class="p">(</span>
-<a id="__codelineno-0-112" name="__codelineno-0-112"></a>    <span class="n">handler</span><span class="p">:</span> <span class="n">AsyncHandler</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
-<a id="__codelineno-0-113" name="__codelineno-0-113"></a>    <span class="n">message</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-114" name="__codelineno-0-114"></a>    <span class="n">rpc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<a id="__codelineno-0-115" name="__codelineno-0-115"></a>    <span class="n">rpc_timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>
-<a id="__codelineno-0-116" name="__codelineno-0-116"></a>    <span class="n">raise_timeout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<a id="__codelineno-0-117" name="__codelineno-0-117"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SendableMessage</span><span class="p">]:</span>
-<a id="__codelineno-0-118" name="__codelineno-0-118"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Asynchronously call a handler function.</span>
-<a id="__codelineno-0-119" name="__codelineno-0-119"></a>
-<a id="__codelineno-0-120" name="__codelineno-0-120"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-121" name="__codelineno-0-121"></a><span class="sd">        handler: The handler function to be called.</span>
-<a id="__codelineno-0-122" name="__codelineno-0-122"></a><span class="sd">        message: The message to be passed to the handler function.</span>
-<a id="__codelineno-0-123" name="__codelineno-0-123"></a><span class="sd">        rpc: Whether the call is a remote procedure call (RPC).</span>
-<a id="__codelineno-0-124" name="__codelineno-0-124"></a><span class="sd">        rpc_timeout: The timeout for the RPC, in seconds.</span>
-<a id="__codelineno-0-125" name="__codelineno-0-125"></a><span class="sd">        raise_timeout: Whether to raise a timeout error if the RPC times out.</span>
-<a id="__codelineno-0-126" name="__codelineno-0-126"></a>
-<a id="__codelineno-0-127" name="__codelineno-0-127"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-0-128" name="__codelineno-0-128"></a><span class="sd">        The result of the handler function if `rpc` is True, otherwise None.</span>
-<a id="__codelineno-0-129" name="__codelineno-0-129"></a>
-<a id="__codelineno-0-130" name="__codelineno-0-130"></a><span class="sd">    Raises:</span>
-<a id="__codelineno-0-131" name="__codelineno-0-131"></a><span class="sd">        TimeoutError: If the RPC times out and `raise_timeout` is True.</span>
-<a id="__codelineno-0-132" name="__codelineno-0-132"></a><span class="sd">    !!! note</span>
-<a id="__codelineno-0-133" name="__codelineno-0-133"></a>
-<a id="__codelineno-0-134" name="__codelineno-0-134"></a><span class="sd">        The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<a id="__codelineno-0-135" name="__codelineno-0-135"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-136" name="__codelineno-0-136"></a>    <span class="k">with</span> <span class="n">timeout_scope</span><span class="p">(</span><span class="n">rpc_timeout</span><span class="p">,</span> <span class="n">raise_timeout</span><span class="p">):</span>
-<a id="__codelineno-0-137" name="__codelineno-0-137"></a>        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">handler</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-<a id="__codelineno-0-138" name="__codelineno-0-138"></a>
-<a id="__codelineno-0-139" name="__codelineno-0-139"></a>        <span class="k">if</span> <span class="n">rpc</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-<a id="__codelineno-0-140" name="__codelineno-0-140"></a>            <span class="k">return</span> <span class="n">result</span>
-<a id="__codelineno-0-141" name="__codelineno-0-141"></a>
-<a id="__codelineno-0-142" name="__codelineno-0-142"></a>    <span class="k">return</span> <span class="kc">None</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-231">231</a></span>
+<span class="normal"><a href="#__codelineno-0-232">232</a></span>
+<span class="normal"><a href="#__codelineno-0-233">233</a></span>
+<span class="normal"><a href="#__codelineno-0-234">234</a></span>
+<span class="normal"><a href="#__codelineno-0-235">235</a></span>
+<span class="normal"><a href="#__codelineno-0-236">236</a></span>
+<span class="normal"><a href="#__codelineno-0-237">237</a></span>
+<span class="normal"><a href="#__codelineno-0-238">238</a></span>
+<span class="normal"><a href="#__codelineno-0-239">239</a></span>
+<span class="normal"><a href="#__codelineno-0-240">240</a></span>
+<span class="normal"><a href="#__codelineno-0-241">241</a></span>
+<span class="normal"><a href="#__codelineno-0-242">242</a></span>
+<span class="normal"><a href="#__codelineno-0-243">243</a></span>
+<span class="normal"><a href="#__codelineno-0-244">244</a></span>
+<span class="normal"><a href="#__codelineno-0-245">245</a></span>
+<span class="normal"><a href="#__codelineno-0-246">246</a></span>
+<span class="normal"><a href="#__codelineno-0-247">247</a></span>
+<span class="normal"><a href="#__codelineno-0-248">248</a></span>
+<span class="normal"><a href="#__codelineno-0-249">249</a></span>
+<span class="normal"><a href="#__codelineno-0-250">250</a></span>
+<span class="normal"><a href="#__codelineno-0-251">251</a></span>
+<span class="normal"><a href="#__codelineno-0-252">252</a></span>
+<span class="normal"><a href="#__codelineno-0-253">253</a></span>
+<span class="normal"><a href="#__codelineno-0-254">254</a></span>
+<span class="normal"><a href="#__codelineno-0-255">255</a></span>
+<span class="normal"><a href="#__codelineno-0-256">256</a></span>
+<span class="normal"><a href="#__codelineno-0-257">257</a></span>
+<span class="normal"><a href="#__codelineno-0-258">258</a></span>
+<span class="normal"><a href="#__codelineno-0-259">259</a></span>
+<span class="normal"><a href="#__codelineno-0-260">260</a></span>
+<span class="normal"><a href="#__codelineno-0-261">261</a></span>
+<span class="normal"><a href="#__codelineno-0-262">262</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-231" name="__codelineno-0-231"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">call_handler</span><span class="p">(</span>
+<a id="__codelineno-0-232" name="__codelineno-0-232"></a>    <span class="n">handler</span><span class="p">:</span> <span class="n">AsyncHandler</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
+<a id="__codelineno-0-233" name="__codelineno-0-233"></a>    <span class="n">message</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-234" name="__codelineno-0-234"></a>    <span class="n">rpc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-235" name="__codelineno-0-235"></a>    <span class="n">rpc_timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>
+<a id="__codelineno-0-236" name="__codelineno-0-236"></a>    <span class="n">raise_timeout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-237" name="__codelineno-0-237"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SendableMessage</span><span class="p">]:</span>
+<a id="__codelineno-0-238" name="__codelineno-0-238"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Asynchronously call a handler function.</span>
+<a id="__codelineno-0-239" name="__codelineno-0-239"></a>
+<a id="__codelineno-0-240" name="__codelineno-0-240"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-241" name="__codelineno-0-241"></a><span class="sd">        handler: The handler function to be called.</span>
+<a id="__codelineno-0-242" name="__codelineno-0-242"></a><span class="sd">        message: The message to be passed to the handler function.</span>
+<a id="__codelineno-0-243" name="__codelineno-0-243"></a><span class="sd">        rpc: Whether the call is a remote procedure call (RPC).</span>
+<a id="__codelineno-0-244" name="__codelineno-0-244"></a><span class="sd">        rpc_timeout: The timeout for the RPC, in seconds.</span>
+<a id="__codelineno-0-245" name="__codelineno-0-245"></a><span class="sd">        raise_timeout: Whether to raise a timeout error if the RPC times out.</span>
+<a id="__codelineno-0-246" name="__codelineno-0-246"></a>
+<a id="__codelineno-0-247" name="__codelineno-0-247"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-248" name="__codelineno-0-248"></a><span class="sd">        The result of the handler function if `rpc` is True, otherwise None.</span>
+<a id="__codelineno-0-249" name="__codelineno-0-249"></a>
+<a id="__codelineno-0-250" name="__codelineno-0-250"></a><span class="sd">    Raises:</span>
+<a id="__codelineno-0-251" name="__codelineno-0-251"></a><span class="sd">        TimeoutError: If the RPC times out and `raise_timeout` is True.</span>
+<a id="__codelineno-0-252" name="__codelineno-0-252"></a><span class="sd">    !!! note</span>
+<a id="__codelineno-0-253" name="__codelineno-0-253"></a>
+<a id="__codelineno-0-254" name="__codelineno-0-254"></a><span class="sd">        The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-255" name="__codelineno-0-255"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-256" name="__codelineno-0-256"></a>    <span class="k">with</span> <span class="n">timeout_scope</span><span class="p">(</span><span class="n">rpc_timeout</span><span class="p">,</span> <span class="n">raise_timeout</span><span class="p">):</span>
+<a id="__codelineno-0-257" name="__codelineno-0-257"></a>        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">handler</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<a id="__codelineno-0-258" name="__codelineno-0-258"></a>
+<a id="__codelineno-0-259" name="__codelineno-0-259"></a>        <span class="k">if</span> <span class="n">rpc</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+<a id="__codelineno-0-260" name="__codelineno-0-260"></a>            <span class="k">return</span> <span class="n">result</span>
+<a id="__codelineno-0-261" name="__codelineno-0-261"></a>
+<a id="__codelineno-0-262" name="__codelineno-0-262"></a>    <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>

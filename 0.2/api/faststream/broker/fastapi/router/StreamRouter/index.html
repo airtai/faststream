@@ -1105,6 +1105,8 @@
       
         
       
+        
+      
     
     
     
@@ -1237,6 +1239,26 @@
   
 
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../../kafka/ack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Acknowledgement
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -3337,7 +3359,7 @@
 <a id="__codelineno-0-601" name="__codelineno-0-601"></a>        <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-602" name="__codelineno-0-602"></a>        <span class="n">dependencies</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">params</span><span class="o">.</span><span class="n">Depends</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-603" name="__codelineno-0-603"></a>        <span class="n">default_response_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Response</span><span class="p">]</span> <span class="o">=</span> <span class="n">Default</span><span class="p">(</span><span class="n">JSONResponse</span><span class="p">),</span>
-<a id="__codelineno-0-604" name="__codelineno-0-604"></a>        <span class="n">responses</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-604" name="__codelineno-0-604"></a>        <span class="n">responses</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">AnyDict</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-605" name="__codelineno-0-605"></a>        <span class="n">callbacks</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">BaseRoute</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-606" name="__codelineno-0-606"></a>        <span class="n">deprecated</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-607" name="__codelineno-0-607"></a>        <span class="n">include_in_schema</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -3353,7 +3375,7 @@
 <a id="__codelineno-0-617" name="__codelineno-0-617"></a><span class="sd">            tags (List[Union[str, Enum]], optional): The tags to assign to all paths defined in the router. Defaults to None.</span>
 <a id="__codelineno-0-618" name="__codelineno-0-618"></a><span class="sd">            dependencies (Sequence[params.Depends], optional): The dependencies to apply to all paths defined in the router. Defaults to None.</span>
 <a id="__codelineno-0-619" name="__codelineno-0-619"></a><span class="sd">            default_response_class (Type[Response], optional): The default response class to use for all paths defined in the router. Defaults to Default(JSONResponse).</span>
-<a id="__codelineno-0-620" name="__codelineno-0-620"></a><span class="sd">            responses (Dict[Union[int, str], Dict[str, Any]], optional): The responses to define for all paths defined in the router. Defaults to None.</span>
+<a id="__codelineno-0-620" name="__codelineno-0-620"></a><span class="sd">            responses (Dict[Union[int, str], AnyDict], optional): The responses to define for all paths defined in the router. Defaults to None.</span>
 <a id="__codelineno-0-621" name="__codelineno-0-621"></a><span class="sd">            callbacks (List[BaseRoute], optional): The callbacks to apply to all paths defined in the router. Defaults to None.</span>
 <a id="__codelineno-0-622" name="__codelineno-0-622"></a><span class="sd">            deprecated (bool, optional): Whether the router is deprecated. Defaults to None.</span>
 <a id="__codelineno-0-623" name="__codelineno-0-623"></a><span class="sd">            include_in_schema (bool, optional): Whether to include the router in the API schema. Defaults to True.</span>
@@ -4443,7 +4465,7 @@
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="n">JSONResponse</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="p">),</span>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">responses</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="n">Dict</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="n">Dict</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">AnyDict</span><span class="p">]</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">callbacks</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">BaseRoute</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">deprecated</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4563,7 +4585,7 @@
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="typing.Dict" href="https://docs.python.org/3/library/typing.html#typing.Dict">Dict</a>[<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>], <a class="autorefs autorefs-external" title="typing.Dict" href="https://docs.python.org/3/library/typing.html#typing.Dict">Dict</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>]]</code>
+                    <code><a class="autorefs autorefs-external" title="typing.Dict" href="https://docs.python.org/3/library/typing.html#typing.Dict">Dict</a>[<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>], <span title="faststream.types.AnyDict">AnyDict</span>]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -4710,7 +4732,7 @@
 <a id="__codelineno-0-601" name="__codelineno-0-601"></a>    <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-602" name="__codelineno-0-602"></a>    <span class="n">dependencies</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">params</span><span class="o">.</span><span class="n">Depends</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-603" name="__codelineno-0-603"></a>    <span class="n">default_response_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Response</span><span class="p">]</span> <span class="o">=</span> <span class="n">Default</span><span class="p">(</span><span class="n">JSONResponse</span><span class="p">),</span>
-<a id="__codelineno-0-604" name="__codelineno-0-604"></a>    <span class="n">responses</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-604" name="__codelineno-0-604"></a>    <span class="n">responses</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">AnyDict</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-605" name="__codelineno-0-605"></a>    <span class="n">callbacks</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">BaseRoute</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-606" name="__codelineno-0-606"></a>    <span class="n">deprecated</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-607" name="__codelineno-0-607"></a>    <span class="n">include_in_schema</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -4726,7 +4748,7 @@
 <a id="__codelineno-0-617" name="__codelineno-0-617"></a><span class="sd">        tags (List[Union[str, Enum]], optional): The tags to assign to all paths defined in the router. Defaults to None.</span>
 <a id="__codelineno-0-618" name="__codelineno-0-618"></a><span class="sd">        dependencies (Sequence[params.Depends], optional): The dependencies to apply to all paths defined in the router. Defaults to None.</span>
 <a id="__codelineno-0-619" name="__codelineno-0-619"></a><span class="sd">        default_response_class (Type[Response], optional): The default response class to use for all paths defined in the router. Defaults to Default(JSONResponse).</span>
-<a id="__codelineno-0-620" name="__codelineno-0-620"></a><span class="sd">        responses (Dict[Union[int, str], Dict[str, Any]], optional): The responses to define for all paths defined in the router. Defaults to None.</span>
+<a id="__codelineno-0-620" name="__codelineno-0-620"></a><span class="sd">        responses (Dict[Union[int, str], AnyDict], optional): The responses to define for all paths defined in the router. Defaults to None.</span>
 <a id="__codelineno-0-621" name="__codelineno-0-621"></a><span class="sd">        callbacks (List[BaseRoute], optional): The callbacks to apply to all paths defined in the router. Defaults to None.</span>
 <a id="__codelineno-0-622" name="__codelineno-0-622"></a><span class="sd">        deprecated (bool, optional): Whether the router is deprecated. Defaults to None.</span>
 <a id="__codelineno-0-623" name="__codelineno-0-623"></a><span class="sd">        include_in_schema (bool, optional): Whether to include the router in the API schema. Defaults to True.</span>

@@ -1105,6 +1105,8 @@
       
         
       
+        
+      
     
     
     
@@ -1237,6 +1239,26 @@
   
 
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../kafka/ack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Acknowledgement
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -2054,9 +2076,7 @@
 
             <details class="quote">
               <summary>Source code in <code>faststream/broker/security.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-67"> 67</a></span>
-<span class="normal"><a href="#__codelineno-0-68"> 68</a></span>
-<span class="normal"><a href="#__codelineno-0-69"> 69</a></span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-69"> 69</a></span>
 <span class="normal"><a href="#__codelineno-0-70"> 70</a></span>
 <span class="normal"><a href="#__codelineno-0-71"> 71</a></span>
 <span class="normal"><a href="#__codelineno-0-72"> 72</a></span>
@@ -2102,55 +2122,57 @@
 <span class="normal"><a href="#__codelineno-0-112">112</a></span>
 <span class="normal"><a href="#__codelineno-0-113">113</a></span>
 <span class="normal"><a href="#__codelineno-0-114">114</a></span>
-<span class="normal"><a href="#__codelineno-0-115">115</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-67" name="__codelineno-0-67"></a><span class="k">class</span> <span class="nc">SASLPlaintext</span><span class="p">(</span><span class="n">BaseSecurity</span><span class="p">):</span>
-<a id="__codelineno-0-68" name="__codelineno-0-68"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-69" name="__codelineno-0-69"></a><span class="sd">    Security configuration for SASL/PLAINTEXT authentication.</span>
-<a id="__codelineno-0-70" name="__codelineno-0-70"></a>
-<a id="__codelineno-0-71" name="__codelineno-0-71"></a><span class="sd">    This class defines security configuration for SASL/PLAINTEXT authentication, which includes a username and password.</span>
+<span class="normal"><a href="#__codelineno-0-115">115</a></span>
+<span class="normal"><a href="#__codelineno-0-116">116</a></span>
+<span class="normal"><a href="#__codelineno-0-117">117</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-69" name="__codelineno-0-69"></a><span class="k">class</span> <span class="nc">SASLPlaintext</span><span class="p">(</span><span class="n">BaseSecurity</span><span class="p">):</span>
+<a id="__codelineno-0-70" name="__codelineno-0-70"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-71" name="__codelineno-0-71"></a><span class="sd">    Security configuration for SASL/PLAINTEXT authentication.</span>
 <a id="__codelineno-0-72" name="__codelineno-0-72"></a>
-<a id="__codelineno-0-73" name="__codelineno-0-73"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-74" name="__codelineno-0-74"></a><span class="sd">        username (str): The username for authentication.</span>
-<a id="__codelineno-0-75" name="__codelineno-0-75"></a><span class="sd">        password (str): The password for authentication.</span>
-<a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="sd">        ssl_context (Optional[SSLContext]): An SSLContext object for SSL encryption. If None, SSL encryption is disabled.</span>
-<a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="sd">        use_ssl (Optional[bool]): A boolean indicating whether to use SSL encryption. Defaults to True.</span>
-<a id="__codelineno-0-78" name="__codelineno-0-78"></a>
-<a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="sd">    Methods:</span>
-<a id="__codelineno-0-80" name="__codelineno-0-80"></a><span class="sd">        get_requirement(self) -&gt; List[Dict[str, Any]]:</span>
-<a id="__codelineno-0-81" name="__codelineno-0-81"></a><span class="sd">            Get the security requirements for SASL/PLAINTEXT authentication.</span>
-<a id="__codelineno-0-82" name="__codelineno-0-82"></a>
-<a id="__codelineno-0-83" name="__codelineno-0-83"></a><span class="sd">        get_schema(self) -&gt; Dict[str, Dict[str, str]]:</span>
-<a id="__codelineno-0-84" name="__codelineno-0-84"></a><span class="sd">            Get the security schema for SASL/PLAINTEXT authentication.</span>
-<a id="__codelineno-0-85" name="__codelineno-0-85"></a>
-<a id="__codelineno-0-86" name="__codelineno-0-86"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-73" name="__codelineno-0-73"></a><span class="sd">    This class defines security configuration for SASL/PLAINTEXT authentication, which includes a username and password.</span>
+<a id="__codelineno-0-74" name="__codelineno-0-74"></a>
+<a id="__codelineno-0-75" name="__codelineno-0-75"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="sd">        username (str): The username for authentication.</span>
+<a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="sd">        password (str): The password for authentication.</span>
+<a id="__codelineno-0-78" name="__codelineno-0-78"></a><span class="sd">        ssl_context (Optional[SSLContext]): An SSLContext object for SSL encryption. If None, SSL encryption is disabled.</span>
+<a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="sd">        use_ssl (Optional[bool]): A boolean indicating whether to use SSL encryption. Defaults to True.</span>
+<a id="__codelineno-0-80" name="__codelineno-0-80"></a>
+<a id="__codelineno-0-81" name="__codelineno-0-81"></a><span class="sd">    Methods:</span>
+<a id="__codelineno-0-82" name="__codelineno-0-82"></a><span class="sd">        get_requirement(self) -&gt; List[AnyDict]:</span>
+<a id="__codelineno-0-83" name="__codelineno-0-83"></a><span class="sd">            Get the security requirements for SASL/PLAINTEXT authentication.</span>
+<a id="__codelineno-0-84" name="__codelineno-0-84"></a>
+<a id="__codelineno-0-85" name="__codelineno-0-85"></a><span class="sd">        get_schema(self) -&gt; Dict[str, Dict[str, str]]:</span>
+<a id="__codelineno-0-86" name="__codelineno-0-86"></a><span class="sd">            Get the security schema for SASL/PLAINTEXT authentication.</span>
 <a id="__codelineno-0-87" name="__codelineno-0-87"></a>
-<a id="__codelineno-0-88" name="__codelineno-0-88"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-<a id="__codelineno-0-89" name="__codelineno-0-89"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-90" name="__codelineno-0-90"></a>        <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-0-91" name="__codelineno-0-91"></a>        <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-0-92" name="__codelineno-0-92"></a>        <span class="n">ssl_context</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SSLContext</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-93" name="__codelineno-0-93"></a>        <span class="n">use_ssl</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-94" name="__codelineno-0-94"></a>    <span class="p">):</span>
-<a id="__codelineno-0-95" name="__codelineno-0-95"></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">ssl_context</span><span class="p">,</span> <span class="n">use_ssl</span><span class="p">)</span>
-<a id="__codelineno-0-96" name="__codelineno-0-96"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">username</span> <span class="o">=</span> <span class="n">username</span>
-<a id="__codelineno-0-97" name="__codelineno-0-97"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="n">password</span>
-<a id="__codelineno-0-98" name="__codelineno-0-98"></a>
-<a id="__codelineno-0-99" name="__codelineno-0-99"></a>    <span class="k">def</span> <span class="nf">get_requirement</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-<a id="__codelineno-0-100" name="__codelineno-0-100"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-101" name="__codelineno-0-101"></a><span class="sd">        Get the security requirements for SASL/PLAINTEXT authentication.</span>
-<a id="__codelineno-0-102" name="__codelineno-0-102"></a>
-<a id="__codelineno-0-103" name="__codelineno-0-103"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-104" name="__codelineno-0-104"></a><span class="sd">            List[Dict[str, Any]]: A list of dictionaries representing security requirements.</span>
-<a id="__codelineno-0-105" name="__codelineno-0-105"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-106" name="__codelineno-0-106"></a>        <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;user-password&quot;</span><span class="p">:</span> <span class="p">[]}]</span>
-<a id="__codelineno-0-107" name="__codelineno-0-107"></a>
-<a id="__codelineno-0-108" name="__codelineno-0-108"></a>    <span class="k">def</span> <span class="nf">get_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-<a id="__codelineno-0-109" name="__codelineno-0-109"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-110" name="__codelineno-0-110"></a><span class="sd">        Get the security schema for SASL/PLAINTEXT authentication.</span>
-<a id="__codelineno-0-111" name="__codelineno-0-111"></a>
-<a id="__codelineno-0-112" name="__codelineno-0-112"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-113" name="__codelineno-0-113"></a><span class="sd">            Dict[str, Dict[str, str]]: A dictionary representing the security schema.</span>
-<a id="__codelineno-0-114" name="__codelineno-0-114"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-115" name="__codelineno-0-115"></a>        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;user-password&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;userPassword&quot;</span><span class="p">}}</span>
+<a id="__codelineno-0-88" name="__codelineno-0-88"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-89" name="__codelineno-0-89"></a>
+<a id="__codelineno-0-90" name="__codelineno-0-90"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-0-91" name="__codelineno-0-91"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-92" name="__codelineno-0-92"></a>        <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-93" name="__codelineno-0-93"></a>        <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-94" name="__codelineno-0-94"></a>        <span class="n">ssl_context</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SSLContext</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-95" name="__codelineno-0-95"></a>        <span class="n">use_ssl</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-96" name="__codelineno-0-96"></a>    <span class="p">):</span>
+<a id="__codelineno-0-97" name="__codelineno-0-97"></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">ssl_context</span><span class="p">,</span> <span class="n">use_ssl</span><span class="p">)</span>
+<a id="__codelineno-0-98" name="__codelineno-0-98"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">username</span> <span class="o">=</span> <span class="n">username</span>
+<a id="__codelineno-0-99" name="__codelineno-0-99"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="n">password</span>
+<a id="__codelineno-0-100" name="__codelineno-0-100"></a>
+<a id="__codelineno-0-101" name="__codelineno-0-101"></a>    <span class="k">def</span> <span class="nf">get_requirement</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">AnyDict</span><span class="p">]:</span>
+<a id="__codelineno-0-102" name="__codelineno-0-102"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-103" name="__codelineno-0-103"></a><span class="sd">        Get the security requirements for SASL/PLAINTEXT authentication.</span>
+<a id="__codelineno-0-104" name="__codelineno-0-104"></a>
+<a id="__codelineno-0-105" name="__codelineno-0-105"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-106" name="__codelineno-0-106"></a><span class="sd">            List[AnyDict]: A list of dictionaries representing security requirements.</span>
+<a id="__codelineno-0-107" name="__codelineno-0-107"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-108" name="__codelineno-0-108"></a>        <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;user-password&quot;</span><span class="p">:</span> <span class="p">[]}]</span>
+<a id="__codelineno-0-109" name="__codelineno-0-109"></a>
+<a id="__codelineno-0-110" name="__codelineno-0-110"></a>    <span class="k">def</span> <span class="nf">get_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<a id="__codelineno-0-111" name="__codelineno-0-111"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-112" name="__codelineno-0-112"></a><span class="sd">        Get the security schema for SASL/PLAINTEXT authentication.</span>
+<a id="__codelineno-0-113" name="__codelineno-0-113"></a>
+<a id="__codelineno-0-114" name="__codelineno-0-114"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-115" name="__codelineno-0-115"></a><span class="sd">            Dict[str, Dict[str, str]]: A dictionary representing the security schema.</span>
+<a id="__codelineno-0-116" name="__codelineno-0-116"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-117" name="__codelineno-0-117"></a>        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;user-password&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;userPassword&quot;</span><span class="p">}}</span>
 </code></pre></div></td></tr></table></div>
             </details>
 
@@ -2221,7 +2243,7 @@
 
 
 <a href="#faststream.broker.security.SASLPlaintext.get_requirement" class="headerlink" title="Permanent link">#</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">get_requirement</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">get_requirement</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">AnyDict</span><span class="p">]</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -2241,12 +2263,12 @@
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a>[<a class="autorefs autorefs-external" title="typing.Dict" href="https://docs.python.org/3/library/typing.html#typing.Dict">Dict</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>]]</code>
+                  <code><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a>[<span title="faststream.types.AnyDict">AnyDict</span>]</code>
               </span>
           </td>
           <td class="doc-returns-details">
             <div class="doc-md-description">
-              <p>List[Dict[str, Any]]: A list of dictionaries representing security requirements.</p>
+              <p>List[AnyDict]: A list of dictionaries representing security requirements.</p>
             </div>
           </td>
         </tr>
@@ -2255,21 +2277,21 @@
 
           <details class="quote">
             <summary>Source code in <code>faststream/broker/security.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-99"> 99</a></span>
-<span class="normal"><a href="#__codelineno-0-100">100</a></span>
-<span class="normal"><a href="#__codelineno-0-101">101</a></span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-101">101</a></span>
 <span class="normal"><a href="#__codelineno-0-102">102</a></span>
 <span class="normal"><a href="#__codelineno-0-103">103</a></span>
 <span class="normal"><a href="#__codelineno-0-104">104</a></span>
 <span class="normal"><a href="#__codelineno-0-105">105</a></span>
-<span class="normal"><a href="#__codelineno-0-106">106</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-99" name="__codelineno-0-99"></a><span class="k">def</span> <span class="nf">get_requirement</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-<a id="__codelineno-0-100" name="__codelineno-0-100"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-101" name="__codelineno-0-101"></a><span class="sd">    Get the security requirements for SASL/PLAINTEXT authentication.</span>
-<a id="__codelineno-0-102" name="__codelineno-0-102"></a>
-<a id="__codelineno-0-103" name="__codelineno-0-103"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-0-104" name="__codelineno-0-104"></a><span class="sd">        List[Dict[str, Any]]: A list of dictionaries representing security requirements.</span>
-<a id="__codelineno-0-105" name="__codelineno-0-105"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-106" name="__codelineno-0-106"></a>    <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;user-password&quot;</span><span class="p">:</span> <span class="p">[]}]</span>
+<span class="normal"><a href="#__codelineno-0-106">106</a></span>
+<span class="normal"><a href="#__codelineno-0-107">107</a></span>
+<span class="normal"><a href="#__codelineno-0-108">108</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-101" name="__codelineno-0-101"></a><span class="k">def</span> <span class="nf">get_requirement</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">AnyDict</span><span class="p">]:</span>
+<a id="__codelineno-0-102" name="__codelineno-0-102"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-103" name="__codelineno-0-103"></a><span class="sd">    Get the security requirements for SASL/PLAINTEXT authentication.</span>
+<a id="__codelineno-0-104" name="__codelineno-0-104"></a>
+<a id="__codelineno-0-105" name="__codelineno-0-105"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-106" name="__codelineno-0-106"></a><span class="sd">        List[AnyDict]: A list of dictionaries representing security requirements.</span>
+<a id="__codelineno-0-107" name="__codelineno-0-107"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-108" name="__codelineno-0-108"></a>    <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;user-password&quot;</span><span class="p">:</span> <span class="p">[]}]</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -2321,21 +2343,21 @@
 
           <details class="quote">
             <summary>Source code in <code>faststream/broker/security.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-108">108</a></span>
-<span class="normal"><a href="#__codelineno-0-109">109</a></span>
-<span class="normal"><a href="#__codelineno-0-110">110</a></span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-110">110</a></span>
 <span class="normal"><a href="#__codelineno-0-111">111</a></span>
 <span class="normal"><a href="#__codelineno-0-112">112</a></span>
 <span class="normal"><a href="#__codelineno-0-113">113</a></span>
 <span class="normal"><a href="#__codelineno-0-114">114</a></span>
-<span class="normal"><a href="#__codelineno-0-115">115</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-108" name="__codelineno-0-108"></a><span class="k">def</span> <span class="nf">get_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-<a id="__codelineno-0-109" name="__codelineno-0-109"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-110" name="__codelineno-0-110"></a><span class="sd">    Get the security schema for SASL/PLAINTEXT authentication.</span>
-<a id="__codelineno-0-111" name="__codelineno-0-111"></a>
-<a id="__codelineno-0-112" name="__codelineno-0-112"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-0-113" name="__codelineno-0-113"></a><span class="sd">        Dict[str, Dict[str, str]]: A dictionary representing the security schema.</span>
-<a id="__codelineno-0-114" name="__codelineno-0-114"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-115" name="__codelineno-0-115"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;user-password&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;userPassword&quot;</span><span class="p">}}</span>
+<span class="normal"><a href="#__codelineno-0-115">115</a></span>
+<span class="normal"><a href="#__codelineno-0-116">116</a></span>
+<span class="normal"><a href="#__codelineno-0-117">117</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-110" name="__codelineno-0-110"></a><span class="k">def</span> <span class="nf">get_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<a id="__codelineno-0-111" name="__codelineno-0-111"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-112" name="__codelineno-0-112"></a><span class="sd">    Get the security schema for SASL/PLAINTEXT authentication.</span>
+<a id="__codelineno-0-113" name="__codelineno-0-113"></a>
+<a id="__codelineno-0-114" name="__codelineno-0-114"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-115" name="__codelineno-0-115"></a><span class="sd">        Dict[str, Dict[str, str]]: A dictionary representing the security schema.</span>
+<a id="__codelineno-0-116" name="__codelineno-0-116"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-117" name="__codelineno-0-117"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;user-password&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;userPassword&quot;</span><span class="p">}}</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>

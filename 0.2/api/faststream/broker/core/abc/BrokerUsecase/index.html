@@ -1105,6 +1105,8 @@
       
         
       
+        
+      
     
     
     
@@ -1237,6 +1239,26 @@
   
 
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../../kafka/ack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Acknowledgement
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -2604,7 +2626,8 @@
 <span class="normal"><a href="#__codelineno-0-516">516</a></span>
 <span class="normal"><a href="#__codelineno-0-517">517</a></span>
 <span class="normal"><a href="#__codelineno-0-518">518</a></span>
-<span class="normal"><a href="#__codelineno-0-519">519</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="k">class</span> <span class="nc">BrokerUsecase</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-519">519</a></span>
+<span class="normal"><a href="#__codelineno-0-520">520</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="k">class</span> <span class="nc">BrokerUsecase</span><span class="p">(</span>
 <a id="__codelineno-0-60" name="__codelineno-0-60"></a>    <span class="n">ABC</span><span class="p">,</span>
 <a id="__codelineno-0-61" name="__codelineno-0-61"></a>    <span class="n">Generic</span><span class="p">[</span><span class="n">MsgType</span><span class="p">,</span> <span class="n">ConnectionType</span><span class="p">],</span>
 <a id="__codelineno-0-62" name="__codelineno-0-62"></a>    <span class="n">LoggingMixin</span><span class="p">,</span>
@@ -2854,7 +2877,7 @@
 <a id="__codelineno-0-306" name="__codelineno-0-306"></a>        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">dependant</span><span class="p">,</span> <span class="s2">&quot;flat_params&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># handle FastAPI Dependant</span>
 <a id="__codelineno-0-307" name="__codelineno-0-307"></a>            <span class="n">dependant</span> <span class="o">=</span> <span class="n">_patch_fastapi_dependant</span><span class="p">(</span><span class="n">dependant</span><span class="p">)</span>
 <a id="__codelineno-0-308" name="__codelineno-0-308"></a>
-<a id="__codelineno-0-309" name="__codelineno-0-309"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_apply_types</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+<a id="__codelineno-0-309" name="__codelineno-0-309"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_apply_types</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_raw</span><span class="p">:</span>
 <a id="__codelineno-0-310" name="__codelineno-0-310"></a>            <span class="n">apply_wrapper</span><span class="p">:</span> <span class="n">_InjectWrapper</span><span class="p">[</span>
 <a id="__codelineno-0-311" name="__codelineno-0-311"></a>                <span class="n">P_HandlerParams</span><span class="p">,</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">T_HandlerReturn</span><span class="p">]</span>
 <a id="__codelineno-0-312" name="__codelineno-0-312"></a>            <span class="p">]</span> <span class="o">=</span> <span class="n">apply_types</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
@@ -2881,190 +2904,191 @@
 <a id="__codelineno-0-333" name="__codelineno-0-333"></a>        <span class="k">return</span> <span class="n">handler_call</span><span class="p">,</span> <span class="n">dependant</span>
 <a id="__codelineno-0-334" name="__codelineno-0-334"></a>
 <a id="__codelineno-0-335" name="__codelineno-0-335"></a>    <span class="k">def</span> <span class="nf">_abc_start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-336" name="__codelineno-0-336"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">started</span> <span class="o">=</span> <span class="kc">True</span>
-<a id="__codelineno-0-337" name="__codelineno-0-337"></a>
-<a id="__codelineno-0-338" name="__codelineno-0-338"></a>        <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-<a id="__codelineno-0-339" name="__codelineno-0-339"></a>            <span class="n">h</span><span class="o">.</span><span class="n">global_middlewares</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">middlewares</span><span class="p">,</span> <span class="o">*</span><span class="n">h</span><span class="o">.</span><span class="n">global_middlewares</span><span class="p">)</span>
-<a id="__codelineno-0-340" name="__codelineno-0-340"></a>
-<a id="__codelineno-0-341" name="__codelineno-0-341"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-342" name="__codelineno-0-342"></a>            <span class="n">change_logger_handlers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="p">)</span>
-<a id="__codelineno-0-343" name="__codelineno-0-343"></a>
-<a id="__codelineno-0-344" name="__codelineno-0-344"></a>    <span class="k">def</span> <span class="nf">_abc_close</span><span class="p">(</span>
-<a id="__codelineno-0-345" name="__codelineno-0-345"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-346" name="__codelineno-0-346"></a>        <span class="n">exc_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-347" name="__codelineno-0-347"></a>        <span class="n">exc_val</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-348" name="__codelineno-0-348"></a>        <span class="n">exec_tb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TracebackType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-349" name="__codelineno-0-349"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-350" name="__codelineno-0-350"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Closes the ABC.</span>
-<a id="__codelineno-0-351" name="__codelineno-0-351"></a>
-<a id="__codelineno-0-352" name="__codelineno-0-352"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-353" name="__codelineno-0-353"></a><span class="sd">            exc_type: The exception type</span>
-<a id="__codelineno-0-354" name="__codelineno-0-354"></a><span class="sd">            exc_val: The exception value</span>
-<a id="__codelineno-0-355" name="__codelineno-0-355"></a><span class="sd">            exec_tb: The traceback</span>
-<a id="__codelineno-0-356" name="__codelineno-0-356"></a>
-<a id="__codelineno-0-357" name="__codelineno-0-357"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-358" name="__codelineno-0-358"></a><span class="sd">            None</span>
-<a id="__codelineno-0-359" name="__codelineno-0-359"></a><span class="sd">        !!! note</span>
-<a id="__codelineno-0-360" name="__codelineno-0-360"></a>
-<a id="__codelineno-0-361" name="__codelineno-0-361"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<a id="__codelineno-0-362" name="__codelineno-0-362"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-363" name="__codelineno-0-363"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">started</span> <span class="o">=</span> <span class="kc">False</span>
-<a id="__codelineno-0-364" name="__codelineno-0-364"></a>
-<a id="__codelineno-0-365" name="__codelineno-0-365"></a>    <span class="k">def</span> <span class="nf">_abc__close</span><span class="p">(</span>
-<a id="__codelineno-0-366" name="__codelineno-0-366"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-367" name="__codelineno-0-367"></a>        <span class="n">exc_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-368" name="__codelineno-0-368"></a>        <span class="n">exc_val</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-369" name="__codelineno-0-369"></a>        <span class="n">exec_tb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TracebackType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-370" name="__codelineno-0-370"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-371" name="__codelineno-0-371"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Closes the connection.</span>
-<a id="__codelineno-0-372" name="__codelineno-0-372"></a>
-<a id="__codelineno-0-373" name="__codelineno-0-373"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-374" name="__codelineno-0-374"></a><span class="sd">            exc_type: The type of the exception being handled (optional)</span>
-<a id="__codelineno-0-375" name="__codelineno-0-375"></a><span class="sd">            exc_val: The exception instance being handled (optional)</span>
-<a id="__codelineno-0-376" name="__codelineno-0-376"></a><span class="sd">            exec_tb: The traceback for the exception being handled (optional)</span>
-<a id="__codelineno-0-377" name="__codelineno-0-377"></a>
-<a id="__codelineno-0-378" name="__codelineno-0-378"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-379" name="__codelineno-0-379"></a><span class="sd">            None</span>
-<a id="__codelineno-0-380" name="__codelineno-0-380"></a>
-<a id="__codelineno-0-381" name="__codelineno-0-381"></a><span class="sd">        Note:</span>
-<a id="__codelineno-0-382" name="__codelineno-0-382"></a><span class="sd">            This is an abstract method and must be implemented by subclasses.</span>
-<a id="__codelineno-0-383" name="__codelineno-0-383"></a><span class="sd">        !!! note</span>
-<a id="__codelineno-0-384" name="__codelineno-0-384"></a>
-<a id="__codelineno-0-385" name="__codelineno-0-385"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<a id="__codelineno-0-386" name="__codelineno-0-386"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-387" name="__codelineno-0-387"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span> <span class="o">=</span> <span class="kc">None</span>
-<a id="__codelineno-0-388" name="__codelineno-0-388"></a>
-<a id="__codelineno-0-389" name="__codelineno-0-389"></a>    <span class="nd">@abstractmethod</span>
-<a id="__codelineno-0-390" name="__codelineno-0-390"></a>    <span class="k">def</span> <span class="nf">_process_message</span><span class="p">(</span>
-<a id="__codelineno-0-391" name="__codelineno-0-391"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-392" name="__codelineno-0-392"></a>        <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]],</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">T_HandlerReturn</span><span class="p">]],</span>
-<a id="__codelineno-0-393" name="__codelineno-0-393"></a>        <span class="n">watcher</span><span class="p">:</span> <span class="n">BaseWatcher</span><span class="p">,</span>
-<a id="__codelineno-0-394" name="__codelineno-0-394"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]],</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">WrappedReturn</span><span class="p">[</span><span class="n">T_HandlerReturn</span><span class="p">]],]:</span>
-<a id="__codelineno-0-395" name="__codelineno-0-395"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Processes a message using a given function and watcher.</span>
-<a id="__codelineno-0-396" name="__codelineno-0-396"></a>
-<a id="__codelineno-0-397" name="__codelineno-0-397"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-398" name="__codelineno-0-398"></a><span class="sd">            func: A callable that takes a StreamMessage of type MsgType and returns an Awaitable of type T_HandlerReturn.</span>
-<a id="__codelineno-0-399" name="__codelineno-0-399"></a><span class="sd">            watcher: An instance of BaseWatcher.</span>
-<a id="__codelineno-0-400" name="__codelineno-0-400"></a>
-<a id="__codelineno-0-401" name="__codelineno-0-401"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-402" name="__codelineno-0-402"></a><span class="sd">            A callable that takes a StreamMessage of type MsgType and returns an Awaitable of type WrappedReturn[T_HandlerReturn].</span>
-<a id="__codelineno-0-403" name="__codelineno-0-403"></a>
-<a id="__codelineno-0-404" name="__codelineno-0-404"></a><span class="sd">        Raises:</span>
-<a id="__codelineno-0-405" name="__codelineno-0-405"></a><span class="sd">            NotImplementedError: If the method is not implemented.</span>
-<a id="__codelineno-0-406" name="__codelineno-0-406"></a><span class="sd">        !!! note</span>
-<a id="__codelineno-0-407" name="__codelineno-0-407"></a>
-<a id="__codelineno-0-408" name="__codelineno-0-408"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<a id="__codelineno-0-409" name="__codelineno-0-409"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-410" name="__codelineno-0-410"></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
-<a id="__codelineno-0-411" name="__codelineno-0-411"></a>
-<a id="__codelineno-0-412" name="__codelineno-0-412"></a>    <span class="nd">@abstractmethod</span>
-<a id="__codelineno-0-413" name="__codelineno-0-413"></a>    <span class="k">def</span> <span class="nf">subscriber</span><span class="p">(</span>  <span class="c1"># type: ignore[return]</span>
-<a id="__codelineno-0-414" name="__codelineno-0-414"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-415" name="__codelineno-0-415"></a>        <span class="o">*</span><span class="n">broker_args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-416" name="__codelineno-0-416"></a>        <span class="n">retry</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<a id="__codelineno-0-417" name="__codelineno-0-417"></a>        <span class="n">dependencies</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Depends</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
-<a id="__codelineno-0-418" name="__codelineno-0-418"></a>        <span class="n">decoder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CustomDecoder</span><span class="p">[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-419" name="__codelineno-0-419"></a>        <span class="n">parser</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CustomParser</span><span class="p">[</span><span class="n">MsgType</span><span class="p">,</span> <span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-420" name="__codelineno-0-420"></a>        <span class="n">middlewares</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
-<a id="__codelineno-0-421" name="__codelineno-0-421"></a>            <span class="n">Sequence</span><span class="p">[</span>
-<a id="__codelineno-0-422" name="__codelineno-0-422"></a>                <span class="n">Callable</span><span class="p">[</span>
-<a id="__codelineno-0-423" name="__codelineno-0-423"></a>                    <span class="p">[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]],</span>
-<a id="__codelineno-0-424" name="__codelineno-0-424"></a>                    <span class="n">BaseMiddleware</span><span class="p">,</span>
-<a id="__codelineno-0-425" name="__codelineno-0-425"></a>                <span class="p">]</span>
-<a id="__codelineno-0-426" name="__codelineno-0-426"></a>            <span class="p">]</span>
-<a id="__codelineno-0-427" name="__codelineno-0-427"></a>        <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-428" name="__codelineno-0-428"></a>        <span class="nb">filter</span><span class="p">:</span> <span class="n">Filter</span><span class="p">[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="ow">not</span> <span class="n">m</span><span class="o">.</span><span class="n">processed</span><span class="p">,</span>
-<a id="__codelineno-0-429" name="__codelineno-0-429"></a>        <span class="n">_raw</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<a id="__codelineno-0-430" name="__codelineno-0-430"></a>        <span class="n">_get_dependant</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-431" name="__codelineno-0-431"></a>        <span class="o">**</span><span class="n">broker_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-432" name="__codelineno-0-432"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span>
-<a id="__codelineno-0-433" name="__codelineno-0-433"></a>        <span class="p">[</span>
-<a id="__codelineno-0-434" name="__codelineno-0-434"></a>            <span class="n">Union</span><span class="p">[</span>
-<a id="__codelineno-0-435" name="__codelineno-0-435"></a>                <span class="n">Callable</span><span class="p">[</span><span class="n">P_HandlerParams</span><span class="p">,</span> <span class="n">T_HandlerReturn</span><span class="p">],</span>
-<a id="__codelineno-0-436" name="__codelineno-0-436"></a>                <span class="n">HandlerCallWrapper</span><span class="p">[</span><span class="n">MsgType</span><span class="p">,</span> <span class="n">P_HandlerParams</span><span class="p">,</span> <span class="n">T_HandlerReturn</span><span class="p">],</span>
-<a id="__codelineno-0-437" name="__codelineno-0-437"></a>            <span class="p">]</span>
-<a id="__codelineno-0-438" name="__codelineno-0-438"></a>        <span class="p">],</span>
-<a id="__codelineno-0-439" name="__codelineno-0-439"></a>        <span class="n">HandlerCallWrapper</span><span class="p">[</span><span class="n">MsgType</span><span class="p">,</span> <span class="n">P_HandlerParams</span><span class="p">,</span> <span class="n">T_HandlerReturn</span><span class="p">],</span>
-<a id="__codelineno-0-440" name="__codelineno-0-440"></a>    <span class="p">]:</span>
-<a id="__codelineno-0-441" name="__codelineno-0-441"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;This is a function decorator for subscribing to a message broker.</span>
-<a id="__codelineno-0-442" name="__codelineno-0-442"></a>
-<a id="__codelineno-0-443" name="__codelineno-0-443"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-444" name="__codelineno-0-444"></a><span class="sd">            *broker_args: Positional arguments to be passed to the broker.</span>
-<a id="__codelineno-0-445" name="__codelineno-0-445"></a><span class="sd">            retry: Whether to retry the subscription if it fails. Can be a boolean or an integer specifying the number of retries.</span>
-<a id="__codelineno-0-446" name="__codelineno-0-446"></a><span class="sd">            dependencies: Sequence of dependencies to be injected into the handler function.</span>
-<a id="__codelineno-0-447" name="__codelineno-0-447"></a><span class="sd">            decoder: Custom decoder function to decode the message.</span>
-<a id="__codelineno-0-448" name="__codelineno-0-448"></a><span class="sd">            parser: Custom parser function to parse the decoded message.</span>
-<a id="__codelineno-0-449" name="__codelineno-0-449"></a><span class="sd">            middlewares: Sequence of middleware functions to be applied to the message.</span>
-<a id="__codelineno-0-450" name="__codelineno-0-450"></a><span class="sd">            filter: Filter function to filter the messages to be processed.</span>
-<a id="__codelineno-0-451" name="__codelineno-0-451"></a><span class="sd">            _raw: Whether to return the raw message instead of the processed message.</span>
-<a id="__codelineno-0-452" name="__codelineno-0-452"></a><span class="sd">            _get_dependant: Optional parameter to get the dependant object.</span>
-<a id="__codelineno-0-453" name="__codelineno-0-453"></a><span class="sd">            **broker_kwargs: Keyword arguments to be passed to the broker.</span>
-<a id="__codelineno-0-454" name="__codelineno-0-454"></a>
-<a id="__codelineno-0-455" name="__codelineno-0-455"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-456" name="__codelineno-0-456"></a><span class="sd">            A callable object that can be used as a decorator for a handler function.</span>
-<a id="__codelineno-0-457" name="__codelineno-0-457"></a>
-<a id="__codelineno-0-458" name="__codelineno-0-458"></a><span class="sd">        Raises:</span>
-<a id="__codelineno-0-459" name="__codelineno-0-459"></a><span class="sd">            RuntimeWarning: If the broker is already running.</span>
-<a id="__codelineno-0-460" name="__codelineno-0-460"></a><span class="sd">        !!! note</span>
-<a id="__codelineno-0-461" name="__codelineno-0-461"></a>
-<a id="__codelineno-0-462" name="__codelineno-0-462"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<a id="__codelineno-0-463" name="__codelineno-0-463"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-464" name="__codelineno-0-464"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
-<a id="__codelineno-0-465" name="__codelineno-0-465"></a>            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-<a id="__codelineno-0-466" name="__codelineno-0-466"></a>                <span class="s2">&quot;You are trying to register `handler` with already running broker</span><span class="se">\n</span><span class="s2">&quot;</span>  <span class="c1"># noqa: E501</span>
-<a id="__codelineno-0-467" name="__codelineno-0-467"></a>                <span class="s2">&quot;It has no effect until broker restarting.&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-<a id="__codelineno-0-468" name="__codelineno-0-468"></a>                <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">,</span>
-<a id="__codelineno-0-469" name="__codelineno-0-469"></a>                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-<a id="__codelineno-0-470" name="__codelineno-0-470"></a>            <span class="p">)</span>
-<a id="__codelineno-0-471" name="__codelineno-0-471"></a>
-<a id="__codelineno-0-472" name="__codelineno-0-472"></a>    <span class="nd">@abstractmethod</span>
-<a id="__codelineno-0-473" name="__codelineno-0-473"></a>    <span class="k">def</span> <span class="nf">publisher</span><span class="p">(</span>
-<a id="__codelineno-0-474" name="__codelineno-0-474"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-475" name="__codelineno-0-475"></a>        <span class="n">key</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-476" name="__codelineno-0-476"></a>        <span class="n">publisher</span><span class="p">:</span> <span class="n">BasePublisher</span><span class="p">[</span><span class="n">MsgType</span><span class="p">],</span>
-<a id="__codelineno-0-477" name="__codelineno-0-477"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BasePublisher</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]:</span>
-<a id="__codelineno-0-478" name="__codelineno-0-478"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Publishes a publisher.</span>
-<a id="__codelineno-0-479" name="__codelineno-0-479"></a>
-<a id="__codelineno-0-480" name="__codelineno-0-480"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-481" name="__codelineno-0-481"></a><span class="sd">            key: The key associated with the publisher.</span>
-<a id="__codelineno-0-482" name="__codelineno-0-482"></a><span class="sd">            publisher: The publisher to be published.</span>
-<a id="__codelineno-0-483" name="__codelineno-0-483"></a>
-<a id="__codelineno-0-484" name="__codelineno-0-484"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-485" name="__codelineno-0-485"></a><span class="sd">            The published publisher.</span>
-<a id="__codelineno-0-486" name="__codelineno-0-486"></a>
-<a id="__codelineno-0-487" name="__codelineno-0-487"></a><span class="sd">        Raises:</span>
-<a id="__codelineno-0-488" name="__codelineno-0-488"></a><span class="sd">            NotImplementedError: If the method is not implemented.</span>
-<a id="__codelineno-0-489" name="__codelineno-0-489"></a><span class="sd">        !!! note</span>
-<a id="__codelineno-0-490" name="__codelineno-0-490"></a>
-<a id="__codelineno-0-491" name="__codelineno-0-491"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<a id="__codelineno-0-492" name="__codelineno-0-492"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-493" name="__codelineno-0-493"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_publishers</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">publisher</span>
-<a id="__codelineno-0-494" name="__codelineno-0-494"></a>        <span class="k">return</span> <span class="n">publisher</span>
-<a id="__codelineno-0-495" name="__codelineno-0-495"></a>
-<a id="__codelineno-0-496" name="__codelineno-0-496"></a>    <span class="nd">@abstractmethod</span>
-<a id="__codelineno-0-497" name="__codelineno-0-497"></a>    <span class="k">def</span> <span class="nf">_wrap_decode_message</span><span class="p">(</span>
-<a id="__codelineno-0-498" name="__codelineno-0-498"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-499" name="__codelineno-0-499"></a>        <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">T_HandlerReturn</span><span class="p">]],</span>
-<a id="__codelineno-0-500" name="__codelineno-0-500"></a>        <span class="n">params</span><span class="p">:</span> <span class="n">Sized</span> <span class="o">=</span> <span class="p">(),</span>
-<a id="__codelineno-0-501" name="__codelineno-0-501"></a>        <span class="n">_raw</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<a id="__codelineno-0-502" name="__codelineno-0-502"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]],</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">T_HandlerReturn</span><span class="p">]]:</span>
-<a id="__codelineno-0-503" name="__codelineno-0-503"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Wrap a decoding message function.</span>
-<a id="__codelineno-0-504" name="__codelineno-0-504"></a>
-<a id="__codelineno-0-505" name="__codelineno-0-505"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-506" name="__codelineno-0-506"></a><span class="sd">            func: The function to wrap.</span>
-<a id="__codelineno-0-507" name="__codelineno-0-507"></a><span class="sd">            params: The parameters to pass to the function.</span>
-<a id="__codelineno-0-508" name="__codelineno-0-508"></a><span class="sd">            _raw: Whether to return the raw message or not.</span>
-<a id="__codelineno-0-509" name="__codelineno-0-509"></a>
-<a id="__codelineno-0-510" name="__codelineno-0-510"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-511" name="__codelineno-0-511"></a><span class="sd">            The wrapped function.</span>
-<a id="__codelineno-0-512" name="__codelineno-0-512"></a>
-<a id="__codelineno-0-513" name="__codelineno-0-513"></a><span class="sd">        Raises:</span>
-<a id="__codelineno-0-514" name="__codelineno-0-514"></a><span class="sd">            NotImplementedError: If the method is not implemented.</span>
-<a id="__codelineno-0-515" name="__codelineno-0-515"></a><span class="sd">        !!! note</span>
-<a id="__codelineno-0-516" name="__codelineno-0-516"></a>
-<a id="__codelineno-0-517" name="__codelineno-0-517"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<a id="__codelineno-0-518" name="__codelineno-0-518"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-519" name="__codelineno-0-519"></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+<a id="__codelineno-0-336" name="__codelineno-0-336"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
+<a id="__codelineno-0-337" name="__codelineno-0-337"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">started</span> <span class="o">=</span> <span class="kc">True</span>
+<a id="__codelineno-0-338" name="__codelineno-0-338"></a>
+<a id="__codelineno-0-339" name="__codelineno-0-339"></a>            <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+<a id="__codelineno-0-340" name="__codelineno-0-340"></a>                <span class="n">h</span><span class="o">.</span><span class="n">global_middlewares</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">middlewares</span><span class="p">,</span> <span class="o">*</span><span class="n">h</span><span class="o">.</span><span class="n">global_middlewares</span><span class="p">)</span>
+<a id="__codelineno-0-341" name="__codelineno-0-341"></a>
+<a id="__codelineno-0-342" name="__codelineno-0-342"></a>            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-343" name="__codelineno-0-343"></a>                <span class="n">change_logger_handlers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="p">)</span>
+<a id="__codelineno-0-344" name="__codelineno-0-344"></a>
+<a id="__codelineno-0-345" name="__codelineno-0-345"></a>    <span class="k">def</span> <span class="nf">_abc_close</span><span class="p">(</span>
+<a id="__codelineno-0-346" name="__codelineno-0-346"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-347" name="__codelineno-0-347"></a>        <span class="n">exc_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-348" name="__codelineno-0-348"></a>        <span class="n">exc_val</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-349" name="__codelineno-0-349"></a>        <span class="n">exec_tb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TracebackType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-350" name="__codelineno-0-350"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-351" name="__codelineno-0-351"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Closes the ABC.</span>
+<a id="__codelineno-0-352" name="__codelineno-0-352"></a>
+<a id="__codelineno-0-353" name="__codelineno-0-353"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-354" name="__codelineno-0-354"></a><span class="sd">            exc_type: The exception type</span>
+<a id="__codelineno-0-355" name="__codelineno-0-355"></a><span class="sd">            exc_val: The exception value</span>
+<a id="__codelineno-0-356" name="__codelineno-0-356"></a><span class="sd">            exec_tb: The traceback</span>
+<a id="__codelineno-0-357" name="__codelineno-0-357"></a>
+<a id="__codelineno-0-358" name="__codelineno-0-358"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-359" name="__codelineno-0-359"></a><span class="sd">            None</span>
+<a id="__codelineno-0-360" name="__codelineno-0-360"></a><span class="sd">        !!! note</span>
+<a id="__codelineno-0-361" name="__codelineno-0-361"></a>
+<a id="__codelineno-0-362" name="__codelineno-0-362"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-363" name="__codelineno-0-363"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-364" name="__codelineno-0-364"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">started</span> <span class="o">=</span> <span class="kc">False</span>
+<a id="__codelineno-0-365" name="__codelineno-0-365"></a>
+<a id="__codelineno-0-366" name="__codelineno-0-366"></a>    <span class="k">def</span> <span class="nf">_abc__close</span><span class="p">(</span>
+<a id="__codelineno-0-367" name="__codelineno-0-367"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-368" name="__codelineno-0-368"></a>        <span class="n">exc_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-369" name="__codelineno-0-369"></a>        <span class="n">exc_val</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-370" name="__codelineno-0-370"></a>        <span class="n">exec_tb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TracebackType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-371" name="__codelineno-0-371"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-372" name="__codelineno-0-372"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Closes the connection.</span>
+<a id="__codelineno-0-373" name="__codelineno-0-373"></a>
+<a id="__codelineno-0-374" name="__codelineno-0-374"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-375" name="__codelineno-0-375"></a><span class="sd">            exc_type: The type of the exception being handled (optional)</span>
+<a id="__codelineno-0-376" name="__codelineno-0-376"></a><span class="sd">            exc_val: The exception instance being handled (optional)</span>
+<a id="__codelineno-0-377" name="__codelineno-0-377"></a><span class="sd">            exec_tb: The traceback for the exception being handled (optional)</span>
+<a id="__codelineno-0-378" name="__codelineno-0-378"></a>
+<a id="__codelineno-0-379" name="__codelineno-0-379"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-380" name="__codelineno-0-380"></a><span class="sd">            None</span>
+<a id="__codelineno-0-381" name="__codelineno-0-381"></a>
+<a id="__codelineno-0-382" name="__codelineno-0-382"></a><span class="sd">        Note:</span>
+<a id="__codelineno-0-383" name="__codelineno-0-383"></a><span class="sd">            This is an abstract method and must be implemented by subclasses.</span>
+<a id="__codelineno-0-384" name="__codelineno-0-384"></a><span class="sd">        !!! note</span>
+<a id="__codelineno-0-385" name="__codelineno-0-385"></a>
+<a id="__codelineno-0-386" name="__codelineno-0-386"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-387" name="__codelineno-0-387"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-388" name="__codelineno-0-388"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-389" name="__codelineno-0-389"></a>
+<a id="__codelineno-0-390" name="__codelineno-0-390"></a>    <span class="nd">@abstractmethod</span>
+<a id="__codelineno-0-391" name="__codelineno-0-391"></a>    <span class="k">def</span> <span class="nf">_process_message</span><span class="p">(</span>
+<a id="__codelineno-0-392" name="__codelineno-0-392"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-393" name="__codelineno-0-393"></a>        <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]],</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">T_HandlerReturn</span><span class="p">]],</span>
+<a id="__codelineno-0-394" name="__codelineno-0-394"></a>        <span class="n">watcher</span><span class="p">:</span> <span class="n">BaseWatcher</span><span class="p">,</span>
+<a id="__codelineno-0-395" name="__codelineno-0-395"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]],</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">WrappedReturn</span><span class="p">[</span><span class="n">T_HandlerReturn</span><span class="p">]],]:</span>
+<a id="__codelineno-0-396" name="__codelineno-0-396"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Processes a message using a given function and watcher.</span>
+<a id="__codelineno-0-397" name="__codelineno-0-397"></a>
+<a id="__codelineno-0-398" name="__codelineno-0-398"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-399" name="__codelineno-0-399"></a><span class="sd">            func: A callable that takes a StreamMessage of type MsgType and returns an Awaitable of type T_HandlerReturn.</span>
+<a id="__codelineno-0-400" name="__codelineno-0-400"></a><span class="sd">            watcher: An instance of BaseWatcher.</span>
+<a id="__codelineno-0-401" name="__codelineno-0-401"></a>
+<a id="__codelineno-0-402" name="__codelineno-0-402"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-403" name="__codelineno-0-403"></a><span class="sd">            A callable that takes a StreamMessage of type MsgType and returns an Awaitable of type WrappedReturn[T_HandlerReturn].</span>
+<a id="__codelineno-0-404" name="__codelineno-0-404"></a>
+<a id="__codelineno-0-405" name="__codelineno-0-405"></a><span class="sd">        Raises:</span>
+<a id="__codelineno-0-406" name="__codelineno-0-406"></a><span class="sd">            NotImplementedError: If the method is not implemented.</span>
+<a id="__codelineno-0-407" name="__codelineno-0-407"></a><span class="sd">        !!! note</span>
+<a id="__codelineno-0-408" name="__codelineno-0-408"></a>
+<a id="__codelineno-0-409" name="__codelineno-0-409"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-410" name="__codelineno-0-410"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-411" name="__codelineno-0-411"></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+<a id="__codelineno-0-412" name="__codelineno-0-412"></a>
+<a id="__codelineno-0-413" name="__codelineno-0-413"></a>    <span class="nd">@abstractmethod</span>
+<a id="__codelineno-0-414" name="__codelineno-0-414"></a>    <span class="k">def</span> <span class="nf">subscriber</span><span class="p">(</span>  <span class="c1"># type: ignore[return]</span>
+<a id="__codelineno-0-415" name="__codelineno-0-415"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-416" name="__codelineno-0-416"></a>        <span class="o">*</span><span class="n">broker_args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-417" name="__codelineno-0-417"></a>        <span class="n">retry</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-418" name="__codelineno-0-418"></a>        <span class="n">dependencies</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Depends</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+<a id="__codelineno-0-419" name="__codelineno-0-419"></a>        <span class="n">decoder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CustomDecoder</span><span class="p">[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-420" name="__codelineno-0-420"></a>        <span class="n">parser</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CustomParser</span><span class="p">[</span><span class="n">MsgType</span><span class="p">,</span> <span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-421" name="__codelineno-0-421"></a>        <span class="n">middlewares</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
+<a id="__codelineno-0-422" name="__codelineno-0-422"></a>            <span class="n">Sequence</span><span class="p">[</span>
+<a id="__codelineno-0-423" name="__codelineno-0-423"></a>                <span class="n">Callable</span><span class="p">[</span>
+<a id="__codelineno-0-424" name="__codelineno-0-424"></a>                    <span class="p">[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]],</span>
+<a id="__codelineno-0-425" name="__codelineno-0-425"></a>                    <span class="n">BaseMiddleware</span><span class="p">,</span>
+<a id="__codelineno-0-426" name="__codelineno-0-426"></a>                <span class="p">]</span>
+<a id="__codelineno-0-427" name="__codelineno-0-427"></a>            <span class="p">]</span>
+<a id="__codelineno-0-428" name="__codelineno-0-428"></a>        <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-429" name="__codelineno-0-429"></a>        <span class="nb">filter</span><span class="p">:</span> <span class="n">Filter</span><span class="p">[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="ow">not</span> <span class="n">m</span><span class="o">.</span><span class="n">processed</span><span class="p">,</span>
+<a id="__codelineno-0-430" name="__codelineno-0-430"></a>        <span class="n">_raw</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-431" name="__codelineno-0-431"></a>        <span class="n">_get_dependant</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-432" name="__codelineno-0-432"></a>        <span class="o">**</span><span class="n">broker_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-433" name="__codelineno-0-433"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span>
+<a id="__codelineno-0-434" name="__codelineno-0-434"></a>        <span class="p">[</span>
+<a id="__codelineno-0-435" name="__codelineno-0-435"></a>            <span class="n">Union</span><span class="p">[</span>
+<a id="__codelineno-0-436" name="__codelineno-0-436"></a>                <span class="n">Callable</span><span class="p">[</span><span class="n">P_HandlerParams</span><span class="p">,</span> <span class="n">T_HandlerReturn</span><span class="p">],</span>
+<a id="__codelineno-0-437" name="__codelineno-0-437"></a>                <span class="n">HandlerCallWrapper</span><span class="p">[</span><span class="n">MsgType</span><span class="p">,</span> <span class="n">P_HandlerParams</span><span class="p">,</span> <span class="n">T_HandlerReturn</span><span class="p">],</span>
+<a id="__codelineno-0-438" name="__codelineno-0-438"></a>            <span class="p">]</span>
+<a id="__codelineno-0-439" name="__codelineno-0-439"></a>        <span class="p">],</span>
+<a id="__codelineno-0-440" name="__codelineno-0-440"></a>        <span class="n">HandlerCallWrapper</span><span class="p">[</span><span class="n">MsgType</span><span class="p">,</span> <span class="n">P_HandlerParams</span><span class="p">,</span> <span class="n">T_HandlerReturn</span><span class="p">],</span>
+<a id="__codelineno-0-441" name="__codelineno-0-441"></a>    <span class="p">]:</span>
+<a id="__codelineno-0-442" name="__codelineno-0-442"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;This is a function decorator for subscribing to a message broker.</span>
+<a id="__codelineno-0-443" name="__codelineno-0-443"></a>
+<a id="__codelineno-0-444" name="__codelineno-0-444"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-445" name="__codelineno-0-445"></a><span class="sd">            *broker_args: Positional arguments to be passed to the broker.</span>
+<a id="__codelineno-0-446" name="__codelineno-0-446"></a><span class="sd">            retry: Whether to retry the subscription if it fails. Can be a boolean or an integer specifying the number of retries.</span>
+<a id="__codelineno-0-447" name="__codelineno-0-447"></a><span class="sd">            dependencies: Sequence of dependencies to be injected into the handler function.</span>
+<a id="__codelineno-0-448" name="__codelineno-0-448"></a><span class="sd">            decoder: Custom decoder function to decode the message.</span>
+<a id="__codelineno-0-449" name="__codelineno-0-449"></a><span class="sd">            parser: Custom parser function to parse the decoded message.</span>
+<a id="__codelineno-0-450" name="__codelineno-0-450"></a><span class="sd">            middlewares: Sequence of middleware functions to be applied to the message.</span>
+<a id="__codelineno-0-451" name="__codelineno-0-451"></a><span class="sd">            filter: Filter function to filter the messages to be processed.</span>
+<a id="__codelineno-0-452" name="__codelineno-0-452"></a><span class="sd">            _raw: Whether to return the raw message instead of the processed message.</span>
+<a id="__codelineno-0-453" name="__codelineno-0-453"></a><span class="sd">            _get_dependant: Optional parameter to get the dependant object.</span>
+<a id="__codelineno-0-454" name="__codelineno-0-454"></a><span class="sd">            **broker_kwargs: Keyword arguments to be passed to the broker.</span>
+<a id="__codelineno-0-455" name="__codelineno-0-455"></a>
+<a id="__codelineno-0-456" name="__codelineno-0-456"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-457" name="__codelineno-0-457"></a><span class="sd">            A callable object that can be used as a decorator for a handler function.</span>
+<a id="__codelineno-0-458" name="__codelineno-0-458"></a>
+<a id="__codelineno-0-459" name="__codelineno-0-459"></a><span class="sd">        Raises:</span>
+<a id="__codelineno-0-460" name="__codelineno-0-460"></a><span class="sd">            RuntimeWarning: If the broker is already running.</span>
+<a id="__codelineno-0-461" name="__codelineno-0-461"></a><span class="sd">        !!! note</span>
+<a id="__codelineno-0-462" name="__codelineno-0-462"></a>
+<a id="__codelineno-0-463" name="__codelineno-0-463"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-464" name="__codelineno-0-464"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-465" name="__codelineno-0-465"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
+<a id="__codelineno-0-466" name="__codelineno-0-466"></a>            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+<a id="__codelineno-0-467" name="__codelineno-0-467"></a>                <span class="s2">&quot;You are trying to register `handler` with already running broker</span><span class="se">\n</span><span class="s2">&quot;</span>  <span class="c1"># noqa: E501</span>
+<a id="__codelineno-0-468" name="__codelineno-0-468"></a>                <span class="s2">&quot;It has no effect until broker restarting.&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+<a id="__codelineno-0-469" name="__codelineno-0-469"></a>                <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">,</span>
+<a id="__codelineno-0-470" name="__codelineno-0-470"></a>                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-0-471" name="__codelineno-0-471"></a>            <span class="p">)</span>
+<a id="__codelineno-0-472" name="__codelineno-0-472"></a>
+<a id="__codelineno-0-473" name="__codelineno-0-473"></a>    <span class="nd">@abstractmethod</span>
+<a id="__codelineno-0-474" name="__codelineno-0-474"></a>    <span class="k">def</span> <span class="nf">publisher</span><span class="p">(</span>
+<a id="__codelineno-0-475" name="__codelineno-0-475"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-476" name="__codelineno-0-476"></a>        <span class="n">key</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-477" name="__codelineno-0-477"></a>        <span class="n">publisher</span><span class="p">:</span> <span class="n">BasePublisher</span><span class="p">[</span><span class="n">MsgType</span><span class="p">],</span>
+<a id="__codelineno-0-478" name="__codelineno-0-478"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BasePublisher</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]:</span>
+<a id="__codelineno-0-479" name="__codelineno-0-479"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Publishes a publisher.</span>
+<a id="__codelineno-0-480" name="__codelineno-0-480"></a>
+<a id="__codelineno-0-481" name="__codelineno-0-481"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-482" name="__codelineno-0-482"></a><span class="sd">            key: The key associated with the publisher.</span>
+<a id="__codelineno-0-483" name="__codelineno-0-483"></a><span class="sd">            publisher: The publisher to be published.</span>
+<a id="__codelineno-0-484" name="__codelineno-0-484"></a>
+<a id="__codelineno-0-485" name="__codelineno-0-485"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-486" name="__codelineno-0-486"></a><span class="sd">            The published publisher.</span>
+<a id="__codelineno-0-487" name="__codelineno-0-487"></a>
+<a id="__codelineno-0-488" name="__codelineno-0-488"></a><span class="sd">        Raises:</span>
+<a id="__codelineno-0-489" name="__codelineno-0-489"></a><span class="sd">            NotImplementedError: If the method is not implemented.</span>
+<a id="__codelineno-0-490" name="__codelineno-0-490"></a><span class="sd">        !!! note</span>
+<a id="__codelineno-0-491" name="__codelineno-0-491"></a>
+<a id="__codelineno-0-492" name="__codelineno-0-492"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-493" name="__codelineno-0-493"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-494" name="__codelineno-0-494"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_publishers</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">publisher</span>
+<a id="__codelineno-0-495" name="__codelineno-0-495"></a>        <span class="k">return</span> <span class="n">publisher</span>
+<a id="__codelineno-0-496" name="__codelineno-0-496"></a>
+<a id="__codelineno-0-497" name="__codelineno-0-497"></a>    <span class="nd">@abstractmethod</span>
+<a id="__codelineno-0-498" name="__codelineno-0-498"></a>    <span class="k">def</span> <span class="nf">_wrap_decode_message</span><span class="p">(</span>
+<a id="__codelineno-0-499" name="__codelineno-0-499"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-500" name="__codelineno-0-500"></a>        <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">T_HandlerReturn</span><span class="p">]],</span>
+<a id="__codelineno-0-501" name="__codelineno-0-501"></a>        <span class="n">params</span><span class="p">:</span> <span class="n">Sized</span> <span class="o">=</span> <span class="p">(),</span>
+<a id="__codelineno-0-502" name="__codelineno-0-502"></a>        <span class="n">_raw</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-503" name="__codelineno-0-503"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]],</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">T_HandlerReturn</span><span class="p">]]:</span>
+<a id="__codelineno-0-504" name="__codelineno-0-504"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Wrap a decoding message function.</span>
+<a id="__codelineno-0-505" name="__codelineno-0-505"></a>
+<a id="__codelineno-0-506" name="__codelineno-0-506"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-507" name="__codelineno-0-507"></a><span class="sd">            func: The function to wrap.</span>
+<a id="__codelineno-0-508" name="__codelineno-0-508"></a><span class="sd">            params: The parameters to pass to the function.</span>
+<a id="__codelineno-0-509" name="__codelineno-0-509"></a><span class="sd">            _raw: Whether to return the raw message or not.</span>
+<a id="__codelineno-0-510" name="__codelineno-0-510"></a>
+<a id="__codelineno-0-511" name="__codelineno-0-511"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-512" name="__codelineno-0-512"></a><span class="sd">            The wrapped function.</span>
+<a id="__codelineno-0-513" name="__codelineno-0-513"></a>
+<a id="__codelineno-0-514" name="__codelineno-0-514"></a><span class="sd">        Raises:</span>
+<a id="__codelineno-0-515" name="__codelineno-0-515"></a><span class="sd">            NotImplementedError: If the method is not implemented.</span>
+<a id="__codelineno-0-516" name="__codelineno-0-516"></a><span class="sd">        !!! note</span>
+<a id="__codelineno-0-517" name="__codelineno-0-517"></a>
+<a id="__codelineno-0-518" name="__codelineno-0-518"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-519" name="__codelineno-0-519"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-520" name="__codelineno-0-520"></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
             </details>
 
@@ -3696,8 +3720,7 @@
 
           <details class="quote">
             <summary>Source code in <code>faststream/broker/core/abc.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-472">472</a></span>
-<span class="normal"><a href="#__codelineno-0-473">473</a></span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-473">473</a></span>
 <span class="normal"><a href="#__codelineno-0-474">474</a></span>
 <span class="normal"><a href="#__codelineno-0-475">475</a></span>
 <span class="normal"><a href="#__codelineno-0-476">476</a></span>
@@ -3718,29 +3741,30 @@
 <span class="normal"><a href="#__codelineno-0-491">491</a></span>
 <span class="normal"><a href="#__codelineno-0-492">492</a></span>
 <span class="normal"><a href="#__codelineno-0-493">493</a></span>
-<span class="normal"><a href="#__codelineno-0-494">494</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-472" name="__codelineno-0-472"></a><span class="nd">@abstractmethod</span>
-<a id="__codelineno-0-473" name="__codelineno-0-473"></a><span class="k">def</span> <span class="nf">publisher</span><span class="p">(</span>
-<a id="__codelineno-0-474" name="__codelineno-0-474"></a>    <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-475" name="__codelineno-0-475"></a>    <span class="n">key</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-476" name="__codelineno-0-476"></a>    <span class="n">publisher</span><span class="p">:</span> <span class="n">BasePublisher</span><span class="p">[</span><span class="n">MsgType</span><span class="p">],</span>
-<a id="__codelineno-0-477" name="__codelineno-0-477"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BasePublisher</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]:</span>
-<a id="__codelineno-0-478" name="__codelineno-0-478"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Publishes a publisher.</span>
-<a id="__codelineno-0-479" name="__codelineno-0-479"></a>
-<a id="__codelineno-0-480" name="__codelineno-0-480"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-481" name="__codelineno-0-481"></a><span class="sd">        key: The key associated with the publisher.</span>
-<a id="__codelineno-0-482" name="__codelineno-0-482"></a><span class="sd">        publisher: The publisher to be published.</span>
-<a id="__codelineno-0-483" name="__codelineno-0-483"></a>
-<a id="__codelineno-0-484" name="__codelineno-0-484"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-0-485" name="__codelineno-0-485"></a><span class="sd">        The published publisher.</span>
-<a id="__codelineno-0-486" name="__codelineno-0-486"></a>
-<a id="__codelineno-0-487" name="__codelineno-0-487"></a><span class="sd">    Raises:</span>
-<a id="__codelineno-0-488" name="__codelineno-0-488"></a><span class="sd">        NotImplementedError: If the method is not implemented.</span>
-<a id="__codelineno-0-489" name="__codelineno-0-489"></a><span class="sd">    !!! note</span>
-<a id="__codelineno-0-490" name="__codelineno-0-490"></a>
-<a id="__codelineno-0-491" name="__codelineno-0-491"></a><span class="sd">        The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<a id="__codelineno-0-492" name="__codelineno-0-492"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-493" name="__codelineno-0-493"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_publishers</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">publisher</span>
-<a id="__codelineno-0-494" name="__codelineno-0-494"></a>    <span class="k">return</span> <span class="n">publisher</span>
+<span class="normal"><a href="#__codelineno-0-494">494</a></span>
+<span class="normal"><a href="#__codelineno-0-495">495</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-473" name="__codelineno-0-473"></a><span class="nd">@abstractmethod</span>
+<a id="__codelineno-0-474" name="__codelineno-0-474"></a><span class="k">def</span> <span class="nf">publisher</span><span class="p">(</span>
+<a id="__codelineno-0-475" name="__codelineno-0-475"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-476" name="__codelineno-0-476"></a>    <span class="n">key</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-477" name="__codelineno-0-477"></a>    <span class="n">publisher</span><span class="p">:</span> <span class="n">BasePublisher</span><span class="p">[</span><span class="n">MsgType</span><span class="p">],</span>
+<a id="__codelineno-0-478" name="__codelineno-0-478"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BasePublisher</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]:</span>
+<a id="__codelineno-0-479" name="__codelineno-0-479"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Publishes a publisher.</span>
+<a id="__codelineno-0-480" name="__codelineno-0-480"></a>
+<a id="__codelineno-0-481" name="__codelineno-0-481"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-482" name="__codelineno-0-482"></a><span class="sd">        key: The key associated with the publisher.</span>
+<a id="__codelineno-0-483" name="__codelineno-0-483"></a><span class="sd">        publisher: The publisher to be published.</span>
+<a id="__codelineno-0-484" name="__codelineno-0-484"></a>
+<a id="__codelineno-0-485" name="__codelineno-0-485"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-486" name="__codelineno-0-486"></a><span class="sd">        The published publisher.</span>
+<a id="__codelineno-0-487" name="__codelineno-0-487"></a>
+<a id="__codelineno-0-488" name="__codelineno-0-488"></a><span class="sd">    Raises:</span>
+<a id="__codelineno-0-489" name="__codelineno-0-489"></a><span class="sd">        NotImplementedError: If the method is not implemented.</span>
+<a id="__codelineno-0-490" name="__codelineno-0-490"></a><span class="sd">    !!! note</span>
+<a id="__codelineno-0-491" name="__codelineno-0-491"></a>
+<a id="__codelineno-0-492" name="__codelineno-0-492"></a><span class="sd">        The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-493" name="__codelineno-0-493"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-494" name="__codelineno-0-494"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_publishers</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">publisher</span>
+<a id="__codelineno-0-495" name="__codelineno-0-495"></a>    <span class="k">return</span> <span class="n">publisher</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -4053,8 +4077,7 @@
 
           <details class="quote">
             <summary>Source code in <code>faststream/broker/core/abc.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-412">412</a></span>
-<span class="normal"><a href="#__codelineno-0-413">413</a></span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-413">413</a></span>
 <span class="normal"><a href="#__codelineno-0-414">414</a></span>
 <span class="normal"><a href="#__codelineno-0-415">415</a></span>
 <span class="normal"><a href="#__codelineno-0-416">416</a></span>
@@ -4111,65 +4134,66 @@
 <span class="normal"><a href="#__codelineno-0-467">467</a></span>
 <span class="normal"><a href="#__codelineno-0-468">468</a></span>
 <span class="normal"><a href="#__codelineno-0-469">469</a></span>
-<span class="normal"><a href="#__codelineno-0-470">470</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-412" name="__codelineno-0-412"></a><span class="nd">@abstractmethod</span>
-<a id="__codelineno-0-413" name="__codelineno-0-413"></a><span class="k">def</span> <span class="nf">subscriber</span><span class="p">(</span>  <span class="c1"># type: ignore[return]</span>
-<a id="__codelineno-0-414" name="__codelineno-0-414"></a>    <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-415" name="__codelineno-0-415"></a>    <span class="o">*</span><span class="n">broker_args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-416" name="__codelineno-0-416"></a>    <span class="n">retry</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<a id="__codelineno-0-417" name="__codelineno-0-417"></a>    <span class="n">dependencies</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Depends</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
-<a id="__codelineno-0-418" name="__codelineno-0-418"></a>    <span class="n">decoder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CustomDecoder</span><span class="p">[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-419" name="__codelineno-0-419"></a>    <span class="n">parser</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CustomParser</span><span class="p">[</span><span class="n">MsgType</span><span class="p">,</span> <span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-420" name="__codelineno-0-420"></a>    <span class="n">middlewares</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
-<a id="__codelineno-0-421" name="__codelineno-0-421"></a>        <span class="n">Sequence</span><span class="p">[</span>
-<a id="__codelineno-0-422" name="__codelineno-0-422"></a>            <span class="n">Callable</span><span class="p">[</span>
-<a id="__codelineno-0-423" name="__codelineno-0-423"></a>                <span class="p">[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]],</span>
-<a id="__codelineno-0-424" name="__codelineno-0-424"></a>                <span class="n">BaseMiddleware</span><span class="p">,</span>
-<a id="__codelineno-0-425" name="__codelineno-0-425"></a>            <span class="p">]</span>
-<a id="__codelineno-0-426" name="__codelineno-0-426"></a>        <span class="p">]</span>
-<a id="__codelineno-0-427" name="__codelineno-0-427"></a>    <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-428" name="__codelineno-0-428"></a>    <span class="nb">filter</span><span class="p">:</span> <span class="n">Filter</span><span class="p">[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="ow">not</span> <span class="n">m</span><span class="o">.</span><span class="n">processed</span><span class="p">,</span>
-<a id="__codelineno-0-429" name="__codelineno-0-429"></a>    <span class="n">_raw</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<a id="__codelineno-0-430" name="__codelineno-0-430"></a>    <span class="n">_get_dependant</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-431" name="__codelineno-0-431"></a>    <span class="o">**</span><span class="n">broker_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-432" name="__codelineno-0-432"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span>
-<a id="__codelineno-0-433" name="__codelineno-0-433"></a>    <span class="p">[</span>
-<a id="__codelineno-0-434" name="__codelineno-0-434"></a>        <span class="n">Union</span><span class="p">[</span>
-<a id="__codelineno-0-435" name="__codelineno-0-435"></a>            <span class="n">Callable</span><span class="p">[</span><span class="n">P_HandlerParams</span><span class="p">,</span> <span class="n">T_HandlerReturn</span><span class="p">],</span>
-<a id="__codelineno-0-436" name="__codelineno-0-436"></a>            <span class="n">HandlerCallWrapper</span><span class="p">[</span><span class="n">MsgType</span><span class="p">,</span> <span class="n">P_HandlerParams</span><span class="p">,</span> <span class="n">T_HandlerReturn</span><span class="p">],</span>
-<a id="__codelineno-0-437" name="__codelineno-0-437"></a>        <span class="p">]</span>
-<a id="__codelineno-0-438" name="__codelineno-0-438"></a>    <span class="p">],</span>
-<a id="__codelineno-0-439" name="__codelineno-0-439"></a>    <span class="n">HandlerCallWrapper</span><span class="p">[</span><span class="n">MsgType</span><span class="p">,</span> <span class="n">P_HandlerParams</span><span class="p">,</span> <span class="n">T_HandlerReturn</span><span class="p">],</span>
-<a id="__codelineno-0-440" name="__codelineno-0-440"></a><span class="p">]:</span>
-<a id="__codelineno-0-441" name="__codelineno-0-441"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;This is a function decorator for subscribing to a message broker.</span>
-<a id="__codelineno-0-442" name="__codelineno-0-442"></a>
-<a id="__codelineno-0-443" name="__codelineno-0-443"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-444" name="__codelineno-0-444"></a><span class="sd">        *broker_args: Positional arguments to be passed to the broker.</span>
-<a id="__codelineno-0-445" name="__codelineno-0-445"></a><span class="sd">        retry: Whether to retry the subscription if it fails. Can be a boolean or an integer specifying the number of retries.</span>
-<a id="__codelineno-0-446" name="__codelineno-0-446"></a><span class="sd">        dependencies: Sequence of dependencies to be injected into the handler function.</span>
-<a id="__codelineno-0-447" name="__codelineno-0-447"></a><span class="sd">        decoder: Custom decoder function to decode the message.</span>
-<a id="__codelineno-0-448" name="__codelineno-0-448"></a><span class="sd">        parser: Custom parser function to parse the decoded message.</span>
-<a id="__codelineno-0-449" name="__codelineno-0-449"></a><span class="sd">        middlewares: Sequence of middleware functions to be applied to the message.</span>
-<a id="__codelineno-0-450" name="__codelineno-0-450"></a><span class="sd">        filter: Filter function to filter the messages to be processed.</span>
-<a id="__codelineno-0-451" name="__codelineno-0-451"></a><span class="sd">        _raw: Whether to return the raw message instead of the processed message.</span>
-<a id="__codelineno-0-452" name="__codelineno-0-452"></a><span class="sd">        _get_dependant: Optional parameter to get the dependant object.</span>
-<a id="__codelineno-0-453" name="__codelineno-0-453"></a><span class="sd">        **broker_kwargs: Keyword arguments to be passed to the broker.</span>
-<a id="__codelineno-0-454" name="__codelineno-0-454"></a>
-<a id="__codelineno-0-455" name="__codelineno-0-455"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-0-456" name="__codelineno-0-456"></a><span class="sd">        A callable object that can be used as a decorator for a handler function.</span>
-<a id="__codelineno-0-457" name="__codelineno-0-457"></a>
-<a id="__codelineno-0-458" name="__codelineno-0-458"></a><span class="sd">    Raises:</span>
-<a id="__codelineno-0-459" name="__codelineno-0-459"></a><span class="sd">        RuntimeWarning: If the broker is already running.</span>
-<a id="__codelineno-0-460" name="__codelineno-0-460"></a><span class="sd">    !!! note</span>
-<a id="__codelineno-0-461" name="__codelineno-0-461"></a>
-<a id="__codelineno-0-462" name="__codelineno-0-462"></a><span class="sd">        The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<a id="__codelineno-0-463" name="__codelineno-0-463"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-464" name="__codelineno-0-464"></a>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
-<a id="__codelineno-0-465" name="__codelineno-0-465"></a>        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-<a id="__codelineno-0-466" name="__codelineno-0-466"></a>            <span class="s2">&quot;You are trying to register `handler` with already running broker</span><span class="se">\n</span><span class="s2">&quot;</span>  <span class="c1"># noqa: E501</span>
-<a id="__codelineno-0-467" name="__codelineno-0-467"></a>            <span class="s2">&quot;It has no effect until broker restarting.&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-<a id="__codelineno-0-468" name="__codelineno-0-468"></a>            <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">,</span>
-<a id="__codelineno-0-469" name="__codelineno-0-469"></a>            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-<a id="__codelineno-0-470" name="__codelineno-0-470"></a>        <span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-470">470</a></span>
+<span class="normal"><a href="#__codelineno-0-471">471</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-413" name="__codelineno-0-413"></a><span class="nd">@abstractmethod</span>
+<a id="__codelineno-0-414" name="__codelineno-0-414"></a><span class="k">def</span> <span class="nf">subscriber</span><span class="p">(</span>  <span class="c1"># type: ignore[return]</span>
+<a id="__codelineno-0-415" name="__codelineno-0-415"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-416" name="__codelineno-0-416"></a>    <span class="o">*</span><span class="n">broker_args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-417" name="__codelineno-0-417"></a>    <span class="n">retry</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-418" name="__codelineno-0-418"></a>    <span class="n">dependencies</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Depends</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+<a id="__codelineno-0-419" name="__codelineno-0-419"></a>    <span class="n">decoder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CustomDecoder</span><span class="p">[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-420" name="__codelineno-0-420"></a>    <span class="n">parser</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CustomParser</span><span class="p">[</span><span class="n">MsgType</span><span class="p">,</span> <span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-421" name="__codelineno-0-421"></a>    <span class="n">middlewares</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
+<a id="__codelineno-0-422" name="__codelineno-0-422"></a>        <span class="n">Sequence</span><span class="p">[</span>
+<a id="__codelineno-0-423" name="__codelineno-0-423"></a>            <span class="n">Callable</span><span class="p">[</span>
+<a id="__codelineno-0-424" name="__codelineno-0-424"></a>                <span class="p">[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]],</span>
+<a id="__codelineno-0-425" name="__codelineno-0-425"></a>                <span class="n">BaseMiddleware</span><span class="p">,</span>
+<a id="__codelineno-0-426" name="__codelineno-0-426"></a>            <span class="p">]</span>
+<a id="__codelineno-0-427" name="__codelineno-0-427"></a>        <span class="p">]</span>
+<a id="__codelineno-0-428" name="__codelineno-0-428"></a>    <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-429" name="__codelineno-0-429"></a>    <span class="nb">filter</span><span class="p">:</span> <span class="n">Filter</span><span class="p">[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="ow">not</span> <span class="n">m</span><span class="o">.</span><span class="n">processed</span><span class="p">,</span>
+<a id="__codelineno-0-430" name="__codelineno-0-430"></a>    <span class="n">_raw</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-431" name="__codelineno-0-431"></a>    <span class="n">_get_dependant</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-432" name="__codelineno-0-432"></a>    <span class="o">**</span><span class="n">broker_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-433" name="__codelineno-0-433"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span>
+<a id="__codelineno-0-434" name="__codelineno-0-434"></a>    <span class="p">[</span>
+<a id="__codelineno-0-435" name="__codelineno-0-435"></a>        <span class="n">Union</span><span class="p">[</span>
+<a id="__codelineno-0-436" name="__codelineno-0-436"></a>            <span class="n">Callable</span><span class="p">[</span><span class="n">P_HandlerParams</span><span class="p">,</span> <span class="n">T_HandlerReturn</span><span class="p">],</span>
+<a id="__codelineno-0-437" name="__codelineno-0-437"></a>            <span class="n">HandlerCallWrapper</span><span class="p">[</span><span class="n">MsgType</span><span class="p">,</span> <span class="n">P_HandlerParams</span><span class="p">,</span> <span class="n">T_HandlerReturn</span><span class="p">],</span>
+<a id="__codelineno-0-438" name="__codelineno-0-438"></a>        <span class="p">]</span>
+<a id="__codelineno-0-439" name="__codelineno-0-439"></a>    <span class="p">],</span>
+<a id="__codelineno-0-440" name="__codelineno-0-440"></a>    <span class="n">HandlerCallWrapper</span><span class="p">[</span><span class="n">MsgType</span><span class="p">,</span> <span class="n">P_HandlerParams</span><span class="p">,</span> <span class="n">T_HandlerReturn</span><span class="p">],</span>
+<a id="__codelineno-0-441" name="__codelineno-0-441"></a><span class="p">]:</span>
+<a id="__codelineno-0-442" name="__codelineno-0-442"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;This is a function decorator for subscribing to a message broker.</span>
+<a id="__codelineno-0-443" name="__codelineno-0-443"></a>
+<a id="__codelineno-0-444" name="__codelineno-0-444"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-445" name="__codelineno-0-445"></a><span class="sd">        *broker_args: Positional arguments to be passed to the broker.</span>
+<a id="__codelineno-0-446" name="__codelineno-0-446"></a><span class="sd">        retry: Whether to retry the subscription if it fails. Can be a boolean or an integer specifying the number of retries.</span>
+<a id="__codelineno-0-447" name="__codelineno-0-447"></a><span class="sd">        dependencies: Sequence of dependencies to be injected into the handler function.</span>
+<a id="__codelineno-0-448" name="__codelineno-0-448"></a><span class="sd">        decoder: Custom decoder function to decode the message.</span>
+<a id="__codelineno-0-449" name="__codelineno-0-449"></a><span class="sd">        parser: Custom parser function to parse the decoded message.</span>
+<a id="__codelineno-0-450" name="__codelineno-0-450"></a><span class="sd">        middlewares: Sequence of middleware functions to be applied to the message.</span>
+<a id="__codelineno-0-451" name="__codelineno-0-451"></a><span class="sd">        filter: Filter function to filter the messages to be processed.</span>
+<a id="__codelineno-0-452" name="__codelineno-0-452"></a><span class="sd">        _raw: Whether to return the raw message instead of the processed message.</span>
+<a id="__codelineno-0-453" name="__codelineno-0-453"></a><span class="sd">        _get_dependant: Optional parameter to get the dependant object.</span>
+<a id="__codelineno-0-454" name="__codelineno-0-454"></a><span class="sd">        **broker_kwargs: Keyword arguments to be passed to the broker.</span>
+<a id="__codelineno-0-455" name="__codelineno-0-455"></a>
+<a id="__codelineno-0-456" name="__codelineno-0-456"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-457" name="__codelineno-0-457"></a><span class="sd">        A callable object that can be used as a decorator for a handler function.</span>
+<a id="__codelineno-0-458" name="__codelineno-0-458"></a>
+<a id="__codelineno-0-459" name="__codelineno-0-459"></a><span class="sd">    Raises:</span>
+<a id="__codelineno-0-460" name="__codelineno-0-460"></a><span class="sd">        RuntimeWarning: If the broker is already running.</span>
+<a id="__codelineno-0-461" name="__codelineno-0-461"></a><span class="sd">    !!! note</span>
+<a id="__codelineno-0-462" name="__codelineno-0-462"></a>
+<a id="__codelineno-0-463" name="__codelineno-0-463"></a><span class="sd">        The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-464" name="__codelineno-0-464"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-465" name="__codelineno-0-465"></a>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">started</span><span class="p">:</span>
+<a id="__codelineno-0-466" name="__codelineno-0-466"></a>        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+<a id="__codelineno-0-467" name="__codelineno-0-467"></a>            <span class="s2">&quot;You are trying to register `handler` with already running broker</span><span class="se">\n</span><span class="s2">&quot;</span>  <span class="c1"># noqa: E501</span>
+<a id="__codelineno-0-468" name="__codelineno-0-468"></a>            <span class="s2">&quot;It has no effect until broker restarting.&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+<a id="__codelineno-0-469" name="__codelineno-0-469"></a>            <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">,</span>
+<a id="__codelineno-0-470" name="__codelineno-0-470"></a>            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-0-471" name="__codelineno-0-471"></a>        <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>

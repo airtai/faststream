@@ -1105,6 +1105,8 @@
       
         
       
+        
+      
     
     
     
@@ -1237,6 +1239,26 @@
   
 
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../kafka/ack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Acknowledgement
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1908,7 +1930,7 @@
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="o">*</span><span class="p">,</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">reply_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">correlation_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AnyDict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PatchedMessage</span>
 </code></pre></div>
 
@@ -1916,45 +1938,45 @@
 
           <details class="quote">
             <summary>Source code in <code>faststream/nats/test.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-79">79</a></span>
-<span class="normal"><a href="#__codelineno-0-80">80</a></span>
-<span class="normal"><a href="#__codelineno-0-81">81</a></span>
-<span class="normal"><a href="#__codelineno-0-82">82</a></span>
-<span class="normal"><a href="#__codelineno-0-83">83</a></span>
-<span class="normal"><a href="#__codelineno-0-84">84</a></span>
-<span class="normal"><a href="#__codelineno-0-85">85</a></span>
-<span class="normal"><a href="#__codelineno-0-86">86</a></span>
-<span class="normal"><a href="#__codelineno-0-87">87</a></span>
-<span class="normal"><a href="#__codelineno-0-88">88</a></span>
-<span class="normal"><a href="#__codelineno-0-89">89</a></span>
-<span class="normal"><a href="#__codelineno-0-90">90</a></span>
-<span class="normal"><a href="#__codelineno-0-91">91</a></span>
-<span class="normal"><a href="#__codelineno-0-92">92</a></span>
-<span class="normal"><a href="#__codelineno-0-93">93</a></span>
-<span class="normal"><a href="#__codelineno-0-94">94</a></span>
-<span class="normal"><a href="#__codelineno-0-95">95</a></span>
-<span class="normal"><a href="#__codelineno-0-96">96</a></span>
-<span class="normal"><a href="#__codelineno-0-97">97</a></span>
-<span class="normal"><a href="#__codelineno-0-98">98</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="k">def</span> <span class="nf">build_message</span><span class="p">(</span>
-<a id="__codelineno-0-80" name="__codelineno-0-80"></a>    <span class="n">message</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
-<a id="__codelineno-0-81" name="__codelineno-0-81"></a>    <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-0-82" name="__codelineno-0-82"></a>    <span class="o">*</span><span class="p">,</span>
-<a id="__codelineno-0-83" name="__codelineno-0-83"></a>    <span class="n">reply_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-84" name="__codelineno-0-84"></a>    <span class="n">correlation_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-85" name="__codelineno-0-85"></a>    <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-86" name="__codelineno-0-86"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PatchedMessage</span><span class="p">:</span>
-<a id="__codelineno-0-87" name="__codelineno-0-87"></a>    <span class="n">msg</span><span class="p">,</span> <span class="n">content_type</span> <span class="o">=</span> <span class="n">encode_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-<a id="__codelineno-0-88" name="__codelineno-0-88"></a>    <span class="k">return</span> <span class="n">PatchedMessage</span><span class="p">(</span>
-<a id="__codelineno-0-89" name="__codelineno-0-89"></a>        <span class="n">_client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type]</span>
-<a id="__codelineno-0-90" name="__codelineno-0-90"></a>        <span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span>
-<a id="__codelineno-0-91" name="__codelineno-0-91"></a>        <span class="n">reply</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
-<a id="__codelineno-0-92" name="__codelineno-0-92"></a>        <span class="n">data</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span>
-<a id="__codelineno-0-93" name="__codelineno-0-93"></a>        <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
-<a id="__codelineno-0-94" name="__codelineno-0-94"></a>            <span class="s2">&quot;content-type&quot;</span><span class="p">:</span> <span class="n">content_type</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-95" name="__codelineno-0-95"></a>            <span class="s2">&quot;correlation_id&quot;</span><span class="p">:</span> <span class="n">correlation_id</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">()),</span>
-<a id="__codelineno-0-96" name="__codelineno-0-96"></a>            <span class="o">**</span><span class="p">(</span><span class="n">headers</span> <span class="ow">or</span> <span class="p">{}),</span>
-<a id="__codelineno-0-97" name="__codelineno-0-97"></a>        <span class="p">},</span>
-<a id="__codelineno-0-98" name="__codelineno-0-98"></a>    <span class="p">)</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-108">108</a></span>
+<span class="normal"><a href="#__codelineno-0-109">109</a></span>
+<span class="normal"><a href="#__codelineno-0-110">110</a></span>
+<span class="normal"><a href="#__codelineno-0-111">111</a></span>
+<span class="normal"><a href="#__codelineno-0-112">112</a></span>
+<span class="normal"><a href="#__codelineno-0-113">113</a></span>
+<span class="normal"><a href="#__codelineno-0-114">114</a></span>
+<span class="normal"><a href="#__codelineno-0-115">115</a></span>
+<span class="normal"><a href="#__codelineno-0-116">116</a></span>
+<span class="normal"><a href="#__codelineno-0-117">117</a></span>
+<span class="normal"><a href="#__codelineno-0-118">118</a></span>
+<span class="normal"><a href="#__codelineno-0-119">119</a></span>
+<span class="normal"><a href="#__codelineno-0-120">120</a></span>
+<span class="normal"><a href="#__codelineno-0-121">121</a></span>
+<span class="normal"><a href="#__codelineno-0-122">122</a></span>
+<span class="normal"><a href="#__codelineno-0-123">123</a></span>
+<span class="normal"><a href="#__codelineno-0-124">124</a></span>
+<span class="normal"><a href="#__codelineno-0-125">125</a></span>
+<span class="normal"><a href="#__codelineno-0-126">126</a></span>
+<span class="normal"><a href="#__codelineno-0-127">127</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-108" name="__codelineno-0-108"></a><span class="k">def</span> <span class="nf">build_message</span><span class="p">(</span>
+<a id="__codelineno-0-109" name="__codelineno-0-109"></a>    <span class="n">message</span><span class="p">:</span> <span class="n">SendableMessage</span><span class="p">,</span>
+<a id="__codelineno-0-110" name="__codelineno-0-110"></a>    <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-111" name="__codelineno-0-111"></a>    <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-0-112" name="__codelineno-0-112"></a>    <span class="n">reply_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-113" name="__codelineno-0-113"></a>    <span class="n">correlation_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-114" name="__codelineno-0-114"></a>    <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AnyDict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-115" name="__codelineno-0-115"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PatchedMessage&quot;</span><span class="p">:</span>
+<a id="__codelineno-0-116" name="__codelineno-0-116"></a>    <span class="n">msg</span><span class="p">,</span> <span class="n">content_type</span> <span class="o">=</span> <span class="n">encode_message</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<a id="__codelineno-0-117" name="__codelineno-0-117"></a>    <span class="k">return</span> <span class="n">PatchedMessage</span><span class="p">(</span>
+<a id="__codelineno-0-118" name="__codelineno-0-118"></a>        <span class="n">_client</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+<a id="__codelineno-0-119" name="__codelineno-0-119"></a>        <span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span>
+<a id="__codelineno-0-120" name="__codelineno-0-120"></a>        <span class="n">reply</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
+<a id="__codelineno-0-121" name="__codelineno-0-121"></a>        <span class="n">data</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span>
+<a id="__codelineno-0-122" name="__codelineno-0-122"></a>        <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
+<a id="__codelineno-0-123" name="__codelineno-0-123"></a>            <span class="s2">&quot;content-type&quot;</span><span class="p">:</span> <span class="n">content_type</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-124" name="__codelineno-0-124"></a>            <span class="s2">&quot;correlation_id&quot;</span><span class="p">:</span> <span class="n">correlation_id</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">()),</span>
+<a id="__codelineno-0-125" name="__codelineno-0-125"></a>            <span class="o">**</span><span class="p">(</span><span class="n">headers</span> <span class="ow">or</span> <span class="p">{}),</span>
+<a id="__codelineno-0-126" name="__codelineno-0-126"></a>        <span class="p">},</span>
+<a id="__codelineno-0-127" name="__codelineno-0-127"></a>    <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>

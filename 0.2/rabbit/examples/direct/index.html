@@ -1111,6 +1111,8 @@
       
         
       
+        
+      
     
     
     
@@ -1243,6 +1245,26 @@
   
 
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../kafka/ack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Acknowledgement
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -2187,7 +2209,7 @@
 <a id="__codelineno-1-15" name="__codelineno-1-15"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler1&quot;</span><span class="p">)</span>
 <a id="__codelineno-1-16" name="__codelineno-1-16"></a>
 <a id="__codelineno-1-17" name="__codelineno-1-17"></a>
-<a id="__codelineno-1-18" name="__codelineno-1-18"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_1</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_1</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>  <span class="c1"># another service</span>
 <a id="__codelineno-1-19" name="__codelineno-1-19"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler2</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
 <a id="__codelineno-1-20" name="__codelineno-1-20"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler2&quot;</span><span class="p">)</span>
 <a id="__codelineno-1-21" name="__codelineno-1-21"></a>
@@ -2232,7 +2254,7 @@
 <a id="__codelineno-3-15" name="__codelineno-3-15"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler1&quot;</span><span class="p">)</span>
 <a id="__codelineno-3-16" name="__codelineno-3-16"></a>
 <a id="__codelineno-3-17" name="__codelineno-3-17"></a>
-<a id="__codelineno-3-18" name="__codelineno-3-18"></a><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_1</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18"></a><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="n">queue_1</span><span class="p">,</span> <span class="n">exch</span><span class="p">)</span>  <span class="c1"># another service</span>
 </span><a id="__codelineno-3-19" name="__codelineno-3-19"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler2</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
 <a id="__codelineno-3-20" name="__codelineno-3-20"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;base_handler2&quot;</span><span class="p">)</span>
 <a id="__codelineno-3-21" name="__codelineno-3-21"></a>

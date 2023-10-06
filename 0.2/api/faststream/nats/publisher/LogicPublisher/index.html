@@ -1105,6 +1105,8 @@
       
         
       
+        
+      
     
     
     
@@ -1237,6 +1239,26 @@
   
 
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../kafka/ack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Acknowledgement
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -2029,7 +2051,7 @@
 <a id="__codelineno-0-34" name="__codelineno-0-34"></a>        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="p">,</span> <span class="s2">&quot;Please, setup `_producer` first&quot;</span>  <span class="c1"># nosec B101</span>
 <a id="__codelineno-0-35" name="__codelineno-0-35"></a>        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">subject</span><span class="p">,</span> <span class="s2">&quot;You have to specify outcome subject&quot;</span>  <span class="c1"># nosec B101</span>
 <a id="__codelineno-0-36" name="__codelineno-0-36"></a>
-<a id="__codelineno-0-37" name="__codelineno-0-37"></a>        <span class="n">extra</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37"></a>        <span class="n">extra</span><span class="p">:</span> <span class="n">AnyDict</span> <span class="o">=</span> <span class="p">{</span>
 <a id="__codelineno-0-38" name="__codelineno-0-38"></a>            <span class="s2">&quot;reply_to&quot;</span><span class="p">:</span> <span class="n">reply_to</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">reply_to</span><span class="p">,</span>
 <a id="__codelineno-0-39" name="__codelineno-0-39"></a>        <span class="p">}</span>
 <a id="__codelineno-0-40" name="__codelineno-0-40"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2248,7 +2270,7 @@
 <a id="__codelineno-0-34" name="__codelineno-0-34"></a>    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="p">,</span> <span class="s2">&quot;Please, setup `_producer` first&quot;</span>  <span class="c1"># nosec B101</span>
 <a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">subject</span><span class="p">,</span> <span class="s2">&quot;You have to specify outcome subject&quot;</span>  <span class="c1"># nosec B101</span>
 <a id="__codelineno-0-36" name="__codelineno-0-36"></a>
-<a id="__codelineno-0-37" name="__codelineno-0-37"></a>    <span class="n">extra</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37"></a>    <span class="n">extra</span><span class="p">:</span> <span class="n">AnyDict</span> <span class="o">=</span> <span class="p">{</span>
 <a id="__codelineno-0-38" name="__codelineno-0-38"></a>        <span class="s2">&quot;reply_to&quot;</span><span class="p">:</span> <span class="n">reply_to</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">reply_to</span><span class="p">,</span>
 <a id="__codelineno-0-39" name="__codelineno-0-39"></a>    <span class="p">}</span>
 <a id="__codelineno-0-40" name="__codelineno-0-40"></a>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

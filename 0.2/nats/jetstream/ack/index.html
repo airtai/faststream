@@ -1111,6 +1111,8 @@
       
         
       
+        
+      
     
     
     
@@ -1243,6 +1245,26 @@
   
 
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../kafka/ack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Acknowledgement
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -2116,7 +2138,7 @@
 <a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span>
 <a id="__codelineno-3-7" name="__codelineno-3-7"></a>
 <a id="__codelineno-3-8" name="__codelineno-3-8"></a>
-<a id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test-subject&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test-subject&quot;</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="s2">&quot;test-stream&quot;</span><span class="p">)</span>
 <a id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
 <a id="__codelineno-3-11" name="__codelineno-3-11"></a>    <span class="n">smth_processing</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
 <a id="__codelineno-3-12" name="__codelineno-3-12"></a>

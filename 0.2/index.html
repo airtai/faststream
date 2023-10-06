@@ -1266,6 +1266,8 @@
       
         
       
+        
+      
     
     
     
@@ -1398,6 +1400,26 @@
   
 
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="kafka/ack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Acknowledgement
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -2650,7 +2672,7 @@ to define messages using a declarative syntax, making it easy to specify the fie
 <h3 id="any-framework">Any Framework<a class="headerlink" href="#any-framework" title="Permanent link">#</a></h3>
 <p>You can use <strong>FastStream</strong> <code>MQBrokers</code> without a <code>FastStream</code> application.
 Just <em>start</em> and <em>stop</em> them according to your application's lifespan.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="5:5"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><input id="__tabbed_5_3" name="__tabbed_5" type="radio" /><input id="__tabbed_5_4" name="__tabbed_5" type="radio" /><input id="__tabbed_5_5" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">Aiohttp</label><label for="__tabbed_5_2">Blacksheep</label><label for="__tabbed_5_3">Falcon</label><label for="__tabbed_5_4">Quart</label><label for="__tabbed_5_5">Sanic</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="5:6"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><input id="__tabbed_5_3" name="__tabbed_5" type="radio" /><input id="__tabbed_5_4" name="__tabbed_5" type="radio" /><input id="__tabbed_5_5" name="__tabbed_5" type="radio" /><input id="__tabbed_5_6" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">Litestar</label><label for="__tabbed_5_2">Aiohttp</label><label for="__tabbed_5_3">Blacksheep</label><label for="__tabbed_5_4">Falcon</label><label for="__tabbed_5_5">Quart</label><label for="__tabbed_5_6">Sanic</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-17-1"> 1</a></span>
@@ -2670,52 +2692,24 @@ Just <em>start</em> and <em>stop</em> them according to your application's lifes
 <span class="normal"><a href="#__codelineno-17-15">15</a></span>
 <span class="normal"><a href="#__codelineno-17-16">16</a></span>
 <span class="normal"><a href="#__codelineno-17-17">17</a></span>
-<span class="normal"><a href="#__codelineno-17-18">18</a></span>
-<span class="normal"><a href="#__codelineno-17-19">19</a></span>
-<span class="normal"><a href="#__codelineno-17-20">20</a></span>
-<span class="normal"><a href="#__codelineno-17-21">21</a></span>
-<span class="normal"><a href="#__codelineno-17-22">22</a></span>
-<span class="normal"><a href="#__codelineno-17-23">23</a></span>
-<span class="normal"><a href="#__codelineno-17-24">24</a></span>
-<span class="normal"><a href="#__codelineno-17-25">25</a></span>
-<span class="normal"><a href="#__codelineno-17-26">26</a></span>
-<span class="normal"><a href="#__codelineno-17-27">27</a></span>
-<span class="normal"><a href="#__codelineno-17-28">28</a></span>
-<span class="normal"><a href="#__codelineno-17-29">29</a></span>
-<span class="normal"><a href="#__codelineno-17-30">30</a></span>
-<span class="normal"><a href="#__codelineno-17-31">31</a></span>
-<span class="normal"><a href="#__codelineno-17-32">32</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="kn">from</span> <span class="nn">aiohttp</span> <span class="kn">import</span> <span class="n">web</span>
-<a id="__codelineno-17-2" name="__codelineno-17-2"></a>
-<a id="__codelineno-17-3" name="__codelineno-17-3"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
-</span><a id="__codelineno-17-4" name="__codelineno-17-4"></a>
-<a id="__codelineno-17-5" name="__codelineno-17-5"></a><span class="hll"><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
-</span><a id="__codelineno-17-6" name="__codelineno-17-6"></a>
-<a id="__codelineno-17-7" name="__codelineno-17-7"></a>
-<a id="__codelineno-17-8" name="__codelineno-17-8"></a><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
-</span><a id="__codelineno-17-9" name="__codelineno-17-9"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
-</span><a id="__codelineno-17-10" name="__codelineno-17-10"></a><span class="hll">    <span class="nb">print</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
-</span><a id="__codelineno-17-11" name="__codelineno-17-11"></a>
-<a id="__codelineno-17-12" name="__codelineno-17-12"></a>
-<a id="__codelineno-17-13" name="__codelineno-17-13"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">start_broker</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
-</span><a id="__codelineno-17-14" name="__codelineno-17-14"></a><span class="hll">    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-</span><a id="__codelineno-17-15" name="__codelineno-17-15"></a>
-<a id="__codelineno-17-16" name="__codelineno-17-16"></a>
-<a id="__codelineno-17-17" name="__codelineno-17-17"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">stop_broker</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
-</span><a id="__codelineno-17-18" name="__codelineno-17-18"></a><span class="hll">    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</span><a id="__codelineno-17-19" name="__codelineno-17-19"></a>
-<a id="__codelineno-17-20" name="__codelineno-17-20"></a>
-<a id="__codelineno-17-21" name="__codelineno-17-21"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-<a id="__codelineno-17-22" name="__codelineno-17-22"></a>    <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">Response</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello, world&quot;</span><span class="p">)</span>
-<a id="__codelineno-17-23" name="__codelineno-17-23"></a>
-<a id="__codelineno-17-24" name="__codelineno-17-24"></a>
-<a id="__codelineno-17-25" name="__codelineno-17-25"></a><span class="n">app</span> <span class="o">=</span> <span class="n">web</span><span class="o">.</span><span class="n">Application</span><span class="p">()</span>
-<a id="__codelineno-17-26" name="__codelineno-17-26"></a><span class="n">app</span><span class="o">.</span><span class="n">add_routes</span><span class="p">([</span><span class="n">web</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">hello</span><span class="p">)])</span>
-<a id="__codelineno-17-27" name="__codelineno-17-27"></a><span class="hll"><span class="n">app</span><span class="o">.</span><span class="n">on_startup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">start_broker</span><span class="p">)</span>
-</span><a id="__codelineno-17-28" name="__codelineno-17-28"></a><span class="hll"><span class="n">app</span><span class="o">.</span><span class="n">on_cleanup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stop_broker</span><span class="p">)</span>
-</span><a id="__codelineno-17-29" name="__codelineno-17-29"></a>
-<a id="__codelineno-17-30" name="__codelineno-17-30"></a>
-<a id="__codelineno-17-31" name="__codelineno-17-31"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-<a id="__codelineno-17-32" name="__codelineno-17-32"></a>    <span class="n">web</span><span class="o">.</span><span class="n">run_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<span class="normal"><a href="#__codelineno-17-18">18</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1"></a><span class="kn">from</span> <span class="nn">litestar</span> <span class="kn">import</span> <span class="n">Litestar</span><span class="p">,</span> <span class="n">get</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span>
+</span><a id="__codelineno-17-3" name="__codelineno-17-3"></a>
+<a id="__codelineno-17-4" name="__codelineno-17-4"></a><span class="hll"><span class="n">broker</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">(</span><span class="s2">&quot;amqp://guest:guest@localhost:5672/&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-17-5" name="__codelineno-17-5"></a>
+<a id="__codelineno-17-6" name="__codelineno-17-6"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;queue&quot;</span><span class="p">)</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9"></a>
+<a id="__codelineno-17-10" name="__codelineno-17-10"></a><span class="nd">@get</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">index</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12"></a>    <span class="k">return</span> <span class="s2">&quot;Hello, world!&quot;</span>
+<a id="__codelineno-17-13" name="__codelineno-17-13"></a>
+<a id="__codelineno-17-14" name="__codelineno-17-14"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Litestar</span><span class="p">(</span>
+<a id="__codelineno-17-15" name="__codelineno-17-15"></a>    <span class="p">[</span><span class="n">index</span><span class="p">],</span>
+<a id="__codelineno-17-16" name="__codelineno-17-16"></a><span class="hll">    <span class="n">on_startup</span><span class="o">=</span><span class="p">(</span><span class="n">broker</span><span class="o">.</span><span class="n">start</span><span class="p">,),</span>
+</span><a id="__codelineno-17-17" name="__codelineno-17-17"></a><span class="hll">    <span class="n">on_shutdown</span><span class="o">=</span><span class="p">(</span><span class="n">broker</span><span class="o">.</span><span class="n">close</span><span class="p">,),</span>
+</span><a id="__codelineno-17-18" name="__codelineno-17-18"></a><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
@@ -2745,33 +2739,43 @@ Just <em>start</em> and <em>stop</em> them according to your application's lifes
 <span class="normal"><a href="#__codelineno-18-24">24</a></span>
 <span class="normal"><a href="#__codelineno-18-25">25</a></span>
 <span class="normal"><a href="#__codelineno-18-26">26</a></span>
-<span class="normal"><a href="#__codelineno-18-27">27</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="kn">from</span> <span class="nn">blacksheep</span> <span class="kn">import</span> <span class="n">Application</span>
+<span class="normal"><a href="#__codelineno-18-27">27</a></span>
+<span class="normal"><a href="#__codelineno-18-28">28</a></span>
+<span class="normal"><a href="#__codelineno-18-29">29</a></span>
+<span class="normal"><a href="#__codelineno-18-30">30</a></span>
+<span class="normal"><a href="#__codelineno-18-31">31</a></span>
+<span class="normal"><a href="#__codelineno-18-32">32</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="kn">from</span> <span class="nn">aiohttp</span> <span class="kn">import</span> <span class="n">web</span>
 <a id="__codelineno-18-2" name="__codelineno-18-2"></a>
 <a id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
 </span><a id="__codelineno-18-4" name="__codelineno-18-4"></a>
 <a id="__codelineno-18-5" name="__codelineno-18-5"></a><span class="hll"><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
 </span><a id="__codelineno-18-6" name="__codelineno-18-6"></a>
-<a id="__codelineno-18-7" name="__codelineno-18-7"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="p">()</span>
-<a id="__codelineno-18-8" name="__codelineno-18-8"></a>
-<a id="__codelineno-18-9" name="__codelineno-18-9"></a>
-<a id="__codelineno-18-10" name="__codelineno-18-10"></a><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
-</span><a id="__codelineno-18-11" name="__codelineno-18-11"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
-</span><a id="__codelineno-18-12" name="__codelineno-18-12"></a><span class="hll">    <span class="nb">print</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
-</span><a id="__codelineno-18-13" name="__codelineno-18-13"></a>
-<a id="__codelineno-18-14" name="__codelineno-18-14"></a>
-<a id="__codelineno-18-15" name="__codelineno-18-15"></a><span class="hll"><span class="nd">@app</span><span class="o">.</span><span class="n">on_start</span>
-</span><a id="__codelineno-18-16" name="__codelineno-18-16"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">start_broker</span><span class="p">(</span><span class="n">application</span><span class="p">:</span> <span class="n">Application</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><a id="__codelineno-18-17" name="__codelineno-18-17"></a><span class="hll">    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-</span><a id="__codelineno-18-18" name="__codelineno-18-18"></a>
-<a id="__codelineno-18-19" name="__codelineno-18-19"></a>
-<a id="__codelineno-18-20" name="__codelineno-18-20"></a><span class="hll"><span class="nd">@app</span><span class="o">.</span><span class="n">on_stop</span>
-</span><a id="__codelineno-18-21" name="__codelineno-18-21"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">stop_broker</span><span class="p">(</span><span class="n">application</span><span class="p">:</span> <span class="n">Application</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><a id="__codelineno-18-22" name="__codelineno-18-22"></a><span class="hll">    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</span><a id="__codelineno-18-23" name="__codelineno-18-23"></a>
+<a id="__codelineno-18-7" name="__codelineno-18-7"></a>
+<a id="__codelineno-18-8" name="__codelineno-18-8"></a><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-18-9" name="__codelineno-18-9"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
+</span><a id="__codelineno-18-10" name="__codelineno-18-10"></a><span class="hll">    <span class="nb">print</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+</span><a id="__codelineno-18-11" name="__codelineno-18-11"></a>
+<a id="__codelineno-18-12" name="__codelineno-18-12"></a>
+<a id="__codelineno-18-13" name="__codelineno-18-13"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">start_broker</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+</span><a id="__codelineno-18-14" name="__codelineno-18-14"></a><span class="hll">    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span><a id="__codelineno-18-15" name="__codelineno-18-15"></a>
+<a id="__codelineno-18-16" name="__codelineno-18-16"></a>
+<a id="__codelineno-18-17" name="__codelineno-18-17"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">stop_broker</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+</span><a id="__codelineno-18-18" name="__codelineno-18-18"></a><span class="hll">    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><a id="__codelineno-18-19" name="__codelineno-18-19"></a>
+<a id="__codelineno-18-20" name="__codelineno-18-20"></a>
+<a id="__codelineno-18-21" name="__codelineno-18-21"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<a id="__codelineno-18-22" name="__codelineno-18-22"></a>    <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">Response</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">&quot;Hello, world&quot;</span><span class="p">)</span>
+<a id="__codelineno-18-23" name="__codelineno-18-23"></a>
 <a id="__codelineno-18-24" name="__codelineno-18-24"></a>
-<a id="__codelineno-18-25" name="__codelineno-18-25"></a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
-<a id="__codelineno-18-26" name="__codelineno-18-26"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">home</span><span class="p">():</span>
-<a id="__codelineno-18-27" name="__codelineno-18-27"></a>    <span class="k">return</span> <span class="s2">&quot;Hello, World!&quot;</span>
+<a id="__codelineno-18-25" name="__codelineno-18-25"></a><span class="n">app</span> <span class="o">=</span> <span class="n">web</span><span class="o">.</span><span class="n">Application</span><span class="p">()</span>
+<a id="__codelineno-18-26" name="__codelineno-18-26"></a><span class="n">app</span><span class="o">.</span><span class="n">add_routes</span><span class="p">([</span><span class="n">web</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">hello</span><span class="p">)])</span>
+<a id="__codelineno-18-27" name="__codelineno-18-27"></a><span class="hll"><span class="n">app</span><span class="o">.</span><span class="n">on_startup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">start_broker</span><span class="p">)</span>
+</span><a id="__codelineno-18-28" name="__codelineno-18-28"></a><span class="hll"><span class="n">app</span><span class="o">.</span><span class="n">on_cleanup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stop_broker</span><span class="p">)</span>
+</span><a id="__codelineno-18-29" name="__codelineno-18-29"></a>
+<a id="__codelineno-18-30" name="__codelineno-18-30"></a>
+<a id="__codelineno-18-31" name="__codelineno-18-31"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-18-32" name="__codelineno-18-32"></a>    <span class="n">web</span><span class="o">.</span><span class="n">run_app</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
@@ -2801,51 +2805,33 @@ Just <em>start</em> and <em>stop</em> them according to your application's lifes
 <span class="normal"><a href="#__codelineno-19-24">24</a></span>
 <span class="normal"><a href="#__codelineno-19-25">25</a></span>
 <span class="normal"><a href="#__codelineno-19-26">26</a></span>
-<span class="normal"><a href="#__codelineno-19-27">27</a></span>
-<span class="normal"><a href="#__codelineno-19-28">28</a></span>
-<span class="normal"><a href="#__codelineno-19-29">29</a></span>
-<span class="normal"><a href="#__codelineno-19-30">30</a></span>
-<span class="normal"><a href="#__codelineno-19-31">31</a></span>
-<span class="normal"><a href="#__codelineno-19-32">32</a></span>
-<span class="normal"><a href="#__codelineno-19-33">33</a></span>
-<span class="normal"><a href="#__codelineno-19-34">34</a></span>
-<span class="normal"><a href="#__codelineno-19-35">35</a></span>
-<span class="normal"><a href="#__codelineno-19-36">36</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="kn">import</span> <span class="nn">falcon</span>
-<a id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="kn">import</span> <span class="nn">falcon.asgi</span>
-<a id="__codelineno-19-3" name="__codelineno-19-3"></a>
-<a id="__codelineno-19-4" name="__codelineno-19-4"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
-</span><a id="__codelineno-19-5" name="__codelineno-19-5"></a>
-<a id="__codelineno-19-6" name="__codelineno-19-6"></a><span class="hll"><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
-</span><a id="__codelineno-19-7" name="__codelineno-19-7"></a>
+<span class="normal"><a href="#__codelineno-19-27">27</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="kn">from</span> <span class="nn">blacksheep</span> <span class="kn">import</span> <span class="n">Application</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2"></a>
+<a id="__codelineno-19-3" name="__codelineno-19-3"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
+</span><a id="__codelineno-19-4" name="__codelineno-19-4"></a>
+<a id="__codelineno-19-5" name="__codelineno-19-5"></a><span class="hll"><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-19-6" name="__codelineno-19-6"></a>
+<a id="__codelineno-19-7" name="__codelineno-19-7"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Application</span><span class="p">()</span>
 <a id="__codelineno-19-8" name="__codelineno-19-8"></a>
-<a id="__codelineno-19-9" name="__codelineno-19-9"></a><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
-</span><a id="__codelineno-19-10" name="__codelineno-19-10"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
-</span><a id="__codelineno-19-11" name="__codelineno-19-11"></a><span class="hll">    <span class="nb">print</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
-</span><a id="__codelineno-19-12" name="__codelineno-19-12"></a>
-<a id="__codelineno-19-13" name="__codelineno-19-13"></a>
-<a id="__codelineno-19-14" name="__codelineno-19-14"></a><span class="k">class</span> <span class="nc">ThingsResource</span><span class="p">:</span>
-<a id="__codelineno-19-15" name="__codelineno-19-15"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">on_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">):</span>
-<a id="__codelineno-19-16" name="__codelineno-19-16"></a>        <span class="n">resp</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">falcon</span><span class="o">.</span><span class="n">HTTP_200</span>
-<a id="__codelineno-19-17" name="__codelineno-19-17"></a>        <span class="n">resp</span><span class="o">.</span><span class="n">content_type</span> <span class="o">=</span> <span class="n">falcon</span><span class="o">.</span><span class="n">MEDIA_TEXT</span>
-<a id="__codelineno-19-18" name="__codelineno-19-18"></a>        <span class="n">resp</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="p">(</span>
-<a id="__codelineno-19-19" name="__codelineno-19-19"></a>            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Two things awe me most, the starry sky &quot;</span>
-<a id="__codelineno-19-20" name="__codelineno-19-20"></a>            <span class="s2">&quot;above me and the moral law within me.</span><span class="se">\n</span><span class="s2">&quot;</span>
-<a id="__codelineno-19-21" name="__codelineno-19-21"></a>            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
-<a id="__codelineno-19-22" name="__codelineno-19-22"></a>            <span class="s2">&quot;    ~ Immanuel Kant</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-<a id="__codelineno-19-23" name="__codelineno-19-23"></a>        <span class="p">)</span>
+<a id="__codelineno-19-9" name="__codelineno-19-9"></a>
+<a id="__codelineno-19-10" name="__codelineno-19-10"></a><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-19-11" name="__codelineno-19-11"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
+</span><a id="__codelineno-19-12" name="__codelineno-19-12"></a><span class="hll">    <span class="nb">print</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+</span><a id="__codelineno-19-13" name="__codelineno-19-13"></a>
+<a id="__codelineno-19-14" name="__codelineno-19-14"></a>
+<a id="__codelineno-19-15" name="__codelineno-19-15"></a><span class="hll"><span class="nd">@app</span><span class="o">.</span><span class="n">on_start</span>
+</span><a id="__codelineno-19-16" name="__codelineno-19-16"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">start_broker</span><span class="p">(</span><span class="n">application</span><span class="p">:</span> <span class="n">Application</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><a id="__codelineno-19-17" name="__codelineno-19-17"></a><span class="hll">    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span><a id="__codelineno-19-18" name="__codelineno-19-18"></a>
+<a id="__codelineno-19-19" name="__codelineno-19-19"></a>
+<a id="__codelineno-19-20" name="__codelineno-19-20"></a><span class="hll"><span class="nd">@app</span><span class="o">.</span><span class="n">on_stop</span>
+</span><a id="__codelineno-19-21" name="__codelineno-19-21"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">stop_broker</span><span class="p">(</span><span class="n">application</span><span class="p">:</span> <span class="n">Application</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><a id="__codelineno-19-22" name="__codelineno-19-22"></a><span class="hll">    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><a id="__codelineno-19-23" name="__codelineno-19-23"></a>
 <a id="__codelineno-19-24" name="__codelineno-19-24"></a>
-<a id="__codelineno-19-25" name="__codelineno-19-25"></a>
-<a id="__codelineno-19-26" name="__codelineno-19-26"></a><span class="hll"><span class="k">class</span> <span class="nc">PropanMiddleware</span><span class="p">:</span>
-</span><a id="__codelineno-19-27" name="__codelineno-19-27"></a><span class="hll">    <span class="k">async</span> <span class="k">def</span> <span class="nf">process_startup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-</span><a id="__codelineno-19-28" name="__codelineno-19-28"></a><span class="hll">        <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-</span><a id="__codelineno-19-29" name="__codelineno-19-29"></a><span class="hll">
-</span><a id="__codelineno-19-30" name="__codelineno-19-30"></a><span class="hll">    <span class="k">async</span> <span class="k">def</span> <span class="nf">process_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-</span><a id="__codelineno-19-31" name="__codelineno-19-31"></a><span class="hll">        <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</span><a id="__codelineno-19-32" name="__codelineno-19-32"></a>
-<a id="__codelineno-19-33" name="__codelineno-19-33"></a>
-<a id="__codelineno-19-34" name="__codelineno-19-34"></a><span class="n">app</span> <span class="o">=</span> <span class="n">falcon</span><span class="o">.</span><span class="n">asgi</span><span class="o">.</span><span class="n">App</span><span class="p">()</span>
-<a id="__codelineno-19-35" name="__codelineno-19-35"></a><span class="hll"><span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">PropanMiddleware</span><span class="p">())</span>
-</span><a id="__codelineno-19-36" name="__codelineno-19-36"></a><span class="n">app</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="s2">&quot;/things&quot;</span><span class="p">,</span> <span class="n">ThingsResource</span><span class="p">())</span>
+<a id="__codelineno-19-25" name="__codelineno-19-25"></a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<a id="__codelineno-19-26" name="__codelineno-19-26"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">home</span><span class="p">():</span>
+<a id="__codelineno-19-27" name="__codelineno-19-27"></a>    <span class="k">return</span> <span class="s2">&quot;Hello, World!&quot;</span>
 </code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
@@ -2875,33 +2861,51 @@ Just <em>start</em> and <em>stop</em> them according to your application's lifes
 <span class="normal"><a href="#__codelineno-20-24">24</a></span>
 <span class="normal"><a href="#__codelineno-20-25">25</a></span>
 <span class="normal"><a href="#__codelineno-20-26">26</a></span>
-<span class="normal"><a href="#__codelineno-20-27">27</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1"></a><span class="kn">from</span> <span class="nn">quart</span> <span class="kn">import</span> <span class="n">Quart</span>
-<a id="__codelineno-20-2" name="__codelineno-20-2"></a>
-<a id="__codelineno-20-3" name="__codelineno-20-3"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
-</span><a id="__codelineno-20-4" name="__codelineno-20-4"></a>
-<a id="__codelineno-20-5" name="__codelineno-20-5"></a><span class="hll"><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
-</span><a id="__codelineno-20-6" name="__codelineno-20-6"></a>
-<a id="__codelineno-20-7" name="__codelineno-20-7"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Quart</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="normal"><a href="#__codelineno-20-27">27</a></span>
+<span class="normal"><a href="#__codelineno-20-28">28</a></span>
+<span class="normal"><a href="#__codelineno-20-29">29</a></span>
+<span class="normal"><a href="#__codelineno-20-30">30</a></span>
+<span class="normal"><a href="#__codelineno-20-31">31</a></span>
+<span class="normal"><a href="#__codelineno-20-32">32</a></span>
+<span class="normal"><a href="#__codelineno-20-33">33</a></span>
+<span class="normal"><a href="#__codelineno-20-34">34</a></span>
+<span class="normal"><a href="#__codelineno-20-35">35</a></span>
+<span class="normal"><a href="#__codelineno-20-36">36</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1"></a><span class="kn">import</span> <span class="nn">falcon</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2"></a><span class="kn">import</span> <span class="nn">falcon.asgi</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3"></a>
+<a id="__codelineno-20-4" name="__codelineno-20-4"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
+</span><a id="__codelineno-20-5" name="__codelineno-20-5"></a>
+<a id="__codelineno-20-6" name="__codelineno-20-6"></a><span class="hll"><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-20-7" name="__codelineno-20-7"></a>
 <a id="__codelineno-20-8" name="__codelineno-20-8"></a>
-<a id="__codelineno-20-9" name="__codelineno-20-9"></a>
-<a id="__codelineno-20-10" name="__codelineno-20-10"></a><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
-</span><a id="__codelineno-20-11" name="__codelineno-20-11"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
-</span><a id="__codelineno-20-12" name="__codelineno-20-12"></a><span class="hll">    <span class="nb">print</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
-</span><a id="__codelineno-20-13" name="__codelineno-20-13"></a>
-<a id="__codelineno-20-14" name="__codelineno-20-14"></a>
-<a id="__codelineno-20-15" name="__codelineno-20-15"></a><span class="hll"><span class="nd">@app</span><span class="o">.</span><span class="n">before_serving</span>
-</span><a id="__codelineno-20-16" name="__codelineno-20-16"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">start_broker</span><span class="p">():</span>
-</span><a id="__codelineno-20-17" name="__codelineno-20-17"></a><span class="hll">    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-</span><a id="__codelineno-20-18" name="__codelineno-20-18"></a>
-<a id="__codelineno-20-19" name="__codelineno-20-19"></a>
-<a id="__codelineno-20-20" name="__codelineno-20-20"></a><span class="hll"><span class="nd">@app</span><span class="o">.</span><span class="n">after_serving</span>
-</span><a id="__codelineno-20-21" name="__codelineno-20-21"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">stop_broker</span><span class="p">():</span>
-</span><a id="__codelineno-20-22" name="__codelineno-20-22"></a><span class="hll">    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</span><a id="__codelineno-20-23" name="__codelineno-20-23"></a>
+<a id="__codelineno-20-9" name="__codelineno-20-9"></a><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-20-10" name="__codelineno-20-10"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
+</span><a id="__codelineno-20-11" name="__codelineno-20-11"></a><span class="hll">    <span class="nb">print</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+</span><a id="__codelineno-20-12" name="__codelineno-20-12"></a>
+<a id="__codelineno-20-13" name="__codelineno-20-13"></a>
+<a id="__codelineno-20-14" name="__codelineno-20-14"></a><span class="k">class</span> <span class="nc">ThingsResource</span><span class="p">:</span>
+<a id="__codelineno-20-15" name="__codelineno-20-15"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">on_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">):</span>
+<a id="__codelineno-20-16" name="__codelineno-20-16"></a>        <span class="n">resp</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">falcon</span><span class="o">.</span><span class="n">HTTP_200</span>
+<a id="__codelineno-20-17" name="__codelineno-20-17"></a>        <span class="n">resp</span><span class="o">.</span><span class="n">content_type</span> <span class="o">=</span> <span class="n">falcon</span><span class="o">.</span><span class="n">MEDIA_TEXT</span>
+<a id="__codelineno-20-18" name="__codelineno-20-18"></a>        <span class="n">resp</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="p">(</span>
+<a id="__codelineno-20-19" name="__codelineno-20-19"></a>            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Two things awe me most, the starry sky &quot;</span>
+<a id="__codelineno-20-20" name="__codelineno-20-20"></a>            <span class="s2">&quot;above me and the moral law within me.</span><span class="se">\n</span><span class="s2">&quot;</span>
+<a id="__codelineno-20-21" name="__codelineno-20-21"></a>            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+<a id="__codelineno-20-22" name="__codelineno-20-22"></a>            <span class="s2">&quot;    ~ Immanuel Kant</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+<a id="__codelineno-20-23" name="__codelineno-20-23"></a>        <span class="p">)</span>
 <a id="__codelineno-20-24" name="__codelineno-20-24"></a>
-<a id="__codelineno-20-25" name="__codelineno-20-25"></a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
-<a id="__codelineno-20-26" name="__codelineno-20-26"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">json</span><span class="p">():</span>
-<a id="__codelineno-20-27" name="__codelineno-20-27"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;hello&quot;</span><span class="p">:</span> <span class="s2">&quot;world&quot;</span><span class="p">}</span>
+<a id="__codelineno-20-25" name="__codelineno-20-25"></a>
+<a id="__codelineno-20-26" name="__codelineno-20-26"></a><span class="hll"><span class="k">class</span> <span class="nc">PropanMiddleware</span><span class="p">:</span>
+</span><a id="__codelineno-20-27" name="__codelineno-20-27"></a><span class="hll">    <span class="k">async</span> <span class="k">def</span> <span class="nf">process_startup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+</span><a id="__codelineno-20-28" name="__codelineno-20-28"></a><span class="hll">        <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span><a id="__codelineno-20-29" name="__codelineno-20-29"></a><span class="hll">
+</span><a id="__codelineno-20-30" name="__codelineno-20-30"></a><span class="hll">    <span class="k">async</span> <span class="k">def</span> <span class="nf">process_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+</span><a id="__codelineno-20-31" name="__codelineno-20-31"></a><span class="hll">        <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><a id="__codelineno-20-32" name="__codelineno-20-32"></a>
+<a id="__codelineno-20-33" name="__codelineno-20-33"></a>
+<a id="__codelineno-20-34" name="__codelineno-20-34"></a><span class="n">app</span> <span class="o">=</span> <span class="n">falcon</span><span class="o">.</span><span class="n">asgi</span><span class="o">.</span><span class="n">App</span><span class="p">()</span>
+<a id="__codelineno-20-35" name="__codelineno-20-35"></a><span class="hll"><span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">PropanMiddleware</span><span class="p">())</span>
+</span><a id="__codelineno-20-36" name="__codelineno-20-36"></a><span class="n">app</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="s2">&quot;/things&quot;</span><span class="p">,</span> <span class="n">ThingsResource</span><span class="p">())</span>
 </code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
@@ -2931,49 +2935,35 @@ Just <em>start</em> and <em>stop</em> them according to your application's lifes
 <span class="normal"><a href="#__codelineno-21-24">24</a></span>
 <span class="normal"><a href="#__codelineno-21-25">25</a></span>
 <span class="normal"><a href="#__codelineno-21-26">26</a></span>
-<span class="normal"><a href="#__codelineno-21-27">27</a></span>
-<span class="normal"><a href="#__codelineno-21-28">28</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1"></a><span class="kn">from</span> <span class="nn">sanic</span> <span class="kn">import</span> <span class="n">Sanic</span>
-<a id="__codelineno-21-2" name="__codelineno-21-2"></a><span class="kn">from</span> <span class="nn">sanic.response</span> <span class="kn">import</span> <span class="n">text</span>
-<a id="__codelineno-21-3" name="__codelineno-21-3"></a>
-<a id="__codelineno-21-4" name="__codelineno-21-4"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
-</span><a id="__codelineno-21-5" name="__codelineno-21-5"></a>
-<a id="__codelineno-21-6" name="__codelineno-21-6"></a><span class="hll"><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
-</span><a id="__codelineno-21-7" name="__codelineno-21-7"></a>
-<a id="__codelineno-21-8" name="__codelineno-21-8"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Sanic</span><span class="p">(</span><span class="s2">&quot;MyHelloWorldApp&quot;</span><span class="p">)</span>
+<span class="normal"><a href="#__codelineno-21-27">27</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1"></a><span class="kn">from</span> <span class="nn">quart</span> <span class="kn">import</span> <span class="n">Quart</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2"></a>
+<a id="__codelineno-21-3" name="__codelineno-21-3"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
+</span><a id="__codelineno-21-4" name="__codelineno-21-4"></a>
+<a id="__codelineno-21-5" name="__codelineno-21-5"></a><span class="hll"><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-21-6" name="__codelineno-21-6"></a>
+<a id="__codelineno-21-7" name="__codelineno-21-7"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Quart</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<a id="__codelineno-21-8" name="__codelineno-21-8"></a>
 <a id="__codelineno-21-9" name="__codelineno-21-9"></a>
-<a id="__codelineno-21-10" name="__codelineno-21-10"></a>
-<a id="__codelineno-21-11" name="__codelineno-21-11"></a><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
-</span><a id="__codelineno-21-12" name="__codelineno-21-12"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
-</span><a id="__codelineno-21-13" name="__codelineno-21-13"></a><span class="hll">    <span class="nb">print</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
-</span><a id="__codelineno-21-14" name="__codelineno-21-14"></a>
-<a id="__codelineno-21-15" name="__codelineno-21-15"></a>
-<a id="__codelineno-21-16" name="__codelineno-21-16"></a><span class="hll"><span class="nd">@app</span><span class="o">.</span><span class="n">after_server_start</span>
-</span><a id="__codelineno-21-17" name="__codelineno-21-17"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">start_broker</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-</span><a id="__codelineno-21-18" name="__codelineno-21-18"></a><span class="hll">    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-</span><a id="__codelineno-21-19" name="__codelineno-21-19"></a>
-<a id="__codelineno-21-20" name="__codelineno-21-20"></a>
-<a id="__codelineno-21-21" name="__codelineno-21-21"></a><span class="hll"><span class="nd">@app</span><span class="o">.</span><span class="n">after_server_stop</span>
-</span><a id="__codelineno-21-22" name="__codelineno-21-22"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">stop_broker</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
-</span><a id="__codelineno-21-23" name="__codelineno-21-23"></a><span class="hll">    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</span><a id="__codelineno-21-24" name="__codelineno-21-24"></a>
-<a id="__codelineno-21-25" name="__codelineno-21-25"></a>
-<a id="__codelineno-21-26" name="__codelineno-21-26"></a><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
-<a id="__codelineno-21-27" name="__codelineno-21-27"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">hello_world</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-<a id="__codelineno-21-28" name="__codelineno-21-28"></a>    <span class="k">return</span> <span class="n">text</span><span class="p">(</span><span class="s2">&quot;Hello, world.&quot;</span><span class="p">)</span>
+<a id="__codelineno-21-10" name="__codelineno-21-10"></a><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-21-11" name="__codelineno-21-11"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
+</span><a id="__codelineno-21-12" name="__codelineno-21-12"></a><span class="hll">    <span class="nb">print</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+</span><a id="__codelineno-21-13" name="__codelineno-21-13"></a>
+<a id="__codelineno-21-14" name="__codelineno-21-14"></a>
+<a id="__codelineno-21-15" name="__codelineno-21-15"></a><span class="hll"><span class="nd">@app</span><span class="o">.</span><span class="n">before_serving</span>
+</span><a id="__codelineno-21-16" name="__codelineno-21-16"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">start_broker</span><span class="p">():</span>
+</span><a id="__codelineno-21-17" name="__codelineno-21-17"></a><span class="hll">    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span><a id="__codelineno-21-18" name="__codelineno-21-18"></a>
+<a id="__codelineno-21-19" name="__codelineno-21-19"></a>
+<a id="__codelineno-21-20" name="__codelineno-21-20"></a><span class="hll"><span class="nd">@app</span><span class="o">.</span><span class="n">after_serving</span>
+</span><a id="__codelineno-21-21" name="__codelineno-21-21"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">stop_broker</span><span class="p">():</span>
+</span><a id="__codelineno-21-22" name="__codelineno-21-22"></a><span class="hll">    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><a id="__codelineno-21-23" name="__codelineno-21-23"></a>
+<a id="__codelineno-21-24" name="__codelineno-21-24"></a>
+<a id="__codelineno-21-25" name="__codelineno-21-25"></a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<a id="__codelineno-21-26" name="__codelineno-21-26"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">json</span><span class="p">():</span>
+<a id="__codelineno-21-27" name="__codelineno-21-27"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;hello&quot;</span><span class="p">:</span> <span class="s2">&quot;world&quot;</span><span class="p">}</span>
 </code></pre></div></td></tr></table></div>
 </div>
-</div>
-</div>
-<h3 id="fastapi-plugin"><strong>FastAPI</strong> Plugin<a class="headerlink" href="#fastapi-plugin" title="Permanent link">#</a></h3>
-<p>Also, <strong>FastStream</strong> can be used as part of <strong>FastAPI</strong>.</p>
-<p>Just import a <strong>StreamRouter</strong> you need and declare the message handler with the same <code class="highlight"><span class="nd">@router</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> and <code class="highlight"><span class="nd">@router</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorators.</p>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>When used this way, <strong>FastStream</strong> does not utilize its own dependency and serialization system but integrates seamlessly into <strong>FastAPI</strong>.
-This means you can use <code>Depends</code>, <code>BackgroundTasks</code> and other <strong>FastAPI</strong> tools as if it were a regular HTTP endpoint.</p>
-</div>
-<div class="tabbed-set tabbed-alternate" data-tabs="6:3"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><input id="__tabbed_6_3" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">Kafka</label><label for="__tabbed_6_2">RabbitMQ</label><label for="__tabbed_6_3">NATS</label></div>
-<div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-22-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-22-2"> 2</a></span>
@@ -3002,38 +2992,48 @@ This means you can use <code>Depends</code>, <code>BackgroundTasks</code> and ot
 <span class="normal"><a href="#__codelineno-22-25">25</a></span>
 <span class="normal"><a href="#__codelineno-22-26">26</a></span>
 <span class="normal"><a href="#__codelineno-22-27">27</a></span>
-<span class="normal"><a href="#__codelineno-22-28">28</a></span>
-<span class="normal"><a href="#__codelineno-22-29">29</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1"></a><span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">FastAPI</span>
-<a id="__codelineno-22-2" name="__codelineno-22-2"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="normal"><a href="#__codelineno-22-28">28</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1"></a><span class="kn">from</span> <span class="nn">sanic</span> <span class="kn">import</span> <span class="n">Sanic</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2"></a><span class="kn">from</span> <span class="nn">sanic.response</span> <span class="kn">import</span> <span class="n">text</span>
 <a id="__codelineno-22-3" name="__codelineno-22-3"></a>
-<a id="__codelineno-22-4" name="__codelineno-22-4"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.kafka.fastapi</span> <span class="kn">import</span> <span class="n">KafkaRouter</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
 </span><a id="__codelineno-22-5" name="__codelineno-22-5"></a>
-<a id="__codelineno-22-6" name="__codelineno-22-6"></a><span class="hll"><span class="n">router</span> <span class="o">=</span> <span class="n">KafkaRouter</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
+<a id="__codelineno-22-6" name="__codelineno-22-6"></a><span class="hll"><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
 </span><a id="__codelineno-22-7" name="__codelineno-22-7"></a>
-<a id="__codelineno-22-8" name="__codelineno-22-8"></a>
-<a id="__codelineno-22-9" name="__codelineno-22-9"></a><span class="k">class</span> <span class="nc">Incoming</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-22-10" name="__codelineno-22-10"></a>    <span class="n">m</span><span class="p">:</span> <span class="nb">dict</span>
-<a id="__codelineno-22-11" name="__codelineno-22-11"></a>
-<a id="__codelineno-22-12" name="__codelineno-22-12"></a>
-<a id="__codelineno-22-13" name="__codelineno-22-13"></a><span class="k">def</span> <span class="nf">call</span><span class="p">():</span>
-<a id="__codelineno-22-14" name="__codelineno-22-14"></a>    <span class="k">return</span> <span class="kc">True</span>
+<a id="__codelineno-22-8" name="__codelineno-22-8"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Sanic</span><span class="p">(</span><span class="s2">&quot;MyHelloWorldApp&quot;</span><span class="p">)</span>
+<a id="__codelineno-22-9" name="__codelineno-22-9"></a>
+<a id="__codelineno-22-10" name="__codelineno-22-10"></a>
+<a id="__codelineno-22-11" name="__codelineno-22-11"></a><span class="hll"><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-22-12" name="__codelineno-22-12"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
+</span><a id="__codelineno-22-13" name="__codelineno-22-13"></a><span class="hll">    <span class="nb">print</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+</span><a id="__codelineno-22-14" name="__codelineno-22-14"></a>
 <a id="__codelineno-22-15" name="__codelineno-22-15"></a>
-<a id="__codelineno-22-16" name="__codelineno-22-16"></a>
-<a id="__codelineno-22-17" name="__codelineno-22-17"></a><span class="hll"><span class="nd">@router</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
-</span><a id="__codelineno-22-18" name="__codelineno-22-18"></a><span class="hll"><span class="nd">@router</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="s2">&quot;response&quot;</span><span class="p">)</span>
-</span><a id="__codelineno-22-19" name="__codelineno-22-19"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">m</span><span class="p">:</span> <span class="n">Incoming</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="n">Depends</span><span class="p">(</span><span class="n">call</span><span class="p">)):</span>
-</span><a id="__codelineno-22-20" name="__codelineno-22-20"></a><span class="hll">    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;response&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello, Kafka!&quot;</span><span class="p">}</span>
-</span><a id="__codelineno-22-21" name="__codelineno-22-21"></a>
-<a id="__codelineno-22-22" name="__codelineno-22-22"></a>
-<a id="__codelineno-22-23" name="__codelineno-22-23"></a><span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
-<a id="__codelineno-22-24" name="__codelineno-22-24"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">hello_http</span><span class="p">():</span>
-<a id="__codelineno-22-25" name="__codelineno-22-25"></a>    <span class="k">return</span> <span class="s2">&quot;Hello, HTTP!&quot;</span>
-<a id="__codelineno-22-26" name="__codelineno-22-26"></a>
-<a id="__codelineno-22-27" name="__codelineno-22-27"></a>
-<a id="__codelineno-22-28" name="__codelineno-22-28"></a><span class="hll"><span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">lifespan</span><span class="o">=</span><span class="n">router</span><span class="o">.</span><span class="n">lifespan_context</span><span class="p">)</span>
-</span><a id="__codelineno-22-29" name="__codelineno-22-29"></a><span class="hll"><span class="n">app</span><span class="o">.</span><span class="n">include_router</span><span class="p">(</span><span class="n">router</span><span class="p">)</span>
-</span></code></pre></div></td></tr></table></div>
+<a id="__codelineno-22-16" name="__codelineno-22-16"></a><span class="hll"><span class="nd">@app</span><span class="o">.</span><span class="n">after_server_start</span>
+</span><a id="__codelineno-22-17" name="__codelineno-22-17"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">start_broker</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+</span><a id="__codelineno-22-18" name="__codelineno-22-18"></a><span class="hll">    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</span><a id="__codelineno-22-19" name="__codelineno-22-19"></a>
+<a id="__codelineno-22-20" name="__codelineno-22-20"></a>
+<a id="__codelineno-22-21" name="__codelineno-22-21"></a><span class="hll"><span class="nd">@app</span><span class="o">.</span><span class="n">after_server_stop</span>
+</span><a id="__codelineno-22-22" name="__codelineno-22-22"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">stop_broker</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">loop</span><span class="p">):</span>
+</span><a id="__codelineno-22-23" name="__codelineno-22-23"></a><span class="hll">    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><a id="__codelineno-22-24" name="__codelineno-22-24"></a>
+<a id="__codelineno-22-25" name="__codelineno-22-25"></a>
+<a id="__codelineno-22-26" name="__codelineno-22-26"></a><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<a id="__codelineno-22-27" name="__codelineno-22-27"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">hello_world</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<a id="__codelineno-22-28" name="__codelineno-22-28"></a>    <span class="k">return</span> <span class="n">text</span><span class="p">(</span><span class="s2">&quot;Hello, world.&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
 </div>
+</div>
+</div>
+<h3 id="fastapi-plugin"><strong>FastAPI</strong> Plugin<a class="headerlink" href="#fastapi-plugin" title="Permanent link">#</a></h3>
+<p>Also, <strong>FastStream</strong> can be used as part of <strong>FastAPI</strong>.</p>
+<p>Just import a <strong>StreamRouter</strong> you need and declare the message handler with the same <code class="highlight"><span class="nd">@router</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> and <code class="highlight"><span class="nd">@router</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorators.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>When used this way, <strong>FastStream</strong> does not utilize its own dependency and serialization system but integrates seamlessly into <strong>FastAPI</strong>.
+This means you can use <code>Depends</code>, <code>BackgroundTasks</code> and other <strong>FastAPI</strong> tools as if it were a regular HTTP endpoint.</p>
+</div>
+<div class="tabbed-set tabbed-alternate" data-tabs="6:3"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><input id="__tabbed_6_3" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">Kafka</label><label for="__tabbed_6_2">RabbitMQ</label><label for="__tabbed_6_3">NATS</label></div>
+<div class="tabbed-content">
 <div class="tabbed-block">
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-23-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-23-2"> 2</a></span>
@@ -3066,9 +3066,9 @@ This means you can use <code>Depends</code>, <code>BackgroundTasks</code> and ot
 <span class="normal"><a href="#__codelineno-23-29">29</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1"></a><span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">FastAPI</span>
 <a id="__codelineno-23-2" name="__codelineno-23-2"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
 <a id="__codelineno-23-3" name="__codelineno-23-3"></a>
-<a id="__codelineno-23-4" name="__codelineno-23-4"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.rabbit.fastapi</span> <span class="kn">import</span> <span class="n">RabbitRouter</span>
+<a id="__codelineno-23-4" name="__codelineno-23-4"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.kafka.fastapi</span> <span class="kn">import</span> <span class="n">KafkaRouter</span>
 </span><a id="__codelineno-23-5" name="__codelineno-23-5"></a>
-<a id="__codelineno-23-6" name="__codelineno-23-6"></a><span class="hll"><span class="n">router</span> <span class="o">=</span> <span class="n">RabbitRouter</span><span class="p">(</span><span class="s2">&quot;amqp://guest:guest@localhost:5672/&quot;</span><span class="p">)</span>
+<a id="__codelineno-23-6" name="__codelineno-23-6"></a><span class="hll"><span class="n">router</span> <span class="o">=</span> <span class="n">KafkaRouter</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
 </span><a id="__codelineno-23-7" name="__codelineno-23-7"></a>
 <a id="__codelineno-23-8" name="__codelineno-23-8"></a>
 <a id="__codelineno-23-9" name="__codelineno-23-9"></a><span class="k">class</span> <span class="nc">Incoming</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
@@ -3082,7 +3082,7 @@ This means you can use <code>Depends</code>, <code>BackgroundTasks</code> and ot
 <a id="__codelineno-23-17" name="__codelineno-23-17"></a><span class="hll"><span class="nd">@router</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
 </span><a id="__codelineno-23-18" name="__codelineno-23-18"></a><span class="hll"><span class="nd">@router</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="s2">&quot;response&quot;</span><span class="p">)</span>
 </span><a id="__codelineno-23-19" name="__codelineno-23-19"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">m</span><span class="p">:</span> <span class="n">Incoming</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="n">Depends</span><span class="p">(</span><span class="n">call</span><span class="p">)):</span>
-</span><a id="__codelineno-23-20" name="__codelineno-23-20"></a><span class="hll">    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;response&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello, Rabbit!&quot;</span><span class="p">}</span>
+</span><a id="__codelineno-23-20" name="__codelineno-23-20"></a><span class="hll">    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;response&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello, Kafka!&quot;</span><span class="p">}</span>
 </span><a id="__codelineno-23-21" name="__codelineno-23-21"></a>
 <a id="__codelineno-23-22" name="__codelineno-23-22"></a>
 <a id="__codelineno-23-23" name="__codelineno-23-23"></a><span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
@@ -3126,9 +3126,9 @@ This means you can use <code>Depends</code>, <code>BackgroundTasks</code> and ot
 <span class="normal"><a href="#__codelineno-24-29">29</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1"></a><span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">FastAPI</span>
 <a id="__codelineno-24-2" name="__codelineno-24-2"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
 <a id="__codelineno-24-3" name="__codelineno-24-3"></a>
-<a id="__codelineno-24-4" name="__codelineno-24-4"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.nats.fastapi</span> <span class="kn">import</span> <span class="n">NatsRouter</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.rabbit.fastapi</span> <span class="kn">import</span> <span class="n">RabbitRouter</span>
 </span><a id="__codelineno-24-5" name="__codelineno-24-5"></a>
-<a id="__codelineno-24-6" name="__codelineno-24-6"></a><span class="hll"><span class="n">router</span> <span class="o">=</span> <span class="n">NatsRouter</span><span class="p">(</span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">)</span>
+<a id="__codelineno-24-6" name="__codelineno-24-6"></a><span class="hll"><span class="n">router</span> <span class="o">=</span> <span class="n">RabbitRouter</span><span class="p">(</span><span class="s2">&quot;amqp://guest:guest@localhost:5672/&quot;</span><span class="p">)</span>
 </span><a id="__codelineno-24-7" name="__codelineno-24-7"></a>
 <a id="__codelineno-24-8" name="__codelineno-24-8"></a>
 <a id="__codelineno-24-9" name="__codelineno-24-9"></a><span class="k">class</span> <span class="nc">Incoming</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
@@ -3142,7 +3142,7 @@ This means you can use <code>Depends</code>, <code>BackgroundTasks</code> and ot
 <a id="__codelineno-24-17" name="__codelineno-24-17"></a><span class="hll"><span class="nd">@router</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
 </span><a id="__codelineno-24-18" name="__codelineno-24-18"></a><span class="hll"><span class="nd">@router</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="s2">&quot;response&quot;</span><span class="p">)</span>
 </span><a id="__codelineno-24-19" name="__codelineno-24-19"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">m</span><span class="p">:</span> <span class="n">Incoming</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="n">Depends</span><span class="p">(</span><span class="n">call</span><span class="p">)):</span>
-</span><a id="__codelineno-24-20" name="__codelineno-24-20"></a><span class="hll">    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;response&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello, NATS!&quot;</span><span class="p">}</span>
+</span><a id="__codelineno-24-20" name="__codelineno-24-20"></a><span class="hll">    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;response&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello, Rabbit!&quot;</span><span class="p">}</span>
 </span><a id="__codelineno-24-21" name="__codelineno-24-21"></a>
 <a id="__codelineno-24-22" name="__codelineno-24-22"></a>
 <a id="__codelineno-24-23" name="__codelineno-24-23"></a><span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
@@ -3152,6 +3152,66 @@ This means you can use <code>Depends</code>, <code>BackgroundTasks</code> and ot
 <a id="__codelineno-24-27" name="__codelineno-24-27"></a>
 <a id="__codelineno-24-28" name="__codelineno-24-28"></a><span class="hll"><span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">lifespan</span><span class="o">=</span><span class="n">router</span><span class="o">.</span><span class="n">lifespan_context</span><span class="p">)</span>
 </span><a id="__codelineno-24-29" name="__codelineno-24-29"></a><span class="hll"><span class="n">app</span><span class="o">.</span><span class="n">include_router</span><span class="p">(</span><span class="n">router</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-25-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-25-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-25-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-25-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-25-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-25-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-25-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-25-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-25-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-25-10">10</a></span>
+<span class="normal"><a href="#__codelineno-25-11">11</a></span>
+<span class="normal"><a href="#__codelineno-25-12">12</a></span>
+<span class="normal"><a href="#__codelineno-25-13">13</a></span>
+<span class="normal"><a href="#__codelineno-25-14">14</a></span>
+<span class="normal"><a href="#__codelineno-25-15">15</a></span>
+<span class="normal"><a href="#__codelineno-25-16">16</a></span>
+<span class="normal"><a href="#__codelineno-25-17">17</a></span>
+<span class="normal"><a href="#__codelineno-25-18">18</a></span>
+<span class="normal"><a href="#__codelineno-25-19">19</a></span>
+<span class="normal"><a href="#__codelineno-25-20">20</a></span>
+<span class="normal"><a href="#__codelineno-25-21">21</a></span>
+<span class="normal"><a href="#__codelineno-25-22">22</a></span>
+<span class="normal"><a href="#__codelineno-25-23">23</a></span>
+<span class="normal"><a href="#__codelineno-25-24">24</a></span>
+<span class="normal"><a href="#__codelineno-25-25">25</a></span>
+<span class="normal"><a href="#__codelineno-25-26">26</a></span>
+<span class="normal"><a href="#__codelineno-25-27">27</a></span>
+<span class="normal"><a href="#__codelineno-25-28">28</a></span>
+<span class="normal"><a href="#__codelineno-25-29">29</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1"></a><span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">FastAPI</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3"></a>
+<a id="__codelineno-25-4" name="__codelineno-25-4"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.nats.fastapi</span> <span class="kn">import</span> <span class="n">NatsRouter</span>
+</span><a id="__codelineno-25-5" name="__codelineno-25-5"></a>
+<a id="__codelineno-25-6" name="__codelineno-25-6"></a><span class="hll"><span class="n">router</span> <span class="o">=</span> <span class="n">NatsRouter</span><span class="p">(</span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-25-7" name="__codelineno-25-7"></a>
+<a id="__codelineno-25-8" name="__codelineno-25-8"></a>
+<a id="__codelineno-25-9" name="__codelineno-25-9"></a><span class="k">class</span> <span class="nc">Incoming</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-25-10" name="__codelineno-25-10"></a>    <span class="n">m</span><span class="p">:</span> <span class="nb">dict</span>
+<a id="__codelineno-25-11" name="__codelineno-25-11"></a>
+<a id="__codelineno-25-12" name="__codelineno-25-12"></a>
+<a id="__codelineno-25-13" name="__codelineno-25-13"></a><span class="k">def</span> <span class="nf">call</span><span class="p">():</span>
+<a id="__codelineno-25-14" name="__codelineno-25-14"></a>    <span class="k">return</span> <span class="kc">True</span>
+<a id="__codelineno-25-15" name="__codelineno-25-15"></a>
+<a id="__codelineno-25-16" name="__codelineno-25-16"></a>
+<a id="__codelineno-25-17" name="__codelineno-25-17"></a><span class="hll"><span class="nd">@router</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-25-18" name="__codelineno-25-18"></a><span class="hll"><span class="nd">@router</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="s2">&quot;response&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-25-19" name="__codelineno-25-19"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">m</span><span class="p">:</span> <span class="n">Incoming</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="n">Depends</span><span class="p">(</span><span class="n">call</span><span class="p">)):</span>
+</span><a id="__codelineno-25-20" name="__codelineno-25-20"></a><span class="hll">    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;response&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello, NATS!&quot;</span><span class="p">}</span>
+</span><a id="__codelineno-25-21" name="__codelineno-25-21"></a>
+<a id="__codelineno-25-22" name="__codelineno-25-22"></a>
+<a id="__codelineno-25-23" name="__codelineno-25-23"></a><span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<a id="__codelineno-25-24" name="__codelineno-25-24"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">hello_http</span><span class="p">():</span>
+<a id="__codelineno-25-25" name="__codelineno-25-25"></a>    <span class="k">return</span> <span class="s2">&quot;Hello, HTTP!&quot;</span>
+<a id="__codelineno-25-26" name="__codelineno-25-26"></a>
+<a id="__codelineno-25-27" name="__codelineno-25-27"></a>
+<a id="__codelineno-25-28" name="__codelineno-25-28"></a><span class="hll"><span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">lifespan</span><span class="o">=</span><span class="n">router</span><span class="o">.</span><span class="n">lifespan_context</span><span class="p">)</span>
+</span><a id="__codelineno-25-29" name="__codelineno-25-29"></a><span class="hll"><span class="n">app</span><span class="o">.</span><span class="n">include_router</span><span class="p">(</span><span class="n">router</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 </div>
@@ -3164,28 +3224,28 @@ This means you can use <code>Depends</code>, <code>BackgroundTasks</code> and ot
 <h2 id="code-generator">Code generator<a class="headerlink" href="#code-generator" title="Permanent link">#</a></h2>
 <p>As evident, <strong>FastStream</strong> is an incredibly user-friendly framework. However, we've taken it a step further and made it even more user-friendly! Introducing <a class="external-link" href="https://faststream-gen.airt.ai" target="_blank"><strong>faststream-gen</strong></a>, a Python library that harnesses the power of generative AI to effortlessly generate <strong>FastStream</strong> applications. Simply describe your application requirements, and <a class="external-link" href="https://faststream-gen.airt.ai" target="_blank"><strong>faststream-gen</strong></a> will generate a production-grade <strong>FastStream</strong> project that is ready to deploy in no time.</p>
 <p>Save application description inside <code>description.txt</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>Create a FastStream application using localhost broker for testing and use the
-<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>default port number.
-<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>
-<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>It should consume messages from the &#39;input_data&#39; topic, where each message is a
-<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>JSON encoded object containing a single attribute: &#39;data&#39;.
-<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>
-<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>While consuming from the topic, increment the value of the data attribute by 1.
-<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>
-<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>Finally, send message to the &#39;output_data&#39; topic.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>Create a FastStream application using localhost broker for testing and use the
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>default port number.
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>It should consume messages from the &#39;input_data&#39; topic, where each message is a
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>JSON encoded object containing a single attribute: &#39;data&#39;.
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>While consuming from the topic, increment the value of the data attribute by 1.
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>
+<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>Finally, send message to the &#39;output_data&#39; topic.
 </code></pre></div>
 <p>and run the following command to create a new <strong>FastStream</strong> project:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>faststream_gen<span class="w"> </span>-i<span class="w"> </span>description.txt
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>faststream_gen<span class="w"> </span>-i<span class="w"> </span>description.txt
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>✨<span class="w">  </span>Generating<span class="w"> </span>a<span class="w"> </span>new<span class="w"> </span>FastStream<span class="w"> </span>application!
-<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w"> </span>✔<span class="w"> </span>Application<span class="w"> </span>description<span class="w"> </span>validated.
-<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="w"> </span>✔<span class="w"> </span>FastStream<span class="w"> </span>app<span class="w"> </span>skeleton<span class="w"> </span>code<span class="w"> </span>generated.<span class="w"> </span>akes<span class="w"> </span>around<span class="w"> </span><span class="m">15</span><span class="w"> </span>to<span class="w"> </span><span class="m">45</span><span class="w"> </span>seconds<span class="o">)</span>...
-<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="w"> </span>✔<span class="w"> </span>The<span class="w"> </span>app<span class="w"> </span>and<span class="w"> </span>the<span class="w"> </span>tests<span class="w"> </span>are<span class="w"> </span>generated.<span class="w">  </span>around<span class="w"> </span><span class="m">30</span><span class="w"> </span>to<span class="w"> </span><span class="m">90</span><span class="w"> </span>seconds<span class="o">)</span>...
-<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a><span class="w"> </span>✔<span class="w"> </span>New<span class="w"> </span>FastStream<span class="w"> </span>project<span class="w"> </span>created.
-<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a><span class="w"> </span>✔<span class="w"> </span>Integration<span class="w"> </span>tests<span class="w"> </span>were<span class="w"> </span>successfully<span class="w"> </span>completed.
-<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="w"> </span>Tokens<span class="w"> </span>used:<span class="w"> </span><span class="m">10768</span>
-<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a><span class="w"> </span>Total<span class="w"> </span>Cost<span class="w"> </span><span class="o">(</span>USD<span class="o">)</span>:<span class="w"> </span><span class="nv">$0</span>.03284
-<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a>✨<span class="w">  </span>All<span class="w"> </span>files<span class="w"> </span>were<span class="w"> </span>successfully<span class="w"> </span>generated!
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>✨<span class="w">  </span>Generating<span class="w"> </span>a<span class="w"> </span>new<span class="w"> </span>FastStream<span class="w"> </span>application!
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w"> </span>✔<span class="w"> </span>Application<span class="w"> </span>description<span class="w"> </span>validated.
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w"> </span>✔<span class="w"> </span>FastStream<span class="w"> </span>app<span class="w"> </span>skeleton<span class="w"> </span>code<span class="w"> </span>generated.<span class="w"> </span>akes<span class="w"> </span>around<span class="w"> </span><span class="m">15</span><span class="w"> </span>to<span class="w"> </span><span class="m">45</span><span class="w"> </span>seconds<span class="o">)</span>...
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="w"> </span>✔<span class="w"> </span>The<span class="w"> </span>app<span class="w"> </span>and<span class="w"> </span>the<span class="w"> </span>tests<span class="w"> </span>are<span class="w"> </span>generated.<span class="w">  </span>around<span class="w"> </span><span class="m">30</span><span class="w"> </span>to<span class="w"> </span><span class="m">90</span><span class="w"> </span>seconds<span class="o">)</span>...
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="w"> </span>✔<span class="w"> </span>New<span class="w"> </span>FastStream<span class="w"> </span>project<span class="w"> </span>created.
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a><span class="w"> </span>✔<span class="w"> </span>Integration<span class="w"> </span>tests<span class="w"> </span>were<span class="w"> </span>successfully<span class="w"> </span>completed.
+<a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="w"> </span>Tokens<span class="w"> </span>used:<span class="w"> </span><span class="m">10768</span>
+<a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a><span class="w"> </span>Total<span class="w"> </span>Cost<span class="w"> </span><span class="o">(</span>USD<span class="o">)</span>:<span class="w"> </span><span class="nv">$0</span>.03284
+<a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a>✨<span class="w">  </span>All<span class="w"> </span>files<span class="w"> </span>were<span class="w"> </span>successfully<span class="w"> </span>generated!
 </code></pre></div>
 <h3 id="tutorial">Tutorial<a class="headerlink" href="#tutorial" title="Permanent link">#</a></h3>
 <p>We also invite you to explore our tutorial, where we will guide you through the process of utilizing the <a class="external-link" href="https://faststream-gen.airt.ai" target="_blank"><strong>faststream-gen</strong></a> Python library to effortlessly create <strong>FastStream</strong> applications:</p>

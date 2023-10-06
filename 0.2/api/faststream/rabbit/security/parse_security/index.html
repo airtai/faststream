@@ -1105,6 +1105,8 @@
       
         
       
+        
+      
     
     
     
@@ -1237,6 +1239,26 @@
   
 
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../kafka/ack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Acknowledgement
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1902,24 +1924,22 @@
 
 
 <a href="#faststream.rabbit.security.parse_security" class="headerlink" title="Permanent link">#</a></h2>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">parse_security</span><span class="p">(</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">security</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BaseSecurity</span><span class="p">],</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">parse_security</span><span class="p">(</span><span class="n">security</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BaseSecurity</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AnyDict</span>
 </code></pre></div>
 
   <div class="doc doc-contents first">
 
           <details class="quote">
             <summary>Source code in <code>faststream/rabbit/security.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-6"> 6</a></span>
-<span class="normal"><a href="#__codelineno-0-7"> 7</a></span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-7"> 7</a></span>
 <span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
 <span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
-<span class="normal"><a href="#__codelineno-0-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="k">def</span> <span class="nf">parse_security</span><span class="p">(</span><span class="n">security</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BaseSecurity</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7"></a>    <span class="k">if</span> <span class="n">security</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8"></a>        <span class="k">return</span> <span class="p">{}</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9"></a>    <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10"></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RabbitBroker does not support </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">security</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-10">10</a></span>
+<span class="normal"><a href="#__codelineno-0-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="k">def</span> <span class="nf">parse_security</span><span class="p">(</span><span class="n">security</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BaseSecurity</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AnyDict</span><span class="p">:</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8"></a>    <span class="k">if</span> <span class="n">security</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9"></a>        <span class="k">return</span> <span class="p">{}</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11"></a>        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RabbitBroker does not support </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">security</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>

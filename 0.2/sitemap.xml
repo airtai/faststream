@@ -559,6 +559,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/broker/test/TestApp/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/broker/test/TestBroker/</loc>
+        <lastmod>2023-10-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/broker/test/TestBroker/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/broker/test/call_handler/</loc>
         <lastmod>2023-10-06</lastmod>
         <changefreq>daily</changefreq>
@@ -1481,6 +1487,12 @@
         <lastmod>2023-10-06</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/kafka/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/kafka/ack/</loc>
+        <lastmod>2023-10-06</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/kafka/ack/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/0.2/kafka/message/</loc>

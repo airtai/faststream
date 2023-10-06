@@ -1105,6 +1105,8 @@
       
         
       
+        
+      
     
     
     
@@ -1237,6 +1239,26 @@
   
 
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../kafka/ack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Acknowledgement
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -2344,7 +2366,9 @@
 <span class="normal"><a href="#__codelineno-0-423">423</a></span>
 <span class="normal"><a href="#__codelineno-0-424">424</a></span>
 <span class="normal"><a href="#__codelineno-0-425">425</a></span>
-<span class="normal"><a href="#__codelineno-0-426">426</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="k">class</span> <span class="nc">NatsBroker</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-426">426</a></span>
+<span class="normal"><a href="#__codelineno-0-427">427</a></span>
+<span class="normal"><a href="#__codelineno-0-428">428</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="k">class</span> <span class="nc">NatsBroker</span><span class="p">(</span>
 <a id="__codelineno-0-49" name="__codelineno-0-49"></a>    <span class="n">NatsLoggingMixin</span><span class="p">,</span>
 <a id="__codelineno-0-50" name="__codelineno-0-50"></a>    <span class="n">BrokerAsyncUsecase</span><span class="p">[</span><span class="n">Msg</span><span class="p">,</span> <span class="n">Client</span><span class="p">],</span>
 <a id="__codelineno-0-51" name="__codelineno-0-51"></a><span class="p">):</span>
@@ -2514,7 +2538,7 @@
 <a id="__codelineno-0-215" name="__codelineno-0-215"></a>                <span class="k">else</span><span class="p">:</span>
 <a id="__codelineno-0-216" name="__codelineno-0-216"></a>                    <span class="n">pub_response</span> <span class="o">=</span> <span class="kc">None</span>
 <a id="__codelineno-0-217" name="__codelineno-0-217"></a>
-<a id="__codelineno-0-218" name="__codelineno-0-218"></a>            <span class="k">return</span> <span class="n">r</span><span class="p">,</span> <span class="n">pub_response</span>
+<a id="__codelineno-0-218" name="__codelineno-0-218"></a>                <span class="k">return</span> <span class="n">r</span><span class="p">,</span> <span class="n">pub_response</span>
 <a id="__codelineno-0-219" name="__codelineno-0-219"></a>
 <a id="__codelineno-0-220" name="__codelineno-0-220"></a>        <span class="k">return</span> <span class="n">process_wrapper</span>
 <a id="__codelineno-0-221" name="__codelineno-0-221"></a>
@@ -2593,7 +2617,7 @@
 <a id="__codelineno-0-294" name="__codelineno-0-294"></a>        <span class="p">)</span>
 <a id="__codelineno-0-295" name="__codelineno-0-295"></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">subscriber</span><span class="p">()</span>
 <a id="__codelineno-0-296" name="__codelineno-0-296"></a>
-<a id="__codelineno-0-297" name="__codelineno-0-297"></a>        <span class="n">extra_options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-0-297" name="__codelineno-0-297"></a>        <span class="n">extra_options</span><span class="p">:</span> <span class="n">AnyDict</span> <span class="o">=</span> <span class="p">{</span>
 <a id="__codelineno-0-298" name="__codelineno-0-298"></a>            <span class="s2">&quot;pending_msgs_limit&quot;</span><span class="p">:</span> <span class="n">pending_msgs_limit</span>
 <a id="__codelineno-0-299" name="__codelineno-0-299"></a>            <span class="ow">or</span> <span class="p">(</span>
 <a id="__codelineno-0-300" name="__codelineno-0-300"></a>                <span class="n">DEFAULT_JS_SUB_PENDING_MSGS_LIMIT</span>
@@ -2684,45 +2708,47 @@
 <a id="__codelineno-0-385" name="__codelineno-0-385"></a>        <span class="c1"># AsyncAPI information</span>
 <a id="__codelineno-0-386" name="__codelineno-0-386"></a>        <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-387" name="__codelineno-0-387"></a>        <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-388" name="__codelineno-0-388"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Publisher</span><span class="p">:</span>
-<a id="__codelineno-0-389" name="__codelineno-0-389"></a>        <span class="k">if</span> <span class="p">(</span><span class="n">stream</span> <span class="o">:=</span> <span class="n">stream_builder</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-390" name="__codelineno-0-390"></a>            <span class="n">stream</span><span class="o">.</span><span class="n">subjects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
-<a id="__codelineno-0-391" name="__codelineno-0-391"></a>
-<a id="__codelineno-0-392" name="__codelineno-0-392"></a>        <span class="n">publisher</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_publishers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-<a id="__codelineno-0-393" name="__codelineno-0-393"></a>            <span class="n">subject</span><span class="p">,</span>
-<a id="__codelineno-0-394" name="__codelineno-0-394"></a>            <span class="n">Publisher</span><span class="p">(</span>
-<a id="__codelineno-0-395" name="__codelineno-0-395"></a>                <span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span>
-<a id="__codelineno-0-396" name="__codelineno-0-396"></a>                <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
-<a id="__codelineno-0-397" name="__codelineno-0-397"></a>                <span class="c1"># Core</span>
-<a id="__codelineno-0-398" name="__codelineno-0-398"></a>                <span class="n">reply_to</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
-<a id="__codelineno-0-399" name="__codelineno-0-399"></a>                <span class="c1"># JS</span>
-<a id="__codelineno-0-400" name="__codelineno-0-400"></a>                <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
-<a id="__codelineno-0-401" name="__codelineno-0-401"></a>                <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span>
-<a id="__codelineno-0-402" name="__codelineno-0-402"></a>                <span class="c1"># AsyncAPI</span>
-<a id="__codelineno-0-403" name="__codelineno-0-403"></a>                <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
-<a id="__codelineno-0-404" name="__codelineno-0-404"></a>                <span class="n">_description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
-<a id="__codelineno-0-405" name="__codelineno-0-405"></a>            <span class="p">),</span>
-<a id="__codelineno-0-406" name="__codelineno-0-406"></a>        <span class="p">)</span>
-<a id="__codelineno-0-407" name="__codelineno-0-407"></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">publisher</span><span class="p">)</span>
-<a id="__codelineno-0-408" name="__codelineno-0-408"></a>        <span class="k">return</span> <span class="n">publisher</span>
-<a id="__codelineno-0-409" name="__codelineno-0-409"></a>
-<a id="__codelineno-0-410" name="__codelineno-0-410"></a>    <span class="nd">@override</span>
-<a id="__codelineno-0-411" name="__codelineno-0-411"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
-<a id="__codelineno-0-412" name="__codelineno-0-412"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-413" name="__codelineno-0-413"></a>        <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-414" name="__codelineno-0-414"></a>        <span class="n">stream</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-415" name="__codelineno-0-415"></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-416" name="__codelineno-0-416"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DecodedMessage</span><span class="p">]:</span>
-<a id="__codelineno-0-417" name="__codelineno-0-417"></a>        <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-418" name="__codelineno-0-418"></a>            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="p">,</span> <span class="s2">&quot;NatsBroker is not started yet&quot;</span>  <span class="c1"># nosec B101</span>
-<a id="__codelineno-0-419" name="__codelineno-0-419"></a>            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<a id="__codelineno-0-420" name="__codelineno-0-420"></a>        <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-0-421" name="__codelineno-0-421"></a>            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_js_producer</span><span class="p">,</span> <span class="s2">&quot;NatsBroker is not started yet&quot;</span>  <span class="c1"># nosec B101</span>
-<a id="__codelineno-0-422" name="__codelineno-0-422"></a>            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_js_producer</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span>
-<a id="__codelineno-0-423" name="__codelineno-0-423"></a>                <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-<a id="__codelineno-0-424" name="__codelineno-0-424"></a>                <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span>
-<a id="__codelineno-0-425" name="__codelineno-0-425"></a>                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># type: ignore[misc]</span>
-<a id="__codelineno-0-426" name="__codelineno-0-426"></a>            <span class="p">)</span>
+<a id="__codelineno-0-388" name="__codelineno-0-388"></a>        <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-389" name="__codelineno-0-389"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Publisher</span><span class="p">:</span>
+<a id="__codelineno-0-390" name="__codelineno-0-390"></a>        <span class="k">if</span> <span class="p">(</span><span class="n">stream</span> <span class="o">:=</span> <span class="n">stream_builder</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-391" name="__codelineno-0-391"></a>            <span class="n">stream</span><span class="o">.</span><span class="n">subjects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
+<a id="__codelineno-0-392" name="__codelineno-0-392"></a>
+<a id="__codelineno-0-393" name="__codelineno-0-393"></a>        <span class="n">publisher</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_publishers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+<a id="__codelineno-0-394" name="__codelineno-0-394"></a>            <span class="n">subject</span><span class="p">,</span>
+<a id="__codelineno-0-395" name="__codelineno-0-395"></a>            <span class="n">Publisher</span><span class="p">(</span>
+<a id="__codelineno-0-396" name="__codelineno-0-396"></a>                <span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span>
+<a id="__codelineno-0-397" name="__codelineno-0-397"></a>                <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+<a id="__codelineno-0-398" name="__codelineno-0-398"></a>                <span class="c1"># Core</span>
+<a id="__codelineno-0-399" name="__codelineno-0-399"></a>                <span class="n">reply_to</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
+<a id="__codelineno-0-400" name="__codelineno-0-400"></a>                <span class="c1"># JS</span>
+<a id="__codelineno-0-401" name="__codelineno-0-401"></a>                <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+<a id="__codelineno-0-402" name="__codelineno-0-402"></a>                <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span>
+<a id="__codelineno-0-403" name="__codelineno-0-403"></a>                <span class="c1"># AsyncAPI</span>
+<a id="__codelineno-0-404" name="__codelineno-0-404"></a>                <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+<a id="__codelineno-0-405" name="__codelineno-0-405"></a>                <span class="n">_description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+<a id="__codelineno-0-406" name="__codelineno-0-406"></a>                <span class="n">_schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
+<a id="__codelineno-0-407" name="__codelineno-0-407"></a>            <span class="p">),</span>
+<a id="__codelineno-0-408" name="__codelineno-0-408"></a>        <span class="p">)</span>
+<a id="__codelineno-0-409" name="__codelineno-0-409"></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">publisher</span><span class="p">)</span>
+<a id="__codelineno-0-410" name="__codelineno-0-410"></a>        <span class="k">return</span> <span class="n">publisher</span>
+<a id="__codelineno-0-411" name="__codelineno-0-411"></a>
+<a id="__codelineno-0-412" name="__codelineno-0-412"></a>    <span class="nd">@override</span>
+<a id="__codelineno-0-413" name="__codelineno-0-413"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
+<a id="__codelineno-0-414" name="__codelineno-0-414"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-415" name="__codelineno-0-415"></a>        <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-416" name="__codelineno-0-416"></a>        <span class="n">stream</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-417" name="__codelineno-0-417"></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-418" name="__codelineno-0-418"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DecodedMessage</span><span class="p">]:</span>
+<a id="__codelineno-0-419" name="__codelineno-0-419"></a>        <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-420" name="__codelineno-0-420"></a>            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="p">,</span> <span class="s2">&quot;NatsBroker is not started yet&quot;</span>  <span class="c1"># nosec B101</span>
+<a id="__codelineno-0-421" name="__codelineno-0-421"></a>            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<a id="__codelineno-0-422" name="__codelineno-0-422"></a>        <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-0-423" name="__codelineno-0-423"></a>            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_js_producer</span><span class="p">,</span> <span class="s2">&quot;NatsBroker is not started yet&quot;</span>  <span class="c1"># nosec B101</span>
+<a id="__codelineno-0-424" name="__codelineno-0-424"></a>            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_js_producer</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span>
+<a id="__codelineno-0-425" name="__codelineno-0-425"></a>                <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+<a id="__codelineno-0-426" name="__codelineno-0-426"></a>                <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span>
+<a id="__codelineno-0-427" name="__codelineno-0-427"></a>                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># type: ignore[misc]</span>
+<a id="__codelineno-0-428" name="__codelineno-0-428"></a>            <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
 
@@ -2857,9 +2883,7 @@
 
           <details class="quote">
             <summary>Source code in <code>faststream/nats/broker.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-410">410</a></span>
-<span class="normal"><a href="#__codelineno-0-411">411</a></span>
-<span class="normal"><a href="#__codelineno-0-412">412</a></span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-412">412</a></span>
 <span class="normal"><a href="#__codelineno-0-413">413</a></span>
 <span class="normal"><a href="#__codelineno-0-414">414</a></span>
 <span class="normal"><a href="#__codelineno-0-415">415</a></span>
@@ -2873,23 +2897,25 @@
 <span class="normal"><a href="#__codelineno-0-423">423</a></span>
 <span class="normal"><a href="#__codelineno-0-424">424</a></span>
 <span class="normal"><a href="#__codelineno-0-425">425</a></span>
-<span class="normal"><a href="#__codelineno-0-426">426</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-410" name="__codelineno-0-410"></a><span class="nd">@override</span>
-<a id="__codelineno-0-411" name="__codelineno-0-411"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
-<a id="__codelineno-0-412" name="__codelineno-0-412"></a>    <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-413" name="__codelineno-0-413"></a>    <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-414" name="__codelineno-0-414"></a>    <span class="n">stream</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-415" name="__codelineno-0-415"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-416" name="__codelineno-0-416"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DecodedMessage</span><span class="p">]:</span>
-<a id="__codelineno-0-417" name="__codelineno-0-417"></a>    <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-418" name="__codelineno-0-418"></a>        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="p">,</span> <span class="s2">&quot;NatsBroker is not started yet&quot;</span>  <span class="c1"># nosec B101</span>
-<a id="__codelineno-0-419" name="__codelineno-0-419"></a>        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<a id="__codelineno-0-420" name="__codelineno-0-420"></a>    <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-0-421" name="__codelineno-0-421"></a>        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_js_producer</span><span class="p">,</span> <span class="s2">&quot;NatsBroker is not started yet&quot;</span>  <span class="c1"># nosec B101</span>
-<a id="__codelineno-0-422" name="__codelineno-0-422"></a>        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_js_producer</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span>
-<a id="__codelineno-0-423" name="__codelineno-0-423"></a>            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-<a id="__codelineno-0-424" name="__codelineno-0-424"></a>            <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span>
-<a id="__codelineno-0-425" name="__codelineno-0-425"></a>            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># type: ignore[misc]</span>
-<a id="__codelineno-0-426" name="__codelineno-0-426"></a>        <span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-426">426</a></span>
+<span class="normal"><a href="#__codelineno-0-427">427</a></span>
+<span class="normal"><a href="#__codelineno-0-428">428</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-412" name="__codelineno-0-412"></a><span class="nd">@override</span>
+<a id="__codelineno-0-413" name="__codelineno-0-413"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
+<a id="__codelineno-0-414" name="__codelineno-0-414"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-415" name="__codelineno-0-415"></a>    <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-416" name="__codelineno-0-416"></a>    <span class="n">stream</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-417" name="__codelineno-0-417"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-418" name="__codelineno-0-418"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DecodedMessage</span><span class="p">]:</span>
+<a id="__codelineno-0-419" name="__codelineno-0-419"></a>    <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-420" name="__codelineno-0-420"></a>        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="p">,</span> <span class="s2">&quot;NatsBroker is not started yet&quot;</span>  <span class="c1"># nosec B101</span>
+<a id="__codelineno-0-421" name="__codelineno-0-421"></a>        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<a id="__codelineno-0-422" name="__codelineno-0-422"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-0-423" name="__codelineno-0-423"></a>        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_js_producer</span><span class="p">,</span> <span class="s2">&quot;NatsBroker is not started yet&quot;</span>  <span class="c1"># nosec B101</span>
+<a id="__codelineno-0-424" name="__codelineno-0-424"></a>        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_js_producer</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span>
+<a id="__codelineno-0-425" name="__codelineno-0-425"></a>            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+<a id="__codelineno-0-426" name="__codelineno-0-426"></a>            <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span>
+<a id="__codelineno-0-427" name="__codelineno-0-427"></a>            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># type: ignore[misc]</span>
+<a id="__codelineno-0-428" name="__codelineno-0-428"></a>        <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -2915,7 +2941,8 @@
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Publisher</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Publisher</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -2955,7 +2982,9 @@
 <span class="normal"><a href="#__codelineno-0-405">405</a></span>
 <span class="normal"><a href="#__codelineno-0-406">406</a></span>
 <span class="normal"><a href="#__codelineno-0-407">407</a></span>
-<span class="normal"><a href="#__codelineno-0-408">408</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-375" name="__codelineno-0-375"></a><span class="nd">@override</span>
+<span class="normal"><a href="#__codelineno-0-408">408</a></span>
+<span class="normal"><a href="#__codelineno-0-409">409</a></span>
+<span class="normal"><a href="#__codelineno-0-410">410</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-375" name="__codelineno-0-375"></a><span class="nd">@override</span>
 <a id="__codelineno-0-376" name="__codelineno-0-376"></a><span class="k">def</span> <span class="nf">publisher</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
 <a id="__codelineno-0-377" name="__codelineno-0-377"></a>    <span class="bp">self</span><span class="p">,</span>
 <a id="__codelineno-0-378" name="__codelineno-0-378"></a>    <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2968,27 +2997,29 @@
 <a id="__codelineno-0-385" name="__codelineno-0-385"></a>    <span class="c1"># AsyncAPI information</span>
 <a id="__codelineno-0-386" name="__codelineno-0-386"></a>    <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-387" name="__codelineno-0-387"></a>    <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-388" name="__codelineno-0-388"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Publisher</span><span class="p">:</span>
-<a id="__codelineno-0-389" name="__codelineno-0-389"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">stream</span> <span class="o">:=</span> <span class="n">stream_builder</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-390" name="__codelineno-0-390"></a>        <span class="n">stream</span><span class="o">.</span><span class="n">subjects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
-<a id="__codelineno-0-391" name="__codelineno-0-391"></a>
-<a id="__codelineno-0-392" name="__codelineno-0-392"></a>    <span class="n">publisher</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_publishers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-<a id="__codelineno-0-393" name="__codelineno-0-393"></a>        <span class="n">subject</span><span class="p">,</span>
-<a id="__codelineno-0-394" name="__codelineno-0-394"></a>        <span class="n">Publisher</span><span class="p">(</span>
-<a id="__codelineno-0-395" name="__codelineno-0-395"></a>            <span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span>
-<a id="__codelineno-0-396" name="__codelineno-0-396"></a>            <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
-<a id="__codelineno-0-397" name="__codelineno-0-397"></a>            <span class="c1"># Core</span>
-<a id="__codelineno-0-398" name="__codelineno-0-398"></a>            <span class="n">reply_to</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
-<a id="__codelineno-0-399" name="__codelineno-0-399"></a>            <span class="c1"># JS</span>
-<a id="__codelineno-0-400" name="__codelineno-0-400"></a>            <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
-<a id="__codelineno-0-401" name="__codelineno-0-401"></a>            <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span>
-<a id="__codelineno-0-402" name="__codelineno-0-402"></a>            <span class="c1"># AsyncAPI</span>
-<a id="__codelineno-0-403" name="__codelineno-0-403"></a>            <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
-<a id="__codelineno-0-404" name="__codelineno-0-404"></a>            <span class="n">_description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
-<a id="__codelineno-0-405" name="__codelineno-0-405"></a>        <span class="p">),</span>
-<a id="__codelineno-0-406" name="__codelineno-0-406"></a>    <span class="p">)</span>
-<a id="__codelineno-0-407" name="__codelineno-0-407"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">publisher</span><span class="p">)</span>
-<a id="__codelineno-0-408" name="__codelineno-0-408"></a>    <span class="k">return</span> <span class="n">publisher</span>
+<a id="__codelineno-0-388" name="__codelineno-0-388"></a>    <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-389" name="__codelineno-0-389"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Publisher</span><span class="p">:</span>
+<a id="__codelineno-0-390" name="__codelineno-0-390"></a>    <span class="k">if</span> <span class="p">(</span><span class="n">stream</span> <span class="o">:=</span> <span class="n">stream_builder</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-391" name="__codelineno-0-391"></a>        <span class="n">stream</span><span class="o">.</span><span class="n">subjects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
+<a id="__codelineno-0-392" name="__codelineno-0-392"></a>
+<a id="__codelineno-0-393" name="__codelineno-0-393"></a>    <span class="n">publisher</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_publishers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+<a id="__codelineno-0-394" name="__codelineno-0-394"></a>        <span class="n">subject</span><span class="p">,</span>
+<a id="__codelineno-0-395" name="__codelineno-0-395"></a>        <span class="n">Publisher</span><span class="p">(</span>
+<a id="__codelineno-0-396" name="__codelineno-0-396"></a>            <span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span>
+<a id="__codelineno-0-397" name="__codelineno-0-397"></a>            <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+<a id="__codelineno-0-398" name="__codelineno-0-398"></a>            <span class="c1"># Core</span>
+<a id="__codelineno-0-399" name="__codelineno-0-399"></a>            <span class="n">reply_to</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
+<a id="__codelineno-0-400" name="__codelineno-0-400"></a>            <span class="c1"># JS</span>
+<a id="__codelineno-0-401" name="__codelineno-0-401"></a>            <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+<a id="__codelineno-0-402" name="__codelineno-0-402"></a>            <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">,</span>
+<a id="__codelineno-0-403" name="__codelineno-0-403"></a>            <span class="c1"># AsyncAPI</span>
+<a id="__codelineno-0-404" name="__codelineno-0-404"></a>            <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+<a id="__codelineno-0-405" name="__codelineno-0-405"></a>            <span class="n">_description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+<a id="__codelineno-0-406" name="__codelineno-0-406"></a>            <span class="n">_schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
+<a id="__codelineno-0-407" name="__codelineno-0-407"></a>        <span class="p">),</span>
+<a id="__codelineno-0-408" name="__codelineno-0-408"></a>    <span class="p">)</span>
+<a id="__codelineno-0-409" name="__codelineno-0-409"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">publisher</span><span class="p">)</span>
+<a id="__codelineno-0-410" name="__codelineno-0-410"></a>    <span class="k">return</span> <span class="n">publisher</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -3336,7 +3367,7 @@
 <a id="__codelineno-0-294" name="__codelineno-0-294"></a>    <span class="p">)</span>
 <a id="__codelineno-0-295" name="__codelineno-0-295"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">subscriber</span><span class="p">()</span>
 <a id="__codelineno-0-296" name="__codelineno-0-296"></a>
-<a id="__codelineno-0-297" name="__codelineno-0-297"></a>    <span class="n">extra_options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-0-297" name="__codelineno-0-297"></a>    <span class="n">extra_options</span><span class="p">:</span> <span class="n">AnyDict</span> <span class="o">=</span> <span class="p">{</span>
 <a id="__codelineno-0-298" name="__codelineno-0-298"></a>        <span class="s2">&quot;pending_msgs_limit&quot;</span><span class="p">:</span> <span class="n">pending_msgs_limit</span>
 <a id="__codelineno-0-299" name="__codelineno-0-299"></a>        <span class="ow">or</span> <span class="p">(</span>
 <a id="__codelineno-0-300" name="__codelineno-0-300"></a>            <span class="n">DEFAULT_JS_SUB_PENDING_MSGS_LIMIT</span>

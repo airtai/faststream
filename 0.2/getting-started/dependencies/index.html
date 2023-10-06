@@ -1195,6 +1195,8 @@
       
         
       
+        
+      
     
     
     
@@ -1327,6 +1329,26 @@
   
 
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../kafka/ack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Acknowledgement
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -2355,7 +2377,8 @@ in the call stack where it is used.</p>
 <span class="normal"><a href="#__codelineno-18-7"> 7</a></span>
 <span class="normal"><a href="#__codelineno-18-8"> 8</a></span>
 <span class="normal"><a href="#__codelineno-18-9"> 9</a></span>
-<span class="normal"><a href="#__codelineno-18-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">apply_types</span>
+<span class="normal"><a href="#__codelineno-18-10">10</a></span>
+<span class="normal"><a href="#__codelineno-18-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">apply_types</span>
 <a id="__codelineno-18-2" name="__codelineno-18-2"></a>
 <a id="__codelineno-18-3" name="__codelineno-18-3"></a><span class="hll"><span class="k">def</span> <span class="nf">simple_dependency</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
 </span><a id="__codelineno-18-4" name="__codelineno-18-4"></a><span class="hll">    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
@@ -2364,7 +2387,8 @@ in the call stack where it is used.</p>
 <a id="__codelineno-18-7" name="__codelineno-18-7"></a><span class="k">def</span> <span class="nf">method</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">simple_dependency</span><span class="p">)):</span>
 <a id="__codelineno-18-8" name="__codelineno-18-8"></a>    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">d</span>
 <a id="__codelineno-18-9" name="__codelineno-18-9"></a>
-<a id="__codelineno-18-10" name="__codelineno-18-10"></a><span class="k">assert</span> <span class="n">method</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span>
+<a id="__codelineno-18-10" name="__codelineno-18-10"></a><span class="k">def</span> <span class="nf">test_sync_dependency</span><span class="p">():</span>
+<a id="__codelineno-18-11" name="__codelineno-18-11"></a>    <span class="k">assert</span> <span class="n">method</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span>
 </code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
@@ -2385,24 +2409,30 @@ in the call stack where it is used.</p>
 <span class="normal"><a href="#__codelineno-19-15">15</a></span>
 <span class="normal"><a href="#__codelineno-19-16">16</a></span>
 <span class="normal"><a href="#__codelineno-19-17">17</a></span>
-<span class="normal"><a href="#__codelineno-19-18">18</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="kn">import</span> <span class="nn">asyncio</span>
-<a id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">apply_types</span>
-<a id="__codelineno-19-3" name="__codelineno-19-3"></a>
-<a id="__codelineno-19-4" name="__codelineno-19-4"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">simple_dependency</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
-</span><a id="__codelineno-19-5" name="__codelineno-19-5"></a><span class="hll">    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
-</span><a id="__codelineno-19-6" name="__codelineno-19-6"></a>
-<a id="__codelineno-19-7" name="__codelineno-19-7"></a><span class="hll"><span class="k">def</span> <span class="nf">another_dependency</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-</span><a id="__codelineno-19-8" name="__codelineno-19-8"></a><span class="hll">    <span class="k">return</span> <span class="n">a</span>
-</span><a id="__codelineno-19-9" name="__codelineno-19-9"></a>
-<a id="__codelineno-19-10" name="__codelineno-19-10"></a><span class="nd">@apply_types</span>
-<a id="__codelineno-19-11" name="__codelineno-19-11"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">method</span><span class="p">(</span>
-<a id="__codelineno-19-12" name="__codelineno-19-12"></a>    <span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-<a id="__codelineno-19-13" name="__codelineno-19-13"></a>    <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">simple_dependency</span><span class="p">),</span>
-<a id="__codelineno-19-14" name="__codelineno-19-14"></a>    <span class="n">c</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">another_dependency</span><span class="p">),</span>
-<a id="__codelineno-19-15" name="__codelineno-19-15"></a><span class="p">):</span>
-<a id="__codelineno-19-16" name="__codelineno-19-16"></a>    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">+</span> <span class="n">c</span>
-<a id="__codelineno-19-17" name="__codelineno-19-17"></a>
-<a id="__codelineno-19-18" name="__codelineno-19-18"></a><span class="k">assert</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">method</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">))</span> <span class="o">==</span> <span class="mi">6</span>
+<span class="normal"><a href="#__codelineno-19-18">18</a></span>
+<span class="normal"><a href="#__codelineno-19-19">19</a></span>
+<span class="normal"><a href="#__codelineno-19-20">20</a></span>
+<span class="normal"><a href="#__codelineno-19-21">21</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1"></a><span class="kn">import</span> <span class="nn">asyncio</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2"></a><span class="kn">import</span> <span class="nn">pytest</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">apply_types</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4"></a>
+<a id="__codelineno-19-5" name="__codelineno-19-5"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">simple_dependency</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
+</span><a id="__codelineno-19-6" name="__codelineno-19-6"></a><span class="hll">    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+</span><a id="__codelineno-19-7" name="__codelineno-19-7"></a>
+<a id="__codelineno-19-8" name="__codelineno-19-8"></a><span class="hll"><span class="k">def</span> <span class="nf">another_dependency</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+</span><a id="__codelineno-19-9" name="__codelineno-19-9"></a><span class="hll">    <span class="k">return</span> <span class="n">a</span>
+</span><a id="__codelineno-19-10" name="__codelineno-19-10"></a>
+<a id="__codelineno-19-11" name="__codelineno-19-11"></a><span class="nd">@apply_types</span>
+<a id="__codelineno-19-12" name="__codelineno-19-12"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">method</span><span class="p">(</span>
+<a id="__codelineno-19-13" name="__codelineno-19-13"></a>    <span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<a id="__codelineno-19-14" name="__codelineno-19-14"></a>    <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">simple_dependency</span><span class="p">),</span>
+<a id="__codelineno-19-15" name="__codelineno-19-15"></a>    <span class="n">c</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">another_dependency</span><span class="p">),</span>
+<a id="__codelineno-19-16" name="__codelineno-19-16"></a><span class="p">):</span>
+<a id="__codelineno-19-17" name="__codelineno-19-17"></a>    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">+</span> <span class="n">c</span>
+<a id="__codelineno-19-18" name="__codelineno-19-18"></a>
+<a id="__codelineno-19-19" name="__codelineno-19-19"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<a id="__codelineno-19-20" name="__codelineno-19-20"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">test_async_dependency</span><span class="p">():</span>
+<a id="__codelineno-19-21" name="__codelineno-19-21"></a>    <span class="k">assert</span> <span class="mi">6</span> <span class="o">==</span> <span class="k">await</span> <span class="n">method</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 <div class="admonition tip">
 <p class="admonition-title">Be careful</p>
@@ -2448,7 +2478,7 @@ of types in your project.</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-10-06T12:52:57+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-10-06</span>
       
     
   </small>

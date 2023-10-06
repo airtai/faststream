@@ -1105,6 +1105,8 @@
       
         
       
+        
+      
     
     
     
@@ -1237,6 +1239,26 @@
   
 
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../kafka/ack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Acknowledgement
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -2534,7 +2556,9 @@
 <span class="normal"><a href="#__codelineno-0-488">488</a></span>
 <span class="normal"><a href="#__codelineno-0-489">489</a></span>
 <span class="normal"><a href="#__codelineno-0-490">490</a></span>
-<span class="normal"><a href="#__codelineno-0-491">491</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="k">class</span> <span class="nc">RabbitBroker</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-491">491</a></span>
+<span class="normal"><a href="#__codelineno-0-492">492</a></span>
+<span class="normal"><a href="#__codelineno-0-493">493</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="k">class</span> <span class="nc">RabbitBroker</span><span class="p">(</span>
 <a id="__codelineno-0-44" name="__codelineno-0-44"></a>    <span class="n">RabbitLoggingMixin</span><span class="p">,</span>
 <a id="__codelineno-0-45" name="__codelineno-0-45"></a>    <span class="n">BrokerAsyncUsecase</span><span class="p">[</span><span class="n">aio_pika</span><span class="o">.</span><span class="n">IncomingMessage</span><span class="p">,</span> <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustConnection</span><span class="p">],</span>
 <a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="p">):</span>
@@ -2826,163 +2850,165 @@
 <a id="__codelineno-0-332" name="__codelineno-0-332"></a>        <span class="c1"># AsyncAPI information</span>
 <a id="__codelineno-0-333" name="__codelineno-0-333"></a>        <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-334" name="__codelineno-0-334"></a>        <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-335" name="__codelineno-0-335"></a>        <span class="o">**</span><span class="n">message_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-336" name="__codelineno-0-336"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Publisher</span><span class="p">:</span>
-<a id="__codelineno-0-337" name="__codelineno-0-337"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-338" name="__codelineno-0-338"></a><span class="sd">        Define a message publisher.</span>
-<a id="__codelineno-0-339" name="__codelineno-0-339"></a>
-<a id="__codelineno-0-340" name="__codelineno-0-340"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-341" name="__codelineno-0-341"></a><span class="sd">            queue (Union[RabbitQueue, str], optional): The name of the RabbitMQ queue. Defaults to &quot;&quot;.</span>
-<a id="__codelineno-0-342" name="__codelineno-0-342"></a><span class="sd">            exchange (Union[RabbitExchange, str, None], optional): The name of the RabbitMQ exchange. Defaults to None.</span>
-<a id="__codelineno-0-343" name="__codelineno-0-343"></a><span class="sd">            routing_key (str, optional): The routing key for messages. Defaults to &quot;&quot;.</span>
-<a id="__codelineno-0-344" name="__codelineno-0-344"></a><span class="sd">            mandatory (bool, optional): Whether the message is mandatory. Defaults to True.</span>
-<a id="__codelineno-0-345" name="__codelineno-0-345"></a><span class="sd">            immediate (bool, optional): Whether the message should be sent immediately. Defaults to False.</span>
-<a id="__codelineno-0-346" name="__codelineno-0-346"></a><span class="sd">            timeout (TimeoutType, optional): Timeout for message publishing. Defaults to None.</span>
-<a id="__codelineno-0-347" name="__codelineno-0-347"></a><span class="sd">            persist (bool, optional): Whether to persist messages. Defaults to False.</span>
-<a id="__codelineno-0-348" name="__codelineno-0-348"></a><span class="sd">            reply_to (Optional[str], optional): The reply-to queue name. Defaults to None.</span>
-<a id="__codelineno-0-349" name="__codelineno-0-349"></a><span class="sd">            title (Optional[str]): Title for AsyncAPI docs.</span>
-<a id="__codelineno-0-350" name="__codelineno-0-350"></a><span class="sd">            description (Optional[str]): Description for AsyncAPI docs.</span>
-<a id="__codelineno-0-351" name="__codelineno-0-351"></a><span class="sd">            **message_kwargs (Any): Additional message properties and content.</span>
-<a id="__codelineno-0-352" name="__codelineno-0-352"></a>
-<a id="__codelineno-0-353" name="__codelineno-0-353"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-354" name="__codelineno-0-354"></a><span class="sd">            Publisher: A message publisher instance.</span>
-<a id="__codelineno-0-355" name="__codelineno-0-355"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-356" name="__codelineno-0-356"></a>        <span class="n">q</span><span class="p">,</span> <span class="n">ex</span> <span class="o">=</span> <span class="n">RabbitQueue</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">queue</span><span class="p">),</span> <span class="n">RabbitExchange</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">exchange</span><span class="p">)</span>
-<a id="__codelineno-0-357" name="__codelineno-0-357"></a>        <span class="n">key</span> <span class="o">=</span> <span class="n">get_routing_hash</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">ex</span><span class="p">)</span>
-<a id="__codelineno-0-358" name="__codelineno-0-358"></a>        <span class="n">publisher</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_publishers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-<a id="__codelineno-0-359" name="__codelineno-0-359"></a>            <span class="n">key</span><span class="p">,</span>
-<a id="__codelineno-0-360" name="__codelineno-0-360"></a>            <span class="n">Publisher</span><span class="p">(</span>
-<a id="__codelineno-0-361" name="__codelineno-0-361"></a>                <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
-<a id="__codelineno-0-362" name="__codelineno-0-362"></a>                <span class="n">queue</span><span class="o">=</span><span class="n">q</span><span class="p">,</span>
-<a id="__codelineno-0-363" name="__codelineno-0-363"></a>                <span class="n">exchange</span><span class="o">=</span><span class="n">ex</span><span class="p">,</span>
-<a id="__codelineno-0-364" name="__codelineno-0-364"></a>                <span class="n">routing_key</span><span class="o">=</span><span class="n">routing_key</span><span class="p">,</span>
-<a id="__codelineno-0-365" name="__codelineno-0-365"></a>                <span class="n">mandatory</span><span class="o">=</span><span class="n">mandatory</span><span class="p">,</span>
-<a id="__codelineno-0-366" name="__codelineno-0-366"></a>                <span class="n">immediate</span><span class="o">=</span><span class="n">immediate</span><span class="p">,</span>
-<a id="__codelineno-0-367" name="__codelineno-0-367"></a>                <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
-<a id="__codelineno-0-368" name="__codelineno-0-368"></a>                <span class="n">persist</span><span class="o">=</span><span class="n">persist</span><span class="p">,</span>
-<a id="__codelineno-0-369" name="__codelineno-0-369"></a>                <span class="n">reply_to</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
-<a id="__codelineno-0-370" name="__codelineno-0-370"></a>                <span class="n">message_kwargs</span><span class="o">=</span><span class="n">message_kwargs</span><span class="p">,</span>
-<a id="__codelineno-0-371" name="__codelineno-0-371"></a>                <span class="n">_description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
-<a id="__codelineno-0-372" name="__codelineno-0-372"></a>            <span class="p">),</span>
-<a id="__codelineno-0-373" name="__codelineno-0-373"></a>        <span class="p">)</span>
-<a id="__codelineno-0-374" name="__codelineno-0-374"></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">publisher</span><span class="p">)</span>
-<a id="__codelineno-0-375" name="__codelineno-0-375"></a>        <span class="k">return</span> <span class="n">publisher</span>
-<a id="__codelineno-0-376" name="__codelineno-0-376"></a>
-<a id="__codelineno-0-377" name="__codelineno-0-377"></a>    <span class="nd">@override</span>
-<a id="__codelineno-0-378" name="__codelineno-0-378"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
-<a id="__codelineno-0-379" name="__codelineno-0-379"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-380" name="__codelineno-0-380"></a>        <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-381" name="__codelineno-0-381"></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-382" name="__codelineno-0-382"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">aiormq</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">ConfirmationFrameType</span><span class="p">,</span> <span class="n">SendableMessage</span><span class="p">]:</span>
-<a id="__codelineno-0-383" name="__codelineno-0-383"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-384" name="__codelineno-0-384"></a><span class="sd">        Publish a message to the RabbitMQ broker.</span>
-<a id="__codelineno-0-385" name="__codelineno-0-385"></a>
-<a id="__codelineno-0-386" name="__codelineno-0-386"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-387" name="__codelineno-0-387"></a><span class="sd">            *args: Additional positional arguments.</span>
-<a id="__codelineno-0-388" name="__codelineno-0-388"></a><span class="sd">            **kwargs: Additional keyword arguments.</span>
-<a id="__codelineno-0-389" name="__codelineno-0-389"></a>
-<a id="__codelineno-0-390" name="__codelineno-0-390"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-391" name="__codelineno-0-391"></a><span class="sd">            Union[aiormq.abc.ConfirmationFrameType, SendableMessage]: The confirmation frame or the response message.</span>
-<a id="__codelineno-0-392" name="__codelineno-0-392"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-393" name="__codelineno-0-393"></a>
-<a id="__codelineno-0-394" name="__codelineno-0-394"></a>        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="p">,</span> <span class="s2">&quot;RabbitBroker channel is not started yet&quot;</span>  <span class="c1"># nosec B101</span>
-<a id="__codelineno-0-395" name="__codelineno-0-395"></a>        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<a id="__codelineno-0-396" name="__codelineno-0-396"></a>
-<a id="__codelineno-0-397" name="__codelineno-0-397"></a>    <span class="k">def</span> <span class="nf">_process_message</span><span class="p">(</span>
-<a id="__codelineno-0-398" name="__codelineno-0-398"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-399" name="__codelineno-0-399"></a>        <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span>
-<a id="__codelineno-0-400" name="__codelineno-0-400"></a>            <span class="p">[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">aio_pika</span><span class="o">.</span><span class="n">IncomingMessage</span><span class="p">]],</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">T_HandlerReturn</span><span class="p">]</span>
-<a id="__codelineno-0-401" name="__codelineno-0-401"></a>        <span class="p">],</span>
-<a id="__codelineno-0-402" name="__codelineno-0-402"></a>        <span class="n">watcher</span><span class="p">:</span> <span class="n">BaseWatcher</span><span class="p">,</span>
-<a id="__codelineno-0-403" name="__codelineno-0-403"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span>
-<a id="__codelineno-0-404" name="__codelineno-0-404"></a>        <span class="p">[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">aio_pika</span><span class="o">.</span><span class="n">IncomingMessage</span><span class="p">]],</span>
-<a id="__codelineno-0-405" name="__codelineno-0-405"></a>        <span class="n">Awaitable</span><span class="p">[</span><span class="n">WrappedReturn</span><span class="p">[</span><span class="n">T_HandlerReturn</span><span class="p">]],</span>
-<a id="__codelineno-0-406" name="__codelineno-0-406"></a>    <span class="p">]:</span>
-<a id="__codelineno-0-407" name="__codelineno-0-407"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-408" name="__codelineno-0-408"></a><span class="sd">        Process a message using the provided handler function.</span>
-<a id="__codelineno-0-409" name="__codelineno-0-409"></a>
-<a id="__codelineno-0-410" name="__codelineno-0-410"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-411" name="__codelineno-0-411"></a><span class="sd">            func (Callable): The handler function for processing the message.</span>
-<a id="__codelineno-0-412" name="__codelineno-0-412"></a><span class="sd">            watcher (BaseWatcher): The message watcher for tracking message processing.</span>
-<a id="__codelineno-0-413" name="__codelineno-0-413"></a>
-<a id="__codelineno-0-414" name="__codelineno-0-414"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-415" name="__codelineno-0-415"></a><span class="sd">            Callable: A wrapper function for processing messages.</span>
-<a id="__codelineno-0-416" name="__codelineno-0-416"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-417" name="__codelineno-0-417"></a>
-<a id="__codelineno-0-418" name="__codelineno-0-418"></a>        <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-<a id="__codelineno-0-419" name="__codelineno-0-419"></a>        <span class="k">async</span> <span class="k">def</span> <span class="nf">process_wrapper</span><span class="p">(</span>
-<a id="__codelineno-0-420" name="__codelineno-0-420"></a>            <span class="n">message</span><span class="p">:</span> <span class="n">RabbitMessage</span><span class="p">,</span>
-<a id="__codelineno-0-421" name="__codelineno-0-421"></a>        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WrappedReturn</span><span class="p">[</span><span class="n">T_HandlerReturn</span><span class="p">]:</span>
-<a id="__codelineno-0-422" name="__codelineno-0-422"></a><span class="w">            </span><span class="sd">&quot;&quot;&quot;Asynchronously process a message and wrap the return value.</span>
-<a id="__codelineno-0-423" name="__codelineno-0-423"></a>
-<a id="__codelineno-0-424" name="__codelineno-0-424"></a><span class="sd">            Args:</span>
-<a id="__codelineno-0-425" name="__codelineno-0-425"></a><span class="sd">                message: The RabbitMessage to process.</span>
-<a id="__codelineno-0-426" name="__codelineno-0-426"></a>
-<a id="__codelineno-0-427" name="__codelineno-0-427"></a><span class="sd">            Returns:</span>
-<a id="__codelineno-0-428" name="__codelineno-0-428"></a><span class="sd">                A tuple containing the return value of the handler function and an optional AsyncPublisherProtocol.</span>
-<a id="__codelineno-0-429" name="__codelineno-0-429"></a>
-<a id="__codelineno-0-430" name="__codelineno-0-430"></a><span class="sd">            Raises:</span>
-<a id="__codelineno-0-431" name="__codelineno-0-431"></a><span class="sd">                AssertionError: If the code reaches an unreachable point.</span>
-<a id="__codelineno-0-432" name="__codelineno-0-432"></a><span class="sd">            !!! note</span>
-<a id="__codelineno-0-433" name="__codelineno-0-433"></a>
-<a id="__codelineno-0-434" name="__codelineno-0-434"></a><span class="sd">                The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<a id="__codelineno-0-435" name="__codelineno-0-435"></a><span class="sd">            &quot;&quot;&quot;</span>
-<a id="__codelineno-0-436" name="__codelineno-0-436"></a>            <span class="k">async</span> <span class="k">with</span> <span class="n">WatcherContext</span><span class="p">(</span><span class="n">watcher</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
-<a id="__codelineno-0-437" name="__codelineno-0-437"></a>                <span class="n">r</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute_handler</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
-<a id="__codelineno-0-438" name="__codelineno-0-438"></a>
-<a id="__codelineno-0-439" name="__codelineno-0-439"></a>                <span class="n">pub_response</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncPublisherProtocol</span><span class="p">]</span>
-<a id="__codelineno-0-440" name="__codelineno-0-440"></a>                <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">reply_to</span><span class="p">:</span>
-<a id="__codelineno-0-441" name="__codelineno-0-441"></a>                    <span class="n">pub_response</span> <span class="o">=</span> <span class="n">FakePublisher</span><span class="p">(</span>
-<a id="__codelineno-0-442" name="__codelineno-0-442"></a>                        <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">publish</span><span class="p">,</span> <span class="n">routing_key</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">reply_to</span><span class="p">)</span>
-<a id="__codelineno-0-443" name="__codelineno-0-443"></a>                    <span class="p">)</span>
-<a id="__codelineno-0-444" name="__codelineno-0-444"></a>                <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-0-445" name="__codelineno-0-445"></a>                    <span class="n">pub_response</span> <span class="o">=</span> <span class="kc">None</span>
-<a id="__codelineno-0-446" name="__codelineno-0-446"></a>
-<a id="__codelineno-0-447" name="__codelineno-0-447"></a>                <span class="k">return</span> <span class="n">r</span><span class="p">,</span> <span class="n">pub_response</span>
+<a id="__codelineno-0-335" name="__codelineno-0-335"></a>        <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-336" name="__codelineno-0-336"></a>        <span class="o">**</span><span class="n">message_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-337" name="__codelineno-0-337"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Publisher</span><span class="p">:</span>
+<a id="__codelineno-0-338" name="__codelineno-0-338"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-339" name="__codelineno-0-339"></a><span class="sd">        Define a message publisher.</span>
+<a id="__codelineno-0-340" name="__codelineno-0-340"></a>
+<a id="__codelineno-0-341" name="__codelineno-0-341"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-342" name="__codelineno-0-342"></a><span class="sd">            queue (Union[RabbitQueue, str], optional): The name of the RabbitMQ queue. Defaults to &quot;&quot;.</span>
+<a id="__codelineno-0-343" name="__codelineno-0-343"></a><span class="sd">            exchange (Union[RabbitExchange, str, None], optional): The name of the RabbitMQ exchange. Defaults to None.</span>
+<a id="__codelineno-0-344" name="__codelineno-0-344"></a><span class="sd">            routing_key (str, optional): The routing key for messages. Defaults to &quot;&quot;.</span>
+<a id="__codelineno-0-345" name="__codelineno-0-345"></a><span class="sd">            mandatory (bool, optional): Whether the message is mandatory. Defaults to True.</span>
+<a id="__codelineno-0-346" name="__codelineno-0-346"></a><span class="sd">            immediate (bool, optional): Whether the message should be sent immediately. Defaults to False.</span>
+<a id="__codelineno-0-347" name="__codelineno-0-347"></a><span class="sd">            timeout (TimeoutType, optional): Timeout for message publishing. Defaults to None.</span>
+<a id="__codelineno-0-348" name="__codelineno-0-348"></a><span class="sd">            persist (bool, optional): Whether to persist messages. Defaults to False.</span>
+<a id="__codelineno-0-349" name="__codelineno-0-349"></a><span class="sd">            reply_to (Optional[str], optional): The reply-to queue name. Defaults to None.</span>
+<a id="__codelineno-0-350" name="__codelineno-0-350"></a><span class="sd">            title (Optional[str]): Title for AsyncAPI docs.</span>
+<a id="__codelineno-0-351" name="__codelineno-0-351"></a><span class="sd">            description (Optional[str]): Description for AsyncAPI docs.</span>
+<a id="__codelineno-0-352" name="__codelineno-0-352"></a><span class="sd">            **message_kwargs (Any): Additional message properties and content.</span>
+<a id="__codelineno-0-353" name="__codelineno-0-353"></a>
+<a id="__codelineno-0-354" name="__codelineno-0-354"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-355" name="__codelineno-0-355"></a><span class="sd">            Publisher: A message publisher instance.</span>
+<a id="__codelineno-0-356" name="__codelineno-0-356"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-357" name="__codelineno-0-357"></a>        <span class="n">q</span><span class="p">,</span> <span class="n">ex</span> <span class="o">=</span> <span class="n">RabbitQueue</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">queue</span><span class="p">),</span> <span class="n">RabbitExchange</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">exchange</span><span class="p">)</span>
+<a id="__codelineno-0-358" name="__codelineno-0-358"></a>        <span class="n">key</span> <span class="o">=</span> <span class="n">get_routing_hash</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">ex</span><span class="p">)</span>
+<a id="__codelineno-0-359" name="__codelineno-0-359"></a>        <span class="n">publisher</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_publishers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+<a id="__codelineno-0-360" name="__codelineno-0-360"></a>            <span class="n">key</span><span class="p">,</span>
+<a id="__codelineno-0-361" name="__codelineno-0-361"></a>            <span class="n">Publisher</span><span class="p">(</span>
+<a id="__codelineno-0-362" name="__codelineno-0-362"></a>                <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+<a id="__codelineno-0-363" name="__codelineno-0-363"></a>                <span class="n">queue</span><span class="o">=</span><span class="n">q</span><span class="p">,</span>
+<a id="__codelineno-0-364" name="__codelineno-0-364"></a>                <span class="n">exchange</span><span class="o">=</span><span class="n">ex</span><span class="p">,</span>
+<a id="__codelineno-0-365" name="__codelineno-0-365"></a>                <span class="n">routing_key</span><span class="o">=</span><span class="n">routing_key</span><span class="p">,</span>
+<a id="__codelineno-0-366" name="__codelineno-0-366"></a>                <span class="n">mandatory</span><span class="o">=</span><span class="n">mandatory</span><span class="p">,</span>
+<a id="__codelineno-0-367" name="__codelineno-0-367"></a>                <span class="n">immediate</span><span class="o">=</span><span class="n">immediate</span><span class="p">,</span>
+<a id="__codelineno-0-368" name="__codelineno-0-368"></a>                <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+<a id="__codelineno-0-369" name="__codelineno-0-369"></a>                <span class="n">persist</span><span class="o">=</span><span class="n">persist</span><span class="p">,</span>
+<a id="__codelineno-0-370" name="__codelineno-0-370"></a>                <span class="n">reply_to</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
+<a id="__codelineno-0-371" name="__codelineno-0-371"></a>                <span class="n">message_kwargs</span><span class="o">=</span><span class="n">message_kwargs</span><span class="p">,</span>
+<a id="__codelineno-0-372" name="__codelineno-0-372"></a>                <span class="n">_description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+<a id="__codelineno-0-373" name="__codelineno-0-373"></a>                <span class="n">_schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
+<a id="__codelineno-0-374" name="__codelineno-0-374"></a>            <span class="p">),</span>
+<a id="__codelineno-0-375" name="__codelineno-0-375"></a>        <span class="p">)</span>
+<a id="__codelineno-0-376" name="__codelineno-0-376"></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">publisher</span><span class="p">)</span>
+<a id="__codelineno-0-377" name="__codelineno-0-377"></a>        <span class="k">return</span> <span class="n">publisher</span>
+<a id="__codelineno-0-378" name="__codelineno-0-378"></a>
+<a id="__codelineno-0-379" name="__codelineno-0-379"></a>    <span class="nd">@override</span>
+<a id="__codelineno-0-380" name="__codelineno-0-380"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
+<a id="__codelineno-0-381" name="__codelineno-0-381"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-382" name="__codelineno-0-382"></a>        <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-383" name="__codelineno-0-383"></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-384" name="__codelineno-0-384"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">aiormq</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">ConfirmationFrameType</span><span class="p">,</span> <span class="n">SendableMessage</span><span class="p">]:</span>
+<a id="__codelineno-0-385" name="__codelineno-0-385"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-386" name="__codelineno-0-386"></a><span class="sd">        Publish a message to the RabbitMQ broker.</span>
+<a id="__codelineno-0-387" name="__codelineno-0-387"></a>
+<a id="__codelineno-0-388" name="__codelineno-0-388"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-389" name="__codelineno-0-389"></a><span class="sd">            *args: Additional positional arguments.</span>
+<a id="__codelineno-0-390" name="__codelineno-0-390"></a><span class="sd">            **kwargs: Additional keyword arguments.</span>
+<a id="__codelineno-0-391" name="__codelineno-0-391"></a>
+<a id="__codelineno-0-392" name="__codelineno-0-392"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-393" name="__codelineno-0-393"></a><span class="sd">            Union[aiormq.abc.ConfirmationFrameType, SendableMessage]: The confirmation frame or the response message.</span>
+<a id="__codelineno-0-394" name="__codelineno-0-394"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-395" name="__codelineno-0-395"></a>
+<a id="__codelineno-0-396" name="__codelineno-0-396"></a>        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="p">,</span> <span class="s2">&quot;RabbitBroker channel is not started yet&quot;</span>  <span class="c1"># nosec B101</span>
+<a id="__codelineno-0-397" name="__codelineno-0-397"></a>        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<a id="__codelineno-0-398" name="__codelineno-0-398"></a>
+<a id="__codelineno-0-399" name="__codelineno-0-399"></a>    <span class="k">def</span> <span class="nf">_process_message</span><span class="p">(</span>
+<a id="__codelineno-0-400" name="__codelineno-0-400"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-401" name="__codelineno-0-401"></a>        <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span>
+<a id="__codelineno-0-402" name="__codelineno-0-402"></a>            <span class="p">[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">aio_pika</span><span class="o">.</span><span class="n">IncomingMessage</span><span class="p">]],</span> <span class="n">Awaitable</span><span class="p">[</span><span class="n">T_HandlerReturn</span><span class="p">]</span>
+<a id="__codelineno-0-403" name="__codelineno-0-403"></a>        <span class="p">],</span>
+<a id="__codelineno-0-404" name="__codelineno-0-404"></a>        <span class="n">watcher</span><span class="p">:</span> <span class="n">BaseWatcher</span><span class="p">,</span>
+<a id="__codelineno-0-405" name="__codelineno-0-405"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span>
+<a id="__codelineno-0-406" name="__codelineno-0-406"></a>        <span class="p">[</span><span class="n">StreamMessage</span><span class="p">[</span><span class="n">aio_pika</span><span class="o">.</span><span class="n">IncomingMessage</span><span class="p">]],</span>
+<a id="__codelineno-0-407" name="__codelineno-0-407"></a>        <span class="n">Awaitable</span><span class="p">[</span><span class="n">WrappedReturn</span><span class="p">[</span><span class="n">T_HandlerReturn</span><span class="p">]],</span>
+<a id="__codelineno-0-408" name="__codelineno-0-408"></a>    <span class="p">]:</span>
+<a id="__codelineno-0-409" name="__codelineno-0-409"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-410" name="__codelineno-0-410"></a><span class="sd">        Process a message using the provided handler function.</span>
+<a id="__codelineno-0-411" name="__codelineno-0-411"></a>
+<a id="__codelineno-0-412" name="__codelineno-0-412"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-413" name="__codelineno-0-413"></a><span class="sd">            func (Callable): The handler function for processing the message.</span>
+<a id="__codelineno-0-414" name="__codelineno-0-414"></a><span class="sd">            watcher (BaseWatcher): The message watcher for tracking message processing.</span>
+<a id="__codelineno-0-415" name="__codelineno-0-415"></a>
+<a id="__codelineno-0-416" name="__codelineno-0-416"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-417" name="__codelineno-0-417"></a><span class="sd">            Callable: A wrapper function for processing messages.</span>
+<a id="__codelineno-0-418" name="__codelineno-0-418"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-419" name="__codelineno-0-419"></a>
+<a id="__codelineno-0-420" name="__codelineno-0-420"></a>        <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+<a id="__codelineno-0-421" name="__codelineno-0-421"></a>        <span class="k">async</span> <span class="k">def</span> <span class="nf">process_wrapper</span><span class="p">(</span>
+<a id="__codelineno-0-422" name="__codelineno-0-422"></a>            <span class="n">message</span><span class="p">:</span> <span class="n">RabbitMessage</span><span class="p">,</span>
+<a id="__codelineno-0-423" name="__codelineno-0-423"></a>        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WrappedReturn</span><span class="p">[</span><span class="n">T_HandlerReturn</span><span class="p">]:</span>
+<a id="__codelineno-0-424" name="__codelineno-0-424"></a><span class="w">            </span><span class="sd">&quot;&quot;&quot;Asynchronously process a message and wrap the return value.</span>
+<a id="__codelineno-0-425" name="__codelineno-0-425"></a>
+<a id="__codelineno-0-426" name="__codelineno-0-426"></a><span class="sd">            Args:</span>
+<a id="__codelineno-0-427" name="__codelineno-0-427"></a><span class="sd">                message: The RabbitMessage to process.</span>
+<a id="__codelineno-0-428" name="__codelineno-0-428"></a>
+<a id="__codelineno-0-429" name="__codelineno-0-429"></a><span class="sd">            Returns:</span>
+<a id="__codelineno-0-430" name="__codelineno-0-430"></a><span class="sd">                A tuple containing the return value of the handler function and an optional AsyncPublisherProtocol.</span>
+<a id="__codelineno-0-431" name="__codelineno-0-431"></a>
+<a id="__codelineno-0-432" name="__codelineno-0-432"></a><span class="sd">            Raises:</span>
+<a id="__codelineno-0-433" name="__codelineno-0-433"></a><span class="sd">                AssertionError: If the code reaches an unreachable point.</span>
+<a id="__codelineno-0-434" name="__codelineno-0-434"></a><span class="sd">            !!! note</span>
+<a id="__codelineno-0-435" name="__codelineno-0-435"></a>
+<a id="__codelineno-0-436" name="__codelineno-0-436"></a><span class="sd">                The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-437" name="__codelineno-0-437"></a><span class="sd">            &quot;&quot;&quot;</span>
+<a id="__codelineno-0-438" name="__codelineno-0-438"></a>            <span class="k">async</span> <span class="k">with</span> <span class="n">WatcherContext</span><span class="p">(</span><span class="n">watcher</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<a id="__codelineno-0-439" name="__codelineno-0-439"></a>                <span class="n">r</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_execute_handler</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+<a id="__codelineno-0-440" name="__codelineno-0-440"></a>
+<a id="__codelineno-0-441" name="__codelineno-0-441"></a>                <span class="n">pub_response</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AsyncPublisherProtocol</span><span class="p">]</span>
+<a id="__codelineno-0-442" name="__codelineno-0-442"></a>                <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">reply_to</span><span class="p">:</span>
+<a id="__codelineno-0-443" name="__codelineno-0-443"></a>                    <span class="n">pub_response</span> <span class="o">=</span> <span class="n">FakePublisher</span><span class="p">(</span>
+<a id="__codelineno-0-444" name="__codelineno-0-444"></a>                        <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">publish</span><span class="p">,</span> <span class="n">routing_key</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">reply_to</span><span class="p">)</span>
+<a id="__codelineno-0-445" name="__codelineno-0-445"></a>                    <span class="p">)</span>
+<a id="__codelineno-0-446" name="__codelineno-0-446"></a>                <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-0-447" name="__codelineno-0-447"></a>                    <span class="n">pub_response</span> <span class="o">=</span> <span class="kc">None</span>
 <a id="__codelineno-0-448" name="__codelineno-0-448"></a>
-<a id="__codelineno-0-449" name="__codelineno-0-449"></a>        <span class="k">return</span> <span class="n">process_wrapper</span>
+<a id="__codelineno-0-449" name="__codelineno-0-449"></a>                <span class="k">return</span> <span class="n">r</span><span class="p">,</span> <span class="n">pub_response</span>
 <a id="__codelineno-0-450" name="__codelineno-0-450"></a>
-<a id="__codelineno-0-451" name="__codelineno-0-451"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_queue</span><span class="p">(</span>
-<a id="__codelineno-0-452" name="__codelineno-0-452"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-453" name="__codelineno-0-453"></a>        <span class="n">queue</span><span class="p">:</span> <span class="n">RabbitQueue</span><span class="p">,</span>
-<a id="__codelineno-0-454" name="__codelineno-0-454"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustQueue</span><span class="p">:</span>
-<a id="__codelineno-0-455" name="__codelineno-0-455"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-456" name="__codelineno-0-456"></a><span class="sd">        Declare a RabbitMQ queue.</span>
-<a id="__codelineno-0-457" name="__codelineno-0-457"></a>
-<a id="__codelineno-0-458" name="__codelineno-0-458"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-459" name="__codelineno-0-459"></a><span class="sd">            queue (RabbitQueue): The RabbitMQ queue to declare.</span>
-<a id="__codelineno-0-460" name="__codelineno-0-460"></a>
-<a id="__codelineno-0-461" name="__codelineno-0-461"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-462" name="__codelineno-0-462"></a><span class="sd">            aio_pika.RobustQueue: The declared RabbitMQ queue.</span>
-<a id="__codelineno-0-463" name="__codelineno-0-463"></a>
-<a id="__codelineno-0-464" name="__codelineno-0-464"></a><span class="sd">        Raises:</span>
-<a id="__codelineno-0-465" name="__codelineno-0-465"></a><span class="sd">            RuntimeError: If the declarer is not initialized in the `connect` method.</span>
-<a id="__codelineno-0-466" name="__codelineno-0-466"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-467" name="__codelineno-0-467"></a>        <span class="k">assert</span> <span class="p">(</span>  <span class="c1"># nosec B101</span>
-<a id="__codelineno-0-468" name="__codelineno-0-468"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">declarer</span>
-<a id="__codelineno-0-469" name="__codelineno-0-469"></a>        <span class="p">),</span> <span class="s2">&quot;Declarer should be initialized in `connect` method&quot;</span>
-<a id="__codelineno-0-470" name="__codelineno-0-470"></a>        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declarer</span><span class="o">.</span><span class="n">declare_queue</span><span class="p">(</span><span class="n">queue</span><span class="p">)</span>
-<a id="__codelineno-0-471" name="__codelineno-0-471"></a>
-<a id="__codelineno-0-472" name="__codelineno-0-472"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_exchange</span><span class="p">(</span>
-<a id="__codelineno-0-473" name="__codelineno-0-473"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-474" name="__codelineno-0-474"></a>        <span class="n">exchange</span><span class="p">:</span> <span class="n">RabbitExchange</span><span class="p">,</span>
-<a id="__codelineno-0-475" name="__codelineno-0-475"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustExchange</span><span class="p">:</span>
-<a id="__codelineno-0-476" name="__codelineno-0-476"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-477" name="__codelineno-0-477"></a><span class="sd">        Declare a RabbitMQ exchange.</span>
-<a id="__codelineno-0-478" name="__codelineno-0-478"></a>
-<a id="__codelineno-0-479" name="__codelineno-0-479"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-480" name="__codelineno-0-480"></a><span class="sd">            exchange (RabbitExchange): The RabbitMQ exchange to declare.</span>
-<a id="__codelineno-0-481" name="__codelineno-0-481"></a>
-<a id="__codelineno-0-482" name="__codelineno-0-482"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-483" name="__codelineno-0-483"></a><span class="sd">            aio_pika.RobustExchange: The declared RabbitMQ exchange.</span>
-<a id="__codelineno-0-484" name="__codelineno-0-484"></a>
-<a id="__codelineno-0-485" name="__codelineno-0-485"></a><span class="sd">        Raises:</span>
-<a id="__codelineno-0-486" name="__codelineno-0-486"></a><span class="sd">            RuntimeError: If the declarer is not initialized in the `connect` method.</span>
-<a id="__codelineno-0-487" name="__codelineno-0-487"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-488" name="__codelineno-0-488"></a>        <span class="k">assert</span> <span class="p">(</span>  <span class="c1"># nosec B101</span>
-<a id="__codelineno-0-489" name="__codelineno-0-489"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">declarer</span>
-<a id="__codelineno-0-490" name="__codelineno-0-490"></a>        <span class="p">),</span> <span class="s2">&quot;Declarer should be initialized in `connect` method&quot;</span>
-<a id="__codelineno-0-491" name="__codelineno-0-491"></a>        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declarer</span><span class="o">.</span><span class="n">declare_exchange</span><span class="p">(</span><span class="n">exchange</span><span class="p">)</span>
+<a id="__codelineno-0-451" name="__codelineno-0-451"></a>        <span class="k">return</span> <span class="n">process_wrapper</span>
+<a id="__codelineno-0-452" name="__codelineno-0-452"></a>
+<a id="__codelineno-0-453" name="__codelineno-0-453"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_queue</span><span class="p">(</span>
+<a id="__codelineno-0-454" name="__codelineno-0-454"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-455" name="__codelineno-0-455"></a>        <span class="n">queue</span><span class="p">:</span> <span class="n">RabbitQueue</span><span class="p">,</span>
+<a id="__codelineno-0-456" name="__codelineno-0-456"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustQueue</span><span class="p">:</span>
+<a id="__codelineno-0-457" name="__codelineno-0-457"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-458" name="__codelineno-0-458"></a><span class="sd">        Declare a RabbitMQ queue.</span>
+<a id="__codelineno-0-459" name="__codelineno-0-459"></a>
+<a id="__codelineno-0-460" name="__codelineno-0-460"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-461" name="__codelineno-0-461"></a><span class="sd">            queue (RabbitQueue): The RabbitMQ queue to declare.</span>
+<a id="__codelineno-0-462" name="__codelineno-0-462"></a>
+<a id="__codelineno-0-463" name="__codelineno-0-463"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-464" name="__codelineno-0-464"></a><span class="sd">            aio_pika.RobustQueue: The declared RabbitMQ queue.</span>
+<a id="__codelineno-0-465" name="__codelineno-0-465"></a>
+<a id="__codelineno-0-466" name="__codelineno-0-466"></a><span class="sd">        Raises:</span>
+<a id="__codelineno-0-467" name="__codelineno-0-467"></a><span class="sd">            RuntimeError: If the declarer is not initialized in the `connect` method.</span>
+<a id="__codelineno-0-468" name="__codelineno-0-468"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-469" name="__codelineno-0-469"></a>        <span class="k">assert</span> <span class="p">(</span>  <span class="c1"># nosec B101</span>
+<a id="__codelineno-0-470" name="__codelineno-0-470"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">declarer</span>
+<a id="__codelineno-0-471" name="__codelineno-0-471"></a>        <span class="p">),</span> <span class="s2">&quot;Declarer should be initialized in `connect` method&quot;</span>
+<a id="__codelineno-0-472" name="__codelineno-0-472"></a>        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declarer</span><span class="o">.</span><span class="n">declare_queue</span><span class="p">(</span><span class="n">queue</span><span class="p">)</span>
+<a id="__codelineno-0-473" name="__codelineno-0-473"></a>
+<a id="__codelineno-0-474" name="__codelineno-0-474"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_exchange</span><span class="p">(</span>
+<a id="__codelineno-0-475" name="__codelineno-0-475"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-476" name="__codelineno-0-476"></a>        <span class="n">exchange</span><span class="p">:</span> <span class="n">RabbitExchange</span><span class="p">,</span>
+<a id="__codelineno-0-477" name="__codelineno-0-477"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustExchange</span><span class="p">:</span>
+<a id="__codelineno-0-478" name="__codelineno-0-478"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-479" name="__codelineno-0-479"></a><span class="sd">        Declare a RabbitMQ exchange.</span>
+<a id="__codelineno-0-480" name="__codelineno-0-480"></a>
+<a id="__codelineno-0-481" name="__codelineno-0-481"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-482" name="__codelineno-0-482"></a><span class="sd">            exchange (RabbitExchange): The RabbitMQ exchange to declare.</span>
+<a id="__codelineno-0-483" name="__codelineno-0-483"></a>
+<a id="__codelineno-0-484" name="__codelineno-0-484"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-485" name="__codelineno-0-485"></a><span class="sd">            aio_pika.RobustExchange: The declared RabbitMQ exchange.</span>
+<a id="__codelineno-0-486" name="__codelineno-0-486"></a>
+<a id="__codelineno-0-487" name="__codelineno-0-487"></a><span class="sd">        Raises:</span>
+<a id="__codelineno-0-488" name="__codelineno-0-488"></a><span class="sd">            RuntimeError: If the declarer is not initialized in the `connect` method.</span>
+<a id="__codelineno-0-489" name="__codelineno-0-489"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-490" name="__codelineno-0-490"></a>        <span class="k">assert</span> <span class="p">(</span>  <span class="c1"># nosec B101</span>
+<a id="__codelineno-0-491" name="__codelineno-0-491"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">declarer</span>
+<a id="__codelineno-0-492" name="__codelineno-0-492"></a>        <span class="p">),</span> <span class="s2">&quot;Declarer should be initialized in `connect` method&quot;</span>
+<a id="__codelineno-0-493" name="__codelineno-0-493"></a>        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declarer</span><span class="o">.</span><span class="n">declare_exchange</span><span class="p">(</span><span class="n">exchange</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
 
@@ -3280,9 +3306,7 @@
 
           <details class="quote">
             <summary>Source code in <code>faststream/rabbit/broker.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-472">472</a></span>
-<span class="normal"><a href="#__codelineno-0-473">473</a></span>
-<span class="normal"><a href="#__codelineno-0-474">474</a></span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-474">474</a></span>
 <span class="normal"><a href="#__codelineno-0-475">475</a></span>
 <span class="normal"><a href="#__codelineno-0-476">476</a></span>
 <span class="normal"><a href="#__codelineno-0-477">477</a></span>
@@ -3299,26 +3323,28 @@
 <span class="normal"><a href="#__codelineno-0-488">488</a></span>
 <span class="normal"><a href="#__codelineno-0-489">489</a></span>
 <span class="normal"><a href="#__codelineno-0-490">490</a></span>
-<span class="normal"><a href="#__codelineno-0-491">491</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-472" name="__codelineno-0-472"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">declare_exchange</span><span class="p">(</span>
-<a id="__codelineno-0-473" name="__codelineno-0-473"></a>    <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-474" name="__codelineno-0-474"></a>    <span class="n">exchange</span><span class="p">:</span> <span class="n">RabbitExchange</span><span class="p">,</span>
-<a id="__codelineno-0-475" name="__codelineno-0-475"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustExchange</span><span class="p">:</span>
-<a id="__codelineno-0-476" name="__codelineno-0-476"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-477" name="__codelineno-0-477"></a><span class="sd">    Declare a RabbitMQ exchange.</span>
-<a id="__codelineno-0-478" name="__codelineno-0-478"></a>
-<a id="__codelineno-0-479" name="__codelineno-0-479"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-480" name="__codelineno-0-480"></a><span class="sd">        exchange (RabbitExchange): The RabbitMQ exchange to declare.</span>
-<a id="__codelineno-0-481" name="__codelineno-0-481"></a>
-<a id="__codelineno-0-482" name="__codelineno-0-482"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-0-483" name="__codelineno-0-483"></a><span class="sd">        aio_pika.RobustExchange: The declared RabbitMQ exchange.</span>
-<a id="__codelineno-0-484" name="__codelineno-0-484"></a>
-<a id="__codelineno-0-485" name="__codelineno-0-485"></a><span class="sd">    Raises:</span>
-<a id="__codelineno-0-486" name="__codelineno-0-486"></a><span class="sd">        RuntimeError: If the declarer is not initialized in the `connect` method.</span>
-<a id="__codelineno-0-487" name="__codelineno-0-487"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-488" name="__codelineno-0-488"></a>    <span class="k">assert</span> <span class="p">(</span>  <span class="c1"># nosec B101</span>
-<a id="__codelineno-0-489" name="__codelineno-0-489"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">declarer</span>
-<a id="__codelineno-0-490" name="__codelineno-0-490"></a>    <span class="p">),</span> <span class="s2">&quot;Declarer should be initialized in `connect` method&quot;</span>
-<a id="__codelineno-0-491" name="__codelineno-0-491"></a>    <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declarer</span><span class="o">.</span><span class="n">declare_exchange</span><span class="p">(</span><span class="n">exchange</span><span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-491">491</a></span>
+<span class="normal"><a href="#__codelineno-0-492">492</a></span>
+<span class="normal"><a href="#__codelineno-0-493">493</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-474" name="__codelineno-0-474"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">declare_exchange</span><span class="p">(</span>
+<a id="__codelineno-0-475" name="__codelineno-0-475"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-476" name="__codelineno-0-476"></a>    <span class="n">exchange</span><span class="p">:</span> <span class="n">RabbitExchange</span><span class="p">,</span>
+<a id="__codelineno-0-477" name="__codelineno-0-477"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustExchange</span><span class="p">:</span>
+<a id="__codelineno-0-478" name="__codelineno-0-478"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-479" name="__codelineno-0-479"></a><span class="sd">    Declare a RabbitMQ exchange.</span>
+<a id="__codelineno-0-480" name="__codelineno-0-480"></a>
+<a id="__codelineno-0-481" name="__codelineno-0-481"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-482" name="__codelineno-0-482"></a><span class="sd">        exchange (RabbitExchange): The RabbitMQ exchange to declare.</span>
+<a id="__codelineno-0-483" name="__codelineno-0-483"></a>
+<a id="__codelineno-0-484" name="__codelineno-0-484"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-485" name="__codelineno-0-485"></a><span class="sd">        aio_pika.RobustExchange: The declared RabbitMQ exchange.</span>
+<a id="__codelineno-0-486" name="__codelineno-0-486"></a>
+<a id="__codelineno-0-487" name="__codelineno-0-487"></a><span class="sd">    Raises:</span>
+<a id="__codelineno-0-488" name="__codelineno-0-488"></a><span class="sd">        RuntimeError: If the declarer is not initialized in the `connect` method.</span>
+<a id="__codelineno-0-489" name="__codelineno-0-489"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-490" name="__codelineno-0-490"></a>    <span class="k">assert</span> <span class="p">(</span>  <span class="c1"># nosec B101</span>
+<a id="__codelineno-0-491" name="__codelineno-0-491"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">declarer</span>
+<a id="__codelineno-0-492" name="__codelineno-0-492"></a>    <span class="p">),</span> <span class="s2">&quot;Declarer should be initialized in `connect` method&quot;</span>
+<a id="__codelineno-0-493" name="__codelineno-0-493"></a>    <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declarer</span><span class="o">.</span><span class="n">declare_exchange</span><span class="p">(</span><span class="n">exchange</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -3426,9 +3452,7 @@
 
           <details class="quote">
             <summary>Source code in <code>faststream/rabbit/broker.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-451">451</a></span>
-<span class="normal"><a href="#__codelineno-0-452">452</a></span>
-<span class="normal"><a href="#__codelineno-0-453">453</a></span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-453">453</a></span>
 <span class="normal"><a href="#__codelineno-0-454">454</a></span>
 <span class="normal"><a href="#__codelineno-0-455">455</a></span>
 <span class="normal"><a href="#__codelineno-0-456">456</a></span>
@@ -3445,26 +3469,28 @@
 <span class="normal"><a href="#__codelineno-0-467">467</a></span>
 <span class="normal"><a href="#__codelineno-0-468">468</a></span>
 <span class="normal"><a href="#__codelineno-0-469">469</a></span>
-<span class="normal"><a href="#__codelineno-0-470">470</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-451" name="__codelineno-0-451"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">declare_queue</span><span class="p">(</span>
-<a id="__codelineno-0-452" name="__codelineno-0-452"></a>    <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-453" name="__codelineno-0-453"></a>    <span class="n">queue</span><span class="p">:</span> <span class="n">RabbitQueue</span><span class="p">,</span>
-<a id="__codelineno-0-454" name="__codelineno-0-454"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustQueue</span><span class="p">:</span>
-<a id="__codelineno-0-455" name="__codelineno-0-455"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-456" name="__codelineno-0-456"></a><span class="sd">    Declare a RabbitMQ queue.</span>
-<a id="__codelineno-0-457" name="__codelineno-0-457"></a>
-<a id="__codelineno-0-458" name="__codelineno-0-458"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-459" name="__codelineno-0-459"></a><span class="sd">        queue (RabbitQueue): The RabbitMQ queue to declare.</span>
-<a id="__codelineno-0-460" name="__codelineno-0-460"></a>
-<a id="__codelineno-0-461" name="__codelineno-0-461"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-0-462" name="__codelineno-0-462"></a><span class="sd">        aio_pika.RobustQueue: The declared RabbitMQ queue.</span>
-<a id="__codelineno-0-463" name="__codelineno-0-463"></a>
-<a id="__codelineno-0-464" name="__codelineno-0-464"></a><span class="sd">    Raises:</span>
-<a id="__codelineno-0-465" name="__codelineno-0-465"></a><span class="sd">        RuntimeError: If the declarer is not initialized in the `connect` method.</span>
-<a id="__codelineno-0-466" name="__codelineno-0-466"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-467" name="__codelineno-0-467"></a>    <span class="k">assert</span> <span class="p">(</span>  <span class="c1"># nosec B101</span>
-<a id="__codelineno-0-468" name="__codelineno-0-468"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">declarer</span>
-<a id="__codelineno-0-469" name="__codelineno-0-469"></a>    <span class="p">),</span> <span class="s2">&quot;Declarer should be initialized in `connect` method&quot;</span>
-<a id="__codelineno-0-470" name="__codelineno-0-470"></a>    <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declarer</span><span class="o">.</span><span class="n">declare_queue</span><span class="p">(</span><span class="n">queue</span><span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-470">470</a></span>
+<span class="normal"><a href="#__codelineno-0-471">471</a></span>
+<span class="normal"><a href="#__codelineno-0-472">472</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-453" name="__codelineno-0-453"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">declare_queue</span><span class="p">(</span>
+<a id="__codelineno-0-454" name="__codelineno-0-454"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-455" name="__codelineno-0-455"></a>    <span class="n">queue</span><span class="p">:</span> <span class="n">RabbitQueue</span><span class="p">,</span>
+<a id="__codelineno-0-456" name="__codelineno-0-456"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustQueue</span><span class="p">:</span>
+<a id="__codelineno-0-457" name="__codelineno-0-457"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-458" name="__codelineno-0-458"></a><span class="sd">    Declare a RabbitMQ queue.</span>
+<a id="__codelineno-0-459" name="__codelineno-0-459"></a>
+<a id="__codelineno-0-460" name="__codelineno-0-460"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-461" name="__codelineno-0-461"></a><span class="sd">        queue (RabbitQueue): The RabbitMQ queue to declare.</span>
+<a id="__codelineno-0-462" name="__codelineno-0-462"></a>
+<a id="__codelineno-0-463" name="__codelineno-0-463"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-464" name="__codelineno-0-464"></a><span class="sd">        aio_pika.RobustQueue: The declared RabbitMQ queue.</span>
+<a id="__codelineno-0-465" name="__codelineno-0-465"></a>
+<a id="__codelineno-0-466" name="__codelineno-0-466"></a><span class="sd">    Raises:</span>
+<a id="__codelineno-0-467" name="__codelineno-0-467"></a><span class="sd">        RuntimeError: If the declarer is not initialized in the `connect` method.</span>
+<a id="__codelineno-0-468" name="__codelineno-0-468"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-469" name="__codelineno-0-469"></a>    <span class="k">assert</span> <span class="p">(</span>  <span class="c1"># nosec B101</span>
+<a id="__codelineno-0-470" name="__codelineno-0-470"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">declarer</span>
+<a id="__codelineno-0-471" name="__codelineno-0-471"></a>    <span class="p">),</span> <span class="s2">&quot;Declarer should be initialized in `connect` method&quot;</span>
+<a id="__codelineno-0-472" name="__codelineno-0-472"></a>    <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declarer</span><span class="o">.</span><span class="n">declare_queue</span><span class="p">(</span><span class="n">queue</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -3573,9 +3599,7 @@
 
           <details class="quote">
             <summary>Source code in <code>faststream/rabbit/broker.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-377">377</a></span>
-<span class="normal"><a href="#__codelineno-0-378">378</a></span>
-<span class="normal"><a href="#__codelineno-0-379">379</a></span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-379">379</a></span>
 <span class="normal"><a href="#__codelineno-0-380">380</a></span>
 <span class="normal"><a href="#__codelineno-0-381">381</a></span>
 <span class="normal"><a href="#__codelineno-0-382">382</a></span>
@@ -3591,25 +3615,27 @@
 <span class="normal"><a href="#__codelineno-0-392">392</a></span>
 <span class="normal"><a href="#__codelineno-0-393">393</a></span>
 <span class="normal"><a href="#__codelineno-0-394">394</a></span>
-<span class="normal"><a href="#__codelineno-0-395">395</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-377" name="__codelineno-0-377"></a><span class="nd">@override</span>
-<a id="__codelineno-0-378" name="__codelineno-0-378"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
-<a id="__codelineno-0-379" name="__codelineno-0-379"></a>    <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-380" name="__codelineno-0-380"></a>    <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-381" name="__codelineno-0-381"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-382" name="__codelineno-0-382"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">aiormq</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">ConfirmationFrameType</span><span class="p">,</span> <span class="n">SendableMessage</span><span class="p">]:</span>
-<a id="__codelineno-0-383" name="__codelineno-0-383"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-384" name="__codelineno-0-384"></a><span class="sd">    Publish a message to the RabbitMQ broker.</span>
-<a id="__codelineno-0-385" name="__codelineno-0-385"></a>
-<a id="__codelineno-0-386" name="__codelineno-0-386"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-387" name="__codelineno-0-387"></a><span class="sd">        *args: Additional positional arguments.</span>
-<a id="__codelineno-0-388" name="__codelineno-0-388"></a><span class="sd">        **kwargs: Additional keyword arguments.</span>
-<a id="__codelineno-0-389" name="__codelineno-0-389"></a>
-<a id="__codelineno-0-390" name="__codelineno-0-390"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-0-391" name="__codelineno-0-391"></a><span class="sd">        Union[aiormq.abc.ConfirmationFrameType, SendableMessage]: The confirmation frame or the response message.</span>
-<a id="__codelineno-0-392" name="__codelineno-0-392"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-393" name="__codelineno-0-393"></a>
-<a id="__codelineno-0-394" name="__codelineno-0-394"></a>    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="p">,</span> <span class="s2">&quot;RabbitBroker channel is not started yet&quot;</span>  <span class="c1"># nosec B101</span>
-<a id="__codelineno-0-395" name="__codelineno-0-395"></a>    <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-395">395</a></span>
+<span class="normal"><a href="#__codelineno-0-396">396</a></span>
+<span class="normal"><a href="#__codelineno-0-397">397</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-379" name="__codelineno-0-379"></a><span class="nd">@override</span>
+<a id="__codelineno-0-380" name="__codelineno-0-380"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">publish</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
+<a id="__codelineno-0-381" name="__codelineno-0-381"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-382" name="__codelineno-0-382"></a>    <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-383" name="__codelineno-0-383"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-384" name="__codelineno-0-384"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">aiormq</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">ConfirmationFrameType</span><span class="p">,</span> <span class="n">SendableMessage</span><span class="p">]:</span>
+<a id="__codelineno-0-385" name="__codelineno-0-385"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-386" name="__codelineno-0-386"></a><span class="sd">    Publish a message to the RabbitMQ broker.</span>
+<a id="__codelineno-0-387" name="__codelineno-0-387"></a>
+<a id="__codelineno-0-388" name="__codelineno-0-388"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-389" name="__codelineno-0-389"></a><span class="sd">        *args: Additional positional arguments.</span>
+<a id="__codelineno-0-390" name="__codelineno-0-390"></a><span class="sd">        **kwargs: Additional keyword arguments.</span>
+<a id="__codelineno-0-391" name="__codelineno-0-391"></a>
+<a id="__codelineno-0-392" name="__codelineno-0-392"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-393" name="__codelineno-0-393"></a><span class="sd">        Union[aiormq.abc.ConfirmationFrameType, SendableMessage]: The confirmation frame or the response message.</span>
+<a id="__codelineno-0-394" name="__codelineno-0-394"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-395" name="__codelineno-0-395"></a>
+<a id="__codelineno-0-396" name="__codelineno-0-396"></a>    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="p">,</span> <span class="s2">&quot;RabbitBroker channel is not started yet&quot;</span>  <span class="c1"># nosec B101</span>
+<a id="__codelineno-0-397" name="__codelineno-0-397"></a>    <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -3639,8 +3665,9 @@
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">reply_to</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="o">**</span><span class="n">message_kwargs</span><span class="p">:</span> <span class="n">Any</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Publisher</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="o">**</span><span class="n">message_kwargs</span><span class="p">:</span> <span class="n">Any</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Publisher</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -3944,7 +3971,9 @@
 <span class="normal"><a href="#__codelineno-0-372">372</a></span>
 <span class="normal"><a href="#__codelineno-0-373">373</a></span>
 <span class="normal"><a href="#__codelineno-0-374">374</a></span>
-<span class="normal"><a href="#__codelineno-0-375">375</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-320" name="__codelineno-0-320"></a><span class="nd">@override</span>
+<span class="normal"><a href="#__codelineno-0-375">375</a></span>
+<span class="normal"><a href="#__codelineno-0-376">376</a></span>
+<span class="normal"><a href="#__codelineno-0-377">377</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-320" name="__codelineno-0-320"></a><span class="nd">@override</span>
 <a id="__codelineno-0-321" name="__codelineno-0-321"></a><span class="k">def</span> <span class="nf">publisher</span><span class="p">(</span>  <span class="c1"># type: ignore[override]</span>
 <a id="__codelineno-0-322" name="__codelineno-0-322"></a>    <span class="bp">self</span><span class="p">,</span>
 <a id="__codelineno-0-323" name="__codelineno-0-323"></a>    <span class="n">queue</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">RabbitQueue</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
@@ -3959,47 +3988,49 @@
 <a id="__codelineno-0-332" name="__codelineno-0-332"></a>    <span class="c1"># AsyncAPI information</span>
 <a id="__codelineno-0-333" name="__codelineno-0-333"></a>    <span class="n">title</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-334" name="__codelineno-0-334"></a>    <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-335" name="__codelineno-0-335"></a>    <span class="o">**</span><span class="n">message_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-336" name="__codelineno-0-336"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Publisher</span><span class="p">:</span>
-<a id="__codelineno-0-337" name="__codelineno-0-337"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-338" name="__codelineno-0-338"></a><span class="sd">    Define a message publisher.</span>
-<a id="__codelineno-0-339" name="__codelineno-0-339"></a>
-<a id="__codelineno-0-340" name="__codelineno-0-340"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-341" name="__codelineno-0-341"></a><span class="sd">        queue (Union[RabbitQueue, str], optional): The name of the RabbitMQ queue. Defaults to &quot;&quot;.</span>
-<a id="__codelineno-0-342" name="__codelineno-0-342"></a><span class="sd">        exchange (Union[RabbitExchange, str, None], optional): The name of the RabbitMQ exchange. Defaults to None.</span>
-<a id="__codelineno-0-343" name="__codelineno-0-343"></a><span class="sd">        routing_key (str, optional): The routing key for messages. Defaults to &quot;&quot;.</span>
-<a id="__codelineno-0-344" name="__codelineno-0-344"></a><span class="sd">        mandatory (bool, optional): Whether the message is mandatory. Defaults to True.</span>
-<a id="__codelineno-0-345" name="__codelineno-0-345"></a><span class="sd">        immediate (bool, optional): Whether the message should be sent immediately. Defaults to False.</span>
-<a id="__codelineno-0-346" name="__codelineno-0-346"></a><span class="sd">        timeout (TimeoutType, optional): Timeout for message publishing. Defaults to None.</span>
-<a id="__codelineno-0-347" name="__codelineno-0-347"></a><span class="sd">        persist (bool, optional): Whether to persist messages. Defaults to False.</span>
-<a id="__codelineno-0-348" name="__codelineno-0-348"></a><span class="sd">        reply_to (Optional[str], optional): The reply-to queue name. Defaults to None.</span>
-<a id="__codelineno-0-349" name="__codelineno-0-349"></a><span class="sd">        title (Optional[str]): Title for AsyncAPI docs.</span>
-<a id="__codelineno-0-350" name="__codelineno-0-350"></a><span class="sd">        description (Optional[str]): Description for AsyncAPI docs.</span>
-<a id="__codelineno-0-351" name="__codelineno-0-351"></a><span class="sd">        **message_kwargs (Any): Additional message properties and content.</span>
-<a id="__codelineno-0-352" name="__codelineno-0-352"></a>
-<a id="__codelineno-0-353" name="__codelineno-0-353"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-0-354" name="__codelineno-0-354"></a><span class="sd">        Publisher: A message publisher instance.</span>
-<a id="__codelineno-0-355" name="__codelineno-0-355"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-356" name="__codelineno-0-356"></a>    <span class="n">q</span><span class="p">,</span> <span class="n">ex</span> <span class="o">=</span> <span class="n">RabbitQueue</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">queue</span><span class="p">),</span> <span class="n">RabbitExchange</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">exchange</span><span class="p">)</span>
-<a id="__codelineno-0-357" name="__codelineno-0-357"></a>    <span class="n">key</span> <span class="o">=</span> <span class="n">get_routing_hash</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">ex</span><span class="p">)</span>
-<a id="__codelineno-0-358" name="__codelineno-0-358"></a>    <span class="n">publisher</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_publishers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-<a id="__codelineno-0-359" name="__codelineno-0-359"></a>        <span class="n">key</span><span class="p">,</span>
-<a id="__codelineno-0-360" name="__codelineno-0-360"></a>        <span class="n">Publisher</span><span class="p">(</span>
-<a id="__codelineno-0-361" name="__codelineno-0-361"></a>            <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
-<a id="__codelineno-0-362" name="__codelineno-0-362"></a>            <span class="n">queue</span><span class="o">=</span><span class="n">q</span><span class="p">,</span>
-<a id="__codelineno-0-363" name="__codelineno-0-363"></a>            <span class="n">exchange</span><span class="o">=</span><span class="n">ex</span><span class="p">,</span>
-<a id="__codelineno-0-364" name="__codelineno-0-364"></a>            <span class="n">routing_key</span><span class="o">=</span><span class="n">routing_key</span><span class="p">,</span>
-<a id="__codelineno-0-365" name="__codelineno-0-365"></a>            <span class="n">mandatory</span><span class="o">=</span><span class="n">mandatory</span><span class="p">,</span>
-<a id="__codelineno-0-366" name="__codelineno-0-366"></a>            <span class="n">immediate</span><span class="o">=</span><span class="n">immediate</span><span class="p">,</span>
-<a id="__codelineno-0-367" name="__codelineno-0-367"></a>            <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
-<a id="__codelineno-0-368" name="__codelineno-0-368"></a>            <span class="n">persist</span><span class="o">=</span><span class="n">persist</span><span class="p">,</span>
-<a id="__codelineno-0-369" name="__codelineno-0-369"></a>            <span class="n">reply_to</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
-<a id="__codelineno-0-370" name="__codelineno-0-370"></a>            <span class="n">message_kwargs</span><span class="o">=</span><span class="n">message_kwargs</span><span class="p">,</span>
-<a id="__codelineno-0-371" name="__codelineno-0-371"></a>            <span class="n">_description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
-<a id="__codelineno-0-372" name="__codelineno-0-372"></a>        <span class="p">),</span>
-<a id="__codelineno-0-373" name="__codelineno-0-373"></a>    <span class="p">)</span>
-<a id="__codelineno-0-374" name="__codelineno-0-374"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">publisher</span><span class="p">)</span>
-<a id="__codelineno-0-375" name="__codelineno-0-375"></a>    <span class="k">return</span> <span class="n">publisher</span>
+<a id="__codelineno-0-335" name="__codelineno-0-335"></a>    <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-336" name="__codelineno-0-336"></a>    <span class="o">**</span><span class="n">message_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-337" name="__codelineno-0-337"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Publisher</span><span class="p">:</span>
+<a id="__codelineno-0-338" name="__codelineno-0-338"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-339" name="__codelineno-0-339"></a><span class="sd">    Define a message publisher.</span>
+<a id="__codelineno-0-340" name="__codelineno-0-340"></a>
+<a id="__codelineno-0-341" name="__codelineno-0-341"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-342" name="__codelineno-0-342"></a><span class="sd">        queue (Union[RabbitQueue, str], optional): The name of the RabbitMQ queue. Defaults to &quot;&quot;.</span>
+<a id="__codelineno-0-343" name="__codelineno-0-343"></a><span class="sd">        exchange (Union[RabbitExchange, str, None], optional): The name of the RabbitMQ exchange. Defaults to None.</span>
+<a id="__codelineno-0-344" name="__codelineno-0-344"></a><span class="sd">        routing_key (str, optional): The routing key for messages. Defaults to &quot;&quot;.</span>
+<a id="__codelineno-0-345" name="__codelineno-0-345"></a><span class="sd">        mandatory (bool, optional): Whether the message is mandatory. Defaults to True.</span>
+<a id="__codelineno-0-346" name="__codelineno-0-346"></a><span class="sd">        immediate (bool, optional): Whether the message should be sent immediately. Defaults to False.</span>
+<a id="__codelineno-0-347" name="__codelineno-0-347"></a><span class="sd">        timeout (TimeoutType, optional): Timeout for message publishing. Defaults to None.</span>
+<a id="__codelineno-0-348" name="__codelineno-0-348"></a><span class="sd">        persist (bool, optional): Whether to persist messages. Defaults to False.</span>
+<a id="__codelineno-0-349" name="__codelineno-0-349"></a><span class="sd">        reply_to (Optional[str], optional): The reply-to queue name. Defaults to None.</span>
+<a id="__codelineno-0-350" name="__codelineno-0-350"></a><span class="sd">        title (Optional[str]): Title for AsyncAPI docs.</span>
+<a id="__codelineno-0-351" name="__codelineno-0-351"></a><span class="sd">        description (Optional[str]): Description for AsyncAPI docs.</span>
+<a id="__codelineno-0-352" name="__codelineno-0-352"></a><span class="sd">        **message_kwargs (Any): Additional message properties and content.</span>
+<a id="__codelineno-0-353" name="__codelineno-0-353"></a>
+<a id="__codelineno-0-354" name="__codelineno-0-354"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-355" name="__codelineno-0-355"></a><span class="sd">        Publisher: A message publisher instance.</span>
+<a id="__codelineno-0-356" name="__codelineno-0-356"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-357" name="__codelineno-0-357"></a>    <span class="n">q</span><span class="p">,</span> <span class="n">ex</span> <span class="o">=</span> <span class="n">RabbitQueue</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">queue</span><span class="p">),</span> <span class="n">RabbitExchange</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">exchange</span><span class="p">)</span>
+<a id="__codelineno-0-358" name="__codelineno-0-358"></a>    <span class="n">key</span> <span class="o">=</span> <span class="n">get_routing_hash</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">ex</span><span class="p">)</span>
+<a id="__codelineno-0-359" name="__codelineno-0-359"></a>    <span class="n">publisher</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_publishers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+<a id="__codelineno-0-360" name="__codelineno-0-360"></a>        <span class="n">key</span><span class="p">,</span>
+<a id="__codelineno-0-361" name="__codelineno-0-361"></a>        <span class="n">Publisher</span><span class="p">(</span>
+<a id="__codelineno-0-362" name="__codelineno-0-362"></a>            <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+<a id="__codelineno-0-363" name="__codelineno-0-363"></a>            <span class="n">queue</span><span class="o">=</span><span class="n">q</span><span class="p">,</span>
+<a id="__codelineno-0-364" name="__codelineno-0-364"></a>            <span class="n">exchange</span><span class="o">=</span><span class="n">ex</span><span class="p">,</span>
+<a id="__codelineno-0-365" name="__codelineno-0-365"></a>            <span class="n">routing_key</span><span class="o">=</span><span class="n">routing_key</span><span class="p">,</span>
+<a id="__codelineno-0-366" name="__codelineno-0-366"></a>            <span class="n">mandatory</span><span class="o">=</span><span class="n">mandatory</span><span class="p">,</span>
+<a id="__codelineno-0-367" name="__codelineno-0-367"></a>            <span class="n">immediate</span><span class="o">=</span><span class="n">immediate</span><span class="p">,</span>
+<a id="__codelineno-0-368" name="__codelineno-0-368"></a>            <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+<a id="__codelineno-0-369" name="__codelineno-0-369"></a>            <span class="n">persist</span><span class="o">=</span><span class="n">persist</span><span class="p">,</span>
+<a id="__codelineno-0-370" name="__codelineno-0-370"></a>            <span class="n">reply_to</span><span class="o">=</span><span class="n">reply_to</span><span class="p">,</span>
+<a id="__codelineno-0-371" name="__codelineno-0-371"></a>            <span class="n">message_kwargs</span><span class="o">=</span><span class="n">message_kwargs</span><span class="p">,</span>
+<a id="__codelineno-0-372" name="__codelineno-0-372"></a>            <span class="n">_description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+<a id="__codelineno-0-373" name="__codelineno-0-373"></a>            <span class="n">_schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
+<a id="__codelineno-0-374" name="__codelineno-0-374"></a>        <span class="p">),</span>
+<a id="__codelineno-0-375" name="__codelineno-0-375"></a>    <span class="p">)</span>
+<a id="__codelineno-0-376" name="__codelineno-0-376"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">publisher</span><span class="p">)</span>
+<a id="__codelineno-0-377" name="__codelineno-0-377"></a>    <span class="k">return</span> <span class="n">publisher</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
