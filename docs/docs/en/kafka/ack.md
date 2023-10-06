@@ -12,10 +12,10 @@ However, if you wish to use *at least once* strategy, you should commit offset *
 
 ```python
 @broker.subscriber(
-"test", group_id="group", auto_commit=False
+    "test", group_id="group", auto_commit=False
 )
 async def base_handler(body: str):
-...
+    ...
 ```
 
 
@@ -36,12 +36,12 @@ from faststream.kafka.annotations import KafkaMessage
 
 
 @broker.subscriber(
-"test", group_id="group", auto_commit=False
+    "test", group_id="group", auto_commit=False
 )
 async def base_handler(body: str, msg: KafkaMessage):
-await msg.ack()
-# or
-await msg.nack()
+    await msg.ack()
+    # or
+    await msg.nack()
 ```
 
 
