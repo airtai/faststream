@@ -42,7 +42,7 @@ class TestNatsBroker(TestBroker[NatsBroker]):
     ) -> None:
         broker.handlers.pop(Handler.get_routing_hash(publisher.subject), None)
 
-
+        
 class FakeProducer(NatsFastProducer):
     def __init__(self, broker: NatsBroker):
         self.broker = broker
