@@ -11,6 +11,11 @@ authors = [
     { name = "Pastukhov Nikita", email = "diementros@yandex.ru" },
 ]
 
+maintainers = [
+    { name = "airt", email = "info@airt.ai" },
+    { name = "Pastukhov Nikita", email = "diementros@yandex.ru" },
+]
+
 keywords = ["rabbitmq", "kafka", "framework", "nats", "message brokers"]
 
 requires-python = ">=3.8"
