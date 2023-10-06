@@ -7,10 +7,24 @@
     <noscript>
         <meta http-equiv="refresh" content="1; url=../../../../../../0.2/api/faststream/rabbit/parser/AioPikaParser/" />
     </noscript>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HDTMP5FFHP"></script>
     <script>
-        window.location.replace(
-            "../../../../../../0.2/api/faststream/rabbit/parser/AioPikaParser/" + window.location.search + window.location.hash  // nosemgrep
-        );
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-HDTMP5FFHP');
+    </script>
+
+    <script>
+        window.onload = function () {
+            // Delay the redirection until the Google Analytics script is loaded.
+            window.location.replace(
+                "../../../../../../0.2/api/faststream/rabbit/parser/AioPikaParser/" + window.location.search + window.location.hash // nosemgrep
+            );
+        };
     </script>
 
     <meta property="og:type" content="website" />
