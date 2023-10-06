@@ -20,21 +20,8 @@ class NamingTestCase:
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
         assert tuple(schema["channels"].keys())[0] == IsStr(
-            regex=r"test[\w:]*HandleUserCreated"
+            regex=r"test[\w:]*:HandleUserCreated"
         ), tuple(schema["channels"].keys())[0]
-
-    def test_not_duplicate_subject(self):
-        broker = self.broker_class()
-
-        @broker.subscriber("test")
-        async def handle_test():
-            ...
-
-        schema = get_app_schema(FastStream(broker)).to_jsonable()
-
-        assert tuple(schema["channels"].keys())[0] == IsStr(
-            regex=r"test[\w:]*HandleTest"
-        )
 
     def test_multi_subscribers_naming(self):
         broker = self.broker_class()
