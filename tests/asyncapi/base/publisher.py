@@ -24,7 +24,6 @@ class PublisherTestcase:
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
         key = tuple(schema["channels"].keys())[0]
-
         assert schema["channels"][key]["description"] == "test description"
 
     def test_basic_publisher(self):
@@ -38,6 +37,7 @@ class PublisherTestcase:
 
         key = tuple(schema["channels"].keys())[0]
         assert schema["channels"][key].get("description") is None
+        assert schema["channels"][key].get("publish") is not None
 
         payload = schema["components"]["schemas"]
         for v in payload.values():

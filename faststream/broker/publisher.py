@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from dataclasses import dataclass, field
+from inspect import unwrap
 from typing import Any, Callable, Generic, List, Optional, Tuple
 from unittest.mock import MagicMock
 
@@ -130,6 +131,6 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
                     prefix=f"{self.name}:Message",
                 )
                 if body:
-                    payloads.append((body, to_camelcase(call.__name__)))
+                    payloads.append((body, to_camelcase(unwrap(call).__name__)))
 
         return payloads

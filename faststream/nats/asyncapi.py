@@ -1,6 +1,5 @@
 from typing import Dict
 
-from faststream.asyncapi.message import parse_handler_params
 from faststream.asyncapi.schema import (
     Channel,
     ChannelBinding,
@@ -9,21 +8,14 @@ from faststream.asyncapi.schema import (
     Operation,
 )
 from faststream.asyncapi.schema.bindings import nats
-from faststream.asyncapi.utils import resolve_payloads, to_camelcase
+from faststream.asyncapi.utils import resolve_payloads
 from faststream.nats.handler import LogicNatsHandler
 from faststream.nats.publisher import LogicPublisher
 
 
 class Handler(LogicNatsHandler):
     def schema(self) -> Dict[str, Channel]:
-        payloads = []
-
-        for h, _, _, _, _, dep in self.calls:
-            body = parse_handler_params(
-                dep, prefix=f"{self._title or self.call_name}:Message"
-            )
-            payloads.append((body, to_camelcase(h._original_call.__name__)))
-
+        payloads = self.get_payloads()
         handler_name = self._title or f"{self.subject}:{self.call_name}"
         return {
             handler_name: Channel(
@@ -49,7 +41,7 @@ class Handler(LogicNatsHandler):
 
 class Publisher(LogicPublisher):
     def schema(self) -> Dict[str, Channel]:
-        payloads = super().get_payloads()
+        payloads = self.get_payloads()
 
         return {
             self.name: Channel(

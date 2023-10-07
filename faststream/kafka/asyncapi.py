@@ -1,7 +1,6 @@
 from typing import Dict
 
 from faststream.asyncapi.base import AsyncAPIOperation
-from faststream.asyncapi.message import parse_handler_params
 from faststream.asyncapi.schema import (
     Channel,
     ChannelBinding,
@@ -10,7 +9,7 @@ from faststream.asyncapi.schema import (
     Operation,
 )
 from faststream.asyncapi.schema.bindings import kafka
-from faststream.asyncapi.utils import resolve_payloads, to_camelcase
+from faststream.asyncapi.utils import resolve_payloads
 from faststream.kafka.handler import LogicHandler
 from faststream.kafka.publisher import LogicPublisher
 
@@ -28,15 +27,9 @@ class Handler(LogicHandler, AsyncAPIOperation):
     def schema(self) -> Dict[str, Channel]:
         channels = {}
 
+        payloads = self.get_payloads()
+
         for t in self.topics:
-            payloads = []
-
-            for h, _, _, _, _, dep in self.calls:
-                body = parse_handler_params(
-                    dep, prefix=f"{self._title or self.call_name}:Message"
-                )
-                payloads.append((body, to_camelcase(h._original_call.__name__)))
-
             handler_name = self._title or f"{t}:{self.call_name}"
             channels[handler_name] = Channel(
                 description=self.description,
@@ -72,7 +65,7 @@ class Publisher(LogicPublisher, AsyncAPIOperation):
     """
 
     def schema(self) -> Dict[str, Channel]:
-        payloads = super().get_payloads()
+        payloads = self.get_payloads()
 
         return {
             self.name: Channel(
