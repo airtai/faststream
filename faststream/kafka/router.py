@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from faststream._compat import override
 from faststream.kafka.asyncapi import Publisher
@@ -72,6 +72,7 @@ class KafkaRouter(BaseRouter):
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        schema: Optional[Any] = None,
     ) -> Publisher:
         """Publishes a message to a topic.
 
@@ -104,6 +105,7 @@ class KafkaRouter(BaseRouter):
                 title=title,
                 batch=batch,
                 _description=description,
+                _schema=schema,
             ),
         )
         publisher_key = self._get_publisher_key(new_publisher)

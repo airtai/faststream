@@ -227,6 +227,42 @@ class PublisherNaming(BaseNaming):
             "custom:Message:Payload"
         ]
 
+    def test_publisher_with_schema_naming(self):
+        broker = self.broker_class()
+
+        @broker.publisher("test", schema=str)
+        async def handle_user_created():
+            ...
+
+        schema = get_app_schema(FastStream(broker)).to_jsonable()
+
+        assert list(schema["channels"].keys()) == [IsStr(regex=r"test[\w:]*:Publisher")]
+
+        assert list(schema["components"]["messages"].keys()) == [
+            IsStr(regex=r"test[\w:]*:Publisher:Message")
+        ]
+
+        assert list(schema["components"]["schemas"].keys()) == [
+            IsStr(regex=r"test[\w:]*:Publisher:Message:Payload")
+        ]
+
+    def test_publisher_manual_naming_with_schema(self):
+        broker = self.broker_class()
+
+        @broker.publisher("test", title="custom", schema=str)
+        async def handle_user_created():
+            ...
+
+        schema = get_app_schema(FastStream(broker)).to_jsonable()
+
+        assert list(schema["channels"].keys()) == ["custom"]
+
+        assert list(schema["components"]["messages"].keys()) == ["custom:Message"]
+
+        assert list(schema["components"]["schemas"].keys()) == [
+            "custom:Message:Payload"
+        ]
+
     def test_multi_publishers_naming(self):
         broker = self.broker_class()
 

@@ -7,4 +7,5 @@ def simple_dependency(a: int, b: int = 3):
 def method(a: int, d: int = Depends(simple_dependency)):
     return a + d
 
-assert method("1") == 5
+def test_sync_dependency():
+    assert method("1") == 5

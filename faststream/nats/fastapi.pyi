@@ -223,6 +223,7 @@ class NatsRouter(StreamRouter[Msg]):
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        schema: Optional[Any] = None,
     ) -> Publisher: ...
     @overload
     def after_startup(

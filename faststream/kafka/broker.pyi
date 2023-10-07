@@ -208,7 +208,7 @@ class KafkaBroker(
             "earliest",
             "none",
         ] = "latest",
-        enable_auto_commit: bool = True,
+        auto_commit: bool = True,
         auto_commit_interval_ms: int = 5000,
         check_crcs: bool = True,
         partition_assignment_strategy: Sequence[AbstractPartitionAssignor] = (
@@ -266,7 +266,7 @@ class KafkaBroker(
             "earliest",
             "none",
         ] = "latest",
-        enable_auto_commit: bool = True,
+        auto_commit: bool = True,
         auto_commit_interval_ms: int = 5000,
         check_crcs: bool = True,
         partition_assignment_strategy: Sequence[AbstractPartitionAssignor] = (
@@ -327,6 +327,7 @@ class KafkaBroker(
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        schema: Optional[Any] = None,
     ) -> Publisher: ...
     @override
     async def publish(  # type: ignore[override]

@@ -244,6 +244,8 @@ class AsyncHandler(BaseHandler[MsgType]):
         async with AsyncExitStack() as stack:
             gl_middlewares: List[BaseMiddleware] = []
 
+            stack.enter_context(context.scope("handler_", self))
+
             for m in self.global_middlewares:
                 gl_middlewares.append(await stack.enter_async_context(m(msg)))
 
@@ -300,7 +302,7 @@ class AsyncHandler(BaseHandler[MsgType]):
                                         for m_pub in all_middlewares:
                                             result_to_send = (
                                                 await pub_stack.enter_async_context(
-                                                    m_pub.publish_scope(result_msg)
+                                                    m_pub.publish_scope(result_to_send)
                                                 )
                                             )
 

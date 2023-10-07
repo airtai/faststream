@@ -332,6 +332,7 @@ class RabbitBroker(
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        schema: Optional[Any] = None,
         **message_kwargs: Any,
     ) -> Publisher:
         """
@@ -369,6 +370,7 @@ class RabbitBroker(
                 reply_to=reply_to,
                 message_kwargs=message_kwargs,
                 _description=description,
+                _schema=schema,
             ),
         )
         super().publisher(key, publisher)

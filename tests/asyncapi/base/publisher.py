@@ -1,7 +1,6 @@
 from typing import Type
 
 import pydantic
-from dirty_equals import IsStr
 
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
@@ -15,10 +14,10 @@ class PublisherTestcase:
         """Patch it to test FastAPI scheme generation too"""
         return FastStream(broker)
 
-    def test_publisher_with_name(self):
+    def test_publisher_with_description(self):
         broker = self.broker_class()
 
-        @broker.publisher("test", title="custom_name", description="test description")
+        @broker.publisher("test", description="test description")
         async def handle(msg):
             ...
 
@@ -26,7 +25,6 @@ class PublisherTestcase:
 
         key = tuple(schema["channels"].keys())[0]
 
-        assert key == "custom_name", key
         assert schema["channels"][key]["description"] == "test description"
 
     def test_basic_publisher(self):
@@ -42,8 +40,7 @@ class PublisherTestcase:
         assert schema["channels"][key].get("description") is None
 
         payload = schema["components"]["schemas"]
-        for key, v in payload.items():
-            assert key == IsStr(regex=r"[\w:]*Payload")
+        for v in payload.values():
             assert v == {}
 
     def test_none_publisher(self):
@@ -56,8 +53,7 @@ class PublisherTestcase:
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
         payload = schema["components"]["schemas"]
-        for key, v in payload.items():
-            assert key == IsStr(regex=r"[\w:]*Payload")
+        for v in payload.values():
             assert v == {}
 
     def test_typed_publisher(self):
@@ -70,9 +66,7 @@ class PublisherTestcase:
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
         payload = schema["components"]["schemas"]
-        for key, v in payload.items():
-            assert key == IsStr(regex=r"test:[\w:]*Publisher:Message:Payload")
-            assert v["title"] == key
+        for v in payload.values():
             assert v["type"] == "integer"
 
     def test_pydantic_model_publisher(self):
@@ -91,7 +85,6 @@ class PublisherTestcase:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == "User"
             assert v == {
                 "properties": {
                     "id": {"title": "Id", "type": "integer"},
@@ -114,7 +107,16 @@ class PublisherTestcase:
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
         payload = schema["components"]["schemas"]
-        for key, v in payload.items():
-            assert key == IsStr(regex=r"test:[\w:]*Publisher:Message:Payload")
-            assert v["title"] == key
+        for v in payload.values():
+            assert v["type"] == "integer"
+
+    def test_with_schema(self):
+        broker = self.broker_class()
+
+        broker.publisher("test", title="Custom", schema=int)
+
+        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+
+        payload = schema["components"]["schemas"]
+        for v in payload.values():
             assert v["type"] == "integer"

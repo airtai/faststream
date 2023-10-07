@@ -1,5 +1,5 @@
 import asyncio
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 from aio_pika import IncomingMessage, Message
@@ -8,6 +8,7 @@ from faststream.exceptions import AckMessage, NackMessage, RejectMessage, SkipMe
 from faststream.rabbit import RabbitBroker, RabbitExchange, RabbitQueue
 from faststream.rabbit.annotations import RabbitMessage
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
+from tests.tools import spy_decorator
 
 
 @pytest.mark.rabbit
@@ -318,14 +319,3 @@ class TestConsume(BrokerRealConsumeTestcase):
                     assert not m2.mock.called
 
         assert event.is_set()
-
-
-def spy_decorator(method):
-    mock = MagicMock()
-
-    async def wrapper(*args, **kwargs):
-        mock(*args, **kwargs)
-        return await method(*args, **kwargs)
-
-    wrapper.mock = mock
-    return wrapper

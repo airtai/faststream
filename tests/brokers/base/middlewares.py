@@ -186,6 +186,40 @@ class LocalMiddlewareTestcase:
         assert mock.call_count == 2
         mock.assert_called_with(True)
 
+    async def test_patch_publish(self, queue: str, mock: Mock, event, raw_broker):
+        class Mid(BaseMiddleware):
+            async def on_publish(self, msg: str) -> str:
+                return msg * 2
+
+        broker = self.broker_class()
+
+        @broker.subscriber(queue, middlewares=(Mid, Mid))
+        async def handler(m):
+            return "r"
+
+        @broker.subscriber(queue + "r")
+        async def handler_resp(m):
+            mock(m)
+            event.set()
+
+        broker = self.patch_broker(raw_broker, broker)
+
+        async with broker:
+            await broker.start()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        broker.publish("", queue, reply_to=queue + "r")
+                    ),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        mock.assert_called_once_with("rrrr")
+
 
 @pytest.mark.asyncio
 class MiddlewareTestcase(LocalMiddlewareTestcase):
