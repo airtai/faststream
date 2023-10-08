@@ -1033,12 +1033,6 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/rabbit/asyncapi/Publisher/"/>
     </url>
     <url>
-        <loc>https://faststream.airt.ai/0.2/api/faststream/rabbit/asyncapi/RMQAsyncAPIChannel/</loc>
-        <lastmod>2023-10-08</lastmod>
-        <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/rabbit/asyncapi/RMQAsyncAPIChannel/"/>
-    </url>
-    <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/rabbit/broker/RabbitBroker/</loc>
         <lastmod>2023-10-08</lastmod>
         <changefreq>daily</changefreq>

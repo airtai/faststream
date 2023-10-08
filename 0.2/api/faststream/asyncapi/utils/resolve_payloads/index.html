@@ -1924,7 +1924,11 @@
 
 
 <a href="#faststream.asyncapi.utils.resolve_payloads" class="headerlink" title="Permanent link">#</a></h2>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">resolve_payloads</span><span class="p">(</span><span class="n">payloads</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AnyDict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AnyDict</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">resolve_payloads</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">payloads</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">AnyDict</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">extra</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">served_words</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnyDict</span>
 </code></pre></div>
 
   <div class="doc doc-contents first">
@@ -1950,7 +1954,7 @@
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a>[<span title="faststream.types.AnyDict">AnyDict</span>]</code>
+                    <code><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a>[<a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a>[<span title="faststream.types.AnyDict">AnyDict</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -2009,27 +2013,81 @@
 <span class="normal"><a href="#__codelineno-0-42">42</a></span>
 <span class="normal"><a href="#__codelineno-0-43">43</a></span>
 <span class="normal"><a href="#__codelineno-0-44">44</a></span>
-<span class="normal"><a href="#__codelineno-0-45">45</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="k">def</span> <span class="nf">resolve_payloads</span><span class="p">(</span><span class="n">payloads</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AnyDict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">AnyDict</span><span class="p">:</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve payloads.</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27"></a>
-<a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="sd">        payloads: A list of dictionaries representing payloads.</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30"></a>
-<a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="sd">        A dictionary representing the resolved payload.</span>
-<a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="sd">    !!! note</span>
+<span class="normal"><a href="#__codelineno-0-45">45</a></span>
+<span class="normal"><a href="#__codelineno-0-46">46</a></span>
+<span class="normal"><a href="#__codelineno-0-47">47</a></span>
+<span class="normal"><a href="#__codelineno-0-48">48</a></span>
+<span class="normal"><a href="#__codelineno-0-49">49</a></span>
+<span class="normal"><a href="#__codelineno-0-50">50</a></span>
+<span class="normal"><a href="#__codelineno-0-51">51</a></span>
+<span class="normal"><a href="#__codelineno-0-52">52</a></span>
+<span class="normal"><a href="#__codelineno-0-53">53</a></span>
+<span class="normal"><a href="#__codelineno-0-54">54</a></span>
+<span class="normal"><a href="#__codelineno-0-55">55</a></span>
+<span class="normal"><a href="#__codelineno-0-56">56</a></span>
+<span class="normal"><a href="#__codelineno-0-57">57</a></span>
+<span class="normal"><a href="#__codelineno-0-58">58</a></span>
+<span class="normal"><a href="#__codelineno-0-59">59</a></span>
+<span class="normal"><a href="#__codelineno-0-60">60</a></span>
+<span class="normal"><a href="#__codelineno-0-61">61</a></span>
+<span class="normal"><a href="#__codelineno-0-62">62</a></span>
+<span class="normal"><a href="#__codelineno-0-63">63</a></span>
+<span class="normal"><a href="#__codelineno-0-64">64</a></span>
+<span class="normal"><a href="#__codelineno-0-65">65</a></span>
+<span class="normal"><a href="#__codelineno-0-66">66</a></span>
+<span class="normal"><a href="#__codelineno-0-67">67</a></span>
+<span class="normal"><a href="#__codelineno-0-68">68</a></span>
+<span class="normal"><a href="#__codelineno-0-69">69</a></span>
+<span class="normal"><a href="#__codelineno-0-70">70</a></span>
+<span class="normal"><a href="#__codelineno-0-71">71</a></span>
+<span class="normal"><a href="#__codelineno-0-72">72</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="k">def</span> <span class="nf">resolve_payloads</span><span class="p">(</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26"></a>    <span class="n">payloads</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">AnyDict</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27"></a>    <span class="n">extra</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28"></a>    <span class="n">served_words</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnyDict</span><span class="p">:</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve payloads.</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31"></a>
+<a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="sd">        payloads: A list of dictionaries representing payloads.</span>
 <a id="__codelineno-0-34" name="__codelineno-0-34"></a>
-<a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="sd">        The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37"></a>    <span class="n">ln</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">payloads</span><span class="p">)</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="n">payload</span><span class="p">:</span> <span class="n">AnyDict</span>
-<a id="__codelineno-0-39" name="__codelineno-0-39"></a>    <span class="k">if</span> <span class="n">ln</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-<a id="__codelineno-0-40" name="__codelineno-0-40"></a>        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;oneOf&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">body</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]:</span> <span class="n">body</span> <span class="k">for</span> <span class="n">body</span> <span class="ow">in</span> <span class="n">payloads</span><span class="p">}}</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41"></a>    <span class="k">elif</span> <span class="n">ln</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42"></a>        <span class="n">payload</span> <span class="o">=</span> <span class="n">payloads</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<a id="__codelineno-0-43" name="__codelineno-0-43"></a>    <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-0-44" name="__codelineno-0-44"></a>        <span class="n">payload</span> <span class="o">=</span> <span class="p">{}</span>
-<a id="__codelineno-0-45" name="__codelineno-0-45"></a>    <span class="k">return</span> <span class="n">payload</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="sd">        A dictionary representing the resolved payload.</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="sd">    !!! note</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38"></a>
+<a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="sd">        The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41"></a>    <span class="n">ln</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">payloads</span><span class="p">)</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42"></a>    <span class="n">payload</span><span class="p">:</span> <span class="n">AnyDict</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43"></a>    <span class="k">if</span> <span class="n">ln</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44"></a>        <span class="n">one_of_payloads</span> <span class="o">=</span> <span class="p">{}</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45"></a>
+<a id="__codelineno-0-46" name="__codelineno-0-46"></a>        <span class="k">for</span> <span class="n">body</span><span class="p">,</span> <span class="n">handler_name</span> <span class="ow">in</span> <span class="n">payloads</span><span class="p">:</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a>            <span class="n">title</span> <span class="o">=</span> <span class="n">body</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48"></a>            <span class="n">words</span> <span class="o">=</span> <span class="n">title</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49"></a>
+<a id="__codelineno-0-50" name="__codelineno-0-50"></a>            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># not pydantic model case</span>
+<a id="__codelineno-0-51" name="__codelineno-0-51"></a>                <span class="n">body</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;:&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+<a id="__codelineno-0-52" name="__codelineno-0-52"></a>                    <span class="nb">filter</span><span class="p">(</span>
+<a id="__codelineno-0-53" name="__codelineno-0-53"></a>                        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
+<a id="__codelineno-0-54" name="__codelineno-0-54"></a>                        <span class="p">(</span>
+<a id="__codelineno-0-55" name="__codelineno-0-55"></a>                            <span class="n">handler_name</span><span class="p">,</span>
+<a id="__codelineno-0-56" name="__codelineno-0-56"></a>                            <span class="n">extra</span> <span class="k">if</span> <span class="n">extra</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">words</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-57" name="__codelineno-0-57"></a>                            <span class="o">*</span><span class="n">words</span><span class="p">[</span><span class="n">served_words</span><span class="p">:],</span>
+<a id="__codelineno-0-58" name="__codelineno-0-58"></a>                        <span class="p">),</span>
+<a id="__codelineno-0-59" name="__codelineno-0-59"></a>                    <span class="p">)</span>
+<a id="__codelineno-0-60" name="__codelineno-0-60"></a>                <span class="p">)</span>
+<a id="__codelineno-0-61" name="__codelineno-0-61"></a>
+<a id="__codelineno-0-62" name="__codelineno-0-62"></a>            <span class="n">one_of_payloads</span><span class="p">[</span><span class="n">title</span><span class="p">]</span> <span class="o">=</span> <span class="n">body</span>
+<a id="__codelineno-0-63" name="__codelineno-0-63"></a>
+<a id="__codelineno-0-64" name="__codelineno-0-64"></a>        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;oneOf&quot;</span><span class="p">:</span> <span class="n">one_of_payloads</span><span class="p">}</span>
+<a id="__codelineno-0-65" name="__codelineno-0-65"></a>
+<a id="__codelineno-0-66" name="__codelineno-0-66"></a>    <span class="k">elif</span> <span class="n">ln</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+<a id="__codelineno-0-67" name="__codelineno-0-67"></a>        <span class="n">payload</span> <span class="o">=</span> <span class="n">payloads</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-0-68" name="__codelineno-0-68"></a>
+<a id="__codelineno-0-69" name="__codelineno-0-69"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-0-70" name="__codelineno-0-70"></a>        <span class="n">payload</span> <span class="o">=</span> <span class="p">{}</span>
+<a id="__codelineno-0-71" name="__codelineno-0-71"></a>
+<a id="__codelineno-0-72" name="__codelineno-0-72"></a>    <span class="k">return</span> <span class="n">payload</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
