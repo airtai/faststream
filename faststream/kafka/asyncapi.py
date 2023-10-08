@@ -1,9 +1,7 @@
 from typing import Dict
 
-from fast_depends.core import build_call_model
-
 from faststream.asyncapi.base import AsyncAPIOperation
-from faststream.asyncapi.message import get_response_schema, parse_handler_params
+from faststream.asyncapi.message import parse_handler_params
 from faststream.asyncapi.schema import (
     Channel,
     ChannelBinding,
@@ -91,15 +89,7 @@ class Publisher(LogicPublisher, AsyncAPIOperation):
         return self.title or f"{self.topic.title()}Publisher"
 
     def schema(self) -> Dict[str, Channel]:
-        payloads = []
-        for call in self.calls:
-            call_model = build_call_model(call)
-            body = get_response_schema(
-                call_model,
-                prefix=to_camelcase(call_model.call_name),
-            )
-            if body:
-                payloads.append(body)
+        payloads = super().get_payloads()
 
         return {
             self.name: Channel(

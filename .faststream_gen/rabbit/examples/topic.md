@@ -24,7 +24,7 @@ async def base_handler1(logger: Logger):
     logger.info("base_handler1")
 
 
-@broker.subscriber(queue_1, exch)
+@broker.subscriber(queue_1, exch)  # another service
 async def base_handler2(logger: Logger):
     logger.info("base_handler2")
 
@@ -63,7 +63,7 @@ async def base_handler1(logger: Logger):
     logger.info("base_handler1")
 
 
-@broker.subscriber(queue_1, exch)
+@broker.subscriber(queue_1, exch)  # another service
 async def base_handler2(logger: Logger):
     logger.info("base_handler2")
 

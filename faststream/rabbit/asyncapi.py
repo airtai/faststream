@@ -1,10 +1,8 @@
 from abc import abstractmethod
 from typing import Dict, List, Optional
 
-from fast_depends.core import build_call_model
-
 from faststream.asyncapi.base import AsyncAPIOperation
-from faststream.asyncapi.message import get_response_schema, parse_handler_params
+from faststream.asyncapi.message import parse_handler_params
 from faststream.asyncapi.schema import (
     Channel,
     ChannelBinding,
@@ -106,17 +104,7 @@ class Publisher(RMQAsyncAPIChannel, LogicPublisher):
         return self.title or f"{self.queue.name.title()}Publisher"
 
     def get_payloads(self) -> List[AnyDict]:
-        payloads = []
-        for call in self.calls:
-            call_model = build_call_model(call)
-            body = get_response_schema(
-                call_model,
-                prefix=to_camelcase(call_model.call_name),
-            )
-            if body:
-                payloads.append(body)
-
-        return payloads
+        return super(LogicPublisher, self).get_payloads()
 
 
 class Handler(RMQAsyncAPIChannel, LogicHandler):

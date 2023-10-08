@@ -15,8 +15,3 @@ async def handle() -> str:
 @broker.subscriber("another-topic")
 async def handle_next(msg: str):
     assert msg == "Hi!"
-
-
-@app.after_startup
-async def test():
-    await broker.publish("", topic="test-topic")

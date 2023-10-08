@@ -15,7 +15,7 @@ async def base_handler1(logger: Logger):
     logger.info("base_handler1")
 
 
-@broker.subscriber(queue_1, exch)
+@broker.subscriber(queue_1, exch)  # another service
 async def base_handler2(logger: Logger):
     logger.info("base_handler2")
 
@@ -27,7 +27,7 @@ async def base_handler3(logger: Logger):
 
 @app.after_startup
 async def send_messages():
-    await broker.publish(exchange=exch)  # handlers: 1, 3
-    await broker.publish(exchange=exch)  # handlers: 2, 3
-    await broker.publish(exchange=exch)  # handlers: 1, 3
-    await broker.publish(exchange=exch)  # handlers: 2, 3
+    await broker.publish(exchange=exch)  # handlers: 1, 2, 3
+    await broker.publish(exchange=exch)  # handlers: 1, 2, 3
+    await broker.publish(exchange=exch)  # handlers: 1, 2, 3
+    await broker.publish(exchange=exch)  # handlers: 1, 2, 3

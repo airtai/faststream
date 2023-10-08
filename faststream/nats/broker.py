@@ -39,7 +39,7 @@ from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.shared.logging import NatsLoggingMixin
-from faststream.types import DecodedMessage
+from faststream.types import AnyDict, DecodedMessage
 from faststream.utils.context.main import context
 
 Subject = str
@@ -215,7 +215,7 @@ class NatsBroker(
                 else:
                     pub_response = None
 
-            return r, pub_response
+                return r, pub_response
 
         return process_wrapper
 
@@ -294,7 +294,7 @@ class NatsBroker(
         )
         super().subscriber()
 
-        extra_options: Dict[str, Any] = {
+        extra_options: AnyDict = {
             "pending_msgs_limit": pending_msgs_limit
             or (
                 DEFAULT_JS_SUB_PENDING_MSGS_LIMIT
@@ -385,6 +385,7 @@ class NatsBroker(
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        schema: Optional[Any] = None,
     ) -> Publisher:
         if (stream := stream_builder.stream(stream)) is not None:
             stream.subjects.append(subject)
@@ -402,6 +403,7 @@ class NatsBroker(
                 # AsyncAPI
                 title=title,
                 _description=description,
+                _schema=schema,
             ),
         )
         super().publisher(subject, publisher)

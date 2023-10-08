@@ -116,3 +116,15 @@ class PublisherTestcase:
         for key, v in payload.items():
             assert key == IsStr(regex=r"HandleResponse\w*Payload")
             assert v == {"title": "HandleResponsePayload", "type": "integer"}
+
+    def test_with_schema(self):
+        broker = self.broker_class()
+
+        broker.publisher("test", title="Custom", schema=int)
+
+        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+
+        payload = schema["components"]["schemas"]
+        for key, v in payload.items():
+            assert key == IsStr(regex=r"CustomResponse\w*Payload")
+            assert v == {"title": "CustomResponsePayload", "type": "integer"}

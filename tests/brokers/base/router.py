@@ -400,11 +400,11 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
         event: asyncio.Event,
         mock: Mock,
     ):
-        async def global_parser(msg, original):
+        async def global_parser(msg, original):  # pragma: no cover
             mock()
             return await original(msg)
 
-        async def global_decoder(msg, original):
+        async def global_decoder(msg, original):  # pragma: no cover
             mock()
             return await original(msg)
 

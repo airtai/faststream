@@ -43,6 +43,7 @@
     - [Publishing](kafka/Publisher/index.md)
         - [Batch Publishing](kafka/Publisher/batch_publisher.md)
         - [Publish With Key](kafka/Publisher/using_a_key.md)
+    - [Acknowledgement](kafka/ack.md)
     - [Message Information](kafka/message.md)
 - [RabbitMQ](rabbit/index.md)
     - [Subscription](rabbit/examples/index.md)
