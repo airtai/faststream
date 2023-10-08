@@ -2447,7 +2447,7 @@
 <a id="__codelineno-13-5" name="__codelineno-13-5"></a>
 <a id="__codelineno-13-6" name="__codelineno-13-6"></a><span class="hll">        <span class="n">handle</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
 </span><a id="__codelineno-13-7" name="__codelineno-13-7"></a>
-<a id="__codelineno-13-8" name="__codelineno-13-8"></a><span class="hll">    <span class="k">assert</span> <span class="n">handle</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">call_count</span> <span class="o">==</span> <span class="mi">0</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8"></a><span class="hll">    <span class="k">assert</span> <span class="n">handle</span><span class="o">.</span><span class="n">mock</span> <span class="ow">is</span> <span class="kc">None</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
@@ -2465,7 +2465,7 @@
 <a id="__codelineno-14-5" name="__codelineno-14-5"></a>
 <a id="__codelineno-14-6" name="__codelineno-14-6"></a><span class="hll">        <span class="n">handle</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
 </span><a id="__codelineno-14-7" name="__codelineno-14-7"></a>
-<a id="__codelineno-14-8" name="__codelineno-14-8"></a><span class="hll">    <span class="k">assert</span> <span class="n">handle</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">call_count</span> <span class="o">==</span> <span class="mi">0</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8"></a><span class="hll">    <span class="k">assert</span> <span class="n">handle</span><span class="o">.</span><span class="n">mock</span> <span class="ow">is</span> <span class="kc">None</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
@@ -2483,7 +2483,7 @@
 <a id="__codelineno-15-5" name="__codelineno-15-5"></a>
 <a id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="hll">        <span class="n">handle</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
 </span><a id="__codelineno-15-7" name="__codelineno-15-7"></a>
-<a id="__codelineno-15-8" name="__codelineno-15-8"></a><span class="hll">    <span class="k">assert</span> <span class="n">handle</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">call_count</span> <span class="o">==</span> <span class="mi">0</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8"></a><span class="hll">    <span class="k">assert</span> <span class="n">handle</span><span class="o">.</span><span class="n">mock</span> <span class="ow">is</span> <span class="kc">None</span>
 </span></code></pre></div></td></tr></table></div>
 </div>
 </div>
@@ -2532,7 +2532,7 @@
 <a id="__codelineno-16-13" name="__codelineno-16-13"></a><span class="hll">        <span class="k">await</span> <span class="n">handle</span><span class="o">.</span><span class="n">wait_call</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </span><a id="__codelineno-16-14" name="__codelineno-16-14"></a>        <span class="n">handle</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
 <a id="__codelineno-16-15" name="__codelineno-16-15"></a>
-<a id="__codelineno-16-16" name="__codelineno-16-16"></a>    <span class="k">assert</span> <span class="n">handle</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">call_count</span> <span class="o">==</span> <span class="mi">0</span>
+<a id="__codelineno-16-16" name="__codelineno-16-16"></a>    <span class="k">assert</span> <span class="n">handle</span><span class="o">.</span><span class="n">mock</span> <span class="ow">is</span> <span class="kc">None</span>
 <a id="__codelineno-16-17" name="__codelineno-16-17"></a>
 <a id="__codelineno-16-18" name="__codelineno-16-18"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <a id="__codelineno-16-19" name="__codelineno-16-19"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">test_validation_error</span><span class="p">():</span>
@@ -2584,7 +2584,7 @@
 <a id="__codelineno-17-13" name="__codelineno-17-13"></a><span class="hll">        <span class="k">await</span> <span class="n">handle</span><span class="o">.</span><span class="n">wait_call</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </span><a id="__codelineno-17-14" name="__codelineno-17-14"></a>        <span class="n">handle</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
 <a id="__codelineno-17-15" name="__codelineno-17-15"></a>
-<a id="__codelineno-17-16" name="__codelineno-17-16"></a>    <span class="k">assert</span> <span class="n">handle</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">call_count</span> <span class="o">==</span> <span class="mi">0</span>
+<a id="__codelineno-17-16" name="__codelineno-17-16"></a>    <span class="k">assert</span> <span class="n">handle</span><span class="o">.</span><span class="n">mock</span> <span class="ow">is</span> <span class="kc">None</span>
 <a id="__codelineno-17-17" name="__codelineno-17-17"></a>
 <a id="__codelineno-17-18" name="__codelineno-17-18"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <a id="__codelineno-17-19" name="__codelineno-17-19"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">test_validation_error</span><span class="p">():</span>
@@ -2636,7 +2636,7 @@
 <a id="__codelineno-18-13" name="__codelineno-18-13"></a><span class="hll">        <span class="k">await</span> <span class="n">handle</span><span class="o">.</span><span class="n">wait_call</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </span><a id="__codelineno-18-14" name="__codelineno-18-14"></a>        <span class="n">handle</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;John&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
 <a id="__codelineno-18-15" name="__codelineno-18-15"></a>
-<a id="__codelineno-18-16" name="__codelineno-18-16"></a>    <span class="k">assert</span> <span class="n">handle</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">call_count</span> <span class="o">==</span> <span class="mi">0</span>
+<a id="__codelineno-18-16" name="__codelineno-18-16"></a>    <span class="k">assert</span> <span class="n">handle</span><span class="o">.</span><span class="n">mock</span> <span class="ow">is</span> <span class="kc">None</span>
 <a id="__codelineno-18-17" name="__codelineno-18-17"></a>
 <a id="__codelineno-18-18" name="__codelineno-18-18"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <a id="__codelineno-18-19" name="__codelineno-18-19"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">test_validation_error</span><span class="p">():</span>
