@@ -47,15 +47,6 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
     _fake_handler: bool = field(default=False, repr=False)
     mock: Optional[MagicMock] = field(init=False, default=None, repr=False)
 
-    __slots__ = (
-        "title",
-        "_description",
-        "_schema",
-        "calls"
-        "_fake_handler",
-        "mock",
-    )
-
     @property
     def description(self) -> Optional[str]:
         return self._description
