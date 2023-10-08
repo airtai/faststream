@@ -14,11 +14,15 @@ from tests.tools import spy_decorator
 @pytest.mark.nats
 class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_js(
-        self, queue: str, consume_broker: NatsBroker, stream: JStream
+        self,
+        queue: str,
+        consume_broker: NatsBroker,
+        stream: JStream,
+        event: asyncio.Event,
     ):
         @consume_broker.subscriber(queue, stream=stream)
         def subscriber(m):
-            ...
+            event.set()
 
         await consume_broker.start()
         await asyncio.wait(
@@ -26,12 +30,12 @@ class TestConsume(BrokerRealConsumeTestcase):
                 asyncio.create_task(
                     consume_broker.publish("hello", queue, stream=stream.name)
                 ),
-                asyncio.create_task(subscriber.wait_call()),
+                asyncio.create_task(event.wait()),
             ),
             timeout=3,
         )
 
-        assert subscriber.event.is_set()
+        assert event.is_set()
 
     @pytest.mark.asyncio
     async def test_consume_ack(

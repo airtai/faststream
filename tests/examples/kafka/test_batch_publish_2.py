@@ -1,12 +1,12 @@
 import pytest
 
-from examples.kafka.batch_publish_2 import app, handle
-from faststream import TestApp
+from examples.kafka.batch_publish_2 import app, broker, handle
+from faststream.kafka import TestApp, TestKafkaBroker
 
 
 @pytest.mark.asyncio
-@pytest.mark.kafka
 async def test_example():
-    async with TestApp(app):
-        await handle.wait_call(3)
-    assert set(handle.mock.call_args[0][0]) == {"hi", "FastStream"}
+    async with TestKafkaBroker(broker, connect_only=True):
+        async with TestApp(app):
+            await handle.wait_call(3)
+        assert set(handle.mock.call_args[0][0]) == {"hi", "FastStream"}

@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from functools import partial
 from types import MethodType, TracebackType
 from typing import Any, AsyncGenerator, Dict, Generic, Optional, Type, TypeVar
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 import anyio
 from anyio.abc._tasks import TaskGroup
@@ -139,22 +139,29 @@ class TestBroker(Generic[Broker]):
 
     @classmethod
     def _fake_start(cls, broker: Broker, *args: Any, **kwargs: Any) -> None:
+        patch_broker_calls(broker)
+
         for key, p in broker._publishers.items():
-            if getattr(p, "_fake_handler", False):
+            if p._fake_handler:
                 continue
 
             handler = broker.handlers.get(key)
+
             if handler is not None:
+                mock = MagicMock()
+                p.set_test(mock=mock, with_fake=False)
                 for f, _, _, _, _, _ in handler.calls:
-                    f.mock.side_effect = p.mock
+                    f.set_test()
+                    assert f.mock  # nosec B101
+                    f.mock.side_effect = mock
+
             else:
-                p._fake_handler = True
                 f = cls.create_publisher_fake_subscriber(broker, p)
-                p.mock = f.mock
+                f.set_test()
+                assert f.mock  # nosec B101
+                p.set_test(mock=f.mock, with_fake=True)
 
             cls.patch_publisher(broker, p)
-
-        patch_broker_calls(broker)
 
     @classmethod
     def _fake_close(
@@ -170,15 +177,13 @@ class TestBroker(Generic[Broker]):
         ]
 
         for p in broker._publishers.values():
-            p.mock.reset_mock()
-            if getattr(p, "_fake_handler", False):
+            if p._fake_handler:
+                p.reset_test()
                 cls.remove_publisher_fake_subscriber(broker, p)
-                p._fake_handler = False
-                p.mock.reset_mock()
 
         for h in broker.handlers.values():
             for f, _, _, _, _, _ in h.calls:
-                f.refresh(with_mock=True)
+                f.reset_test()
 
     @staticmethod
     @abstractmethod
@@ -225,7 +230,7 @@ def patch_broker_calls(broker: BrokerUsecase[Any, Any]) -> None:
 
     for handler in broker.handlers.values():
         for f, _, _, _, _, _ in handler.calls:
-            f.refresh(with_mock=False)
+            f.set_test()
 
 
 async def call_handler(
