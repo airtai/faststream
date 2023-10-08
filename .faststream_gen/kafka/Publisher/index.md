@@ -1,6 +1,6 @@
 # Publishing
 
-The **FastStream** KafkaBroker supports all regular [publishing use cases](../getting-started/publishing/index.md){.internal-link}, and you can use them without any changes.
+The **FastStream** KafkaBroker supports all regular [publishing use cases](../../getting-started/publishing/index.md){.internal-link}, and you can use them without any changes.
 
 However, if you wish to further customize the publishing logic, you should take a closer look at specific KafkaBroker parameters.
 
