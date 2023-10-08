@@ -39,11 +39,14 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
     calls: List[Callable[..., Any]] = field(
         init=False, default_factory=list, repr=False
     )
-    mock: MagicMock = field(init=False, default_factory=MagicMock, repr=False)
+    mock: Optional[MagicMock] = field(init=False, default=None, repr=False)
 
     @property
     def description(self) -> Optional[str]:
         return self._description
+
+    def set_test(self) -> None:
+        self.mock = MagicMock()
 
     def __call__(
         self,
