@@ -152,13 +152,13 @@ class TestBroker(Generic[Broker]):
                 p.set_test(mock=mock, with_fake=False)
                 for f, _, _, _, _, _ in handler.calls:
                     f.set_test()
-                    assert f.mock
+                    assert f.mock  # nosec B101
                     f.mock.side_effect = mock
 
             else:
                 f = cls.create_publisher_fake_subscriber(broker, p)
                 f.set_test()
-                assert f.mock
+                assert f.mock  # nosec B101
                 p.set_test(mock=f.mock, with_fake=True)
 
             cls.patch_publisher(broker, p)
