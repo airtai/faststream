@@ -2,60 +2,63 @@ from docs.docs_src.getting_started.asyncapi.asyncapi_customization.basic import 
 from faststream.asyncapi.generate import get_app_schema
 
 
-def test_broker_customization():
+def test_basic_customization():
     schema = get_app_schema(app).to_jsonable()
-
     assert schema == {
         "asyncapi": "2.6.0",
-        "defaultContentType": "application/json",
-        "info": {"title": "FastStream", "version": "0.1.0", "description": ""},
-        "servers": {
-            "development": {
-                "url": "localhost:9092",
-                "protocol": "kafka",
-                "protocolVersion": "auto",
-            }
-        },
         "channels": {
-            "OnInputData": {
-                "servers": ["development"],
+            "input_data:OnInputData": {
                 "bindings": {
-                    "kafka": {"topic": "input_data", "bindingVersion": "0.4.0"}
+                    "kafka": {"bindingVersion": "0.4.0", "topic": "input_data"}
                 },
+                "servers": ["development"],
                 "subscribe": {
-                    "message": {"$ref": "#/components/messages/OnInputDataMessage"}
+                    "message": {
+                        "$ref": "#/components/messages/input_data:OnInputData:Message"
+                    }
                 },
             },
-            "Output_DataPublisher": {
-                "servers": ["development"],
+            "output_data:Publisher": {
                 "bindings": {
-                    "kafka": {"topic": "output_data", "bindingVersion": "0.4.0"}
+                    "kafka": {"bindingVersion": "0.4.0", "topic": "output_data"}
                 },
                 "publish": {
                     "message": {
-                        "$ref": "#/components/messages/Output_DataPublisherMessage"
+                        "$ref": "#/components/messages/output_data:Publisher:Message"
                     }
                 },
+                "servers": ["development"],
             },
         },
         "components": {
             "messages": {
-                "OnInputDataMessage": {
-                    "title": "OnInputDataMessage",
-                    "correlationId": {"location": "$message.header#/correlation_id"},
-                    "payload": {"$ref": "#/components/schemas/OnInputDataMsgPayload"},
-                },
-                "Output_DataPublisherMessage": {
-                    "title": "Output_DataPublisherMessage",
+                "input_data:OnInputData:Message": {
                     "correlationId": {"location": "$message.header#/correlation_id"},
                     "payload": {
-                        "$ref": "#/components/schemas/Output_DataPublisherPayload"
+                        "$ref": "#/components/schemas/OnInputData:Message:Payload"
                     },
+                    "title": "input_data:OnInputData:Message",
+                },
+                "output_data:Publisher:Message": {
+                    "correlationId": {"location": "$message.header#/correlation_id"},
+                    "payload": {
+                        "$ref": "#/components/schemas/output_data:PublisherPayload"
+                    },
+                    "title": "output_data:Publisher:Message",
                 },
             },
             "schemas": {
-                "OnInputDataMsgPayload": {"title": "OnInputDataMsgPayload"},
-                "Output_DataPublisherPayload": {},
+                "OnInputData:Message:Payload": {"title": "OnInputData:Message:Payload"},
+                "output_data:PublisherPayload": {},
             },
+        },
+        "defaultContentType": "application/json",
+        "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
+        "servers": {
+            "development": {
+                "protocol": "kafka",
+                "protocolVersion": "auto",
+                "url": "localhost:9092",
+            }
         },
     }

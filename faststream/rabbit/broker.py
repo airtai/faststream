@@ -216,7 +216,7 @@ class RabbitBroker(
 
         for handler in self.handlers.values():
             c = self._get_log_context(None, handler.queue, handler.exchange)
-            self._log(f"`{handler.name}` waiting for messages", extra=c)
+            self._log(f"`{handler.call_name}` waiting for messages", extra=c)
             await handler.start(self.declarer)
 
     @override
@@ -332,6 +332,7 @@ class RabbitBroker(
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        schema: Optional[Any] = None,
         **message_kwargs: Any,
     ) -> Publisher:
         """
@@ -369,6 +370,7 @@ class RabbitBroker(
                 reply_to=reply_to,
                 message_kwargs=message_kwargs,
                 _description=description,
+                _schema=schema,
             ),
         )
         super().publisher(key, publisher)

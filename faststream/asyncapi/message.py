@@ -5,7 +5,6 @@ from fast_depends.core import CallModel
 from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2, get_model_fields, model_schema
-from faststream.asyncapi.utils import to_camelcase
 
 
 def parse_handler_params(call: CallModel[Any, Any], prefix: str = "") -> Dict[str, Any]:
@@ -200,11 +199,7 @@ def get_model_schema(
 
         body = param_body
 
-    camel_body = to_camelcase(body["title"])
     if not use_original_model:
-        if prefix.lower() != camel_body.lower():
-            body["title"] = f"{prefix}{camel_body}Payload"
-        else:
-            body["title"] = f"{camel_body}Payload"
+        body["title"] = f"{prefix}:Payload"
 
     return body

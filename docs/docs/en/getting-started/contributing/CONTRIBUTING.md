@@ -69,6 +69,7 @@ In your project, you'll find some *pytest marks*:
 * **slow**
 * **rabbit**
 * **kafka**
+* **nats**
 * **all**
 
 By default, running *pytest* will execute "not slow" tests.
@@ -79,10 +80,10 @@ To run all tests use:
 pytest -m 'all'
 ```
 
-If you don't have a local RabbitMQ or Kafka instance running, you can run tests without those dependencies:
+If you don't have a local broker instance running, you can run tests without those dependencies:
 
 ```bash
-pytest -m 'not rabbit and not kafka'
+pytest -m 'not rabbit and not kafka and not nats'
 ```
 
 To run tests based on RabbitMQ, Kafka, or other dependencies, the following dependencies are needed to be started as docker containers:

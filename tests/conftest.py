@@ -1,5 +1,5 @@
 import asyncio
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from typer.testing import CliRunner
@@ -30,7 +30,7 @@ def runner() -> CliRunner:
 
 @pytest.fixture
 def mock():
-    m = Mock()
+    m = MagicMock()
     yield m
     m.reset_mock()
 

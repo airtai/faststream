@@ -1,9 +1,10 @@
-from typing import Any, Dict, Optional
+from typing import Optional
 
 from faststream.broker.security import BaseSecurity
+from faststream.types import AnyDict
 
 
-def parse_security(security: Optional[BaseSecurity]) -> Dict[str, Any]:
+def parse_security(security: Optional[BaseSecurity]) -> AnyDict:
     if security is None:
         return {}
     else:

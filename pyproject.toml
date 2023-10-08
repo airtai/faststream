@@ -8,7 +8,7 @@ description = "FastStream: the simplest way to work with a messaging queues"
 readme = "README.md"
 authors = [
     { name = "airt", email = "info@airt.ai" },
-    { name = "Pastukhov Nikita", email = "diementros@yandex.ru" },
+    { name = "lancetnik", email = "diementros@gmail.com" },
 ]
 
 keywords = ["rabbitmq", "kafka", "framework", "nats", "message brokers"]
@@ -127,6 +127,7 @@ Homepage = "https://faststream.airt.ai/"
 Documentation = "https://faststream.airt.ai/latest/getting-started/"
 Tracker = "https://github.com/airtai/FastStream/issues"
 Source = "https://github.com/airtai/FastStream"
+Discord = "https://discord.gg/CJWmYpyFbc"
 
 [project.scripts]
 faststream = "faststream.__main__:cli"
@@ -231,6 +232,7 @@ source = [
 context = '${CONTEXT}'
 omit = [
     "**/__init__.py",
+    "tests/mypy/*",
 ]
 
 [tool.coverage.report]

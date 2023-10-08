@@ -210,6 +210,7 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
         pub_broker: BrokerAsyncUsecase,
         queue: str,
         event: asyncio.Event,
+        mock: Mock,
     ):
         core_router = type(router)(prefix="test1_")
         router.prefix = "test2_"
@@ -217,6 +218,7 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
         @router.subscriber(queue)
         def subscriber(m):
             event.set()
+            mock(m)
             return "hi"
 
         core_router.include_routers(router)
@@ -235,7 +237,7 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
         )
 
         assert event.is_set()
-        subscriber.mock.assert_called_with("hello")
+        mock.assert_called_with("hello")
 
     async def test_nested_routers_pub(
         self,
@@ -400,11 +402,11 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
         event: asyncio.Event,
         mock: Mock,
     ):
-        async def global_parser(msg, original):
+        async def global_parser(msg, original):  # pragma: no cover
             mock()
             return await original(msg)
 
-        async def global_decoder(msg, original):
+        async def global_decoder(msg, original):  # pragma: no cover
             mock()
             return await original(msg)
 

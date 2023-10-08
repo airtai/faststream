@@ -80,6 +80,7 @@ class RabbitRouter(BaseRouter):
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        schema: Optional[Any] = None,
         **message_kwargs: Any,
     ) -> Publisher:
         """Publishes a message to a RabbitMQ queue or exchange.
@@ -117,6 +118,7 @@ class RabbitRouter(BaseRouter):
                 message_kwargs=message_kwargs,
                 title=title,
                 _description=description,
+                _schema=schema,
             ),
         )
         key = self._get_publisher_key(new_publisher)

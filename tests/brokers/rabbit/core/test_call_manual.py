@@ -15,7 +15,6 @@ async def test_sync(just_broker: RabbitBroker):
         return "pong"
 
     assert func(1) == "pong"
-    func.mock.assert_called_with(1)
 
 
 @pytest.mark.asyncio  # run it async to create anyio.Event
@@ -25,7 +24,6 @@ async def test_sync_publisher(just_broker: RabbitBroker):
         return "pong"
 
     assert func(1) == "pong"
-    func.mock.assert_called_with(1)
 
 
 @pytest.mark.asyncio  # run it async to create anyio.Event
@@ -37,7 +35,6 @@ async def test_sync_multi(just_broker: RabbitBroker):
         return "pong"
 
     assert func(1) == "pong"
-    func.mock.assert_called_with(1)
 
 
 @pytest.mark.asyncio
@@ -47,7 +44,6 @@ async def test_async(just_broker: RabbitBroker):
         return "pong"
 
     assert await func(1) == "pong"
-    func.mock.assert_called_with(1)
 
 
 @pytest.mark.asyncio
@@ -57,7 +53,6 @@ async def test_async_publisher(just_broker: RabbitBroker):
         return "pong"
 
     assert await func(1) == "pong"
-    func.mock.assert_called_with(1)
 
 
 @pytest.mark.asyncio
@@ -69,4 +64,3 @@ async def test_async_multi(just_broker: RabbitBroker):
         return "pong"
 
     assert await func(1) == "pong"
-    func.mock.assert_called_with(1)

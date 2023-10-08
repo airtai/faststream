@@ -31,7 +31,7 @@ async def base_handler(body: str):
 
 ## Manual Acknowledgement
 
-If you want to acknowledge a message manually, you can get access directy to the message object via the [Context](../getting-started/context/existed.md){.internal-link} and call the method.
+If you want to acknowledge a message manually, you can get access directy to the message object via the [Context](../../getting-started/context/existed.md){.internal-link} and call the method.
 
 ```python
 from faststream.nats.annotations import NatsMessage
@@ -60,7 +60,7 @@ broker = NatsBroker("nats://localhost:4222")
 app = FastStream(broker)
 
 
-@broker.subscriber("test-subject")
+@broker.subscriber("test-subject", stream="test-stream")
 async def handle(body):
     smth_processing(body)
 

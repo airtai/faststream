@@ -18,34 +18,34 @@ class TestNaming(NamingTestCase):
 
         assert schema == {
             "asyncapi": "2.6.0",
+            "defaultContentType": "application/json",
+            "info": {"title": "FastStream", "version": "0.1.0", "description": ""},
+            "servers": {
+                "development": {
+                    "url": "localhost",
+                    "protocol": "kafka",
+                    "protocolVersion": "auto",
+                }
+            },
             "channels": {
-                "HandleTest": {
-                    "bindings": {"kafka": {"bindingVersion": "0.4.0", "topic": "test"}},
+                "test:Handle": {
                     "servers": ["development"],
+                    "bindings": {"kafka": {"topic": "test", "bindingVersion": "0.4.0"}},
                     "subscribe": {
-                        "message": {"$ref": "#/components/messages/HandleTestMessage"}
+                        "message": {"$ref": "#/components/messages/test:Handle:Message"}
                     },
                 }
             },
             "components": {
                 "messages": {
-                    "HandleTestMessage": {
+                    "test:Handle:Message": {
+                        "title": "test:Handle:Message",
                         "correlationId": {
                             "location": "$message.header#/correlation_id"
                         },
                         "payload": {"$ref": "#/components/schemas/EmptyPayload"},
-                        "title": "HandleTestMessage",
                     }
                 },
                 "schemas": {"EmptyPayload": {"title": "EmptyPayload", "type": "null"}},
-            },
-            "defaultContentType": "application/json",
-            "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
-            "servers": {
-                "development": {
-                    "protocol": "kafka",
-                    "protocolVersion": "auto",
-                    "url": "localhost",
-                }
             },
         }

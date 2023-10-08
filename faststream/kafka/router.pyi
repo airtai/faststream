@@ -60,6 +60,7 @@ class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        schema: Optional[Any] = None,
     ) -> Publisher: ...
     @override
     def subscriber(  # type: ignore[override]
@@ -77,7 +78,7 @@ class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
             "earliest",
             "none",
         ] = "latest",
-        enable_auto_commit: bool = True,
+        auto_commit: bool = True,
         auto_commit_interval_ms: int = 5000,
         check_crcs: bool = True,
         partition_assignment_strategy: Sequence[AbstractPartitionAssignor] = (
