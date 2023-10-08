@@ -11,7 +11,7 @@ from tests.tools import spy_decorator
 @pytest.mark.kafka
 @pytest.mark.slow
 async def test_ack_exc():
-    from docs.docs_src.kafka.ack.errors import app, handle, broker
+    from docs.docs_src.kafka.ack.errors import app, broker, handle
 
     with patch.object(
         AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
