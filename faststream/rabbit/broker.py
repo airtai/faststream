@@ -216,7 +216,7 @@ class RabbitBroker(
 
         for handler in self.handlers.values():
             c = self._get_log_context(None, handler.queue, handler.exchange)
-            self._log(f"`{handler.name}` waiting for messages", extra=c)
+            self._log(f"`{handler.call_name}` waiting for messages", extra=c)
             await handler.start(self.declarer)
 
     @override

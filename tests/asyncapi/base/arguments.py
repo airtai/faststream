@@ -1,7 +1,7 @@
 from typing import Optional, Type
 
 import pydantic
-from dirty_equals import IsDict, IsStr
+from dirty_equals import IsDict
 
 from faststream import FastStream
 from faststream._compat import PYDANTIC_V2
@@ -54,7 +54,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == {"title": key}
 
     def test_simple_type(self):
@@ -70,7 +70,7 @@ class FastAPICompatible:
         assert tuple(schema["channels"].values())[0].get("description") is None
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == {"title": key, "type": "integer"}
 
     def test_simple_optional_type(self):
@@ -85,7 +85,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == IsDict(
                 {
                     "anyOf": [{"type": "integer"}, {"type": "null"}],
@@ -93,10 +93,10 @@ class FastAPICompatible:
                 }
             ) | IsDict(
                 {  # TODO: remove when deprecating PydanticV1
-                    "title": "HandleTestMsgPayload",
+                    "title": key,
                     "type": "integer",
                 }
-            )
+            ), v
 
     def test_simple_type_with_default(self):
         broker = self.broker_class()
@@ -110,7 +110,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == {
                 "default": 1,
                 "title": key,
@@ -129,7 +129,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == {
                 "properties": {
                     "another": {"title": "Another"},
@@ -152,7 +152,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == {
                 "properties": {
                     "another": {"title": "Another", "type": "integer"},
@@ -175,7 +175,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == "Handle:Message:Payload"
 
             assert v == {
                 "properties": {
@@ -242,7 +242,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == {
                 "$defs": {
                     "User": {
@@ -358,20 +358,10 @@ class FastAPICompatible:
             == 2
         )
 
-        items = list(schema["components"]["schemas"].items())
+        payload = schema["components"]["schemas"]
 
-        assert items[0] == (
-            IsStr(regex=r"Handle\w*Payload"),
-            {
-                "title": "HandleTestIdPayload",
-                "type": "integer",
-            },
-        )
-
-        assert items[1] == (
-            IsStr(regex=r"Handle\w*Payload"),
-            {"title": "HandleTestMsgPayload"},
-        )
+        assert "Handle:Message:Payload" in list(payload.keys())
+        assert "HandleDefault:Message:Payload" in list(payload.keys())
 
 
 class ArgumentsTestcase(FastAPICompatible):

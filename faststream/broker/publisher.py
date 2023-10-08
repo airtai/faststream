@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Callable, Generic, List, Optional
+from inspect import unwrap
+from typing import Any, Callable, Generic, List, Optional, Tuple
 from unittest.mock import MagicMock
 
 from fast_depends._compat import CreateBaseModel, create_model
@@ -113,10 +114,10 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
         """
         raise NotImplementedError()
 
-    def get_payloads(self) -> List[AnyDict]:
-        payloads: List[AnyDict] = []
+    def get_payloads(self) -> List[Tuple[AnyDict, str]]:
+        payloads: List[Tuple[AnyDict, str]] = []
 
-        if not self.calls and self._schema:
+        if self._schema:
             call_model: CallModel[Any, Any] = CallModel(
                 call=lambda: None,
                 model=create_model("Fake"),
@@ -129,18 +130,19 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
 
             body = get_response_schema(
                 call_model,
-                prefix=self.title or "",
+                prefix=f"{self.name}:Message",
             )
             if body:
-                payloads.append(body)
+                payloads.append((body, ""))
 
-        for call in self.calls:
-            call_model = build_call_model(call)
-            body = get_response_schema(
-                call_model,
-                prefix=to_camelcase(call_model.call_name),
-            )
-            if body:
-                payloads.append(body)
+        else:
+            for call in self.calls:
+                call_model = build_call_model(call)
+                body = get_response_schema(
+                    call_model,
+                    prefix=f"{self.name}:Message",
+                )
+                if body:
+                    payloads.append((body, to_camelcase(unwrap(call).__name__)))
 
         return payloads

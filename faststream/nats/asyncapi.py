@@ -1,7 +1,5 @@
 from typing import Dict
 
-from faststream.asyncapi.base import AsyncAPIOperation
-from faststream.asyncapi.message import parse_handler_params
 from faststream.asyncapi.schema import (
     Channel,
     ChannelBinding,
@@ -15,21 +13,16 @@ from faststream.nats.handler import LogicNatsHandler
 from faststream.nats.publisher import LogicPublisher
 
 
-class Handler(LogicNatsHandler, AsyncAPIOperation):
+class Handler(LogicNatsHandler):
     def schema(self) -> Dict[str, Channel]:
-        name = f"{self.subject}/{self.call_name}"
-
-        payloads = []
-        for _, _, _, _, _, dep in self.calls:
-            body = parse_handler_params(dep, prefix=name)
-            payloads.append(body)
-
+        payloads = self.get_payloads()
+        handler_name = self._title or f"{self.subject}:{self.call_name}"
         return {
-            name: Channel(
+            handler_name: Channel(
                 description=self.description,
                 subscribe=Operation(
                     message=Message(
-                        title=f"{name}/Message",
+                        title=f"{handler_name}:Message",
                         payload=resolve_payloads(payloads),
                         correlationId=CorrelationId(
                             location="$message.header#/correlation_id"
@@ -45,22 +38,18 @@ class Handler(LogicNatsHandler, AsyncAPIOperation):
             )
         }
 
-    @property
-    def name(self) -> str:
-        return self.call_name
-
 
 class Publisher(LogicPublisher):
     def schema(self) -> Dict[str, Channel]:
-        payloads = super().get_payloads()
+        payloads = self.get_payloads()
 
         return {
             self.name: Channel(
                 description=self.description,
                 publish=Operation(
                     message=Message(
-                        title=f"{self.name}/Message",
-                        payload=resolve_payloads(payloads),
+                        title=f"{self.name}:Message",
+                        payload=resolve_payloads(payloads, "Publisher"),
                         correlationId=CorrelationId(
                             location="$message.header#/correlation_id"
                         ),
@@ -76,4 +65,4 @@ class Publisher(LogicPublisher):
 
     @property
     def name(self) -> str:
-        return self.title or f"{self.subject}/Publisher"
+        return self.title or f"{self.subject}:Publisher"

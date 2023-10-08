@@ -195,11 +195,7 @@ class KafkaBroker(
 
         for handler in self.handlers.values():
             c = self._get_log_context(None, handler.topics, handler.group_id)
-
-            if (name := handler.name) is True:
-                name = handler.call_name
-
-            self._log(f"`{name}` waiting for messages", extra=c)
+            self._log(f"`{handler.call_name}` waiting for messages", extra=c)
             await handler.start(**(self._connection or {}))
 
     def _process_message(

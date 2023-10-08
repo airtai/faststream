@@ -26,61 +26,61 @@ class TestRouter(RouterTestcase):
 
         assert schema == {
             "asyncapi": "2.6.0",
+            "defaultContentType": "application/json",
+            "info": {"title": "FastStream", "version": "0.1.0", "description": ""},
+            "servers": {
+                "development": {
+                    "url": "amqp://guest:guest@localhost:5672/",  # pragma: allowlist secret
+                    "protocol": "amqp",
+                    "protocolVersion": "0.9.1",
+                }
+            },
             "channels": {
-                "HandleTestTest": {
+                "test_test:_:Handle": {
+                    "servers": ["development"],
                     "bindings": {
                         "amqp": {
-                            "bindingVersion": "0.2.0",
-                            "exchange": {"type": "default", "vhost": "/"},
                             "is": "routingKey",
+                            "bindingVersion": "0.2.0",
                             "queue": {
-                                "autoDelete": False,
+                                "name": "test_test",
                                 "durable": False,
                                 "exclusive": False,
-                                "name": "test_test",
+                                "autoDelete": False,
                                 "vhost": "/",
                             },
+                            "exchange": {"type": "default", "vhost": "/"},
                         }
                     },
-                    "servers": ["development"],
                     "subscribe": {
                         "bindings": {
                             "amqp": {
+                                "cc": "test_test",
                                 "ack": True,
                                 "bindingVersion": "0.2.0",
-                                "cc": "test_test",
                             }
                         },
                         "message": {
-                            "$ref": "#/components/messages/HandleTestTestMessage"
+                            "$ref": "#/components/messages/test_test:_:Handle:Message"
                         },
                     },
                 }
             },
             "components": {
                 "messages": {
-                    "HandleTestTestMessage": {
+                    "test_test:_:Handle:Message": {
+                        "title": "test_test:_:Handle:Message",
                         "correlationId": {
                             "location": "$message.header#/correlation_id"
                         },
                         "payload": {
-                            "$ref": "#/components/schemas/HandleTestTestMsgPayload"
+                            "$ref": "#/components/schemas/Handle:Message:Payload"
                         },
-                        "title": "HandleTestTestMessage",
                     }
                 },
                 "schemas": {
-                    "HandleTestTestMsgPayload": {"title": "HandleTestTestMsgPayload"}
+                    "Handle:Message:Payload": {"title": "Handle:Message:Payload"}
                 },
-            },
-            "defaultContentType": "application/json",
-            "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
-            "servers": {
-                "development": {
-                    "protocol": "amqp",
-                    "protocolVersion": "0.9.1",
-                    "url": "amqp://guest:guest@localhost:5672/",  # pragma: allowlist secret
-                }
             },
         }
 

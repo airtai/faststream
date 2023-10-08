@@ -4,62 +4,28 @@ from docs.docs_src.getting_started.asyncapi.asyncapi_customization.custom_handle
 from faststream.asyncapi.generate import get_app_schema
 
 
-def test_broker_customization():
+def test_handler_customization():
     schema = get_app_schema(app).to_jsonable()
 
-    assert schema == {
-        "asyncapi": "2.6.0",
-        "defaultContentType": "application/json",
-        "info": {"title": "FastStream", "version": "0.1.0", "description": ""},
-        "servers": {
-            "development": {
-                "url": "localhost:9092",
-                "protocol": "kafka",
-                "protocolVersion": "auto",
-            }
-        },
-        "channels": {
-            "OnInputData": {
-                "description": "My subscriber description",
-                "servers": ["development"],
-                "bindings": {
-                    "kafka": {"topic": "input_data", "bindingVersion": "0.4.0"}
-                },
-                "subscribe": {
-                    "message": {"$ref": "#/components/messages/OnInputDataMessage"}
-                },
-            },
-            "Output_DataPublisher": {
-                "description": "My publisher description",
-                "servers": ["development"],
-                "bindings": {
-                    "kafka": {"topic": "output_data", "bindingVersion": "0.4.0"}
-                },
-                "publish": {
-                    "message": {
-                        "$ref": "#/components/messages/Output_DataPublisherMessage"
-                    }
-                },
+    assert schema["channels"] == {
+        "input_data:OnInputData": {
+            "bindings": {"kafka": {"bindingVersion": "0.4.0", "topic": "input_data"}},
+            "description": "My subscriber " "description",
+            "servers": ["development"],
+            "subscribe": {
+                "message": {
+                    "$ref": "#/components/messages/input_data:OnInputData:Message"
+                }
             },
         },
-        "components": {
-            "messages": {
-                "OnInputDataMessage": {
-                    "title": "OnInputDataMessage",
-                    "correlationId": {"location": "$message.header#/correlation_id"},
-                    "payload": {"$ref": "#/components/schemas/OnInputDataMsgPayload"},
-                },
-                "Output_DataPublisherMessage": {
-                    "title": "Output_DataPublisherMessage",
-                    "correlationId": {"location": "$message.header#/correlation_id"},
-                    "payload": {
-                        "$ref": "#/components/schemas/Output_DataPublisherPayload"
-                    },
-                },
+        "output_data:Publisher": {
+            "bindings": {"kafka": {"bindingVersion": "0.4.0", "topic": "output_data"}},
+            "description": "My publisher " "description",
+            "publish": {
+                "message": {
+                    "$ref": "#/components/messages/output_data:Publisher:Message"
+                }
             },
-            "schemas": {
-                "OnInputDataMsgPayload": {"title": "OnInputDataMsgPayload"},
-                "Output_DataPublisherPayload": {},
-            },
+            "servers": ["development"],
         },
     }
