@@ -20,7 +20,13 @@ class LocalCustomParserTestcase:
     ) -> BrokerAsyncUsecase:
         return broker
 
-    async def test_local_parser(self, mock: Mock, queue: str, raw_broker):
+    async def test_local_parser(
+        self,
+        mock: Mock,
+        queue: str,
+        raw_broker,
+        event: asyncio.Event,
+    ):
         broker = self.broker_class()
 
         async def custom_parser(msg, original):
@@ -30,7 +36,7 @@ class LocalCustomParserTestcase:
 
         @broker.subscriber(queue, parser=custom_parser)
         async def handle(m):
-            ...
+            event.set()
 
         broker = self.patch_broker(raw_broker, broker)
         async with broker:
@@ -39,15 +45,21 @@ class LocalCustomParserTestcase:
             await asyncio.wait(
                 (
                     asyncio.create_task(broker.publish(b"hello", queue)),
-                    asyncio.create_task(handle.wait_call()),
+                    asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
             )
 
-            assert handle.event.is_set()
+            assert event.is_set()
             mock.assert_called_once_with(b"hello")
 
-    async def test_local_sync_decoder(self, mock: Mock, queue: str, raw_broker):
+    async def test_local_sync_decoder(
+        self,
+        mock: Mock,
+        queue: str,
+        raw_broker,
+        event: asyncio.Event,
+    ):
         broker = self.broker_class()
 
         def custom_decoder(msg):
@@ -56,7 +68,7 @@ class LocalCustomParserTestcase:
 
         @broker.subscriber(queue, decoder=custom_decoder)
         async def handle(m):
-            ...
+            event.set()
 
         broker = self.patch_broker(raw_broker, broker)
         async with broker:
@@ -65,15 +77,21 @@ class LocalCustomParserTestcase:
             await asyncio.wait(
                 (
                     asyncio.create_task(broker.publish(b"hello", queue)),
-                    asyncio.create_task(handle.wait_call()),
+                    asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
             )
 
-            assert handle.event.is_set()
+            assert event.is_set()
             mock.assert_called_once_with(b"hello")
 
-    async def test_global_sync_decoder(self, mock: Mock, queue: str, raw_broker):
+    async def test_global_sync_decoder(
+        self,
+        mock: Mock,
+        queue: str,
+        raw_broker,
+        event: asyncio.Event,
+    ):
         def custom_decoder(msg):
             mock(msg.body)
             return msg
@@ -82,7 +100,7 @@ class LocalCustomParserTestcase:
 
         @broker.subscriber(queue)
         async def handle(m):
-            ...
+            event.set()
 
         broker = self.patch_broker(raw_broker, broker)
         async with broker:
@@ -91,16 +109,20 @@ class LocalCustomParserTestcase:
             await asyncio.wait(
                 (
                     asyncio.create_task(broker.publish(b"hello", queue)),
-                    asyncio.create_task(handle.wait_call()),
+                    asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
             )
 
-            assert handle.event.is_set()
+            assert event.is_set()
             mock.assert_called_once_with(b"hello")
 
     async def test_local_parser_no_share_between_subscribers(
-        self, event: asyncio.Event, mock: Mock, queue: str, raw_broker
+        self,
+        event: asyncio.Event,
+        mock: Mock,
+        queue: str,
+        raw_broker,
     ):
         event2 = asyncio.Event()
         broker = self.broker_class()
@@ -137,9 +159,14 @@ class LocalCustomParserTestcase:
             mock.assert_called_once_with(b"hello")
 
     async def test_local_parser_no_share_between_handlers(
-        self, mock: Mock, queue: str, raw_broker
+        self,
+        mock: Mock,
+        queue: str,
+        raw_broker,
+        event: asyncio.Event,
     ):
         broker = self.broker_class()
+        event2 = asyncio.Event()
 
         async def custom_parser(msg, original):
             msg = await original(msg)
@@ -148,11 +175,11 @@ class LocalCustomParserTestcase:
 
         @broker.subscriber(queue, filter=lambda m: m.content_type == "application/json")
         async def handle(m):
-            ...
+            event.set()
 
         @broker.subscriber(queue, parser=custom_parser)
         async def handle2(m):
-            ...
+            event2.set()
 
         broker = self.patch_broker(raw_broker, broker)
         async with broker:
@@ -162,19 +189,25 @@ class LocalCustomParserTestcase:
                 (
                     asyncio.create_task(broker.publish({"msg": "hello"}, queue)),
                     asyncio.create_task(broker.publish(b"hello", queue)),
-                    asyncio.create_task(handle.wait_call()),
-                    asyncio.create_task(handle2.wait_call()),
+                    asyncio.create_task(event.wait()),
+                    asyncio.create_task(event2.wait()),
                 ),
                 timeout=3,
             )
 
-            assert handle.event.is_set()
-            assert handle2.event.is_set()
+            assert event.is_set()
+            assert event2.is_set()
             assert mock.call_count == 2  # instead 4
 
 
 class CustomParserTestcase(LocalCustomParserTestcase):
-    async def test_global_parser(self, mock: Mock, queue: str, raw_broker):
+    async def test_global_parser(
+        self,
+        mock: Mock,
+        queue: str,
+        raw_broker,
+        event: asyncio.Event,
+    ):
         async def custom_parser(msg, original):
             msg = await original(msg)
             mock(msg.body)
@@ -184,7 +217,7 @@ class CustomParserTestcase(LocalCustomParserTestcase):
 
         @broker.subscriber(queue)
         async def handle(m):
-            ...
+            event.set()
 
         broker = self.patch_broker(raw_broker, broker)
         async with broker:
@@ -193,10 +226,10 @@ class CustomParserTestcase(LocalCustomParserTestcase):
             await asyncio.wait(
                 (
                     asyncio.create_task(broker.publish(b"hello", queue)),
-                    asyncio.create_task(handle.wait_call()),
+                    asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
             )
 
-            assert handle.event.is_set()
+            assert event.is_set()
             mock.assert_called_once_with(b"hello")

@@ -236,8 +236,14 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
 
     def set_test(self) -> None:
         self.is_test = True
-        self.mock = MagicMock()
-        self.refresh()
+        if self.mock is None:
+            self.mock = MagicMock()
+        self.refresh(with_mock=True)
+
+    def reset_test(self) -> None:
+        self.is_test = False
+        self.mock = None
+        self.future = None
 
     def trigger(
         self,

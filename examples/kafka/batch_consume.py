@@ -14,5 +14,4 @@ async def handle(msg: List[str], logger: Logger):
 
 @app.after_startup
 async def test() -> None:
-    await broker.publish("hi", "test")
-    await broker.publish("FastStream", "test")
+    await broker.publish_batch("hi", "FastStream", topic="test")
