@@ -14,7 +14,7 @@ from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.types import AnyDict, SendableMessage
 
 
-@dataclass(slots=True)
+@dataclass
 class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
     """A base class for publishers in an asynchronous API.
 
@@ -46,6 +46,15 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
     )
     _fake_handler: bool = field(default=False, repr=False)
     mock: Optional[MagicMock] = field(init=False, default=None, repr=False)
+
+    __slots__ = (
+        "title",
+        "_description",
+        "_schema",
+        "calls"
+        "_fake_handler",
+        "mock",
+    )
 
     @property
     def description(self) -> Optional[str]:

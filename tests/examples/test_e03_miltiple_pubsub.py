@@ -2,8 +2,8 @@ import pytest
 
 from examples.e03_miltiple_pubsub import (
     app,
-    handle,
     broker,
+    handle,
     handle_response_1,
     handle_response_2,
 )

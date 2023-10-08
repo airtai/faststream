@@ -1,6 +1,6 @@
 import pytest
 
-from examples.e02_3_basic_publisher import app, handle, handle_response, broker
+from examples.e02_3_basic_publisher import app, broker, handle, handle_response
 from faststream.rabbit import TestApp, TestRabbitBroker
 
 

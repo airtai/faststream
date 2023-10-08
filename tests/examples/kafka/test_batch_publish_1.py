@@ -1,6 +1,6 @@
 import pytest
 
-from examples.kafka.batch_publish_1 import app, handle, broker
+from examples.kafka.batch_publish_1 import app, broker, handle
 from faststream.kafka import TestApp, TestKafkaBroker
 
 

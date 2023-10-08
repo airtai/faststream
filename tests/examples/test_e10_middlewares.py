@@ -1,6 +1,6 @@
 import pytest
 
-from examples.e10_middlewares import app, handle, broker
+from examples.e10_middlewares import app, broker, handle
 from faststream.rabbit import TestApp, TestRabbitBroker
 
 

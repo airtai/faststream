@@ -1,6 +1,6 @@
 import pytest
 
-from examples.router.basic_publish import app, handle, handle_response, broker
+from examples.router.basic_publish import app, broker, handle, handle_response
 from faststream.kafka import TestApp, TestKafkaBroker
 
 

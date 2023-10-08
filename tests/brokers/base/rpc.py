@@ -4,8 +4,8 @@ from unittest.mock import MagicMock
 import anyio
 import pytest
 
-from faststream.utils.functions import timeout_scope
 from faststream.broker.core.abc import BrokerUsecase
+from faststream.utils.functions import timeout_scope
 
 
 class BrokerRPCTestcase:

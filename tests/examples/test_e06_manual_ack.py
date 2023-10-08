@@ -1,6 +1,6 @@
 import pytest
 
-from examples.e06_manual_ack import app, handle, broker
+from examples.e06_manual_ack import app, broker, handle
 from faststream.rabbit import TestApp, TestRabbitBroker
 
 

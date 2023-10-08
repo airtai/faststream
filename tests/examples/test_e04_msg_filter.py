@@ -1,6 +1,6 @@
 import pytest
 
-from examples.e04_msg_filter import app, handle_json, handle_other_messages, broker
+from examples.e04_msg_filter import app, broker, handle_json, handle_other_messages
 from faststream.rabbit import TestApp, TestRabbitBroker
 
 

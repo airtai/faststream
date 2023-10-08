@@ -6,7 +6,7 @@ from faststream.rabbit import TestApp, TestRabbitBroker
 @pytest.mark.asyncio
 @pytest.mark.rabbit
 async def test_stream():
-    from docs.docs_src.rabbit.subscription.stream import app, handle, broker
+    from docs.docs_src.rabbit.subscription.stream import app, broker, handle
 
     async with TestRabbitBroker(broker, with_real=True, connect_only=True):
         async with TestApp(app):

@@ -1,7 +1,7 @@
 import pytest
 
-from examples.e01_basic_consume import app, handle, broker
-from faststream.rabbit import TestRabbitBroker, TestApp
+from examples.e01_basic_consume import app, broker, handle
+from faststream.rabbit import TestApp, TestRabbitBroker
 
 
 @pytest.mark.asyncio

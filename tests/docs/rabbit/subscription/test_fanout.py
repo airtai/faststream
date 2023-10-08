@@ -8,9 +8,9 @@ from faststream.rabbit import TestApp, TestRabbitBroker
 async def test_index():
     from docs.docs_src.rabbit.subscription.fanout import (
         app,
-        broker,
         base_handler1,
         base_handler3,
+        broker,
     )
 
     async with TestRabbitBroker(broker, with_real=True, connect_only=True):

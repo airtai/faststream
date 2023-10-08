@@ -2,8 +2,8 @@ import pytest
 
 from faststream import TestApp
 from faststream.kafka import TestKafkaBroker
-from faststream.rabbit import TestRabbitBroker
 from faststream.nats import TestNatsBroker
+from faststream.rabbit import TestRabbitBroker
 
 
 @pytest.mark.asyncio
@@ -26,8 +26,8 @@ async def test_broker_context_kafka():
 async def test_broker_context_nats():
     from docs.docs_src.getting_started.publishing.broker_context_nats import (
         app,
-        handle,
         broker,
+        handle,
     )
 
     async with TestNatsBroker(broker, connect_only=True, with_real=True):
@@ -41,8 +41,8 @@ async def test_broker_context_nats():
 async def test_broker_context_rabbit():
     from docs.docs_src.getting_started.publishing.broker_context_rabbit import (
         app,
-        handle,
         broker,
+        handle,
     )
 
     async with TestRabbitBroker(broker, connect_only=True, with_real=True):

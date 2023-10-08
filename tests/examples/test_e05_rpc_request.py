@@ -1,6 +1,6 @@
 import pytest
 
-from examples.e05_rpc_request import app, handle, broker
+from examples.e05_rpc_request import app, broker, handle
 from faststream.rabbit import TestApp, TestRabbitBroker
 
 
