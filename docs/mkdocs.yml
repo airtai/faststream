@@ -80,8 +80,6 @@ plugins:
             show_docstring_attributes: false
             show_root_heading: true
             show_signature_annotations: true
-  - social:                      # render social card
-      enabled: !ENV [CI, false]
   - i18n:
       docs_structure: folder
       reconfigure_material: true
