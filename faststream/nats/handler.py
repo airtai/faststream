@@ -23,6 +23,7 @@ from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.parser import JsParser, Parser
 from faststream.types import AnyDict
+from faststream.utils.context.path import compile_path
 
 
 class LogicNatsHandler(AsyncHandler[Msg]):
@@ -39,7 +40,10 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         description: Optional[str] = None,
         title: Optional[str] = None,
     ):
-        self.subject = subject
+        reg, path = compile_path(subject, replace_symbol="*")
+        self.subject = path
+        self.path_regex = reg
+
         self.queue = queue
 
         self.stream = stream
