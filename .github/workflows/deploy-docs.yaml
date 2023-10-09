@@ -29,5 +29,5 @@ jobs:
                 git config --local user.name "github-actions[bot]"
             - run: echo $VERSION
             # - run: cd docs && mike delete --all
-            - run: cd docs && mike deploy --push --template templates/redirect.html --update-aliases $VERSION latest
+            - run: cd docs && mike deploy --template templates/redirect.html --update-aliases $VERSION latest
             - run: cd docs && mike set-default --push --template templates/redirect.html latest
