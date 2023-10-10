@@ -1,3 +1,0 @@
-
-
-::: faststream.kafka.handler.LogicHandler
