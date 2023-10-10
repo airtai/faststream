@@ -4,7 +4,7 @@ from typing import Any, Mapping
 from fast_depends.library import CustomField
 
 from faststream.types import AnyDict
-from faststream.utils.context import context
+from faststream.utils.context.main import context
 
 
 class Context(CustomField):

@@ -1,7 +1,8 @@
 from typing import Annotated
 
 from faststream import Context, FastStream
-from faststream.nats import NatsBroker, NatsMessage
+from faststream.nats import NatsBroker
+from faststream.nats.message import NatsMessage
 
 Message = Annotated[NatsMessage, Context()]
 

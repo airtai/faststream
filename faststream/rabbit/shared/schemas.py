@@ -6,6 +6,7 @@ from faststream.rabbit.shared.constants import ExchangeType
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.types import AnyDict
 from faststream.utils.context.path import compile_path
+from faststream._compat import PYDANTIC_V2
 
 
 class RabbitQueue(NameRequired):
@@ -103,6 +104,14 @@ class RabbitQueue(NameRequired):
             arguments=arguments,
             timeout=timeout,
         )
+
+    if PYDANTIC_V2:
+        model_config = {
+            "arbitrary_types_allowed": True
+        }
+    else:
+        class Config:
+            arbitrary_types_allowed = True
 
 
 class RabbitExchange(NameRequired):

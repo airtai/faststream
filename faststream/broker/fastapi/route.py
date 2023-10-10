@@ -176,10 +176,7 @@ class StreamMessage(Request):
         self._cookies = {}
         self._headers = headers or {}
         self._body = body or {}
-        self._query_params = {
-            **self._body,
-            **(path or {})
-        }
+        self._query_params = {**self._body, **(path or {})}
 
     @classmethod
     def get_session(
