@@ -110,7 +110,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: pip install .[rabbit,kafka,nats,docs,testing]
       - name: Test
-        run: bash scripts/test.sh -vv -m "(slow and (not nats and not kafka and not rabbit)) or (not nats and not kafka and not rabbit)"
+        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not rabbit)) or (not nats and not kafka and not rabbit)"
 
   test-kafka-real:
     if: github.event.pull_request.draft == false
