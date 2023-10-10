@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
 from typing import Optional, Pattern
 
+from faststream._compat import PYDANTIC_V2
 from faststream.broker.schemas import NameRequired
 from faststream.rabbit.shared.constants import ExchangeType
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.types import AnyDict
 from faststream.utils.context.path import compile_path
-from faststream._compat import PYDANTIC_V2
 
 
 class RabbitQueue(NameRequired):
@@ -106,10 +106,9 @@ class RabbitQueue(NameRequired):
         )
 
     if PYDANTIC_V2:
-        model_config = {
-            "arbitrary_types_allowed": True
-        }
+        model_config = {"arbitrary_types_allowed": True}
     else:
+
         class Config:
             arbitrary_types_allowed = True
 

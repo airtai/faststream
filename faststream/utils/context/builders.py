@@ -1,5 +1,5 @@
-from typing import Any
 from inspect import _empty
+from typing import Any
 
 from faststream.utils.context.types import Context as Context_
 

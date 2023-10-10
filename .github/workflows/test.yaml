@@ -112,7 +112,7 @@ jobs:
       - name: Test
         run: bash scripts/test.sh -vv -m "(slow and (not nats and not kafka and not rabbit)) or (not nats and not kafka and not rabbit)"
 
-  test-kafka:
+  test-kafka-real:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     services:
@@ -171,7 +171,7 @@ jobs:
       - name: Test
         run: bash scripts/test.sh -m "not kafka" tests/brokers/kafka/test_test_client.py
 
-  test-rabbit:
+  test-rabbit-real:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     services:
@@ -219,7 +219,7 @@ jobs:
       - name: Test
         run: bash scripts/test.sh -m "not rabbit" tests/brokers/rabbit/test_test_client.py
 
-  test-nats:
+  test-nats-real:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     services:
@@ -313,9 +313,9 @@ jobs:
       - coverage-combine
       - test-macos-latest
       - test-windows-latest
-      - test-kafka
-      - test-rabbit
-      - test-nats
+      - test-kafka-real
+      - test-rabbit-real
+      - test-nats-real
       - test-kafka-smoke
       - test-rabbit-smoke
       - test-nats-smoke

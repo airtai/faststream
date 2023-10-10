@@ -2,6 +2,7 @@ import importlib.util
 import json
 import os
 import sys
+from contextlib import suppress
 from typing import Any, Callable, Dict, List, Mapping, Optional, Type, TypeVar, Union
 
 from fast_depends._compat import PYDANTIC_V2 as PYDANTIC_V2
@@ -53,31 +54,32 @@ def is_installed(package: str) -> bool:
 IS_OPTIMIZED = os.getenv("PYTHONOPTIMIZE", False)
 
 
-try:
-    from fastapi import __version__ as FASTAPI_VERSION
+if is_installed("fastapi"):
+    # NOTE: is_installed somewhen True for some reason
+    with suppress(ImportError):
+        from fastapi import __version__ as FASTAPI_VERSION
 
-    major, minor, _ = map(int, FASTAPI_VERSION.split("."))
-    FASTAPI_V2 = not (major < 0 and minor < 100)
+        major, minor, _ = map(int, FASTAPI_VERSION.split("."))
+        FASTAPI_V2 = not (major < 0 and minor < 100)
 
-    if FASTAPI_V2:
-        from fastapi._compat import _normalize_errors
-        from fastapi.exceptions import RequestValidationError
+        if FASTAPI_V2:
+            from fastapi._compat import _normalize_errors
+            from fastapi.exceptions import RequestValidationError
 
-        def raise_fastapi_validation_error(errors: List[Any], body: AnyDict) -> Never:
-            raise RequestValidationError(_normalize_errors(errors), body=body)
+            def raise_fastapi_validation_error(errors: List[Any], body: AnyDict) -> Never:
+                raise RequestValidationError(_normalize_errors(errors), body=body)
 
-    else:
-        from pydantic import (  # type: ignore[assignment]  # isort: skip
-            ValidationError as RequestValidationError,
-        )
-        from pydantic import create_model
+        else:
+            from pydantic import (  # type: ignore[assignment]  # isort: skip
+                ValidationError as RequestValidationError,
+            )
+            from pydantic import create_model
 
-        ROUTER_VALIDATION_ERROR_MODEL = create_model("StreamRoute")
+            ROUTER_VALIDATION_ERROR_MODEL = create_model("StreamRoute")
 
-        def raise_fastapi_validation_error(errors: List[Any], body: AnyDict) -> Never:
-            raise RequestValidationError(errors, ROUTER_VALIDATION_ERROR_MODEL)  # type: ignore[misc]
-except ImportError:
-    pass
+            def raise_fastapi_validation_error(errors: List[Any], body: AnyDict) -> Never:
+                raise RequestValidationError(errors, ROUTER_VALIDATION_ERROR_MODEL)  # type: ignore[misc]
+
 
 JsonSchemaValue = Mapping[str, Any]
 

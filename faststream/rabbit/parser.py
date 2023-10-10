@@ -46,8 +46,8 @@ class AioPikaParser:
         """
         handler = context.get("handler_")
         path: AnyDict = {}
+        path_re: Optional[Pattern[str]]
         if handler and (path_re := handler.queue.path_regex):
-            path_re: Optional[Pattern[str]]
             if path_re is not None:
                 match = path_re.match(message.routing_key or "")
                 if match:

@@ -22,9 +22,8 @@ class NatsParser:
 
         handler = context.get("handler_")
         path: AnyDict = {}
+        path_re: Optional[Pattern[str]]
         if handler and (path_re := handler.path_regex):
-            path_re: Optional[Pattern[str]]
-            path: AnyDict = {}
             if path_re is not None:
                 match = path_re.match(message.subject)
                 if match:
