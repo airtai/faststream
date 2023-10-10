@@ -1,3 +1,0 @@
-
-
-::: faststream.broker.middlewares.CriticalLogMiddleware
