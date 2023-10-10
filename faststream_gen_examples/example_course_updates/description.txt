@@ -1,4 +1,0 @@
-Develop a FastStream application using localhost broker.
-It should consume messages from 'course_updates' topic where the message is a JSON encoded object including three attributes: course_name, new_content and timestamp.
-If new_content attribute is set, then construct a new message appending 'Updated: ' before the course_name attribute.
-Finally, publish this message to the 'notify_updates' topic.
