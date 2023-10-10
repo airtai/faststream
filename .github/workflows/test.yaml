@@ -141,7 +141,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,docs,test-core]
+        run: pip install .[nats,kafka,rabbit,docs,testing]
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m "(slow and kafka) or kafka"
@@ -189,7 +189,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,docs,test-core]
+        run: pip install .[nats,kafka,rabbit,docs,testing]
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m "(slow and rabbit) or rabbit"
@@ -237,7 +237,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,docs,test-core]
+        run: pip install .[nats,kafka,rabbit,docs,testing]
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m "(slow and nats) or nats"
