@@ -141,7 +141,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,test-core]
+        run: pip install .[nats,kafka,rabbit,docs,test-core]
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m "(slow and kafka) or kafka"
@@ -169,7 +169,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: pip install .[kafka,test-core]
       - name: Test
-        run: bash scripts/test.sh -m "not kafka" tests/brokers/kafka
+        run: bash scripts/test.sh -m "not kafka" tests/brokers/kafka/test_test_client.py
 
   test-rabbit:
     if: github.event.pull_request.draft == false
@@ -189,7 +189,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,test-core]
+        run: pip install .[nats,kafka,rabbit,docs,test-core]
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m "(slow and rabbit) or rabbit"
@@ -217,7 +217,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: pip install .[rabbit,test-core]
       - name: Test
-        run: bash scripts/test.sh -m "not rabbit" tests/brokers/rabbit
+        run: bash scripts/test.sh -m "not rabbit" tests/brokers/rabbit/test_test_client.py
 
   test-nats:
     if: github.event.pull_request.draft == false
@@ -237,7 +237,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,test-core]
+        run: pip install .[nats,kafka,rabbit,docs,test-core]
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m "(slow and nats) or nats"
@@ -265,7 +265,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: pip install .[nats,test-core]
       - name: Test
-        run: bash scripts/test.sh -m "not nats" tests/brokers/nats
+        run: bash scripts/test.sh -m "not nats" tests/brokers/nats/test_test_client.py
 
   coverage-combine:
     if: github.event.pull_request.draft == false
