@@ -271,9 +271,9 @@ jobs:
     if: github.event.pull_request.draft == false
     needs:
       - test
-      - test-kafka
-      - test-rabbit
-      - test-nats
+      - test-kafka-real
+      - test-rabbit-real
+      - test-nats-real
     runs-on: ubuntu-latest
 
     steps:
