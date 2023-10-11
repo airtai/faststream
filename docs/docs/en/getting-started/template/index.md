@@ -35,7 +35,8 @@ To set up your development environment, follow these steps:
    ```bash
    cookiecutter https://github.com/airtai/cookiecutter-faststream.git
    ```
-   The following screenshot illustrates the process of creating a new FastStream app with Kafka using the above command:
+   The following screenshot illustrates the process of creating a new FastStream app with Kafka using the above command:![using-cookiecutter-faststream](https://github.com/airtai/faststream/assets/7011056/d24ee8ec-3b39-4b85-9bba-a6be823a5fed)
+
 
 3. Change the working directory to the newly created directory:
    ```bash
