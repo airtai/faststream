@@ -94,6 +94,12 @@ plugins:
       type: timeago
   - literate-nav:                # .md importable navigation
       nav_file: SUMMARY.md
+  - blog:
+      blog_dir: blog
+      blog_toc: true
+      post_date_format: medium
+      post_url_date_format: yyyy/MM/dd
+      post_url_format: "{date}/{slug}"
 
 markdown_extensions:
   - toc:
