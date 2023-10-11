@@ -26,7 +26,7 @@
     
     
       
-        <title>Using FastStream Template - FastStream</title>
+        <title>Using Cookiecutter FastStream Template - FastStream</title>
       
     
     
@@ -80,7 +80,7 @@
     
   
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="FastStream - Using FastStream Template" />
+  <meta property="og:title" content="FastStream - Using Cookiecutter FastStream Template" />
   <meta property="og:description" content="FastStream Python messaging framework documentation" />
   <meta property="og:url" content="https://faststream.airt.ai/0.2/getting-started/template/" />
   <meta property="og:image" content="https://opengraph.githubassets.com/1671805243.560327/airtai/faststream" />
@@ -89,7 +89,7 @@
   <meta property="og:image:height" content="630" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="FastStream - Using FastStream Template" />
+  <meta name="twitter:title" content="FastStream - Using Cookiecutter FastStream Template" />
   <meta name="twitter:description" content="FastStream Python messaging framework documentation" />
   <meta name="twitter:image" content="https://opengraph.githubassets.com/1671805243.560327/airtai/faststream" />
 
@@ -126,7 +126,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#faststream-template" class="md-skip">
+        <a href="#using-cookiecutter-faststream-template" class="md-skip">
           Skip to content
         </a>
       
@@ -177,7 +177,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Using FastStream Template
+              Using Cookiecutter FastStream Template
             
           </span>
         </div>
@@ -1061,7 +1061,7 @@
           
   
   <span class="md-ellipsis">
-    Using FastStream Template
+    Using Cookiecutter FastStream Template
   </span>
   
 
@@ -1072,7 +1072,7 @@
         
   
   <span class="md-ellipsis">
-    Using FastStream Template
+    Using Cookiecutter FastStream Template
   </span>
   
 
@@ -2111,12 +2111,12 @@
   
 
 
-<h1 id="faststream-template">FastStream Template<a class="headerlink" href="#faststream-template" title="Permanent link">#</a></h1>
-<p><a class="external-link" href="https://github.com/airtai/faststream-template/tree/main" target="_blank">FastStream Template</a> is a versatile repository that provides a solid foundation for your Python projects. It comes with a basic application, testing infrastructure, linting scripts, and various development tools to kickstart your development process. Whether you're building a new application from scratch or want to enhance an existing one, this template will save you time and help you maintain high code quality.</p>
+<h1 id="using-cookiecutter-faststream-template">Using Cookiecutter FastStream Template<a class="headerlink" href="#using-cookiecutter-faststream-template" title="Permanent link">#</a></h1>
+<p><a class="external-link" href="https://github.com/airtai/cookiecutter-faststream" target="_blank">Cookiecutter FastStream</a> is a versatile repository that provides a solid foundation for your Python projects. It comes with a basic application, testing infrastructure, linting scripts, and various development tools to kickstart your development process. Whether you're building a new application from scratch or want to enhance an existing one, this template will save you time and help you maintain high code quality.</p>
 <h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">#</a></h2>
 <ul>
 <li>
-<p><strong>Basic Application</strong>: <a class="external-link" href="https://github.com/airtai/faststream-template/tree/main" target="_blank">FastStream Template</a> includes a basic Python application as a starting point for your project. You can easily replace it with your own code.</p>
+<p><strong>Basic Application</strong>: <a class="external-link" href="https://github.com/airtai/cookiecutter-faststream" target="_blank">Cookiecutter FastStream</a> includes a basic Python application as a starting point for your project. You can easily replace it with your own code.</p>
 </li>
 <li>
 <p><strong>Testing Framework</strong>: We've set up <a class="external-link" href="https://pytest.org/" target="_blank"><code>pytest</code></a> for running unit tests. Write your tests in the tests directory and use the provided workflow for automated testing.</p>
@@ -2131,7 +2131,7 @@
 <p><strong>Dependency Management</strong>: All application requirements and development dependencies are specified in the <code>pyproject.toml</code> file. This includes not only your project's dependencies but also configurations for various tools like <a class="external-link" href="https://pytest.org/" target="_blank"><code>pytest</code></a>, <a class="external-link" href="https://mypy.readthedocs.io/en/stable/" target="_blank"><code>mypy</code></a>, <a class="external-link" href="https://github.com/psf/black" target="_blank"><code>black</code></a>, <a class="external-link" href="https://github.com/astral-sh/ruff" target="_blank"><code>ruff</code></a>, and <a class="external-link" href="https://bandit.readthedocs.io/en/latest/" target="_blank"><code>bandit</code></a>.</p>
 </li>
 <li>
-<p><strong>Continuous Integration (CI)</strong>: <a class="external-link" href="https://github.com/airtai/faststream-template/tree/main" target="_blank">FastStream Template</a> comes with three <a class="external-link" href="https://github.com/features/actions" target="_blank">GitHub Actions</a> workflows under the <code>.github/workflows</code> directory:</p>
+<p><strong>Continuous Integration (CI)</strong>: <a class="external-link" href="https://github.com/airtai/cookiecutter-faststream" target="_blank">Cookiecutter FastStream</a> comes with three <a class="external-link" href="https://github.com/features/actions" target="_blank">GitHub Actions</a> workflows under the <code>.github/workflows</code> directory:</p>
 </li>
 <li>
 <p><strong>Static Analysis and Testing</strong>: This workflow consists of two jobs. The first job runs static analysis tools (<a class="external-link" href="https://mypy.readthedocs.io/en/stable/" target="_blank"><code>mypy</code></a> and <a class="external-link" href="https://bandit.readthedocs.io/en/latest/" target="_blank"><code>bandit</code></a>) to check your code for potential issues. If successful, the second job runs <a class="external-link" href="https://pytest.org/" target="_blank"><code>pytest</code></a> to execute your test suite.</p>
@@ -2147,46 +2147,68 @@
 <p>To set up your development environment, follow these steps:</p>
 <ol>
 <li>
-<p>In the <a class="external-link" href="https://github.com/airtai/faststream-template/tree/main" target="_blank">FastStream Template</a> repository, click on <strong>Use this template</strong> -&gt; <strong>Create a new repository</strong>:<a class="glightbox" href="https://github.com/airtai/faststream/assets/7011056/6e4e913c-8cd5-4e14-95dc-3bc13b6989be" data-type="image" data-width="100%" data-height="auto" data-desc-position="bottom"><img alt="use-this-template" src="https://github.com/airtai/faststream/assets/7011056/6e4e913c-8cd5-4e14-95dc-3bc13b6989be" /></a>
-   In the next screen, fill out details such as repository name, description, etc:<a class="glightbox" href="https://github.com/airtai/faststream/assets/7011056/77734648-6356-4388-b8c4-279a38fb5f65" data-type="image" data-width="100%" data-height="auto" data-desc-position="bottom"><img alt="create-repo" src="https://github.com/airtai/faststream/assets/7011056/77734648-6356-4388-b8c4-279a38fb5f65" /></a></p>
+<p>Install the <a class="external-link" href="https://github.com/cookiecutter/cookiecutter" target="_blank"><code>cookiecutter</code></a> package using the following command:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>cookiecutter
+</code></pre></div></p>
 </li>
 <li>
-<p>Clone this repository to your local machine:
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/&lt;username&gt;/&lt;repo-name&gt;.git
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>&lt;repo-name&gt;
+<p>Run the provided <a class="external-link" href="https://github.com/cookiecutter/cookiecutter" target="_blank"><code>cookiecutter</code></a> command and fill out the relevant details to generate a new FastStream project:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cookiecutter<span class="w"> </span>https://github.com/airtai/cookiecutter-faststream.git
+</code></pre></div>
+   The following screenshot illustrates the process of creating a new FastStream app with Kafka using the above command:<a class="glightbox" href="https://github.com/airtai/faststream/assets/7011056/d24ee8ec-3b39-4b85-9bba-a6be823a5fed" data-type="image" data-width="100%" data-height="auto" data-desc-position="bottom"><img alt="using-cookiecutter-faststream" src="https://github.com/airtai/faststream/assets/7011056/d24ee8ec-3b39-4b85-9bba-a6be823a5fed" /></a></p>
+</li>
+<li>
+<p>Change the working directory to the newly created directory:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">cd</span><span class="w"> </span>&lt;directory-name&gt;
 </code></pre></div></p>
 <blockquote>
-<p><strong><em>NOTE:</em></strong> Replace <code>&lt;username&gt;</code> with your GitHub username and <code>&lt;repo-name&gt;</code> with the name of your repository.</p>
+<p><strong><em>NOTE:</em></strong> Replace <code>&lt;directory-name&gt;</code> with the name of your directory.</p>
 </blockquote>
 </li>
 <li>
 <p>Install all development requirements using pip:
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
 </code></pre></div></p>
+</li>
+<li>
+<p>Create a new repository for our FastStream app on GitHub.<a class="glightbox" href="https://github.com/airtai/faststream/assets/7011056/7076b925-2090-4bbb-b9da-0df4783fb5a3" data-type="image" data-width="100%" data-height="auto" data-desc-position="bottom"><img alt="creating-new-github-repo" src="https://github.com/airtai/faststream/assets/7011056/7076b925-2090-4bbb-b9da-0df4783fb5a3" /></a></p>
+</li>
+<li>
+<p>Add all the files, commit and push using the following commands:
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>git<span class="w"> </span>init
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>git<span class="w"> </span>add<span class="w"> </span>.
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;first commit&quot;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>git<span class="w"> </span>branch<span class="w"> </span>-M<span class="w"> </span>main
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>origin<span class="w"> </span>git@github.com:&lt;username&gt;/&lt;repo-name&gt;.git
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>git<span class="w"> </span>push<span class="w"> </span>-u<span class="w"> </span>origin<span class="w"> </span>main
+</code></pre></div></p>
+<blockquote>
+<p><strong><em>NOTE:</em></strong> Replace <code>&lt;username&gt;</code> with your GitHub username and <code>&lt;repo-name&gt;</code> with the name of your repository in the above commands.</p>
+</blockquote>
 </li>
 </ol>
 <h2 id="development">Development<a class="headerlink" href="#development" title="Permanent link">#</a></h2>
 <p>The application code is located in the <code>app/</code> directory. You can add new features or fix bugs in this directory. However, remember that code changes must be accompanied by corresponding updates to the tests located in the <code>tests/</code> directory.</p>
 <h2 id="running-tests">Running Tests<a class="headerlink" href="#running-tests" title="Permanent link">#</a></h2>
 <p>Once you have updated tests, you can execute the tests using <a class="external-link" href="https://pytest.org/" target="_blank"><code>pytest</code></a>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pytest
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pytest
 </code></pre></div>
 <h2 id="running-faststream-application-locally">Running FastStream Application Locally<a class="headerlink" href="#running-faststream-application-locally" title="Permanent link">#</a></h2>
 <p>To run the <a class="external-link" href="https://github.com/airtai/faststream" target="_blank"><code>FastStream</code></a> application locally, follow these steps:</p>
 <ol>
 <li>
 <p>Start the Kafka Docker container locally using the provided script:
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>./scripts/start_kafka_broker_locally.sh
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>./scripts/start_kafka_broker_locally.sh
 </code></pre></div></p>
 </li>
 <li>
 <p>Start the <a class="external-link" href="https://github.com/airtai/faststream" target="_blank"><code>FastStream</code></a> application with the following command:
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>app.application:app<span class="w"> </span>--workers<span class="w"> </span><span class="m">1</span>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>app.application:app<span class="w"> </span>--workers<span class="w"> </span><span class="m">1</span>
 </code></pre></div></p>
 </li>
 <li>
 <p>You can now send messages to the Kafka topic and can test the application. Optionally, if you want to view messages in a topic, you can subscribe to it using the provided script:
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>./scripts/subscribe_to_kafka_broker_locally.sh<span class="w"> </span>&lt;topic_name&gt;
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>./scripts/subscribe_to_kafka_broker_locally.sh<span class="w"> </span>&lt;topic_name&gt;
 </code></pre></div></p>
 </li>
 <li>
@@ -2194,7 +2216,7 @@
 </li>
 <li>
 <p>Finally, stop the Kafka Docker container by running the script:
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>./scripts/stop_kafka_broker_locally.sh
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>./scripts/stop_kafka_broker_locally.sh
 </code></pre></div></p>
 </li>
 </ol>
@@ -2203,18 +2225,18 @@
 <ol>
 <li>
 <p>Run the provided script to build the <a class="external-link" href="https://www.docker.com/" target="_blank"><code>Docker</code></a> image locally. Use the following command:
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>./scripts/build_docker.sh<span class="w"> </span>&lt;username&gt;<span class="w"> </span>&lt;repo-name&gt;
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>./scripts/build_docker.sh<span class="w"> </span>&lt;username&gt;<span class="w"> </span>&lt;repo-name&gt;
 </code></pre></div>
    This script will build the <a class="external-link" href="https://www.docker.com/" target="_blank"><code>Docker</code></a> image locally with the same name as the one built in <code>CI</code>.</p>
 </li>
 <li>
 <p>Before starting the <a class="external-link" href="https://www.docker.com/" target="_blank"><code>Docker</code></a> container, ensure that a Kafka <a class="external-link" href="https://www.docker.com/" target="_blank"><code>Docker</code></a> container is running locally. You can start it using the provided script:
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>./scripts/start_kafka_broker_locally.sh
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>./scripts/start_kafka_broker_locally.sh
 </code></pre></div></p>
 </li>
 <li>
 <p>Once Kafka is up and running, you can start the local <a class="external-link" href="https://www.docker.com/" target="_blank"><code>Docker</code></a> container using the following command:
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--name<span class="w"> </span>faststream-app<span class="w"> </span>--net<span class="o">=</span>host<span class="w"> </span>ghcr.io/&lt;username&gt;/&lt;repo-name&gt;:latest
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--name<span class="w"> </span>faststream-app<span class="w"> </span>--net<span class="o">=</span>host<span class="w"> </span>ghcr.io/&lt;username&gt;/&lt;repo-name&gt;:latest
 </code></pre></div>
    <code>--rm</code>: This flag removes the container once it stops running, ensuring that it doesn't clutter your system with unused containers.
    <code>--name faststream-app</code>: Assigns a name to the running container, in this case, "faststream-app".
@@ -2225,7 +2247,7 @@
 </li>
 <li>
 <p>Finally, stop the Kafka <a class="external-link" href="https://www.docker.com/" target="_blank"><code>Docker</code></a> container by running the provided script:
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>./scripts/stop_kafka_broker_locally.sh
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>./scripts/stop_kafka_broker_locally.sh
 </code></pre></div></p>
 </li>
 </ol>
@@ -2234,11 +2256,11 @@
 </blockquote>
 <h2 id="code-linting">Code Linting<a class="headerlink" href="#code-linting" title="Permanent link">#</a></h2>
 <p>After making changes to the code, it's essential to ensure it adheres to coding standards. We provide a script to help you with code formatting and linting. Run the following script to automatically fix linting issues:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>./scripts/lint.sh
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>./scripts/lint.sh
 </code></pre></div>
 <h2 id="static-analysis">Static Analysis<a class="headerlink" href="#static-analysis" title="Permanent link">#</a></h2>
 <p>Static analysis tools <a class="external-link" href="https://mypy.readthedocs.io/en/stable/" target="_blank"><code>mypy</code></a> and <a class="external-link" href="https://bandit.readthedocs.io/en/latest/" target="_blank"><code>bandit</code></a> can help identify potential issues in your code. To run static analysis, use the following script:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>./scripts/static-analysis.sh
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>./scripts/static-analysis.sh
 </code></pre></div>
 <p>If there are any static analysis errors, resolve them in your code and rerun the script until it passes successfully.</p>
 <h2 id="viewing-asyncapi-documentation">Viewing AsyncAPI Documentation<a class="headerlink" href="#viewing-asyncapi-documentation" title="Permanent link">#</a></h2>
@@ -2246,7 +2268,7 @@
 <ol>
 <li>
 <p>Run the following command to view the <a class="external-link" href="https://www.asyncapi.com/" target="_blank"><code>AsyncAPI</code></a> documentation:
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>faststream<span class="w"> </span>docs<span class="w"> </span>serve<span class="w"> </span>app.application:app
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>faststream<span class="w"> </span>docs<span class="w"> </span>serve<span class="w"> </span>app.application:app
 </code></pre></div>
    This command builds the <a class="external-link" href="https://www.asyncapi.com/" target="_blank"><code>AsyncAPI</code></a> specification file, generates <a class="external-link" href="https://www.asyncapi.com/" target="_blank"><code>AsyncAPI</code></a> documentation based on the specification, and serves it at <code>localhost:8000</code>.</p>
 </li>
@@ -2262,13 +2284,13 @@
 <ol>
 <li>
 <p>Add and commit your changes:
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>git<span class="w"> </span>add<span class="w"> </span>.
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Your commit message&quot;</span>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>git<span class="w"> </span>add<span class="w"> </span>.
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Your commit message&quot;</span>
 </code></pre></div></p>
 </li>
 <li>
 <p>Push your changes to GitHub:
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>your-branch
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>your-branch
 </code></pre></div></p>
 </li>
 <li>
@@ -2292,7 +2314,7 @@
 <h2 id="viewing-asyncapi-documentation-hosted-at-github-pages">Viewing AsyncAPI Documentation Hosted at GitHub Pages<a class="headerlink" href="#viewing-asyncapi-documentation-hosted-at-github-pages" title="Permanent link">#</a></h2>
 <p>After the <strong>Deploy FastStream AsyncAPI Docs</strong> workflow in <code>CI</code> has been successfully completed, the <a class="external-link" href="https://www.asyncapi.com/" target="_blank"><code>AsyncAPI</code></a> documentation is automatically deployed to <a class="external-link" href="https://pages.github.com/" target="_blank"><strong>GitHub Pages</strong></a>. This provides a convenient way to access and share the documentation with project stakeholders.</p>
 <p>To view the deployed <a class="external-link" href="https://www.asyncapi.com/" target="_blank"><code>AsyncAPI</code></a> documentation, open your web browser and navigate to the following URL:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>https://&lt;username&gt;.github.io/&lt;repo-name&gt;/
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>https://&lt;username&gt;.github.io/&lt;repo-name&gt;/
 </code></pre></div>
 <blockquote>
 <p><strong><em>NOTE:</em></strong> Replace <code>&lt;username&gt;</code> with your GitHub username and <code>&lt;repo-name&gt;</code> with the name of your repository.</p>
@@ -2303,7 +2325,7 @@
 <ol>
 <li>
 <p>Pull the <a class="external-link" href="https://www.docker.com/" target="_blank"><code>Docker</code></a> image from the <a class="external-link" href="https://ghcr.io" target="_blank"><strong>GitHub Container Registry</strong></a> to your server using the following command:
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>docker<span class="w"> </span>pull<span class="w"> </span>ghcr.io/&lt;username&gt;/&lt;repo-name&gt;:latest
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>docker<span class="w"> </span>pull<span class="w"> </span>ghcr.io/&lt;username&gt;/&lt;repo-name&gt;:latest
 </code></pre></div></p>
 <blockquote>
 <p><strong><em>NOTE:</em></strong> Replace <code>&lt;username&gt;</code> with your GitHub username and <code>&lt;repo-name&gt;</code> with the name of your repository.</p>
@@ -2311,7 +2333,7 @@
 </li>
 <li>
 <p>After successfully pulling the image, start the <a class="external-link" href="https://www.docker.com/" target="_blank"><code>Docker</code></a> container using the following command:
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--name<span class="w"> </span>faststream-app<span class="w"> </span>--env-file<span class="w"> </span>/path/to/env-file<span class="w"> </span>ghcr.io/&lt;username&gt;/&lt;repo-name&gt;:latest
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--name<span class="w"> </span>faststream-app<span class="w"> </span>--env-file<span class="w"> </span>/path/to/env-file<span class="w"> </span>ghcr.io/&lt;username&gt;/&lt;repo-name&gt;:latest
 </code></pre></div>
    <code>--rm</code>: This flag removes the container once it stops running, ensuring that it doesn't clutter your system with unused containers.
    <code>--name faststream-app</code>: Assigns a name to the running container, in this case, "faststream-app".
@@ -2325,7 +2347,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-29T08:50:25+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-29</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-10-11T09:44:03+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-10-11</span>
       
     
   </small>
