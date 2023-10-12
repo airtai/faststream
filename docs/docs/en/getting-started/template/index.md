@@ -1,10 +1,10 @@
-# FastStream Template
+# Using Cookiecutter FastStream Template
 
-[FastStream Template](https://github.com/airtai/faststream-template/tree/main){.external-link target="_blank"} is a versatile repository that provides a solid foundation for your Python projects. It comes with a basic application, testing infrastructure, linting scripts, and various development tools to kickstart your development process. Whether you're building a new application from scratch or want to enhance an existing one, this template will save you time and help you maintain high code quality.
+[Cookiecutter FastStream](https://github.com/airtai/cookiecutter-faststream){.external-link target="_blank"} is a versatile repository that provides a solid foundation for your Python projects. It comes with a basic application, testing infrastructure, linting scripts, and various development tools to kickstart your development process. Whether you're building a new application from scratch or want to enhance an existing one, this template will save you time and help you maintain high code quality.
 
 ## Features
 
-* **Basic Application**: [FastStream Template](https://github.com/airtai/faststream-template/tree/main){.external-link target="_blank"} includes a basic Python application as a starting point for your project. You can easily replace it with your own code.
+* **Basic Application**: [Cookiecutter FastStream](https://github.com/airtai/cookiecutter-faststream){.external-link target="_blank"} includes a basic Python application as a starting point for your project. You can easily replace it with your own code.
 
 * **Testing Framework**: We've set up [`pytest`](https://pytest.org/){.external-link target="_blank"} for running unit tests. Write your tests in the tests directory and use the provided workflow for automated testing.
 
@@ -14,7 +14,7 @@
 
 * **Dependency Management**: All application requirements and development dependencies are specified in the `pyproject.toml` file. This includes not only your project's dependencies but also configurations for various tools like [`pytest`](https://pytest.org/){.external-link target="_blank"}, [`mypy`](https://mypy.readthedocs.io/en/stable/){.external-link target="_blank"}, [`black`](https://github.com/psf/black){.external-link target="_blank"}, [`ruff`](https://github.com/astral-sh/ruff){.external-link target="_blank"}, and [`bandit`](https://bandit.readthedocs.io/en/latest/){.external-link target="_blank"}.
 
-* **Continuous Integration (CI)**: [FastStream Template](https://github.com/airtai/faststream-template/tree/main){.external-link target="_blank"} comes with three [GitHub Actions](https://github.com/features/actions){.external-link target="_blank"} workflows under the `.github/workflows` directory:
+* **Continuous Integration (CI)**: [Cookiecutter FastStream](https://github.com/airtai/cookiecutter-faststream){.external-link target="_blank"} comes with three [GitHub Actions](https://github.com/features/actions){.external-link target="_blank"} workflows under the `.github/workflows` directory:
 
   1. **Static Analysis and Testing**: This workflow consists of two jobs. The first job runs static analysis tools ([`mypy`](https://mypy.readthedocs.io/en/stable/){.external-link target="_blank"} and [`bandit`](https://bandit.readthedocs.io/en/latest/){.external-link target="_blank"}) to check your code for potential issues. If successful, the second job runs [`pytest`](https://pytest.org/){.external-link target="_blank"} to execute your test suite.
 
@@ -26,20 +26,40 @@
 
 To set up your development environment, follow these steps:
 
-1. In the [FastStream Template](https://github.com/airtai/faststream-template/tree/main){.external-link target="_blank"} repository, click on **Use this template** -> **Create a new repository**:![use-this-template](https://github.com/airtai/faststream/assets/7011056/6e4e913c-8cd5-4e14-95dc-3bc13b6989be)
-   In the next screen, fill out details such as repository name, description, etc:![create-repo](https://github.com/airtai/faststream/assets/7011056/77734648-6356-4388-b8c4-279a38fb5f65)
-
-2. Clone this repository to your local machine:
+1. Install the [`cookiecutter`](https://github.com/cookiecutter/cookiecutter){.external-link target="_blank"} package using the following command:
    ```bash
-   git clone https://github.com/<username>/<repo-name>.git
-   cd <repo-name>
+   pip install cookiecutter
    ```
-   > **_NOTE:_** Replace `<username>` with your GitHub username and `<repo-name>` with the name of your repository.
 
-3. Install all development requirements using pip:
+2. Run the provided [`cookiecutter`](https://github.com/cookiecutter/cookiecutter){.external-link target="_blank"} command and fill out the relevant details to generate a new FastStream project:
+   ```bash
+   cookiecutter https://github.com/airtai/cookiecutter-faststream.git
+   ```
+   The following screenshot illustrates the process of creating a new FastStream app with Kafka using the above command:![using-cookiecutter-faststream](https://github.com/airtai/faststream/assets/7011056/d24ee8ec-3b39-4b85-9bba-a6be823a5fed)
+
+3. Change the working directory to the newly created directory:
+   ```bash
+   cd <directory-name>
+   ```
+   > **_NOTE:_** Replace `<directory-name>` with the name of your directory.
+
+4. Install all development requirements using pip:
    ```bash
    pip install -e ".[dev]"
    ```
+
+5. Create a new repository for our FastStream app on GitHub.![creating-new-github-repo](https://github.com/airtai/faststream/assets/7011056/7076b925-2090-4bbb-b9da-0df4783fb5a3)
+
+6. Add all the files, commit and push using the following commands:
+   ```bash
+   git init
+   git add .
+   git commit -m "first commit"
+   git branch -M main
+   git remote add origin git@github.com:<username>/<repo-name>.git
+   git push -u origin main
+   ```
+   > **_NOTE:_** Replace `<username>` with your GitHub username and `<repo-name>` with the name of your repository in the above commands.
 
 ## Development
 
@@ -64,8 +84,9 @@ To run the [`FastStream`](https://github.com/airtai/faststream){.external-link t
 
 2. Start the [`FastStream`](https://github.com/airtai/faststream){.external-link target="_blank"} application with the following command:
    ```bash
-   faststream run app.application:app --workers 1
+   faststream run <directory-name>.application:app --workers 1
    ```
+   > **_NOTE:_** Replace `<directory-name>` with the directory that is automatically generated from the project slug name and contains the `app.py` file.
 
 3. You can now send messages to the Kafka topic and can test the application. Optionally, if you want to view messages in a topic, you can subscribe to it using the provided script:
    ```bash
@@ -135,9 +156,10 @@ If there are any static analysis errors, resolve them in your code and rerun the
 
 1. Run the following command to view the [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} documentation:
    ```bash
-   faststream docs serve app.application:app
+   faststream docs serve <directory-name>.application:app
    ```
    This command builds the [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} specification file, generates [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} documentation based on the specification, and serves it at `localhost:8000`.
+   > **_NOTE:_** Replace `<directory-name>` with the directory that is automatically generated from the project slug name and contains the `app.py` file.
 
 2. Open your web browser and navigate to <http://localhost:8000> to view the [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} documentation reflecting your changes.
 

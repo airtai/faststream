@@ -1,33 +1,36 @@
 name: Deploy Docs
 on:
-    push:
-        branches:
-            - main
+  push:
+    branches:
+      - main
+    paths:
+      - docs/**
+      - .github/workflows/deploy-docs.yaml
 
 permissions:
-    contents: write
+  contents: write
 jobs:
-    deploy_docs:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-              with:
-                fetch-depth: 0
-            - uses: actions/setup-python@v4
-              with:
-                python-version: 3.x
-            - uses: actions/cache@v3
-              with:
-                key: ${{ github.ref }}
-                path: .cache
-            - run: pip install -e ".[dev]"
-            - run: ./scripts/build-docs.sh
-            - run: echo "VERSION=$(python3 -c 'from importlib.metadata import version; print(".".join(version("faststream").split(".")[:2]))')" >> $GITHUB_ENV
-            - name: Configure Git user
-              run: |
-                git config --local user.email "github-actions[bot]@users.noreply.github.com"
-                git config --local user.name "github-actions[bot]"
-            - run: echo $VERSION
-            # - run: cd docs && mike delete --all
-            - run: cd docs && mike deploy --template templates/redirect.html --update-aliases $VERSION latest
-            - run: cd docs && mike set-default --push --template templates/redirect.html latest
+  deploy_docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+      - uses: actions/cache@v3
+        with:
+          key: ${{ github.ref }}
+          path: .cache
+      - run: pip install -e ".[dev]"
+      - run: ./scripts/build-docs.sh
+      - run: echo "VERSION=$(python3 -c 'from importlib.metadata import version; print(".".join(version("faststream").split(".")[:2]))')" >> $GITHUB_ENV
+      - name: Configure Git user
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+      - run: echo $VERSION
+      # - run: cd docs && mike delete --all
+      - run: cd docs && mike deploy --template templates/redirect.html --update-aliases $VERSION latest
+      - run: cd docs && mike set-default --push --template templates/redirect.html latest
