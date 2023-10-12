@@ -45,5 +45,5 @@ def update_release_notes(realease_notes_path: Path):
 
     # Update the RELEASE.md file with the latest version and changelog
     with open(realease_notes_path, "w") as f:
-        release_notes = (header + "\n" + changelog).replace('\r','')
+        release_notes = (header + "\n" + changelog + "\n").replace('\r','')
         f.write(release_notes)
