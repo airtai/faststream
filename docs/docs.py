@@ -10,6 +10,7 @@ import mkdocs.commands.serve
 import typer
 from create_api_docs import create_api_docs
 from expand_markdown import expand_markdown, remove_lines_between_dashes
+from update_releases import update_release_notes
 from mkdocs.config import load_config
 from typing_extensions import Annotated
 
@@ -215,6 +216,7 @@ def _build():
     build_api_docs()
     update_readme()
     update_contributing()
+    update_release_notes(realease_notes_path=EN_DOCS_DIR / "release.md")
 
 
 if __name__ == "__main__":
