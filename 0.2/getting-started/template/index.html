@@ -2203,8 +2203,11 @@
 </li>
 <li>
 <p>Start the <a class="external-link" href="https://github.com/airtai/faststream" target="_blank"><code>FastStream</code></a> application with the following command:
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>app.application:app<span class="w"> </span>--workers<span class="w"> </span><span class="m">1</span>
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>&lt;directory-name&gt;.application:app<span class="w"> </span>--workers<span class="w"> </span><span class="m">1</span>
 </code></pre></div></p>
+<blockquote>
+<p><strong><em>NOTE:</em></strong> Replace <code>&lt;directory-name&gt;</code> with the directory that is automatically generated from the project slug name and contains the <code>app.py</code> file.</p>
+</blockquote>
 </li>
 <li>
 <p>You can now send messages to the Kafka topic and can test the application. Optionally, if you want to view messages in a topic, you can subscribe to it using the provided script:
@@ -2268,9 +2271,12 @@
 <ol>
 <li>
 <p>Run the following command to view the <a class="external-link" href="https://www.asyncapi.com/" target="_blank"><code>AsyncAPI</code></a> documentation:
-   <div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>faststream<span class="w"> </span>docs<span class="w"> </span>serve<span class="w"> </span>app.application:app
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>faststream<span class="w"> </span>docs<span class="w"> </span>serve<span class="w"> </span>&lt;directory-name&gt;.application:app
 </code></pre></div>
    This command builds the <a class="external-link" href="https://www.asyncapi.com/" target="_blank"><code>AsyncAPI</code></a> specification file, generates <a class="external-link" href="https://www.asyncapi.com/" target="_blank"><code>AsyncAPI</code></a> documentation based on the specification, and serves it at <code>localhost:8000</code>.</p>
+<blockquote>
+<p><strong><em>NOTE:</em></strong> Replace <code>&lt;directory-name&gt;</code> with the directory that is automatically generated from the project slug name and contains the <code>app.py</code> file.</p>
+</blockquote>
 </li>
 <li>
 <p>Open your web browser and navigate to <a href="http://localhost:8000">http://localhost:8000</a> to view the <a class="external-link" href="https://www.asyncapi.com/" target="_blank"><code>AsyncAPI</code></a> documentation reflecting your changes.</p>
@@ -2347,7 +2353,7 @@
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-10-11T09:44:03+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-10-11</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-10-12T08:52:48+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-10-12</span>
       
     
   </small>
