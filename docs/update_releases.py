@@ -12,11 +12,12 @@ def get_github_releases():
 
 
 def convert_links_and_usernames(text):
-    # Convert HTTP/HTTPS links if not already a link
-    text = re.sub(r'([^[])(https?://[^\s]+)', r'\1[\2](\2)', text)
+    if "](" not in text:
+        # Convert HTTP/HTTPS links
+        text = re.sub(r'(https?://[^\s]+)', r'[\1](\1)', text)
 
-    # Convert GitHub usernames to links if not already a link
-    text = re.sub(r'([^[])(@\w+)', r'\1[@\2](https://github.com/\2)', text)
+        # Convert GitHub usernames to links
+        text = re.sub(r'@(\w+)', r'[@\1](https://github.com/\1)', text)
 
     return text
 
@@ -44,4 +45,5 @@ def update_release_notes(realease_notes_path: Path):
 
     # Update the RELEASE.md file with the latest version and changelog
     with open(realease_notes_path, "w") as f:
-        f.write(header + "\n" + changelog)
+        release_notes = (header + "\n" + changelog).replace('\r','')
+        f.write(release_notes)
