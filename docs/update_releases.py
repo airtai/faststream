@@ -14,10 +14,10 @@ def get_github_releases():
 def convert_links_and_usernames(text):
     if "](" not in text:
         # Convert HTTP/HTTPS links
-        text = re.sub(r'(https?://[^\s]+)', r'[\1](\1)', text)
+        text = re.sub(r'(https?://[^\s]+)', r'[\1](\1){.external-link target="_blank"}', text)
 
         # Convert GitHub usernames to links
-        text = re.sub(r'@(\w+)', r'[@\1](https://github.com/\1)', text)
+        text = re.sub(r'@(\w+)', r'[@\1](https://github.com/\1){.external-link target="_blank"}', text)
 
     return text
 
