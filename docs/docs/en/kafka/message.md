@@ -51,3 +51,5 @@ async def base_handler(
 ):
     print(headers)
 ```
+
+{!> includes/message/headers.md !}

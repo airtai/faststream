@@ -8,13 +8,7 @@ You can get it in a simple way: just acces the message object in the [Context](.
 
 It contains the required information such as:
 
-* `#!python body: bytes`
-* `#!python decoded_body: Any`
-* `#!python content_type: str`
-* `#!python reply_to: str`
-* `#!python headers: dict[str, Any]`
-* `#!python message_id: str`
-* `#!python correlation_id: str`
+{!> includes/message/attrs.md !}
 
 It is a **FastStream** wrapper around a native broker library message (`nats.aio.msg.Msg` in the *NATS*' case), you can access with `raw_message`.
 
@@ -74,3 +68,22 @@ async def base_handler(
 But this code is too long to reuse everywhere. In this case, you can use a Python [`Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated){.external-link target="_blank"} feature:
 
 {!> includes/message/annotated.md !}
+
+{!> includes/message/headers.md !}
+
+## Subject Pattern Access
+
+As you know, **NATS** allows you to use pattern like this `logs.*` to subscriber on subjects. Getting access to the real `*` value is an often usecase and **FastStream** provide to you it with the `Path` object (it is shortcut to `#!python Context("message.path.*")`).
+
+To use it you just need to replace your `*` by `{variable-name}` and use `Path` as a regular `Context` object:
+
+```python hl_lines="3 6"
+from faststream import Path
+
+@broker.subscriber("logs.{level}")
+async def base_handler(
+    body: str,
+    level: str = Path(),
+):
+    ...
+```

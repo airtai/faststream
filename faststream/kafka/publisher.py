@@ -87,7 +87,7 @@ class LogicPublisher(ABCPublisher[ConsumerRecord]):
             if not messages:
                 if not isinstance(message, Sequence):
                     raise ValueError(
-                        f"Message: {messages} should be Sequence type to send in batch"
+                        f"Message: {message} should be Sequence type to send in batch"
                     )
                 else:
                     to_send = message

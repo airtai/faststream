@@ -1,6 +1,6 @@
 # Batch Subscriber
 
-If you want to consume data in batches, the `@broker.subscriber(...)` decorator makes it possible. By defining your consumed `msg` object as a list of messages and setting the `batch` parameter to `True`, the subscriber will call your consuming function with a batch of messages consumed from a single partition. Let's walk through how to achieve this.
+If you want to consume data in batches, the `#!python @broker.subscriber(...)` decorator makes it possible. By defining your consumed `msg` object as a list of messages and setting the `batch` parameter to `True`, the subscriber will call your consuming function with a batch of messages consumed from a single partition. Let's walk through how to achieve this.
 
 ## Using the Subscriber with Batching
 
@@ -8,7 +8,7 @@ To consume messages in batches, follow these steps:
 
 ### Step 1: Define Your Subscriber
 
-In your FastStream application, define the subscriber using the `@broker.subscriber(...)` decorator. Ensure that you configure the `msg` object as a list and set the `batch` parameter to `True`. This configuration tells the subscriber to handle message consumption in batches.
+In your FastStream application, define the subscriber using the `#!python @broker.subscriber(...)` decorator. Ensure that you configure the `msg` object as a list and set the `batch` parameter to `True`. This configuration tells the subscriber to handle message consumption in batches.
 
 ```python linenums="1"
 {!> docs_src/kafka/batch_consuming_pydantic/app.py [ln:20] !}
@@ -16,7 +16,7 @@ In your FastStream application, define the subscriber using the `@broker.subscri
 
 ### Step 2: Implement Your Consuming Function
 
-Create a consuming function that accepts the list of messages. The `@broker.subscriber(...)` decorator will take care of collecting and grouping messages into batches based on the partition.
+Create a consuming function that accepts the list of messages. The `#!python @broker.subscriber(...)` decorator will take care of collecting and grouping messages into batches based on the partition.
 
 ```python linenums="1"
 {!> docs_src/kafka/batch_consuming_pydantic/app.py [ln:20-22] !}
@@ -24,7 +24,7 @@ Create a consuming function that accepts the list of messages. The `@broker.subs
 
 ## Example of Consuming in Batches
 
-Let's illustrate how to consume messages in batches from the **test_batch** topic with a practical example:
+Let's illustrate how to consume messages in batches from the `#!python "test_batch"` topic with a practical example:
 
 ```python linenums="1"
 {!> docs_src/kafka/batch_consuming_pydantic/app.py!}

@@ -66,7 +66,9 @@ if is_installed("fastapi"):
             from fastapi._compat import _normalize_errors
             from fastapi.exceptions import RequestValidationError
 
-            def raise_fastapi_validation_error(errors: List[Any], body: AnyDict) -> Never:
+            def raise_fastapi_validation_error(
+                errors: List[Any], body: AnyDict
+            ) -> Never:
                 raise RequestValidationError(_normalize_errors(errors), body=body)
 
         else:
@@ -77,7 +79,9 @@ if is_installed("fastapi"):
 
             ROUTER_VALIDATION_ERROR_MODEL = create_model("StreamRoute")
 
-            def raise_fastapi_validation_error(errors: List[Any], body: AnyDict) -> Never:
+            def raise_fastapi_validation_error(
+                errors: List[Any], body: AnyDict
+            ) -> Never:
                 raise RequestValidationError(errors, ROUTER_VALIDATION_ERROR_MODEL)  # type: ignore[misc]
 
 

@@ -2,13 +2,13 @@
 
 ## General overview
 
-If you need to send your data in batches, the @broker.publisher(...) decorator offers a convenient way to achieve this. To enable batch production, you need to perform two crucial steps:
+If you need to send your data in batches, the `#!python @broker.publisher(...)` decorator offers a convenient way to achieve this. To enable batch production, you need to perform two crucial steps:
 
-Step 1: When creating your publisher, set the batch argument to True. This configuration tells the publisher that you intend to send messages in batches.
+1. When creating your publisher, set the batch argument to `True`. This configuration tells the publisher that you intend to send messages in batches.
 
-Step 2: In your producer function, return a tuple containing the messages you want to send as a batch. This action triggers the producer to gather the messages and transmit them as a batch to a Kafka broker.
+2. In your producer function, return a tuple containing the messages you want to send as a batch. This action triggers the producer to gather the messages and transmit them as a batch to a **Kafka** broker.
 
-Let's delve into a detailed example illustrating how to produce messages in batches to the output_data topic while consuming from the input_data_1 topic.
+Let's delve into a detailed example illustrating how to produce messages in batches to the output_data topic while consuming from the `#!python "input_data_1"` topic.
 
 ## Code example
 
@@ -44,14 +44,14 @@ The application in the example imelements both of these ways, feel free to use w
 
 ## Why publish in batches?
 
-In this example, we've explored how to leverage the @broker.publisher decorator to efficiently publish messages in batches using FastStream and Kafka. By following the two key steps outlined in the previous sections, you can significantly enhance the performance and reliability of your Kafka-based applications.
+In this example, we've explored how to leverage the `#!python @broker.publisher(...)` decorator to efficiently publish messages in batches using **FastStream** and **Kafka**. By following the two key steps outlined in the previous sections, you can significantly enhance the performance and reliability of your **Kafka**-based applications.
 
-Publishing messages in batches offers several advantages when working with Kafka:
+Publishing messages in batches offers several advantages when working with **Kafka**:
 
-1. Improved Throughput: Batch publishing allows you to send multiple messages in a single transmission, reducing the overhead associated with individual message delivery. This leads to improved throughput and lower latency in your Kafka applications.
+1. Improved Throughput: Batch publishing allows you to send multiple messages in a single transmission, reducing the overhead associated with individual message delivery. This leads to improved throughput and lower latency in your **Kafka** applications.
 
-2. Reduced Network and Broker Load: Sending messages in batches reduces the number of network calls and broker interactions. This optimization minimizes the load on the Kafka brokers and network resources, making your Kafka cluster more efficient.
+2. Reduced Network and Broker Load: Sending messages in batches reduces the number of network calls and broker interactions. This optimization minimizes the load on the **Kafka** brokers and network resources, making your **Kafka** cluster more efficient.
 
 3. Atomicity: Batches ensure that a group of related messages is processed together or not at all. This atomicity can be crucial in scenarios where message processing needs to maintain data consistency and integrity.
 
-4. Enhanced Scalability: With batch publishing, you can efficiently scale your Kafka applications to handle high message volumes. By sending messages in larger chunks, you can make the most of Kafka's parallelism and partitioning capabilities.
+4. Enhanced Scalability: With batch publishing, you can efficiently scale your **Kafka** applications to handle high message volumes. By sending messages in larger chunks, you can make the most of **Kafka**'s parallelism and partitioning capabilities.

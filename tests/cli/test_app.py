@@ -163,7 +163,7 @@ async def test_stop_with_sigterm(async_mock, app: FastStream):
 
 
 @pytest.mark.asyncio
-async def test_test_broker(mock: Mock):
+async def test_test_app(mock: Mock):
     app = FastStream()
 
     app.on_startup(mock.on)
@@ -177,7 +177,7 @@ async def test_test_broker(mock: Mock):
 
 
 @pytest.mark.asyncio
-async def test_test_broker_with_excp(mock: Mock):
+async def test_test_app_with_excp(mock: Mock):
     app = FastStream()
 
     app.on_startup(mock.on)
@@ -185,6 +185,33 @@ async def test_test_broker_with_excp(mock: Mock):
 
     with pytest.raises(ValueError):
         async with TestApp(app):
+            raise ValueError()
+
+    mock.on.assert_called_once()
+    mock.off.assert_called_once()
+
+
+def test_sync_test_app(mock: Mock):
+    app = FastStream()
+
+    app.on_startup(mock.on)
+    app.on_shutdown(mock.off)
+
+    with TestApp(app):
+        pass
+
+    mock.on.assert_called_once()
+    mock.off.assert_called_once()
+
+
+def test_sync_test_app_with_excp(mock: Mock):
+    app = FastStream()
+
+    app.on_startup(mock.on)
+    app.on_shutdown(mock.off)
+
+    with pytest.raises(ValueError):
+        with TestApp(app):
             raise ValueError()
 
     mock.on.assert_called_once()

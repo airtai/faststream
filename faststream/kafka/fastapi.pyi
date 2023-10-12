@@ -128,6 +128,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         description: Optional[str] = None,
         asyncapi_tags: Optional[Sequence[asyncapi.Tag]] = None,
         schema_url: Optional[str] = "/asyncapi",
+        setup_state: bool = True,
         # logging args
         logger: Optional[logging.Logger] = access_logger,
         log_level: int = logging.INFO,

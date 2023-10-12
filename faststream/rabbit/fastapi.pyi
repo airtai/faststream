@@ -80,6 +80,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         description: Optional[str] = None,
         asyncapi_tags: Optional[Sequence[asyncapi.Tag]] = None,
         schema_url: Optional[str] = "/asyncapi",
+        setup_state: bool = True,
         # FastAPI kwargs
         prefix: str = "",
         tags: Optional[List[Union[str, Enum]]] = None,

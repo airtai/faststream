@@ -8,13 +8,7 @@ You can get it in a simple way: just acces to the message object in the [Context
 
 This message contains the required information such as:
 
-* `#!python body: bytes`
-* `#!python decoded_body: Any`
-* `#!python content_type: str`
-* `#!python reply_to: str`
-* `#!python headers: dict[str, Any]`
-* `#!python message_id: str`
-* `#!python correlation_id: str`
+{!> includes/message/attrs.md !}
 
 Also, it is a **FastStream** wrapper around a native broker library message (`aio_pika.IncomingMessage` in the *RabbitMQ* case), you can access with `raw_message`.
 
@@ -74,3 +68,32 @@ async def base_handler(
 But this code is too long to be reused everywhere. In this case, you can use a Python [`Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated){.external-link target="_blank"} feature:
 
 {!> includes/message/annotated.md !}
+
+{!> includes/message/headers.md !}
+
+## Topic Pattern Access
+
+As you know, **Rabbit** allows you to use pattern like this `logs.*` with a [Topic](./examples/topic.md){.internal-link} exchange. Getting access to the real `*` value is an often usecase and **FastStream** provide to you it with the `Path` object (it is shortcut to `#!python Context("message.path.*")`).
+
+To use it you just need to replace your `*` by `{variable-name}` and use `Path` as a regular `Context` object:
+
+```python hl_lines="7 11 16"
+from faststream import Path
+from faststream import RabbitQueue, RabbitExchane, ExchangeType
+
+@broker.subscriber(
+    RabbitQueue(
+        "test-queue",
+        routing_key="logs.{level}",
+    ),
+    RabbitExchange(
+        "test-exchange",
+        type=ExchangeType.TOPIC,
+    )
+)
+async def base_handler(
+    body: str,
+    level: str = Path(),
+):
+    ...
+```

@@ -14,5 +14,5 @@
 === "NATS"
     ```python
     async with NatsBroker() as br:
-        await br.publish("message", "queue")
+        await br.publish("message", "subject")
     ```

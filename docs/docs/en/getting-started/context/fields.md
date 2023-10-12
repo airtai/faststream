@@ -1,6 +1,7 @@
 ---
 comment_1: This way you can get access to context object by its name
 comment_2: This way you can get access to context object specific field
+comment_3: Or even to a dict key
 ---
 
 # Access by Name
