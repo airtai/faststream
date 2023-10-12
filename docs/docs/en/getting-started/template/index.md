@@ -86,7 +86,7 @@ To run the [`FastStream`](https://github.com/airtai/faststream){.external-link t
    ```bash
    faststream run <directory-name>.application:app --workers 1
    ```
-   > **_NOTE:_** Replace `<directory-name>` with the name of your directory.
+   > **_NOTE:_** Replace `<directory-name>` with the directory that is automatically generated from the project slug name and contains the `app.py` file.
 
 3. You can now send messages to the Kafka topic and can test the application. Optionally, if you want to view messages in a topic, you can subscribe to it using the provided script:
    ```bash
@@ -159,7 +159,7 @@ If there are any static analysis errors, resolve them in your code and rerun the
    faststream docs serve <directory-name>.application:app
    ```
    This command builds the [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} specification file, generates [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} documentation based on the specification, and serves it at `localhost:8000`.
-   > **_NOTE:_** Replace `<directory-name>` with the name of your directory.
+   > **_NOTE:_** Replace `<directory-name>` with the directory that is automatically generated from the project slug name and contains the `app.py` file.
 
 2. Open your web browser and navigate to <http://localhost:8000> to view the [`AsyncAPI`](https://www.asyncapi.com/){.external-link target="_blank"} documentation reflecting your changes.
 
