@@ -3,6 +3,9 @@ on:
     push:
         branches:
             - main
+        paths:
+            - docs/**
+            - .github/workflows/deploy-docs.yaml
 
 permissions:
     contents: write
