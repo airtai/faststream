@@ -1,16 +1,16 @@
 # Access to Message Information
 
-As you know, **FastStream** serializes a message body and provides you access to it through function arguments. But sometimes you want access to a message_id, headers, or other meta-information.
+As you know, **FastStream** serializes a message body and provides you access to it through function arguments. But sometimes you need access to a message_id, headers, or other meta-information.
 
 ## Message Access
 
-You can get it in a simple way: just acces to the message object in the [Context](../getting-started/context/existed.md){.internal-link}!
+You can get it in a simple way: just acces the message object in the [Context](../getting-started/context/existed.md){.internal-link}.
 
 This message contains the required information such as:
 
 {!> includes/message/attrs.md !}
 
-Also, it is a **FastStream** wrapper around a native broker library message (`aio_pika.IncomingMessage` in the *RabbitMQ* case), you can access with `raw_message`.
+Also, it is a **FastStream** wrapper around a native broker library message (`aio_pika.IncomingMessage` in the *RabbitMQ* case) that you can access with `raw_message`.
 
 ```python hl_lines="1 6"
 from faststream.rabbit.annotations import RabbitMessage
@@ -23,7 +23,7 @@ async def base_handler(
     print(msg.correlation_id)
 ```
 
-Also, if you can't find the information you reqiure, you can get access directly to the wrapped `aio_pika.IncomingMessage`, which contains complete message information.
+Also, if you can't find the information you require, you can get access directly to the wrapped `aio_pika.IncomingMessage`, which contains complete message information.
 
 ```python hl_lines="6"
 from aio_pika import IncomingMessage
@@ -37,9 +37,9 @@ async def base_handler(body: str, msg: RabbitMessage):
 
 ## Message Fields Access
 
-But in the most cases, you don't need all message fields; you need to access some of them. You can use [Context Fields access](../getting-started/context/fields.md){.internal-link} feature for this reason.
+But in most cases, you don't need all message fields; you need to access some of them. You can use [Context Fields access](../getting-started/context/fields.md){.internal-link} feature for this reason.
 
-For example, you can get access to the `correlation_id` like this:
+For example, you can access the `correlation_id` like this:
 
 ```python hl_lines="6"
 from faststream import Context
@@ -73,9 +73,9 @@ But this code is too long to be reused everywhere. In this case, you can use a P
 
 ## Topic Pattern Access
 
-As you know, **Rabbit** allows you to use pattern like this `logs.*` with a [Topic](./examples/topic.md){.internal-link} exchange. Getting access to the real `*` value is an often usecase and **FastStream** provide to you it with the `Path` object (it is shortcut to `#!python Context("message.path.*")`).
+As you know, **Rabbit** allows you to use a pattern like this `logs.*` with a [Topic](./examples/topic.md){.internal-link} exchange. Getting access to the real `*` value is an often-used scenario and **FastStream** provide it to you with the `Path` object (which is a shortcut to `#!python Context("message.path.*")`).
 
-To use it you just need to replace your `*` by `{variable-name}` and use `Path` as a regular `Context` object:
+To use it, you just need to replace your `*` with `{variable-name}` and use `Path` as a regular `Context` object:
 
 ```python hl_lines="7 11 16"
 from faststream import Path

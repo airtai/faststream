@@ -5,7 +5,7 @@ The second easiest way to publish messages is by using the Publisher Decorator. 
 It creates a structured DataPipeline unit with an input and output. The order of Subscriber and Publisher decorators doesn't matter, but `#!python @broker.publisher(...)` can be used only with functions already decorated by a `#!python @broker.subscriber(...)`.
 
 !!! note
-    It uses the handler function's return type annotation to cast the function's return value before sending, so be accurate with it
+    It uses the handler function's return type annotation to cast the function's return value before sending, so be accurate with it.
 
 {!> includes/getting_started/publishing/decorator/1.md !}
 
@@ -21,10 +21,10 @@ async def handle(msg) -> str:
     return "Response"
 ```
 
-This way you will send the copy of your return to the all output topics.
+This way you will send a copy of your return to the all output topics.
 
 !!! note
-    Also, if this subscriber consumes a message with **RPC** mode, it sends reply not only to **RPC** channel, but to all publishers as well.
+    Also, if this subscriber consumes a message with **RPC** mode, it sends a reply not only to the **RPC** channel but also to all publishers as well.
 
 ## Details
 

@@ -6,7 +6,7 @@
     ```
 
     !!! tip ""
-        Also, `faststream.kafka.KafkaMessage` is alias to `faststream.kafka.annotations.KafkaMessage`
+        `faststream.kafka.KafkaMessage` is an alias to `faststream.kafka.annotations.KafkaMessage`
 
         ```python
         from faststream.kafka import KafkaMessage
@@ -26,7 +26,7 @@
     ```
 
     !!! tip ""
-        Also, `faststream.rabbit.RabbitMessage` is alias to `faststream.rabbit.annotations.RabbitMessage`
+        `faststream.rabbit.RabbitMessage` is an alias to `faststream.rabbit.annotations.RabbitMessage`
 
         ```python
         from faststream.rabbit import RabbitMessage
@@ -48,7 +48,7 @@
     ```
 
     !!! tip ""
-        Also, `faststream.nats.NatsMessage` is alias to `faststream.nats.annotations.NatsMessage`
+        `faststream.nats.NatsMessage` is an alias to `faststream.nats.annotations.NatsMessage`
 
         ```python
         from faststream.nats import NatsMessage

@@ -6,7 +6,7 @@ This method creates a reusable Publisher object that can be used directly to pub
 
 {!> includes/getting_started/publishing/direct/1.md !}
 
-It is something in the middle between [broker publish](./broker.md){.internal-link} and [object decorator](./object.md){.internal-link}. It has an **AsyncAPI** representation and *testability* features (like **object decorator**), but allows you to send different messages to different outputs (like **broker publish**).
+It is something in the middle between [broker publish](./broker.md){.internal-link} and [object decorator](./object.md){.internal-link}. It has an **AsyncAPI** representation and *testability* features (like the **object decorator**), but allows you to send different messages to different outputs (like the **broker publish**).
 
 ```python
 @broker.subscriber("in")
@@ -16,4 +16,4 @@ async def handle(msg) -> str:
 ```
 
 !!! note
-    Using this way **FastStream** doesn't reuse incoming `correlation_id` to mark outgoing messages with it. You should set it manually, if it is required.
+    When using this method, **FastStream** doesn't reuse the incoming `correlation_id` to mark outgoing messages with it. You should set it manually if it is required.

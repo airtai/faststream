@@ -1,6 +1,6 @@
 ## Headers Access
 
-Sure, you can get access to a raw message and get headers dict itself, but more often you just need a single header field. So, you can easely access to it usign the `Context`
+Sure, you can get access to a raw message and get the headers dict itself, but more often you just need a single header field. So, you can easily access it using the `Context`:
 
 ```python hl_lines="6"
 from faststream import Context
@@ -13,7 +13,7 @@ async def base_handler(
     ...
 ```
 
-But using special `Header` class is much comfortable (also it validates header value by pydantic). It works the same way with `Context`. To be honest, it just a shorcut to `Context` with a default setup. So, you are already known how to use it:
+Using the special `Header` class is more convenient, as it also validates the header value using Pydantic. It works the same way as `Context`, but it is just a shorcut to `Context` with a default setup. So, you already know how to use it:
 
 ```python hl_lines="6"
 from faststream import Header
