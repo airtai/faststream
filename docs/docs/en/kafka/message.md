@@ -24,7 +24,7 @@ This object serves as a unified **FastStream** wrapper around the native broker 
 For example, if you would like to access the headers of an incoming message, you would do so like this:
 
 ```python hl_lines="1 6"
-from faststream.kafka.annotations import KafkaMessage
+from faststream.kafka import KafkaMessage
 
 @broker.subscriber("test")
 async def base_handler(

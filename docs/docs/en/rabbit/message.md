@@ -13,7 +13,7 @@ This message contains the required information such as:
 Also, it is a **FastStream** wrapper around a native broker library message (`aio_pika.IncomingMessage` in the *RabbitMQ* case) that you can access with `raw_message`.
 
 ```python hl_lines="1 6"
-from faststream.rabbit.annotations import RabbitMessage
+from faststream.rabbit import RabbitMessage
 
 @broker.subscriber("test")
 async def base_handler(
