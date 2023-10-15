@@ -27,7 +27,7 @@ Also, if you can't find the information you require, you can get access directly
 
 ```python hl_lines="6"
 from nats.aio.msg import Msg
-from faststream.nats.annotations import NatsMessage
+from faststream.nats import NatsMessage
 
 @broker.subscriber("test")
 async def base_handler(body: str, msg: NatsMessage):
