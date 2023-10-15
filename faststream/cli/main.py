@@ -165,7 +165,7 @@ def _run(
         except ImportError:
             logger.warning("You have no installed `uvloop`")
         else:
-            uvloop.install()
+            uvloop.install()  # type: ignore[attr-defined]
 
     anyio.run(
         app_obj.run,
