@@ -214,6 +214,7 @@ class AioPikaFastProducer:
         if p_exchange is None:
             exchange_obj = self._channel.default_exchange
         else:
+            p_exchange.passive = True
             exchange_obj = await self.declarer.declare_exchange(p_exchange)
 
         message = AioPikaParser.encode_message(

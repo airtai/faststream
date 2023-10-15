@@ -13,7 +13,7 @@ async def test_fields_access_kafka():
     )
 
     async with TestKafkaBroker(broker) as br:
-        await br.publish("Hi!", "test-topic")
+        await br.publish("Hi!", "test-topic", headers={"user": "John"})
 
         handle.mock.assert_called_once_with("Hi!")
 
@@ -26,7 +26,7 @@ async def test_fields_access_rabbit():
     )
 
     async with TestRabbitBroker(broker) as br:
-        await br.publish("Hi!", "test-queue")
+        await br.publish("Hi!", "test-queue", headers={"user": "John"})
 
         handle.mock.assert_called_once_with("Hi!")
 
@@ -39,6 +39,6 @@ async def test_fields_access_nats():
     )
 
     async with TestNatsBroker(broker) as br:
-        await br.publish("Hi!", "test-subject")
+        await br.publish("Hi!", "test-subject", headers={"user": "John"})
 
         handle.mock.assert_called_once_with("Hi!")

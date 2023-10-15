@@ -4,7 +4,7 @@ As you may know, **FastStream** serializes a message body and provides you acces
 
 ## Message Access
 
-You can easily access this information by referring to the message object in the [Context](../getting-started/context/existed.md)!
+You can easily access this information by referring to the message object in the [Context](../getting-started/context/existed.md)
 
 This object serves as a unified **FastStream** wrapper around the native broker library message (for example, `aiokafka.ConsumerRecord` in the case of *Kafka*). It contains most of the required information, including:
 
@@ -51,3 +51,5 @@ async def base_handler(
 ):
     print(headers)
 ```
+
+{!> includes/message/headers.md !}

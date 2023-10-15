@@ -193,6 +193,8 @@ convention = "google"
 [tool.ruff.flake8-bugbear]
 extend-immutable-calls = [
     "faststream.Depends", "faststream.Context",
+    "faststream.Header", "faststream.Path",
+    "faststream.utils.Header", "faststream.utils.Path",
     "faststream.utils.Depends", "faststream.utils.Context",
     "faststream.utils.context.Depends", "faststream.utils.context.Context",
     "typer.Argument", "typer.Option",

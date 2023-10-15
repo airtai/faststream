@@ -1,48 +1,74 @@
 === "Kafka"
-    ```python linenums="1" hl_lines="10-11"
+    ```python linenums="1" hl_lines="11-13"
     {!> docs_src/getting_started/context/fields_access_kafka.py !}
     ```
 
-=== "RabbitMQ"
-    ```python linenums="1" hl_lines="10-11"
-    {!> docs_src/getting_started/context/fields_access_rabbit.py !}
-    ```
+    {{ comment_1 }}
 
-=== "NATS"
-    ```python linenums="1" hl_lines="10-11"
-    {!> docs_src/getting_started/context/fields_access_nats.py !}
-    ```
-
-{{ comment_1 }}
-
-=== "Kafka"
-    ```python
-    {!> docs_src/getting_started/context/fields_access_kafka.py [ln:10] !}
-    ```
-
-=== "RabbitMQ"
-    ```python
-    {!> docs_src/getting_started/context/fields_access_rabbit.py [ln:10] !}
-    ```
-
-=== "NATS"
-    ```python
-    {!> docs_src/getting_started/context/fields_access_nats.py [ln:10] !}
-    ```
-
-{{ comment_2 }}
-
-=== "Kafka"
     ```python
     {!> docs_src/getting_started/context/fields_access_kafka.py [ln:11] !}
     ```
 
+    {{ comment_2 }}
+
+
+    ```python
+    {!> docs_src/getting_started/context/fields_access_kafka.py [ln:12] !}
+    ```
+
+    {{ comment_3 }}
+
+
+    ```python
+    {!> docs_src/getting_started/context/fields_access_kafka.py [ln:13] !}
+    ```
+
 === "RabbitMQ"
+    ```python linenums="1" hl_lines="11-13"
+    {!> docs_src/getting_started/context/fields_access_rabbit.py !}
+    ```
+
+    {{ comment_1 }}
+
     ```python
     {!> docs_src/getting_started/context/fields_access_rabbit.py [ln:11] !}
     ```
 
+    {{ comment_2 }}
+
+
+    ```python
+    {!> docs_src/getting_started/context/fields_access_rabbit.py [ln:12] !}
+    ```
+
+    {{ comment_3 }}
+
+
+    ```python
+    {!> docs_src/getting_started/context/fields_access_rabbit.py [ln:13] !}
+    ```
+
 === "NATS"
+    ```python linenums="1" hl_lines="11-13"
+    {!> docs_src/getting_started/context/fields_access_nats.py !}
+    ```
+
+    {{ comment_1 }}
+
     ```python
     {!> docs_src/getting_started/context/fields_access_nats.py [ln:11] !}
+    ```
+
+    {{ comment_2 }}
+
+
+    ```python
+    {!> docs_src/getting_started/context/fields_access_nats.py [ln:12] !}
+    ```
+
+    {{ comment_3 }}
+
+
+    ```python
+    {!> docs_src/getting_started/context/fields_access_nats.py [ln:13] !}
     ```
