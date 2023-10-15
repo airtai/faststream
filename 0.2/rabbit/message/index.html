@@ -1999,7 +1999,7 @@
 <li><code class="highlight"><span class="n">correlation_id</span><span class="p">:</span> <span class="nb">str</span></code></li>
 </ul>
 <p>Also, it is a <strong>FastStream</strong> wrapper around a native broker library message (<code>aio_pika.IncomingMessage</code> in the <em>RabbitMQ</em> case) that you can access with <code>raw_message</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.rabbit.annotations</span> <span class="kn">import</span> <span class="n">RabbitMessage</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitMessage</span>
 </span><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span>
@@ -2010,7 +2010,7 @@
 </code></pre></div>
 <p>Also, if you can't find the information you require, you can get access directly to the wrapped <code>aio_pika.IncomingMessage</code>, which contains complete message information.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">aio_pika</span> <span class="kn">import</span> <span class="n">IncomingMessage</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">faststream.rabbit.annotations</span> <span class="kn">import</span> <span class="n">RabbitMessage</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitMessage</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="nd">@broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">base_handler</span><span class="p">(</span><span class="n">body</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">RabbitMessage</span><span class="p">):</span>
