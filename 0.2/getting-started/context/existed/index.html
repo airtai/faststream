@@ -52,8 +52,6 @@
       
     
     
-      <link rel="stylesheet" href="../../../css/timeago.css">
-    
       <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
     
       <link rel="stylesheet" href="../../../stylesheets/extra.css">
@@ -2191,129 +2189,77 @@
 </ul>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Logger</span><span class="p">,</span> <span class="n">ContextRepo</span>
 </code></pre></div>
-<ul>
-<li><em>Kafka</em> aliases</li>
-</ul>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Kafka</label><label for="__tabbed_2_2">RabbitMQ</label><label for="__tabbed_2_3">NATS</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span> <span class="nn">faststream.kafka.annotations</span> <span class="kn">import</span> <span class="p">(</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">Logger</span><span class="p">,</span> <span class="n">ContextRepo</span><span class="p">,</span> <span class="n">KafkaMessage</span><span class="p">,</span> <span class="n">KafkaBroker</span><span class="p">,</span> <span class="n">KafkaProducer</span>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="p">)</span>
 </code></pre></div>
-<ul>
-<li><em>RabbitMQ</em> aliases</li>
-</ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span> <span class="nn">faststream.rabbit.annotations</span> <span class="kn">import</span> <span class="p">(</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">Logger</span><span class="p">,</span> <span class="n">ContextRepo</span><span class="p">,</span> <span class="n">RabbitMessage</span><span class="p">,</span> <span class="n">RabbitBroker</span><span class="p">,</span> <span class="n">RabbitProducer</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="p">)</span>
+<div class="admonition tip">
+<p><code>faststream.kafka.KafkaMessage</code> is an alias to <code>faststream.kafka.annotations.KafkaMessage</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaMessage</span>
 </code></pre></div>
-<ul>
-<li><em>NATS</em> aliases</li>
-</ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span> <span class="nn">faststream.rabbit.annotations</span> <span class="kn">import</span> <span class="p">(</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">Logger</span><span class="p">,</span> <span class="n">ContextRepo</span><span class="p">,</span> <span class="n">NatsMessage</span><span class="p">,</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">NatsBroker</span><span class="p">,</span> <span class="n">NatsProducer</span><span class="p">,</span> <span class="n">NatsJsProducer</span><span class="p">,</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">Client</span><span class="p">,</span> <span class="n">JsClient</span><span class="p">,</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">)</span>
-</code></pre></div>
+</div>
 <p>To use them, simply import and use them as subscriber argument annotations.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Kafka</label><label for="__tabbed_2_2">RabbitMQ</label><label for="__tabbed_2_3">NATS</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1"> 1</a></span>
-<span class="normal"><a href="#__codelineno-7-2"> 2</a></span>
-<span class="normal"><a href="#__codelineno-7-3"> 3</a></span>
-<span class="normal"><a href="#__codelineno-7-4"> 4</a></span>
-<span class="normal"><a href="#__codelineno-7-5"> 5</a></span>
-<span class="normal"><a href="#__codelineno-7-6"> 6</a></span>
-<span class="normal"><a href="#__codelineno-7-7"> 7</a></span>
-<span class="normal"><a href="#__codelineno-7-8"> 8</a></span>
-<span class="normal"><a href="#__codelineno-7-9"> 9</a></span>
-<span class="normal"><a href="#__codelineno-7-10">10</a></span>
-<span class="normal"><a href="#__codelineno-7-11">11</a></span>
-<span class="normal"><a href="#__codelineno-7-12">12</a></span>
-<span class="normal"><a href="#__codelineno-7-13">13</a></span>
-<span class="normal"><a href="#__codelineno-7-14">14</a></span>
-<span class="normal"><a href="#__codelineno-7-15">15</a></span>
-<span class="normal"><a href="#__codelineno-7-16">16</a></span>
-<span class="normal"><a href="#__codelineno-7-17">17</a></span>
-<span class="normal"><a href="#__codelineno-7-18">18</a></span>
-<span class="normal"><a href="#__codelineno-7-19">19</a></span>
-<span class="normal"><a href="#__codelineno-7-20">20</a></span>
-<span class="normal"><a href="#__codelineno-7-21">21</a></span>
-<span class="normal"><a href="#__codelineno-7-22">22</a></span>
-<span class="normal"><a href="#__codelineno-7-23">23</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">FastStream</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.kafka.annotations</span> <span class="kn">import</span> <span class="p">(</span>
-</span><a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="hll">    <span class="n">ContextRepo</span><span class="p">,</span>
-</span><a id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="hll">    <span class="n">KafkaMessage</span><span class="p">,</span>
-</span><a id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="hll">    <span class="n">Logger</span><span class="p">,</span>
-</span><a id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="hll">    <span class="n">KafkaBroker</span> <span class="k">as</span> <span class="n">BrokerAnnotation</span><span class="p">,</span>
-</span><a id="__codelineno-7-8" name="__codelineno-7-8"></a><span class="hll"><span class="p">)</span>
-</span><a id="__codelineno-7-9" name="__codelineno-7-9"></a>
-<a id="__codelineno-7-10" name="__codelineno-7-10"></a><span class="n">broker_object</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
-<a id="__codelineno-7-11" name="__codelineno-7-11"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker_object</span><span class="p">)</span>
-<a id="__codelineno-7-12" name="__codelineno-7-12"></a>
-<a id="__codelineno-7-13" name="__codelineno-7-13"></a>
-<a id="__codelineno-7-14" name="__codelineno-7-14"></a><span class="nd">@broker_object</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;response-topic&quot;</span><span class="p">)</span>
-<a id="__codelineno-7-15" name="__codelineno-7-15"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle_response</span><span class="p">(</span>
-<a id="__codelineno-7-16" name="__codelineno-7-16"></a>    <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-7-17" name="__codelineno-7-17"></a><span class="hll">    <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">,</span>
-</span><a id="__codelineno-7-18" name="__codelineno-7-18"></a><span class="hll">    <span class="n">message</span><span class="p">:</span> <span class="n">KafkaMessage</span><span class="p">,</span>
-</span><a id="__codelineno-7-19" name="__codelineno-7-19"></a><span class="hll">    <span class="n">context</span><span class="p">:</span> <span class="n">ContextRepo</span><span class="p">,</span>
-</span><a id="__codelineno-7-20" name="__codelineno-7-20"></a><span class="hll">    <span class="n">broker</span><span class="p">:</span> <span class="n">BrokerAnnotation</span><span class="p">,</span>
-</span><a id="__codelineno-7-21" name="__codelineno-7-21"></a><span class="p">):</span>
-<a id="__codelineno-7-22" name="__codelineno-7-22"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-<a id="__codelineno-7-23" name="__codelineno-7-23"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="s2">&quot;response&quot;</span><span class="p">)</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-6-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-6-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-6-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-6-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-6-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-6-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-6-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-6-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-6-10">10</a></span>
+<span class="normal"><a href="#__codelineno-6-11">11</a></span>
+<span class="normal"><a href="#__codelineno-6-12">12</a></span>
+<span class="normal"><a href="#__codelineno-6-13">13</a></span>
+<span class="normal"><a href="#__codelineno-6-14">14</a></span>
+<span class="normal"><a href="#__codelineno-6-15">15</a></span>
+<span class="normal"><a href="#__codelineno-6-16">16</a></span>
+<span class="normal"><a href="#__codelineno-6-17">17</a></span>
+<span class="normal"><a href="#__codelineno-6-18">18</a></span>
+<span class="normal"><a href="#__codelineno-6-19">19</a></span>
+<span class="normal"><a href="#__codelineno-6-20">20</a></span>
+<span class="normal"><a href="#__codelineno-6-21">21</a></span>
+<span class="normal"><a href="#__codelineno-6-22">22</a></span>
+<span class="normal"><a href="#__codelineno-6-23">23</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">FastStream</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.kafka.annotations</span> <span class="kn">import</span> <span class="p">(</span>
+</span><a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="hll">    <span class="n">ContextRepo</span><span class="p">,</span>
+</span><a id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="hll">    <span class="n">KafkaMessage</span><span class="p">,</span>
+</span><a id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="hll">    <span class="n">Logger</span><span class="p">,</span>
+</span><a id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="hll">    <span class="n">KafkaBroker</span> <span class="k">as</span> <span class="n">BrokerAnnotation</span><span class="p">,</span>
+</span><a id="__codelineno-6-8" name="__codelineno-6-8"></a><span class="hll"><span class="p">)</span>
+</span><a id="__codelineno-6-9" name="__codelineno-6-9"></a>
+<a id="__codelineno-6-10" name="__codelineno-6-10"></a><span class="n">broker_object</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">(</span><span class="s2">&quot;localhost:9092&quot;</span><span class="p">)</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker_object</span><span class="p">)</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12"></a>
+<a id="__codelineno-6-13" name="__codelineno-6-13"></a>
+<a id="__codelineno-6-14" name="__codelineno-6-14"></a><span class="nd">@broker_object</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;response-topic&quot;</span><span class="p">)</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle_response</span><span class="p">(</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16"></a>    <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17"></a><span class="hll">    <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">,</span>
+</span><a id="__codelineno-6-18" name="__codelineno-6-18"></a><span class="hll">    <span class="n">message</span><span class="p">:</span> <span class="n">KafkaMessage</span><span class="p">,</span>
+</span><a id="__codelineno-6-19" name="__codelineno-6-19"></a><span class="hll">    <span class="n">context</span><span class="p">:</span> <span class="n">ContextRepo</span><span class="p">,</span>
+</span><a id="__codelineno-6-20" name="__codelineno-6-20"></a><span class="hll">    <span class="n">broker</span><span class="p">:</span> <span class="n">BrokerAnnotation</span><span class="p">,</span>
+</span><a id="__codelineno-6-21" name="__codelineno-6-21"></a><span class="p">):</span>
+<a id="__codelineno-6-22" name="__codelineno-6-22"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<a id="__codelineno-6-23" name="__codelineno-6-23"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="s2">&quot;response&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1"> 1</a></span>
-<span class="normal"><a href="#__codelineno-8-2"> 2</a></span>
-<span class="normal"><a href="#__codelineno-8-3"> 3</a></span>
-<span class="normal"><a href="#__codelineno-8-4"> 4</a></span>
-<span class="normal"><a href="#__codelineno-8-5"> 5</a></span>
-<span class="normal"><a href="#__codelineno-8-6"> 6</a></span>
-<span class="normal"><a href="#__codelineno-8-7"> 7</a></span>
-<span class="normal"><a href="#__codelineno-8-8"> 8</a></span>
-<span class="normal"><a href="#__codelineno-8-9"> 9</a></span>
-<span class="normal"><a href="#__codelineno-8-10">10</a></span>
-<span class="normal"><a href="#__codelineno-8-11">11</a></span>
-<span class="normal"><a href="#__codelineno-8-12">12</a></span>
-<span class="normal"><a href="#__codelineno-8-13">13</a></span>
-<span class="normal"><a href="#__codelineno-8-14">14</a></span>
-<span class="normal"><a href="#__codelineno-8-15">15</a></span>
-<span class="normal"><a href="#__codelineno-8-16">16</a></span>
-<span class="normal"><a href="#__codelineno-8-17">17</a></span>
-<span class="normal"><a href="#__codelineno-8-18">18</a></span>
-<span class="normal"><a href="#__codelineno-8-19">19</a></span>
-<span class="normal"><a href="#__codelineno-8-20">20</a></span>
-<span class="normal"><a href="#__codelineno-8-21">21</a></span>
-<span class="normal"><a href="#__codelineno-8-22">22</a></span>
-<span class="normal"><a href="#__codelineno-8-23">23</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">FastStream</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.rabbit.annotations</span> <span class="kn">import</span> <span class="p">(</span>
-</span><a id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="hll">    <span class="n">ContextRepo</span><span class="p">,</span>
-</span><a id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="hll">    <span class="n">RabbitMessage</span><span class="p">,</span>
-</span><a id="__codelineno-8-6" name="__codelineno-8-6"></a><span class="hll">    <span class="n">Logger</span><span class="p">,</span>
-</span><a id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="hll">    <span class="n">RabbitBroker</span> <span class="k">as</span> <span class="n">BrokerAnnotation</span><span class="p">,</span>
-</span><a id="__codelineno-8-8" name="__codelineno-8-8"></a><span class="hll"><span class="p">)</span>
-</span><a id="__codelineno-8-9" name="__codelineno-8-9"></a>
-<a id="__codelineno-8-10" name="__codelineno-8-10"></a><span class="n">broker_object</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">(</span><span class="s2">&quot;amqp://guest:guest@localhost:5672/&quot;</span><span class="p">)</span>
-<a id="__codelineno-8-11" name="__codelineno-8-11"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker_object</span><span class="p">)</span>
-<a id="__codelineno-8-12" name="__codelineno-8-12"></a>
-<a id="__codelineno-8-13" name="__codelineno-8-13"></a>
-<a id="__codelineno-8-14" name="__codelineno-8-14"></a><span class="nd">@broker_object</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;response-queue&quot;</span><span class="p">)</span>
-<a id="__codelineno-8-15" name="__codelineno-8-15"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle_response</span><span class="p">(</span>
-<a id="__codelineno-8-16" name="__codelineno-8-16"></a>    <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-8-17" name="__codelineno-8-17"></a><span class="hll">    <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">,</span>
-</span><a id="__codelineno-8-18" name="__codelineno-8-18"></a><span class="hll">    <span class="n">message</span><span class="p">:</span> <span class="n">RabbitMessage</span><span class="p">,</span>
-</span><a id="__codelineno-8-19" name="__codelineno-8-19"></a><span class="hll">    <span class="n">context</span><span class="p">:</span> <span class="n">ContextRepo</span><span class="p">,</span>
-</span><a id="__codelineno-8-20" name="__codelineno-8-20"></a><span class="hll">    <span class="n">broker</span><span class="p">:</span> <span class="n">BrokerAnnotation</span><span class="p">,</span>
-</span><a id="__codelineno-8-21" name="__codelineno-8-21"></a><span class="p">):</span>
-<a id="__codelineno-8-22" name="__codelineno-8-22"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-<a id="__codelineno-8-23" name="__codelineno-8-23"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="s2">&quot;response&quot;</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span> <span class="nn">faststream.rabbit.annotations</span> <span class="kn">import</span> <span class="p">(</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">Logger</span><span class="p">,</span> <span class="n">ContextRepo</span><span class="p">,</span> <span class="n">RabbitMessage</span><span class="p">,</span> <span class="n">RabbitBroker</span><span class="p">,</span> <span class="n">RabbitProducer</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="p">)</span>
+</code></pre></div>
+<div class="admonition tip">
+<p><code>faststream.rabbit.RabbitMessage</code> is an alias to <code>faststream.rabbit.annotations.RabbitMessage</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitMessage</span>
+</code></pre></div>
 </div>
-<div class="tabbed-block">
+<p>To use them, simply import and use them as subscriber argument annotations.</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-9-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-9-3"> 3</a></span>
@@ -2337,23 +2283,23 @@
 <span class="normal"><a href="#__codelineno-9-21">21</a></span>
 <span class="normal"><a href="#__codelineno-9-22">22</a></span>
 <span class="normal"><a href="#__codelineno-9-23">23</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">FastStream</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="kn">from</span> <span class="nn">faststream.nats</span> <span class="kn">import</span> <span class="n">NatsBroker</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.nats.annotations</span> <span class="kn">import</span> <span class="p">(</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">RabbitBroker</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.rabbit.annotations</span> <span class="kn">import</span> <span class="p">(</span>
 </span><a id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="hll">    <span class="n">ContextRepo</span><span class="p">,</span>
-</span><a id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="hll">    <span class="n">NatsMessage</span><span class="p">,</span>
+</span><a id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="hll">    <span class="n">RabbitMessage</span><span class="p">,</span>
 </span><a id="__codelineno-9-6" name="__codelineno-9-6"></a><span class="hll">    <span class="n">Logger</span><span class="p">,</span>
-</span><a id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="hll">    <span class="n">NatsBroker</span> <span class="k">as</span> <span class="n">BrokerAnnotation</span><span class="p">,</span>
+</span><a id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="hll">    <span class="n">RabbitBroker</span> <span class="k">as</span> <span class="n">BrokerAnnotation</span><span class="p">,</span>
 </span><a id="__codelineno-9-8" name="__codelineno-9-8"></a><span class="hll"><span class="p">)</span>
 </span><a id="__codelineno-9-9" name="__codelineno-9-9"></a>
-<a id="__codelineno-9-10" name="__codelineno-9-10"></a><span class="n">broker_object</span> <span class="o">=</span> <span class="n">NatsBroker</span><span class="p">(</span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">)</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10"></a><span class="n">broker_object</span> <span class="o">=</span> <span class="n">RabbitBroker</span><span class="p">(</span><span class="s2">&quot;amqp://guest:guest@localhost:5672/&quot;</span><span class="p">)</span>
 <a id="__codelineno-9-11" name="__codelineno-9-11"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker_object</span><span class="p">)</span>
 <a id="__codelineno-9-12" name="__codelineno-9-12"></a>
 <a id="__codelineno-9-13" name="__codelineno-9-13"></a>
-<a id="__codelineno-9-14" name="__codelineno-9-14"></a><span class="nd">@broker_object</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;response-subject&quot;</span><span class="p">)</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14"></a><span class="nd">@broker_object</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;response-queue&quot;</span><span class="p">)</span>
 <a id="__codelineno-9-15" name="__codelineno-9-15"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle_response</span><span class="p">(</span>
 <a id="__codelineno-9-16" name="__codelineno-9-16"></a>    <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <a id="__codelineno-9-17" name="__codelineno-9-17"></a><span class="hll">    <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">,</span>
-</span><a id="__codelineno-9-18" name="__codelineno-9-18"></a><span class="hll">    <span class="n">message</span><span class="p">:</span> <span class="n">NatsMessage</span><span class="p">,</span>
+</span><a id="__codelineno-9-18" name="__codelineno-9-18"></a><span class="hll">    <span class="n">message</span><span class="p">:</span> <span class="n">RabbitMessage</span><span class="p">,</span>
 </span><a id="__codelineno-9-19" name="__codelineno-9-19"></a><span class="hll">    <span class="n">context</span><span class="p">:</span> <span class="n">ContextRepo</span><span class="p">,</span>
 </span><a id="__codelineno-9-20" name="__codelineno-9-20"></a><span class="hll">    <span class="n">broker</span><span class="p">:</span> <span class="n">BrokerAnnotation</span><span class="p">,</span>
 </span><a id="__codelineno-9-21" name="__codelineno-9-21"></a><span class="p">):</span>
@@ -2361,18 +2307,67 @@
 <a id="__codelineno-9-23" name="__codelineno-9-23"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="s2">&quot;response&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 </div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span> <span class="nn">faststream.rabbit.annotations</span> <span class="kn">import</span> <span class="p">(</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="n">Logger</span><span class="p">,</span> <span class="n">ContextRepo</span><span class="p">,</span> <span class="n">NatsMessage</span><span class="p">,</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="n">NatsBroker</span><span class="p">,</span> <span class="n">NatsProducer</span><span class="p">,</span> <span class="n">NatsJsProducer</span><span class="p">,</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="n">Client</span><span class="p">,</span> <span class="n">JsClient</span><span class="p">,</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="p">)</span>
+</code></pre></div>
+<div class="admonition tip">
+<p><code>faststream.nats.NatsMessage</code> is an alias to <code>faststream.nats.annotations.NatsMessage</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span> <span class="nn">faststream.nats</span> <span class="kn">import</span> <span class="n">NatsMessage</span>
+</code></pre></div>
+</div>
+<p>To use them, simply import and use them as subscriber argument annotations.</p>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-12-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-12-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-12-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-12-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-12-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-12-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-12-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-12-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-12-10">10</a></span>
+<span class="normal"><a href="#__codelineno-12-11">11</a></span>
+<span class="normal"><a href="#__codelineno-12-12">12</a></span>
+<span class="normal"><a href="#__codelineno-12-13">13</a></span>
+<span class="normal"><a href="#__codelineno-12-14">14</a></span>
+<span class="normal"><a href="#__codelineno-12-15">15</a></span>
+<span class="normal"><a href="#__codelineno-12-16">16</a></span>
+<span class="normal"><a href="#__codelineno-12-17">17</a></span>
+<span class="normal"><a href="#__codelineno-12-18">18</a></span>
+<span class="normal"><a href="#__codelineno-12-19">19</a></span>
+<span class="normal"><a href="#__codelineno-12-20">20</a></span>
+<span class="normal"><a href="#__codelineno-12-21">21</a></span>
+<span class="normal"><a href="#__codelineno-12-22">22</a></span>
+<span class="normal"><a href="#__codelineno-12-23">23</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="kn">from</span> <span class="nn">faststream</span> <span class="kn">import</span> <span class="n">Context</span><span class="p">,</span> <span class="n">FastStream</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="kn">from</span> <span class="nn">faststream.nats</span> <span class="kn">import</span> <span class="n">NatsBroker</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="hll"><span class="kn">from</span> <span class="nn">faststream.nats.annotations</span> <span class="kn">import</span> <span class="p">(</span>
+</span><a id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="hll">    <span class="n">ContextRepo</span><span class="p">,</span>
+</span><a id="__codelineno-12-5" name="__codelineno-12-5"></a><span class="hll">    <span class="n">NatsMessage</span><span class="p">,</span>
+</span><a id="__codelineno-12-6" name="__codelineno-12-6"></a><span class="hll">    <span class="n">Logger</span><span class="p">,</span>
+</span><a id="__codelineno-12-7" name="__codelineno-12-7"></a><span class="hll">    <span class="n">NatsBroker</span> <span class="k">as</span> <span class="n">BrokerAnnotation</span><span class="p">,</span>
+</span><a id="__codelineno-12-8" name="__codelineno-12-8"></a><span class="hll"><span class="p">)</span>
+</span><a id="__codelineno-12-9" name="__codelineno-12-9"></a>
+<a id="__codelineno-12-10" name="__codelineno-12-10"></a><span class="n">broker_object</span> <span class="o">=</span> <span class="n">NatsBroker</span><span class="p">(</span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">)</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11"></a><span class="n">app</span> <span class="o">=</span> <span class="n">FastStream</span><span class="p">(</span><span class="n">broker_object</span><span class="p">)</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12"></a>
+<a id="__codelineno-12-13" name="__codelineno-12-13"></a>
+<a id="__codelineno-12-14" name="__codelineno-12-14"></a><span class="nd">@broker_object</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;response-subject&quot;</span><span class="p">)</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handle_response</span><span class="p">(</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16"></a>    <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17"></a><span class="hll">    <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">,</span>
+</span><a id="__codelineno-12-18" name="__codelineno-12-18"></a><span class="hll">    <span class="n">message</span><span class="p">:</span> <span class="n">NatsMessage</span><span class="p">,</span>
+</span><a id="__codelineno-12-19" name="__codelineno-12-19"></a><span class="hll">    <span class="n">context</span><span class="p">:</span> <span class="n">ContextRepo</span><span class="p">,</span>
+</span><a id="__codelineno-12-20" name="__codelineno-12-20"></a><span class="hll">    <span class="n">broker</span><span class="p">:</span> <span class="n">BrokerAnnotation</span><span class="p">,</span>
+</span><a id="__codelineno-12-21" name="__codelineno-12-21"></a><span class="p">):</span>
+<a id="__codelineno-12-22" name="__codelineno-12-22"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<a id="__codelineno-12-23" name="__codelineno-12-23"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="s2">&quot;response&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
 </div>
 </div>
-
-  <hr>
-<div class="md-source-file">
-  <small>
-    
-      Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-10-02T18:35:16+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-10-02</span>
-      
-    
-  </small>
 </div>
 
 
@@ -2529,10 +2524,6 @@
     
     
       <script src="../../../assets/javascripts/bundle.aecac24b.min.js"></script>
-      
-        <script src="../../../js/timeago.min.js"></script>
-      
-        <script src="../../../js/timeago_mkdocs_material.js"></script>
       
     
   <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>

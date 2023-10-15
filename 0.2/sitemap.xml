@@ -1171,10 +1171,34 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/classes/Singleton/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/utils/context/builders/Context/</loc>
+        <lastmod>2023-10-15</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/context/builders/Context/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/utils/context/builders/Header/</loc>
+        <lastmod>2023-10-15</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/context/builders/Header/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/utils/context/builders/Path/</loc>
+        <lastmod>2023-10-15</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/context/builders/Path/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/utils/context/main/ContextRepo/</loc>
         <lastmod>2023-10-15</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/context/main/ContextRepo/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/utils/context/path/compile_path/</loc>
+        <lastmod>2023-10-15</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/context/path/compile_path/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/utils/context/types/Context/</loc>

@@ -52,8 +52,6 @@
       
     
     
-      <link rel="stylesheet" href="../../../css/timeago.css">
-    
       <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
     
       <link rel="stylesheet" href="../../../stylesheets/extra.css">
@@ -1289,21 +1287,21 @@
       
         <li class="md-nav__item">
   <a href="#general-overview" class="md-nav__link">
-    General overview
+    General Overview
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#code-example" class="md-nav__link">
-    Code example
+    Code Example
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#why-publish-in-batches" class="md-nav__link">
-    Why publish in batches?
+    Why Publish in Batches?
   </a>
   
 </li>
@@ -1987,21 +1985,21 @@
       
         <li class="md-nav__item">
   <a href="#general-overview" class="md-nav__link">
-    General overview
+    General Overview
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#code-example" class="md-nav__link">
-    Code example
+    Code Example
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#why-publish-in-batches" class="md-nav__link">
-    Why publish in batches?
+    Why Publish in Batches?
   </a>
   
 </li>
@@ -2030,13 +2028,19 @@
 
 
 <h1 id="publishing-in-batches">Publishing in Batches<a class="headerlink" href="#publishing-in-batches" title="Permanent link">#</a></h1>
-<h2 id="general-overview">General overview<a class="headerlink" href="#general-overview" title="Permanent link">#</a></h2>
-<p>If you need to send your data in batches, the @broker.publisher(...) decorator offers a convenient way to achieve this. To enable batch production, you need to perform two crucial steps:</p>
-<p>Step 1: When creating your publisher, set the batch argument to True. This configuration tells the publisher that you intend to send messages in batches.</p>
-<p>Step 2: In your producer function, return a tuple containing the messages you want to send as a batch. This action triggers the producer to gather the messages and transmit them as a batch to a Kafka broker.</p>
-<p>Let's delve into a detailed example illustrating how to produce messages in batches to the output_data topic while consuming from the input_data_1 topic.</p>
-<h2 id="code-example">Code example<a class="headerlink" href="#code-example" title="Permanent link">#</a></h2>
-<p>First, lets take a look at the whole app creation and then dive deep into the steps for producing in batches, here is the application code:</p>
+<h2 id="general-overview">General Overview<a class="headerlink" href="#general-overview" title="Permanent link">#</a></h2>
+<p>If you need to send your data in batches, the <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorator offers a convenient way to achieve this. To enable batch production, you need to perform two crucial steps:</p>
+<ol>
+<li>
+<p>When creating your publisher, set the batch argument to <code>True</code>. This configuration tells the publisher that you intend to send messages in batches.</p>
+</li>
+<li>
+<p>In your producer function, return a tuple containing the messages you want to send as a batch. This action triggers the producer to gather the messages and transmit them as a batch to a <strong>Kafka</strong> broker.</p>
+</li>
+</ol>
+<p>Let's delve into a detailed example illustrating how to produce messages in batches to the <code class="highlight"><span class="s2">&quot;output_data&quot;</span></code> topic while consuming from the <code class="highlight"><span class="s2">&quot;input_data_1&quot;</span></code> topic.</p>
+<h2 id="code-example">Code Example<a class="headerlink" href="#code-example" title="Permanent link">#</a></h2>
+<p>First, let's take a look at the whole app creation and then dive deep into the steps for producing in batches. Here is the application code:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
@@ -2110,14 +2114,14 @@
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="n">decrease_and_increase</span> <span class="o">=</span> <span class="n">broker</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="s2">&quot;output_data&quot;</span><span class="p">,</span> <span class="n">batch</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 <p>Step 2: Publishing an Actual Batch of Messages</p>
-<p>You can publish a batch by directly calling the publisher with a batch of messages you want to publish, like shown here:</p>
+<p>You can publish a batch by directly calling the publisher with a batch of messages you want to publish, as shown here:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span>
 <span class="normal"><a href="#__codelineno-2-2">2</a></span>
 <span class="normal"><a href="#__codelineno-2-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1"></a>    <span class="k">await</span> <span class="n">decrease_and_increase</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2"></a>        <span class="n">Data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">data</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)),</span> <span class="n">Data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">data</span> <span class="o">*</span> <span class="mf">2.0</span><span class="p">))</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3"></a>    <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-<p>Or you can decorate your processing function and return a batch of messages like shown here:</p>
+<p>Or you can decorate your processing function and return a batch of messages, as shown here:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span>
 <span class="normal"><a href="#__codelineno-3-2">2</a></span>
 <span class="normal"><a href="#__codelineno-3-3">3</a></span>
@@ -2128,35 +2132,24 @@
 <a id="__codelineno-3-4" name="__codelineno-3-4"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 <a id="__codelineno-3-5" name="__codelineno-3-5"></a>    <span class="k">return</span> <span class="n">Data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">data</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)),</span> <span class="n">Data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">data</span> <span class="o">*</span> <span class="mf">2.0</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
-<p>The application in the example imelements both of these ways, feel free to use whatever option fits your needs better.</p>
-<h2 id="why-publish-in-batches">Why publish in batches?<a class="headerlink" href="#why-publish-in-batches" title="Permanent link">#</a></h2>
-<p>In this example, we've explored how to leverage the @broker.publisher decorator to efficiently publish messages in batches using FastStream and Kafka. By following the two key steps outlined in the previous sections, you can significantly enhance the performance and reliability of your Kafka-based applications.</p>
-<p>Publishing messages in batches offers several advantages when working with Kafka:</p>
+<p>The application in the example imelements both of these ways, so feel free to use whichever option fits your needs better.</p>
+<h2 id="why-publish-in-batches">Why Publish in Batches?<a class="headerlink" href="#why-publish-in-batches" title="Permanent link">#</a></h2>
+<p>In the above example, we've explored how to leverage the <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorator to efficiently publish messages in batches using <strong>FastStream</strong> and <strong>Kafka</strong>. By following the two key steps outlined in the previous sections, you can significantly enhance the performance and reliability of your <strong>Kafka</strong>-based applications.</p>
+<p>Publishing messages in batches offers several advantages when working with <strong>Kafka</strong>:</p>
 <ol>
 <li>
-<p>Improved Throughput: Batch publishing allows you to send multiple messages in a single transmission, reducing the overhead associated with individual message delivery. This leads to improved throughput and lower latency in your Kafka applications.</p>
+<p><strong>Improved Throughput</strong>: Batch publishing allows you to send multiple messages in a single transmission, reducing the overhead associated with individual message delivery. This leads to improved throughput and lower latency in your <strong>Kafka</strong> applications.</p>
 </li>
 <li>
-<p>Reduced Network and Broker Load: Sending messages in batches reduces the number of network calls and broker interactions. This optimization minimizes the load on the Kafka brokers and network resources, making your Kafka cluster more efficient.</p>
+<p><strong>Reduced Network and Broker Load</strong>: Sending messages in batches reduces the number of network calls and broker interactions. This optimization minimizes the load on the <strong>Kafka</strong> brokers and network resources, making your <strong>Kafka</strong> cluster more efficient.</p>
 </li>
 <li>
-<p>Atomicity: Batches ensure that a group of related messages is processed together or not at all. This atomicity can be crucial in scenarios where message processing needs to maintain data consistency and integrity.</p>
+<p><strong>Atomicity</strong>: Batches ensure that a group of related messages is processed together or not at all. This atomicity can be crucial in scenarios where message processing needs to maintain data consistency and integrity.</p>
 </li>
 <li>
-<p>Enhanced Scalability: With batch publishing, you can efficiently scale your Kafka applications to handle high message volumes. By sending messages in larger chunks, you can make the most of Kafka's parallelism and partitioning capabilities.</p>
+<p><strong>Enhanced Scalability</strong>: With batch publishing, you can efficiently scale your <strong>Kafka</strong> applications to handle high message volumes. By sending messages in larger chunks, you can make the most of <strong>Kafka</strong>'s parallelism and partitioning capabilities.</p>
 </li>
 </ol>
-
-  <hr>
-<div class="md-source-file">
-  <small>
-    
-      Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-29T12:55:47+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-29</span>
-      
-    
-  </small>
-</div>
 
 
   
@@ -2312,10 +2305,6 @@
     
     
       <script src="../../../assets/javascripts/bundle.aecac24b.min.js"></script>
-      
-        <script src="../../../js/timeago.min.js"></script>
-      
-        <script src="../../../js/timeago_mkdocs_material.js"></script>
       
     
   <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>

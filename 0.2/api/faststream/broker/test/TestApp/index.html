@@ -48,8 +48,6 @@
       
     
     
-      <link rel="stylesheet" href="../../../../../css/timeago.css">
-    
       <link rel="stylesheet" href="../../../../../assets/_mkdocstrings.css">
     
       <link rel="stylesheet" href="../../../../../stylesheets/extra.css">
@@ -1961,79 +1959,103 @@
 
             <details class="quote">
               <summary>Source code in <code>faststream/broker/test.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-23">23</a></span>
-<span class="normal"><a href="#__codelineno-0-24">24</a></span>
-<span class="normal"><a href="#__codelineno-0-25">25</a></span>
-<span class="normal"><a href="#__codelineno-0-26">26</a></span>
-<span class="normal"><a href="#__codelineno-0-27">27</a></span>
-<span class="normal"><a href="#__codelineno-0-28">28</a></span>
-<span class="normal"><a href="#__codelineno-0-29">29</a></span>
-<span class="normal"><a href="#__codelineno-0-30">30</a></span>
-<span class="normal"><a href="#__codelineno-0-31">31</a></span>
-<span class="normal"><a href="#__codelineno-0-32">32</a></span>
-<span class="normal"><a href="#__codelineno-0-33">33</a></span>
-<span class="normal"><a href="#__codelineno-0-34">34</a></span>
-<span class="normal"><a href="#__codelineno-0-35">35</a></span>
-<span class="normal"><a href="#__codelineno-0-36">36</a></span>
-<span class="normal"><a href="#__codelineno-0-37">37</a></span>
-<span class="normal"><a href="#__codelineno-0-38">38</a></span>
-<span class="normal"><a href="#__codelineno-0-39">39</a></span>
-<span class="normal"><a href="#__codelineno-0-40">40</a></span>
-<span class="normal"><a href="#__codelineno-0-41">41</a></span>
-<span class="normal"><a href="#__codelineno-0-42">42</a></span>
-<span class="normal"><a href="#__codelineno-0-43">43</a></span>
-<span class="normal"><a href="#__codelineno-0-44">44</a></span>
-<span class="normal"><a href="#__codelineno-0-45">45</a></span>
-<span class="normal"><a href="#__codelineno-0-46">46</a></span>
-<span class="normal"><a href="#__codelineno-0-47">47</a></span>
-<span class="normal"><a href="#__codelineno-0-48">48</a></span>
-<span class="normal"><a href="#__codelineno-0-49">49</a></span>
-<span class="normal"><a href="#__codelineno-0-50">50</a></span>
-<span class="normal"><a href="#__codelineno-0-51">51</a></span>
-<span class="normal"><a href="#__codelineno-0-52">52</a></span>
-<span class="normal"><a href="#__codelineno-0-53">53</a></span>
-<span class="normal"><a href="#__codelineno-0-54">54</a></span>
-<span class="normal"><a href="#__codelineno-0-55">55</a></span>
-<span class="normal"><a href="#__codelineno-0-56">56</a></span>
-<span class="normal"><a href="#__codelineno-0-57">57</a></span>
-<span class="normal"><a href="#__codelineno-0-58">58</a></span>
-<span class="normal"><a href="#__codelineno-0-59">59</a></span>
-<span class="normal"><a href="#__codelineno-0-60">60</a></span>
-<span class="normal"><a href="#__codelineno-0-61">61</a></span>
-<span class="normal"><a href="#__codelineno-0-62">62</a></span>
-<span class="normal"><a href="#__codelineno-0-63">63</a></span>
-<span class="normal"><a href="#__codelineno-0-64">64</a></span>
-<span class="normal"><a href="#__codelineno-0-65">65</a></span>
-<span class="normal"><a href="#__codelineno-0-66">66</a></span>
-<span class="normal"><a href="#__codelineno-0-67">67</a></span>
-<span class="normal"><a href="#__codelineno-0-68">68</a></span>
-<span class="normal"><a href="#__codelineno-0-69">69</a></span>
-<span class="normal"><a href="#__codelineno-0-70">70</a></span>
-<span class="normal"><a href="#__codelineno-0-71">71</a></span>
-<span class="normal"><a href="#__codelineno-0-72">72</a></span>
-<span class="normal"><a href="#__codelineno-0-73">73</a></span>
-<span class="normal"><a href="#__codelineno-0-74">74</a></span>
-<span class="normal"><a href="#__codelineno-0-75">75</a></span>
-<span class="normal"><a href="#__codelineno-0-76">76</a></span>
-<span class="normal"><a href="#__codelineno-0-77">77</a></span>
-<span class="normal"><a href="#__codelineno-0-78">78</a></span>
-<span class="normal"><a href="#__codelineno-0-79">79</a></span>
-<span class="normal"><a href="#__codelineno-0-80">80</a></span>
-<span class="normal"><a href="#__codelineno-0-81">81</a></span>
-<span class="normal"><a href="#__codelineno-0-82">82</a></span>
-<span class="normal"><a href="#__codelineno-0-83">83</a></span>
-<span class="normal"><a href="#__codelineno-0-84">84</a></span>
-<span class="normal"><a href="#__codelineno-0-85">85</a></span>
-<span class="normal"><a href="#__codelineno-0-86">86</a></span>
-<span class="normal"><a href="#__codelineno-0-87">87</a></span>
-<span class="normal"><a href="#__codelineno-0-88">88</a></span>
-<span class="normal"><a href="#__codelineno-0-89">89</a></span>
-<span class="normal"><a href="#__codelineno-0-90">90</a></span>
-<span class="normal"><a href="#__codelineno-0-91">91</a></span>
-<span class="normal"><a href="#__codelineno-0-92">92</a></span>
-<span class="normal"><a href="#__codelineno-0-93">93</a></span>
-<span class="normal"><a href="#__codelineno-0-94">94</a></span>
-<span class="normal"><a href="#__codelineno-0-95">95</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="k">class</span> <span class="nc">TestApp</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-23"> 23</a></span>
+<span class="normal"><a href="#__codelineno-0-24"> 24</a></span>
+<span class="normal"><a href="#__codelineno-0-25"> 25</a></span>
+<span class="normal"><a href="#__codelineno-0-26"> 26</a></span>
+<span class="normal"><a href="#__codelineno-0-27"> 27</a></span>
+<span class="normal"><a href="#__codelineno-0-28"> 28</a></span>
+<span class="normal"><a href="#__codelineno-0-29"> 29</a></span>
+<span class="normal"><a href="#__codelineno-0-30"> 30</a></span>
+<span class="normal"><a href="#__codelineno-0-31"> 31</a></span>
+<span class="normal"><a href="#__codelineno-0-32"> 32</a></span>
+<span class="normal"><a href="#__codelineno-0-33"> 33</a></span>
+<span class="normal"><a href="#__codelineno-0-34"> 34</a></span>
+<span class="normal"><a href="#__codelineno-0-35"> 35</a></span>
+<span class="normal"><a href="#__codelineno-0-36"> 36</a></span>
+<span class="normal"><a href="#__codelineno-0-37"> 37</a></span>
+<span class="normal"><a href="#__codelineno-0-38"> 38</a></span>
+<span class="normal"><a href="#__codelineno-0-39"> 39</a></span>
+<span class="normal"><a href="#__codelineno-0-40"> 40</a></span>
+<span class="normal"><a href="#__codelineno-0-41"> 41</a></span>
+<span class="normal"><a href="#__codelineno-0-42"> 42</a></span>
+<span class="normal"><a href="#__codelineno-0-43"> 43</a></span>
+<span class="normal"><a href="#__codelineno-0-44"> 44</a></span>
+<span class="normal"><a href="#__codelineno-0-45"> 45</a></span>
+<span class="normal"><a href="#__codelineno-0-46"> 46</a></span>
+<span class="normal"><a href="#__codelineno-0-47"> 47</a></span>
+<span class="normal"><a href="#__codelineno-0-48"> 48</a></span>
+<span class="normal"><a href="#__codelineno-0-49"> 49</a></span>
+<span class="normal"><a href="#__codelineno-0-50"> 50</a></span>
+<span class="normal"><a href="#__codelineno-0-51"> 51</a></span>
+<span class="normal"><a href="#__codelineno-0-52"> 52</a></span>
+<span class="normal"><a href="#__codelineno-0-53"> 53</a></span>
+<span class="normal"><a href="#__codelineno-0-54"> 54</a></span>
+<span class="normal"><a href="#__codelineno-0-55"> 55</a></span>
+<span class="normal"><a href="#__codelineno-0-56"> 56</a></span>
+<span class="normal"><a href="#__codelineno-0-57"> 57</a></span>
+<span class="normal"><a href="#__codelineno-0-58"> 58</a></span>
+<span class="normal"><a href="#__codelineno-0-59"> 59</a></span>
+<span class="normal"><a href="#__codelineno-0-60"> 60</a></span>
+<span class="normal"><a href="#__codelineno-0-61"> 61</a></span>
+<span class="normal"><a href="#__codelineno-0-62"> 62</a></span>
+<span class="normal"><a href="#__codelineno-0-63"> 63</a></span>
+<span class="normal"><a href="#__codelineno-0-64"> 64</a></span>
+<span class="normal"><a href="#__codelineno-0-65"> 65</a></span>
+<span class="normal"><a href="#__codelineno-0-66"> 66</a></span>
+<span class="normal"><a href="#__codelineno-0-67"> 67</a></span>
+<span class="normal"><a href="#__codelineno-0-68"> 68</a></span>
+<span class="normal"><a href="#__codelineno-0-69"> 69</a></span>
+<span class="normal"><a href="#__codelineno-0-70"> 70</a></span>
+<span class="normal"><a href="#__codelineno-0-71"> 71</a></span>
+<span class="normal"><a href="#__codelineno-0-72"> 72</a></span>
+<span class="normal"><a href="#__codelineno-0-73"> 73</a></span>
+<span class="normal"><a href="#__codelineno-0-74"> 74</a></span>
+<span class="normal"><a href="#__codelineno-0-75"> 75</a></span>
+<span class="normal"><a href="#__codelineno-0-76"> 76</a></span>
+<span class="normal"><a href="#__codelineno-0-77"> 77</a></span>
+<span class="normal"><a href="#__codelineno-0-78"> 78</a></span>
+<span class="normal"><a href="#__codelineno-0-79"> 79</a></span>
+<span class="normal"><a href="#__codelineno-0-80"> 80</a></span>
+<span class="normal"><a href="#__codelineno-0-81"> 81</a></span>
+<span class="normal"><a href="#__codelineno-0-82"> 82</a></span>
+<span class="normal"><a href="#__codelineno-0-83"> 83</a></span>
+<span class="normal"><a href="#__codelineno-0-84"> 84</a></span>
+<span class="normal"><a href="#__codelineno-0-85"> 85</a></span>
+<span class="normal"><a href="#__codelineno-0-86"> 86</a></span>
+<span class="normal"><a href="#__codelineno-0-87"> 87</a></span>
+<span class="normal"><a href="#__codelineno-0-88"> 88</a></span>
+<span class="normal"><a href="#__codelineno-0-89"> 89</a></span>
+<span class="normal"><a href="#__codelineno-0-90"> 90</a></span>
+<span class="normal"><a href="#__codelineno-0-91"> 91</a></span>
+<span class="normal"><a href="#__codelineno-0-92"> 92</a></span>
+<span class="normal"><a href="#__codelineno-0-93"> 93</a></span>
+<span class="normal"><a href="#__codelineno-0-94"> 94</a></span>
+<span class="normal"><a href="#__codelineno-0-95"> 95</a></span>
+<span class="normal"><a href="#__codelineno-0-96"> 96</a></span>
+<span class="normal"><a href="#__codelineno-0-97"> 97</a></span>
+<span class="normal"><a href="#__codelineno-0-98"> 98</a></span>
+<span class="normal"><a href="#__codelineno-0-99"> 99</a></span>
+<span class="normal"><a href="#__codelineno-0-100">100</a></span>
+<span class="normal"><a href="#__codelineno-0-101">101</a></span>
+<span class="normal"><a href="#__codelineno-0-102">102</a></span>
+<span class="normal"><a href="#__codelineno-0-103">103</a></span>
+<span class="normal"><a href="#__codelineno-0-104">104</a></span>
+<span class="normal"><a href="#__codelineno-0-105">105</a></span>
+<span class="normal"><a href="#__codelineno-0-106">106</a></span>
+<span class="normal"><a href="#__codelineno-0-107">107</a></span>
+<span class="normal"><a href="#__codelineno-0-108">108</a></span>
+<span class="normal"><a href="#__codelineno-0-109">109</a></span>
+<span class="normal"><a href="#__codelineno-0-110">110</a></span>
+<span class="normal"><a href="#__codelineno-0-111">111</a></span>
+<span class="normal"><a href="#__codelineno-0-112">112</a></span>
+<span class="normal"><a href="#__codelineno-0-113">113</a></span>
+<span class="normal"><a href="#__codelineno-0-114">114</a></span>
+<span class="normal"><a href="#__codelineno-0-115">115</a></span>
+<span class="normal"><a href="#__codelineno-0-116">116</a></span>
+<span class="normal"><a href="#__codelineno-0-117">117</a></span>
+<span class="normal"><a href="#__codelineno-0-118">118</a></span>
+<span class="normal"><a href="#__codelineno-0-119">119</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="k">class</span> <span class="nc">TestApp</span><span class="p">:</span>
 <a id="__codelineno-0-24" name="__codelineno-0-24"></a>    <span class="c1"># make sure pytest doesn&#39;t try to collect this class as a test class</span>
 <a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A class to represent a test application.</span>
 <a id="__codelineno-0-26" name="__codelineno-0-26"></a>
@@ -2052,60 +2074,84 @@
 <a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="sd">        The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
 <a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="sd">    &quot;&quot;&quot;</span>
 <a id="__codelineno-0-41" name="__codelineno-0-41"></a>    <span class="n">__test__</span> <span class="o">=</span> <span class="kc">False</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42"></a>    <span class="n">app</span><span class="p">:</span> <span class="n">FastStream</span>
-<a id="__codelineno-0-43" name="__codelineno-0-43"></a>    <span class="n">_extra_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SettingField</span><span class="p">]]</span>
-<a id="__codelineno-0-44" name="__codelineno-0-44"></a>    <span class="n">_event</span><span class="p">:</span> <span class="n">anyio</span><span class="o">.</span><span class="n">Event</span>
-<a id="__codelineno-0-45" name="__codelineno-0-45"></a>    <span class="n">_task</span><span class="p">:</span> <span class="n">TaskGroup</span>
-<a id="__codelineno-0-46" name="__codelineno-0-46"></a>
-<a id="__codelineno-0-47" name="__codelineno-0-47"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-<a id="__codelineno-0-48" name="__codelineno-0-48"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-49" name="__codelineno-0-49"></a>        <span class="n">app</span><span class="p">:</span> <span class="n">FastStream</span><span class="p">,</span>
-<a id="__codelineno-0-50" name="__codelineno-0-50"></a>        <span class="n">run_extra_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SettingField</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-51" name="__codelineno-0-51"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-52" name="__codelineno-0-52"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a class instance.</span>
-<a id="__codelineno-0-53" name="__codelineno-0-53"></a>
-<a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="sd">            app: An instance of the FastStream class.</span>
-<a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="sd">            run_extra_options: Optional dictionary of extra options for running the application.</span>
-<a id="__codelineno-0-57" name="__codelineno-0-57"></a>
-<a id="__codelineno-0-58" name="__codelineno-0-58"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="sd">            None</span>
-<a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="sd">        !!! note</span>
-<a id="__codelineno-0-61" name="__codelineno-0-61"></a>
-<a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-64" name="__codelineno-0-64"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">app</span>
-<a id="__codelineno-0-65" name="__codelineno-0-65"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_extra_options</span> <span class="o">=</span> <span class="n">run_extra_options</span>
-<a id="__codelineno-0-66" name="__codelineno-0-66"></a>
-<a id="__codelineno-0-67" name="__codelineno-0-67"></a>    <span class="k">async</span> <span class="k">def</span> <span class="fm">__aenter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FastStream</span><span class="p">:</span>
-<a id="__codelineno-0-68" name="__codelineno-0-68"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">_stop_event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event</span> <span class="o">=</span> <span class="n">anyio</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
-<a id="__codelineno-0-69" name="__codelineno-0-69"></a>        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">_start</span><span class="p">(</span><span class="n">run_extra_options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_extra_options</span><span class="p">)</span>
-<a id="__codelineno-0-70" name="__codelineno-0-70"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="o">=</span> <span class="n">tg</span> <span class="o">=</span> <span class="n">anyio</span><span class="o">.</span><span class="n">create_task_group</span><span class="p">()</span>
-<a id="__codelineno-0-71" name="__codelineno-0-71"></a>        <span class="k">await</span> <span class="n">tg</span><span class="o">.</span><span class="fm">__aenter__</span><span class="p">()</span>
-<a id="__codelineno-0-72" name="__codelineno-0-72"></a>        <span class="n">tg</span><span class="o">.</span><span class="n">start_soon</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">_stop</span><span class="p">)</span>
-<a id="__codelineno-0-73" name="__codelineno-0-73"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span>
-<a id="__codelineno-0-74" name="__codelineno-0-74"></a>
-<a id="__codelineno-0-75" name="__codelineno-0-75"></a>    <span class="k">async</span> <span class="k">def</span> <span class="fm">__aexit__</span><span class="p">(</span>
-<a id="__codelineno-0-76" name="__codelineno-0-76"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-77" name="__codelineno-0-77"></a>        <span class="n">exc_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-78" name="__codelineno-0-78"></a>        <span class="n">exc_val</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-79" name="__codelineno-0-79"></a>        <span class="n">exec_tb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TracebackType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-80" name="__codelineno-0-80"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-81" name="__codelineno-0-81"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Exit the asynchronous context manager.</span>
-<a id="__codelineno-0-82" name="__codelineno-0-82"></a>
-<a id="__codelineno-0-83" name="__codelineno-0-83"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-84" name="__codelineno-0-84"></a><span class="sd">            exc_type: The type of the exception raised, if any.</span>
-<a id="__codelineno-0-85" name="__codelineno-0-85"></a><span class="sd">            exc_val: The exception instance raised, if any.</span>
-<a id="__codelineno-0-86" name="__codelineno-0-86"></a><span class="sd">            exec_tb: The traceback for the exception raised, if any.</span>
-<a id="__codelineno-0-87" name="__codelineno-0-87"></a>
-<a id="__codelineno-0-88" name="__codelineno-0-88"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-89" name="__codelineno-0-89"></a><span class="sd">            None</span>
-<a id="__codelineno-0-90" name="__codelineno-0-90"></a><span class="sd">        !!! note</span>
-<a id="__codelineno-0-91" name="__codelineno-0-91"></a>
-<a id="__codelineno-0-92" name="__codelineno-0-92"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<a id="__codelineno-0-93" name="__codelineno-0-93"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-94" name="__codelineno-0-94"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
-<a id="__codelineno-0-95" name="__codelineno-0-95"></a>        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span><span class="o">.</span><span class="fm">__aexit__</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42"></a>
+<a id="__codelineno-0-43" name="__codelineno-0-43"></a>    <span class="n">app</span><span class="p">:</span> <span class="n">FastStream</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44"></a>    <span class="n">_extra_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SettingField</span><span class="p">]]</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45"></a>
+<a id="__codelineno-0-46" name="__codelineno-0-46"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48"></a>        <span class="n">app</span><span class="p">:</span> <span class="n">FastStream</span><span class="p">,</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49"></a>        <span class="n">run_extra_options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SettingField</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-51" name="__codelineno-0-51"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a class instance.</span>
+<a id="__codelineno-0-52" name="__codelineno-0-52"></a>
+<a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="sd">            app: An instance of the FastStream class.</span>
+<a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="sd">            run_extra_options: Optional dictionary of extra options for running the application.</span>
+<a id="__codelineno-0-56" name="__codelineno-0-56"></a>
+<a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-58" name="__codelineno-0-58"></a><span class="sd">            None</span>
+<a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="sd">        !!! note</span>
+<a id="__codelineno-0-60" name="__codelineno-0-60"></a>
+<a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-63" name="__codelineno-0-63"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">app</span>
+<a id="__codelineno-0-64" name="__codelineno-0-64"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_extra_options</span> <span class="o">=</span> <span class="n">run_extra_options</span>
+<a id="__codelineno-0-65" name="__codelineno-0-65"></a>
+<a id="__codelineno-0-66" name="__codelineno-0-66"></a>    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FastStream</span><span class="p">:</span>
+<a id="__codelineno-0-67" name="__codelineno-0-67"></a>        <span class="k">with</span> <span class="n">ExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
+<a id="__codelineno-0-68" name="__codelineno-0-68"></a>            <span class="n">portal</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">start_blocking_portal</span><span class="p">())</span>
+<a id="__codelineno-0-69" name="__codelineno-0-69"></a>            <span class="n">portal</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">_init_async_cycle</span><span class="p">)</span>
+<a id="__codelineno-0-70" name="__codelineno-0-70"></a>            <span class="n">portal</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">_start</span><span class="p">,</span> <span class="n">run_extra_options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_extra_options</span><span class="p">))</span>
+<a id="__codelineno-0-71" name="__codelineno-0-71"></a>
+<a id="__codelineno-0-72" name="__codelineno-0-72"></a>            <span class="nd">@stack</span><span class="o">.</span><span class="n">callback</span>
+<a id="__codelineno-0-73" name="__codelineno-0-73"></a>            <span class="k">def</span> <span class="nf">wait_shutdown</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-74" name="__codelineno-0-74"></a>                <span class="n">portal</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">_stop</span><span class="p">)</span>
+<a id="__codelineno-0-75" name="__codelineno-0-75"></a>
+<a id="__codelineno-0-76" name="__codelineno-0-76"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">exit_stack</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">pop_all</span><span class="p">()</span>
+<a id="__codelineno-0-77" name="__codelineno-0-77"></a>
+<a id="__codelineno-0-78" name="__codelineno-0-78"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span>
+<a id="__codelineno-0-79" name="__codelineno-0-79"></a>
+<a id="__codelineno-0-80" name="__codelineno-0-80"></a>    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span>
+<a id="__codelineno-0-81" name="__codelineno-0-81"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-82" name="__codelineno-0-82"></a>        <span class="n">exc_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-83" name="__codelineno-0-83"></a>        <span class="n">exc_val</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-84" name="__codelineno-0-84"></a>        <span class="n">exec_tb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TracebackType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-85" name="__codelineno-0-85"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-86" name="__codelineno-0-86"></a>        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">_stop_event</span>  <span class="c1"># nosec B101</span>
+<a id="__codelineno-0-87" name="__codelineno-0-87"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+<a id="__codelineno-0-88" name="__codelineno-0-88"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">exit_stack</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<a id="__codelineno-0-89" name="__codelineno-0-89"></a>
+<a id="__codelineno-0-90" name="__codelineno-0-90"></a>    <span class="k">async</span> <span class="k">def</span> <span class="fm">__aenter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FastStream</span><span class="p">:</span>
+<a id="__codelineno-0-91" name="__codelineno-0-91"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">_init_async_cycle</span><span class="p">()</span>
+<a id="__codelineno-0-92" name="__codelineno-0-92"></a>        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">_start</span><span class="p">(</span><span class="n">run_extra_options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_extra_options</span><span class="p">)</span>
+<a id="__codelineno-0-93" name="__codelineno-0-93"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="o">=</span> <span class="n">tg</span> <span class="o">=</span> <span class="n">anyio</span><span class="o">.</span><span class="n">create_task_group</span><span class="p">()</span>
+<a id="__codelineno-0-94" name="__codelineno-0-94"></a>        <span class="k">await</span> <span class="n">tg</span><span class="o">.</span><span class="fm">__aenter__</span><span class="p">()</span>
+<a id="__codelineno-0-95" name="__codelineno-0-95"></a>        <span class="n">tg</span><span class="o">.</span><span class="n">start_soon</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">_stop</span><span class="p">)</span>
+<a id="__codelineno-0-96" name="__codelineno-0-96"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span>
+<a id="__codelineno-0-97" name="__codelineno-0-97"></a>
+<a id="__codelineno-0-98" name="__codelineno-0-98"></a>    <span class="k">async</span> <span class="k">def</span> <span class="fm">__aexit__</span><span class="p">(</span>
+<a id="__codelineno-0-99" name="__codelineno-0-99"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-100" name="__codelineno-0-100"></a>        <span class="n">exc_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-101" name="__codelineno-0-101"></a>        <span class="n">exc_val</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-102" name="__codelineno-0-102"></a>        <span class="n">exec_tb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TracebackType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-103" name="__codelineno-0-103"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-104" name="__codelineno-0-104"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Exit the asynchronous context manager.</span>
+<a id="__codelineno-0-105" name="__codelineno-0-105"></a>
+<a id="__codelineno-0-106" name="__codelineno-0-106"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-107" name="__codelineno-0-107"></a><span class="sd">            exc_type: The type of the exception raised, if any.</span>
+<a id="__codelineno-0-108" name="__codelineno-0-108"></a><span class="sd">            exc_val: The exception instance raised, if any.</span>
+<a id="__codelineno-0-109" name="__codelineno-0-109"></a><span class="sd">            exec_tb: The traceback for the exception raised, if any.</span>
+<a id="__codelineno-0-110" name="__codelineno-0-110"></a>
+<a id="__codelineno-0-111" name="__codelineno-0-111"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-112" name="__codelineno-0-112"></a><span class="sd">            None</span>
+<a id="__codelineno-0-113" name="__codelineno-0-113"></a><span class="sd">        !!! note</span>
+<a id="__codelineno-0-114" name="__codelineno-0-114"></a>
+<a id="__codelineno-0-115" name="__codelineno-0-115"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-116" name="__codelineno-0-116"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-117" name="__codelineno-0-117"></a>        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">_stop_event</span>  <span class="c1"># nosec B101</span>
+<a id="__codelineno-0-118" name="__codelineno-0-118"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+<a id="__codelineno-0-119" name="__codelineno-0-119"></a>        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span><span class="o">.</span><span class="fm">__aexit__</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
 
@@ -2149,17 +2195,6 @@
 
   </div>
 
-</div>
-
-  <hr>
-<div class="md-source-file">
-  <small>
-    
-      Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-08T11:40:53+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-08</span>
-      
-    
-  </small>
 </div>
 
 
@@ -2278,10 +2313,6 @@
     
     
       <script src="../../../../../assets/javascripts/bundle.aecac24b.min.js"></script>
-      
-        <script src="../../../../../js/timeago.min.js"></script>
-      
-        <script src="../../../../../js/timeago_mkdocs_material.js"></script>
       
     
   <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>

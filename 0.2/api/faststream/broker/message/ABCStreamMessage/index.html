@@ -48,8 +48,6 @@
       
     
     
-      <link rel="stylesheet" href="../../../../../css/timeago.css">
-    
       <link rel="stylesheet" href="../../../../../assets/_mkdocstrings.css">
     
       <link rel="stylesheet" href="../../../../../stylesheets/extra.css">
@@ -1907,6 +1905,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#faststream.broker.message.ABCStreamMessage.path" class="md-nav__link">
+    path
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#faststream.broker.message.ABCStreamMessage.processed" class="md-nav__link">
     processed
   </a>
@@ -1975,7 +1980,7 @@
 
   <div class="doc doc-contents first">
           <p class="doc doc-class-bases">
-            Bases: <code><a class="autorefs autorefs-external" title="typing.Generic" href="https://docs.python.org/3/library/typing.html#typing.Generic">Generic</a>[<span title="faststream.broker.message.Msg">Msg</span>]</code></p>
+            Bases: <code><span title="typing.Generic">Generic</span>[<span title="faststream.broker.message.Msg">Msg</span>]</code></p>
 
   
       <p>A generic class to represent a stream message.</p>
@@ -2018,7 +2023,8 @@
 <span class="normal"><a href="#__codelineno-0-40">40</a></span>
 <span class="normal"><a href="#__codelineno-0-41">41</a></span>
 <span class="normal"><a href="#__codelineno-0-42">42</a></span>
-<span class="normal"><a href="#__codelineno-0-43">43</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="nd">@dataclass</span>
+<span class="normal"><a href="#__codelineno-0-43">43</a></span>
+<span class="normal"><a href="#__codelineno-0-44">44</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="nd">@dataclass</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="k">class</span> <span class="nc">ABCStreamMessage</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">Msg</span><span class="p">]):</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A generic class to represent a stream message.</span>
 <a id="__codelineno-0-14" name="__codelineno-0-14"></a>
@@ -2041,16 +2047,17 @@
 <a id="__codelineno-0-31" name="__codelineno-0-31"></a>
 <a id="__codelineno-0-32" name="__codelineno-0-32"></a>    <span class="n">body</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
 <a id="__codelineno-0-33" name="__codelineno-0-33"></a>    <span class="n">decoded_body</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DecodedMessage</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-<a id="__codelineno-0-34" name="__codelineno-0-34"></a>
-<a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="n">content_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36"></a>    <span class="n">reply_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37"></a>    <span class="n">headers</span><span class="p">:</span> <span class="n">AnyDict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="n">message_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">()))</span>  <span class="c1"># pragma: no cover</span>
-<a id="__codelineno-0-39" name="__codelineno-0-39"></a>    <span class="n">correlation_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
-<a id="__codelineno-0-40" name="__codelineno-0-40"></a>        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41"></a>    <span class="p">)</span>  <span class="c1"># pragma: no cover</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42"></a>
-<a id="__codelineno-0-43" name="__codelineno-0-43"></a>    <span class="n">processed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34"></a>    <span class="n">headers</span><span class="p">:</span> <span class="n">AnyDict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="n">path</span><span class="p">:</span> <span class="n">AnyDict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36"></a>
+<a id="__codelineno-0-37" name="__codelineno-0-37"></a>    <span class="n">content_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="n">reply_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39"></a>    <span class="n">message_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">()))</span>  <span class="c1"># pragma: no cover</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40"></a>    <span class="n">correlation_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41"></a>        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42"></a>    <span class="p">)</span>  <span class="c1"># pragma: no cover</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43"></a>
+<a id="__codelineno-0-44" name="__codelineno-0-44"></a>    <span class="n">processed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 </code></pre></div></td></tr></table></div>
             </details>
 
@@ -2210,6 +2217,29 @@
 
 
 
+<h3 id="faststream.broker.message.ABCStreamMessage.path" class="doc doc-heading">
+          <span class="doc doc-object-name doc-attribute-name">path</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#faststream.broker.message.ABCStreamMessage.path" class="headerlink" title="Permanent link">#</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">path</span><span class="p">:</span> <span class="n">AnyDict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+
 <h3 id="faststream.broker.message.ABCStreamMessage.processed" class="doc doc-heading">
           <span class="doc doc-object-name doc-attribute-name">processed</span>
 
@@ -2281,17 +2311,6 @@
 
   </div>
 
-</div>
-
-  <hr>
-<div class="md-source-file">
-  <small>
-    
-      Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-08T11:40:53+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-08</span>
-      
-    
-  </small>
 </div>
 
 
@@ -2410,10 +2429,6 @@
     
     
       <script src="../../../../../assets/javascripts/bundle.aecac24b.min.js"></script>
-      
-        <script src="../../../../../js/timeago.min.js"></script>
-      
-        <script src="../../../../../js/timeago_mkdocs_material.js"></script>
       
     
   <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>

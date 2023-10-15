@@ -52,8 +52,6 @@
       
     
     
-      <link rel="stylesheet" href="../../css/timeago.css">
-    
       <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
       <link rel="stylesheet" href="../../stylesheets/extra.css">
@@ -1978,6 +1976,28 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#serialization" class="md-nav__link">
+    Serialization
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#publishing" class="md-nav__link">
+    Publishing
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2000,16 +2020,29 @@
 
 
 <h1 id="publishing-basics">Publishing Basics<a class="headerlink" href="#publishing-basics" title="Permanent link">#</a></h1>
-<p><strong>FastStream</strong> is broker-agnostic and easy to use, even as a client in non-FastStream applications.</p>
+<p><strong>FastStream</strong> is broker-agnostic and easy to use, even as a client in non-<strong>FastStream</strong> applications.</p>
 <p>It offers several use cases for publishing messages:</p>
 <ul>
-<li>Using `broker.publish``</li>
-<li>Using a decorator</li>
+<li>Using <code class="highlight"><span class="n">broker</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code></li>
+<li>Using the <code class="highlight"><span class="nd">@broker</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorator</li>
 <li>Using a publisher object decorator</li>
 <li>Using a publisher object directly</li>
 </ul>
+<p>All of these variants have their own advantages and limitations, so you can choose what you want based on your requirements. Please visit the following pages for details.</p>
+<h2 id="serialization">Serialization<a class="headerlink" href="#serialization" title="Permanent link">#</a></h2>
 <p><strong>FastStream</strong> allows you to publish any JSON-serializable messages (Python types, Pydantic models, etc.) or raw bytes.</p>
-<p>It automatically sets up all required headers, especially the correlation_id, which is used to trace message processing pipelines across all services.</p>
+<p>It automatically sets up all required headers, especially the <code>correlation_id</code>, which is used to trace message processing pipelines across all services.</p>
+<p>The <code>content-type</code> is a meaningfull header for <strong>FastStream</strong> services. It helps the framework serialize messages faster, selecting the right serializer based on the header. This header is automatically set by <strong>FastStream</strong> too, but you should set it up manually using other libraries to interact with <strong>FastStream</strong> applications.</p>
+<p>Content-Type can be:</p>
+<ul>
+<li><code>text/plain</code></li>
+<li><code>application/json</code></li>
+<li>empty with bytes content</li>
+</ul>
+<p>By the way, you can use <code>application/json</code> for all of your messages if they are not raw bytes. You can even omit using any header at all, but it makes serialization slightly slower.</p>
+<h2 id="publishing">Publishing<a class="headerlink" href="#publishing" title="Permanent link">#</a></h2>
+<p><strong>FastStream</strong> can also be used as a Broker client to send messages in other applications. It is quite straightforward and similar to <em>aiohttp</em> or <em>requests</em>.</p>
+<p>You just need to <code class="highlight"><span class="n">connect</span></code> your broker, and you are ready to send a message. Additionally, you can use <em>Broker</em> as an async context manager to establish a connection and disconnect when leaving the scope.</p>
 <p>To publish a message, simply set up the message content and a routing key:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Kafka</label><label for="__tabbed_1_2">RabbitMQ</label><label for="__tabbed_1_3">NATS</label></div>
 <div class="tabbed-content">
@@ -2025,21 +2058,10 @@
 </div>
 <div class="tabbed-block">
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">async</span> <span class="k">with</span> <span class="n">NatsBroker</span><span class="p">()</span> <span class="k">as</span> <span class="n">br</span><span class="p">:</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="k">await</span> <span class="n">br</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="s2">&quot;queue&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="k">await</span> <span class="n">br</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="s2">&quot;subject&quot;</span><span class="p">)</span>
 </code></pre></div>
 </div>
 </div>
-</div>
-
-  <hr>
-<div class="md-source-file">
-  <small>
-    
-      Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-10-02T18:35:16+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-10-02</span>
-      
-    
-  </small>
 </div>
 
 
@@ -2196,10 +2218,6 @@
     
     
       <script src="../../assets/javascripts/bundle.aecac24b.min.js"></script>
-      
-        <script src="../../js/timeago.min.js"></script>
-      
-        <script src="../../js/timeago_mkdocs_material.js"></script>
       
     
   <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>

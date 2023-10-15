@@ -48,8 +48,6 @@
       
     
     
-      <link rel="stylesheet" href="../../../../../css/timeago.css">
-    
       <link rel="stylesheet" href="../../../../../assets/_mkdocstrings.css">
     
       <link rel="stylesheet" href="../../../../../stylesheets/extra.css">
@@ -2117,7 +2115,8 @@ Declares an exchange and returns the declared exchange object.</p>
 <span class="normal"><a href="#__codelineno-0-130">130</a></span>
 <span class="normal"><a href="#__codelineno-0-131">131</a></span>
 <span class="normal"><a href="#__codelineno-0-132">132</a></span>
-<span class="normal"><a href="#__codelineno-0-133">133</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="k">class</span> <span class="nc">RabbitDeclarer</span><span class="p">(</span><span class="n">Singleton</span><span class="p">):</span>
+<span class="normal"><a href="#__codelineno-0-133">133</a></span>
+<span class="normal"><a href="#__codelineno-0-134">134</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="k">class</span> <span class="nc">RabbitDeclarer</span><span class="p">(</span><span class="n">Singleton</span><span class="p">):</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A class to declare RabbitMQ queues and exchanges.</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12"></a>
 <a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="sd">    Attributes:</span>
@@ -2188,59 +2187,60 @@ Declares an exchange and returns the declared exchange object.</p>
 <a id="__codelineno-0-78" name="__codelineno-0-78"></a>                        <span class="n">queue</span><span class="p">,</span>
 <a id="__codelineno-0-79" name="__codelineno-0-79"></a>                        <span class="n">exclude</span><span class="o">=</span><span class="p">{</span>
 <a id="__codelineno-0-80" name="__codelineno-0-80"></a>                            <span class="s2">&quot;routing_key&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-81" name="__codelineno-0-81"></a>                            <span class="s2">&quot;bind_arguments&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-82" name="__codelineno-0-82"></a>                        <span class="p">},</span>
-<a id="__codelineno-0-83" name="__codelineno-0-83"></a>                    <span class="p">)</span>
-<a id="__codelineno-0-84" name="__codelineno-0-84"></a>                <span class="p">),</span>
-<a id="__codelineno-0-85" name="__codelineno-0-85"></a>            <span class="p">)</span>
-<a id="__codelineno-0-86" name="__codelineno-0-86"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">queues</span><span class="p">[</span><span class="n">queue</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span>
-<a id="__codelineno-0-87" name="__codelineno-0-87"></a>        <span class="k">return</span> <span class="n">q</span>
-<a id="__codelineno-0-88" name="__codelineno-0-88"></a>
-<a id="__codelineno-0-89" name="__codelineno-0-89"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_exchange</span><span class="p">(</span>
-<a id="__codelineno-0-90" name="__codelineno-0-90"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-91" name="__codelineno-0-91"></a>        <span class="n">exchange</span><span class="p">:</span> <span class="n">RabbitExchange</span><span class="p">,</span>
-<a id="__codelineno-0-92" name="__codelineno-0-92"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustExchange</span><span class="p">:</span>
-<a id="__codelineno-0-93" name="__codelineno-0-93"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Declare an exchange.</span>
-<a id="__codelineno-0-94" name="__codelineno-0-94"></a>
-<a id="__codelineno-0-95" name="__codelineno-0-95"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-96" name="__codelineno-0-96"></a><span class="sd">            exchange: RabbitExchange object representing the exchange to be declared.</span>
-<a id="__codelineno-0-97" name="__codelineno-0-97"></a>
-<a id="__codelineno-0-98" name="__codelineno-0-98"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-99" name="__codelineno-0-99"></a><span class="sd">            aio_pika.RobustExchange: The declared exchange.</span>
-<a id="__codelineno-0-100" name="__codelineno-0-100"></a>
-<a id="__codelineno-0-101" name="__codelineno-0-101"></a><span class="sd">        Raises:</span>
-<a id="__codelineno-0-102" name="__codelineno-0-102"></a><span class="sd">            NotImplementedError: If silent animals are not supported.</span>
-<a id="__codelineno-0-103" name="__codelineno-0-103"></a><span class="sd">        !!! note</span>
-<a id="__codelineno-0-104" name="__codelineno-0-104"></a>
-<a id="__codelineno-0-105" name="__codelineno-0-105"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<a id="__codelineno-0-106" name="__codelineno-0-106"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-107" name="__codelineno-0-107"></a>        <span class="n">exch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exchanges</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">exchange</span><span class="p">)</span>
-<a id="__codelineno-0-108" name="__codelineno-0-108"></a>
-<a id="__codelineno-0-109" name="__codelineno-0-109"></a>        <span class="k">if</span> <span class="n">exch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-110" name="__codelineno-0-110"></a>            <span class="n">exch</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
-<a id="__codelineno-0-111" name="__codelineno-0-111"></a>                <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustExchange</span><span class="p">,</span>
-<a id="__codelineno-0-112" name="__codelineno-0-112"></a>                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">declare_exchange</span><span class="p">(</span>
-<a id="__codelineno-0-113" name="__codelineno-0-113"></a>                    <span class="o">**</span><span class="n">model_to_dict</span><span class="p">(</span>
-<a id="__codelineno-0-114" name="__codelineno-0-114"></a>                        <span class="n">exchange</span><span class="p">,</span>
-<a id="__codelineno-0-115" name="__codelineno-0-115"></a>                        <span class="n">exclude</span><span class="o">=</span><span class="p">{</span>
-<a id="__codelineno-0-116" name="__codelineno-0-116"></a>                            <span class="s2">&quot;routing_key&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-117" name="__codelineno-0-117"></a>                            <span class="s2">&quot;bind_arguments&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-118" name="__codelineno-0-118"></a>                            <span class="s2">&quot;bind_to&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-119" name="__codelineno-0-119"></a>                        <span class="p">},</span>
-<a id="__codelineno-0-120" name="__codelineno-0-120"></a>                    <span class="p">)</span>
-<a id="__codelineno-0-121" name="__codelineno-0-121"></a>                <span class="p">),</span>
-<a id="__codelineno-0-122" name="__codelineno-0-122"></a>            <span class="p">)</span>
-<a id="__codelineno-0-123" name="__codelineno-0-123"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">exchanges</span><span class="p">[</span><span class="n">exchange</span><span class="p">]</span> <span class="o">=</span> <span class="n">exch</span>
-<a id="__codelineno-0-124" name="__codelineno-0-124"></a>
-<a id="__codelineno-0-125" name="__codelineno-0-125"></a>        <span class="k">if</span> <span class="n">exchange</span><span class="o">.</span><span class="n">bind_to</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-126" name="__codelineno-0-126"></a>            <span class="n">parent</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_exchange</span><span class="p">(</span><span class="n">exchange</span><span class="o">.</span><span class="n">bind_to</span><span class="p">)</span>
-<a id="__codelineno-0-127" name="__codelineno-0-127"></a>            <span class="k">await</span> <span class="n">exch</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span>
-<a id="__codelineno-0-128" name="__codelineno-0-128"></a>                <span class="n">exchange</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
-<a id="__codelineno-0-129" name="__codelineno-0-129"></a>                <span class="n">routing_key</span><span class="o">=</span><span class="n">exchange</span><span class="o">.</span><span class="n">routing_key</span><span class="p">,</span>
-<a id="__codelineno-0-130" name="__codelineno-0-130"></a>                <span class="n">arguments</span><span class="o">=</span><span class="n">exchange</span><span class="o">.</span><span class="n">arguments</span><span class="p">,</span>
-<a id="__codelineno-0-131" name="__codelineno-0-131"></a>            <span class="p">)</span>
-<a id="__codelineno-0-132" name="__codelineno-0-132"></a>
-<a id="__codelineno-0-133" name="__codelineno-0-133"></a>        <span class="k">return</span> <span class="n">exch</span>
+<a id="__codelineno-0-81" name="__codelineno-0-81"></a>                            <span class="s2">&quot;path_regex&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-82" name="__codelineno-0-82"></a>                            <span class="s2">&quot;bind_arguments&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-83" name="__codelineno-0-83"></a>                        <span class="p">},</span>
+<a id="__codelineno-0-84" name="__codelineno-0-84"></a>                    <span class="p">)</span>
+<a id="__codelineno-0-85" name="__codelineno-0-85"></a>                <span class="p">),</span>
+<a id="__codelineno-0-86" name="__codelineno-0-86"></a>            <span class="p">)</span>
+<a id="__codelineno-0-87" name="__codelineno-0-87"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">queues</span><span class="p">[</span><span class="n">queue</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span>
+<a id="__codelineno-0-88" name="__codelineno-0-88"></a>        <span class="k">return</span> <span class="n">q</span>
+<a id="__codelineno-0-89" name="__codelineno-0-89"></a>
+<a id="__codelineno-0-90" name="__codelineno-0-90"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">declare_exchange</span><span class="p">(</span>
+<a id="__codelineno-0-91" name="__codelineno-0-91"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-92" name="__codelineno-0-92"></a>        <span class="n">exchange</span><span class="p">:</span> <span class="n">RabbitExchange</span><span class="p">,</span>
+<a id="__codelineno-0-93" name="__codelineno-0-93"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustExchange</span><span class="p">:</span>
+<a id="__codelineno-0-94" name="__codelineno-0-94"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Declare an exchange.</span>
+<a id="__codelineno-0-95" name="__codelineno-0-95"></a>
+<a id="__codelineno-0-96" name="__codelineno-0-96"></a><span class="sd">        Args:</span>
+<a id="__codelineno-0-97" name="__codelineno-0-97"></a><span class="sd">            exchange: RabbitExchange object representing the exchange to be declared.</span>
+<a id="__codelineno-0-98" name="__codelineno-0-98"></a>
+<a id="__codelineno-0-99" name="__codelineno-0-99"></a><span class="sd">        Returns:</span>
+<a id="__codelineno-0-100" name="__codelineno-0-100"></a><span class="sd">            aio_pika.RobustExchange: The declared exchange.</span>
+<a id="__codelineno-0-101" name="__codelineno-0-101"></a>
+<a id="__codelineno-0-102" name="__codelineno-0-102"></a><span class="sd">        Raises:</span>
+<a id="__codelineno-0-103" name="__codelineno-0-103"></a><span class="sd">            NotImplementedError: If silent animals are not supported.</span>
+<a id="__codelineno-0-104" name="__codelineno-0-104"></a><span class="sd">        !!! note</span>
+<a id="__codelineno-0-105" name="__codelineno-0-105"></a>
+<a id="__codelineno-0-106" name="__codelineno-0-106"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-107" name="__codelineno-0-107"></a><span class="sd">        &quot;&quot;&quot;</span>
+<a id="__codelineno-0-108" name="__codelineno-0-108"></a>        <span class="n">exch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exchanges</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">exchange</span><span class="p">)</span>
+<a id="__codelineno-0-109" name="__codelineno-0-109"></a>
+<a id="__codelineno-0-110" name="__codelineno-0-110"></a>        <span class="k">if</span> <span class="n">exch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-111" name="__codelineno-0-111"></a>            <span class="n">exch</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+<a id="__codelineno-0-112" name="__codelineno-0-112"></a>                <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustExchange</span><span class="p">,</span>
+<a id="__codelineno-0-113" name="__codelineno-0-113"></a>                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">declare_exchange</span><span class="p">(</span>
+<a id="__codelineno-0-114" name="__codelineno-0-114"></a>                    <span class="o">**</span><span class="n">model_to_dict</span><span class="p">(</span>
+<a id="__codelineno-0-115" name="__codelineno-0-115"></a>                        <span class="n">exchange</span><span class="p">,</span>
+<a id="__codelineno-0-116" name="__codelineno-0-116"></a>                        <span class="n">exclude</span><span class="o">=</span><span class="p">{</span>
+<a id="__codelineno-0-117" name="__codelineno-0-117"></a>                            <span class="s2">&quot;routing_key&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-118" name="__codelineno-0-118"></a>                            <span class="s2">&quot;bind_arguments&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-119" name="__codelineno-0-119"></a>                            <span class="s2">&quot;bind_to&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-120" name="__codelineno-0-120"></a>                        <span class="p">},</span>
+<a id="__codelineno-0-121" name="__codelineno-0-121"></a>                    <span class="p">)</span>
+<a id="__codelineno-0-122" name="__codelineno-0-122"></a>                <span class="p">),</span>
+<a id="__codelineno-0-123" name="__codelineno-0-123"></a>            <span class="p">)</span>
+<a id="__codelineno-0-124" name="__codelineno-0-124"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">exchanges</span><span class="p">[</span><span class="n">exchange</span><span class="p">]</span> <span class="o">=</span> <span class="n">exch</span>
+<a id="__codelineno-0-125" name="__codelineno-0-125"></a>
+<a id="__codelineno-0-126" name="__codelineno-0-126"></a>        <span class="k">if</span> <span class="n">exchange</span><span class="o">.</span><span class="n">bind_to</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-127" name="__codelineno-0-127"></a>            <span class="n">parent</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_exchange</span><span class="p">(</span><span class="n">exchange</span><span class="o">.</span><span class="n">bind_to</span><span class="p">)</span>
+<a id="__codelineno-0-128" name="__codelineno-0-128"></a>            <span class="k">await</span> <span class="n">exch</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span>
+<a id="__codelineno-0-129" name="__codelineno-0-129"></a>                <span class="n">exchange</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+<a id="__codelineno-0-130" name="__codelineno-0-130"></a>                <span class="n">routing_key</span><span class="o">=</span><span class="n">exchange</span><span class="o">.</span><span class="n">routing_key</span><span class="p">,</span>
+<a id="__codelineno-0-131" name="__codelineno-0-131"></a>                <span class="n">arguments</span><span class="o">=</span><span class="n">exchange</span><span class="o">.</span><span class="n">arguments</span><span class="p">,</span>
+<a id="__codelineno-0-132" name="__codelineno-0-132"></a>            <span class="p">)</span>
+<a id="__codelineno-0-133" name="__codelineno-0-133"></a>
+<a id="__codelineno-0-134" name="__codelineno-0-134"></a>        <span class="k">return</span> <span class="n">exch</span>
 </code></pre></div></td></tr></table></div>
             </details>
 
@@ -2415,7 +2415,7 @@ Declares an exchange and returns the declared exchange object.</p>
         <tr>
           <td>
             <span class="doc-raises-annotation">
-                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError">NotImplementedError</a></code>
+                <code>NotImplementedError</code>
             </span>
           </td>
           <td class="doc-raises-details">
@@ -2433,8 +2433,7 @@ Declares an exchange and returns the declared exchange object.</p>
 
           <details class="quote">
             <summary>Source code in <code>faststream/rabbit/helpers.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-89"> 89</a></span>
-<span class="normal"><a href="#__codelineno-0-90"> 90</a></span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-90"> 90</a></span>
 <span class="normal"><a href="#__codelineno-0-91"> 91</a></span>
 <span class="normal"><a href="#__codelineno-0-92"> 92</a></span>
 <span class="normal"><a href="#__codelineno-0-93"> 93</a></span>
@@ -2477,51 +2476,52 @@ Declares an exchange and returns the declared exchange object.</p>
 <span class="normal"><a href="#__codelineno-0-130">130</a></span>
 <span class="normal"><a href="#__codelineno-0-131">131</a></span>
 <span class="normal"><a href="#__codelineno-0-132">132</a></span>
-<span class="normal"><a href="#__codelineno-0-133">133</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-89" name="__codelineno-0-89"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">declare_exchange</span><span class="p">(</span>
-<a id="__codelineno-0-90" name="__codelineno-0-90"></a>    <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-91" name="__codelineno-0-91"></a>    <span class="n">exchange</span><span class="p">:</span> <span class="n">RabbitExchange</span><span class="p">,</span>
-<a id="__codelineno-0-92" name="__codelineno-0-92"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustExchange</span><span class="p">:</span>
-<a id="__codelineno-0-93" name="__codelineno-0-93"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Declare an exchange.</span>
-<a id="__codelineno-0-94" name="__codelineno-0-94"></a>
-<a id="__codelineno-0-95" name="__codelineno-0-95"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-96" name="__codelineno-0-96"></a><span class="sd">        exchange: RabbitExchange object representing the exchange to be declared.</span>
-<a id="__codelineno-0-97" name="__codelineno-0-97"></a>
-<a id="__codelineno-0-98" name="__codelineno-0-98"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-0-99" name="__codelineno-0-99"></a><span class="sd">        aio_pika.RobustExchange: The declared exchange.</span>
-<a id="__codelineno-0-100" name="__codelineno-0-100"></a>
-<a id="__codelineno-0-101" name="__codelineno-0-101"></a><span class="sd">    Raises:</span>
-<a id="__codelineno-0-102" name="__codelineno-0-102"></a><span class="sd">        NotImplementedError: If silent animals are not supported.</span>
-<a id="__codelineno-0-103" name="__codelineno-0-103"></a><span class="sd">    !!! note</span>
-<a id="__codelineno-0-104" name="__codelineno-0-104"></a>
-<a id="__codelineno-0-105" name="__codelineno-0-105"></a><span class="sd">        The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<a id="__codelineno-0-106" name="__codelineno-0-106"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-107" name="__codelineno-0-107"></a>    <span class="n">exch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exchanges</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">exchange</span><span class="p">)</span>
-<a id="__codelineno-0-108" name="__codelineno-0-108"></a>
-<a id="__codelineno-0-109" name="__codelineno-0-109"></a>    <span class="k">if</span> <span class="n">exch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-110" name="__codelineno-0-110"></a>        <span class="n">exch</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
-<a id="__codelineno-0-111" name="__codelineno-0-111"></a>            <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustExchange</span><span class="p">,</span>
-<a id="__codelineno-0-112" name="__codelineno-0-112"></a>            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">declare_exchange</span><span class="p">(</span>
-<a id="__codelineno-0-113" name="__codelineno-0-113"></a>                <span class="o">**</span><span class="n">model_to_dict</span><span class="p">(</span>
-<a id="__codelineno-0-114" name="__codelineno-0-114"></a>                    <span class="n">exchange</span><span class="p">,</span>
-<a id="__codelineno-0-115" name="__codelineno-0-115"></a>                    <span class="n">exclude</span><span class="o">=</span><span class="p">{</span>
-<a id="__codelineno-0-116" name="__codelineno-0-116"></a>                        <span class="s2">&quot;routing_key&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-117" name="__codelineno-0-117"></a>                        <span class="s2">&quot;bind_arguments&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-118" name="__codelineno-0-118"></a>                        <span class="s2">&quot;bind_to&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-119" name="__codelineno-0-119"></a>                    <span class="p">},</span>
-<a id="__codelineno-0-120" name="__codelineno-0-120"></a>                <span class="p">)</span>
-<a id="__codelineno-0-121" name="__codelineno-0-121"></a>            <span class="p">),</span>
-<a id="__codelineno-0-122" name="__codelineno-0-122"></a>        <span class="p">)</span>
-<a id="__codelineno-0-123" name="__codelineno-0-123"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">exchanges</span><span class="p">[</span><span class="n">exchange</span><span class="p">]</span> <span class="o">=</span> <span class="n">exch</span>
-<a id="__codelineno-0-124" name="__codelineno-0-124"></a>
-<a id="__codelineno-0-125" name="__codelineno-0-125"></a>    <span class="k">if</span> <span class="n">exchange</span><span class="o">.</span><span class="n">bind_to</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-126" name="__codelineno-0-126"></a>        <span class="n">parent</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_exchange</span><span class="p">(</span><span class="n">exchange</span><span class="o">.</span><span class="n">bind_to</span><span class="p">)</span>
-<a id="__codelineno-0-127" name="__codelineno-0-127"></a>        <span class="k">await</span> <span class="n">exch</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span>
-<a id="__codelineno-0-128" name="__codelineno-0-128"></a>            <span class="n">exchange</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
-<a id="__codelineno-0-129" name="__codelineno-0-129"></a>            <span class="n">routing_key</span><span class="o">=</span><span class="n">exchange</span><span class="o">.</span><span class="n">routing_key</span><span class="p">,</span>
-<a id="__codelineno-0-130" name="__codelineno-0-130"></a>            <span class="n">arguments</span><span class="o">=</span><span class="n">exchange</span><span class="o">.</span><span class="n">arguments</span><span class="p">,</span>
-<a id="__codelineno-0-131" name="__codelineno-0-131"></a>        <span class="p">)</span>
-<a id="__codelineno-0-132" name="__codelineno-0-132"></a>
-<a id="__codelineno-0-133" name="__codelineno-0-133"></a>    <span class="k">return</span> <span class="n">exch</span>
+<span class="normal"><a href="#__codelineno-0-133">133</a></span>
+<span class="normal"><a href="#__codelineno-0-134">134</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-90" name="__codelineno-0-90"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">declare_exchange</span><span class="p">(</span>
+<a id="__codelineno-0-91" name="__codelineno-0-91"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-92" name="__codelineno-0-92"></a>    <span class="n">exchange</span><span class="p">:</span> <span class="n">RabbitExchange</span><span class="p">,</span>
+<a id="__codelineno-0-93" name="__codelineno-0-93"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustExchange</span><span class="p">:</span>
+<a id="__codelineno-0-94" name="__codelineno-0-94"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Declare an exchange.</span>
+<a id="__codelineno-0-95" name="__codelineno-0-95"></a>
+<a id="__codelineno-0-96" name="__codelineno-0-96"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-97" name="__codelineno-0-97"></a><span class="sd">        exchange: RabbitExchange object representing the exchange to be declared.</span>
+<a id="__codelineno-0-98" name="__codelineno-0-98"></a>
+<a id="__codelineno-0-99" name="__codelineno-0-99"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-100" name="__codelineno-0-100"></a><span class="sd">        aio_pika.RobustExchange: The declared exchange.</span>
+<a id="__codelineno-0-101" name="__codelineno-0-101"></a>
+<a id="__codelineno-0-102" name="__codelineno-0-102"></a><span class="sd">    Raises:</span>
+<a id="__codelineno-0-103" name="__codelineno-0-103"></a><span class="sd">        NotImplementedError: If silent animals are not supported.</span>
+<a id="__codelineno-0-104" name="__codelineno-0-104"></a><span class="sd">    !!! note</span>
+<a id="__codelineno-0-105" name="__codelineno-0-105"></a>
+<a id="__codelineno-0-106" name="__codelineno-0-106"></a><span class="sd">        The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-107" name="__codelineno-0-107"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-108" name="__codelineno-0-108"></a>    <span class="n">exch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exchanges</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">exchange</span><span class="p">)</span>
+<a id="__codelineno-0-109" name="__codelineno-0-109"></a>
+<a id="__codelineno-0-110" name="__codelineno-0-110"></a>    <span class="k">if</span> <span class="n">exch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-111" name="__codelineno-0-111"></a>        <span class="n">exch</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+<a id="__codelineno-0-112" name="__codelineno-0-112"></a>            <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustExchange</span><span class="p">,</span>
+<a id="__codelineno-0-113" name="__codelineno-0-113"></a>            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">declare_exchange</span><span class="p">(</span>
+<a id="__codelineno-0-114" name="__codelineno-0-114"></a>                <span class="o">**</span><span class="n">model_to_dict</span><span class="p">(</span>
+<a id="__codelineno-0-115" name="__codelineno-0-115"></a>                    <span class="n">exchange</span><span class="p">,</span>
+<a id="__codelineno-0-116" name="__codelineno-0-116"></a>                    <span class="n">exclude</span><span class="o">=</span><span class="p">{</span>
+<a id="__codelineno-0-117" name="__codelineno-0-117"></a>                        <span class="s2">&quot;routing_key&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-118" name="__codelineno-0-118"></a>                        <span class="s2">&quot;bind_arguments&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-119" name="__codelineno-0-119"></a>                        <span class="s2">&quot;bind_to&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-120" name="__codelineno-0-120"></a>                    <span class="p">},</span>
+<a id="__codelineno-0-121" name="__codelineno-0-121"></a>                <span class="p">)</span>
+<a id="__codelineno-0-122" name="__codelineno-0-122"></a>            <span class="p">),</span>
+<a id="__codelineno-0-123" name="__codelineno-0-123"></a>        <span class="p">)</span>
+<a id="__codelineno-0-124" name="__codelineno-0-124"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">exchanges</span><span class="p">[</span><span class="n">exchange</span><span class="p">]</span> <span class="o">=</span> <span class="n">exch</span>
+<a id="__codelineno-0-125" name="__codelineno-0-125"></a>
+<a id="__codelineno-0-126" name="__codelineno-0-126"></a>    <span class="k">if</span> <span class="n">exchange</span><span class="o">.</span><span class="n">bind_to</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-127" name="__codelineno-0-127"></a>        <span class="n">parent</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">declare_exchange</span><span class="p">(</span><span class="n">exchange</span><span class="o">.</span><span class="n">bind_to</span><span class="p">)</span>
+<a id="__codelineno-0-128" name="__codelineno-0-128"></a>        <span class="k">await</span> <span class="n">exch</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span>
+<a id="__codelineno-0-129" name="__codelineno-0-129"></a>            <span class="n">exchange</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span>
+<a id="__codelineno-0-130" name="__codelineno-0-130"></a>            <span class="n">routing_key</span><span class="o">=</span><span class="n">exchange</span><span class="o">.</span><span class="n">routing_key</span><span class="p">,</span>
+<a id="__codelineno-0-131" name="__codelineno-0-131"></a>            <span class="n">arguments</span><span class="o">=</span><span class="n">exchange</span><span class="o">.</span><span class="n">arguments</span><span class="p">,</span>
+<a id="__codelineno-0-132" name="__codelineno-0-132"></a>        <span class="p">)</span>
+<a id="__codelineno-0-133" name="__codelineno-0-133"></a>
+<a id="__codelineno-0-134" name="__codelineno-0-134"></a>    <span class="k">return</span> <span class="n">exch</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -2638,7 +2638,8 @@ Declares an exchange and returns the declared exchange object.</p>
 <span class="normal"><a href="#__codelineno-0-84">84</a></span>
 <span class="normal"><a href="#__codelineno-0-85">85</a></span>
 <span class="normal"><a href="#__codelineno-0-86">86</a></span>
-<span class="normal"><a href="#__codelineno-0-87">87</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">declare_queue</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-87">87</a></span>
+<span class="normal"><a href="#__codelineno-0-88">88</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">declare_queue</span><span class="p">(</span>
 <a id="__codelineno-0-58" name="__codelineno-0-58"></a>    <span class="bp">self</span><span class="p">,</span>
 <a id="__codelineno-0-59" name="__codelineno-0-59"></a>    <span class="n">queue</span><span class="p">:</span> <span class="n">RabbitQueue</span><span class="p">,</span>
 <a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">aio_pika</span><span class="o">.</span><span class="n">RobustQueue</span><span class="p">:</span>
@@ -2662,13 +2663,14 @@ Declares an exchange and returns the declared exchange object.</p>
 <a id="__codelineno-0-78" name="__codelineno-0-78"></a>                    <span class="n">queue</span><span class="p">,</span>
 <a id="__codelineno-0-79" name="__codelineno-0-79"></a>                    <span class="n">exclude</span><span class="o">=</span><span class="p">{</span>
 <a id="__codelineno-0-80" name="__codelineno-0-80"></a>                        <span class="s2">&quot;routing_key&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-81" name="__codelineno-0-81"></a>                        <span class="s2">&quot;bind_arguments&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-82" name="__codelineno-0-82"></a>                    <span class="p">},</span>
-<a id="__codelineno-0-83" name="__codelineno-0-83"></a>                <span class="p">)</span>
-<a id="__codelineno-0-84" name="__codelineno-0-84"></a>            <span class="p">),</span>
-<a id="__codelineno-0-85" name="__codelineno-0-85"></a>        <span class="p">)</span>
-<a id="__codelineno-0-86" name="__codelineno-0-86"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">queues</span><span class="p">[</span><span class="n">queue</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span>
-<a id="__codelineno-0-87" name="__codelineno-0-87"></a>    <span class="k">return</span> <span class="n">q</span>
+<a id="__codelineno-0-81" name="__codelineno-0-81"></a>                        <span class="s2">&quot;path_regex&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-82" name="__codelineno-0-82"></a>                        <span class="s2">&quot;bind_arguments&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-83" name="__codelineno-0-83"></a>                    <span class="p">},</span>
+<a id="__codelineno-0-84" name="__codelineno-0-84"></a>                <span class="p">)</span>
+<a id="__codelineno-0-85" name="__codelineno-0-85"></a>            <span class="p">),</span>
+<a id="__codelineno-0-86" name="__codelineno-0-86"></a>        <span class="p">)</span>
+<a id="__codelineno-0-87" name="__codelineno-0-87"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">queues</span><span class="p">[</span><span class="n">queue</span><span class="p">]</span> <span class="o">=</span> <span class="n">q</span>
+<a id="__codelineno-0-88" name="__codelineno-0-88"></a>    <span class="k">return</span> <span class="n">q</span>
 </code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -2681,17 +2683,6 @@ Declares an exchange and returns the declared exchange object.</p>
 
   </div>
 
-</div>
-
-  <hr>
-<div class="md-source-file">
-  <small>
-    
-      Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-08T11:40:53+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-08</span>
-      
-    
-  </small>
 </div>
 
 
@@ -2810,10 +2801,6 @@ Declares an exchange and returns the declared exchange object.</p>
     
     
       <script src="../../../../../assets/javascripts/bundle.aecac24b.min.js"></script>
-      
-        <script src="../../../../../js/timeago.min.js"></script>
-      
-        <script src="../../../../../js/timeago_mkdocs_material.js"></script>
       
     
   <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>

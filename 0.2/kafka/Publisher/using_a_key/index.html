@@ -52,8 +52,6 @@
       
     
     
-      <link rel="stylesheet" href="../../../css/timeago.css">
-    
       <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
     
       <link rel="stylesheet" href="../../../stylesheets/extra.css">
@@ -2056,12 +2054,12 @@
 
 
 <h1 id="using-a-partition-key">Using a Partition Key<a class="headerlink" href="#using-a-partition-key" title="Permanent link">#</a></h1>
-<p>Partition keys are a crucial concept in Apache Kafka, enabling you to determine the appropriate partition for a message. This ensures that related messages are kept together in the same partition, which can be invaluable for maintaining order or grouping related messages for efficient processing. Additionally, Kafka utilizes partitioning to distribute load across multiple brokers and scale horizontally, while replicating data across brokers provides fault tolerance.</p>
-<p>You can specify your partition keys when utilizing the <code>@KafkaBroker.publisher(...)</code> decorator in FastStream. This guide will walk you through the process of using partition keys effectively.</p>
+<p>Partition keys are a crucial concept in Apache <strong>Kafka</strong>, enabling you to determine the appropriate partition for a message. This ensures that related messages are kept together in the same partition, which can be invaluable for maintaining order or grouping related messages for efficient processing. Additionally, <strong>Kafka</strong> utilizes partitioning to distribute load across multiple brokers and scale horizontally, while replicating data across brokers provides fault tolerance.</p>
+<p>You can specify your partition keys when utilizing the <code class="highlight"><span class="nd">@KafkaBroker</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorator in <strong>FastStream</strong>. This guide will walk you through the process of using partition keys effectively.</p>
 <h2 id="publishing-with-a-partition-key">Publishing with a Partition Key<a class="headerlink" href="#publishing-with-a-partition-key" title="Permanent link">#</a></h2>
-<p>To publish a message to a Kafka topic using a partition key, follow these steps:</p>
+<p>To publish a message to a <strong>Kafka</strong> topic using a partition key, follow these steps:</p>
 <h3 id="step-1-define-the-publisher">Step 1: Define the Publisher<a class="headerlink" href="#step-1-define-the-publisher" title="Permanent link">#</a></h3>
-<p>In your FastStream application, define the publisher using the <code>@KafkaBroker.publisher(...)</code> decorator. This decorator allows you to configure various aspects of message publishing, including the partition key.</p>
+<p>In your FastStream application, define the publisher using the <code class="highlight"><span class="nd">@KafkaBroker</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="o">...</span><span class="p">)</span></code> decorator. This decorator allows you to configure various aspects of message publishing, including the partition key.</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="n">to_output_data</span> <span class="o">=</span> <span class="n">broker</span><span class="o">.</span><span class="n">publisher</span><span class="p">(</span><span class="s2">&quot;output_data&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 <h3 id="step-2-pass-the-key">Step 2: Pass the Key<a class="headerlink" href="#step-2-pass-the-key" title="Permanent link">#</a></h3>
@@ -2069,7 +2067,7 @@
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a>    <span class="k">await</span> <span class="n">to_output_data</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">Data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">msg</span><span class="o">.</span><span class="n">data</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;key&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 <h2 id="example-application">Example Application<a class="headerlink" href="#example-application" title="Permanent link">#</a></h2>
-<p>Let's examine a complete application example that consumes messages from the <strong>input_data</strong> topic and publishes them with a specified key to the <strong>output_data</strong> topic. This example will illustrate how to incorporate partition keys into your Kafka-based applications:</p>
+<p>Let's examine a complete application example that consumes messages from the <code class="highlight"><span class="s2">&quot;input_data&quot;</span></code> topic and publishes them with a specified key to the <code class="highlight"><span class="s2">&quot;output_data&quot;</span></code> topic. This example will illustrate how to incorporate partition keys into your <strong>Kafka</strong>-based applications:</p>
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-2-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-2-3"> 3</a></span>
@@ -2120,19 +2118,8 @@
 <a id="__codelineno-2-24" name="__codelineno-2-24"></a>    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;on_input_data(</span><span class="si">{</span><span class="n">msg</span><span class="si">=}</span><span class="s2">)&quot;</span><span class="p">)</span>
 <a id="__codelineno-2-25" name="__codelineno-2-25"></a>    <span class="k">await</span> <span class="n">to_output_data</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">Data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">msg</span><span class="o">.</span><span class="n">data</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;key&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-<p>As you can see, the primary difference from standard publishing is the inclusion of the <code>key</code> parameter in the <code>publish</code> call. This key parameter is essential for controlling how Kafka partitions and processes your messages.</p>
-<p>In summary, using partition keys in Apache Kafka is a fundamental practice for optimizing message distribution, maintaining order, and achieving efficient processing. It is a key technique for ensuring that your Kafka-based applications scale gracefully and handle large volumes of data effectively.</p>
-
-  <hr>
-<div class="md-source-file">
-  <small>
-    
-      Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-29T12:55:47+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-29</span>
-      
-    
-  </small>
-</div>
+<p>As you can see, the primary difference from standard publishing is the inclusion of the <code>key</code> parameter in the <code>publish</code> call. This key parameter is essential for controlling how <strong>Kafka</strong> partitions and processes your messages.</p>
+<p>In summary, using partition keys in <strong>Apache Kafka</strong> is a fundamental practice for optimizing message distribution, maintaining order, and achieving efficient processing. It is a key technique for ensuring that your <strong>Kafka</strong>-based applications scale gracefully and handle large volumes of data effectively.</p>
 
 
   
@@ -2288,10 +2275,6 @@
     
     
       <script src="../../../assets/javascripts/bundle.aecac24b.min.js"></script>
-      
-        <script src="../../../js/timeago.min.js"></script>
-      
-        <script src="../../../js/timeago_mkdocs_material.js"></script>
       
     
   <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>

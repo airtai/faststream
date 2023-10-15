@@ -52,8 +52,6 @@
       
     
     
-      <link rel="stylesheet" href="../../../css/timeago.css">
-    
       <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
     
       <link rel="stylesheet" href="../../../stylesheets/extra.css">
@@ -829,7 +827,7 @@
       
         <li class="md-nav__item">
   <a href="#base-application" class="md-nav__link">
-    Base application
+    Base Application
   </a>
   
 </li>
@@ -2040,7 +2038,7 @@
       
         <li class="md-nav__item">
   <a href="#base-application" class="md-nav__link">
-    Base application
+    Base Application
   </a>
   
 </li>
@@ -2076,14 +2074,14 @@
 
 
 <h1 id="publisher-testing">Publisher Testing<a class="headerlink" href="#publisher-testing" title="Permanent link">#</a></h1>
-<p>If you are working with a Publisher object (either decorator or direct), you can check outgoing messages as well. There are several testing features available:</p>
+<p>If you are working with a Publisher object (either as a decorator or directly), you have several testing features available:</p>
 <ul>
 <li>In-memory TestClient</li>
-<li>Publishing (including error handling)</li>
+<li>Publishing locally with error propogation</li>
 <li>Checking the incoming message body</li>
-<li>Note about mock clearing after the context exits</li>
 </ul>
-<h2 id="base-application">Base application<a class="headerlink" href="#base-application" title="Permanent link">#</a></h2>
+<h2 id="base-application">Base Application<a class="headerlink" href="#base-application" title="Permanent link">#</a></h2>
+<p>Let's take a look at a simple application example with a publisher as a decorator or as a direct call:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Decorator</label><label for="__tabbed_1_2">Direct</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -2179,91 +2177,80 @@
 </div>
 </div>
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">#</a></h2>
+<p>To test it, you just need to patch your broker with a special <em>TestBroker</em>.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="4:3"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><input id="__tabbed_4_3" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">Kafka</label><label for="__tabbed_4_2">RabbitMQ</label><label for="__tabbed_4_3">NATS</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1"> 1</a></span>
-<span class="normal"><a href="#__codelineno-6-2"> 2</a></span>
-<span class="normal"><a href="#__codelineno-6-3"> 3</a></span>
-<span class="normal"><a href="#__codelineno-6-4"> 4</a></span>
-<span class="normal"><a href="#__codelineno-6-5"> 5</a></span>
-<span class="normal"><a href="#__codelineno-6-6"> 6</a></span>
-<span class="normal"><a href="#__codelineno-6-7"> 7</a></span>
-<span class="normal"><a href="#__codelineno-6-8"> 8</a></span>
-<span class="normal"><a href="#__codelineno-6-9"> 9</a></span>
-<span class="normal"><a href="#__codelineno-6-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="kn">import</span> <span class="nn">pytest</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span>
+<span class="normal"><a href="#__codelineno-6-2">2</a></span>
+<span class="normal"><a href="#__codelineno-6-3">3</a></span>
+<span class="normal"><a href="#__codelineno-6-4">4</a></span>
+<span class="normal"><a href="#__codelineno-6-5">5</a></span>
+<span class="normal"><a href="#__codelineno-6-6">6</a></span>
+<span class="normal"><a href="#__codelineno-6-7">7</a></span>
+<span class="normal"><a href="#__codelineno-6-8">8</a></span>
+<span class="normal"><a href="#__codelineno-6-9">9</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="kn">import</span> <span class="nn">pytest</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2"></a>
 <a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">TestKafkaBroker</span>
 <a id="__codelineno-6-4" name="__codelineno-6-4"></a>
 <a id="__codelineno-6-5" name="__codelineno-6-5"></a>
-<a id="__codelineno-6-6" name="__codelineno-6-6"></a>
-<a id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">test_handle</span><span class="p">():</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">TestKafkaBroker</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span> <span class="k">as</span> <span class="n">br</span><span class="p">:</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10"></a>        <span class="k">await</span> <span class="n">br</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="s2">&quot;test-topic&quot;</span><span class="p">)</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">test_handle</span><span class="p">():</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">TestKafkaBroker</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span> <span class="k">as</span> <span class="n">br</span><span class="p">:</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9"></a>        <span class="k">await</span> <span class="n">br</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">topic</span><span class="o">=</span><span class="s2">&quot;test-topic&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1"> 1</a></span>
-<span class="normal"><a href="#__codelineno-7-2"> 2</a></span>
-<span class="normal"><a href="#__codelineno-7-3"> 3</a></span>
-<span class="normal"><a href="#__codelineno-7-4"> 4</a></span>
-<span class="normal"><a href="#__codelineno-7-5"> 5</a></span>
-<span class="normal"><a href="#__codelineno-7-6"> 6</a></span>
-<span class="normal"><a href="#__codelineno-7-7"> 7</a></span>
-<span class="normal"><a href="#__codelineno-7-8"> 8</a></span>
-<span class="normal"><a href="#__codelineno-7-9"> 9</a></span>
-<span class="normal"><a href="#__codelineno-7-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="kn">import</span> <span class="nn">pytest</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span>
+<span class="normal"><a href="#__codelineno-7-2">2</a></span>
+<span class="normal"><a href="#__codelineno-7-3">3</a></span>
+<span class="normal"><a href="#__codelineno-7-4">4</a></span>
+<span class="normal"><a href="#__codelineno-7-5">5</a></span>
+<span class="normal"><a href="#__codelineno-7-6">6</a></span>
+<span class="normal"><a href="#__codelineno-7-7">7</a></span>
+<span class="normal"><a href="#__codelineno-7-8">8</a></span>
+<span class="normal"><a href="#__codelineno-7-9">9</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="kn">import</span> <span class="nn">pytest</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2"></a>
 <a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="kn">from</span> <span class="nn">faststream.rabbit</span> <span class="kn">import</span> <span class="n">TestRabbitBroker</span>
 <a id="__codelineno-7-4" name="__codelineno-7-4"></a>
 <a id="__codelineno-7-5" name="__codelineno-7-5"></a>
-<a id="__codelineno-7-6" name="__codelineno-7-6"></a>
-<a id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
-<a id="__codelineno-7-8" name="__codelineno-7-8"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">test_handle</span><span class="p">():</span>
-<a id="__codelineno-7-9" name="__codelineno-7-9"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">TestRabbitBroker</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span> <span class="k">as</span> <span class="n">br</span><span class="p">:</span>
-<a id="__codelineno-7-10" name="__codelineno-7-10"></a>        <span class="k">await</span> <span class="n">br</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">queue</span><span class="o">=</span><span class="s2">&quot;test-queue&quot;</span><span class="p">)</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">test_handle</span><span class="p">():</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">TestRabbitBroker</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span> <span class="k">as</span> <span class="n">br</span><span class="p">:</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9"></a>        <span class="k">await</span> <span class="n">br</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">queue</span><span class="o">=</span><span class="s2">&quot;test-queue&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1"> 1</a></span>
-<span class="normal"><a href="#__codelineno-8-2"> 2</a></span>
-<span class="normal"><a href="#__codelineno-8-3"> 3</a></span>
-<span class="normal"><a href="#__codelineno-8-4"> 4</a></span>
-<span class="normal"><a href="#__codelineno-8-5"> 5</a></span>
-<span class="normal"><a href="#__codelineno-8-6"> 6</a></span>
-<span class="normal"><a href="#__codelineno-8-7"> 7</a></span>
-<span class="normal"><a href="#__codelineno-8-8"> 8</a></span>
-<span class="normal"><a href="#__codelineno-8-9"> 9</a></span>
-<span class="normal"><a href="#__codelineno-8-10">10</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="kn">import</span> <span class="nn">pytest</span>
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1">1</a></span>
+<span class="normal"><a href="#__codelineno-8-2">2</a></span>
+<span class="normal"><a href="#__codelineno-8-3">3</a></span>
+<span class="normal"><a href="#__codelineno-8-4">4</a></span>
+<span class="normal"><a href="#__codelineno-8-5">5</a></span>
+<span class="normal"><a href="#__codelineno-8-6">6</a></span>
+<span class="normal"><a href="#__codelineno-8-7">7</a></span>
+<span class="normal"><a href="#__codelineno-8-8">8</a></span>
+<span class="normal"><a href="#__codelineno-8-9">9</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="kn">import</span> <span class="nn">pytest</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2"></a>
 <a id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="kn">from</span> <span class="nn">faststream.nats</span> <span class="kn">import</span> <span class="n">TestNatsBroker</span>
 <a id="__codelineno-8-4" name="__codelineno-8-4"></a>
 <a id="__codelineno-8-5" name="__codelineno-8-5"></a>
-<a id="__codelineno-8-6" name="__codelineno-8-6"></a>
-<a id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
-<a id="__codelineno-8-8" name="__codelineno-8-8"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">test_handle</span><span class="p">():</span>
-<a id="__codelineno-8-9" name="__codelineno-8-9"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">TestNatsBroker</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span> <span class="k">as</span> <span class="n">br</span><span class="p">:</span>
-<a id="__codelineno-8-10" name="__codelineno-8-10"></a>        <span class="k">await</span> <span class="n">br</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">subject</span><span class="o">=</span><span class="s2">&quot;test-subject&quot;</span><span class="p">)</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">test_handle</span><span class="p">():</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">TestNatsBroker</span><span class="p">(</span><span class="n">broker</span><span class="p">)</span> <span class="k">as</span> <span class="n">br</span><span class="p">:</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9"></a>        <span class="k">await</span> <span class="n">br</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">subject</span><span class="o">=</span><span class="s2">&quot;test-subject&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
 </div>
 </div>
 </div>
-<ul>
-<li>Testing with a real broker</li>
-<li>Waiting for the consumer to be called</li>
-</ul>
-
-  <hr>
-<div class="md-source-file">
-  <small>
-    
-      Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-09-21T15:04:38+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-09-21</span>
-      
-    
-  </small>
+<p>By default, it patches you broker to run <strong>In-Memory</strong>, so you can use it without any external broker. It should be extremely usefull in your CI or local development environment.</p>
+<p>Also, it allows you to check the outgoing message body in the same way as with a <a class="internal-link" href="../../subscription/test/#validates-input">subscriber</a>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">publisher</span><span class="o">.</span><span class="n">mock</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="s2">&quot;Hi!&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The Publisher mock contains not just a <code>publish</code> method input value. It sets up a virtual consumer for an outgoing topic, consumes a message, and stores this consumed one.</p>
 </div>
+<p>Additionally, <em>TestBroker</em> can be used with a real external broker to make your tests end-to-end suitable. For more information, please visit the <a class="internal-link" href="../../subscription/test/#real-broker-testing">subscriber testing page</a>.</p>
 
 
   
@@ -2419,10 +2406,6 @@
     
     
       <script src="../../../assets/javascripts/bundle.aecac24b.min.js"></script>
-      
-        <script src="../../../js/timeago.min.js"></script>
-      
-        <script src="../../../js/timeago_mkdocs_material.js"></script>
       
     
   <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>
