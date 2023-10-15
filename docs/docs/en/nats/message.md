@@ -13,7 +13,7 @@ It contains the required information such as:
 It is a **FastStream** wrapper around a native broker library message (`nats.aio.msg.Msg` in the *NATS*' case) that you can access with `raw_message`.
 
 ```python hl_lines="1 6"
-from faststream.nats.annotations import NatsMessage
+from faststream.nats import NatsMessage
 
 @broker.subscriber("test")
 async def base_handler(
@@ -27,7 +27,7 @@ Also, if you can't find the information you require, you can get access directly
 
 ```python hl_lines="6"
 from nats.aio.msg import Msg
-from faststream.nats.annotations import NatsMessage
+from faststream.nats import NatsMessage
 
 @broker.subscriber("test")
 async def base_handler(body: str, msg: NatsMessage):
