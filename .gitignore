@@ -4,6 +4,7 @@ dist
 venv*
 .venv*
 .env
+.env*
 *.lock
 .vscode
 .pypirc
