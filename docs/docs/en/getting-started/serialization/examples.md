@@ -60,6 +60,43 @@ Since there is no need for a schema, you can easily write a *Msgpack* decoder:
 
 Using *Msgpack* is much simpler than using *Protobuf* schemas. Therefore, if you don't have strict message size limitations, you can use *Msgpack* serialization in most cases.
 
+## Avro
+
+In this section, let's explore how to use Avro encoding and decoding to encode/decode our messages as part of FastStream.
+
+???- note "Avro"
+    *Apache Avro* uses JSON to define data types and protocols and serializes data in a compact binary format. Avro utilizes a schema to structure the data that is being encoded. Schemas are composed of primitive types (null, boolean, int, long, float, double, bytes, and string) and complex types (record, enum, array, map, union, and fixed).
+
+To get started, install the necessary dependencies:
+
+```console
+pip install fastavro
+```
+
+Next, let's define the schema for our message. You can either define it in the Python file itself as:
+
+``` python
+{!> docs_src/getting_started/serialization/avro.py [ln:10-19] !}
+```
+
+Or you can load the schema from an avsc file as:
+
+``` python
+{!> docs_src/getting_started/serialization/avro.py [ln:20] !}
+```
+
+The contents of the `person.avsc` file are:
+
+```avro
+{!> docs_src/getting_started/serialization/person.avsc !}
+```
+
+Finally, let's use Avro's `schemaless_reader` and `schemaless_writer` to decode and encode messages in the `FastStream` app.
+
+``` python linenums="1" hl_lines="1-2 24-27 30 37-40"
+{!> docs_src/getting_started/serialization/avro.py !}
+```
+
 ## Tips
 
 ### Data Compression
