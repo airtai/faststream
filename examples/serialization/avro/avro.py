@@ -1,5 +1,6 @@
-import fastavro
 import io
+
+import fastavro
 
 from faststream import FastStream, Logger
 from faststream.kafka import KafkaBroker, KafkaMessage
@@ -20,6 +21,7 @@ person_schema = {
 person_schema = fastavro.schema.load_schema("person.avsc")
 
 schema = fastavro.schema.parse_schema(person_schema)
+
 
 async def decode_message(msg: KafkaMessage):
     bytes_reader = io.BytesIO(msg.body)

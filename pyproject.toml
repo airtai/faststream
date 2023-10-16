@@ -94,6 +94,7 @@ lint = [
     "types-PyYAML",
     "types-setuptools",
     "types-ujson",
+    "types-redis",
     "mypy==1.6.0",
     "black==23.9.1",
     "isort>=5",

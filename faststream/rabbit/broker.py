@@ -125,11 +125,8 @@ class RabbitBroker(
             await self._channel.close()
             self._channel = None
 
-        if self.declarer is not None:
-            self.declarer = None
-
-        if self._producer is not None:
-            self._producer = None
+        self.declarer = None
+        self._producer = None
 
         if self._connection is not None:  # pragma: no branch
             await self._connection.close()
