@@ -90,7 +90,7 @@ lint = [
     "types-PyYAML",
     "types-setuptools",
     "types-ujson",
-    "mypy==1.5.1",
+    "mypy==1.6.0",
     "black==23.9.1",
     "isort>=5",
     "ruff==0.0.292",
