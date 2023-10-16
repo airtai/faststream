@@ -414,6 +414,12 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
                 elif isinstance(msg, Sequence):
                     return await func(*msg)
             else:
+                # ToDo: This place is where failure is happening. msg needs to be passed as kwargs instead of positional args.
+                # if isinstance(msg, Mapping):
+                #     return await func(**msg)
+                # elif isinstance(msg, Sequence):
+                #     return await func(*msg)
+                # else:
                 return await func(msg)
 
             raise AssertionError("unreachable")
