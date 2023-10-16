@@ -6,6 +6,29 @@ hide:
 
 # Release Notes
 
+## 0.2.5
+
+### What's Changed
+* fix: pass missing parameters and update docs by [@sheldygg](https://github.com/sheldygg){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/841](https://github.com/airtai/faststream/pull/841){.external-link target="_blank"}
+
+
+**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.4...0.2.5](https://github.com/airtai/faststream/compare/0.2.4...0.2.5){.external-link target="_blank"}
+
+## 0.2.4
+
+### What's Changed
+* Remove faststream_gen docs and remove code to generate fastream_gen docs by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/824](https://github.com/airtai/faststream/pull/824){.external-link target="_blank"}
+* Update docs article to use cookiecutter template by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/828](https://github.com/airtai/faststream/pull/828){.external-link target="_blank"}
+* Split real broker tests to independant runs by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/825](https://github.com/airtai/faststream/pull/825){.external-link target="_blank"}
+* Remove unused docs/docs_src/kafka examples and its tests by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/829](https://github.com/airtai/faststream/pull/829){.external-link target="_blank"}
+* Run docs deployment only for specific file changes by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/830](https://github.com/airtai/faststream/pull/830){.external-link target="_blank"}
+* Fix formatting in deploy docs workflow by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/833](https://github.com/airtai/faststream/pull/833){.external-link target="_blank"}
+* Path operations by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/823](https://github.com/airtai/faststream/pull/823){.external-link target="_blank"}
+* Mypy error fixed for uvloop by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/839](https://github.com/airtai/faststream/pull/839){.external-link target="_blank"}
+
+
+**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.3...0.2.4](https://github.com/airtai/faststream/compare/0.2.3...0.2.4){.external-link target="_blank"}
+
 ## 0.2.3
 
 ### What's Changed
@@ -27,7 +50,7 @@ hide:
 
 ### New Contributors
 * [@sheldygg](https://github.com/sheldygg){.external-link target="_blank"} made their first contribution in [https://github.com/airtai/faststream/pull/795](https://github.com/airtai/faststream/pull/795){.external-link target="_blank"}
- 
+
 **Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.1...0.2.2](https://github.com/airtai/faststream/compare/0.2.1...0.2.2){.external-link target="_blank"}
 
 ## 0.2.1

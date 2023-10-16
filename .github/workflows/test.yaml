@@ -153,7 +153,7 @@ jobs:
         with:
           name: coverage
           path: coverage
-  
+
   test-kafka-smoke:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
@@ -201,7 +201,7 @@ jobs:
         with:
           name: coverage
           path: coverage
-  
+
   test-rabbit-smoke:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
@@ -249,7 +249,7 @@ jobs:
         with:
           name: coverage
           path: coverage
-  
+
   test-nats-smoke:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
