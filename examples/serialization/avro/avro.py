@@ -2,9 +2,9 @@ import fastavro
 import io
 
 from faststream import FastStream, Logger
-from faststream.rabbit import RabbitBroker, RabbitMessage
+from faststream.kafka import KafkaBroker, KafkaMessage
 
-broker = RabbitBroker()
+broker = KafkaBroker()
 app = FastStream(broker)
 
 person_schema = {
@@ -21,7 +21,7 @@ person_schema = fastavro.schema.load_schema("person.avsc")
 
 schema = fastavro.schema.parse_schema(person_schema)
 
-async def decode_message(msg: RabbitMessage):
+async def decode_message(msg: KafkaMessage):
     bytes_reader = io.BytesIO(msg.body)
     msg_dict = fastavro.schemaless_reader(bytes_reader, schema)
     return msg_dict
