@@ -11,7 +11,7 @@ authors = [
     { name = "lancetnik", email = "diementros@gmail.com" },
 ]
 
-keywords = ["rabbitmq", "kafka", "framework", "nats", "message brokers"]
+keywords = ["rabbitmq", "kafka", "framework", "nats", "redis", "message brokers"]
 
 requires-python = ">=3.8"
 
@@ -66,6 +66,10 @@ nats = [
     "nats-py>=2.3.1"
 ]
 
+redis = [
+    "redis>=4.2.0rc1"
+]
+
 docs = [
     "fastapi>=0.100.0",
     "uvicorn>=0.17.0",
@@ -90,14 +94,14 @@ lint = [
     "types-PyYAML",
     "types-setuptools",
     "types-ujson",
-    "mypy==1.6.0",
+    "mypy==1.5.1",
     "black==23.9.1",
     "isort>=5",
     "ruff==0.0.292",
     "pyupgrade-directories",
     "bandit==1.7.5",
-    "pre-commit==3.5.0",
-    "semgrep==1.44.0",
+    "pre-commit==3.4.0",
+    "semgrep==1.43.0",
     "detect-secrets==1.4.0",
 ]
 
@@ -119,7 +123,7 @@ testing = [
 
 publish = ["hatch==1.7.0"]
 
-dev = ["faststream[rabbit,kafka,nats,docs,lint,testing,devdocs,publish]"]
+dev = ["faststream[rabbit,redis,kafka,nats,docs,lint,testing,devdocs,publish]"]
 
 [project.urls]
 Homepage = "https://faststream.airt.ai/"
@@ -214,6 +218,7 @@ markers = [
     "rabbit",
     "kafka",
     "nats",
+    "redis",
     "slow",
     "all",
 ]
