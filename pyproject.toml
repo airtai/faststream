@@ -96,7 +96,7 @@ lint = [
     "ruff==0.0.292",
     "pyupgrade-directories",
     "bandit==1.7.5",
-    "pre-commit==3.4.0",
+    "pre-commit==3.5.0",
     "semgrep==1.43.0",
     "detect-secrets==1.4.0",
 ]
