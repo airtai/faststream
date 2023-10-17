@@ -16,12 +16,12 @@ hide:
 
 ## 0.2.4
 
-### New Functional
+### New Functionalities
 
 Now, `Context` provides access to inner [dict keys too](./getting-started/context/fields.md):
 
 ```python
-# headers is `dict`
+# headers is a `dict`
 async def handler(
   user_id: int = Context("message.headers.user_id", cast=True),
 ): ...
@@ -37,7 +37,7 @@ async def handler(
 ): ...
 ```
 
-Added `Path` object to get access to [**NATS** wildcard](./nats/message.md#subject-pattern-access) subject or [**RabbitMQ** topic](./rabbit/message.md#topic-pattern-access) routing key (is a shorcut to `#!python Context("message.path.")` too)
+Added `Path` object to get access to [**NATS** wildcard](./nats/message.md#subject-pattern-access) subject or [**RabbitMQ** topic](./rabbit/message.md#topic-pattern-access) routing key (a shortcut to access `#!python Context("message.path.")` as well):
 
 ```python
 @nats_broker.subscriber("logs.{level}")
@@ -46,7 +46,7 @@ async def handler(
 )
 ```
 
-Also, original message Context annotation was copied from `faststream.[broker].annotations.[Broker]Message` to `faststream.[broker].[Broker]Message` to provide you a faster access to most using object (**NATS** [example](./nats/message.md#message-access)).
+Also, the original message `Context` annotation was copied from `faststream.[broker].annotations.[Broker]Message` to `faststream.[broker].[Broker]Message` to provide you with faster access to the most commonly used object (**NATS** [example](./nats/message.md#message-access)).
 
 ### What's Changed
 
