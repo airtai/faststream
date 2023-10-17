@@ -125,6 +125,9 @@ app = Starlette(
 )
 ```
 
+!!! note
+    The code imports `KafkaBroker` as our application is going to connect with **Kafka**. Depending on your requirements, import the necessary service's broker from the options provided by **FastStream**, such as `RabbitBroker`, `NatsBroker` or `KafkaBroker`.
+
 ??? example "Full Example"
     ```python linenums="1" title="asgi.py"
     import os
