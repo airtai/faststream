@@ -37,6 +37,7 @@
     - [Logging](getting-started/logging.md)
     - [Config Management](getting-started/config/index.md)
     - [Using Cookiecutter FastStream Template](getting-started/template/index.md)
+    - [Using FastStream with Django](getting-started/integrations/django/index.md)
 - [Kafka](kafka/index.md)
     - [Subscription](kafka/Subscriber/index.md)
         - [Batch Subscriber](kafka/Subscriber/batch_subscriber.md)
