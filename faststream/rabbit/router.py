@@ -81,6 +81,7 @@ class RabbitRouter(BaseRouter):
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
         **message_kwargs: Any,
     ) -> Publisher:
         """Publishes a message to a RabbitMQ queue or exchange.
@@ -119,6 +120,7 @@ class RabbitRouter(BaseRouter):
                 title=title,
                 _description=description,
                 _schema=schema,
+                include_in_schema=include_in_schema,
             ),
         )
         key = self._get_publisher_key(new_publisher)

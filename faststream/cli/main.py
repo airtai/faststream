@@ -5,6 +5,9 @@ from typing import Dict, Optional
 
 import anyio
 import typer
+from click.exceptions import MissingParameter
+from pydantic import ValidationError
+from typer.core import TyperOption, rich
 
 from faststream.__about__ import __version__
 from faststream.cli.docs.app import docs_app
@@ -156,10 +159,7 @@ def _run(
     app_obj = try_import_app(module, app)
     set_log_level(log_level, app_obj)
 
-    if sys.platform not in ("win32", "cygwin", "cli") and sys.version_info < (
-        3,
-        12,
-    ):  # pragma: no cover
+    if sys.platform not in ("win32", "cygwin", "cli"):  # pragma: no cover
         try:
             import uvloop
         except ImportError:
@@ -167,8 +167,22 @@ def _run(
         else:
             uvloop.install()  # type: ignore[attr-defined]
 
-    anyio.run(
-        app_obj.run,
-        app_level,
-        extra_options,
-    )
+    try:
+        anyio.run(
+            app_obj.run,
+            app_level,
+            extra_options,
+        )
+    except ValidationError as e:
+        ex = MissingParameter(
+            param=TyperOption(param_decls=[f"--{x['loc'][0]}" for x in e.errors()])
+        )
+
+        if rich:
+            from typer.core import rich_utils
+
+            rich_utils.rich_format_error(ex)
+        else:
+            ex.show()
+
+        sys.exit(1)

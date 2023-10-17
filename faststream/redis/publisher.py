@@ -3,6 +3,7 @@ from typing import Optional
 
 from faststream._compat import override
 from faststream.broker.publisher import BasePublisher
+from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.redis.message import PubSubMessage
 from faststream.redis.producer import RedisFastProducer
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
@@ -29,8 +30,10 @@ class LogicPublisher(BasePublisher[PubSubMessage]):
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
     ) -> Optional[DecodedMessage]:
-        assert self._producer, "Please, `connect()` the broker first"  # nosec B101
-        assert self.channel, "You have to specify outgoing channel"  # nosec B101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        assert (
+            channel or self.channel
+        ), "You have to specify outgoing channel"  # nosec B101
 
         headers_to_send = (self.headers or {}).copy()
         if headers is not None:

@@ -19,9 +19,9 @@ from faststream.asyncapi.schema import (
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase
 from faststream.cli.supervisors.utils import set_exit
 from faststream.log import logger
-from faststream.types import AnyCallable, AnyDict, AsyncFunc, SettingField
+from faststream.types import AnyCallable, AnyDict, AsyncFunc, Lifespan, SettingField
 from faststream.utils import apply_types, context
-from faststream.utils.functions import to_async
+from faststream.utils.functions import drop_response_type, fake_context, to_async
 
 P_HookParams = ParamSpec("P_HookParams")
 T_HookReturn = TypeVar("T_HookReturn")
@@ -212,6 +212,7 @@ class FastStream(ABCApp):
         self,
         broker: Optional[BrokerAsyncUsecase[Any, Any]] = None,
         logger: Optional[logging.Logger] = logger,
+        lifespan: Optional[Lifespan] = None,
         # AsyncAPI args,
         title: str = "FastStream",
         version: str = "0.1.0",
@@ -249,6 +250,15 @@ class FastStream(ABCApp):
         )
 
         self._stop_event = None
+
+        self.lifespan_context = (
+            apply_types(
+                func=lifespan,
+                wrap_model=drop_response_type,
+            )
+            if lifespan is not None
+            else fake_context
+        )
 
         set_exit(lambda *_: self.__exit())
 
@@ -330,10 +340,11 @@ class FastStream(ABCApp):
         assert self.broker, "You should setup a broker"  # nosec B101
 
         self._init_async_cycle()
-        async with anyio.create_task_group() as tg:
-            tg.start_soon(self._start, log_level, run_extra_options)
-            await self._stop(log_level)
-            tg.cancel_scope.cancel()
+        async with self.lifespan_context(**(run_extra_options or {})):
+            async with anyio.create_task_group() as tg:
+                tg.start_soon(self._start, log_level, run_extra_options)
+                await self._stop(log_level)
+                tg.cancel_scope.cancel()
 
     def _init_async_cycle(self) -> None:
         if self._stop_event is None:

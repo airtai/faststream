@@ -69,6 +69,7 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
     ):
         """Initialize a Kafka consumer for the specified topics.
 
@@ -93,6 +94,7 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
             log_context_builder=log_context_builder,
             description=description,
             title=title,
+            include_in_schema=include_in_schema,
         )
 
         self.group_id = group_id

@@ -94,6 +94,7 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
         log_context_builder: Callable[[StreamMessage[Any]], Dict[str, str]],
         description: Optional[str] = None,
         title: Optional[str] = None,
+        include_in_schema: bool = True,
     ):
         """Initialize a new instance of the class.
 
@@ -106,10 +107,13 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
         """
         self.calls = []  # type: ignore[assignment]
         self.global_middlewares = []
+
+        self.log_context_builder = log_context_builder
+
         # AsyncAPI information
         self._description = description
         self._title = title
-        self.log_context_builder = log_context_builder
+        self.include_in_schema = include_in_schema
 
     @property
     def name(self) -> str:

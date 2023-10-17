@@ -2,6 +2,7 @@ import logging
 import os
 import signal
 import sys
+from contextlib import asynccontextmanager
 from unittest.mock import Mock, patch
 
 import anyio
@@ -133,6 +134,30 @@ async def test_running(async_mock, app: FastStream):
 
 
 @pytest.mark.asyncio
+async def test_running_lifespan_contextmanager(async_mock, mock: Mock, app: FastStream):
+    @asynccontextmanager
+    async def lifespan(env: str):
+        mock.on(env)
+        yield
+        mock.off()
+
+    app = FastStream(app.broker, lifespan=lifespan)
+
+    app._init_async_cycle()
+    app._stop_event.set()
+
+    with patch.object(app.broker, "start", async_mock.broker_run):
+        with patch.object(app.broker, "close", async_mock.broker_stopped):
+            await app.run(run_extra_options={"env": "test"})
+
+    async_mock.broker_run.assert_called_once()
+    async_mock.broker_stopped.assert_called_once()
+
+    mock.on.assert_called_once_with("test")
+    mock.off.assert_called_once()
+
+
+@pytest.mark.asyncio
 @pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
 async def test_stop_with_sigint(async_mock, app: FastStream):
     app._init_async_cycle()
@@ -177,6 +202,23 @@ async def test_test_app(mock: Mock):
 
 
 @pytest.mark.asyncio
+async def test_lifespan_contextmanager(mock: Mock, app: FastStream):
+    @asynccontextmanager
+    async def lifespan(env: str):
+        mock.on(env)
+        yield
+        mock.off()
+
+    app = FastStream(app.broker, lifespan=lifespan)
+
+    async with TestApp(app, {"env": "test"}):
+        pass
+
+    mock.on.assert_called_once_with("test")
+    mock.off.assert_called_once()
+
+
+@pytest.mark.asyncio
 async def test_test_app_with_excp(mock: Mock):
     app = FastStream()
 
@@ -215,6 +257,22 @@ def test_sync_test_app_with_excp(mock: Mock):
             raise ValueError()
 
     mock.on.assert_called_once()
+    mock.off.assert_called_once()
+
+
+def test_sync_lifespan_contextmanager(mock: Mock, app: FastStream):
+    @asynccontextmanager
+    async def lifespan(env: str):
+        mock.on(env)
+        yield
+        mock.off()
+
+    app = FastStream(app.broker, lifespan=lifespan)
+
+    with TestApp(app, {"env": "test"}):
+        pass
+
+    mock.on.assert_called_once_with("test")
     mock.off.assert_called_once()
 
 

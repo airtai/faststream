@@ -36,6 +36,7 @@ from faststream.broker.types import (
     WrappedReturn,
 )
 from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
+from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.kafka.asyncapi import Handler, Publisher
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.producer import AioKafkaFastProducer
@@ -307,6 +308,7 @@ class KafkaBroker(
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **original_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -407,6 +409,7 @@ class KafkaBroker(
                 batch=batch,
                 batch_timeout_ms=batch_timeout_ms,
                 max_records=max_records,
+                include_in_schema=include_in_schema,
             ),
         )
 
@@ -464,6 +467,7 @@ class KafkaBroker(
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
     ) -> Publisher:
         """
         Create a message publisher for the specified topic.
@@ -496,9 +500,12 @@ class KafkaBroker(
                 title=title,
                 _description=description,
                 _schema=schema,
+                include_in_schema=include_in_schema,
             ),
         )
         super().publisher(topic, publisher)
+        if self._producer is not None:
+            publisher._producer = self._producer
         return publisher
 
     @override
@@ -517,7 +524,7 @@ class KafkaBroker(
         Raises:
             RuntimeError: If KafkaBroker is not started yet.
         """
-        assert self._producer, "KafkaBroker is not started yet"  # nosec B101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
         return await self._producer.publish(*args, **kwargs)
 
     async def publish_batch(
@@ -535,5 +542,5 @@ class KafkaBroker(
         Raises:
             RuntimeError: If KafkaBroker is not started yet.
         """
-        assert self._producer, "KafkaBroker is not started yet"  # nosec B101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
         await self._producer.publish_batch(*args, **kwargs)

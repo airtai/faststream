@@ -36,6 +36,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
         # AsyncAPI information
         description: Optional[str] = None,
         title: Optional[str] = None,
+        include_in_schema: bool = True,
     ):
         reg, path = compile_path(channel, replace_symbol="*")
 
@@ -51,6 +52,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
             log_context_builder=log_context_builder,
             description=description,
             title=title,
+            include_in_schema=include_in_schema,
         )
 
     def add_call(

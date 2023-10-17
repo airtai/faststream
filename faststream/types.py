@@ -1,5 +1,15 @@
 from datetime import datetime
-from typing import Any, Awaitable, Callable, Dict, List, Sequence, TypeVar, Union
+from typing import (
+    Any,
+    AsyncContextManager,
+    Awaitable,
+    Callable,
+    Dict,
+    List,
+    Sequence,
+    TypeVar,
+    Union,
+)
 
 from pydantic import BaseModel
 
@@ -33,3 +43,5 @@ SendableMessage = Union[
 ]
 
 SettingField = Union[bool, str, List[str]]
+
+Lifespan = Callable[..., AsyncContextManager[None]]

@@ -333,3 +333,32 @@ class BrokerPublishTestcase:
 
         assert event.is_set()
         mock.assert_called_with("Hello!")
+
+    @pytest.mark.asyncio
+    async def test_publisher_after_start(
+        self,
+        pub_broker: BrokerUsecase,
+        queue: str,
+        event,
+        mock,
+    ):
+        @pub_broker.subscriber(queue)
+        async def handler(m):
+            event.set()
+            mock(m)
+
+        async with pub_broker:
+            await pub_broker.start()
+
+            pub = pub_broker.publisher(queue)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(pub.publish("Hello!")),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        mock.assert_called_with("Hello!")

@@ -22,7 +22,7 @@ jobs:
         run: |
           set -ux
           python -m pip install --upgrade pip
-          pip install -e ".[docs,rabbit,kafka,nats,lint]"
+          pip install -e ".[docs,rabbit,kafka,redis,nats,lint]"
       - name: Run mypy
         shell: bash
         run: mypy faststream tests/mypy

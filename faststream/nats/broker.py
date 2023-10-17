@@ -33,6 +33,7 @@ from faststream.broker.types import (
     WrappedReturn,
 )
 from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
+from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.nats.asyncapi import Handler, Publisher
 from faststream.nats.helpers import stream_builder
 from faststream.nats.js_stream import JStream
@@ -87,10 +88,7 @@ class NatsBroker(
     ) -> Client:
         connection = await super().connect(*args, **kwargs)
         for p in self._publishers.values():
-            if p.stream is not None:
-                p._producer = self._js_producer
-            else:
-                p._producer = self._producer
+            self.__set_publisher_producer(p)
         return connection
 
     async def _connect(
@@ -280,6 +278,7 @@ class NatsBroker(
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **original_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -341,6 +340,7 @@ class NatsBroker(
                 extra_options=extra_options,
                 title=title,
                 description=description,
+                include_in_schema=include_in_schema,
                 log_context_builder=partial(
                     self._get_log_context,
                     stream=stream.name if stream else "",
@@ -386,6 +386,7 @@ class NatsBroker(
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
     ) -> Publisher:
         if (stream := stream_builder.stream(stream)) is not None:
             stream.subjects.append(subject)
@@ -404,9 +405,11 @@ class NatsBroker(
                 title=title,
                 _description=description,
                 _schema=schema,
+                include_in_schema=include_in_schema,
             ),
         )
         super().publisher(subject, publisher)
+        self.__set_publisher_producer(publisher)
         return publisher
 
     @override
@@ -417,12 +420,19 @@ class NatsBroker(
         **kwargs: Any,
     ) -> Optional[DecodedMessage]:
         if stream is None:
-            assert self._producer, "NatsBroker is not started yet"  # nosec B101
+            assert self._producer, NOT_CONNECTED_YET  # nosec B101
             return await self._producer.publish(*args, **kwargs)
         else:
-            assert self._js_producer, "NatsBroker is not started yet"  # nosec B101
+            assert self._js_producer, NOT_CONNECTED_YET  # nosec B101
             return await self._js_producer.publish(
                 *args,
                 stream=stream,
                 **kwargs,  # type: ignore[misc]
             )
+
+    def __set_publisher_producer(self, publisher: Publisher) -> None:
+        if publisher.stream is not None:
+            if self._js_producer is not None:
+                publisher._producer = self._js_producer
+        elif self._producer is not None:
+            publisher._producer = self._producer

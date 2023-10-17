@@ -5,6 +5,7 @@ from nats.aio.msg import Msg
 
 from faststream._compat import override
 from faststream.broker.publisher import BasePublisher
+from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.nats.js_stream import JStream
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
@@ -31,7 +32,7 @@ class LogicPublisher(BasePublisher[Msg]):
         headers: Optional[Dict[str, str]] = None,
         **producer_kwargs: Any,
     ) -> Optional[DecodedMessage]:
-        assert self._producer, "Please, `connect()` the broker first"  # nosec B101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
         assert self.subject, "You have to specify outgoing subject"  # nosec B101
 
         extra: AnyDict = {

@@ -21,6 +21,7 @@ from faststream.broker.types import (
     WrappedReturn,
 )
 from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
+from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.redis.asyncapi import Handler, Publisher
 from faststream.redis.message import PubSubMessage, RedisMessage
 from faststream.redis.producer import RedisFastProducer
@@ -104,7 +105,7 @@ class RedisBroker(
         )
 
         await super().start()
-        assert self._connection, "Broker should be started already"  # nosec B101
+        assert self._connection, NOT_CONNECTED_YET  # nosec B101
 
         for handler in self.handlers.values():
             c = self._get_log_context(None, handler.channel)
@@ -155,6 +156,7 @@ class RedisBroker(
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **original_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -176,6 +178,7 @@ class RedisBroker(
                 ),
                 title=title,
                 description=description,
+                include_in_schema=include_in_schema,
                 log_context_builder=partial(
                     self._get_log_context,
                     channel=channel,
@@ -215,6 +218,7 @@ class RedisBroker(
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
     ):
         publisher = self._publishers.get(
             channel,
@@ -226,9 +230,12 @@ class RedisBroker(
                 title=title,
                 _description=description,
                 _schema=schema,
+                include_in_schema=include_in_schema,
             ),
         )
         super().publisher(channel, publisher)
+        if self._producer is not None:
+            publisher._producer = self._producer
         return publisher
 
     @override

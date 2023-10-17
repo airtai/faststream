@@ -64,6 +64,7 @@ class LogicHandler(AsyncHandler[aio_pika.IncomingMessage], BaseRMQInformation):
         # AsyncAPI information
         description: Optional[str] = None,
         title: Optional[str] = None,
+        include_in_schema: bool = True,
     ):
         """Initialize a RabbitMQ consumer.
 
@@ -81,6 +82,7 @@ class LogicHandler(AsyncHandler[aio_pika.IncomingMessage], BaseRMQInformation):
             log_context_builder=log_context_builder,
             description=description,
             title=title,
+            include_in_schema=include_in_schema,
         )
 
         self.queue = queue
