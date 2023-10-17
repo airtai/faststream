@@ -50,6 +50,8 @@
       
     
     
+      <link rel="stylesheet" href="../css/timeago.css">
+    
       <link rel="stylesheet" href="../assets/_mkdocstrings.css">
     
       <link rel="stylesheet" href="../stylesheets/extra.css">
@@ -1897,6 +1899,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#new-functionalities" class="md-nav__link">
+    New Functionalities
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#whats-changed_1" class="md-nav__link">
     What's Changed
   </a>
@@ -2167,6 +2176,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#new-functionalities" class="md-nav__link">
+    New Functionalities
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#whats-changed_1" class="md-nav__link">
     What's Changed
   </a>
@@ -2403,6 +2419,27 @@
 </ul>
 <p><strong>Full Changelog</strong>: <a class="external-link" href="https://github.com/airtai/faststream/compare/0.2.4...0.2.5" target="_blank">https://github.com/airtai/faststream/compare/0.2.4...0.2.5</a></p>
 <h2 id="024">0.2.4<a class="headerlink" href="#024" title="Permanent link">#</a></h2>
+<h3 id="new-functionalities">New Functionalities<a class="headerlink" href="#new-functionalities" title="Permanent link">#</a></h3>
+<p>Now, <code>Context</code> provides access to inner <a href="../getting-started/context/fields/">dict keys too</a>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># headers is a `dict`</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Context</span><span class="p">(</span><span class="s2">&quot;message.headers.user_id&quot;</span><span class="p">,</span> <span class="n">cast</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">):</span> <span class="o">...</span>
+</code></pre></div>
+<p>Added <code>Header</code> object as a shortcut to <code class="highlight"><span class="n">Context</span><span class="p">(</span><span class="s2">&quot;message.headers.&quot;</span><span class="p">)</span></code> inner fields (<strong>NATS</strong> <a href="../nats/message/#headers-access">example</a>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># the same with the previous example</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Header</span><span class="p">(),</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  <span class="n">u_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Header</span><span class="p">(</span><span class="s2">&quot;user_id&quot;</span><span class="p">),</span>  <span class="c1"># with custom name</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p">):</span> <span class="o">...</span>
+</code></pre></div>
+<p>Added <code>Path</code> object to get access to <a href="../nats/message/#subject-pattern-access"><strong>NATS</strong> wildcard</a> subject or <a href="../rabbit/message/#topic-pattern-access"><strong>RabbitMQ</strong> topic</a> routing key (a shortcut to access <code class="highlight"><span class="n">Context</span><span class="p">(</span><span class="s2">&quot;message.path.&quot;</span><span class="p">)</span></code> as well):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nd">@nats_broker</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="s2">&quot;logs.</span><span class="si">{level}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  <span class="n">level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(),</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">)</span>
+</code></pre></div>
+<p>Also, the original message <code>Context</code> annotation was copied from <code>faststream.[broker].annotations.[Broker]Message</code> to <code>faststream.[broker].[Broker]Message</code> to provide you with faster access to the most commonly used object (<strong>NATS</strong> <a href="../nats/message/#message-access">example</a>).</p>
 <h3 id="whats-changed_1">What's Changed<a class="headerlink" href="#whats-changed_1" title="Permanent link">#</a></h3>
 <ul>
 <li>Remove faststream_gen docs and remove code to generate fastream_gen docs by <a class="external-link" href="https://github.com/kumaranvpl" target="_blank">@kumaranvpl</a> in <a class="external-link" href="https://github.com/airtai/faststream/pull/824" target="_blank">https://github.com/airtai/faststream/pull/824</a></li>
@@ -2560,6 +2597,17 @@ parsing, networking and documentation generation automatically.</p>
 </ul>
 <p>That's <strong>FastStream</strong> in a nutshell—easy, efficient, and powerful. Whether you're just starting with streaming microservices or looking to scale, <strong>FastStream</strong> has got you covered.</p>
 
+  <hr>
+<div class="md-source-file">
+  <small>
+    
+      Last update:
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-10-17T07:20:41+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-10-17</span>
+      
+    
+  </small>
+</div>
+
 
   
 
@@ -2702,6 +2750,10 @@ parsing, networking and documentation generation automatically.</p>
     
     
       <script src="../assets/javascripts/bundle.aecac24b.min.js"></script>
+      
+        <script src="../js/timeago.min.js"></script>
+      
+        <script src="../js/timeago_mkdocs_material.js"></script>
       
     
   <script>document$.subscribe(() => {const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});})</script></body>
