@@ -20,34 +20,23 @@
 
     <script>
         window.onload = function () {
-            // Function to get a query parameter from the URL
-            function getQueryParam(name) {
-                var urlParams = new URLSearchParams(window.location.search);
-                return urlParams.get(name);
+            const urlSearchParams = new URLSearchParams(window.location.search);
+            const existingReferrer = urlSearchParams.get('utm_referrer') || "";
+
+            // Use the referrer if valid, otherwise use the existingReferrer
+            const referrer = document.referrer;
+            const isReferrerValid = referrer && !referrer.includes("faststream.airt.ai");
+            const validReferrer = isReferrerValid ? referrer : existingReferrer;
+
+            if (validReferrer) {
+                urlSearchParams.set('utm_referrer', validReferrer);
             }
 
-            // Check if the current URL already has a utm_referrer parameter
-            var existingReferrer = getQueryParam('utm_referrer');
+            // Update the search parameters with the new utm_referrer
+            const newGetParams = urlSearchParams.toString();
 
-            var encodedReferrer = '';
-
-            if (existingReferrer) {
-                // Use the existing utm_referrer value for the redirect
-                var encodedReferrer = encodeURIComponent(existingReferrer);
-            } else {
-                // If there's no utm_referrer parameter in the URL, use document.referrer
-                var referrer = document.referrer;
-
-                // Check if both the URL parameter and document.referrer are empty
-                if (referrer && !document.referrer.includes("faststream.airt.ai")) {
-                    var encodedReferrer = encodeURIComponent(referrer);
-                }
-            }
-
-            // Redirect to href and include the referrer as a query parameter
-            window.location.replace(
-                "../../../../0.2/getting-started/contributing/docs/" + (encodedReferrer ? '?utm_referrer=' + encodedReferrer : '') + window.location.hash
-            );
+            // Redirect to href with the updated query parameters
+            window.location.replace("../../../../0.2/getting-started/contributing/docs/" + (newGetParams ? `?${newGetParams}` : "") + window.location.hash);
         };
     </script>
 
