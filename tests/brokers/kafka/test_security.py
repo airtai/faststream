@@ -5,6 +5,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from docs.docs_src.kafka.security_without_ssl.example import test_without_ssl_warning
+
+__all__ = ["test_without_ssl_warning"]
+
 
 @contextmanager
 def patch_aio_consumer_and_producer() -> Tuple[MagicMock, MagicMock]:
