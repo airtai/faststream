@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Redirecting</title>
+    <noscript>
+        <meta http-equiv="refresh" content="1; url=../../../0.2/kafka/security/" />
+    </noscript>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HDTMP5FFHP"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-HDTMP5FFHP');
+    </script>
+
+    <script>
+        window.onload = function () {
+            // Function to get a query parameter from the URL
+            function getQueryParam(name) {
+                var urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(name);
+            }
+
+            // Check if the current URL already has a utm_referrer parameter
+            var existingReferrer = getQueryParam('utm_referrer');
+
+            var encodedReferrer = '';
+
+            if (existingReferrer) {
+                // Use the existing utm_referrer value for the redirect
+                var encodedReferrer = encodeURIComponent(existingReferrer);
+            } else {
+                // If there's no utm_referrer parameter in the URL, use document.referrer
+                var referrer = document.referrer;
+
+                // Check if both the URL parameter and document.referrer are empty
+                if (referrer && !document.referrer.includes("faststream.airt.ai")) {
+                    var encodedReferrer = encodeURIComponent(referrer);
+                }
+            }
+
+            // Redirect to href and include the referrer as a query parameter
+            window.location.replace(
+                "../../../0.2/kafka/security/" + (encodedReferrer ? '?utm_referrer=' + encodedReferrer : '') + window.location.hash
+            );
+        };
+    </script>
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="FastStream" />
+    <meta property="og:description" content="FastStream Python messaging framework documentation" />
+    <meta property="og:url" content="https://faststream.airt.ai/latest/" />
+    <meta property="og:image" content="https://opengraph.githubassets.com/1671805243.560327/airtai/faststream" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="FastStream" />
+    <meta name="twitter:description" content="FastStream Python messaging framework documentation" />
+    <meta name="twitter:image" content="https://opengraph.githubassets.com/1671805243.560327/airtai/faststream" />
+</head>
+
+<body>
+    Redirecting to <a href="../../../0.2/kafka/security/">../../../0.2/kafka/security/</a>...  <!-- nosemgrep -->
+</body>
+
+</html>
