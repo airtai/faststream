@@ -186,11 +186,11 @@ def _resolve_msg_payloads(
 ) -> Reference:
     one_of_list: List[Reference] = []
     for p_title, p in m.payload.get("oneOf", {}).items():
-        payloads[p_title] = p
+        payloads[p_title] = _remove_refs(p)
         one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{p_title}"}))
 
     if not one_of_list:
-        p = m.payload
+        p = _remove_refs(m.payload)
         p_title = p.get("title", f"{channel_name}Payload")
         payloads[p_title] = p
         m.payload = {"$ref": f"#/components/schemas/{p_title}"}
@@ -201,3 +201,16 @@ def _resolve_msg_payloads(
     assert m.title  # nosec B101
     messages[m.title] = m
     return Reference(**{"$ref": f"#/components/messages/{m.title}"})
+
+
+def _remove_refs(original: Any) -> Any:
+    import jsonref  # hide it from regular destibution
+
+    p = jsonref.replace_refs(
+        original,
+        jsonschema=True,
+        proxies=False,
+    )
+    p.pop("$defs", None)
+    p.pop("definitions", None)
+    return p

@@ -244,35 +244,13 @@ class FastAPICompatible:
         for key, v in payload.items():
             assert key == "Handle:Message:Payload"
             assert v == {
-                "$defs": {
-                    "User": {
-                        "properties": {
-                            "id": {"title": "Id", "type": "integer"},
-                            "name": {
-                                "default": "",
-                                "title": "Name",
-                                "type": "string",
-                            },
-                        },
-                        "required": ["id"],
-                        "title": "User",
-                        "type": "object",
-                    }
-                },
                 "properties": {
                     "description": {
                         "default": "",
                         "title": "Description",
                         "type": "string",
                     },
-                    "user": {"$ref": "#/$defs/User"},
-                },
-                "required": ["user"],
-                "title": key,
-                "type": "object",
-            } or v == {  # TODO: remove when deprecating PydanticV1
-                "definitions": {
-                    "User": {
+                    "user": {
                         "properties": {
                             "id": {"title": "Id", "type": "integer"},
                             "name": {"default": "", "title": "Name", "type": "string"},
@@ -280,18 +258,10 @@ class FastAPICompatible:
                         "required": ["id"],
                         "title": "User",
                         "type": "object",
-                    }
-                },
-                "properties": {
-                    "description": {
-                        "default": "",
-                        "title": "Description",
-                        "type": "string",
                     },
-                    "user": {"$ref": "#/definitions/User"},
                 },
                 "required": ["user"],
-                "title": key,
+                "title": "Handle:Message:Payload",
                 "type": "object",
             }
 
