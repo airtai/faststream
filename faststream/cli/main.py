@@ -139,16 +139,13 @@ def _run(
 
     Args:
         module: Path to the module containing the application.
-        app: Name of the application to run.
-        extra_options: Additional options for the application.
+        app: Path of the application to run.
+        extra_options: Additional options from CLI.
         log_level: Log level for the application (default: logging.INFO).
         app_level: Log level for the application (default: logging.INFO).
 
     Returns:
         None
-
-    Raises:
-        ImportError: If `uvloop` is not installed.
 
     Note:
         This function uses the `anyio.run()` function to run the application.

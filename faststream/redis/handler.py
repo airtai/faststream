@@ -1,5 +1,7 @@
 import asyncio
-from typing import Any, Callable, Dict, Optional, Sequence
+import json
+from functools import partial
+from typing import Any, Awaitable, Callable, Dict, Optional, Sequence
 
 import anyio
 from fast_depends.core import CallModel
@@ -32,7 +34,10 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
         log_context_builder: Callable[[StreamMessage[Any]], Dict[str, str]],
         # Redis info
         pattern: bool = False,
-        polling_interval: float = 1.0,
+        list: bool = False,
+        batch: bool = False,
+        max_records: int = 10,
+        polling_interval: float = 0.1,
         # AsyncAPI information
         description: Optional[str] = None,
         title: Optional[str] = None,
@@ -40,9 +45,17 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
     ):
         reg, path = compile_path(channel, replace_symbol="*")
 
+        if list and reg:
+            raise ValueError("You can't use pattern with `list` subscriber type")
+
         self.path_regex = reg
         self.channel = path
         self.pattern = pattern
+
+        self.list = list
+        self.batch = batch
+        self.max_records = max_records
+
         self.polling_interval = polling_interval
 
         self.subscription = None
@@ -75,15 +88,34 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
         )
 
     async def start(self, client: Redis) -> None:
-        psub = client.pubsub()
+        consume: Callable[[], Awaitable[PubSubMessage]]
+        sleep: float
 
-        if self.pattern is True:
-            await psub.psubscribe(self.channel)
+        if self.list:
+            sleep = self.polling_interval
+            consume = partial(
+                consume_list_msg,
+                client=client,
+                name=self.channel,
+                count=self.max_records if self.batch else None,
+            )
+
         else:
-            await psub.subscribe(self.channel)
+            self.subscription = psub = client.pubsub()
 
-        self.subscription = psub
-        self.task = asyncio.create_task(self._consume(psub))
+            if self.pattern is True:
+                await psub.psubscribe(self.channel)
+            else:
+                await psub.subscribe(self.channel)
+
+            consume = partial(
+                psub.get_message,
+                ignore_subscribe_messages=True,
+                timeout=self.polling_interval,
+            )
+            sleep = 0.01
+
+        self.task = asyncio.create_task(self._consume(consume, sleep))
 
     async def close(self) -> None:
         if self.task is not None:
@@ -99,14 +131,15 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
     def get_routing_hash(channel: str) -> str:
         return channel
 
-    async def _consume(self, psub: PubSub) -> None:
+    async def _consume(
+        self,
+        consume: Callable[[], Awaitable[Optional[PubSubMessage]]],
+        sleep: float,
+    ) -> None:
         connected = True
         while True:
             try:
-                m = await psub.get_message(
-                    ignore_subscribe_messages=True,
-                    timeout=self.polling_interval,
-                )
+                m = await consume()
 
             except Exception:
                 if connected is True:
@@ -121,4 +154,22 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
                     await self.consume(m)
 
             finally:
-                await anyio.sleep(0.01)
+                await anyio.sleep(sleep)
+
+
+async def consume_list_msg(
+    client: Redis,
+    name: str,
+    count: Optional[int],
+) -> Optional[PubSubMessage]:
+    msg = await client.lpop(name=name, count=count)
+
+    if msg:
+        if isinstance(msg, list):
+            msg = json.dumps([x.decode() for x in msg]).encode()
+
+        return PubSubMessage(
+            type="message",
+            channel=name.encode(),
+            data=msg,
+        )

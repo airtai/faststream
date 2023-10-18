@@ -144,6 +144,9 @@ class RedisBroker(
         self,
         channel: Channel,
         pattern: bool = False,
+        list: bool = False,
+        batch: bool = False,
+        max_records: int = 10,
         polling_interval: Optional[float] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
@@ -162,6 +165,9 @@ class RedisBroker(
         [Callable[P_HandlerParams, T_HandlerReturn]],
         HandlerCallWrapper[Any, P_HandlerParams, T_HandlerReturn],
     ]:
+        if list and pattern:
+            raise ValueError("You can't use pattern with `list` subscriber type")
+
         self._setup_log_context(channel=channel)
         super().subscriber()
 
@@ -171,6 +177,9 @@ class RedisBroker(
             Handler(
                 channel=channel,
                 pattern=pattern,
+                list=list,
+                batch=batch,
+                max_records=max_records,
                 polling_interval=(
                     polling_interval
                     if polling_interval is not None

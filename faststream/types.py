@@ -44,4 +44,5 @@ SendableMessage = Union[
 
 SettingField = Union[bool, str, List[str]]
 
+
 Lifespan = Callable[..., AsyncContextManager[None]]

@@ -68,6 +68,7 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -89,6 +90,7 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
         # message args
         headers: Optional[aio_pika.abc.HeadersType] = None,
         content_type: Optional[str] = None,

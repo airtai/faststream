@@ -61,6 +61,7 @@ class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
     ) -> Publisher: ...
     @override
     def subscriber(  # type: ignore[override]
@@ -115,6 +116,7 @@ class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],

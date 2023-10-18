@@ -8,7 +8,7 @@ from aiokafka.errors import KafkaError
 from fast_depends.core import CallModel
 
 from faststream.__about__ import __version__
-from faststream._compat import override
+from faststream._compat import Unpack, override
 from faststream.broker.handler import AsyncHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
@@ -23,6 +23,7 @@ from faststream.broker.types import (
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.parser import AioKafkaParser
+from faststream.kafka.shared.schemas import ConsumerConnectionParams
 
 
 class LogicHandler(AsyncHandler[ConsumerRecord]):
@@ -110,8 +111,10 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
         self.task = None
         self.consumer = None
 
-    # TODO: use **kwargs: Unpack[ConsumerConnectionParams] with py3.12 release 2023-10-02
-    async def start(self, **consumer_kwargs: Any) -> None:
+    async def start(
+        self,
+        **consumer_kwargs: Unpack[ConsumerConnectionParams],
+    ) -> None:
         """Start the consumer.
 
         Args:
