@@ -15,10 +15,10 @@
         <link rel="canonical" href="https://faststream.airt.ai/0.2/getting-started/integrations/django/">
       
       
-        <link rel="prev" href="../../template/">
+        <link rel="prev" href="../fastapi/">
       
       
-        <link rel="next" href="../../../kafka/">
+        <link rel="next" href="../../cli/">
       
       
       <link rel="icon" href="../../../assets/img/logo.svg">
@@ -26,7 +26,7 @@
     
     
       
-        <title>Using FastStream with Django - FastStream</title>
+        <title>Django - FastStream</title>
       
     
     
@@ -80,7 +80,7 @@
     
   
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="FastStream - Using FastStream with Django" />
+  <meta property="og:title" content="FastStream - Django" />
   <meta property="og:description" content="FastStream Python messaging framework documentation" />
   <meta property="og:url" content="https://faststream.airt.ai/0.2/getting-started/integrations/django/" />
   <meta property="og:image" content="https://opengraph.githubassets.com/1671805243.560327/airtai/faststream" />
@@ -89,7 +89,7 @@
   <meta property="og:image:height" content="630" />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="FastStream - Using FastStream with Django" />
+  <meta name="twitter:title" content="FastStream - Django" />
   <meta name="twitter:description" content="FastStream Python messaging framework documentation" />
   <meta name="twitter:image" content="https://opengraph.githubassets.com/1671805243.560327/airtai/faststream" />
 
@@ -177,7 +177,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Using FastStream with Django
+              Django
             
           </span>
         </div>
@@ -516,21 +516,11 @@
         
       
         
-          
-        
       
         
           
         
       
-        
-          
-        
-      
-        
-      
-        
-          
         
       
         
@@ -950,20 +940,62 @@
                 
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../frameworks/" class="md-nav__link">
+  
+    
+    
+      
         
+          
+        
+      
+        
+          
+        
+      
+        
+          
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_11" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../frameworks/" class="md-nav__link ">
+              
   
   <span class="md-ellipsis">
     Integrations
   </span>
   
 
-      </a>
-    </li>
-  
-
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_11" id="__nav_2_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_11_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            Integrations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
               
             
               
@@ -981,6 +1013,122 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Django
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Django
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#asgi" class="md-nav__link">
+    ASGI
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-django-application" class="md-nav__link">
+    Default Django Application
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#faststream-integration" class="md-nav__link">
+    FastStream Integration
+  </a>
+  
+    <nav class="md-nav" aria-label="FastStream Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#serving-django-via-starlette" class="md-nav__link">
+    Serving Django via Starlette
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serving-static-files-with-starlette" class="md-nav__link">
+    Serving static files with Starlette
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#faststream-lifespan" class="md-nav__link">
+    FastStream lifespan
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1056,92 +1204,11 @@
         
   
   <span class="md-ellipsis">
-    Using Cookiecutter FastStream Template
+    FastStream Project Template
   </span>
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Using FastStream with Django
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  <span class="md-ellipsis">
-    Using FastStream with Django
-  </span>
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#asgi" class="md-nav__link">
-    ASGI
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#writing-django-faststream-application" class="md-nav__link">
-    Writing Django + FastStream Application
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#running-the-django-application" class="md-nav__link">
-    Running the Django Application
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1981,16 +2048,43 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#writing-django-faststream-application" class="md-nav__link">
-    Writing Django + FastStream Application
+  <a href="#default-django-application" class="md-nav__link">
+    Default Django Application
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-the-django-application" class="md-nav__link">
-    Running the Django Application
+  <a href="#faststream-integration" class="md-nav__link">
+    FastStream Integration
   </a>
+  
+    <nav class="md-nav" aria-label="FastStream Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#serving-django-via-starlette" class="md-nav__link">
+    Serving Django via Starlette
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serving-static-files-with-starlette" class="md-nav__link">
+    Serving static files with Starlette
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#faststream-lifespan" class="md-nav__link">
+    FastStream lifespan
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2019,61 +2113,217 @@
 
 <h1 id="using-faststream-with-django">Using FastStream with Django<a class="headerlink" href="#using-faststream-with-django" title="Permanent link">#</a></h1>
 <p><a class="external-link" href="https://www.djangoproject.com/" target="_blank"><strong>Django</strong></a> is a high-level Python web framework that encourages rapid development and clean, pragmatic design. Built by experienced developers, it takes care of much of the hassle of web development, so you can focus on writing your app without needing to reinvent the wheel. It’s free and open source.</p>
-<p>In this tutorial, let's see how to use the FastStream app alongside a Django app.</p>
+<p>In this tutorial, let's see how to use the FastStream app alongside a <strong>Django</strong> app.</p>
 <h2 id="asgi">ASGI<a class="headerlink" href="#asgi" title="Permanent link">#</a></h2>
-<p><a class="external-link" href="https://asgi.readthedocs.io/en/latest/" target="_blank"><strong>ASGI</strong></a> protocol supports lifespan events, and Django can be served as an ASGI application. So, the best way to integrate FastStream with the Django is by using ASGI lifespan. You can write it by yourself (it is really easy) or use something like <a class="external-link" href="https://github.com/illagrenan/django-asgi-lifespan" target="_blank">this</a>, but the prefered way for us is using <a class="external-link" href="https://www.starlette.io/" target="_blank"><strong>Starlette</strong></a> Router.</p>
-<p>Starlette Router allows you to serve any ASGI application you want, and it also supports lifespans. So, you can use it in your project to serve your regular Django ASGI and start up your FastStream broker too. Additionally, Starlette has much better static files support, providing an extra zero-cost feature.</p>
-<h2 id="writing-django-faststream-application">Writing Django + FastStream Application<a class="headerlink" href="#writing-django-faststream-application" title="Permanent link">#</a></h2>
-<div class="highlight"><span class="filename">django_faststream.py</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span> <span class="nn">os</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">asynccontextmanager</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kn">from</span> <span class="nn">django.core.asgi</span> <span class="kn">import</span> <span class="n">get_asgi_application</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Mount</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="kn">from</span> <span class="nn">starlette.staticfiles</span> <span class="kn">import</span> <span class="n">StaticFiles</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;DJANGO_SETTINGS_MODULE&#39;</span><span class="p">,</span> <span class="s1">&#39;config.settings&#39;</span><span class="p">)</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">()</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="nd">@asynccontextmanager</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">broker_lifespan</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>        <span class="k">yield</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="k">finally</span><span class="p">:</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>        <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="n">routes</span><span class="o">=</span><span class="p">(</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>        <span class="n">Mount</span><span class="p">(</span><span class="s2">&quot;/static&quot;</span><span class="p">,</span> <span class="n">StaticFiles</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s2">&quot;static&quot;</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;static&quot;</span><span class="p">),</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>        <span class="n">Mount</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">get_asgi_application</span><span class="p">()),</span>  <span class="c1"># regular Django ASGI</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    <span class="p">),</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>    <span class="n">lifespan</span><span class="o">=</span><span class="n">broker_lifespan</span><span class="p">,</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="p">)</span>
-</code></pre></div>
-<p>In the above code, we start by importing necessary packages.</p>
-<p>The code imports <code>KafkaBroker</code> as our application is going to connect with Kafka. Depending on your requirements, import the necessary service's broker from the options provided by FastStream, such as  <code>RabbitBroker</code>, <code>NatsBroker</code> or <code>KafkaBroker</code>.</p>
-<p>Then, we set the environment variable <a class="external-link" href="https://docs.djangoproject.com/en/4.2/topics/settings/#envvar-DJANGO_SETTINGS_MODULE" target="_blank"><strong>DJANGO_SETTINGS_MODULE</strong></a> to tell our Django app where to find the Django app's settings.</p>
-<p>Next, we initiate the Kafka broker. After that, as mentioned earlier, we create a lifespan context to start and stop our <code>KafkaBroker</code>.</p>
-<p>Finally, we register the Django application as a Starlette app.</p>
-<h2 id="running-the-django-application">Running the Django Application<a class="headerlink" href="#running-the-django-application" title="Permanent link">#</a></h2>
-<p>The above application can be served with any ASGI server.</p>
-<p>For example, using <a class="external-link" href="https://www.uvicorn.org/deployment/" target="_blank"><strong>uvicorn</strong></a>, we can serve the application as follows:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uvicorn<span class="w"> </span>django_faststream:app<span class="w"> </span>--workers<span class="w"> </span><span class="m">4</span>
+<p><a class="external-link" href="https://asgi.readthedocs.io/en/latest/" target="_blank"><strong>ASGI</strong></a> protocol supports lifespan events, and <strong>Django</strong> can be served as an <strong>ASGI</strong> application. So, the best way to integrate FastStream with the <strong>Django</strong> is by using <strong>ASGI</strong> lifespan. You can write it by yourself (it is really easy) or use something like <a class="external-link" href="https://github.com/illagrenan/django-asgi-lifespan" target="_blank">this</a>, but the prefered way for us is using <a class="external-link" href="https://www.starlette.io/" target="_blank"><strong>Starlette</strong></a> Router.</p>
+<p>Starlette Router allows you to serve any <strong>ASGI</strong> application you want, and it also supports lifespans. So, you can use it in your project to serve your regular Django <strong>ASGI</strong> and start up your FastStream broker too. Additionally, Starlette has much better static files support, providing an extra zero-cost feature.</p>
+<h2 id="default-django-application">Default Django Application<a class="headerlink" href="#default-django-application" title="Permanent link">#</a></h2>
+<p>Well, lets take a look at a default <strong>Django</strong> <code>asgi.py</code></p>
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">asgi.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span>
+<span class="normal"><a href="#__codelineno-0-2">2</a></span>
+<span class="normal"><a href="#__codelineno-0-3">3</a></span>
+<span class="normal"><a href="#__codelineno-0-4">4</a></span>
+<span class="normal"><a href="#__codelineno-0-5">5</a></span>
+<span class="normal"><a href="#__codelineno-0-6">6</a></span>
+<span class="normal"><a href="#__codelineno-0-7">7</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kn">import</span> <span class="nn">os</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">django.core.asgi</span> <span class="kn">import</span> <span class="n">get_asgi_application</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;DJANGO_SETTINGS_MODULE&quot;</span><span class="p">,</span> <span class="s2">&quot;app.settings&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="n">application</span> <span class="o">=</span> <span class="n">get_asgi_application</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+<p>You can already serve it using any <strong>ASGI</strong> server</p>
+<p>For example, using <a class="external-link" href="https://www.uvicorn.org/deployment/" target="_blank"><strong>uvicorn</strong></a>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uvicorn<span class="w"> </span>asgi:app<span class="w"> </span>--workers<span class="w"> </span><span class="m">4</span>
 </code></pre></div>
 <p>Or you can use <a class="external-link" href="https://docs.gunicorn.org/en/latest/run.html" target="_blank"><strong>Gunicorn</strong></a> with uvicorn workers</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>gunicorn<span class="w"> </span>django_faststream:app<span class="w"> </span>--workers<span class="w"> </span><span class="m">4</span><span class="w"> </span>--worker-class<span class="w"> </span>uvicorn.workers.UvicornWorker
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>gunicorn<span class="w"> </span>asgi:app<span class="w"> </span>--workers<span class="w"> </span><span class="m">4</span><span class="w"> </span>--worker-class<span class="w"> </span>uvicorn.workers.UvicornWorker
 </code></pre></div>
+<p>Your <strong>Django</strong> views, models and other stuff has no any changes if you serving it through <strong>ASGI</strong>, so you need no worry about it.</p>
+<h2 id="faststream-integration">FastStream Integration<a class="headerlink" href="#faststream-integration" title="Permanent link">#</a></h2>
+<h3 id="serving-django-via-starlette">Serving Django via Starlette<a class="headerlink" href="#serving-django-via-starlette" title="Permanent link">#</a></h3>
+<p>Now, we need to modify our <code>asgi.py</code> to serve it using <strong>Starlette</strong></p>
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">asgi.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-3-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-3-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-3-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-3-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-3-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-3-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-3-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-3-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-3-10">10</a></span>
+<span class="normal"><a href="#__codelineno-3-11">11</a></span>
+<span class="normal"><a href="#__codelineno-3-12">12</a></span>
+<span class="normal"><a href="#__codelineno-3-13">13</a></span>
+<span class="normal"><a href="#__codelineno-3-14">14</a></span>
+<span class="normal"><a href="#__codelineno-3-15">15</a></span>
+<span class="normal"><a href="#__codelineno-3-16">16</a></span>
+<span class="normal"><a href="#__codelineno-3-17">17</a></span>
+<span class="normal"><a href="#__codelineno-3-18">18</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="c1"># regular Djano stuff</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="kn">import</span> <span class="nn">os</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="kn">from</span> <span class="nn">django.core.asgi</span> <span class="kn">import</span> <span class="n">get_asgi_application</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;DJANGO_SETTINGS_MODULE&quot;</span><span class="p">,</span> <span class="s2">&quot;app.settings&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7"></a>
+<a id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="n">django_asgi</span> <span class="o">=</span> <span class="n">get_asgi_application</span><span class="p">()</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9"></a>
+<a id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="c1"># Starlette serving</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Mount</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13"></a>
+<a id="__codelineno-3-14" name="__codelineno-3-14"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15"></a>    <span class="n">routes</span><span class="o">=</span><span class="p">(</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16"></a><span class="hll">        <span class="n">Mount</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">django_asgi</span><span class="p">()),</span>  <span class="c1"># redirect all requests to Django</span>
+</span><a id="__codelineno-3-17" name="__codelineno-3-17"></a>    <span class="p">),</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18"></a><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+<h3 id="serving-static-files-with-starlette">Serving static files with Starlette<a class="headerlink" href="#serving-static-files-with-starlette" title="Permanent link">#</a></h3>
+<p>Also, <strong>Starlette</strong> has a better static files provider than original <strong>Django</strong> one, so we can reuse it too.</p>
+<p>Just add this line to your <code>settings.py</code></p>
+<div class="highlight"><span class="filename">settings.py</span><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">STATIC_ROOT</span> <span class="o">=</span> <span class="s2">&quot;static/&quot;</span>
+</code></pre></div>
+<p>And collect all static files by default <strong>Django</strong> command</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>python<span class="w"> </span>manage.py<span class="w"> </span>collectstatic
+</code></pre></div>
+<p>It creates a <code>static/</code> directory in the root of your project, so you can serve it using <strong>Starlette</strong></p>
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">asgi.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-6-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-6-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-6-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-6-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-6-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-6-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-6-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-6-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-6-10">10</a></span>
+<span class="normal"><a href="#__codelineno-6-11">11</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="c1"># Code above omitted 👆</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="kn">from</span> <span class="nn">starlette.staticfiles</span> <span class="kn">import</span> <span class="n">StaticFiles</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4"></a>
+<a id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6"></a>    <span class="n">routes</span><span class="o">=</span><span class="p">(</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7"></a>        <span class="c1"># /static is your STATIC_URL setting</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8"></a><span class="hll">        <span class="n">Mount</span><span class="p">(</span><span class="s2">&quot;/static&quot;</span><span class="p">,</span> <span class="n">StaticFiles</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s2">&quot;static&quot;</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;static&quot;</span><span class="p">),</span>
+</span><a id="__codelineno-6-9" name="__codelineno-6-9"></a>        <span class="n">Mount</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">get_asgi_application</span><span class="p">()),</span>  <span class="c1"># regular Django ASGI</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10"></a>    <span class="p">),</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11"></a><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+<h3 id="faststream-lifespan">FastStream lifespan<a class="headerlink" href="#faststream-lifespan" title="Permanent link">#</a></h3>
+<p>Finally, we can add our <strong>FastStream</strong> integration like a regular lifespan</p>
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">asgi.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-7-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-7-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-7-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-7-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-7-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-7-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-7-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-7-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-7-10">10</a></span>
+<span class="normal"><a href="#__codelineno-7-11">11</a></span>
+<span class="normal"><a href="#__codelineno-7-12">12</a></span>
+<span class="normal"><a href="#__codelineno-7-13">13</a></span>
+<span class="normal"><a href="#__codelineno-7-14">14</a></span>
+<span class="normal"><a href="#__codelineno-7-15">15</a></span>
+<span class="normal"><a href="#__codelineno-7-16">16</a></span>
+<span class="normal"><a href="#__codelineno-7-17">17</a></span>
+<span class="normal"><a href="#__codelineno-7-18">18</a></span>
+<span class="normal"><a href="#__codelineno-7-19">19</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="c1"># Code above omitted 👆</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">asynccontextmanager</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5"></a>
+<a id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">()</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7"></a>
+<a id="__codelineno-7-8" name="__codelineno-7-8"></a><span class="nd">@asynccontextmanager</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">broker_lifespan</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12"></a>        <span class="k">yield</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13"></a>    <span class="k">finally</span><span class="p">:</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14"></a>        <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15"></a>
+<a id="__codelineno-7-16" name="__codelineno-7-16"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17"></a>    <span class="o">...</span><span class="p">,</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18"></a><span class="hll">    <span class="n">lifespan</span><span class="o">=</span><span class="n">broker_lifespan</span><span class="p">,</span>
+</span><a id="__codelineno-7-19" name="__codelineno-7-19"></a><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The code imports <code>KafkaBroker</code> as our application is going to connect with <strong>Kafka</strong>. Depending on your requirements, import the necessary service's broker from the options provided by <strong>FastStream</strong>, such as <code>RabbitBroker</code>, <code>NatsBroker</code> or <code>KafkaBroker</code>.</p>
+</div>
+<details class="example">
+<summary>Full Example</summary>
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">asgi.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-8-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-8-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-8-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-8-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-8-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-8-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-8-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-8-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-8-10">10</a></span>
+<span class="normal"><a href="#__codelineno-8-11">11</a></span>
+<span class="normal"><a href="#__codelineno-8-12">12</a></span>
+<span class="normal"><a href="#__codelineno-8-13">13</a></span>
+<span class="normal"><a href="#__codelineno-8-14">14</a></span>
+<span class="normal"><a href="#__codelineno-8-15">15</a></span>
+<span class="normal"><a href="#__codelineno-8-16">16</a></span>
+<span class="normal"><a href="#__codelineno-8-17">17</a></span>
+<span class="normal"><a href="#__codelineno-8-18">18</a></span>
+<span class="normal"><a href="#__codelineno-8-19">19</a></span>
+<span class="normal"><a href="#__codelineno-8-20">20</a></span>
+<span class="normal"><a href="#__codelineno-8-21">21</a></span>
+<span class="normal"><a href="#__codelineno-8-22">22</a></span>
+<span class="normal"><a href="#__codelineno-8-23">23</a></span>
+<span class="normal"><a href="#__codelineno-8-24">24</a></span>
+<span class="normal"><a href="#__codelineno-8-25">25</a></span>
+<span class="normal"><a href="#__codelineno-8-26">26</a></span>
+<span class="normal"><a href="#__codelineno-8-27">27</a></span>
+<span class="normal"><a href="#__codelineno-8-28">28</a></span>
+<span class="normal"><a href="#__codelineno-8-29">29</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="kn">import</span> <span class="nn">os</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">asynccontextmanager</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="kn">from</span> <span class="nn">django.core.asgi</span> <span class="kn">import</span> <span class="n">get_asgi_application</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Mount</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="kn">from</span> <span class="nn">starlette.staticfiles</span> <span class="kn">import</span> <span class="n">StaticFiles</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8"></a><span class="kn">from</span> <span class="nn">faststream.kafka</span> <span class="kn">import</span> <span class="n">KafkaBroker</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9"></a>
+<a id="__codelineno-8-10" name="__codelineno-8-10"></a>
+<a id="__codelineno-8-11" name="__codelineno-8-11"></a><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;DJANGO_SETTINGS_MODULE&#39;</span><span class="p">,</span> <span class="s1">&#39;config.settings&#39;</span><span class="p">)</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12"></a>
+<a id="__codelineno-8-13" name="__codelineno-8-13"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">KafkaBroker</span><span class="p">()</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14"></a>
+<a id="__codelineno-8-15" name="__codelineno-8-15"></a><span class="nd">@asynccontextmanager</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">broker_lifespan</span><span class="p">(</span><span class="n">app</span><span class="p">):</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17"></a>    <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-8-19" name="__codelineno-8-19"></a>        <span class="k">yield</span>
+<a id="__codelineno-8-20" name="__codelineno-8-20"></a>    <span class="k">finally</span><span class="p">:</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21"></a>        <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<a id="__codelineno-8-22" name="__codelineno-8-22"></a>
+<a id="__codelineno-8-23" name="__codelineno-8-23"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span>
+<a id="__codelineno-8-24" name="__codelineno-8-24"></a>    <span class="n">routes</span><span class="o">=</span><span class="p">(</span>
+<a id="__codelineno-8-25" name="__codelineno-8-25"></a>        <span class="n">Mount</span><span class="p">(</span><span class="s2">&quot;/static&quot;</span><span class="p">,</span> <span class="n">StaticFiles</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s2">&quot;static&quot;</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;static&quot;</span><span class="p">),</span>
+<a id="__codelineno-8-26" name="__codelineno-8-26"></a>        <span class="n">Mount</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">get_asgi_application</span><span class="p">()),</span>
+<a id="__codelineno-8-27" name="__codelineno-8-27"></a>    <span class="p">),</span>
+<a id="__codelineno-8-28" name="__codelineno-8-28"></a>    <span class="n">lifespan</span><span class="o">=</span><span class="n">broker_lifespan</span><span class="p">,</span>
+<a id="__codelineno-8-29" name="__codelineno-8-29"></a><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</details>
+<p>This way we can easely integrate our <strong>FastStream</strong> apllication with the <strong>Django</strong>!</p>
 
   <hr>
 <div class="md-source-file">
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-10-17T13:56:21+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-10-17</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-10-18T05:56:47+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-10-18</span>
       
     
   </small>
@@ -2109,7 +2359,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../../template/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Using Cookiecutter FastStream Template">
+          <a href="../fastapi/" class="md-footer__link md-footer__link--prev" aria-label="Previous: FastAPI Plugin">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -2119,20 +2369,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Using Cookiecutter FastStream Template
+                FastAPI Plugin
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../../kafka/" class="md-footer__link md-footer__link--next" aria-label="Next: Kafka Routing">
+          <a href="../../cli/" class="md-footer__link md-footer__link--next" aria-label="Next: CLI commands">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Kafka Routing
+                CLI commands
               </div>
             </div>
             <div class="md-footer__button md-icon">
