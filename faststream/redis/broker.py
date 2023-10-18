@@ -44,7 +44,7 @@ class RedisBroker(
     def __init__(
         self,
         url: str = "redis://localhost:6379",
-        polling_interval: float = 1.0,
+        polling_interval: Optional[float] = None,
         *,
         protocol: str = "redis",
         protocol_version: Optional[str] = "custom",

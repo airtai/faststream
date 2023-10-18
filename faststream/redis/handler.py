@@ -37,7 +37,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
         list: bool = False,
         batch: bool = False,
         max_records: int = 10,
-        polling_interval: float = 0.1,
+        polling_interval: Optional[float] = None,
         # AsyncAPI information
         description: Optional[str] = None,
         title: Optional[str] = None,
@@ -92,7 +92,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
         sleep: float
 
         if self.list:
-            sleep = self.polling_interval
+            sleep = self.polling_interval or 0.1
             consume = partial(
                 consume_list_msg,
                 client=client,
@@ -111,7 +111,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
             consume = partial(
                 psub.get_message,
                 ignore_subscribe_messages=True,
-                timeout=self.polling_interval,
+                timeout=self.polling_interval or 1.0,
             )
             sleep = 0.01
 
