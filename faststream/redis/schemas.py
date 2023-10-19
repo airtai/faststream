@@ -38,6 +38,7 @@ class PubSub(NameRequired):
     def __hash__(self) -> int:
         return hash("pubsub" + self.name)
 
+
 class ListSub(NameRequired):
     polling_interval: float = 0.1
     batch: bool = False
@@ -60,7 +61,7 @@ class ListSub(NameRequired):
     @property
     def records(self) -> Optional[int]:
         return self.max_records if self.batch else None
-    
+
     def __hash__(self) -> int:
         return hash("list" + self.name)
 

@@ -29,7 +29,9 @@ class ChannelBinding(BaseModel):
     """
 
     channel: str
-    method: Optional[Literal["ssubscribe", "psubscribe", "subscribe", "lpop", "rpush", "publish"]] = None
+    method: Optional[
+        Literal["ssubscribe", "psubscribe", "subscribe", "lpop", "rpush", "publish"]
+    ] = None
     bindingVersion: str = "custom"
 
 

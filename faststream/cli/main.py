@@ -7,9 +7,10 @@ import anyio
 import typer
 from click.exceptions import MissingParameter
 from pydantic import ValidationError
-from typer.core import TyperOption, rich
+from typer.core import TyperOption
 
 from faststream.__about__ import __version__
+from faststream._compat import is_installed
 from faststream.cli.docs.app import docs_app
 from faststream.cli.utils.imports import get_app_path, try_import_app
 from faststream.cli.utils.logs import LogLevels, get_log_level, set_log_level
@@ -175,8 +176,8 @@ def _run(
             param=TyperOption(param_decls=[f"--{x['loc'][0]}" for x in e.errors()])
         )
 
-        if rich:
-            from typer.core import rich_utils
+        if is_installed("rich"):
+            from typer import rich_utils
 
             rich_utils.rich_format_error(ex)
         else:

@@ -33,7 +33,9 @@ class TestRouter(RouterTestcase):
 
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker.publish("hello", f"test/{r_queue.name}")),
+                    asyncio.create_task(
+                        broker.publish("hello", f"test/{r_queue.name}")
+                    ),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,

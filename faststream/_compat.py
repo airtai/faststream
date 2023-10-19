@@ -22,10 +22,12 @@ else:
 
 if sys.version_info < (3, 11):
     from typing_extensions import Never as Never
+    from typing_extensions import NotRequired as NotRequired
     from typing_extensions import Required as Required
     from typing_extensions import Self as Self
 else:
     from typing import Never as Never
+    from typing import NotRequired as NotRequired
     from typing import Required as Required
     from typing import Self as Self
 

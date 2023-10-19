@@ -1,3 +1,4 @@
+from faststream._compat import override
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.redis.broker import RedisBroker
 from faststream.redis.message import PubSubMessage
@@ -6,8 +7,9 @@ from faststream.redis.message import PubSubMessage
 class RedisRouter(StreamRouter[PubSubMessage]):
     broker_class = RedisBroker
 
+    @override
     @staticmethod
-    def _setup_log_context(
+    def _setup_log_context(  # type: ignore[override]
         main_broker: RedisBroker,
         including_broker: RedisBroker,
     ) -> None:

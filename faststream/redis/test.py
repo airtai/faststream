@@ -9,6 +9,7 @@ from faststream.redis.broker import RedisBroker
 from faststream.redis.message import PubSubMessage
 from faststream.redis.parser import RawMessage
 from faststream.redis.producer import RedisFastProducer
+from faststream.redis.schemas import INCORRECT_SETUP_MSG
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
 __all__ = ("TestRedisBroker",)
@@ -71,6 +72,10 @@ class FakeProducer(RedisFastProducer):
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
     ) -> Optional[DecodedMessage]:
+        any_of = channel or list
+        if any_of is None:
+            raise ValueError(INCORRECT_SETUP_MSG)
+
         for handler in self.broker.handlers.values():  # pragma: no branch
             call = False
             batch = False
@@ -96,7 +101,7 @@ class FakeProducer(RedisFastProducer):
                     handler=handler,
                     message=build_message(
                         message=[message] if batch else message,
-                        channel=channel or list,
+                        channel=any_of,
                         headers=headers,
                         correlation_id=correlation_id,
                         reply_to=reply_to,

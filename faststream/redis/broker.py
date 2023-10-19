@@ -272,6 +272,7 @@ class RedisBroker(
         *args: Any,
         **kwargs: Any,
     ) -> Optional[DecodedMessage]:
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
         return await self._producer.publish(*args, **kwargs)
 
     async def publish_batch(
@@ -279,4 +280,5 @@ class RedisBroker(
         *args: Any,
         **kwargs: Any,
     ) -> Optional[DecodedMessage]:
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
         return await self._producer.publish_batch(*args, **kwargs)

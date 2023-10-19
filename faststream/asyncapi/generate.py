@@ -1,7 +1,6 @@
 from typing import Any, Dict, List, Union
 
-from faststream._compat import is_installed, PYDANTIC_V2
-from faststream.types import AnyDict
+from faststream._compat import PYDANTIC_V2, is_installed
 from faststream.app import FastStream
 from faststream.asyncapi.schema import (
     Channel,
@@ -13,6 +12,7 @@ from faststream.asyncapi.schema import (
     Server,
 )
 from faststream.constants import ContentTypes
+from faststream.types import AnyDict
 
 if is_installed("fastapi"):
     from faststream.broker.fastapi.router import StreamRouter

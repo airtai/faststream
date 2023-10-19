@@ -1,12 +1,12 @@
 from typing import Any, Optional
 
-from faststream._compat import TypedDict
+from faststream._compat import NotRequired, TypedDict
 from faststream.broker.message import StreamMessage
 
 
 class PubSubMessage(TypedDict):
     type: str
-    pattern: Optional[bytes]
+    pattern: NotRequired[Optional[bytes]]
     channel: bytes
     data: bytes
 
