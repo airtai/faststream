@@ -1,0 +1,14 @@
+{
+    "title": "FastStream",
+    "description": "A powerful and easy-to-use Python framework for building asynchronous services interacting with event streams such as Apache Kafka, RabbitMQ and NATS.",
+    "links": {
+        "websiteUrl": "https://faststream.airt.ai",
+        "repoUrl": "https://github.com/airtai/FastStream"
+    },
+    "filters": {
+        "language": "Python",
+        "categories": ["code-first", "framework"],
+        "hasCommercial": false,
+        "isAsyncAPIOwner": false
+    }
+}
