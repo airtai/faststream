@@ -45,7 +45,7 @@
     <img src="https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg" alt="Code of Conduct">
   </a>
 
-  <a href="https://discord.gg/CJWmYpyFbc" target="_blank">
+  <a href="https://discord.gg/qFm6aSqq59" target="_blank">
       <img alt="Discord" src="https://img.shields.io/discord/1085457301214855171?logo=discord">
   </a>
 </p>
@@ -378,7 +378,7 @@ Please show your support and stay in touch by:
 
 - giving our [GitHub repository](https://github.com/airtai/faststream/) a star, and
 
-- joining our [Discord server](https://discord.gg/CJWmYpyFbc)
+- joining our [Discord server](https://discord.gg/qFm6aSqq59)
 
 Your support helps us to stay in touch with you and encourages us to
 continue developing and improving the framework. Thank you for your

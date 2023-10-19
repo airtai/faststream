@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Union
 
-from faststream._compat import is_installed
+from faststream._compat import is_installed, PYDANTIC_V2
+from faststream.types import AnyDict
 from faststream.app import FastStream
 from faststream.asyncapi.schema import (
     Channel,
@@ -185,12 +186,18 @@ def _resolve_msg_payloads(
     messages: Dict[str, Any],
 ) -> Reference:
     one_of_list: List[Reference] = []
+
+    pydantic_key = "$defs" if PYDANTIC_V2 else "definitions"
+
     for p_title, p in m.payload.get("oneOf", {}).items():
+        p = _move_pydantic_refs(p, pydantic_key)
+        payloads.update(p.pop(pydantic_key, {}))
         payloads[p_title] = p
         one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{p_title}"}))
 
     if not one_of_list:
-        p = m.payload
+        p = _move_pydantic_refs(m.payload, pydantic_key)
+        payloads.update(p.pop(pydantic_key, {}))
         p_title = p.get("title", f"{channel_name}Payload")
         payloads[p_title] = p
         m.payload = {"$ref": f"#/components/schemas/{p_title}"}
@@ -201,3 +208,19 @@ def _resolve_msg_payloads(
     assert m.title  # nosec B101
     messages[m.title] = m
     return Reference(**{"$ref": f"#/components/messages/{m.title}"})
+
+
+def _move_pydantic_refs(
+    original: AnyDict,
+    key: str,
+) -> AnyDict:
+    data = original.copy()
+
+    for k in data.keys():
+        if k == "$ref":
+            data[k] = data[k].replace(key, "components/schemas")
+
+        elif isinstance(data[k], dict):
+            data[k] = _move_pydantic_refs(data[k], key)
+
+    return data
