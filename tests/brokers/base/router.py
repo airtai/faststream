@@ -44,17 +44,18 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
 
         pub_broker.include_router(router)
 
-        await pub_broker.start()
+        async with pub_broker:
+            await pub_broker.start()
 
-        await asyncio.wait(
-            (
-                asyncio.create_task(pub_broker.publish("hello", queue)),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+            await asyncio.wait(
+                (
+                    asyncio.create_task(pub_broker.publish("hello", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
 
-        assert event.is_set()
+            assert event.is_set()
 
     async def test_not_empty_prefix(
         self,
@@ -71,17 +72,18 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
 
         pub_broker.include_router(router)
 
-        await pub_broker.start()
+        async with pub_broker:
+            await pub_broker.start()
 
-        await asyncio.wait(
-            (
-                asyncio.create_task(pub_broker.publish("hello", f"test_{queue}")),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+            await asyncio.wait(
+                (
+                    asyncio.create_task(pub_broker.publish("hello", f"test_{queue}")),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
 
-        assert event.is_set()
+            assert event.is_set()
 
     async def test_empty_prefix_publisher(
         self,
@@ -101,17 +103,18 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
 
         pub_broker.include_router(router)
 
-        await pub_broker.start()
+        async with pub_broker:
+            await pub_broker.start()
 
-        await asyncio.wait(
-            (
-                asyncio.create_task(pub_broker.publish("hello", queue)),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+            await asyncio.wait(
+                (
+                    asyncio.create_task(pub_broker.publish("hello", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
 
-        assert event.is_set()
+            assert event.is_set()
 
     async def test_not_empty_prefix_publisher(
         self,
@@ -133,17 +136,18 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
 
         pub_broker.include_router(router)
 
-        await pub_broker.start()
+        async with pub_broker:
+            await pub_broker.start()
 
-        await asyncio.wait(
-            (
-                asyncio.create_task(pub_broker.publish("hello", f"test_{queue}")),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+            await asyncio.wait(
+                (
+                    asyncio.create_task(pub_broker.publish("hello", f"test_{queue}")),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
 
-        assert event.is_set()
+            assert event.is_set()
 
     async def test_manual_publisher(
         self,
@@ -166,17 +170,18 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
 
         pub_broker.include_router(router)
 
-        await pub_broker.start()
+        async with pub_broker:
+            await pub_broker.start()
 
-        await asyncio.wait(
-            (
-                asyncio.create_task(pub_broker.publish("hello", f"test_{queue}")),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+            await asyncio.wait(
+                (
+                    asyncio.create_task(pub_broker.publish("hello", f"test_{queue}")),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
 
-        assert event.is_set()
+            assert event.is_set()
 
     async def test_delayed_handlers(
         self,
@@ -192,17 +197,18 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
 
         pub_broker.include_router(r)
 
-        await pub_broker.start()
+        async with pub_broker:
+            await pub_broker.start()
 
-        await asyncio.wait(
-            (
-                asyncio.create_task(pub_broker.publish("hello", f"test_{queue}")),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+            await asyncio.wait(
+                (
+                    asyncio.create_task(pub_broker.publish("hello", f"test_{queue}")),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
 
-        assert event.is_set()
+            assert event.is_set()
 
     async def test_nested_routers_sub(
         self,
@@ -224,20 +230,21 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
         core_router.include_routers(router)
         pub_broker.include_routers(core_router)
 
-        await pub_broker.start()
+        async with pub_broker:
+            await pub_broker.start()
 
-        await asyncio.wait(
-            (
-                asyncio.create_task(
-                    pub_broker.publish("hello", f"test1_test2_{queue}")
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        pub_broker.publish("hello", f"test1_test2_{queue}")
+                    ),
+                    asyncio.create_task(event.wait()),
                 ),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+                timeout=3,
+            )
 
-        assert event.is_set()
-        mock.assert_called_with("hello")
+            assert event.is_set()
+            mock.assert_called_with("hello")
 
     async def test_nested_routers_pub(
         self,
@@ -261,19 +268,20 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
         core_router.include_routers(router)
         pub_broker.include_routers(core_router)
 
-        await pub_broker.start()
+        async with pub_broker:
+            await pub_broker.start()
 
-        await asyncio.wait(
-            (
-                asyncio.create_task(
-                    pub_broker.publish("hello", f"test1_test2_{queue}")
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        pub_broker.publish("hello", f"test1_test2_{queue}")
+                    ),
+                    asyncio.create_task(event.wait()),
                 ),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+                timeout=3,
+            )
 
-        assert event.is_set()
+            assert event.is_set()
 
     async def test_router_dependencies(
         self,
@@ -300,19 +308,20 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
 
         pub_broker.include_routers(router)
 
-        await pub_broker.start()
+        async with pub_broker:
+            await pub_broker.start()
 
-        await asyncio.wait(
-            (
-                asyncio.create_task(pub_broker.publish("hello", queue)),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+            await asyncio.wait(
+                (
+                    asyncio.create_task(pub_broker.publish("hello", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
 
-        assert event.is_set()
-        mock.dep1.assert_called_once()
-        mock.dep2.assert_called_once()
+            assert event.is_set()
+            mock.dep1.assert_called_once()
+            mock.dep2.assert_called_once()
 
     async def test_router_middlewares(
         self,
@@ -339,19 +348,20 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
 
         pub_broker.include_routers(router)
 
-        await pub_broker.start()
+        async with pub_broker:
+            await pub_broker.start()
 
-        await asyncio.wait(
-            (
-                asyncio.create_task(pub_broker.publish("hello", queue)),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+            await asyncio.wait(
+                (
+                    asyncio.create_task(pub_broker.publish("hello", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
 
-        assert event.is_set()
-        mock.mid1.assert_called_once()
-        mock.mid2.assert_called_once()
+            assert event.is_set()
+            mock.mid1.assert_called_once()
+            mock.mid2.assert_called_once()
 
     async def test_router_parser(
         self,
@@ -380,19 +390,20 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
 
         pub_broker.include_routers(router)
 
-        await pub_broker.start()
+        async with pub_broker:
+            await pub_broker.start()
 
-        await asyncio.wait(
-            (
-                asyncio.create_task(pub_broker.publish("hello", queue)),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+            await asyncio.wait(
+                (
+                    asyncio.create_task(pub_broker.publish("hello", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
 
-        assert event.is_set()
-        mock.parser.assert_called_once()
-        mock.decoder.assert_called_once()
+            assert event.is_set()
+            mock.parser.assert_called_once()
+            mock.decoder.assert_called_once()
 
     async def test_router_parser_override(
         self,
@@ -429,20 +440,21 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
 
         pub_broker.include_routers(router)
 
-        await pub_broker.start()
+        async with pub_broker:
+            await pub_broker.start()
 
-        await asyncio.wait(
-            (
-                asyncio.create_task(pub_broker.publish("hello", queue)),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+            await asyncio.wait(
+                (
+                    asyncio.create_task(pub_broker.publish("hello", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
 
-        assert event.is_set()
-        assert not mock.called
-        mock.parser.assert_called_once()
-        mock.decoder.assert_called_once()
+            assert event.is_set()
+            assert not mock.called
+            mock.parser.assert_called_once()
+            mock.decoder.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -468,18 +480,19 @@ class RouterLocalTestcase(RouterTestcase):
 
         pub_broker.include_router(router)
 
-        await pub_broker.start()
+        async with pub_broker:
+            await pub_broker.start()
 
-        await asyncio.wait(
-            (
-                asyncio.create_task(pub_broker.publish("hello", queue)),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+            await asyncio.wait(
+                (
+                    asyncio.create_task(pub_broker.publish("hello", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
 
-        assert event.is_set()
-        pub.mock.assert_called_with("hi")
+            assert event.is_set()
+            pub.mock.assert_called_with("hi")
 
     async def test_subscriber_mock(
         self,
@@ -495,18 +508,19 @@ class RouterLocalTestcase(RouterTestcase):
 
         pub_broker.include_router(router)
 
-        await pub_broker.start()
+        async with pub_broker:
+            await pub_broker.start()
 
-        await asyncio.wait(
-            (
-                asyncio.create_task(pub_broker.publish("hello", queue)),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+            await asyncio.wait(
+                (
+                    asyncio.create_task(pub_broker.publish("hello", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
 
-        assert event.is_set()
-        subscriber.mock.assert_called_with("hello")
+            assert event.is_set()
+            subscriber.mock.assert_called_with("hello")
 
     async def test_manual_publisher_mock(
         self, router: BrokerRouter, queue: str, pub_broker: BrokerAsyncUsecase
@@ -518,6 +532,7 @@ class RouterLocalTestcase(RouterTestcase):
             await publisher.publish("response")
 
         pub_broker.include_router(router)
-        await pub_broker.start()
-        await pub_broker.publish("hello", queue)
-        publisher.mock.assert_called_with("response")
+        async with pub_broker:
+            await pub_broker.start()
+            await pub_broker.publish("hello", queue)
+            publisher.mock.assert_called_with("response")

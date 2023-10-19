@@ -24,16 +24,17 @@ class TestConsume(BrokerRealConsumeTestcase):
         def subscriber(m):
             event.set()
 
-        await consume_broker.start()
-        await asyncio.wait(
-            (
-                asyncio.create_task(
-                    consume_broker.publish("hello", queue, stream=stream.name)
+        async with consume_broker:
+            await consume_broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        consume_broker.publish("hello", queue, stream=stream.name)
+                    ),
+                    asyncio.create_task(event.wait()),
                 ),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+                timeout=3,
+            )
 
         assert event.is_set()
 
@@ -49,21 +50,22 @@ class TestConsume(BrokerRealConsumeTestcase):
         async def handler(msg: NatsMessage):
             event.set()
 
-        await full_broker.start()
-        with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
-            await asyncio.wait(
-                (
-                    asyncio.create_task(
-                        full_broker.publish(
-                            "hello",
-                            queue,
-                        )
+        async with full_broker:
+            await full_broker.start()
+            with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(
+                            full_broker.publish(
+                                "hello",
+                                queue,
+                            )
+                        ),
+                        asyncio.create_task(event.wait()),
                     ),
-                    asyncio.create_task(event.wait()),
-                ),
-                timeout=3,
-            )
-            m.mock.assert_called_once()
+                    timeout=3,
+                )
+                m.mock.assert_called_once()
 
         assert event.is_set()
 
@@ -80,21 +82,22 @@ class TestConsume(BrokerRealConsumeTestcase):
             await msg.ack()
             event.set()
 
-        await full_broker.start()
-        with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
-            await asyncio.wait(
-                (
-                    asyncio.create_task(
-                        full_broker.publish(
-                            "hello",
-                            queue,
-                        )
+        async with full_broker:
+            await full_broker.start()
+            with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(
+                            full_broker.publish(
+                                "hello",
+                                queue,
+                            )
+                        ),
+                        asyncio.create_task(event.wait()),
                     ),
-                    asyncio.create_task(event.wait()),
-                ),
-                timeout=3,
-            )
-            m.mock.assert_called_once()
+                    timeout=3,
+                )
+                m.mock.assert_called_once()
 
         assert event.is_set()
 
@@ -111,21 +114,22 @@ class TestConsume(BrokerRealConsumeTestcase):
             event.set()
             raise AckMessage()
 
-        await full_broker.start()
-        with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
-            await asyncio.wait(
-                (
-                    asyncio.create_task(
-                        full_broker.publish(
-                            "hello",
-                            queue,
-                        )
+        async with full_broker:
+            await full_broker.start()
+            with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(
+                            full_broker.publish(
+                                "hello",
+                                queue,
+                            )
+                        ),
+                        asyncio.create_task(event.wait()),
                     ),
-                    asyncio.create_task(event.wait()),
-                ),
-                timeout=3,
-            )
-            m.mock.assert_called_once()
+                    timeout=3,
+                )
+                m.mock.assert_called_once()
 
         assert event.is_set()
 
@@ -142,20 +146,21 @@ class TestConsume(BrokerRealConsumeTestcase):
             await msg.nack()
             event.set()
 
-        await full_broker.start()
-        with patch.object(Msg, "nak", spy_decorator(Msg.nak)) as m:
-            await asyncio.wait(
-                (
-                    asyncio.create_task(
-                        full_broker.publish(
-                            "hello",
-                            queue,
-                        )
+        async with full_broker:
+            await full_broker.start()
+            with patch.object(Msg, "nak", spy_decorator(Msg.nak)) as m:
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(
+                            full_broker.publish(
+                                "hello",
+                                queue,
+                            )
+                        ),
+                        asyncio.create_task(event.wait()),
                     ),
-                    asyncio.create_task(event.wait()),
-                ),
-                timeout=3,
-            )
-            m.mock.assert_called_once()
+                    timeout=3,
+                )
+                m.mock.assert_called_once()
 
         assert event.is_set()

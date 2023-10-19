@@ -67,7 +67,7 @@ nats = [
 ]
 
 redis = [
-    "redis>=4.2.0rc1"
+    "redis>=5.0.0"
 ]
 
 docs = [

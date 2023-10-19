@@ -1,6 +1,16 @@
 from functools import partial, wraps
 from types import TracebackType
-from typing import Any, Awaitable, Callable, Dict, Optional, Sequence, Type
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    Optional,
+    Sequence,
+    Type,
+    TypeAlias,
+    Union,
+)
 
 from fast_depends.dependencies import Depends
 from redis.asyncio.client import Redis
@@ -25,11 +35,12 @@ from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.redis.asyncapi import Handler, Publisher
 from faststream.redis.message import PubSubMessage, RedisMessage
 from faststream.redis.producer import RedisFastProducer
+from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub
 from faststream.redis.shared.logging import RedisLoggingMixin
 from faststream.types import AnyDict, DecodedMessage
 from faststream.utils.context.main import context
 
-Channel = str
+Channel: TypeAlias = str
 
 
 class RedisBroker(
@@ -94,7 +105,7 @@ class RedisBroker(
         exec_tb: Optional[TracebackType] = None,
     ) -> None:
         if self._connection is not None:
-            await self._connection.close()
+            await self._connection.aclose()
 
         await super()._close(exc_type, exc_val, exec_tb)
 
@@ -108,7 +119,7 @@ class RedisBroker(
         assert self._connection, NOT_CONNECTED_YET  # nosec B101
 
         for handler in self.handlers.values():
-            c = self._get_log_context(None, handler.channel)
+            c = self._get_log_context(None, handler.channel_name)
             self._log(f"`{handler.call_name}` waiting for messages", extra=c)
             await handler.start(self._connection)
 
@@ -142,12 +153,9 @@ class RedisBroker(
     @override
     def subscriber(  # type: ignore[override]
         self,
-        channel: Channel,
-        pattern: bool = False,
-        list: bool = False,
-        batch: bool = False,
-        max_records: int = 10,
-        polling_interval: Optional[float] = None,
+        channel: Union[Channel, PubSub, None] = None,
+        *,
+        list: Union[Channel, ListSub, None] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
         parser: Optional[CustomParser[PubSubMessage, RedisMessage]] = None,
@@ -165,33 +173,34 @@ class RedisBroker(
         [Callable[P_HandlerParams, T_HandlerReturn]],
         HandlerCallWrapper[Any, P_HandlerParams, T_HandlerReturn],
     ]:
-        if list and pattern:
-            raise ValueError("You can't use pattern with `list` subscriber type")
+        channel = PubSub.validate(channel)
+        list = ListSub.validate(list)
 
-        self._setup_log_context(channel=channel)
+        any_of = channel or list
+        if any_of is None:
+            raise ValueError("You should specify `channel` or `list` subscriber type")
+
+        if any((all((channel, list)),)):
+            raise ValueError("You can't use `PubSub` and `ListSub` both")
+
+        self._setup_log_context(channel=any_of.name)
         super().subscriber()
 
-        key = Handler.get_routing_hash(channel)
+        key = Handler.get_routing_hash(any_of)
         handler = self.handlers[key] = self.handlers.get(
             key,
             Handler(
-                channel=channel,
-                pattern=pattern,
-                list=list,
-                batch=batch,
-                max_records=max_records,
-                polling_interval=(
-                    polling_interval
-                    if polling_interval is not None
-                    else self.global_polling_interval
+                log_context_builder=partial(
+                    self._get_log_context,
+                    channel=any_of.name,
                 ),
+                # Redis
+                channel=channel,
+                list=list,
+                # AsyncAPI
                 title=title,
                 description=description,
                 include_in_schema=include_in_schema,
-                log_context_builder=partial(
-                    self._get_log_context,
-                    channel=channel,
-                ),
             ),
         )
 
@@ -220,7 +229,8 @@ class RedisBroker(
     @override
     def publisher(  # type: ignore[override]
         self,
-        channel: str,
+        channel: Union[Channel, PubSub, None] = None,
+        list: Union[Channel, ListSub, None] = None,
         headers: Optional[AnyDict] = None,
         reply_to: str = "",
         # AsyncAPI information
@@ -229,10 +239,19 @@ class RedisBroker(
         schema: Optional[Any] = None,
         include_in_schema: bool = True,
     ):
+        channel = PubSub.validate(channel)
+        list = ListSub.validate(list)
+
+        any_of = channel or list
+        if any_of is None:
+            raise ValueError(INCORRECT_SETUP_MSG)
+
+        key = Handler.get_routing_hash(any_of)
         publisher = self._publishers.get(
-            channel,
+            key,
             Publisher(
                 channel=channel,
+                list=list,
                 headers=headers,
                 reply_to=reply_to,
                 # AsyncAPI
@@ -242,7 +261,7 @@ class RedisBroker(
                 include_in_schema=include_in_schema,
             ),
         )
-        super().publisher(channel, publisher)
+        super().publisher(key, publisher)
         if self._producer is not None:
             publisher._producer = self._producer
         return publisher
@@ -254,3 +273,10 @@ class RedisBroker(
         **kwargs: Any,
     ) -> Optional[DecodedMessage]:
         return await self._producer.publish(*args, **kwargs)
+
+    async def publish_batch(
+        self,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Optional[DecodedMessage]:
+        return await self._producer.publish_batch(*args, **kwargs)

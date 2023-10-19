@@ -1,7 +1,17 @@
 import logging
 from functools import partial, wraps
 from types import TracebackType
-from typing import Any, Awaitable, Callable, Dict, Optional, Sequence, Type, Union
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    Optional,
+    Sequence,
+    Type,
+    TypeAlias,
+    Union,
+)
 
 import nats
 from fast_depends.dependencies import Depends
@@ -43,7 +53,7 @@ from faststream.nats.shared.logging import NatsLoggingMixin
 from faststream.types import AnyDict, DecodedMessage
 from faststream.utils.context.main import context
 
-Subject = str
+Subject: TypeAlias = str
 
 
 class NatsBroker(

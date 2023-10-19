@@ -1,7 +1,8 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
-from faststream._compat import override
-from faststream.redis.asyncapi import Publisher
+from faststream._compat import model_copy, override
+from faststream.redis.asyncapi import Handler, Publisher
+from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub
 from faststream.redis.shared.router import RedisRouter as BaseRouter
 from faststream.types import AnyDict
 
@@ -12,7 +13,10 @@ class RedisRouter(BaseRouter):
     @override
     @staticmethod
     def _get_publisher_key(publisher: Publisher) -> str:  # type: ignore[override]
-        return publisher.channel
+        any_of = publisher.channel or publisher.list
+        if any_of is None:
+            raise ValueError(INCORRECT_SETUP_MSG)
+        return Handler.get_routing_hash(any_of)
 
     @override
     @staticmethod
@@ -20,13 +24,23 @@ class RedisRouter(BaseRouter):
         prefix: str,
         publisher: Publisher,
     ) -> Publisher:
-        publisher.channel = prefix + publisher.channel
+        if publisher.channel is not None:
+            publisher.channel = model_copy(
+                publisher.channel, update={"name": prefix + publisher.channel.name}
+            )
+        elif publisher.list is not None:
+            publisher.list = model_copy(
+                publisher.list, update={"name": prefix + publisher.list.name}
+            )
+        else:
+            raise AssertionError("unreachable")
         return publisher
 
     @override
     def publisher(  # type: ignore[override]
         self,
-        channel: str,
+        channel: Union[str, PubSub, None] = None,
+        list: Union[str, ListSub, None] = None,
         headers: Optional[AnyDict] = None,
         reply_to: str = "",
         # AsyncAPI information
@@ -35,10 +49,14 @@ class RedisRouter(BaseRouter):
         schema: Optional[Any] = None,
         include_in_schema: bool = True,
     ) -> Publisher:
+        if list is None and channel is None:
+            raise ValueError(INCORRECT_SETUP_MSG)
+
         new_publisher = self._update_publisher_prefix(
             self.prefix,
             Publisher(
-                channel=channel,
+                channel=PubSub.validate(channel),
+                list=PubSub.validate(list),
                 reply_to=reply_to,
                 headers=headers,
                 title=title,

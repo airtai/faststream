@@ -18,6 +18,8 @@ if sys.version_info < (3, 12):
 else:
     from typing import TypedDict as TypedDict
     from typing import Unpack as Unpack
+    from typing import override as override
+
 
 if sys.version_info < (3, 11):
     from typing_extensions import Never as Never
@@ -83,8 +85,6 @@ if is_installed("fastapi"):
 JsonSchemaValue = Mapping[str, Any]
 
 if PYDANTIC_V2:
-    from pydantic import ConfigDict as ConfigDict
-
     if PYDANTIC_VERSION >= "2.4.0":
         from pydantic.annotated_handlers import (
             GetJsonSchemaHandler as GetJsonSchemaHandler,
@@ -135,17 +135,10 @@ if PYDANTIC_V2:
         return model.model_copy(**kwargs)
 
 else:
-    from pydantic.config import BaseConfig, get_config
-    from pydantic.config import ConfigDict as CD
     from pydantic.json import pydantic_encoder
 
     GetJsonSchemaHandler = Any  # type: ignore[assignment,misc]
     CoreSchema = Any  # type: ignore[assignment,misc]
-
-    def ConfigDict(  # type: ignore[no-redef]
-        **kwargs: Any,
-    ) -> Type[BaseConfig]:
-        return get_config(CD(**kwargs))  # type: ignore
 
     SCHEMA_FIELD = "schema_extra"
 

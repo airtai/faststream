@@ -19,7 +19,17 @@ class Handler(LogicRedisHandler):
             return {}
 
         payloads = self.get_payloads()
-        handler_name = self._title or f"{self.channel}:{self.call_name}"
+        handler_name = self._title or f"{self.channel_name}:{self.call_name}"
+
+        method = None
+        if self.list_sub is not None:
+            method = "lpop"
+        elif (ch := self.channel) is not None:
+            if ch.pattern:
+                method = "psubscribe"
+            else:
+                method = "subscribe"
+
         return {
             handler_name: Channel(
                 description=self.description,
@@ -34,8 +44,8 @@ class Handler(LogicRedisHandler):
                 ),
                 bindings=ChannelBinding(
                     redis=redis.ChannelBinding(
-                        channel=self.channel,
-                        method="psubscribe" if self.pattern else "subscribe",
+                        channel=self.channel_name,
+                        method=method,
                     )
                 ),
             )
@@ -48,6 +58,12 @@ class Publisher(LogicPublisher):
             return {}
 
         payloads = self.get_payloads()
+
+        method = None
+        if self.list is not None:
+            method = "rpush"
+        elif self.channel is not None:
+            method = "publish"
 
         return {
             self.name: Channel(
@@ -63,7 +79,8 @@ class Publisher(LogicPublisher):
                 ),
                 bindings=ChannelBinding(
                     redis=redis.ChannelBinding(
-                        channel=self.channel,
+                        channel=self.channel_name,
+                        method=method,
                     )
                 ),
             )
@@ -71,4 +88,4 @@ class Publisher(LogicPublisher):
 
     @property
     def name(self) -> str:
-        return self.title or f"{self.channel}:Publisher"
+        return self.title or f"{self.channel_name}:Publisher"

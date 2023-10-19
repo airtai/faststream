@@ -3,7 +3,7 @@ from uuid import uuid4
 
 from redis.asyncio.client import PubSub, Redis
 
-from faststream.broker.parsers import resolve_custom_func
+from faststream.broker.parsers import encode_message, resolve_custom_func
 from faststream.broker.types import (
     AsyncCustomDecoder,
     AsyncCustomParser,
@@ -13,6 +13,7 @@ from faststream.broker.types import (
 from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.redis.message import PubSubMessage, RedisMessage
 from faststream.redis.parser import RawMessage, RedisParser
+from faststream.redis.schemas import INCORRECT_SETUP_MSG
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
 from faststream.utils.functions import timeout_scope
 
@@ -35,15 +36,19 @@ class RedisFastProducer:
     async def publish(
         self,
         message: SendableMessage,
-        channel: str,
+        channel: Optional[str] = None,
         reply_to: str = "",
         headers: Optional[AnyDict] = None,
         correlation_id: Optional[str] = None,
         *,
+        list: Optional[str] = None,
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
     ) -> Optional[DecodedMessage]:
+        if not (channel or list):
+            raise ValueError(INCORRECT_SETUP_MSG)
+
         psub: Optional[PubSub] = None
         if rpc is True:
             if reply_to:
@@ -53,15 +58,19 @@ class RedisFastProducer:
             psub = self._connection.pubsub()
             await psub.subscribe(reply_to)
 
-        await self._connection.publish(
-            channel,
-            RawMessage.encode(
-                message=message,
-                reply_to=reply_to,
-                headers=headers,
-                correlation_id=correlation_id,
-            ),
+        msg = RawMessage.encode(
+            message=message,
+            reply_to=reply_to,
+            headers=headers,
+            correlation_id=correlation_id,
         )
+
+        if channel is not None:
+            await self._connection.publish(channel, msg)
+        elif list is not None:
+            await self._connection.rpush(list, msg)
+        else:
+            raise AssertionError("unreachable")
 
         if psub is None:
             return None
@@ -82,7 +91,7 @@ class RedisFastProducer:
                 )
 
             await psub.unsubscribe()
-            await psub.reset()
+            await psub.aclose()
 
             if m is None:
                 if raise_timeout:
@@ -91,3 +100,12 @@ class RedisFastProducer:
                     return None
             else:
                 return await self._decoder(await self._parser(m))
+
+    async def publish_batch(
+        self,
+        *msgs: SendableMessage,
+        list: str,
+    ) -> None:
+        batch = (encode_message(msg)[0] for msg in msgs)
+
+        await self._connection.rpush(list, *batch)

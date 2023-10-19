@@ -1,11 +1,11 @@
 import asyncio
-import json
 from functools import partial
-from typing import Any, Awaitable, Callable, Dict, Optional, Sequence
+from typing import Any, Awaitable, Callable, Dict, Hashable, Optional, Sequence
 
 import anyio
 from fast_depends.core import CallModel
-from redis.asyncio.client import PubSub, Redis
+from redis.asyncio.client import PubSub as RPubSub
+from redis.asyncio.client import Redis
 
 from faststream.broker.handler import AsyncHandler
 from faststream.broker.message import StreamMessage
@@ -20,43 +20,28 @@ from faststream.broker.types import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.redis.message import PubSubMessage, RedisMessage
-from faststream.redis.parser import RedisParser
-from faststream.utils.context.path import compile_path
+from faststream.redis.parser import RawMessage, RedisParser
+from faststream.redis.schemas import ListSub, PubSub
 
 
 class LogicRedisHandler(AsyncHandler[PubSubMessage]):
-    subscription: Optional[PubSub]
+    subscription: Optional[RPubSub]
     task: Optional["asyncio.Task[Any]"]
 
     def __init__(
         self,
-        channel: str,
+        *,
         log_context_builder: Callable[[StreamMessage[Any]], Dict[str, str]],
         # Redis info
-        pattern: bool = False,
-        list: bool = False,
-        batch: bool = False,
-        max_records: int = 10,
-        polling_interval: Optional[float] = None,
+        channel: Optional[PubSub] = None,
+        list: Optional[ListSub] = None,
         # AsyncAPI information
         description: Optional[str] = None,
         title: Optional[str] = None,
         include_in_schema: bool = True,
     ):
-        reg, path = compile_path(channel, replace_symbol="*")
-
-        if list and reg:
-            raise ValueError("You can't use pattern with `list` subscriber type")
-
-        self.path_regex = reg
-        self.channel = path
-        self.pattern = pattern
-
-        self.list = list
-        self.batch = batch
-        self.max_records = max_records
-
-        self.polling_interval = polling_interval
+        self.channel = channel
+        self.list_sub = list
 
         self.subscription = None
         self.task = None
@@ -67,6 +52,10 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
             title=title,
             include_in_schema=include_in_schema,
         )
+
+    @property
+    def channel_name(self) -> str:
+        return (self.channel or self.list_sub).name
 
     def add_call(
         self,
@@ -91,29 +80,32 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
         consume: Callable[[], Awaitable[PubSubMessage]]
         sleep: float
 
-        if self.list:
-            sleep = self.polling_interval or 0.1
+        if (list_sub := self.list_sub) is not None:
+            sleep = list_sub.polling_interval
             consume = partial(
                 consume_list_msg,
                 client=client,
-                name=self.channel,
-                count=self.max_records if self.batch else None,
+                name=list_sub.name,
+                count=list_sub.records,
             )
 
-        else:
+        elif (channel := self.channel) is not None:
             self.subscription = psub = client.pubsub()
 
-            if self.pattern is True:
-                await psub.psubscribe(self.channel)
+            if channel.pattern:
+                await psub.psubscribe(channel.name)
             else:
-                await psub.subscribe(self.channel)
+                await psub.subscribe(channel.name)
 
             consume = partial(
                 psub.get_message,
                 ignore_subscribe_messages=True,
-                timeout=self.polling_interval or 1.0,
+                timeout=channel.polling_interval,
             )
             sleep = 0.01
+
+        else:
+            raise AssertionError("unreachable")
 
         self.task = asyncio.create_task(self._consume(consume, sleep))
 
@@ -124,12 +116,12 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
 
         if self.subscription is not None:
             await self.subscription.unsubscribe()
-            await self.subscription.reset()
+            await self.subscription.aclose()
             self.subscription = None
 
     @staticmethod
-    def get_routing_hash(channel: str) -> str:
-        return channel
+    def get_routing_hash(channel: Hashable) -> int:
+        return hash(channel)
 
     async def _consume(
         self,
@@ -165,11 +157,11 @@ async def consume_list_msg(
     msg = await client.lpop(name=name, count=count)
 
     if msg:
-        if isinstance(msg, list):
-            msg = json.dumps([x.decode() for x in msg]).encode()
+        if count is not None:
+            msg = RawMessage.build(msg).data
 
         return PubSubMessage(
-            type="message",
+            type="message" if count is None else "batch",
             channel=name.encode(),
             data=msg,
         )

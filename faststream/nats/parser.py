@@ -20,7 +20,7 @@ class NatsParser:
     ) -> StreamMessage[Msg]:
         headers = message.header or {}
 
-        handler = context.get("handler_")
+        handler = context.get_local("handler_")
         path: AnyDict = {}
         path_re: Optional[Pattern[str]]
         if handler and (path_re := handler.path_regex):

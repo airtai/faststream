@@ -16,13 +16,13 @@ class RawMessage(BaseModel):
     headers: AnyDict = Field(default_factory=dict)
 
     @classmethod
-    def encode(
+    def build(
         cls,
         message: SendableMessage,
         reply_to: str = "",
         headers: Optional[AnyDict] = None,
         correlation_id: Optional[str] = None,
-    ) -> str:
+    ) -> "RawMessage":
         payload, content_type = encode_message(message)
 
         headers_to_send = {
@@ -38,10 +38,25 @@ class RawMessage(BaseModel):
         if headers is not None:
             headers_to_send.update(headers)
 
+        return cls(
+            data=payload,
+            headers=headers_to_send,
+        )
+
+    @classmethod
+    def encode(
+        cls,
+        message: SendableMessage,
+        reply_to: str = "",
+        headers: Optional[AnyDict] = None,
+        correlation_id: Optional[str] = None,
+    ) -> str:
         return model_to_json(
-            cls(
-                data=payload,
-                headers=headers_to_send,
+            cls.build(
+                message=message,
+                reply_to=reply_to,
+                headers=headers,
+                correlation_id=correlation_id,
             )
         )
 
@@ -55,10 +70,14 @@ class RedisParser:
 
         channel = message.get("channel", b"").decode()
 
-        handler = context.get("handler_")
+        handler = context.get_local("handler_")
         path: AnyDict = {}
         path_re: Optional[Pattern[str]]
-        if handler and (path_re := handler.path_regex):
+        if (
+            handler
+            and handler.channel is not None
+            and (path_re := handler.channel.path_regex) is not None
+        ):
             if path_re is not None:
                 match = path_re.match(channel)
                 if match:

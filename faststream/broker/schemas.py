@@ -60,6 +60,9 @@ class NameRequired(BaseModel):
         """
         super().__init__(name=name, **kwargs)
 
+    def __hash__(self) -> int:
+        return hash(self.name)
+
     @overload
     @classmethod
     def validate(

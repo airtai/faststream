@@ -3,7 +3,7 @@ import asyncio
 import pytest
 
 from faststream import BaseMiddleware
-from faststream.redis import RedisBroker, TestRedisBroker
+from faststream.redis import ListSub, RedisBroker, TestRedisBroker
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
@@ -83,3 +83,73 @@ class TestTestclient(BrokerTestclientTestcase):
             await h2.wait_call(3)
 
         assert len(routes) == 2
+
+    async def test_pub_sub_pattern(
+        self,
+        test_broker: RedisBroker,
+    ):
+        @test_broker.subscriber("test.{name}")
+        async def handler(msg):
+            return msg
+
+        await test_broker.start()
+
+        assert 1 == await test_broker.publish(1, "test.name.useless", rpc=True)
+        handler.mock.assert_called_once_with(1)
+
+    async def test_list(
+        self,
+        test_broker: RedisBroker,
+    ):
+        @test_broker.subscriber(list="test")
+        async def handler(msg):
+            return msg
+
+        await test_broker.start()
+
+        assert 1 == await test_broker.publish(1, list="test", rpc=True)
+        handler.mock.assert_called_once_with(1)
+
+    async def test_batch_pub_by_default_pub(
+        self,
+        test_broker: RedisBroker,
+        queue: str,
+    ):
+        @test_broker.subscriber(list=ListSub(queue, batch=True))
+        async def m():
+            pass
+
+        await test_broker.start()
+        await test_broker.publish("hello", list=queue)
+        m.mock.assert_called_once_with(["hello"])
+
+    async def test_batch_pub_by_pub_batch(
+        self,
+        test_broker: RedisBroker,
+        queue: str,
+    ):
+        @test_broker.subscriber(list=ListSub(queue, batch=True))
+        async def m():
+            pass
+
+        await test_broker.start()
+        await test_broker.publish_batch("hello", list=queue)
+        m.mock.assert_called_once_with(["hello"])
+
+    async def test_batch_publisher_mock(
+        self,
+        test_broker: RedisBroker,
+        queue: str,
+    ):
+        batch_list = ListSub(queue + "1", batch=True)
+        publisher = test_broker.publisher(list=batch_list)
+
+        @publisher
+        @test_broker.subscriber(queue)
+        async def m():
+            return 1, 2, 3
+
+        await test_broker.start()
+        await test_broker.publish("hello", queue)
+        m.mock.assert_called_once_with("hello")
+        publisher.mock.assert_called_once_with([1, 2, 3])

@@ -12,4 +12,4 @@ class RedisRouter(StreamRouter[PubSubMessage]):
         including_broker: RedisBroker,
     ) -> None:
         for h in including_broker.handlers.values():
-            main_broker._setup_log_context(h.channel)
+            main_broker._setup_log_context(h.channel_name)

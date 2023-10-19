@@ -9,6 +9,7 @@ from faststream.rabbit import (
     RabbitQueue,
     TestRabbitBroker,
 )
+from faststream.redis import RedisBroker, TestRedisBroker
 
 
 @pytest.mark.asyncio
@@ -25,6 +26,28 @@ async def test_nats_path():
         return 1
 
     async with TestNatsBroker(broker) as br:
+        assert 1 == await br.publish(
+            "",
+            "in.john.1",
+            rpc=True,
+            rpc_timeout=1.0,
+        )
+
+
+@pytest.mark.asyncio
+async def test_redis_path():
+    broker = RedisBroker()
+
+    @broker.subscriber("in.{name}.{id}")
+    async def h(
+        name: str = Path(),
+        id_: int = Path("id"),
+    ):
+        assert name == "john"
+        assert id_ == 1
+        return 1
+
+    async with TestRedisBroker(broker) as br:
         assert 1 == await br.publish(
             "",
             "in.john.1",

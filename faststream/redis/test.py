@@ -1,3 +1,4 @@
+import re
 from typing import Any, Optional
 
 from faststream._compat import override
@@ -27,7 +28,8 @@ class TestRedisBroker(TestBroker[RedisBroker]):
         publisher: Publisher,
     ) -> HandlerCallWrapper[Any, Any, Any]:
         @broker.subscriber(
-            publisher.channel,
+            channel=publisher.channel,
+            list=publisher.list,
             _raw=True,
         )
         def f(msg: Any) -> None:
@@ -59,33 +61,46 @@ class FakeProducer(RedisFastProducer):
     async def publish(
         self,
         message: SendableMessage,
-        channel: str,
+        channel: Optional[str] = None,
         reply_to: str = "",
         headers: Optional[AnyDict] = None,
         correlation_id: Optional[str] = None,
         *,
+        list: Optional[str] = None,
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
     ) -> Optional[DecodedMessage]:
-        incoming = build_message(
-            message=message,
-            channel=channel,
-            headers=headers,
-            correlation_id=correlation_id,
-            reply_to=reply_to,
-        )
-
         for handler in self.broker.handlers.values():  # pragma: no branch
             call = False
+            batch = False
 
-            if channel == handler.channel:
-                call = True
+            if channel and (ch := handler.channel) is not None:
+                call = bool(
+                    (not ch.pattern and ch.name == channel)
+                    or (
+                        ch.pattern
+                        and re.match(
+                            ch.name.replace(".", "\\.").replace("*", ".*"),
+                            channel,
+                        )
+                    )
+                )
+
+            if list and (ls := handler.list_sub) is not None:
+                batch = ls.batch
+                call = list == ls.name
 
             if call:
                 r = await call_handler(
                     handler=handler,
-                    message=incoming,
+                    message=build_message(
+                        message=[message] if batch else message,
+                        channel=channel or list,
+                        headers=headers,
+                        correlation_id=correlation_id,
+                        reply_to=reply_to,
+                    ),
                     rpc=rpc,
                     rpc_timeout=rpc_timeout,
                     raise_timeout=raise_timeout,
@@ -93,6 +108,23 @@ class FakeProducer(RedisFastProducer):
 
                 if rpc:  # pragma: no branch
                     return r
+
+        return None
+
+    async def publish_batch(
+        self,
+        *msgs: SendableMessage,
+        list: str,
+    ) -> None:
+        for handler in self.broker.handlers.values():  # pragma: no branch
+            if handler.list_sub and handler.list_sub.name == list:
+                await call_handler(
+                    handler=handler,
+                    message=build_message(
+                        message=msgs,
+                        channel=list,
+                    ),
+                )
 
         return None
 
