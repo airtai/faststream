@@ -91,7 +91,7 @@ To describe your message payload effectively, you can use Pydantic models. Here'
 
 Copy the following code in your basic.py file, we have highligted the creation of payload info and you can see it being passed to the return type and the `msg` argument type in the `on_input_data` function:
 
-```python linenums="1" hl_lines="5"
+```python linenums="1" hl_lines="7"
     {!> docs_src/getting_started/asyncapi/asyncapi_customization/payload_info.py !}
 ```
 
