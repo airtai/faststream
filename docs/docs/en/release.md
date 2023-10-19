@@ -6,6 +6,27 @@ hide:
 
 # Release Notes
 
+## 0.2.6
+
+### What's Changed
+* docs: add avro encoding, decoding examples by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/844](https://github.com/airtai/faststream/pull/844){.external-link target="_blank"}
+* docs: fix typo in README.md by [@omimakhare](https://github.com/omimakhare){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/849](https://github.com/airtai/faststream/pull/849){.external-link target="_blank"}
+* fix: update mypy, semgrep versions and fix arg-type mypy error by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/851](https://github.com/airtai/faststream/pull/851){.external-link target="_blank"}
+* docs: fix typo by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/859](https://github.com/airtai/faststream/pull/859){.external-link target="_blank"}
+* docs: detail Release Notes by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/855](https://github.com/airtai/faststream/pull/855){.external-link target="_blank"}
+* docs: write documentation for kafka security by [@sternakt](https://github.com/sternakt){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/860](https://github.com/airtai/faststream/pull/860){.external-link target="_blank"}
+* docs: asyncapi tool config added by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/861](https://github.com/airtai/faststream/pull/861){.external-link target="_blank"}
+* docs: retain GET params while redirecting by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/862](https://github.com/airtai/faststream/pull/862){.external-link target="_blank"}
+* docs: add article for using FastStream with Django by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/864](https://github.com/airtai/faststream/pull/864){.external-link target="_blank"}
+* chore: discord invite link changed by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/863](https://github.com/airtai/faststream/pull/863){.external-link target="_blank"}
+* docs: add some Django integration details by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/866](https://github.com/airtai/faststream/pull/866){.external-link target="_blank"}
+* fix: remove pydantic defs  in AsyncAPI schema by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/869](https://github.com/airtai/faststream/pull/869){.external-link target="_blank"}
+
+### New Contributors
+* [@omimakhare](https://github.com/omimakhare){.external-link target="_blank"} made their first contribution in [https://github.com/airtai/faststream/pull/849](https://github.com/airtai/faststream/pull/849){.external-link target="_blank"}
+
+**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.5...0.2.6](https://github.com/airtai/faststream/compare/0.2.5...0.2.6){.external-link target="_blank"}
+
 ## 0.2.5
 
 ### What's Changed
