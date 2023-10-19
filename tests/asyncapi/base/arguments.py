@@ -227,9 +227,13 @@ class FastAPICompatible:
             }
 
     def test_pydantic_model_mixed_regular(self):
+        class Email(pydantic.BaseModel):
+            addr: str
+
         class User(pydantic.BaseModel):
             name: str = ""
             id: int
+            email: Email
 
         broker = self.broker_class()
 
@@ -241,29 +245,37 @@ class FastAPICompatible:
 
         payload = schema["components"]["schemas"]
 
-        for key, v in payload.items():
-            assert key == "Handle:Message:Payload"
-            assert v == {
+        assert payload == {
+            "Email": {
+                "title": "Email",
+                "type": "object",
+                "properties": {"addr": {"title": "Addr", "type": "string"}},
+                "required": ["addr"],
+            },
+            "User": {
+                "title": "User",
+                "type": "object",
                 "properties": {
+                    "name": {"title": "Name", "default": "", "type": "string"},
+                    "id": {"title": "Id", "type": "integer"},
+                    "email": {"$ref": "#/components/schemas/Email"},
+                },
+                "required": ["id", "email"],
+            },
+            "Handle:Message:Payload": {
+                "title": "Handle:Message:Payload",
+                "type": "object",
+                "properties": {
+                    "user": {"$ref": "#/components/schemas/User"},
                     "description": {
-                        "default": "",
                         "title": "Description",
+                        "default": "",
                         "type": "string",
-                    },
-                    "user": {
-                        "properties": {
-                            "id": {"title": "Id", "type": "integer"},
-                            "name": {"default": "", "title": "Name", "type": "string"},
-                        },
-                        "required": ["id"],
-                        "title": "User",
-                        "type": "object",
                     },
                 },
                 "required": ["user"],
-                "title": "Handle:Message:Payload",
-                "type": "object",
-            }
+            },
+        }
 
     def test_pydantic_model_with_example(self):
         class User(pydantic.BaseModel):
