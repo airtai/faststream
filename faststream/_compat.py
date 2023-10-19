@@ -17,6 +17,7 @@ if sys.version_info < (3, 12):
     from typing_extensions import override as override
 else:
     from typing import TypedDict as TypedDict
+    from typing import override as override
 
 if sys.version_info < (3, 11):
     from typing_extensions import Never as Never
