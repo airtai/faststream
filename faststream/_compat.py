@@ -61,7 +61,7 @@ if is_installed("fastapi"):
         from fastapi import __version__ as FASTAPI_VERSION
 
         major, minor, _ = map(int, FASTAPI_VERSION.split("."))
-        FASTAPI_V2 = not (major < 0 and minor < 100)
+        FASTAPI_V2 = not (major <= 0 and minor < 100)
 
         if FASTAPI_V2:
             from fastapi._compat import _normalize_errors
