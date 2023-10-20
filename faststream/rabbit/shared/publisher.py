@@ -2,6 +2,7 @@ from abc import ABC
 from dataclasses import dataclass, field
 from typing import Optional
 
+from faststream._compat import TypeAlias
 from faststream.broker.publisher import BasePublisher
 from faststream.broker.types import MsgType
 from faststream.rabbit.shared.schemas import BaseRMQInformation
@@ -15,7 +16,7 @@ class ABCPublisher(ABC, BasePublisher[MsgType], BaseRMQInformation):
 
     Attributes:
         routing_key : str, optional
-            The routing key for the publisher.
+            The routing key for the publisher to bind it to another publisher.
         mandatory : bool, optional
             Whether the message is mandatory or not.
         immediate : bool, optional
@@ -39,8 +40,10 @@ class ABCPublisher(ABC, BasePublisher[MsgType], BaseRMQInformation):
     persist: bool = False
     timeout: TimeoutType = None
     reply_to: Optional[str] = None
+
+    priority: Optional[int] = None
     message_kwargs: AnyDict = field(default_factory=dict)
 
 
-QueueName = str
-ExchangeName = str
+QueueName: TypeAlias = str
+ExchangeName: TypeAlias = str
