@@ -2240,7 +2240,7 @@
 <h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">#</a></h2>
 <p><a href="https://faststream.airt.ai/"><strong>FastStream</strong></a> simplifies the process of writing producers and consumers for message queues, handling all the
 parsing, networking and documentation generation automatically.</p>
-<p>Making streaming microservices has never been easier. Designed with junior developers in mind, <strong>FastStream</strong> simplifies your work while keeping the door open for more advanced use-cases. Here's a look at the core features that make <strong>FastStream</strong> a go-to framework for modern, data-centric microservices.</p>
+<p>Making streaming microservices has never been easier. Designed with junior developers in mind, <strong>FastStream</strong> simplifies your work while keeping the door open for more advanced use cases. Here's a look at the core features that make <strong>FastStream</strong> a go-to framework for modern, data-centric microservices.</p>
 <ul>
 <li>
 <p><strong>Multiple Brokers</strong>: <strong>FastStream</strong> provides a unified API to work across multiple message brokers (<strong>Kafka</strong>, <strong>RabbitMQ</strong>, <strong>NATS</strong> support)</p>
@@ -2261,7 +2261,7 @@ parsing, networking and documentation generation automatically.</p>
 <p><a href="#testing-the-service"><strong>Testable</strong></a>: Supports in-memory tests, making your CI/CD pipeline faster and more reliable</p>
 </li>
 <li>
-<p><strong>Extendable</strong>: Use extensions for lifespans, custom serialization and middlewares</p>
+<p><strong>Extendable</strong>: Use extensions for lifespans, custom serialization and middleware</p>
 </li>
 <li>
 <p><a href="#any-framework"><strong>Integrations</strong></a>: <strong>FastStream</strong> is fully compatible with any HTTP framework you want (<a href="#fastapi-plugin"><strong>FastAPI</strong></a> especially)</p>
@@ -2312,7 +2312,7 @@ and <code class="highlight"><span class="nd">@broker</span><span class="o">.</sp
 <p>These decorators make it easy to specify the processing logic for your consumers and producers, allowing you to focus on the core business logic of your application without worrying about the underlying integration.</p>
 <p>Also, <strong>FastStream</strong> uses <a class="external-link" href="https://docs.pydantic.dev/" target="_blank"><strong>Pydantic</strong></a> to parse input
 JSON-encoded data into Python objects, making it easy to work with structured data in your applications, so you can serialize your input messages just using type annotations.</p>
-<p>Here is an example python app using <strong>FastStream</strong> that consumes data from an incoming data stream and outputs the data to another one:</p>
+<p>Here is an example Python app using <strong>FastStream</strong> that consumes data from an incoming data stream and outputs the data to another one:</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Kafka</label><label for="__tabbed_2_2">RabbitMQ</label><label for="__tabbed_2_3">NATS</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -2621,7 +2621,7 @@ to define messages using a declarative syntax, making it easy to specify the fie
 </div>
 </div>
 <h2 id="running-the-application">Running the application<a class="headerlink" href="#running-the-application" title="Permanent link">#</a></h2>
-<p>The application can be started using built-in <strong>FastStream</strong> CLI command.</p>
+<p>The application can be started using the built-in <strong>FastStream</strong> CLI command.</p>
 <p>To run the service, use the <strong>FastStream CLI</strong> command and pass the module (in this case, the file where the app implementation is located) and the app symbol to the command.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>basic:app
 </code></pre></div>
@@ -2630,7 +2630,7 @@ to define messages using a declarative syntax, making it easy to specify the fie
 <a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>INFO<span class="w">     </span>-<span class="w"> </span>input_data<span class="w"> </span><span class="p">|</span><span class="w">            </span>-<span class="w"> </span><span class="sb">`</span>HandleMsg<span class="sb">`</span><span class="w"> </span>waiting<span class="w"> </span><span class="k">for</span><span class="w"> </span>messages
 <a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>INFO<span class="w">     </span>-<span class="w"> </span>FastStream<span class="w"> </span>app<span class="w"> </span>started<span class="w"> </span>successfully!<span class="w"> </span>To<span class="w"> </span><span class="nb">exit</span><span class="w"> </span>press<span class="w"> </span>CTRL+C
 </code></pre></div>
-<p>Also, <strong>FastStream</strong> provides you a great hot reload feature to improve your Development Experience</p>
+<p>Also, <strong>FastStream</strong> provides you with a great hot reload feature to improve your Development Experience</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>basic:app<span class="w"> </span>--reload
 </code></pre></div>
 <p>And multiprocessing horizontal scaling feature as well:</p>
@@ -3032,7 +3032,7 @@ Just <em>start</em> and <em>stop</em> them according to your application's lifes
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>When used this way, <strong>FastStream</strong> does not utilize its own dependency and serialization system but integrates seamlessly into <strong>FastAPI</strong>.
-This means you can use <code>Depends</code>, <code>BackgroundTasks</code> and other <strong>FastAPI</strong> tools as if it were a regular HTTP endpoint.</p>
+This means you can use <code>Depends</code>, <code>BackgroundTasks</code>, and other <strong>FastAPI</strong> tools as if it were a regular HTTP endpoint.</p>
 </div>
 <div class="tabbed-set tabbed-alternate" data-tabs="6:3"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><input id="__tabbed_6_3" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">Kafka</label><label for="__tabbed_6_2">RabbitMQ</label><label for="__tabbed_6_3">NATS</label></div>
 <div class="tabbed-content">
@@ -3280,7 +3280,7 @@ support!</p>
   <small>
     
       Last update:
-      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-10-17T14:26:16+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-10-17</span>
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-timeago"><span class="timeago" datetime="2023-10-22T11:13:17+00:00" locale="en"></span></span><span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-iso_date">2023-10-22</span>
       
     
   </small>
