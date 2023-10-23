@@ -6,6 +6,18 @@ hide:
 
 # Release Notes
 
+## 0.2.8
+
+### What's Changed
+* fix: FASTAPI_V2 always True by [@shepilov](https://github.com/shepilov){.external-link target="_blank"}-vladislav in [https://github.com/airtai/faststream/pull/877](https://github.com/airtai/faststream/pull/877){.external-link target="_blank"}
+* feat: better RMQ AsyncAPI by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/879](https://github.com/airtai/faststream/pull/879){.external-link target="_blank"}
+
+### New Contributors
+* [@shepilov](https://github.com/shepilov){.external-link target="_blank"}-vladislav made their first contribution in [https://github.com/airtai/faststream/pull/877](https://github.com/airtai/faststream/pull/877){.external-link target="_blank"}
+
+**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.7...0.2.8](https://github.com/airtai/faststream/compare/0.2.7...0.2.8){.external-link target="_blank"}
+
+
 ## 0.2.7
 
 ### What's Changed
