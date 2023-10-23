@@ -6,6 +6,15 @@ hide:
 
 # Release Notes
 
+## 0.2.7
+
+### What's Changed
+* fix: ImportError: typing 'override' from 'faststream._compat' (python 3.12) by [@Jaroslav2001](https://github.com/Jaroslav2001){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/870](https://github.com/airtai/faststream/pull/870){.external-link target="_blank"}
+* fix: remove jsonref dependency by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/873](https://github.com/airtai/faststream/pull/873){.external-link target="_blank"}
+
+
+**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.6...0.2.7](https://github.com/airtai/faststream/compare/0.2.6...0.2.7){.external-link target="_blank"}
+
 ## 0.2.6
 
 ### What's Changed
