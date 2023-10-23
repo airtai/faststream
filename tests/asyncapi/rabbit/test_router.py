@@ -1,6 +1,6 @@
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
-from faststream.rabbit import RabbitBroker, RabbitRoute, RabbitRouter
+from faststream.rabbit import RabbitBroker, RabbitQueue, RabbitRoute, RabbitRouter
 from tests.asyncapi.base.arguments import ArgumentsTestcase
 from tests.asyncapi.base.publisher import PublisherTestcase
 from tests.asyncapi.base.router import RouterTestcase
@@ -16,7 +16,7 @@ class TestRouter(RouterTestcase):
 
         router = self.router_class(prefix="test_")
 
-        @router.subscriber("test")
+        @router.subscriber(RabbitQueue("test", routing_key="key"))
         async def handle(msg):
             ...
 
@@ -55,7 +55,7 @@ class TestRouter(RouterTestcase):
                     "subscribe": {
                         "bindings": {
                             "amqp": {
-                                "cc": "test_test",
+                                "cc": "key",
                                 "ack": True,
                                 "bindingVersion": "0.2.0",
                             }
