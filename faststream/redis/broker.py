@@ -8,7 +8,6 @@ from typing import (
     Optional,
     Sequence,
     Type,
-    TypeAlias,
     Union,
 )
 
@@ -16,7 +15,7 @@ from fast_depends.dependencies import Depends
 from redis.asyncio.client import Redis
 from redis.asyncio.connection import ConnectionPool, parse_url
 
-from faststream._compat import override
+from faststream._compat import TypeAlias, override
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
@@ -35,7 +34,7 @@ from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.redis.asyncapi import Handler, Publisher
 from faststream.redis.message import PubSubMessage, RedisMessage
 from faststream.redis.producer import RedisFastProducer
-from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub
+from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.shared.logging import RedisLoggingMixin
 from faststream.types import AnyDict, DecodedMessage
 from faststream.utils.context.main import context
@@ -156,6 +155,7 @@ class RedisBroker(
         channel: Union[Channel, PubSub, None] = None,
         *,
         list: Union[Channel, ListSub, None] = None,
+        stream: Union[Channel, StreamSub, None] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
         parser: Optional[CustomParser[PubSubMessage, RedisMessage]] = None,
@@ -175,13 +175,20 @@ class RedisBroker(
     ]:
         channel = PubSub.validate(channel)
         list = ListSub.validate(list)
+        stream = StreamSub.validate(stream)
 
-        any_of = channel or list
+        any_of = channel or list or stream
         if any_of is None:
-            raise ValueError("You should specify `channel` or `list` subscriber type")
+            raise ValueError(
+                "You should specify `channel`, `list`, `stream` subscriber type"
+            )
 
-        if any((all((channel, list)),)):
+        if all((channel, list)):
             raise ValueError("You can't use `PubSub` and `ListSub` both")
+        elif all((channel, stream)):
+            raise ValueError("You can't use `PubSub` and `StreamSub` both")
+        elif all((list, stream)):
+            raise ValueError("You can't use `ListSub` and `StreamSub` both")
 
         self._setup_log_context(channel=any_of.name)
         super().subscriber()
@@ -197,6 +204,7 @@ class RedisBroker(
                 # Redis
                 channel=channel,
                 list=list,
+                stream=stream,
                 # AsyncAPI
                 title=title,
                 description=description,
@@ -231,6 +239,7 @@ class RedisBroker(
         self,
         channel: Union[Channel, PubSub, None] = None,
         list: Union[Channel, ListSub, None] = None,
+        stream: Union[Channel, StreamSub, None] = None,
         headers: Optional[AnyDict] = None,
         reply_to: str = "",
         # AsyncAPI information
@@ -241,8 +250,9 @@ class RedisBroker(
     ):
         channel = PubSub.validate(channel)
         list = ListSub.validate(list)
+        stream = StreamSub.validate(stream)
 
-        any_of = channel or list
+        any_of = channel or list or stream
         if any_of is None:
             raise ValueError(INCORRECT_SETUP_MSG)
 
@@ -252,6 +262,7 @@ class RedisBroker(
             Publisher(
                 channel=channel,
                 list=list,
+                stream=stream,
                 headers=headers,
                 reply_to=reply_to,
                 # AsyncAPI

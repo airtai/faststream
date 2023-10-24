@@ -12,7 +12,7 @@ from faststream.broker.types import (
 )
 from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.redis.message import PubSubMessage, RedisMessage
-from faststream.redis.parser import RawMessage, RedisParser
+from faststream.redis.parser import DATA_KEY, RawMessage, RedisParser
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
 from faststream.utils.functions import timeout_scope
@@ -42,11 +42,12 @@ class RedisFastProducer:
         correlation_id: Optional[str] = None,
         *,
         list: Optional[str] = None,
+        stream: Optional[str] = None,
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
     ) -> Optional[DecodedMessage]:
-        if not (channel or list):
+        if not any((channel, list, stream)):
             raise ValueError(INCORRECT_SETUP_MSG)
 
         psub: Optional[PubSub] = None
@@ -69,6 +70,8 @@ class RedisFastProducer:
             await self._connection.publish(channel, msg)
         elif list is not None:
             await self._connection.rpush(list, msg)
+        elif stream is not None:
+            await self._connection.xadd(stream, {DATA_KEY: msg})
         else:
             raise AssertionError("unreachable")
 

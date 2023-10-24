@@ -1,7 +1,7 @@
 from faststream.redis.annotations import Redis, RedisMessage
 from faststream.redis.broker import RedisBroker
 from faststream.redis.router import RedisRouter
-from faststream.redis.schemas import ListSub, PubSub
+from faststream.redis.schemas import ListSub, PubSub, StreamSub
 from faststream.redis.shared.router import RedisRoute
 from faststream.redis.test import TestRedisBroker
 
@@ -14,4 +14,5 @@ __all__ = (
     "TestRedisBroker",
     "PubSub",
     "ListSub",
+    "StreamSub",
 )

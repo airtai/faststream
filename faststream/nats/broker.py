@@ -9,7 +9,6 @@ from typing import (
     Optional,
     Sequence,
     Type,
-    TypeAlias,
     Union,
 )
 
@@ -28,7 +27,7 @@ from nats.js.client import (
     JetStreamContext,
 )
 
-from faststream._compat import override
+from faststream._compat import TypeAlias, override
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware

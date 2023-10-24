@@ -7,8 +7,9 @@ from faststream.broker.message import StreamMessage
 class PubSubMessage(TypedDict):
     type: str
     pattern: NotRequired[Optional[bytes]]
-    channel: bytes
+    channel: NotRequired[bytes]
     data: bytes
+    message_id: NotRequired[str]
 
 
 class RedisMessage(StreamMessage[PubSubMessage]):

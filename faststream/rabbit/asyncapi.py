@@ -31,9 +31,13 @@ class Publisher(LogicPublisher):
 
     @property
     def name(self) -> str:
+        routing = (
+            self.routing_key
+            or (self.queue.routing if _is_exchange(self.exchange) else None)
+            or "_"
+        )
         return (
-            self.title
-            or f"{self.queue.name}:{self.exchange.name if self.exchange else '_'}:Publisher"
+            self.title or f"{routing}:{getattr(self.exchange, 'name', '_')}:Publisher"
         )
 
     def schema(self) -> Dict[str, Channel]:
@@ -48,7 +52,11 @@ class Publisher(LogicPublisher):
                 publish=Operation(
                     bindings=OperationBinding(
                         amqp=amqp.OperationBinding(
-                            cc=self.queue.name,
+                            cc=self.routing,
+                            deliveryMode=2 if self.persist else 1,
+                            mandatory=self.mandatory,
+                            replyTo=self.reply_to,
+                            priority=self.priority,
                         ),
                     )
                     if _is_exchange(self.exchange)
@@ -74,8 +82,9 @@ class Publisher(LogicPublisher):
                                 durable=self.queue.durable,
                                 exclusive=self.queue.exclusive,
                                 autoDelete=self.queue.auto_delete,
+                                vhost=self.virtual_host,
                             )
-                            if _is_exchange(self.exchange)
+                            if _is_exchange(self.exchange) and self.queue.name
                             else None,
                             "exchange": (
                                 amqp.Exchange(type="default")
@@ -85,6 +94,7 @@ class Publisher(LogicPublisher):
                                     name=self.exchange.name,
                                     durable=self.exchange.durable,
                                     autoDelete=self.exchange.auto_delete,
+                                    vhost=self.virtual_host,
                                 )
                             ),
                         }
@@ -113,7 +123,7 @@ class Handler(LogicHandler):
 
         handler_name = (
             self._title
-            or f"{self.queue.name}:{self.exchange.name if self.exchange else '_'}:{self.call_name}"
+            or f"{self.queue.name}:{getattr(self.exchange, 'name', '_')}:{self.call_name}"
         )
 
         return {
@@ -122,7 +132,7 @@ class Handler(LogicHandler):
                 subscribe=Operation(
                     bindings=OperationBinding(
                         amqp=amqp.OperationBinding(
-                            cc=self.queue.name,
+                            cc=self.queue.routing,
                         ),
                     )
                     if _is_exchange(self.exchange)
@@ -144,6 +154,7 @@ class Handler(LogicHandler):
                                 durable=self.queue.durable,
                                 exclusive=self.queue.exclusive,
                                 autoDelete=self.queue.auto_delete,
+                                vhost=self.virtual_host,
                             )
                             if _is_exchange(self.exchange)
                             else None,
@@ -155,6 +166,7 @@ class Handler(LogicHandler):
                                     name=self.exchange.name,
                                     durable=self.exchange.durable,
                                     autoDelete=self.exchange.auto_delete,
+                                    vhost=self.virtual_host,
                                 )
                             ),
                         }

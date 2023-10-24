@@ -1,12 +1,14 @@
 from typing import Optional, Pattern
 
+from pydantic import Field, PositiveFloat, PositiveInt
+
 from faststream._compat import PYDANTIC_V2
 from faststream.broker.schemas import NameRequired
 from faststream.utils.context.path import compile_path
 
 
 class PubSub(NameRequired):
-    polling_interval: float = 1.0
+    polling_interval: PositiveFloat = 1.0
     path_regex: Optional[Pattern[str]] = None
     pattern: bool = False
 
@@ -14,7 +16,7 @@ class PubSub(NameRequired):
         self,
         channel: str,
         pattern: bool = False,
-        polling_interval: float = 1.0,
+        polling_interval: PositiveFloat = 1.0,
     ) -> None:
         reg, path = compile_path(channel, replace_symbol="*")
 
@@ -40,16 +42,16 @@ class PubSub(NameRequired):
 
 
 class ListSub(NameRequired):
-    polling_interval: float = 0.1
+    polling_interval: PositiveFloat = 0.1
     batch: bool = False
-    max_records: int = 10
+    max_records: PositiveInt = 10
 
     def __init__(
         self,
         channel: str,
         batch: bool = False,
-        max_records: int = 10,
-        polling_interval: float = 0.1,
+        max_records: PositiveInt = 10,
+        polling_interval: PositiveFloat = 0.1,
     ) -> None:
         super().__init__(
             name=channel,
@@ -59,11 +61,35 @@ class ListSub(NameRequired):
         )
 
     @property
-    def records(self) -> Optional[int]:
+    def records(self) -> Optional[PositiveInt]:
         return self.max_records if self.batch else None
 
     def __hash__(self) -> int:
         return hash("list" + self.name)
 
 
-INCORRECT_SETUP_MSG = "You have to specify `channel` or `list`"
+class StreamSub(NameRequired):
+    polling_interval: Optional[PositiveInt] = Field(default=100, description="ms")
+
+    def __init__(
+        self,
+        stream: str,
+        polling_interval: Optional[PositiveInt] = 100,
+    ) -> None:
+        """
+        Redis Stream subscriber parameters
+
+        Args:
+            stream: (str): Redis Stream name.
+            polling_interval (int:ms | None): wait message block.
+        """
+        super().__init__(
+            name=stream,
+            polling_interval=polling_interval,
+        )
+
+    def __hash__(self) -> int:
+        return hash("stream" + self.name)
+
+
+INCORRECT_SETUP_MSG = "You have to specify `channel`, `list` or `stream`"

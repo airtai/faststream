@@ -68,11 +68,12 @@ class FakeProducer(RedisFastProducer):
         correlation_id: Optional[str] = None,
         *,
         list: Optional[str] = None,
+        stream: Optional[str] = None,
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
     ) -> Optional[DecodedMessage]:
-        any_of = channel or list
+        any_of = channel or list or stream
         if any_of is None:
             raise ValueError(INCORRECT_SETUP_MSG)
 
@@ -95,6 +96,9 @@ class FakeProducer(RedisFastProducer):
             if list and (ls := handler.list_sub) is not None:
                 batch = ls.batch
                 call = list == ls.name
+
+            if stream and (st := handler.stream_sub) is not None:
+                call = stream == st.name
 
             if call:
                 r = await call_handler(

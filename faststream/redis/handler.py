@@ -1,6 +1,16 @@
 import asyncio
 from functools import partial
-from typing import Any, Awaitable, Callable, Dict, Hashable, Optional, Sequence
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    Hashable,
+    Optional,
+    Sequence,
+    Tuple,
+    cast,
+)
 
 import anyio
 from fast_depends.core import CallModel
@@ -20,8 +30,9 @@ from faststream.broker.types import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.redis.message import PubSubMessage, RedisMessage
-from faststream.redis.parser import RawMessage, RedisParser
-from faststream.redis.schemas import ListSub, PubSub
+from faststream.redis.parser import RawMessage, RedisParser, bDATA_KEY
+from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
+from faststream.types import AnyDict
 
 
 class LogicRedisHandler(AsyncHandler[PubSubMessage]):
@@ -35,6 +46,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
         # Redis info
         channel: Optional[PubSub] = None,
         list: Optional[ListSub] = None,
+        stream: Optional[StreamSub] = None,
         # AsyncAPI information
         description: Optional[str] = None,
         title: Optional[str] = None,
@@ -42,6 +54,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
     ):
         self.channel = channel
         self.list_sub = list
+        self.stream_sub = stream
 
         self.subscription = None
         self.task = None
@@ -55,7 +68,9 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
 
     @property
     def channel_name(self) -> str:
-        return (self.channel or self.list_sub).name
+        any_of = self.channel or self.list_sub or self.stream_sub
+        assert any_of, INCORRECT_SETUP_MSG
+        return any_of.name
 
     def add_call(
         self,
@@ -104,6 +119,15 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
             )
             sleep = 0.01
 
+        elif (stream := self.stream_sub) is not None:
+            consume = partial(
+                consume_stream_msg,
+                client=client,
+                name=stream.name,
+                timeout=stream.polling_interval,
+            )
+            sleep = 0.01
+
         else:
             raise AssertionError("unreachable")
 
@@ -111,7 +135,8 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
 
     async def close(self) -> None:
         if self.task is not None:
-            self.task.cancel()
+            if not self.task.done():
+                self.task.cancel()
             self.task = None
 
         if self.subscription is not None:
@@ -165,3 +190,24 @@ async def consume_list_msg(
             channel=name.encode(),
             data=msg,
         )
+
+
+async def consume_stream_msg(
+    client: Redis,
+    name: str,
+    timeout: Optional[int],
+) -> Optional[PubSubMessage]:
+    for stream_name, msgs in cast(
+        Tuple[Tuple[bytes, Tuple[Tuple[bytes, AnyDict], ...]], ...],
+        await client.xread(
+            {name: "$"},
+            block=timeout,
+        ),
+    ):
+        for message_id, msg in msgs:
+            return PubSubMessage(
+                type="stream",
+                channel=stream_name,
+                data=msg.get(bDATA_KEY, RawMessage.encode(message=msg).encode()),
+                message_id=message_id.decode(),
+            )

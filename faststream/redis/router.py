@@ -2,7 +2,7 @@ from typing import Any, Dict, Optional, Union
 
 from faststream._compat import model_copy, override
 from faststream.redis.asyncapi import Handler, Publisher
-from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub
+from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.shared.router import RedisRouter as BaseRouter
 from faststream.types import AnyDict
 
@@ -13,7 +13,7 @@ class RedisRouter(BaseRouter):
     @override
     @staticmethod
     def _get_publisher_key(publisher: Publisher) -> str:  # type: ignore[override]
-        any_of = publisher.channel or publisher.list
+        any_of = publisher.channel or publisher.list or publisher.stream
         if any_of is None:
             raise ValueError(INCORRECT_SETUP_MSG)
         return Handler.get_routing_hash(any_of)
@@ -32,6 +32,10 @@ class RedisRouter(BaseRouter):
             publisher.list = model_copy(
                 publisher.list, update={"name": prefix + publisher.list.name}
             )
+        elif publisher.stream is not None:
+            publisher.stream = model_copy(
+                publisher.stream, update={"name": prefix + publisher.stream.name}
+            )
         else:
             raise AssertionError("unreachable")
         return publisher
@@ -41,6 +45,7 @@ class RedisRouter(BaseRouter):
         self,
         channel: Union[str, PubSub, None] = None,
         list: Union[str, ListSub, None] = None,
+        stream: Union[str, StreamSub, None] = None,
         headers: Optional[AnyDict] = None,
         reply_to: str = "",
         # AsyncAPI information
@@ -49,7 +54,7 @@ class RedisRouter(BaseRouter):
         schema: Optional[Any] = None,
         include_in_schema: bool = True,
     ) -> Publisher:
-        if list is None and channel is None:
+        if not any((stream, list, channel)):
             raise ValueError(INCORRECT_SETUP_MSG)
 
         new_publisher = self._update_publisher_prefix(
@@ -57,6 +62,7 @@ class RedisRouter(BaseRouter):
             Publisher(
                 channel=PubSub.validate(channel),
                 list=PubSub.validate(list),
+                stream=StreamSub.validate(stream),
                 reply_to=reply_to,
                 headers=headers,
                 title=title,

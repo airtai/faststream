@@ -78,6 +78,7 @@ class RabbitBroker(
         self,
         url: Union[str, URL, None] = "amqp://guest:guest@localhost:5672/",
         *,
+        virtualhost: str = "/",
         max_consumers: Optional[int] = None,
         protocol: str = "amqp",
         protocol_version: Optional[str] = "0.9.1",
@@ -94,11 +95,21 @@ class RabbitBroker(
             protocol_version (Optional[str], optional): The protocol version to use (e.g., "0.9.1"). Defaults to "0.9.1".
             **kwargs: Additional keyword arguments.
         """
+        if url is not None:
+            if not isinstance(url, URL):
+                url = URL(url)
+
+            self.virtual_host = url.path
+            url = str(url)
+        else:
+            self.virtual_host = virtualhost
+
         super().__init__(
             url=url,
             protocol=protocol,
             protocol_version=protocol_version,
             security=security,
+            virtualhost=virtualhost,
             **kwargs,
         )
 
@@ -210,6 +221,10 @@ class RabbitBroker(
         await super().start()
         assert self.declarer, NOT_CONNECTED_YET  # nosec B101
 
+        for publisher in self._publishers.values():
+            if publisher.exchange is not None:
+                await self.declare_exchange(publisher.exchange)
+
         for handler in self.handlers.values():
             c = self._get_log_context(None, handler.queue, handler.exchange)
             self._log(f"`{handler.call_name}` waiting for messages", extra=c)
@@ -271,6 +286,7 @@ class RabbitBroker(
                 consume_args=consume_args,
                 description=description,
                 title=title,
+                virtual_host=self.virtual_host,
                 include_in_schema=include_in_schema,
             ),
         )
@@ -332,6 +348,7 @@ class RabbitBroker(
         description: Optional[str] = None,
         schema: Optional[Any] = None,
         include_in_schema: bool = True,
+        priority: Optional[int] = None,
         **message_kwargs: Any,
     ) -> Publisher:
         """
@@ -354,25 +371,27 @@ class RabbitBroker(
             Publisher: A message publisher instance.
         """
         q, ex = RabbitQueue.validate(queue), RabbitExchange.validate(exchange)
-        key = get_routing_hash(q, ex)
-        publisher = self._publishers.get(
-            key,
-            Publisher(
-                title=title,
-                queue=q,
-                exchange=ex,
-                routing_key=routing_key,
-                mandatory=mandatory,
-                immediate=immediate,
-                timeout=timeout,
-                persist=persist,
-                reply_to=reply_to,
-                message_kwargs=message_kwargs,
-                _description=description,
-                _schema=schema,
-                include_in_schema=include_in_schema,
-            ),
+
+        publisher = Publisher(
+            title=title,
+            queue=q,
+            exchange=ex,
+            routing_key=routing_key,
+            mandatory=mandatory,
+            immediate=immediate,
+            timeout=timeout,
+            persist=persist,
+            reply_to=reply_to,
+            priority=priority,
+            message_kwargs=message_kwargs,
+            _description=description,
+            _schema=schema,
+            virtual_host=self.virtual_host,
+            include_in_schema=include_in_schema,
         )
+
+        key = publisher._get_routing_hash()
+        publisher = self._publishers.get(key, publisher)
         super().publisher(key, publisher)
         if self._producer is not None:
             publisher._producer = self._producer

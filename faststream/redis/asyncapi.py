@@ -24,11 +24,15 @@ class Handler(LogicRedisHandler):
         method = None
         if self.list_sub is not None:
             method = "lpop"
+
         elif (ch := self.channel) is not None:
             if ch.pattern:
                 method = "psubscribe"
             else:
                 method = "subscribe"
+
+        elif (stream := self.stream_sub) is not None:
+            method = "xread"
 
         return {
             handler_name: Channel(
@@ -64,6 +68,8 @@ class Publisher(LogicPublisher):
             method = "rpush"
         elif self.channel is not None:
             method = "publish"
+        elif self.stream_sub is not None:
+            method = "xadd"
 
         return {
             self.name: Channel(

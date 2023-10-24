@@ -30,7 +30,17 @@ class ChannelBinding(BaseModel):
 
     channel: str
     method: Optional[
-        Literal["ssubscribe", "psubscribe", "subscribe", "lpop", "rpush", "publish"]
+        Literal[
+            "ssubscribe",
+            "psubscribe",
+            "subscribe",
+            "lpop",
+            "rpush",
+            "publish",
+            "xread",
+            "xreadgroup",
+            "xadd",
+        ]
     ] = None
     bindingVersion: str = "custom"
 

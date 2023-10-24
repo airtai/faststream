@@ -10,6 +10,9 @@ from faststream.redis.message import PubSubMessage, RedisMessage
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
 from faststream.utils.context.main import context
 
+DATA_KEY = "__data__"
+bDATA_KEY = DATA_KEY.encode()
+
 
 class RawMessage(BaseModel):
     data: bytes
@@ -101,7 +104,7 @@ class RedisParser:
             headers=headers,
             reply_to=headers.get("reply_to", ""),
             content_type=headers.get("content-type", ""),
-            message_id=headers.get("message_id", str(uuid4())),
+            message_id=message.get("message_id", str(uuid4())),
             correlation_id=headers.get("correlation_id", str(uuid4())),
         )
 
