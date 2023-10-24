@@ -58,11 +58,13 @@ def is_installed(package: str) -> bool:
 IS_OPTIMIZED = os.getenv("PYTHONOPTIMIZE", False)
 
 
-if is_installed("fastapi"):
+try:
     from fastapi import __version__ as FASTAPI_VERSION
 
+    HAS_FASTAPI = True
+
     major, minor, _ = map(int, FASTAPI_VERSION.split("."))
-    FASTAPI_V2 = not (major < 0 and minor < 100)
+    FASTAPI_V2 = major > 0 or minor > 100
 
     if FASTAPI_V2:
         from fastapi._compat import _normalize_errors
@@ -82,6 +84,8 @@ if is_installed("fastapi"):
         def raise_fastapi_validation_error(errors: List[Any], body: AnyDict) -> Never:
             raise RequestValidationError(errors, ROUTER_VALIDATION_ERROR_MODEL)  # type: ignore[misc]
 
+except ImportError:
+    HAS_FASTAPI = False
 
 JsonSchemaValue = Mapping[str, Any]
 

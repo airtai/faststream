@@ -95,14 +95,14 @@ lint = [
     "types-setuptools",
     "types-ujson",
     "types-redis",
-    "mypy==1.6.0",
-    "black==23.9.1",
+    "mypy==1.6.1",
+    "black==23.10.0",
     "isort>=5",
-    "ruff==0.0.292",
+    "ruff==0.1.1",
     "pyupgrade-directories",
     "bandit==1.7.5",
     "pre-commit==3.5.0",
-    "semgrep==1.44.0",
+    "semgrep==1.45.0",
     "detect-secrets==1.4.0",
 ]
 
