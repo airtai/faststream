@@ -16,6 +16,11 @@ from faststream.types import SendableMessage
 class LogicPublisher(ABCPublisher[aio_pika.IncomingMessage]):
     _producer: Optional[AioPikaFastProducer] = field(default=None, init=False)
 
+    @property
+    def routing(self) -> Optional[str]:
+        pass
+    def _get_routing_hash(self) -> int:
+        pass
     @abstractproperty
     def name(self) -> str:
         raise NotImplementedError()

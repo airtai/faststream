@@ -7,6 +7,7 @@ from aio_pika import IncomingMessage
 from faststream._compat import override
 from faststream.rabbit.producer import AioPikaFastProducer
 from faststream.rabbit.shared.publisher import ABCPublisher
+from faststream.rabbit.shared.schemas import get_routing_hash
 from faststream.rabbit.types import AioPikaSendableMessage
 from faststream.types import SendableMessage
 
@@ -27,6 +28,13 @@ class LogicPublisher(ABCPublisher[IncomingMessage]):
 
     _producer: Optional[AioPikaFastProducer] = field(default=None, init=False)
 
+    @property
+    def routing(self) -> Optional[str]:
+        return self.routing_key or self.queue.routing
+
+    def _get_routing_hash(self) -> int:
+        return get_routing_hash(self.queue, self.exchange) + hash(self.routing_key)
+
     @override
     async def publish(  # type: ignore[override]
         self,
@@ -36,6 +44,7 @@ class LogicPublisher(ABCPublisher[IncomingMessage]):
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
         correlation_id: Optional[str] = None,
+        priority: Optional[int] = None,
         **message_kwargs: Any,
     ) -> Union[aiormq.abc.ConfirmationFrameType, SendableMessage]:
         """Publish a message.
@@ -60,9 +69,8 @@ class LogicPublisher(ABCPublisher[IncomingMessage]):
         assert self._producer, "Please, setup `_producer` first"  # nosec B101
         return await self._producer.publish(
             message=message,
-            queue=self.queue,
             exchange=self.exchange,
-            routing_key=self.routing_key,
+            routing_key=self.routing,
             mandatory=self.mandatory,
             immediate=self.immediate,
             timeout=self.timeout,
@@ -72,6 +80,7 @@ class LogicPublisher(ABCPublisher[IncomingMessage]):
             persist=self.persist,
             reply_to=self.reply_to,
             correlation_id=correlation_id,
+            priority=priority or self.priority,
             **self.message_kwargs,
             **message_kwargs,
         )

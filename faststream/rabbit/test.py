@@ -18,7 +18,6 @@ from faststream.rabbit.shared.constants import ExchangeType
 from faststream.rabbit.shared.schemas import (
     RabbitExchange,
     RabbitQueue,
-    get_routing_hash,
 )
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.rabbit.types import AioPikaSendableMessage
@@ -59,13 +58,11 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
 
     @staticmethod
     def remove_publisher_fake_subscriber(
-        broker: RabbitBroker, publisher: Publisher
+        broker: RabbitBroker,
+        publisher: Publisher,
     ) -> None:
         broker.handlers.pop(
-            get_routing_hash(
-                queue=publisher.queue,
-                exchange=publisher.exchange,
-            ),
+            publisher._get_routing_hash(),
             None,
         )
 
@@ -154,12 +151,12 @@ def build_message(
         **message_kwargs,
     )
 
-    routing = routing_key or (que.name if que else "")
+    routing = routing_key or (getattr(que, "name", ""))
 
     return PatchedMessage(
         aiormq.abc.DeliveredMessage(
             delivery=spec.Basic.Deliver(
-                exchange=exch.name if exch and exch.name else "",
+                exchange=getattr(exch, "name", ""),
                 routing_key=routing,
             ),
             header=ContentHeader(

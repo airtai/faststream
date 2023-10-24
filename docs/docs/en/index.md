@@ -61,7 +61,7 @@ hide:
 [**FastStream**](https://faststream.airt.ai/) simplifies the process of writing producers and consumers for message queues, handling all the
 parsing, networking and documentation generation automatically.
 
-Making streaming microservices has never been easier. Designed with junior developers in mind, **FastStream** simplifies your work while keeping the door open for more advanced use-cases. Here's a look at the core features that make **FastStream** a go-to framework for modern, data-centric microservices.
+Making streaming microservices has never been easier. Designed with junior developers in mind, **FastStream** simplifies your work while keeping the door open for more advanced use cases. Here's a look at the core features that make **FastStream** a go-to framework for modern, data-centric microservices.
 
 - **Multiple Brokers**: **FastStream** provides a unified API to work across multiple message brokers (**Kafka**, **RabbitMQ**, **NATS** support)
 
@@ -75,7 +75,7 @@ Making streaming microservices has never been easier. Designed with junior devel
 
 - [**Testable**](#testing-the-service): Supports in-memory tests, making your CI/CD pipeline faster and more reliable
 
-- **Extendable**: Use extensions for lifespans, custom serialization and middlewares
+- **Extendable**: Use extensions for lifespans, custom serialization and middleware
 
 - [**Integrations**](#any-framework): **FastStream** is fully compatible with any HTTP framework you want ([**FastAPI**](#fastapi-plugin) especially)
 
@@ -117,7 +117,7 @@ These decorators make it easy to specify the processing logic for your consumers
 Also, **FastStream** uses [**Pydantic**](https://docs.pydantic.dev/){.external-link target="_blank"} to parse input
 JSON-encoded data into Python objects, making it easy to work with structured data in your applications, so you can serialize your input messages just using type annotations.
 
-Here is an example python app using **FastStream** that consumes data from an incoming data stream and outputs the data to another one:
+Here is an example Python app using **FastStream** that consumes data from an incoming data stream and outputs the data to another one:
 
 {!> includes/index/2.md !}
 
@@ -140,7 +140,7 @@ Using pytest, the test for our service would look like this:
 
 ## Running the application
 
-The application can be started using built-in **FastStream** CLI command.
+The application can be started using the built-in **FastStream** CLI command.
 
 To run the service, use the **FastStream CLI** command and pass the module (in this case, the file where the app implementation is located) and the app symbol to the command.
 
@@ -156,7 +156,7 @@ INFO     - input_data |            - `HandleMsg` waiting for messages
 INFO     - FastStream app started successfully! To exit press CTRL+C
 ```
 
-Also, **FastStream** provides you a great hot reload feature to improve your Development Experience
+Also, **FastStream** provides you with a great hot reload feature to improve your Development Experience
 
 ``` shell
 faststream run basic:app --reload
@@ -209,7 +209,7 @@ Just import a **StreamRouter** you need and declare the message handler with the
 
 !!! tip
     When used this way, **FastStream** does not utilize its own dependency and serialization system but integrates seamlessly into **FastAPI**.
-    This means you can use `Depends`, `BackgroundTasks` and other **FastAPI** tools as if it were a regular HTTP endpoint.
+    This means you can use `Depends`, `BackgroundTasks`, and other **FastAPI** tools as if it were a regular HTTP endpoint.
 
 {! includes/getting_started/integrations/fastapi/1.md !}
 
