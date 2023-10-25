@@ -14,6 +14,7 @@ from typing import (
 from fast_depends.dependencies import Depends
 from redis.asyncio.client import Redis
 from redis.asyncio.connection import ConnectionPool, parse_url
+from redis.exceptions import ResponseError
 
 from faststream._compat import TypeAlias, override
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
@@ -118,6 +119,15 @@ class RedisBroker(
         assert self._connection, NOT_CONNECTED_YET  # nosec B101
 
         for handler in self.handlers.values():
+            if (stream := handler.stream_sub) is not None:
+                try:
+                    await self._connection.xgroup_create(
+                        name=stream.name, groupname=stream.group, mkstream=True
+                    )
+                except ResponseError as e:
+                    if "already exists" not in str(e):
+                        raise e
+
             c = self._get_log_context(None, handler.channel_name)
             self._log(f"`{handler.call_name}` waiting for messages", extra=c)
             await handler.start(self._connection)
@@ -248,10 +258,6 @@ class RedisBroker(
         schema: Optional[Any] = None,
         include_in_schema: bool = True,
     ):
-        channel = PubSub.validate(channel)
-        list = ListSub.validate(list)
-        stream = StreamSub.validate(stream)
-
         any_of = channel or list or stream
         if any_of is None:
             raise ValueError(INCORRECT_SETUP_MSG)
@@ -260,9 +266,9 @@ class RedisBroker(
         publisher = self._publishers.get(
             key,
             Publisher(
-                channel=channel,
-                list=list,
-                stream=stream,
+                channel=PubSub.validate(channel),
+                list=ListSub.validate(list),
+                stream=StreamSub.validate(stream),
                 headers=headers,
                 reply_to=reply_to,
                 # AsyncAPI

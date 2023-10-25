@@ -32,7 +32,10 @@ class Handler(LogicRedisHandler):
                 method = "subscribe"
 
         elif (stream := self.stream_sub) is not None:
-            method = "xread"
+            if stream.group:
+                method = "xreadgroup"
+            else:
+                method = "xread"
 
         return {
             handler_name: Channel(
@@ -49,6 +52,8 @@ class Handler(LogicRedisHandler):
                 bindings=ChannelBinding(
                     redis=redis.ChannelBinding(
                         channel=self.channel_name,
+                        group_name=getattr(self.stream_sub, "group", None),
+                        consumer_name=getattr(self.stream_sub, "consumer", None),
                         method=method,
                     )
                 ),

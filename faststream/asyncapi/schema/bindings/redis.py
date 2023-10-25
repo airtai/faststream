@@ -42,6 +42,8 @@ class ChannelBinding(BaseModel):
             "xadd",
         ]
     ] = None
+    group_name: Optional[str] = None
+    consumer_name: Optional[str] = None
     bindingVersion: str = "custom"
 
 

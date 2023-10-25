@@ -70,21 +70,32 @@ class ListSub(NameRequired):
 
 class StreamSub(NameRequired):
     polling_interval: Optional[PositiveInt] = Field(default=100, description="ms")
+    group: Optional[str] = None
+    consumer: Optional[str] = None
 
     def __init__(
         self,
         stream: str,
         polling_interval: Optional[PositiveInt] = 100,
+        group: Optional[str] = None,
+        consumer: Optional[str] = None,
     ) -> None:
         """
         Redis Stream subscriber parameters
 
         Args:
             stream: (str): Redis Stream name.
-            polling_interval (int:ms | None): wait message block.
+            polling_interval: (int:ms | None): wait message block.
+            group: (str | None): consumer group name.
+            consumer: (str | None): consumer name.
         """
+        if (group and not consumer) or (not group and consumer):
+            raise ValueError("You should specify `group` and `consumer` both")
+
         super().__init__(
             name=stream,
+            group=group,
+            consumer=consumer,
             polling_interval=polling_interval,
         )
 

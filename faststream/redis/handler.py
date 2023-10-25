@@ -125,6 +125,8 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
                 client=client,
                 name=stream.name,
                 timeout=stream.polling_interval,
+                group=stream.group,
+                consumer=stream.consumer,
             )
             sleep = 0.01
 
@@ -196,13 +198,25 @@ async def consume_stream_msg(
     client: Redis,
     name: str,
     timeout: Optional[int],
+    group: Optional[str] = None,
+    consumer: Optional[str] = None,
 ) -> Optional[PubSubMessage]:
-    for stream_name, msgs in cast(
-        Tuple[Tuple[bytes, Tuple[Tuple[bytes, AnyDict], ...]], ...],
-        await client.xread(
+    if group and consumer:
+        read = client.xreadgroup(
+            groupname=group,
+            consumername=consumer,
+            streams={name: ">"},
+            block=timeout,
+        )
+
+    else:
+        read = client.xread(
             {name: "$"},
             block=timeout,
-        ),
+        )
+
+    for stream_name, msgs in cast(
+        Tuple[Tuple[bytes, Tuple[Tuple[bytes, AnyDict], ...]], ...], await read
     ):
         for message_id, msg in msgs:
             return PubSubMessage(
