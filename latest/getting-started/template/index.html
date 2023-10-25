@@ -4,9 +4,9 @@
 <head>
     <meta charset="utf-8">
     <title>Redirecting</title>
-    <noscript>
-        <meta http-equiv="refresh" content="1; url=../../../0.2/getting-started/template/" />
-    </noscript>
+    <!-- <noscript> -->
+    <meta http-equiv="refresh" content="1; url=../../../0.2/getting-started/template/" />
+    <!-- </noscript> -->
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HDTMP5FFHP"></script>
@@ -18,7 +18,7 @@
         gtag('config', 'G-HDTMP5FFHP');
     </script>
 
-    <script>
+    <!-- <script>
         window.onload = function () {
             const urlSearchParams = new URLSearchParams(window.location.search);
             const existingReferrer = urlSearchParams.get('utm_referrer') || "";
@@ -35,10 +35,16 @@
             // Update the search parameters with the new utm_referrer
             const newGetParams = urlSearchParams.toString();
 
-            // Redirect to href with the updated query parameters
-            window.location.replace("../../../0.2/getting-started/template/" + (newGetParams ? `?${newGetParams}` : "") + window.location.hash);
+            // Construct the redirect URL with the updated query parameters
+            const redirectURL = "../../../0.2/getting-started/template/" + (newGetParams ? `?${newGetParams}` : "") + window.location.hash;
+
+            // Create and append a meta tag for redirection
+            const metaTag = document.createElement('meta');
+            metaTag.setAttribute('http-equiv', 'refresh');
+            metaTag.setAttribute('content', `0;url=${redirectURL}`);
+            document.getElementsByTagName('head')[0].appendChild(metaTag);
         };
-    </script>
+    </script> -->
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content="FastStream" />
