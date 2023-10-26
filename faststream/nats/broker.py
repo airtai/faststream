@@ -310,7 +310,6 @@ class NatsBroker(
         }
 
         if stream:
-            stream.subjects.append(subject)
             extra_options.update(
                 {
                     "durable": durable,
@@ -349,6 +348,9 @@ class NatsBroker(
                 ),
             ),
         )
+
+        if stream:
+            stream.subjects.append(handler.subject)
 
         def consumer_wrapper(
             func: Callable[P_HandlerParams, T_HandlerReturn],
