@@ -75,7 +75,7 @@ Making streaming microservices has never been easier. Designed with junior devel
 
 - [**Testable**](#testing-the-service): Supports in-memory tests, making your CI/CD pipeline faster and more reliable
 
-- **Extendable**: Use extensions for lifespans, custom serialization and middleware
+- **Extensible**: Use extensions for lifespans, custom serialization and middleware
 
 - [**Integrations**](#any-framework): **FastStream** is fully compatible with any HTTP framework you want ([**FastAPI**](#fastapi-plugin) especially)
 
@@ -168,7 +168,7 @@ And multiprocessing horizontal scaling feature as well:
 faststream run basic:app --workers 3
 ```
 
-You can know more about **CLI** features [here](./getting-started/cli/index.md){.internal-link}
+You can Learn more about **CLI** features [here](./getting-started/cli/index.md){.internal-link}
 
 ---
 
