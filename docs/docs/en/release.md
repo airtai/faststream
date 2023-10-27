@@ -6,6 +6,22 @@ hide:
 
 # Release Notes
 
+## 0.2.9
+
+### What's Changed
+* docs: fix grammatical errors in README.md by [@JanumalaAkhilendra](https://github.com/JanumalaAkhilendra){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/880](https://github.com/airtai/faststream/pull/880){.external-link target="_blank"}
+* chore: update release notes by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/881](https://github.com/airtai/faststream/pull/881){.external-link target="_blank"}
+* docs: use meta tag for redirect by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/886](https://github.com/airtai/faststream/pull/886){.external-link target="_blank"}
+* chore: semgrep upgrade by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/888](https://github.com/airtai/faststream/pull/888){.external-link target="_blank"}
+* docs: update README.md by [@bhargavshirin](https://github.com/bhargavshirin){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/889](https://github.com/airtai/faststream/pull/889){.external-link target="_blank"}
+* fix (#892): use normalized subjects in NATS streams by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/893](https://github.com/airtai/faststream/pull/893){.external-link target="_blank"}
+
+### New Contributors
+* [@JanumalaAkhilendra](https://github.com/JanumalaAkhilendra){.external-link target="_blank"} made their first contribution in [https://github.com/airtai/faststream/pull/880](https://github.com/airtai/faststream/pull/880){.external-link target="_blank"}
+* [@bhargavshirin](https://github.com/bhargavshirin){.external-link target="_blank"} made their first contribution in [https://github.com/airtai/faststream/pull/889](https://github.com/airtai/faststream/pull/889){.external-link target="_blank"}
+
+**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.8...0.2.9](https://github.com/airtai/faststream/compare/0.2.8...0.2.9){.external-link target="_blank"}
+
 ## 0.2.8
 
 ### What's Changed
