@@ -211,9 +211,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
                     return PubSubMessage(
                         type="batch",
                         channel=stream_name,
-                        data=RawMessage.build(
-                            [msg.get(bDATA_KEY, msg) for _, msg in msgs]
-                        ).data,
+                        data=[msg.get(bDATA_KEY, msg) for _, msg in msgs],
                     )
 
                 else:

@@ -53,7 +53,7 @@ class NatsLoggingMixin(LoggingMixin):
             + (f"%(stream)-{self._max_stream_len}s | " if self._max_stream_len else "")
             + (f"%(queue)-{self._max_queue_len}s | " if self._max_queue_len else "")
             + f"%(subject)-{self._max_subject_len}s | "
-            + "%(message_id)-10s "
+            + f"%(message_id)-{self._message_id_ln}s "
             "- %(message)s"
         )
 
