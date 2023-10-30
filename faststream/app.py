@@ -341,10 +341,14 @@ class FastStream(ABCApp):
 
         self._init_async_cycle()
         async with self.lifespan_context(**(run_extra_options or {})):
-            async with anyio.create_task_group() as tg:
-                tg.start_soon(self._start, log_level, run_extra_options)
-                await self._stop(log_level)
-                tg.cancel_scope.cancel()
+            try:
+                async with anyio.create_task_group() as tg:
+                    tg.start_soon(self._start, log_level, run_extra_options)
+                    await self._stop(log_level)
+                    tg.cancel_scope.cancel()
+            except ExceptionGroup as e:
+                for ex in e.exceptions:
+                    raise ex from None
 
     def _init_async_cycle(self) -> None:
         if self._stop_event is None:

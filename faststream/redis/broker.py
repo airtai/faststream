@@ -119,10 +119,12 @@ class RedisBroker(
         assert self._connection, NOT_CONNECTED_YET  # nosec B101
 
         for handler in self.handlers.values():
-            if (stream := handler.stream_sub) is not None:
+            if (stream := handler.stream_sub) is not None and stream.group:
                 try:
                     await self._connection.xgroup_create(
-                        name=stream.name, groupname=stream.group, mkstream=True
+                        name=stream.name,
+                        groupname=stream.group,
+                        mkstream=True,
                     )
                 except ResponseError as e:
                     if "already exists" not in str(e):

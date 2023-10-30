@@ -1,3 +1,4 @@
+from faststream.broker.test import TestApp
 from faststream.redis.annotations import Redis, RedisMessage
 from faststream.redis.broker import RedisBroker
 from faststream.redis.router import RedisRouter
@@ -12,6 +13,7 @@ __all__ = (
     "RedisRoute",
     "RedisRouter",
     "TestRedisBroker",
+    "TestApp",
     "PubSub",
     "ListSub",
     "StreamSub",

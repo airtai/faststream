@@ -15,6 +15,7 @@ venv*
 .cache
 htmlcov
 token
+.DS_Store
 
 site/
 site_build/

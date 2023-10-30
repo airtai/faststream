@@ -72,6 +72,7 @@ class StreamSub(NameRequired):
     polling_interval: Optional[PositiveInt] = Field(default=100, description="ms")
     group: Optional[str] = None
     consumer: Optional[str] = None
+    batch: bool = False
 
     def __init__(
         self,
@@ -79,6 +80,7 @@ class StreamSub(NameRequired):
         polling_interval: Optional[PositiveInt] = 100,
         group: Optional[str] = None,
         consumer: Optional[str] = None,
+        batch: bool = False,
     ) -> None:
         """
         Redis Stream subscriber parameters
@@ -88,6 +90,7 @@ class StreamSub(NameRequired):
             polling_interval: (int:ms | None): wait message block.
             group: (str | None): consumer group name.
             consumer: (str | None): consumer name.
+            batch: (bool): consume messages in batches.
         """
         if (group and not consumer) or (not group and consumer):
             raise ValueError("You should specify `group` and `consumer` both")
@@ -97,6 +100,7 @@ class StreamSub(NameRequired):
             group=group,
             consumer=consumer,
             polling_interval=polling_interval,
+            batch=batch,
         )
 
     def __hash__(self) -> int:

@@ -26,6 +26,7 @@ class RedisLoggingMixin(LoggingMixin):
             log_fmt=log_fmt,
             **kwargs,
         )
+        self._message_id_ln = 15
         self._max_channel_name = 4
 
     @override
@@ -44,7 +45,7 @@ class RedisLoggingMixin(LoggingMixin):
         return self._fmt or (
             "%(asctime)s %(levelname)s - "
             f"%(channel)-{self._max_channel_name}s | "
-            "%(message_id)-10s - %(message)s"
+            f"%(message_id)-{self._message_id_ln}s - %(message)s"
         )
 
     def _setup_log_context(

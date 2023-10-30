@@ -9,6 +9,7 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    Union,
     cast,
 )
 
@@ -59,6 +60,8 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
         self.subscription = None
         self.task = None
 
+        self.last_id = "$"
+
         super().__init__(
             log_context_builder=log_context_builder,
             description=description,
@@ -92,16 +95,17 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
         )
 
     async def start(self, client: Redis) -> None:
-        consume: Callable[[], Awaitable[PubSubMessage]]
+        consume: Union[
+            Callable[[], Awaitable[PubSubMessage]],
+            Callable[[], Awaitable[Tuple[PubSubMessage]]],
+        ]
         sleep: float
 
         if (list_sub := self.list_sub) is not None:
             sleep = list_sub.polling_interval
             consume = partial(
-                consume_list_msg,
+                self._consume_list_msg,
                 client=client,
-                name=list_sub.name,
-                count=list_sub.records,
             )
 
         elif (channel := self.channel) is not None:
@@ -119,14 +123,10 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
             )
             sleep = 0.01
 
-        elif (stream := self.stream_sub) is not None:
+        elif self.stream_sub is not None:
             consume = partial(
-                consume_stream_msg,
+                self._consume_stream_msg,
                 client=client,
-                name=stream.name,
-                timeout=stream.polling_interval,
-                group=stream.group,
-                consumer=stream.consumer,
             )
             sleep = 0.01
 
@@ -152,7 +152,10 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
 
     async def _consume(
         self,
-        consume: Callable[[], Awaitable[Optional[PubSubMessage]]],
+        consume: Union[
+            Callable[[], Awaitable[Optional[PubSubMessage]]],
+            Callable[[], Awaitable[Optional[Tuple[PubSubMessage]]]],
+        ],
         sleep: float,
     ) -> None:
         connected = True
@@ -170,58 +173,80 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
                     connected = True
 
                 if m:  # pragma: no branch
-                    await self.consume(m)
+                    for i in (m,) if isinstance(m, dict) else m:
+                        await self.consume(i)
 
             finally:
                 await anyio.sleep(sleep)
 
+    async def _consume_stream_msg(
+        self,
+        client: Redis,
+    ) -> Optional[Tuple[PubSubMessage]]:
+        stream = self.stream_sub
+        assert stream
 
-async def consume_list_msg(
-    client: Redis,
-    name: str,
-    count: Optional[int],
-) -> Optional[PubSubMessage]:
-    msg = await client.lpop(name=name, count=count)
+        if stream.group and stream.consumer:
+            read = client.xreadgroup(
+                groupname=stream.group,
+                consumername=stream.consumer,
+                streams={stream.name: ">"},
+                block=stream.polling_interval,
+            )
 
-    if msg:
-        if count is not None:
-            msg = RawMessage.build(msg).data
+        else:
+            read = client.xread(
+                {stream.name: self.last_id},
+                block=stream.polling_interval,
+            )
 
-        return PubSubMessage(
-            type="message" if count is None else "batch",
-            channel=name.encode(),
-            data=msg,
-        )
+        for stream_name, msgs in cast(
+            Tuple[Tuple[bytes, Tuple[Tuple[bytes, AnyDict], ...]], ...],
+            await read,
+        ):
+            if msgs:
+                self.last_id = msgs[-1][0]
 
+                if stream.batch:
+                    return PubSubMessage(
+                        type="batch",
+                        channel=stream_name,
+                        data=RawMessage.build(
+                            [msg.get(bDATA_KEY, msg) for _, msg in msgs]
+                        ).data,
+                    )
 
-async def consume_stream_msg(
-    client: Redis,
-    name: str,
-    timeout: Optional[int],
-    group: Optional[str] = None,
-    consumer: Optional[str] = None,
-) -> Optional[PubSubMessage]:
-    if group and consumer:
-        read = client.xreadgroup(
-            groupname=group,
-            consumername=consumer,
-            streams={name: ">"},
-            block=timeout,
-        )
+                else:
+                    return (
+                        PubSubMessage(
+                            type="stream",
+                            channel=stream_name,
+                            data=msg.get(
+                                bDATA_KEY,
+                                RawMessage.encode(message=msg).encode(),
+                            ),
+                            message_id=message_id.decode(),
+                        )
+                        for message_id, msg in msgs
+                    )
 
-    else:
-        read = client.xread(
-            {name: "$"},
-            block=timeout,
-        )
+    async def _consume_list_msg(
+        self,
+        client: Redis,
+    ) -> Optional[PubSubMessage]:
+        list_sub = self.list_sub
+        assert list_sub
 
-    for stream_name, msgs in cast(
-        Tuple[Tuple[bytes, Tuple[Tuple[bytes, AnyDict], ...]], ...], await read
-    ):
-        for message_id, msg in msgs:
+        count = list_sub.records
+
+        msg = await client.lpop(name=list_sub.name, count=count)
+
+        if msg:
+            if count is not None:
+                msg = RawMessage.build(msg).data
+
             return PubSubMessage(
-                type="stream",
-                channel=stream_name,
-                data=msg.get(bDATA_KEY, RawMessage.encode(message=msg).encode()),
-                message_id=message_id.decode(),
+                type="message" if count is None else "batch",
+                channel=list_sub.name.encode(),
+                data=msg,
             )
