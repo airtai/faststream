@@ -52,18 +52,13 @@ def _import_submodules(module_name: str) -> List[ModuleType]:
 def _import_functions_and_classes(
     m: ModuleType,
 ) -> List[Tuple[str, Union[FunctionType, Type[Any]]]]:
-    # funcs_and_classes =  [(x, y) for x, y in getmembers(m) if isfunction(y) or isclass(y)]
-    funcs_and_classes =  []
-    for x, y in getmembers(m):
-        if isfunction(y) or isclass(y):
-            funcs_and_classes.append((x, y))
-        elif x == "__all__" and isinstance(y, tuple):
-            for t in y:
-                obj = getattr(m, t)
-                if isfunction(obj) or isclass(obj):
-                    funcs_and_classes.append((t, m.__name__ + "." + t))
-        else:
-            continue
+    funcs_and_classes =  [(x, y) for x, y in getmembers(m) if isfunction(y) or isclass(y)]
+    if hasattr(m, '__all__'):
+        for t in m.__all__:
+            obj = getattr(m, t)
+            if isfunction(obj) or isclass(obj):
+                funcs_and_classes.append((t, m.__name__ + "." + t))
+
     return funcs_and_classes
 
 
@@ -171,15 +166,8 @@ def _load_submodules(
     members: List[Tuple[str, Union[FunctionType, Type[Any]]]] = list(
         itertools.chain(*[_import_functions_and_classes(m) for m in submodules])
     )
-    names = []
-    for x, y in members:
-        if isinstance(y, str):
-            name = y
-        else:
-            name = f"{y.__module__}.{y.__name__}"
-        if name in members_with_submodules:
-            names.append(name)
-    return names
+    names = [y if isinstance(y, str) else f"{y.__module__}.{y.__name__}" for x, y in members]
+    return [name for name in names if name in members_with_submodules]
 
 
 def _update_single_api_doc(
@@ -189,16 +177,13 @@ def _update_single_api_doc(
     if isinstance(symbol, str):
         class_name = symbol.split(".")[-1]
         module_name = ".".join(symbol.split(".")[:-1])
-        module = import_module(module_name)
-        s = getattr(module, class_name)
-        module = f"{s.__module__}.{s.__qualname__}"
+        obj = getattr(import_module(module_name), class_name)
         filename = symbol
     else:
-        module = f"{symbol.__module__}.{symbol.__qualname__}"
+        obj = symbol
         filename = f"{symbol.__module__}.{symbol.__name__}"
 
-    # module = f"{symbol.__module__}.{symbol.__qualname__}"
-    content = f"\n\n::: {module}\n"
+    content = f"\n\n::: {obj.__module__}.{obj.__qualname__}\n"
 
     target_file_path = (
         "/".join(filename.split(".")) + ".md"
@@ -232,7 +217,6 @@ def _generate_api_docs_for_module(root_path: str, module_name: str) -> str:
     members = _import_all_members(module_name)
     members_with_submodules = _add_all_submodules(members)
     api_summary = _get_api_summary(members_with_submodules)
-    # print(api_summary)
 
     _generate_api_docs(members_with_submodules, Path(root_path) / "docs" / "en" / "api")
 
