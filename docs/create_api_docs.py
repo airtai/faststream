@@ -52,7 +52,19 @@ def _import_submodules(module_name: str) -> List[ModuleType]:
 def _import_functions_and_classes(
     m: ModuleType,
 ) -> List[Tuple[str, Union[FunctionType, Type[Any]]]]:
-    return [(x, y) for x, y in getmembers(m) if isfunction(y) or isclass(y)]
+    # funcs_and_classes =  [(x, y) for x, y in getmembers(m) if isfunction(y) or isclass(y)]
+    funcs_and_classes =  []
+    for x, y in getmembers(m):
+        if isfunction(y) or isclass(y):
+            funcs_and_classes.append((x, y))
+        elif x == "__all__" and isinstance(y, tuple):
+            for t in y:
+                obj = getattr(m, t)
+                if isfunction(obj) or isclass(obj):
+                    funcs_and_classes.append((t, m.__name__ + "." + t))
+        else:
+            continue
+    return funcs_and_classes
 
 
 def _is_private(name: str) -> bool:
@@ -66,7 +78,7 @@ def _import_all_members(module_name: str) -> List[str]:
         itertools.chain(*[_import_functions_and_classes(m) for m in submodules])
     )
 
-    names = [f"{y.__module__}.{y.__name__}" for x, y in members]
+    names = [y if isinstance(y, str) else f"{y.__module__}.{y.__name__}" for x, y in members]
     names = [
         name for name in names if not _is_private(name) and name.startswith(module_name)
     ]
@@ -159,11 +171,14 @@ def _load_submodules(
     members: List[Tuple[str, Union[FunctionType, Type[Any]]]] = list(
         itertools.chain(*[_import_functions_and_classes(m) for m in submodules])
     )
-    names = [
-        y
-        for x, y in members
-        if f"{y.__module__}.{y.__name__}" in members_with_submodules
-    ]
+    names = []
+    for x, y in members:
+        if isinstance(y, str):
+            name = y
+        else:
+            name = f"{y.__module__}.{y.__name__}"
+        if name in members_with_submodules:
+            names.append(name)
     return names
 
 
@@ -171,12 +186,22 @@ def _update_single_api_doc(
     symbol: Union[FunctionType, Type[Any]], docs_path: Path
 ) -> None:
     en_docs_path = docs_path / "docs" / "en"
+    if isinstance(symbol, str):
+        class_name = symbol.split(".")[-1]
+        module_name = ".".join(symbol.split(".")[:-1])
+        module = import_module(module_name)
+        s = getattr(module, class_name)
+        module = f"{s.__module__}.{s.__qualname__}"
+        filename = symbol
+    else:
+        module = f"{symbol.__module__}.{symbol.__qualname__}"
+        filename = f"{symbol.__module__}.{symbol.__name__}"
 
-    module = f"{symbol.__module__}.{symbol.__qualname__}"
+    # module = f"{symbol.__module__}.{symbol.__qualname__}"
     content = f"\n\n::: {module}\n"
 
     target_file_path = (
-        "/".join(f"{symbol.__module__}.{symbol.__name__}".split(".")) + ".md"
+        "/".join(filename.split(".")) + ".md"
     )
 
     with open((en_docs_path / "api" / target_file_path), "w", encoding="utf-8") as f:
@@ -207,6 +232,7 @@ def _generate_api_docs_for_module(root_path: str, module_name: str) -> str:
     members = _import_all_members(module_name)
     members_with_submodules = _add_all_submodules(members)
     api_summary = _get_api_summary(members_with_submodules)
+    # print(api_summary)
 
     _generate_api_docs(members_with_submodules, Path(root_path) / "docs" / "en" / "api")
 
