@@ -117,7 +117,8 @@ class NatsRouter(StreamRouter[Msg]):
             ]
         ] = None,
         # AsyncAPI args
-        protocol: str = "amqp",
+        asyncapi_url: Union[str, List[str], None] = None,
+        protocol: str = "nats",
         protocol_version: Optional[str] = "0.9.1",
         description: Optional[str] = None,
         asyncapi_tags: Optional[Sequence[asyncapi.Tag]] = None,

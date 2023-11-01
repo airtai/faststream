@@ -59,3 +59,33 @@ def test_multi():
             },
         },
     }
+
+
+def test_custom():
+    schema = get_app_schema(
+        FastStream(
+            NatsBroker(
+                ["nats:9092", "nats:9093"], asyncapi_url=["nats:9094", "nats:9095"]
+            )
+        )
+    ).to_jsonable()
+
+    assert schema == {
+        "asyncapi": "2.6.0",
+        "channels": {},
+        "components": {"messages": {}, "schemas": {}},
+        "defaultContentType": "application/json",
+        "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
+        "servers": {
+            "Server1": {
+                "protocol": "nats",
+                "protocolVersion": "custom",
+                "url": "nats:9094",
+            },
+            "Server2": {
+                "protocol": "nats",
+                "protocolVersion": "custom",
+                "url": "nats:9095",
+            },
+        },
+    }

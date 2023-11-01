@@ -81,7 +81,7 @@ That's **FastStream** in a nutshell—easy, efficient, and powerful. Whether you
 
 ---
 
-**Documentation**: <a href="https://faststream.airt.ai/" target="_blank">https://faststream.airt.ai/</a>
+**Documentation**: <a href="https://faststream.airt.ai/?utm_source=github&utm_medium=acquisition&utm_campaign=measure" target="_blank">https://faststream.airt.ai/</a>
 
 ---
 
