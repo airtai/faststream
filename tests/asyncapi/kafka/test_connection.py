@@ -60,12 +60,15 @@ def test_multi():
         },
     }
 
+
 def test_custom():
     schema = get_app_schema(
-        FastStream(KafkaBroker(
-            ["kafka:9092", "kafka:9093"],
-            asyncapi_url=["kafka:9094", "kafka:9095"],
-        ))
+        FastStream(
+            KafkaBroker(
+                ["kafka:9092", "kafka:9093"],
+                asyncapi_url=["kafka:9094", "kafka:9095"],
+            )
+        )
     ).to_jsonable()
 
     assert schema == {

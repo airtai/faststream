@@ -63,10 +63,11 @@ def test_multi():
 
 def test_custom():
     schema = get_app_schema(
-        FastStream(NatsBroker(
-            ["nats:9092", "nats:9093"],
-            asyncapi_url=["nats:9094", "nats:9095"]
-        ))
+        FastStream(
+            NatsBroker(
+                ["nats:9092", "nats:9093"], asyncapi_url=["nats:9094", "nats:9095"]
+            )
+        )
     ).to_jsonable()
 
     assert schema == {

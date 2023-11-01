@@ -1,7 +1,7 @@
 import logging
 import ssl
 from types import TracebackType
-from typing import Any, Awaitable, Callable, Dict, Optional, Sequence, Type, Union, List
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Sequence, Type, Union
 
 from fast_depends.dependencies import Depends
 from nats.aio.client import (
