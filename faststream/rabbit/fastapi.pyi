@@ -61,9 +61,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         login: str = "guest",
         password: str = "guest",
         virtualhost: str = "/",
-        ssl: bool = False,
         ssl_options: Optional[aio_pika.abc.SSLOptions] = None,
-        ssl_context: Optional[SSLContext] = None,
         timeout: aio_pika.abc.TimeoutType = None,
         client_properties: Optional[FieldTable] = None,
         # specific args
