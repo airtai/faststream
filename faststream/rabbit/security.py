@@ -8,15 +8,14 @@ from faststream.types import AnyDict
 
 
 def parse_security(security: Optional[BaseSecurity]) -> AnyDict:
-    type_ = type(security)
     if security is None:
         return {}
-    elif type_ == BaseSecurity:
-        return _parse_base_security(security)
-    elif type_ == SASLPlaintext:
+    elif isinstance(security, SASLPlaintext):
         return _parse_sasl_plaintext(security)
+    elif isinstance(security, BaseSecurity):
+        return _parse_base_security(security)
     else:
-        raise NotImplementedError(f"RabbitBroker does not support {type_}")
+        raise NotImplementedError(f"RabbitBroker does not support {type(security)}")
 
 
 def _parse_base_security(security: BaseSecurity) -> AnyDict:
