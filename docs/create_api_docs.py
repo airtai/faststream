@@ -52,8 +52,10 @@ def _import_submodules(module_name: str) -> List[ModuleType]:
 def _import_functions_and_classes(
     m: ModuleType,
 ) -> List[Tuple[str, Union[FunctionType, Type[Any]]]]:
-    funcs_and_classes =  [(x, y) for x, y in getmembers(m) if isfunction(y) or isclass(y)]
-    if hasattr(m, '__all__'):
+    funcs_and_classes = [
+        (x, y) for x, y in getmembers(m) if isfunction(y) or isclass(y)
+    ]
+    if hasattr(m, "__all__"):
         for t in m.__all__:
             obj = getattr(m, t)
             if isfunction(obj) or isclass(obj):
@@ -73,7 +75,9 @@ def _import_all_members(module_name: str) -> List[str]:
         itertools.chain(*[_import_functions_and_classes(m) for m in submodules])
     )
 
-    names = [y if isinstance(y, str) else f"{y.__module__}.{y.__name__}" for x, y in members]
+    names = [
+        y if isinstance(y, str) else f"{y.__module__}.{y.__name__}" for x, y in members
+    ]
     names = [
         name for name in names if not _is_private(name) and name.startswith(module_name)
     ]
@@ -166,28 +170,34 @@ def _load_submodules(
     members: List[Tuple[str, Union[FunctionType, Type[Any]]]] = list(
         itertools.chain(*[_import_functions_and_classes(m) for m in submodules])
     )
-    names = [y if isinstance(y, str) else f"{y.__module__}.{y.__name__}" for x, y in members]
-    return [name for name in names if name in members_with_submodules]
+    names = [
+        y
+        for x, y in members
+        if (isinstance(y, str) and y in members_with_submodules)
+        or (f"{y.__module__}.{y.__name__}" in members_with_submodules)
+    ]
+    return names
 
 
 def _update_single_api_doc(
     symbol: Union[FunctionType, Type[Any]], docs_path: Path
 ) -> None:
     en_docs_path = docs_path / "docs" / "en"
+    content_to_append = ""
+
     if isinstance(symbol, str):
         class_name = symbol.split(".")[-1]
         module_name = ".".join(symbol.split(".")[:-1])
         obj = getattr(import_module(module_name), class_name)
         filename = symbol
+        content_to_append = "    options:\n      show_root_full_path: false\n"
     else:
         obj = symbol
         filename = f"{symbol.__module__}.{symbol.__name__}"
 
-    content = f"\n\n::: {obj.__module__}.{obj.__qualname__}\n"
+    content = f"\n\n::: {obj.__module__}.{obj.__qualname__}\n" + content_to_append
 
-    target_file_path = (
-        "/".join(filename.split(".")) + ".md"
-    )
+    target_file_path = "/".join(filename.split(".")) + ".md"
 
     with open((en_docs_path / "api" / target_file_path), "w", encoding="utf-8") as f:
         f.write(content)
