@@ -106,14 +106,16 @@ class RabbitBroker(
             protocol_version (Optional[str], optional): The protocol version to use (e.g., "0.9.1"). Defaults to "0.9.1".
             **kwargs: Additional keyword arguments.
         """
+        security_args = parse_security(security)
+
         amqp_url = build_url(
             url,
             host=host,
             port=port,
-            login=login,
-            password=password,
+            login=security_args.get("login", login),
+            password=security_args.get("password", password),
             virtualhost=virtualhost,
-            ssl=ssl,
+            ssl=security_args.get("ssl", ssl),
             ssl_options=ssl_options,
             client_properties=client_properties,
         )
@@ -123,6 +125,7 @@ class RabbitBroker(
             protocol=amqp_url.scheme,
             protocol_version=protocol_version,
             security=security,
+            ssl_context=security_args.get("ssl_context"),
             **kwargs,
         )
 
@@ -216,7 +219,6 @@ class RabbitBroker(
                     ssl_options=ssl_options,
                     client_properties=client_properties,
                 ),
-                **parse_security(self.security),
                 **kwargs,
             ),
         )

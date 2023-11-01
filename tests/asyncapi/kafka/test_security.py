@@ -9,7 +9,7 @@ from faststream.broker.security import (
     SASLScram256,
     SASLScram512,
 )
-from faststream.kafka.annotations import KafkaBroker
+from faststream.kafka import KafkaBroker
 
 basic_schema = {
     "asyncapi": "2.6.0",
