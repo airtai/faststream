@@ -1,3 +1,4 @@
+import warnings
 from functools import partial, wraps
 from types import TracebackType
 from typing import Any, Awaitable, Callable, Dict, Optional, Sequence, Type, Union, cast
@@ -86,7 +87,6 @@ class RabbitBroker(
         login: Optional[str] = None,
         password: Optional[str] = None,
         virtualhost: Optional[str] = None,
-        ssl: bool = False,
         ssl_options: Optional[SSLOptions] = None,
         client_properties: Optional[FieldTable] = None,
         # broker args
@@ -108,6 +108,12 @@ class RabbitBroker(
         """
         security_args = parse_security(security)
 
+        if (ssl := kwargs.get("ssl")) or kwargs.get("ssl_context"):
+            warnings.warn((
+                f"\nRabbitMQ {'`ssl`' if ssl else '`ssl_context`'} option was deprecated and will be removed in 0.4.0"
+                "\nPlease, use `security` with `BaseSecurity` or `SASLPlaintext` instead"
+            ), DeprecationWarning, stacklevel=2)
+
         amqp_url = build_url(
             url,
             host=host,
@@ -115,7 +121,7 @@ class RabbitBroker(
             login=security_args.get("login", login),
             password=security_args.get("password", password),
             virtualhost=virtualhost,
-            ssl=security_args.get("ssl", ssl),
+            ssl=security_args.get("ssl", kwargs.pop("ssl", False)),
             ssl_options=ssl_options,
             client_properties=client_properties,
         )
@@ -125,7 +131,7 @@ class RabbitBroker(
             protocol=amqp_url.scheme,
             protocol_version=protocol_version,
             security=security,
-            ssl_context=security_args.get("ssl_context"),
+            ssl_context=security_args.get("ssl_context", kwargs.pop("ssl_context", None)),
             **kwargs,
         )
 
@@ -191,7 +197,6 @@ class RabbitBroker(
         login: Optional[str] = None,
         password: Optional[str] = None,
         virtualhost: Optional[str] = None,
-        ssl: bool = False,
         ssl_options: Optional[SSLOptions] = None,
         client_properties: Optional[FieldTable] = None,
         **kwargs: Any,
@@ -215,7 +220,6 @@ class RabbitBroker(
                     login=login,
                     password=password,
                     virtualhost=virtualhost,
-                    ssl=ssl,
                     ssl_options=ssl_options,
                     client_properties=client_properties,
                 ),
