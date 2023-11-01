@@ -75,6 +75,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
         # AsyncAPI args
+        asyncapi_url: Optional[str] = None,
         protocol: str = "amqp",
         protocol_version: Optional[str] = "0.9.1",
         description: Optional[str] = None,

@@ -1,7 +1,7 @@
 import logging
 import ssl
 from types import TracebackType
-from typing import Any, Awaitable, Callable, Dict, Optional, Sequence, Type, Union
+from typing import Any, Awaitable, Callable, Dict, Optional, Sequence, Type, Union, List
 
 from fast_depends.dependencies import Depends
 from nats.aio.client import (
@@ -111,7 +111,8 @@ class NatsBroker(
             ]
         ] = None,
         # AsyncAPI args
-        protocol: str = "amqp",
+        asyncapi_url: Union[str, List[str], None] = None,
+        protocol: str = "nats",
         protocol_version: Optional[str] = "custom",
         description: Optional[str] = None,
         tags: Optional[Sequence[asyncapi.Tag]] = None,

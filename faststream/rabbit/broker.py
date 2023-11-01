@@ -4,7 +4,9 @@ from typing import Any, Awaitable, Callable, Dict, Optional, Sequence, Type, Uni
 
 import aio_pika
 import aiormq
+from aio_pika.abc import SSLOptions
 from fast_depends.dependencies import Depends
+from pamqp.common import FieldTable
 from yarl import URL
 
 from faststream._compat import override
@@ -36,6 +38,7 @@ from faststream.rabbit.shared.schemas import (
     get_routing_hash,
 )
 from faststream.rabbit.shared.types import TimeoutType
+from faststream.rabbit.shared.utils import build_url
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils import context
 
@@ -77,9 +80,18 @@ class RabbitBroker(
         self,
         url: Union[str, URL, None] = "amqp://guest:guest@localhost:5672/",
         *,
-        virtualhost: str = "/",
+        # connection args
+        host: Optional[str] = None,
+        port: Optional[int] = None,
+        login: Optional[str] = None,
+        password: Optional[str] = None,
+        virtualhost: Optional[str] = None,
+        ssl: bool = False,
+        ssl_options: Optional[SSLOptions] = None,
+        client_properties: Optional[FieldTable] = None,
+        # broker args
         max_consumers: Optional[int] = None,
-        protocol: str = "amqp",
+        protocol: Optional[str] = None,
         protocol_version: Optional[str] = "0.9.1",
         security: Optional[BaseSecurity] = None,
         **kwargs: Any,
@@ -94,23 +106,30 @@ class RabbitBroker(
             protocol_version (Optional[str], optional): The protocol version to use (e.g., "0.9.1"). Defaults to "0.9.1".
             **kwargs: Additional keyword arguments.
         """
-        if url is not None:
-            if not isinstance(url, URL):
-                url = URL(url)
-
-            self.virtual_host = url.path
-            url = str(url)
-        else:
-            self.virtual_host = virtualhost
+        amqp_url = build_url(
+            url,
+            host=host,
+            port=port,
+            login=login,
+            password=password,
+            virtualhost=virtualhost,
+            ssl=ssl,
+            ssl_options=ssl_options,
+            client_properties=client_properties,
+        )
 
         super().__init__(
-            url=url,
-            protocol=protocol,
+            url=str(amqp_url),
+            protocol=amqp_url.scheme,
             protocol_version=protocol_version,
             security=security,
-            virtualhost=virtualhost,
             **kwargs,
         )
+
+        # respect ascynapi_url argument scheme
+        asyncapi_url = build_url(self.url)
+        self.protocol = protocol or asyncapi_url.scheme
+        self.virtual_host = asyncapi_url.path
 
         self._max_consumers = max_consumers
 
@@ -162,6 +181,16 @@ class RabbitBroker(
 
     async def _connect(
         self,
+        url: str,
+        *,
+        host: Optional[str] = None,
+        port: Optional[int] = None,
+        login: Optional[str] = None,
+        password: Optional[str] = None,
+        virtualhost: Optional[str] = None,
+        ssl: bool = False,
+        ssl_options: Optional[SSLOptions] = None,
+        client_properties: Optional[FieldTable] = None,
         **kwargs: Any,
     ) -> aio_pika.RobustConnection:
         """
@@ -175,7 +204,21 @@ class RabbitBroker(
         """
         connection = cast(
             aio_pika.RobustConnection,
-            await aio_pika.connect_robust(**kwargs, **parse_security(self.security)),
+            await aio_pika.connect_robust(
+                build_url(
+                    url,
+                    host=host,
+                    port=port,
+                    login=login,
+                    password=password,
+                    virtualhost=virtualhost,
+                    ssl=ssl,
+                    ssl_options=ssl_options,
+                    client_properties=client_properties,
+                ),
+                **parse_security(self.security),
+                **kwargs,
+            ),
         )
 
         if self._channel is None:  # pragma: no branch

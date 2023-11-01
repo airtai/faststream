@@ -116,6 +116,7 @@ class BrokerUsecase(
         protocol_version: Optional[str] = None,
         description: Optional[str] = None,
         tags: Optional[Sequence[Union[asyncapi.Tag, asyncapi.TagDict]]] = None,
+        asyncapi_url: Union[str, List[str], None] = None,
         # broker kwargs
         apply_types: bool = True,
         logger: Optional[logging.Logger] = access_logger,
@@ -179,7 +180,7 @@ class BrokerUsecase(
         self.started = False
 
         # AsyncAPI information
-        self.url = url
+        self.url = asyncapi_url or url
         self.protocol = protocol
         self.protocol_version = protocol_version
         self.description = description
