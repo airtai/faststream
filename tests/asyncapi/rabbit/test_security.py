@@ -15,7 +15,9 @@ def test_base_security_schema():
 
     broker = RabbitBroker("amqp://guest:guest@localhost:5672/", security=security)
 
-    assert broker.url == "amqps://guest:guest@localhost:5672/"
+    assert (
+        broker.url == "amqps://guest:guest@localhost:5672/"  # pragma: allowlist secret
+    )  # pragma: allowlist secret
     assert broker._connection_kwargs.get("ssl_context") is ssl_context
 
     schema = get_app_schema(FastStream(broker)).to_jsonable()
@@ -31,7 +33,7 @@ def test_base_security_schema():
                 "protocol": "amqps",
                 "protocolVersion": "0.9.1",
                 "security": [],
-                "url": "amqps://guest:guest@localhost:5672/",
+                "url": "amqps://guest:guest@localhost:5672/",  # pragma: allowlist secret
             }
         },
     }
@@ -48,7 +50,10 @@ def test_plaintext_security_schema():
 
     broker = RabbitBroker("amqp://guest:guest@localhost:5672/", security=security)
 
-    assert broker.url == "amqps://admin:password@localhost:5672/"
+    assert (
+        broker.url
+        == "amqps://admin:password@localhost:5672/"  # pragma: allowlist secret
+    )  # pragma: allowlist secret
     assert broker._connection_kwargs.get("ssl_context") is ssl_context
 
     schema = get_app_schema(FastStream(broker)).to_jsonable()
@@ -67,7 +72,7 @@ def test_plaintext_security_schema():
                 "protocol": "amqps",
                 "protocolVersion": "0.9.1",
                 "security": [{"user-password": []}],
-                "url": "amqps://admin:password@localhost:5672/",
+                "url": "amqps://admin:password@localhost:5672/",  # pragma: allowlist secret
             }
         },
     }

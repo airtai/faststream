@@ -29,7 +29,7 @@ def test_base():
                 "protocol": "amqps",
                 "protocolVersion": "0.9.0",
                 "tags": [{"description": "experimental", "name": "some-tag"}],
-                "url": "amqps://guest:guest@localhost:5673/",
+                "url": "amqps://guest:guest@localhost:5673/",  # pragma: allowlist secret
             }
         },
     }
@@ -37,15 +37,20 @@ def test_base():
 
 def test_kwargs():
     broker = RabbitBroker(
-        "amqp://guest:guest@localhost:5672/?heartbeat=300", host="127.0.0.1"
+        "amqp://guest:guest@localhost:5672/?heartbeat=300",  # pragma: allowlist secret
+        host="127.0.0.1",
     )
 
-    assert broker.url == "amqp://guest:guest@127.0.0.1:5672/?heartbeat=300"
+    assert (
+        broker.url
+        == "amqp://guest:guest@127.0.0.1:5672/?heartbeat=300"  # pragma: allowlist secret
+    )
 
 
 def test_custom():
     broker = RabbitBroker(
-        "amqps://localhost", asyncapi_url="amqp://guest:guest@127.0.0.1:5672/vh"
+        "amqps://localhost",
+        asyncapi_url="amqp://guest:guest@127.0.0.1:5672/vh",  # pragma: allowlist secret
     )
 
     broker.publisher("test")
@@ -102,7 +107,7 @@ def test_custom():
             "development": {
                 "protocol": "amqp",
                 "protocolVersion": "0.9.1",
-                "url": "amqp://guest:guest@127.0.0.1:5672/vh",
+                "url": "amqp://guest:guest@127.0.0.1:5672/vh",  # pragma: allowlist secret
             }
         },
     }
