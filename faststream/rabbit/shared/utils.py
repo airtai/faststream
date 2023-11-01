@@ -30,7 +30,10 @@ def build_url(
         ssl=ssl or original_url.scheme == "amqps",
         ssl_options=ssl_options,
         client_properties=client_properties,
-        **kwargs,
+        **{
+            **kwargs,
+            **dict(original_url.query),
+        }
     )
 
 
