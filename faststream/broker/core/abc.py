@@ -33,7 +33,6 @@ from faststream.broker.middlewares import BaseMiddleware, CriticalLogMiddleware
 from faststream.broker.publisher import BasePublisher
 from faststream.broker.push_back_watcher import BaseWatcher
 from faststream.broker.router import BrokerRouter
-from faststream.broker.security import BaseSecurity
 from faststream.broker.types import (
     ConnectionType,
     CustomDecoder,
@@ -51,6 +50,7 @@ from faststream.broker.utils import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.log import access_logger
+from faststream.security import BaseSecurity
 from faststream.types import AnyDict, F_Return, F_Spec
 from faststream.utils import apply_types, context
 from faststream.utils.functions import get_function_positional_arguments, to_async

@@ -3,13 +3,13 @@ from copy import deepcopy
 
 from faststream.app import FastStream
 from faststream.asyncapi.generate import get_app_schema
-from faststream.broker.security import (
+from faststream.kafka import KafkaBroker
+from faststream.security import (
     BaseSecurity,
     SASLPlaintext,
     SASLScram256,
     SASLScram512,
 )
-from faststream.kafka import KafkaBroker
 
 basic_schema = {
     "asyncapi": "2.6.0",

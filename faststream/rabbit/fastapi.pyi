@@ -1,5 +1,4 @@
 from enum import Enum
-from ssl import SSLContext
 from typing import (
     Any,
     Awaitable,

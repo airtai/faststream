@@ -37,8 +37,7 @@ def test_base():
 
 def test_kwargs():
     broker = RabbitBroker(
-        "amqp://guest:guest@localhost:5672/?heartbeat=300",
-        host="127.0.0.1"
+        "amqp://guest:guest@localhost:5672/?heartbeat=300", host="127.0.0.1"
     )
 
     assert broker.url == "amqp://guest:guest@127.0.0.1:5672/?heartbeat=300"

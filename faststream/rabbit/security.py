@@ -1,6 +1,6 @@
 from typing import Optional
 
-from faststream.broker.security import (
+from faststream.security import (
     BaseSecurity,
     SASLPlaintext,
 )

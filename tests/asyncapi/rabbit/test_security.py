@@ -2,11 +2,11 @@ import ssl
 
 from faststream.app import FastStream
 from faststream.asyncapi.generate import get_app_schema
-from faststream.broker.security import (
+from faststream.rabbit import RabbitBroker
+from faststream.security import (
     BaseSecurity,
     SASLPlaintext,
 )
-from faststream.rabbit import RabbitBroker
 
 
 def test_base_security_schema():

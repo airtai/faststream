@@ -15,7 +15,6 @@ from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filte
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.push_back_watcher import BaseWatcher, WatcherContext
-from faststream.broker.security import BaseSecurity
 from faststream.broker.types import (
     AsyncPublisherProtocol,
     CustomDecoder,
@@ -40,6 +39,7 @@ from faststream.rabbit.shared.schemas import (
 )
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.rabbit.shared.utils import build_url
+from faststream.security import BaseSecurity
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils import context
 
@@ -109,10 +109,14 @@ class RabbitBroker(
         security_args = parse_security(security)
 
         if (ssl := kwargs.get("ssl")) or kwargs.get("ssl_context"):
-            warnings.warn((
-                f"\nRabbitMQ {'`ssl`' if ssl else '`ssl_context`'} option was deprecated and will be removed in 0.4.0"
-                "\nPlease, use `security` with `BaseSecurity` or `SASLPlaintext` instead"
-            ), DeprecationWarning, stacklevel=2)
+            warnings.warn(
+                (
+                    f"\nRabbitMQ {'`ssl`' if ssl else '`ssl_context`'} option was deprecated and will be removed in 0.4.0"
+                    "\nPlease, use `security` with `BaseSecurity` or `SASLPlaintext` instead"
+                ),
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
         amqp_url = build_url(
             url,
@@ -131,7 +135,9 @@ class RabbitBroker(
             protocol=amqp_url.scheme,
             protocol_version=protocol_version,
             security=security,
-            ssl_context=security_args.get("ssl_context", kwargs.pop("ssl_context", None)),
+            ssl_context=security_args.get(
+                "ssl_context", kwargs.pop("ssl_context", None)
+            ),
             **kwargs,
         )
 

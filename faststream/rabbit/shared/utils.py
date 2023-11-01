@@ -33,7 +33,7 @@ def build_url(
         **{
             **kwargs,
             **dict(original_url.query),
-        }
+        },
     )
 
 

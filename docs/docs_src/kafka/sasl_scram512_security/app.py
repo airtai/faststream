@@ -1,8 +1,8 @@
 import ssl
 
 from faststream import FastStream
-from faststream.broker.security import SASLScram512
 from faststream.kafka import KafkaBroker
+from faststream.security import SASLScram512
 
 ssl_context = ssl.create_default_context()
 security = SASLScram512(ssl_context=ssl_context, username="admin", password="password")
