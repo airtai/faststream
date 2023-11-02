@@ -4,9 +4,9 @@
 <head>
     <meta charset="utf-8">
     <title>Redirecting</title>
-    <!-- <noscript> -->
-    <meta http-equiv="refresh" content="1; url={{href}}" />
-    <!-- </noscript> -->
+    <noscript>
+        <meta http-equiv="refresh" content="1; url={{href}}" />
+    </noscript>
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HDTMP5FFHP"></script>
@@ -18,7 +18,7 @@
         gtag('config', 'G-HDTMP5FFHP');
     </script>
 
-    <!-- <script>
+    <script>
         window.onload = function () {
             const urlSearchParams = new URLSearchParams(window.location.search);
             const existingReferrer = urlSearchParams.get('utm_referrer') || "";
@@ -38,13 +38,9 @@
             // Construct the redirect URL with the updated query parameters
             const redirectURL = "{{href}}" + (newGetParams ? `?${newGetParams}` : "") + window.location.hash;
 
-            // Create and append a meta tag for redirection
-            const metaTag = document.createElement('meta');
-            metaTag.setAttribute('http-equiv', 'refresh');
-            metaTag.setAttribute('content', `0;url=${redirectURL}`);
-            document.getElementsByTagName('head')[0].appendChild(metaTag);
+            window.location.replace(redirectURL);
         };
-    </script> -->
+    </script>
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content="FastStream" />

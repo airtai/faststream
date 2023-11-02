@@ -80,6 +80,15 @@ plugins:
             show_docstring_attributes: false
             show_root_heading: true
             show_signature_annotations: true
+            inherited_members: true
+            members_order: alphabetical
+            unwrap_annotated: true
+            merge_init_into_class: true
+            signature_crossrefs: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            load_external_modules: true
+            preload_modules: [httpx, starlette, fastapi]
   - i18n:
       docs_structure: folder
       reconfigure_material: true
