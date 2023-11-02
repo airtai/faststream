@@ -84,7 +84,7 @@ class Publisher(LogicPublisher):
                             if _is_exchange(self.exchange) and self.queue.name
                             else None,
                             "exchange": (
-                                amqp.Exchange(type="default")
+                                amqp.Exchange(type="default", vhost=self.virtual_host)
                                 if self.exchange is None
                                 else amqp.Exchange(
                                     type=self.exchange.type,  # type: ignore
@@ -153,7 +153,7 @@ class Handler(LogicHandler):
                             if _is_exchange(self.exchange)
                             else None,
                             "exchange": (
-                                amqp.Exchange(type="default")
+                                amqp.Exchange(type="default", vhost=self.virtual_host)
                                 if self.exchange is None
                                 else amqp.Exchange(
                                     type=self.exchange.type,  # type: ignore

@@ -33,7 +33,6 @@ from faststream.broker.middlewares import BaseMiddleware, CriticalLogMiddleware
 from faststream.broker.publisher import BasePublisher
 from faststream.broker.push_back_watcher import BaseWatcher
 from faststream.broker.router import BrokerRouter
-from faststream.broker.security import BaseSecurity
 from faststream.broker.types import (
     ConnectionType,
     CustomDecoder,
@@ -51,6 +50,7 @@ from faststream.broker.utils import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.log import access_logger
+from faststream.security import BaseSecurity
 from faststream.types import AnyDict, F_Return, F_Spec
 from faststream.utils import apply_types, context
 from faststream.utils.functions import get_function_positional_arguments, to_async
@@ -116,6 +116,7 @@ class BrokerUsecase(
         protocol_version: Optional[str] = None,
         description: Optional[str] = None,
         tags: Optional[Sequence[Union[asyncapi.Tag, asyncapi.TagDict]]] = None,
+        asyncapi_url: Union[str, List[str], None] = None,
         # broker kwargs
         apply_types: bool = True,
         logger: Optional[logging.Logger] = access_logger,
@@ -179,7 +180,7 @@ class BrokerUsecase(
         self.started = False
 
         # AsyncAPI information
-        self.url = url
+        self.url = asyncapi_url or url
         self.protocol = protocol
         self.protocol_version = protocol_version
         self.description = description
