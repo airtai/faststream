@@ -6,6 +6,17 @@ hide:
 
 # Release Notes
 
+## 0.2.10
+
+### What's Changed
+* chore: add release notes for 0.2.9 by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/894](https://github.com/airtai/faststream/pull/894){.external-link target="_blank"}
+* chore: upgrade packages by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/901](https://github.com/airtai/faststream/pull/901){.external-link target="_blank"}
+* chore: use js redirect and redirect to version by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/902](https://github.com/airtai/faststream/pull/902){.external-link target="_blank"}
+* feat: add `asyncapi_url` broker arg by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/903](https://github.com/airtai/faststream/pull/903){.external-link target="_blank"}
+
+
+**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.9...0.2.10](https://github.com/airtai/faststream/compare/0.2.9...0.2.10){.external-link target="_blank"}
+
 ## 0.2.9
 
 ### What's Changed
