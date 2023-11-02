@@ -80,18 +80,18 @@
         - [Header](api/faststream/Header.md)
         - [Path](api/faststream/Path.md)
         - [TestApp](api/faststream/TestApp.md)
+        - [apply_types](api/faststream/apply_types.md)
         - app
             - [ABCApp](api/faststream/app/ABCApp.md)
             - [FastStream](api/faststream/app/FastStream.md)
-        - [apply_types](api/faststream/apply_types.md)
         - asyncapi
+            - [get_asyncapi_html](api/faststream/asyncapi/get_asyncapi_html.md)
             - base
                 - [AsyncAPIOperation](api/faststream/asyncapi/base/AsyncAPIOperation.md)
             - generate
                 - [get_app_broker_channels](api/faststream/asyncapi/generate/get_app_broker_channels.md)
                 - [get_app_broker_server](api/faststream/asyncapi/generate/get_app_broker_server.md)
                 - [get_app_schema](api/faststream/asyncapi/generate/get_app_schema.md)
-            - [get_asyncapi_html](api/faststream/asyncapi/get_asyncapi_html.md)
             - message
                 - [get_model_schema](api/faststream/asyncapi/message/get_model_schema.md)
                 - [get_response_schema](api/faststream/asyncapi/message/get_response_schema.md)

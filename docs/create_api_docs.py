@@ -99,10 +99,15 @@ def _add_all_submodules(members: List[str]) -> List[str]:
         xs = x.split(".")
         return [".".join(xs[:i]) + "." for i in range(1, len(xs))]
 
+    def _get_sorting_key(item):
+        y = item.split(".")
+        z  = [f"~{a}" for a in y[:-1] ] + [y[-1]]
+        return ".".join(z)
+
     submodules = list(set(itertools.chain(*[_f(x) for x in members])))
     members = _merge_lists(members, submodules)
     members = list(dict.fromkeys(members))
-    return sorted(members)
+    return sorted(members, key=_get_sorting_key)
 
 
 def _get_api_summary_item(x: str) -> str:
