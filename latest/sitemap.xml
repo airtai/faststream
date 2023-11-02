@@ -19,6 +19,60 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/release/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/BaseMiddleware/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/BaseMiddleware/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/Context/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/Context/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/Depends/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/Depends/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/FastStream/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/FastStream/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/Header/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/Header/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/Path/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/Path/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/TestApp/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/TestApp/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/apply_types/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/apply_types/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/app/ABCApp/</loc>
         <lastmod>2023-11-02</lastmod>
         <changefreq>daily</changefreq>
@@ -29,6 +83,12 @@
         <lastmod>2023-11-02</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/app/FastStream/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/get_asyncapi_html/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/get_asyncapi_html/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/base/AsyncAPIOperation/</loc>
@@ -71,6 +131,150 @@
         <lastmod>2023-11-02</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/message/parse_handler_params/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Channel/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Channel/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/ChannelBinding/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/ChannelBinding/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Components/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Components/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Contact/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Contact/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/ContactDict/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/ContactDict/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/CorrelationId/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/CorrelationId/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/ExternalDocs/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/ExternalDocs/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/ExternalDocsDict/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/ExternalDocsDict/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Info/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Info/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/License/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/License/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/LicenseDict/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/LicenseDict/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Message/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Message/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Operation/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Operation/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/OperationBinding/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/OperationBinding/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Reference/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Reference/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Schema/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Schema/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/SecuritySchemaComponent/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/SecuritySchemaComponent/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Server/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Server/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/ServerBinding/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/ServerBinding/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Tag/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/Tag/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/TagDict/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/TagDict/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/bindings/ChannelBinding/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/bindings/ChannelBinding/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/bindings/OperationBinding/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/bindings/OperationBinding/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/bindings/ServerBinding/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/bindings/ServerBinding/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/asyncapi/schema/bindings/amqp/ChannelBinding/</loc>
@@ -383,6 +587,24 @@
         <lastmod>2023-11-02</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/broker/core/mixins/LoggingMixin/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/broker/fastapi/StreamMessage/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/broker/fastapi/StreamMessage/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/broker/fastapi/StreamRoute/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/broker/fastapi/StreamRoute/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/broker/fastapi/StreamRouter/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/broker/fastapi/StreamRouter/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/broker/fastapi/route/StreamMessage/</loc>
@@ -775,6 +997,36 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/exceptions/StopConsume/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/kafka/KafkaBroker/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/kafka/KafkaBroker/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/kafka/KafkaRoute/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/kafka/KafkaRoute/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/kafka/KafkaRouter/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/kafka/KafkaRouter/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/kafka/TestApp/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/kafka/TestApp/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/kafka/TestKafkaBroker/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/kafka/TestKafkaBroker/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/kafka/asyncapi/Handler/</loc>
         <lastmod>2023-11-02</lastmod>
         <changefreq>daily</changefreq>
@@ -853,6 +1105,18 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/kafka/shared/publisher/ABCPublisher/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/kafka/shared/router/BrokerRouter/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/kafka/shared/router/BrokerRouter/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/kafka/shared/router/KafkaRoute/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/kafka/shared/router/KafkaRoute/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/kafka/shared/router/KafkaRouter/</loc>
         <lastmod>2023-11-02</lastmod>
         <changefreq>daily</changefreq>
@@ -907,6 +1171,114 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/log/logging/configure_formatter/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/AckPolicy/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/AckPolicy/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/ConsumerConfig/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/ConsumerConfig/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/DeliverPolicy/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/DeliverPolicy/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/DiscardPolicy/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/DiscardPolicy/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/ExternalStream/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/ExternalStream/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/JStream/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/JStream/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/NatsBroker/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/NatsBroker/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/NatsRoute/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/NatsRoute/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/NatsRouter/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/NatsRouter/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/Placement/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/Placement/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/RePublish/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/RePublish/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/ReplayPolicy/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/ReplayPolicy/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/RetentionPolicy/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/RetentionPolicy/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/StorageType/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/StorageType/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/StreamConfig/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/StreamConfig/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/StreamSource/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/StreamSource/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/TestApp/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/TestApp/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/TestNatsBroker/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/TestNatsBroker/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/nats/asyncapi/Handler/</loc>
         <lastmod>2023-11-02</lastmod>
         <changefreq>daily</changefreq>
@@ -943,10 +1315,52 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/helpers/StreamBuilder/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/js_stream/DiscardPolicy/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/js_stream/DiscardPolicy/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/js_stream/ExternalStream/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/js_stream/ExternalStream/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/nats/js_stream/JStream/</loc>
         <lastmod>2023-11-02</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/js_stream/JStream/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/js_stream/Placement/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/js_stream/Placement/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/js_stream/RePublish/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/js_stream/RePublish/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/js_stream/RetentionPolicy/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/js_stream/RetentionPolicy/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/js_stream/StorageType/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/js_stream/StorageType/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/js_stream/StreamSource/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/js_stream/StreamSource/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/nats/message/NatsMessage/</loc>
@@ -991,6 +1405,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/shared/logging/NatsLoggingMixin/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/shared/router/NatsRoute/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/shared/router/NatsRoute/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/nats/shared/router/NatsRouter/</loc>
         <lastmod>2023-11-02</lastmod>
         <changefreq>daily</changefreq>
@@ -1019,6 +1439,54 @@
         <lastmod>2023-11-02</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/test/build_message/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/rabbit/ExchangeType/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/rabbit/ExchangeType/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/rabbit/RabbitBroker/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/rabbit/RabbitBroker/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/rabbit/RabbitExchange/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/rabbit/RabbitExchange/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/rabbit/RabbitQueue/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/rabbit/RabbitQueue/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/rabbit/RabbitRoute/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/rabbit/RabbitRoute/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/rabbit/RabbitRouter/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/rabbit/RabbitRouter/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/rabbit/TestApp/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/rabbit/TestApp/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/rabbit/TestRabbitBroker/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/rabbit/TestRabbitBroker/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/rabbit/asyncapi/Handler/</loc>
@@ -1111,6 +1579,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/rabbit/shared/publisher/ABCPublisher/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/rabbit/shared/router/RabbitRoute/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/rabbit/shared/router/RabbitRoute/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/rabbit/shared/router/RabbitRouter/</loc>
         <lastmod>2023-11-02</lastmod>
         <changefreq>daily</changefreq>
@@ -1201,10 +1675,76 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/security/SASLScram512/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/utils/Context/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/Context/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/utils/ContextRepo/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/ContextRepo/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/utils/Depends/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/Depends/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/utils/Header/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/Header/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/utils/NoCast/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/NoCast/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/utils/Path/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/Path/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/utils/apply_types/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/apply_types/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/utils/classes/Singleton/</loc>
         <lastmod>2023-11-02</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/classes/Singleton/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/utils/context/Context/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/context/Context/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/utils/context/ContextRepo/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/context/ContextRepo/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/utils/context/Header/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/context/Header/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/utils/context/Path/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/context/Path/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/utils/context/builders/Context/</loc>
@@ -1253,6 +1793,12 @@
         <lastmod>2023-11-02</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/data/filter_by_dict/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/utils/functions/call_or_await/</loc>
+        <lastmod>2023-11-02</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/utils/functions/call_or_await/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/utils/functions/get_function_positional_arguments/</loc>

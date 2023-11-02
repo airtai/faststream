@@ -372,6 +372,26 @@
     
     
       <li class="md-tabs__item">
+        <a href="../../../../" class="md-tabs__link">
+          
+  
+    
+  
+  Reference - Code API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
         <a href="../../../../../../getting-started/contributing/CONTRIBUTING/" class="md-tabs__link">
           
   
@@ -1758,6 +1778,8 @@
     
       
         
+          
+        
       
         
       
@@ -1776,7 +1798,147 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Reference - Code API
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Reference - Code API
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../../../BaseMiddleware/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    faststream
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -1787,8 +1949,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             Contributing
           </label>
@@ -1893,6 +2055,34 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#faststream.kafka.shared.router.KafkaRouter.prefix" class="md-nav__link">
+    prefix
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#faststream.kafka.shared.router.KafkaRouter.include_router" class="md-nav__link">
+    include_router()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#faststream.kafka.shared.router.KafkaRouter.include_routers" class="md-nav__link">
+    include_routers()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#faststream.kafka.shared.router.KafkaRouter.publisher" class="md-nav__link">
+    publisher()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#faststream.kafka.shared.router.KafkaRouter.subscriber" class="md-nav__link">
     subscriber()
   </a>
@@ -1939,11 +2129,18 @@
 
 
 <a href="#faststream.kafka.shared.router.KafkaRouter" class="headerlink" title="Permanent link">#</a></h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">KafkaRouter</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">handlers</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        <span class="n">KafkaRoute</span><span class="p">[</span><span class="n">ConsumerRecord</span><span class="p">,</span> <span class="n">SendableMessage</span><span class="p">]</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents first">
           <p class="doc doc-class-bases">
-            Bases: <code><a class="autorefs autorefs-internal" title="faststream.broker.router.BrokerRouter" href="../../../../broker/router/BrokerRouter/#faststream.broker.router.BrokerRouter">BrokerRouter</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <span title="aiokafka.ConsumerRecord">ConsumerRecord</span>]</code></p>
+            Bases: <code><a class="autorefs autorefs-internal" title="faststream.broker.router.BrokerRouter" href="../BrokerRouter/#faststream.broker.router.BrokerRouter">BrokerRouter</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <span title="aiokafka.ConsumerRecord">ConsumerRecord</span>]</code></p>
 
   
       <p>A class to represent a Kafka router.</p>
@@ -1972,25 +2169,83 @@
 <p class="admonition-title">Note</p>
 <p>The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</p>
 </div>
+  
+      <p>Initialize the class.</p>
 
-            <details class="quote">
-              <summary>Source code in <code>faststream/kafka/shared/router.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-17">17</a></span>
-<span class="normal"><a href="#__codelineno-0-18">18</a></span>
-<span class="normal"><a href="#__codelineno-0-19">19</a></span>
-<span class="normal"><a href="#__codelineno-0-20">20</a></span>
-<span class="normal"><a href="#__codelineno-0-21">21</a></span>
-<span class="normal"><a href="#__codelineno-0-22">22</a></span>
-<span class="normal"><a href="#__codelineno-0-23">23</a></span>
-<span class="normal"><a href="#__codelineno-0-24">24</a></span>
-<span class="normal"><a href="#__codelineno-0-25">25</a></span>
-<span class="normal"><a href="#__codelineno-0-26">26</a></span>
-<span class="normal"><a href="#__codelineno-0-27">27</a></span>
-<span class="normal"><a href="#__codelineno-0-28">28</a></span>
-<span class="normal"><a href="#__codelineno-0-29">29</a></span>
-<span class="normal"><a href="#__codelineno-0-30">30</a></span>
-<span class="normal"><a href="#__codelineno-0-31">31</a></span>
-<span class="normal"><a href="#__codelineno-0-32">32</a></span>
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>prefix</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Prefix string.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>&#39;&#39;</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>handlers</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Sequence of KafkaRoute objects.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-internal" title="faststream.broker.router.BrokerRoute" href="../../../../rabbit/shared/router/RabbitRoute/#faststream.broker.router.BrokerRoute">BrokerRoute</a>[<span title="aiokafka.ConsumerRecord">ConsumerRecord</span>, <span title="faststream.types.SendableMessage">SendableMessage</span>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>**kwargs</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Additional keyword arguments.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>{}</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+      <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</p>
+</div>
+
+                <details class="quote">
+                  <summary>Source code in <code>faststream/kafka/shared/router.py</code></summary>
+                  <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-32">32</a></span>
 <span class="normal"><a href="#__codelineno-0-33">33</a></span>
 <span class="normal"><a href="#__codelineno-0-34">34</a></span>
 <span class="normal"><a href="#__codelineno-0-35">35</a></span>
@@ -2008,92 +2263,27 @@
 <span class="normal"><a href="#__codelineno-0-47">47</a></span>
 <span class="normal"><a href="#__codelineno-0-48">48</a></span>
 <span class="normal"><a href="#__codelineno-0-49">49</a></span>
-<span class="normal"><a href="#__codelineno-0-50">50</a></span>
-<span class="normal"><a href="#__codelineno-0-51">51</a></span>
-<span class="normal"><a href="#__codelineno-0-52">52</a></span>
-<span class="normal"><a href="#__codelineno-0-53">53</a></span>
-<span class="normal"><a href="#__codelineno-0-54">54</a></span>
-<span class="normal"><a href="#__codelineno-0-55">55</a></span>
-<span class="normal"><a href="#__codelineno-0-56">56</a></span>
-<span class="normal"><a href="#__codelineno-0-57">57</a></span>
-<span class="normal"><a href="#__codelineno-0-58">58</a></span>
-<span class="normal"><a href="#__codelineno-0-59">59</a></span>
-<span class="normal"><a href="#__codelineno-0-60">60</a></span>
-<span class="normal"><a href="#__codelineno-0-61">61</a></span>
-<span class="normal"><a href="#__codelineno-0-62">62</a></span>
-<span class="normal"><a href="#__codelineno-0-63">63</a></span>
-<span class="normal"><a href="#__codelineno-0-64">64</a></span>
-<span class="normal"><a href="#__codelineno-0-65">65</a></span>
-<span class="normal"><a href="#__codelineno-0-66">66</a></span>
-<span class="normal"><a href="#__codelineno-0-67">67</a></span>
-<span class="normal"><a href="#__codelineno-0-68">68</a></span>
-<span class="normal"><a href="#__codelineno-0-69">69</a></span>
-<span class="normal"><a href="#__codelineno-0-70">70</a></span>
-<span class="normal"><a href="#__codelineno-0-71">71</a></span>
-<span class="normal"><a href="#__codelineno-0-72">72</a></span>
-<span class="normal"><a href="#__codelineno-0-73">73</a></span>
-<span class="normal"><a href="#__codelineno-0-74">74</a></span>
-<span class="normal"><a href="#__codelineno-0-75">75</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="k">class</span> <span class="nc">KafkaRouter</span><span class="p">(</span><span class="n">BrokerRouter</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ConsumerRecord</span><span class="p">]):</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A class to represent a Kafka router.</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19"></a>
-<a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="sd">    Attributes:</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="sd">        prefix : prefix for the topics</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="sd">        handlers : sequence of Kafka routes</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="sd">        kwargs : additional keyword arguments</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24"></a>
-<a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="sd">    Methods:</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="sd">        subscriber : decorator for subscribing to topics and handling messages</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="sd">    !!! note</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28"></a>
-<a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="sd">        The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31"></a>
-<a id="__codelineno-0-32" name="__codelineno-0-32"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-<a id="__codelineno-0-33" name="__codelineno-0-33"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-34" name="__codelineno-0-34"></a>        <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-35" name="__codelineno-0-35"></a>        <span class="n">handlers</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">KafkaRoute</span><span class="p">[</span><span class="n">ConsumerRecord</span><span class="p">,</span> <span class="n">SendableMessage</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(),</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36"></a>        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37"></a>    <span class="p">):</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the class.</span>
+<span class="normal"><a href="#__codelineno-0-50">50</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34"></a>    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="n">handlers</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">KafkaRoute</span><span class="p">[</span><span class="n">ConsumerRecord</span><span class="p">,</span> <span class="n">SendableMessage</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(),</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="p">):</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the class.</span>
 <a id="__codelineno-0-39" name="__codelineno-0-39"></a>
-<a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="sd">            prefix (str): Prefix string.</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="sd">            handlers (Sequence[KafkaRoute[ConsumerRecord, SendableMessage]]): Sequence of KafkaRoute objects.</span>
-<a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="sd">            **kwargs (Any): Additional keyword arguments.</span>
-<a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="sd">        !!! note</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="sd">        prefix (str): Prefix string.</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="sd">        handlers (Sequence[KafkaRoute[ConsumerRecord, SendableMessage]]): Sequence of KafkaRoute objects.</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="sd">        **kwargs (Any): Additional keyword arguments.</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="sd">    !!! note</span>
 <a id="__codelineno-0-45" name="__codelineno-0-45"></a>
-<a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-48" name="__codelineno-0-48"></a>        <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">handlers</span><span class="p">:</span>
-<a id="__codelineno-0-49" name="__codelineno-0-49"></a>            <span class="n">h</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">h</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
-<a id="__codelineno-0-50" name="__codelineno-0-50"></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">handlers</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<a id="__codelineno-0-51" name="__codelineno-0-51"></a>
-<a id="__codelineno-0-52" name="__codelineno-0-52"></a>    <span class="k">def</span> <span class="nf">subscriber</span><span class="p">(</span>
-<a id="__codelineno-0-53" name="__codelineno-0-53"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-54" name="__codelineno-0-54"></a>        <span class="o">*</span><span class="n">topics</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-<a id="__codelineno-0-55" name="__codelineno-0-55"></a>        <span class="o">**</span><span class="n">broker_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<a id="__codelineno-0-56" name="__codelineno-0-56"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span>
-<a id="__codelineno-0-57" name="__codelineno-0-57"></a>        <span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="n">P_HandlerParams</span><span class="p">,</span> <span class="n">T_HandlerReturn</span><span class="p">]],</span>
-<a id="__codelineno-0-58" name="__codelineno-0-58"></a>        <span class="n">HandlerCallWrapper</span><span class="p">[</span><span class="n">ConsumerRecord</span><span class="p">,</span> <span class="n">P_HandlerParams</span><span class="p">,</span> <span class="n">T_HandlerReturn</span><span class="p">],</span>
-<a id="__codelineno-0-59" name="__codelineno-0-59"></a>    <span class="p">]:</span>
-<a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;A function to subscribe to topics.</span>
-<a id="__codelineno-0-61" name="__codelineno-0-61"></a>
-<a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="sd">        Args:</span>
-<a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="sd">            *topics : variable number of topic names</span>
-<a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="sd">            **broker_kwargs : keyword arguments for the broker</span>
-<a id="__codelineno-0-65" name="__codelineno-0-65"></a>
-<a id="__codelineno-0-66" name="__codelineno-0-66"></a><span class="sd">        Returns:</span>
-<a id="__codelineno-0-67" name="__codelineno-0-67"></a><span class="sd">            A callable function that wraps the handler function</span>
-<a id="__codelineno-0-68" name="__codelineno-0-68"></a><span class="sd">        !!! note</span>
-<a id="__codelineno-0-69" name="__codelineno-0-69"></a>
-<a id="__codelineno-0-70" name="__codelineno-0-70"></a><span class="sd">            The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
-<a id="__codelineno-0-71" name="__codelineno-0-71"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-72" name="__codelineno-0-72"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_subscriber</span><span class="p">(</span>
-<a id="__codelineno-0-73" name="__codelineno-0-73"></a>            <span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">+</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">topics</span><span class="p">),</span>
-<a id="__codelineno-0-74" name="__codelineno-0-74"></a>            <span class="o">**</span><span class="n">broker_kwargs</span><span class="p">,</span>
-<a id="__codelineno-0-75" name="__codelineno-0-75"></a>        <span class="p">)</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="sd">        The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48"></a>    <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">handlers</span><span class="p">:</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49"></a>        <span class="n">h</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">h</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">handlers</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-            </details>
+                </details>
 
   
 
@@ -2105,7 +2295,465 @@
 
 
 
+<div class="doc doc-object doc-attribute">
 
+
+
+
+<h3 id="faststream.kafka.shared.router.KafkaRouter.prefix" class="doc doc-heading">
+          <span class="doc doc-object-name doc-attribute-name">prefix</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#faststream.kafka.shared.router.KafkaRouter.prefix" class="headerlink" title="Permanent link">#</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">prefix</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="faststream.kafka.shared.router.KafkaRouter.include_router" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">include_router</span>
+
+
+<a href="#faststream.kafka.shared.router.KafkaRouter.include_router" class="headerlink" title="Permanent link">#</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">include_router</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">router</span><span class="p">:</span> <span class="n">BrokerRouter</span><span class="p">[</span><span class="n">PublisherKeyType</span><span class="p">,</span> <span class="n">MsgType</span><span class="p">]</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Includes a router in the current object.</p>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>router</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>The router to be included.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="faststream.broker.router.BrokerRouter" href="../BrokerRouter/#faststream.broker.router.BrokerRouter">BrokerRouter</a>[<span title="faststream.broker.router.PublisherKeyType">PublisherKeyType</span>, <span title="faststream.broker.types.MsgType">MsgType</span>]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>None</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <div class="doc-md-description">
+              <p>None</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+      <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</p>
+</div>
+
+          <details class="quote">
+            <summary>Source code in <code>faststream/broker/router.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-318">318</a></span>
+<span class="normal"><a href="#__codelineno-0-319">319</a></span>
+<span class="normal"><a href="#__codelineno-0-320">320</a></span>
+<span class="normal"><a href="#__codelineno-0-321">321</a></span>
+<span class="normal"><a href="#__codelineno-0-322">322</a></span>
+<span class="normal"><a href="#__codelineno-0-323">323</a></span>
+<span class="normal"><a href="#__codelineno-0-324">324</a></span>
+<span class="normal"><a href="#__codelineno-0-325">325</a></span>
+<span class="normal"><a href="#__codelineno-0-326">326</a></span>
+<span class="normal"><a href="#__codelineno-0-327">327</a></span>
+<span class="normal"><a href="#__codelineno-0-328">328</a></span>
+<span class="normal"><a href="#__codelineno-0-329">329</a></span>
+<span class="normal"><a href="#__codelineno-0-330">330</a></span>
+<span class="normal"><a href="#__codelineno-0-331">331</a></span>
+<span class="normal"><a href="#__codelineno-0-332">332</a></span>
+<span class="normal"><a href="#__codelineno-0-333">333</a></span>
+<span class="normal"><a href="#__codelineno-0-334">334</a></span>
+<span class="normal"><a href="#__codelineno-0-335">335</a></span>
+<span class="normal"><a href="#__codelineno-0-336">336</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-318" name="__codelineno-0-318"></a><span class="k">def</span> <span class="nf">include_router</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">router</span><span class="p">:</span> <span class="s2">&quot;BrokerRouter[PublisherKeyType, MsgType]&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-319" name="__codelineno-0-319"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Includes a router in the current object.</span>
+<a id="__codelineno-0-320" name="__codelineno-0-320"></a>
+<a id="__codelineno-0-321" name="__codelineno-0-321"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-322" name="__codelineno-0-322"></a><span class="sd">        router: The router to be included.</span>
+<a id="__codelineno-0-323" name="__codelineno-0-323"></a>
+<a id="__codelineno-0-324" name="__codelineno-0-324"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-325" name="__codelineno-0-325"></a><span class="sd">        None</span>
+<a id="__codelineno-0-326" name="__codelineno-0-326"></a><span class="sd">    !!! note</span>
+<a id="__codelineno-0-327" name="__codelineno-0-327"></a>
+<a id="__codelineno-0-328" name="__codelineno-0-328"></a><span class="sd">        The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-329" name="__codelineno-0-329"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-330" name="__codelineno-0-330"></a>    <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">router</span><span class="o">.</span><span class="n">_handlers</span><span class="p">:</span>
+<a id="__codelineno-0-331" name="__codelineno-0-331"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">subscriber</span><span class="p">(</span><span class="o">*</span><span class="n">h</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">h</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)(</span><span class="n">h</span><span class="o">.</span><span class="n">call</span><span class="p">)</span>
+<a id="__codelineno-0-332" name="__codelineno-0-332"></a>
+<a id="__codelineno-0-333" name="__codelineno-0-333"></a>    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">router</span><span class="o">.</span><span class="n">_publishers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+<a id="__codelineno-0-334" name="__codelineno-0-334"></a>        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_publisher_prefix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+<a id="__codelineno-0-335" name="__codelineno-0-335"></a>        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_publisher_key</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<a id="__codelineno-0-336" name="__codelineno-0-336"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_publishers</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_publishers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="faststream.kafka.shared.router.KafkaRouter.include_routers" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">include_routers</span>
+
+
+<a href="#faststream.kafka.shared.router.KafkaRouter.include_routers" class="headerlink" title="Permanent link">#</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">include_routers</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="o">*</span><span class="n">routers</span><span class="p">:</span> <span class="n">BrokerRouter</span><span class="p">[</span><span class="n">PublisherKeyType</span><span class="p">,</span> <span class="n">MsgType</span><span class="p">]</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Includes routers in the object.</p>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>*routers</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Variable length argument list of routers to include.</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="faststream.broker.router.BrokerRouter" href="../BrokerRouter/#faststream.broker.router.BrokerRouter">BrokerRouter</a>[<span title="faststream.broker.router.PublisherKeyType">PublisherKeyType</span>, <span title="faststream.broker.types.MsgType">MsgType</span>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>None</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <div class="doc-md-description">
+              <p>None</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+      <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</p>
+</div>
+
+          <details class="quote">
+            <summary>Source code in <code>faststream/broker/router.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-338">338</a></span>
+<span class="normal"><a href="#__codelineno-0-339">339</a></span>
+<span class="normal"><a href="#__codelineno-0-340">340</a></span>
+<span class="normal"><a href="#__codelineno-0-341">341</a></span>
+<span class="normal"><a href="#__codelineno-0-342">342</a></span>
+<span class="normal"><a href="#__codelineno-0-343">343</a></span>
+<span class="normal"><a href="#__codelineno-0-344">344</a></span>
+<span class="normal"><a href="#__codelineno-0-345">345</a></span>
+<span class="normal"><a href="#__codelineno-0-346">346</a></span>
+<span class="normal"><a href="#__codelineno-0-347">347</a></span>
+<span class="normal"><a href="#__codelineno-0-348">348</a></span>
+<span class="normal"><a href="#__codelineno-0-349">349</a></span>
+<span class="normal"><a href="#__codelineno-0-350">350</a></span>
+<span class="normal"><a href="#__codelineno-0-351">351</a></span>
+<span class="normal"><a href="#__codelineno-0-352">352</a></span>
+<span class="normal"><a href="#__codelineno-0-353">353</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-338" name="__codelineno-0-338"></a><span class="k">def</span> <span class="nf">include_routers</span><span class="p">(</span>
+<a id="__codelineno-0-339" name="__codelineno-0-339"></a>    <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">routers</span><span class="p">:</span> <span class="s2">&quot;BrokerRouter[PublisherKeyType, MsgType]&quot;</span>
+<a id="__codelineno-0-340" name="__codelineno-0-340"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-341" name="__codelineno-0-341"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Includes routers in the object.</span>
+<a id="__codelineno-0-342" name="__codelineno-0-342"></a>
+<a id="__codelineno-0-343" name="__codelineno-0-343"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-344" name="__codelineno-0-344"></a><span class="sd">        *routers: Variable length argument list of routers to include.</span>
+<a id="__codelineno-0-345" name="__codelineno-0-345"></a>
+<a id="__codelineno-0-346" name="__codelineno-0-346"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-347" name="__codelineno-0-347"></a><span class="sd">        None</span>
+<a id="__codelineno-0-348" name="__codelineno-0-348"></a><span class="sd">    !!! note</span>
+<a id="__codelineno-0-349" name="__codelineno-0-349"></a>
+<a id="__codelineno-0-350" name="__codelineno-0-350"></a><span class="sd">        The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-351" name="__codelineno-0-351"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-352" name="__codelineno-0-352"></a>    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">routers</span><span class="p">:</span>
+<a id="__codelineno-0-353" name="__codelineno-0-353"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">include_router</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="faststream.kafka.shared.router.KafkaRouter.publisher" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">publisher</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
+
+<a href="#faststream.kafka.shared.router.KafkaRouter.publisher" class="headerlink" title="Permanent link">#</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">publisher</span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">subj</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BasePublisher</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Publishes a message.</p>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>subj</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Subject of the message</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>*args</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Additional arguments</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>**kwargs</code></td>
+          <td class="doc-param-details">
+            <div class="doc-md-description">
+              <p>Additional keyword arguments</p>
+            </div>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>{}</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code><a class="autorefs autorefs-internal" title="faststream.broker.publisher.BasePublisher" href="../../../../broker/publisher/BasePublisher/#faststream.broker.publisher.BasePublisher">BasePublisher</a>[<span title="faststream.broker.types.MsgType">MsgType</span>]</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <div class="doc-md-description">
+              <p>The published message</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError">NotImplementedError</a></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <div class="doc-md-description">
+              <p>If the method is not implemented</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+      <div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</p>
+</div>
+
+          <details class="quote">
+            <summary>Source code in <code>faststream/broker/router.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-293">293</a></span>
+<span class="normal"><a href="#__codelineno-0-294">294</a></span>
+<span class="normal"><a href="#__codelineno-0-295">295</a></span>
+<span class="normal"><a href="#__codelineno-0-296">296</a></span>
+<span class="normal"><a href="#__codelineno-0-297">297</a></span>
+<span class="normal"><a href="#__codelineno-0-298">298</a></span>
+<span class="normal"><a href="#__codelineno-0-299">299</a></span>
+<span class="normal"><a href="#__codelineno-0-300">300</a></span>
+<span class="normal"><a href="#__codelineno-0-301">301</a></span>
+<span class="normal"><a href="#__codelineno-0-302">302</a></span>
+<span class="normal"><a href="#__codelineno-0-303">303</a></span>
+<span class="normal"><a href="#__codelineno-0-304">304</a></span>
+<span class="normal"><a href="#__codelineno-0-305">305</a></span>
+<span class="normal"><a href="#__codelineno-0-306">306</a></span>
+<span class="normal"><a href="#__codelineno-0-307">307</a></span>
+<span class="normal"><a href="#__codelineno-0-308">308</a></span>
+<span class="normal"><a href="#__codelineno-0-309">309</a></span>
+<span class="normal"><a href="#__codelineno-0-310">310</a></span>
+<span class="normal"><a href="#__codelineno-0-311">311</a></span>
+<span class="normal"><a href="#__codelineno-0-312">312</a></span>
+<span class="normal"><a href="#__codelineno-0-313">313</a></span>
+<span class="normal"><a href="#__codelineno-0-314">314</a></span>
+<span class="normal"><a href="#__codelineno-0-315">315</a></span>
+<span class="normal"><a href="#__codelineno-0-316">316</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-293" name="__codelineno-0-293"></a><span class="nd">@abstractmethod</span>
+<a id="__codelineno-0-294" name="__codelineno-0-294"></a><span class="k">def</span> <span class="nf">publisher</span><span class="p">(</span>
+<a id="__codelineno-0-295" name="__codelineno-0-295"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-296" name="__codelineno-0-296"></a>    <span class="n">subj</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-297" name="__codelineno-0-297"></a>    <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-298" name="__codelineno-0-298"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+<a id="__codelineno-0-299" name="__codelineno-0-299"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BasePublisher</span><span class="p">[</span><span class="n">MsgType</span><span class="p">]:</span>
+<a id="__codelineno-0-300" name="__codelineno-0-300"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Publishes a message.</span>
+<a id="__codelineno-0-301" name="__codelineno-0-301"></a>
+<a id="__codelineno-0-302" name="__codelineno-0-302"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-303" name="__codelineno-0-303"></a><span class="sd">        subj: Subject of the message</span>
+<a id="__codelineno-0-304" name="__codelineno-0-304"></a><span class="sd">        *args: Additional arguments</span>
+<a id="__codelineno-0-305" name="__codelineno-0-305"></a><span class="sd">        **kwargs: Additional keyword arguments</span>
+<a id="__codelineno-0-306" name="__codelineno-0-306"></a>
+<a id="__codelineno-0-307" name="__codelineno-0-307"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-308" name="__codelineno-0-308"></a><span class="sd">        The published message</span>
+<a id="__codelineno-0-309" name="__codelineno-0-309"></a>
+<a id="__codelineno-0-310" name="__codelineno-0-310"></a><span class="sd">    Raises:</span>
+<a id="__codelineno-0-311" name="__codelineno-0-311"></a><span class="sd">        NotImplementedError: If the method is not implemented</span>
+<a id="__codelineno-0-312" name="__codelineno-0-312"></a><span class="sd">    !!! note</span>
+<a id="__codelineno-0-313" name="__codelineno-0-313"></a>
+<a id="__codelineno-0-314" name="__codelineno-0-314"></a><span class="sd">        The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)</span>
+<a id="__codelineno-0-315" name="__codelineno-0-315"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-316" name="__codelineno-0-316"></a>    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+          </details>
+  </div>
+
+</div>
 
 
 <div class="doc doc-object doc-function">
