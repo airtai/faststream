@@ -31,6 +31,7 @@ class TestRedisBroker(TestBroker[RedisBroker]):
         @broker.subscriber(
             channel=publisher.channel,
             list=publisher.list,
+            stream=publisher.stream,
             _raw=True,
         )
         def f(msg: Any) -> None:
@@ -98,6 +99,7 @@ class FakeProducer(RedisFastProducer):
                 call = list == ls.name
 
             if stream and (st := handler.stream_sub) is not None:
+                batch = st.batch
                 call = stream == st.name
 
             if call:

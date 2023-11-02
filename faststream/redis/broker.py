@@ -146,7 +146,11 @@ class RedisBroker(
         async def process_wrapper(
             message: StreamMessage[Any],
         ) -> WrappedReturn[T_HandlerReturn]:
-            async with WatcherContext(watcher, message):
+            async with WatcherContext(
+                watcher,
+                message,
+                redis=self._connection,
+            ):
                 r = await self._execute_handler(func, message)
 
                 pub_response: Optional[AsyncPublisherProtocol]

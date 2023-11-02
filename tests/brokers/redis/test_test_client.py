@@ -3,7 +3,7 @@ import asyncio
 import pytest
 
 from faststream import BaseMiddleware
-from faststream.redis import ListSub, RedisBroker, TestRedisBroker
+from faststream.redis import ListSub, RedisBroker, StreamSub, TestRedisBroker
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
@@ -100,14 +100,15 @@ class TestTestclient(BrokerTestclientTestcase):
     async def test_list(
         self,
         test_broker: RedisBroker,
+        queue: str,
     ):
-        @test_broker.subscriber(list="test")
+        @test_broker.subscriber(list=queue)
         async def handler(msg):
             return msg
 
         await test_broker.start()
 
-        assert 1 == await test_broker.publish(1, list="test", rpc=True)
+        assert 1 == await test_broker.publish(1, list=queue, rpc=True)
         handler.mock.assert_called_once_with(1)
 
     async def test_batch_pub_by_default_pub(
@@ -143,6 +144,51 @@ class TestTestclient(BrokerTestclientTestcase):
     ):
         batch_list = ListSub(queue + "1", batch=True)
         publisher = test_broker.publisher(list=batch_list)
+
+        @publisher
+        @test_broker.subscriber(queue)
+        async def m():
+            return 1, 2, 3
+
+        await test_broker.start()
+        await test_broker.publish("hello", queue)
+        m.mock.assert_called_once_with("hello")
+        publisher.mock.assert_called_once_with([1, 2, 3])
+
+    async def test_stream(
+        self,
+        test_broker: RedisBroker,
+        queue: str,
+    ):
+        @test_broker.subscriber(stream=queue)
+        async def handler(msg):
+            return msg
+
+        await test_broker.start()
+
+        assert 1 == await test_broker.publish(1, stream=queue, rpc=True)
+        handler.mock.assert_called_once_with(1)
+
+    async def test_stream_batch_pub_by_default_pub(
+        self,
+        test_broker: RedisBroker,
+        queue: str,
+    ):
+        @test_broker.subscriber(stream=StreamSub(queue, batch=True))
+        async def m():
+            pass
+
+        await test_broker.start()
+        await test_broker.publish("hello", stream=queue)
+        m.mock.assert_called_once_with(["hello"])
+
+    async def test_stream_publisher(
+        self,
+        test_broker: RedisBroker,
+        queue: str,
+    ):
+        batch_stream = StreamSub(queue + "1")
+        publisher = test_broker.publisher(stream=batch_stream)
 
         @publisher
         @test_broker.subscriber(queue)

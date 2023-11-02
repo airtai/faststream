@@ -1,4 +1,6 @@
 import asyncio
+import json
+from contextlib import suppress
 from functools import partial
 from typing import (
     Any,
@@ -6,6 +8,7 @@ from typing import (
     Callable,
     Dict,
     Hashable,
+    List,
     Optional,
     Sequence,
     Tuple,
@@ -48,6 +51,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
         channel: Optional[PubSub] = None,
         list: Optional[ListSub] = None,
         stream: Optional[StreamSub] = None,
+        last_id: str = "$",
         # AsyncAPI information
         description: Optional[str] = None,
         title: Optional[str] = None,
@@ -60,7 +64,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
         self.subscription = None
         self.task = None
 
-        self.last_id = "$"
+        self.last_id = last_id
 
         super().__init__(
             log_context_builder=log_context_builder,
@@ -159,25 +163,26 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
         sleep: float,
     ) -> None:
         connected = True
-        while True:
-            try:
-                m = await consume()
+        with suppress(Exception):
+            while True:
+                try:
+                    m = await consume()
 
-            except Exception:
-                if connected is True:
-                    connected = False
-                await anyio.sleep(5)
+                except Exception:
+                    if connected is True:
+                        connected = False
+                    await anyio.sleep(5)
 
-            else:
-                if connected is False:
-                    connected = True
+                else:
+                    if connected is False:
+                        connected = True
 
-                if m:  # pragma: no branch
-                    for i in (m,) if isinstance(m, dict) else m:
-                        await self.consume(i)
+                    if m:  # pragma: no branch
+                        for i in (m,) if isinstance(m, dict) else m:
+                            await self.consume(i)
 
-            finally:
-                await anyio.sleep(sleep)
+                finally:
+                    await anyio.sleep(sleep)
 
     async def _consume_stream_msg(
         self,
@@ -192,6 +197,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
                 consumername=stream.consumer,
                 streams={stream.name: ">"},
                 block=stream.polling_interval,
+                noack=stream.no_ack,
             )
 
         else:
@@ -205,13 +211,28 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
             await read,
         ):
             if msgs:
-                self.last_id = msgs[-1][0]
+                self.last_id = msgs[-1][0].decode()
 
                 if stream.batch:
+                    parsed: List[Any] = []
+                    ids = []
+                    for message_id, msg in msgs:
+                        ids.append(message_id.decode())
+
+                        m = msg.get(bDATA_KEY, msg)
+                        try:
+                            data, _ = RedisParser.parse_one_msg(m)
+                            data = json.loads(data)
+                        except Exception:
+                            data = m
+                        parsed.append(data)
+
                     return PubSubMessage(
                         type="batch",
                         channel=stream_name,
-                        data=[msg.get(bDATA_KEY, msg) for _, msg in msgs],
+                        data=parsed,
+                        message_id=ids[0],
+                        message_ids=ids,
                     )
 
                 else:
@@ -224,6 +245,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
                                 RawMessage.encode(message=msg).encode(),
                             ),
                             message_id=message_id.decode(),
+                            message_ids=[message_id.decode()],
                         )
                         for message_id, msg in msgs
                     )
@@ -241,10 +263,18 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
 
         if msg:
             if count is not None:
-                msg = RawMessage.build(msg).data
+                parsed: List[Any] = []
+                for m in msg:
+                    try:
+                        data, _ = RedisParser.parse_one_msg(m)
+                        data = json.loads(data)
+                    except Exception:
+                        data = m
+                    parsed.append(data)
+                msg = parsed
 
             return PubSubMessage(
-                type="message" if count is None else "batch",
+                type="list" if count is None else "batch",
                 channel=list_sub.name.encode(),
                 data=msg,
             )

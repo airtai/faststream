@@ -73,6 +73,7 @@ class StreamSub(NameRequired):
     group: Optional[str] = None
     consumer: Optional[str] = None
     batch: bool = False
+    no_ack: bool = False
 
     def __init__(
         self,
@@ -81,6 +82,7 @@ class StreamSub(NameRequired):
         group: Optional[str] = None,
         consumer: Optional[str] = None,
         batch: bool = False,
+        no_ack: bool = False,
     ) -> None:
         """
         Redis Stream subscriber parameters
@@ -91,6 +93,7 @@ class StreamSub(NameRequired):
             group: (str | None): consumer group name.
             consumer: (str | None): consumer name.
             batch: (bool): consume messages in batches.
+            no_ack: (bool): do not add message to PEL.
         """
         if (group and not consumer) or (not group and consumer):
             raise ValueError("You should specify `group` and `consumer` both")

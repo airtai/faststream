@@ -1,4 +1,3 @@
-import json
 from typing import Optional, Pattern, Tuple
 from uuid import uuid4
 
@@ -11,7 +10,7 @@ from faststream.redis.message import PubSubMessage, RedisMessage
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
 from faststream.utils.context.main import context
 
-DATA_KEY = "data"
+DATA_KEY = "__data__"
 bDATA_KEY = DATA_KEY.encode()
 
 
@@ -68,19 +67,17 @@ class RawMessage(BaseModel):
 class RedisParser:
     @classmethod
     async def parse_message(
-        cls, message: PubSubMessage,
+        cls,
+        message: PubSubMessage,
     ) -> StreamMessage[PubSubMessage]:
         path: AnyDict = {}
         if message["type"] == "batch":
-            data = dump_json([
-                cls._parse_one_msg(x)[0]
-                for x in message["data"]
-            ]).encode()
-            headers = {
-                "content-type": "application/json"
-            }
+            data = dump_json(
+                [cls.parse_one_msg(x)[0] for x in message["data"]]
+            ).encode()
+            headers = {"content-type": "application/json"}
         else:
-            data, headers = cls._parse_one_msg(message["data"])
+            data, headers = cls.parse_one_msg(message["data"])
 
             channel = message.get("channel", b"").decode()
 
@@ -108,9 +105,7 @@ class RedisParser:
         )
 
     @staticmethod
-    def _parse_one_msg(
-        raw_data: bytes
-    ) -> Tuple[bytes, AnyDict]:
+    def parse_one_msg(raw_data: bytes) -> Tuple[bytes, AnyDict]:
         try:
             obj = model_parse(RawMessage, raw_data)
         except Exception:

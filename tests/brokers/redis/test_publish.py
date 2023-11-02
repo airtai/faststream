@@ -93,4 +93,4 @@ class TestPublish(BrokerPublishTestcase):
             )
 
         assert event.is_set()
-        mock.assert_called_once_with(["1", "2", "3"])
+        mock.assert_called_once_with([1, 2, 3])

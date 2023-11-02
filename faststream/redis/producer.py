@@ -110,5 +110,4 @@ class RedisFastProducer:
         list: str,
     ) -> None:
         batch = (encode_message(msg)[0] for msg in msgs)
-
         await self._connection.rpush(list, *batch)
