@@ -1,0 +1,3 @@
+
+
+::: faststream.security.SASLScram512

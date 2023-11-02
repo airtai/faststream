@@ -1,8 +1,8 @@
 import ssl
 
 from faststream import FastStream
-from faststream.broker.security import BaseSecurity
 from faststream.kafka import KafkaBroker
+from faststream.security import BaseSecurity
 
 ssl_context = ssl.create_default_context()
 security = BaseSecurity(ssl_context=ssl_context)
