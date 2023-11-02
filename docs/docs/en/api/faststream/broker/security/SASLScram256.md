@@ -1,3 +1,3 @@
 
 
-::: faststream.broker.security.SASLScram256
+::: faststream.security.SASLScram256

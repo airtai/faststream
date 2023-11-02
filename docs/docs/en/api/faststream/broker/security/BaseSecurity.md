@@ -1,3 +1,3 @@
 
 
-::: faststream.broker.security.BaseSecurity
+::: faststream.security.BaseSecurity

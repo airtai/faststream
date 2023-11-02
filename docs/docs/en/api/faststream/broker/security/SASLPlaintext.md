@@ -1,3 +1,3 @@
 
 
-::: faststream.broker.security.SASLPlaintext
+::: faststream.security.SASLPlaintext

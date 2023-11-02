@@ -451,11 +451,19 @@
                     - [RabbitExchange](api/faststream/rabbit/shared/schemas/RabbitExchange.md)
                     - [RabbitQueue](api/faststream/rabbit/shared/schemas/RabbitQueue.md)
                     - [get_routing_hash](api/faststream/rabbit/shared/schemas/get_routing_hash.md)
+                - utils
+                    - [build_url](api/faststream/rabbit/shared/utils/build_url.md)
+                    - [removeprefix](api/faststream/rabbit/shared/utils/removeprefix.md)
             - test
                 - [FakeProducer](api/faststream/rabbit/test/FakeProducer.md)
                 - [PatchedMessage](api/faststream/rabbit/test/PatchedMessage.md)
                 - [TestRabbitBroker](api/faststream/rabbit/test/TestRabbitBroker.md)
                 - [build_message](api/faststream/rabbit/test/build_message.md)
+        - security
+            - [BaseSecurity](api/faststream/security/BaseSecurity.md)
+            - [SASLPlaintext](api/faststream/security/SASLPlaintext.md)
+            - [SASLScram256](api/faststream/security/SASLScram256.md)
+            - [SASLScram512](api/faststream/security/SASLScram512.md)
         - utils
             - [Context](api/faststream/utils/Context.md)
             - [ContextRepo](api/faststream/utils/ContextRepo.md)
