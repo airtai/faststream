@@ -193,6 +193,7 @@ def _update_single_api_doc(
     if isinstance(symbol, str):
         class_name = symbol.split(".")[-1]
         module_name = ".".join(symbol.split(".")[:-1])
+        # nosemgrep: python.lang.security.audit.non-literal-import.non-literal-import
         obj = getattr(import_module(module_name), class_name)
         filename = symbol
         content_to_append = "    options:\n      show_root_full_path: false\n"
