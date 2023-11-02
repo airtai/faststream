@@ -103,6 +103,7 @@ class KafkaBroker(
             ]
         ] = None,
         # AsyncAPI information
+        asyncapi_url: Union[str, List[str], None] = None,
         protocol: str = "kafka",
         protocol_version: str = "auto",
         description: Optional[str] = None,

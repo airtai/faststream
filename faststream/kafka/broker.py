@@ -25,7 +25,6 @@ from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filte
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.push_back_watcher import BaseWatcher, WatcherContext
-from faststream.broker.security import BaseSecurity
 from faststream.broker.types import (
     AsyncPublisherProtocol,
     CustomDecoder,
@@ -43,6 +42,7 @@ from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.kafka.security import parse_security
 from faststream.kafka.shared.logging import KafkaLoggingMixin
 from faststream.kafka.shared.schemas import ConsumerConnectionParams
+from faststream.security import BaseSecurity
 from faststream.utils import context
 from faststream.utils.data import filter_by_dict
 

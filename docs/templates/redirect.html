@@ -35,8 +35,10 @@
             // Update the search parameters with the new utm_referrer
             const newGetParams = urlSearchParams.toString();
 
-            // Redirect to href with the updated query parameters
-            window.location.replace("{{href}}" + (newGetParams ? `?${newGetParams}` : "") + window.location.hash);
+            // Construct the redirect URL with the updated query parameters
+            const redirectURL = "{{href}}" + (newGetParams ? `?${newGetParams}` : "") + window.location.hash;
+
+            window.location.replace(redirectURL);
         };
     </script>
 

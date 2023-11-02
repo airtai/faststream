@@ -52,7 +52,16 @@ def _import_submodules(module_name: str) -> List[ModuleType]:
 def _import_functions_and_classes(
     m: ModuleType,
 ) -> List[Tuple[str, Union[FunctionType, Type[Any]]]]:
-    return [(x, y) for x, y in getmembers(m) if isfunction(y) or isclass(y)]
+    funcs_and_classes = [
+        (x, y) for x, y in getmembers(m) if isfunction(y) or isclass(y)
+    ]
+    if hasattr(m, "__all__"):
+        for t in m.__all__:
+            obj = getattr(m, t)
+            if isfunction(obj) or isclass(obj):
+                funcs_and_classes.append((t, m.__name__ + "." + t))
+
+    return funcs_and_classes
 
 
 def _is_private(name: str) -> bool:
@@ -66,7 +75,9 @@ def _import_all_members(module_name: str) -> List[str]:
         itertools.chain(*[_import_functions_and_classes(m) for m in submodules])
     )
 
-    names = [f"{y.__module__}.{y.__name__}" for x, y in members]
+    names = [
+        y if isinstance(y, str) else f"{y.__module__}.{y.__name__}" for x, y in members
+    ]
     names = [
         name for name in names if not _is_private(name) and name.startswith(module_name)
     ]
@@ -88,10 +99,15 @@ def _add_all_submodules(members: List[str]) -> List[str]:
         xs = x.split(".")
         return [".".join(xs[:i]) + "." for i in range(1, len(xs))]
 
+    def _get_sorting_key(item):
+        y = item.split(".")
+        z  = [f"~{a}" for a in y[:-1] ] + [y[-1]]
+        return ".".join(z)
+
     submodules = list(set(itertools.chain(*[_f(x) for x in members])))
     members = _merge_lists(members, submodules)
     members = list(dict.fromkeys(members))
-    return sorted(members)
+    return sorted(members, key=_get_sorting_key)
 
 
 def _get_api_summary_item(x: str) -> str:
@@ -162,32 +178,42 @@ def _load_submodules(
     names = [
         y
         for x, y in members
-        if f"{y.__module__}.{y.__name__}" in members_with_submodules
+        if (isinstance(y, str) and y in members_with_submodules)
+        or (f"{y.__module__}.{y.__name__}" in members_with_submodules)
     ]
     return names
 
 
 def _update_single_api_doc(
-    symbol: Union[FunctionType, Type[Any]], docs_path: Path
+    symbol: Union[FunctionType, Type[Any]], docs_path: Path, module_name: str
 ) -> None:
     en_docs_path = docs_path / "docs" / "en"
 
-    module = f"{symbol.__module__}.{symbol.__qualname__}"
-    content = f"\n\n::: {module}\n"
+    if isinstance(symbol, str):
+        class_name = symbol.split(".")[-1]
+        module_name = ".".join(symbol.split(".")[:-1])
+        # nosemgrep: python.lang.security.audit.non-literal-import.non-literal-import
+        obj = getattr(import_module(module_name), class_name)
+        if obj.__module__.startswith(module_name):
+            obj = symbol
+        filename = symbol
+    else:
+        obj = symbol
+        filename = f"{symbol.__module__}.{symbol.__name__}"
 
-    target_file_path = (
-        "/".join(f"{symbol.__module__}.{symbol.__name__}".split(".")) + ".md"
-    )
+    content = f"\n\n::: {obj}\n" if isinstance(obj, str) else f"\n\n::: {obj.__module__}.{obj.__qualname__}\n"
+
+    target_file_path = "/".join(filename.split(".")) + ".md"
 
     with open((en_docs_path / "api" / target_file_path), "w", encoding="utf-8") as f:
         f.write(content)
 
 
 def _update_api_docs(
-    symbols: List[Union[FunctionType, Type[Any]]], docs_path: Path
+    symbols: List[Union[FunctionType, Type[Any]]], docs_path: Path, module_name: str
 ) -> None:
     for symbol in symbols:
-        _update_single_api_doc(symbol=symbol, docs_path=docs_path)
+        _update_single_api_doc(symbol=symbol, docs_path=docs_path, module_name=module_name)
 
 
 def _generate_api_docs_for_module(root_path: str, module_name: str) -> str:
@@ -213,7 +239,7 @@ def _generate_api_docs_for_module(root_path: str, module_name: str) -> str:
     members_with_submodules = _get_submodule_members(module_name)
     symbols = _load_submodules(module_name, members_with_submodules)
 
-    _update_api_docs(symbols, Path(root_path))
+    _update_api_docs(symbols, Path(root_path), module_name)
 
     return api_summary
 

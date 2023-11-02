@@ -72,6 +72,7 @@
     - [RPC](nats/rpc.md)
     - [Message Information](nats/message.md)
 - [Redis](redis/index.md)
+- [Reference - Code API](api/faststream/index.md)
 - Contributing
     - [Development](getting-started/contributing/CONTRIBUTING.md)
     - [Documentation](getting-started/contributing/docs.md)

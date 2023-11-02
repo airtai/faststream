@@ -58,9 +58,7 @@ class RabbitBroker(
         login: str = "guest",
         password: str = "guest",
         virtualhost: str = "/",
-        ssl: bool = False,
         ssl_options: Optional[aio_pika.abc.SSLOptions] = None,
-        ssl_context: Optional[SSLContext] = None,
         timeout: aio_pika.abc.TimeoutType = None,
         client_properties: Optional[FieldTable] = None,
         # specific args
@@ -79,6 +77,7 @@ class RabbitBroker(
             ]
         ] = None,
         # AsyncAPI args
+        asyncapi_url: Optional[str] = None,
         protocol: str = "amqp",
         protocol_version: Optional[str] = "0.9.1",
         description: Optional[str] = None,
@@ -103,9 +102,7 @@ class RabbitBroker(
         login: str = "guest",
         password: str = "guest",
         virtualhost: str = "/",
-        ssl: bool = False,
         ssl_options: Optional[aio_pika.abc.SSLOptions] = None,
-        ssl_context: Optional[SSLContext] = None,
         timeout: aio_pika.abc.TimeoutType = None,
         client_properties: Optional[FieldTable] = None,
     ) -> aio_pika.RobustConnection: ...

@@ -71,7 +71,7 @@ Making streaming microservices has never been easier. Designed with junior devel
 
 - [**Testable**](#testing-the-service): Supports in-memory tests, making your CI/CD pipeline faster and more reliable
 
-- **Extendable**: Use extensions for lifespans, custom serialization and middleware
+- **Extensible**: Use extensions for lifespans, custom serialization and middleware
 
 - [**Integrations**](#any-framework): **FastStream** is fully compatible with any HTTP framework you want ([**FastAPI**](#fastapi-plugin) especially)
 
@@ -81,7 +81,7 @@ That's **FastStream** in a nutshell—easy, efficient, and powerful. Whether you
 
 ---
 
-**Documentation**: <a href="https://faststream.airt.ai/" target="_blank">https://faststream.airt.ai/</a>
+**Documentation**: <a href="https://faststream.airt.ai/?utm_source=github&utm_medium=acquisition&utm_campaign=measure" target="_blank">https://faststream.airt.ai/</a>
 
 ---
 
@@ -230,7 +230,7 @@ And multiprocessing horizontal scaling feature as well:
 faststream run basic:app --workers 3
 ```
 
-You can know more about **CLI** features [here](https://faststream.airt.ai/latest/getting-started/cli/)
+You can learn more about **CLI** features [here](https://faststream.airt.ai/latest/getting-started/cli/)
 
 ---
 
