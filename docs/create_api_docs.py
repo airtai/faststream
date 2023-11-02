@@ -185,23 +185,23 @@ def _load_submodules(
 
 
 def _update_single_api_doc(
-    symbol: Union[FunctionType, Type[Any]], docs_path: Path
+    symbol: Union[FunctionType, Type[Any]], docs_path: Path, module_name: str
 ) -> None:
     en_docs_path = docs_path / "docs" / "en"
-    content_to_append = ""
 
     if isinstance(symbol, str):
         class_name = symbol.split(".")[-1]
         module_name = ".".join(symbol.split(".")[:-1])
         # nosemgrep: python.lang.security.audit.non-literal-import.non-literal-import
         obj = getattr(import_module(module_name), class_name)
+        if obj.__module__.startswith(module_name):
+            obj = symbol
         filename = symbol
-        content_to_append = "    options:\n      show_root_full_path: false\n"
     else:
         obj = symbol
         filename = f"{symbol.__module__}.{symbol.__name__}"
 
-    content = f"\n\n::: {obj.__module__}.{obj.__qualname__}\n" + content_to_append
+    content = f"\n\n::: {obj}\n" if isinstance(obj, str) else f"\n\n::: {obj.__module__}.{obj.__qualname__}\n"
 
     target_file_path = "/".join(filename.split(".")) + ".md"
 
@@ -210,10 +210,10 @@ def _update_single_api_doc(
 
 
 def _update_api_docs(
-    symbols: List[Union[FunctionType, Type[Any]]], docs_path: Path
+    symbols: List[Union[FunctionType, Type[Any]]], docs_path: Path, module_name: str
 ) -> None:
     for symbol in symbols:
-        _update_single_api_doc(symbol=symbol, docs_path=docs_path)
+        _update_single_api_doc(symbol=symbol, docs_path=docs_path, module_name=module_name)
 
 
 def _generate_api_docs_for_module(root_path: str, module_name: str) -> str:
@@ -239,7 +239,7 @@ def _generate_api_docs_for_module(root_path: str, module_name: str) -> str:
     members_with_submodules = _get_submodule_members(module_name)
     symbols = _load_submodules(module_name, members_with_submodules)
 
-    _update_api_docs(symbols, Path(root_path))
+    _update_api_docs(symbols, Path(root_path), module_name)
 
     return api_summary
 

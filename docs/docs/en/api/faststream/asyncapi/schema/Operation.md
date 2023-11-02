@@ -1,5 +1,3 @@
 
 
-::: faststream.asyncapi.schema.operations.Operation
-    options:
-      show_root_full_path: false
+::: faststream.asyncapi.schema.Operation
