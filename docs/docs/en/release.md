@@ -9,11 +9,33 @@ hide:
 ## 0.2.10
 
 ### What's Changed
+
+Now, you can hide your connection secrets in the **AsyncAPI** schema by manually setting up the server URL:
+
+```python
+broker = RabbitBroker(
+    "amqp://guest:guest@localhost:5672/",  # Connection URL
+    asyncapi_url="amqp://****:****@localhost:5672/",  # Public schema URL
+)
+```
+
+Additionally, the **RabbitMQ AsyncAPI** schema has been improved, adding support for `faststream.security`, and the connection scheme is now defined automatically.
+
+**RabbitMQ** connection parameters are now merged, allowing you to define the main connection data as a URL string and customize it using kwargs:
+
+```python
+broker = RabbitBroker(
+    "amqp://guest:guest@localhost:5672/",
+    host="127.0.0.1",
+)
+
+# amqp://guest:guest@127.0.0.1:5672/ - The final URL
+```
+* A more suitable `faststream.security` import instead of `faststream.broker.security`
 * chore: add release notes for 0.2.9 by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/894](https://github.com/airtai/faststream/pull/894){.external-link target="_blank"}
 * chore: upgrade packages by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/901](https://github.com/airtai/faststream/pull/901){.external-link target="_blank"}
 * chore: use js redirect and redirect to version by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/902](https://github.com/airtai/faststream/pull/902){.external-link target="_blank"}
 * feat: add `asyncapi_url` broker arg by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/903](https://github.com/airtai/faststream/pull/903){.external-link target="_blank"}
-
 
 **Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.9...0.2.10](https://github.com/airtai/faststream/compare/0.2.9...0.2.10){.external-link target="_blank"}
 
