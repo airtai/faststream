@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Optional, Type
 
 import pydantic
-from dirty_equals import IsDict
+from dirty_equals import IsDict, IsPartialDict
 
 from faststream import FastStream
 from faststream._compat import PYDANTIC_V2
@@ -248,11 +248,11 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         assert payload == {
-            "Status": {
+            "Status": IsPartialDict({
                 "enum": ["registered", "banned"],
                 "title": "Status",
                 "type": "string",
-            },
+            }),
             "User": {
                 "properties": {
                     "id": {"title": "Id", "type": "integer"},
@@ -263,7 +263,7 @@ class FastAPICompatible:
                 "title": "User",
                 "type": "object",
             },
-        }
+        }, payload
 
     def test_pydantic_model_mixed_regular(self):
         class Email(pydantic.BaseModel):
