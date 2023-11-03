@@ -1,3 +1,5 @@
+import asyncio
+
 from typing import Any, Callable, Dict, Optional, Sequence, Union
 
 from fast_depends.core import CallModel
@@ -29,6 +31,7 @@ from faststream.utils.context.path import compile_path
 
 class LogicNatsHandler(AsyncHandler[Msg]):
     subscription: Optional[Union[Subscription, JetStreamContext.PushSubscription, JetStreamContext.PullSubscription]]
+    task: Optional["asyncio.Task[Any]"] = None
 
     def __init__(
         self,
@@ -58,6 +61,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
             title=title,
         )
 
+        self.task = None
         self.subscription = None
 
     def add_call(
@@ -85,8 +89,9 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         if self.pull_sub is not None:
             self.subscription = await connection.pull_subscribe(
                 subject=self.subject,
+                **self.extra_options
             )
-            #  pull_subscribe doesn't have cb parameter
+            asyncio.create_task(self._consume())
         else:
             self.subscription = await connection.subscribe(
                 subject=self.subject,
@@ -99,6 +104,12 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         if self.subscription is not None:
             await self.subscription.unsubscribe()
             self.subscription = None
+
+    async def _consume(self) -> None:
+        while self.subscription:
+            messages = await self.subscription.fetch(self.pull_sub.batch_size)
+            for message in messages:
+                await self.consume(message)
 
     @staticmethod
     def get_routing_hash(subject: str) -> str:

@@ -39,6 +39,7 @@ class PullSub(NameRequired):
     def __init__(
         self,
         name: str,
+        batch_size: int,
         *args: Any,
         declare: bool = True,
         **kwargs: Any,
@@ -47,6 +48,7 @@ class PullSub(NameRequired):
             name=name,
             declare=declare,
             subjects=[],
+            batch_size=batch_size,
             config=StreamConfig(
                 *args,
                 name=name,
