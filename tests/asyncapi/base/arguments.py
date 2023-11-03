@@ -248,11 +248,13 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         assert payload == {
-            "Status": IsPartialDict({
-                "enum": ["registered", "banned"],
-                "title": "Status",
-                "type": "string",
-            }),
+            "Status": IsPartialDict(
+                {
+                    "enum": ["registered", "banned"],
+                    "title": "Status",
+                    "type": "string",
+                }
+            ),
             "User": {
                 "properties": {
                     "id": {"title": "Id", "type": "integer"},
