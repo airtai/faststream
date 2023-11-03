@@ -33,6 +33,7 @@ class NatsRouter(BaseRouter):
         middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
         parser: Optional[CustomParser[Msg, NatsMessage]] = None,
         decoder: Optional[CustomDecoder[NatsMessage]] = None,
+        include_in_schema: bool = True,
     ): ...
     @override
     @staticmethod

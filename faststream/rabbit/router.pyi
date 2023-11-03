@@ -34,6 +34,7 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
         ] = None,
         parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
         decoder: Optional[CustomDecoder[RabbitMessage]] = None,
+        include_in_schema: bool = True,
     ): ...
     @staticmethod
     @override

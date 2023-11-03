@@ -112,7 +112,7 @@ class BrokerUsecase(
         url: Union[str, List[str]],
         *args: Any,
         # AsyncAPI kwargs
-        protocol: str,
+        protocol: Optional[str] = None,
         protocol_version: Optional[str] = None,
         description: Optional[str] = None,
         tags: Optional[Sequence[Union[asyncapi.Tag, asyncapi.TagDict]]] = None,

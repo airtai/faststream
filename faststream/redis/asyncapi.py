@@ -73,7 +73,7 @@ class Publisher(LogicPublisher):
             method = "rpush"
         elif self.channel is not None:
             method = "publish"
-        elif self.stream_sub is not None:
+        elif self.stream is not None:
             method = "xadd"
 
         return {

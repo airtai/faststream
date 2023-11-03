@@ -37,6 +37,7 @@ class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
         ] = None,
         parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
+        include_in_schema: bool = True,
     ): ...
     @override
     @staticmethod

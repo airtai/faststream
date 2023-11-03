@@ -133,7 +133,6 @@ class RabbitBroker(
 
         super().__init__(
             url=str(amqp_url),
-            protocol=amqp_url.scheme,
             protocol_version=protocol_version,
             security=security,
             ssl_context=security_args.get(

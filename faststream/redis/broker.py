@@ -10,6 +10,7 @@ from typing import (
     Type,
     Union,
 )
+from urllib.parse import urlparse
 
 from fast_depends.dependencies import Depends
 from redis.asyncio.client import Redis
@@ -57,7 +58,7 @@ class RedisBroker(
         url: str = "redis://localhost:6379",
         polling_interval: Optional[float] = None,
         *,
-        protocol: str = "redis",
+        protocol: Optional[str] = None,
         protocol_version: Optional[str] = "custom",
         **kwargs: Any,
     ) -> None:
@@ -66,10 +67,12 @@ class RedisBroker(
 
         super().__init__(
             url=url,
-            protocol=protocol,
             protocol_version=protocol_version,
             **kwargs,
         )
+
+        url_kwargs = urlparse(self.url)
+        self.protocol = protocol or url_kwargs.scheme
 
     async def connect(
         self,

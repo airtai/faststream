@@ -1,22 +1,22 @@
 from typing import Type
 
-from faststream.nats.fastapi import NatsRouter
-from faststream.nats.test import TestNatsBroker
+from faststream.redis.fastapi import RedisRouter
+from faststream.redis.test import TestRedisBroker
 from tests.asyncapi.base.arguments import FastAPICompatible
 from tests.asyncapi.base.fastapi import FastAPITestCase
 from tests.asyncapi.base.publisher import PublisherTestcase
 
 
 class TestRouterArguments(FastAPITestCase, FastAPICompatible):
-    broker_class: Type[NatsRouter] = NatsRouter
-    broker_wrapper = staticmethod(TestNatsBroker)
+    broker_class: Type[RedisRouter] = RedisRouter
+    broker_wrapper = staticmethod(TestRedisBroker)
 
     def build_app(self, router):
         return router
 
 
 class TestRouterPublisher(PublisherTestcase):
-    broker_class = NatsRouter
+    broker_class = RedisRouter
 
     def build_app(self, router):
         return router

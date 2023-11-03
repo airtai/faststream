@@ -43,7 +43,11 @@ class NatsRouter(BaseRouter):
                 title=title,
                 _description=description,
                 _schema=schema,
-                include_in_schema=include_in_schema,
+                include_in_schema=(
+                    include_in_schema
+                    if self.include_in_schema is None
+                    else self.include_in_schema
+                ),
             ),
         )
         publisher_key = self._get_publisher_key(new_publisher)

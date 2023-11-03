@@ -99,6 +99,8 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
         )
 
     async def start(self, client: Redis) -> None:
+        self.started = anyio.Event()
+
         consume: Union[
             Callable[[], Awaitable[PubSubMessage]],
             Callable[[], Awaitable[Tuple[PubSubMessage]]],
@@ -111,6 +113,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
                 self._consume_list_msg,
                 client=client,
             )
+            self.started.set()
 
         elif (channel := self.channel) is not None:
             self.subscription = psub = client.pubsub()
@@ -126,6 +129,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
                 timeout=channel.polling_interval,
             )
             sleep = 0.01
+            self.started.set()
 
         elif self.stream_sub is not None:
             consume = partial(
@@ -138,6 +142,9 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
             raise AssertionError("unreachable")
 
         self.task = asyncio.create_task(self._consume(consume, sleep))
+        # wait until Stream starts to consume
+        await anyio.sleep(0.01)
+        await self.started.wait()
 
     async def close(self) -> None:
         if self.task is not None:
@@ -205,6 +212,8 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
                 {stream.name: self.last_id},
                 block=stream.polling_interval,
             )
+
+        self.started.set()
 
         for stream_name, msgs in cast(
             Tuple[Tuple[bytes, Tuple[Tuple[bytes, AnyDict], ...]], ...],
