@@ -1,7 +1,8 @@
+from enum import Enum
 from typing import Optional, Type
 
 import pydantic
-from dirty_equals import IsDict
+from dirty_equals import IsDict, IsPartialDict
 
 from faststream import FastStream
 from faststream._compat import PYDANTIC_V2
@@ -225,6 +226,46 @@ class FastAPICompatible:
                 "title": key,
                 "type": "object",
             }
+
+    def test_pydantic_model_with_enum(self):
+        class Status(str, Enum):
+            registered = "registered"
+            banned = "banned"
+
+        class User(pydantic.BaseModel):
+            name: str = ""
+            id: int
+            status: Status
+
+        broker = self.broker_class()
+
+        @broker.subscriber("test")
+        async def handle(user: User):
+            ...
+
+        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+
+        payload = schema["components"]["schemas"]
+
+        assert payload == {
+            "Status": IsPartialDict(
+                {
+                    "enum": ["registered", "banned"],
+                    "title": "Status",
+                    "type": "string",
+                }
+            ),
+            "User": {
+                "properties": {
+                    "id": {"title": "Id", "type": "integer"},
+                    "name": {"default": "", "title": "Name", "type": "string"},
+                    "status": {"$ref": "#/components/schemas/Status"},
+                },
+                "required": ["id", "status"],
+                "title": "User",
+                "type": "object",
+            },
+        }, payload
 
     def test_pydantic_model_mixed_regular(self):
         class Email(pydantic.BaseModel):
