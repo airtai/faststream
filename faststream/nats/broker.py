@@ -36,6 +36,7 @@ from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
 from faststream.nats.asyncapi import Handler, Publisher
 from faststream.nats.helpers import stream_builder
 from faststream.nats.js_stream import JStream
+from faststream.nats.pull_sub import PullSub
 from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.shared.logging import NatsLoggingMixin
@@ -261,6 +262,7 @@ class NatsBroker(
         # Core arguments
         max_msgs: int = 0,
         # JS arguments
+        pull_sub: Optional[PullSub] = None,
         durable: Optional[str] = None,
         config: Optional[api.ConsumerConfig] = None,
         ordered_consumer: bool = False,
@@ -296,17 +298,17 @@ class NatsBroker(
 
         extra_options: AnyDict = {
             "pending_msgs_limit": pending_msgs_limit
-            or (
-                DEFAULT_JS_SUB_PENDING_MSGS_LIMIT
-                if stream
-                else DEFAULT_SUB_PENDING_MSGS_LIMIT
-            ),
+                                  or (
+                                      DEFAULT_JS_SUB_PENDING_MSGS_LIMIT
+                                      if stream
+                                      else DEFAULT_SUB_PENDING_MSGS_LIMIT
+                                  ),
             "pending_bytes_limit": pending_bytes_limit
-            or (
-                DEFAULT_JS_SUB_PENDING_BYTES_LIMIT
-                if stream
-                else DEFAULT_SUB_PENDING_BYTES_LIMIT
-            ),
+                                   or (
+                                       DEFAULT_JS_SUB_PENDING_BYTES_LIMIT
+                                       if stream
+                                       else DEFAULT_SUB_PENDING_BYTES_LIMIT
+                                   ),
         }
 
         if stream:
@@ -337,6 +339,7 @@ class NatsBroker(
                 subject=subject,
                 queue=queue,
                 stream=stream,
+                pull_sub=pull_sub,
                 extra_options=extra_options,
                 title=title,
                 description=description,

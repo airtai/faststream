@@ -20,6 +20,7 @@ from faststream.broker.types import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.nats.js_stream import JStream
+from faststream.nats.pull_sub import PullSub
 from faststream.nats.message import NatsMessage
 from faststream.nats.parser import JsParser, Parser
 from faststream.types import AnyDict
@@ -27,7 +28,7 @@ from faststream.utils.context.path import compile_path
 
 
 class LogicNatsHandler(AsyncHandler[Msg]):
-    subscription: Optional[Union[Subscription, JetStreamContext.PushSubscription]]
+    subscription: Optional[Union[Subscription, JetStreamContext.PushSubscription, JetStreamContext.PullSubscription]]
 
     def __init__(
         self,
@@ -35,6 +36,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         log_context_builder: Callable[[StreamMessage[Any]], Dict[str, str]],
         queue: str = "",
         stream: Optional[JStream] = None,
+        pull_sub: Optional[PullSub] = None,
         extra_options: Optional[AnyDict] = None,
         # AsyncAPI information
         description: Optional[str] = None,
@@ -47,6 +49,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         self.queue = queue
 
         self.stream = stream
+        self.pull_sub = pull_sub
         self.extra_options = extra_options or {}
 
         super().__init__(
@@ -79,12 +82,18 @@ class LogicNatsHandler(AsyncHandler[Msg]):
 
     @override
     async def start(self, connection: Union[Client, JetStreamContext]) -> None:  # type: ignore[override]
-        self.subscription = await connection.subscribe(
-            subject=self.subject,
-            queue=self.queue,
-            cb=self.consume,  # type: ignore[arg-type]
-            **self.extra_options,
-        )
+        if self.pull_sub is not None:
+            self.subscription = await connection.pull_subscribe(
+                subject=self.subject,
+            )
+            #  pull_subscribe doesn't have cb parameter
+        else:
+            self.subscription = await connection.subscribe(
+                subject=self.subject,
+                queue=self.queue,
+                cb=self.consume,  # type: ignore[arg-type]
+                **self.extra_options,
+            )
 
     async def close(self) -> None:
         if self.subscription is not None:
