@@ -7,6 +7,8 @@ from nats.aio.client import Client
 from nats.aio.msg import Msg
 from nats.aio.subscription import Subscription
 from nats.js import JetStreamContext
+from nats.js.kv import KeyValue
+from nats.js.object_store import ObjectStore
 
 from faststream._compat import override
 from faststream.broker.handler import AsyncHandler
@@ -23,6 +25,8 @@ from faststream.broker.types import (
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.nats.js_stream import JStream
 from faststream.nats.pull_sub import PullSub
+from faststream.nats.kv_watch import KvWatch
+from faststream.nats.obj_watch import ObjWatch
 from faststream.nats.message import NatsMessage
 from faststream.nats.parser import JsParser, Parser
 from faststream.types import AnyDict
@@ -40,6 +44,8 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         queue: str = "",
         stream: Optional[JStream] = None,
         pull_sub: Optional[PullSub] = None,
+        kv_watch: Optional[KvWatch] = None,
+        obj_watch: Optional[ObjWatch] = None,
         extra_options: Optional[AnyDict] = None,
         # AsyncAPI information
         description: Optional[str] = None,
@@ -53,6 +59,8 @@ class LogicNatsHandler(AsyncHandler[Msg]):
 
         self.stream = stream
         self.pull_sub = pull_sub
+        self.kv_watch = kv_watch
+        self.obj_watch = obj_watch
         self.extra_options = extra_options or {}
 
         super().__init__(
@@ -91,7 +99,18 @@ class LogicNatsHandler(AsyncHandler[Msg]):
                 subject=self.subject,
                 **self.extra_options
             )
-            asyncio.create_task(self._consume())
+            self.task = asyncio.create_task(self._consume())
+
+        elif self.kv_watch is not None:
+            bucket = await connection.key_value(self.kv_watch.bucket)
+            watcher = await bucket.watch(self.kv_watch.keys, **self.extra_options)
+            self.task = asyncio.create_task(self._cosume_watch(watcher))
+
+        elif self.obj_watch is not None:
+            bucket = await connection.object_store(self.obj_watch.bucket)
+            watcher = await bucket.watch(**self.extra_options)
+            self.task = asyncio.create_task(self._cosume_watch(watcher))
+
         else:
             self.subscription = await connection.subscribe(
                 subject=self.subject,
@@ -105,10 +124,19 @@ class LogicNatsHandler(AsyncHandler[Msg]):
             await self.subscription.unsubscribe()
             self.subscription = None
 
+        if self.task is not None:
+            self.task.cancel()
+            self.task = None
+
     async def _consume(self) -> None:
         while self.subscription:
             messages = await self.subscription.fetch(self.pull_sub.batch_size)
             await asyncio.gather(*[self.consume(message)] for message in messages)
+
+    async def _cosume_watch(self, watcher: Union[KeyValue.KeyWatcher, ObjectStore.ObjectWatcher]) -> None:
+        while self.subscription:
+            message = await watcher.updates()
+            await self.consume(message)
 
     @staticmethod
     def get_routing_hash(subject: str) -> str:

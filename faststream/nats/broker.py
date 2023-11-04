@@ -39,6 +39,8 @@ from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.pull_sub import PullSub
+from faststream.nats.kv_watch import KvWatch
+from faststream.nats.obj_watch import ObjWatch
 from faststream.nats.shared.logging import NatsLoggingMixin
 from faststream.types import AnyDict, DecodedMessage
 from faststream.utils.context.main import context
@@ -263,6 +265,8 @@ class NatsBroker(
         max_msgs: int = 0,
         # JS arguments
         pull_sub: Optional[PullSub] = None,
+        kv_watch: Optional[KvWatch] = None,
+        obj_watch: Optional[ObjWatch] = None,
         durable: Optional[str] = None,
         config: Optional[api.ConsumerConfig] = None,
         ordered_consumer: bool = False,
@@ -340,6 +344,8 @@ class NatsBroker(
                 queue=queue,
                 stream=stream,
                 pull_sub=pull_sub,
+                kv_watch=kv_watch,
+                obj_watch=obj_watch,
                 extra_options=extra_options,
                 title=title,
                 description=description,
