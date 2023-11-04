@@ -108,8 +108,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
     async def _consume(self) -> None:
         while self.subscription:
             messages = await self.subscription.fetch(self.pull_sub.batch_size)
-            for message in messages:
-                await self.consume(message)
+            await asyncio.gather(*[self.consume(message)] for message in messages)
 
     @staticmethod
     def get_routing_hash(subject: str) -> str:

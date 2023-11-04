@@ -10,9 +10,8 @@ from nats.js.api import (
     StreamConfig,
     StreamSource,
 )
-from pydantic import Field
+from pydantic import Field, BaseModel
 
-from faststream.broker.schemas import NameRequired
 
 __all__ = (
     "PullSub",
@@ -28,7 +27,7 @@ __all__ = (
 )
 
 
-class PullSub(NameRequired):
+class PullSub(BaseModel):
     config: StreamConfig
 
     subjects: List[str] = Field(default_factory=list)
@@ -38,20 +37,17 @@ class PullSub(NameRequired):
 
     def __init__(
         self,
-        name: str,
         batch_size: int,
         *args: Any,
         declare: bool = True,
         **kwargs: Any,
     ) -> None:
         super().__init__(
-            name=name,
             declare=declare,
             subjects=[],
             batch_size=batch_size,
             config=StreamConfig(
                 *args,
-                name=name,
                 **kwargs,  # type: ignore[misc]
             ),
         )
