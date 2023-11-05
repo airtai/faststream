@@ -25,9 +25,7 @@ from faststream.broker.types import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.nats.js_stream import JStream
-from faststream.nats.kv_watch import KvWatch
 from faststream.nats.message import NatsMessage
-from faststream.nats.obj_watch import ObjWatch
 from faststream.nats.parser import JsParser, Parser
 from faststream.nats.pull_sub import PullSub
 from faststream.types import AnyDict
@@ -45,8 +43,6 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         queue: str = "",
         stream: Optional[JStream] = None,
         pull_sub: Optional[PullSub] = None,
-        kv_watch: Optional[KvWatch] = None,
-        obj_watch: Optional[ObjWatch] = None,
         extra_options: Optional[AnyDict] = None,
         # AsyncAPI information
         description: Optional[str] = None,
@@ -60,8 +56,6 @@ class LogicNatsHandler(AsyncHandler[Msg]):
 
         self.stream = stream
         self.pull_sub = pull_sub
-        self.kv_watch = kv_watch
-        self.obj_watch = obj_watch
         self.extra_options = extra_options or {}
 
         super().__init__(
@@ -104,16 +98,6 @@ class LogicNatsHandler(AsyncHandler[Msg]):
                 **self.extra_options,
             )
             self.task = asyncio.create_task(self._consume())
-
-        elif self.kv_watch is not None:
-            bucket = await connection.key_value(self.kv_watch.bucket)
-            watcher = await bucket.watch(self.kv_watch.keys, **self.extra_options)
-            self.task = asyncio.create_task(self._cosume_watch(watcher))
-
-        elif self.obj_watch is not None:
-            bucket = await connection.object_store(self.obj_watch.bucket)
-            watcher = await bucket.watch(**self.extra_options)
-            self.task = asyncio.create_task(self._cosume_watch(watcher))
 
         else:
             self.subscription = await connection.subscribe(
