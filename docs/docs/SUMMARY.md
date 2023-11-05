@@ -65,7 +65,7 @@
         - [Direct](nats/examples/direct.md)
         - [Pattern](nats/examples/pattern.md)
     - [JetStream](nats/jetstream/index.md)
-        - [Pull Subscriber](nast/jetstream/pull.md)
+        - [Pull Subscriber](nats/jetstream/pull.md)
         - [Key-Value Storage](nats/jetstream/key-value.md)
         - [Object Storage](nats/jetstream/object.md)
         - [Acknowledgement](nats/jetstream/ack.md)
