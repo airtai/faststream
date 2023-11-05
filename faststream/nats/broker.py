@@ -264,7 +264,6 @@ class NatsBroker(
         # Core arguments
         max_msgs: int = 0,
         # JS arguments
-        pull_sub: Optional[PullSub] = None,
         kv_watch: Optional[KvWatch] = None,
         obj_watch: Optional[ObjWatch] = None,
         durable: Optional[str] = None,
@@ -274,6 +273,9 @@ class NatsBroker(
         flow_control: bool = False,
         deliver_policy: Optional[api.DeliverPolicy] = None,
         headers_only: Optional[bool] = None,
+        # pull arguments
+        pull_sub: Optional[PullSub] = None,
+        inbox_prefix: bytes = api.INBOX_PREFIX,
         # custom
         ack_first: bool = False,
         stream: Union[str, JStream, None] = None,
@@ -324,14 +326,26 @@ class NatsBroker(
                     "durable": durable,
                     "stream": stream.name,
                     "config": config,
-                    "ordered_consumer": ordered_consumer,
-                    "idle_heartbeat": idle_heartbeat,
-                    "flow_control": flow_control,
-                    "deliver_policy": deliver_policy,
-                    "headers_only": headers_only,
-                    "manual_ack": not ack_first,
                 }
             )
+
+            if pull_sub is not None:
+                extra_options.update({
+                    "inbox_prefix": inbox_prefix
+                })
+
+            else:
+                extra_options.update(
+                    {
+                        "ordered_consumer": ordered_consumer,
+                        "idle_heartbeat": idle_heartbeat,
+                        "flow_control": flow_control,
+                        "deliver_policy": deliver_policy,
+                        "headers_only": headers_only,
+                        "manual_ack": not ack_first,
+                    }
+                )
+
         else:
             extra_options.update(
                 {

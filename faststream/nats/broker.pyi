@@ -227,7 +227,6 @@ class NatsBroker(
         max_msgs: int = 0,
         ack_first: bool = False,
         # JS arguments
-        pull_sub: Optional[PullSub] = None,
         stream: Union[str, JStream, None] = None,
         durable: Optional[str] = None,
         config: Optional[api.ConsumerConfig] = None,
@@ -236,6 +235,9 @@ class NatsBroker(
         flow_control: bool = False,
         deliver_policy: Optional[api.DeliverPolicy] = None,
         headers_only: Optional[bool] = None,
+        # pull arguments
+        pull_sub: Optional[PullSub] = None,
+        inbox_prefix: bytes = api.INBOX_PREFIX,
         # broker arguments
         dependencies: Sequence[Depends] = (),
         parser: Optional[CustomParser[Msg, NatsMessage]] = None,
