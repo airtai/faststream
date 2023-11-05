@@ -8,5 +8,5 @@ class PullSub(BaseModel):
     def __init__(
         self,
         batch_size: int,
-        timeout: float
+        timeout: Optional[float],
     ) -> None: ...
