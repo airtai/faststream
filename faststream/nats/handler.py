@@ -1,6 +1,6 @@
 import asyncio
 from contextlib import suppress
-from typing import Any, Callable, Dict, Optional, Sequence, Union
+from typing import Any, Callable, Dict, Optional, Sequence, Union, cast
 
 from fast_depends.core import CallModel
 from nats.aio.client import Client
@@ -8,8 +8,6 @@ from nats.aio.msg import Msg
 from nats.aio.subscription import Subscription
 from nats.errors import TimeoutError
 from nats.js import JetStreamContext
-from nats.js.kv import KeyValue
-from nats.js.object_store import ObjectStore
 
 from faststream._compat import override
 from faststream.broker.handler import AsyncHandler
@@ -33,7 +31,13 @@ from faststream.utils.context.path import compile_path
 
 
 class LogicNatsHandler(AsyncHandler[Msg]):
-    subscription: Optional[Union[Subscription, JetStreamContext.PushSubscription, JetStreamContext.PullSubscription]]
+    subscription: Optional[
+        Union[
+            Subscription,
+            JetStreamContext.PushSubscription,
+            JetStreamContext.PullSubscription,
+        ]
+    ]
     task: Optional["asyncio.Task[Any]"] = None
 
     def __init__(
@@ -90,6 +94,8 @@ class LogicNatsHandler(AsyncHandler[Msg]):
     @override
     async def start(self, connection: Union[Client, JetStreamContext]) -> None:  # type: ignore[override]
         if self.pull_sub is not None:
+            connection = cast(JetStreamContext, connection)
+
             if self.stream is None:
                 raise ValueError("Pull subscriber can be used only with a stream")
 
@@ -119,18 +125,15 @@ class LogicNatsHandler(AsyncHandler[Msg]):
     async def _consume(self) -> None:
         assert self.pull_sub
 
-        while self.subscription:
+        sub = cast(JetStreamContext.PullSubscription, self.subscription)
+
+        while self.subscription is not None:
             with suppress(TimeoutError):
-                messages = await self.subscription.fetch(
+                messages = await sub.fetch(
                     batch=self.pull_sub.batch_size,
                     timeout=self.pull_sub.timeout,
                 )
                 await asyncio.gather(*(self.consume(m) for m in messages))
-
-    async def _cosume_watch(self, watcher: Union[KeyValue.KeyWatcher, ObjectStore.ObjectWatcher]) -> None:
-        while self.subscription:
-            message = await watcher.updates()
-            await self.consume(message)
 
     @staticmethod
     def get_routing_hash(subject: str) -> str:

@@ -326,9 +326,7 @@ class NatsBroker(
             )
 
             if pull_sub is not None:
-                extra_options.update({
-                    "inbox_prefix": inbox_prefix
-                })
+                extra_options.update({"inbox_prefix": inbox_prefix})
 
             else:
                 extra_options.update(

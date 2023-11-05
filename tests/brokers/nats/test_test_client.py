@@ -3,7 +3,7 @@ import asyncio
 import pytest
 
 from faststream import BaseMiddleware
-from faststream.nats import JStream, NatsBroker, TestNatsBroker, PullSub
+from faststream.nats import JStream, NatsBroker, PullSub, TestNatsBroker
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
