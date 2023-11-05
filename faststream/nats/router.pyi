@@ -18,6 +18,7 @@ from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.nats.asyncapi import Publisher
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
+from faststream.nats.pull_sub import PullSub
 from faststream.nats.shared.router import NatsRoute
 from faststream.nats.shared.router import NatsRouter as BaseRouter
 
@@ -65,6 +66,7 @@ class NatsRouter(BaseRouter):
         max_msgs: int = 0,
         ack_first: bool = False,
         # JS arguments
+        pull_sub: Optional[PullSub] = None,
         stream: Union[str, JStream, None] = None,
         durable: Optional[str] = None,
         config: Optional[api.ConsumerConfig] = None,

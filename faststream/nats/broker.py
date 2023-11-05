@@ -36,11 +36,11 @@ from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
 from faststream.nats.asyncapi import Handler, Publisher
 from faststream.nats.helpers import stream_builder
 from faststream.nats.js_stream import JStream
+from faststream.nats.kv_watch import KvWatch
 from faststream.nats.message import NatsMessage
+from faststream.nats.obj_watch import ObjWatch
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.pull_sub import PullSub
-from faststream.nats.kv_watch import KvWatch
-from faststream.nats.obj_watch import ObjWatch
 from faststream.nats.shared.logging import NatsLoggingMixin
 from faststream.types import AnyDict, DecodedMessage
 from faststream.utils.context.main import context
@@ -292,6 +292,9 @@ class NatsBroker(
         HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn],
     ]:
         stream = stream_builder.stream(stream)
+
+        if pull_sub is not None and stream is None:
+            raise ValueError("Pull subscriber can be used only with a stream")
 
         self._setup_log_context(
             queue=queue,

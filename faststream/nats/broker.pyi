@@ -47,6 +47,7 @@ from faststream.nats.asyncapi import Handler, Publisher
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
+from faststream.nats.pull_sub import PullSub
 from faststream.nats.shared.logging import NatsLoggingMixin
 from faststream.types import DecodedMessage, SendableMessage
 
@@ -226,6 +227,7 @@ class NatsBroker(
         max_msgs: int = 0,
         ack_first: bool = False,
         # JS arguments
+        pull_sub: Optional[PullSub] = None,
         stream: Union[str, JStream, None] = None,
         durable: Optional[str] = None,
         config: Optional[api.ConsumerConfig] = None,

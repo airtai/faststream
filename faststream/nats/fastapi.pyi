@@ -58,6 +58,7 @@ from faststream.nats.asyncapi import Publisher
 from faststream.nats.broker import NatsBroker
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
+from faststream.nats.pull_sub import PullSub
 
 class NatsRouter(StreamRouter[Msg]):
     broker_class = NatsBroker
@@ -189,6 +190,7 @@ class NatsRouter(StreamRouter[Msg]):
         max_msgs: int = 0,
         ack_first: bool = False,
         # JS arguments
+        pull_sub: Optional[PullSub] = None,
         stream: Union[str, JStream, None] = None,
         durable: Optional[str] = None,
         config: Optional[api.ConsumerConfig] = None,

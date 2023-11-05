@@ -1,53 +1,18 @@
-from typing import Any, List, Optional
+from typing import Optional
 
-from nats.js.api import (
-    DiscardPolicy,
-    ExternalStream,
-    Placement,
-    RePublish,
-    RetentionPolicy,
-    StorageType,
-    StreamConfig,
-    StreamSource,
-)
-from pydantic import Field, BaseModel
-
-
-__all__ = (
-    "PullSub",
-    # import to prevent Pydantic ForwardRef error
-    "RetentionPolicy",
-    "DiscardPolicy",
-    "StorageType",
-    "Placement",
-    "StreamSource",
-    "ExternalStream",
-    "RePublish",
-    "Optional",
-)
+from pydantic import BaseModel, Field
 
 
 class PullSub(BaseModel):
-    config: StreamConfig
-
-    subjects: List[str] = Field(default_factory=list)
-    declare: bool = Field(default=True)
-
-    # idk which parameters must be here....
+    batch_size: int = Field(default=1)
+    timeout: Optional[float] = Field(default=5.0)
 
     def __init__(
         self,
-        batch_size: int,
-        *args: Any,
-        declare: bool = True,
-        **kwargs: Any,
+        batch_size: int = 1,
+        timeout: Optional[float] = 5.0,
     ) -> None:
         super().__init__(
-            declare=declare,
-            subjects=[],
             batch_size=batch_size,
-            config=StreamConfig(
-                *args,
-                **kwargs,  # type: ignore[misc]
-            ),
+            timeout=timeout,
         )

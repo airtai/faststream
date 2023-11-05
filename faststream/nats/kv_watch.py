@@ -10,7 +10,7 @@ from nats.js.api import (
     StreamConfig,
     StreamSource,
 )
-from pydantic import Field, BaseModel
+from pydantic import BaseModel, Field
 
 __all__ = (
     "KvWatch",

@@ -1,5 +1,4 @@
 import asyncio
-
 from typing import Any, Callable, Dict, Optional, Sequence, Union
 
 from fast_depends.core import CallModel
@@ -24,13 +23,15 @@ from faststream.broker.types import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.nats.js_stream import JStream
-from faststream.nats.pull_sub import PullSub
 from faststream.nats.kv_watch import KvWatch
-from faststream.nats.obj_watch import ObjWatch
 from faststream.nats.message import NatsMessage
+from faststream.nats.obj_watch import ObjWatch
 from faststream.nats.parser import JsParser, Parser
+from faststream.nats.pull_sub import PullSub
+from faststream.nats.schemas import PullSubKwargs
 from faststream.types import AnyDict
 from faststream.utils.context.path import compile_path
+from faststream.utils.data import filter_by_dict
 
 
 class LogicNatsHandler(AsyncHandler[Msg]):
@@ -95,9 +96,11 @@ class LogicNatsHandler(AsyncHandler[Msg]):
     @override
     async def start(self, connection: Union[Client, JetStreamContext]) -> None:  # type: ignore[override]
         if self.pull_sub is not None:
+            if self.stream is None:
+                raise ValueError("Pull subscriber can be used only with a stream")
             self.subscription = await connection.pull_subscribe(
                 subject=self.subject,
-                **self.extra_options
+                **filter_by_dict(PullSubKwargs, self.extra_options)
             )
             self.task = asyncio.create_task(self._consume())
 
@@ -130,8 +133,12 @@ class LogicNatsHandler(AsyncHandler[Msg]):
 
     async def _consume(self) -> None:
         while self.subscription:
-            messages = await self.subscription.fetch(self.pull_sub.batch_size)
-            await asyncio.gather(*[self.consume(message)] for message in messages)
+            assert self.pull_sub
+            messages = await self.subscription.fetch(
+                batch=self.pull_sub.batch_size,
+                timeout=self.pull_sub.timeout,
+            )
+            await asyncio.gather(*(self.consume(m) for m in messages))
 
     async def _cosume_watch(self, watcher: Union[KeyValue.KeyWatcher, ObjectStore.ObjectWatcher]) -> None:
         while self.subscription:
