@@ -45,7 +45,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         log_context_builder: Callable[[StreamMessage[Any]], Dict[str, str]],
         queue: str = "",
         stream: Optional[JStream] = None,
-        pull_sub: Optional[PullSub] = None,
+        pull_sub: [PullSub] = None,
         extra_options: Optional[AnyDict] = None,
         # AsyncAPI information
         description: Optional[str] = None,
@@ -122,7 +122,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
             self.task = None
 
     async def _consume(self) -> None:
-        assert self.pull_sub
+        assert self.pull_sub  # nosec B101
 
         sub = cast(JetStreamContext.PullSubscription, self.subscription)
 
