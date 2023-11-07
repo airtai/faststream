@@ -31,12 +31,11 @@ from faststream.utils.context.path import compile_path
 
 
 class LogicNatsHandler(AsyncHandler[Msg]):
-    subscription: Optional[
-        Union[
-            Subscription,
-            JetStreamContext.PushSubscription,
-            JetStreamContext.PullSubscription,
-        ]
+    subscription: Union[
+        None,
+        Subscription,
+        JetStreamContext.PushSubscription,
+        JetStreamContext.PullSubscription,
     ]
     task: Optional["asyncio.Task[Any]"] = None
 
