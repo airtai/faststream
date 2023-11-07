@@ -45,7 +45,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         log_context_builder: Callable[[StreamMessage[Any]], Dict[str, str]],
         queue: str = "",
         stream: Optional[JStream] = None,
-        pull_sub: [PullSub] = None,
+        pull_sub: Optional[PullSub] = None,
         extra_options: Optional[AnyDict] = None,
         # AsyncAPI information
         description: Optional[str] = None,
