@@ -40,7 +40,6 @@ class TestPublish(BrokerPublishTestcase):
         assert event.is_set()
         mock.assert_called_once_with("")
 
-    @pytest.mark.asyncio
     async def test_list_publish_batch(self, queue: str, broker: RedisBroker):
         msgs_queue = asyncio.Queue(maxsize=2)
 

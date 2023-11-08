@@ -1,4 +1,4 @@
-from typing import Optional, Pattern, Tuple
+from typing import Optional, Pattern, Tuple, Union
 from uuid import uuid4
 
 from pydantic import BaseModel, Field
@@ -6,7 +6,12 @@ from pydantic import BaseModel, Field
 from faststream._compat import dump_json, model_parse, model_to_json
 from faststream.broker.message import StreamMessage
 from faststream.broker.parsers import decode_message, encode_message
-from faststream.redis.message import PubSubMessage, RedisMessage
+from faststream.redis.message import (
+    BatchMessage,
+    OneMessage,
+    PubSubMessage,
+    RedisMessage,
+)
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
 from faststream.utils.context.main import context
 
@@ -68,7 +73,7 @@ class RedisParser:
     @classmethod
     async def parse_message(
         cls,
-        message: PubSubMessage,
+        message: Union[OneMessage, BatchMessage],
     ) -> StreamMessage[PubSubMessage]:
         path: AnyDict = {}
         if message["type"] == "batch":
@@ -76,6 +81,7 @@ class RedisParser:
                 [cls.parse_one_msg(x)[0] for x in message["data"]]
             ).encode()
             headers = {"content-type": "application/json"}
+
         else:
             data, headers = cls.parse_one_msg(message["data"])
 

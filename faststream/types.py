@@ -27,7 +27,7 @@ AsyncFunc: TypeAlias = Callable[..., Awaitable[Any]]
 DecoratedCallable: TypeAlias = AnyCallable
 DecoratedCallableNone: TypeAlias = NoneCallable
 
-JsonDecodable: TypeAlias = Union[
+JsonDecodable = Union[
     float,
     int,
     bool,

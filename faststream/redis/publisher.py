@@ -49,7 +49,13 @@ class LogicPublisher(BasePublisher[PubSubMessage]):
         if headers is not None:
             headers_to_send.update(headers)
 
-        if not getattr(list, "batch", False):
+        if list is not None and list.batch:
+            await self._producer.publish_batch(
+                *message,
+                list=list.name,
+            )
+
+        else:
             return await self._producer.publish(
                 message=message,
                 channel=getattr(channel, "name", None),
@@ -61,12 +67,6 @@ class LogicPublisher(BasePublisher[PubSubMessage]):
                 rpc=rpc,
                 rpc_timeout=rpc_timeout,
                 raise_timeout=raise_timeout,
-            )
-
-        else:
-            return await self._producer.publish_batch(
-                *message,
-                list=list.name,
             )
 
     @property

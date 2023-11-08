@@ -183,7 +183,7 @@ def get_model_schema(
     body = model_schema(model)
 
     if params_number == 1 and not use_original_model:
-        param_body = body.get("properties", {})
+        param_body: Dict[str, Any] = body.get("properties", {})
         param_body = param_body[name]
 
         if PYDANTIC_V2:

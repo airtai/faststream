@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, Union
 from uuid import uuid4
 
 from redis.asyncio.client import PubSub, Redis
@@ -11,7 +11,12 @@ from faststream.broker.types import (
     AsyncParser,
 )
 from faststream.exceptions import WRONG_PUBLISH_ARGS
-from faststream.redis.message import PubSubMessage, RedisMessage
+from faststream.redis.message import (
+    BatchMessage,
+    OneMessage,
+    PubSubMessage,
+    RedisMessage,
+)
 from faststream.redis.parser import DATA_KEY, RawMessage, RedisParser
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
@@ -26,7 +31,9 @@ class RedisFastProducer:
     def __init__(
         self,
         connection: Redis,
-        parser: Optional[AsyncCustomParser[PubSubMessage, RedisMessage]],
+        parser: Optional[
+            AsyncCustomParser[Union[OneMessage, BatchMessage], RedisMessage]
+        ],
         decoder: Optional[AsyncCustomDecoder[RedisMessage]],
     ):
         self._connection = connection
@@ -94,7 +101,7 @@ class RedisFastProducer:
                 )
 
             await psub.unsubscribe()
-            await psub.aclose()
+            await psub.aclose()  # type: ignore[attr-defined]
 
             if m is None:
                 if raise_timeout:

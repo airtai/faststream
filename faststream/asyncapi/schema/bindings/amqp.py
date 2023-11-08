@@ -1,4 +1,4 @@
-from typing import Any, Dict, Literal, Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, Field, PositiveInt
 
@@ -92,7 +92,7 @@ class OperationBinding(BaseModel):
 
     cc: Optional[str] = None
     ack: bool = True
-    replyTo: Optional[Dict[str, Any]] = None
+    replyTo: Optional[str] = None
     deliveryMode: Optional[int] = None
     mandatory: Optional[bool] = None
     priority: Optional[PositiveInt] = None

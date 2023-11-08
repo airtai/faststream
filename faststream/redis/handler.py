@@ -21,6 +21,7 @@ from fast_depends.core import CallModel
 from redis.asyncio.client import PubSub as RPubSub
 from redis.asyncio.client import Redis
 
+from faststream._compat import override
 from faststream.broker.handler import AsyncHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
@@ -33,7 +34,12 @@ from faststream.broker.types import (
     T_HandlerReturn,
 )
 from faststream.broker.wrapper import HandlerCallWrapper
-from faststream.redis.message import PubSubMessage, RedisMessage
+from faststream.redis.message import (
+    BatchMessage,
+    OneMessage,
+    PubSubMessage,
+    RedisMessage,
+)
 from faststream.redis.parser import RawMessage, RedisParser, bDATA_KEY
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.types import AnyDict
@@ -98,7 +104,8 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
             middlewares=middlewares,
         )
 
-    async def start(self, client: Redis) -> None:
+    @override
+    async def start(self, client: Redis) -> None:  # type: ignore[override]
         self.started = anyio.Event()
 
         consume: Union[
@@ -194,7 +201,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
     async def _consume_stream_msg(
         self,
         client: Redis,
-    ) -> Optional[Tuple[PubSubMessage]]:
+    ) -> Optional[PubSubMessage]:
         stream = self.stream_sub
         assert stream
 
@@ -236,7 +243,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
                             data = m
                         parsed.append(data)
 
-                    return PubSubMessage(
+                    return BatchMessage(
                         type="batch",
                         channel=stream_name,
                         data=parsed,
@@ -246,7 +253,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
 
                 else:
                     return (
-                        PubSubMessage(
+                        OneMessage(
                             type="stream",
                             channel=stream_name,
                             data=msg.get(
@@ -282,8 +289,16 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
                     parsed.append(data)
                 msg = parsed
 
-            return PubSubMessage(
-                type="list" if count is None else "batch",
-                channel=list_sub.name.encode(),
-                data=msg,
-            )
+            if count is None:
+                return OneMessage(
+                    type="list",
+                    channel=list_sub.name.encode(),
+                    data=msg,
+                )
+
+            else:
+                return BatchMessage(
+                    type="batch",
+                    channel=list_sub.name.encode(),
+                    data=msg,
+                )

@@ -1,4 +1,4 @@
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
 
@@ -29,19 +29,7 @@ class ChannelBinding(BaseModel):
     """
 
     channel: str
-    method: Optional[
-        Literal[
-            "ssubscribe",
-            "psubscribe",
-            "subscribe",
-            "lpop",
-            "rpush",
-            "publish",
-            "xread",
-            "xreadgroup",
-            "xadd",
-        ]
-    ] = None
+    method: Optional[str] = None
     group_name: Optional[str] = None
     consumer_name: Optional[str] = None
     bindingVersion: str = "custom"
