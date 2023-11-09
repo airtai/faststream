@@ -2,7 +2,7 @@ import ast
 import traceback
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterator, Union
+from typing import Iterator, List, Union
 
 
 def is_contains_context_name(scip_name: str, name: str) -> bool:
@@ -42,7 +42,7 @@ def find_withitems(node: Union[ast.With, ast.AsyncWith]) -> Iterator[ast.withite
         yield from find_withitems(i)
 
 
-def get_withitem_calls(node: Union[ast.With, ast.AsyncWith]) -> list[str]:
+def get_withitem_calls(node: Union[ast.With, ast.AsyncWith]) -> List[str]:
     return [
         id
         for i in find_withitems(node)
