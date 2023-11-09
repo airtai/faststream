@@ -98,14 +98,12 @@ lint = [
     "ruff==0.1.4",
     "pyupgrade-directories",
     "bandit==1.7.5",
-    "pre-commit==3.5.0",
     "semgrep==1.46.0",
-    "detect-secrets==1.4.0",
 ]
 
 test-core = [
-    "coverage[toml]>=7.2",
-    "pytest==7.4.3",
+    "coverage[toml]>=7.2,<8",
+    "pytest==7.4.3,<8",
     "pytest-asyncio>=0.21",
     "dirty-equals==0.6.0",
 ]
@@ -118,7 +116,11 @@ testing = [
     "PyYAML",
 ]
 
-dev = ["faststream[rabbit,kafka,nats,docs,lint,testing,devdocs]"]
+dev = [
+    "faststream[rabbit,kafka,nats,docs,lint,testing,devdocs]",
+    "pre-commit==3.5.0",
+    "detect-secrets==1.4.0",
+]
 
 [project.urls]
 Homepage = "https://faststream.airt.ai/"
