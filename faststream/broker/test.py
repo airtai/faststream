@@ -152,7 +152,7 @@ class TestBroker(Generic[Broker]):
                     (
                         f"\nError `{repr(e)}` occured at `{self.__class__.__name__}` AST parsing"
                         "\nPlease, report us by creating an Issue with your TestClient usecase"
-                        "\nhttps://github.com/airtat/faststream/issues/new?labels=bug&template=bug_report.md&title=TestClient%20AST%20parsing%20bug"
+                        "\nhttps://github.com/airtai/faststream/issues/new?labels=bug&template=bug_report.md&title=Bug:%20TestClient%20AST%20parsing"
                     ),
                     category=RuntimeWarning,
                     stacklevel=1,
