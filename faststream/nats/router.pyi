@@ -18,6 +18,7 @@ from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.nats.asyncapi import Publisher
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
+from faststream.nats.pull_sub import PullSub
 from faststream.nats.shared.router import NatsRoute
 from faststream.nats.shared.router import NatsRouter as BaseRouter
 
@@ -73,6 +74,9 @@ class NatsRouter(BaseRouter):
         flow_control: bool = False,
         deliver_policy: Optional[api.DeliverPolicy] = None,
         headers_only: Optional[bool] = None,
+        # pull arguments
+        pull_sub: Optional[PullSub] = None,
+        inbox_prefix: bytes = api.INBOX_PREFIX,
         # broker arguments
         dependencies: Sequence[Depends] = (),
         parser: Optional[CustomParser[Msg, NatsMessage]] = None,
