@@ -13,11 +13,10 @@ async def test_delay_router_kafka():
         broker,
     )
 
-    async with TestKafkaBroker(broker) as br:
-        async with TestApp(app):
-            list(br.handlers.values())[0].calls[0][0].mock.assert_called_once_with(
-                {"name": "John", "user_id": 1}
-            )
+    async with TestKafkaBroker(broker) as br, TestApp(app):
+        list(br.handlers.values())[0].calls[0][0].mock.assert_called_once_with(
+            {"name": "John", "user_id": 1}
+        )
 
 
 @pytest.mark.asyncio
@@ -27,11 +26,10 @@ async def test_delay_router_rabbit():
         broker,
     )
 
-    async with TestRabbitBroker(broker) as br:
-        async with TestApp(app):
-            list(br.handlers.values())[0].calls[0][0].mock.assert_called_once_with(
-                {"name": "John", "user_id": 1}
-            )
+    async with TestRabbitBroker(broker) as br, TestApp(app):
+        list(br.handlers.values())[0].calls[0][0].mock.assert_called_once_with(
+            {"name": "John", "user_id": 1}
+        )
 
 
 @pytest.mark.asyncio
@@ -41,8 +39,7 @@ async def test_delay_router_nats():
         broker,
     )
 
-    async with TestNatsBroker(broker) as br:
-        async with TestApp(app):
-            list(br.handlers.values())[0].calls[0][0].mock.assert_called_once_with(
-                {"name": "John", "user_id": 1}
-            )
+    async with TestNatsBroker(broker) as br, TestApp(app):
+        list(br.handlers.values())[0].calls[0][0].mock.assert_called_once_with(
+            {"name": "John", "user_id": 1}
+        )

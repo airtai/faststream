@@ -15,10 +15,9 @@ async def test_kafka_filtering():
         handle,
     )
 
-    async with TestKafkaBroker(broker):
-        async with TestApp(app):
-            handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
-            default_handler.mock.assert_called_once_with("Hello, FastStream!")
+    async with TestKafkaBroker(broker), TestApp(app):
+        handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
+        default_handler.mock.assert_called_once_with("Hello, FastStream!")
 
 
 @pytest.mark.asyncio
@@ -30,10 +29,9 @@ async def test_rabbit_filtering():
         handle,
     )
 
-    async with TestRabbitBroker(broker):
-        async with TestApp(app):
-            handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
-            default_handler.mock.assert_called_once_with("Hello, FastStream!")
+    async with TestRabbitBroker(broker), TestApp(app):
+        handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
+        default_handler.mock.assert_called_once_with("Hello, FastStream!")
 
 
 @pytest.mark.asyncio
@@ -45,7 +43,6 @@ async def test_nats_filtering():
         handle,
     )
 
-    async with TestNatsBroker(broker):
-        async with TestApp(app):
-            handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
-            default_handler.mock.assert_called_once_with("Hello, FastStream!")
+    async with TestNatsBroker(broker), TestApp(app):
+        handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
+        default_handler.mock.assert_called_once_with("Hello, FastStream!")

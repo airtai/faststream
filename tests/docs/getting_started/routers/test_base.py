@@ -15,10 +15,9 @@ async def test_base_router_kafka():
         handle_response,
     )
 
-    async with TestKafkaBroker(broker):
-        async with TestApp(app):
-            handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
-            handle_response.mock.assert_called_once_with("Hi!")
+    async with TestKafkaBroker(broker), TestApp(app):
+        handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
+        handle_response.mock.assert_called_once_with("Hi!")
 
 
 @pytest.mark.asyncio
@@ -30,10 +29,9 @@ async def test_base_router_rabbit():
         handle_response,
     )
 
-    async with TestRabbitBroker(broker):
-        async with TestApp(app):
-            handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
-            handle_response.mock.assert_called_once_with("Hi!")
+    async with TestRabbitBroker(broker), TestApp(app):
+        handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
+        handle_response.mock.assert_called_once_with("Hi!")
 
 
 @pytest.mark.asyncio
@@ -45,7 +43,6 @@ async def test_base_router_nats():
         handle_response,
     )
 
-    async with TestNatsBroker(broker):
-        async with TestApp(app):
-            handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
-            handle_response.mock.assert_called_once_with("Hi!")
+    async with TestNatsBroker(broker), TestApp(app):
+        handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
+        handle_response.mock.assert_called_once_with("Hi!")

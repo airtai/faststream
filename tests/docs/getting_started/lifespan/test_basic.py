@@ -14,9 +14,8 @@ async def test_rabbit_basic_lifespan():
     with mock_pydantic_settings_env({"host": "localhost"}):
         from docs.docs_src.getting_started.lifespan.rabbit.basic import app, broker
 
-        async with TestRabbitBroker(broker):
-            async with TestApp(app):
-                assert context.get("settings").host == "localhost"
+        async with TestRabbitBroker(broker), TestApp(app):
+            assert context.get("settings").host == "localhost"
 
 
 @pydanticV2
@@ -25,9 +24,8 @@ async def test_kafka_basic_lifespan():
     with mock_pydantic_settings_env({"host": "localhost"}):
         from docs.docs_src.getting_started.lifespan.kafka.basic import app, broker
 
-        async with TestKafkaBroker(broker):
-            async with TestApp(app):
-                assert context.get("settings").host == "localhost"
+        async with TestKafkaBroker(broker), TestApp(app):
+            assert context.get("settings").host == "localhost"
 
 
 @pydanticV2
@@ -36,6 +34,5 @@ async def test_nats_basic_lifespan():
     with mock_pydantic_settings_env({"host": "localhost"}):
         from docs.docs_src.getting_started.lifespan.nats.basic import app, broker
 
-        async with TestNatsBroker(broker):
-            async with TestApp(app):
-                assert context.get("settings").host == "localhost"
+        async with TestNatsBroker(broker), TestApp(app):
+            assert context.get("settings").host == "localhost"

@@ -1,3 +1,4 @@
+import warnings
 from abc import abstractmethod
 from contextlib import ExitStack, asynccontextmanager
 from functools import partial
@@ -15,6 +16,7 @@ from faststream.broker.handler import AsyncHandler
 from faststream.broker.middlewares import CriticalLogMiddleware
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.types import SendableMessage, SettingField
+from faststream.utils.ast import is_contains_context_name
 from faststream.utils.functions import timeout_scope
 
 Broker = TypeVar("Broker", bound=BrokerAsyncUsecase[Any, Any])
@@ -133,10 +135,31 @@ class TestBroker(Generic[Broker]):
         self,
         broker: Broker,
         with_real: bool = False,
-        connect_only: bool = False,
+        connect_only: Optional[bool] = None,
     ):
         self.with_real = with_real
         self.broker = broker
+
+        if connect_only is None:
+            try:
+                connect_only = is_contains_context_name(
+                    self.__class__.__name__,
+                    TestApp.__name__,
+                )
+
+            except Exception as e:
+                warnings.warn(
+                    (
+                        f"\nError `{repr(e)}` occured at `{self.__class__.__name__}` AST parsing"
+                        "\nPlease, report us by creating an Issue with your TestClient usecase"
+                        "\nhttps://github.com/airtat/faststream/issues/new?labels=bug&template=bug_report.md&title=TestClient%20AST%20parsing%20bug"
+                    ),
+                    category=RuntimeWarning,
+                    stacklevel=1,
+                )
+
+                connect_only = False
+
         self.connect_only = connect_only
 
     async def __aenter__(self) -> Broker:

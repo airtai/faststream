@@ -61,9 +61,9 @@ class TestNaming(NamingTestCase):
     @pytest.mark.parametrize(
         "args",
         (
-            {"channel": "test"},
-            {"list": "test"},
-            {"stream": "test"},
+            pytest.param({"channel": "test"}, id="channel"),
+            pytest.param({"list": "test"}, id="list"),
+            pytest.param({"stream": "test"}, id="stream"),
         ),
     )
     def test_subscribers_variations(self, args):
@@ -79,9 +79,9 @@ class TestNaming(NamingTestCase):
     @pytest.mark.parametrize(
         "args",
         (
-            {"channel": "test"},
-            {"list": "test"},
-            {"stream": "test"},
+            pytest.param({"channel": "test"}, id="channel"),
+            pytest.param({"list": "test"}, id="list"),
+            pytest.param({"stream": "test"}, id="stream"),
         ),
     )
     def test_publisher_variations(self, args):

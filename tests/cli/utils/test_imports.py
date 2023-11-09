@@ -12,10 +12,20 @@ def test_import_wrong():
 
 
 @pytest.mark.parametrize(
-    "test_input,exp_module,exp_app",
+    ("test_input", "exp_module", "exp_app"),
     (
-        ("module:app", "module", "app"),
-        ("module.module.module:app", "module/module/module", "app"),
+        pytest.param(
+            "module:app",
+            "module",
+            "app",
+            id="simple",
+        ),
+        pytest.param(
+            "module.module.module:app",
+            "module/module/module",
+            "app",
+            id="nested",
+        ),
     ),
 )
 def test_get_app_path(test_input, exp_module, exp_app):

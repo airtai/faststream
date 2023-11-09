@@ -14,9 +14,8 @@ async def test_parser_nats():
         handle,
     )
 
-    async with TestNatsBroker(broker, connect_only=True):
-        async with TestApp(app):
-            handle.mock.assert_called_once_with("")
+    async with TestNatsBroker(broker), TestApp(app):
+        handle.mock.assert_called_once_with("")
 
 
 @pytest.mark.asyncio
@@ -27,9 +26,8 @@ async def test_parser_kafka():
         handle,
     )
 
-    async with TestKafkaBroker(broker, connect_only=True):
-        async with TestApp(app):
-            handle.mock.assert_called_once_with("")
+    async with TestKafkaBroker(broker), TestApp(app):
+        handle.mock.assert_called_once_with("")
 
 
 @pytest.mark.asyncio
@@ -40,6 +38,5 @@ async def test_parser_rabbit():
         handle,
     )
 
-    async with TestRabbitBroker(broker, connect_only=True):
-        async with TestApp(app):
-            handle.mock.assert_called_once_with("")
+    async with TestRabbitBroker(broker), TestApp(app):
+        handle.mock.assert_called_once_with("")

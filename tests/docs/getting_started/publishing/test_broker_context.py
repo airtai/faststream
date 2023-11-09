@@ -15,10 +15,9 @@ async def test_broker_context_kafka():
         handle,
     )
 
-    async with TestKafkaBroker(broker, connect_only=True, with_real=True):
-        async with TestApp(app):
-            await handle.wait_call(3)
-            handle.mock.assert_called_once_with("Hi!")
+    async with TestKafkaBroker(broker, with_real=True), TestApp(app):
+        await handle.wait_call(3)
+        handle.mock.assert_called_once_with("Hi!")
 
 
 @pytest.mark.asyncio
@@ -30,10 +29,9 @@ async def test_broker_context_nats():
         handle,
     )
 
-    async with TestNatsBroker(broker, connect_only=True, with_real=True):
-        async with TestApp(app):
-            await handle.wait_call(3)
-            handle.mock.assert_called_once_with("Hi!")
+    async with TestNatsBroker(broker, with_real=True), TestApp(app):
+        await handle.wait_call(3)
+        handle.mock.assert_called_once_with("Hi!")
 
 
 @pytest.mark.asyncio
@@ -45,7 +43,6 @@ async def test_broker_context_rabbit():
         handle,
     )
 
-    async with TestRabbitBroker(broker, connect_only=True, with_real=True):
-        async with TestApp(app):
-            await handle.wait_call(3)
-            handle.mock.assert_called_once_with("Hi!")
+    async with TestRabbitBroker(broker, with_real=True), TestApp(app):
+        await handle.wait_call(3)
+        handle.mock.assert_called_once_with("Hi!")

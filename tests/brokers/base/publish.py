@@ -28,21 +28,78 @@ class BrokerPublishTestcase:
     @pytest.mark.parametrize(
         ("message", "message_type", "expected_message"),
         (
-            ("hello", str, "hello"),
-            (b"hello", bytes, b"hello"),
-            (1, int, 1),
-            (1.0, float, 1.0),
-            (False, bool, False),
-            ({"m": 1}, Dict[str, int], {"m": 1}),
-            ([1, 2, 3], List[int], [1, 2, 3]),
-            (now, datetime, now),
-            (
+            pytest.param(
+                "hello",
+                str,
+                "hello",
+                id="str->str",
+            ),
+            pytest.param(
+                b"hello",
+                bytes,
+                b"hello",
+                id="bytes->bytes",
+            ),
+            pytest.param(
+                1,
+                int,
+                1,
+                id="int->int",
+            ),
+            pytest.param(
+                1.0,
+                float,
+                1.0,
+                id="float->float",
+            ),
+            pytest.param(
+                False,
+                bool,
+                False,
+                id="bool->bool",
+            ),
+            pytest.param(
+                {"m": 1},
+                Dict[str, int],
+                {"m": 1},
+                id="dict->dict",
+            ),
+            pytest.param(
+                [1, 2, 3],
+                List[int],
+                [1, 2, 3],
+                id="list->list",
+            ),
+            pytest.param(
+                now,
+                datetime,
+                now,
+                id="datetime->datetime",
+            ),
+            pytest.param(
                 model_to_json(SimpleModel(r="hello!")).encode(),
                 SimpleModel,
                 SimpleModel(r="hello!"),
+                id="bytes->model",
             ),
-            (SimpleModel(r="hello!"), SimpleModel, SimpleModel(r="hello!")),
-            (SimpleModel(r="hello!"), dict, {"r": "hello!"}),
+            pytest.param(
+                SimpleModel(r="hello!"),
+                SimpleModel,
+                SimpleModel(r="hello!"),
+                id="model->model",
+            ),
+            pytest.param(
+                SimpleModel(r="hello!"),
+                dict,
+                {"r": "hello!"},
+                id="model->dict",
+            ),
+            pytest.param(
+                {"r": "hello!"},
+                SimpleModel,
+                SimpleModel(r="hello!"),
+                id="dict->model",
+            ),
         ),
     )
     async def test_serialize(

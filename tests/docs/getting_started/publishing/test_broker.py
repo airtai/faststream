@@ -15,10 +15,9 @@ async def test_broker_kafka():
         handle_next,
     )
 
-    async with TestKafkaBroker(broker, connect_only=True):
-        async with TestApp(app):
-            handle.mock.assert_called_once_with("")
-            handle_next.mock.assert_called_once_with("Hi!")
+    async with TestKafkaBroker(broker), TestApp(app):
+        handle.mock.assert_called_once_with("")
+        handle_next.mock.assert_called_once_with("Hi!")
 
 
 @pytest.mark.asyncio
@@ -30,10 +29,9 @@ async def test_broker_rabbit():
         handle_next,
     )
 
-    async with TestRabbitBroker(broker, connect_only=True):
-        async with TestApp(app):
-            handle.mock.assert_called_once_with("")
-            handle_next.mock.assert_called_once_with("Hi!")
+    async with TestRabbitBroker(broker), TestApp(app):
+        handle.mock.assert_called_once_with("")
+        handle_next.mock.assert_called_once_with("Hi!")
 
 
 @pytest.mark.asyncio
@@ -45,7 +43,6 @@ async def test_broker_nats():
         handle_next,
     )
 
-    async with TestNatsBroker(broker, connect_only=True):
-        async with TestApp(app):
-            handle.mock.assert_called_once_with("")
-            handle_next.mock.assert_called_once_with("Hi!")
+    async with TestNatsBroker(broker), TestApp(app):
+        handle.mock.assert_called_once_with("")
+        handle_next.mock.assert_called_once_with("Hi!")
