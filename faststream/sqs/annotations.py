@@ -1,3 +1,5 @@
+from aiobotocore.client import AioBaseClient
+
 from faststream._compat import Annotated
 from faststream.annotations import ContextRepo, Logger, NoCast
 from faststream.sqs.broker import SQSBroker as SB  # NOQA
@@ -12,8 +14,12 @@ __all__ = (
     "SQSBroker",
     "SQSMessage",
     "SQSProducer",
+    "client",
+    "queue_url",
 )
 
 SQSBroker = Annotated[SB, Context("broker")]
 SQSMessage = Annotated[SM, Context("message")]
 SQSProducer = Annotated[SQSFastProducer, Context("broker._producer")]
+client = Annotated[AioBaseClient, Context("client")]
+queue_url = Annotated[str, Context("queue_url")]

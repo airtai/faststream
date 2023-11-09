@@ -1,8 +1,8 @@
-class Publisher:
+class Handler:
     # TODO
     pass
 
 
-class Handler:
+class Publisher:
     # TODO
     pass

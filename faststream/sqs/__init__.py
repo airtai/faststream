@@ -1,5 +1,5 @@
 from faststream.broker.test import TestApp
-from faststream.sqs.annotations import SQSBroker, SQSMessage, SQSProducer
+from faststream.sqs.annotations import SQSBroker, SQSMessage
 from faststream.sqs.router import SQSRouter
 from faststream.sqs.shared.router import SQSRoute
 from faststream.sqs.shared.schemas import (
