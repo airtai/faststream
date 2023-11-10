@@ -118,7 +118,7 @@ testing = [
     "pydantic-settings",
     "httpx",
     "PyYAML",
-    "freezegun",
+    "watchfiles",
 ]
 
 publish = ["hatch==1.7.0"]
