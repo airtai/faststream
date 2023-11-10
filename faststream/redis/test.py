@@ -52,7 +52,9 @@ class TestRedisBroker(TestBroker[RedisBroker]):
         broker: RedisBroker,
         publisher: Publisher,
     ) -> None:
-        broker.handlers.pop(Handler.get_routing_hash(publisher.channel), None)
+        any_of = publisher.channel or publisher.list or publisher.stream
+        assert any_of
+        broker.handlers.pop(Handler.get_routing_hash(any_of), None)
 
 
 class FakeProducer(RedisFastProducer):

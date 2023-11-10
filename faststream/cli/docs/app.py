@@ -1,11 +1,12 @@
 import json
 import sys
+import warnings
 from pathlib import Path
 from typing import Optional
 
 import typer
 
-from faststream.__about__ import INSTALL_YAML
+from faststream.__about__ import INSTALL_WATCHFILES, INSTALL_YAML
 from faststream._compat import model_parse
 from faststream.asyncapi.generate import get_app_schema
 from faststream.asyncapi.schema import Schema
@@ -29,6 +30,12 @@ def serve(
         8000,
         help="documentation hosting port",
     ),
+    reload: bool = typer.Option(
+        False,
+        "--reload",
+        is_flag=True,
+        help="Restart documentation at directory files changes",
+    ),
 ) -> None:
     """Serve project AsyncAPI schema"""
     if ":" in app:
@@ -37,8 +44,14 @@ def serve(
         app_obj = try_import_app(module, app)
         raw_schema = get_app_schema(app_obj)
 
+        module_parent = module.parent
+        extra_extensions = ()
+
     else:
-        schema_filepath = Path.cwd() / app
+        module_parent = Path.cwd()
+        schema_filepath = module_parent / app
+        extra_extensions = (schema_filepath.suffix,)
+
         if schema_filepath.suffix == ".json":
             data = schema_filepath.read_text()
 
@@ -53,6 +66,7 @@ def serve(
                 schema = yaml.safe_load(f)
 
             data = json.dumps(schema)
+
         else:
             raise ValueError(
                 f"Unknown extension given - {app}; Please provide app in format [python_module:FastStream] or [asyncapi.yaml/.json] - path to your application or documentation"
@@ -60,11 +74,24 @@ def serve(
 
         raw_schema = model_parse(Schema, data)
 
-    serve_app(
-        schema=raw_schema,
-        host=host,
-        port=port,
-    )
+    if reload is True:
+        try:
+            from faststream.cli.supervisors.watchfiles import WatchReloader
+
+        except ImportError:
+            warnings.warn(INSTALL_WATCHFILES, category=ImportWarning, stacklevel=1)
+            serve_app(raw_schema, host, port)
+
+        else:
+            WatchReloader(
+                target=serve_app,
+                args=(raw_schema, host, port),
+                reload_dirs=(str(module_parent),),
+                extra_extensions=extra_extensions,
+            ).run()
+
+    else:
+        serve_app(raw_schema, host, port)
 
 
 @docs_app.command(name="gen")

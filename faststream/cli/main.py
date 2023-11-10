@@ -1,7 +1,8 @@
 import logging
 import sys
+import warnings
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 import anyio
 import typer
@@ -9,7 +10,7 @@ from click.exceptions import MissingParameter
 from pydantic import ValidationError
 from typer.core import TyperOption
 
-from faststream.__about__ import __version__
+from faststream.__about__ import INSTALL_WATCHFILES, __version__
 from faststream._compat import is_installed
 from faststream.cli.docs.app import docs_app
 from faststream.cli.utils.imports import get_app_path, try_import_app
@@ -92,6 +93,14 @@ def run(
         is_flag=True,
         help="Restart app at directory files changes",
     ),
+    watch_extensions: List[str] = typer.Option(
+        (),
+        "--extensions",
+        "--reload-extensions",
+        "--reload-ext",
+        "--ext",
+        help="List of file extensions to watch by",
+    ),
     app_dir: str = typer.Option(
         ".",
         "--app-dir",
@@ -102,6 +111,12 @@ def run(
     ),
 ) -> None:
     """Run [MODULE:APP] FastStream application"""
+    if watch_extensions and not reload:
+        typer.echo(
+            "Extra reload extensions has no effect without `--reload` flag."
+            "\nProbably, you forgot it?"
+        )
+
     app, extra = parse_cli_args(app, *ctx.args)
     casted_log_level = get_log_level(log_level)
 
@@ -116,9 +131,20 @@ def run(
         raise ValueError("You can't use reload option with multiprocessing")
 
     if reload is True:
-        from faststream.cli.supervisors.watchfiles import WatchReloader
-
-        WatchReloader(target=_run, args=args, reload_dirs=(str(module.parent),)).run()
+        try:
+            from faststream.cli.supervisors.watchfiles import WatchReloader
+        except ImportError:
+            warnings.warn(INSTALL_WATCHFILES, category=ImportWarning, stacklevel=1)
+            _run(
+                module=module, app=app, extra_options=extra, log_level=casted_log_level
+            )
+        else:
+            WatchReloader(
+                target=_run,
+                args=args,
+                reload_dirs=(str(module.parent),),
+                extra_extensions=watch_extensions,
+            ).run()
 
     elif workers > 1:
         from faststream.cli.supervisors.multiprocess import Multiprocess

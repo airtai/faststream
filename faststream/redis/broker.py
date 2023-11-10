@@ -196,8 +196,7 @@ class RedisBroker(
         list = ListSub.validate(list)
         stream = StreamSub.validate(stream)
 
-        any_of = channel or list or stream
-        if any_of is None:
+        if (any_of := channel or list or stream) is None:
             raise ValueError(
                 "You should specify `channel`, `list`, `stream` subscriber type"
             )
@@ -267,6 +266,10 @@ class RedisBroker(
         schema: Optional[Any] = None,
         include_in_schema: bool = True,
     ):
+        channel = PubSub.validate(channel)
+        list = ListSub.validate(list)
+        stream = StreamSub.validate(stream)
+
         any_of = channel or list or stream
         if any_of is None:
             raise ValueError(INCORRECT_SETUP_MSG)
@@ -275,9 +278,9 @@ class RedisBroker(
         publisher = self._publishers.get(
             key,
             Publisher(
-                channel=PubSub.validate(channel),
-                list=ListSub.validate(list),
-                stream=StreamSub.validate(stream),
+                channel=channel,
+                list=list,
+                stream=stream,
                 headers=headers,
                 reply_to=reply_to,
                 # AsyncAPI

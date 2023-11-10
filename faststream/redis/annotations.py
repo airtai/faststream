@@ -11,10 +11,10 @@ __all__ = (
     "ContextRepo",
     "NoCast",
     "RedisMessage",
-    "NatsBroker",
+    "RedisBroker",
     "Redis",
 )
 
 RedisMessage = Annotated[RM, Context("message")]
-NatsBroker = Annotated[RB, Context("broker")]
+RedisBroker = Annotated[RB, Context("broker")]
 Redis = Annotated[RedisClient, Context("broker._connection")]

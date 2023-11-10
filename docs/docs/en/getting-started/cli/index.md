@@ -93,11 +93,12 @@ All passed values can be of type `#!python bool`, `#!python str` or `#!python li
 In this case, the flags will be interpreted as follows:
 
 ```{ .shell .no-copy }
-faststream run app:app --flag       # flag = True
-faststream run app:app --no-flag    # flag = False
-faststream run app:app --my-flag    # my_flag = True
-faststream run app:app --key value  # key = "value"
-faststream run app:app --key 1 2    # key = ["1", "2"]
+faststream run app:app --flag             # flag = True
+faststream run app:app --no-flag          # flag = False
+faststream run app:app --my-flag          # my_flag = True
+faststream run app:app --key value        # key = "value"
+faststream run app:app --key 1 2          # key = ["1", "2"]
+faststream run app:app --key 1 --key 2    # key = ["1", "2"]
 ```
 
 You can use them both individually and together in unlimited quantities.

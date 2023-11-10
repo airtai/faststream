@@ -150,7 +150,7 @@ faststream run basic:app
 
 After running the command, you should see the following output:
 
-``` shell
+``` {.shell .no-copy}
 INFO     - FastStream app starting...
 INFO     - input_data |            - `HandleMsg` waiting for messages
 INFO     - FastStream app started successfully! To exit press CTRL+C
@@ -234,7 +234,7 @@ and run the following command to create a new **FastStream** project:
 faststream_gen -i description.txt
 ```
 
-``` shell
+``` {.shell .no-copy}
 ✨  Generating a new FastStream application!
  ✔ Application description validated.
  ✔ FastStream app skeleton code generated. akes around 15 to 45 seconds)...

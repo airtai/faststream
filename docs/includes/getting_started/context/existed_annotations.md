@@ -1,7 +1,8 @@
 === "Kafka"
     ```python
     from faststream.kafka.annotations import (
-        Logger, ContextRepo, KafkaMessage, KafkaBroker, KafkaProducer
+        Logger, ContextRepo, KafkaMessage,
+        KafkaBroker, KafkaProducer, NoCast,
     )
     ```
 
@@ -15,13 +16,14 @@
     To use them, simply import and use them as subscriber argument annotations.
 
     ```python linenums="1" hl_lines="3-8 17-20"
-    {!> docs_src/getting_started/context/existed_context_kafka.py [ln:1-11,26-35] !}
+    {!> docs_src/getting_started/context/kafka/existed_context.py [ln:1-11,26-35] !}
     ```
 
 === "RabbitMQ"
     ```python
     from faststream.rabbit.annotations import (
-        Logger, ContextRepo, RabbitMessage, RabbitBroker, RabbitProducer
+        Logger, ContextRepo, RabbitMessage,
+        RabbitBroker, RabbitProducer, NoCast,
     )
     ```
 
@@ -35,7 +37,7 @@
     To use them, simply import and use them as subscriber argument annotations.
 
     ```python linenums="1" hl_lines="3-8 17-20"
-    {!> docs_src/getting_started/context/existed_context_rabbit.py [ln:1-11,26-35] !}
+    {!> docs_src/getting_started/context/rabbit/existed_context.py [ln:1-11,26-35] !}
     ```
 
 === "NATS"
@@ -43,7 +45,7 @@
     from faststream.rabbit.annotations import (
         Logger, ContextRepo, NatsMessage,
         NatsBroker, NatsProducer, NatsJsProducer,
-        Client, JsClient,
+        Client, JsClient, NoCast,
     )
     ```
 
@@ -56,5 +58,25 @@
     To use them, simply import and use them as subscriber argument annotations.
 
     ```python linenums="1" hl_lines="3-8 17-20"
-    {!> docs_src/getting_started/context/existed_context_nats.py [ln:1-11,26-35] !}
+    {!> docs_src/getting_started/context/nats/existed_context.py [ln:1-11,26-35] !}
+    ```
+
+=== "Redis"
+    ```python
+    from faststream.rabbit.annotations import (
+        Logger, ContextRepo, RedisMessage,
+        RedisBroker, Redis, NoCast,
+    )
+    ```
+
+    !!! tip ""
+        `faststream.redis.RedisMessage` is an alias to `faststream.redis.annotations.RedisMessage`
+
+        ```python
+        from faststream.redis import RedisMessage
+        ```
+    To use them, simply import and use them as subscriber argument annotations.
+
+    ```python linenums="1" hl_lines="3-8 17-20"
+    {!> docs_src/getting_started/context/redis/existed_context.py [ln:1-11,26-35] !}
     ```
