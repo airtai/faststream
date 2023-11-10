@@ -21,3 +21,7 @@ class NatsMessage(StreamMessage[Msg]):
     async def reject(self, **kwargs: Any) -> None:
         if self.is_js and not self.raw_message._ackd:
             await self.raw_message.term()
+
+    async def in_progress(self, **kwargs: Any) -> None:
+        if self.is_js and not self.raw_message._ackd:
+            await self.raw_message.in_progress()
