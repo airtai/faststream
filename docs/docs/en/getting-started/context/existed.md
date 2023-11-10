@@ -25,32 +25,4 @@ Also, **FastStream** has already created `Annotated` aliases to provide you with
 from faststream import Logger, ContextRepo
 ```
 
-* *Kafka* aliases
-
-```python
-from faststream.kafka.annotations import (
-    Logger, ContextRepo, KafkaMessage, KafkaBroker, KafkaProducer
-)
-```
-
-* *RabbitMQ* aliases
-
-```python
-from faststream.rabbit.annotations import (
-    Logger, ContextRepo, RabbitMessage, RabbitBroker, RabbitProducer
-)
-```
-
-* *NATS* aliases
-
-```python
-from faststream.rabbit.annotations import (
-    Logger, ContextRepo, NatsMessage,
-    NatsBroker, NatsProducer, NatsJsProducer,
-    Client, JsClient,
-)
-```
-
-To use them, simply import and use them as subscriber argument annotations.
-
 {!> includes/getting_started/context/existed_annotations.md !}

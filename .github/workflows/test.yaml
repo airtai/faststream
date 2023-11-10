@@ -44,35 +44,6 @@ jobs:
         pydantic-version: ["pydantic-v1", "pydantic-v2"]
       fail-fast: false
 
-    services:
-      kafka:
-        image: bitnami/kafka:3.5.0
-        ports:
-          - 9092:9092
-        env:
-          KAFKA_ENABLE_KRAFT: "true"
-          KAFKA_CFG_NODE_ID: "1"
-          KAFKA_CFG_PROCESS_ROLES: "broker,controller"
-          KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
-          KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
-          KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
-          KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://127.0.0.1:9092"
-          KAFKA_BROKER_ID: "1"
-          KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
-          ALLOW_PLAINTEXT_LISTENER: "true"
-
-      rabbitmq:
-        image: rabbitmq:alpine
-        ports:
-          - 5672:5672
-
-      # using own container with already included JetStream
-      # https://github.com/nats-io/nats-docker/issues/110
-      nats:
-        image: diementros/nats:js
-        ports:
-          - 4222:4222
-
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -97,7 +68,7 @@ jobs:
         run: pip install --pre "pydantic>=2.0.0b2,<3.0.0"
       - run: mkdir coverage
       - name: Test
-        run: bash scripts/test.sh -m "all"
+        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not rabbit)) or (not nats and not kafka and not rabbit)"
         env:
           COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}
           CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}
@@ -122,7 +93,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: pip install .[rabbit,kafka,nats,docs,testing]
       - name: Test
-        run: bash scripts/test.sh -m "not kafka and not rabbit and not nats"
+        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not rabbit)) or (not nats and not kafka and not rabbit)"
 
   test-windows-latest:
     if: github.event.pull_request.draft == false
@@ -139,9 +110,9 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: pip install .[rabbit,kafka,nats,docs,testing]
       - name: Test
-        run: bash scripts/test.sh -vv -m "not kafka and not rabbit and not nats"
+        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not rabbit)) or (not nats and not kafka and not rabbit)"
 
-  test-kafka-smoke:
+  test-kafka-real:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     services:
@@ -170,11 +141,37 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[nats,kafka,rabbit,docs,testing]
+      - run: mkdir coverage
+      - name: Test
+        run: bash scripts/test.sh -m "(slow and kafka) or kafka"
+        env:
+          COVERAGE_FILE: coverage/.coverage.kafka-py
+          CONTEXT: kafka-py
+      - name: Store coverage files
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: coverage
+
+  test-kafka-smoke:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: pip install .[kafka,test-core]
       - name: Test
-        run: bash scripts/test.sh tests/brokers/kafka/test_publish.py
+        run: bash scripts/test.sh -m "not kafka" tests/brokers/kafka/test_test_client.py
 
-  test-rabbit-smoke:
+  test-rabbit-real:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     services:
@@ -192,11 +189,37 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[nats,kafka,rabbit,docs,testing]
+      - run: mkdir coverage
+      - name: Test
+        run: bash scripts/test.sh -m "(slow and rabbit) or rabbit"
+        env:
+          COVERAGE_FILE: coverage/.coverage.rabbit-py
+          CONTEXT: rabbit-py
+      - name: Store coverage files
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: coverage
+
+  test-rabbit-smoke:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: pip install .[rabbit,test-core]
       - name: Test
-        run: bash scripts/test.sh tests/brokers/rabbit/test_publish.py
+        run: bash scripts/test.sh -m "not rabbit" tests/brokers/rabbit/test_test_client.py
 
-  test-nats-smoke:
+  test-nats-real:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     services:
@@ -205,7 +228,33 @@ jobs:
         ports:
           - 4222:4222
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[nats,kafka,rabbit,docs,testing]
+      - run: mkdir coverage
+      - name: Test
+        run: bash scripts/test.sh -m "(slow and nats) or nats"
+        env:
+          COVERAGE_FILE: coverage/.coverage.nats-py
+          CONTEXT: nats-py
+      - name: Store coverage files
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: coverage
+
+  test-nats-smoke:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -216,11 +265,15 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: pip install .[nats,test-core]
       - name: Test
-        run: bash scripts/test.sh tests/brokers/nats/test_publish.py
+        run: bash scripts/test.sh -m "not nats" tests/brokers/nats/test_test_client.py
 
   coverage-combine:
     if: github.event.pull_request.draft == false
-    needs: [test]
+    needs:
+      - test
+      - test-kafka-real
+      - test-rabbit-real
+      - test-nats-real
     runs-on: ubuntu-latest
 
     steps:
@@ -256,10 +309,13 @@ jobs:
     if: github.event.pull_request.draft == false
 
     needs:
-      - coverage-combine
       - static_analysis
+      - coverage-combine
       - test-macos-latest
       - test-windows-latest
+      - test-kafka-real
+      - test-rabbit-real
+      - test-nats-real
       - test-kafka-smoke
       - test-rabbit-smoke
       - test-nats-smoke

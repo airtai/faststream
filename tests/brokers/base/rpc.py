@@ -1,7 +1,11 @@
+import asyncio
+from unittest.mock import MagicMock
+
 import anyio
 import pytest
 
 from faststream.broker.core.abc import BrokerUsecase
+from faststream.utils.functions import timeout_scope
 
 
 class BrokerRPCTestcase:
@@ -55,12 +59,19 @@ class BrokerRPCTestcase:
         assert r is None
 
     @pytest.mark.asyncio
-    async def test_rpc_with_reply(self, queue: str, rpc_broker: BrokerUsecase):
+    async def test_rpc_with_reply(
+        self,
+        queue: str,
+        rpc_broker: BrokerUsecase,
+        mock: MagicMock,
+        event: asyncio.Event,
+    ):
         reply_queue = queue + "1"
 
         @rpc_broker.subscriber(reply_queue)
         async def response_hanler(m: str):
-            ...
+            mock(m)
+            event.set()
 
         @rpc_broker.subscriber(queue)
         async def m(m):  # pragma: no cover
@@ -69,9 +80,11 @@ class BrokerRPCTestcase:
         await rpc_broker.start()
 
         await rpc_broker.publish("hello", queue, reply_to=reply_queue)
-        await response_hanler.wait_call(3)
 
-        response_hanler.mock.assert_called_with("1")
+        with timeout_scope(3, True):
+            await event.wait()
+
+        mock.assert_called_with("1")
 
 
 class ReplyAndConsumeForbidden:

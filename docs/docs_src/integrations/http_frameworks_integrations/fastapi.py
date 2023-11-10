@@ -6,8 +6,9 @@ from faststream.kafka import KafkaBroker
 
 broker = KafkaBroker("localhost:9092")
 
-app = FastAPI()
-
+@broker.subscriber("test")
+async def base_handler(body):
+    print(body)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -15,11 +16,7 @@ async def lifespan(app: FastAPI):
     yield
     await broker.close()
 
-
-@broker.subscriber("test")
-async def base_handler(body):
-    print(body)
-
+app = FastAPI(lifespan=lifespan)
 
 @app.get("/")
 def read_root():

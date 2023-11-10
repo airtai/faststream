@@ -10,17 +10,13 @@ from fast_depends._compat import (  # type: ignore[attr-defined]
 )
 from fast_depends._compat import FieldInfo
 from pydantic import BaseModel
-from typing_extensions import TypedDict as TypedDict
-from typing_extensions import override as override
 
-# TODO: uncomment with py3.12 release 2023-10-02
-# if sys.version_info < (3, 12):
-#     from typing_extensions import override as override
-#     from typing_extensions import TypedDict as TypedDict
-# else:
-#     from typing import override
-#     from typing import TypedDict as TypedDict
-
+if sys.version_info < (3, 12):
+    from typing_extensions import TypedDict as TypedDict
+    from typing_extensions import override as override
+else:
+    from typing import TypedDict as TypedDict
+    from typing import override as override
 
 if sys.version_info < (3, 11):
     from typing_extensions import Never as Never
@@ -58,11 +54,13 @@ def is_installed(package: str) -> bool:
 IS_OPTIMIZED = os.getenv("PYTHONOPTIMIZE", False)
 
 
-if is_installed("fastapi"):
+try:
     from fastapi import __version__ as FASTAPI_VERSION
 
+    HAS_FASTAPI = True
+
     major, minor, _ = map(int, FASTAPI_VERSION.split("."))
-    FASTAPI_V2 = not (major < 0 and minor < 100)
+    FASTAPI_V2 = major > 0 or minor > 100
 
     if FASTAPI_V2:
         from fastapi._compat import _normalize_errors
@@ -81,6 +79,9 @@ if is_installed("fastapi"):
 
         def raise_fastapi_validation_error(errors: List[Any], body: AnyDict) -> Never:
             raise RequestValidationError(errors, ROUTER_VALIDATION_ERROR_MODEL)  # type: ignore[misc]
+
+except ImportError:
+    HAS_FASTAPI = False
 
 
 JsonSchemaValue = Mapping[str, Any]

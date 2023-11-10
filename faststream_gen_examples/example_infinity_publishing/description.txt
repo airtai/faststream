@@ -1,2 +1,0 @@
-Develop a simple FastStream application which publishes the current time to the 'current_time' topic.
-App should publish messages every five seconds until the app shuts down.

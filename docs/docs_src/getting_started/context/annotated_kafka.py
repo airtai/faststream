@@ -1,7 +1,8 @@
 from typing import Annotated
 
 from faststream import Context, FastStream
-from faststream.kafka import KafkaBroker, KafkaMessage
+from faststream.kafka import KafkaBroker
+from faststream.kafka.message import KafkaMessage
 
 Message = Annotated[KafkaMessage, Context()]
 

@@ -1,5 +1,4 @@
 from enum import Enum
-from ssl import SSLContext
 from typing import (
     Any,
     Awaitable,
@@ -61,9 +60,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         login: str = "guest",
         password: str = "guest",
         virtualhost: str = "/",
-        ssl: bool = False,
         ssl_options: Optional[aio_pika.abc.SSLOptions] = None,
-        ssl_context: Optional[SSLContext] = None,
         timeout: aio_pika.abc.TimeoutType = None,
         client_properties: Optional[FieldTable] = None,
         # specific args
@@ -75,11 +72,13 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
         # AsyncAPI args
+        asyncapi_url: Optional[str] = None,
         protocol: str = "amqp",
         protocol_version: Optional[str] = "0.9.1",
         description: Optional[str] = None,
         asyncapi_tags: Optional[Sequence[asyncapi.Tag]] = None,
         schema_url: Optional[str] = "/asyncapi",
+        setup_state: bool = True,
         # FastAPI kwargs
         prefix: str = "",
         tags: Optional[List[Union[str, Enum]]] = None,
@@ -163,6 +162,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        schema: Optional[Any] = None,
         # message args
         headers: Optional[aio_pika.abc.HeadersType] = None,
         content_type: Optional[str] = None,

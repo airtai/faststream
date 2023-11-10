@@ -1,7 +1,7 @@
 import logging
 import ssl
 from types import TracebackType
-from typing import Any, Awaitable, Callable, Dict, Optional, Sequence, Type, Union
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Sequence, Type, Union
 
 from fast_depends.dependencies import Depends
 from nats.aio.client import (
@@ -47,6 +47,7 @@ from faststream.nats.asyncapi import Handler, Publisher
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
+from faststream.nats.pull_sub import PullSub
 from faststream.nats.shared.logging import NatsLoggingMixin
 from faststream.types import DecodedMessage, SendableMessage
 
@@ -111,7 +112,8 @@ class NatsBroker(
             ]
         ] = None,
         # AsyncAPI args
-        protocol: str = "amqp",
+        asyncapi_url: Union[str, List[str], None] = None,
+        protocol: str = "nats",
         protocol_version: Optional[str] = "custom",
         description: Optional[str] = None,
         tags: Optional[Sequence[asyncapi.Tag]] = None,
@@ -233,6 +235,9 @@ class NatsBroker(
         flow_control: bool = False,
         deliver_policy: Optional[api.DeliverPolicy] = None,
         headers_only: Optional[bool] = None,
+        # pull arguments
+        pull_sub: Optional[PullSub] = None,
+        inbox_prefix: bytes = api.INBOX_PREFIX,
         # broker arguments
         dependencies: Sequence[Depends] = (),
         parser: Optional[CustomParser[Msg, NatsMessage]] = None,
@@ -261,6 +266,7 @@ class NatsBroker(
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        schema: Optional[Any] = None,
     ) -> Publisher: ...
     @override
     async def publish(  # type: ignore[override]

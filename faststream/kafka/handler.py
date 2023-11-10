@@ -62,6 +62,7 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
         group_id: Optional[str] = None,
         client_id: str = "faststream-" + __version__,
         builder: Callable[..., AIOKafkaConsumer],
+        is_manual: bool = False,
         batch: bool = False,
         batch_timeout_ms: int = 200,
         max_records: Optional[int] = None,
@@ -101,6 +102,7 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
         self.batch = batch
         self.batch_timeout_ms = batch_timeout_ms
         self.max_records = max_records
+        self.is_manual = is_manual
 
         self.builder = builder
         self.task = None

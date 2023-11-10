@@ -4,7 +4,7 @@ As you may know, **FastStream** serializes a message body and provides you acces
 
 ## Message Access
 
-You can easily access this information by referring to the message object in the [Context](../getting-started/context/existed.md)!
+You can easily access this information by referring to the message object in the [Context](../getting-started/context/existed.md)
 
 This object serves as a unified **FastStream** wrapper around the native broker library message (for example, `aiokafka.ConsumerRecord` in the case of *Kafka*). It contains most of the required information, including:
 
@@ -24,7 +24,7 @@ This object serves as a unified **FastStream** wrapper around the native broker 
 For example, if you would like to access the headers of an incoming message, you would do so like this:
 
 ```python hl_lines="1 6"
-from faststream.kafka.annotations import KafkaMessage
+from faststream.kafka import KafkaMessage
 
 @broker.subscriber("test")
 async def base_handler(
@@ -51,3 +51,5 @@ async def base_handler(
 ):
     print(headers)
 ```
+
+{!> includes/message/headers.md !}

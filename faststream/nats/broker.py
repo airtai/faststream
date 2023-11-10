@@ -38,8 +38,9 @@ from faststream.nats.helpers import stream_builder
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
+from faststream.nats.pull_sub import PullSub
 from faststream.nats.shared.logging import NatsLoggingMixin
-from faststream.types import DecodedMessage
+from faststream.types import AnyDict, DecodedMessage
 from faststream.utils.context.main import context
 
 Subject = str
@@ -189,7 +190,7 @@ class NatsBroker(
                 queue=handler.queue,
                 stream=stream.name if stream else "",
             )
-            self._log(f"`{handler.name}` waiting for messages", extra=c)
+            self._log(f"`{handler.call_name}` waiting for messages", extra=c)
             await handler.start(self.stream if is_js else self._connection)
 
     def _process_message(
@@ -215,7 +216,7 @@ class NatsBroker(
                 else:
                     pub_response = None
 
-            return r, pub_response
+                return r, pub_response
 
         return process_wrapper
 
@@ -268,6 +269,9 @@ class NatsBroker(
         flow_control: bool = False,
         deliver_policy: Optional[api.DeliverPolicy] = None,
         headers_only: Optional[bool] = None,
+        # pull arguments
+        pull_sub: Optional[PullSub] = None,
+        inbox_prefix: bytes = api.INBOX_PREFIX,
         # custom
         ack_first: bool = False,
         stream: Union[str, JStream, None] = None,
@@ -287,6 +291,9 @@ class NatsBroker(
     ]:
         stream = stream_builder.stream(stream)
 
+        if pull_sub is not None and stream is None:
+            raise ValueError("Pull subscriber can be used only with a stream")
+
         self._setup_log_context(
             queue=queue,
             subject=subject,
@@ -294,7 +301,7 @@ class NatsBroker(
         )
         super().subscriber()
 
-        extra_options: Dict[str, Any] = {
+        extra_options: AnyDict = {
             "pending_msgs_limit": pending_msgs_limit
             or (
                 DEFAULT_JS_SUB_PENDING_MSGS_LIMIT
@@ -310,20 +317,29 @@ class NatsBroker(
         }
 
         if stream:
-            stream.subjects.append(subject)
             extra_options.update(
                 {
                     "durable": durable,
                     "stream": stream.name,
                     "config": config,
-                    "ordered_consumer": ordered_consumer,
-                    "idle_heartbeat": idle_heartbeat,
-                    "flow_control": flow_control,
-                    "deliver_policy": deliver_policy,
-                    "headers_only": headers_only,
-                    "manual_ack": not ack_first,
                 }
             )
+
+            if pull_sub is not None:
+                extra_options.update({"inbox_prefix": inbox_prefix})
+
+            else:
+                extra_options.update(
+                    {
+                        "ordered_consumer": ordered_consumer,
+                        "idle_heartbeat": idle_heartbeat,
+                        "flow_control": flow_control,
+                        "deliver_policy": deliver_policy,
+                        "headers_only": headers_only,
+                        "manual_ack": not ack_first,
+                    }
+                )
+
         else:
             extra_options.update(
                 {
@@ -338,6 +354,7 @@ class NatsBroker(
                 subject=subject,
                 queue=queue,
                 stream=stream,
+                pull_sub=pull_sub,
                 extra_options=extra_options,
                 title=title,
                 description=description,
@@ -349,6 +366,9 @@ class NatsBroker(
                 ),
             ),
         )
+
+        if stream:
+            stream.subjects.append(handler.subject)
 
         def consumer_wrapper(
             func: Callable[P_HandlerParams, T_HandlerReturn],
@@ -385,6 +405,7 @@ class NatsBroker(
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        schema: Optional[Any] = None,
     ) -> Publisher:
         if (stream := stream_builder.stream(stream)) is not None:
             stream.subjects.append(subject)
@@ -402,6 +423,7 @@ class NatsBroker(
                 # AsyncAPI
                 title=title,
                 _description=description,
+                _schema=schema,
             ),
         )
         super().publisher(subject, publisher)

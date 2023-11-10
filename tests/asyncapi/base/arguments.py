@@ -1,7 +1,8 @@
+from enum import Enum
 from typing import Optional, Type
 
 import pydantic
-from dirty_equals import IsDict, IsStr
+from dirty_equals import IsDict, IsPartialDict
 
 from faststream import FastStream
 from faststream._compat import PYDANTIC_V2
@@ -54,7 +55,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == {"title": key}
 
     def test_simple_type(self):
@@ -70,7 +71,7 @@ class FastAPICompatible:
         assert tuple(schema["channels"].values())[0].get("description") is None
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == {"title": key, "type": "integer"}
 
     def test_simple_optional_type(self):
@@ -85,7 +86,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == IsDict(
                 {
                     "anyOf": [{"type": "integer"}, {"type": "null"}],
@@ -93,10 +94,10 @@ class FastAPICompatible:
                 }
             ) | IsDict(
                 {  # TODO: remove when deprecating PydanticV1
-                    "title": "HandleTestMsgPayload",
+                    "title": key,
                     "type": "integer",
                 }
-            )
+            ), v
 
     def test_simple_type_with_default(self):
         broker = self.broker_class()
@@ -110,7 +111,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == {
                 "default": 1,
                 "title": key,
@@ -129,7 +130,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == {
                 "properties": {
                     "another": {"title": "Another"},
@@ -152,7 +153,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == "Handle:Message:Payload"
             assert v == {
                 "properties": {
                     "another": {"title": "Another", "type": "integer"},
@@ -175,7 +176,7 @@ class FastAPICompatible:
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
+            assert key == "Handle:Message:Payload"
 
             assert v == {
                 "properties": {
@@ -226,10 +227,54 @@ class FastAPICompatible:
                 "type": "object",
             }
 
-    def test_pydantic_model_mixed_regular(self):
+    def test_pydantic_model_with_enum(self):
+        class Status(str, Enum):
+            registered = "registered"
+            banned = "banned"
+
         class User(pydantic.BaseModel):
             name: str = ""
             id: int
+            status: Status
+
+        broker = self.broker_class()
+
+        @broker.subscriber("test")
+        async def handle(user: User):
+            ...
+
+        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+
+        payload = schema["components"]["schemas"]
+
+        assert payload == {
+            "Status": IsPartialDict(
+                {
+                    "enum": ["registered", "banned"],
+                    "title": "Status",
+                    "type": "string",
+                }
+            ),
+            "User": {
+                "properties": {
+                    "id": {"title": "Id", "type": "integer"},
+                    "name": {"default": "", "title": "Name", "type": "string"},
+                    "status": {"$ref": "#/components/schemas/Status"},
+                },
+                "required": ["id", "status"],
+                "title": "User",
+                "type": "object",
+            },
+        }, payload
+
+    def test_pydantic_model_mixed_regular(self):
+        class Email(pydantic.BaseModel):
+            addr: str
+
+        class User(pydantic.BaseModel):
+            name: str = ""
+            id: int
+            email: Email
 
         broker = self.broker_class()
 
@@ -241,59 +286,37 @@ class FastAPICompatible:
 
         payload = schema["components"]["schemas"]
 
-        for key, v in payload.items():
-            assert key == IsStr(regex=r"Handle\w*Payload")
-            assert v == {
-                "$defs": {
-                    "User": {
-                        "properties": {
-                            "id": {"title": "Id", "type": "integer"},
-                            "name": {
-                                "default": "",
-                                "title": "Name",
-                                "type": "string",
-                            },
-                        },
-                        "required": ["id"],
-                        "title": "User",
-                        "type": "object",
-                    }
-                },
+        assert payload == {
+            "Email": {
+                "title": "Email",
+                "type": "object",
+                "properties": {"addr": {"title": "Addr", "type": "string"}},
+                "required": ["addr"],
+            },
+            "User": {
+                "title": "User",
+                "type": "object",
                 "properties": {
+                    "name": {"title": "Name", "default": "", "type": "string"},
+                    "id": {"title": "Id", "type": "integer"},
+                    "email": {"$ref": "#/components/schemas/Email"},
+                },
+                "required": ["id", "email"],
+            },
+            "Handle:Message:Payload": {
+                "title": "Handle:Message:Payload",
+                "type": "object",
+                "properties": {
+                    "user": {"$ref": "#/components/schemas/User"},
                     "description": {
-                        "default": "",
                         "title": "Description",
+                        "default": "",
                         "type": "string",
                     },
-                    "user": {"$ref": "#/$defs/User"},
                 },
                 "required": ["user"],
-                "title": key,
-                "type": "object",
-            } or v == {  # TODO: remove when deprecating PydanticV1
-                "definitions": {
-                    "User": {
-                        "properties": {
-                            "id": {"title": "Id", "type": "integer"},
-                            "name": {"default": "", "title": "Name", "type": "string"},
-                        },
-                        "required": ["id"],
-                        "title": "User",
-                        "type": "object",
-                    }
-                },
-                "properties": {
-                    "description": {
-                        "default": "",
-                        "title": "Description",
-                        "type": "string",
-                    },
-                    "user": {"$ref": "#/definitions/User"},
-                },
-                "required": ["user"],
-                "title": key,
-                "type": "object",
-            }
+            },
+        }
 
     def test_pydantic_model_with_example(self):
         class User(pydantic.BaseModel):
@@ -358,20 +381,10 @@ class FastAPICompatible:
             == 2
         )
 
-        items = list(schema["components"]["schemas"].items())
+        payload = schema["components"]["schemas"]
 
-        assert items[0] == (
-            IsStr(regex=r"Handle\w*Payload"),
-            {
-                "title": "HandleTestIdPayload",
-                "type": "integer",
-            },
-        )
-
-        assert items[1] == (
-            IsStr(regex=r"Handle\w*Payload"),
-            {"title": "HandleTestMsgPayload"},
-        )
+        assert "Handle:Message:Payload" in list(payload.keys())
+        assert "HandleDefault:Message:Payload" in list(payload.keys())
 
 
 class ArgumentsTestcase(FastAPICompatible):

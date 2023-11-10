@@ -25,7 +25,6 @@ from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filte
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.push_back_watcher import BaseWatcher, WatcherContext
-from faststream.broker.security import BaseSecurity
 from faststream.broker.types import (
     AsyncPublisherProtocol,
     CustomDecoder,
@@ -42,6 +41,7 @@ from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.kafka.security import parse_security
 from faststream.kafka.shared.logging import KafkaLoggingMixin
 from faststream.kafka.shared.schemas import ConsumerConnectionParams
+from faststream.security import BaseSecurity
 from faststream.utils import context
 from faststream.utils.data import filter_by_dict
 
@@ -195,11 +195,7 @@ class KafkaBroker(
 
         for handler in self.handlers.values():
             c = self._get_log_context(None, handler.topics, handler.group_id)
-
-            if (name := handler.name) is True:
-                name = handler.call_name
-
-            self._log(f"`{name}` waiting for messages", extra=c)
+            self._log(f"`{handler.call_name}` waiting for messages", extra=c)
             await handler.start(**(self._connection or {}))
 
     def _process_message(
@@ -267,7 +263,7 @@ class KafkaBroker(
             "earliest",
             "none",
         ] = "latest",
-        enable_auto_commit: bool = True,
+        auto_commit: bool = True,
         auto_commit_interval_ms: int = 5000,
         check_crcs: bool = True,
         partition_assignment_strategy: Sequence[AbstractPartitionAssignor] = (
@@ -336,7 +332,7 @@ class KafkaBroker(
             fetch_min_bytes (int): The minimum number of bytes to fetch.
             max_partition_fetch_bytes (int): The maximum bytes to fetch for a partition.
             auto_offset_reset (Literal["latest", "earliest", "none"]): Auto offset reset policy.
-            enable_auto_commit (bool): Whether to enable auto-commit.
+            auto_commit (bool): Whether to enable auto-commit.
             auto_commit_interval_ms (int): Auto-commit interval in milliseconds.
             check_crcs (bool): Whether to check CRCs.
             partition_assignment_strategy (Sequence[AbstractPartitionAssignor]): Partition assignment strategy.
@@ -367,6 +363,9 @@ class KafkaBroker(
 
         self._setup_log_context(topics, group_id)
 
+        if not auto_commit and not group_id:
+            raise ValueError("You should install `group_id` with manual commit mode")
+
         key = Handler.get_routing_hash(topics, group_id)
         builder = partial(
             aiokafka.AIOKafkaConsumer,
@@ -377,7 +376,7 @@ class KafkaBroker(
             fetch_min_bytes=fetch_min_bytes,
             max_partition_fetch_bytes=max_partition_fetch_bytes,
             auto_offset_reset=auto_offset_reset,
-            enable_auto_commit=enable_auto_commit,
+            enable_auto_commit=auto_commit,
             auto_commit_interval_ms=auto_commit_interval_ms,
             check_crcs=check_crcs,
             partition_assignment_strategy=partition_assignment_strategy,
@@ -399,6 +398,7 @@ class KafkaBroker(
                     topics=topics,
                     group_id=group_id,
                 ),
+                is_manual=not auto_commit,
                 group_id=group_id,
                 client_id=self.client_id,
                 builder=builder,
@@ -463,6 +463,7 @@ class KafkaBroker(
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        schema: Optional[Any] = None,
     ) -> Publisher:
         """
         Create a message publisher for the specified topic.
@@ -494,6 +495,7 @@ class KafkaBroker(
                 reply_to=reply_to,
                 title=title,
                 _description=description,
+                _schema=schema,
             ),
         )
         super().publisher(topic, publisher)

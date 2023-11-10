@@ -1,13 +1,14 @@
 # Publisher Testing
 
-If you are working with a Publisher object (either decorator or direct), you can check outgoing messages as well. There are several testing features available:
+If you are working with a Publisher object (either as a decorator or directly), you have several testing features available:
 
 * In-memory TestClient
-* Publishing (including error handling)
+* Publishing locally with error propogation
 * Checking the incoming message body
-* Note about mock clearing after the context exits
 
-## Base application
+## Base Application
+
+Let's take a look at a simple application example with a publisher as a decorator or as a direct call:
 
 === "Decorator"
     {!> includes/getting_started/publishing/testing/1.md !}
@@ -17,7 +18,19 @@ If you are working with a Publisher object (either decorator or direct), you can
 
 ## Testing
 
+To test it, you just need to patch your broker with a special *TestBroker*.
+
 {!> includes/getting_started/publishing/testing/3.md !}
 
-* Testing with a real broker
-* Waiting for the consumer to be called
+By default, it patches you broker to run **In-Memory**, so you can use it without any external broker. It should be extremely usefull in your CI or local development environment.
+
+Also, it allows you to check the outgoing message body in the same way as with a [subscriber](../subscription/test.md#validates-input){.internal-link}.
+
+```python
+publisher.mock.assert_called_once_with("Hi!")
+```
+
+!!! note
+    The Publisher mock contains not just a `publish` method input value. It sets up a virtual consumer for an outgoing topic, consumes a message, and stores this consumed one.
+
+Additionally, *TestBroker* can be used with a real external broker to make your tests end-to-end suitable. For more information, please visit the [subscriber testing page](../subscription/test.md#real-broker-testing){.internal-link}.

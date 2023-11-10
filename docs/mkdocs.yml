@@ -80,8 +80,15 @@ plugins:
             show_docstring_attributes: false
             show_root_heading: true
             show_signature_annotations: true
-  - social:                      # render social card
-      enabled: !ENV [CI, false]
+            inherited_members: true
+            members_order: alphabetical
+            unwrap_annotated: true
+            merge_init_into_class: true
+            signature_crossrefs: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            load_external_modules: true
+            preload_modules: [httpx, starlette, fastapi]
   - i18n:
       docs_structure: folder
       reconfigure_material: true
@@ -125,7 +132,7 @@ extra:
   social_image: https://opengraph.githubassets.com/1671805243.560327/airtai/faststream
   social:
     - icon: fontawesome/brands/discord
-      link: https://discord.gg/CJWmYpyFbc
+      link: https://discord.gg/qFm6aSqq59
     - icon: fontawesome/brands/github-alt
       link: https://github.com/airtai/faststream
     - icon: fontawesome/brands/twitter

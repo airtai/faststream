@@ -13,7 +13,7 @@ async def test_handle():
 
         handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
 
-    assert handle.mock.call_count == 0
+    assert handle.mock is None
 
 @pytest.mark.asyncio
 async def test_validation_error():

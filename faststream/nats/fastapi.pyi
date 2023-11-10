@@ -58,6 +58,7 @@ from faststream.nats.asyncapi import Publisher
 from faststream.nats.broker import NatsBroker
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
+from faststream.nats.pull_sub import PullSub
 
 class NatsRouter(StreamRouter[Msg]):
     broker_class = NatsBroker
@@ -117,11 +118,13 @@ class NatsRouter(StreamRouter[Msg]):
             ]
         ] = None,
         # AsyncAPI args
-        protocol: str = "amqp",
+        asyncapi_url: Union[str, List[str], None] = None,
+        protocol: str = "nats",
         protocol_version: Optional[str] = "0.9.1",
         description: Optional[str] = None,
         asyncapi_tags: Optional[Sequence[asyncapi.Tag]] = None,
         schema_url: Optional[str] = "/asyncapi",
+        setup_state: bool = True,
         # FastAPI kwargs
         prefix: str = "",
         tags: Optional[List[Union[str, Enum]]] = None,
@@ -195,6 +198,9 @@ class NatsRouter(StreamRouter[Msg]):
         flow_control: bool = False,
         deliver_policy: Optional[api.DeliverPolicy] = None,
         headers_only: Optional[bool] = None,
+        # pull arguments
+        pull_sub: Optional[PullSub] = None,
+        inbox_prefix: bytes = api.INBOX_PREFIX,
         # broker arguments
         dependencies: Sequence[Depends] = (),
         parser: Optional[CustomParser[Msg, NatsMessage]] = None,
@@ -223,6 +229,7 @@ class NatsRouter(StreamRouter[Msg]):
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        schema: Optional[Any] = None,
     ) -> Publisher: ...
     @overload
     def after_startup(

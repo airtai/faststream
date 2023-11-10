@@ -4,6 +4,7 @@ dist
 venv*
 .venv*
 .env
+.env*
 *.lock
 .vscode
 .pypirc
@@ -14,6 +15,7 @@ venv*
 .cache
 htmlcov
 token
+.DS_Store
 
 site/
 site_build/

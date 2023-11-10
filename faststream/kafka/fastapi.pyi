@@ -123,11 +123,13 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
             ]
         ] = None,
         # AsyncAPI information
+        asyncapi_url: Union[str, List[str], None] = None,
         protocol: str = "kafka",
         protocol_version: str = "auto",
         description: Optional[str] = None,
         asyncapi_tags: Optional[Sequence[asyncapi.Tag]] = None,
         schema_url: Optional[str] = "/asyncapi",
+        setup_state: bool = True,
         # logging args
         logger: Optional[logging.Logger] = access_logger,
         log_level: int = logging.INFO,
@@ -151,7 +153,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
             "earliest",
             "none",
         ] = "latest",
-        enable_auto_commit: bool = True,
+        auto_commit: bool = True,
         auto_commit_interval_ms: int = 5000,
         check_crcs: bool = True,
         partition_assignment_strategy: Sequence[AbstractPartitionAssignor] = (
@@ -215,7 +217,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
             "earliest",
             "none",
         ] = "latest",
-        enable_auto_commit: bool = True,
+        auto_commit: bool = True,
         auto_commit_interval_ms: int = 5000,
         check_crcs: bool = True,
         partition_assignment_strategy: Sequence[AbstractPartitionAssignor] = (
@@ -275,7 +277,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
             "earliest",
             "none",
         ] = "latest",
-        enable_auto_commit: bool = True,
+        auto_commit: bool = True,
         auto_commit_interval_ms: int = 5000,
         check_crcs: bool = True,
         partition_assignment_strategy: Sequence[AbstractPartitionAssignor] = (
@@ -337,7 +339,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
             "earliest",
             "none",
         ] = "latest",
-        enable_auto_commit: bool = True,
+        auto_commit: bool = True,
         auto_commit_interval_ms: int = 5000,
         check_crcs: bool = True,
         partition_assignment_strategy: Sequence[AbstractPartitionAssignor] = (
@@ -389,6 +391,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        schema: Optional[Any] = None,
     ) -> Publisher: ...
     @overload
     def after_startup(

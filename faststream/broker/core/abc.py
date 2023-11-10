@@ -33,7 +33,6 @@ from faststream.broker.middlewares import BaseMiddleware, CriticalLogMiddleware
 from faststream.broker.publisher import BasePublisher
 from faststream.broker.push_back_watcher import BaseWatcher
 from faststream.broker.router import BrokerRouter
-from faststream.broker.security import BaseSecurity
 from faststream.broker.types import (
     ConnectionType,
     CustomDecoder,
@@ -51,6 +50,7 @@ from faststream.broker.utils import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.log import access_logger
+from faststream.security import BaseSecurity
 from faststream.types import AnyDict, F_Return, F_Spec
 from faststream.utils import apply_types, context
 from faststream.utils.functions import get_function_positional_arguments, to_async
@@ -116,6 +116,7 @@ class BrokerUsecase(
         protocol_version: Optional[str] = None,
         description: Optional[str] = None,
         tags: Optional[Sequence[Union[asyncapi.Tag, asyncapi.TagDict]]] = None,
+        asyncapi_url: Union[str, List[str], None] = None,
         # broker kwargs
         apply_types: bool = True,
         logger: Optional[logging.Logger] = access_logger,
@@ -179,7 +180,7 @@ class BrokerUsecase(
         self.started = False
 
         # AsyncAPI information
-        self.url = url
+        self.url = asyncapi_url or url
         self.protocol = protocol
         self.protocol_version = protocol_version
         self.description = description
@@ -306,7 +307,7 @@ class BrokerUsecase(
         if getattr(dependant, "flat_params", None) is None:  # handle FastAPI Dependant
             dependant = _patch_fastapi_dependant(dependant)
 
-        if self._is_apply_types is True:
+        if self._is_apply_types is True and not _raw:
             apply_wrapper: _InjectWrapper[
                 P_HandlerParams, Awaitable[T_HandlerReturn]
             ] = apply_types(None)
@@ -333,13 +334,14 @@ class BrokerUsecase(
         return handler_call, dependant
 
     def _abc_start(self) -> None:
-        self.started = True
+        if not self.started:
+            self.started = True
 
-        for h in self.handlers.values():
-            h.global_middlewares = (*self.middlewares, *h.global_middlewares)
+            for h in self.handlers.values():
+                h.global_middlewares = (*self.middlewares, *h.global_middlewares)
 
-        if self.logger is not None:
-            change_logger_handlers(self.logger, self.fmt)
+            if self.logger is not None:
+                change_logger_handlers(self.logger, self.fmt)
 
     def _abc_close(
         self,

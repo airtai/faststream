@@ -10,6 +10,7 @@ import mkdocs.commands.serve
 import typer
 from create_api_docs import create_api_docs
 from expand_markdown import expand_markdown, remove_lines_between_dashes
+from update_releases import update_release_notes
 from mkdocs.config import load_config
 from typing_extensions import Annotated
 
@@ -204,27 +205,6 @@ def update_contributing():
 
 
 @app.command()
-def update_faststream_gen_docs():
-    """Update docs for faststream gen by expanding all md files in docs/en/docs"""
-    typer.echo("Updating faststream-gen docs")
-    FASTSTREAM_GEN_DOCS_PATH.mkdir(exist_ok=True)
-    md_files = EN_DOCS_DIR.glob("**/*.md")
-
-    def expand_doc(input_path):
-        relative_path = os.path.relpath(input_path, FASTSTREAM_GEN_DOCS_PATH)
-        output_path = FASTSTREAM_GEN_DOCS_PATH / relative_path.replace(
-            "../docs/docs/en/", ""
-        )
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        expand_markdown(
-            input_markdown_path=input_path, output_markdown_path=output_path
-        )
-
-    for md_file in md_files:
-        expand_doc(md_file)
-
-
-@app.command()
 def build_api_docs():
     """Build api docs for faststream"""
     typer.echo("Updating API docs")
@@ -236,7 +216,7 @@ def _build():
     build_api_docs()
     update_readme()
     update_contributing()
-    update_faststream_gen_docs()
+    update_release_notes(realease_notes_path=EN_DOCS_DIR / "release.md")
 
 
 if __name__ == "__main__":

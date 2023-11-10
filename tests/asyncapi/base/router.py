@@ -26,5 +26,5 @@ class RouterTestcase:
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
         payload = schema["components"]["schemas"]
-
-        assert payload == {"HandleTestMsgPayload": {"title": "HandleTestMsgPayload"}}
+        key = list(payload.keys())[0]
+        assert payload[key]["title"] == key == "Handle:Message:Payload"

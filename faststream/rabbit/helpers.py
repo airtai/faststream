@@ -78,6 +78,7 @@ class RabbitDeclarer(Singleton):
                         queue,
                         exclude={
                             "routing_key",
+                            "path_regex",
                             "bind_arguments",
                         },
                     )

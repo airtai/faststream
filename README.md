@@ -45,7 +45,7 @@
     <img src="https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg" alt="Code of Conduct">
   </a>
 
-  <a href="https://discord.gg/CJWmYpyFbc" target="_blank">
+  <a href="https://discord.gg/qFm6aSqq59" target="_blank">
       <img alt="Discord" src="https://img.shields.io/discord/1085457301214855171?logo=discord">
   </a>
 </p>
@@ -57,9 +57,9 @@
 [**FastStream**](https://faststream.airt.ai/) simplifies the process of writing producers and consumers for message queues, handling all the
 parsing, networking and documentation generation automatically.
 
-Making streaming microservices has never been easier. Designed with junior developers in mind, **FastStream** simplifies your work while keeping the door open for more advanced use-cases. Here's a look at the core features that make **FastStream** a go-to framework for modern, data-centric microservices.
+Making streaming microservices has never been easier. Designed with junior developers in mind, **FastStream** simplifies your work while keeping the door open for more advanced use cases. Here's a look at the core features that make **FastStream** a go-to framework for modern, data-centric microservices.
 
-- **Multiple Brokers**: **FastStream** provides a unified API to work across multiple message brokers (**Kafka**, **RabbitMQ** support)
+- **Multiple Brokers**: **FastStream** provides a unified API to work across multiple message brokers (**Kafka**, **RabbitMQ**, **NATS**, support)
 
 - [**Pydantic Validation**](#writing-app-code): Leverage [**Pydantic's**](https://docs.pydantic.dev/) validation capabilities to serialize and validates incoming messages
 
@@ -71,7 +71,7 @@ Making streaming microservices has never been easier. Designed with junior devel
 
 - [**Testable**](#testing-the-service): Supports in-memory tests, making your CI/CD pipeline faster and more reliable
 
-- **Extendable**: Use extensions for lifespans, custom serialization and middlewares
+- **Extensible**: Use extensions for lifespans, custom serialization and middleware
 
 - [**Integrations**](#any-framework): **FastStream** is fully compatible with any HTTP framework you want ([**FastAPI**](#fastapi-plugin) especially)
 
@@ -81,13 +81,13 @@ That's **FastStream** in a nutshell—easy, efficient, and powerful. Whether you
 
 ---
 
-**Documentation**: <a href="https://faststream.airt.ai/" target="_blank">https://faststream.airt.ai/</a>
+**Documentation**: <a href="https://faststream.airt.ai/?utm_source=github&utm_medium=acquisition&utm_campaign=measure" target="_blank">https://faststream.airt.ai/</a>
 
 ---
 
 ## History
 
-**FastStream** is a new package based on the ideas and experiences gained from [**FastKafka**](https://github.com/airtai/fastkafka) and [**Propan**](https://github.com/lancetnik/propan). By joining our forces, we picked up the best from both packages and created a unified way to write services capable of processing streamed data regradless of the underliying protocol. We'll continue to maintain both packages, but new development will be in this project. If you are starting a new service, this package is the recommended way to do it.
+**FastStream** is a new package based on the ideas and experiences gained from [**FastKafka**](https://github.com/airtai/fastkafka) and [**Propan**](https://github.com/lancetnik/propan). By joining our forces, we picked up the best from both packages and created a unified way to write services capable of processing streamed data regardless of the underlying protocol. We'll continue to maintain both packages, but new development will be in this project. If you are starting a new service, this package is the recommended way to do it.
 
 ---
 
@@ -100,6 +100,8 @@ You can install it with `pip` as usual:
 pip install faststream[kafka]
 # or
 pip install faststream[rabbit]
+# or
+pip install faststream[nats]
 ```
 
 By default **FastStream** uses **PydanticV2** written in **Rust**, but you can downgrade it manually, if your platform has no **Rust** support - **FastStream** will work correctly with **PydanticV1** as well.
@@ -113,22 +115,25 @@ and `@broker.publisher` to allow you to delegate the actual process of:
 
 - consuming and producing data to Event queues, and
 
-- decoding and encoding JSON encoded messages
+- decoding and encoding JSON-encoded messages
 
 These decorators make it easy to specify the processing logic for your consumers and producers, allowing you to focus on the core business logic of your application without worrying about the underlying integration.
 
 Also, **FastStream** uses [**Pydantic**](https://docs.pydantic.dev/) to parse input
 JSON-encoded data into Python objects, making it easy to work with structured data in your applications, so you can serialize your input messages just using type annotations.
 
-Here is an example python app using **FastStream** that consumes data from an incoming data stream and outputs the data to another one:
+Here is an example Python app using **FastStream** that consumes data from an incoming data stream and outputs the data to another one:
 
 ```python
 from faststream import FastStream
 from faststream.kafka import KafkaBroker
 # from faststream.rabbit import RabbitBroker
+# from faststream.nats import NatsBroker
 
 broker = KafkaBroker("localhost:9092")
 # broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
+# broker = NatsBroker("nats://localhost:4222/")
+
 app = FastStream(broker)
 
 @broker.subscriber("in")
@@ -209,7 +214,7 @@ INFO     - input_data |            - `HandleMsg` waiting for messages
 INFO     - FastStream app started successfully! To exit press CTRL+C
 ```
 
-Also, **FastStream** provides you a great hot reload feature to improve your Development Experience
+Also, **FastStream** provides you with a great hot reload feature to improve your Development Experience
 
 ``` shell
 faststream run basic:app --reload
@@ -221,7 +226,7 @@ And multiprocessing horizontal scaling feature as well:
 faststream run basic:app --workers 3
 ```
 
-You can know more about **CLI** features [here](https://faststream.airt.ai/latest/getting-started/cli/)
+You can learn more about **CLI** features [here](https://faststream.airt.ai/latest/getting-started/cli/)
 
 ---
 
@@ -369,7 +374,7 @@ Please show your support and stay in touch by:
 
 - giving our [GitHub repository](https://github.com/airtai/faststream/) a star, and
 
-- joining our [Discord server](https://discord.gg/CJWmYpyFbc)
+- joining our [Discord server](https://discord.gg/qFm6aSqq59)
 
 Your support helps us to stay in touch with you and encourages us to
 continue developing and improving the framework. Thank you for your

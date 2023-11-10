@@ -154,6 +154,7 @@ class StreamMessage(Request):
         self,
         body: Optional[AnyDict] = None,
         headers: Optional[AnyDict] = None,
+        path: Optional[AnyDict] = None,
     ):
         """Initialize a class instance.
 
@@ -175,7 +176,7 @@ class StreamMessage(Request):
         self._cookies = {}
         self._headers = headers or {}
         self._body = body or {}
-        self._query_params = self._body
+        self._query_params = {**self._body, **(path or {})}
 
     @classmethod
     def get_session(
@@ -237,7 +238,7 @@ class StreamMessage(Request):
                 else:
                     fastapi_body = body
 
-                session = cls(fastapi_body, message.headers)
+                session = cls(fastapi_body, message.headers, message.path)
             else:
                 session = cls()
             return await func(session)

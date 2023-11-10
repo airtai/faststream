@@ -7,7 +7,7 @@ from faststream._compat import override
 from faststream.broker.publisher import BasePublisher
 from faststream.nats.js_stream import JStream
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
-from faststream.types import DecodedMessage, SendableMessage
+from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
 
 @dataclass
@@ -34,7 +34,7 @@ class LogicPublisher(BasePublisher[Msg]):
         assert self._producer, "Please, setup `_producer` first"  # nosec B101
         assert self.subject, "You have to specify outcome subject"  # nosec B101
 
-        extra: Dict[str, Any] = {
+        extra: AnyDict = {
             "reply_to": reply_to or self.reply_to,
         }
         if self.stream is not None:

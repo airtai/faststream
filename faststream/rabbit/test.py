@@ -1,8 +1,5 @@
 import re
-from contextlib import asynccontextmanager
-from functools import partial
-from types import MethodType, TracebackType
-from typing import Any, AsyncGenerator, Optional, Type, Union
+from typing import Any, Optional, Union
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -11,17 +8,16 @@ from aio_pika.message import IncomingMessage
 from pamqp import commands as spec
 from pamqp.header import ContentHeader
 
-from faststream.broker.middlewares import CriticalLogMiddleware
-from faststream.broker.test import call_handler, patch_broker_calls
+from faststream.broker.test import TestBroker, call_handler
+from faststream.broker.wrapper import HandlerCallWrapper
+from faststream.rabbit.asyncapi import Publisher
 from faststream.rabbit.broker import RabbitBroker
-from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.producer import AioPikaFastProducer
 from faststream.rabbit.shared.constants import ExchangeType
 from faststream.rabbit.shared.schemas import (
     RabbitExchange,
     RabbitQueue,
-    get_routing_hash,
 )
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.rabbit.types import AioPikaSendableMessage
@@ -30,110 +26,45 @@ from faststream.types import SendableMessage
 __all__ = ("TestRabbitBroker",)
 
 
-class TestRabbitBroker:
+class TestRabbitBroker(TestBroker[RabbitBroker]):
+    @classmethod
+    def _patch_test_broker(cls, broker: RabbitBroker) -> None:
+        broker._channel = AsyncMock()
+        broker.declarer = AsyncMock()
+        super()._patch_test_broker(broker)
 
-    """
-    A context manager for creating a test RabbitBroker instance with optional mocking.
+    @staticmethod
+    async def _fake_connect(broker: RabbitBroker, *args: Any, **kwargs: Any) -> None:
+        broker._producer = FakeProducer(broker)
 
-    This class is designed to be used as a context manager for creating a RabbitBroker instance, optionally replacing some
-    of its components with mocks for testing purposes. If the `with_real` attribute is set to True, it operates as a
-    pass-through context manager, returning the original RabbitBroker instance without any modifications. If `with_real`
-    is set to False, it replaces certain components like the channel, declarer, and start/connect/close methods with mock
-    objects to isolate the broker for testing.
+    @staticmethod
+    def patch_publisher(broker: RabbitBroker, publisher: Any) -> None:
+        publisher._producer = broker._producer
 
-    Args:
-        broker (RabbitBroker): The RabbitBroker instance to be used in testing.
-        with_real (bool, optional): If True, the original broker is returned; if False, components are replaced with
-            mock objects. Defaults to False.
-
-    Attributes:
-        broker (RabbitBroker): The RabbitBroker instance provided for testing.
-        with_real (bool): A boolean flag indicating whether to use the original broker (True) or replace components with
-            mocks (False).
-
-    Methods:
-        __aenter__(self) -> RabbitBroker:
-            Enter the context and return the RabbitBroker instance.
-
-        __aexit__(self, *args: Any) -> None:
-            Exit the context.
-
-    Example usage:
-
-    ```python
-    real_broker = RabbitBroker()
-    with TestRabbitBroker(real_broker, with_real=True) as broker:
-        # Use the real RabbitBroker instance for testing.
-
-    with TestRabbitBroker(real_broker, with_real=False) as broker:
-        # Use a mocked RabbitBroker instance for testing.
-    ```
-    """
-
-    # This is set so pytest ignores this class
-    __test__ = False
-
-    def __init__(
-        self,
+    @staticmethod
+    def create_publisher_fake_subscriber(
         broker: RabbitBroker,
-        with_real: bool = False,
-        connect_only: bool = False,
-    ):
-        """
-        Initialize a TestRabbitBroker instance.
+        publisher: Publisher,
+    ) -> HandlerCallWrapper[Any, Any, Any]:
+        @broker.subscriber(
+            queue=publisher.queue,
+            exchange=publisher.exchange,
+            _raw=True,
+        )
+        def f(msg: Any) -> None:
+            pass
 
-        Args:
-            broker (RabbitBroker): The RabbitBroker instance to be used in testing.
-            with_real (bool, optional): If True, the original broker is returned; if False, components are replaced with
-                mock objects. Defaults to False.
-        """
-        self.with_real = with_real
-        self.broker = broker
-        self.connect_only = connect_only
+        return f
 
-    @asynccontextmanager
-    async def _create_ctx(self) -> AsyncGenerator[RabbitBroker, None]:
-        """
-        Create the context for the context manager.
-
-        Yields:
-            RabbitBroker: The RabbitBroker instance for testing, either with or without mocks.
-        """
-        if not self.with_real:
-            self.broker._channel = AsyncMock()
-            self.broker.declarer = AsyncMock()
-            self.broker.start = AsyncMock(wraps=partial(_fake_start, self.broker))  # type: ignore[method-assign]
-            self.broker._connect = MethodType(_fake_connect, self.broker)  # type: ignore[method-assign]
-            self.broker.close = AsyncMock()  # type: ignore[method-assign]
-        else:
-            _fake_start(self.broker)
-
-        async with self.broker:
-            try:
-                if not self.connect_only:
-                    await self.broker.start()
-                yield self.broker
-            finally:
-                _fake_close(self.broker)
-
-    async def __aenter__(self) -> RabbitBroker:
-        """
-        Enter the context and return the RabbitBroker instance.
-
-        Returns:
-            RabbitBroker: The RabbitBroker instance for testing, either with or without mocks.
-        """
-        self._ctx = self._create_ctx()
-        return await self._ctx.__aenter__()
-
-    async def __aexit__(self, *args: Any) -> None:
-        """
-        Exit the context.
-
-        Args:
-            *args: Variable-length argument list.
-        """
-        await self._ctx.__aexit__(*args)
+    @staticmethod
+    def remove_publisher_fake_subscriber(
+        broker: RabbitBroker,
+        publisher: Publisher,
+    ) -> None:
+        broker.handlers.pop(
+            publisher._get_routing_hash(),
+            None,
+        )
 
 
 class PatchedMessage(IncomingMessage):
@@ -220,12 +151,12 @@ def build_message(
         **message_kwargs,
     )
 
-    routing = routing_key or (que.name if que else "")
+    routing = routing_key or (getattr(que, "name", ""))
 
     return PatchedMessage(
         aiormq.abc.DeliveredMessage(
             delivery=spec.Basic.Deliver(
-                exchange=exch.name if exch and exch.name else "",
+                exchange=getattr(exch, "name", ""),
                 routing_key=routing,
             ),
             header=ContentHeader(
@@ -323,13 +254,15 @@ class FakeProducer(AioPikaFastProducer):
                 elif handler.exchange.type == ExchangeType.TOPIC:
                     call = bool(
                         re.match(
-                            handler.queue.name.replace(".", r"\.").replace("*", ".*"),
+                            handler.queue.routing_key.replace(".", r"\.").replace(
+                                "*", ".*"
+                            ),
                             incoming.routing_key or "",
                         )
                     )
 
                 elif handler.exchange.type == ExchangeType.HEADERS:  # pramga: no branch
-                    queue_headers = handler.queue.bind_arguments
+                    queue_headers = (handler.queue.bind_arguments or {}).copy()
                     msg_headers = incoming.headers
 
                     if not queue_headers:
@@ -365,85 +298,3 @@ class FakeProducer(AioPikaFastProducer):
                         return r
 
         return None
-
-
-async def _fake_connect(self: RabbitBroker, *args: Any, **kwargs: Any) -> None:
-    """
-    Fake connection method for the RabbitBroker class.
-
-    Args:
-        self (RabbitBroker): The RabbitBroker instance.
-        *args (Any): Additional arguments.
-        **kwargs (Any): Additional keyword arguments.
-    """
-    self._producer = FakeProducer(self)
-
-
-def _fake_close(
-    broker: RabbitBroker,
-    exc_type: Optional[Type[BaseException]] = None,
-    exc_val: Optional[BaseException] = None,
-    exec_tb: Optional[TracebackType] = None,
-) -> None:
-    """
-    Fake close method for the RabbitBroker class.
-
-    Args:
-        self (RabbitBroker): The RabbitBroker instance.
-        exc_type (Optional[Type[BaseException]]): The exception type.
-        exc_val (Optional[BaseException]]): The exception value.
-        exec_tb (Optional[TracebackType]]): The exception traceback.
-    """
-    broker.middlewares = [
-        CriticalLogMiddleware(broker.logger, broker.log_level),
-        *broker.middlewares,
-    ]
-
-    for key, p in broker._publishers.items():
-        p.mock.reset_mock()
-        if getattr(p, "_fake_handler", False):
-            key = get_routing_hash(p.queue, p.exchange)
-            broker.handlers.pop(key, None)
-            p._fake_handler = False
-            p.mock.reset_mock()
-
-    for h in broker.handlers.values():
-        for f, _, _, _, _, _ in h.calls:
-            f.refresh(with_mock=True)
-
-
-def _fake_start(broker: RabbitBroker, *args: Any, **kwargs: Any) -> None:
-    """
-    Fake start method for the RabbitBroker class.
-
-    Args:
-        self (RabbitBroker): The RabbitBroker instance.
-        *args (Any): Additional arguments.
-        **kwargs (Any): Additional keyword arguments.
-    """
-    for key, p in broker._publishers.items():
-        if getattr(p, "_fake_handler", False):
-            continue
-
-        handler = broker.handlers.get(key)
-
-        if handler is not None:
-            for f, _, _, _, _, _ in handler.calls:
-                f.mock.side_effect = p.mock
-
-        else:
-            p._fake_handler = True
-
-            @broker.subscriber(
-                queue=p.queue,
-                exchange=p.exchange,
-                _raw=True,
-            )
-            def f(msg: RabbitMessage) -> str:
-                return ""
-
-            p.mock = f.mock
-
-        p._producer = broker._producer
-
-    patch_broker_calls(broker)

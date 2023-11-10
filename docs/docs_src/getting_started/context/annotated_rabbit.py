@@ -1,7 +1,8 @@
 from typing import Annotated
 
 from faststream import Context, FastStream
-from faststream.rabbit import RabbitBroker, RabbitMessage
+from faststream.rabbit import RabbitBroker
+from faststream.rabbit.message import RabbitMessage
 
 Message = Annotated[RabbitMessage, Context()]
 
