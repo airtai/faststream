@@ -95,8 +95,8 @@ def run(
     ),
     watch_extensions: List[str] = typer.Option(
         (),
-        "--extensions",
-        "--reload-extensions",
+        "--extension",
+        "--reload-extension",
         "--reload-ext",
         "--ext",
         help="List of file extensions to watch by",
