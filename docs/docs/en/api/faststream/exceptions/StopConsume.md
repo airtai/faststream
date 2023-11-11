@@ -1,3 +1,0 @@
-
-
-::: faststream.exceptions.StopConsume

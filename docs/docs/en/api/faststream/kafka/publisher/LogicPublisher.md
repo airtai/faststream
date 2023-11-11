@@ -1,3 +1,0 @@
-
-
-::: faststream.kafka.publisher.LogicPublisher
