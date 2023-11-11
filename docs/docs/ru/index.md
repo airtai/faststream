@@ -6,7 +6,7 @@ hide:
 
 # FastStream
 
-<b>Effortless event stream integration for your services</b>
+<b>Простая интеграция потоков событий в ваши сервисы</b>
 
 ---
 
@@ -42,145 +42,113 @@ hide:
   </a>
 
   <a href="https://github.com/airtai/faststream/blob/main/LICENSE" target="_blank">
-    <img src="https://img.shields.io/github/license/airtai/faststream.png" alt="Github">
+    <img src="https://img.shields.io/github/license/airtai/faststream.png" alt="License">
   </a>
 
-  <a href="https://discord.gg/CJWmYpyFbc" target="_blank">
+  <a href="https://github.com/airtai/faststream/blob/main/CODE_OF_CONDUCT.md" target="_blank">
+    <img src="https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg" alt="Code of Conduct">
+  </a>
+
+  <a href="https://discord.gg/qFm6aSqq59" target="_blank">
       <img alt="Discord" src="https://img.shields.io/discord/1085457301214855171?logo=discord">
   </a>
 </p>
 
 ---
 
-## Features
+## Функции
 
-[**FastStream**](https://faststream.airt.ai/) simplifies the process of writing producers and consumers for message queues, handling all the
-parsing, networking and documentation generation automatically.
+[**FastStream**](https://faststream.airt.ai/) 
+упрощает процесс написания producers и consumers для брокеров сообщений, обрабатывая все автоматическим анализом, созданием сетей и созданием документации.
 
-Making streaming microservices has never been easier. Designed with junior developers in mind, **FastStream** simplifies your work while keeping the door open for more advanced use-cases. Here's a look at the core features that make **FastStream** a go-to framework for modern, data-centric microservices.
+Создание потоковых микросервисов никогда не было простым. **FastStream**, разработанный специально для junior разработчиков, упрощает вашу работу, при этом сохраняя возможность для более сложных вариантов использования. Ниже приведены основные функции, которые выполняет **FastStream**. Подходящий фреймфорк для современных микросервисов, ориентированных на данные.
 
-- **Multiple Brokers**: **FastStream** provides a unified API to work across multiple message brokers (**Kafka**, **RabbitMQ** support)
+- **Несколько брокеров**: **FastStream** Предоставляет унифицированный (общий) API для работы с несколькими брокерами сообщений (поддерживает **Kafka**, **RabbitMQ**, **NATS** и другие).
 
-- [**Pydantic Validation**](#writing-app-code): Leverage [**Pydantic's**](https://docs.pydantic.dev/){.external-link target="_blank"} validation capabilities to serialize and validates incoming messages
+- [**Pydantic валидация**](#writing-app-code): Используйте [**Pydantic**](https://docs.pydantic.dev/){.external-link target="_blank"}. для валидации, сериализации и проверки сообщений.
 
-- [**Automatic Docs**](#project-documentation): Stay ahead with automatic [**AsyncAPI**](https://www.asyncapi.com/){.external-link target="_blank"} documentation
+- [**Авто документация**](#project-documentation): Будьте впереди с автоматической документацией [**AsyncAPI**](https://www.asyncapi.com/){.external-link target="_blank"}.
 
-- **Intuitive**: Full-typed editor support makes your development experience smooth, catching errors before they reach runtime
+- **Интуитивный**: Полная типизация упрощает процесс разработки, выявляя ошибки до того, как они выявятся.
 
-- [**Powerful Dependency Injection System**](#dependencies): Manage your service dependencies efficiently with **FastStream**'s built-in DI system
+- [**Мощная система Dependency Injection**](#dependencies): Эффективно управляйте зависимостями вашего сервиса с помощью встроенной системы DI в **FastStream**.
 
-- [**Testable**](#testing-the-service): Supports in-memory tests, making your CI/CD pipeline faster and more reliable
+- [**Тестируемый**](#testing-the-service): Поддерживает in-memory тесты, что делает ваш процесс CI/CD быстрее и надежнее.
 
-- **Extendable**: Use extensions for lifespans, custom serialization and middlewares
+- **Расширяемый**: Используйте расширения для собственной сериализации и мидлевари.
 
-- [**Integrations**](#any-framework): **FastStream** is fully compatible with any HTTP framework you want ([**FastAPI**](#fastapi-plugin) especially)
+- [**Интеграционный**](#any-framework): **FastStream** полностью совместим с любым HTTP-фреймворком, которую вы хотите использовать (особенно с [**FastAPI**](#fastapi-plugin)).
 
-- [**Built for Automatic Code Generation**](#code-generator): **FastStream** is optimized for automatic code generation using advanced models like GPT and Llama
+- [**Создан для автогенерации кода**](#code-generator): **FastStream** оптимизирован для автогенерации кода с использованием расширяемых моделей, таких как GPT и Llama.
 
-That's **FastStream** in a nutshell—easy, efficient, and powerful. Whether you're just starting with streaming microservices or looking to scale, **FastStream** has got you covered.
-
----
-
-## History
-
-**FastStream** is a new package based on the ideas and experiences gained from [**FastKafka**](https://github.com/airtai/fastkafka){.external-link target="_blank"} and [**Propan**](https://github.com/lancetnik/propan){.external-link target="_blank"}. By joining our forces, we picked up the best from both packages and created a unified way to write services capable of processing streamed data regradless of the underliying protocol. We'll continue to maintain both packages, but new development will be in this project. If you are starting a new service, this package is the recommended way to do it.
+ **FastStream** — простой, эффективный и мощный. Независимо от того, начнёте ли вы использовать микросервисы потоковой передачи или хотите масштабироваться, **FastStream** поможет вам.
 
 ---
 
-## Install
+## История
 
-**FastStream** works on **Linux**, **macOS**, **Windows** and most **Unix**-style operating systems.
-You can install it with `pip` as usual:
+**FastStream** — это новый пакет, основанный на идеях и опыте, полученном от [**FastKafka**](https://github.com/airtai/fastkafka){.external-link target="_blank"} и [ **Propan**](https://github.com/lancetnik/propan){.external-link target="_blank"}. Объединив наши усилия, мы взяли лучшее из обоих пакетов и создали унифицированный (общий) способ написания сервисов, способных обрабатывать потоковые данные без необходимости использования базового протокола. Мы продолжим поддерживать оба пакета, но в этом проекте будут новые возможности. Если вы пишете новый сервис, этот пакет является рекомендуемым для разработки.
 
-=== "Kafka"
-    ```sh
-    pip install faststream[kafka]
-    ```
+---
 
-=== "RabbitMQ"
-    ```sh
-    pip install faststream[rabbit]
-    ```
+## Установка
+
+**FastStream** работает на **Linux**, **macOS**, **Windows** и на большинстве операционных систем **Unix**.
+Вы можете установить его с помощью `pip`:
+
+{!> includes/index/1.md !}
 
 !!! tip ""
-    By default **FastStream** uses **PydanticV2** written in **Rust**, but you can downgrade it manually, if your platform has no **Rust** support - **FastStream** will work correctly with **PydanticV1** as well.
+    По умолчанию **FastStream** использует **PydanticV2**, написанный на **Rust**, но вы можете понизить его версию вручную, если ваша платформа не поддерживает **Rust** — **FastStream** будет корректно работать с * *PydanticV1** тоже.
 
 ---
 
-## Writing app code
+## Написание кода приложения
 
-**FastStream** brokers provide convenient function decorators `#!python @broker.subscriber`
-and `#!python @broker.publisher` to allow you to delegate the actual process of:
+Брокеры **FastStream** предоставляют удобные декораторы `#!python @broker.subscriber`
+и `#!python @broker.publisher`, чтобы вы могли делегировать фактический процесс:
 
-- consuming and producing data to Event queues, and
+- потребление и создание данных в очереди событий, а также
 
-- decoding and encoding JSON encoded messages
+- декодирование и кодирование JSON сообщений.
 
-These decorators make it easy to specify the processing logic for your consumers and producers, allowing you to focus on the core business logic of your application without worrying about the underlying integration.
+Эти декораторы позволяют легко указать логику обработки для ваших consumers и producers, позволяя вам сосредоточиться на основной бизнес-логике вашего приложения, не беспокоясь о базовой интеграции.
 
-Also, **FastStream** uses [**Pydantic**](https://docs.pydantic.dev/){.external-link target="_blank"} to parse input
-JSON-encoded data into Python objects, making it easy to work with structured data in your applications, so you can serialize your input messages just using type annotations.
+Кроме того, **FastStream** использует [**Pydantic**](https://docs.pydantic.dev/){.external-link target="_blank"} для обработки входных данных.
+Данные в кодировке JSON преобразуются в объекты Python, что упрощает работу со структурированными данными в ваших приложениях, поэтому вы можете сериализовать входные сообщения, просто используя аннотации типов
 
-Here is an example python app using **FastStream** that consumes data from an incoming data stream and outputs the data to another one:
+Вот пример приложения Python, использующего **FastStream**, которое получает данные из входящего потока данных и выводит данные в другой поток:
 
-=== "Kafka"
-    ```python linenums="1" hl_lines="9"
-    {!> docs_src/index/basic_kafka.py!}
-    ```
+{!> includes/index/2.md !}
 
-=== "RabbitMQ"
-    ```python linenums="1" hl_lines="9"
-    {!> docs_src/index/basic_rabbit.py!}
-    ```
+Кроме того, класс [`BaseModel`](https://docs.pydantic.dev/usage/models/){.external-link target="_blank"} в **Pydantic** позволяет вам
+определять сообщения с использованием декларативного синтаксиса, что упрощает указание полей и типов ваших сообщений.
 
-Also, **Pydantic**’s [`BaseModel`](https://docs.pydantic.dev/usage/models/){.external-link target="_blank"} class allows you
-to define messages using a declarative syntax, making it easy to specify the fields and types of your messages.
-
-=== "Kafka"
-    ```python linenums="1" hl_lines="1 8 14"
-    {!> docs_src/index/pydantic_kafka.py !}
-    ```
-
-=== "RabbitMQ"
-    ```python linenums="1" hl_lines="1 8 14"
-    {!> docs_src/index/pydantic_rabbit.py !}
-    ```
+{!> includes/index/3.md !}
 
 ---
 
-## Testing the service
+## Тестирование сервиса
 
-The service can be tested using the `TestBroker` context managers, which, by default, puts the Broker into "testing mode".
+Сервис можно протестировать с помощью контекстных менеджеров `TestBroker`, которые по умолчанию переводят брокера в «режим тестирования».
 
-The Tester will redirect your `subscriber` and `publisher` decorated functions to the InMemory brokers, allowing you to quickly test your app without the need for a running broker and all its dependencies.
+Tester перенаправит ваши оформленные функции `subscriber` и `publisher` на InMemory брокеры, что позволит вам быстро протестировать приложение без необходимости использования работающего брокера и всех его зависимостей.
 
-Using pytest, the test for our service would look like this:
+Используя pytest, тест нашего сервиса будет выглядеть так:
 
-=== "Kafka"
-    ```python linenums="1" hl_lines="3 10 18-19"
-    # Code above omitted 👆
+{!> includes/index/4.md !}
 
-    {!> docs_src/index/test_kafka.py [ln:3-21] !}
-    ```
+## Запуск приложения
 
-=== "RabbitMQ"
-    ```python linenums="1" hl_lines="3 10 18-19"
-    # Code above omitted 👆
+Приложение можно запустить с помощью встроенной CLI команды **FastStream**.
 
-    {!> docs_src/index/test_rabbit.py [ln:3-21] !}
-    ```
-
-## Running the application
-
-The application can be started using built-in **FastStream** CLI command.
-
-To run the service, use the **FastStream CLI** command and pass the module (in this case, the file where the app implementation is located) and the app symbol to the command.
+Чтобы запустить сервис, используйте **FastStream CLI** команду и передайте ей модуль (в данном случае файл, в котором находится реализация приложения) и символ приложения.
 
 ``` shell
 faststream run basic:app
 ```
 
-After running the command, you should see the following output:
+После запуска команды вы должны увидеть следующий вывод:
 
 ``` shell
 INFO     - FastStream app starting...
@@ -188,35 +156,35 @@ INFO     - input_data |            - `HandleMsg` waiting for messages
 INFO     - FastStream app started successfully! To exit press CTRL+C
 ```
 
-Also, **FastStream** provides you a great hot reload feature to improve your Development Experience
+Кроме того, **FastStream** предоставляет отличную функцию "горячей" перезагрузки, которая улучшит ваш опыт разработки.
 
 ``` shell
 faststream run basic:app --reload
 ```
 
-And multiprocessing horizontal scaling feature as well:
+А также функцию горизонтального масштабирования многопроцессорной обработки:
 
 ``` shell
 faststream run basic:app --workers 3
 ```
 
-You can know more about **CLI** features [here](./getting-started/cli/index.md){.internal-link}
+Дополнительную информацию о функциях **CLI** можно узнать [здесь](./getting-started/cli/index.md){.internal-link}
 
 ---
 
-## Project Documentation
+## Документация проекта
 
-**FastStream** automatically generates documentation for your project according to the [**AsyncAPI**](https://www.asyncapi.com/){.external-link target="_blank"} specification. You can work with both generated artifacts and place a web view of your documentation on resources available to related teams.
+**FastStream** автоматически генерирует документацию для вашего проекта в соответствии со спецификацией [**AsyncAPI**](https://www.asyncapi.com/){.external-link target="_blank"}. Вы можете работать как со сгенерированными артефактами, размещать документацию на ресурсах, доступная соответствующим командам.
 
-The availability of such documentation significantly simplifies the integration of services: you can immediately see what channels and message formats the application works with. And most importantly, it won't cost anything - **FastStream** has already created the docs for you!
+Наличие такой документации существенно упрощает интеграцию сервисов: вы сразу можете увидеть с какими каналами и форматами сообщений работает приложение. И самое главное, это ничего не будет стоить — **FastStream** уже создал для вас документацию!
 
 ![HTML-page](../assets/img/AsyncAPI-basic-html-short.png)
 
 ---
 
-## Dependencies
+## Зависимости
 
-**FastStream** (thanks to [**FastDepend**](https://lancetnik.github.io/FastDepends/){.external-link target="_blank"}) has a dependency management system similar to `pytest fixtures` and `FastAPI Depends` at the same time. Function arguments declare which dependencies you want are needed, and a special decorator delivers them from the global Context object.
+**FastStream** (благодаря [**FastDepend**](https://lancetnik.github.io/FastDepends/){.external-link target="_blank"}) имеет систему управления зависимостями, аналогичную `pytest fixtures` и `FastAPI Depends`. Аргументы функций объявляют, какие зависимости вам нужны, а специальный декоратор доставляет их из глобального объекта Context.
 
 ```python linenums="1" hl_lines="9-10"
 {!> docs_src/index/dependencies.py [ln:1,6-14] !}
@@ -224,43 +192,44 @@ The availability of such documentation significantly simplifies the integration 
 
 ---
 
-## HTTP Frameworks integrations
+## Интеграция с http фреймворком
 
-### Any Framework
+### Любой фреймворк
 
-You can use **FastStream** `MQBrokers` without a `FastStream` application.
-Just *start* and *stop* them according to your application's lifespan.
+Вы можете использовать **FastStream** `MQBrokers` без приложения `FastStream`.
+Просто *запустите* и *остановите* их в зависимости от срока службы вашего приложения.
 
 {! includes/index/integrations.md !}
 
-### **FastAPI** Plugin
+### **FastAPI** Плагин
 
-Also, **FastStream** can be used as part of **FastAPI**.
+Кроме того, **FastStream** можно использовать как часть **FastAPI**.
 
 Just import a **StreamRouter** you need and declare the message handler with the same `#!python @router.subscriber(...)` and `#!python @router.publisher(...)` decorators.
 
 !!! tip
-    When used this way, **FastStream** does not utilize its own dependency and serialization system but integrates seamlessly into **FastAPI**.
-    This means you can use `Depends`, `BackgroundTasks` and other **FastAPI** tools as if it were a regular HTTP endpoint.
+    При таком использовании **FastStream** не использует собственную систему зависимостей и сериализацию, а легко интегрируется в **FastAPI**.
+    Это означает, что вы можете использовать `Depends`, `BackgroundTasks` и другие инструменты **FastAPI**, как если бы это была обычная HTTP endpoint.
 
 {! includes/getting_started/integrations/fastapi/1.md !}
 
 !!! note
-    More integration features can be found [here](./getting-started/integrations/fastapi/index.md){.internal-link}
-
+    Дополнительные функции интеграции можно найти [здесь](./getting-started/integrations/fastapi/index.md){.internal-link}
 
 ---
 
-## Code generator
+## Генератор кода
 
-As evident, **FastStream** is an incredibly user-friendly library. However, we've taken it a step further and made it even more user-friendly! Introducing [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"}, a Python library that harnesses the power of generative AI to effortlessly generate **FastStream** applications.. Simply describe your application requirements, and [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"} will generate a production-grade **FastStream** project that is ready to deploy in no time.
+Как видно, **FastStream** — невероятно удобная библиотека. Однако мы пошли еще дальше и сделали его еще более удобным для пользователя! Представляем [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"}, Python библиотеку, которая использует возможности генеративного ИИ для легкой генерации **FastStream** приложения. Просто опишите требования к вашему приложению, и [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"} создаст рабочий и высококлассный проект **FastStream**, готовый к развертыванию в кратчайшие сроки.
 
-Save application description inside `description.txt`:
+Сохраните описание приложения внутри `description.txt`:
 ```
 {!> docs_src/index/app_description.txt !}
 ```
 
-and run the following command to create a new **FastStream** project:
+
+и выполните следующую команду, чтобы создать новый **FastStream** проект:
+
 ``` shell
 faststream_gen -i description.txt
 ```
@@ -277,30 +246,31 @@ faststream_gen -i description.txt
 ✨  All files were successfully generated!
 ```
 
-### Tutorial
-We also invite you to explore our tutorial, where we will guide you through the process of utilizing the [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target="_blank"} Python library to effortlessly create **FastStream** applications:
+### Туториал
 
-- [Cryptocurrency analysis with FastStream](https://faststream-gen.airt.ai/Tutorial/Cryptocurrency_Tutorial/){.external-link target="_blank"}
+Мы также приглашаем вас изучить наше руководство, в котором мы проведем вас через процесс использования [**faststream-gen**](https://faststream-gen.airt.ai){.external-link target=" _blank"} Python библиотека для легкого создания приложений **FastStream**:
 
----
-
-## Stay in touch
-
-Please show your support and stay in touch by:
-
-- giving our [GitHub repository](https://github.com/airtai/faststream/){.external-link target="_blank"} a star, and
-
-- joining our [Discord server](https://discord.gg/CJWmYpyFbc){.external-link target="_blank"}
-
-Your support helps us to stay in touch with you and encourages us to
-continue developing and improving the library. Thank you for your
-support!
+- [Анализ криптовалют с помощью FastStream](https://faststream-gen.airt.ai/Tutorial/Cryptocurrency_Tutorial/){.external-link target="_blank"}
 
 ---
 
-## Contributors
+## Будьте на связи
 
-Thanks to all of these amazing people who made the project better!
+Пожалуйста, проявите свою поддержку и оставайтесь на связи:
+
+- [GitHub репозиторий](https://github.com/airtai/faststream/){.external-link target="_blank"} a star, and
+
+- присоединяюсь к нашему [Discord серверу](https://discord.gg/CJWmYpyFbc){.external-link target="_blank"}
+
+Ваша поддержка помогает нам оставаться на связи с вами и побуждает нас
+продолжать развивать и совершенствовать библиотеку. Спасибо за вашу
+поддержку!
+
+---
+
+## Авторы
+
+Спасибо всем этим замечательным людям, которые сделали проект лучше!
 
 <a href="https://github.com/airtai/faststream/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=airtai/faststream"/>
