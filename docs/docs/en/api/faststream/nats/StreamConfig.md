@@ -1,3 +1,0 @@
-
-
-::: nats.js.api.StreamConfig

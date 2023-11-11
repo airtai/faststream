@@ -134,7 +134,7 @@ The service can be tested using the `TestBroker` context managers, which, by def
 
 The Tester will redirect your `subscriber` and `publisher` decorated functions to the InMemory brokers, allowing you to quickly test your app without the need for a running broker and all its dependencies.
 
-Using pytest, the test for our service would look like this:
+Using pytest, the **test** for our service would look like this:
 
 {!> includes/index/4.md !}
 
@@ -150,7 +150,7 @@ faststream run basic:app
 
 After running the command, you should see the following output:
 
-``` shell
+``` {.shell .no-copy}
 INFO     - FastStream app starting...
 INFO     - input_data |            - `HandleMsg` waiting for messages
 INFO     - FastStream app started successfully! To exit press CTRL+C
@@ -168,7 +168,7 @@ And multiprocessing horizontal scaling feature as well:
 faststream run basic:app --workers 3
 ```
 
-You can Learn more about **CLI** features [here](./getting-started/cli/index.md){.internal-link}
+You can Learn more about **CLI** features [here](./getting-started/cli/){.internal-link}
 
 ---
 
@@ -178,7 +178,7 @@ You can Learn more about **CLI** features [here](./getting-started/cli/index.md)
 
 The availability of such documentation significantly simplifies the integration of services: you can immediately see what channels and message formats the application works with. And most importantly, it won't cost anything - **FastStream** has already created the docs for you!
 
-![HTML-page](../assets/img/AsyncAPI-basic-html-short.png)
+![HTML-page](../assets/img/AsyncAPI-basic-html-short.png){ loading=lazy }
 
 ---
 
@@ -234,7 +234,7 @@ and run the following command to create a new **FastStream** project:
 faststream_gen -i description.txt
 ```
 
-``` shell
+``` {.shell .no-copy}
 ✨  Generating a new FastStream application!
  ✔ Application description validated.
  ✔ FastStream app skeleton code generated. akes around 15 to 45 seconds)...

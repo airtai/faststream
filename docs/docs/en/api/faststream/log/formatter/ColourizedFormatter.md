@@ -1,3 +1,0 @@
-
-
-::: faststream.log.formatter.ColourizedFormatter

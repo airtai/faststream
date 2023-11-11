@@ -98,6 +98,9 @@ plugins:
           default: true
           name: en - English
           build: true
+        - locale: ru
+          name: ru - Русский
+          build: true
   - git-revision-date-localized: # show page edition date
       enabled: !ENV [CI, false]
       type: timeago

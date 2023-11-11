@@ -1,3 +1,0 @@
-
-
-::: faststream.rabbit.router.RabbitRouter

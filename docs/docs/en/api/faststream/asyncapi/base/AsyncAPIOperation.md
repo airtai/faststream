@@ -1,3 +1,0 @@
-
-
-::: faststream.asyncapi.base.AsyncAPIOperation
