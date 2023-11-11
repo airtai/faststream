@@ -28,7 +28,7 @@ If you prefer `yaml` instead of `json`, please run the following command to gene
 {!> docs_src/getting_started/asyncapi/serve.py[ln:13]!}
 ```
 
-!!! note
+!!! tip
     To generate the documentation in yaml format, please install the necessary dependency to work with **YAML** file format at first.
 
     ``` shell

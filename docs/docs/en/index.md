@@ -163,6 +163,9 @@ Also, **FastStream** provides you with a great hot reload feature to improve you
 faststream run basic:app --reload
 ```
 
+!!! tip
+    {!> includes/en/watchfiles.md !}
+
 And multiprocessing horizontal scaling feature as well:
 
 ``` shell
