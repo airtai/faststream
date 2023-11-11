@@ -28,6 +28,7 @@ Commands:
   docs  AsyncAPI schema commands
   run   Run [MODULE:APP] FastStream application
 ```
+{ data-search-exclude }
 
 ## Running the Project
 
@@ -48,6 +49,7 @@ INFO     - Started child process [7594]
 INFO     - test |            - `Handle` waiting for messages
 INFO     - test |            - `Handle` waiting for messages
 ```
+{ data-search-exclude }
 
 ### Hot Reload
 
@@ -64,6 +66,7 @@ INFO     - FastStream app starting...
 INFO     - test |            - `Handle` waiting for messages
 INFO     - FastStream app started successfully! To exit press CTRL+C
 ```
+{ data-search-exclude }
 
 ### Environment Management
 
@@ -82,6 +85,7 @@ INFO     - FastStream app starting...
 INFO     - test |            - `Handle` waiting for messages
 INFO     - FastStream app started successfully! To exit press CTRL+C
 ```
+{ data-search-exclude }
 
 {! includes/getting_started/cli/env.md !}
 
@@ -100,6 +104,7 @@ faststream run app:app --key value        # key = "value"
 faststream run app:app --key 1 2          # key = ["1", "2"]
 faststream run app:app --key 1 --key 2    # key = ["1", "2"]
 ```
+{ data-search-exclude }
 
 You can use them both individually and together in unlimited quantities.
 
@@ -125,5 +130,6 @@ Commands:
   gen    Generate project AsyncAPI schema
   serve  Serve project AsyncAPI schema
 ```
+{ data-search-exclude }
 
 To learn more about the commands above, please visit [**AsyncAPI export**](../asyncapi/export.md){.internal-link} and [**AsyncAPI hosting**](../asyncapi/hosting.md){.internal-link}.

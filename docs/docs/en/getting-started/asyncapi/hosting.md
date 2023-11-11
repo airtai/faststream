@@ -29,6 +29,7 @@ INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://localhost:8000 (Press CTRL+C to quit)
 ```
+{ data-search-exclude }
 
 And you should be able to see the following page in your browser:
 

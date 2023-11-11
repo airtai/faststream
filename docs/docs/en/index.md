@@ -155,6 +155,7 @@ INFO     - FastStream app starting...
 INFO     - input_data |            - `HandleMsg` waiting for messages
 INFO     - FastStream app started successfully! To exit press CTRL+C
 ```
+{ data-search-exclude }
 
 Also, **FastStream** provides you with a great hot reload feature to improve your Development Experience
 
@@ -245,6 +246,7 @@ faststream_gen -i description.txt
  Total Cost (USD): $0.03284
 ✨  All files were successfully generated!
 ```
+{ data-search-exclude }
 
 ### Tutorial
 

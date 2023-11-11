@@ -60,7 +60,10 @@ extra_css:
   - stylesheets/extra.css
 
 plugins:
-  - search
+  - search:
+      separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  # - minify:
+  #     minify_html: true
   - glightbox                    # image zoom
   - macros:                      # Jinja templates
       include_dir: includes
