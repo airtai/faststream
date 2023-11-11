@@ -60,6 +60,7 @@ extra_css:
   - stylesheets/extra.css
 
 plugins:
+  # - meta                         # (insiders) use .meta.yml files
   - search
   - glightbox                    # image zoom
   - macros:                      # Jinja templates
