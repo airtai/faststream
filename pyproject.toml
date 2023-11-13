@@ -126,7 +126,7 @@ testing = [
 publish = ["hatch==1.7.0"]
 
 dev = [
-    "faststream[rabbit,kafka,nats,docs,lint,testing,devdocs]",
+    "faststream[rabbit,redis,kafka,nats,docs,lint,testing,devdocs]",
     "pre-commit==3.5.0",
     "detect-secrets==1.4.0",
 ]
