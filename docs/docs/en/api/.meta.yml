@@ -1,4 +1,3 @@
----
 # 0.5 - API
 # 2 - Release
 # 3 - Contributing
@@ -6,6 +5,3 @@
 # 10 - Default
 search:
   boost: 0.5
----
-
-::: faststream.asyncapi.message.get_model_schema

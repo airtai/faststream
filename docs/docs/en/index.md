@@ -2,6 +2,8 @@
 hide:
   - navigation
   - footer
+search:
+  exclude: true
 ---
 
 # FastStream
