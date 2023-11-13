@@ -19,12 +19,13 @@ In the above command, we are providing the path in the format of `python_module:
 
 After running the command, it should serve the AsyncAPI documentation on port **8000** and display the following logs in the terminal.
 
-``` shell
+``` {.shell .no-copy}
 INFO:     Started server process [2364992]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://localhost:8000 (Press CTRL+C to quit)
 ```
+{ data-search-exclude }
 
 And you should be able to see the following page in your browser:
 
