@@ -19,10 +19,10 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/release/"/>
     </url>
     <url>
-        <loc>https://faststream.airt.ai/0.2/api/faststream/</loc>
+        <loc>https://faststream.airt.ai/0.2/scheduling/</loc>
         <lastmod>2023-11-13</lastmod>
         <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/scheduling/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/BaseMiddleware/</loc>
@@ -1231,6 +1231,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/Placement/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/PullSub/</loc>
+        <lastmod>2023-11-13</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/PullSub/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/nats/RePublish/</loc>
         <lastmod>2023-11-13</lastmod>
         <changefreq>daily</changefreq>
@@ -1391,6 +1397,12 @@
         <lastmod>2023-11-13</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/publisher/LogicPublisher/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/0.2/api/faststream/nats/pull_sub/PullSub/</loc>
+        <lastmod>2023-11-13</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/0.2/api/faststream/nats/pull_sub/PullSub/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/0.2/api/faststream/nats/router/NatsRouter/</loc>

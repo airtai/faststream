@@ -372,7 +372,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="api/faststream/" class="md-tabs__link">
+        <a href="api/faststream/index.md" class="md-tabs__link">
           
   
     
@@ -699,6 +699,8 @@
         
       
         
+      
+        
           
         
       
@@ -897,8 +899,6 @@
     
       
         
-          
-        
       
         
       
@@ -912,7 +912,7 @@
         
   
   
-    <a href="api/faststream/" class="md-nav__link">
+    <a href="api/faststream/index.md" class="md-nav__link">
       
   
   <span class="md-ellipsis">
@@ -1867,7 +1867,7 @@ Just <em>start</em> and <em>stop</em> them according to your application's lifes
 <a id="__codelineno-20-23" name="__codelineno-20-23"></a>        <span class="p">)</span>
 <a id="__codelineno-20-24" name="__codelineno-20-24"></a>
 <a id="__codelineno-20-25" name="__codelineno-20-25"></a>
-<a id="__codelineno-20-26" name="__codelineno-20-26"></a><span class="hll"><span class="k">class</span> <span class="nc">PropanMiddleware</span><span class="p">:</span>
+<a id="__codelineno-20-26" name="__codelineno-20-26"></a><span class="hll"><span class="k">class</span> <span class="nc">StreamMiddleware</span><span class="p">:</span>
 </span><a id="__codelineno-20-27" name="__codelineno-20-27"></a><span class="hll">    <span class="k">async</span> <span class="k">def</span> <span class="nf">process_startup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
 </span><a id="__codelineno-20-28" name="__codelineno-20-28"></a><span class="hll">        <span class="k">await</span> <span class="n">broker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 </span><a id="__codelineno-20-29" name="__codelineno-20-29"></a><span class="hll">
@@ -1876,7 +1876,7 @@ Just <em>start</em> and <em>stop</em> them according to your application's lifes
 </span><a id="__codelineno-20-32" name="__codelineno-20-32"></a>
 <a id="__codelineno-20-33" name="__codelineno-20-33"></a>
 <a id="__codelineno-20-34" name="__codelineno-20-34"></a><span class="n">app</span> <span class="o">=</span> <span class="n">falcon</span><span class="o">.</span><span class="n">asgi</span><span class="o">.</span><span class="n">App</span><span class="p">()</span>
-<a id="__codelineno-20-35" name="__codelineno-20-35"></a><span class="hll"><span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">PropanMiddleware</span><span class="p">())</span>
+<a id="__codelineno-20-35" name="__codelineno-20-35"></a><span class="hll"><span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">StreamMiddleware</span><span class="p">())</span>
 </span><a id="__codelineno-20-36" name="__codelineno-20-36"></a><span class="n">app</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="s2">&quot;/things&quot;</span><span class="p">,</span> <span class="n">ThingsResource</span><span class="p">())</span>
 </code></pre></div></td></tr></table></div>
 </div>
