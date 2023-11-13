@@ -1,3 +1,7 @@
+---
+search:
+  exclude: true
+---
 - [FastStream](index.md)
 - Tutorial
     - [Getting Started](getting-started/index.md)
@@ -38,6 +42,7 @@
     - [CLI commands](getting-started/cli/index.md)
     - [Logging](getting-started/logging.md)
     - [Config Management](getting-started/config/index.md)
+    - [Task Scheduling](scheduling.md)
     - [FastStream Project Template](getting-started/template/index.md)
 - [Kafka](kafka/index.md)
     - [Subscription](kafka/Subscriber/index.md)
