@@ -6,26 +6,34 @@
 # 10 - Default
 hide:
   - navigation
-## 0.2.12
-
-### What's Changed
-*chore: rRemove uvloop python 3.12 restriction from pyproject by [@sternakt](https://github.com/sternakt){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/914](https://github.com/airtai/faststream/pull/914){.external-link target="_blank"}
-* feat: NATS polling subscriber by [@sheldygg](https://github.com/sheldygg){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/912](https://github.com/airtai/faststream/pull/912){.external-link target="_blank"}
-* fix: mike deploy command by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/919](https://github.com/airtai/faststream/pull/919){.external-link target="_blank"}
-* chore: update dependencies by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/920](https://github.com/airtai/faststream/pull/920){.external-link target="_blank"}
-* chore: use dev dependencies to build docs by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/921](https://github.com/airtai/faststream/pull/921){.external-link target="_blank"}
-* chore: update packages' versions by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/937](https://github.com/airtai/faststream/pull/937){.external-link target="_blank"}
-* fix: FastAPI subscriber Path support by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/931](https://github.com/airtai/faststream/pull/931){.external-link target="_blank"}
-
-
-**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.11...0.2.12](https://github.com/airtai/faststream/compare/0.2.11...0.2.12){.external-link target="_blank"}
-
   - footer
 search:
   boost: 2
 ---
 
 # Release Notes
+
+## 0.2.13
+
+### What's Changed
+
+* chore: Remove uvloop python 3.12 restriction from pyproject by [@sternakt](https://github.com/sternakt){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/914](https://github.com/airtai/faststream/pull/914){.external-link target="_blank"}
+* fix: mike deploy command by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/919](https://github.com/airtai/faststream/pull/919){.external-link target="_blank"}
+* chore: update dependencies by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/920](https://github.com/airtai/faststream/pull/920){.external-link target="_blank"}
+* chore: use dev dependencies to build docs by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/921](https://github.com/airtai/faststream/pull/921){.external-link target="_blank"}
+* chore: update packages' versions by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/937](https://github.com/airtai/faststream/pull/937){.external-link target="_blank"}
+* fix: FastAPI subscriber Path support by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/931](https://github.com/airtai/faststream/pull/931){.external-link target="_blank"}
+
+**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.12...0.2.13](https://github.com/airtai/faststream/compare/0.2.12...0.2.13){.external-link target="_blank"}
+
+## 0.2.12
+
+### What's Changed
+* feat: NATS polling subscriber by [@sheldygg](https://github.com/sheldygg){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/912](https://github.com/airtai/faststream/pull/912){.external-link target="_blank"}
+
+
+**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.11...0.2.12](https://github.com/airtai/faststream/compare/0.2.11...0.2.12){.external-link target="_blank"}
+
 
 ## 0.2.11
 
