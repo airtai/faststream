@@ -4,8 +4,15 @@
 # 3 - Contributing
 # 5 - Template Page
 # 10 - Default
+search:
+  boost: 2
 hide:
   - navigation
+  - footer
+---
+
+# Release Notes
+
 ## 0.2.12
 
 ### What's Changed
@@ -17,15 +24,7 @@ hide:
 * chore: update packages' versions by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/937](https://github.com/airtai/faststream/pull/937){.external-link target="_blank"}
 * fix: FastAPI subscriber Path support by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/931](https://github.com/airtai/faststream/pull/931){.external-link target="_blank"}
 
-
 **Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.11...0.2.12](https://github.com/airtai/faststream/compare/0.2.11...0.2.12){.external-link target="_blank"}
-
-  - footer
-search:
-  boost: 2
----
-
-# Release Notes
 
 ## 0.2.11
 
