@@ -98,7 +98,7 @@ lint = [
     "ruff==0.1.4",
     "pyupgrade-directories",
     "bandit==1.7.5",
-    "semgrep==1.46.0",
+    "semgrep==1.48.0",
 ]
 
 test-core = [
