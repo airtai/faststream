@@ -75,11 +75,11 @@ Making streaming microservices has never been easier. Designed with junior devel
 
 - [**Powerful Dependency Injection System**](#dependencies): Manage your service dependencies efficiently with **FastStream**'s built-in DI system
 
-- [**Testable**](#testing-the-service): Supports in-memory tests, making your CI/CD pipeline faster and more reliable
+- [**Testable**](#testing-the-service): Supports in-memory tests, making your **CI/CD** pipeline faster and more reliable
 
 - **Extensible**: Use extensions for lifespans, custom serialization and middleware
 
-- [**Integrations**](#any-framework): **FastStream** is fully compatible with any HTTP framework you want ([**FastAPI**](#fastapi-plugin) especially)
+- [**Integrations**](#any-framework): **FastStream** is fully compatible with any **HTTP** framework you want ([**FastAPI**](#fastapi-plugin) especially)
 
 - [**Built for Automatic Code Generation**](#code-generator): **FastStream** is optimized for automatic code generation using advanced models like GPT and Llama
 
@@ -132,17 +132,17 @@ to define messages using a declarative syntax, making it easy to specify the fie
 
 ## Testing the service
 
-The service can be tested using the `TestBroker` context managers, which, by default, puts the Broker into "testing mode".
+The service can be tested using the `TestBroker` context managers, which, by default, puts the `Broker` into "testing mode".
 
 The Tester will redirect your `subscriber` and `publisher` decorated functions to the InMemory brokers, allowing you to quickly test your app without the need for a running broker and all its dependencies.
 
-Using pytest, the test for our service would look like this:
+Using **pytest**, the test for our service would look like this:
 
 {!> includes/index/4.md !}
 
 ## Running the application
 
-The application can be started using the built-in **FastStream** CLI command.
+The application can be started using the built-in **FastStream CLI** command.
 
 To run the service, use the **FastStream CLI** command and pass the module (in this case, the file where the app implementation is located) and the app symbol to the command.
 
