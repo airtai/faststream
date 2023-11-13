@@ -23,7 +23,7 @@ class ThingsResource:
         )
 
 
-class PropanMiddleware:
+class StreamMiddleware:
     async def process_startup(self, scope, event):
         await broker.start()
 
@@ -32,5 +32,5 @@ class PropanMiddleware:
 
 
 app = falcon.asgi.App()
-app.add_middleware(PropanMiddleware())
+app.add_middleware(StreamMiddleware())
 app.add_route("/things", ThingsResource())
