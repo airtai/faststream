@@ -4,11 +4,11 @@
 # 3 - Contributing
 # 5 - Template Page
 # 10 - Default
+search:
+  boost: 2
 hide:
   - navigation
   - footer
-search:
-  boost: 2
 ---
 
 # Release Notes
@@ -34,12 +34,26 @@ search:
 
 **Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.11...0.2.12](https://github.com/airtai/faststream/compare/0.2.11...0.2.12){.external-link target="_blank"}
 
-
 ## 0.2.11
 
 ### What's Changed
 
 #### Bug fixes
+
+* fix (#910): correct pydantic enum refs resolving by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/911](https://github.com/airtai/faststream/pull/911){.external-link target="_blank"}
+
+#### Documentation
+
+* docs: update the number of lines of code referred to in the documentation by [@vvanglro](https://github.com/vvanglro){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/905](https://github.com/airtai/faststream/pull/905){.external-link target="_blank"}
+* docs: add API reference in docs by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/891](https://github.com/airtai/faststream/pull/891){.external-link target="_blank"}
+* docs: add release notes for version 0.2.10 by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/907](https://github.com/airtai/faststream/pull/907){.external-link target="_blank"}
+* docs: detail 0.2.10 release note by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/908](https://github.com/airtai/faststream/pull/908){.external-link target="_blank"}
+* docs: proofread and update 0.2.10 release notes by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/909](https://github.com/airtai/faststream/pull/909){.external-link target="_blank"}
+
+### New Contributors
+* [@vvanglro](https://github.com/vvanglro){.external-link target="_blank"} made their first contribution in [https://github.com/airtai/faststream/pull/905](https://github.com/airtai/faststream/pull/905){.external-link target="_blank"}
+
+**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.10...0.2.11](https://github.com/airtai/faststream/compare/0.2.10...0.2.11){.external-link target="_blank"}
 
 * fix (#910): correct pydantic enum refs resolving by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/911](https://github.com/airtai/faststream/pull/911){.external-link target="_blank"}
 
