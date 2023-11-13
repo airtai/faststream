@@ -70,8 +70,8 @@ def update_release_notes(realease_notes_path: Path):
     # Update the RELEASE.md file with the latest version and changelog
     realease_notes_path.write_text((
         metablock + "\n\n" +
-        header + "\n\n" +
-        changelog
+        header + "\n" +
+        changelog + "\n"
     ).replace("\r", ""))
 
 
