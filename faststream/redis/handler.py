@@ -7,6 +7,7 @@ from typing import (
     Awaitable,
     Callable,
     Dict,
+    Generator,
     Hashable,
     List,
     Optional,
@@ -82,7 +83,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
     @property
     def channel_name(self) -> str:
         any_of = self.channel or self.list_sub or self.stream_sub
-        assert any_of, INCORRECT_SETUP_MSG
+        assert any_of, INCORRECT_SETUP_MSG  # nosec: [B101:assert_used]
         return any_of.name
 
     def add_call(
@@ -97,7 +98,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
     ) -> None:
         super().add_call(
             handler=handler,
-            parser=resolve_custom_func(parser, RedisParser.parse_message),
+            parser=resolve_custom_func(parser, RedisParser.parse_message),  # type: ignore[arg-type]
             decoder=resolve_custom_func(decoder, RedisParser.decode_message),
             filter=filter,  # type: ignore[arg-type]
             dependant=dependant,
@@ -105,7 +106,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
         )
 
     @override
-    async def start(self, client: Redis) -> None:  # type: ignore[override]
+    async def start(self, client: Redis[Any]) -> None:  # type: ignore[override]
         self.started = anyio.Event()
 
         consume: Union[
@@ -116,7 +117,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
 
         if (list_sub := self.list_sub) is not None:
             sleep = list_sub.polling_interval
-            consume = partial(
+            consume = partial(  # type: ignore[assignment]
                 self._consume_list_msg,
                 client=client,
             )
@@ -139,7 +140,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
             self.started.set()
 
         elif self.stream_sub is not None:
-            consume = partial(
+            consume = partial(  # type: ignore[assignment]
                 self._consume_stream_msg,
                 client=client,
             )
@@ -161,7 +162,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
 
         if self.subscription is not None:
             await self.subscription.unsubscribe()
-            await self.subscription.aclose()
+            await self.subscription.aclose()  # type: ignore[attr-defined]
             self.subscription = None
 
     @staticmethod
@@ -198,12 +199,12 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
                 finally:
                     await anyio.sleep(sleep)
 
-    async def _consume_stream_msg(
+    async def _consume_stream_msg(  # type: ignore[return]
         self,
-        client: Redis,
-    ) -> Optional[PubSubMessage]:
+        client: Redis[Any],
+    ) -> Optional[Union[Generator[OneMessage, None, None], BatchMessage]]:
         stream = self.stream_sub
-        assert stream
+        assert stream  # nosec: [B101:assert_used]
 
         if stream.group and stream.consumer:
             read = client.xreadgroup(
@@ -268,10 +269,10 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
 
     async def _consume_list_msg(
         self,
-        client: Redis,
-    ) -> Optional[PubSubMessage]:
+        client: Redis[Any],
+    ) -> Optional[Union[OneMessage, BatchMessage]]:
         list_sub = self.list_sub
-        assert list_sub
+        assert list_sub  # nosec: [B101:assert_used]
 
         count = list_sub.records
 
@@ -302,3 +303,5 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
                     channel=list_sub.name.encode(),
                     data=msg,
                 )
+
+        return None

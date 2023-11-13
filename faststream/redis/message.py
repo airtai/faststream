@@ -38,7 +38,7 @@ class RedisMessage(StreamMessage[PubSubMessage]):
     @override
     async def ack(  # type: ignore[override]
         self,
-        redis: Redis,
+        redis: Redis[Any],
         **kwargs: Any,
     ) -> None:
         if (

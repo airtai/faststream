@@ -180,10 +180,10 @@ def get_model_schema(
     if model is None:
         model = call
 
-    body = model_schema(model)
+    body: Optional[Dict[str, Any]] = model_schema(model)
 
     if params_number == 1 and not use_original_model:
-        param_body: Dict[str, Any] = body.get("properties", {})
+        param_body: Dict[str, Any] = body.get("properties", {})  # type: ignore[union-attr]
         param_body = param_body[name]
 
         if PYDANTIC_V2:
@@ -200,6 +200,6 @@ def get_model_schema(
         body = param_body
 
     if not use_original_model:
-        body["title"] = f"{prefix}:Payload"
+        body["title"] = f"{prefix}:Payload"  # type: ignore[index]
 
     return body

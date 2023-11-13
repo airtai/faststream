@@ -346,7 +346,8 @@ class FastStream(ABCApp):
                     tg.start_soon(self._start, log_level, run_extra_options)
                     await self._stop(log_level)
                     tg.cancel_scope.cancel()
-            except ExceptionGroup as e:
+
+            except anyio.ExceptionGroup as e:
                 for ex in e.exceptions:
                     raise ex from None
 

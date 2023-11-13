@@ -24,21 +24,21 @@ from faststream.utils.functions import timeout_scope
 
 
 class RedisFastProducer:
-    _connection: Redis
+    _connection: Redis[Any]
     _decoder: AsyncDecoder[Any]
     _parser: AsyncParser[PubSubMessage, Any]
 
     def __init__(
         self,
-        connection: Redis,
+        connection: Redis[Any],
         parser: Optional[
             AsyncCustomParser[Union[OneMessage, BatchMessage], RedisMessage]
         ],
         decoder: Optional[AsyncCustomDecoder[RedisMessage]],
     ):
         self._connection = connection
-        self._parser = resolve_custom_func(parser, RedisParser.parse_message)
-        self._decoder = resolve_custom_func(decoder, RedisParser.decode_message)
+        self._parser = resolve_custom_func(parser, RedisParser.parse_message)  # type: ignore[assignment,type-var,arg-type]
+        self._decoder = resolve_custom_func(decoder, RedisParser.decode_message)  # type: ignore[assignment,type-var]
 
     async def publish(
         self,
@@ -63,8 +63,8 @@ class RedisFastProducer:
                 raise WRONG_PUBLISH_ARGS
 
             reply_to = str(uuid4())
-            psub = self._connection.pubsub()
-            await psub.subscribe(reply_to)
+            psub = self._connection.pubsub()  # type: ignore[assignment]
+            await psub.subscribe(reply_to)  # type: ignore[union-attr]
 
         msg = RawMessage.encode(
             message=message,

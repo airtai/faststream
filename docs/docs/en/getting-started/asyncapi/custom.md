@@ -125,13 +125,13 @@ Your **AsyncAPI** documentation now showcases well-structured payload informatio
 
 To take customization to the next level, you can manually modify the schema.json file. Follow these steps:
 
-1. Generate the initial schema.json by running  
+1. Generate the initial schema.json by running
    ```shell
    {! docs_src/getting_started/asyncapi/serve.py [ln:9] !}
    ```
 2. Manually edit the `asyncapi.json` file to add custom fields, descriptions, and details.
 3. Save your changes.
-4. Serve your **FastStream** app with the updated asyncapi.json by running  
+4. Serve your **FastStream** app with the updated asyncapi.json by running
    ```shell
    {! docs_src/getting_started/asyncapi/serve.py [ln:21] !}
    ```

@@ -311,7 +311,7 @@ class BrokerUsecase(
             apply_wrapper: _InjectWrapper[
                 P_HandlerParams, Awaitable[T_HandlerReturn]
             ] = apply_types(None)
-            f = apply_wrapper(f, dependant)
+            f = apply_wrapper(f, dependant)  # type: ignore[arg-type]
 
         decode_f = self._wrap_decode_message(
             func=f,
@@ -331,7 +331,8 @@ class BrokerUsecase(
         process_f = set_message_context(process_f)
 
         handler_call.set_wrapped(process_f)
-        return handler_call, dependant
+
+        return handler_call, dependant  # type: ignore[return-value]
 
     def _abc_start(self) -> None:
         if not self.started:

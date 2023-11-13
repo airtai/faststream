@@ -45,12 +45,12 @@ def serve(
         raw_schema = get_app_schema(app_obj)
 
         module_parent = module.parent
-        extra_extensions = ()
+        extra_extensions = []
 
     else:
         module_parent = Path.cwd()
         schema_filepath = module_parent / app
-        extra_extensions = (schema_filepath.suffix,)
+        extra_extensions = [schema_filepath.suffix]
 
         if schema_filepath.suffix == ".json":
             data = schema_filepath.read_text()

@@ -53,7 +53,7 @@ class TestRedisBroker(TestBroker[RedisBroker]):
         publisher: Publisher,
     ) -> None:
         any_of = publisher.channel or publisher.list or publisher.stream
-        assert any_of
+        assert any_of  # nosec: [B101:assert_used]
         broker.handlers.pop(Handler.get_routing_hash(any_of), None)
 
 

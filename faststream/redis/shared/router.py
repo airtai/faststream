@@ -38,7 +38,7 @@ class RedisRouter(BrokerRouter[str, PubSubMessage]):
         [Callable[P_HandlerParams, T_HandlerReturn]],
         HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn],
     ]:
-        return self._wrap_subscriber(
+        return self._wrap_subscriber(  # type: ignore[return-value]
             self.prefix + subject,
             **broker_kwargs,
         )

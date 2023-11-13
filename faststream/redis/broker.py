@@ -46,9 +46,9 @@ Channel: TypeAlias = str
 
 class RedisBroker(
     RedisLoggingMixin,
-    BrokerAsyncUsecase[PubSubMessage, Redis],
+    BrokerAsyncUsecase[PubSubMessage, Redis[Any]],
 ):
-    handlers: Dict[Channel, Handler]  # type: ignore[assignment]
+    handlers: Dict[int, Handler]  # type: ignore[assignment]
     _publishers: Dict[Channel, Publisher]  # type: ignore[assignment]
 
     _producer: Optional[RedisFastProducer]
@@ -71,33 +71,33 @@ class RedisBroker(
             **kwargs,
         )
 
-        url_kwargs = urlparse(self.url)
+        url_kwargs = urlparse(self.url)  # type: ignore[arg-type]
         self.protocol = protocol or url_kwargs.scheme
 
     async def connect(
         self,
         *args: Any,
         **kwargs: Any,
-    ) -> Redis:
+    ) -> Redis[Any]:
         connection = await super().connect(*args, **kwargs)
         for p in self._publishers.values():
             p._producer = self._producer
         return connection
 
-    async def _connect(
+    async def _connect(  # type: ignore[override]
         self,
         url: str,
         **kwargs: Any,
-    ) -> Redis:
+    ) -> Redis[Any]:
         url_options = parse_url(url)
-        url_options.update(kwargs)
+        url_options.update(kwargs)  # type: ignore[typeddict-item]
         pool = ConnectionPool(**url_options)
 
         client = Redis(connection_pool=pool)
         self._producer = RedisFastProducer(
             connection=client,
-            parser=self._global_parser,
-            decoder=self._global_parser,
+            parser=self._global_parser,  # type: ignore[arg-type]
+            decoder=self._global_parser,  # type: ignore[arg-type]
         )
         return client
 
@@ -108,7 +108,7 @@ class RedisBroker(
         exec_tb: Optional[TracebackType] = None,
     ) -> None:
         if self._connection is not None:
-            await self._connection.aclose()
+            await self._connection.aclose()  # type: ignore[attr-defined]
 
         await super()._close(exc_type, exc_val, exec_tb)
 
@@ -146,7 +146,7 @@ class RedisBroker(
         watcher: BaseWatcher,
     ) -> Callable[[StreamMessage[Any]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
         @wraps(func)
-        async def process_wrapper(
+        async def process_wrapper(  # type: ignore[return]
             message: StreamMessage[Any],
         ) -> WrappedReturn[T_HandlerReturn]:
             async with WatcherContext(
@@ -243,8 +243,8 @@ class RedisBroker(
                 handler=handler_call,
                 filter=filter,
                 middlewares=middlewares,
-                parser=parser or self._global_parser,
-                decoder=decoder or self._global_decoder,
+                parser=parser or self._global_parser,  # type: ignore
+                decoder=decoder or self._global_decoder,  # type: ignore
                 dependant=dependant,
             )
 
@@ -265,7 +265,7 @@ class RedisBroker(
         description: Optional[str] = None,
         schema: Optional[Any] = None,
         include_in_schema: bool = True,
-    ):
+    ) -> Publisher:
         channel = PubSub.validate(channel)
         list = ListSub.validate(list)
         stream = StreamSub.validate(stream)
@@ -274,8 +274,11 @@ class RedisBroker(
         if any_of is None:
             raise ValueError(INCORRECT_SETUP_MSG)
 
+        key: int
+        publisher: Publisher
+
         key = Handler.get_routing_hash(any_of)
-        publisher = self._publishers.get(
+        publisher = self._publishers.get(  # type: ignore[call-overload]
             key,
             Publisher(
                 channel=channel,
@@ -293,6 +296,7 @@ class RedisBroker(
         super().publisher(key, publisher)
         if self._producer is not None:
             publisher._producer = self._producer
+
         return publisher
 
     @override
@@ -310,4 +314,5 @@ class RedisBroker(
         **kwargs: Any,
     ) -> Optional[DecodedMessage]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
-        return await self._producer.publish_batch(*args, **kwargs)
+
+        return await self._producer.publish_batch(*args, **kwargs)  # type: ignore[func-returns-value]

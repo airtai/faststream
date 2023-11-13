@@ -12,7 +12,7 @@ class RedisRouter(BaseRouter):
 
     @override
     @staticmethod
-    def _get_publisher_key(publisher: Publisher) -> str:  # type: ignore[override]
+    def _get_publisher_key(publisher: Publisher) -> int:  # type: ignore[override]
         any_of = publisher.channel or publisher.list or publisher.stream
         if any_of is None:
             raise ValueError(INCORRECT_SETUP_MSG)
@@ -61,7 +61,7 @@ class RedisRouter(BaseRouter):
             self.prefix,
             Publisher(
                 channel=PubSub.validate(channel),
-                list=PubSub.validate(list),
+                list=PubSub.validate(list),  # type: ignore[arg-type]
                 stream=StreamSub.validate(stream),
                 reply_to=reply_to,
                 headers=headers,
@@ -76,7 +76,8 @@ class RedisRouter(BaseRouter):
             ),
         )
         publisher_key = self._get_publisher_key(new_publisher)
-        publisher = self._publishers[publisher_key] = self._publishers.get(
+        publisher: Publisher
+        publisher = self._publishers[publisher_key] = self._publishers.get(  # type: ignore[call-overload, index]
             publisher_key, new_publisher
         )
         return publisher

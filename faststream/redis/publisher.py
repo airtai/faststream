@@ -54,7 +54,7 @@ class LogicPublisher(BasePublisher[PubSubMessage]):
                 *message,
                 list=list.name,
             )
-
+            return None
         else:
             return await self._producer.publish(
                 message=message,
@@ -72,5 +72,5 @@ class LogicPublisher(BasePublisher[PubSubMessage]):
     @property
     def channel_name(self) -> str:
         any_of = self.channel or self.list or self.stream
-        assert any_of, INCORRECT_SETUP_MSG
+        assert any_of, INCORRECT_SETUP_MSG  # nosec: [B101:assert_used]
         return any_of.name
