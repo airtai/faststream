@@ -1,3 +1,8 @@
+---
+search:
+  exclude: true
+---
+
 - [FastStream](index.md)
 - Tutorial
     - [Getting Started](getting-started/index.md)
@@ -39,6 +44,7 @@
     - [CLI commands](getting-started/cli/index.md)
     - [Logging](getting-started/logging.md)
     - [Config Management](getting-started/config/index.md)
+    - [Task Scheduling](scheduling.md)
     - [FastStream Project Template](getting-started/template/index.md)
 - [Kafka](kafka/index.md)
     - [Subscription](kafka/Subscriber/index.md)
@@ -66,6 +72,7 @@
         - [Direct](nats/examples/direct.md)
         - [Pattern](nats/examples/pattern.md)
     - [JetStream](nats/jetstream/index.md)
+        - [Pull Subscriber](nats/jetstream/pull.md)
         - [Key-Value Storage](nats/jetstream/key-value.md)
         - [Object Storage](nats/jetstream/object.md)
         - [Acknowledgement](nats/jetstream/ack.md)

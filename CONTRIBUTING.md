@@ -1,5 +1,15 @@
 > **_NOTE:_**  This is an auto-generated file. Please edit docs/docs/en/getting-started/contributing/CONTRIBUTING.md instead.
 
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 3
+---
+
 # Development
 
 After cloning the project, you'll need to set up the development environment. Here are the guidelines on how to do this.

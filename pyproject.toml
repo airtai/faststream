@@ -46,15 +46,16 @@ classifiers = [
 dynamic = ["version"]
 
 dependencies = [
-    "fast-depends>=2.1.3,<3",
-    "typer",
-    "uvloop>=0.18.0; sys_platform != 'win32' and (sys_platform != 'cygwin' and platform_python_implementation != 'PyPy')",
+    "fast-depends>=2.2.0,<3.0.0",
+    "watchfiles>=0.20.0,<0.30.0",
+    "typer>=0.9.0,<1.0.0",
+    "uvloop>=0.14.0,!=0.15.0,!=0.15.1; sys_platform != 'win32' and (sys_platform != 'cygwin' and platform_python_implementation != 'PyPy')",
 ]
 
 [project.optional-dependencies]
 # public distributions
 rabbit = [
-    "aio-pika>=9.0.0,<10.0.0",
+    "aio-pika>=9,<10",
 ]
 
 kafka = [
@@ -62,28 +63,28 @@ kafka = [
 ]
 
 nats = [
-    "nats-py>=2.3.1,<3.0.0"
+    "nats-py>=2.3.1,<3"
 ]
 
 redis = [
-    "redis>=5.0.0,<6.0.0"
+    "redis>=5,<6"
 ]
 
 docs = [
-    "fastapi>=0.100.0,<1.0.0",
-    "uvicorn>=0.17.0,<1.0.0",
+    "fastapi>=0.100,<1",
+    "uvicorn>=0.17",
 ]
 
 # dev dependencies
 devdocs = [
-    "mkdocs-material>=9.0.0",
-    "mkdocs-static-i18n>=1.0.0",
-    "mdx-include>=1.4.1,<2.0.0",
+    "mkdocs-material>=9,<10",
+    "mkdocs-static-i18n>=1,<2",
+    "mdx-include>=1.4.1,<2",
     "mkdocstrings[python]>=0.23.0",
     "mkdocs-literate-nav>=0.6.0",
     "mkdocs-git-revision-date-localized-plugin>=1.2.0",
     "mkdocs-minify-plugin==0.7.1",
-    "mike>=1.1.0",  # versioning
+    "mike>=2,<3",  # versioning
     "mkdocs-macros-plugin>=1.0.0",  # includes with variables
     "mkdocs-glightbox==0.3.4",  # img zoom
     "pillow",
@@ -95,28 +96,28 @@ lint = [
     "types-setuptools",
     "types-ujson",
     "types-redis",
-    "mypy==1.6.1",
-    "black==23.10.1",
+    "types-Pygments",
+    "types-docutils",
+    "mypy==1.7.0",
+    "black==23.11.0",
     "isort>=5",
-    "ruff==0.1.3",
+    "ruff==0.1.5",
     "pyupgrade-directories",
     "bandit==1.7.5",
-    "pre-commit==3.5.0",
-    "semgrep==1.46.0",
-    "detect-secrets==1.4.0",
+    "semgrep==1.48.0",
 ]
 
 test-core = [
-    "coverage[toml]>=7.2",
-    "pytest==7.4.3",
+    "coverage[toml]>=7.2,<8",
+    "pytest==7.4.3,<8",
     "pytest-asyncio>=0.21",
     "dirty-equals==0.6.0",
 ]
 
 testing = [
     "faststream[test-core]",
-    "fastapi>=0.100.0b",
-    "pydantic-settings",
+    "fastapi>=0.100",
+    "pydantic-settings>2",
     "httpx",
     "PyYAML",
     "watchfiles",
@@ -124,7 +125,11 @@ testing = [
 
 publish = ["hatch==1.7.0"]
 
-dev = ["faststream[rabbit,redis,kafka,nats,docs,lint,testing,devdocs,publish]"]
+dev = [
+    "faststream[rabbit,kafka,nats,docs,lint,testing,devdocs]",
+    "pre-commit==3.5.0",
+    "detect-secrets==1.4.0",
+]
 
 [project.urls]
 Homepage = "https://faststream.airt.ai/"
@@ -152,6 +157,9 @@ python_version = "3.8"
 ignore_missing_imports = true
 install_types = true
 non_interactive = true
+plugins = [
+    "pydantic.mypy"
+]
 
 # from https://blog.wolt.com/engineering/2021/09/30/professional-grade-mypy-configuration/
 disallow_untyped_defs = true

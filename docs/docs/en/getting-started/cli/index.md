@@ -70,12 +70,15 @@ INFO     - test |            - `Handle` waiting for messages
 INFO     - FastStream app started successfully! To exit press CTRL+C
 ```
 { data-search-exclude }
+<<<<<<< HEAD
 
 By default **FastStream** watches for `.py` file changes, but you can specify an extra file extensions to watch by (your config files as an example)
 
 ```shell
 faststream run serve:app --reload  --reload-ext .yml --realod-ext .yaml
 ```
+=======
+>>>>>>> origin/main
 
 ### Environment Management
 
