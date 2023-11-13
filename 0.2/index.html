@@ -1596,10 +1596,10 @@ to define messages using a declarative syntax, making it easy to specify the fie
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>basic:app
 </code></pre></div>
 <p>After running the command, you should see the following output:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>INFO<span class="w">     </span>-<span class="w"> </span>FastStream<span class="w"> </span>app<span class="w"> </span>starting...
+<p><div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>INFO<span class="w">     </span>-<span class="w"> </span>FastStream<span class="w"> </span>app<span class="w"> </span>starting...
 <a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>INFO<span class="w">     </span>-<span class="w"> </span>input_data<span class="w"> </span><span class="p">|</span><span class="w">            </span>-<span class="w"> </span><span class="sb">`</span>HandleMsg<span class="sb">`</span><span class="w"> </span>waiting<span class="w"> </span><span class="k">for</span><span class="w"> </span>messages
 <a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>INFO<span class="w">     </span>-<span class="w"> </span>FastStream<span class="w"> </span>app<span class="w"> </span>started<span class="w"> </span>successfully!<span class="w"> </span>To<span class="w"> </span><span class="nb">exit</span><span class="w"> </span>press<span class="w"> </span>CTRL+C
-</code></pre></div>
+</code></pre></div></p>
 <p>Also, <strong>FastStream</strong> provides you with a great hot reload feature to improve your Development Experience</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>faststream<span class="w"> </span>run<span class="w"> </span>basic:app<span class="w"> </span>--reload
 </code></pre></div>
@@ -1611,7 +1611,7 @@ to define messages using a declarative syntax, making it easy to specify the fie
 <h2 id="project-documentation">Project Documentation<a class="headerlink" href="#project-documentation" title="Permanent link">#</a></h2>
 <p><strong>FastStream</strong> automatically generates documentation for your project according to the <a class="external-link" href="https://www.asyncapi.com/" target="_blank"><strong>AsyncAPI</strong></a> specification. You can work with both generated artifacts and place a web view of your documentation on resources available to related teams.</p>
 <p>The availability of such documentation significantly simplifies the integration of services: you can immediately see what channels and message formats the application works with. And most importantly, it won't cost anything - <strong>FastStream</strong> has already created the docs for you!</p>
-<p><a class="glightbox" href="assets/img/AsyncAPI-basic-html-short.png" data-type="image" data-width="100%" data-height="auto" data-desc-position="bottom"><img alt="HTML-page" src="assets/img/AsyncAPI-basic-html-short.png" /></a></p>
+<p><a class="glightbox" href="assets/img/AsyncAPI-basic-html-short.png" data-type="image" data-width="100%" data-height="auto" data-desc-position="bottom"><img alt="HTML-page" loading="lazy" src="assets/img/AsyncAPI-basic-html-short.png" /></a></p>
 <hr />
 <h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">#</a></h2>
 <p><strong>FastStream</strong> (thanks to <a class="external-link" href="https://lancetnik.github.io/FastDepends/" target="_blank"><strong>FastDepends</strong></a>) has a dependency management system similar to <code>pytest fixtures</code> and <code>FastAPI Depends</code> at the same time. Function arguments declare which dependencies you want are needed, and a special decorator delivers them from the global Context object.</p>
@@ -2209,7 +2209,7 @@ This means you can use <code>Depends</code>, <code>BackgroundTasks</code>, and o
 <p>and run the following command to create a new <strong>FastStream</strong> project:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>faststream_gen<span class="w"> </span>-i<span class="w"> </span>description.txt
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>✨<span class="w">  </span>Generating<span class="w"> </span>a<span class="w"> </span>new<span class="w"> </span>FastStream<span class="w"> </span>application!
+<p><div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>✨<span class="w">  </span>Generating<span class="w"> </span>a<span class="w"> </span>new<span class="w"> </span>FastStream<span class="w"> </span>application!
 <a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w"> </span>✔<span class="w"> </span>Application<span class="w"> </span>description<span class="w"> </span>validated.
 <a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w"> </span>✔<span class="w"> </span>FastStream<span class="w"> </span>app<span class="w"> </span>skeleton<span class="w"> </span>code<span class="w"> </span>generated.<span class="w"> </span>akes<span class="w"> </span>around<span class="w"> </span><span class="m">15</span><span class="w"> </span>to<span class="w"> </span><span class="m">45</span><span class="w"> </span>seconds<span class="o">)</span>...
 <a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="w"> </span>✔<span class="w"> </span>The<span class="w"> </span>app<span class="w"> </span>and<span class="w"> </span>the<span class="w"> </span>tests<span class="w"> </span>are<span class="w"> </span>generated.<span class="w">  </span>around<span class="w"> </span><span class="m">30</span><span class="w"> </span>to<span class="w"> </span><span class="m">90</span><span class="w"> </span>seconds<span class="o">)</span>...
@@ -2218,7 +2218,7 @@ This means you can use <code>Depends</code>, <code>BackgroundTasks</code>, and o
 <a id="__codelineno-28-7" name="__codelineno-28-7" href="#__codelineno-28-7"></a><span class="w"> </span>Tokens<span class="w"> </span>used:<span class="w"> </span><span class="m">10768</span>
 <a id="__codelineno-28-8" name="__codelineno-28-8" href="#__codelineno-28-8"></a><span class="w"> </span>Total<span class="w"> </span>Cost<span class="w"> </span><span class="o">(</span>USD<span class="o">)</span>:<span class="w"> </span><span class="nv">$0</span>.03284
 <a id="__codelineno-28-9" name="__codelineno-28-9" href="#__codelineno-28-9"></a>✨<span class="w">  </span>All<span class="w"> </span>files<span class="w"> </span>were<span class="w"> </span>successfully<span class="w"> </span>generated!
-</code></pre></div>
+</code></pre></div></p>
 <h3 id="tutorial">Tutorial<a class="headerlink" href="#tutorial" title="Permanent link">#</a></h3>
 <p>We also invite you to explore our tutorial, where we will guide you through the process of utilizing the <a class="external-link" href="https://faststream-gen.airt.ai" target="_blank"><strong>faststream-gen</strong></a> Python library to effortlessly create <strong>FastStream</strong> applications:</p>
 <ul>
