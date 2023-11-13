@@ -33,4 +33,4 @@ jobs:
       - run: echo $VERSION
       # - run: cd docs && mike delete --all
       - run: cd docs && mike deploy --template templates/redirect.html --update-aliases --alias-type=copy $VERSION latest
-      - run: cd docs && mike set-default --push --template templates/redirect.html $VERSION
+      - run: cd docs && mike set-default --push --allow-empty --template templates/redirect.html $VERSION
