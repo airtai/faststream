@@ -11,20 +11,25 @@ FastStream provides a command to serve the AsyncAPI documentation.
 
 In the above command, we are providing the path in the format of `python_module:FastStream`. Alternatively, you can also specify `asyncapi.json` or `asyncapi.yaml` to serve the AsyncAPI documentation.
 
-``` shell
-{!> docs_src/getting_started/asyncapi/serve.py[ln:21]!}
-# or
-{!> docs_src/getting_started/asyncapi/serve.py[ln:25]!}
-```
+=== "JSON"
+    ``` shell
+    {!> docs_src/getting_started/asyncapi/serve.py[ln:21]!}
+    ```
+
+=== "YAML"
+    ``` shell
+    {!> docs_src/getting_started/asyncapi/serve.py[ln:25]!}
+    ```
 
 After running the command, it should serve the AsyncAPI documentation on port **8000** and display the following logs in the terminal.
 
-``` shell
+``` {.shell .no-copy}
 INFO:     Started server process [2364992]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://localhost:8000 (Press CTRL+C to quit)
 ```
+{ data-search-exclude }
 
 And you should be able to see the following page in your browser:
 
