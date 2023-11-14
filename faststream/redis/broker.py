@@ -46,7 +46,7 @@ Channel: TypeAlias = str
 
 class RedisBroker(
     RedisLoggingMixin,
-    BrokerAsyncUsecase[PubSubMessage, Redis[Any]],
+    BrokerAsyncUsecase[PubSubMessage, "Redis[Any]"],
 ):
     handlers: Dict[int, Handler]  # type: ignore[assignment]
     _publishers: Dict[Channel, Publisher]  # type: ignore[assignment]
@@ -78,7 +78,7 @@ class RedisBroker(
         self,
         *args: Any,
         **kwargs: Any,
-    ) -> Redis[Any]:
+    ) -> "Redis[Any]":
         connection = await super().connect(*args, **kwargs)
         for p in self._publishers.values():
             p._producer = self._producer
@@ -88,7 +88,7 @@ class RedisBroker(
         self,
         url: str,
         **kwargs: Any,
-    ) -> Redis[Any]:
+    ) -> "Redis[Any]":
         url_options = parse_url(url)
         url_options.update(kwargs)  # type: ignore[typeddict-item]
         pool = ConnectionPool(**url_options)

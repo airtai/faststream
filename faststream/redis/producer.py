@@ -24,13 +24,13 @@ from faststream.utils.functions import timeout_scope
 
 
 class RedisFastProducer:
-    _connection: Redis[Any]
+    _connection: "Redis[Any]"
     _decoder: AsyncDecoder[Any]
     _parser: AsyncParser[PubSubMessage, Any]
 
     def __init__(
         self,
-        connection: Redis[Any],
+        connection: "Redis[Any]",
         parser: Optional[
             AsyncCustomParser[Union[OneMessage, BatchMessage], RedisMessage]
         ],
