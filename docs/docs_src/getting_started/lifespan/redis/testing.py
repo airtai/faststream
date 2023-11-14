@@ -14,7 +14,7 @@ async def handle():
 @pytest.mark.asyncio
 async def test_lifespan():
     async with (
-        TestRedisBroker(app.broker, connect_only=True), 
+        TestRedisBroker(app.broker, connect_only=True),
         TestApp(app),
     ):
         # test something
