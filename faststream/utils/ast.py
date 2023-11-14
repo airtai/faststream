@@ -8,8 +8,8 @@ from typing import Iterator, List, Optional, Union
 def is_contains_context_name(scip_name: str, name: str) -> bool:
     stack = traceback.extract_stack()[-3]
     tree = read_source_ast(stack.filename)
-    node = find_ast_node(tree, stack.lineno)
-    context_calls = get_withitem_calls(node)
+    node = find_ast_node(tree, stack.lineno)  # type: ignore[arg-type]
+    context_calls = get_withitem_calls(node)  # type: ignore[arg-type]
 
     try:
         pos = context_calls.index(scip_name)
@@ -24,15 +24,17 @@ def read_source_ast(filename: str) -> ast.Module:
     return ast.parse(Path(filename).read_text())
 
 
-def find_ast_node(module: ast.Module, lineno: Optional[int]) -> ast.AST:
+def find_ast_node(module: ast.Module, lineno: int) -> Optional[ast.AST]:
+    i: Union[ast.AST, ast.Module]
     for i in getattr(module, "body", ()):
         if i.lineno == lineno:
-            return i  # type: ignore
+            return i
 
-        r = find_ast_node(i, lineno)
+        r = find_ast_node(i, lineno)  # type: ignore[arg-type]
         if r is not None:
-            return r  # type: ignore
-    raise ValueError(f"Could not find node with lineno {lineno}")
+            return r
+
+    return None
 
 
 def find_withitems(
