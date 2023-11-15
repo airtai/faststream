@@ -111,7 +111,8 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
         self.task = None
         self.consumer = None
 
-    async def start(
+    @override
+    async def start(  # type: ignore[override]
         self,
         **consumer_kwargs: Unpack[ConsumerConnectionParams],
     ) -> None:

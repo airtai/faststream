@@ -267,7 +267,7 @@ class RedisBroker(
         description: Optional[str] = None,
         schema: Optional[Any] = None,
         include_in_schema: bool = True,
-    ):
+    ) -> Publisher:
         channel = PubSub.validate(channel)
         list = ListSub.validate(list)
         stream = StreamSub.validate(stream)

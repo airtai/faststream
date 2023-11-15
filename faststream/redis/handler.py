@@ -266,6 +266,8 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
                         for message_id, msg in msgs
                     )
 
+        return None
+
     async def _consume_list_msg(
         self,
         client: "Redis[bytes]",

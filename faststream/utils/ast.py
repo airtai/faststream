@@ -24,7 +24,7 @@ def read_source_ast(filename: str) -> ast.Module:
     return ast.parse(Path(filename).read_text())
 
 
-def find_ast_node(module: ast.Module, lineno: Optional[int]) -> ast.AST:
+def find_ast_node(module: ast.Module, lineno: Optional[int]) -> Optional[ast.AST]:
     if lineno is not None:
         for i in getattr(module, "body", ()):
             if i.lineno == lineno:
@@ -34,7 +34,7 @@ def find_ast_node(module: ast.Module, lineno: Optional[int]) -> ast.AST:
             if r is not None:
                 return r
 
-    raise ValueError("AST node not finded")
+    return None
 
 
 def find_withitems(node: Union[ast.With, ast.AsyncWith]) -> Iterator[ast.withitem]:
