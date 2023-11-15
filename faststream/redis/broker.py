@@ -48,8 +48,8 @@ class RedisBroker(
     RedisLoggingMixin,
     BrokerAsyncUsecase[PubSubMessage, Redis],
 ):
-    handlers: Dict[Channel, Handler]  # type: ignore[assignment]
-    _publishers: Dict[Channel, Publisher]  # type: ignore[assignment]
+    handlers: Dict[int, Handler]  # type: ignore[assignment]
+    _publishers: Dict[int, Publisher]  # type: ignore[assignment]
 
     _producer: Optional[RedisFastProducer]
 
