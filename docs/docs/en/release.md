@@ -1,10 +1,74 @@
 ---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 2
 hide:
   - navigation
   - footer
 ---
 
 # Release Notes
+
+## 0.2.13
+
+### What's Changed
+
+* chore: Remove uvloop python 3.12 restriction from pyproject by [@sternakt](https://github.com/sternakt){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/914](https://github.com/airtai/faststream/pull/914){.external-link target="_blank"}
+* fix: mike deploy command by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/919](https://github.com/airtai/faststream/pull/919){.external-link target="_blank"}
+* chore: update dependencies by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/920](https://github.com/airtai/faststream/pull/920){.external-link target="_blank"}
+* chore: use dev dependencies to build docs by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/921](https://github.com/airtai/faststream/pull/921){.external-link target="_blank"}
+* chore: update packages' versions by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/937](https://github.com/airtai/faststream/pull/937){.external-link target="_blank"}
+* fix: FastAPI subscriber Path support by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/931](https://github.com/airtai/faststream/pull/931){.external-link target="_blank"}
+
+**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.12...0.2.13](https://github.com/airtai/faststream/compare/0.2.12...0.2.13){.external-link target="_blank"}
+
+## 0.2.12
+
+### What's Changed
+* feat: NATS polling subscriber by [@sheldygg](https://github.com/sheldygg){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/912](https://github.com/airtai/faststream/pull/912){.external-link target="_blank"}
+
+
+**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.11...0.2.12](https://github.com/airtai/faststream/compare/0.2.11...0.2.12){.external-link target="_blank"}
+
+## 0.2.11
+
+### What's Changed
+
+#### Bug fixes
+
+* fix (#910): correct pydantic enum refs resolving by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/911](https://github.com/airtai/faststream/pull/911){.external-link target="_blank"}
+
+#### Documentation
+
+* docs: update the number of lines of code referred to in the documentation by [@vvanglro](https://github.com/vvanglro){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/905](https://github.com/airtai/faststream/pull/905){.external-link target="_blank"}
+* docs: add API reference in docs by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/891](https://github.com/airtai/faststream/pull/891){.external-link target="_blank"}
+* docs: add release notes for version 0.2.10 by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/907](https://github.com/airtai/faststream/pull/907){.external-link target="_blank"}
+* docs: detail 0.2.10 release note by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/908](https://github.com/airtai/faststream/pull/908){.external-link target="_blank"}
+* docs: proofread and update 0.2.10 release notes by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/909](https://github.com/airtai/faststream/pull/909){.external-link target="_blank"}
+
+### New Contributors
+* [@vvanglro](https://github.com/vvanglro){.external-link target="_blank"} made their first contribution in [https://github.com/airtai/faststream/pull/905](https://github.com/airtai/faststream/pull/905){.external-link target="_blank"}
+
+**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.10...0.2.11](https://github.com/airtai/faststream/compare/0.2.10...0.2.11){.external-link target="_blank"}
+
+* fix (#910): correct pydantic enum refs resolving by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/911](https://github.com/airtai/faststream/pull/911){.external-link target="_blank"}
+
+#### Documentation
+
+* docs: update the number of lines of code referred to in the documentation by [@vvanglro](https://github.com/vvanglro){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/905](https://github.com/airtai/faststream/pull/905){.external-link target="_blank"}
+* docs: add API reference in docs by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/891](https://github.com/airtai/faststream/pull/891){.external-link target="_blank"}
+* docs: add release notes for version 0.2.10 by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/907](https://github.com/airtai/faststream/pull/907){.external-link target="_blank"}
+* docs: detail 0.2.10 release note by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/908](https://github.com/airtai/faststream/pull/908){.external-link target="_blank"}
+* docs: proofread and update 0.2.10 release notes by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/909](https://github.com/airtai/faststream/pull/909){.external-link target="_blank"}
+
+### New Contributors
+* [@vvanglro](https://github.com/vvanglro){.external-link target="_blank"} made their first contribution in [https://github.com/airtai/faststream/pull/905](https://github.com/airtai/faststream/pull/905){.external-link target="_blank"}
+
+**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.10...0.2.11](https://github.com/airtai/faststream/compare/0.2.10...0.2.11){.external-link target="_blank"}
 
 ## 0.2.10
 

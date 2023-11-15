@@ -71,6 +71,8 @@ plugins:
       cache_safe: true
       css_files:
         - stylesheets/extra.css
+  # - meta                         # (insiders) use .meta.yml files
+  - search
   - glightbox                    # image zoom
   - macros:                      # Jinja templates
       include_dir: includes

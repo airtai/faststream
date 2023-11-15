@@ -48,6 +48,7 @@ from faststream.nats.helpers import stream_builder
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
+from faststream.nats.pull_sub import PullSub
 from faststream.nats.shared.logging import NatsLoggingMixin
 from faststream.types import AnyDict, DecodedMessage
 from faststream.utils.context.main import context
@@ -275,6 +276,9 @@ class NatsBroker(
         flow_control: bool = False,
         deliver_policy: Optional[api.DeliverPolicy] = None,
         headers_only: Optional[bool] = None,
+        # pull arguments
+        pull_sub: Optional[PullSub] = None,
+        inbox_prefix: bytes = api.INBOX_PREFIX,
         # custom
         ack_first: bool = False,
         stream: Union[str, JStream, None] = None,
@@ -294,6 +298,9 @@ class NatsBroker(
         HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn],
     ]:
         stream = stream_builder.stream(stream)
+
+        if pull_sub is not None and stream is None:
+            raise ValueError("Pull subscriber can be used only with a stream")
 
         self._setup_log_context(
             queue=queue,
@@ -323,14 +330,24 @@ class NatsBroker(
                     "durable": durable,
                     "stream": stream.name,
                     "config": config,
-                    "ordered_consumer": ordered_consumer,
-                    "idle_heartbeat": idle_heartbeat,
-                    "flow_control": flow_control,
-                    "deliver_policy": deliver_policy,
-                    "headers_only": headers_only,
-                    "manual_ack": not ack_first,
                 }
             )
+
+            if pull_sub is not None:
+                extra_options.update({"inbox_prefix": inbox_prefix})
+
+            else:
+                extra_options.update(
+                    {
+                        "ordered_consumer": ordered_consumer,
+                        "idle_heartbeat": idle_heartbeat,
+                        "flow_control": flow_control,
+                        "deliver_policy": deliver_policy,
+                        "headers_only": headers_only,
+                        "manual_ack": not ack_first,
+                    }
+                )
+
         else:
             extra_options.update(
                 {
@@ -345,6 +362,7 @@ class NatsBroker(
                 subject=subject,
                 queue=queue,
                 stream=stream,
+                pull_sub=pull_sub,
                 extra_options=extra_options,
                 title=title,
                 description=description,

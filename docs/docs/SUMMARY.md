@@ -1,3 +1,7 @@
+---
+search:
+  exclude: true
+---
 - [FastStream](index.md)
 - Tutorial
     - [Getting Started](getting-started/index.md)
@@ -38,6 +42,7 @@
     - [CLI commands](getting-started/cli/index.md)
     - [Logging](getting-started/logging.md)
     - [Config Management](getting-started/config/index.md)
+    - [Task Scheduling](scheduling.md)
     - [FastStream Project Template](getting-started/template/index.md)
 - [Kafka](kafka/index.md)
     - [Subscription](kafka/Subscriber/index.md)
@@ -65,6 +70,7 @@
         - [Direct](nats/examples/direct.md)
         - [Pattern](nats/examples/pattern.md)
     - [JetStream](nats/jetstream/index.md)
+        - [Pull Subscriber](nats/jetstream/pull.md)
         - [Key-Value Storage](nats/jetstream/key-value.md)
         - [Object Storage](nats/jetstream/object.md)
         - [Acknowledgement](nats/jetstream/ack.md)
@@ -354,6 +360,7 @@
             - [NatsRoute](api/faststream/nats/NatsRoute.md)
             - [NatsRouter](api/faststream/nats/NatsRouter.md)
             - [Placement](api/faststream/nats/Placement.md)
+            - [PullSub](api/faststream/nats/PullSub.md)
             - [RePublish](api/faststream/nats/RePublish.md)
             - [ReplayPolicy](api/faststream/nats/ReplayPolicy.md)
             - [RetentionPolicy](api/faststream/nats/RetentionPolicy.md)
@@ -391,6 +398,8 @@
                 - [NatsJSFastProducer](api/faststream/nats/producer/NatsJSFastProducer.md)
             - publisher
                 - [LogicPublisher](api/faststream/nats/publisher/LogicPublisher.md)
+            - pull_sub
+                - [PullSub](api/faststream/nats/pull_sub/PullSub.md)
             - router
                 - [NatsRouter](api/faststream/nats/router/NatsRouter.md)
             - shared
