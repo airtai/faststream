@@ -71,7 +71,7 @@ def update_release_notes(realease_notes_path: Path):
     realease_notes_path.write_text((
         metablock + "\n\n" +
         header + "\n\n" +
-        changelog
+        changelog + "\n"
     ).replace("\r", ""))
 
 
