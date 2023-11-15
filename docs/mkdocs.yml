@@ -61,7 +61,8 @@ extra_css:
 
 plugins:
   # - meta                         # (insiders) use .meta.yml files
-  - search
+  - search:
+      separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
   - glightbox                    # image zoom
   - macros:                      # Jinja templates
       include_dir: includes
@@ -104,6 +105,15 @@ plugins:
       type: timeago
   - literate-nav:                # .md importable navigation
       nav_file: SUMMARY.md
+  - minify:
+      minify_html: true
+      minify_js: true
+      minify_css: true
+      htmlmin_opts:
+        remove_comments: true
+      cache_safe: true
+      css_files:
+        - stylesheets/extra.css
 
 markdown_extensions:
   - toc:
