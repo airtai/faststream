@@ -22,6 +22,8 @@ theme:
   custom_dir: overrides
   logo: assets/img/logo.svg
   favicon: assets/img/logo.svg
+  font:
+    text: Roboto
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default

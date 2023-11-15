@@ -1,4 +1,5 @@
 - [FastStream](index.md)
+- [Getting Started](faststream.md)
 - Tutorial
     - [Getting Started](getting-started/index.md)
     - [Subscription and Serialization](getting-started/subscription/index.md)
