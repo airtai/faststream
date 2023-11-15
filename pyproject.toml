@@ -95,8 +95,6 @@ lint = [
     "types-setuptools",
     "types-ujson",
     "types-redis",
-    "mypy==1.6.1",
-    "black==23.10.1",
     "types-Pygments",
     "types-docutils",
     "mypy==1.7.0",
