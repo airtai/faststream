@@ -8,11 +8,11 @@ from faststream.types import AnyDict
 
 
 class RedisRouter(BaseRouter):
-    _publishers: Dict[str, Publisher]  # type: ignore[assignment]
+    _publishers: Dict[int, Publisher]  # type: ignore[assignment]
 
     @override
     @staticmethod
-    def _get_publisher_key(publisher: Publisher) -> str:  # type: ignore[override]
+    def _get_publisher_key(publisher: Publisher) -> int:  # type: ignore[override]
         any_of = publisher.channel or publisher.list or publisher.stream
         if any_of is None:
             raise ValueError(INCORRECT_SETUP_MSG)
@@ -61,7 +61,7 @@ class RedisRouter(BaseRouter):
             self.prefix,
             Publisher(
                 channel=PubSub.validate(channel),
-                list=PubSub.validate(list),
+                list=ListSub.validate(list),
                 stream=StreamSub.validate(stream),
                 reply_to=reply_to,
                 headers=headers,

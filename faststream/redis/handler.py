@@ -105,7 +105,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
         )
 
     @override
-    async def start(self, client: Redis) -> None:  # type: ignore[override]
+    async def start(self, client: "Redis[bytes]") -> None:  # type: ignore[override]
         self.started = anyio.Event()
 
         consume: Union[
@@ -161,7 +161,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
 
         if self.subscription is not None:
             await self.subscription.unsubscribe()
-            await self.subscription.aclose()
+            await self.subscription.aclose()  # type: ignore[attr-defined]
             self.subscription = None
 
     @staticmethod
@@ -200,7 +200,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
 
     async def _consume_stream_msg(
         self,
-        client: Redis,
+        client: "Redis[bytes]",
     ) -> Optional[PubSubMessage]:
         stream = self.stream_sub
         assert stream
@@ -268,7 +268,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
 
     async def _consume_list_msg(
         self,
-        client: Redis,
+        client: "Redis[bytes]",
     ) -> Optional[PubSubMessage]:
         list_sub = self.list_sub
         assert list_sub

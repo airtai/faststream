@@ -196,7 +196,7 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
         ] = None,
         parser: Optional[CustomParser[MsgType, StreamMessage[MsgType]]] = None,
         decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
-        include_in_schema: bool = None,
+        include_in_schema: Optional[bool] = None,
         **kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],

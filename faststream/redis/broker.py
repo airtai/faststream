@@ -9,6 +9,7 @@ from typing import (
     Sequence,
     Type,
     Union,
+    cast,
 )
 from urllib.parse import urlparse
 
@@ -71,7 +72,7 @@ class RedisBroker(
             **kwargs,
         )
 
-        url_kwargs = urlparse(self.url)
+        url_kwargs = urlparse(cast(str, self.url))
         self.protocol = protocol or url_kwargs.scheme
 
     async def connect(
@@ -84,7 +85,8 @@ class RedisBroker(
             p._producer = self._producer
         return connection
 
-    async def _connect(
+    @override
+    async def _connect(  # type: ignore[override]
         self,
         url: str,
         **kwargs: Any,
@@ -108,7 +110,7 @@ class RedisBroker(
         exec_tb: Optional[TracebackType] = None,
     ) -> None:
         if self._connection is not None:
-            await self._connection.aclose()
+            await self._connection.aclose()  # type: ignore[attr-defined]
 
         await super()._close(exc_type, exc_val, exec_tb)
 

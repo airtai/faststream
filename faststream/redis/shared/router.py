@@ -16,7 +16,7 @@ __all__ = (
 )
 
 
-class RedisRouter(BrokerRouter[str, PubSubMessage]):
+class RedisRouter(BrokerRouter[int, PubSubMessage]):
     def __init__(
         self,
         prefix: str = "",

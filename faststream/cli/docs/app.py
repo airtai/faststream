@@ -2,7 +2,7 @@ import json
 import sys
 import warnings
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Sequence
 
 import typer
 
@@ -38,6 +38,7 @@ def serve(
     ),
 ) -> None:
     """Serve project AsyncAPI schema"""
+
     if ":" in app:
         module, app = get_app_path(app)
         sys.path.insert(0, str(module.parent))
@@ -45,7 +46,7 @@ def serve(
         raw_schema = get_app_schema(app_obj)
 
         module_parent = module.parent
-        extra_extensions = ()
+        extra_extensions: Sequence[str] = ()
 
     else:
         module_parent = Path.cwd()
