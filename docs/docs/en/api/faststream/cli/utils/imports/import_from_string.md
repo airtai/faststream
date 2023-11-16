@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.cli.utils.imports.try_import_app
+::: faststream.cli.utils.imports.import_from_string

@@ -12,14 +12,14 @@ def import_from_string(import_str: str) -> Tuple[ModuleType, FastStream]:
     Import FastStream application from module specified by a string.
 
     Parameters:
-        - import_str (str): A string in the format "<module>:<attribute>" specifying the module and faststream application to import.
+        import_str (str): A string in the format "<module>:<attribute>" specifying the module and faststream application to import.
 
     Returns:
         Tuple[ModuleType, FastStream]: A tuple containing the imported module and the faststream application.
 
     Raises:
-        - typer.BadParameter: Raised if the given value is not of type string, if the import string is not in the format
-        "<module>:<attribute>", if the module is not found, or if the faststream appliation is not found in the module.
+        typer.BadParameter: Raised if the given value is not of type string, if the import string is not in the format
+            "<module>:<attribute>", if the module is not found, or if the faststream appliation is not found in the module.
     """
     if not isinstance(import_str, str):
         raise typer.BadParameter("Given value is not of type string")
