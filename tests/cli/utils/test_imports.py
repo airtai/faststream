@@ -1,13 +1,14 @@
 from pathlib import Path
 
 import pytest
+from typer import BadParameter
 
 from faststream.app import FastStream
-from faststream.cli.utils.imports import ImportFromStringError, import_from_string
+from faststream.cli.utils.imports import import_from_string
 
 
 def test_import_wrong():
-    with pytest.raises(ImportFromStringError):
+    with pytest.raises(BadParameter):
         module, app = import_from_string("tests:test_object")
 
 
@@ -26,5 +27,5 @@ def test_get_app_path(test_input, exp_module):
 
 
 def test_get_app_path_wrong():
-    with pytest.raises(ImportFromStringError):
+    with pytest.raises(BadParameter):
         import_from_string("module.app")
