@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from faststream.cli.utils.imports import import_from_string, ImportFromStringError
 from faststream.app import FastStream
+from faststream.cli.utils.imports import ImportFromStringError, import_from_string
 
 
 def test_import_wrong():

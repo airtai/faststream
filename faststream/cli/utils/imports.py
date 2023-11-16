@@ -39,4 +39,3 @@ def import_from_string(import_str: Any) -> Tuple[ModuleType, FastStream]:
         )
 
     return module, instance
-

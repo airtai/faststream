@@ -114,8 +114,11 @@ def run(
 
     if reload is True:
         from faststream.cli.supervisors.watchfiles import WatchReloader
+
         module_path = Path(module.__file__)
-        WatchReloader(target=_run, args=args, reload_dirs=(str(module_path.parent),)).run()
+        WatchReloader(
+            target=_run, args=args, reload_dirs=(str(module_path.parent),)
+        ).run()
 
     elif workers > 1:
         from faststream.cli.supervisors.multiprocess import Multiprocess
