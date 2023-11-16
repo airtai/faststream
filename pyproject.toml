@@ -73,18 +73,18 @@ docs = [
 
 # dev dependencies
 devdocs = [
-    "mkdocs-material>=9,<10",
-    "mkdocs-static-i18n>=1,<2",
-    "mdx-include>=1.4.1,<2",
-    "mkdocstrings[python]>=0.23.0,<1",
-    "mkdocs-literate-nav>=0.6.0,<1",
-    "mkdocs-git-revision-date-localized-plugin>=1.2.0,<2",
-    "mike>=2,<3",  # versioning
+    "mkdocs-material==9.4.8",
+    "mkdocs-static-i18n==1.2.0",
+    "mdx-include==1.4.2",
+    "mkdocstrings[python]==0.24.0",
+    "mkdocs-literate-nav==0.6.1",
+    "mkdocs-git-revision-date-localized-plugin==1.2.1",
+    "mike==2.0.0",  # versioning
     "mkdocs-minify-plugin==0.7.1",
-    "mkdocs-macros-plugin>=1.0.0,<2",  # includes with variables
+    "mkdocs-macros-plugin==1.0.5",  # includes with variables
     "mkdocs-glightbox==0.3.4",  # img zoom
-    "pillow",
-    "cairosvg",
+    "pillow==10.1.0",
+    "cairosvg==2.7.1",
 ]
 
 lint = [
@@ -95,26 +95,26 @@ lint = [
     "types-docutils",
     "mypy==1.7.0",
     "black==23.11.0",
-    "isort>=5,<6",
+    "isort==5.12.0",
     "ruff==0.1.5",
-    "pyupgrade-directories",
+    "pyupgrade-directories==0.3.0",
     "bandit==1.7.5",
     "semgrep==1.48.0",
 ]
 
 test-core = [
-    "coverage[toml]>=7.2,<8",
-    "pytest==7.4.3,<8",
-    "pytest-asyncio>=0.21,<1",
+    "coverage[toml]==7.3.2",
+    "pytest==7.4.3",
+    "pytest-asyncio==0.21.1",
     "dirty-equals==0.6.0",
 ]
 
 testing = [
     "faststream[test-core]",
-    "fastapi>=0.100,<0.200",
-    "pydantic-settings>2,<3",
-    "httpx",
-    "PyYAML",
+    "fastapi==0.104.1",
+    "pydantic-settings==2.1.0",
+    "httpx==0.25.1",
+    "PyYAML==6.0.1",
 ]
 
 dev = [
