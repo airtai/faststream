@@ -25,11 +25,12 @@ faststream run serve:app
 
 After running the command, you should see the following output:
 
-``` shell
+``` {.shell .no-copy}
 INFO     - FastStream app starting...
 INFO     - test |            - `BaseHandler` waiting for messages
 INFO     - FastStream app started successfully! To exit, press CTRL+C
 ```
+{ data-search-exclude }
 
 Enjoy your new development experience!
 

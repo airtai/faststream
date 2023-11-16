@@ -14,7 +14,7 @@ Copy the following code in your basic.py file:
 
 Now, when you run ```{!> docs_src/getting_started/asyncapi/serve.py [ln:17] !}``` you should see the following documentation:
 
-![HTML-page](../../../assets/img/AsyncAPI-basic-html-short.png)
+![HTML-page](../../../assets/img/AsyncAPI-basic-html-short.png){ loading=lazy }
 
 ## Setup Custom FastStream App Info
 
@@ -33,7 +33,7 @@ Copy the following code in your basic.py file, we have highligted the additional
 
 Now, when you run ```{!> docs_src/getting_started/asyncapi/serve.py [ln:17] !}``` you should see the following in your general app documentation:
 
-![HTML-page](../../../assets/img/AsyncAPI-custom-info.png)
+![HTML-page](../../../assets/img/AsyncAPI-custom-info.png){ loading=lazy }
 
 Now, your documentation reflects your application's identity and purpose.
 
@@ -54,7 +54,7 @@ Copy the following code in your basic.py file, we have highligted the additional
 
 Now, when you run ```{!> docs_src/getting_started/asyncapi/serve.py [ln:17] !}``` you should see the description in your broker documentation:
 
-![HTML-page](../../../assets/img/AsyncAPI-custom-broker.png)
+![HTML-page](../../../assets/img/AsyncAPI-custom-broker.png){ loading=lazy }
 
 Your AsyncAPI documentation now provides clear insights into the messaging infrastructure you're using.
 
@@ -75,7 +75,7 @@ Copy the following code in your basic.py file, we have highligted the additional
 
 Now, when you run ```{!> docs_src/getting_started/asyncapi/serve.py [ln:17] !}``` you should see the descriptions in your handlers:
 
-![HTML-page](../../../assets/img/AsyncAPI-custom-handler.png)
+![HTML-page](../../../assets/img/AsyncAPI-custom-handler.png){ loading=lazy }
 
 Now, your documentation is enriched with meaningful details about each message handler.
 
@@ -97,7 +97,7 @@ Copy the following code in your basic.py file, we have highligted the creation o
 
 Now, when you run ```{!> docs_src/getting_started/asyncapi/serve.py [ln:17] !}``` you should see the payload schema described in your documentation:
 
-![HTML-page](../../../assets/img/AsyncAPI-payload-info.png)
+![HTML-page](../../../assets/img/AsyncAPI-payload-info.png){ loading=lazy }
 
 Your AsyncAPI documentation now showcases well-structured payload information.
 
