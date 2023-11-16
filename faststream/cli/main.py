@@ -102,12 +102,12 @@ def run(
     app, extra = parse_cli_args(app, *ctx.args)
     casted_log_level = get_log_level(log_level)
 
-    module, app = import_from_string(app)
+    module, app_obj = import_from_string(app)
 
     if app_dir:
         sys.path.insert(0, app_dir)
 
-    args = (app, extra, casted_log_level)
+    args = (app_obj, extra, casted_log_level)
 
     if reload and workers > 1:
         raise ValueError("You can't use reload option with multiprocessing")
@@ -115,7 +115,7 @@ def run(
     if reload is True:
         from faststream.cli.supervisors.watchfiles import WatchReloader
 
-        module_path = Path(module.__file__)
+        module_path = Path(module.__file__)  # type: ignore[arg-type]
         WatchReloader(
             target=_run, args=args, reload_dirs=(str(module_path.parent),)
         ).run()
@@ -126,7 +126,7 @@ def run(
         Multiprocess(target=_run, args=(*args, logging.DEBUG), workers=workers).run()
 
     else:
-        _run(app=app, extra_options=extra, log_level=casted_log_level)
+        _run(app=app_obj, extra_options=extra, log_level=casted_log_level)
 
 
 def _run(
