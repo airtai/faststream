@@ -24,10 +24,6 @@ hide:
 * chore: update packages' versions by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/937](https://github.com/airtai/faststream/pull/937){.external-link target="_blank"}
 * fix: FastAPI subscriber Path support by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/931](https://github.com/airtai/faststream/pull/931){.external-link target="_blank"}
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/main
 **Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.12...0.2.13](https://github.com/airtai/faststream/compare/0.2.12...0.2.13){.external-link target="_blank"}
 
 ## 0.2.12
@@ -35,10 +31,6 @@ hide:
 ### What's Changed
 * feat: NATS polling subscriber by [@sheldygg](https://github.com/sheldygg){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/912](https://github.com/airtai/faststream/pull/912){.external-link target="_blank"}
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/main
 **Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.11...0.2.12](https://github.com/airtai/faststream/compare/0.2.11...0.2.12){.external-link target="_blank"}
 
 ## 0.2.11
