@@ -1,6 +1,5 @@
 import logging
 import sys
-from pathlib import Path
 from typing import Dict, Optional
 
 import anyio
@@ -102,7 +101,7 @@ def run(
     app, extra = parse_cli_args(app, *ctx.args)
     casted_log_level = get_log_level(log_level)
 
-    module, app_obj = import_from_string(app)
+    module_path, app_obj = import_from_string(app)
 
     if app_dir:
         sys.path.insert(0, app_dir)
@@ -115,7 +114,6 @@ def run(
     if reload is True:
         from faststream.cli.supervisors.watchfiles import WatchReloader
 
-        module_path = Path(module.__file__)  # type: ignore[arg-type]
         WatchReloader(
             target=_run, args=args, reload_dirs=(str(module_path.parent),)
         ).run()
