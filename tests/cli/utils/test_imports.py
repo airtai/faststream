@@ -16,8 +16,8 @@ def test_import_wrong():
 @pytest.mark.parametrize(
     "test_input,exp_module,exp_app",
     (
-        ("module:app", "module", "app"),
-        ("module.module.module:app", "module/module/module", "app"),
+        pytest.param("module:app", "module", "app"),
+        pytest.param("module.module.module:app", "module/module/module", "app"),
     ),
 )
 def test_get_app_path(test_input, exp_module, exp_app):
@@ -39,12 +39,26 @@ def test_import_from_string_import_wrong():
 @pytest.mark.parametrize(
     "test_input,exp_module",
     (
-        ("examples.kafka.testing:app", "examples/kafka/testing.py"),
-        ("examples.nats.e01_basic:app", "examples/nats/e01_basic.py"),
-        ("examples.rabbit.topic:app", "examples/rabbit/topic.py"),
+        pytest.param("examples.kafka.testing:app", "examples/kafka/testing.py"),
+        pytest.param("examples.nats.e01_basic:app", "examples/nats/e01_basic.py"),
+        pytest.param("examples.rabbit.topic:app", "examples/rabbit/topic.py"),
     ),
 )
 def test_import_from_string(test_input, exp_module):
+    module, app = import_from_string(test_input)
+    assert isinstance(app, FastStream)
+    assert module == (Path.cwd() / exp_module)
+
+
+@pytest.mark.parametrize(
+    "test_input,exp_module",
+    (
+        pytest.param("examples.kafka:app", "examples/kafka/__init__.py"),
+        pytest.param("examples.nats:app", "examples/nats/__init__.py"),
+        pytest.param("examples.rabbit:app", "examples/rabbit/__init__.py"),
+    ),
+)
+def test_import_module(test_input, exp_module):
     module, app = import_from_string(test_input)
     assert isinstance(app, FastStream)
     assert module == (Path.cwd() / exp_module)
