@@ -36,11 +36,8 @@ from faststream.broker.types import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.redis.message import (
-    BatchMessage,
-    OneMessage,
-    PubSubMessage,
-    RedisMessage,
     AnyRedisDict,
+    RedisMessage,
 )
 from faststream.redis.parser import RawMessage, RedisParser, bDATA_KEY
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
@@ -193,7 +190,9 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
                     if connected is False:
                         connected = True
 
-                    if (msgs := ((m,) if isinstance(m, dict) else m)):  # pragma: no branch
+                    if msgs := (
+                        (m,) if isinstance(m, dict) else m
+                    ):  # pragma: no branch
                         for i in msgs:
                             await self.consume(i)
 

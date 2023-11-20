@@ -17,6 +17,7 @@ __all__ = (
 
 Channel: TypeAlias = str
 
+
 class RedisRouter(BrokerRouter[int, AnyRedisDict]):
     def __init__(
         self,
@@ -26,8 +27,18 @@ class RedisRouter(BrokerRouter[int, AnyRedisDict]):
     ):
         for h in handlers:
             if not (channel := h.kwargs.pop("channel", None)):
+                if list := h.kwargs.pop("list", None):
+                    h.kwargs["list"] = prefix + list
+                    continue
+
+                elif stream := h.kwargs.pop("stream", None):
+                    h.kwargs["stream"] = prefix + stream
+                    continue
+
                 channel, h.args = h.args[0], h.args[1:]
+
             h.args = (prefix + channel, *h.args)
+
         super().__init__(prefix, handlers, **kwargs)
 
     @override
@@ -47,8 +58,14 @@ class RedisRouter(BrokerRouter[int, AnyRedisDict]):
         stream = StreamSub.validate(stream)
 
         return self._wrap_subscriber(
-            channel=model_copy(channel, update={"name": self.prefix + channel.name}) if channel else  None,
-            list=model_copy(list, update={"name": self.prefix + list.name}) if list else  None,
-            stream=model_copy(stream, update={"name": self.prefix + stream.name}) if stream else  None,
+            channel=model_copy(channel, update={"name": self.prefix + channel.name})
+            if channel
+            else None,
+            list=model_copy(list, update={"name": self.prefix + list.name})
+            if list
+            else None,
+            stream=model_copy(stream, update={"name": self.prefix + stream.name})
+            if stream
+            else None,
             **broker_kwargs,
         )
