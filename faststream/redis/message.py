@@ -26,7 +26,13 @@ class BatchMessage(PubSubMessage):
     data: List[bytes]  # type: ignore[misc]
 
 
-class RedisMessage(StreamMessage[Union[OneMessage, BatchMessage]]):
+class AnyRedisDict(PubSubMessage):
+    type: Literal["stream", "list", "message", "batch"]  # type: ignore[misc]
+    data: Union[bytes, List[bytes]]  # type: ignore[misc]
+    pattern: NotRequired[Optional[bytes]]
+
+
+class RedisMessage(StreamMessage[AnyRedisDict]):
     pass
 
 

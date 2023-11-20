@@ -1,4 +1,4 @@
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, overload
 from uuid import uuid4
 
 from redis.asyncio.client import PubSub, Redis
@@ -29,21 +29,43 @@ class RedisFastProducer:
     _decoder: AsyncDecoder[Any]
     _parser: AsyncParser[PubSubMessage, Any]
 
+    @overload
     def __init__(
         self,
         connection: "Redis[bytes]",
-        parser: Optional[
-            AsyncCustomParser[
-                Union[OneMessage, BatchMessage],
-                Union[OneRedisMessage, BatchRedisMessage],
-            ]
+        parser: Optional[AsyncCustomParser[OneMessage, OneRedisMessage]],
+        decoder: Optional[AsyncCustomDecoder[OneRedisMessage]],
+    ) -> None:
+        pass
+
+    @overload
+    def __init__(
+        self,
+        connection: "Redis[bytes]",
+        parser: Optional[AsyncCustomParser[BatchMessage, BatchRedisMessage]],
+        decoder: Optional[AsyncCustomDecoder[BatchRedisMessage]],
+    ) -> None:
+        pass
+
+    def __init__(
+        self,
+        connection: "Redis[bytes]",
+        parser: Union[
+            None,
+            AsyncCustomParser[OneMessage, OneRedisMessage],
+            AsyncCustomParser[BatchMessage, BatchRedisMessage],
         ],
-        decoder: Optional[
-            AsyncCustomDecoder[Union[OneRedisMessage, BatchRedisMessage]]
+        decoder: Union[
+            None,
+            AsyncCustomDecoder[OneRedisMessage],
+            AsyncCustomDecoder[BatchRedisMessage],
         ],
-    ):
+    ) -> None:
         self._connection = connection
-        self._parser = resolve_custom_func(parser, RedisParser.parse_message)
+        self._parser = resolve_custom_func(
+            parser,  # type: ignore[arg-type,assignment]
+            RedisParser.parse_message,
+        )
         self._decoder = resolve_custom_func(decoder, RedisParser.decode_message)
 
     async def publish(

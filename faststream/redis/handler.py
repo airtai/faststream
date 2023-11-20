@@ -7,6 +7,7 @@ from typing import (
     Awaitable,
     Callable,
     Dict,
+    Generator,
     Hashable,
     List,
     Optional,
@@ -39,13 +40,14 @@ from faststream.redis.message import (
     OneMessage,
     PubSubMessage,
     RedisMessage,
+    AnyRedisDict,
 )
 from faststream.redis.parser import RawMessage, RedisParser, bDATA_KEY
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.types import AnyDict
 
 
-class LogicRedisHandler(AsyncHandler[PubSubMessage]):
+class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
     subscription: Optional[RPubSub]
     task: Optional["asyncio.Task[Any]"]
 
@@ -88,12 +90,12 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
     def add_call(
         self,
         *,
-        handler: HandlerCallWrapper[PubSubMessage, P_HandlerParams, T_HandlerReturn],
+        handler: HandlerCallWrapper[AnyDict, P_HandlerParams, T_HandlerReturn],
         dependant: CallModel[P_HandlerParams, T_HandlerReturn],
-        parser: Optional[CustomParser[PubSubMessage, RedisMessage]],
+        parser: Optional[CustomParser[AnyDict, RedisMessage]],
         decoder: Optional[CustomDecoder[RedisMessage]],
         filter: Filter[RedisMessage],
-        middlewares: Optional[Sequence[Callable[[PubSubMessage], BaseMiddleware]]],
+        middlewares: Optional[Sequence[Callable[[AnyDict], BaseMiddleware]]],
     ) -> None:
         super().add_call(
             handler=handler,
@@ -109,8 +111,8 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
         self.started = anyio.Event()
 
         consume: Union[
-            Callable[[], Awaitable[PubSubMessage]],
-            Callable[[], Awaitable[Tuple[PubSubMessage]]],
+            Callable[[], Awaitable[Optional[AnyRedisDict]]],
+            Callable[[], Awaitable[Optional[Sequence[AnyRedisDict]]]],
         ]
         sleep: float
 
@@ -139,7 +141,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
             self.started.set()
 
         elif self.stream_sub is not None:
-            consume = partial(
+            consume = partial(  # type: ignore[assignment]
                 self._consume_stream_msg,
                 client=client,
             )
@@ -171,8 +173,8 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
     async def _consume(
         self,
         consume: Union[
-            Callable[[], Awaitable[Optional[PubSubMessage]]],
-            Callable[[], Awaitable[Optional[Tuple[PubSubMessage]]]],
+            Callable[[], Awaitable[Optional[AnyRedisDict]]],
+            Callable[[], Awaitable[Optional[Sequence[AnyRedisDict]]]],
         ],
         sleep: float,
     ) -> None:
@@ -191,8 +193,8 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
                     if connected is False:
                         connected = True
 
-                    if m:  # pragma: no branch
-                        for i in (m,) if isinstance(m, dict) else m:
+                    if (msgs := ((m,) if isinstance(m, dict) else m)):  # pragma: no branch
+                        for i in msgs:
                             await self.consume(i)
 
                 finally:
@@ -201,7 +203,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
     async def _consume_stream_msg(
         self,
         client: "Redis[bytes]",
-    ) -> Union[None, BatchMessage, OneMessage]:
+    ) -> Union[None, AnyRedisDict, Generator[AnyRedisDict, None, None]]:
         stream = self.stream_sub
         assert stream
 
@@ -243,7 +245,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
                             data = m
                         parsed.append(data)
 
-                    return BatchMessage(
+                    return AnyRedisDict(
                         type="batch",
                         channel=stream_name,
                         data=parsed,
@@ -253,7 +255,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
 
                 else:
                     return (
-                        OneMessage(
+                        AnyRedisDict(
                             type="stream",
                             channel=stream_name,
                             data=msg.get(
@@ -271,7 +273,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
     async def _consume_list_msg(
         self,
         client: "Redis[bytes]",
-    ) -> Optional[PubSubMessage]:
+    ) -> Optional[AnyRedisDict]:
         list_sub = self.list_sub
         assert list_sub
 
@@ -292,14 +294,14 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
                 msg = parsed
 
             if count is None:
-                return OneMessage(
+                return AnyRedisDict(
                     type="list",
                     channel=list_sub.name.encode(),
                     data=msg,
                 )
 
             else:
-                return BatchMessage(
+                return AnyRedisDict(
                     type="batch",
                     channel=list_sub.name.encode(),
                     data=msg,
