@@ -124,7 +124,7 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://faststream.airt.ai/"
+Homepage = "https://faststream.airt.ai/latest/"
 Documentation = "https://faststream.airt.ai/latest/getting-started/"
 Tracker = "https://github.com/airtai/FastStream/issues"
 Source = "https://github.com/airtai/FastStream"
