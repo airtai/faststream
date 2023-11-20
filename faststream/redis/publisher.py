@@ -4,14 +4,14 @@ from typing import Optional, Union
 from faststream._compat import override
 from faststream.broker.publisher import BasePublisher
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.redis.message import PubSubMessage
+from faststream.redis.message import AnyRedisDict
 from faststream.redis.producer import RedisFastProducer
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
 
 @dataclass
-class LogicPublisher(BasePublisher[PubSubMessage]):
+class LogicPublisher(BasePublisher[AnyRedisDict]):
     channel: Optional[PubSub] = field(default=None)
     list: Optional[ListSub] = field(default=None)
     stream: Optional[StreamSub] = field(default=None)

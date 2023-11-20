@@ -12,11 +12,11 @@ from faststream.broker.types import (
 )
 from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.redis.message import (
+    AnyRedisDict,
     BatchMessage,
     BatchRedisMessage,
     OneMessage,
     OneRedisMessage,
-    PubSubMessage,
 )
 from faststream.redis.parser import DATA_KEY, RawMessage, RedisParser
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
@@ -27,7 +27,7 @@ from faststream.utils.functions import timeout_scope
 class RedisFastProducer:
     _connection: "Redis[bytes]"
     _decoder: AsyncDecoder[Any]
-    _parser: AsyncParser[PubSubMessage, Any]
+    _parser: AsyncParser[AnyRedisDict, Any]
 
     @overload
     def __init__(

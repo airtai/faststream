@@ -1,10 +1,10 @@
 from faststream._compat import override
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.redis.broker import RedisBroker
-from faststream.redis.message import PubSubMessage
+from faststream.redis.message import AnyRedisDict
 
 
-class RedisRouter(StreamRouter[PubSubMessage]):
+class RedisRouter(StreamRouter[AnyRedisDict]):
     broker_class = RedisBroker
 
     @override

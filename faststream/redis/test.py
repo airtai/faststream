@@ -6,7 +6,7 @@ from faststream.broker.test import TestBroker, call_handler
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.redis.asyncapi import Handler, Publisher
 from faststream.redis.broker import RedisBroker
-from faststream.redis.message import PubSubMessage
+from faststream.redis.message import AnyRedisDict
 from faststream.redis.parser import RawMessage
 from faststream.redis.producer import RedisFastProducer
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
@@ -149,14 +149,14 @@ def build_message(
     reply_to: str = "",
     correlation_id: Optional[str] = None,
     headers: Optional[AnyDict] = None,
-) -> PubSubMessage:
+) -> AnyRedisDict:
     data = RawMessage.encode(
         message=message,
         reply_to=reply_to,
         headers=headers,
         correlation_id=correlation_id,
     )
-    return PubSubMessage(
+    return AnyRedisDict(
         channel=channel.encode(),
         data=data.encode(),
         type="message",

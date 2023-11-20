@@ -9,7 +9,6 @@ from typing import (
     Sequence,
     Type,
     Union,
-    cast,
 )
 from urllib.parse import urlparse
 
@@ -35,7 +34,7 @@ from faststream.broker.types import (
 from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.redis.asyncapi import Handler, Publisher
-from faststream.redis.message import PubSubMessage, RedisMessage
+from faststream.redis.message import AnyRedisDict, RedisMessage
 from faststream.redis.producer import RedisFastProducer
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.shared.logging import RedisLoggingMixin
@@ -47,8 +46,9 @@ Channel: TypeAlias = str
 
 class RedisBroker(
     RedisLoggingMixin,
-    BrokerAsyncUsecase[PubSubMessage, "Redis[bytes]"],
+    BrokerAsyncUsecase[AnyRedisDict, "Redis[bytes]"],
 ):
+    url: str
     handlers: Dict[int, Handler]  # type: ignore[assignment]
     _publishers: Dict[int, Publisher]  # type: ignore[assignment]
 
@@ -72,7 +72,7 @@ class RedisBroker(
             **kwargs,
         )
 
-        url_kwargs = urlparse(cast(str, self.url))
+        url_kwargs = urlparse(self.url)
         self.protocol = protocol or url_kwargs.scheme
 
     async def connect(
@@ -98,8 +98,8 @@ class RedisBroker(
         client = Redis(connection_pool=pool)
         self._producer = RedisFastProducer(
             connection=client,
-            parser=self._global_parser,
-            decoder=self._global_parser,
+            parser=self._global_parser,  # type: ignore[arg-type]
+            decoder=self._global_parser,  # type: ignore[arg-type]
         )
         return client
 
@@ -179,10 +179,10 @@ class RedisBroker(
         stream: Union[Channel, StreamSub, None] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[PubSubMessage, RedisMessage]] = None,
+        parser: Optional[CustomParser[AnyRedisDict, RedisMessage]] = None,
         decoder: Optional[CustomDecoder[RedisMessage]] = None,
         middlewares: Optional[
-            Sequence[Callable[[PubSubMessage], BaseMiddleware]]
+            Sequence[Callable[[AnyRedisDict], BaseMiddleware]]
         ] = None,
         filter: Filter[RedisMessage] = default_filter,
         # AsyncAPI information
@@ -234,7 +234,7 @@ class RedisBroker(
 
         def consumer_wrapper(
             func: Callable[P_HandlerParams, T_HandlerReturn],
-        ) -> HandlerCallWrapper[PubSubMessage, P_HandlerParams, T_HandlerReturn,]:
+        ) -> HandlerCallWrapper[AnyRedisDict, P_HandlerParams, T_HandlerReturn,]:
             handler_call, dependant = self._wrap_handler(
                 func,
                 extra_dependencies=dependencies,
@@ -245,8 +245,8 @@ class RedisBroker(
                 handler=handler_call,
                 filter=filter,
                 middlewares=middlewares,
-                parser=parser or self._global_parser,
-                decoder=decoder or self._global_decoder,
+                parser=parser or self._global_parser,  # type: ignore[arg-type]
+                decoder=decoder or self._global_decoder,  # type: ignore[arg-type]
                 dependant=dependant,
             )
 
