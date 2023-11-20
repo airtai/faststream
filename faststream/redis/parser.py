@@ -1,16 +1,15 @@
-from typing import Optional, Pattern, Tuple, Union
+from typing import Optional, Pattern, Tuple, Union, overload
 from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
 from faststream._compat import dump_json, model_parse, model_to_json
-from faststream.broker.message import StreamMessage
 from faststream.broker.parsers import decode_message, encode_message
 from faststream.redis.message import (
     BatchMessage,
+    BatchRedisMessage,
     OneMessage,
-    PubSubMessage,
-    RedisMessage,
+    OneRedisMessage,
 )
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
 from faststream.utils.context.main import context
@@ -71,16 +70,40 @@ class RawMessage(BaseModel):
 
 class RedisParser:
     @classmethod
+    @overload
+    async def parse_message(
+        cls,
+        message: OneMessage,
+    ) -> OneRedisMessage:
+        pass
+
+    @classmethod
+    @overload
+    async def parse_message(
+        cls,
+        message: BatchMessage,
+    ) -> BatchRedisMessage:
+        pass
+
+    @classmethod
     async def parse_message(
         cls,
         message: Union[OneMessage, BatchMessage],
-    ) -> StreamMessage[PubSubMessage]:
-        path: AnyDict = {}
+    ) -> Union[OneRedisMessage, BatchRedisMessage]:
+        id_ = str(uuid4())
+
         if message["type"] == "batch":
             data = dump_json(
                 [cls.parse_one_msg(x)[0] for x in message["data"]]
             ).encode()
-            headers = {"content-type": "application/json"}
+
+            return BatchRedisMessage(
+                raw_message=message,
+                body=data,
+                content_type="application/json",
+                message_id=id_,
+                correlation_id=id_,
+            )
 
         else:
             data, headers = cls.parse_one_msg(message["data"])
@@ -89,6 +112,7 @@ class RedisParser:
 
             handler = context.get_local("handler_")
             path_re: Optional[Pattern[str]]
+            path: AnyDict = {}
             if (
                 handler
                 and handler.channel is not None
@@ -99,16 +123,16 @@ class RedisParser:
                     if match:
                         path = match.groupdict()
 
-        return RedisMessage(
-            raw_message=message,
-            body=data,
-            path=path,
-            headers=headers,
-            reply_to=headers.get("reply_to", ""),
-            content_type=headers.get("content-type", ""),
-            message_id=message.get("message_id", str(uuid4())),
-            correlation_id=headers.get("correlation_id", str(uuid4())),
-        )
+            return OneRedisMessage(
+                raw_message=message,
+                body=data,
+                path=path,
+                headers=headers,
+                reply_to=headers.get("reply_to", ""),
+                content_type=headers.get("content-type", ""),
+                message_id=message.get("message_id", id_),
+                correlation_id=headers.get("correlation_id", id_),
+            )
 
     @staticmethod
     def parse_one_msg(raw_data: bytes) -> Tuple[bytes, AnyDict]:
@@ -127,6 +151,6 @@ class RedisParser:
 
     @staticmethod
     async def decode_message(
-        msg: StreamMessage[PubSubMessage],
+        msg: OneRedisMessage,
     ) -> DecodedMessage:
         return decode_message(msg)

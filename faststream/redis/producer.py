@@ -13,9 +13,10 @@ from faststream.broker.types import (
 from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.redis.message import (
     BatchMessage,
+    BatchRedisMessage,
     OneMessage,
+    OneRedisMessage,
     PubSubMessage,
-    RedisMessage,
 )
 from faststream.redis.parser import DATA_KEY, RawMessage, RedisParser
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
@@ -32,9 +33,14 @@ class RedisFastProducer:
         self,
         connection: "Redis[bytes]",
         parser: Optional[
-            AsyncCustomParser[Union[OneMessage, BatchMessage], RedisMessage]
+            AsyncCustomParser[
+                Union[OneMessage, BatchMessage],
+                Union[OneRedisMessage, BatchRedisMessage],
+            ]
         ],
-        decoder: Optional[AsyncCustomDecoder[RedisMessage]],
+        decoder: Optional[
+            AsyncCustomDecoder[Union[OneRedisMessage, BatchRedisMessage]]
+        ],
     ):
         self._connection = connection
         self._parser = resolve_custom_func(parser, RedisParser.parse_message)

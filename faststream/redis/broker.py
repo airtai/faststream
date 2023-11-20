@@ -91,7 +91,7 @@ class RedisBroker(
         url: str,
         **kwargs: Any,
     ) -> "Redis[bytes]":
-        url_options = parse_url(url)
+        url_options: AnyDict = parse_url(url)
         url_options.update(kwargs)
         pool = ConnectionPool(**url_options)
 
@@ -166,7 +166,7 @@ class RedisBroker(
                 else:
                     pub_response = None
 
-                return r, pub_response
+            return r, pub_response
 
         return process_wrapper
 
@@ -310,6 +310,6 @@ class RedisBroker(
         self,
         *args: Any,
         **kwargs: Any,
-    ) -> Optional[DecodedMessage]:
+    ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
         return await self._producer.publish_batch(*args, **kwargs)

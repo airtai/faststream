@@ -2,7 +2,7 @@ import ast
 import traceback
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterator, List, Union, Optional, cast
+from typing import Iterator, List, Optional, Union, cast
 
 
 def is_contains_context_name(scip_name: str, name: str) -> bool:

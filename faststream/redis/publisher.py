@@ -52,7 +52,7 @@ class LogicPublisher(BasePublisher[PubSubMessage]):
         if getattr(list, "batch", False):
             await self._producer.publish_batch(
                 *message,
-                list=list.name,
+                list=list.name,  # type: ignore[union-attr]
             )
             return None
 

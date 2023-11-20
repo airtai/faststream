@@ -201,7 +201,7 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
     async def _consume_stream_msg(
         self,
         client: "Redis[bytes]",
-    ) -> Optional[PubSubMessage]:
+    ) -> Union[None, BatchMessage, OneMessage]:
         stream = self.stream_sub
         assert stream
 
@@ -304,3 +304,5 @@ class LogicRedisHandler(AsyncHandler[PubSubMessage]):
                     channel=list_sub.name.encode(),
                     data=msg,
                 )
+
+        return None

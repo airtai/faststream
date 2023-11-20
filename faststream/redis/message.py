@@ -26,15 +26,15 @@ class BatchMessage(PubSubMessage):
     data: List[bytes]  # type: ignore[misc]
 
 
-class RedisMessage(StreamMessage[PubSubMessage]):
-    def __init__(
-        self,
-        *args: Any,
-        **kwargs: Any,
-    ) -> None:
-        super().__init__(*args, **kwargs)
-        self.commited = False
+class RedisMessage(StreamMessage[Union[OneMessage, BatchMessage]]):
+    pass
 
+
+class OneRedisMessage(StreamMessage[OneMessage]):
+    pass
+
+
+class BatchRedisMessage(StreamMessage[BatchMessage]):
     @override
     async def ack(  # type: ignore[override]
         self,
@@ -50,10 +50,4 @@ class RedisMessage(StreamMessage[PubSubMessage]):
         ):
             await redis.xack(self.raw_message["channel"], group, *ids)  # type: ignore[no-untyped-call]
 
-        self.commited = True
-
-    async def nack(self, **kwargs: Any) -> None:
-        self.commited = True
-
-    async def reject(self, **kwargs: Any) -> None:
-        self.commited = True
+            await super().ack()
