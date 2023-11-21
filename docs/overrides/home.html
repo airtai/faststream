@@ -894,9 +894,13 @@
    <h2 class="title">STAY IN TOUCH</h2>
    <div class="container tx-container">
       <div class="tx-hero__content">
-         <p>Show us some love by giving our <a href="{{ config.repo_url }}" target="_blank">GitHub
-               repository</a> a star, and joining our <a href="{{ (config.extra.social|first).link }}" target="_blank">Discord
-               server</a>.</p>
+         <p>
+            Show us some love by giving our
+            <a href="{{ config.repo_url }}" target="_blank">GitHub repository</a> <!-- nosem: var-in-href,template-href-var -->
+            a star, and joining our
+            <a href="{{ (config.extra.social|first).link }}" target="_blank">Discord server</a> <!-- nosem: var-in-href,template-href-var -->
+            .
+         </p>
 
          <p>This helps us to stay in touch with you and encourages us to continue developing and improving the
             framework. Thank you for your support!</p>
