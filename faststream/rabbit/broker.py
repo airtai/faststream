@@ -69,6 +69,7 @@ class RabbitBroker(
         _connection (Optional[aio_pika.RobustConnection]): The RabbitMQ connection instance.
         _channel (Optional[aio_pika.RobustChannel]): The RabbitMQ channel instance.
     """
+
     url: str
     handlers: Dict[int, Handler]  # type: ignore[assignment]
     _publishers: Dict[int, Publisher]  # type: ignore[assignment]

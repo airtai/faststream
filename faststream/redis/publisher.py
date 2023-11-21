@@ -73,5 +73,5 @@ class LogicPublisher(BasePublisher[AnyRedisDict]):
     @property
     def channel_name(self) -> str:
         any_of = self.channel or self.list or self.stream
-        assert any_of, INCORRECT_SETUP_MSG
+        assert any_of, INCORRECT_SETUP_MSG  # nosec B101
         return any_of.name

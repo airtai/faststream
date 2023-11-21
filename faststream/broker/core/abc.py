@@ -22,7 +22,6 @@ from typing import (
 from fast_depends._compat import PYDANTIC_V2
 from fast_depends.core import CallModel, build_call_model
 from fast_depends.dependencies import Depends
-from fast_depends.use import _InjectWrapper
 from pydantic import create_model
 
 from faststream.asyncapi import schema as asyncapi
@@ -257,10 +256,7 @@ class BrokerUsecase(
         _get_dependant: Optional[Any] = None,
     ) -> Tuple[
         HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
-        Union[
-            CallModel[P_HandlerParams, T_HandlerReturn],
-            CallModel[P_HandlerParams, Awaitable[T_HandlerReturn]],
-        ],
+        CallModel[Any, Any],
     ]:
         """Wrap a handler function.
 
@@ -308,10 +304,7 @@ class BrokerUsecase(
             dependant = _patch_fastapi_dependant(dependant)
 
         if self._is_apply_types is True and not _raw:
-            apply_wrapper: _InjectWrapper[
-                P_HandlerParams, Awaitable[T_HandlerReturn]
-            ] = apply_types(None)
-            f = apply_wrapper(f, dependant)
+            f = apply_types(None)(f, dependant)  # type: ignore[arg-type]
 
         decode_f = self._wrap_decode_message(
             func=f,

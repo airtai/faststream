@@ -81,7 +81,7 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
     @property
     def channel_name(self) -> str:
         any_of = self.channel or self.list_sub or self.stream_sub
-        assert any_of, INCORRECT_SETUP_MSG
+        assert any_of, INCORRECT_SETUP_MSG  # nosec B101
         return any_of.name
 
     def add_call(
@@ -204,7 +204,7 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
         client: "Redis[bytes]",
     ) -> Union[None, AnyRedisDict, Generator[AnyRedisDict, None, None]]:
         stream = self.stream_sub
-        assert stream
+        assert stream  # nosec B101
 
         if stream.group and stream.consumer:
             read = client.xreadgroup(
@@ -274,7 +274,7 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
         client: "Redis[bytes]",
     ) -> Optional[AnyRedisDict]:
         list_sub = self.list_sub
-        assert list_sub
+        assert list_sub  # nosec B101
 
         count = list_sub.records
 
