@@ -6,6 +6,7 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    List,
     Literal,
     Optional,
     Sequence,
@@ -73,6 +74,7 @@ class KafkaBroker(
         publish(*args, **kwargs): Publishes a message to Kafka.
     """
 
+    url: List[str]
     handlers: Dict[str, Handler]  # type: ignore[assignment]
     _publishers: Dict[str, Publisher]  # type: ignore[assignment]
     _producer: Optional[AioKafkaFastProducer]
@@ -105,7 +107,9 @@ class KafkaBroker(
                 protocol = "kafka"
 
         super().__init__(
-            url=bootstrap_servers,
+            url=[bootstrap_servers]
+            if isinstance(bootstrap_servers, str)
+            else list(bootstrap_servers),
             protocol=protocol,
             protocol_version=protocol_version,
             security=security,

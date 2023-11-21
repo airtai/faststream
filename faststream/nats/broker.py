@@ -6,6 +6,7 @@ from typing import (
     Awaitable,
     Callable,
     Dict,
+    List,
     Optional,
     Sequence,
     Type,
@@ -60,6 +61,7 @@ class NatsBroker(
     NatsLoggingMixin,
     BrokerAsyncUsecase[Msg, Client],
 ):
+    url: List[str]
     stream: Optional[JetStreamContext]
 
     handlers: Dict[Subject, Handler]  # type: ignore[assignment]
