@@ -47,7 +47,7 @@ def test_import_from_string_import_wrong():
 def test_import_from_string(test_input, exp_module):
     module, app = import_from_string(test_input)
     assert isinstance(app, FastStream)
-    assert module == (Path.cwd() / exp_module)
+    assert module == (Path.cwd() / exp_module).parent
 
 
 @pytest.mark.parametrize(
@@ -61,7 +61,7 @@ def test_import_from_string(test_input, exp_module):
 def test_import_module(test_input, exp_module):
     module, app = import_from_string(test_input)
     assert isinstance(app, FastStream)
-    assert module == (Path.cwd() / exp_module)
+    assert module == (Path.cwd() / exp_module).parent
 
 
 def test_import_from_string_wrong():
