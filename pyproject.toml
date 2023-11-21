@@ -120,6 +120,7 @@ testing = [
     "httpx==0.25.1",
     "PyYAML==6.0.1",
     "watchfiles==0.21.0",
+    "email-validator==2.1.0.post1",
 ]
 
 dev = [

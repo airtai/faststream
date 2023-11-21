@@ -67,18 +67,7 @@ extra_javascript:
 plugins:
   - search:
       separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
-  - minify:
-      minify_html: true
-      minify_js: true
-      minify_css: true
-      htmlmin_opts:
-        remove_comments: true
-      cache_safe: true
-      css_files:
-        - stylesheets/extra.css
   # - meta                         # (insiders) use .meta.yml files
-  - search:
-      separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
   - glightbox                    # image zoom
   - macros:                      # Jinja templates
       include_dir: includes
@@ -130,7 +119,7 @@ plugins:
       cache_safe: true
       css_files:
         - stylesheets/extra.css
-  - mike:
+  - mike:                        # versioning
       alias_type: copy
       redirect_template: templates/redirect.html
       canonical_version: latest

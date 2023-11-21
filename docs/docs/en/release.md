@@ -12,6 +12,38 @@ hide:
 ---
 
 # Release Notes
+
+## 0.2.15
+
+### What's Changed
+
+#### Bug fixes
+
+* fix (#972): correct Context default behavior by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/973](https://github.com/airtai/faststream/pull/973){.external-link target="_blank"}
+* fix: correct CLI run by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/978](https://github.com/airtai/faststream/pull/978){.external-link target="_blank"}
+
+#### Documentation
+
+* docs: update readme docs link by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/966](https://github.com/airtai/faststream/pull/966){.external-link target="_blank"}
+* docs: add a new landing page for docs by [@harishmohanraj](https://github.com/harishmohanraj){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/954](https://github.com/airtai/faststream/pull/954){.external-link target="_blank"}
+* docs: Fix broken internal links by [@harishmohanraj](https://github.com/harishmohanraj){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/976](https://github.com/airtai/faststream/pull/976){.external-link target="_blank"}
+* docs: use mkdocs footer by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/977](https://github.com/airtai/faststream/pull/977){.external-link target="_blank"}
+
+#### Misc
+
+* test (#957): add AsyncAPI FastAPI security test by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/958](https://github.com/airtai/faststream/pull/958){.external-link target="_blank"}
+* test: update tests for cli utils functions by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/960](https://github.com/airtai/faststream/pull/960){.external-link target="_blank"}
+* chore: update release notes for version 0.2.14 by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/961](https://github.com/airtai/faststream/pull/961){.external-link target="_blank"}
+* chore: Add back deleted index file for API Reference by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/963](https://github.com/airtai/faststream/pull/963){.external-link target="_blank"}
+* chore: bump dirty-equals from 0.6.0 to 0.7.1.post0 by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/970](https://github.com/airtai/faststream/pull/970){.external-link target="_blank"}
+* chore: bump semgrep from 1.48.0 to 1.50.0 by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/968](https://github.com/airtai/faststream/pull/968){.external-link target="_blank"}
+* chore: bump mkdocs-glightbox from 0.3.4 to 0.3.5 by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/967](https://github.com/airtai/faststream/pull/967){.external-link target="_blank"}
+* chore: bump mkdocs-material from 9.4.8 to 9.4.10 by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/971](https://github.com/airtai/faststream/pull/971){.external-link target="_blank"}
+* chore: bump ruff from 0.1.5 to 0.1.6 by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/969](https://github.com/airtai/faststream/pull/969){.external-link target="_blank"}
+
+
+**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.14...0.2.15](https://github.com/airtai/faststream/compare/0.2.14...0.2.15){.external-link target="_blank"}
+
 ## 0.2.14
 
 ### What's Changed

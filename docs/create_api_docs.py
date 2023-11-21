@@ -274,9 +274,9 @@ def create_api_docs(
     docs_dir = root_path / "docs"
 
     # read summary template from file
-    summary_template = (docs_dir / "summary_template.txt").read_text()
+    navigation_template = (root_path / "navigation_template.txt").read_text()
 
-    summary = summary_template.format(api=api)
+    summary = navigation_template.format(api=api)
 
     summary = "\n".join(filter(
         bool,

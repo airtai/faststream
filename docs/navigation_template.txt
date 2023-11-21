@@ -94,6 +94,7 @@ search:
     - [RPC](redis/rpc.md)
     - [Message Information](redis/message.md)
 - [Reference - Code API](api/faststream/index.md)
+{api}
 - Contributing
     - [Development](getting-started/contributing/CONTRIBUTING.md)
     - [Documentation](getting-started/contributing/docs.md)

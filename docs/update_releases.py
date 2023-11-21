@@ -1,9 +1,8 @@
 import re
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Sequence, Tuple
 
 import requests
-import typer
 
 
 def find_metablock(lines: List[str]) -> Tuple[List[str], List[str]]:
@@ -26,28 +25,24 @@ def find_header(lines: List[str]) -> Tuple[str, List[str]]:
     return "", lines
 
 
-def get_github_releases():
+def get_github_releases() -> Sequence[Tuple[str, str]]:
     # Get the latest version from GitHub releases
     response = requests.get("https://api.github.com/repos/airtai/FastStream/releases")
-    return response.json()
+    return ((x["tag_name"], x["body"]) for x in reversed(response.json()))
 
 
 def convert_links_and_usernames(text):
     if "](" not in text:
         # Convert HTTP/HTTPS links
-        text = re.sub(r'(https?://[^\s]+)', r'[\1](\1){.external-link target="_blank"}', text)
+        text = re.sub(r"(https?://[^\s]+)", r'[\1](\1){.external-link target="_blank"}', text)
 
         # Convert GitHub usernames to links
-        text = re.sub(r'@(\w+)', r'[@\1](https://github.com/\1){.external-link target="_blank"}', text)
+        text = re.sub(r"@(\w+)", r'[@\1](https://github.com/\1){.external-link target="_blank"}', text)
 
     return text
 
 
 def update_release_notes(realease_notes_path: Path):
-    typer.echo("Updating Release Notes")
-
-    releases = get_github_releases()
-
     # Get the changelog from the RELEASE.md file
     changelog = realease_notes_path.read_text()
 
@@ -57,9 +52,8 @@ def update_release_notes(realease_notes_path: Path):
     header, changelog = find_header(lines)
     changelog = "\n".join(changelog)
 
-    for release in reversed(releases):
-        version = release["tag_name"]
-        body = release["body"].replace("##", "###")
+    for version, body in get_github_releases():
+        body = body.replace("##", "###")
         body = convert_links_and_usernames(body)
         version_changelog = f"## {version}\n\n{body}\n\n"
 
@@ -70,7 +64,7 @@ def update_release_notes(realease_notes_path: Path):
     # Update the RELEASE.md file with the latest version and changelog
     realease_notes_path.write_text((
         metablock + "\n\n" +
-        header + "\n" +
+        header + "\n\n" +
         changelog + "\n"
     ).replace("\r", ""))
 
