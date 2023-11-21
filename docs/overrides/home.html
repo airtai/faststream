@@ -1,56 +1,57 @@
 <!-- Elements added to "home.html" will only be displayed on the home page -->
 
 {% extends "main.html" %}
-{% block tabs %}
+
+{% block styles %}
 {{ super() }}
 
-
-<!-- Stole this styling from the "up42-py" project (link: https://sdk.up42.com/) -->
-<!-- .tx-container Original Green Gradient: hsla(160deg,47%,55%,1) -->
 <style>
+   .md-main .md-content {
+      display: none;
+   }
 
-    .md-main .md-content{
-        display: none;
-    }
-    .md-main .md-main__inner {
-       margin: 0;
-    }
+   .md-main .md-main__inner {
+      margin: 0;
+   }
 
-    .tx-container {
+   .tx-container {
       padding-top: .0rem;
-      background: linear-gradient(180deg,#60bee4,#1173a4);
+      background: linear-gradient(180deg, #60bee4, #1173a4);
       overflow: hidden;
       padding: 2rem 0;
       position: relative;
       text-align: center;
-    }
+   }
 
-    .tx-hero {
-        margin: 32px 42px;
-        color: var(--md-primary-bg-color);
-        justify-content: center;
-    }
+   .tx-hero {
+      margin: 32px 42px;
+      color: var(--md-primary-bg-color);
+      justify-content: center;
+   }
 
-    .tx-hero h1 {
-        margin-bottom: 1rem;
-        color: currentColor;
-        font-weight: 700
-    }
+   .tx-hero h1 {
+      margin-bottom: 1rem;
+      color: currentColor;
+      font-weight: 700
+   }
 
-    .tx-hero__content {
-        /* padding-bottom: 1rem; */
-        margin: 0 auto;
-    }
-    .tx-hero__content > p.large-screen-only {
+   .tx-hero__content {
+      /* padding-bottom: 1rem; */
+      margin: 0 auto;
+   }
+
+   .tx-hero__content>p.large-screen-only {
       display: none;
-    }
-    .tx-hero__content > p {
+   }
+
+   .tx-hero__content>p {
       font-size: 20px;
       font-style: italic;
       line-height: 1.4rem;
       margin-bottom: 0;
-     }
-     .tx-hero__content > a {
+   }
+
+   .tx-hero__content>a {
       background: #003257;
       border-radius: 50px;
       color: #fff;
@@ -59,372 +60,301 @@
       padding: 0.5rem 2rem;
       font-weight: bold;
       display: inline-block;
-     }
-     .tx-hero__content > a:hover {
+   }
+
+   .tx-hero__content>a:hover {
       background: #3e99c5;
       color: #fff;
-     }
+   }
 
-    .tx-hero__image{
-        width:100%;
-        height:auto;
-        margin: 0 auto;
-        /* order:1; */
-    }
+   .tx-hero__image {
+      width: 100%;
+      height: auto;
+      margin: 0 auto;
+      /* order:1; */
+   }
 
-    .tx-hero .md-button {
-        margin-top: .5rem;
-        margin-right: .5rem;
-        color: var(--md-primary-bg-color)
-    }
+   .tx-hero .md-button {
+      margin-top: .5rem;
+      margin-right: .5rem;
+      color: var(--md-primary-bg-color)
+   }
 
-    .tx-hero .md-button--primary {
-        background-color: var(--md-primary-bg-color);
-        color: hsla(280deg, 37%, 48%, 1);
-        border-color: var(--md-primary-bg-color)
-    }
+   .tx-hero .md-button--primary {
+      background-color: var(--md-primary-bg-color);
+      color: hsla(280deg, 37%, 48%, 1);
+      border-color: var(--md-primary-bg-color)
+   }
 
-    .tx-hero .md-button:focus,
-    .tx-hero .md-button:hover {
-        background-color: var(--md-accent-fg-color);
-        color: var(--md-default-bg-color);
-        border-color: var(--md-accent-fg-color)
-    }
+   .tx-hero .md-button:focus,
+   .tx-hero .md-button:hover {
+      background-color: var(--md-accent-fg-color);
+      color: var(--md-default-bg-color);
+      border-color: var(--md-accent-fg-color)
+   }
 
-    /* custom styles starts */
+   /* custom styles starts */
 
-    section.features {
+   section.features {
       background: #1474a6;
-      background: linear-gradient(180deg,#1474a6 50%,#2E8CBB);
-    }
+      background: linear-gradient(180deg, #1474a6 50%, #2E8CBB);
+   }
 
-    section.features .tx-container {
+   section.features .tx-container {
       background: transparent;
       display: flex;
       flex-direction: column;
-    }
+   }
 
-    section.features .title {
+   section.features .title {
       color: #fff;
       font-size: 32px;
       text-align: center;
-    }
+   }
 
-    section.features .featureSvg {
+   section.features .featureSvg {
       height: 250px;
       margin: 10px 0;
       width: 300px;
-    }
+   }
 
-    section.features .hero__subtitle, .textContainer {
+   section.features .hero__subtitle,
+   .textContainer {
       color: #fff;
       padding: 1rem 3rem;
       text-align: center;
-    }
+   }
 
-    section.features .hero__subtitle, .textContainer h3 {
-        font-size: 24px;
-    }
-    section.features .hero__subtitle, .textContainer p {
-        font-size: 16px;
-    }
+   section.features .hero__subtitle,
+   .textContainer h3 {
+      font-size: 24px;
+   }
 
-    section.features .col.col--4, section.features .col.col--6 {
-        width: 100%;
-    }
+   section.features .hero__subtitle,
+   .textContainer p {
+      font-size: 16px;
+   }
 
-    .feature-item h2 svg {
-        height: 30px;
-        float: left;
-        margin-right: 10px;
-        transform: translateY(10%);
-    }
+   section.features .col.col--4,
+   section.features .col.col--6 {
+      width: 100%;
+   }
 
-    section.features.community, section.features.what-you-get, section.features .title, section.features.stay-in-touch {
-       padding:0px 0.6rem;
-    }
+   .feature-item h2 svg {
+      height: 30px;
+      float: left;
+      margin-right: 10px;
+      transform: translateY(10%);
+   }
 
-    section.features.what-you-get {
+   section.features.community,
+   section.features.what-you-get,
+   section.features .title,
+   section.features.stay-in-touch {
+      padding: 0px 0.6rem;
+   }
+
+   section.features.what-you-get {
       align-items: center;
       background: #52afd8;
-      background: linear-gradient(180deg,#2E8CBB 50%,#52afd8);
+      background: linear-gradient(180deg, #2E8CBB 50%, #52afd8);
       border-bottom: 1px solid #8bcae5;
       border-top: 1px solid #8bcae5;
       width: 100%;
-    }
-    section.features.what-you-get .title{
+   }
+
+   section.features.what-you-get .title {
       margin-bottom: 0px;
-    }
-    section.features.what-you-get .textContainer{
+   }
+
+   section.features.what-you-get .textContainer {
       padding: 0.5rem 2.2rem;
-    }
+   }
 
-    section.features.community {
+   section.features.community {
       align-items: center;
-      background: linear-gradient(180deg,#52afd8 50%,#60bee4);
+      background: linear-gradient(180deg, #52afd8 50%, #60bee4);
       border-bottom: 1px solid #8bcae5;
-    }
-    section.features.community .tx-container{
-      padding-top: 0;
-    }
+   }
 
-    section.features.community .testimonialAnchor_iYyG { 
+   section.features.community .tx-container {
+      padding-top: 0;
+   }
+
+   section.features.community .testimonialAnchor_iYyG {
       margin: 1rem 0.5rem 0.3rem;
       background-color: #fff;
       border-radius: 5px;
       color: #1c1e21;
       display: block;
       padding: 1.6rem;
-    }
-    section.features.community .testimonialAnchor_iYyG.hidden { 
-       display: none;
-    }
-    section.features.community .testimonialHeader_iSI8 {
-        display: flex;
-        height: 45px;
-        justify-content: space-between;
-        margin-bottom: 30px;
-        text-align: left;
-    }
-    section.features.community .testimonialUserInfo_th5k {
+   }
+
+   section.features.community .testimonialAnchor_iYyG.hidden {
+      display: none;
+   }
+
+   section.features.community .testimonialHeader_iSI8 {
       display: flex;
-    }
-    section.features.community .testimonialProfilePic_wg0d {
-        border-radius: 50%;
-        height: auto;
-        width: 45px;
-    }
-    section.features.community .testimonialUserInfo_th5k h6, section.features.community .testimonialUserInfo_th5k p {
+      height: 45px;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      text-align: left;
+   }
+
+   section.features.community .testimonialUserInfo_th5k {
+      display: flex;
+   }
+
+   section.features.community .testimonialProfilePic_wg0d {
+      border-radius: 50%;
+      height: auto;
+      width: 45px;
+   }
+
+   section.features.community .testimonialUserInfo_th5k h6,
+   section.features.community .testimonialUserInfo_th5k p {
       margin-bottom: 0;
       margin-left: 10px;
       font-size: 13.6px;
-      margin-top:0;
-    }
-    section.features.community .testimonialUserInfo_th5k p {
-      font-size: 16px;
-    }
-    section.features.community .testimonialSourceIcon_RwqW {
-        height: auto;
-        width: 20px;
-    }
+      margin-top: 0;
+   }
 
-    section.features.community .testimonialWrapper_gvoa .testimonialDescription_MWAM{
+   section.features.community .testimonialUserInfo_th5k p {
+      font-size: 16px;
+   }
+
+   section.features.community .testimonialSourceIcon_RwqW {
+      height: auto;
+      width: 20px;
+   }
+
+   section.features.community .testimonialWrapper_gvoa .testimonialDescription_MWAM {
       font-size: 16px;
       line-height: 26px;
-    }
+   }
 
-    section.features.what-you-get .col.col--4 .textContainer{ 
-         text-align: left;
-      }
+   section.features.what-you-get .col.col--4 .textContainer {
+      text-align: left;
+   }
 
-      section.features.stay-in-touch {
-         background: #60bee4;
-      }
-      section.features.stay-in-touch .title {
-         margin-bottom: 0;
-      }
+   section.features.stay-in-touch {
+      background: #60bee4;
+   }
 
-      section.features.stay-in-touch .tx-container {
-         padding-top:0px;
-      }
+   section.features.stay-in-touch .title {
+      margin-bottom: 0;
+   }
 
-      section.features.stay-in-touch .tx-hero__content p{
-         color: white;
-         font-style:normal;
-         font-size: 16px;
-      }
-      section.features.stay-in-touch .tx-hero__content p a{
-         text-decoration: underline;
-       }
+   section.features.stay-in-touch .tx-container {
+      padding-top: 0px;
+   }
 
-       .buttons_AeoN, .buttons_E9Qp {
-         align-items: center;
-         display: flex;
-         justify-content: center;
-         margin-top: 55px;
-      }
-      .heroButton_F0GI, .heroButton_GTT_ {
-         background: #003257;
-         border-radius: 25px;
-         color: #fff;
-         font-size: 16px;
-         margin-top: -24px;
-         padding: 11px 40px;
-         cursor:pointer;
-         font-weight: bold;
-      }
-      .heroButton_F0GI:hover, .heroButton_GTT_:hover {
-         background: #3e99c5;
-      }
+   section.features.stay-in-touch .tx-hero__content p {
+      color: white;
+      font-style: normal;
+      font-size: 16px;
+   }
 
-       .footer.footer--dark .tx-container {
-         background: #003257;
-         position: inherit;
-      }
-      .footer .footer__links {
-         margin-bottom: 16px;
-         display: flex;
-         flex-wrap: wrap;
-         margin: 0 calc(1rem*-1);
-         flex-direction: column;
-      }
-      .footer.footer--dark .tx-container .footer__bottom {
-         background-color: #003a60;
-         left: 0;
-         padding: 32px;
-         position: absolute;
-         width: 100%;
-      }
-      .footer.footer--dark .footer__col {
-         border: none;
-         height: auto;
-         margin: 16px auto;
-         padding-left: 32px;
-         width: 100%;
-         text-align: left;
-         color: #fff;
-      }
-      .footer.footer--dark .footer__col .footer__title {
-         font-size: 16px;
-         letter-spacing: .025rem;
-         font-weight: bold;
-         margin-bottom: 16px;
-      }
-      .footer__items {
-         margin-bottom: 0;
-         list-style: none;
-         padding-left: 0;
-         line-height: 24px;
-      }
-      .footer.footer--dark .footer__col:first-child .footer__item {
-         display: inline-block;
-         padding: 0.3rem;
-      }
-      .footer-discord-link:before, .footer-facebook-link:before, .footer-github-link:before, .footer-linkedin-link:before, .footer-twitter-link:before, .header-discord-link:before {
-         background-color: #8c9fae;
-         height: 24px;
-         width: 24px;
-         content: "";
-      }
+   section.features.stay-in-touch .tx-hero__content p a {
+      text-decoration: underline;
+   }
 
-      .footer-discord-link:before{
-         display: flex;
-         -webkit-mask-image: url(data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJHcmFwaGljX0VsZW1lbnRzIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjAiIHk9IjAiIHZpZXdCb3g9IjAgMCAxMzUgMTM1IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMzUgMTM1IiB4bWw6c3BhY2U9InByZXNlcnZlIj48c3R5bGU+LnN0MHtmaWxsOiNmZmZ9PC9zdHlsZT48cGF0aCBjbGFzcz0ic3QwIiBkPSJNNjcuNSAwQzMwLjIgMCAwIDMwLjIgMCA2Ny41UzMwLjIgMTM1IDY3LjUgMTM1IDEzNSAxMDQuOCAxMzUgNjcuNSAxMDQuOCAwIDY3LjUgMHptNDMuNCA4OS43Yy02LjYgNS0xNC4xIDguNy0yMiAxMS4xLTEuOC0yLjQtMy40LTUtNC43LTcuNiAyLjYtMSA1LjEtMi4yIDcuNC0zLjYtLjYtLjUtMS4yLS45LTEuOC0xLjQtMTQgNi42LTMwLjEgNi42LTQ0LjEgMC0uNi41LTEuMi45LTEuOCAxLjQgMi40IDEuNCA0LjkgMi42IDcuNCAzLjUtMS40IDIuNy0yLjkgNS4yLTQuNyA3LjctNy45LTIuNC0xNS40LTYuMi0yMi0xMS4xQzIzIDczLjUgMjYuMSA1NyAzNy40IDQwLjFjNS43LTIuNiAxMS44LTQuNSAxOC01LjYuOSAxLjUgMS43IDMuMSAyLjQgNC43IDYuNi0xIDEzLjMtMSAxOS45IDAgLjYtMS41IDEuNS0zLjMgMi4zLTQuNyA2LjIgMS4xIDEyLjIgMi45IDE4IDUuNSA5LjggMTQuNiAxNC43IDMwLjkgMTIuOSA0OS43eiIvPjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik01My4yIDYyLjJjLTQuNCAwLTcuOCA0LTcuOCA4LjhzMy41IDguOCA3LjggOC44YzQuNCAwIDcuOC00IDcuOC04LjguMS00LjktMy40LTguOC03LjgtOC44ek04Mi4xIDYyLjJjLTQuNCAwLTcuOCA0LTcuOCA4LjhzMy41IDguOCA3LjggOC44YzQuNCAwIDcuOC00IDcuOC04LjguMS00LjktMy40LTguOC03LjgtOC44eiIvPjwvc3ZnPg==);
-         mask-image: url(data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJHcmFwaGljX0VsZW1lbnRzIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjAiIHk9IjAiIHZpZXdCb3g9IjAgMCAxMzUgMTM1IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMzUgMTM1IiB4bWw6c3BhY2U9InByZXNlcnZlIj48c3R5bGU+LnN0MHtmaWxsOiNmZmZ9PC9zdHlsZT48cGF0aCBjbGFzcz0ic3QwIiBkPSJNNjcuNSAwQzMwLjIgMCAwIDMwLjIgMCA2Ny41UzMwLjIgMTM1IDY3LjUgMTM1IDEzNSAxMDQuOCAxMzUgNjcuNSAxMDQuOCAwIDY3LjUgMHptNDMuNCA4OS43Yy02LjYgNS0xNC4xIDguNy0yMiAxMS4xLTEuOC0yLjQtMy40LTUtNC43LTcuNiAyLjYtMSA1LjEtMi4yIDcuNC0zLjYtLjYtLjUtMS4yLS45LTEuOC0xLjQtMTQgNi42LTMwLjEgNi42LTQ0LjEgMC0uNi41LTEuMi45LTEuOCAxLjQgMi40IDEuNCA0LjkgMi42IDcuNCAzLjUtMS40IDIuNy0yLjkgNS4yLTQuNyA3LjctNy45LTIuNC0xNS40LTYuMi0yMi0xMS4xQzIzIDczLjUgMjYuMSA1NyAzNy40IDQwLjFjNS43LTIuNiAxMS44LTQuNSAxOC01LjYuOSAxLjUgMS43IDMuMSAyLjQgNC43IDYuNi0xIDEzLjMtMSAxOS45IDAgLjYtMS41IDEuNS0zLjMgMi4zLTQuNyA2LjIgMS4xIDEyLjIgMi45IDE4IDUuNSA5LjggMTQuNiAxNC43IDMwLjkgMTIuOSA0OS43eiIvPjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik01My4yIDYyLjJjLTQuNCAwLTcuOCA0LTcuOCA4LjhzMy41IDguOCA3LjggOC44YzQuNCAwIDcuOC00IDcuOC04LjguMS00LjktMy40LTguOC03LjgtOC44ek04Mi4xIDYyLjJjLTQuNCAwLTcuOCA0LTcuOCA4LjhzMy41IDguOCA3LjggOC44YzQuNCAwIDcuOC00IDcuOC04LjguMS00LjktMy40LTguOC03LjgtOC44eiIvPjwvc3ZnPg==);
-      }
-      .footer-github-link:before {
-         display: flex;
-         -webkit-mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMzUgMTMzIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMzUgMTMzIiB4bWw6c3BhY2U9InByZXNlcnZlIj48cGF0aCBkPSJNMTM1IDY3LjVDMTM1IDMwLjIgMTA0LjggMCA2Ny41IDBTMCAzMC4yIDAgNjcuNWMwIDMxLjYgMjEuNyA1OC4xIDUxIDY1LjUgMC0uMi4xLS40LjEtLjYgMC0xLjUtLjEtNi44LS4xLTEyLjMtMTguNCA0LTIyLjItNy45LTIyLjItNy45LTMtNy43LTcuMy05LjctNy4zLTkuNy02LTQuMS40LTQuMS40LTQuMSA2LjcuNCAxMC4yIDYuOCAxMC4yIDYuOCA1LjkgMTAuMSAxNS40IDcuMyAxOS4yIDUuNS41LTQuMyAyLjMtNy4zIDQuMi04LjktMTQuNi0xLjUtMzAtNy4zLTMwLTMyLjggMC03LjMgMi42LTEzLjIgNi44LTE3LjgtLjctMS43LTMtOC41LjctMTcuNiAwIDAgNS42LTEuOCAxOC4xIDYuOCA1LjQtMS41IDEwLjktMi4yIDE2LjUtMi4yczExLjMuOCAxNi41IDIuMmMxMi42LTguNiAxOC4xLTYuOCAxOC4xLTYuOCAzLjYgOS4xIDEuMyAxNiAuNyAxNy42IDQuMyA0LjYgNi44IDEwLjYgNi44IDE3LjggMCAyNS41LTE1LjQgMzEuMS0zMC4yIDMyLjggMi40IDIuMSA0LjUgNi4xIDQuNSAxMi4zIDAgOC45LS4xIDE2LjEtLjEgMTguMyAwIC4yIDAgLjQuMS43IDI5LjItNy40IDUxLTMzLjkgNTEtNjUuNnoiIHN0eWxlPSJmaWxsLXJ1bGU6ZXZlbm9kZDtjbGlwLXJ1bGU6ZXZlbm9kZDtmaWxsOiNmZmYiLz48L3N2Zz4=);
-         mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMzUgMTMzIiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMzUgMTMzIiB4bWw6c3BhY2U9InByZXNlcnZlIj48cGF0aCBkPSJNMTM1IDY3LjVDMTM1IDMwLjIgMTA0LjggMCA2Ny41IDBTMCAzMC4yIDAgNjcuNWMwIDMxLjYgMjEuNyA1OC4xIDUxIDY1LjUgMC0uMi4xLS40LjEtLjYgMC0xLjUtLjEtNi44LS4xLTEyLjMtMTguNCA0LTIyLjItNy45LTIyLjItNy45LTMtNy43LTcuMy05LjctNy4zLTkuNy02LTQuMS40LTQuMS40LTQuMSA2LjcuNCAxMC4yIDYuOCAxMC4yIDYuOCA1LjkgMTAuMSAxNS40IDcuMyAxOS4yIDUuNS41LTQuMyAyLjMtNy4zIDQuMi04LjktMTQuNi0xLjUtMzAtNy4zLTMwLTMyLjggMC03LjMgMi42LTEzLjIgNi44LTE3LjgtLjctMS43LTMtOC41LjctMTcuNiAwIDAgNS42LTEuOCAxOC4xIDYuOCA1LjQtMS41IDEwLjktMi4yIDE2LjUtMi4yczExLjMuOCAxNi41IDIuMmMxMi42LTguNiAxOC4xLTYuOCAxOC4xLTYuOCAzLjYgOS4xIDEuMyAxNiAuNyAxNy42IDQuMyA0LjYgNi44IDEwLjYgNi44IDE3LjggMCAyNS41LTE1LjQgMzEuMS0zMC4yIDMyLjggMi40IDIuMSA0LjUgNi4xIDQuNSAxMi4zIDAgOC45LS4xIDE2LjEtLjEgMTguMyAwIC4yIDAgLjQuMS43IDI5LjItNy40IDUxLTMzLjkgNTEtNjUuNnoiIHN0eWxlPSJmaWxsLXJ1bGU6ZXZlbm9kZDtjbGlwLXJ1bGU6ZXZlbm9kZDtmaWxsOiNmZmYiLz48L3N2Zz4=);
-      }
-      .footer-twitter-link:before {
-         display: flex;
-         -webkit-mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMzUgMTM1IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMzUgMTM1IiB4bWw6c3BhY2U9InByZXNlcnZlIj48cGF0aCBkPSJNNjcuNSAwQzMwLjIgMCAwIDMwLjIgMCA2Ny41UzMwLjIgMTM1IDY3LjUgMTM1IDEzNSAxMDQuOCAxMzUgNjcuNSAxMDQuOCAwIDY3LjUgMHptMzYuMiA1My43djIuMmMwIDIyLjktMTcuNCA0OS4zLTQ5LjMgNDkuMy05LjggMC0xOC45LTIuOS0yNi42LTcuOCAxLjQuMiAyLjcuMiA0LjEuMiA4LjEgMCAxNS42LTIuOCAyMS41LTcuNC03LjYtLjEtMTQtNS4yLTE2LjItMTIgMS4xLjIgMi4xLjMgMy4zLjMgMS42IDAgMy4xLS4yIDQuNi0uNi03LjktMS42LTEzLjktOC42LTEzLjktMTd2LS4yYzIuMyAxLjMgNSAyLjEgNy44IDIuMi00LjctMy4xLTcuNy04LjQtNy43LTE0LjQgMC0zLjIuOS02LjEgMi4zLTguNyA4LjcgMTAuNCAyMS40IDE3LjMgMzUuOCAxOC0uMy0xLjMtLjQtMi42LS40LTQgMC05LjYgNy44LTE3LjMgMTcuMy0xNy4zIDUgMCA5LjUgMi4xIDEyLjYgNS41IDMuOS0uOCA3LjctMi4yIDExLTQuMi0xLjMgNC00IDcuNC03LjYgOS42IDMuNS0uNCA2LjgtMS4zIDEwLTIuNy0yLjMgMy41LTUuMyA2LjUtOC42IDl6IiBzdHlsZT0iZmlsbDojZmZmIi8+PC9zdmc+);
-         mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMzUgMTM1IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMzUgMTM1IiB4bWw6c3BhY2U9InByZXNlcnZlIj48cGF0aCBkPSJNNjcuNSAwQzMwLjIgMCAwIDMwLjIgMCA2Ny41UzMwLjIgMTM1IDY3LjUgMTM1IDEzNSAxMDQuOCAxMzUgNjcuNSAxMDQuOCAwIDY3LjUgMHptMzYuMiA1My43djIuMmMwIDIyLjktMTcuNCA0OS4zLTQ5LjMgNDkuMy05LjggMC0xOC45LTIuOS0yNi42LTcuOCAxLjQuMiAyLjcuMiA0LjEuMiA4LjEgMCAxNS42LTIuOCAyMS41LTcuNC03LjYtLjEtMTQtNS4yLTE2LjItMTIgMS4xLjIgMi4xLjMgMy4zLjMgMS42IDAgMy4xLS4yIDQuNi0uNi03LjktMS42LTEzLjktOC42LTEzLjktMTd2LS4yYzIuMyAxLjMgNSAyLjEgNy44IDIuMi00LjctMy4xLTcuNy04LjQtNy43LTE0LjQgMC0zLjIuOS02LjEgMi4zLTguNyA4LjcgMTAuNCAyMS40IDE3LjMgMzUuOCAxOC0uMy0xLjMtLjQtMi42LS40LTQgMC05LjYgNy44LTE3LjMgMTcuMy0xNy4zIDUgMCA5LjUgMi4xIDEyLjYgNS41IDMuOS0uOCA3LjctMi4yIDExLTQuMi0xLjMgNC00IDcuNC03LjYgOS42IDMuNS0uNCA2LjgtMS4zIDEwLTIuNy0yLjMgMy41LTUuMyA2LjUtOC42IDl6IiBzdHlsZT0iZmlsbDojZmZmIi8+PC9zdmc+);
-      }
-      .footer-facebook-link:before {
-         display: flex;
-         -webkit-mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMzUgMTM0LjkiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDEzNSAxMzQuOSIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHBhdGggZD0iTTEzNSA2Ny41QzEzNSAzMC4yIDEwNC44IDAgNjcuNSAwUzAgMzAuMiAwIDY3LjVjMCAzMi4zIDIyLjcgNTkuMiA1Mi45IDY1LjlWOTNIMzcuNlY3NS42aDE1LjNWNjIuM2MwLTE1LjEgOS0yMy40IDIyLjgtMjMuNCA2LjYgMCAxMy41IDEuMiAxMy41IDEuMnYxNC44aC03LjZjLTcuNSAwLTkuOCA0LjYtOS44IDkuNHYxMS4zaDE2LjdMODUuOCA5M2gtMTR2NDEuOWMzNS4yLTIuMiA2My4yLTMxLjYgNjMuMi02Ny40eiIgc3R5bGU9ImZpbGw6I2ZmZiIvPjwvc3ZnPg==);
-         mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMzUgMTM0LjkiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDEzNSAxMzQuOSIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHBhdGggZD0iTTEzNSA2Ny41QzEzNSAzMC4yIDEwNC44IDAgNjcuNSAwUzAgMzAuMiAwIDY3LjVjMCAzMi4zIDIyLjcgNTkuMiA1Mi45IDY1LjlWOTNIMzcuNlY3NS42aDE1LjNWNjIuM2MwLTE1LjEgOS0yMy40IDIyLjgtMjMuNCA2LjYgMCAxMy41IDEuMiAxMy41IDEuMnYxNC44aC03LjZjLTcuNSAwLTkuOCA0LjYtOS44IDkuNHYxMS4zaDE2LjdMODUuOCA5M2gtMTR2NDEuOWMzNS4yLTIuMiA2My4yLTMxLjYgNjMuMi02Ny40eiIgc3R5bGU9ImZpbGw6I2ZmZiIvPjwvc3ZnPg==);
-      }
-      .footer-linkedin-link:before {
-         display: flex;
-         -webkit-mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMzUgMTM1IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMzUgMTM1IiB4bWw6c3BhY2U9InByZXNlcnZlIj48cGF0aCBkPSJNNjcuNSAwQzMwLjIgMCAwIDMwLjIgMCA2Ny41UzMwLjIgMTM1IDY3LjUgMTM1IDEzNSAxMDQuOCAxMzUgNjcuNSAxMDQuOCAwIDY3LjUgMHpNNDUuMiAxMDQuNGMtNC44LS4xLTkuNiAwLTE0LjQgMC0uOCAwLTEtLjItMS0xVjUyLjFjMC0uNy4yLTEgLjktMWgxNC42Yy45IDAgMS4xLjQgMS4xIDEuMnY1MWMwIC44LS4yIDEuMS0xLjIgMS4xem0tNy4xLTYwLjZjLTUuMiAwLTkuNi00LjMtOS42LTkuNSAwLTUuMyA0LjMtOS42IDkuNi05LjYgNS4yIDAgOS42IDQuMyA5LjYgOS41cy00LjMgOS42LTkuNiA5LjZ6bTcwLjQgNTkuNWMwIC45LS4yIDEuMS0xLjEgMS4xSDkzYy0uOCAwLTEtLjMtMS0xLjFWNzYuN2MwLTIuMi0uMS00LjQtLjgtNi42LTEuMS00LTQtNi04LjItNS44LTUuNy4zLTguNyAzLjEtOS40IDguOS0uMiAxLjQtLjMgMi44LS4zIDQuMnYyNS45YzAgLjktLjIgMS4xLTEuMSAxLjFINTcuN2MtLjggMC0xLS4yLTEtMVY1Mi4xYzAtLjguMy0xIDEuMS0xaDEzLjhjLjggMCAxLjEuMyAxIDEuMXY2LjFjMS4xLTEuMiAyLTIuNSAzLjItMy42IDMuNS0zLjMgNy42LTUgMTIuNS00LjkgMi43IDAgNS4zLjIgNy44IDEgNS45IDEuNyA5LjMgNS43IDEwLjkgMTEuNSAxLjIgNC4zIDEuNCA4LjcgMS41IDEzLjEuMSA5LjIgMCAxOC42IDAgMjcuOXoiIHN0eWxlPSJmaWxsOiNmZWZlZmUiLz48L3N2Zz4=);
-         mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMzUgMTM1IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAxMzUgMTM1IiB4bWw6c3BhY2U9InByZXNlcnZlIj48cGF0aCBkPSJNNjcuNSAwQzMwLjIgMCAwIDMwLjIgMCA2Ny41UzMwLjIgMTM1IDY3LjUgMTM1IDEzNSAxMDQuOCAxMzUgNjcuNSAxMDQuOCAwIDY3LjUgMHpNNDUuMiAxMDQuNGMtNC44LS4xLTkuNiAwLTE0LjQgMC0uOCAwLTEtLjItMS0xVjUyLjFjMC0uNy4yLTEgLjktMWgxNC42Yy45IDAgMS4xLjQgMS4xIDEuMnY1MWMwIC44LS4yIDEuMS0xLjIgMS4xem0tNy4xLTYwLjZjLTUuMiAwLTkuNi00LjMtOS42LTkuNSAwLTUuMyA0LjMtOS42IDkuNi05LjYgNS4yIDAgOS42IDQuMyA5LjYgOS41cy00LjMgOS42LTkuNiA5LjZ6bTcwLjQgNTkuNWMwIC45LS4yIDEuMS0xLjEgMS4xSDkzYy0uOCAwLTEtLjMtMS0xLjFWNzYuN2MwLTIuMi0uMS00LjQtLjgtNi42LTEuMS00LTQtNi04LjItNS44LTUuNy4zLTguNyAzLjEtOS40IDguOS0uMiAxLjQtLjMgMi44LS4zIDQuMnYyNS45YzAgLjktLjIgMS4xLTEuMSAxLjFINTcuN2MtLjggMC0xLS4yLTEtMVY1Mi4xYzAtLjguMy0xIDEuMS0xaDEzLjhjLjggMCAxLjEuMyAxIDEuMXY2LjFjMS4xLTEuMiAyLTIuNSAzLjItMy42IDMuNS0zLjMgNy42LTUgMTIuNS00LjkgMi43IDAgNS4zLjIgNy44IDEgNS45IDEuNyA5LjMgNS43IDEwLjkgMTEuNSAxLjIgNC4zIDEuNCA4LjcgMS41IDEzLjEuMSA5LjIgMCAxOC42IDAgMjcuOXoiIHN0eWxlPSJmaWxsOiNmZWZlZmUiLz48L3N2Zz4=);
-      }
-      .footer.footer--dark .footer__col .footer__link-item {
-         font-size: 16px;
-         text-decoration: underline;
-         line-height: 1.3rem;
-      }
-      .footer.footer--dark .footer__col .footer__link-item:after {
-         background-color: #8c9fae;
-         content: "";
-         display: inline-block;
-         height: 35px;
-         margin-left: -0.4rem;
-         margin-top: -0.24rem;
-         -webkit-mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgOTYgOTYwIDk2MCIgd2lkdGg9IjQ4Ij48cGF0aCBkPSJNNTQwIDc5M3EtOS05LTktMjEuNXQ4LTIwLjVsMTQ3LTE0N0gxOTBxLTEzIDAtMjEuNS04LjVUMTYwIDU3NHEwLTEzIDguNS0yMS41VDE5MCA1NDRoNDk2TDUzOCAzOTZxLTktOS04LjUtMjF0OS41LTIxcTktOCAyMS41LTh0MjAuNSA4bDE5OSAxOTlxNSA1IDcgMTB0MiAxMXEwIDYtMiAxMXQtNyAxMEw1ODIgNzkzcS05IDktMjEgOXQtMjEtOVoiLz48L3N2Zz4=);
-         mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgOTYgOTYwIDk2MCIgd2lkdGg9IjQ4Ij48cGF0aCBkPSJNNTQwIDc5M3EtOS05LTktMjEuNXQ4LTIwLjVsMTQ3LTE0N0gxOTBxLTEzIDAtMjEuNS04LjVUMTYwIDU3NHEwLTEzIDguNS0yMS41VDE5MCA1NDRoNDk2TDUzOCAzOTZxLTktOS04LjUtMjF0OS41LTIxcTktOCAyMS41LTh0MjAuNSA4bDE5OSAxOTlxNSA1IDcgMTB0MiAxMXEwIDYtMiAxMXQtNyAxMEw1ODIgNzkzcS05IDktMjEgOXQtMjEtOVoiLz48L3N2Zz4=);
-         position: absolute;
-         transform: scale(.4);
-         width: 42px;
-      }
-      .footer.footer--dark .footer__copyright {
-         font-size: 13.6px;
-         letter-spacing: 0.4px;
-         opacity: .5;
-         color:#fff;
-      }
-    /*Custom style ends*/
+   .buttons_AeoN,
+   .buttons_E9Qp {
+      align-items: center;
+      display: flex;
+      justify-content: center;
+      margin-top: 55px;
+   }
 
-    .top-hr {
-        margin-top: 42px;
-    }
+   .heroButton_F0GI,
+   .heroButton_GTT_ {
+      background: #003257;
+      border-radius: 25px;
+      color: #fff;
+      font-size: 16px;
+      margin-top: -24px;
+      padding: 11px 40px;
+      cursor: pointer;
+      font-weight: bold;
+   }
 
-    .feature-item {
+   .heroButton_F0GI:hover,
+   .heroButton_GTT_:hover {
+      background: #3e99c5;
+   }
+
+   /*Custom style ends*/
+
+   .top-hr {
+      margin-top: 42px;
+   }
+
+   .feature-item {
       border-radius: 20px;
       margin-top: .5rem;
       margin-right: .5rem;
-	    background-color: var(--md-primary-bg-color);
+      background-color: var(--md-primary-bg-color);
       font-family: 'Lato', sans-serif;
       font-weight: 300;
       box-sizing: border-box;
       padding: 0 15px;
       word-break: break-word
-    }
+   }
 
-    .feature-item h2 {
-        color: #333;
-        font-weight: 300;
-        font-size: 25px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        line-height: normal;
-        margin-top: 20px;
-        margin-bottom: 10px;
-        font-family: inherit;
-    }
+   .feature-item h2 {
+      color: #333;
+      font-weight: 300;
+      font-size: 25px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: normal;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      font-family: inherit;
+   }
 
-    .feature-item p {
-        font-size: 16px;
-        line-height: 1.8em;
-        text-rendering: optimizeLegibility;
-        -webkit-font-smoothing: antialiased;
-        color: #111;
-        margin: 0 0 10px;
-        display: block;
-    }
+   .feature-item p {
+      font-size: 16px;
+      line-height: 1.8em;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      color: #111;
+      margin: 0 0 10px;
+      display: block;
+   }
 
-    @media screen and (max-width:30em) {
-        .tx-hero h1 {
-            font-size: 1.4rem
-        }
-    }
+   @media screen and (max-width:30em) {
+      .tx-hero h1 {
+         font-size: 1.4rem
+      }
+   }
 
-    @media screen and (min-width:60em) {
-        .md-sidebar--secondary {
-            display: none
-        }
+   @media screen and (min-width:60em) {
+      .md-sidebar--secondary {
+         display: none
+      }
 
-        .tx-hero {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
+      .tx-hero {
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         flex-direction: column;
+      }
 
-        .tx-hero__content > p.small-screen-only {
-          display: none;
-        }
-        .tx-hero__content > p.large-screen-only {
-          display: block;
-          line-height: 0.5rem;
-          font-size: 24px;
-        }
+      .tx-hero__content>p.small-screen-only {
+         display: none;
+      }
 
-        /* .tx-hero__content {
+      .tx-hero__content>p.large-screen-only {
+         display: block;
+         line-height: 0.5rem;
+         font-size: 24px;
+      }
+
+      /* .tx-hero__content {
             max-width: 22rem;
             margin-top: 3.5rem;
             margin-bottom: 3.5rem;
@@ -432,551 +362,613 @@
             margin-right: 4.0rem;
             align-items: center;
         } */
-        .tx-hero__image {
-          width: 37rem;
-          padding-right: 2.5rem;
-        }
-        
-        
-        /* Custom style starts*/
-        section.features .title {
-            font-size: 48px;
-         }
-        section.features .col.col--4 {
-            width: 100%;
-        }
-        section.features .tx-container {
-          flex-direction: row;
-          max-width: 1320px;
-          margin: 0 auto;
-        }
-        section.features.community .tx-container {
-          flex-direction: column;
-        }
+      .tx-hero__image {
+         width: 37rem;
+         padding-right: 2.5rem;
+      }
 
-        section.features.community .row {
-          display: flex;
-        }
 
-        section.features.what-you-get .tx-container{
-         flex-wrap: wrap; 
-        }
-        section.features.what-you-get .col.col--4 {   
-            width: 33%;
-         }
-         .footer .footer__links { 
-            max-width: 1392px;
-            margin: 0 auto;
-            flex-direction: row;
-         }
-         .footer.footer--dark .footer__col {
-            flex: 1 0;
-            border-left: 2px solid #214c6c;
-            height: 10rem;
-            margin: 24px auto 40px;
-            padding-left: 1.5rem;
-         }
-         .md-sidebar--secondary:not([hidden]) {
-            display: none;
-         }
-         section.features.stay-in-touch .tx-hero__content p{
-            font-size: 20px;
-         }
-         /* Custom style ends*/
-    }
+      /* Custom style starts*/
+      section.features .title {
+         font-size: 48px;
+      }
 
-    @media screen and (min-width:76.25em) {
-        .md-sidebar--primary {
-            display: none
-        }
+      section.features .col.col--4 {
+         width: 100%;
+      }
 
-        .top-hr {
-            width: 100%;
-            display: flex;
-            max-width: 61rem;
-            margin-right: auto;
-            margin-left: auto;
-            padding: 0 .2rem;
-        }
+      section.features .tx-container {
+         flex-direction: row;
+         max-width: 1320px;
+         margin: 0 auto;
+      }
 
-        .bottom-hr {
-            margin-top: 10px;
-            width: 100%;
-            display: flex;
-            max-width: 61rem;
-            margin-right: auto;
-            margin-left: auto;
-            padding: 0 .2rem;
-        }
+      section.features.community .tx-container {
+         flex-direction: column;
+      }
 
-        .feature-item {
-            flex: 1;
-            min-width: 0;
-        }
+      section.features.community .row {
+         display: flex;
+      }
 
-        .feature-item:hover {
-            background-color: #526cfe47;
-            border-radius: 3px;
-        }
-    }
+      section.features.what-you-get .tx-container {
+         flex-wrap: wrap;
+      }
 
-    .hr {
-        border-bottom: 1px solid #eee;
-        width: 100%;
-        margin: 20px 0;
-    }
+      section.features.what-you-get .col.col--4 {
+         width: 33%;
+      }
 
-    .text-center {
-        text-align: center;
-        padding-right: 15px;
-        padding-left: 15px;
-        margin-right: auto;
-        margin-left: auto;
-        margin-top: 15px;
-        font-family: 'Lato', sans-serif;
-        font-size: 23px;
-        font-weight: 300;
-        padding-bottom: 10px;
-    }
+      .md-sidebar--secondary:not([hidden]) {
+         display: none;
+      }
 
-    .logos {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-flow: row wrap;
-        margin: 0 auto;
-    }
+      section.features.stay-in-touch .tx-hero__content p {
+         font-size: 20px;
+      }
 
-    .logos img {
-        flex: 1 1 auto;
-        padding: 25px;
-        max-height: 130px;
-        vertical-align: middle;
-    }
+      /* Custom style ends*/
+   }
 
-    .hr-logos {
-        margin-top: 0;
-        margin-bottom: 30px;
-    }
+   @media screen and (min-width:76.25em) {
+      .md-sidebar--primary {
+         display: none
+      }
 
-    .md-footer-meta__inner {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        margin-top: 1.0rem;
-    }
+      .top-hr {
+         width: 100%;
+         display: flex;
+         max-width: 61rem;
+         margin-right: auto;
+         margin-left: auto;
+         padding: 0 .2rem;
+      }
 
-    .md-footer-social {
-        padding-top: 20px;
-    }
+      .bottom-hr {
+         margin-top: 10px;
+         width: 100%;
+         display: flex;
+         max-width: 61rem;
+         margin-right: auto;
+         margin-left: auto;
+         padding: 0 .2rem;
+      }
+
+      .feature-item {
+         flex: 1;
+         min-width: 0;
+      }
+
+      .feature-item:hover {
+         background-color: #526cfe47;
+         border-radius: 3px;
+      }
+   }
+
+   .hr {
+      border-bottom: 1px solid #eee;
+      width: 100%;
+      margin: 20px 0;
+   }
+
+   .text-center {
+      text-align: center;
+      padding-right: 15px;
+      padding-left: 15px;
+      margin-right: auto;
+      margin-left: auto;
+      margin-top: 15px;
+      font-family: 'Lato', sans-serif;
+      font-size: 23px;
+      font-weight: 300;
+      padding-bottom: 10px;
+   }
+
+   .logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-flow: row wrap;
+      margin: 0 auto;
+   }
+
+   .logos img {
+      flex: 1 1 auto;
+      padding: 25px;
+      max-height: 130px;
+      vertical-align: middle;
+   }
+
+   .hr-logos {
+      margin-top: 0;
+      margin-bottom: 30px;
+   }
+
+   .no-margin {
+      margin: 0;
+   }
+
+   .little-font {
+      font-size: 0.7rem;
+   }
+
+   .md-footer {
+      background-color: var(--md-primary-fg-color);
+      color: var(--md-footer-fg-color);
+   }
 </style>
+{% endblock %}
 
-
+{% block tabs %}
 <!-- Main site entry button descriptions -->
 <section class="tx-container">
-    <div class="md-grid md-typeset">
+   <div class="md-grid md-typeset">
       <div class="tx-hero">
-        <!-- Custom Image -->
-        <div class="tx-hero__image">
-	        <img src="assets/img/robot-hero-2.svg" draggable="false">
-        </div>
-	      <!-- Main Tagline -->
-          <div class="tx-hero__content">
+         <!-- Custom Image -->
+         <div class="tx-hero__image">
+            <img src="assets/img/robot-hero-2.svg" draggable="false">
+         </div>
+         <!-- Main Tagline -->
+         <div class="tx-hero__content">
             <p class="large-screen-only">Open-source framework for building asynchronous web</p>
             <p class="large-screen-only">services that interact with event streams</p>
-            <p class="small-screen-only">Open-source framework for building asynchronous web services that interact with event streams</p>
+            <p class="small-screen-only">Open-source framework for building asynchronous web services that interact with
+               event streams</p>
             <a href="faststream/" title="Getting Started" class="">
-              Get Started
+               Get Started
             </a>
-        </div>
+         </div>
       </div>
-    </div>
+   </div>
 </section>
 
 <section class="features">
-  <h2 class="title">Swim with the stream…ing services</h2>
-  <div class="tx-container">
-    <div class="col col--4">
-        <div class="text--center"><img class="featureSvg" src="assets/img/write.svg"></div>
-        <div class="textContainer">
-          <h3>WRITE</h3>
-          <p>producers &amp; consumers for message queues in a simplified way</p>
-        </div>
-    </div>
-    <div class="col col--4">
-        <div class="text--center"><img class="featureSvg" src="assets/img/Robot_chilling_transparent.svg"></div>
-        <div class="textContainer">
-          <h3>AUTOMATE</h3>
-          <p>parsing, networking, and documentation generation</p>
-        </div>
-    </div>
-    <div class="col col--4">
-        <div class="text--center"><img class="featureSvg" src="assets/img/Robot_wins_first_prize_transparent.svg"></div>
-        <div class="textContainer">
-          <h3>STREAMLINE</h3>
-          <p>your workflow &amp; accelerate your progress</p>
-        </div>
-    </div>
-  </div>
+   <h2 class="title">Swim with the stream…ing services</h2>
+   <div class="tx-container">
+      <div class="col col--4">
+         <div class="text--center"><img class="featureSvg" src="assets/img/write.svg"></div>
+         <div class="textContainer">
+            <h3>WRITE</h3>
+            <p>producers &amp; consumers for message queues in a simplified way</p>
+         </div>
+      </div>
+      <div class="col col--4">
+         <div class="text--center"><img class="featureSvg" src="assets/img/Robot_chilling_transparent.svg"></div>
+         <div class="textContainer">
+            <h3>AUTOMATE</h3>
+            <p>parsing, networking, and documentation generation</p>
+         </div>
+      </div>
+      <div class="col col--4">
+         <div class="text--center"><img class="featureSvg" src="assets/img/Robot_wins_first_prize_transparent.svg">
+         </div>
+         <div class="textContainer">
+            <h3>STREAMLINE</h3>
+            <p>your workflow &amp; accelerate your progress</p>
+         </div>
+      </div>
+   </div>
 </section>
 
 <section class="features what-you-get">
-  <h2 class="title">Go-to framework for modern, data-centric <br/> microservices</h2>
-  <div class="tx-container">
-   <div class="col col--4">
-      <div class="textContainer">
-        <h3>Multiple Brokers</h3>
-        <p>FastStream provides a unified API to work across multiple message brokers (Kafka, RabbitMQ, NATS, support)</p>
+   <h2 class="title">Go-to framework for modern, data-centric <br /> microservices</h2>
+   <div class="tx-container">
+      <div class="col col--4">
+         <div class="textContainer">
+            <h3>Multiple Brokers</h3>
+            <p>FastStream provides a unified API to work across multiple message brokers (Kafka, RabbitMQ, NATS,
+               support)</p>
+         </div>
       </div>
-   </div>
-   <div class="col col--4">
-      <div class="textContainer">
-        <h3>Pydantic Validation</h3>
-        <p>Leverage Pydantic's validation capabilities to serialize and validates incoming messages</p>
+      <div class="col col--4">
+         <div class="textContainer">
+            <h3>Pydantic Validation</h3>
+            <p>Leverage Pydantic's validation capabilities to serialize and validates incoming messages</p>
+         </div>
       </div>
-   </div>
-   <div class="col col--4">
-      <div class="textContainer">
-        <h3>Automatic Docs</h3>
-        <p>Stay ahead with automatic AsyncAPI documentation</p>
+      <div class="col col--4">
+         <div class="textContainer">
+            <h3>Automatic Docs</h3>
+            <p>Stay ahead with automatic AsyncAPI documentation</p>
+         </div>
       </div>
-   </div>
 
-   <div class="col col--4">
-      <div class="textContainer">
-        <h3>Intuitive</h3>
-        <p>Full-typed editor support makes your development experience smooth, catching errors before they reach runtime</p>
+      <div class="col col--4">
+         <div class="textContainer">
+            <h3>Intuitive</h3>
+            <p>Full-typed editor support makes your development experience smooth, catching errors before they reach
+               runtime</p>
+         </div>
       </div>
-   </div>
-   <div class="col col--4">
-      <div class="textContainer">
-        <h3>Powerful Dependency Injection System</h3>
-        <p>Manage your service dependencies efficiently with FastStream's built-in DI system</p>
+      <div class="col col--4">
+         <div class="textContainer">
+            <h3>Powerful Dependency Injection System</h3>
+            <p>Manage your service dependencies efficiently with FastStream's built-in DI system</p>
+         </div>
       </div>
-   </div>
-   <div class="col col--4">
-      <div class="textContainer">
-        <h3>Testable</h3>
-        <p>Supports in-memory tests, making your CI/CD pipeline faster and more reliable</p>
+      <div class="col col--4">
+         <div class="textContainer">
+            <h3>Testable</h3>
+            <p>Supports in-memory tests, making your CI/CD pipeline faster and more reliable</p>
+         </div>
       </div>
-   </div>
 
-   <div class="col col--4">
-      <div class="textContainer">
-        <h3>Extensible</h3>
-        <p>Use extensions for lifespans, custom serialization and middleware</p>
+      <div class="col col--4">
+         <div class="textContainer">
+            <h3>Extensible</h3>
+            <p>Use extensions for lifespans, custom serialization and middleware</p>
+         </div>
       </div>
-   </div>
-   <div class="col col--4">
-      <div class="textContainer">
-        <h3>Integrations</h3>
-        <p>FastStream is fully compatible with any HTTP framework you want (FastAPI especially)</p>
+      <div class="col col--4">
+         <div class="textContainer">
+            <h3>Integrations</h3>
+            <p>FastStream is fully compatible with any HTTP framework you want (FastAPI especially)</p>
+         </div>
       </div>
-   </div>
-   <div class="col col--4">
-      <div class="textContainer">
-        <h3>Built for Automatic Code Generation</h3>
-        <p>FastStream is optimized for automatic code generation using advanced models like GPT and Llama</p>
+      <div class="col col--4">
+         <div class="textContainer">
+            <h3>Built for Automatic Code Generation</h3>
+            <p>FastStream is optimized for automatic code generation using advanced models like GPT and Llama</p>
+         </div>
       </div>
-   </div>
 
 
-  </div>
+   </div>
 </section>
 
 <section class="features community">
-  <h2 class="title">The community has spoken!</h2>
-  <div class="container tx-container">
-    <div class="row">
-      <div class="col col--4 testimonialWrapper_gvoa">
-         <a href="https://twitter.com/nats_io/status/1716460663734759831" target="_blank" rel="noopener noreferrer" class="testimonialAnchor_iYyG">
-            <div>
-               <div class="testimonialHeader_iSI8">
-                  <div class="testimonialUserInfo_th5k">
-                     <img src="assets/img/nats-twitter-logo.jpeg" class="testimonialProfilePic_wg0d">
-                     <div>
-                        <h6>NATS.io</h6>
-                        <p>@nats_io</p>
+   <h2 class="title">The community has spoken!</h2>
+   <div class="container tx-container">
+      <div class="row">
+         <div class="col col--4 testimonialWrapper_gvoa">
+            <a href="https://twitter.com/nats_io/status/1716460663734759831" target="_blank" rel="noopener noreferrer"
+               class="testimonialAnchor_iYyG">
+               <div>
+                  <div class="testimonialHeader_iSI8">
+                     <div class="testimonialUserInfo_th5k">
+                        <img src="assets/img/nats-twitter-logo.jpeg" class="testimonialProfilePic_wg0d">
+                        <div>
+                           <h6>NATS.io</h6>
+                           <p>@nats_io</p>
+                        </div>
                      </div>
+                     <div><img class="testimonialSourceIcon_RwqW" src="assets/img/twitter-logo.svg" alt=""></div>
                   </div>
-                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/twitter-logo.svg" alt=""></div>
+                  <div class="text--center padding-horiz--md">
+                     <p class="testimonialDescription_MWAM">New Blog Post | Streamlining Asynchronous Services with
+                        FastStream 🌟<br /><br />
+
+                        For the NATS Python client users, check out this community contribution from
+                        @airt_AI. FastStream streamlines the entire process of working with message queues in
+                        microservices.</p>
+                  </div>
                </div>
-               <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">New Blog Post | Streamlining Asynchronous Services with FastStream 🌟<br/><br/>
-        
-                    For the NATS Python client users, check out this community contribution from 
-                    @airt_AI. FastStream streamlines the entire process of working with message queues in microservices.</p>
-               </div>
-            </div>
-         </a>
-         <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k1q7u9u/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="ElasticFluffyMagnet testimonialAnchor_iYyG">
-            <div>
-               <div class="testimonialHeader_iSI8">
-                  <div class="testimonialUserInfo_th5k">
-                     <img src="https://i.redd.it/snoovatar/avatars/94af58fe-18a7-47ec-bce3-832bd9360aa7.png" class="testimonialProfilePic_wg0d">
-                     <div>
-                        <h6>ElasticFluffyMagnet</h6>
-                        <p>u/ElasticFluffyMagnet</p>
+            </a>
+            <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k1q7u9u/?utm_source=share&utm_medium=web2x&context=3"
+               target="_blank" rel="noopener noreferrer" class="ElasticFluffyMagnet testimonialAnchor_iYyG">
+               <div>
+                  <div class="testimonialHeader_iSI8">
+                     <div class="testimonialUserInfo_th5k">
+                        <img src="https://i.redd.it/snoovatar/avatars/94af58fe-18a7-47ec-bce3-832bd9360aa7.png"
+                           class="testimonialProfilePic_wg0d">
+                        <div>
+                           <h6>ElasticFluffyMagnet</h6>
+                           <p>u/ElasticFluffyMagnet</p>
+                        </div>
                      </div>
+                     <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
                   </div>
-                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
+                  <div class="text--center padding-horiz--md">
+                     <p class="testimonialDescription_MWAM">Looks very interesting. Going to have a look when I'm done
+                        with my current project!</p>
+                  </div>
                </div>
-               <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">Looks very interesting. Going to have a look when I'm done with my current project!</p>
-               </div>
-            </div>
-         </a>
-         <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k7jbppc/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="phphater7 testimonialAnchor_iYyG hidden">
-            <div>
-               <div class="testimonialHeader_iSI8">
-                  <div class="testimonialUserInfo_th5k">
-                     <img src="https://i.redd.it/snoovatar/avatars/b4eb22a9-8c9e-4d78-8500-4d10767741c2.png" class="testimonialProfilePic_wg0d">
-                     <div>
-                        <h6>phphater7</h6>
-                        <p>u/phphater7</p>
+            </a>
+            <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k7jbppc/?utm_source=share&utm_medium=web2x&context=3"
+               target="_blank" rel="noopener noreferrer" class="phphater7 testimonialAnchor_iYyG hidden">
+               <div>
+                  <div class="testimonialHeader_iSI8">
+                     <div class="testimonialUserInfo_th5k">
+                        <img src="https://i.redd.it/snoovatar/avatars/b4eb22a9-8c9e-4d78-8500-4d10767741c2.png"
+                           class="testimonialProfilePic_wg0d">
+                        <div>
+                           <h6>phphater7</h6>
+                           <p>u/phphater7</p>
+                        </div>
                      </div>
+                     <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
                   </div>
-                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
+                  <div class="text--center padding-horiz--md">
+                     <p class="testimonialDescription_MWAM">This is awesome. Svaka čast</p>
+                  </div>
                </div>
-               <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">This is awesome. Svaka čast</p>
-               </div>
-            </div>
-         </a>
-         <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k1ryqaf/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="grudev testimonialAnchor_iYyG hidden">
-            <div>
-               <div class="testimonialHeader_iSI8">
-                  <div class="testimonialUserInfo_th5k">
-                     <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_5.png" class="testimonialProfilePic_wg0d">
-                     <div>
-                        <h6>grudev</h6>
-                        <p>u/grudev</p>
+            </a>
+            <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k1ryqaf/?utm_source=share&utm_medium=web2x&context=3"
+               target="_blank" rel="noopener noreferrer" class="grudev testimonialAnchor_iYyG hidden">
+               <div>
+                  <div class="testimonialHeader_iSI8">
+                     <div class="testimonialUserInfo_th5k">
+                        <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_5.png"
+                           class="testimonialProfilePic_wg0d">
+                        <div>
+                           <h6>grudev</h6>
+                           <p>u/grudev</p>
+                        </div>
                      </div>
+                     <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
                   </div>
-                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
+                  <div class="text--center padding-horiz--md">
+                     <p class="testimonialDescription_MWAM">Any chance you can write some examples on how to integrate
+                        with Django (if that's possible at all)?<br /><br />Great work, btw!</p>
+                  </div>
                </div>
-               <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">Any chance you can write some examples on how to integrate with Django (if that's possible at all)?<br /><br />Great work, btw!</p>
+            </a>
+         </div>
+         <div class="col col--4 testimonialWrapper_gvoa">
+            <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k1tfhv4/?utm_source=share&utm_medium=web2x&context=3"
+               target="_blank" rel="noopener noreferrer" class="ryanstephendavis testimonialAnchor_iYyG">
+               <div>
+                  <div class="testimonialHeader_iSI8">
+                     <div class="testimonialUserInfo_th5k">
+                        <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_0.png"
+                           class="testimonialProfilePic_wg0d">
+                        <div>
+                           <h6>ryanstephendavis</h6>
+                           <p>u/ryanstephendavis</p>
+                        </div>
+                     </div>
+                     <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
+                  </div>
+                  <div class="text--center padding-horiz--md">
+                     <p class="testimonialDescription_MWAM">Hell yeah, I've been wondering about good ways to setup
+                        streams with FastAPI... will have to try this out next time I get a good project fit</p>
+                  </div>
                </div>
-            </div>
-         </a>
+            </a>
+            <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k1tpcwo/?utm_source=share&utm_medium=web2x&context=3"
+               target="_blank" rel="noopener noreferrer" class="moosethemucha testimonialAnchor_iYyG">
+               <div>
+                  <div class="testimonialHeader_iSI8">
+                     <div class="testimonialUserInfo_th5k">
+                        <img src="https://i.redd.it/snoovatar/avatars/dd49b941-0a83-4815-aba3-76b83abdee62.png"
+                           class="testimonialProfilePic_wg0d">
+                        <div>
+                           <h6>moosethemucha</h6>
+                           <p>u/moosethemucha</p>
+                        </div>
+                     </div>
+                     <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
+                  </div>
+                  <div class="text--center padding-horiz--md">
+                     <p class="testimonialDescription_MWAM">This looks really cool - as someone who had to create a
+                        distributed application using rabbitmq and aiopika - this would have saved me alot of time - I
+                        love the decorations for pub sub.</p>
+                  </div>
+               </div>
+            </a>
+            <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k1sglo8/?utm_source=share&utm_medium=web2x&context=3"
+               target="_blank" rel="noopener noreferrer" class="TheGodfatherCC testimonialAnchor_iYyG hidden">
+               <div>
+                  <div class="testimonialHeader_iSI8">
+                     <div class="testimonialUserInfo_th5k">
+                        <img src="https://www.redditstatic.com/desktop2x/img/avatar_over18_square.png"
+                           class="testimonialProfilePic_wg0d">
+                        <div>
+                           <h6>TheGodfatherCC</h6>
+                           <p>u/TheGodfatherCC</p>
+                        </div>
+                     </div>
+                     <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
+                  </div>
+                  <div class="text--center padding-horiz--md">
+                     <p class="testimonialDescription_MWAM">This looks awesome! I had already been evaluating Propan for
+                        a project.</p>
+                  </div>
+               </div>
+            </a>
+            <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k98mmta/?utm_source=share&utm_medium=web2x&context=3"
+               target="_blank" rel="noopener noreferrer" class="__Timtam__ testimonialAnchor_iYyG hidden">
+               <div>
+                  <div class="testimonialHeader_iSI8">
+                     <div class="testimonialUserInfo_th5k">
+                        <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_5.png"
+                           class="testimonialProfilePic_wg0d">
+                        <div>
+                           <h6>__Timtam__</h6>
+                           <p>u/__Timtam__</p>
+                        </div>
+                     </div>
+                     <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
+                  </div>
+                  <div class="text--center padding-horiz--md">
+                     <p class="testimonialDescription_MWAM">Very nice package! Do you have any plans on implementing
+                        support for MQTT?</p>
+                  </div>
+               </div>
+            </a>
+            <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k1sx7zo/?utm_source=share&utm_medium=web2x&context=3"
+               target="_blank" rel="noopener noreferrer" class="bachkhois testimonialAnchor_iYyG hidden">
+               <div>
+                  <div class="testimonialHeader_iSI8">
+                     <div class="testimonialUserInfo_th5k">
+                        <img src="https://i.redd.it/snoovatar/avatars/d32fa526-1f2d-4311-9584-34be8c0a358a.png"
+                           class="testimonialProfilePic_wg0d">
+                        <div>
+                           <h6>bachkhois</h6>
+                           <p>u/bachkhois</p>
+                        </div>
+                     </div>
+                     <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
+                  </div>
+                  <div class="text--center padding-horiz--md">
+                     <p class="testimonialDescription_MWAM">Great!</p>
+                  </div>
+               </div>
+            </a>
+         </div>
+         <div class="col col--4 testimonialWrapper_gvoa">
+            <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k25cm1e/?utm_source=share&utm_medium=web2x&context=3"
+               target="_blank" rel="noopener noreferrer" class="robot__eyes testimonialAnchor_iYyG">
+               <div>
+                  <div class="testimonialHeader_iSI8">
+                     <div class="testimonialUserInfo_th5k">
+                        <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_6.png"
+                           class="testimonialProfilePic_wg0d">
+                        <div>
+                           <h6>robot__eyes</h6>
+                           <p>u/robot__eyes</p>
+                        </div>
+                     </div>
+                     <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
+                  </div>
+                  <div class="text--center padding-horiz--md">
+                     <p class="testimonialDescription_MWAM">This is fantastic. I've been looking for something with
+                        asyncio support to replace celery. Big plus that it supports rabbitMQ and kafka.</p>
+                  </div>
+               </div>
+            </a>
+            <a href="https://twitter.com/edwardkens50830/status/1710248156540145979" target="_blank"
+               rel="noopener noreferrer" class="testimonialAnchor_iYyG">
+               <div>
+                  <div class="testimonialHeader_iSI8">
+                     <div class="testimonialUserInfo_th5k">
+                        <img src="assets/img/letter-e.png" class="testimonialProfilePic_wg0d">
+                        <div>
+                           <h6>Edward Kensington</h6>
+                           <p>@EdwardKens50830</p>
+                        </div>
+                     </div>
+                     <div><img class="testimonialSourceIcon_RwqW" src="assets/img/twitter-logo.svg" alt=""></div>
+                  </div>
+                  <div class="text--center padding-horiz--md">
+                     <p class="testimonialDescription_MWAM">Congrats on trending in the Python category on GitHub! 🎉
+                        Your FastStream framework seems awesome and useful! Way to go! 💪 #achievement</p>
+                  </div>
+               </div>
+            </a>
+            <a href="https://www.reddit.com/r/FastAPI/comments/16rn1mg/comment/k2446oi/?utm_source=share&utm_medium=web2x&context=3"
+               target="_blank" rel="noopener noreferrer" class="Pale-Cantaloupe3878 testimonialAnchor_iYyG hidden">
+               <div>
+                  <div class="testimonialHeader_iSI8">
+                     <div class="testimonialUserInfo_th5k">
+                        <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_6.png"
+                           class="testimonialProfilePic_wg0d">
+                        <div>
+                           <h6>Pale-Cantaloupe3878</h6>
+                           <p>u/Pale-Cantaloupe3878</p>
+                        </div>
+                     </div>
+                     <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
+                  </div>
+                  <div class="text--center padding-horiz--md">
+                     <p class="testimonialDescription_MWAM">Great job, I like the idea and will try it out for sure!</p>
+                  </div>
+               </div>
+            </a>
+            <a href="https://twitter.com/dev_raj4522/status/1706417606956343529" target="_blank"
+               rel="noopener noreferrer" class="testimonialAnchor_iYyG hidden">
+               <div>
+                  <div class="testimonialHeader_iSI8">
+                     <div class="testimonialUserInfo_th5k">
+                        <img src="assets/img/letter-d.png" class="testimonialProfilePic_wg0d">
+                        <div>
+                           <h6>Dev Raj Singh</h6>
+                           <p>@Dev_raj4522</p>
+                        </div>
+                     </div>
+                     <div><img class="testimonialSourceIcon_RwqW" src="assets/img/twitter-logo.svg" alt=""></div>
+                  </div>
+                  <div class="text--center padding-horiz--md">
+                     <p class="testimonialDescription_MWAM">Fastapi with kafka</p>
+                  </div>
+               </div>
+            </a>
+         </div>
       </div>
-      <div class="col col--4 testimonialWrapper_gvoa">
-         <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k1tfhv4/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="ryanstephendavis testimonialAnchor_iYyG">
-            <div>
-               <div class="testimonialHeader_iSI8">
-                  <div class="testimonialUserInfo_th5k">
-                     <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_0.png" class="testimonialProfilePic_wg0d">
-                     <div>
-                        <h6>ryanstephendavis</h6>
-                        <p>u/ryanstephendavis</p>
-                     </div>
-                  </div>
-                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
-               </div>
-               <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">Hell yeah, I've been wondering about good ways to setup streams with FastAPI... will have to try this out next time I get a good project fit</p>
-               </div>
-            </div>
-         </a>
-         <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k1tpcwo/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="moosethemucha testimonialAnchor_iYyG">
-            <div>
-               <div class="testimonialHeader_iSI8">
-                  <div class="testimonialUserInfo_th5k">
-                     <img src="https://i.redd.it/snoovatar/avatars/dd49b941-0a83-4815-aba3-76b83abdee62.png" class="testimonialProfilePic_wg0d">
-                     <div>
-                        <h6>moosethemucha</h6>
-                        <p>u/moosethemucha</p>
-                     </div>
-                  </div>
-                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
-               </div>
-               <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">This looks really cool - as someone who had to create a distributed application using rabbitmq and aiopika - this would have saved me alot of time - I love the decorations for pub sub.</p>
-               </div>
-            </div>
-         </a>
-         <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k1sglo8/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="TheGodfatherCC testimonialAnchor_iYyG hidden">
-            <div>
-               <div class="testimonialHeader_iSI8">
-                  <div class="testimonialUserInfo_th5k">
-                     <img src="https://www.redditstatic.com/desktop2x/img/avatar_over18_square.png" class="testimonialProfilePic_wg0d">
-                     <div>
-                        <h6>TheGodfatherCC</h6>
-                        <p>u/TheGodfatherCC</p>
-                     </div>
-                  </div>
-                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
-               </div>
-               <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">This looks awesome! I had already been evaluating Propan for a project.</p>
-               </div>
-            </div>
-         </a>
-         <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k98mmta/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="__Timtam__ testimonialAnchor_iYyG hidden">
-            <div>
-               <div class="testimonialHeader_iSI8">
-                  <div class="testimonialUserInfo_th5k">
-                     <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_5.png" class="testimonialProfilePic_wg0d">
-                     <div>
-                        <h6>__Timtam__</h6>
-                        <p>u/__Timtam__</p>
-                     </div>
-                  </div>
-                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
-               </div>
-               <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">Very nice package! Do you have any plans on implementing support for MQTT?</p>
-               </div>
-            </div>
-         </a>
-         <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k1sx7zo/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="bachkhois testimonialAnchor_iYyG hidden">
-            <div>
-               <div class="testimonialHeader_iSI8">
-                  <div class="testimonialUserInfo_th5k">
-                     <img src="https://i.redd.it/snoovatar/avatars/d32fa526-1f2d-4311-9584-34be8c0a358a.png" class="testimonialProfilePic_wg0d">
-                     <div>
-                        <h6>bachkhois</h6>
-                        <p>u/bachkhois</p>
-                     </div>
-                  </div>
-                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
-               </div>
-               <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">Great!</p>
-               </div>
-            </div>
-         </a>
-      </div>
-      <div class="col col--4 testimonialWrapper_gvoa">
-         <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k25cm1e/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="robot__eyes testimonialAnchor_iYyG">
-            <div>
-               <div class="testimonialHeader_iSI8">
-                  <div class="testimonialUserInfo_th5k">
-                     <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_6.png" class="testimonialProfilePic_wg0d">
-                     <div>
-                        <h6>robot__eyes</h6>
-                        <p>u/robot__eyes</p>
-                     </div>
-                  </div>
-                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
-               </div>
-               <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">This is fantastic. I've been looking for something with asyncio support to replace celery. Big plus that it supports rabbitMQ and kafka.</p>
-               </div>
-            </div>
-         </a>
-         <a href="https://twitter.com/edwardkens50830/status/1710248156540145979" target="_blank" rel="noopener noreferrer" class="testimonialAnchor_iYyG">
-            <div>
-               <div class="testimonialHeader_iSI8">
-                  <div class="testimonialUserInfo_th5k">
-                     <img src="assets/img/letter-e.png" class="testimonialProfilePic_wg0d">
-                     <div>
-                        <h6>Edward Kensington</h6>
-                        <p>@EdwardKens50830</p>
-                     </div>
-                  </div>
-                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/twitter-logo.svg" alt=""></div>
-               </div>
-               <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">Congrats on trending in the Python category on GitHub! 🎉 Your FastStream framework seems awesome and useful! Way to go! 💪 #achievement</p>
-               </div>
-            </div>
-         </a>
-         <a href="https://www.reddit.com/r/FastAPI/comments/16rn1mg/comment/k2446oi/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="Pale-Cantaloupe3878 testimonialAnchor_iYyG hidden">
-            <div>
-               <div class="testimonialHeader_iSI8">
-                  <div class="testimonialUserInfo_th5k">
-                     <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_6.png" class="testimonialProfilePic_wg0d">
-                     <div>
-                        <h6>Pale-Cantaloupe3878</h6>
-                        <p>u/Pale-Cantaloupe3878</p>
-                     </div>
-                  </div>
-                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
-               </div>
-               <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">Great job, I like the idea and will try it out for sure!</p>
-               </div>
-            </div>
-         </a>
-         <a href="https://twitter.com/dev_raj4522/status/1706417606956343529" target="_blank" rel="noopener noreferrer" class="testimonialAnchor_iYyG hidden">
-            <div>
-               <div class="testimonialHeader_iSI8">
-                  <div class="testimonialUserInfo_th5k">
-                     <img src="assets/img/letter-d.png" class="testimonialProfilePic_wg0d">
-                     <div>
-                        <h6>Dev Raj Singh</h6>
-                        <p>@Dev_raj4522</p>
-                     </div>
-                  </div>
-                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/twitter-logo.svg" alt=""></div>
-               </div>
-               <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">Fastapi with kafka</p>
-               </div>
-            </div>
-         </a>
-      </div>
+      <div id="community-load-more" class="buttons_E9Qp"><button class="button button--lg heroButton_F0GI">Load
+            More</button></div>
    </div>
-   <div id="community-load-more" class="buttons_E9Qp"><button class="button button--lg heroButton_F0GI">Load More</button></div>
-  </div>
 </section>
 
 <section class="features stay-in-touch">
    <h2 class="title">STAY IN TOUCH</h2>
    <div class="container tx-container">
-     <div class="tx-hero__content">
-        <p>Show us some love by giving our <a href="https://github.com/airtai/faststream/" target="_blank">GitHub repository</a> a star, and joining our <a href="https://discord.gg/qFm6aSqq59" target="_blank">Discord server</a>.</p>
-        <p>This helps us to stay in touch with you and encourages us to continue developing and improving the framework. Thank you for your support!</p>
-     </div>
+      <div class="tx-hero__content">
+         <p>Show us some love by giving our <a href="{{ config.repo_url }}" target="_blank">GitHub
+               repository</a> a star, and joining our <a href="{{ (config.extra.social|first).link }}" target="_blank">Discord
+               server</a>.</p>
+
+         <p>This helps us to stay in touch with you and encourages us to continue developing and improving the
+            framework. Thank you for your support!</p>
+      </div>
    </div>
 </section>
+{% endblock %}
 
-<footer class="footer footer--dark">
-   <div class="tx-container">
-      <div class="row footer__links">
-         <div class="col footer__col">
-            <div class="footer__title">COMMUNITY</div>
-            <ul class="footer__items clean-list">
-               <li class="footer__item">
-                  <a class="footer-discord-link" href="https://discord.gg/CJWmYpyFbc" target="_blank" rel="noreferrer noopener" aria-label="Discord link"></a>
-               </li>
-               <li class="footer__item">
-                  <a class="footer-github-link" href="https://github.com/airtai" target="_blank" rel="noreferrer noopener" aria-label="Github link"></a>
-               </li>
-               <li class="footer__item">
-                  <a class="footer-twitter-link" href="https://twitter.com/airt_AI" target="_blank" rel="noreferrer noopener" aria-label="Twitter link"></a>
-               </li>
-               <li class="footer__item">
-                  <a class="footer-facebook-link" href="https://www.facebook.com/airt.ai.api/" target="_blank" rel="noreferrer noopener" aria-label="Facebook link"></a>
-               </li>
-               <li class="footer__item">
-                  <a class="footer-linkedin-link" href="https://www.linkedin.com/company/airt-ai/" target="_blank" rel="noreferrer noopener" aria-label="LinkedIn link"></a>
-               </li>
-            </ul>
+{% block footer %}
+<footer class="md-footer">
+   {% if "navigation.footer" in features %}
+   {% if page.meta and page.meta.hide %}
+   {% set hidden = "hidden" if "footer" in page.meta.hide %}
+   {% endif %}
+
+   <nav class="md-footer__inner md-grid" aria-label="{{ lang.t('footer') }}" {{ hidden }}>
+      <ul>
+         <div class="md-footer__title">
+            <u>EXPLORE MORE</u>
          </div>
-         <div class="col footer__col">
-            <div class="footer__title">EXPLORE DOCS</div>
-            <ul class="footer__items clean-list">
-               <li class="footer__item"><a class="footer__link-item" href="faststream/">Get Started</a></li>
-            </ul>
+
+         <a href="https://airt.ai/news/" class="md-footer__link no-margin" target="_blank" rel="noopener noreferrer">
+
+            <div class="md-footer__title little-font">
+               News
+            </div>
+         </a>
+
+         <a href="https://airt.ai/about-us/" class="md-footer__link no-margin" target="_blank"
+            rel="noopener noreferrer">
+
+            <div class="md-footer__title little-font">
+               About Us
+            </div>
+         </a>
+
+         <a href="https://airt.ai/company-information/" class="md-footer__link no-margin" target="_blank"
+            rel="noopener noreferrer">
+
+            <div class="md-footer__title little-font">
+               Company information
+            </div>
+         </a>
+
+      </ul>
+
+      {% set direction = lang.t("footer.next") %}
+      <a href="faststream/" class="md-footer__link md-footer__link--next"
+         aria-label="{{ direction }}: {{ Features | e }}">
+         <div class="md-footer__title">
+            <span class="md-footer__direction">
+               {{ direction }}
+            </span>
+            <div class="md-ellipsis">
+               Features
+            </div>
          </div>
-         <div class="col footer__col">
-            <div class="footer__title">EXPLORE MORE</div>
-            <ul class="footer__items clean-list">
-               <li class="footer__item"><a href="https://airt.ai/news" target="_blank" rel="noopener noreferrer" class="footer__link-item">News</a></li>
-               <li class="footer__item"><a href="https://airt.ai/about-us" target="_blank" rel="noopener noreferrer" class="footer__link-item">About Us</a></li>
-               <li class="footer__item"><a href="https://airt.ai/company-information" target="_blank" rel="noopener noreferrer" class="footer__link-item">Company information</a></li>
-            </ul>
+         <div class="md-footer__button md-icon">
+            {% set icon = config.theme.icon.next or "material/arrow-right" %}
+            {% include ".icons/" ~ icon ~ ".svg" %}
          </div>
-      </div>
-      <div class="footer__bottom text--center">
-         <div class="footer__copyright">© 2023 airt. All rights reserved.</div>
+      </a>
+   </nav>
+   {% endif %}
+
+   <div class="md-footer-meta md-typeset">
+      <div class="md-footer-meta__inner md-grid">
+         {% include "partials/copyright.html" %}
+         {% if config.extra.social %}
+         {% include "partials/social.html" %}
+         {% endif %}
       </div>
    </div>
 </footer>
-
 {% endblock %}
-{% block content %}{% endblock %}
-{% block footer %}{% endblock %}
