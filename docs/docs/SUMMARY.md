@@ -2,8 +2,7 @@
 search:
   exclude: true
 ---
-- [Home](index.md)
-- [Getting started](faststream.md)
+- [Features](faststream.md)
 - Tutorial
     - [Getting Started](getting-started/index.md)
     - [Subscription and Serialization](getting-started/subscription/index.md)
