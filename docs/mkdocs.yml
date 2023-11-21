@@ -114,6 +114,10 @@ plugins:
       cache_safe: true
       css_files:
         - stylesheets/extra.css
+  - mike:
+      alias_type: copy
+      redirect_template: templates/redirect.html
+      canonical_version: latest
 
 markdown_extensions:
   - toc:
