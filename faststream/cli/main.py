@@ -204,11 +204,11 @@ def _run(
             param=TyperOption(param_decls=[f"--{x['loc'][0]}" for x in e.errors()])
         )
 
-        if is_installed("rich"):
+        try:
             from typer import rich_utils
 
             rich_utils.rich_format_error(ex)
-        else:
+        except ImportError:
             ex.show()
 
         sys.exit(1)
