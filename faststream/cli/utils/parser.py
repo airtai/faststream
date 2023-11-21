@@ -64,6 +64,8 @@ def parse_cli_args(*args: str) -> Tuple[str, Dict[str, SettingField]]:
 def remove_prefix(text: str, prefix: str) -> str:
     """Removes a prefix from a given text.
 
+    Python 3.8 compatibility function
+
     Args:
         text (str): The text from which the prefix will be removed.
         prefix (str): The prefix to be removed from the text.
