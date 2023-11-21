@@ -4,7 +4,6 @@ from faststream import Context, ContextRepo, FastStream
 from faststream.rabbit import RabbitBroker
 
 broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
-app = FastStream(broker)
 
 
 def fake_ml_model_answer(x: float):
@@ -27,3 +26,6 @@ async def lifespan(context: ContextRepo):
 async def predict(x: float, model=Context()):
     result = model["answer_to_everything"](x)
     return {"result": result}
+
+
+app = FastStream(broker, lifespan=lifespan)
