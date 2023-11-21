@@ -2,7 +2,7 @@
 search:
   exclude: true
 ---
-- [FastStream](index.md)
+- [Features](faststream.md)
 - Tutorial
     - [Getting Started](getting-started/index.md)
     - [Subscription and Serialization](getting-started/subscription/index.md)
@@ -282,6 +282,7 @@ search:
             - utils
                 - imports
                     - [get_app_path](api/faststream/cli/utils/imports/get_app_path.md)
+                    - [import_from_string](api/faststream/cli/utils/imports/import_from_string.md)
                     - [import_object](api/faststream/cli/utils/imports/import_object.md)
                     - [try_import_app](api/faststream/cli/utils/imports/try_import_app.md)
                 - logs

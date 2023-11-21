@@ -54,7 +54,7 @@
 
 ## Features
 
-[**FastStream**](https://faststream.airt.ai/) simplifies the process of writing producers and consumers for message queues, handling all the
+[**FastStream**](https://faststream.airt.ai/latest/) simplifies the process of writing producers and consumers for message queues, handling all the
 parsing, networking and documentation generation automatically.
 
 Making streaming microservices has never been easier. Designed with junior developers in mind, **FastStream** simplifies your work while keeping the door open for more advanced use cases. Here's a look at the core features that make **FastStream** a go-to framework for modern, data-centric microservices.
@@ -81,7 +81,7 @@ That's **FastStream** in a nutshell—easy, efficient, and powerful. Whether you
 
 ---
 
-**Documentation**: <a href="https://faststream.airt.ai/?utm_source=github&utm_medium=acquisition&utm_campaign=measure" target="_blank">https://faststream.airt.ai/</a>
+**Documentation**: <a href="https://faststream.airt.ai/latest/" target="_blank">https://faststream.airt.ai/latest/</a>
 
 ---
 

@@ -12,6 +12,29 @@ hide:
 ---
 
 # Release Notes
+## 0.2.14
+
+### What's Changed
+
+#### Bug fixes
+
+* fix: usage pass apps module rather than file path by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/955](https://github.com/airtai/faststream/pull/955){.external-link target="_blank"}
+* fix: trigger docs deployment by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/944](https://github.com/airtai/faststream/pull/944){.external-link target="_blank"}
+
+#### Documentation
+
+* docs: reduce builded docs size by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/952](https://github.com/airtai/faststream/pull/952){.external-link target="_blank"}
+* docs: fix update_release script by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/945](https://github.com/airtai/faststream/pull/945){.external-link target="_blank"}
+
+#### Misc
+
+* chore: polishing by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/946](https://github.com/airtai/faststream/pull/946){.external-link target="_blank"}
+* сhore: add manual publish btn to CI by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/950](https://github.com/airtai/faststream/pull/950){.external-link target="_blank"}
+* chore: limit open dev dependency versions by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/953](https://github.com/airtai/faststream/pull/953){.external-link target="_blank"}
+
+
+**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.13...0.2.14](https://github.com/airtai/faststream/compare/0.2.13...0.2.14){.external-link target="_blank"}
+
 
 ## 0.2.13
 
@@ -30,7 +53,6 @@ hide:
 
 ### What's Changed
 * feat: NATS polling subscriber by [@sheldygg](https://github.com/sheldygg){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/912](https://github.com/airtai/faststream/pull/912){.external-link target="_blank"}
-
 
 **Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.11...0.2.12](https://github.com/airtai/faststream/compare/0.2.11...0.2.12){.external-link target="_blank"}
 
@@ -346,7 +368,7 @@ Also, the original message `Context` annotation was copied from `faststream.[bro
 
 ### Features
 
-[**FastStream**](https://faststream.airt.ai/) simplifies the process of writing producers and consumers for message queues, handling all the
+[**FastStream**](https://faststream.airt.ai/latest/) simplifies the process of writing producers and consumers for message queues, handling all the
 parsing, networking and documentation generation automatically.
 
 Making streaming microservices has never been easier. Designed with junior developers in mind, **FastStream** simplifies your work while keeping the door open for more advanced use-cases. Here's a look at the core features that make **FastStream** a go-to framework for modern, data-centric microservices.

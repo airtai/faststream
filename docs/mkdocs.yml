@@ -22,6 +22,8 @@ theme:
   custom_dir: overrides
   logo: assets/img/logo.svg
   favicon: assets/img/logo.svg
+  font:
+    text: Roboto
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
@@ -59,6 +61,9 @@ theme:
 extra_css:
   - stylesheets/extra.css
 
+extra_javascript:
+  - javascripts/extra.js
+
 plugins:
   - search:
       separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
@@ -72,7 +77,8 @@ plugins:
       css_files:
         - stylesheets/extra.css
   # - meta                         # (insiders) use .meta.yml files
-  - search
+  - search:
+      separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
   - glightbox                    # image zoom
   - macros:                      # Jinja templates
       include_dir: includes
@@ -115,6 +121,19 @@ plugins:
       type: timeago
   - literate-nav:                # .md importable navigation
       nav_file: SUMMARY.md
+  - minify:
+      minify_html: true
+      minify_js: true
+      minify_css: true
+      htmlmin_opts:
+        remove_comments: true
+      cache_safe: true
+      css_files:
+        - stylesheets/extra.css
+  - mike:
+      alias_type: copy
+      redirect_template: templates/redirect.html
+      canonical_version: latest
 
 markdown_extensions:
   - toc:
