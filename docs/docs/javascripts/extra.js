@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error(`Error fetching data for ${profile}: ${error.message}`);
       }
     }
-    console.log(result);
+
     for (const profileName in result) {
       const profileImgElement = document.querySelector(
         `.testimonialAnchor_iYyG.${profileName} .testimonialProfilePic_wg0d`
