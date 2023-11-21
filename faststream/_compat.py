@@ -1,4 +1,3 @@
-import importlib.util
 import json
 import os
 import sys
@@ -49,10 +48,6 @@ else:
 from faststream.types import AnyDict
 
 ModelVar = TypeVar("ModelVar", bound=BaseModel)
-
-
-def is_installed(package: str) -> bool:
-    return bool(importlib.util.find_spec(package))
 
 
 IS_OPTIMIZED = os.getenv("PYTHONOPTIMIZE", False)

@@ -10,7 +10,6 @@ from pydantic import ValidationError
 from typer.core import TyperOption
 
 from faststream.__about__ import INSTALL_WATCHFILES, __version__
-from faststream._compat import is_installed
 from faststream.cli.docs.app import docs_app
 from faststream.cli.utils.imports import import_from_string
 from faststream.cli.utils.logs import LogLevels, get_log_level, set_log_level
