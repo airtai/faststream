@@ -61,6 +61,9 @@ theme:
 extra_css:
   - stylesheets/extra.css
 
+extra_javascript:
+  - javascripts/extra.js
+
 plugins:
   # - meta                         # (insiders) use .meta.yml files
   - search:

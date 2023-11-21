@@ -176,12 +176,15 @@
       display: block;
       padding: 1.6rem;
     }
-
+    section.features.community .testimonialAnchor_iYyG.hidden { 
+       display: none;
+    }
     section.features.community .testimonialHeader_iSI8 {
         display: flex;
         height: 45px;
         justify-content: space-between;
         margin-bottom: 30px;
+        text-align: left;
     }
     section.features.community .testimonialUserInfo_th5k {
       display: flex;
@@ -196,9 +199,6 @@
       margin-left: 10px;
       font-size: 13.6px;
       margin-top:0;
-    }
-    section.features.community .testimonialUserInfo_th5k h6 {
-      margin-left: -18px;
     }
     section.features.community .testimonialUserInfo_th5k p {
       font-size: 16px;
@@ -236,6 +236,26 @@
       section.features.stay-in-touch .tx-hero__content p a{
          text-decoration: underline;
        }
+
+       .buttons_AeoN, .buttons_E9Qp {
+         align-items: center;
+         display: flex;
+         justify-content: center;
+         margin-top: 55px;
+      }
+      .heroButton_F0GI, .heroButton_GTT_ {
+         background: #003257;
+         border-radius: 25px;
+         color: #fff;
+         font-size: 16px;
+         margin-top: -24px;
+         padding: 11px 40px;
+         cursor:pointer;
+         font-weight: bold;
+      }
+      .heroButton_F0GI:hover, .heroButton_GTT_:hover {
+         background: #3e99c5;
+      }
 
        .footer.footer--dark .tx-container {
          background: #003257;
@@ -429,6 +449,9 @@
           flex-direction: row;
           max-width: 1320px;
           margin: 0 auto;
+        }
+        section.features.community .tx-container {
+          flex-direction: column;
         }
 
         section.features.community .row {
@@ -666,216 +689,237 @@
   <div class="container tx-container">
     <div class="row">
       <div class="col col--4 testimonialWrapper_gvoa">
-         <a href="https://www.reddit.com/r/Python/comments/13i0eaz/comment/jk90bwz/?utm_source=share&amp;utm_medium=web2x&amp;context=3" target="_blank" rel="noopener noreferrer" class="testimonialAnchor_iYyG">
+         <a href="https://twitter.com/nats_io/status/1716460663734759831" target="_blank" rel="noopener noreferrer" class="testimonialAnchor_iYyG">
             <div>
                <div class="testimonialHeader_iSI8">
                   <div class="testimonialUserInfo_th5k">
-                     <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_4.png" class="testimonialProfilePic_wg0d">
+                     <img src="assets/img/nats-twitter-logo.jpeg" class="testimonialProfilePic_wg0d">
                      <div>
-                        <h6>deadwisdom</h6>
-                        <p>u/deadwisdom</p>
-                     </div>
-                  </div>
-                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
-               </div>
-               <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">Well well well, if it isn't the library I was already making but better. Very nice. What is your long-term vision for supporting this as a company? And are you using this now to support real customers or are you expecting this might help you establish a niche?</p>
-               </div>
-            </div>
-         </a>
-         <a href="https://twitter.com/emaxerrno/status/1635005087721611264?s=20" target="_blank" rel="noopener noreferrer" class="testimonialAnchor_iYyG">
-            <div>
-               <div class="testimonialHeader_iSI8">
-                  <div class="testimonialUserInfo_th5k">
-                     <img src="assets/img/a-alphabet-round-icon.png" class="testimonialProfilePic_wg0d">
-                     <div>
-                        <h6>Alexander Gallego</h6>
-                        <p>Alexander Gallego</p>
+                        <h6>NATS.io</h6>
+                        <p>@nats_io</p>
                      </div>
                   </div>
                   <div><img class="testimonialSourceIcon_RwqW" src="assets/img/twitter-logo.svg" alt=""></div>
                </div>
                <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">this is cool. let me know if you want to share it w/ the @redpandadata community.</p>
+                  <p class="testimonialDescription_MWAM">New Blog Post | Streamlining Asynchronous Services with FastStream 🌟<br/><br/>
+        
+                    For the NATS Python client users, check out this community contribution from 
+                    @airt_AI. FastStream streamlines the entire process of working with message queues in microservices.</p>
                </div>
             </div>
          </a>
-         <a href="https://www.reddit.com/r/Python/comments/11paz9u/comment/jbxbbxp/?utm_source=share&amp;utm_medium=web2x&amp;context=3" target="_blank" rel="noopener noreferrer" class="testimonialAnchor_iYyG">
+         <a href="https://www.reddit.com/r/Python/comments/16pc38l/faststream_a_powerful_and_easytouse_library_for/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="ElasticFluffyMagnet testimonialAnchor_iYyG">
             <div>
                <div class="testimonialHeader_iSI8">
                   <div class="testimonialUserInfo_th5k">
-                     <img src="https://styles.redditmedia.com/t5_3l8t25/styles/profileIcon_snooccb2cc5a-65e8-48da-906a-736903e4a2cf-headshot.png" class="testimonialProfilePic_wg0d">
+                     <img src="https://i.redd.it/snoovatar/avatars/94af58fe-18a7-47ec-bce3-832bd9360aa7.png" class="testimonialProfilePic_wg0d">
                      <div>
-                        <h6>BestBottle4517</h6>
-                        <p>u/BestBottle4517</p>
+                        <h6>ElasticFluffyMagnet</h6>
+                        <p>u/ElasticFluffyMagnet</p>
                      </div>
                   </div>
                   <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
                </div>
                <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">Very cool indeed. Currently at work we're using RabbitMQ for messaging so this doesn't apply to us (for now), but this type and style of implementation is exactly what I would expect when searching for libs like this. Great job!</p>
+                  <p class="testimonialDescription_MWAM">saves.. Looks very interesting. Going to have a look when I'm done with my current project!</p>
                </div>
             </div>
          </a>
-         <a href="https://www.reddit.com/r/programming/comments/11sjtgm/comment/jceqgml/?utm_source=share&amp;utm_medium=web2x&amp;context=3" target="_blank" rel="noopener noreferrer" class="testimonialAnchor_iYyG">
+         <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k7jbppc/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="phphater7 testimonialAnchor_iYyG hidden">
             <div>
                <div class="testimonialHeader_iSI8">
                   <div class="testimonialUserInfo_th5k">
-                     <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_2.png" class="testimonialProfilePic_wg0d">
+                     <img src="https://i.redd.it/snoovatar/avatars/b4eb22a9-8c9e-4d78-8500-4d10767741c2.png" class="testimonialProfilePic_wg0d">
                      <div>
-                        <h6>teajunky</h6>
-                        <p>u/teajunky</p>
+                        <h6>phphater7</h6>
+                        <p>u/phphater7</p>
                      </div>
                   </div>
                   <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
                </div>
                <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">Wow, the code in the package is auto-generated from Jupyter-Notebooks</p>
+                  <p class="testimonialDescription_MWAM">This is awesome. Svaka čast</p>
                </div>
             </div>
          </a>
-      </div>
-      <div class="col col--4 testimonialWrapper_gvoa">
-         <a href="https://www.reddit.com/r/FastAPI/comments/124v5di/comment/jfhg2t2/?utm_source=share&amp;utm_medium=web2x&amp;context=3" target="_blank" rel="noopener noreferrer" class="testimonialAnchor_iYyG">
-            <div>
-               <div class="testimonialHeader_iSI8">
-                  <div class="testimonialUserInfo_th5k">
-                     <img src="https://styles.redditmedia.com/t5_1j5c64/styles/profileIcon_snooe7e0c06f-35e2-4fa3-82f1-45fc5164c072-headshot.png" class="testimonialProfilePic_wg0d">
-                     <div>
-                        <h6>benbenbang</h6>
-                        <p>u/benbenbang</p>
-                     </div>
-                  </div>
-                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
-               </div>
-               <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">Nice 👍🏻 I’ve promoted this project in the team! Also, would like to contribute if there’s some kind of roadmap</p>
-               </div>
-            </div>
-         </a>
-         <a href="https://www.reddit.com/r/Python/comments/11paz9u/comment/jbxf1v8/?utm_source=share&amp;utm_medium=web2x&amp;context=3" target="_blank" rel="noopener noreferrer" class="testimonialAnchor_iYyG">
-            <div>
-               <div class="testimonialHeader_iSI8">
-                  <div class="testimonialUserInfo_th5k">
-                     <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_1.png" class="testimonialProfilePic_wg0d">
-                     <div>
-                        <h6>code_mc</h6>
-                        <p>u/code_mc</p>
-                     </div>
-                  </div>
-                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
-               </div>
-               <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">I really like the idea of this, as the biggest gripe I have with most pub/sub solutions is all of the tedious boiler plate code needed to correctly subscribe and publish and manage message leases etc. While you often just want to grab a message, do some processing and put it on a different queue.</p>
-               </div>
-            </div>
-         </a>
-         <a href="https://www.reddit.com/r/FastAPI/comments/11oq09r/comment/jc4dwit/?utm_source=share&amp;utm_medium=web2x&amp;context=3" target="_blank" rel="noopener noreferrer" class="testimonialAnchor_iYyG">
+         <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k1ryqaf/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="grudev testimonialAnchor_iYyG hidden">
             <div>
                <div class="testimonialHeader_iSI8">
                   <div class="testimonialUserInfo_th5k">
                      <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_5.png" class="testimonialProfilePic_wg0d">
                      <div>
-                        <h6>No-Application5593</h6>
-                        <p>u/No-Application5593</p>
+                        <h6>grudev</h6>
+                        <p>u/grudev</p>
                      </div>
                   </div>
                   <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
                </div>
                <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">Wow! This is really great, thank you for your efforts guys. This is what I really need for one of my future projects.</p>
-               </div>
-            </div>
-         </a>
-         <a href="https://www.reddit.com/r/FastAPI/comments/11oq09r/comment/jbx4dfn/?utm_source=share&amp;utm_medium=web2x&amp;context=3" target="_blank" rel="noopener noreferrer" class="testimonialAnchor_iYyG">
-            <div>
-               <div class="testimonialHeader_iSI8">
-                  <div class="testimonialUserInfo_th5k">
-                     <img src="https://styles.redditmedia.com/t5_2ggk8j/styles/profileIcon_snoo-nftv2_bmZ0X2VpcDE1NToxMzdfYzhkM2EzYTgzYmRlNWRhZDA2ZDQzNjY5NGUzZTIyYWMzZTY0ZDU3N180OTAwNDU0_rare_9219c70a-c077-4ad9-bbe1-afe7450b1f51-headshot.png" class="testimonialProfilePic_wg0d">
-                     <div>
-                        <h6>SteamingBeer</h6>
-                        <p>u/SteamingBeer</p>
-                     </div>
-                  </div>
-                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
-               </div>
-               <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">Thank you for your efforts. I see me pitching this library to my team in the near future!</p>
+                  <p class="testimonialDescription_MWAM">Any chance you can write some examples on how to integrate with Django (if that's possible at all)?<br /><br />Great work, btw!</p>
                </div>
             </div>
          </a>
       </div>
       <div class="col col--4 testimonialWrapper_gvoa">
-         <a href="https://www.reddit.com/r/FastAPI/comments/124v5di/comment/jee9vm9/?utm_source=share&amp;utm_medium=web2x&amp;context=3" target="_blank" rel="noopener noreferrer" class="testimonialAnchor_iYyG">
+         <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k1tfhv4/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="ryanstephendavis testimonialAnchor_iYyG">
             <div>
                <div class="testimonialHeader_iSI8">
                   <div class="testimonialUserInfo_th5k">
-                     <img src="https://styles.redditmedia.com/t5_10j3u2/styles/profileIcon_snoodaeb05a3-d255-480a-b52d-d955d53f0e3e-headshot.png" class="testimonialProfilePic_wg0d">
+                     <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_0.png" class="testimonialProfilePic_wg0d">
                      <div>
-                        <h6>Berouald</h6>
-                        <p>u/Berouald</p>
+                        <h6>ryanstephendavis</h6>
+                        <p>u/ryanstephendavis</p>
                      </div>
                   </div>
                   <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
                </div>
                <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">This is great! I've been thinking about making a similar tool for quite some time, nice job sir! I guess it's to fit your use case, by why stop at Kafka? A paradigm like this would be awesome in the form of a microframework. Like a general message consumer framework with pluggable interfaces for Kafka, Rabbitmq, ActiveMQ or even the Redis message broker.</p>
+                  <p class="testimonialDescription_MWAM">Hell yeah, I've been wondering about good ways to setup streams with FastAPI... will have to try this out next time I get a good project fit</p>
                </div>
             </div>
          </a>
-         <a href="https://www.reddit.com/r/Python/comments/120mt5k/comment/jdpwycr/?utm_source=share&amp;utm_medium=web2x&amp;context=3" target="_blank" rel="noopener noreferrer" class="testimonialAnchor_iYyG">
+         <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k1tpcwo/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="moosethemucha testimonialAnchor_iYyG">
             <div>
                <div class="testimonialHeader_iSI8">
                   <div class="testimonialUserInfo_th5k">
-                     <img src="https://styles.redditmedia.com/t5_v7xic/styles/profileIcon_snooc840f3d1-9718-42d9-b5ff-b6e082f05f32-headshot.png" class="testimonialProfilePic_wg0d">
+                     <img src="https://i.redd.it/snoovatar/avatars/dd49b941-0a83-4815-aba3-76b83abdee62.png" class="testimonialProfilePic_wg0d">
                      <div>
-                        <h6>baggiponte</h6>
-                        <p>u/BaggiPonte</p>
+                        <h6>moosethemucha</h6>
+                        <p>u/moosethemucha</p>
                      </div>
                   </div>
                   <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
                </div>
                <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">Really hope this project becomes as popular as the OG FastAPI!</p>
+                  <p class="testimonialDescription_MWAM">This looks really cool - as someone who had to create a distributed application using rabbitmq and aiopika - this would have saved me alot of time - I love the decorations for pub sub.</p>
                </div>
             </div>
          </a>
-         <a href="https://twitter.com/perbu/status/1635014207656849408?s=20" target="_blank" rel="noopener noreferrer" class="testimonialAnchor_iYyG">
+         <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k1sglo8/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="TheGodfatherCC testimonialAnchor_iYyG hidden">
             <div>
                <div class="testimonialHeader_iSI8">
                   <div class="testimonialUserInfo_th5k">
-                     <img src="assets/img/p-alphabet-round-icon.png" class="testimonialProfilePic_wg0d">
+                     <img src="https://www.redditstatic.com/desktop2x/img/avatar_over18_square.png" class="testimonialProfilePic_wg0d">
                      <div>
-                        <h6>Per Buer</h6>
-                        <p>Per Buer</p>
+                        <h6>TheGodfatherCC</h6>
+                        <p>u/TheGodfatherCC</p>
+                     </div>
+                  </div>
+                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
+               </div>
+               <div class="text--center padding-horiz--md">
+                  <p class="testimonialDescription_MWAM">This looks awesome! I had already been evaluating Propan for a project.</p>
+               </div>
+            </div>
+         </a>
+         <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k98mmta/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="__Timtam__ testimonialAnchor_iYyG hidden">
+            <div>
+               <div class="testimonialHeader_iSI8">
+                  <div class="testimonialUserInfo_th5k">
+                     <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_5.png" class="testimonialProfilePic_wg0d">
+                     <div>
+                        <h6>__Timtam__</h6>
+                        <p>u/__Timtam__</p>
+                     </div>
+                  </div>
+                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
+               </div>
+               <div class="text--center padding-horiz--md">
+                  <p class="testimonialDescription_MWAM">Very nice package! Do you have any plans on implementing support for MQTT?</p>
+               </div>
+            </div>
+         </a>
+         <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k1sx7zo/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="bachkhois testimonialAnchor_iYyG hidden">
+            <div>
+               <div class="testimonialHeader_iSI8">
+                  <div class="testimonialUserInfo_th5k">
+                     <img src="https://i.redd.it/snoovatar/avatars/d32fa526-1f2d-4311-9584-34be8c0a358a.png" class="testimonialProfilePic_wg0d">
+                     <div>
+                        <h6>bachkhois</h6>
+                        <p>u/bachkhois</p>
+                     </div>
+                  </div>
+                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
+               </div>
+               <div class="text--center padding-horiz--md">
+                  <p class="testimonialDescription_MWAM">Great!</p>
+               </div>
+            </div>
+         </a>
+      </div>
+      <div class="col col--4 testimonialWrapper_gvoa">
+         <a href="https://www.reddit.com/r/Python/comments/16pc38l/comment/k25cm1e/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="robot__eyes testimonialAnchor_iYyG">
+            <div>
+               <div class="testimonialHeader_iSI8">
+                  <div class="testimonialUserInfo_th5k">
+                     <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_6.png" class="testimonialProfilePic_wg0d">
+                     <div>
+                        <h6>robot__eyes</h6>
+                        <p>u/robot__eyes</p>
+                     </div>
+                  </div>
+                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
+               </div>
+               <div class="text--center padding-horiz--md">
+                  <p class="testimonialDescription_MWAM">This is fantastic. I've been looking for something with asyncio support to replace celery. Big plus that it supports rabbitMQ and kafka.</p>
+               </div>
+            </div>
+         </a>
+         <a href="https://twitter.com/edwardkens50830/status/1710248156540145979" target="_blank" rel="noopener noreferrer" class="testimonialAnchor_iYyG">
+            <div>
+               <div class="testimonialHeader_iSI8">
+                  <div class="testimonialUserInfo_th5k">
+                     <img src="assets/img/letter-e.png" class="testimonialProfilePic_wg0d">
+                     <div>
+                        <h6>Edward Kensington</h6>
+                        <p>@EdwardKens50830</p>
                      </div>
                   </div>
                   <div><img class="testimonialSourceIcon_RwqW" src="assets/img/twitter-logo.svg" alt=""></div>
                </div>
                <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">I really like how we're getting these more specialized ways to leverage streaming databases, instead of the somewhat intimidating access libraries.</p>
+                  <p class="testimonialDescription_MWAM">Congrats on trending in the Python category on GitHub! 🎉 Your FastStream framework seems awesome and useful! Way to go! 💪 #achievement</p>
                </div>
             </div>
          </a>
-         <a href="https://news.ycombinator.com/item?id=35086594" target="_blank" rel="noopener noreferrer" class="testimonialAnchor_iYyG">
+         <a href="https://www.reddit.com/r/FastAPI/comments/16rn1mg/comment/k2446oi/?utm_source=share&utm_medium=web2x&context=3" target="_blank" rel="noopener noreferrer" class="Pale-Cantaloupe3878 testimonialAnchor_iYyG hidden">
             <div>
                <div class="testimonialHeader_iSI8">
                   <div class="testimonialUserInfo_th5k">
-                     <img src="assets/img/I.svg" class="testimonialProfilePic_wg0d">
+                     <img src="https://www.redditstatic.com/avatars/defaults/v2/avatar_default_6.png" class="testimonialProfilePic_wg0d">
                      <div>
-                        <h6>iknownothow</h6>
-                        <p>iknownothow</p>
+                        <h6>Pale-Cantaloupe3878</h6>
+                        <p>u/Pale-Cantaloupe3878</p>
                      </div>
                   </div>
-                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/Y_Combinator_Logo.png" alt=""></div>
+                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/reddit-logo.png" alt=""></div>
                </div>
                <div class="text--center padding-horiz--md">
-                  <p class="testimonialDescription_MWAM">It looks incredible and I truly hope your project takes off for my sake since I have to work with Kafka from time to time!</p>
+                  <p class="testimonialDescription_MWAM">Great job, I like the idea and will try it out for sure!</p>
+               </div>
+            </div>
+         </a>
+         <a href="https://twitter.com/dev_raj4522/status/1706417606956343529" target="_blank" rel="noopener noreferrer" class="testimonialAnchor_iYyG hidden">
+            <div>
+               <div class="testimonialHeader_iSI8">
+                  <div class="testimonialUserInfo_th5k">
+                     <img src="assets/img/letter-d.png" class="testimonialProfilePic_wg0d">
+                     <div>
+                        <h6>Dev Raj Singh</h6>
+                        <p>@Dev_raj4522</p>
+                     </div>
+                  </div>
+                  <div><img class="testimonialSourceIcon_RwqW" src="assets/img/twitter-logo.svg" alt=""></div>
+               </div>
+               <div class="text--center padding-horiz--md">
+                  <p class="testimonialDescription_MWAM">Fastapi with kafka</p>
                </div>
             </div>
          </a>
       </div>
    </div>
+   <div id="community-load-more" class="buttons_E9Qp"><button class="button button--lg heroButton_F0GI">Load More</button></div>
   </div>
 </section>
 
@@ -884,7 +928,7 @@
    <div class="container tx-container">
      <div class="tx-hero__content">
         <p>Show us some love by giving our <a href="https://github.com/airtai/faststream/" target="_blank">GitHub repository</a> a star, and joining our <a href="https://discord.gg/qFm6aSqq59" target="_blank">Discord server</a>.</p>
-        <p>Your support helps us to stay in touch with you and encourages us to continue developing and improving the framework. Thank you for your support!</p>
+        <p>This helps us to stay in touch with you and encourages us to continue developing and improving the framework. Thank you for your support!</p>
      </div>
    </div>
 </section>

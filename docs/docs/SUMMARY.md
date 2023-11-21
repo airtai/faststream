@@ -2,7 +2,7 @@
 search:
   exclude: true
 ---
-- [FastStream](index.md)
+- [Home](index.md)
 - [Getting Started](faststream.md)
 - Tutorial
     - [Getting Started](getting-started/index.md)
