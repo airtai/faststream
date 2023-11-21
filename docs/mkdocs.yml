@@ -159,6 +159,7 @@ extra:
     property: G-HDTMP5FFHP
   social_image: https://opengraph.githubassets.com/1671805243.560327/airtai/faststream
   social:
+    # Discord link should be first
     - icon: fontawesome/brands/discord
       link: https://discord.gg/qFm6aSqq59
     - icon: fontawesome/brands/github-alt

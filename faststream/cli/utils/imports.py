@@ -1,7 +1,6 @@
 import importlib
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from types import ModuleType
 from typing import Tuple
 
 import typer
@@ -109,7 +108,7 @@ def get_app_path(app: str) -> Tuple[Path, str]:
     return mod_path, app_name
 
 
-def import_from_string(import_str: str) -> Tuple[ModuleType, FastStream]:
+def import_from_string(import_str: str) -> Tuple[Path, FastStream]:
     """
     Import FastStream application from module specified by a string.
 
@@ -136,20 +135,27 @@ def import_from_string(import_str: str) -> Tuple[ModuleType, FastStream]:
         module = importlib.import_module(  # nosemgrep: python.lang.security.audit.non-literal-import.non-literal-import
             module_str
         )
+
     except ModuleNotFoundError:
         module_path, app_name = get_app_path(import_str)
         instance = try_import_app(module_path, app_name)
+
     else:
         attr = module
         try:
             for attr_str in attrs_str.split("."):
                 attr = getattr(attr, attr_str)
             instance = attr  # type: ignore[assignment]
+
         except AttributeError as e:
             typer.echo(e, err=True)
             raise typer.BadParameter(
                 f'Attribute "{attrs_str}" not found in module "{module_str}".'
             ) from e
-        module_path = Path(module.__file__)  # type: ignore[arg-type]
 
-    return module_path, instance  # type: ignore[return-value]
+        if module.__file__:
+            module_path = Path(module.__file__).resolve().parent
+        else:
+            module_path = Path.cwd()
+
+    return module_path, instance
