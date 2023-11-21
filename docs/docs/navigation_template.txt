@@ -1,7 +1,3 @@
----
-search:
-  exclude: true
----
 - [Features](faststream.md)
 - Tutorial
     - [Getting Started](getting-started/index.md)

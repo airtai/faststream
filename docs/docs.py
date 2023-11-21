@@ -12,7 +12,7 @@ from create_api_docs import create_api_docs
 from expand_markdown import expand_markdown
 from mkdocs.config import load_config
 from typing_extensions import Annotated
-from update_releases import update_release_notes
+from update_releases import find_metablock, update_release_notes
 
 IGNORE_DIRS = ("assets", "stylesheets")
 
@@ -81,7 +81,7 @@ def preview():
     typer.echo("Warning: this is a very simple server.")
     typer.echo("For development, use the command live instead.")
     typer.echo("This is here only to preview a builded site.")
-    os.chdir(str(BUILD_DIR))
+    os.chdir(BUILD_DIR)
     addr, port = DEV_SERVER.split(":")
     server = HTTPServer((addr, int(port)), SimpleHTTPRequestHandler)
     typer.echo(f"Serving at: http://{DEV_SERVER}")
@@ -197,11 +197,16 @@ def update_contributing():
         output_markdown_path=CONTRIBUTING_PATH,
     )
 
-    relative_path = os.path.relpath(EN_CONTRIBUTING_PATH, BASE_DIR.parent)
-    auto_generated = f"> **_NOTE:_**  This is an auto-generated file. Please edit {relative_path} instead.\n\n"
-
     existing_content = CONTRIBUTING_PATH.read_text()
-    CONTRIBUTING_PATH.write_text(auto_generated + existing_content)
+
+    _, content = find_metablock(existing_content.splitlines())
+
+    relative_path = EN_CONTRIBUTING_PATH.relative_to(BASE_DIR.parent)
+
+    CONTRIBUTING_PATH.write_text("\n".join((
+        f"> **_NOTE:_**  This is an auto-generated file. Please edit {relative_path} instead.",
+        *content
+    )))
 
 
 @app.command()
@@ -213,6 +218,7 @@ def build_api_docs():
 
 def _build():
     subprocess.run(["mkdocs", "build", "--site-dir", BUILD_DIR], check=True)
+
     build_api_docs()
     update_readme()
     update_contributing()

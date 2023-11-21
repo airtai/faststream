@@ -17,6 +17,10 @@ repo_name: airtai/faststream
 repo_url: https://github.com/airtai/faststream
 edit_uri: https://github.com/airtai/faststream/tree/main/docs/docs
 
+exclude_docs: |
+  navigation_template.txt
+  SUMMARY.md
+
 theme:
   name: material
   custom_dir: overrides
