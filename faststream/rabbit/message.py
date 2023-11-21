@@ -35,6 +35,7 @@ class RabbitMessage(StreamMessage[aio_pika.IncomingMessage]):
 
         """
         pika_message = self.raw_message
+        await super().ack()
         if (
             pika_message._IncomingMessage__processed  # type: ignore[attr-defined]
             or pika_message._IncomingMessage__no_ack  # type: ignore[attr-defined]
@@ -53,6 +54,7 @@ class RabbitMessage(StreamMessage[aio_pika.IncomingMessage]):
 
         """
         pika_message = self.raw_message
+        await super().nack()
         if (
             pika_message._IncomingMessage__processed  # type: ignore[attr-defined]
             or pika_message._IncomingMessage__no_ack  # type: ignore[attr-defined]
@@ -71,6 +73,7 @@ class RabbitMessage(StreamMessage[aio_pika.IncomingMessage]):
 
         """
         pika_message = self.raw_message
+        await super().reject()
         if (
             pika_message._IncomingMessage__processed  # type: ignore[attr-defined]
             or pika_message._IncomingMessage__no_ack  # type: ignore[attr-defined]
