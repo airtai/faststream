@@ -84,7 +84,7 @@ class NatsFastProducer:
                 msg = await future
 
             if msg:
-                if msg.headers:  # pragma: no branch
+                if msg.headers:  # pragma: no cover
                     if (
                         msg.headers.get(nats.js.api.Header.STATUS)
                         == nats.aio.client.NO_RESPONDERS_STATUS

@@ -324,7 +324,7 @@ class AsyncHandler(BaseHandler[MsgType]):
                         await self.close()
                         handler.trigger()
 
-                    except HandlerException as e:  # pragma no cover
+                    except HandlerException as e:  # pragma: no cover
                         handler.trigger()
                         raise e
 
