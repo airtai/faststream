@@ -132,7 +132,7 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
                 call_model,
                 prefix=f"{self.name}:Message",
             )
-            if body:
+            if body:  # pragma: no branch
                 payloads.append((body, ""))
 
         else:

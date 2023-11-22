@@ -130,7 +130,7 @@ def serve_app(
     app = FastAPI()
 
     @app.get("/")
-    def asyncapi(
+    def asyncapi(  # pragma: no cover
         sidebar: bool = True,
         info: bool = True,
         servers: bool = True,

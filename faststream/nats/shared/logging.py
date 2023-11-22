@@ -63,11 +63,6 @@ class NatsLoggingMixin(LoggingMixin):
         subject: Optional[str] = None,
         stream: Optional[str] = None,
     ) -> None:
-        if subject is not None:
-            self._max_subject_len = max((self._max_subject_len, len(subject)))
-
-        if queue is not None:
-            self._max_queue_len = max((self._max_queue_len, len(queue)))
-
-        if stream is not None:
-            self._max_stream_len = max((self._max_stream_len, len(stream)))
+        self._max_subject_len = max((self._max_subject_len, len(subject or "")))
+        self._max_queue_len = max((self._max_queue_len, len(queue or "")))
+        self._max_stream_len = max((self._max_stream_len, len(stream or "")))

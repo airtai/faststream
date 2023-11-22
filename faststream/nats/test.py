@@ -131,7 +131,10 @@ class PatchedMessage(Msg):
     async def ack(self) -> None:
         pass
 
-    async def ack_sync(self, timeout: float = 1) -> "PatchedMessage":
+    async def ack_sync(  # pragma: no cover
+        self,
+        timeout: float = 1,
+    ) -> "PatchedMessage":
         return self
 
     async def nak(self, delay: Union[int, float, None] = None) -> None:

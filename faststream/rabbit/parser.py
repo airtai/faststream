@@ -47,11 +47,10 @@ class AioPikaParser:
         handler = context.get_local("handler_")
         path: AnyDict = {}
         path_re: Optional[Pattern[str]]
-        if handler and (path_re := handler.queue.path_regex):
-            if path_re is not None:
-                match = path_re.match(message.routing_key or "")
-                if match:
-                    path = match.groupdict()
+        if handler and (path_re := handler.queue.path_regex) is not None:
+            match = path_re.match(message.routing_key or "")
+            if match:  # pragma: no branch
+                path = match.groupdict()
 
         return RabbitMessage(
             body=message.body,

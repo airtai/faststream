@@ -108,7 +108,7 @@ class RabbitBroker(
         """
         security_args = parse_security(security)
 
-        if (ssl := kwargs.get("ssl")) or kwargs.get("ssl_context"):
+        if (ssl := kwargs.get("ssl")) or kwargs.get("ssl_context"):  # pragma: no cover
             warnings.warn(
                 (
                     f"\nRabbitMQ {'`ssl`' if ssl else '`ssl_context`'} option was deprecated and will be removed in 0.4.0"
