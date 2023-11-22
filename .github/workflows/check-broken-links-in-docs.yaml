@@ -1,0 +1,33 @@
+name: Check docs for broken links
+
+on:
+  workflow_run:
+    workflows: ["pages-build-deployment"]
+    types: [completed]
+  push:
+
+jobs:
+  check-broken-link:
+    name: Check docs for broken links
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+      - uses: actions/cache@v3
+        with:
+          key: ${{ github.ref }}
+          path: .cache
+      - run: pip install -e ".[dev]"
+      - run: ./scripts/build-docs.sh
+      - name: Check links using container
+        uses: ruzickap/action-my-broken-link-checker@v2
+        with:
+          url: https://faststream.airt.ai
+          pages_path: ./docs/site
+          cmd_params: '--verbose'
+          debug: true
