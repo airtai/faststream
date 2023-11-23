@@ -4,7 +4,6 @@ on:
   workflow_run:
     workflows: ["pages-build-deployment"]
     types: [completed]
-  push:
 
 jobs:
   check-broken-link:
@@ -16,5 +15,5 @@ jobs:
         uses: ruzickap/action-my-broken-link-checker@v2
         with:
           url: https://faststream.airt.ai
-          cmd_params: '--verbose --buffer-size=8192 --max-connections=10 --color=always --header="User-Agent:curl/7.54.0" --exclude="(localhost:8000|linkedin.com|fonts.gstatic.com)" --max-connections-per-host=5 --rate-limit=5'
+          cmd_params: '--verbose --buffer-size=8192 --max-connections=10 --color=always --header="User-Agent:curl/7.54.0" --exclude="(localhost:8000|linkedin.com|fonts.gstatic.com)" --max-connections-per-host=5 --rate-limit=15'
           debug: true
