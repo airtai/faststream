@@ -49,33 +49,41 @@ class Singleton:
 
 
 if sys.version_info < (3, 10):
-    # Definition from python 3.10
     from contextlib import AbstractAsyncContextManager, AbstractContextManager
+    from typing import Optional, TypeVar, overload
 
-    class nullcontext(AbstractContextManager, AbstractAsyncContextManager):
-        """Context manager that does no additional processing.
+    from faststream._compat import TypeAlias
 
-        Used as a stand-in for a normal context manager, when a particular
-        block of code is only sometimes used with a normal context manager:
+    Unused: TypeAlias = object
+    _T = TypeVar("_T")
 
-        cm = optional_cm if condition else nullcontext()
-        with cm:
-            # Perform operation, using optional_cm if condition is True
-        """
+    # Definition from python 3.10
+    class nullcontext(AbstractContextManager[_T], AbstractAsyncContextManager[_T]):
+        enter_result: _T
 
-        def __init__(self, enter_result=None):
+        @overload
+        def __init__(self: "nullcontext[None]", enter_result: None = None) -> None:
+            ...
+
+        @overload
+        def __init__(self: "nullcontext[_T]", enter_result: _T) -> None:
+            ...
+
+        def __init__(
+            self: "nullcontext[Optional[_T]]", enter_result: Optional[_T] = None
+        ) -> None:
             self.enter_result = enter_result
 
-        def __enter__(self):
+        def __enter__(self) -> _T:
             return self.enter_result
 
-        def __exit__(self, *excinfo):
+        def __exit__(self, *exctype: Unused) -> None:
             pass
 
-        async def __aenter__(self):
+        async def __aenter__(self) -> _T:
             return self.enter_result
 
-        async def __aexit__(self, *excinfo):
+        async def __aexit__(self, *exctype: Unused) -> None:
             pass
 
 else:
