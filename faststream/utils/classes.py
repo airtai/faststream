@@ -50,15 +50,24 @@ class Singleton:
 
 if sys.version_info < (3, 10):
     from contextlib import AbstractAsyncContextManager, AbstractContextManager
-    from typing import Optional, TypeVar, overload
+    from typing import Generic, Optional, TypeVar, overload
 
     from faststream._compat import TypeAlias
 
     Unused: TypeAlias = object
     _T = TypeVar("_T")
 
-    # Definition from python 3.10
-    class nullcontext(AbstractContextManager[_T], AbstractAsyncContextManager[_T]):
+    class nullcontext(AbstractContextManager, AbstractAsyncContextManager, Generic[_T]):  # type: ignore[type-arg]
+        """Context manager that does no additional processing.
+
+        Used as a stand-in for a normal context manager, when a particular
+        block of code is only sometimes used with a normal context manager:
+
+        cm = optional_cm if condition else nullcontext()
+        with cm:
+            # Perform operation, using optional_cm if condition is True
+        """
+
         enter_result: _T
 
         @overload
