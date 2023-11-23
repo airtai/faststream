@@ -9,7 +9,7 @@ jobs:
   check-broken-link:
     name: Check docs for broken links
     runs-on: ubuntu-latest
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Check links using container
         uses: ruzickap/action-my-broken-link-checker@v2
