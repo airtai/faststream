@@ -188,6 +188,7 @@ class KafkaBroker(
             [StreamMessage[aiokafka.ConsumerRecord]], Awaitable[T_HandlerReturn]
         ],
         watcher: BaseWatcher,
+        disable_watcher: bool = False,
     ) -> Callable[
         [StreamMessage[aiokafka.ConsumerRecord]],
         Awaitable[WrappedReturn[T_HandlerReturn]],
@@ -243,6 +244,8 @@ class KafkaBroker(
         max_records: Optional[int] = None,
         batch_timeout_ms: int = 200,
         retry: Union[bool, int] = False,
+        validate: bool = True,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
@@ -305,6 +308,8 @@ class KafkaBroker(
         max_records: Optional[int] = None,
         batch_timeout_ms: int = 200,
         retry: Union[bool, int] = False,
+        validate: bool = True,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,

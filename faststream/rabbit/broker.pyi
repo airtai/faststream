@@ -140,6 +140,8 @@ class RabbitBroker(
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
         retry: Union[bool, int] = False,
+        validate: bool = True,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
@@ -213,6 +215,7 @@ class RabbitBroker(
             [StreamMessage[aio_pika.IncomingMessage]], Awaitable[T_HandlerReturn]
         ],
         watcher: BaseWatcher,
+        disable_watcher: bool = False,
     ) -> Callable[
         [StreamMessage[aio_pika.IncomingMessage]],
         Awaitable[WrappedReturn[T_HandlerReturn]],

@@ -1,6 +1,7 @@
 import logging
 import warnings
 from abc import ABC, abstractmethod
+from functools import partial
 from itertools import chain
 from types import TracebackType
 from typing import (
@@ -253,6 +254,8 @@ class BrokerUsecase(
         *,
         retry: Union[bool, int] = False,
         extra_dependencies: Sequence[Depends] = (),
+        validate: bool = True,
+        no_ack: bool = False,
         _raw: bool = False,
         _get_dependant: Optional[Any] = None,
     ) -> Tuple[
@@ -268,6 +271,8 @@ class BrokerUsecase(
             func: The handler function to wrap.
             retry: Whether to retry the handler function if it fails. Can be a boolean or an integer specifying the number of retries.
             extra_dependencies: Additional dependencies for the handler function.
+            validate: Whether to cast types using Pydantic validation
+            no_ack: Whether not to ack/nack/reject messages
             _raw: Whether to use the raw handler function.
             _get_dependant: The dependant function to use.
             **broker_log_context_kwargs: Additional keyword arguments for the broker log context.
@@ -283,7 +288,7 @@ class BrokerUsecase(
         """
         build_dep = cast(
             Callable[[Callable[F_Spec, F_Return]], CallModel[F_Spec, F_Return]],
-            _get_dependant or build_call_model,
+            _get_dependant or partial(build_call_model, cast=validate),
         )
 
         if isinstance(func, HandlerCallWrapper):
@@ -310,7 +315,7 @@ class BrokerUsecase(
         if self._is_apply_types is True and not _raw:
             apply_wrapper: _InjectWrapper[
                 P_HandlerParams, Awaitable[T_HandlerReturn]
-            ] = apply_types(None)
+            ] = apply_types(None, cast=validate)
             f = apply_wrapper(f, dependant)
 
         decode_f = self._wrap_decode_message(
@@ -326,6 +331,7 @@ class BrokerUsecase(
         process_f = self._process_message(
             func=decode_f,
             watcher=get_watcher(self.logger, retry),
+            disable_watcher=no_ack,
         )
 
         process_f = set_message_context(process_f)
@@ -393,12 +399,14 @@ class BrokerUsecase(
         self,
         func: Callable[[StreamMessage[MsgType]], Awaitable[T_HandlerReturn]],
         watcher: BaseWatcher,
+        disable_watcher: bool = False,
     ) -> Callable[[StreamMessage[MsgType]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
         """Processes a message using a given function and watcher.
 
         Args:
             func: A callable that takes a StreamMessage of type MsgType and returns an Awaitable of type T_HandlerReturn.
             watcher: An instance of BaseWatcher.
+            disable_watcher: Whether to use watcher context
 
         Returns:
             A callable that takes a StreamMessage of type MsgType and returns an Awaitable of type WrappedReturn[T_HandlerReturn].

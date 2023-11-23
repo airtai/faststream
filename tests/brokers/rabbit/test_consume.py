@@ -1,9 +1,11 @@
 import asyncio
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from aio_pika import IncomingMessage, Message
+from pydantic import BaseModel
 
+from faststream import Context, Depends
 from faststream.exceptions import AckMessage, NackMessage, RejectMessage, SkipMessage
 from faststream.rabbit import RabbitBroker, RabbitExchange, RabbitQueue
 from faststream.rabbit.annotations import RabbitMessage
@@ -317,5 +319,68 @@ class TestConsume(BrokerRealConsumeTestcase):
                     assert not m.mock.called
                     assert not m1.mock.called
                     assert not m2.mock.called
+
+        assert event.is_set()
+
+    @pytest.mark.asyncio
+    async def test_consume_validate_false(
+        self,
+        queue: str,
+        exchange: RabbitExchange,
+        full_broker: RabbitBroker,
+        event: asyncio.Event,
+        mock: MagicMock,
+    ):
+        class Foo(BaseModel):
+            x: int
+
+        def dependency() -> int:
+            return 100
+
+        @full_broker.subscriber(queue, exchange=exchange, retry=1, validate=False)
+        async def handler(m: Foo, dep: str = Depends(dependency), broker=Context()):
+            mock(m, dep, broker)
+            event.set()
+
+        await full_broker.start()
+        await asyncio.wait(
+            (
+                asyncio.create_task(
+                    full_broker.publish({"x": 1}, queue=queue, exchange=exchange)
+                ),
+                asyncio.create_task(event.wait()),
+            ),
+            timeout=3,
+        )
+
+        assert event.is_set()
+        mock.assert_called_once_with({"x": 1}, 100, full_broker)
+
+    @pytest.mark.asyncio
+    async def test_consume_no_ack(
+        self,
+        queue: str,
+        exchange: RabbitExchange,
+        full_broker: RabbitBroker,
+        event: asyncio.Event,
+    ):
+        @full_broker.subscriber(queue, exchange=exchange, retry=1, no_ack=True)
+        async def handler(msg: RabbitMessage):
+            event.set()
+
+        await full_broker.start()
+        with patch.object(
+            IncomingMessage, "ack", spy_decorator(IncomingMessage.ack)
+        ) as m:
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        full_broker.publish("hello", queue=queue, exchange=exchange)
+                    ),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+            m.mock.assert_not_called()
 
         assert event.is_set()

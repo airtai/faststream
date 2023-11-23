@@ -1,9 +1,11 @@
 import asyncio
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from nats.aio.msg import Msg
+from pydantic import BaseModel
 
+from faststream import Context, Depends
 from faststream.exceptions import AckMessage
 from faststream.nats import JStream, NatsBroker, PullSub
 from faststream.nats.annotations import NatsMessage
@@ -184,5 +186,63 @@ class TestConsume(BrokerRealConsumeTestcase):
                 timeout=3,
             )
             m.mock.assert_called_once()
+
+        assert event.is_set()
+
+    @pytest.mark.asyncio
+    async def test_consume_validate_false(
+        self,
+        queue: str,
+        full_broker: NatsBroker,
+        event: asyncio.Event,
+        stream: JStream,
+        mock: MagicMock,
+    ):
+        class Foo(BaseModel):
+            x: int
+
+        def dependency() -> int:
+            return 100
+
+        @full_broker.subscriber(queue, stream=stream, validate=False)
+        async def handler(m: Foo, dep: str = Depends(dependency), broker=Context()):
+            mock(m, dep, broker)
+            event.set()
+
+        await full_broker.start()
+        await asyncio.wait(
+            (
+                asyncio.create_task(full_broker.publish({"x": 1}, queue)),
+                asyncio.create_task(event.wait()),
+            ),
+            timeout=10,
+        )
+
+        assert event.is_set()
+        mock.assert_called_once_with({"x": 1}, 100, full_broker)
+
+    @pytest.mark.asyncio
+    async def test_consume_no_ack(
+        self, queue: str, full_broker: NatsBroker, event: asyncio.Event
+    ):
+        @full_broker.subscriber(queue, no_ack=True)
+        async def handler(msg: NatsMessage):
+            event.set()
+
+        await full_broker.start()
+        with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        full_broker.publish(
+                            "hello",
+                            queue,
+                        )
+                    ),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+            m.mock.assert_not_called()
 
         assert event.is_set()

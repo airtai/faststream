@@ -23,9 +23,7 @@ from nats.aio.client import (
 )
 from nats.aio.msg import Msg
 from nats.js import api
-from nats.js.client import (
-    JetStreamContext,
-)
+from nats.js.client import JetStreamContext
 
 from faststream._compat import override
 from faststream.asyncapi import schema as asyncapi
@@ -207,6 +205,7 @@ class NatsBroker(
             Awaitable[T_HandlerReturn],
         ],
         watcher: BaseWatcher,
+        disable_watcher: bool = False,
     ) -> Callable[[StreamMessage[Msg]], Awaitable[WrappedReturn[T_HandlerReturn]],]: ...
     def _log_connection_broken(
         self,
@@ -245,6 +244,8 @@ class NatsBroker(
         middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
         filter: Filter[NatsMessage] = default_filter,
         retry: bool = False,
+        validate: bool = True,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,

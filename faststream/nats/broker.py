@@ -41,6 +41,7 @@ from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.pull_sub import PullSub
 from faststream.nats.shared.logging import NatsLoggingMixin
 from faststream.types import AnyDict, DecodedMessage
+from faststream.utils.classes import nullcontext
 from faststream.utils.context.main import context
 
 Subject = str
@@ -200,12 +201,17 @@ class NatsBroker(
             Awaitable[T_HandlerReturn],
         ],
         watcher: BaseWatcher,
+        disable_watcher: bool = False,
     ) -> Callable[[StreamMessage[Msg]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
         @wraps(func)
         async def process_wrapper(
             message: StreamMessage[Msg],
         ) -> WrappedReturn[T_HandlerReturn]:
-            async with WatcherContext(watcher, message):
+            if disable_watcher is True:
+                watcher_context = nullcontext()
+            else:
+                watcher_context = WatcherContext(watcher, message)
+            async with watcher_context:
                 r = await self._execute_handler(func, message)
 
                 pub_response: Optional[AsyncPublisherProtocol]
@@ -281,6 +287,8 @@ class NatsBroker(
         decoder: Optional[CustomDecoder[NatsMessage]] = None,
         middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
         filter: Filter[NatsMessage] = default_filter,
+        validate: bool = True,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
@@ -376,6 +384,8 @@ class NatsBroker(
             handler_call, dependant = self._wrap_handler(
                 func,
                 extra_dependencies=dependencies,
+                validate=validate,
+                no_ack=no_ack,
                 **original_kwargs,
             )
 
