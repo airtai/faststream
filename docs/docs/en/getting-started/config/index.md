@@ -72,7 +72,7 @@ This practice is common enough that it has a name; these environment variables a
 
     But a dotenv file doesn't really have to have that exact filename.
 
-Pydantic supports reading from these types of files using an external library. You can learn more at [Pydantic Settings: Dotenv (.env) support](https://docs.pydantic.dev/latest/usage/pydantic_settings/#dotenv-env-support){.external-link target="_blank"}.
+Pydantic supports reading from these types of files using an external library. You can learn more at [Pydantic Settings: Dotenv (.env) support](https://docs.pydantic.dev/latest/concepts/pydantic_settings/#dotenv-env-support){.external-link target="_blank"}.
 
 !!! tip
     To use this feature, you need to install the `python-dotenv` library.
