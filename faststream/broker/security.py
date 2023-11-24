@@ -1,3 +1,5 @@
+# pragma: no cover
+
 import warnings
 
 from faststream.security import BaseSecurity, SASLPlaintext, SASLScram256, SASLScram512

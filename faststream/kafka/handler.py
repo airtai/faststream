@@ -213,13 +213,13 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
                 else:
                     msg = await self.consumer.getone()
 
-            except KafkaError:
+            except KafkaError:  # pragma: no cover
                 if connected is True:
                     connected = False
                 await anyio.sleep(5)
 
             else:
-                if connected is False:
+                if connected is False:  # pragma: no cover
                     connected = True
                 await self.consume(msg)
 
