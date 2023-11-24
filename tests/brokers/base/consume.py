@@ -198,7 +198,7 @@ class BrokerConsumeTestcase:
             mock(m, dep, broker)
             event.set()
 
-        await full_broker.start()
+        await consume_broker.start()
         await asyncio.wait(
             (
                 asyncio.create_task(consume_broker.publish({"x": 1}, queue)),
