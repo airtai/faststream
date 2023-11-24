@@ -211,7 +211,7 @@ class KafkaBroker(
         Args:
             func (Callable[[KafkaMessage], Awaitable[T_HandlerReturn]]): The message processing function.
             watcher (BaseWatcher): The message watcher.
-            disable_watcher: Whether to use watcher context
+            disable_watcher: Whether to use watcher context.
 
         Returns:
             Callable[[KafkaMessage], Awaitable[WrappedReturn[T_HandlerReturn]]]: The wrapped message processing function.
@@ -361,8 +361,8 @@ class KafkaBroker(
             batch (bool): Whether to process messages in batches.
             max_records (Optional[int]): Maximum number of records to process in each batch.
             batch_timeout_ms (int): Batch timeout in milliseconds.
-            validate (bool): Whether to cast types using Pydantic validation
-            no_ack (bool): Whether not to ack/nack/reject messages
+            validate (bool): Whether to cast types using Pydantic validation.
+            no_ack (bool): Whether not to ack/nack/reject messages.
             title (Optional[str]): AsyncAPI title.
             description (Optional[str]): AsyncAPI description.
             **original_kwargs: Additional keyword arguments.

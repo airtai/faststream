@@ -319,8 +319,8 @@ class RabbitBroker(
             queue (Union[str, RabbitQueue]): The name of the RabbitMQ queue.
             exchange (Union[str, RabbitExchange, None], optional): The name of the RabbitMQ exchange. Defaults to None.
             consume_args (Optional[AnyDict], optional): Additional arguments for message consumption.
-            validate (bool): Whether to cast types using Pydantic validation
-            no_ack (bool): Whether not to ack/nack/reject messages
+            validate (bool): Whether to cast types using Pydantic validation.
+            no_ack (bool): Whether not to ack/nack/reject messages.
             title (Optional[str]): Title for AsyncAPI docs.
             description (Optional[str]): Description for AsyncAPI docs.
 
@@ -493,7 +493,7 @@ class RabbitBroker(
         Args:
             func (Callable): The handler function for processing the message.
             watcher (BaseWatcher): The message watcher for tracking message processing.
-            disable_watcher: Whether to use watcher context
+            disable_watcher: Whether to use watcher context.
 
         Returns:
             Callable: A wrapper function for processing messages.

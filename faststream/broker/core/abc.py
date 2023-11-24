@@ -272,8 +272,8 @@ class BrokerUsecase(
             func: The handler function to wrap.
             retry: Whether to retry the handler function if it fails. Can be a boolean or an integer specifying the number of retries.
             extra_dependencies: Additional dependencies for the handler function.
-            validate: Whether to cast types using Pydantic validation
-            no_ack: Whether not to ack/nack/reject messages
+            validate: Whether to cast types using Pydantic validation.
+            no_ack: Whether not to ack/nack/reject messages.
             _raw: Whether to use the raw handler function.
             _get_dependant: The dependant function to use.
             **broker_log_context_kwargs: Additional keyword arguments for the broker log context.
@@ -407,7 +407,7 @@ class BrokerUsecase(
         Args:
             func: A callable that takes a StreamMessage of type MsgType and returns an Awaitable of type T_HandlerReturn.
             watcher: An instance of BaseWatcher.
-            disable_watcher: Whether to use watcher context
+            disable_watcher: Whether to use watcher context.
 
         Returns:
             A callable that takes a StreamMessage of type MsgType and returns an Awaitable of type WrappedReturn[T_HandlerReturn].
