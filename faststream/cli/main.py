@@ -87,8 +87,8 @@ def run(
         is_flag=True,
         help="Restart app at directory files changes",
     ),
-    app_dir: str = typer.Option(
-        ".",
+    app_dir: Optional[str] = typer.Option(
+        None,
         "--app-dir",
         help=(
             "Look for APP in the specified directory, by adding this to the PYTHONPATH."
@@ -116,7 +116,7 @@ def run(
         WatchReloader(
             target=_run,
             args=args,
-            reload_dirs=(str(module_path),),
+            reload_dirs=[str(module_path)] + ([app_dir] if app_dir else []),
         ).run()
 
     elif workers > 1:
