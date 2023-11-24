@@ -143,8 +143,8 @@
 <a id=__codelineno-0-83 name=__codelineno-0-83></a>        <span class=k>with</span> <span class=n>timeout_scope</span><span class=p>(</span><span class=n>rpc_timeout</span><span class=p>,</span> <span class=n>raise_timeout</span><span class=p>):</span>
 <a id=__codelineno-0-84 name=__codelineno-0-84></a>            <span class=n>msg</span> <span class=o>=</span> <span class=k>await</span> <span class=n>future</span>
 <a id=__codelineno-0-85 name=__codelineno-0-85></a>
-<a id=__codelineno-0-86 name=__codelineno-0-86></a>        <span class=k>if</span> <span class=n>msg</span><span class=p>:</span>
-<a id=__codelineno-0-87 name=__codelineno-0-87></a>            <span class=k>if</span> <span class=n>msg</span><span class=o>.</span><span class=n>headers</span><span class=p>:</span>  <span class=c1># pragma: no branch</span>
+<a id=__codelineno-0-86 name=__codelineno-0-86></a>        <span class=k>if</span> <span class=n>msg</span><span class=p>:</span>  <span class=c1># pragma: no branch</span>
+<a id=__codelineno-0-87 name=__codelineno-0-87></a>            <span class=k>if</span> <span class=n>msg</span><span class=o>.</span><span class=n>headers</span><span class=p>:</span>  <span class=c1># pragma: no cover</span>
 <a id=__codelineno-0-88 name=__codelineno-0-88></a>                <span class=k>if</span> <span class=p>(</span>
 <a id=__codelineno-0-89 name=__codelineno-0-89></a>                    <span class=n>msg</span><span class=o>.</span><span class=n>headers</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>nats</span><span class=o>.</span><span class=n>js</span><span class=o>.</span><span class=n>api</span><span class=o>.</span><span class=n>Header</span><span class=o>.</span><span class=n>STATUS</span><span class=p>)</span>
 <a id=__codelineno-0-90 name=__codelineno-0-90></a>                    <span class=o>==</span> <span class=n>nats</span><span class=o>.</span><span class=n>aio</span><span class=o>.</span><span class=n>client</span><span class=o>.</span><span class=n>NO_RESPONDERS_STATUS</span>

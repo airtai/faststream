@@ -246,7 +246,7 @@
 <a id=__codelineno-0-169 name=__codelineno-0-169></a>            <span class=k>with</span> <span class=n>timeout_scope</span><span class=p>(</span><span class=n>rpc_timeout</span><span class=p>,</span> <span class=n>raise_timeout</span><span class=p>):</span>
 <a id=__codelineno-0-170 name=__codelineno-0-170></a>                <span class=n>msg</span> <span class=o>=</span> <span class=k>await</span> <span class=n>response_queue</span><span class=o>.</span><span class=n>receive</span><span class=p>()</span>
 <a id=__codelineno-0-171 name=__codelineno-0-171></a>
-<a id=__codelineno-0-172 name=__codelineno-0-172></a>            <span class=k>if</span> <span class=n>msg</span><span class=p>:</span>
+<a id=__codelineno-0-172 name=__codelineno-0-172></a>            <span class=k>if</span> <span class=n>msg</span><span class=p>:</span>  <span class=c1># pragma: no branch</span>
 <a id=__codelineno-0-173 name=__codelineno-0-173></a>                <span class=k>return</span> <span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>_decoder</span><span class=p>(</span><span class=k>await</span> <span class=bp>self</span><span class=o>.</span><span class=n>_parser</span><span class=p>(</span><span class=n>msg</span><span class=p>))</span>
 <a id=__codelineno-0-174 name=__codelineno-0-174></a>
 <a id=__codelineno-0-175 name=__codelineno-0-175></a>    <span class=k>return</span> <span class=kc>None</span>
