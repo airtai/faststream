@@ -245,7 +245,6 @@ omit = [
 show_missing = true
 skip_empty = true
 exclude_lines = [
-    ".*# pragma: no cover",
     "if __name__ == .__main__.:",
     "self.logger",
     "def __repr__",
@@ -255,7 +254,6 @@ exclude_lines = [
     '@(abc\.)?abstractmethod',
     "raise NotImplementedError",
     'raise AssertionError',
-    'raise ValueError',
     'logger\..*',
     "pass",
     '\.\.\.',

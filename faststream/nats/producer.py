@@ -83,8 +83,8 @@ class NatsFastProducer:
             with timeout_scope(rpc_timeout, raise_timeout):
                 msg = await future
 
-            if msg:
-                if msg.headers:  # pragma: no branch
+            if msg:  # pragma: no branch
+                if msg.headers:  # pragma: no cover
                     if (
                         msg.headers.get(nats.js.api.Header.STATUS)
                         == nats.aio.client.NO_RESPONDERS_STATUS
@@ -159,8 +159,8 @@ class NatsJSFastProducer:
             with timeout_scope(rpc_timeout, raise_timeout):
                 msg = await future
 
-            if msg:
-                if msg.headers:  # pragma: no branch
+            if msg:  # pragma: no branch
+                if msg.headers:  # pragma: no cover
                     if (
                         msg.headers.get(nats.js.api.Header.STATUS)
                         == nats.aio.client.NO_RESPONDERS_STATUS

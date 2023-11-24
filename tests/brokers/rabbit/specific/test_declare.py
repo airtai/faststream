@@ -1,6 +1,6 @@
 import pytest
 
-from faststream.rabbit import RabbitExchange, RabbitQueue
+from faststream.rabbit import RabbitBroker, RabbitExchange, RabbitQueue
 from faststream.rabbit.helpers import RabbitDeclarer
 
 
@@ -43,3 +43,24 @@ async def test_declare_nested_exchange_cash_nested(
 
     await declarer.declare_exchange(exchange)
     assert async_mock.declare_exchange.await_count == 2
+
+
+@pytest.mark.asyncio
+async def test_publisher_declare(
+    async_mock,
+    queue: str,
+):
+    declarer = RabbitDeclarer(async_mock)
+
+    broker = RabbitBroker()
+    broker._connection = async_mock
+    broker.declarer = declarer
+
+    @broker.publisher(queue, queue)
+    async def f():
+        ...
+
+    await broker.start()
+
+    assert not async_mock.declare_queue.await_count
+    async_mock.declare_exchange.assert_awaited_once()
