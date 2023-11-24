@@ -98,6 +98,7 @@ class WatchReloader(BaseReload):
         """
         super().__init__(target, args, reload_delay)
         self.reloader_name = "WatchFiles"
+        self.reload_dirs = reload_dirs
         self.watcher = watchfiles.watch(
             *reload_dirs,
             step=int(reload_delay * 1000),
@@ -105,6 +106,10 @@ class WatchReloader(BaseReload):
             stop_event=self.should_exit,
             yield_on_timeout=True,
         )
+
+    def startup(self) -> None:
+        logger.info(f"Will watch for changes in these directories: {self.reload_dirs}")
+        super().startup()
 
     def should_restart(self) -> bool:
         for changes in self.watcher:  # pragma: no branch
