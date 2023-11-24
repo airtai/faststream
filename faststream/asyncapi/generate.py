@@ -40,7 +40,7 @@ def get_app_schema(app: Union[FastStream, "StreamRouter[Any]"]) -> Schema:
         if ch.subscribe is not None:
             m = ch.subscribe.message
 
-            if isinstance(m, Message):
+            if isinstance(m, Message):  # pragma: no branch
                 ch.subscribe.message = _resolve_msg_payloads(
                     m,
                     channel_name,
@@ -51,7 +51,7 @@ def get_app_schema(app: Union[FastStream, "StreamRouter[Any]"]) -> Schema:
         if ch.publish is not None:
             m = ch.publish.message
 
-            if isinstance(m, Message):
+            if isinstance(m, Message):  # pragma: no branch
                 ch.publish.message = _resolve_msg_payloads(
                     m,
                     channel_name,
@@ -60,7 +60,7 @@ def get_app_schema(app: Union[FastStream, "StreamRouter[Any]"]) -> Schema:
                 )
 
     broker = app.broker
-    if broker is None:
+    if broker is None:  # pragma: no cover
         raise RuntimeError()
 
     schema = Schema(

@@ -126,7 +126,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
 
         sub = cast(JetStreamContext.PullSubscription, self.subscription)
 
-        while self.subscription is not None:
+        while self.subscription is not None:  # pragma: no branch
             with suppress(TimeoutError):
                 messages = await sub.fetch(
                     batch=self.pull_sub.batch_size,

@@ -23,11 +23,12 @@ class NatsParser:
         handler = context.get("handler_")
         path: AnyDict = {}
         path_re: Optional[Pattern[str]]
-        if handler and (path_re := handler.path_regex):
-            if path_re is not None:
-                match = path_re.match(message.subject)
-                if match:
-                    path = match.groupdict()
+        if (  # pragma: no branch
+            handler
+            and (path_re := handler.path_regex) is not None
+            and (match := path_re.match(message.subject)) is not None
+        ):
+            path = match.groupdict()
 
         return NatsMessage(
             is_js=self.is_js,

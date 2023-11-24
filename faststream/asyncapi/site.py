@@ -139,7 +139,7 @@ def serve_app(
         schemas: bool = True,
         errors: bool = True,
         expandMessageExamples: bool = True,
-    ) -> HTMLResponse:
+    ) -> HTMLResponse:  # pragma: no cover
         """Generate an AsyncAPI HTML response.
 
         Args:
