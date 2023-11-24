@@ -181,17 +181,19 @@ class BrokerConsumeTestcase:
     async def test_consume_validate_false(
         self,
         queue: str,
-        full_broker: BrokerUsecase,
+        consume_broker: BrokerUsecase,
         event: asyncio.Event,
         mock: MagicMock,
     ):
+        consume_broker._is_apply_types = True
+
         class Foo(BaseModel):
             x: int
 
         def dependency() -> int:
             return 100
 
-        @full_broker.subscriber(queue, validate=False)
+        @consume_broker.subscriber(queue, validate=False)
         async def handler(m: Foo, dep: str = Depends(dependency), broker=Context()):
             mock(m, dep, broker)
             event.set()
@@ -199,14 +201,14 @@ class BrokerConsumeTestcase:
         await full_broker.start()
         await asyncio.wait(
             (
-                asyncio.create_task(full_broker.publish({"x": 1}, queue)),
+                asyncio.create_task(consume_broker.publish({"x": 1}, queue)),
                 asyncio.create_task(event.wait()),
             ),
             timeout=10,
         )
 
         assert event.is_set()
-        mock.assert_called_once_with({"x": 1}, 100, full_broker)
+        mock.assert_called_once_with({"x": 1}, 100, consume_broker)
 
 
 @pytest.mark.asyncio
