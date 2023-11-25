@@ -311,7 +311,6 @@ class KafkaBroker(
         batch: bool = False,
         max_records: Optional[int] = None,
         batch_timeout_ms: int = 200,
-        validate: bool = True,
         no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
@@ -361,7 +360,6 @@ class KafkaBroker(
             batch (bool): Whether to process messages in batches.
             max_records (Optional[int]): Maximum number of records to process in each batch.
             batch_timeout_ms (int): Batch timeout in milliseconds.
-            validate (bool): Whether to cast types using Pydantic validation.
             no_ack (bool): Whether not to ack/nack/reject messages.
             title (Optional[str]): AsyncAPI title.
             description (Optional[str]): AsyncAPI description.
@@ -445,7 +443,6 @@ class KafkaBroker(
             handler_call, dependant = self._wrap_handler(
                 func=func,
                 extra_dependencies=dependencies,
-                validate=validate,
                 no_ack=no_ack,
                 **original_kwargs,
             )

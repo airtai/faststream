@@ -274,6 +274,7 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         self,
         *args: Any,
         apply_types: bool = True,
+        validate: bool = True,
         logger: Optional[logging.Logger] = access_logger,
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = "%(asctime)s %(levelname)s - %(message)s",
@@ -288,6 +289,7 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         Args:
             *args: Variable length arguments
             apply_types: Whether to apply types or not
+            validate: Whether to cast types using Pydantic validation.
             logger: Logger object for logging
             log_level: Log level for logging
             log_fmt: Log format for logging
@@ -303,6 +305,7 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         super().__init__(
             *args,
             apply_types=apply_types,
+            validate=validate,
             logger=logger,
             log_level=log_level,
             log_fmt=log_fmt,
@@ -429,7 +432,6 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         *,
         retry: Union[bool, int] = False,
         extra_dependencies: Sequence[Depends] = (),
-        validate: bool = True,
         no_ack: bool = False,
         _raw: bool = False,
         _get_dependant: Optional[Any] = None,
@@ -443,7 +445,6 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
             func: The handler function to wrap.
             retry: Whether to retry the handler function if it fails. Can be a boolean or an integer specifying the number of retries.
             extra_dependencies: Additional dependencies to inject into the handler function.
-            validate: Whether to cast types using Pydantic validation.
             no_ack: Whether not to ack/nack/reject messages.
             _raw: Whether to return the raw response from the handler function.
             _get_dependant: An optional object to use as the dependant for the handler function.
@@ -459,7 +460,6 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
             func,
             retry=retry,
             extra_dependencies=extra_dependencies,
-            validate=validate,
             no_ack=no_ack,
             _raw=_raw,
             _get_dependant=_get_dependant,

@@ -186,6 +186,7 @@ class BrokerConsumeTestcase:
         mock: MagicMock,
     ):
         consume_broker._is_apply_types = True
+        consume_broker._is_validate = False
 
         class Foo(BaseModel):
             x: int
@@ -193,7 +194,7 @@ class BrokerConsumeTestcase:
         def dependency() -> int:
             return 100
 
-        @consume_broker.subscriber(queue, validate=False)
+        @consume_broker.subscriber(queue)
         async def handler(m: Foo, dep: str = Depends(dependency), broker=Context()):
             mock(m, dep, broker)
             event.set()
@@ -204,7 +205,7 @@ class BrokerConsumeTestcase:
                 asyncio.create_task(consume_broker.publish({"x": 1}, queue)),
                 asyncio.create_task(event.wait()),
             ),
-            timeout=10,
+            timeout=3,
         )
 
         assert event.is_set()

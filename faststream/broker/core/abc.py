@@ -121,6 +121,7 @@ class BrokerUsecase(
         asyncapi_url: Union[str, List[str], None] = None,
         # broker kwargs
         apply_types: bool = True,
+        validate: bool = True,
         logger: Optional[logging.Logger] = access_logger,
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = "%(asctime)s %(levelname)s - %(message)s",
@@ -141,6 +142,7 @@ class BrokerUsecase(
             description: A description of the broker.
             tags: Tags associated with the broker.
             apply_types: Whether to apply types to messages.
+            validate: Whether to cast types using Pydantic validation.
             logger: The logger to use.
             log_level: The log level to use.
             log_fmt: The log format to use.
@@ -161,6 +163,7 @@ class BrokerUsecase(
 
         self._connection = None
         self._is_apply_types = apply_types
+        self._is_validate = validate
         self.handlers = {}
         self._publishers = {}
         empty_middleware: Sequence[Callable[[MsgType], BaseMiddleware]] = ()
@@ -255,7 +258,6 @@ class BrokerUsecase(
         *,
         retry: Union[bool, int] = False,
         extra_dependencies: Sequence[Depends] = (),
-        validate: bool = True,
         no_ack: bool = False,
         _raw: bool = False,
         _get_dependant: Optional[Any] = None,
@@ -272,7 +274,6 @@ class BrokerUsecase(
             func: The handler function to wrap.
             retry: Whether to retry the handler function if it fails. Can be a boolean or an integer specifying the number of retries.
             extra_dependencies: Additional dependencies for the handler function.
-            validate: Whether to cast types using Pydantic validation.
             no_ack: Whether not to ack/nack/reject messages.
             _raw: Whether to use the raw handler function.
             _get_dependant: The dependant function to use.
@@ -289,7 +290,7 @@ class BrokerUsecase(
         """
         build_dep = cast(
             Callable[[Callable[F_Spec, F_Return]], CallModel[F_Spec, F_Return]],
-            _get_dependant or partial(build_call_model, cast=validate),
+            _get_dependant or partial(build_call_model, cast=self._is_validate),
         )
 
         if isinstance(func, HandlerCallWrapper):
@@ -316,7 +317,7 @@ class BrokerUsecase(
         if self._is_apply_types is True and not _raw:
             apply_wrapper: _InjectWrapper[
                 P_HandlerParams, Awaitable[T_HandlerReturn]
-            ] = apply_types(None, cast=validate)
+            ] = apply_types(None, cast=self._is_validate)
             f = apply_wrapper(f, dependant)
 
         decode_f = self._wrap_decode_message(

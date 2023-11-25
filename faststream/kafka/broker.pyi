@@ -91,6 +91,7 @@ class KafkaBroker(
         loop: Optional[AbstractEventLoop] = None,
         # broker args
         apply_types: bool = True,
+        validate: bool = True,
         dependencies: Sequence[Depends] = (),
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
@@ -244,7 +245,6 @@ class KafkaBroker(
         max_records: Optional[int] = None,
         batch_timeout_ms: int = 200,
         retry: Union[bool, int] = False,
-        validate: bool = True,
         no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
@@ -308,7 +308,6 @@ class KafkaBroker(
         max_records: Optional[int] = None,
         batch_timeout_ms: int = 200,
         retry: Union[bool, int] = False,
-        validate: bool = True,
         no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,

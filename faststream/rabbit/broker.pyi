@@ -65,6 +65,7 @@ class RabbitBroker(
         max_consumers: Optional[int] = None,
         # broker args
         apply_types: bool = True,
+        validate: bool = True,
         dependencies: Sequence[Depends] = (),
         decoder: Optional[CustomDecoder[RabbitMessage]] = None,
         parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
@@ -140,7 +141,6 @@ class RabbitBroker(
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
         retry: Union[bool, int] = False,
-        validate: bool = True,
         no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,

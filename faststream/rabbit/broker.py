@@ -302,7 +302,6 @@ class RabbitBroker(
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
         filter: Filter[RabbitMessage] = default_filter,
-        validate: bool = True,
         no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
@@ -319,7 +318,6 @@ class RabbitBroker(
             queue (Union[str, RabbitQueue]): The name of the RabbitMQ queue.
             exchange (Union[str, RabbitExchange, None], optional): The name of the RabbitMQ exchange. Defaults to None.
             consume_args (Optional[AnyDict], optional): Additional arguments for message consumption.
-            validate (bool): Whether to cast types using Pydantic validation.
             no_ack (bool): Whether not to ack/nack/reject messages.
             title (Optional[str]): Title for AsyncAPI docs.
             description (Optional[str]): Description for AsyncAPI docs.
@@ -374,7 +372,6 @@ class RabbitBroker(
             handler_call, dependant = self._wrap_handler(
                 func,
                 extra_dependencies=dependencies,
-                validate=validate,
                 no_ack=no_ack,
                 **original_kwargs,
             )

@@ -287,7 +287,6 @@ class NatsBroker(
         decoder: Optional[CustomDecoder[NatsMessage]] = None,
         middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
         filter: Filter[NatsMessage] = default_filter,
-        validate: bool = True,
         no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
@@ -384,7 +383,6 @@ class NatsBroker(
             handler_call, dependant = self._wrap_handler(
                 func,
                 extra_dependencies=dependencies,
-                validate=validate,
                 no_ack=no_ack,
                 **original_kwargs,
             )

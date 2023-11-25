@@ -98,6 +98,7 @@ class NatsBroker(
         flush_timeout: Optional[float] = None,
         # broker args
         apply_types: bool = True,
+        validate: bool = True,
         dependencies: Sequence[Depends] = (),
         decoder: Optional[CustomDecoder[NatsMessage]] = None,
         parser: Optional[CustomParser[Msg, NatsMessage]] = None,
@@ -244,7 +245,6 @@ class NatsBroker(
         middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
         filter: Filter[NatsMessage] = default_filter,
         retry: bool = False,
-        validate: bool = True,
         no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
