@@ -191,11 +191,11 @@ class BrokerConsumeTestcase:
         class Foo(BaseModel):
             x: int
 
-        def dependency() -> int:
-            return 100
+        def dependency() -> str:
+            return "100"
 
         @consume_broker.subscriber(queue)
-        async def handler(m: Foo, dep: str = Depends(dependency), broker=Context()):
+        async def handler(m: Foo, dep: int = Depends(dependency), broker=Context()):
             mock(m, dep, broker)
             event.set()
 
@@ -209,7 +209,7 @@ class BrokerConsumeTestcase:
         )
 
         assert event.is_set()
-        mock.assert_called_once_with({"x": 1}, 100, consume_broker)
+        mock.assert_called_once_with({"x": 1}, "100", consume_broker)
 
 
 @pytest.mark.asyncio
