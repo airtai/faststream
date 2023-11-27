@@ -27,7 +27,7 @@ Let's start by customizing the app information that appears in your AsyncAPI doc
 
 Copy the following code in your basic.py file, we have highligted the additional info passed to FastStream app:
 
-```python linenums="1" hl_lines="7-12"
+```python linenums="1" hl_lines="6-15"
     {!> docs_src/getting_started/asyncapi/asyncapi_customization/custom_info.py !}
 ```
 
@@ -36,6 +36,9 @@ Now, when you run ```{!> docs_src/getting_started/asyncapi/serve.py [ln:17] !}``
 ![HTML-page](../../../assets/img/AsyncAPI-custom-info.png){ loading=lazy }
 
 Now, your documentation reflects your application's identity and purpose.
+
+!!! note
+    The ```description``` field in the above example supports ```Markdown``` text.
 
 ## Setup Custom Broker Information
 
