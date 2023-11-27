@@ -1,5 +1,4 @@
 import json
-import sys
 from pathlib import Path
 from typing import Optional
 
@@ -10,7 +9,7 @@ from faststream._compat import model_parse
 from faststream.asyncapi.generate import get_app_schema
 from faststream.asyncapi.schema import Schema
 from faststream.asyncapi.site import serve_app
-from faststream.cli.utils.imports import get_app_path, try_import_app
+from faststream.cli.utils.imports import import_from_string
 
 docs_app = typer.Typer(pretty_exceptions_short=True)
 
@@ -32,9 +31,7 @@ def serve(
 ) -> None:
     """Serve project AsyncAPI schema"""
     if ":" in app:
-        module, app = get_app_path(app)
-        sys.path.insert(0, str(module.parent))
-        app_obj = try_import_app(module, app)
+        _, app_obj = import_from_string(app)
         raw_schema = get_app_schema(app_obj)
 
     else:
@@ -85,15 +82,8 @@ def gen(
     ),
 ) -> None:
     """Generate project AsyncAPI schema"""
-    if ":" in app:
-        module, app = get_app_path(app)
-        sys.path.insert(0, str(module.parent))
-        app_obj = try_import_app(module, app)
-        raw_schema = get_app_schema(app_obj)
-
-    else:
-        schema_filepath = Path.cwd() / app
-        raw_schema = model_parse(Schema, schema_filepath.read_text())
+    _, app_obj = import_from_string(app)
+    raw_schema = get_app_schema(app_obj)
 
     if yaml:
         try:

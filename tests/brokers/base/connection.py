@@ -1,3 +1,4 @@
+import os
 from typing import Type
 
 import pytest
@@ -25,6 +26,8 @@ class BrokerConnectionTestcase:
 
     @pytest.mark.asyncio
     async def test_warning(self, broker: BrokerUsecase):
+        del os.environ["PYTEST_CURRENT_TEST"]
+
         async with broker:
             await broker.start()
             assert broker.started

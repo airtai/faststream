@@ -17,5 +17,5 @@ htmlcov
 token
 .DS_Store
 
-site/
-site_build/
+docs/site/
+docs/site_build/

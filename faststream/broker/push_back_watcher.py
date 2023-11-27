@@ -367,7 +367,7 @@ class WatcherContext:
                 await self.__ack()
             elif isinstance(exc_val, NackMessage):
                 await self.__nack()
-            elif isinstance(exc_val, RejectMessage):
+            elif isinstance(exc_val, RejectMessage):  # pragma: no branch
                 await self.__reject()
             return True
 

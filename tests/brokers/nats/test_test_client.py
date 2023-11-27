@@ -3,7 +3,7 @@ import asyncio
 import pytest
 
 from faststream import BaseMiddleware
-from faststream.nats import JStream, NatsBroker, TestNatsBroker
+from faststream.nats import JStream, NatsBroker, PullSub, TestNatsBroker
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
@@ -134,4 +134,18 @@ class TestTestclient(BrokerTestclientTestcase):
 
         await test_broker.start()
         await test_broker.publish("hello", "test.a.subj.b.c")
+        subscriber.mock.assert_called_once_with("hello")
+
+    async def test_consume_pull(
+        self,
+        queue: str,
+        test_broker: NatsBroker,
+        stream: JStream,
+    ):
+        @test_broker.subscriber(queue, stream=stream, pull_sub=PullSub(1))
+        def subscriber(m):
+            ...
+
+        await test_broker.start()
+        await test_broker.publish("hello", queue)
         subscriber.mock.assert_called_once_with("hello")

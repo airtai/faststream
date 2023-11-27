@@ -30,7 +30,7 @@ def test_int():
         assert cast_int([])
 
 
-def test_default():
+def test_cast_default():
     assert cast_default("1") == (True, 1)
 
     assert cast_default(t=1.0) == (True, 1)
