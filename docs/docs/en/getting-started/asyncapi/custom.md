@@ -68,12 +68,13 @@ Customizing handler information helps users comprehend the purpose and behavior 
 1. Navigate to your handler definitions in your FastStream application.
 1. Add descriptions to each handler using `description` field.
 1. Add titles to each handler using `title` field adhering to [URI format](https://datatracker.ietf.org/doc/html/rfc3986).
+1. Add publishing schema to publisher handler using `schema` field.
 1. Save the changes.
 1. Serve your FastStream app.
 
 Copy the following code in your basic.py file, we have highligted the additional info passed to the FastStream app handlers:
 
-```python linenums="1" hl_lines="8-13"
+```python linenums="1" hl_lines="17-25"
     {!> docs_src/getting_started/asyncapi/asyncapi_customization/custom_handler.py !}
 ```
 
