@@ -21,8 +21,13 @@ app = FastStream(broker)
     schema=DataBasic,
 )
 @broker.subscriber(
-    "input_data", description="My subscriber description", title="input_data:Consume"
+    "input_data", title="input_data:Consume"
 )
 async def on_input_data(msg):
+    """Consumer function
+
+    Args:
+        msg: input msg
+    """
     # your processing logic
     pass
