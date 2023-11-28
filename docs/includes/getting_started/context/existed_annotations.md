@@ -40,7 +40,7 @@
 
 === "NATS"
     ```python
-    from faststream.rabbit.annotations import (
+    from faststream.nats.annotations import (
         Logger, ContextRepo, NatsMessage,
         NatsBroker, NatsProducer, NatsJsProducer,
         Client, JsClient,
