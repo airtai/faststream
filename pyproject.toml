@@ -73,7 +73,7 @@ docs = [
 
 # dev dependencies
 devdocs = [
-    "mkdocs-material==9.4.10",
+    "mkdocs-material==9.4.14",
     "mkdocs-static-i18n==1.2.0",
     "mdx-include==1.4.2",
     "mkdocstrings[python]==0.24.0",
@@ -93,7 +93,7 @@ lint = [
     "types-ujson",
     "types-Pygments",
     "types-docutils",
-    "mypy==1.7.0",
+    "mypy==1.7.1",
     "black==23.11.0",
     "isort==5.12.0",
     "ruff==0.1.6",
@@ -113,7 +113,7 @@ testing = [
     "faststream[test-core]",
     "fastapi==0.104.1",
     "pydantic-settings==2.1.0",
-    "httpx==0.25.1",
+    "httpx==0.25.2",
     "PyYAML==6.0.1",
 ]
 
