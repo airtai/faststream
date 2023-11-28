@@ -110,13 +110,8 @@ def gen(
     ),
 ) -> None:
     """Generate project AsyncAPI schema"""
-    if ":" in app:
-        _, app_obj = import_from_string(app)
-        raw_schema = get_app_schema(app_obj)
-
-    else:
-        schema_filepath = Path.cwd() / app
-        raw_schema = model_parse(Schema, schema_filepath.read_text())
+    _, app_obj = import_from_string(app)
+    raw_schema = get_app_schema(app_obj)
 
     if yaml:
         try:

@@ -139,7 +139,7 @@ def run(
             WatchReloader(
                 target=_run,
                 args=args,
-                reload_dirs=(str(module_path),),
+                reload_dirs=[str(module_path)] + ([app_dir] if app_dir else []),
             ).run()
 
     elif workers > 1:

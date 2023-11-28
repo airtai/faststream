@@ -116,10 +116,6 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
         self.include_in_schema = include_in_schema
 
     @property
-    def name(self) -> str:
-        return self._title or self.call_name
-
-    @property
     def call_name(self) -> str:
         caller = unwrap(self.calls[0][0]._original_call)
         name = getattr(caller, "__name__", str(caller))
@@ -277,10 +273,10 @@ class AsyncHandler(BaseHandler[MsgType]):
 
                 all_middlewares = gl_middlewares + local_middlewares
 
-                # TODO: add parser & decoder cashes
+                # TODO: add parser & decoder caches
                 message = await parser(msg)
 
-                if not logged:
+                if not logged:  # pragma: no branch
                     log_context_tag = context.set_local(
                         "log_context", self.log_context_builder(message)
                     )
@@ -332,7 +328,7 @@ class AsyncHandler(BaseHandler[MsgType]):
                         await self.close()
                         handler.trigger()
 
-                    except HandlerException as e:
+                    except HandlerException as e:  # pragma: no cover
                         handler.trigger()
                         raise e
 
