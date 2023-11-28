@@ -1,0 +1,50 @@
+name: Update Release Notes
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  update-release-notes:
+    runs-on: ubuntu-latest
+    permissions:
+        contents: write
+    env:
+      TAG_NAME: ${{ github.ref_name }}
+      BRANCH_NAME: update-release-notes-${{ github.ref_name }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: 'main'
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run update_releases.py script
+        run: python ./docs/update_releases.py
+
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --quiet || echo "::set-output name=changes_detected::true"
+
+      - name: Show git diff
+        run: git diff
+      - name: Create new branch and commit changes if there are any
+        if: steps.git-check.outputs.changes_detected
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update release notes for ${{ env.TAG_NAME }}"
+          branch: main
+          file_pattern: docs/docs/en/release.md
+          commit_user_name: 'github-actions'
+          commit_user_email: 'github-actions@github.com'
