@@ -1,4 +1,4 @@
-# Batch Subscriber
+# Redis List Batch Subscriber
 
 If you want to consume data in batches from a Redis list, the `#!python @broker.subscriber(...)` decorator makes it possible. By defining your consumed `msg` object as a list of messages and setting the `batch` parameter to `True` within the `ListSub` object, the subscriber will call your consuming function with a batch of messages. Let's walk through how to achieve this with the FastStream library.
 

@@ -1,4 +1,4 @@
-# Basic Subscriber
+# Redis List Basic Subscriber
 
 To start consuming from a **Redis** list, simply decorate your consuming function with the `#!python @broker.subscriber(...)` decorator, passing a string as the list key.
 
