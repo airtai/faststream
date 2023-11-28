@@ -9,7 +9,7 @@ def test_broker_customization():
 
     assert schema["servers"] == {
         "development": {
-            "url": "localhost:9092",
+            "url": "non-sensitive-url:9092",
             "protocol": "kafka",
             "description": "Kafka broker running locally",
             "protocolVersion": "auto",

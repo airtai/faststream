@@ -8,24 +8,20 @@ def test_handler_customization():
     schema = get_app_schema(app).to_jsonable()
 
     assert schema["channels"] == {
-        "input_data:OnInputData": {
-            "bindings": {"kafka": {"bindingVersion": "0.4.0", "topic": "input_data"}},
-            "description": "My subscriber " "description",
+        "input_data:Consume": {
+            "description": "Consumer function\n\n    Args:\n        msg: input msg\n    ",
             "servers": ["development"],
+            "bindings": {"kafka": {"topic": "input_data", "bindingVersion": "0.4.0"}},
             "subscribe": {
-                "message": {
-                    "$ref": "#/components/messages/input_data:OnInputData:Message"
-                }
+                "message": {"$ref": "#/components/messages/input_data:Consume:Message"}
             },
         },
-        "output_data:Publisher": {
-            "bindings": {"kafka": {"bindingVersion": "0.4.0", "topic": "output_data"}},
-            "description": "My publisher " "description",
-            "publish": {
-                "message": {
-                    "$ref": "#/components/messages/output_data:Publisher:Message"
-                }
-            },
+        "output_data:Produce": {
+            "description": "My publisher description",
             "servers": ["development"],
+            "bindings": {"kafka": {"topic": "output_data", "bindingVersion": "0.4.0"}},
+            "publish": {
+                "message": {"$ref": "#/components/messages/output_data:Produce:Message"}
+            },
         },
     }
