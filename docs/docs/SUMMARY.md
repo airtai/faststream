@@ -506,6 +506,7 @@
                 - [OneMessage](api/faststream/redis/message/OneMessage.md)
                 - [OneRedisMessage](api/faststream/redis/message/OneRedisMessage.md)
                 - [PubSubMessage](api/faststream/redis/message/PubSubMessage.md)
+                - [RedisAckMixin](api/faststream/redis/message/RedisAckMixin.md)
                 - [RedisMessage](api/faststream/redis/message/RedisMessage.md)
             - parser
                 - [RawMessage](api/faststream/redis/parser/RawMessage.md)
