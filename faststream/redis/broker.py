@@ -216,7 +216,7 @@ class RedisBroker(
         key = Handler.get_routing_hash(any_of)
         handler = self.handlers[key] = self.handlers.get(
             key,
-            Handler(
+            Handler(  # type: ignore[abstract]
                 log_context_builder=partial(
                     self._get_log_context,
                     channel=any_of.name,

@@ -206,7 +206,7 @@ def update_contributing():
     CONTRIBUTING_PATH.write_text("\n".join((
         f"> **_NOTE:_**  This is an auto-generated file. Please edit {relative_path} instead.",
         *content
-    )))
+    ))+"\n")
 
 
 @app.command()

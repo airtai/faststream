@@ -138,7 +138,8 @@ services:
       - 6379:6379
     # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
     security_opt:
-      - no-new-privileges:true```
+      - no-new-privileges:true
+```
 
 You can start the dependencies easily using provided script by running:
 
