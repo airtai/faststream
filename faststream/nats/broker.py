@@ -150,8 +150,8 @@ class NatsBroker(
         self.__is_connected = False
 
     async def start(self) -> None:
-        context.set_local(
-            "log_context",
+        context.set_global(
+            "default_log_context",
             self._get_log_context(None, ""),
         )
 
