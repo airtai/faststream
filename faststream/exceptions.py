@@ -26,3 +26,6 @@ WRONG_PUBLISH_ARGS = ValueError(
     "You should use `reply_to` to send response to long-living queue "
     "and `rpc` to get response in sync mode."
 )
+
+
+NOT_CONNECTED_YET = "Please, `connect()` the broker first"

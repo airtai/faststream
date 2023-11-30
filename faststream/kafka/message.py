@@ -33,7 +33,6 @@ class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
 
         self.is_manual = is_manual
         self.consumer = consumer
-        self.commited = False
 
     async def ack(self, **kwargs: Any) -> None:
         """
@@ -47,28 +46,4 @@ class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
         """
         if self.is_manual and not self.commited:
             await self.consumer.commit()
-            self.commited = True
-
-    async def nack(self, **kwargs: Any) -> None:
-        """
-        Negative acknowledgment of the Kafka message.
-
-        Args:
-            **kwargs (Any): Additional keyword arguments.
-
-        Returns:
-            None: This method does not return a value.
-        """
-        self.commited = True
-
-    async def reject(self, **kwargs: Any) -> None:
-        """
-        Reject the Kafka message.
-
-        Args:
-            **kwargs (Any): Additional keyword arguments.
-
-        Returns:
-            None: This method does not return a value.
-        """
-        self.commited = True
+            await super().ack()

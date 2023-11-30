@@ -1,11 +1,15 @@
 import logging
 import sys
-from typing import Dict, Optional
+import warnings
+from typing import Dict, List, Optional
 
 import anyio
 import typer
+from click.exceptions import MissingParameter
+from pydantic import ValidationError
+from typer.core import TyperOption
 
-from faststream.__about__ import __version__
+from faststream.__about__ import INSTALL_WATCHFILES, __version__
 from faststream.cli.docs.app import docs_app
 from faststream.cli.utils.imports import import_from_string
 from faststream.cli.utils.logs import LogLevels, get_log_level, set_log_level
@@ -87,8 +91,16 @@ def run(
         is_flag=True,
         help="Restart app at directory files changes",
     ),
-    app_dir: Optional[str] = typer.Option(
-        None,
+    watch_extensions: List[str] = typer.Option(
+        (),
+        "--extension",
+        "--reload-extension",
+        "--reload-ext",
+        "--ext",
+        help="List of file extensions to watch by",
+    ),
+    app_dir: str = typer.Option(
+        ".",
         "--app-dir",
         help=(
             "Look for APP in the specified directory, by adding this to the PYTHONPATH."
@@ -97,6 +109,12 @@ def run(
     ),
 ) -> None:
     """Run [MODULE:APP] FastStream application"""
+    if watch_extensions and not reload:
+        typer.echo(
+            "Extra reload extensions has no effect without `--reload` flag."
+            "\nProbably, you forgot it?"
+        )
+
     app, extra = parse_cli_args(app, *ctx.args)
     casted_log_level = get_log_level(log_level)
 
@@ -109,15 +127,20 @@ def run(
         raise ValueError("You can't use reload option with multiprocessing")
 
     if reload is True:
-        from faststream.cli.supervisors.watchfiles import WatchReloader
+        try:
+            from faststream.cli.supervisors.watchfiles import WatchReloader
+        except ImportError:
+            warnings.warn(INSTALL_WATCHFILES, category=ImportWarning, stacklevel=1)
+            _run(*args)
 
-        module_path, _ = import_from_string(app)
+        else:
+            module_path, _ = import_from_string(app)
 
-        WatchReloader(
-            target=_run,
-            args=args,
-            reload_dirs=[str(module_path)] + ([app_dir] if app_dir else []),
-        ).run()
+            WatchReloader(
+                target=_run,
+                args=args,
+                reload_dirs=[str(module_path)] + ([app_dir] if app_dir else []),
+            ).run()
 
     elif workers > 1:
         from faststream.cli.supervisors.multiprocess import Multiprocess
@@ -129,11 +152,7 @@ def run(
         ).run()
 
     else:
-        _run(
-            app=app,
-            extra_options=extra,
-            log_level=casted_log_level,
-        )
+        _run(*args)
 
 
 def _run(
@@ -154,9 +173,6 @@ def _run(
     Returns:
         None
 
-    Raises:
-        ImportError: If `uvloop` is not installed.
-
     Note:
         This function uses the `anyio.run()` function to run the application.
     !!! note
@@ -167,10 +183,7 @@ def _run(
 
     set_log_level(log_level, app_obj)
 
-    if sys.platform not in ("win32", "cygwin", "cli") and sys.version_info < (
-        3,
-        12,
-    ):  # pragma: no cover
+    if sys.platform not in ("win32", "cygwin", "cli"):  # pragma: no cover
         try:
             import uvloop
         except ImportError:
@@ -178,8 +191,23 @@ def _run(
         else:
             uvloop.install()  # type: ignore[attr-defined]
 
-    anyio.run(
-        app_obj.run,
-        app_level,
-        extra_options,
-    )
+    try:
+        anyio.run(
+            app_obj.run,
+            app_level,
+            extra_options,
+        )
+
+    except ValidationError as e:
+        ex = MissingParameter(
+            param=TyperOption(param_decls=[f"--{x['loc'][0]}" for x in e.errors()])
+        )
+
+        try:
+            from typer import rich_utils
+
+            rich_utils.rich_format_error(ex)
+        except ImportError:
+            ex.show()
+
+        sys.exit(1)

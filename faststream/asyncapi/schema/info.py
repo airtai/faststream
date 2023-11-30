@@ -9,15 +9,18 @@ from faststream._compat import (
     JsonSchemaValue,
     Required,
     TypedDict,
-    is_installed,
     with_info_plain_validator_function,
 )
 from faststream.log import logger
 
-if is_installed("email_validator"):
+try:
+    import email_validator
+
+    if email_validator is None:
+        raise ImportError
     from pydantic import EmailStr
 
-else:  # pragma: no cover
+except ImportError:  # pragma: no cover
     # NOTE: EmailStr mock was copied from the FastAPI
     # https://github.com/tiangolo/fastapi/blob/master/fastapi/openapi/models.py#24
     class EmailStr(str):  # type: ignore

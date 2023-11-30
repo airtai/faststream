@@ -13,8 +13,7 @@ async def test_ack_exc():
     from docs.docs_src.nats.ack.errors import app, broker, handle
 
     with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
-        async with TestNatsBroker(broker, with_real=True, connect_only=True):
-            async with TestApp(app):
-                await handle.wait_call(3)
+        async with TestNatsBroker(broker, with_real=True), TestApp(app):
+            await handle.wait_call(3)
 
-                assert m.mock.call_count
+            assert m.mock.call_count

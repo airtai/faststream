@@ -60,6 +60,9 @@ work with your project easily. Edit the code as much as you like - the new versi
 faststream run serve:app --reload
 ```
 
+!!! tip
+    {!> includes/en/watchfiles.md !}
+
 ```{ .shell .no-copy }
 INFO     - Started reloader process [7902] using WatchFiles
 INFO     - FastStream app starting...
@@ -67,6 +70,12 @@ INFO     - test |            - `Handle` waiting for messages
 INFO     - FastStream app started successfully! To exit press CTRL+C
 ```
 { data-search-exclude }
+
+By default **FastStream** watches for `.py` file changes, but you can specify an extra file extensions to watch by (your config files as an example)
+
+```shell
+faststream run serve:app --reload  --reload-ext .yml --realod-ext .yaml
+```
 
 ### Environment Management
 
@@ -97,11 +106,12 @@ All passed values can be of type `#!python bool`, `#!python str` or `#!python li
 In this case, the flags will be interpreted as follows:
 
 ```{ .shell .no-copy }
-faststream run app:app --flag       # flag = True
-faststream run app:app --no-flag    # flag = False
-faststream run app:app --my-flag    # my_flag = True
-faststream run app:app --key value  # key = "value"
-faststream run app:app --key 1 2    # key = ["1", "2"]
+faststream run app:app --flag             # flag = True
+faststream run app:app --no-flag          # flag = False
+faststream run app:app --my-flag          # my_flag = True
+faststream run app:app --key value        # key = "value"
+faststream run app:app --key 1 2          # key = ["1", "2"]
+faststream run app:app --key 1 --key 2    # key = ["1", "2"]
 ```
 { data-search-exclude }
 

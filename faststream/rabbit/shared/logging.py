@@ -98,7 +98,7 @@ class RabbitLoggingMixin(LoggingMixin):
             "%(asctime)s %(levelname)s - "
             f"%(exchange)-{self._max_exchange_len}s | "
             f"%(queue)-{self._max_queue_len}s | "
-            f"%(message_id)-10s "
+            f"%(message_id)-{self._message_id_ln}s "
             "- %(message)s"
         )
 

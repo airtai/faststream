@@ -9,10 +9,10 @@ import mkdocs.commands.build
 import mkdocs.commands.serve
 import typer
 from create_api_docs import create_api_docs
-from expand_markdown import expand_markdown, remove_lines_between_dashes
-from update_releases import update_release_notes
+from expand_markdown import expand_markdown
 from mkdocs.config import load_config
 from typing_extensions import Annotated
+from update_releases import find_metablock, update_release_notes
 
 IGNORE_DIRS = ("assets", "stylesheets")
 
@@ -31,7 +31,6 @@ EN_CONTRIBUTING_PATH = (
     EN_DOCS_DIR / "getting-started" / "contributing" / "CONTRIBUTING.md"
 )
 CONTRIBUTING_PATH = BASE_DIR.parent / "CONTRIBUTING.md"
-FASTSTREAM_GEN_DOCS_PATH = BASE_DIR.parent / ".faststream_gen"
 
 
 config = load_config(str(CONFIG))
@@ -39,12 +38,12 @@ config = load_config(str(CONFIG))
 DEV_SERVER = str(config.get("dev_addr", "0.0.0.0:8008"))
 
 
-def get_missing_translation(lng: str) -> str:
-    return str(Path(DOCS_DIR.name) / lng / "helpful" / "missing-translation.md")
+def get_missing_translation(lng: str) -> Path:
+    return DOCS_DIR / lng / "helpful" / "missing-translation.md"
 
 
-def get_in_progress(lng: str) -> str:
-    return str(Path(DOCS_DIR.name) / lng / "helpful" / "in-progress.md")
+def get_in_progress(lng: str) -> Path:
+    return DOCS_DIR / lng / "helpful" / "in-progress.md"
 
 
 app = typer.Typer()
@@ -82,7 +81,7 @@ def preview():
     typer.echo("Warning: this is a very simple server.")
     typer.echo("For development, use the command live instead.")
     typer.echo("This is here only to preview a builded site.")
-    os.chdir(str(BUILD_DIR))
+    os.chdir(BUILD_DIR)
     addr, port = DEV_SERVER.split(":")
     server = HTTPServer((addr, int(port)), SimpleHTTPRequestHandler)
     typer.echo(f"Serving at: http://{DEV_SERVER}")
@@ -174,7 +173,7 @@ def mv(path: str = typer.Argument(...), new_path: str = typer.Argument(...)):
 def update_readme() -> None:
     """Update README.md by expanding embeddings in docs/docs/en/index.md"""
     # todo: fix this function
-    typer.echo(f"Skipping updating README.md for now")
+    typer.echo("Skipping updating README.md for now")
     return None
 
     # typer.echo(f"Updating README.md")
@@ -192,16 +191,22 @@ def update_readme() -> None:
 @app.command()
 def update_contributing():
     """Update CONTRIBUTING.md by expanding embeddings in docs/docs/en/CONTRIBUTING.md"""
-    typer.echo(f"Updating CONTRIBUTING.md")
+    typer.echo("Updating CONTRIBUTING.md")
     expand_markdown(
-        input_markdown_path=EN_CONTRIBUTING_PATH, output_markdown_path=CONTRIBUTING_PATH
+        input_markdown_path=EN_CONTRIBUTING_PATH,
+        output_markdown_path=CONTRIBUTING_PATH,
     )
 
-    relative_path = os.path.relpath(EN_CONTRIBUTING_PATH, BASE_DIR.parent)
-    auto_generated = f"> **_NOTE:_**  This is an auto-generated file. Please edit {relative_path} instead.\n\n"
+    existing_content = CONTRIBUTING_PATH.read_text()
 
-    existing_content = open(CONTRIBUTING_PATH).read()
-    open(CONTRIBUTING_PATH, "w").write(auto_generated + existing_content)
+    _, content = find_metablock(existing_content.splitlines())
+
+    relative_path = EN_CONTRIBUTING_PATH.relative_to(BASE_DIR.parent)
+
+    CONTRIBUTING_PATH.write_text("\n".join((
+        f"> **_NOTE:_**  This is an auto-generated file. Please edit {relative_path} instead.",
+        *content
+    ))+"\n")
 
 
 @app.command()
@@ -213,9 +218,12 @@ def build_api_docs():
 
 def _build():
     subprocess.run(["mkdocs", "build", "--site-dir", BUILD_DIR], check=True)
+
     build_api_docs()
     update_readme()
     update_contributing()
+
+    typer.echo("Updating Release Notes")
     update_release_notes(realease_notes_path=EN_DOCS_DIR / "release.md")
 
 

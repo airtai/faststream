@@ -252,6 +252,7 @@ def _generate_api_docs_for_module(root_path: Path, module_name: str) -> str:
     api_summary = _get_api_summary(members_with_submodules)
 
     api_root = root_path / "docs" / "en" / "api"
+    api_root.mkdir(parents=True, exist_ok=True)
 
     (api_root / ".meta.yml").write_text(API_META)
 
@@ -274,9 +275,9 @@ def create_api_docs(
     docs_dir = root_path / "docs"
 
     # read summary template from file
-    summary_template = (docs_dir / "summary_template.txt").read_text()
+    navigation_template = (docs_dir / "navigation_template.txt").read_text()
 
-    summary = summary_template.format(api=api)
+    summary = navigation_template.format(api=api)
 
     summary = "\n".join(filter(
         bool,

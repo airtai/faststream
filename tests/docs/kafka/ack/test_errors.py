@@ -16,8 +16,7 @@ async def test_ack_exc():
     with patch.object(
         AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
     ) as m:
-        async with TestKafkaBroker(broker, with_real=True, connect_only=True):
-            async with TestApp(app):
-                await handle.wait_call(10)
+        async with TestKafkaBroker(broker, with_real=True), TestApp(app):
+            await handle.wait_call(10)
 
-                assert m.mock.call_count
+            assert m.mock.call_count

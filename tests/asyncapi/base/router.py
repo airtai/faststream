@@ -28,3 +28,18 @@ class RouterTestcase:
         payload = schema["components"]["schemas"]
         key = list(payload.keys())[0]
         assert payload[key]["title"] == key == "Handle:Message:Payload"
+
+    def test_not_include(self):
+        broker = self.broker_class()
+        router = self.router_class(include_in_schema=False)
+
+        @router.subscriber("test")
+        @router.publisher("test")
+        async def handle(msg):
+            ...
+
+        broker.include_router(router)
+
+        schema = get_app_schema(FastStream(broker))
+
+        assert schema.channels == {}

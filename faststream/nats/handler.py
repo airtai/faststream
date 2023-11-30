@@ -50,6 +50,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         # AsyncAPI information
         description: Optional[str] = None,
         title: Optional[str] = None,
+        include_in_schema: bool = True,
     ):
         reg, path = compile_path(subject, replace_symbol="*")
         self.subject = path
@@ -64,6 +65,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         super().__init__(
             log_context_builder=log_context_builder,
             description=description,
+            include_in_schema=include_in_schema,
             title=title,
         )
 
@@ -112,7 +114,11 @@ class LogicNatsHandler(AsyncHandler[Msg]):
                 **self.extra_options,
             )
 
+        await super().start()
+
     async def close(self) -> None:
+        await super().close()
+
         if self.subscription is not None:
             await self.subscription.unsubscribe()
             self.subscription = None

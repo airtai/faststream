@@ -93,7 +93,7 @@ The contents of the `person.avsc` file are:
 
 Finally, let's use Avro's `schemaless_reader` and `schemaless_writer` to decode and encode messages in the `FastStream` app.
 
-``` python linenums="1" hl_lines="1-2 24-27 30 37-40"
+``` python linenums="1" hl_lines="1 3 25-28 31 40-42"
 {!> docs_src/getting_started/serialization/avro.py !}
 ```
 

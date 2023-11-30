@@ -60,10 +60,15 @@ class NameRequired(BaseModel):
         """
         super().__init__(name=name, **kwargs)
 
+    def __hash__(self) -> int:
+        return hash(self.name)
+
     @overload
     @classmethod
     def validate(
-        cls: Type[NameRequiredCls], value: Union[str, NameRequiredCls]
+        cls: Type[NameRequiredCls],
+        value: Union[str, NameRequiredCls],
+        **kwargs: Any,
     ) -> NameRequiredCls:
         """Validates a value.
 
@@ -83,7 +88,11 @@ class NameRequired(BaseModel):
 
     @overload
     @classmethod
-    def validate(cls: Type[NameRequiredCls], value: None) -> None:
+    def validate(
+        cls: Type[NameRequiredCls],
+        value: None,
+        **kwargs: Any,
+    ) -> None:
         """Validate a value.
 
         Args:
@@ -99,7 +108,9 @@ class NameRequired(BaseModel):
 
     @classmethod
     def validate(
-        cls: Type[NameRequiredCls], value: Union[str, NameRequiredCls, None]
+        cls: Type[NameRequiredCls],
+        value: Union[str, NameRequiredCls, None],
+        **kwargs: Any,
     ) -> Optional[NameRequiredCls]:
         """Validates a value.
 
@@ -114,7 +125,7 @@ class NameRequired(BaseModel):
         """
         if value is not None:
             if isinstance(value, str):
-                value = cls(value)
+                value = cls(value, **kwargs)
         return value
 
 

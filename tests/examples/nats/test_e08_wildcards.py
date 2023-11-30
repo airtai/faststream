@@ -8,8 +8,7 @@ from faststream.nats import TestNatsBroker
 async def test_basic():
     from examples.nats.e08_wildcards import app, broker, handler, handler_match
 
-    async with TestNatsBroker(broker):
-        async with TestApp(app):
-            handler.mock.assert_called_once_with("Hi!")
-            handler_match.mock.assert_called_with("Hi!")
-            assert handler_match.mock.call_count == 2
+    async with TestNatsBroker(broker), TestApp(app):
+        handler.mock.assert_called_once_with("Hi!")
+        handler_match.mock.assert_called_with("Hi!")
+        assert handler_match.mock.call_count == 2
