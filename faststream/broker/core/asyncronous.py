@@ -7,7 +7,6 @@ from typing import (
     Awaitable,
     Callable,
     Mapping,
-    MutableMapping,
     Optional,
     Sequence,
     Sized,
