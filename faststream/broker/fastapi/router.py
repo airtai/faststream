@@ -628,8 +628,8 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         """
         if isinstance(router, StreamRouter):  # pragma: no branch
             self._setup_log_context(self.broker, router.broker)
-            self.broker.handlers.update(router.broker.handlers)
-            self.broker._publishers.update(router.broker._publishers)
+            self.broker.handlers = {**self.broker.handlers, **router.broker.handlers}
+            self.broker._publishers = {**self.broker._publishers, **router.broker._publishers}
 
         super().include_router(
             router=router,

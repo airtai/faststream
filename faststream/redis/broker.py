@@ -49,8 +49,8 @@ class RedisBroker(
     BrokerAsyncUsecase[AnyRedisDict, "Redis[bytes]"],
 ):
     url: str
-    handlers: Dict[int, Handler]  # type: ignore[assignment]
-    _publishers: Dict[int, Publisher]  # type: ignore[assignment]
+    handlers: Dict[int, Handler]
+    _publishers: Dict[int, Publisher]
 
     _producer: Optional[RedisFastProducer]
 

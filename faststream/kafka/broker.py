@@ -75,8 +75,8 @@ class KafkaBroker(
     """
 
     url: List[str]
-    handlers: Dict[str, Handler]  # type: ignore[assignment]
-    _publishers: Dict[str, Publisher]  # type: ignore[assignment]
+    handlers: Dict[str, Handler]
+    _publishers: Dict[str, Publisher]
     _producer: Optional[AioKafkaFastProducer]
 
     def __init__(
