@@ -147,12 +147,15 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
         else:
             raise AssertionError("unreachable")
 
+        await super().start()
         self.task = asyncio.create_task(self._consume(consume, sleep))
         # wait until Stream starts to consume
         await anyio.sleep(0.01)
         await self.started.wait()
 
     async def close(self) -> None:
+        await super().close()
+
         if self.task is not None:
             if not self.task.done():
                 self.task.cancel()
@@ -177,7 +180,7 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
     ) -> None:
         connected = True
         with suppress(Exception):
-            while True:
+            while self.running:
                 try:
                     m = await consume()
 

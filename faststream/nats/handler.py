@@ -114,7 +114,11 @@ class LogicNatsHandler(AsyncHandler[Msg]):
                 **self.extra_options,
             )
 
+        await super().start()
+
     async def close(self) -> None:
+        await super().close()
+
         if self.subscription is not None:
             await self.subscription.unsubscribe()
             self.subscription = None

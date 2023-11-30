@@ -135,8 +135,11 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
         )
         await consumer.start()
         self.task = asyncio.create_task(self._consume())
+        await super().start()
 
     async def close(self) -> None:
+        await super().close()
+
         if self.consumer is not None:
             await self.consumer.stop()
             self.consumer = None

@@ -109,6 +109,7 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
         self.global_middlewares = []
 
         self.log_context_builder = log_context_builder
+        self.running = False
 
         # AsyncAPI information
         self._description = description
@@ -342,15 +343,17 @@ class AsyncHandler(BaseHandler[MsgType]):
                         if IS_OPTIMIZED:  # pragma: no cover
                             break
 
-            assert processed, "You have to consume message"  # nosec B101
+            assert (
+                not self.running or processed
+            ), "You have to consume message"  # nosec B101
 
         context.reset_local("log_context", log_context_tag)
         return result_msg
 
     @abstractmethod
     async def start(self) -> None:
-        raise NotImplementedError()
+        self.running = True
 
     @abstractmethod
     async def close(self) -> None:
-        raise NotImplementedError()
+        self.running = False
