@@ -1,12 +1,12 @@
 from faststream import FastStream
 from faststream.exceptions import AckMessage
-from faststream.redis import RedisBroker
+from faststream.redis import RedisBroker, StreamSub
 
 broker = RedisBroker("localhost:6379")
 app = FastStream(broker)
 
 
-@broker.subscriber("test-stream")
+@broker.subscriber(StreamSub("test-stream", group="test-group", consumer="1"))
 async def handle(body):
     processing_logic(body)
 

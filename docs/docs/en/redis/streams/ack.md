@@ -14,7 +14,7 @@ from faststream.redis.annotations import RedisMessage
 # Setup broker and faststream app
 ...
 
-@broker.subscriber("test-stream")
+@broker.subscriber(StreamSub("test-stream", group="test-group", consumer="1"))
 async def base_handler(body: dict, msg: RedisMessage):
     # Process the message
     ...
