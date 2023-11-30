@@ -215,7 +215,7 @@ class NatsBroker(
             message: StreamMessage[Msg],
         ) -> WrappedReturn[T_HandlerReturn]:
             async with WatcherContext(watcher, message):
-                r = await self._execute_handler(func, message)
+                r = await func(message)
 
                 pub_response: Optional[AsyncPublisherProtocol]
                 if message.reply_to:

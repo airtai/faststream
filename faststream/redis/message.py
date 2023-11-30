@@ -1,4 +1,4 @@
-from typing import Any, List, Literal, Optional, Union
+from typing import Any, List, Literal, Optional, TypeVar, Union
 
 from redis.asyncio import Redis
 
@@ -32,15 +32,10 @@ class AnyRedisDict(PubSubMessage):
     pattern: NotRequired[Optional[bytes]]
 
 
-class RedisMessage(StreamMessage[AnyRedisDict]):
-    pass
+MsgType = TypeVar("MsgType", OneMessage, BatchMessage, AnyRedisDict)
 
 
-class OneRedisMessage(StreamMessage[OneMessage]):
-    pass
-
-
-class BatchRedisMessage(StreamMessage[BatchMessage]):
+class RedisAckMixin(StreamMessage[MsgType]):
     @override
     async def ack(  # type: ignore[override]
         self,
@@ -55,5 +50,16 @@ class BatchRedisMessage(StreamMessage[BatchMessage]):
             and (group := stream.group)
         ):
             await redis.xack(self.raw_message["channel"], group, *ids)  # type: ignore[no-untyped-call]
-
             await super().ack()
+
+
+class RedisMessage(RedisAckMixin[AnyRedisDict]):
+    pass
+
+
+class OneRedisMessage(RedisAckMixin[OneMessage]):
+    pass
+
+
+class BatchRedisMessage(RedisAckMixin[BatchMessage]):
+    pass

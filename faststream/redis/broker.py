@@ -156,7 +156,7 @@ class RedisBroker(
                 message,
                 redis=self._connection,
             ):
-                r = await self._execute_handler(func, message)
+                r = await func(message)
 
                 pub_response: Optional[AsyncPublisherProtocol]
                 if message.reply_to:
@@ -166,7 +166,7 @@ class RedisBroker(
                 else:
                     pub_response = None
 
-            return r, pub_response
+                return r, pub_response
 
         return process_wrapper
 
