@@ -72,7 +72,6 @@ redis = [
 docs = [
     "fastapi>=0.100.0,<1.0.0",
     "uvicorn>=0.17.0,<1.0.0",
-    "pydantic[email]",
 ]
 
 # dev dependencies
