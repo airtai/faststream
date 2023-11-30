@@ -15,6 +15,7 @@ from faststream.log import logger
 
 try:
     import email_validator
+
     assert email_validator
     from pydantic import EmailStr
 
