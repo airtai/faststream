@@ -6,7 +6,7 @@ broker = RedisBroker("localhost:6379")
 app = FastStream(broker)
 
 
-@broker.subscriber(StreamSub("test-stream", group="test-group", consumer="1"))
+@broker.subscriber(stream=StreamSub("test-stream", group="test-group", consumer="1"))
 async def handle(body):
     processing_logic(body)
 
