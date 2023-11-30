@@ -268,8 +268,8 @@ class RabbitBroker(
         Raises:
             RuntimeError: If the declarer is not initialized in the `connect` method.
         """
-        context.set_local(
-            "log_context",
+        context.set_global(
+            "default_log_context",
             self._get_log_context(None, RabbitQueue(""), RabbitExchange("")),
         )
 

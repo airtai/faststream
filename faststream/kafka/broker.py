@@ -191,8 +191,8 @@ class KafkaBroker(
         """
         Start the KafkaBroker and message handlers.
         """
-        context.set_local(
-            "log_context",
+        context.set_global(
+            "default_log_context",
             self._get_log_context(None, ""),
         )
 

@@ -115,8 +115,8 @@ class RedisBroker(
         await super()._close(exc_type, exc_val, exec_tb)
 
     async def start(self) -> None:
-        context.set_local(
-            "log_context",
+        context.set_global(
+            "default_log_context",
             self._get_log_context(None, ""),
         )
 
