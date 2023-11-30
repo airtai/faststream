@@ -9,6 +9,7 @@ MsgType = TypeVar("MsgType")
 StreamMsg = TypeVar("StreamMsg", bound=StreamMessage[Any])
 ConnectionType = TypeVar("ConnectionType")
 
+
 SyncFilter: TypeAlias = Callable[[StreamMsg], bool]
 AsyncFilter: TypeAlias = Callable[[StreamMsg], Awaitable[bool]]
 Filter: TypeAlias = Union[
