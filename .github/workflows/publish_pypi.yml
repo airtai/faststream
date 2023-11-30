@@ -1,15 +1,13 @@
 name: Publish to PyPi
 
 on:
-  workflow_run:
-    workflows: [Test]
-    types: [completed]
-    branches:
-      - main
+  workflow_dispatch: null
+  push:
+    tags:
+      - "*"
 
 jobs:
   publish:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:

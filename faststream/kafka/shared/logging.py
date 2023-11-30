@@ -100,7 +100,7 @@ class KafkaLoggingMixin(LoggingMixin):
             "%(asctime)s %(levelname)s - "
             + f"%(topic)-{self._max_topic_len}s | "
             + (f"%(group_id)-{self._max_group_len}s | " if self._max_group_len else "")
-            + "%(message_id)-10s "
+            + f"%(message_id)-{self._message_id_ln}s "
             + "- %(message)s"
         )
 

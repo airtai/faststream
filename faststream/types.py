@@ -1,21 +1,31 @@
 from datetime import datetime
-from typing import Any, Awaitable, Callable, Dict, List, Sequence, TypeVar, Union
+from typing import (
+    Any,
+    AsyncContextManager,
+    Awaitable,
+    Callable,
+    Dict,
+    List,
+    Sequence,
+    TypeVar,
+    Union,
+)
 
 from pydantic import BaseModel
 
-from faststream._compat import ParamSpec
+from faststream._compat import ParamSpec, TypeAlias
 
-AnyDict = Dict[str, Any]
+AnyDict: TypeAlias = Dict[str, Any]
 
 F_Return = TypeVar("F_Return")
 F_Spec = ParamSpec("F_Spec")
 
-AnyCallable = Callable[..., Any]
-NoneCallable = Callable[..., None]
-AsyncFunc = Callable[..., Awaitable[Any]]
+AnyCallable: TypeAlias = Callable[..., Any]
+NoneCallable: TypeAlias = Callable[..., None]
+AsyncFunc: TypeAlias = Callable[..., Awaitable[Any]]
 
-DecoratedCallable = AnyCallable
-DecoratedCallableNone = NoneCallable
+DecoratedCallable: TypeAlias = AnyCallable
+DecoratedCallableNone: TypeAlias = NoneCallable
 
 JsonDecodable = Union[
     float,
@@ -24,12 +34,16 @@ JsonDecodable = Union[
     str,
     bytes,
 ]
-DecodedMessage = Union[Dict[str, JsonDecodable], Sequence[JsonDecodable], JsonDecodable]
-SendableMessage = Union[
+DecodedMessage: TypeAlias = Union[
+    Dict[str, JsonDecodable], Sequence[JsonDecodable], JsonDecodable
+]
+SendableMessage: TypeAlias = Union[
     datetime,
     DecodedMessage,
     BaseModel,
     None,
 ]
 
-SettingField = Union[bool, str, List[str]]
+SettingField: TypeAlias = Union[bool, str, List[str]]
+
+Lifespan: TypeAlias = Callable[..., AsyncContextManager[None]]

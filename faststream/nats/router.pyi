@@ -18,6 +18,7 @@ from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.nats.asyncapi import Publisher
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
+from faststream.nats.pull_sub import PullSub
 from faststream.nats.shared.router import NatsRoute
 from faststream.nats.shared.router import NatsRouter as BaseRouter
 
@@ -33,6 +34,7 @@ class NatsRouter(BaseRouter):
         middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
         parser: Optional[CustomParser[Msg, NatsMessage]] = None,
         decoder: Optional[CustomDecoder[NatsMessage]] = None,
+        include_in_schema: bool = True,
     ): ...
     @override
     @staticmethod
@@ -53,6 +55,7 @@ class NatsRouter(BaseRouter):
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
     ) -> Publisher: ...
     @override
     def subscriber(  # type: ignore[override]
@@ -73,6 +76,9 @@ class NatsRouter(BaseRouter):
         flow_control: bool = False,
         deliver_policy: Optional[api.DeliverPolicy] = None,
         headers_only: Optional[bool] = None,
+        # pull arguments
+        pull_sub: Optional[PullSub] = None,
+        inbox_prefix: bytes = api.INBOX_PREFIX,
         # broker arguments
         dependencies: Sequence[Depends] = (),
         parser: Optional[CustomParser[Msg, NatsMessage]] = None,
@@ -83,6 +89,7 @@ class NatsRouter(BaseRouter):
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],

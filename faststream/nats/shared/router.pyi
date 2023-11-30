@@ -52,6 +52,7 @@ class NatsRoute:
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> None: ...
 

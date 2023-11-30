@@ -41,6 +41,9 @@ class Publisher(LogicPublisher):
         )
 
     def schema(self) -> Dict[str, Channel]:
+        if not self.include_in_schema:
+            return {}
+
         payloads = self.get_payloads()
 
         return {
@@ -113,6 +116,9 @@ class Handler(LogicHandler):
     """
 
     def schema(self) -> Dict[str, Channel]:
+        if not self.include_in_schema:
+            return {}
+
         payloads = self.get_payloads()
 
         handler_name = (

@@ -47,6 +47,7 @@ from faststream.nats.asyncapi import Handler, Publisher
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
+from faststream.nats.pull_sub import PullSub
 from faststream.nats.shared.logging import NatsLoggingMixin
 from faststream.types import DecodedMessage, SendableMessage
 
@@ -58,8 +59,8 @@ class NatsBroker(
 ):
     stream: Optional[JetStreamContext]
 
-    handlers: Dict[Subject, Handler]  # type: ignore[assignment]
-    _publishers: Dict[Subject, Publisher]  # type: ignore[assignment]
+    handlers: Dict[Subject, Handler]
+    _publishers: Dict[Subject, Publisher]
     _producer: Optional[NatsFastProducer]
     _js_producer: Optional[NatsJSFastProducer]
 
@@ -234,6 +235,9 @@ class NatsBroker(
         flow_control: bool = False,
         deliver_policy: Optional[api.DeliverPolicy] = None,
         headers_only: Optional[bool] = None,
+        # pull arguments
+        pull_sub: Optional[PullSub] = None,
+        inbox_prefix: bytes = api.INBOX_PREFIX,
         # broker arguments
         dependencies: Sequence[Depends] = (),
         parser: Optional[CustomParser[Msg, NatsMessage]] = None,
@@ -244,6 +248,7 @@ class NatsBroker(
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -263,6 +268,7 @@ class NatsBroker(
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
     ) -> Publisher: ...
     @override
     async def publish(  # type: ignore[override]

@@ -17,6 +17,7 @@ from faststream.broker.test import TestApp
 from faststream.nats.annotations import NatsMessage
 from faststream.nats.broker import NatsBroker
 from faststream.nats.js_stream import JStream
+from faststream.nats.pull_sub import PullSub
 from faststream.nats.router import NatsRouter
 from faststream.nats.shared.router import NatsRoute
 from faststream.nats.test import TestNatsBroker
@@ -29,6 +30,7 @@ __all__ = (
     "NatsRouter",
     "NatsRoute",
     "JStream",
+    "PullSub",
     # Nats imports
     "ConsumerConfig",
     "DeliverPolicy",

@@ -23,14 +23,15 @@ class BrokerConsumeTestcase:
         def subscriber(m):
             event.set()
 
-        await consume_broker.start()
-        await asyncio.wait(
-            (
-                asyncio.create_task(consume_broker.publish("hello", queue)),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+        async with consume_broker:
+            await consume_broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume_broker.publish("hello", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
 
         assert event.is_set()
 
@@ -52,16 +53,17 @@ class BrokerConsumeTestcase:
             else:
                 consume2.set()
 
-        await consume_broker.start()
-        await asyncio.wait(
-            (
-                asyncio.create_task(consume_broker.publish("hello", queue)),
-                asyncio.create_task(consume_broker.publish("hello", queue + "1")),
-                asyncio.create_task(consume.wait()),
-                asyncio.create_task(consume2.wait()),
-            ),
-            timeout=3,
-        )
+        async with consume_broker:
+            await consume_broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume_broker.publish("hello", queue)),
+                    asyncio.create_task(consume_broker.publish("hello", queue + "1")),
+                    asyncio.create_task(consume.wait()),
+                    asyncio.create_task(consume2.wait()),
+                ),
+                timeout=3,
+            )
 
         assert consume2.is_set()
         assert consume.is_set()
@@ -84,17 +86,17 @@ class BrokerConsumeTestcase:
             else:
                 consume2.set()
 
-        await consume_broker.start()
-
-        await asyncio.wait(
-            (
-                asyncio.create_task(consume_broker.publish("hello", queue)),
-                asyncio.create_task(consume_broker.publish("hello", queue)),
-                asyncio.create_task(consume.wait()),
-                asyncio.create_task(consume2.wait()),
-            ),
-            timeout=3,
-        )
+        async with consume_broker:
+            await consume_broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume_broker.publish("hello", queue)),
+                    asyncio.create_task(consume_broker.publish("hello", queue)),
+                    asyncio.create_task(consume.wait()),
+                    asyncio.create_task(consume2.wait()),
+                ),
+                timeout=3,
+            )
 
         assert consume2.is_set()
         assert consume.is_set()
@@ -121,17 +123,17 @@ class BrokerConsumeTestcase:
             mock.handler2()
             consume2.set()
 
-        await consume_broker.start()
-
-        await asyncio.wait(
-            (
-                asyncio.create_task(consume_broker.publish("hello", queue)),
-                asyncio.create_task(consume_broker.publish("hello", another_topic)),
-                asyncio.create_task(consume.wait()),
-                asyncio.create_task(consume2.wait()),
-            ),
-            timeout=3,
-        )
+        async with consume_broker:
+            await consume_broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume_broker.publish("hello", queue)),
+                    asyncio.create_task(consume_broker.publish("hello", another_topic)),
+                    asyncio.create_task(consume.wait()),
+                    asyncio.create_task(consume2.wait()),
+                ),
+                timeout=3,
+            )
 
         assert consume.is_set()
         assert consume2.is_set()
@@ -159,17 +161,19 @@ class BrokerConsumeTestcase:
             mock.handler2(m)
             consume2.set()
 
-        await consume_broker.start()
-
-        await asyncio.wait(
-            (
-                asyncio.create_task(consume_broker.publish({"msg": "hello"}, queue)),
-                asyncio.create_task(consume_broker.publish("hello", queue)),
-                asyncio.create_task(consume.wait()),
-                asyncio.create_task(consume2.wait()),
-            ),
-            timeout=3,
-        )
+        async with consume_broker:
+            await consume_broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        consume_broker.publish({"msg": "hello"}, queue)
+                    ),
+                    asyncio.create_task(consume_broker.publish("hello", queue)),
+                    asyncio.create_task(consume.wait()),
+                    asyncio.create_task(consume2.wait()),
+                ),
+                timeout=3,
+            )
 
         assert consume.is_set()
         assert consume2.is_set()
@@ -193,17 +197,18 @@ class BrokerRealConsumeTestcase(BrokerConsumeTestcase):
             event.set()
             raise StopConsume()
 
-        await consume_broker.start()
-        await asyncio.wait(
-            (
-                asyncio.create_task(consume_broker.publish("hello", queue)),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
-        await asyncio.sleep(0.5)
-        await consume_broker.publish("hello", queue)
-        await asyncio.sleep(0.5)
+        async with consume_broker:
+            await consume_broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume_broker.publish("hello", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+            await asyncio.sleep(0.5)
+            await consume_broker.publish("hello", queue)
+            await asyncio.sleep(0.5)
 
         assert event.is_set()
         mock.assert_called_once()

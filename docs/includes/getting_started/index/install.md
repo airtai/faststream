@@ -42,3 +42,14 @@
         ```bash
         bash docker run -d --rm -p 4222:4222 --name test-mq nats -js
         ```
+
+=== "Redis"
+    ```console
+    pip install "faststream[redis]"
+    ```
+
+    !!! tip
+        {{ run_docker }}
+        ```bash
+        bash docker run -d --rm -p 6379:6379 --name test-mq redis
+        ```

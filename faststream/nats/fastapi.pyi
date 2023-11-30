@@ -58,6 +58,7 @@ from faststream.nats.asyncapi import Publisher
 from faststream.nats.broker import NatsBroker
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
+from faststream.nats.pull_sub import PullSub
 
 class NatsRouter(StreamRouter[Msg]):
     broker_class = NatsBroker
@@ -176,8 +177,7 @@ class NatsRouter(StreamRouter[Msg]):
         title: Optional[str] = None,
         description: Optional[str] = None,
         **__service_kwargs: Any,
-    ) -> Callable[[Msg, bool], Awaitable[T_HandlerReturn]]:
-        pass
+    ) -> Callable[[Msg, bool], Awaitable[T_HandlerReturn]]: ...
     @override
     def subscriber(  # type: ignore[override]
         self,
@@ -197,6 +197,9 @@ class NatsRouter(StreamRouter[Msg]):
         flow_control: bool = False,
         deliver_policy: Optional[api.DeliverPolicy] = None,
         headers_only: Optional[bool] = None,
+        # pull arguments
+        pull_sub: Optional[PullSub] = None,
+        inbox_prefix: bytes = api.INBOX_PREFIX,
         # broker arguments
         dependencies: Sequence[Depends] = (),
         parser: Optional[CustomParser[Msg, NatsMessage]] = None,
@@ -207,6 +210,7 @@ class NatsRouter(StreamRouter[Msg]):
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -226,6 +230,7 @@ class NatsRouter(StreamRouter[Msg]):
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
     ) -> Publisher: ...
     @overload
     def after_startup(

@@ -120,3 +120,15 @@ class PublisherTestcase:
         payload = schema["components"]["schemas"]
         for v in payload.values():
             assert v["type"] == "integer"
+
+    def test_not_include(self):
+        broker = self.broker_class()
+
+        @broker.publisher("test", include_in_schema=False)
+        @broker.subscriber("in-test", include_in_schema=False)
+        async def handler(msg: str):
+            pass
+
+        schema = get_app_schema(self.build_app(broker))
+
+        assert schema.channels == {}

@@ -127,9 +127,29 @@ def test_scope(context: ContextRepo):
         assert key == 1
         assert key2 == 1
 
-    with context.scope("key", 1):
-        with context.scope("key2", 1):
-            use()
+    with context.scope("key", 1), context.scope("key2", 1):
+        use()
 
     assert context.get("key") is None
     assert context.get("key2") is None
+
+
+def test_default(context: ContextRepo):
+    @apply_types
+    def use(
+        key=Context(),
+        key2=Context(),
+        key3=Context(default=1),
+        key4=Context("key.key4", default=1),
+        key5=Context("key5.key6"),
+    ):
+        assert key == 0
+        assert key2 is True
+        assert key3 == 1
+        assert key4 == 1
+        assert key5 is False
+
+    with context.scope("key", 0), context.scope("key2", True), context.scope(
+        "key5", {"key6": False}
+    ):
+        use()

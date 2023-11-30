@@ -1,7 +1,17 @@
 import logging
 from functools import partial, wraps
 from types import TracebackType
-from typing import Any, Awaitable, Callable, Dict, Optional, Sequence, Type, Union
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Type,
+    Union,
+)
 
 import nats
 from fast_depends.dependencies import Depends
@@ -18,7 +28,7 @@ from nats.js.client import (
     JetStreamContext,
 )
 
-from faststream._compat import override
+from faststream._compat import TypeAlias, override
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
@@ -33,26 +43,29 @@ from faststream.broker.types import (
     WrappedReturn,
 )
 from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
+from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.nats.asyncapi import Handler, Publisher
 from faststream.nats.helpers import stream_builder
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
+from faststream.nats.pull_sub import PullSub
 from faststream.nats.shared.logging import NatsLoggingMixin
 from faststream.types import AnyDict, DecodedMessage
 from faststream.utils.context.main import context
 
-Subject = str
+Subject: TypeAlias = str
 
 
 class NatsBroker(
     NatsLoggingMixin,
     BrokerAsyncUsecase[Msg, Client],
 ):
+    url: List[str]
     stream: Optional[JetStreamContext]
 
-    handlers: Dict[Subject, Handler]  # type: ignore[assignment]
-    _publishers: Dict[Subject, Publisher]  # type: ignore[assignment]
+    handlers: Dict[Subject, Handler]
+    _publishers: Dict[Subject, Publisher]
     _producer: Optional[NatsFastProducer]
     _js_producer: Optional[NatsJSFastProducer]
 
@@ -87,10 +100,7 @@ class NatsBroker(
     ) -> Client:
         connection = await super().connect(*args, **kwargs)
         for p in self._publishers.values():
-            if p.stream is not None:
-                p._producer = self._js_producer
-            else:
-                p._producer = self._producer
+            self.__set_publisher_producer(p)
         return connection
 
     async def _connect(
@@ -140,8 +150,8 @@ class NatsBroker(
         self.__is_connected = False
 
     async def start(self) -> None:
-        context.set_local(
-            "log_context",
+        context.set_global(
+            "default_log_context",
             self._get_log_context(None, ""),
         )
 
@@ -205,7 +215,7 @@ class NatsBroker(
             message: StreamMessage[Msg],
         ) -> WrappedReturn[T_HandlerReturn]:
             async with WatcherContext(watcher, message):
-                r = await self._execute_handler(func, message)
+                r = await func(message)
 
                 pub_response: Optional[AsyncPublisherProtocol]
                 if message.reply_to:
@@ -268,6 +278,9 @@ class NatsBroker(
         flow_control: bool = False,
         deliver_policy: Optional[api.DeliverPolicy] = None,
         headers_only: Optional[bool] = None,
+        # pull arguments
+        pull_sub: Optional[PullSub] = None,
+        inbox_prefix: bytes = api.INBOX_PREFIX,
         # custom
         ack_first: bool = False,
         stream: Union[str, JStream, None] = None,
@@ -280,12 +293,16 @@ class NatsBroker(
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **original_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
         HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn],
     ]:
         stream = stream_builder.stream(stream)
+
+        if pull_sub is not None and stream is None:
+            raise ValueError("Pull subscriber can be used only with a stream")
 
         self._setup_log_context(
             queue=queue,
@@ -315,14 +332,24 @@ class NatsBroker(
                     "durable": durable,
                     "stream": stream.name,
                     "config": config,
-                    "ordered_consumer": ordered_consumer,
-                    "idle_heartbeat": idle_heartbeat,
-                    "flow_control": flow_control,
-                    "deliver_policy": deliver_policy,
-                    "headers_only": headers_only,
-                    "manual_ack": not ack_first,
                 }
             )
+
+            if pull_sub is not None:
+                extra_options.update({"inbox_prefix": inbox_prefix})
+
+            else:
+                extra_options.update(
+                    {
+                        "ordered_consumer": ordered_consumer,
+                        "idle_heartbeat": idle_heartbeat,
+                        "flow_control": flow_control,
+                        "deliver_policy": deliver_policy,
+                        "headers_only": headers_only,
+                        "manual_ack": not ack_first,
+                    }
+                )
+
         else:
             extra_options.update(
                 {
@@ -337,9 +364,11 @@ class NatsBroker(
                 subject=subject,
                 queue=queue,
                 stream=stream,
+                pull_sub=pull_sub,
                 extra_options=extra_options,
                 title=title,
                 description=description,
+                include_in_schema=include_in_schema,
                 log_context_builder=partial(
                     self._get_log_context,
                     stream=stream.name if stream else "",
@@ -388,6 +417,7 @@ class NatsBroker(
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
     ) -> Publisher:
         if (stream := stream_builder.stream(stream)) is not None:
             stream.subjects.append(subject)
@@ -406,9 +436,11 @@ class NatsBroker(
                 title=title,
                 _description=description,
                 _schema=schema,
+                include_in_schema=include_in_schema,
             ),
         )
         super().publisher(subject, publisher)
+        self.__set_publisher_producer(publisher)
         return publisher
 
     @override
@@ -419,12 +451,19 @@ class NatsBroker(
         **kwargs: Any,
     ) -> Optional[DecodedMessage]:
         if stream is None:
-            assert self._producer, "NatsBroker is not started yet"  # nosec B101
+            assert self._producer, NOT_CONNECTED_YET  # nosec B101
             return await self._producer.publish(*args, **kwargs)
         else:
-            assert self._js_producer, "NatsBroker is not started yet"  # nosec B101
+            assert self._js_producer, NOT_CONNECTED_YET  # nosec B101
             return await self._js_producer.publish(
                 *args,
                 stream=stream,
                 **kwargs,  # type: ignore[misc]
             )
+
+    def __set_publisher_producer(self, publisher: Publisher) -> None:
+        if publisher.stream is not None:
+            if self._js_producer is not None:
+                publisher._producer = self._js_producer
+        elif self._producer is not None:
+            publisher._producer = self._producer

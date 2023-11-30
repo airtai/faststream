@@ -8,7 +8,7 @@ from aiokafka.errors import KafkaError
 from fast_depends.core import CallModel
 
 from faststream.__about__ import __version__
-from faststream._compat import override
+from faststream._compat import Unpack, override
 from faststream.broker.handler import AsyncHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
@@ -23,6 +23,7 @@ from faststream.broker.types import (
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.parser import AioKafkaParser
+from faststream.kafka.shared.schemas import ConsumerConnectionParams
 
 
 class LogicHandler(AsyncHandler[ConsumerRecord]):
@@ -69,6 +70,7 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
     ):
         """Initialize a Kafka consumer for the specified topics.
 
@@ -93,6 +95,7 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
             log_context_builder=log_context_builder,
             description=description,
             title=title,
+            include_in_schema=include_in_schema,
         )
 
         self.group_id = group_id
@@ -108,8 +111,11 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
         self.task = None
         self.consumer = None
 
-    # TODO: use **kwargs: Unpack[ConsumerConnectionParams] with py3.12 release 2023-10-02
-    async def start(self, **consumer_kwargs: Any) -> None:
+    @override
+    async def start(  # type: ignore[override]
+        self,
+        **consumer_kwargs: Unpack[ConsumerConnectionParams],
+    ) -> None:
         """Start the consumer.
 
         Args:
@@ -129,8 +135,11 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
         )
         await consumer.start()
         self.task = asyncio.create_task(self._consume())
+        await super().start()
 
     async def close(self) -> None:
+        await super().close()
+
         if self.consumer is not None:
             await self.consumer.stop()
             self.consumer = None
@@ -213,13 +222,13 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
                 else:
                     msg = await self.consumer.getone()
 
-            except KafkaError:
+            except KafkaError:  # pragma: no cover
                 if connected is True:
                     connected = False
                 await anyio.sleep(5)
 
             else:
-                if connected is False:
+                if connected is False:  # pragma: no cover
                     connected = True
                 await self.consume(msg)
 

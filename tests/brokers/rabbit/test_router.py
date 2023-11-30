@@ -28,17 +28,20 @@ class TestRouter(RouterTestcase):
 
         broker.include_router(router)
 
-        await broker.start()
+        async with broker:
+            await broker.start()
 
-        await asyncio.wait(
-            (
-                asyncio.create_task(broker.publish("hello", f"test/{r_queue.name}")),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        broker.publish("hello", f"test/{r_queue.name}")
+                    ),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
 
-        assert event.is_set()
+            assert event.is_set()
 
     async def test_delayed_handlers_with_queue(
         self,
@@ -58,19 +61,20 @@ class TestRouter(RouterTestcase):
 
         pub_broker.include_router(r)
 
-        await pub_broker.start()
+        async with pub_broker:
+            await pub_broker.start()
 
-        await asyncio.wait(
-            (
-                asyncio.create_task(
-                    pub_broker.publish("hello", f"test/{r_queue.name}")
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        pub_broker.publish("hello", f"test/{r_queue.name}")
+                    ),
+                    asyncio.create_task(event.wait()),
                 ),
-                asyncio.create_task(event.wait()),
-            ),
-            timeout=3,
-        )
+                timeout=3,
+            )
 
-        assert event.is_set()
+            assert event.is_set()
 
 
 class TestRouterLocal(RouterLocalTestcase):

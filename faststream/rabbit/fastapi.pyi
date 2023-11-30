@@ -99,8 +99,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         generate_unique_id_function: Callable[[APIRoute], str] = Default(
             generate_unique_id
         ),
-    ) -> None:
-        pass
+    ) -> None: ...
     def add_api_mq_route(  # type: ignore[override]
         self,
         queue: Union[str, RabbitQueue],
@@ -121,8 +120,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         title: Optional[str] = None,
         description: Optional[str] = None,
         **__service_kwargs: Any,
-    ) -> Callable[[IncomingMessage, bool], Awaitable[T_HandlerReturn]]:
-        pass
+    ) -> Callable[[IncomingMessage, bool], Awaitable[T_HandlerReturn]]: ...
     @override
     def subscriber(  # type: ignore[override]
         self,
@@ -142,6 +140,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -163,6 +162,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
         # message args
         headers: Optional[aio_pika.abc.HeadersType] = None,
         content_type: Optional[str] = None,

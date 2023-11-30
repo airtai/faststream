@@ -94,6 +94,7 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
         log_context_builder: Callable[[StreamMessage[Any]], Dict[str, str]],
         description: Optional[str] = None,
         title: Optional[str] = None,
+        include_in_schema: bool = True,
     ):
         """Initialize a new instance of the class.
 
@@ -106,14 +107,14 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
         """
         self.calls = []  # type: ignore[assignment]
         self.global_middlewares = []
+
+        self.log_context_builder = log_context_builder
+        self.running = False
+
         # AsyncAPI information
         self._description = description
         self._title = title
-        self.log_context_builder = log_context_builder
-
-    @property
-    def name(self) -> str:
-        return self._title or self.call_name
+        self.include_in_schema = include_in_schema
 
     @property
     def call_name(self) -> str:
@@ -273,10 +274,10 @@ class AsyncHandler(BaseHandler[MsgType]):
 
                 all_middlewares = gl_middlewares + local_middlewares
 
-                # TODO: add parser & decoder cashes
+                # TODO: add parser & decoder caches
                 message = await parser(msg)
 
-                if not logged:
+                if not logged:  # pragma: no branch
                     log_context_tag = context.set_local(
                         "log_context", self.log_context_builder(message)
                     )
@@ -328,7 +329,7 @@ class AsyncHandler(BaseHandler[MsgType]):
                         await self.close()
                         handler.trigger()
 
-                    except HandlerException as e:
+                    except HandlerException as e:  # pragma: no cover
                         handler.trigger()
                         raise e
 
@@ -342,15 +343,17 @@ class AsyncHandler(BaseHandler[MsgType]):
                         if IS_OPTIMIZED:  # pragma: no cover
                             break
 
-            assert processed, "You have to consume message"  # nosec B101
+            assert (
+                not self.running or processed
+            ), "You have to consume message"  # nosec B101
 
         context.reset_local("log_context", log_context_tag)
         return result_msg
 
     @abstractmethod
     async def start(self) -> None:
-        raise NotImplementedError()
+        self.running = True
 
     @abstractmethod
     async def close(self) -> None:
-        raise NotImplementedError()
+        self.running = False

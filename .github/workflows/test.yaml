@@ -22,7 +22,7 @@ jobs:
         run: |
           set -ux
           python -m pip install --upgrade pip
-          pip install -e ".[docs,rabbit,kafka,nats,lint]"
+          pip install -e ".[docs,rabbit,kafka,redis,nats,lint]"
       - name: Run mypy
         shell: bash
         run: mypy faststream tests/mypy
@@ -59,7 +59,7 @@ jobs:
           key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}-test-v03
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[rabbit,kafka,nats,docs,testing]
+        run: pip install .[rabbit,kafka,nats,redis,docs,testing]
       - name: Install Pydantic v1
         if: matrix.pydantic-version == 'pydantic-v1'
         run: pip install "pydantic>=1.10.0,<2.0.0"
@@ -68,7 +68,7 @@ jobs:
         run: pip install --pre "pydantic>=2.0.0b2,<3.0.0"
       - run: mkdir coverage
       - name: Test
-        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not rabbit)) or (not nats and not kafka and not rabbit)"
+        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not rabbit and not redis)) or (not nats and not kafka and not rabbit and not redis)"
         env:
           COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}
           CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}
@@ -91,9 +91,9 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[rabbit,kafka,nats,docs,testing]
+        run: pip install .[rabbit,kafka,nats,redis,docs,testing]
       - name: Test
-        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not rabbit)) or (not nats and not kafka and not rabbit)"
+        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not rabbit and not redis)) or (not nats and not kafka and not rabbit and not redis)"
 
   test-windows-latest:
     if: github.event.pull_request.draft == false
@@ -108,9 +108,9 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[rabbit,kafka,nats,docs,testing]
+        run: pip install .[rabbit,kafka,nats,redis,docs,testing]
       - name: Test
-        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not rabbit)) or (not nats and not kafka and not rabbit)"
+        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not rabbit and not redis)) or (not nats and not kafka and not rabbit and not redis)"
 
   test-kafka-real:
     if: github.event.pull_request.draft == false
@@ -141,7 +141,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,docs,testing]
+        run: pip install .[nats,kafka,rabbit,redis,docs,testing]
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m "(slow and kafka) or kafka"
@@ -189,7 +189,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,docs,testing]
+        run: pip install .[nats,kafka,rabbit,redis,docs,testing]
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m "(slow and rabbit) or rabbit"
@@ -237,7 +237,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,docs,testing]
+        run: pip install .[nats,kafka,rabbit,redis,docs,testing]
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m "(slow and nats) or nats"
@@ -267,6 +267,54 @@ jobs:
       - name: Test
         run: bash scripts/test.sh -m "not nats" tests/brokers/nats/test_test_client.py
 
+  test-redis-real:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    services:
+      nats:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[nats,kafka,rabbit,redis,docs,testing]
+      - run: mkdir coverage
+      - name: Test
+        run: bash scripts/test.sh -m "(slow and redis) or redis"
+        env:
+          COVERAGE_FILE: coverage/.coverage.redis-py
+          CONTEXT: redis-py
+      - name: Store coverage files
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: coverage
+
+  test-redis-smoke:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[redis,test-core]
+      - name: Test
+        run: bash scripts/test.sh -m "not redis" tests/brokers/redis/test_test_client.py
+
   coverage-combine:
     if: github.event.pull_request.draft == false
     needs:
@@ -274,6 +322,7 @@ jobs:
       - test-kafka-real
       - test-rabbit-real
       - test-nats-real
+      - test-redis-real
     runs-on: ubuntu-latest
 
     steps:
@@ -314,11 +363,13 @@ jobs:
       - test-macos-latest
       - test-windows-latest
       - test-kafka-real
-      - test-rabbit-real
-      - test-nats-real
       - test-kafka-smoke
+      - test-rabbit-real
       - test-rabbit-smoke
+      - test-nats-real
       - test-nats-smoke
+      - test-redis-real
+      - test-redis-smoke
 
     runs-on: ubuntu-latest
 

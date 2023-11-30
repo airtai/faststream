@@ -140,7 +140,7 @@ app = Starlette(
     from faststream.kafka import KafkaBroker
 
 
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "app.settings")
 
     broker = KafkaBroker()
 

@@ -19,9 +19,9 @@ class BrokerRPCTestcase:
         async def m(m):  # pragma: no cover
             return "1"
 
-        await rpc_broker.start()
-
-        r = await rpc_broker.publish("hello", queue, rpc_timeout=3, rpc=True)
+        async with rpc_broker:
+            await rpc_broker.start()
+            r = await rpc_broker.publish("hello", queue, rpc_timeout=3, rpc=True)
         assert r == "1"
 
     @pytest.mark.asyncio
@@ -30,16 +30,17 @@ class BrokerRPCTestcase:
         async def m(m):  # pragma: no cover
             await anyio.sleep(1)
 
-        await rpc_broker.start()
+        async with rpc_broker:
+            await rpc_broker.start()
 
-        with pytest.raises(TimeoutError):  # pragma: no branch
-            await rpc_broker.publish(
-                "hello",
-                queue,
-                rpc=True,
-                rpc_timeout=0,
-                raise_timeout=True,
-            )
+            with pytest.raises(TimeoutError):  # pragma: no branch
+                await rpc_broker.publish(
+                    "hello",
+                    queue,
+                    rpc=True,
+                    rpc_timeout=0,
+                    raise_timeout=True,
+                )
 
     @pytest.mark.asyncio
     async def test_rpc_timeout_none(self, queue: str, rpc_broker: BrokerUsecase):
@@ -47,14 +48,15 @@ class BrokerRPCTestcase:
         async def m(m):  # pragma: no cover
             await anyio.sleep(1)
 
-        await rpc_broker.start()
+        async with rpc_broker:
+            await rpc_broker.start()
 
-        r = await rpc_broker.publish(
-            "hello",
-            queue,
-            rpc=True,
-            rpc_timeout=0,
-        )
+            r = await rpc_broker.publish(
+                "hello",
+                queue,
+                rpc=True,
+                rpc_timeout=0,
+            )
 
         assert r is None
 
@@ -77,12 +79,13 @@ class BrokerRPCTestcase:
         async def m(m):  # pragma: no cover
             return "1"
 
-        await rpc_broker.start()
+        async with rpc_broker:
+            await rpc_broker.start()
 
-        await rpc_broker.publish("hello", queue, reply_to=reply_queue)
+            await rpc_broker.publish("hello", queue, reply_to=reply_queue)
 
-        with timeout_scope(3, True):
-            await event.wait()
+            with timeout_scope(3, True):
+                await event.wait()
 
         mock.assert_called_with("1")
 

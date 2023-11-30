@@ -10,9 +10,14 @@
         await br.publish("message", "queue")
     ```
 
-
 === "NATS"
     ```python
     async with NatsBroker() as br:
         await br.publish("message", "subject")
+    ```
+
+=== "Redis"
+    ```python
+    async with RedisBroker() as br:
+        await br.publish("message", "channel")
     ```

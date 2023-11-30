@@ -200,9 +200,10 @@ app = FastStream(broker, logger=logger)
 
 And the job is done! Now you have a perfectly structured logs using **Structlog**.
 
-```bash
+```{.shell .no-copy}
 TIMESPAMP [info     ] FastStream app starting...     extra={}
 TIMESPAMP [debug    ] `Handler` waiting for messages extra={'topic': 'topic', 'group_id': 'group', 'message_id': ''}
 TIMESPAMP [debug    ] `Handler` waiting for messages extra={'topic': 'topic', 'group_id': 'group2', 'message_id': ''}
 TIMESPAMP [info     ] FastStream app started successfully! To exit, press CTRL+C extra={'topic': '', 'group_id': '', 'message_id': ''}
 ```
+{ data-search-exclude }

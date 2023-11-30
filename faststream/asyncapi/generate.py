@@ -12,7 +12,6 @@ from faststream.asyncapi.schema import (
     Server,
 )
 from faststream.constants import ContentTypes
-from faststream.types import AnyDict
 
 if HAS_FASTAPI:
     from faststream.broker.fastapi.router import StreamRouter
@@ -41,7 +40,7 @@ def get_app_schema(app: Union[FastStream, "StreamRouter[Any]"]) -> Schema:
         if ch.subscribe is not None:
             m = ch.subscribe.message
 
-            if isinstance(m, Message):
+            if isinstance(m, Message):  # pragma: no branch
                 ch.subscribe.message = _resolve_msg_payloads(
                     m,
                     channel_name,
@@ -52,7 +51,7 @@ def get_app_schema(app: Union[FastStream, "StreamRouter[Any]"]) -> Schema:
         if ch.publish is not None:
             m = ch.publish.message
 
-            if isinstance(m, Message):
+            if isinstance(m, Message):  # pragma: no branch
                 ch.publish.message = _resolve_msg_payloads(
                     m,
                     channel_name,
@@ -61,7 +60,7 @@ def get_app_schema(app: Union[FastStream, "StreamRouter[Any]"]) -> Schema:
                 )
 
     broker = app.broker
-    if broker is None:
+    if broker is None:  # pragma: no cover
         raise RuntimeError()
 
     schema = Schema(
@@ -211,9 +210,12 @@ def _resolve_msg_payloads(
 
 
 def _move_pydantic_refs(
-    original: AnyDict,
+    original: Any,
     key: str,
-) -> AnyDict:
+) -> Any:
+    if not isinstance(original, Dict):
+        return original
+
     data = original.copy()
 
     for k in data.keys():
@@ -222,5 +224,9 @@ def _move_pydantic_refs(
 
         elif isinstance(data[k], dict):
             data[k] = _move_pydantic_refs(data[k], key)
+
+        elif isinstance(data[k], List):
+            for i in range(len(data[k])):
+                data[k][i] = _move_pydantic_refs(data[k][i], key)
 
     return data
