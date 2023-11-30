@@ -87,6 +87,7 @@
         - [Publishing](redis/streams/publishing.md)
         - [Groups](redis/streams/groups.md)
         - [Batching](redis/streams/batch.md)
+        - [Acknowledgement](redis/streams/ack.md)
     - [RPC](redis/rpc.md)
     - [Message Information](redis/message.md)
 - Contributing
