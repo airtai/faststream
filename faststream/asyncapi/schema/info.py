@@ -14,8 +14,8 @@ from faststream._compat import (
 from faststream.log import logger
 
 try:
+    import email_validator
     from pydantic import EmailStr
-
 except ImportError:  # pragma: no cover
     # NOTE: EmailStr mock was copied from the FastAPI
     # https://github.com/tiangolo/fastapi/blob/master/fastapi/openapi/models.py#24
