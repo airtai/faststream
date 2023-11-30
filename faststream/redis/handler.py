@@ -179,8 +179,9 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
         sleep: float,
     ) -> None:
         connected = True
-        with suppress(Exception):
-            while self.running:
+
+        while self.running:
+            with suppress(Exception):
                 try:
                     m = await consume()
 
