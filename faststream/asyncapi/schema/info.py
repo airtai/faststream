@@ -16,7 +16,8 @@ from faststream.log import logger
 try:
     import email_validator
 
-    assert email_validator
+    if email_validator is None:
+        raise ImportError
     from pydantic import EmailStr
 
 except ImportError:  # pragma: no cover

@@ -49,8 +49,8 @@ class RedisBroker(
     BrokerAsyncUsecase[AnyRedisDict, "Redis[bytes]"],
 ):
     url: str
-    handlers: Dict[int, Handler]  # type: ignore[assignment]
-    _publishers: Dict[int, Publisher]  # type: ignore[assignment]
+    handlers: Dict[int, Handler]
+    _publishers: Dict[int, Publisher]
 
     _producer: Optional[RedisFastProducer]
 
@@ -216,7 +216,7 @@ class RedisBroker(
         key = Handler.get_routing_hash(any_of)
         handler = self.handlers[key] = self.handlers.get(
             key,
-            Handler(
+            Handler(  # type: ignore[abstract]
                 log_context_builder=partial(
                     self._get_log_context,
                     channel=any_of.name,

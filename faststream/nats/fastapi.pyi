@@ -177,8 +177,7 @@ class NatsRouter(StreamRouter[Msg]):
         title: Optional[str] = None,
         description: Optional[str] = None,
         **__service_kwargs: Any,
-    ) -> Callable[[Msg, bool], Awaitable[T_HandlerReturn]]:
-        pass
+    ) -> Callable[[Msg, bool], Awaitable[T_HandlerReturn]]: ...
     @override
     def subscriber(  # type: ignore[override]
         self,

@@ -30,7 +30,7 @@ async def stream_handler(msg: str, message: RedisMessage):
 
 ## Targeted Message Fields Access
 
-It's common to require only specific elements of the message rather than the entire data structure. For this purpose, FastStream allows you to access individual message fields by specifying the field you are interested in as an argument in your handler function. 
+It's common to require only specific elements of the message rather than the entire data structure. For this purpose, FastStream allows you to access individual message fields by specifying the field you are interested in as an argument in your handler function.
 
 For example, if you want to access the headers directly, you might do it as follows:
 

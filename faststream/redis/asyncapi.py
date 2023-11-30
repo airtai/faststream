@@ -14,12 +14,15 @@ from faststream.redis.publisher import LogicPublisher
 
 
 class Handler(LogicRedisHandler):
+    @property
+    def name(self) -> str:
+        return self._title or f"{self.channel_name}:{self.call_name}"
+
     def schema(self) -> Dict[str, Channel]:
         if not self.include_in_schema:
             return {}
 
         payloads = self.get_payloads()
-        handler_name = self._title or f"{self.channel_name}:{self.call_name}"
 
         method = None
         if self.list_sub is not None:
@@ -38,11 +41,11 @@ class Handler(LogicRedisHandler):
                 method = "xread"
 
         return {
-            handler_name: Channel(
+            self.name: Channel(
                 description=self.description,
                 subscribe=Operation(
                     message=Message(
-                        title=f"{handler_name}:Message",
+                        title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads),
                         correlationId=CorrelationId(
                             location="$message.header#/correlation_id"

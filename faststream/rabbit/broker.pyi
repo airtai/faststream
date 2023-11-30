@@ -39,8 +39,8 @@ class RabbitBroker(
     RabbitLoggingMixin,
     BrokerAsyncUsecase[aio_pika.IncomingMessage, aio_pika.RobustConnection],
 ):
-    handlers: Dict[int, Handler]  # type: ignore[assignment]
-    _publishers: Dict[int, Publisher]  # type: ignore[assignment]
+    handlers: Dict[int, Handler]
+    _publishers: Dict[int, Publisher]
 
     declarer: Optional[RabbitDeclarer]
     _producer: Optional[AioPikaFastProducer]

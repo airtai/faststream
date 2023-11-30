@@ -8,7 +8,7 @@ from faststream.log import logger
 from faststream.types import DecoratedCallable
 
 
-class ExtendedFilter(watchfiles.PythonFilter):
+class ExtendedFilter(watchfiles.PythonFilter):  # type: ignore[misc]
     """A class that extends the `watchfiles.PythonFilter` class.
 
     Attributes:

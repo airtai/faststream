@@ -64,8 +64,8 @@ class NatsBroker(
     url: List[str]
     stream: Optional[JetStreamContext]
 
-    handlers: Dict[Subject, Handler]  # type: ignore[assignment]
-    _publishers: Dict[Subject, Publisher]  # type: ignore[assignment]
+    handlers: Dict[Subject, Handler]
+    _publishers: Dict[Subject, Publisher]
     _producer: Optional[NatsFastProducer]
     _js_producer: Optional[NatsJSFastProducer]
 

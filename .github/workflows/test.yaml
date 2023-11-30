@@ -266,7 +266,7 @@ jobs:
         run: pip install .[nats,test-core]
       - name: Test
         run: bash scripts/test.sh -m "not nats" tests/brokers/nats/test_test_client.py
-  
+
   test-redis-real:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
@@ -297,7 +297,7 @@ jobs:
         with:
           name: coverage
           path: coverage
-  
+
   test-redis-smoke:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
