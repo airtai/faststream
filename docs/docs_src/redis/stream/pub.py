@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, NonNegativeFloat
 
-from faststream import FastStream, Logger
+from faststream import FastStream
 from faststream.redis import RedisBroker
 
 

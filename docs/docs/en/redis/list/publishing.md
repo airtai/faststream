@@ -9,27 +9,27 @@ Just like with Redis streams, messages can be published to Redis lists. FastStre
 1. Instantiate your RedisBroker
 
     ```python linenums="1"
-    {!> docs_src/redis/list_pub/app.py [ln:13] !}
+    {!> docs_src/redis/list/list_pub.py [ln:13] !}
     ```
 
-1. Create your FastStream application with the instantiated RedisBroker
+2. Create your FastStream application with the instantiated RedisBroker
 
     ```python linenums="1"
-    {!> docs_src/redis/list_pub/app.py [ln:14] !}
+    {!> docs_src/redis/list/list_pub.py [ln:14] !}
     ```
 
-1. Define a Pydantic model for your data
+3. Define a Pydantic model for your data
 
     ```python linenums="1"
-    {!> docs_src/redis/list_pub/app.py [ln:7-10] !}
+    {!> docs_src/redis/list/list_pub.py [ln:7-10] !}
     ```
 
-1. Implement a data processing function for publishing to Redis lists
+4. Implement a data processing function for publishing to Redis lists
 
     Use the `@broker.publisher(list="...")` decorator alongside the `@broker.subscriber(list="...")` decorator to create a function that processes incoming messages and pushes the results to an output list in Redis.
 
     ```python linenums="1"
-    {!> docs_src/redis/list_pub/app.py [ln:17-20] !}
+    {!> docs_src/redis/list/list_pub.py [ln:17-20] !}
     ```
 
 In this pattern, the function stands as a subscriber to the "input-list" and publishes the processed data as a new message to the "output-list." By using decorators, you establish a pipeline that reads messages from one Redis list, applies some logic, and then pushes outputs to another list.
@@ -39,7 +39,7 @@ In this pattern, the function stands as a subscriber to the "input-list" and pub
 Here's an example that demonstrates Redis list publishing in action using decorators with FastStream:
 
 ```python linenums="1"
-{!> docs_src/redis/list_pub/app.py !}
+{!> docs_src/redis/list/list_pub.py !}
 ```
 
 The provided example illustrates the ease of setting up publishing mechanisms to interact with Redis lists. In this environment, messages are dequeued from the input list, processed, and enqueued onto the output list seamlessly, empowering developers to leverage Redis lists as messaging queues.
