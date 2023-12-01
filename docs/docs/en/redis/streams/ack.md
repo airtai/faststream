@@ -9,18 +9,18 @@ By default, when using the **FastStream** with a Redis stream, the library will 
 In cases where you want explicit control over when a message is acknowledged, you can manually acknowledge a message by accessing the `ack` and `nack` methods provided:
 
 ```python
-from faststream.redis.annotations import RedisMessage
+from faststream.redis.annotations import RedisMessage, Redis
 
 # Setup broker and faststream app
 ...
 
 @broker.subscriber(StreamSub("test-stream", group="test-group", consumer="1"))
-async def base_handler(body: dict, msg: RedisMessage):
+async def base_handler(body: dict, msg: RedisMessage, redis: Redis):
     # Process the message
     ...
 
     # Manually acknowledge the message
-    await msg.ack()
+    await msg.ack(redis)
     # or, if processing fails and you want to reprocess later
     await msg.nack()
 ```
@@ -32,7 +32,7 @@ Using `ack` will mark the message as processed in the stream, while `nack` is us
 If the need arises to instantly interrupt message processing at any point in the call stack and acknowledge the message, you can achieve this by raising the `faststream.exceptions.AckMessage` exception:
 
 ``` python linenums="1" hl_lines="2 16"
-{!> docs_src/redis/ack/errors.py !}
+{!> docs_src/redis/stream/ack_errors.py !}
 ```
 
 By raising `AckMessage`, **FastStream** will halt the current message processing routine and immediately acknowledge it. Analogously, raising `NackMessage` would prevent the message from being acknowledged and could lead to its subsequent reprocessing by the same or a different consumer.

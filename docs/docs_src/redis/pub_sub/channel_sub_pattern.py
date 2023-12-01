@@ -1,4 +1,4 @@
-from faststream import FastStream, Logger, Path
+from faststream import FastStream, Logger
 from faststream.redis import PubSub, RedisBroker
 
 broker = RedisBroker()

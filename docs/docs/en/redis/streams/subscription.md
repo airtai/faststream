@@ -7,7 +7,7 @@ In the following example, we will create a simple FastStream app that will consu
 The full app code looks like this:
 
 ```python linenums="1"
-{!> docs_src/redis/stream_sub/app.py !}
+{!> docs_src/redis/stream/sub.py !}
 ```
 
 ## Import FastStream and RedisBroker
@@ -15,7 +15,7 @@ The full app code looks like this:
 To use the `#!python @broker.subscriber(...)` decorator, first, we need to import the base FastStream app and RedisBroker to create our broker.
 
 ```python linenums="1"
-{!> docs_src/redis/stream_sub/app.py [ln:1-2] !}
+{!> docs_src/redis/stream/sub.py [ln:1-2] !}
 ```
 
 ## Create a RedisBroker
@@ -23,7 +23,7 @@ To use the `#!python @broker.subscriber(...)` decorator, first, we need to impor
 Next, we will create a `RedisBroker` object and wrap it into the `FastStream` object so that we can start our app using CLI later.
 
 ```python linenums="1"
-{!> docs_src/redis/stream_sub/app.py [ln:4-5] !}
+{!> docs_src/redis/stream/sub.py [ln:4-5] !}
 ```
 
 ## Create a Function that will Consume Messages from a Redis stream
@@ -31,7 +31,7 @@ Next, we will create a `RedisBroker` object and wrap it into the `FastStream` ob
 Let’s create a consumer function that will consume messages from `#!python "test-stream"` Redis stream and log them.
 
 ```python linenums="1"
-{!> docs_src/redis/stream_sub/app.py [ln:8-10] !}
+{!> docs_src/redis/stream/sub.py [ln:8-10] !}
 ```
 
 The function decorated with the `#!python @broker.subscriber(...)` decorator will be called when a message is produced to the **Redis** stream.

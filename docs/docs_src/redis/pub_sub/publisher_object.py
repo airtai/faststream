@@ -2,7 +2,6 @@ import pytest
 from pydantic import BaseModel, Field, NonNegativeFloat
 
 from faststream import FastStream, Logger
-from faststream._compat import model_to_json
 from faststream.redis import RedisBroker, TestRedisBroker
 
 broker = RedisBroker("localhost:6379")
@@ -25,9 +24,6 @@ async def test_prepared_publish():
     async with TestRedisBroker(broker):
         msg = Data(data=0.5)
 
-        await prepared_publisher.publish(
-            model_to_json(msg),
-            headers={"content-type": "application/json"},
-        )
+        await prepared_publisher.publish(msg)
 
         handle_data.mock.assert_called_once_with(dict(msg))

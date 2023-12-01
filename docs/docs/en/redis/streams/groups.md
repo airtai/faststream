@@ -9,7 +9,7 @@ In the following example, we will create a simple FastStream app that utilizes a
 The full app code is as follows:
 
 ```python linenums="1"
-{!> docs_src/redis/stream_group/app.py !}
+{!> docs_src/redis/stream/group.py !}
 ```
 
 ## Import FastStream and RedisBroker
@@ -17,7 +17,7 @@ The full app code is as follows:
 First, import the `FastStream` class and the `RedisBroker` from the `faststream.redis` module to define our broker.
 
 ```python linenums="1"
-{!> docs_src/redis/stream_group/app.py [ln:1-2] !}
+{!> docs_src/redis/stream/group.py [ln:1-2] !}
 ```
 
 ## Create a RedisBroker
@@ -25,7 +25,7 @@ First, import the `FastStream` class and the `RedisBroker` from the `faststream.
 To establish a connection to Redis, instantiate a `RedisBroker` object and pass it to the `FastStream` app.
 
 ```python linenums="1"
-{!> docs_src/redis/stream_group/app.py [ln:4-5] !}
+{!> docs_src/redis/stream/group.py [ln:4-5] !}
 ```
 
 ## Define a Consumer Group Subscription
@@ -33,7 +33,7 @@ To establish a connection to Redis, instantiate a `RedisBroker` object and pass 
 Define a subscription to a Redis stream with a specific Consumer Group using the `StreamSub` object and the `@broker.subscriber(...)` decorator. Then, define a function that will be triggered when new messages are sent to the `test-stream` Redis stream. This function is decorated with `@broker.subscriber(...)` and will process the messages as part of the `test-group` consumer group.
 
 ```python linenums="1"
-{!> docs_src/redis/stream_group/app.py [ln:8-10] !}
+{!> docs_src/redis/stream/group.py [ln:8-10] !}
 ```
 
 ## Publishing a message
@@ -41,7 +41,7 @@ Define a subscription to a Redis stream with a specific Consumer Group using the
 Publishing a message is the same as what's defined on [Stream Publishing](./publishing.md).
 
 ```python linenums="1"
-{!> docs_src/redis/stream_group/app.py [ln:15] !}
+{!> docs_src/redis/stream/group.py [ln:15] !}
 ```
 
 By following the steps and code examples provided above, you can create a FastStream application that consumes messages from a Redis stream using a Consumer Group for distributed message processing.
