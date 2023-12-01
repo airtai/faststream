@@ -2,14 +2,14 @@
 
 ## Basic Channel Subscription
 
-To start consuming messages from a **Redis** channel, decorate your consumer function with the `#!python @broker.subscriber("channel_name")` decorator, specifying the channel name as a string.
+**Redis Pub/Sub** is a default subscriber type in **FastStream**, so you can just create a regular `#!python @broker.subscriber("channel_name")` with a channel name - it creates subscriber using **Redis Pub/Sub**.
 
 In this example, we will build a FastStream application that listens to messages from the Redis channel named `#!python "test"`.
 
 The complete application code is presented below:
 
 ```python linenums="1"
-{!> docs_src/redis/subscribe/channel_sub.py!}
+{!> docs_src/redis/pub_sub/channel_sub.py!}
 ```
 
 ### Import FastStream and RedisBroker
@@ -17,7 +17,7 @@ The complete application code is presented below:
 To utilize the `#!python @broker.subscriber(...)` decorator for Redis channel subscription, you must first import FastStream and RedisBroker.
 
 ```python linenums="1"
-{!> docs_src/redis/subscribe/channel_sub.py [ln:1-2]!}
+{!> docs_src/redis/pub_sub/channel_sub.py [ln:1-2]!}
 ```
 
 ### Create a RedisBroker Instance
@@ -25,7 +25,7 @@ To utilize the `#!python @broker.subscriber(...)` decorator for Redis channel su
 Create a `#!python RedisBroker` object and pass it to the `FastStream` object. This setup prepares the application for launch using the FastStream CLI.
 
 ```python linenums="1"
-{!> docs_src/redis/subscribe/channel_sub.py [ln:4-5]!}
+{!> docs_src/redis/pub_sub/channel_sub.py [ln:4-5]!}
 ```
 
 ### Define the Message Handler Function
@@ -33,7 +33,7 @@ Create a `#!python RedisBroker` object and pass it to the `FastStream` object. T
 Construct a function that will act as the consumer of messages from the `#!python "test"` channel and use the logger to output the message content.
 
 ```python linenums="1"
-{!> docs_src/redis/subscribe/channel_sub.py [ln:8-10]!}
+{!> docs_src/redis/pub_sub/channel_sub.py [ln:8-10]!}
 ```
 
 When a message is published to the **Redis** channel `#!python "test"`, it will trigger the invocation of the decorated function. The message will be passed to the function's `msg` parameter, while the logger will be available for logging purposes.
@@ -45,7 +45,7 @@ For subscribing to multiple Redis channels matching a pattern, use the `#!python
 Here's how to create a FastStream application that subscribes to all channels matching the `#!python "test.*"` pattern:
 
 ```python linenums="1"
-{!> docs_src/redis/subscribe/channel_sub_pattern.py!}
+{!> docs_src/redis/pub_sub/channel_sub_pattern.py!}
 ```
 
 ### Use PubSub for Pattern Matching
@@ -53,7 +53,7 @@ Here's how to create a FastStream application that subscribes to all channels ma
 Import the `PubSub` class from `faststream.redis` along with other necessary modules.
 
 ```python linenums="1"
-{!> docs_src/redis/subscribe/channel_sub_pattern.py [ln:1-2] !}
+{!> docs_src/redis/pub_sub/channel_sub_pattern.py [ln:1-2] !}
 ```
 
 ### Specify the Pattern for Channel Subscription
@@ -61,7 +61,7 @@ Import the `PubSub` class from `faststream.redis` along with other necessary mod
 To define the pattern subscription, create a `PubSub` object with the desired pattern (`#!python "test.*"` in this case) and indicate that it's a pattern subscription by setting `pattern=True`.
 
 ```python linenums="1"
-{!> docs_src/redis/subscribe/channel_sub_pattern.py [ln:8] !}
+{!> docs_src/redis/pub_sub/channel_sub_pattern.py [ln:8] !}
 ```
 
 ### Create the Pattern Message Handler Function
@@ -69,7 +69,15 @@ To define the pattern subscription, create a `PubSub` object with the desired pa
 Decide on a function that will act as the subscriber of messages from channels matching the specified pattern. Logging the messages is handled similarly as with basic channel subscription.
 
 ```python linenums="1"
-{!> docs_src/redis/subscribe/channel_sub_pattern.py [ln:8-10] !}
+{!> docs_src/redis/pub_sub/channel_sub_pattern.py [ln:8-10] !}
 ```
 
 With pattern channel subscription, when a message is published to a channel that matches the specified pattern (`#!python "test.*"`), our handler function will be invoked. The message is delivered to the `msg` argument of the function, similar to how it works in basic channel subscriptions.
+
+### Pattern data access
+
+Also, you can use **Redis Pub/Sub** pattern feature to encode some data right in the channel name. With **FastStream** you can easely acces to this data using the following code:
+
+```python linenums="1" hl_lines="1 8 12"
+{!> docs_src/redis/pub_sub/pattern_data.py !}
+```

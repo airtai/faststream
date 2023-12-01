@@ -1,13 +1,13 @@
 # Accessing Redis Message Information with FastStream
 
-In **FastStream**, messages passed through a Redis broker are serialized and can be interacted with just like function parameters. However, you might occasionally need to access more than just the message content, such as metadata and other attributes.
+In **FastStream**, messages passed through a **Redis** broker are serialized and can be interacted with just like function parameters. However, you might occasionally need to access more than just the message content, such as metadata and other attributes.
 
 ## Redis Message Access
 
-When dealing with Redis broker in FastStream, you can easily access message details by using the `RedisMessage` object which wraps the underlying message with additional context information. This object is specifically tailored for Redis and contains relevant message attributes:
+When dealing with **Redis** broker in **FastStream**, you can easily access message details by using the `RedisMessage` object which wraps the underlying message with additional context information. This object is specifically tailored for **Redis** and contains relevant message attributes:
 
 * `#!python body: Union[bytes, Any]`
-* `#!python raw_message: Msg`
+* `#!python raw_message: Any`
 * `#!python decoded_body: Optional[DecodedMessage]`
 * `#!python headers: AnyDict`
 * `#!python path: AnyDict`
@@ -18,7 +18,7 @@ When dealing with Redis broker in FastStream, you can easily access message deta
 * `#!python processed: bool`
 * `#!python commited: bool`
 
-For instance, if you need to retrieve headers from an incoming Redis message, here’s how you might do it:
+For instance, if you need to retrieve headers from an incoming **Redis** message, here’s how you might do it:
 
 ```python
 from faststream.redis import RedisMessage

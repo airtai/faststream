@@ -13,13 +13,13 @@ To publish a message to a Redis channel, follow these steps:
 1. Create your RedisBroker instance
 
     ```python linenums="1"
-    {!> docs_src/redis/publish/raw_publish.py [ln:15] !}
+    {!> docs_src/redis/pub_sub/raw_publish.py [ln:14] !}
     ```
 
-1. Publish a message using the `publish` method
+2. Publish a message using the `publish` method
 
     ```python linenums="1"
-    {!> docs_src/redis/publish/raw_publish.py [ln:27-33] !}
+    {!> docs_src/redis/pub_sub/raw_publish.py [ln:28] !}
     ```
 
 This is the most straightforward way to use the RedisBroker to publish messages to Redis channels.
@@ -31,19 +31,19 @@ For a more structured approach and to include your publishers in the AsyncAPI do
 1. Create your RedisBroker instance
 
     ```python linenums="1"
-    {!> docs_src/redis/publish/publisher_object.py [ln:8] !}
+    {!> docs_src/redis/pub_sub/publisher_object.py [ln:7] !}
     ```
 
-1. Create a publisher instance for a specific channel
+2. Create a publisher instance for a specific channel
 
     ```python linenums="1"
-    {!> docs_src/redis/publish/publisher_object.py [ln:17] !}
+    {!> docs_src/redis/pub_sub/publisher_object.py [ln:16] !}
     ```
 
-1. Publish a message using the `publish` method of the prepared publisher
+3. Publish a message using the `publish` method of the prepared publisher
 
     ```python linenums="1"
-    {!> docs_src/redis/publish/publisher_object.py [ln:26-31] !}
+    {!> docs_src/redis/pub_sub/publisher_object.py [ln:27] !}
     ```
 
 When you encapsulate your broker within a FastStream object, the publisher will be documented in your service's AsyncAPI documentation.
@@ -59,29 +59,29 @@ The decorated function should have a return type annotation to ensure the correc
 Here's an example of using decorators with RedisBroker:
 
 ```python linenums="1"
-{!> docs_src/redis/publish/publisher_decorator.py !}
+{!> docs_src/redis/pub_sub/publisher_decorator.py !}
 ```
 
 1. **Initialize the RedisBroker instance:** Start by creating a RedisBroker instance.
 
     ```python linenums="1"
-    {!> docs_src/redis/publish/publisher_decorator.py [ln:13] !}
+    {!> docs_src/redis/pub_sub/publisher_decorator.py [ln:13] !}
     ```
 
-1. **Prepare your publisher object to be used as a decorator:**
+2. **Prepare your publisher object to be used as a decorator:**
 
     ```python linenums="1"
-    {!> docs_src/redis/publish/publisher_decorator.py [ln:17] !}
+    {!> docs_src/redis/pub_sub/publisher_decorator.py [ln:17] !}
     ```
 
-1. **Create your processing logic:** Implement a function that will process incoming messages and produce a response to be published to another Redis channel.
+3. **Create your processing logic:** Implement a function that will process incoming messages and produce a response to be published to another Redis channel.
 
     ```python linenums="1"
-    {!> docs_src/redis/publish/publisher_decorator.py [ln:22-23] !}
+    {!> docs_src/redis/pub_sub/publisher_decorator.py [ln:22-23] !}
     ```
 
-1. **Decorate your processing function:** Apply the `@broker.subscriber` and `@broker.publisher` decorators to your function to define the input channel and the output channel, respectively. Once your application is running, this decorated function will be triggered whenever a new message arrives on the "input_data" channel, and it will publish the result to the "output_data" channel.
+4. **Decorate your processing function:** Apply the `@broker.subscriber` and `@broker.publisher` decorators to your function to define the input channel and the output channel, respectively. Once your application is running, this decorated function will be triggered whenever a new message arrives on the "input_data" channel, and it will publish the result to the "output_data" channel.
 
     ```python linenums="1"
-    {!> docs_src/redis/publish/publisher_decorator.py [ln:20-23] !}
+    {!> docs_src/redis/pub_sub/publisher_decorator.py [ln:20-23] !}
     ```
