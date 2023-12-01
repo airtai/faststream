@@ -1,9 +1,7 @@
-from contextlib import asynccontextmanager
 from types import TracebackType
 from typing import (
     Any,
     AsyncContextManager,
-    AsyncIterator,
     Optional,
     Type,
     Union,
@@ -30,7 +28,7 @@ from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.rabbit.types import AioPikaSendableMessage
 from faststream.types import SendableMessage
-from faststream.utils.functions import timeout_scope
+from faststream.utils.functions import fake_context, timeout_scope
 
 
 class AioPikaFastProducer:
@@ -146,7 +144,7 @@ class AioPikaFastProducer:
                     self.declarer.queues[RABBIT_REPLY],
                 )
         else:
-            context = _fake_context()
+            context = fake_context()
 
         async with context as response_queue:
             r = await self._publish(
@@ -301,8 +299,3 @@ class _RPCCallback:
         """
         self.lock.release()
         await self.queue.cancel(self.consumer_tag)
-
-
-@asynccontextmanager
-async def _fake_context() -> AsyncIterator[None]:
-    yield None

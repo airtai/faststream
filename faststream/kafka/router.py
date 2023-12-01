@@ -73,6 +73,7 @@ class KafkaRouter(BaseRouter):
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
     ) -> Publisher:
         """Publishes a message to a topic.
 
@@ -106,6 +107,11 @@ class KafkaRouter(BaseRouter):
                 batch=batch,
                 _description=description,
                 _schema=schema,
+                include_in_schema=(
+                    include_in_schema
+                    if self.include_in_schema is None
+                    else self.include_in_schema
+                ),
             ),
         )
         publisher_key = self._get_publisher_key(new_publisher)

@@ -34,6 +34,7 @@ class NatsRouter(BaseRouter):
         middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
         parser: Optional[CustomParser[Msg, NatsMessage]] = None,
         decoder: Optional[CustomDecoder[NatsMessage]] = None,
+        include_in_schema: bool = True,
     ): ...
     @override
     @staticmethod
@@ -54,6 +55,7 @@ class NatsRouter(BaseRouter):
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
     ) -> Publisher: ...
     @override
     def subscriber(  # type: ignore[override]
@@ -88,6 +90,7 @@ class NatsRouter(BaseRouter):
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],

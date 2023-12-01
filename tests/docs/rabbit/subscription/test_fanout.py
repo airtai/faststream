@@ -13,10 +13,9 @@ async def test_index():
         broker,
     )
 
-    async with TestRabbitBroker(broker, with_real=True, connect_only=True):
-        async with TestApp(app):
-            await base_handler1.wait_call(3)
-            await base_handler3.wait_call(3)
+    async with TestRabbitBroker(broker, with_real=True), TestApp(app):
+        await base_handler1.wait_call(3)
+        await base_handler3.wait_call(3)
 
-            base_handler1.mock.assert_called_with("")
-            base_handler3.mock.assert_called_with("")
+        base_handler1.mock.assert_called_with("")
+        base_handler3.mock.assert_called_with("")

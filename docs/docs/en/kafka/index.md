@@ -44,7 +44,7 @@ To connect to Kafka using the FastStream KafkaBroker module, follow these steps:
 Here's a simplified code example demonstrating how to establish a connection to Kafka using FastStream's KafkaBroker module:
 
 ```python linenums="1"
-{!> docs_src/index/basic_kafka.py!}
+{!> docs_src/index/kafka/basic.py!}
 ```
 
 This minimal example illustrates how FastStream simplifies the process of connecting to Kafka and performing basic message processing from the **in_topic** to the **out-topic**. Depending on your specific use case and requirements, you can further customize your Kafka integration with FastStream to build robust and efficient streaming applications.

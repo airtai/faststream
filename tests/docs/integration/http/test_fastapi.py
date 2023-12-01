@@ -12,7 +12,7 @@ async def test_fastapi_raw_integration():
         broker,
     )
 
-    async with TestKafkaBroker(broker, connect_only=True):
+    async with TestKafkaBroker(broker):
         with TestClient(app):
             await broker.publish("", "test")
 

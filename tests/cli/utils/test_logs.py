@@ -9,7 +9,7 @@ from faststream.rabbit import RabbitBroker
 
 
 @pytest.mark.parametrize(
-    "level,broker",
+    ("level", "broker"),
     tuple(
         zip_longest(
             (
@@ -30,7 +30,7 @@ def test_set_level(level, app: FastStream):
 
 
 @pytest.mark.parametrize(
-    "level,broker",
+    ("level", "broker"),
     tuple(
         zip_longest(
             [],

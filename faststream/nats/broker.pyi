@@ -57,8 +57,8 @@ class NatsBroker(
 ):
     stream: Optional[JetStreamContext]
 
-    handlers: Dict[Subject, Handler]  # type: ignore[assignment]
-    _publishers: Dict[Subject, Publisher]  # type: ignore[assignment]
+    handlers: Dict[Subject, Handler]
+    _publishers: Dict[Subject, Publisher]
     _producer: Optional[NatsFastProducer]
     _js_producer: Optional[NatsJSFastProducer]
 
@@ -249,6 +249,7 @@ class NatsBroker(
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -268,6 +269,7 @@ class NatsBroker(
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
     ) -> Publisher: ...
     @override
     async def publish(  # type: ignore[override]

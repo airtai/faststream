@@ -25,6 +25,7 @@ from faststream.broker.types import (
     WrappedReturn,
 )
 from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
+from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.rabbit.asyncapi import Handler, Publisher
 from faststream.rabbit.helpers import RabbitDeclarer
 from faststream.rabbit.message import RabbitMessage
@@ -70,8 +71,9 @@ class RabbitBroker(
         _channel (Optional[aio_pika.RobustChannel]): The RabbitMQ channel instance.
     """
 
-    handlers: Dict[int, Handler]  # type: ignore[assignment]
-    _publishers: Dict[int, Publisher]  # type: ignore[assignment]
+    url: str
+    handlers: Dict[int, Handler]
+    _publishers: Dict[int, Publisher]
 
     declarer: Optional[RabbitDeclarer]
     _producer: Optional[AioPikaFastProducer]
@@ -133,7 +135,6 @@ class RabbitBroker(
 
         super().__init__(
             url=str(amqp_url),
-            protocol=amqp_url.scheme,
             protocol_version=protocol_version,
             security=security,
             ssl_context=security_args.get(
@@ -268,15 +269,13 @@ class RabbitBroker(
         Raises:
             RuntimeError: If the declarer is not initialized in the `connect` method.
         """
-        context.set_local(
-            "log_context",
+        context.set_global(
+            "default_log_context",
             self._get_log_context(None, RabbitQueue(""), RabbitExchange("")),
         )
 
         await super().start()
-        assert (  # nosec B101
-            self.declarer
-        ), "Declarer should be initialized in `connect` method"
+        assert self.declarer, NOT_CONNECTED_YET  # nosec B101
 
         for publisher in self._publishers.values():
             if publisher.exchange is not None:
@@ -306,6 +305,7 @@ class RabbitBroker(
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **original_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -345,6 +345,7 @@ class RabbitBroker(
                 description=description,
                 title=title,
                 virtual_host=self.virtual_host,
+                include_in_schema=include_in_schema,
             ),
         )
 
@@ -405,6 +406,7 @@ class RabbitBroker(
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
         priority: Optional[int] = None,
         **message_kwargs: Any,
     ) -> Publisher:
@@ -444,6 +446,7 @@ class RabbitBroker(
             _description=description,
             _schema=schema,
             virtual_host=self.virtual_host,
+            include_in_schema=include_in_schema,
         )
 
         key = publisher._get_routing_hash()
@@ -470,7 +473,7 @@ class RabbitBroker(
             Union[aiormq.abc.ConfirmationFrameType, SendableMessage]: The confirmation frame or the response message.
         """
 
-        assert self._producer, "RabbitBroker channel is not started yet"  # nosec B101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
         return await self._producer.publish(*args, **kwargs)
 
     def _process_message(
@@ -518,8 +521,9 @@ class RabbitBroker(
                 watcher_context = nullcontext()
             else:
                 watcher_context = WatcherContext(watcher, message)
+
             async with watcher_context:
-                r = await self._execute_handler(func, message)
+                r = await func(message)
 
                 pub_response: Optional[AsyncPublisherProtocol]
                 if message.reply_to:
@@ -549,9 +553,7 @@ class RabbitBroker(
         Raises:
             RuntimeError: If the declarer is not initialized in the `connect` method.
         """
-        assert (  # nosec B101
-            self.declarer
-        ), "Declarer should be initialized in `connect` method"
+        assert self.declarer, NOT_CONNECTED_YET  # nosec B101
         return await self.declarer.declare_queue(queue)
 
     async def declare_exchange(
@@ -570,7 +572,5 @@ class RabbitBroker(
         Raises:
             RuntimeError: If the declarer is not initialized in the `connect` method.
         """
-        assert (  # nosec B101
-            self.declarer
-        ), "Declarer should be initialized in `connect` method"
+        assert self.declarer, NOT_CONNECTED_YET  # nosec B101
         return await self.declarer.declare_exchange(exchange)

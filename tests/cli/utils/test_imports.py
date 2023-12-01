@@ -14,7 +14,7 @@ def test_import_wrong():
 
 
 @pytest.mark.parametrize(
-    "test_input,exp_module,exp_app",
+    ("test_input", "exp_module", "exp_app"),
     (
         pytest.param("module:app", "module", "app"),
         pytest.param("module.module.module:app", "module/module/module", "app"),
@@ -37,7 +37,7 @@ def test_import_from_string_import_wrong():
 
 
 @pytest.mark.parametrize(
-    "test_input,exp_module",
+    ("test_input", "exp_module"),
     (
         pytest.param("examples.kafka.testing:app", "examples/kafka/testing.py"),
         pytest.param("examples.nats.e01_basic:app", "examples/nats/e01_basic.py"),

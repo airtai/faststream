@@ -12,9 +12,10 @@ class TestRPC(BrokerRPCTestcase, ReplyAndConsumeForbidden):
         async def m(m):  # pragma: no cover
             return "1"
 
-        await rpc_broker.start()
+        async with rpc_broker:
+            await rpc_broker.start()
 
-        r = await rpc_broker.publish(
-            "hello", queue, rpc_timeout=3, stream=stream.name, rpc=True
-        )
-        assert r == "1"
+            r = await rpc_broker.publish(
+                "hello", queue, rpc_timeout=3, stream=stream.name, rpc=True
+            )
+            assert r == "1"

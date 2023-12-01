@@ -43,7 +43,14 @@ def parse_cli_args(*args: str) -> Tuple[str, Dict[str, SettingField]]:
                     else:
                         v = field_args
 
-                    extra_kwargs[remove_prefix(k, "no_")] = v
+                    key = remove_prefix(k, "no_")
+                    if (exists := extra_kwargs.get(key)) is not None:
+                        if not isinstance(exists, list):
+                            v = [exists, v]
+                        else:
+                            v = exists + [v]
+
+                    extra_kwargs[key] = v
                     field_args = []
 
                 k = item
@@ -56,6 +63,8 @@ def parse_cli_args(*args: str) -> Tuple[str, Dict[str, SettingField]]:
 
 def remove_prefix(text: str, prefix: str) -> str:
     """Removes a prefix from a given text.
+
+    Python 3.8 compatibility function
 
     Args:
         text (str): The text from which the prefix will be removed.

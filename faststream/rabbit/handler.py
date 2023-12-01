@@ -64,6 +64,7 @@ class LogicHandler(AsyncHandler[aio_pika.IncomingMessage], BaseRMQInformation):
         # AsyncAPI information
         description: Optional[str] = None,
         title: Optional[str] = None,
+        include_in_schema: bool = True,
         virtual_host: str = "/",
     ):
         """Initialize a RabbitMQ consumer.
@@ -82,6 +83,7 @@ class LogicHandler(AsyncHandler[aio_pika.IncomingMessage], BaseRMQInformation):
             log_context_builder=log_context_builder,
             description=description,
             title=title,
+            include_in_schema=include_in_schema,
         )
 
         self.queue = queue
@@ -160,7 +162,11 @@ class LogicHandler(AsyncHandler[aio_pika.IncomingMessage], BaseRMQInformation):
             arguments=self.consume_args,
         )
 
+        await super().start()
+
     async def close(self) -> None:
+        await super().close()
+
         if self._queue_obj is not None:
             if self._consumer_tag is not None:  # pragma: no branch
                 await self._queue_obj.cancel(self._consumer_tag)

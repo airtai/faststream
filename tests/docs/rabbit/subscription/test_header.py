@@ -12,7 +12,6 @@ async def test_index():
         broker,
     )
 
-    async with TestRabbitBroker(broker, connect_only=True):
-        async with TestApp(app):
-            assert base_handler1.mock.call_count == 3
-            assert base_handler3.mock.call_count == 3
+    async with TestRabbitBroker(broker), TestApp(app):
+        assert base_handler1.mock.call_count == 3
+        assert base_handler3.mock.call_count == 3

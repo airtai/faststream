@@ -17,6 +17,10 @@ repo_name: airtai/faststream
 repo_url: https://github.com/airtai/faststream
 edit_uri: https://github.com/airtai/faststream/tree/main/docs/docs
 
+exclude_docs: |
+  navigation_template.txt
+  SUMMARY.md
+
 theme:
   name: material
   custom_dir: overrides
@@ -65,9 +69,9 @@ extra_javascript:
   - javascripts/extra.js
 
 plugins:
-  # - meta                         # (insiders) use .meta.yml files
   - search:
       separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  # - meta                         # (insiders) use .meta.yml files
   - glightbox                    # image zoom
   - macros:                      # Jinja templates
       include_dir: includes
@@ -119,7 +123,7 @@ plugins:
       cache_safe: true
       css_files:
         - stylesheets/extra.css
-  - mike:
+  - mike:                        # versioning
       alias_type: copy
       redirect_template: templates/redirect.html
       canonical_version: latest

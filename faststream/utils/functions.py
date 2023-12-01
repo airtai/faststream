@@ -1,8 +1,20 @@
 import inspect
+from contextlib import asynccontextmanager
 from functools import wraps
-from typing import Awaitable, Callable, ContextManager, List, Optional, Union, overload
+from typing import (
+    Any,
+    AsyncIterator,
+    Awaitable,
+    Callable,
+    ContextManager,
+    List,
+    Optional,
+    Union,
+    overload,
+)
 
 import anyio
+from fast_depends.core import CallModel
 from fast_depends.utils import run_async as call_or_await
 
 from faststream.types import AnyCallable, F_Return, F_Spec
@@ -127,3 +139,15 @@ def timeout_scope(
         scope = anyio.move_on_after
 
     return scope(timeout)
+
+
+@asynccontextmanager
+async def fake_context(*args: Any, **kwargs: Any) -> AsyncIterator[None]:
+    yield None
+
+
+def drop_response_type(
+    model: CallModel[F_Spec, F_Return]
+) -> CallModel[F_Spec, F_Return]:
+    model.response_model = None
+    return model

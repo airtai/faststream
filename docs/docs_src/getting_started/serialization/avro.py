@@ -1,5 +1,6 @@
-import fastavro
 import io
+
+import fastavro
 
 from faststream import FastStream, Logger
 from faststream.kafka import KafkaBroker, KafkaMessage
@@ -35,6 +36,7 @@ async def consume(name: str, age: int, logger: Logger):
 @app.after_startup
 async def publish():
     msg = {"name": "John", "age": 25}
+
     bytes_writer = io.BytesIO()
     fastavro.schemaless_writer(bytes_writer, schema, msg)
     raw_bytes = bytes_writer.getvalue()
