@@ -49,3 +49,5 @@ If you wish to interrupt the processing of a message at any call stack level and
 ```
 
 This way, **FastStream** interrupts the current message processing and acknowledges it immediately. Similarly, you can raise `NackMessage` as well to prevent the message from being committed.
+
+{!> includes/en/no_ack.md !}
