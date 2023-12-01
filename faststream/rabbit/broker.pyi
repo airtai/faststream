@@ -1,7 +1,17 @@
 import logging
 from ssl import SSLContext
 from types import TracebackType
-from typing import Any, Awaitable, Callable, Dict, Optional, Sequence, Type, Union
+from typing import (
+    Any,
+    AsyncContextManager,
+    Awaitable,
+    Callable,
+    Dict,
+    Optional,
+    Sequence,
+    Type,
+    Union,
+)
 
 import aio_pika
 import aiormq
@@ -14,7 +24,6 @@ from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
-from faststream.broker.push_back_watcher import BaseWatcher
 from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
@@ -216,8 +225,8 @@ class RabbitBroker(
         func: Callable[
             [StreamMessage[aio_pika.IncomingMessage]], Awaitable[T_HandlerReturn]
         ],
-        watcher: BaseWatcher,
-        disable_watcher: bool = False,
+        watcher: Callable[..., AsyncContextManager[None]],
+        **kwargs: Any,
     ) -> Callable[
         [StreamMessage[aio_pika.IncomingMessage]],
         Awaitable[WrappedReturn[T_HandlerReturn]],

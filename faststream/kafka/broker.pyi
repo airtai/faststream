@@ -3,6 +3,7 @@ from asyncio import AbstractEventLoop
 from types import TracebackType
 from typing import (
     Any,
+    AsyncContextManager,
     Awaitable,
     Callable,
     Dict,
@@ -31,7 +32,6 @@ from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
-from faststream.broker.push_back_watcher import BaseWatcher
 from faststream.broker.security import BaseSecurity
 from faststream.broker.types import (
     CustomDecoder,
@@ -188,8 +188,8 @@ class KafkaBroker(
         func: Callable[
             [StreamMessage[aiokafka.ConsumerRecord]], Awaitable[T_HandlerReturn]
         ],
-        watcher: BaseWatcher,
-        disable_watcher: bool = False,
+        watcher: Callable[..., AsyncContextManager[None]],
+        **kwargs: Any,
     ) -> Callable[
         [StreamMessage[aiokafka.ConsumerRecord]],
         Awaitable[WrappedReturn[T_HandlerReturn]],

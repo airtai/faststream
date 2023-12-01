@@ -4,6 +4,7 @@ from functools import wraps
 from types import TracebackType
 from typing import (
     Any,
+    AsyncContextManager,
     Awaitable,
     Callable,
     Mapping,
@@ -24,7 +25,6 @@ from faststream.broker.core.abc import BrokerUsecase
 from faststream.broker.handler import AsyncHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
-from faststream.broker.push_back_watcher import BaseWatcher
 from faststream.broker.types import (
     AsyncCustomDecoder,
     AsyncCustomParser,
@@ -39,7 +39,7 @@ from faststream.broker.types import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.log import access_logger
-from faststream.types import SendableMessage
+from faststream.types import AnyDict, SendableMessage
 from faststream.utils.functions import to_async
 
 
@@ -167,8 +167,8 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
     def _process_message(
         self,
         func: Callable[[StreamMessage[MsgType]], Awaitable[T_HandlerReturn]],
-        watcher: BaseWatcher,
-        disable_watcher: bool = False,
+        watcher: Callable[..., AsyncContextManager[None]],
+        **kwargs: Any,
     ) -> Callable[[StreamMessage[MsgType]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
         """Process a message.
 
@@ -433,6 +433,7 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         no_ack: bool = False,
         _raw: bool = False,
         _get_dependant: Optional[Any] = None,
+        _process_kwargs: Optional[AnyDict] = None,
     ) -> Tuple[
         HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
         CallModel[P_HandlerParams, T_HandlerReturn],

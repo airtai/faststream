@@ -73,6 +73,12 @@ class RedisRouter(StreamRouter[AnyRedisDict]):
         parser_class: Type[BaseParser] = DefaultParser,
         connection_class: Type[Connection] = Connection,
         encoder_class: Type[Encoder] = Encoder,
+        # broker args
+        parser: Optional[CustomParser[AnyRedisDict, RedisMessage]] = None,
+        decoder: Optional[CustomDecoder[RedisMessage]] = None,
+        middlewares: Optional[
+            Sequence[Callable[[AnyRedisDict], BaseMiddleware]]
+        ] = None,
         # AsyncAPI args
         asyncapi_url: Optional[str] = None,
         protocol: Optional[str] = None,
@@ -127,6 +133,7 @@ class RedisRouter(StreamRouter[AnyRedisDict]):
             Sequence[Callable[[AnyRedisDict], BaseMiddleware]]
         ] = None,
         filter: Filter[RedisMessage] = default_filter,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,

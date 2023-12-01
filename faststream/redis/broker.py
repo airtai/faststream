@@ -2,6 +2,7 @@ from functools import partial, wraps
 from types import TracebackType
 from typing import (
     Any,
+    AsyncContextManager,
     Awaitable,
     Callable,
     Dict,
@@ -21,7 +22,6 @@ from faststream._compat import TypeAlias, override
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
-from faststream.broker.push_back_watcher import BaseWatcher, WatcherContext
 from faststream.broker.types import (
     AsyncPublisherProtocol,
     CustomDecoder,
@@ -141,18 +141,15 @@ class RedisBroker(
 
     def _process_message(
         self,
-        func: Callable[
-            [StreamMessage[Any]],
-            Awaitable[T_HandlerReturn],
-        ],
-        watcher: BaseWatcher,
+        func: Callable[[StreamMessage[Any]], Awaitable[T_HandlerReturn]],
+        watcher: Callable[..., AsyncContextManager[None]],
+        **kwargs: Any,
     ) -> Callable[[StreamMessage[Any]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
         @wraps(func)
         async def process_wrapper(
             message: StreamMessage[Any],
         ) -> WrappedReturn[T_HandlerReturn]:
-            async with WatcherContext(
-                watcher,
+            async with watcher(
                 message,
                 redis=self._connection,
             ):

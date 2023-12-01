@@ -3,6 +3,7 @@ from functools import partial, wraps
 from types import TracebackType
 from typing import (
     Any,
+    AsyncContextManager,
     Awaitable,
     Callable,
     Dict,
@@ -32,7 +33,6 @@ from faststream._compat import TypeAlias, override
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
-from faststream.broker.push_back_watcher import BaseWatcher, WatcherContext
 from faststream.broker.types import (
     AsyncPublisherProtocol,
     CustomDecoder,
@@ -52,7 +52,6 @@ from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.pull_sub import PullSub
 from faststream.nats.shared.logging import NatsLoggingMixin
 from faststream.types import AnyDict, DecodedMessage
-from faststream.utils.classes import nullcontext
 from faststream.utils.context.main import context
 
 Subject: TypeAlias = str
@@ -205,23 +204,15 @@ class NatsBroker(
 
     def _process_message(
         self,
-        func: Callable[
-            [StreamMessage[Msg]],
-            Awaitable[T_HandlerReturn],
-        ],
-        watcher: BaseWatcher,
-        disable_watcher: bool = False,
+        func: Callable[[StreamMessage[Msg]], Awaitable[T_HandlerReturn]],
+        watcher: Callable[..., AsyncContextManager[None]],
+        **kwargs: Any,
     ) -> Callable[[StreamMessage[Msg]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
         @wraps(func)
         async def process_wrapper(
             message: StreamMessage[Msg],
         ) -> WrappedReturn[T_HandlerReturn]:
-            if disable_watcher is True:
-                watcher_context = nullcontext()
-            else:
-                watcher_context = WatcherContext(watcher, message)
-
-            async with watcher_context:
+            async with watcher(message):
                 r = await func(message)
 
                 pub_response: Optional[AsyncPublisherProtocol]

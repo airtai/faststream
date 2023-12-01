@@ -20,8 +20,8 @@ async def test_push_back_correct(async_mock: AsyncMock, message):
     watcher = CounterWatcher(3)
 
     context = WatcherContext(
-        watcher,
-        message,
+        message=message,
+        watcher=watcher,
     )
 
     async with context:
@@ -37,8 +37,8 @@ async def test_push_back_endless_correct(async_mock: AsyncMock, message):
     watcher = EndlessWatcher()
 
     context = WatcherContext(
-        watcher,
-        message,
+        message=message,
+        watcher=watcher,
     )
 
     async with context:
@@ -53,8 +53,8 @@ async def test_push_back_watcher(async_mock: AsyncMock, message):
     watcher = CounterWatcher(3)
 
     context = WatcherContext(
-        watcher,
-        message,
+        message=message,
+        watcher=watcher,
     )
 
     async_mock.side_effect = ValueError("Ooops!")
@@ -74,8 +74,8 @@ async def test_push_endless_back_watcher(async_mock: AsyncMock, message):
     watcher = EndlessWatcher()
 
     context = WatcherContext(
-        watcher,
-        message,
+        message=message,
+        watcher=watcher,
     )
 
     async_mock.side_effect = ValueError("Ooops!")
@@ -95,8 +95,8 @@ async def test_ignore_skip(async_mock: AsyncMock, message):
     watcher = CounterWatcher(3)
 
     context = WatcherContext(
-        watcher,
-        message,
+        message=message,
+        watcher=watcher,
     )
 
     async_mock.side_effect = SkipMessage()

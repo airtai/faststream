@@ -1,7 +1,18 @@
 import logging
 import ssl
 from types import TracebackType
-from typing import Any, Awaitable, Callable, Dict, List, Optional, Sequence, Type, Union
+from typing import (
+    Any,
+    AsyncContextManager,
+    Awaitable,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Type,
+    Union,
+)
 
 from fast_depends.dependencies import Depends
 from nats.aio.client import (
@@ -30,7 +41,6 @@ from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
-from faststream.broker.push_back_watcher import BaseWatcher
 from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
@@ -201,12 +211,9 @@ class NatsBroker(
     async def start(self) -> None: ...
     def _process_message(
         self,
-        func: Callable[
-            [StreamMessage[Msg]],
-            Awaitable[T_HandlerReturn],
-        ],
-        watcher: BaseWatcher,
-        disable_watcher: bool = False,
+        func: Callable[[StreamMessage[Msg]], Awaitable[T_HandlerReturn]],
+        watcher: Callable[..., AsyncContextManager[None]],
+        **kwargs: Any,
     ) -> Callable[[StreamMessage[Msg]], Awaitable[WrappedReturn[T_HandlerReturn]],]: ...
     def _log_connection_broken(
         self,

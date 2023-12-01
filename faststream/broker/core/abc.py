@@ -7,6 +7,7 @@ from itertools import chain
 from types import TracebackType
 from typing import (
     Any,
+    AsyncContextManager,
     Awaitable,
     Callable,
     Generic,
@@ -32,7 +33,7 @@ from faststream.broker.handler import BaseHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware, CriticalLogMiddleware
 from faststream.broker.publisher import BasePublisher
-from faststream.broker.push_back_watcher import BaseWatcher
+from faststream.broker.push_back_watcher import WatcherContext
 from faststream.broker.router import BrokerRouter
 from faststream.broker.types import (
     ConnectionType,
@@ -54,7 +55,11 @@ from faststream.log import access_logger
 from faststream.security import BaseSecurity
 from faststream.types import AnyDict, F_Return, F_Spec
 from faststream.utils import apply_types, context
-from faststream.utils.functions import get_function_positional_arguments, to_async
+from faststream.utils.functions import (
+    fake_context,
+    get_function_positional_arguments,
+    to_async,
+)
 
 
 class BrokerUsecase(
@@ -260,6 +265,7 @@ class BrokerUsecase(
         no_ack: bool = False,
         _raw: bool = False,
         _get_dependant: Optional[Any] = None,
+        _process_kwargs: Optional[AnyDict] = None,
     ) -> Tuple[
         HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
         CallModel[Any, Any],
@@ -310,7 +316,7 @@ class BrokerUsecase(
         if getattr(dependant, "flat_params", None) is None:  # handle FastAPI Dependant
             dependant = _patch_fastapi_dependant(dependant)
 
-        if self._is_apply_types is True and not _raw:
+        if self._is_apply_types and not _raw:
             f = apply_types(None, cast=self._is_validate)(f, dependant)  # type: ignore[arg-type]
 
         decode_f = self._wrap_decode_message(
@@ -325,11 +331,16 @@ class BrokerUsecase(
 
         process_f = self._process_message(
             func=decode_f,
-            watcher=get_watcher(self.logger, retry),
-            disable_watcher=no_ack,
+            watcher=(
+                partial(WatcherContext, watcher=get_watcher(self.logger, retry))  # type: ignore[arg-type]
+                if not no_ack
+                else fake_context
+            ),
+            **(_process_kwargs or {}),
         )
 
-        process_f = set_message_context(process_f)
+        if self._is_apply_types:
+            process_f = set_message_context(process_f)
 
         handler_call.set_wrapped(process_f)
         return handler_call, dependant
@@ -393,9 +404,9 @@ class BrokerUsecase(
     def _process_message(
         self,
         func: Callable[[StreamMessage[MsgType]], Awaitable[T_HandlerReturn]],
-        watcher: BaseWatcher,
-        disable_watcher: bool = False,
-    ) -> Callable[[StreamMessage[MsgType]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
+        watcher: Callable[..., AsyncContextManager[None]],
+        **kwargs: Any,
+    ) -> Callable[[StreamMessage[MsgType]], Awaitable[WrappedReturn[T_HandlerReturn]]]:
         """Processes a message using a given function and watcher.
 
         Args:
