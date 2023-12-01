@@ -12,6 +12,53 @@ hide:
 ---
 
 # Release Notes
+## 0.3.0rc0
+
+### What's Changed
+
+The main feature of the 0.3.x release is added Redis support by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/1003](https://github.com/airtai/faststream/pull/1003){.external-link target="_blank"}
+
+You can install it manually:
+
+```bash
+pip install faststream==0.3.0rc0 && pip install "faststream[redis]"
+```
+#### Other features
+
+* feat: show reload directories with --reload flag by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/981](https://github.com/airtai/faststream/pull/981){.external-link target="_blank"}
+* Improve error logs (missing CLI arguments, undefined starting)
+* Add `faststream docs serve --reload ...` option for documentation hotreload
+* Add `faststream run --reload-extension .env` option to watch by changes in such files
+* Support `faststream run -k 1 -k 2 ...` as `k=["1", "2"]` extra options
+* Add subscriber, publisher and router `include_in_schema: bool` argument to disable **AsyncAPI** render
+* remove `watchfiles` from default distribution
+* Allow create `broker.publisher` with already running broker
+* **FastAPI**-like lifespan `FastStream` application context manager
+* automatic `TestBroker(connect_only=...)` argument based on AST
+* add `NatsMessage.in_progress()` method
+
+#### Testing
+
+* test: improve coverage by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/983](https://github.com/airtai/faststream/pull/983){.external-link target="_blank"}
+
+#### Documentation
+
+* docs: fix module name in NATS example by [@SepehrBazyar](https://github.com/SepehrBazyar){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/993](https://github.com/airtai/faststream/pull/993){.external-link target="_blank"}
+* docs: Update docs to add  how to customize asyncapi docs by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/999](https://github.com/airtai/faststream/pull/999){.external-link target="_blank"}
+
+#### Chore
+
+* chore: add broken link checker by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/985](https://github.com/airtai/faststream/pull/985){.external-link target="_blank"}
+* chore: disable verbose in check broken links workflow by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/986](https://github.com/airtai/faststream/pull/986){.external-link target="_blank"}
+* chore: add left out md files to fix broken links by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/987](https://github.com/airtai/faststream/pull/987){.external-link target="_blank"}
+* chore: update mike workflow to use config by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/982](https://github.com/airtai/faststream/pull/982){.external-link target="_blank"}
+* chore: add workflow to update release notes automatically by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/992](https://github.com/airtai/faststream/pull/992){.external-link target="_blank"}
+* chore: pip packages version updated by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/998](https://github.com/airtai/faststream/pull/998){.external-link target="_blank"}
+### New Contributors
+* [@SepehrBazyar](https://github.com/SepehrBazyar){.external-link target="_blank"} made their first contribution in [https://github.com/airtai/faststream/pull/993](https://github.com/airtai/faststream/pull/993){.external-link target="_blank"}
+
+**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.15...0.3.0rc0](https://github.com/airtai/faststream/compare/0.2.15...0.3.0rc0){.external-link target="_blank"}
+
 
 
 ## 0.2.15
