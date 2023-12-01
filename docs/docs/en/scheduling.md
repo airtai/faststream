@@ -43,7 +43,7 @@ It creates a *taskiq-compatible* object, that can be used as an object to create
 {!> includes/scheduling/taskiq_broker.md !}
 
 !!! note ""
-    We patched original `TaskiqScheduler` to support message generation callbacks, but its signature the same.
+    We patched the original `TaskiqScheduler` to support message generation callbacks, but its signature remains the same.
 
 `#!python broker.task(...)` has the same with the original `broker.publish(...)` signature and allows you to plan your publishing tasks usign the great **taskiq** `schedule` option (you can learn more about it [here](https://taskiq-python.github.io/available-components/schedule-sources.html#labelschedulesource){.external-link target="_blank"}).
 
