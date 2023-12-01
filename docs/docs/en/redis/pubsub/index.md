@@ -8,7 +8,7 @@ When a message is published to a **Redis** channel, all subscribers to that chan
 
 **Redis Pub/Sub** Channels, while powerful for real-time communication in scenarios like chat rooms and live updates, have certain limitations when compared to **Redis List** and **Redis Streams**.
 
-* **No Persistent**. One notable limitation is the lack of message persistence. Unlike **Redis List**, where messages are stored in an ordered queue, and **Redis Streams**, which provides an append-only log-like structure with persistence, **Redis Pub/Sub** doesn't retain messages once they are broadcasted. This absence of message durability means that subscribers who join a channel after a message has been sent won't receive the message, missing out on historical data.
+* **No Persistence**. One notable limitation is the lack of message persistence. Unlike **Redis List**, where messages are stored in an ordered queue, and **Redis Streams**, which provides an append-only log-like structure with persistence, **Redis Pub/Sub** doesn't retain messages once they are broadcasted. This absence of message durability means that subscribers who join a channel after a message has been sent won't receive the message, missing out on historical data.
 
 * **No Acknowledgement**. Additionally, **Redis Pub/Sub** operates on a simple broadcast model. While this is advantageous for immediate message dissemination to all subscribers, it lacks the nuanced features of **Redis Streams**, such as consumer groups and message acknowledgment. **Redis Streams**' ability to organize messages into entries and support parallel processing through consumer groups makes it more suitable for complex scenarios where ordered, persistent, and scalable message handling is essential.
 

@@ -2,7 +2,7 @@
 
 ## Basic Channel Subscription
 
-**Redis Pub/Sub** is a default subscriber type in **FastStream**, so you can just create a regular `#!python @broker.subscriber("channel_name")` with a channel name - it creates subscriber using **Redis Pub/Sub**.
+**Redis Pub/Sub** is the default subscriber type in **FastStream**, so you can simply create a regular `#!python @broker.subscriber("channel_name")` with a channel name and it creates a subscriber using **Redis Pub/Sub**.
 
 In this example, we will build a FastStream application that listens to messages from the Redis channel named `#!python "test"`.
 
@@ -76,7 +76,7 @@ With pattern channel subscription, when a message is published to a channel that
 
 ### Pattern data access
 
-Also, you can use **Redis Pub/Sub** pattern feature to encode some data right in the channel name. With **FastStream** you can easely acces to this data using the following code:
+You can also use the **Redis Pub/Sub** pattern feature to encode some data directly in the channel name. With **FastStream** you can easily access this data using the following code:
 
 ```python linenums="1" hl_lines="1 8 12"
 {!> docs_src/redis/pub_sub/pattern_data.py !}

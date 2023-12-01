@@ -36,7 +36,7 @@ Consuming messages in batches is a valuable technique when you need to optimize 
 
 ## Batch publishing
 
-Also, **Redis List** is the only one data sructure, supporting publishing in batches with **FastStream**. To send multiple messages at one request, you just need
+Also, **Redis List** is the only data structure supporting publishing in batches with **FastStream**. To send multiple messages in a single request, you just need to:
 
-* call `#!python broker.publish_batch("msg2", "msg2", list="test-list")`
-* or create a publisher with `#!python broker.publisher(list=ListSub("test-list", batch=True))`
+* Call `#!python broker.publish_batch("msg2", "msg2", list="test-list")`
+* Or create a publisher with `#!python broker.publisher(list=ListSub("test-list", batch=True))`

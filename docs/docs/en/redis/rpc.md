@@ -3,7 +3,7 @@
 **FastStream** `RedisBroker` provides the powerful capability to perform Remote Procedure Calls (RPC) using **Redis**. This feature enables you to send a message and await a response, effectively creating a synchronous request-response pattern over the inherently asynchronous **Redis** messaging system. Below is the guide to set up and utilize the **Redis RPC** publishing feature with **FastStream**.
 
 !!! note
-    **RPC** feature is implemented over **Redis Pub/Sub** indepenently of the original subscriber type.
+    The **RPC** feature is implemented over **Redis Pub/Sub** indepenently of the original subscriber type.
 
 ## RPC with Redis Overview
 
@@ -15,7 +15,7 @@ In a traditional publish/subscribe setup, the publishing party sends messages wi
 
 To implement **Redis** RPC with `RedisBroker` in **FastStream**, follow the steps below:
 
-1. Initiate your **FastStream** application with **Redis**Broker
+1. Initiate your **FastStream** application with **RedisBroker**
 
     ```python linenums="1"
     {!> docs_src/redis/rpc/app.py [ln:4-5] !}
