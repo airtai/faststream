@@ -246,7 +246,7 @@ The availability of such documentation significantly simplifies the integration 
 
 ## Dependencies
 
-**FastStream** (thanks to [**FastDepend**](https://lancetnik.github.io/FastDepends/)) has a dependency management system similar to `pytest fixtures` and `FastAPI Depends` at the same time. Function arguments declare which dependencies you want are needed, and a special decorator delivers them from the global Context object.
+**FastStream** (thanks to [**FastDepends**](https://lancetnik.github.io/FastDepends/)) has a dependency management system similar to `pytest fixtures` and `FastAPI Depends` at the same time. Function arguments declare which dependencies you want are needed, and a special decorator delivers them from the global Context object.
 
 ```python
 from faststream import Depends, Logger
