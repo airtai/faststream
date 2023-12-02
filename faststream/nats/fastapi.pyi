@@ -207,6 +207,7 @@ class NatsRouter(StreamRouter[Msg]):
         middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
         filter: Filter[NatsMessage] = default_filter,
         retry: bool = False,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,

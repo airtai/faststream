@@ -191,3 +191,29 @@ class TestConsume(BrokerRealConsumeTestcase):
                 m.mock.assert_called_once()
 
         assert event.is_set()
+
+    @pytest.mark.asyncio
+    async def test_consume_no_ack(
+        self, queue: str, full_broker: NatsBroker, event: asyncio.Event
+    ):
+        @full_broker.subscriber(queue, no_ack=True)
+        async def handler(msg: NatsMessage):
+            event.set()
+
+        await full_broker.start()
+        with patch.object(Msg, "ack", spy_decorator(Msg.ack)) as m:
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        full_broker.publish(
+                            "hello",
+                            queue,
+                        )
+                    ),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+            m.mock.assert_not_called()
+
+        assert event.is_set()

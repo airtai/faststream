@@ -2,6 +2,7 @@ import logging
 from types import TracebackType
 from typing import (
     Any,
+    AsyncContextManager,
     Awaitable,
     Callable,
     Dict,
@@ -21,7 +22,6 @@ from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
-from faststream.broker.push_back_watcher import BaseWatcher
 from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
@@ -77,6 +77,15 @@ class RedisBroker(
         parser_class: Type[BaseParser] = DefaultParser,
         connection_class: Type[Connection] = Connection,
         encoder_class: Type[Encoder] = Encoder,
+        # broker args
+        apply_types: bool = True,
+        validate: bool = True,
+        dependencies: Sequence[Depends] = (),
+        parser: Optional[CustomParser[AnyRedisDict, RedisMessage]] = None,
+        decoder: Optional[CustomDecoder[RedisMessage]] = None,
+        middlewares: Optional[
+            Sequence[Callable[[AnyRedisDict], BaseMiddleware]]
+        ] = None,
         # AsyncAPI args
         asyncapi_url: Optional[str] = None,
         protocol: Optional[str] = None,
@@ -148,11 +157,9 @@ class RedisBroker(
     async def start(self) -> None: ...
     def _process_message(
         self,
-        func: Callable[
-            [StreamMessage[Any]],
-            Awaitable[T_HandlerReturn],
-        ],
-        watcher: BaseWatcher,
+        func: Callable[[StreamMessage[Any]], Awaitable[T_HandlerReturn]],
+        watcher: Callable[..., AsyncContextManager[None]],
+        **kwargs: Any,
     ) -> Callable[[StreamMessage[Any]], Awaitable[WrappedReturn[T_HandlerReturn]],]: ...
     @override
     def subscriber(  # type: ignore[override]
@@ -169,6 +176,7 @@ class RedisBroker(
             Sequence[Callable[[AnyRedisDict], BaseMiddleware]]
         ] = None,
         filter: Filter[RedisMessage] = default_filter,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,

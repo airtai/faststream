@@ -66,6 +66,7 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
             ]
         ] = None,
         retry: Union[bool, int] = False,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,

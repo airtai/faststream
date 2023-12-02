@@ -36,3 +36,5 @@ If the need arises to instantly interrupt message processing at any point in the
 ```
 
 By raising `AckMessage`, **FastStream** will halt the current message processing routine and immediately acknowledge it. Analogously, raising `NackMessage` would prevent the message from being acknowledged and could lead to its subsequent reprocessing by the same or a different consumer.
+
+{!> includes/en/no_ack.md !}

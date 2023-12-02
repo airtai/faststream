@@ -114,6 +114,7 @@ class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
         max_records: Optional[int] = None,
         batch_timeout_ms: int = 200,
         retry: Union[bool, int] = False,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,

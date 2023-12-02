@@ -331,3 +331,32 @@ class TestConsume(BrokerRealConsumeTestcase):
                         assert not m2.mock.called
 
         assert event.is_set()
+
+    @pytest.mark.asyncio
+    async def test_consume_no_ack(
+        self,
+        queue: str,
+        exchange: RabbitExchange,
+        full_broker: RabbitBroker,
+        event: asyncio.Event,
+    ):
+        @full_broker.subscriber(queue, exchange=exchange, retry=1, no_ack=True)
+        async def handler(msg: RabbitMessage):
+            event.set()
+
+        await full_broker.start()
+        with patch.object(
+            IncomingMessage, "ack", spy_decorator(IncomingMessage.ack)
+        ) as m:
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        full_broker.publish("hello", queue=queue, exchange=exchange)
+                    ),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+            m.mock.assert_not_called()
+
+        assert event.is_set()

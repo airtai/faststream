@@ -2,7 +2,9 @@ import asyncio
 from unittest.mock import MagicMock
 
 import pytest
+from pydantic import BaseModel
 
+from faststream import Context, Depends
 from faststream.broker.core.abc import BrokerUsecase
 from faststream.exceptions import StopConsume
 
@@ -179,6 +181,39 @@ class BrokerConsumeTestcase:
         assert consume2.is_set()
         mock.handler.assert_called_once_with({"msg": "hello"})
         mock.handler2.assert_called_once_with("hello")
+
+    async def test_consume_validate_false(
+        self,
+        queue: str,
+        consume_broker: BrokerUsecase,
+        event: asyncio.Event,
+        mock: MagicMock,
+    ):
+        consume_broker._is_apply_types = True
+        consume_broker._is_validate = False
+
+        class Foo(BaseModel):
+            x: int
+
+        def dependency() -> str:
+            return "100"
+
+        @consume_broker.subscriber(queue)
+        async def handler(m: Foo, dep: int = Depends(dependency), broker=Context()):
+            mock(m, dep, broker)
+            event.set()
+
+        await consume_broker.start()
+        await asyncio.wait(
+            (
+                asyncio.create_task(consume_broker.publish({"x": 1}, queue)),
+                asyncio.create_task(event.wait()),
+            ),
+            timeout=3,
+        )
+
+        assert event.is_set()
+        mock.assert_called_once_with({"x": 1}, "100", consume_broker)
 
 
 @pytest.mark.asyncio

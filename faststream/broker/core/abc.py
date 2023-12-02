@@ -2,10 +2,12 @@ import logging
 import os
 import warnings
 from abc import ABC, abstractmethod
+from functools import partial
 from itertools import chain
 from types import TracebackType
 from typing import (
     Any,
+    AsyncContextManager,
     Awaitable,
     Callable,
     Generic,
@@ -31,7 +33,7 @@ from faststream.broker.handler import BaseHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware, CriticalLogMiddleware
 from faststream.broker.publisher import BasePublisher
-from faststream.broker.push_back_watcher import BaseWatcher
+from faststream.broker.push_back_watcher import WatcherContext
 from faststream.broker.router import BrokerRouter
 from faststream.broker.types import (
     ConnectionType,
@@ -53,7 +55,11 @@ from faststream.log import access_logger
 from faststream.security import BaseSecurity
 from faststream.types import AnyDict, F_Return, F_Spec
 from faststream.utils import apply_types, context
-from faststream.utils.functions import get_function_positional_arguments, to_async
+from faststream.utils.functions import (
+    fake_context,
+    get_function_positional_arguments,
+    to_async,
+)
 
 
 class BrokerUsecase(
@@ -119,6 +125,7 @@ class BrokerUsecase(
         asyncapi_url: Union[str, List[str], None] = None,
         # broker kwargs
         apply_types: bool = True,
+        validate: bool = True,
         logger: Optional[logging.Logger] = access_logger,
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = "%(asctime)s %(levelname)s - %(message)s",
@@ -139,6 +146,7 @@ class BrokerUsecase(
             description: A description of the broker.
             tags: Tags associated with the broker.
             apply_types: Whether to apply types to messages.
+            validate: Whether to cast types using Pydantic validation.
             logger: The logger to use.
             log_level: The log level to use.
             log_fmt: The log format to use.
@@ -159,6 +167,7 @@ class BrokerUsecase(
 
         self._connection = None
         self._is_apply_types = apply_types
+        self._is_validate = validate
         self.handlers = {}
         self._publishers = {}
         empty_middleware: Sequence[Callable[[MsgType], BaseMiddleware]] = ()
@@ -253,8 +262,10 @@ class BrokerUsecase(
         *,
         retry: Union[bool, int] = False,
         extra_dependencies: Sequence[Depends] = (),
+        no_ack: bool = False,
         _raw: bool = False,
         _get_dependant: Optional[Any] = None,
+        _process_kwargs: Optional[AnyDict] = None,
     ) -> Tuple[
         HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
         CallModel[Any, Any],
@@ -265,6 +276,7 @@ class BrokerUsecase(
             func: The handler function to wrap.
             retry: Whether to retry the handler function if it fails. Can be a boolean or an integer specifying the number of retries.
             extra_dependencies: Additional dependencies for the handler function.
+            no_ack: Whether not to ack/nack/reject messages.
             _raw: Whether to use the raw handler function.
             _get_dependant: The dependant function to use.
             **broker_log_context_kwargs: Additional keyword arguments for the broker log context.
@@ -280,7 +292,7 @@ class BrokerUsecase(
         """
         build_dep = cast(
             Callable[[Callable[F_Spec, F_Return]], CallModel[F_Spec, F_Return]],
-            _get_dependant or build_call_model,
+            _get_dependant or partial(build_call_model, cast=self._is_validate),
         )
 
         if isinstance(func, HandlerCallWrapper):
@@ -304,8 +316,8 @@ class BrokerUsecase(
         if getattr(dependant, "flat_params", None) is None:  # handle FastAPI Dependant
             dependant = _patch_fastapi_dependant(dependant)
 
-        if self._is_apply_types is True and not _raw:
-            f = apply_types(None)(f, dependant)  # type: ignore[arg-type]
+        if self._is_apply_types and not _raw:
+            f = apply_types(None, cast=self._is_validate)(f, dependant)  # type: ignore[arg-type]
 
         decode_f = self._wrap_decode_message(
             func=f,
@@ -319,10 +331,16 @@ class BrokerUsecase(
 
         process_f = self._process_message(
             func=decode_f,
-            watcher=get_watcher(self.logger, retry),
+            watcher=(
+                partial(WatcherContext, watcher=get_watcher(self.logger, retry))  # type: ignore[arg-type]
+                if not no_ack
+                else fake_context
+            ),
+            **(_process_kwargs or {}),
         )
 
-        process_f = set_message_context(process_f)
+        if self._is_apply_types:
+            process_f = set_message_context(process_f)
 
         handler_call.set_wrapped(process_f)
         return handler_call, dependant
@@ -386,13 +404,15 @@ class BrokerUsecase(
     def _process_message(
         self,
         func: Callable[[StreamMessage[MsgType]], Awaitable[T_HandlerReturn]],
-        watcher: BaseWatcher,
-    ) -> Callable[[StreamMessage[MsgType]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
+        watcher: Callable[..., AsyncContextManager[None]],
+        **kwargs: Any,
+    ) -> Callable[[StreamMessage[MsgType]], Awaitable[WrappedReturn[T_HandlerReturn]]]:
         """Processes a message using a given function and watcher.
 
         Args:
             func: A callable that takes a StreamMessage of type MsgType and returns an Awaitable of type T_HandlerReturn.
             watcher: An instance of BaseWatcher.
+            disable_watcher: Whether to use watcher context.
 
         Returns:
             A callable that takes a StreamMessage of type MsgType and returns an Awaitable of type WrappedReturn[T_HandlerReturn].

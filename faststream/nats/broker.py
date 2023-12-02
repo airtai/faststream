@@ -3,6 +3,7 @@ from functools import partial, wraps
 from types import TracebackType
 from typing import (
     Any,
+    AsyncContextManager,
     Awaitable,
     Callable,
     Dict,
@@ -32,7 +33,6 @@ from faststream._compat import TypeAlias, override
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
-from faststream.broker.push_back_watcher import BaseWatcher, WatcherContext
 from faststream.broker.types import (
     AsyncPublisherProtocol,
     CustomDecoder,
@@ -204,17 +204,15 @@ class NatsBroker(
 
     def _process_message(
         self,
-        func: Callable[
-            [StreamMessage[Msg]],
-            Awaitable[T_HandlerReturn],
-        ],
-        watcher: BaseWatcher,
+        func: Callable[[StreamMessage[Msg]], Awaitable[T_HandlerReturn]],
+        watcher: Callable[..., AsyncContextManager[None]],
+        **kwargs: Any,
     ) -> Callable[[StreamMessage[Msg]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
         @wraps(func)
         async def process_wrapper(
             message: StreamMessage[Msg],
         ) -> WrappedReturn[T_HandlerReturn]:
-            async with WatcherContext(watcher, message):
+            async with watcher(message):
                 r = await func(message)
 
                 pub_response: Optional[AsyncPublisherProtocol]
@@ -290,6 +288,7 @@ class NatsBroker(
         decoder: Optional[CustomDecoder[NatsMessage]] = None,
         middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
         filter: Filter[NatsMessage] = default_filter,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
@@ -387,6 +386,7 @@ class NatsBroker(
             handler_call, dependant = self._wrap_handler(
                 func,
                 extra_dependencies=dependencies,
+                no_ack=no_ack,
                 **original_kwargs,
             )
 

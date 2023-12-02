@@ -171,3 +171,35 @@ class TestConsume(BrokerRealConsumeTestcase):
                 assert not m.mock.called
 
         assert event.is_set()
+
+    @pytest.mark.asyncio
+    @pytest.mark.slow
+    async def test_consume_no_ack(
+        self,
+        queue: str,
+        full_broker: KafkaBroker,
+        event: asyncio.Event,
+    ):
+        @full_broker.subscriber(queue, group_id="test", no_ack=True)
+        async def handler(msg: KafkaMessage):
+            event.set()
+
+        await full_broker.start()
+        with patch.object(
+            AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+        ) as m:
+            await asyncio.wait(
+                (
+                    asyncio.create_task(
+                        full_broker.publish(
+                            "hello",
+                            queue,
+                        )
+                    ),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=10,
+            )
+            m.mock.assert_not_called()
+
+        assert event.is_set()

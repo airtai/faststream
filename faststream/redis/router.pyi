@@ -68,6 +68,7 @@ class RedisRouter(BrokerRouter[int, AnyRedisDict]):
             Sequence[Callable[[AnyRedisDict], BaseMiddleware]]
         ] = None,
         filter: Filter[RedisMessage] = default_filter,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,

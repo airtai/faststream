@@ -112,6 +112,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         ),
         # broker kwargs
         apply_types: bool = True,
+        validate: bool = True,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
         middlewares: Optional[
@@ -191,6 +192,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         max_records: Optional[int] = None,
         batch_timeout_ms: int = 200,
         retry: Union[bool, int] = False,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
@@ -252,6 +254,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         max_records: Optional[int] = None,
         batch_timeout_ms: int = 200,
         retry: Union[bool, int] = False,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
