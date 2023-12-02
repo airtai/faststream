@@ -307,18 +307,19 @@
 <a id=__codelineno-0-47 name=__codelineno-0-47 href=#__codelineno-0-47></a>    <span class=n>max_records</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>int</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
 <a id=__codelineno-0-48 name=__codelineno-0-48 href=#__codelineno-0-48></a>    <span class=n>batch_timeout_ms</span><span class=p>:</span> <span class=nb>int</span> <span class=o>=</span> <span class=mi>200</span><span class=p>,</span>
 <a id=__codelineno-0-49 name=__codelineno-0-49 href=#__codelineno-0-49></a>    <span class=n>retry</span><span class=p>:</span> <span class=n>Union</span><span class=p>[</span><span class=nb>bool</span><span class=p>,</span> <span class=nb>int</span><span class=p>]</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
-<a id=__codelineno-0-50 name=__codelineno-0-50 href=#__codelineno-0-50></a>    <span class=n>title</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-51 name=__codelineno-0-51 href=#__codelineno-0-51></a>    <span class=n>description</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
-<a id=__codelineno-0-52 name=__codelineno-0-52 href=#__codelineno-0-52></a>    <span class=n>include_in_schema</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>True</span><span class=p>,</span>
-<a id=__codelineno-0-53 name=__codelineno-0-53 href=#__codelineno-0-53></a>    <span class=o>**</span><span class=n>__service_kwargs</span><span class=p>:</span> <span class=n>Any</span>
-<a id=__codelineno-0-54 name=__codelineno-0-54 href=#__codelineno-0-54></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Callable</span><span class=p>[</span>
-<a id=__codelineno-0-55 name=__codelineno-0-55 href=#__codelineno-0-55></a>    <span class=p>[</span><span class=n>Callable</span><span class=p>[</span><span class=n>P_HandlerParams</span><span class=p>,</span> <span class=n>T_HandlerReturn</span><span class=p>]],</span>
-<a id=__codelineno-0-56 name=__codelineno-0-56 href=#__codelineno-0-56></a>    <span class=n>HandlerCallWrapper</span><span class=p>[</span>
-<a id=__codelineno-0-57 name=__codelineno-0-57 href=#__codelineno-0-57></a>        <span class=n>aiokafka</span><span class=o>.</span><span class=n>ConsumerRecord</span><span class=p>,</span>
-<a id=__codelineno-0-58 name=__codelineno-0-58 href=#__codelineno-0-58></a>        <span class=n>P_HandlerParams</span><span class=p>,</span>
-<a id=__codelineno-0-59 name=__codelineno-0-59 href=#__codelineno-0-59></a>        <span class=n>T_HandlerReturn</span><span class=p>,</span>
-<a id=__codelineno-0-60 name=__codelineno-0-60 href=#__codelineno-0-60></a>    <span class=p>],</span>
-<a id=__codelineno-0-61 name=__codelineno-0-61 href=#__codelineno-0-61></a><span class=p>]</span>
+<a id=__codelineno-0-50 name=__codelineno-0-50 href=#__codelineno-0-50></a>    <span class=n>no_ack</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
+<a id=__codelineno-0-51 name=__codelineno-0-51 href=#__codelineno-0-51></a>    <span class=n>title</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-52 name=__codelineno-0-52 href=#__codelineno-0-52></a>    <span class=n>description</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span><span class=p>,</span>
+<a id=__codelineno-0-53 name=__codelineno-0-53 href=#__codelineno-0-53></a>    <span class=n>include_in_schema</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>True</span><span class=p>,</span>
+<a id=__codelineno-0-54 name=__codelineno-0-54 href=#__codelineno-0-54></a>    <span class=o>**</span><span class=n>__service_kwargs</span><span class=p>:</span> <span class=n>Any</span>
+<a id=__codelineno-0-55 name=__codelineno-0-55 href=#__codelineno-0-55></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Callable</span><span class=p>[</span>
+<a id=__codelineno-0-56 name=__codelineno-0-56 href=#__codelineno-0-56></a>    <span class=p>[</span><span class=n>Callable</span><span class=p>[</span><span class=n>P_HandlerParams</span><span class=p>,</span> <span class=n>T_HandlerReturn</span><span class=p>]],</span>
+<a id=__codelineno-0-57 name=__codelineno-0-57 href=#__codelineno-0-57></a>    <span class=n>HandlerCallWrapper</span><span class=p>[</span>
+<a id=__codelineno-0-58 name=__codelineno-0-58 href=#__codelineno-0-58></a>        <span class=n>aiokafka</span><span class=o>.</span><span class=n>ConsumerRecord</span><span class=p>,</span>
+<a id=__codelineno-0-59 name=__codelineno-0-59 href=#__codelineno-0-59></a>        <span class=n>P_HandlerParams</span><span class=p>,</span>
+<a id=__codelineno-0-60 name=__codelineno-0-60 href=#__codelineno-0-60></a>        <span class=n>T_HandlerReturn</span><span class=p>,</span>
+<a id=__codelineno-0-61 name=__codelineno-0-61 href=#__codelineno-0-61></a>    <span class=p>],</span>
+<a id=__codelineno-0-62 name=__codelineno-0-62 href=#__codelineno-0-62></a><span class=p>]</span>
 </code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/kafka/router.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-67> 67</a></span>
 <span class=normal><a href=#__codelineno-0-68> 68</a></span>
 <span class=normal><a href=#__codelineno-0-69> 69</a></span>
