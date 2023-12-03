@@ -430,16 +430,28 @@ class ArgumentsTestcase(FastAPICompatible):
         payload = schema["components"]["schemas"]
 
         for key, v in payload.items():
-            assert v == {
-                "properties": {
-                    "id": {"title": "Id", "type": "integer"},
-                    "user": {
-                        "anyOf": [{"type": "string"}, {"type": "null"}],
-                        "default": None,
-                        "title": "User",
+            assert v == IsDict(
+                {
+                    "properties": {
+                        "id": {"title": "Id", "type": "integer"},
+                        "user": {
+                            "anyOf": [{"type": "string"}, {"type": "null"}],
+                            "default": None,
+                            "title": "User",
+                        },
                     },
-                },
-                "required": ["id"],
-                "title": key,
-                "type": "object",
-            }
+                    "required": ["id"],
+                    "title": key,
+                    "type": "object",
+                }
+            ) | IsDict(  # TODO: remove when deprecating PydanticV1
+                {
+                    "properties": {
+                        "id": {"title": "Id", "type": "integer"},
+                        "user": {"title": "User", "type": "string"},
+                    },
+                    "required": ["id"],
+                    "title": "Handle:Message:Payload",
+                    "type": "object",
+                }
+            )
