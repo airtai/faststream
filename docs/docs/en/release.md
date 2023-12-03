@@ -12,6 +12,24 @@ hide:
 ---
 
 # Release Notes
+## 0.3.1
+
+### What's Changed
+
+Features:
+* feat: added reply-to delivery mode for RabbitMQ by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/1015](https://github.com/airtai/faststream/pull/1015){.external-link target="_blank"}
+
+Bug fixes:
+* fix: non-payload information injected included in AsyncAPI docs by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/1015](https://github.com/airtai/faststream/pull/1015){.external-link target="_blank"}
+
+Documentation:
+* docs: fix misspelled FastDepends reference in README.md by [@spectacularfailure](https://github.com/spectacularfailure){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/1013](https://github.com/airtai/faststream/pull/1013){.external-link target="_blank"}
+
+### New Contributors
+* [@spectacularfailure](https://github.com/spectacularfailure){.external-link target="_blank"} made their first contribution in [https://github.com/airtai/faststream/pull/1013](https://github.com/airtai/faststream/pull/1013){.external-link target="_blank"}
+
+**Full Changelog**: [https://github.com/airtai/faststream/compare/0.3.0...0.3.1](https://github.com/airtai/faststream/compare/0.3.0...0.3.1){.external-link target="_blank"}
+
 ## 0.3.0rc0
 
 ### What's Changed
