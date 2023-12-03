@@ -2,6 +2,8 @@ import warnings
 from dataclasses import dataclass, field
 from typing import Optional, Pattern
 
+from pydantic import BaseModel
+
 from faststream._compat import PYDANTIC_V2
 from faststream.broker.schemas import NameRequired
 from faststream.rabbit.shared.constants import ExchangeType
@@ -224,6 +226,12 @@ class RabbitExchange(NameRequired):
             timeout=timeout,
             arguments=arguments,
         )
+
+
+class ReplyConfig(BaseModel):
+    mandatory: bool = True
+    immediate: bool = False
+    persist: bool = False
 
 
 def get_routing_hash(

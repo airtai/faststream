@@ -21,7 +21,7 @@ from fast_depends.dependencies import Depends
 from pamqp.common import FieldTable
 from yarl import URL
 
-from faststream._compat import override
+from faststream._compat import model_to_dict, override
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
@@ -46,6 +46,7 @@ from faststream.rabbit.shared.logging import RabbitLoggingMixin
 from faststream.rabbit.shared.schemas import (
     RabbitExchange,
     RabbitQueue,
+    ReplyConfig,
     get_routing_hash,
 )
 from faststream.rabbit.shared.types import TimeoutType
@@ -302,6 +303,7 @@ class RabbitBroker(
         exchange: Union[str, RabbitExchange, None] = None,
         *,
         consume_args: Optional[AnyDict] = None,
+        reply_config: Optional[ReplyConfig] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
         parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
@@ -383,6 +385,9 @@ class RabbitBroker(
                 func,
                 extra_dependencies=dependencies,
                 no_ack=no_ack,
+                _process_kwargs={
+                    "reply_config": reply_config,
+                },
                 **original_kwargs,
             )
 
@@ -481,7 +486,6 @@ class RabbitBroker(
         Returns:
             Union[aiormq.abc.ConfirmationFrameType, SendableMessage]: The confirmation frame or the response message.
         """
-
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
         return await self._producer.publish(*args, **kwargs)
 
@@ -491,6 +495,7 @@ class RabbitBroker(
             [StreamMessage[aio_pika.IncomingMessage]], Awaitable[T_HandlerReturn]
         ],
         watcher: Callable[..., AsyncContextManager[None]],
+        reply_config: Optional[ReplyConfig] = None,
         **kwargs: Any,
     ) -> Callable[
         [StreamMessage[aio_pika.IncomingMessage]],
@@ -507,6 +512,10 @@ class RabbitBroker(
         Returns:
             Callable: A wrapper function for processing messages.
         """
+        if reply_config is None:
+            reply_kwargs = {}
+        else:
+            reply_kwargs = model_to_dict(reply_config)
 
         @wraps(func)
         async def process_wrapper(
@@ -532,7 +541,11 @@ class RabbitBroker(
                 pub_response: Optional[AsyncPublisherProtocol]
                 if message.reply_to:
                     pub_response = FakePublisher(
-                        partial(self.publish, routing_key=message.reply_to)
+                        partial(
+                            self.publish,
+                            routing_key=message.reply_to,
+                            **reply_kwargs,
+                        )
                     )
                 else:
                     pub_response = None

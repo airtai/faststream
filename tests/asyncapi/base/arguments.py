@@ -4,7 +4,7 @@ from typing import Optional, Type
 import pydantic
 from dirty_equals import IsDict, IsPartialDict
 
-from faststream import FastStream
+from faststream import Context, FastStream
 from faststream._compat import PYDANTIC_V2
 from faststream.asyncapi.generate import get_app_schema
 from faststream.broker.core.abc import BrokerUsecase
@@ -416,4 +416,30 @@ class ArgumentsTestcase(FastAPICompatible):
                 "exclusiveMinimum": 0,
                 "title": "Perfect",
                 "type": "integer",
+            }
+
+    def test_ignores_custom_field(self):
+        broker = self.broker_class()
+
+        @broker.subscriber("test")
+        async def handle(id: int, user: Optional[str] = None, message=Context()):
+            ...
+
+        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+
+        payload = schema["components"]["schemas"]
+
+        for key, v in payload.items():
+            assert v == {
+                "properties": {
+                    "id": {"title": "Id", "type": "integer"},
+                    "user": {
+                        "anyOf": [{"type": "string"}, {"type": "null"}],
+                        "default": None,
+                        "title": "User",
+                    },
+                },
+                "required": ["id"],
+                "title": key,
+                "type": "object",
             }
