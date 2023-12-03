@@ -184,6 +184,7 @@ def get_model_schema(
         model = call
 
     body: Dict[str, Any] = model_schema(model)
+    body["properties"] = body.get("properties", {})
     for i in exclude:
         body["properties"].pop(i, None)
     if (required := body.get("required")):
