@@ -187,7 +187,7 @@ def get_model_schema(
     body["properties"] = body.get("properties", {})
     for i in exclude:
         body["properties"].pop(i, None)
-    if (required := body.get("required")):
+    if required := body.get("required"):
         body["required"] = list(filter(lambda x: x not in exclude, required))
 
     if params_number == 1 and not use_original_model:

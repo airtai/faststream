@@ -434,6 +434,7 @@
             - [RabbitQueue](api/faststream/rabbit/RabbitQueue.md)
             - [RabbitRoute](api/faststream/rabbit/RabbitRoute.md)
             - [RabbitRouter](api/faststream/rabbit/RabbitRouter.md)
+            - [ReplyConfig](api/faststream/rabbit/ReplyConfig.md)
             - [TestApp](api/faststream/rabbit/TestApp.md)
             - [TestRabbitBroker](api/faststream/rabbit/TestRabbitBroker.md)
             - asyncapi
@@ -473,6 +474,7 @@
                     - [BaseRMQInformation](api/faststream/rabbit/shared/schemas/BaseRMQInformation.md)
                     - [RabbitExchange](api/faststream/rabbit/shared/schemas/RabbitExchange.md)
                     - [RabbitQueue](api/faststream/rabbit/shared/schemas/RabbitQueue.md)
+                    - [ReplyConfig](api/faststream/rabbit/shared/schemas/ReplyConfig.md)
                     - [get_routing_hash](api/faststream/rabbit/shared/schemas/get_routing_hash.md)
                 - utils
                     - [build_url](api/faststream/rabbit/shared/utils/build_url.md)

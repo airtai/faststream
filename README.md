@@ -1,5 +1,3 @@
-[Note]: # (This is an auto-generated file. Please edit docs/docs/en/index.md instead)
-
 # FastStream
 
 <b>Effortless event stream integration for your services</b>
