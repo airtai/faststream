@@ -462,6 +462,7 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
             no_ack=no_ack,
             _raw=_raw,
             _get_dependant=_get_dependant,
+            _process_kwargs=_process_kwargs,
         )
 
     async def _execute_handler(

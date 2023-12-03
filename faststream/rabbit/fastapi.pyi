@@ -5,12 +5,10 @@ from typing import (
     Callable,
     Dict,
     List,
-    Mapping,
     Optional,
     Sequence,
     Type,
     Union,
-    overload,
 )
 
 import aio_pika
@@ -22,7 +20,7 @@ from fastapi.utils import generate_unique_id
 from pamqp.common import FieldTable
 from starlette import routing
 from starlette.responses import JSONResponse, Response
-from starlette.types import AppType, ASGIApp, Lifespan
+from starlette.types import ASGIApp, Lifespan
 from yarl import URL
 
 from faststream._compat import override
@@ -41,7 +39,7 @@ from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.rabbit.asyncapi import Publisher
 from faststream.rabbit.broker import RabbitBroker
 from faststream.rabbit.message import RabbitMessage
-from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
+from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue, ReplyConfig
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.types import AnyDict
 
@@ -128,6 +126,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         exchange: Union[str, RabbitExchange, None] = None,
         *,
         consume_args: Optional[AnyDict] = None,
+        reply_config: Optional[ReplyConfig] = None,
         # broker arguments
         dependencies: Sequence[params.Depends] = (),
         filter: Filter[RabbitMessage] = default_filter,
@@ -177,26 +176,6 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         user_id: Optional[str] = None,
         app_id: Optional[str] = None,
     ) -> Publisher: ...
-    @overload
-    def after_startup(
-        self,
-        func: Callable[[AppType], Mapping[str, Any]],
-    ) -> Callable[[AppType], Mapping[str, Any]]: ...
-    @overload
-    def after_startup(
-        self,
-        func: Callable[[AppType], Awaitable[Mapping[str, Any]]],
-    ) -> Callable[[AppType], Awaitable[Mapping[str, Any]]]: ...
-    @overload
-    def after_startup(
-        self,
-        func: Callable[[AppType], None],
-    ) -> Callable[[AppType], None]: ...
-    @overload
-    def after_startup(
-        self,
-        func: Callable[[AppType], Awaitable[None]],
-    ) -> Callable[[AppType], Awaitable[None]]: ...
     @override
     @staticmethod
     def _setup_log_context(  # type: ignore[override]

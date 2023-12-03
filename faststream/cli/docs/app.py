@@ -39,8 +39,7 @@ def serve(
     """Serve project AsyncAPI schema"""
 
     if ":" in app:
-        module, app_obj = import_from_string(app)
-        raw_schema = get_app_schema(app_obj)
+        module, _ = import_from_string(app)
 
         module_parent = module.parent
         extra_extensions: Sequence[str] = ()
@@ -50,46 +49,24 @@ def serve(
         schema_filepath = module_parent / app
         extra_extensions = (schema_filepath.suffix,)
 
-        if schema_filepath.suffix == ".json":
-            data = schema_filepath.read_text()
-
-        elif schema_filepath.suffix == ".yaml" or schema_filepath.suffix == ".yml":
-            try:
-                import yaml
-            except ImportError as e:  # pragma: no cover
-                typer.echo(INSTALL_YAML, err=True)
-                raise typer.Exit(1) from e
-
-            with schema_filepath.open("r") as f:
-                schema = yaml.safe_load(f)
-
-            data = json.dumps(schema)
-
-        else:
-            raise ValueError(
-                f"Unknown extension given - {app}; Please provide app in format [python_module:FastStream] or [asyncapi.yaml/.json] - path to your application or documentation"
-            )
-
-        raw_schema = model_parse(Schema, data)
-
     if reload is True:
         try:
             from faststream.cli.supervisors.watchfiles import WatchReloader
 
         except ImportError:
             warnings.warn(INSTALL_WATCHFILES, category=ImportWarning, stacklevel=1)
-            serve_app(raw_schema, host, port)
+            _parse_and_serve(app, host, port)
 
         else:
             WatchReloader(
-                target=serve_app,
-                args=(raw_schema, host, port),
+                target=_parse_and_serve,
+                args=(app, host, port),
                 reload_dirs=(str(module_parent),),
                 extra_extensions=extra_extensions,
             ).run()
 
     else:
-        serve_app(raw_schema, host, port)
+        _parse_and_serve(app, host, port)
 
 
 @docs_app.command(name="gen")
@@ -133,3 +110,40 @@ def gen(
             json.dump(schema, f, indent=2)
 
     typer.echo(f"Your project AsyncAPI scheme was placed to `{name}`")
+
+
+def _parse_and_serve(
+    app: str,
+    host: str = "localhost",
+    port: int = 8000,
+) -> None:
+    if ":" in app:
+        _, app_obj = import_from_string(app)
+        raw_schema = get_app_schema(app_obj)
+
+    else:
+        schema_filepath = Path.cwd() / app
+
+        if schema_filepath.suffix == ".json":
+            data = schema_filepath.read_text()
+
+        elif schema_filepath.suffix == ".yaml" or schema_filepath.suffix == ".yml":
+            try:
+                import yaml
+            except ImportError as e:  # pragma: no cover
+                typer.echo(INSTALL_YAML, err=True)
+                raise typer.Exit(1) from e
+
+            with schema_filepath.open("r") as f:
+                schema = yaml.safe_load(f)
+
+            data = json.dumps(schema)
+
+        else:
+            raise ValueError(
+                f"Unknown extension given - {app}; Please provide app in format [python_module:FastStream] or [asyncapi.yaml/.json] - path to your application or documentation"
+            )
+
+        raw_schema = model_parse(Schema, data)
+
+    serve_app(raw_schema, host, port)

@@ -39,7 +39,7 @@ from faststream.rabbit.helpers import RabbitDeclarer
 from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.producer import AioPikaFastProducer
 from faststream.rabbit.shared.logging import RabbitLoggingMixin
-from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
+from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue, ReplyConfig
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.rabbit.types import AioPikaSendableMessage
 from faststream.types import AnyDict, SendableMessage
@@ -141,6 +141,7 @@ class RabbitBroker(
         exchange: Union[str, RabbitExchange, None] = None,
         *,
         consume_args: Optional[AnyDict] = None,
+        reply_config: Optional[ReplyConfig] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
         filter: Filter[RabbitMessage] = default_filter,
@@ -226,6 +227,7 @@ class RabbitBroker(
             [StreamMessage[aio_pika.IncomingMessage]], Awaitable[T_HandlerReturn]
         ],
         watcher: Callable[..., AsyncContextManager[None]],
+        reply_config: Optional[ReplyConfig] = None,
         **kwargs: Any,
     ) -> Callable[
         [StreamMessage[aio_pika.IncomingMessage]],

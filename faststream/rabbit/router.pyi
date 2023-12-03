@@ -18,7 +18,7 @@ from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.rabbit.asyncapi import Publisher
 from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.shared.router import RabbitRoute
-from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
+from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue, ReplyConfig
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.types import AnyDict
 
@@ -52,6 +52,7 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
         exchange: Union[str, RabbitExchange, None] = None,
         *,
         consume_args: Optional[AnyDict] = None,
+        reply_config: Optional[ReplyConfig] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
         filter: Filter[RabbitMessage] = default_filter,
