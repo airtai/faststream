@@ -53,7 +53,7 @@ class RabbitQueue(NameRequired):
         return sum(
             (
                 hash(self.name),
-                hash(self.routing_key),
+                hash(self.routing_key or self.name),
                 int(self.durable),
                 int(self.exclusive),
                 int(self.auto_delete),
