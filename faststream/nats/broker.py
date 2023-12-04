@@ -1,4 +1,5 @@
 import logging
+import warnings
 from functools import partial, wraps
 from types import TracebackType
 from typing import (
@@ -50,7 +51,9 @@ from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.pull_sub import PullSub
+from faststream.nats.security import parse_security
 from faststream.nats.shared.logging import NatsLoggingMixin
+from faststream.security import BaseSecurity
 from faststream.types import AnyDict, DecodedMessage
 from faststream.utils.context.main import context
 
@@ -73,16 +76,32 @@ class NatsBroker(
         self,
         servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),  # noqa: B006
         *,
+        security: Optional[BaseSecurity] = None,
         protocol: str = "nats",
         protocol_version: Optional[str] = "custom",
         **kwargs: Any,
     ) -> None:
+        kwargs.update(parse_security(security))
+
+        if kwargs.get("tls"):  # pragma: no cover
+            warnings.warn(
+                (
+                    "\nNATS `tls` option was deprecated and will be removed in 0.4.0"
+                    "\nPlease, use `security` with `BaseSecurity` or `SASLPlaintext` instead"
+                ),
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
         super().__init__(
-            url=[servers]
-            if isinstance(servers, str)
-            else list(servers),  # AsyncAPI information
+            url=(
+                [servers]
+                if isinstance(servers, str)
+                else list(servers)
+            ),
             protocol=protocol,
             protocol_version=protocol_version,
+            security=security,
             **kwargs,
         )
 
