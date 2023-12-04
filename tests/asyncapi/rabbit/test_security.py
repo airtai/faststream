@@ -76,3 +76,38 @@ def test_plaintext_security_schema():
             }
         },
     }
+
+
+def test_plaintext_security_schema_without_ssl():
+    security = SASLPlaintext(
+        username="admin",
+        password="password",  # pragma: allowlist secret
+    )
+
+    broker = RabbitBroker("amqp://guest:guest@localhost:5672/", security=security)
+
+    assert (
+        broker.url
+        == "amqp://admin:password@localhost:5672/"  # pragma: allowlist secret
+    )  # pragma: allowlist secret
+
+    schema = get_app_schema(FastStream(broker)).to_jsonable()
+    assert schema == {
+        "asyncapi": "2.6.0",
+        "channels": {},
+        "components": {
+            "messages": {},
+            "schemas": {},
+            "securitySchemes": {"user-password": {"type": "userPassword"}},
+        },
+        "defaultContentType": "application/json",
+        "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
+        "servers": {
+            "development": {
+                "protocol": "amqp",
+                "protocolVersion": "0.9.1",
+                "security": [{"user-password": []}],
+                "url": "amqp://admin:password@localhost:5672/",  # pragma: allowlist secret
+            }
+        },
+    }

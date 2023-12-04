@@ -77,6 +77,12 @@ class RedisBroker(
         parser_class: Type[BaseParser] = DefaultParser,
         connection_class: Type[Connection] = Connection,
         encoder_class: Type[Encoder] = Encoder,
+        ssl_keyfile: Optional[str] = None,
+        ssl_certfile: Optional[str] = None,
+        ssl_cert_reqs: str = "required",
+        ssl_ca_certs: Optional[str] = None,
+        ssl_ca_data: Optional[str] = None,
+        ssl_check_hostname: bool = False,
         # broker args
         apply_types: bool = True,
         validate: bool = True,
@@ -121,6 +127,12 @@ class RedisBroker(
         parser_class: Type[BaseParser] = DefaultParser,
         connection_class: Type[Connection] = Connection,
         encoder_class: Type[Encoder] = Encoder,
+        ssl_keyfile: Optional[str] = None,
+        ssl_certfile: Optional[str] = None,
+        ssl_cert_reqs: str = "required",
+        ssl_ca_certs: Optional[str] = None,
+        ssl_ca_data: Optional[str] = None,
+        ssl_check_hostname: bool = False,
     ) -> "Redis[bytes]": ...
     @override
     async def _connect(  # type: ignore[override]

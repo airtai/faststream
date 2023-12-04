@@ -73,6 +73,12 @@ class RedisRouter(StreamRouter[AnyRedisDict]):
         parser_class: Type[BaseParser] = DefaultParser,
         connection_class: Type[Connection] = Connection,
         encoder_class: Type[Encoder] = Encoder,
+        ssl_keyfile: Optional[str] = None,
+        ssl_certfile: Optional[str] = None,
+        ssl_cert_reqs: str = "required",
+        ssl_ca_certs: Optional[str] = None,
+        ssl_ca_data: Optional[str] = None,
+        ssl_check_hostname: bool = False,
         # broker args
         parser: Optional[CustomParser[AnyRedisDict, RedisMessage]] = None,
         decoder: Optional[CustomDecoder[RedisMessage]] = None,

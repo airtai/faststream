@@ -38,11 +38,8 @@ class BaseSecurity:
         ssl_context: Optional[SSLContext] = None,
         use_ssl: Optional[bool] = None,
     ):
-        if use_ssl is None:
+        if ssl_context is not None:
             use_ssl = True
-
-        if use_ssl and ssl_context is None:
-            raise RuntimeError(ssl_not_set_error_msg)
 
         self.use_ssl = use_ssl
         self.ssl_context = ssl_context
