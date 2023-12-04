@@ -53,6 +53,7 @@ class RabbitQueue(NameRequired):
         return sum(
             (
                 hash(self.name),
+                hash(self.routing_key),
                 int(self.durable),
                 int(self.exclusive),
                 int(self.auto_delete),
@@ -60,8 +61,8 @@ class RabbitQueue(NameRequired):
         )
 
     @property
-    def routing(self) -> Optional[str]:
-        return self.routing_key or self.name or None
+    def routing(self) -> str:
+        return self.routing_key or self.name
 
     def __init__(
         self,
