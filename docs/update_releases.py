@@ -28,18 +28,27 @@ def find_header(lines: List[str]) -> Tuple[str, List[str]]:
 def get_github_releases() -> Sequence[Tuple[str, str]]:
     # Get the latest version from GitHub releases
     response = requests.get("https://api.github.com/repos/airtai/FastStream/releases")
-    return ((x["tag_name"], x["body"]) for x in reversed(response.json()))
+    return (
+        (x["tag_name"], x["body"])
+        for x in reversed(response.json())
+    )
 
 
 def convert_links_and_usernames(text):
     if "](" not in text:
         # Convert HTTP/HTTPS links
-        text = re.sub(r"(https?://[^\s]+)", r'[\1](\1){.external-link target="_blank"}', text)
+        text = re.sub(r"(https?://.*\/(.*))", r'[#\2](\1){.external-link target="_blank"}', text)
 
         # Convert GitHub usernames to links
         text = re.sub(r"@(\w+)", r'[@\1](https://github.com/\1){.external-link target="_blank"}', text)
 
+
     return text
+
+
+def collect_already_published_versions(text: str) -> List[str]:
+    data: List[str] = re.findall(r"## (\d.\d.\d.*)", text)
+    return data
 
 
 def update_release_notes(realease_notes_path: Path):
@@ -52,19 +61,21 @@ def update_release_notes(realease_notes_path: Path):
     header, changelog = find_header(lines)
     changelog = "\n".join(changelog)
 
-    for version, body in get_github_releases():
+    old_versions = collect_already_published_versions(changelog)
+
+    for version, body in filter(
+        lambda v: v[0] not in old_versions,
+        get_github_releases(),
+    ):
         body = body.replace("##", "###")
         body = convert_links_and_usernames(body)
         version_changelog = f"## {version}\n\n{body}\n\n"
-
-        # Match the latest version in the changelog
-        if f"## {version}" not in changelog:
-            changelog = version_changelog + changelog
+        changelog = version_changelog + changelog
 
     # Update the RELEASE.md file with the latest version and changelog
     realease_notes_path.write_text((
         metablock + "\n\n" +
-        header + "\n" + # adding an aaddition newline after the header results in one empty file being added every time we run the script
+        header + "\n" + # adding an addition newline after the header results in one empty file being added every time we run the script
         changelog + "\n"
     ).replace("\r", ""))
 
