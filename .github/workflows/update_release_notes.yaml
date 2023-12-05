@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
         contents: write
+        pull-requests: write
     env:
       TAG_NAME: ${{ github.ref_name }}
       BRANCH_NAME: update-release-notes-${{ github.ref_name }}
