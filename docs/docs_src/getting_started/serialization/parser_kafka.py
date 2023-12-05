@@ -1,9 +1,7 @@
 from typing import Awaitable, Callable
 
-from aiokafka import ConsumerRecord
-
 from faststream import FastStream
-from faststream.kafka import KafkaBroker, KafkaMessage
+from faststream.kafka import KafkaBroker, KafkaMessage, ConsumerRecord
 
 
 async def custom_parser(

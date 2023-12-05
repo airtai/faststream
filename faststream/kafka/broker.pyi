@@ -19,7 +19,6 @@ from typing import (
     overload,
 )
 
-import aiokafka
 from aiokafka.producer.producer import _missing
 from fast_depends.dependencies import Depends
 from kafka.coordinator.assignors.abstract import AbstractPartitionAssignor
@@ -43,7 +42,7 @@ from faststream.broker.types import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.asyncapi import Handler, Publisher
-from faststream.kafka.message import KafkaMessage
+from faststream.kafka.message import ConsumerRecord, KafkaMessage
 from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.kafka.shared.logging import KafkaLoggingMixin
 from faststream.kafka.shared.schemas import ConsumerConnectionParams
@@ -54,7 +53,7 @@ Partition = TypeVar("Partition")
 
 class KafkaBroker(
     KafkaLoggingMixin,
-    BrokerAsyncUsecase[aiokafka.ConsumerRecord, ConsumerConnectionParams],
+    BrokerAsyncUsecase[ConsumerRecord, ConsumerConnectionParams],
 ):
     handlers: Dict[str, Handler]
     _publishers: Dict[str, Publisher]
@@ -94,11 +93,11 @@ class KafkaBroker(
         validate: bool = True,
         dependencies: Sequence[Depends] = (),
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
-        parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
+        parser: Optional[CustomParser[ConsumerRecord, KafkaMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
-                    [aiokafka.ConsumerRecord],
+                    [ConsumerRecord],
                     BaseMiddleware,
                 ]
             ]
@@ -185,13 +184,11 @@ class KafkaBroker(
     async def start(self) -> None: ...
     def _process_message(
         self,
-        func: Callable[
-            [StreamMessage[aiokafka.ConsumerRecord]], Awaitable[T_HandlerReturn]
-        ],
+        func: Callable[[StreamMessage[ConsumerRecord]], Awaitable[T_HandlerReturn]],
         watcher: Callable[..., AsyncContextManager[None]],
         **kwargs: Any,
     ) -> Callable[
-        [StreamMessage[aiokafka.ConsumerRecord]],
+        [StreamMessage[ConsumerRecord]],
         Awaitable[WrappedReturn[T_HandlerReturn]],
     ]: ...
     @override  # type: ignore[override]
@@ -230,12 +227,12 @@ class KafkaBroker(
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
+        parser: Optional[CustomParser[ConsumerRecord, KafkaMessage]] = None,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
-                    [aiokafka.ConsumerRecord],
+                    [ConsumerRecord],
                     BaseMiddleware,
                 ]
             ]
@@ -253,7 +250,7 @@ class KafkaBroker(
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
-        HandlerCallWrapper[aiokafka.ConsumerRecord, P_HandlerParams, T_HandlerReturn],
+        HandlerCallWrapper[ConsumerRecord, P_HandlerParams, T_HandlerReturn],
     ]: ...
     @overload
     def subscriber(
@@ -290,21 +287,17 @@ class KafkaBroker(
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[
-            CustomParser[Tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
-        ] = None,
+        parser: Optional[CustomParser[Tuple[ConsumerRecord, ...], KafkaMessage]] = None,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
-                    [aiokafka.ConsumerRecord],
+                    [ConsumerRecord],
                     BaseMiddleware,
                 ]
             ]
         ] = None,
-        filter: Filter[
-            StreamMessage[Tuple[aiokafka.ConsumerRecord, ...]]
-        ] = default_filter,
+        filter: Filter[StreamMessage[Tuple[ConsumerRecord, ...]]] = default_filter,
         batch: Literal[True] = True,
         max_records: Optional[int] = None,
         batch_timeout_ms: int = 200,
@@ -318,7 +311,7 @@ class KafkaBroker(
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
         HandlerCallWrapper[
-            Tuple[aiokafka.ConsumerRecord, ...], P_HandlerParams, T_HandlerReturn
+            Tuple[ConsumerRecord, ...], P_HandlerParams, T_HandlerReturn
         ],
     ]: ...
     @override

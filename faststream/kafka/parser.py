@@ -1,11 +1,9 @@
 from typing import List, Tuple
 from uuid import uuid4
 
-from aiokafka import ConsumerRecord
-
 from faststream.broker.message import StreamMessage
 from faststream.broker.parsers import decode_message
-from faststream.kafka.message import KafkaMessage
+from faststream.kafka.message import ConsumerRecord, KafkaMessage
 from faststream.types import DecodedMessage
 from faststream.utils.context.main import context
 

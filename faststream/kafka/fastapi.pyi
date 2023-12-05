@@ -19,8 +19,6 @@ from typing import (
     overload,
 )
 
-import aiokafka
-from aiokafka import ConsumerRecord
 from aiokafka.producer.producer import _missing
 from fast_depends.dependencies import Depends
 from fastapi import params
@@ -52,7 +50,7 @@ from faststream.broker.types import (
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.asyncapi import Publisher
 from faststream.kafka.broker import KafkaBroker
-from faststream.kafka.message import KafkaMessage
+from faststream.kafka.message import ConsumerRecord, KafkaMessage
 from faststream.log import access_logger
 
 Partition = TypeVar("Partition")
@@ -114,11 +112,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         apply_types: bool = True,
         validate: bool = True,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
-        parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
+        parser: Optional[CustomParser[ConsumerRecord, KafkaMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
-                    [aiokafka.ConsumerRecord],
+                    [ConsumerRecord],
                     BaseMiddleware,
                 ]
             ]
@@ -173,21 +171,17 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[
-            CustomParser[Tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
-        ] = None,
+        parser: Optional[CustomParser[Tuple[ConsumerRecord, ...], KafkaMessage]] = None,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
-                    [aiokafka.ConsumerRecord],
+                    [ConsumerRecord],
                     BaseMiddleware,
                 ]
             ]
         ] = None,
-        filter: Filter[
-            StreamMessage[Tuple[aiokafka.ConsumerRecord, ...]]
-        ] = default_filter,
+        filter: Filter[StreamMessage[Tuple[ConsumerRecord, ...]]] = default_filter,
         batch: Literal[True] = True,
         max_records: Optional[int] = None,
         batch_timeout_ms: int = 200,
@@ -201,7 +195,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
         HandlerCallWrapper[
-            Tuple[aiokafka.ConsumerRecord, ...], P_HandlerParams, T_HandlerReturn
+            Tuple[ConsumerRecord, ...], P_HandlerParams, T_HandlerReturn
         ],
     ]: ...
     @overload
@@ -239,12 +233,12 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
+        parser: Optional[CustomParser[ConsumerRecord, KafkaMessage]] = None,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
-                    [aiokafka.ConsumerRecord],
+                    [ConsumerRecord],
                     BaseMiddleware,
                 ]
             ]
@@ -262,7 +256,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
-        HandlerCallWrapper[aiokafka.ConsumerRecord, P_HandlerParams, T_HandlerReturn],
+        HandlerCallWrapper[ConsumerRecord, P_HandlerParams, T_HandlerReturn],
     ]: ...
     @overload  # type: ignore[override]
     @override
@@ -301,21 +295,17 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[
-            CustomParser[Tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
-        ] = None,
+        parser: Optional[CustomParser[Tuple[ConsumerRecord, ...], KafkaMessage]] = None,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
-                    [aiokafka.ConsumerRecord],
+                    [ConsumerRecord],
                     BaseMiddleware,
                 ]
             ]
         ] = None,
-        filter: Filter[
-            StreamMessage[Tuple[aiokafka.ConsumerRecord, ...]]
-        ] = default_filter,
+        filter: Filter[StreamMessage[Tuple[ConsumerRecord, ...]]] = default_filter,
         batch: Literal[True] = True,
         max_records: Optional[int] = None,
         batch_timeout_ms: int = 200,
@@ -324,9 +314,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         title: Optional[str] = None,
         description: Optional[str] = None,
         **__service_kwargs: Any,
-    ) -> Callable[
-        [Tuple[aiokafka.ConsumerRecord, ...], bool], Awaitable[T_HandlerReturn]
-    ]: ...
+    ) -> Callable[[Tuple[ConsumerRecord, ...], bool], Awaitable[T_HandlerReturn]]: ...
     @overload
     def add_api_mq_route(
         self,
@@ -363,12 +351,12 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
+        parser: Optional[CustomParser[ConsumerRecord, KafkaMessage]] = None,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
-                    [aiokafka.ConsumerRecord],
+                    [ConsumerRecord],
                     BaseMiddleware,
                 ]
             ]
@@ -382,7 +370,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         title: Optional[str] = None,
         description: Optional[str] = None,
         **__service_kwargs: Any,
-    ) -> Callable[[aiokafka.ConsumerRecord, bool], Awaitable[T_HandlerReturn]]: ...
+    ) -> Callable[[ConsumerRecord, bool], Awaitable[T_HandlerReturn]]: ...
     @override
     def publisher(  # type: ignore[override]
         self,
