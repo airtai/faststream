@@ -4,7 +4,7 @@ from typing import Dict, List, Optional
 from faststream.types import AnyDict
 
 ssl_not_set_error_msg = """
-SSL context is not set; if you don't want to use SSL encryption, set use_ssl to False.
+SSL context is not set; if you don't want to use SSL encryption without sseing this warning, set use_ssl to False.
 Warning: This will send your data to the broker unencrypted!
 """
 

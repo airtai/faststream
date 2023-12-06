@@ -30,13 +30,13 @@ FastStream allows you to enhance the security of applications by using security 
 
 **Using any SASL authentication without SSL:**
 
-The following example should has a **RuntimeWarning**:
+The following example will log a **RuntimeWarning**:
 
 ```python linenums="1"
 {!> docs_src/kafka/security_without_ssl/example.py [ln:8] !}
 ```
 
-If the user does not want to use SSL encryption, they must explicitly set the `use_ssl` parameter to `False` when creating a SASL object.
+If the user does not want to use SSL encryption without the waringning getting logged, they must explicitly set the `use_ssl` parameter to `False` when creating a SASL object.
 
 ```python linenums="1"
 {!> docs_src/kafka/security_without_ssl/example.py [ln:12] !}
