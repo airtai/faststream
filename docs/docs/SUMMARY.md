@@ -315,6 +315,7 @@
             - [SkipMessage](api/faststream/exceptions/SkipMessage.md)
             - [StopConsume](api/faststream/exceptions/StopConsume.md)
         - kafka
+            - [ConsumerRecord](api/faststream/kafka/ConsumerRecord.md)
             - [KafkaBroker](api/faststream/kafka/KafkaBroker.md)
             - [KafkaRoute](api/faststream/kafka/KafkaRoute.md)
             - [KafkaRouter](api/faststream/kafka/KafkaRouter.md)
@@ -330,6 +331,7 @@
             - handler
                 - [LogicHandler](api/faststream/kafka/handler/LogicHandler.md)
             - message
+                - [ConsumerRecord](api/faststream/kafka/message/ConsumerRecord.md)
                 - [KafkaMessage](api/faststream/kafka/message/KafkaMessage.md)
             - parser
                 - [AioKafkaParser](api/faststream/kafka/parser/AioKafkaParser.md)
