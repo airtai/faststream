@@ -45,23 +45,25 @@ class TestConsume(BrokerRealConsumeTestcase):
         async def handler(msg: KafkaMessage):
             event.set()
 
-        await full_broker.start()
-        with patch.object(
-            AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
-        ) as m:
-            await asyncio.wait(
-                (
-                    asyncio.create_task(
-                        full_broker.publish(
-                            "hello",
-                            queue,
-                        )
+        async with full_broker:
+            await full_broker.start()
+
+            with patch.object(
+                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+            ) as m:
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(
+                            full_broker.publish(
+                                "hello",
+                                queue,
+                            )
+                        ),
+                        asyncio.create_task(event.wait()),
                     ),
-                    asyncio.create_task(event.wait()),
-                ),
-                timeout=10,
-            )
-            m.mock.assert_called_once()
+                    timeout=10,
+                )
+                m.mock.assert_called_once()
 
         assert event.is_set()
 
@@ -78,23 +80,25 @@ class TestConsume(BrokerRealConsumeTestcase):
             await msg.ack()
             event.set()
 
-        await full_broker.start()
-        with patch.object(
-            AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
-        ) as m:
-            await asyncio.wait(
-                (
-                    asyncio.create_task(
-                        full_broker.publish(
-                            "hello",
-                            queue,
-                        )
+        async with full_broker:
+            await full_broker.start()
+
+            with patch.object(
+                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+            ) as m:
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(
+                            full_broker.publish(
+                                "hello",
+                                queue,
+                            )
+                        ),
+                        asyncio.create_task(event.wait()),
                     ),
-                    asyncio.create_task(event.wait()),
-                ),
-                timeout=10,
-            )
-            m.mock.assert_called_once()
+                    timeout=10,
+                )
+                m.mock.assert_called_once()
 
         assert event.is_set()
 
@@ -111,23 +115,25 @@ class TestConsume(BrokerRealConsumeTestcase):
             event.set()
             raise AckMessage()
 
-        await full_broker.start()
-        with patch.object(
-            AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
-        ) as m:
-            await asyncio.wait(
-                (
-                    asyncio.create_task(
-                        full_broker.publish(
-                            "hello",
-                            queue,
-                        )
+        async with full_broker:
+            await full_broker.start()
+
+            with patch.object(
+                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+            ) as m:
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(
+                            full_broker.publish(
+                                "hello",
+                                queue,
+                            )
+                        ),
+                        asyncio.create_task(event.wait()),
                     ),
-                    asyncio.create_task(event.wait()),
-                ),
-                timeout=10,
-            )
-            m.mock.assert_called_once()
+                    timeout=10,
+                )
+                m.mock.assert_called_once()
 
         assert event.is_set()
 
@@ -142,6 +148,40 @@ class TestConsume(BrokerRealConsumeTestcase):
         @full_broker.subscriber(queue, group_id="test", auto_commit=False)
         async def handler(msg: KafkaMessage):
             await msg.nack()
+            event.set()
+
+        async with full_broker:
+            await full_broker.start()
+
+            with patch.object(
+                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+            ) as m:
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(
+                            full_broker.publish(
+                                "hello",
+                                queue,
+                            )
+                        ),
+                        asyncio.create_task(event.wait()),
+                    ),
+                    timeout=10,
+                )
+                assert not m.mock.called
+
+        assert event.is_set()
+
+    @pytest.mark.asyncio
+    @pytest.mark.slow
+    async def test_consume_no_ack(
+        self,
+        queue: str,
+        full_broker: KafkaBroker,
+        event: asyncio.Event,
+    ):
+        @full_broker.subscriber(queue, group_id="test", no_ack=True)
+        async def handler(msg: KafkaMessage):
             event.set()
 
         await full_broker.start()
@@ -160,6 +200,6 @@ class TestConsume(BrokerRealConsumeTestcase):
                 ),
                 timeout=10,
             )
-            assert not m.mock.called
+            m.mock.assert_not_called()
 
         assert event.is_set()

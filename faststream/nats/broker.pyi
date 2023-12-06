@@ -1,7 +1,18 @@
 import logging
 import ssl
 from types import TracebackType
-from typing import Any, Awaitable, Callable, Dict, List, Optional, Sequence, Type, Union
+from typing import (
+    Any,
+    AsyncContextManager,
+    Awaitable,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Type,
+    Union,
+)
 
 from fast_depends.dependencies import Depends
 from nats.aio.client import (
@@ -23,16 +34,13 @@ from nats.aio.client import (
 )
 from nats.aio.msg import Msg
 from nats.js import api
-from nats.js.client import (
-    JetStreamContext,
-)
+from nats.js.client import JetStreamContext
 
 from faststream._compat import override
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
-from faststream.broker.push_back_watcher import BaseWatcher
 from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
@@ -59,8 +67,8 @@ class NatsBroker(
 ):
     stream: Optional[JetStreamContext]
 
-    handlers: Dict[Subject, Handler]  # type: ignore[assignment]
-    _publishers: Dict[Subject, Publisher]  # type: ignore[assignment]
+    handlers: Dict[Subject, Handler]
+    _publishers: Dict[Subject, Publisher]
     _producer: Optional[NatsFastProducer]
     _js_producer: Optional[NatsJSFastProducer]
 
@@ -100,6 +108,7 @@ class NatsBroker(
         flush_timeout: Optional[float] = None,
         # broker args
         apply_types: bool = True,
+        validate: bool = True,
         dependencies: Sequence[Depends] = (),
         decoder: Optional[CustomDecoder[NatsMessage]] = None,
         parser: Optional[CustomParser[Msg, NatsMessage]] = None,
@@ -202,11 +211,9 @@ class NatsBroker(
     async def start(self) -> None: ...
     def _process_message(
         self,
-        func: Callable[
-            [StreamMessage[Msg]],
-            Awaitable[T_HandlerReturn],
-        ],
-        watcher: BaseWatcher,
+        func: Callable[[StreamMessage[Msg]], Awaitable[T_HandlerReturn]],
+        watcher: Callable[..., AsyncContextManager[None]],
+        **kwargs: Any,
     ) -> Callable[[StreamMessage[Msg]], Awaitable[WrappedReturn[T_HandlerReturn]],]: ...
     def _log_connection_broken(
         self,
@@ -245,9 +252,11 @@ class NatsBroker(
         middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
         filter: Filter[NatsMessage] = default_filter,
         retry: bool = False,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -267,6 +276,7 @@ class NatsBroker(
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
     ) -> Publisher: ...
     @override
     async def publish(  # type: ignore[override]

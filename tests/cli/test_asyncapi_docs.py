@@ -51,7 +51,7 @@ def test_gen_asyncapi_yaml_for_kafka_app(runner: CliRunner, kafka_basic_project:
 def test_gen_wrong_path(runner: CliRunner):
     r = runner.invoke(cli, GEN_JSON_CMD + ["basic:app1"])
     assert r.exit_code == 2
-    assert "Please, input module like [python_file:faststream_app_name]" in r.stdout
+    assert "No such file or directory" in r.stdout
 
 
 def test_serve_asyncapi_docs(

@@ -1,7 +1,18 @@
 import warnings
 from functools import partial, wraps
 from types import TracebackType
-from typing import Any, Awaitable, Callable, Dict, Optional, Sequence, Type, Union, cast
+from typing import (
+    Any,
+    AsyncContextManager,
+    Awaitable,
+    Callable,
+    Dict,
+    Optional,
+    Sequence,
+    Type,
+    Union,
+    cast,
+)
 
 import aio_pika
 import aiormq
@@ -10,11 +21,10 @@ from fast_depends.dependencies import Depends
 from pamqp.common import FieldTable
 from yarl import URL
 
-from faststream._compat import override
+from faststream._compat import model_to_dict, override
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
-from faststream.broker.push_back_watcher import BaseWatcher, WatcherContext
 from faststream.broker.types import (
     AsyncPublisherProtocol,
     CustomDecoder,
@@ -25,6 +35,7 @@ from faststream.broker.types import (
     WrappedReturn,
 )
 from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
+from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.rabbit.asyncapi import Handler, Publisher
 from faststream.rabbit.helpers import RabbitDeclarer
 from faststream.rabbit.message import RabbitMessage
@@ -35,6 +46,7 @@ from faststream.rabbit.shared.logging import RabbitLoggingMixin
 from faststream.rabbit.shared.schemas import (
     RabbitExchange,
     RabbitQueue,
+    ReplyConfig,
     get_routing_hash,
 )
 from faststream.rabbit.shared.types import TimeoutType
@@ -69,8 +81,9 @@ class RabbitBroker(
         _channel (Optional[aio_pika.RobustChannel]): The RabbitMQ channel instance.
     """
 
-    handlers: Dict[int, Handler]  # type: ignore[assignment]
-    _publishers: Dict[int, Publisher]  # type: ignore[assignment]
+    url: str
+    handlers: Dict[int, Handler]
+    _publishers: Dict[int, Publisher]
 
     declarer: Optional[RabbitDeclarer]
     _producer: Optional[AioPikaFastProducer]
@@ -108,7 +121,7 @@ class RabbitBroker(
         """
         security_args = parse_security(security)
 
-        if (ssl := kwargs.get("ssl")) or kwargs.get("ssl_context"):
+        if (ssl := kwargs.get("ssl")) or kwargs.get("ssl_context"):  # pragma: no cover
             warnings.warn(
                 (
                     f"\nRabbitMQ {'`ssl`' if ssl else '`ssl_context`'} option was deprecated and will be removed in 0.4.0"
@@ -132,7 +145,6 @@ class RabbitBroker(
 
         super().__init__(
             url=str(amqp_url),
-            protocol=amqp_url.scheme,
             protocol_version=protocol_version,
             security=security,
             ssl_context=security_args.get(
@@ -267,15 +279,13 @@ class RabbitBroker(
         Raises:
             RuntimeError: If the declarer is not initialized in the `connect` method.
         """
-        context.set_local(
-            "log_context",
+        context.set_global(
+            "default_log_context",
             self._get_log_context(None, RabbitQueue(""), RabbitExchange("")),
         )
 
         await super().start()
-        assert (  # nosec B101
-            self.declarer
-        ), "Declarer should be initialized in `connect` method"
+        assert self.declarer, NOT_CONNECTED_YET  # nosec B101
 
         for publisher in self._publishers.values():
             if publisher.exchange is not None:
@@ -293,6 +303,7 @@ class RabbitBroker(
         exchange: Union[str, RabbitExchange, None] = None,
         *,
         consume_args: Optional[AnyDict] = None,
+        reply_config: Optional[ReplyConfig] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
         parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
@@ -301,9 +312,11 @@ class RabbitBroker(
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
         filter: Filter[RabbitMessage] = default_filter,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **original_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -316,6 +329,7 @@ class RabbitBroker(
             queue (Union[str, RabbitQueue]): The name of the RabbitMQ queue.
             exchange (Union[str, RabbitExchange, None], optional): The name of the RabbitMQ exchange. Defaults to None.
             consume_args (Optional[AnyDict], optional): Additional arguments for message consumption.
+            no_ack (bool): Whether not to ack/nack/reject messages.
             title (Optional[str]): Title for AsyncAPI docs.
             description (Optional[str]): Description for AsyncAPI docs.
 
@@ -342,6 +356,7 @@ class RabbitBroker(
                 description=description,
                 title=title,
                 virtual_host=self.virtual_host,
+                include_in_schema=include_in_schema,
             ),
         )
 
@@ -369,6 +384,10 @@ class RabbitBroker(
             handler_call, dependant = self._wrap_handler(
                 func,
                 extra_dependencies=dependencies,
+                no_ack=no_ack,
+                _process_kwargs={
+                    "reply_config": reply_config,
+                },
                 **original_kwargs,
             )
 
@@ -401,6 +420,7 @@ class RabbitBroker(
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
         priority: Optional[int] = None,
         **message_kwargs: Any,
     ) -> Publisher:
@@ -440,6 +460,7 @@ class RabbitBroker(
             _description=description,
             _schema=schema,
             virtual_host=self.virtual_host,
+            include_in_schema=include_in_schema,
         )
 
         key = publisher._get_routing_hash()
@@ -465,8 +486,7 @@ class RabbitBroker(
         Returns:
             Union[aiormq.abc.ConfirmationFrameType, SendableMessage]: The confirmation frame or the response message.
         """
-
-        assert self._producer, "RabbitBroker channel is not started yet"  # nosec B101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
         return await self._producer.publish(*args, **kwargs)
 
     def _process_message(
@@ -474,7 +494,9 @@ class RabbitBroker(
         func: Callable[
             [StreamMessage[aio_pika.IncomingMessage]], Awaitable[T_HandlerReturn]
         ],
-        watcher: BaseWatcher,
+        watcher: Callable[..., AsyncContextManager[None]],
+        reply_config: Optional[ReplyConfig] = None,
+        **kwargs: Any,
     ) -> Callable[
         [StreamMessage[aio_pika.IncomingMessage]],
         Awaitable[WrappedReturn[T_HandlerReturn]],
@@ -485,10 +507,15 @@ class RabbitBroker(
         Args:
             func (Callable): The handler function for processing the message.
             watcher (BaseWatcher): The message watcher for tracking message processing.
+            disable_watcher: Whether to use watcher context.
 
         Returns:
             Callable: A wrapper function for processing messages.
         """
+        if reply_config is None:
+            reply_kwargs = {}
+        else:
+            reply_kwargs = model_to_dict(reply_config)
 
         @wraps(func)
         async def process_wrapper(
@@ -508,13 +535,17 @@ class RabbitBroker(
 
                 The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)
             """
-            async with WatcherContext(watcher, message):
-                r = await self._execute_handler(func, message)
+            async with watcher(message):
+                r = await func(message)
 
                 pub_response: Optional[AsyncPublisherProtocol]
                 if message.reply_to:
                     pub_response = FakePublisher(
-                        partial(self.publish, routing_key=message.reply_to)
+                        partial(
+                            self.publish,
+                            routing_key=message.reply_to,
+                            **reply_kwargs,
+                        )
                     )
                 else:
                     pub_response = None
@@ -539,9 +570,7 @@ class RabbitBroker(
         Raises:
             RuntimeError: If the declarer is not initialized in the `connect` method.
         """
-        assert (  # nosec B101
-            self.declarer
-        ), "Declarer should be initialized in `connect` method"
+        assert self.declarer, NOT_CONNECTED_YET  # nosec B101
         return await self.declarer.declare_queue(queue)
 
     async def declare_exchange(
@@ -560,7 +589,5 @@ class RabbitBroker(
         Raises:
             RuntimeError: If the declarer is not initialized in the `connect` method.
         """
-        assert (  # nosec B101
-            self.declarer
-        ), "Declarer should be initialized in `connect` method"
+        assert self.declarer, NOT_CONNECTED_YET  # nosec B101
         return await self.declarer.declare_exchange(exchange)

@@ -1,4 +1,4 @@
-- [FastStream](index.md)
+- [Features](faststream.md)
 - Tutorial
     - [Getting Started](getting-started/index.md)
     - [Subscription and Serialization](getting-started/subscription/index.md)
@@ -24,8 +24,9 @@
         - [Decoder](getting-started/serialization/decoder.md)
         - [Examples](getting-started/serialization/examples.md)
     - [Lifespan](getting-started/lifespan/index.md)
-        - [Lifespan Hooks](getting-started/lifespan/hooks.md)
-        - [Lifespan Testing](getting-started/lifespan/test.md)
+        - [Hooks](getting-started/lifespan/hooks.md)
+        - [Context](getting-started/lifespan/context.md)
+        - [Testing](getting-started/lifespan/test.md)
     - [Middlewares](getting-started/middlewares/index.md)
     - AsyncAPI
         - [Schema Export](getting-started/asyncapi/export.md)
@@ -38,6 +39,7 @@
     - [CLI commands](getting-started/cli/index.md)
     - [Logging](getting-started/logging.md)
     - [Config Management](getting-started/config/index.md)
+    - [Task Scheduling](scheduling.md)
     - [FastStream Project Template](getting-started/template/index.md)
 - [Kafka](kafka/index.md)
     - [Subscription](kafka/Subscriber/index.md)
@@ -72,6 +74,22 @@
     - [Publishing](nats/publishing/index.md)
     - [RPC](nats/rpc.md)
     - [Message Information](nats/message.md)
+- [Redis](redis/index.md)
+    - [Pub/Sub](redis/pubsub/index.md)
+        - [Subscription](redis/pubsub/subscription.md)
+        - [Publishing](redis/pubsub/publishing.md)
+    - [List](redis/list/index.md)
+        - [Subscription](redis/list/subscription.md)
+        - [Publishing](redis/list/publishing.md)
+        - [Batching](redis/list/batch.md)
+    - [Streams](redis/streams/index.md)
+        - [Subscription](redis/streams/subscription.md)
+        - [Publishing](redis/streams/publishing.md)
+        - [Groups](redis/streams/groups.md)
+        - [Batching](redis/streams/batch.md)
+        - [Acknowledgement](redis/streams/ack.md)
+    - [RPC](redis/rpc.md)
+    - [Message Information](redis/message.md)
 - [Reference - Code API](api/faststream/index.md)
     - faststream
         - [BaseMiddleware](api/faststream/BaseMiddleware.md)
@@ -277,6 +295,7 @@
             - utils
                 - imports
                     - [get_app_path](api/faststream/cli/utils/imports/get_app_path.md)
+                    - [import_from_string](api/faststream/cli/utils/imports/import_from_string.md)
                     - [import_object](api/faststream/cli/utils/imports/import_object.md)
                     - [try_import_app](api/faststream/cli/utils/imports/try_import_app.md)
                 - logs
@@ -355,6 +374,7 @@
             - [NatsRoute](api/faststream/nats/NatsRoute.md)
             - [NatsRouter](api/faststream/nats/NatsRouter.md)
             - [Placement](api/faststream/nats/Placement.md)
+            - [PullSub](api/faststream/nats/PullSub.md)
             - [RePublish](api/faststream/nats/RePublish.md)
             - [ReplayPolicy](api/faststream/nats/ReplayPolicy.md)
             - [RetentionPolicy](api/faststream/nats/RetentionPolicy.md)
@@ -392,6 +412,8 @@
                 - [NatsJSFastProducer](api/faststream/nats/producer/NatsJSFastProducer.md)
             - publisher
                 - [LogicPublisher](api/faststream/nats/publisher/LogicPublisher.md)
+            - pull_sub
+                - [PullSub](api/faststream/nats/pull_sub/PullSub.md)
             - router
                 - [NatsRouter](api/faststream/nats/router/NatsRouter.md)
             - shared
@@ -412,6 +434,7 @@
             - [RabbitQueue](api/faststream/rabbit/RabbitQueue.md)
             - [RabbitRoute](api/faststream/rabbit/RabbitRoute.md)
             - [RabbitRouter](api/faststream/rabbit/RabbitRouter.md)
+            - [ReplyConfig](api/faststream/rabbit/ReplyConfig.md)
             - [TestApp](api/faststream/rabbit/TestApp.md)
             - [TestRabbitBroker](api/faststream/rabbit/TestRabbitBroker.md)
             - asyncapi
@@ -451,6 +474,7 @@
                     - [BaseRMQInformation](api/faststream/rabbit/shared/schemas/BaseRMQInformation.md)
                     - [RabbitExchange](api/faststream/rabbit/shared/schemas/RabbitExchange.md)
                     - [RabbitQueue](api/faststream/rabbit/shared/schemas/RabbitQueue.md)
+                    - [ReplyConfig](api/faststream/rabbit/shared/schemas/ReplyConfig.md)
                     - [get_routing_hash](api/faststream/rabbit/shared/schemas/get_routing_hash.md)
                 - utils
                     - [build_url](api/faststream/rabbit/shared/utils/build_url.md)
@@ -460,6 +484,56 @@
                 - [PatchedMessage](api/faststream/rabbit/test/PatchedMessage.md)
                 - [TestRabbitBroker](api/faststream/rabbit/test/TestRabbitBroker.md)
                 - [build_message](api/faststream/rabbit/test/build_message.md)
+        - redis
+            - [ListSub](api/faststream/redis/ListSub.md)
+            - [PubSub](api/faststream/redis/PubSub.md)
+            - [RedisBroker](api/faststream/redis/RedisBroker.md)
+            - [RedisRoute](api/faststream/redis/RedisRoute.md)
+            - [RedisRouter](api/faststream/redis/RedisRouter.md)
+            - [StreamSub](api/faststream/redis/StreamSub.md)
+            - [TestApp](api/faststream/redis/TestApp.md)
+            - [TestRedisBroker](api/faststream/redis/TestRedisBroker.md)
+            - asyncapi
+                - [Handler](api/faststream/redis/asyncapi/Handler.md)
+                - [Publisher](api/faststream/redis/asyncapi/Publisher.md)
+            - broker
+                - [RedisBroker](api/faststream/redis/broker/RedisBroker.md)
+            - fastapi
+                - [RedisRouter](api/faststream/redis/fastapi/RedisRouter.md)
+            - handler
+                - [LogicRedisHandler](api/faststream/redis/handler/LogicRedisHandler.md)
+            - message
+                - [AnyRedisDict](api/faststream/redis/message/AnyRedisDict.md)
+                - [BatchMessage](api/faststream/redis/message/BatchMessage.md)
+                - [BatchRedisMessage](api/faststream/redis/message/BatchRedisMessage.md)
+                - [OneMessage](api/faststream/redis/message/OneMessage.md)
+                - [OneRedisMessage](api/faststream/redis/message/OneRedisMessage.md)
+                - [PubSubMessage](api/faststream/redis/message/PubSubMessage.md)
+                - [RedisAckMixin](api/faststream/redis/message/RedisAckMixin.md)
+                - [RedisMessage](api/faststream/redis/message/RedisMessage.md)
+            - parser
+                - [RawMessage](api/faststream/redis/parser/RawMessage.md)
+                - [RedisParser](api/faststream/redis/parser/RedisParser.md)
+            - producer
+                - [RedisFastProducer](api/faststream/redis/producer/RedisFastProducer.md)
+            - publisher
+                - [LogicPublisher](api/faststream/redis/publisher/LogicPublisher.md)
+            - router
+                - [RedisRouter](api/faststream/redis/router/RedisRouter.md)
+            - schemas
+                - [ListSub](api/faststream/redis/schemas/ListSub.md)
+                - [PubSub](api/faststream/redis/schemas/PubSub.md)
+                - [StreamSub](api/faststream/redis/schemas/StreamSub.md)
+            - shared
+                - logging
+                    - [RedisLoggingMixin](api/faststream/redis/shared/logging/RedisLoggingMixin.md)
+                - router
+                    - [RedisRoute](api/faststream/redis/shared/router/RedisRoute.md)
+                    - [RedisRouter](api/faststream/redis/shared/router/RedisRouter.md)
+            - test
+                - [FakeProducer](api/faststream/redis/test/FakeProducer.md)
+                - [TestRedisBroker](api/faststream/redis/test/TestRedisBroker.md)
+                - [build_message](api/faststream/redis/test/build_message.md)
         - security
             - [BaseSecurity](api/faststream/security/BaseSecurity.md)
             - [SASLPlaintext](api/faststream/security/SASLPlaintext.md)
@@ -473,6 +547,11 @@
             - [NoCast](api/faststream/utils/NoCast.md)
             - [Path](api/faststream/utils/Path.md)
             - [apply_types](api/faststream/utils/apply_types.md)
+            - ast
+                - [find_ast_node](api/faststream/utils/ast/find_ast_node.md)
+                - [find_withitems](api/faststream/utils/ast/find_withitems.md)
+                - [get_withitem_calls](api/faststream/utils/ast/get_withitem_calls.md)
+                - [is_contains_context_name](api/faststream/utils/ast/is_contains_context_name.md)
             - classes
                 - [Singleton](api/faststream/utils/classes/Singleton.md)
             - context
@@ -495,6 +574,8 @@
                 - [filter_by_dict](api/faststream/utils/data/filter_by_dict.md)
             - functions
                 - [call_or_await](api/faststream/utils/functions/call_or_await.md)
+                - [drop_response_type](api/faststream/utils/functions/drop_response_type.md)
+                - [fake_context](api/faststream/utils/functions/fake_context.md)
                 - [get_function_positional_arguments](api/faststream/utils/functions/get_function_positional_arguments.md)
                 - [timeout_scope](api/faststream/utils/functions/timeout_scope.md)
                 - [to_async](api/faststream/utils/functions/to_async.md)

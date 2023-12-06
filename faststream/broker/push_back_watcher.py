@@ -311,8 +311,8 @@ class WatcherContext:
 
     def __init__(
         self,
-        watcher: BaseWatcher,
         message: Union[SyncStreamMessage[MsgType], StreamMessage[MsgType]],
+        watcher: BaseWatcher,
         **extra_ack_args: Any,
     ):
         """Initialize a new instance of the class.
@@ -367,7 +367,7 @@ class WatcherContext:
                 await self.__ack()
             elif isinstance(exc_val, NackMessage):
                 await self.__nack()
-            elif isinstance(exc_val, RejectMessage):
+            elif isinstance(exc_val, RejectMessage):  # pragma: no branch
                 await self.__reject()
             return True
 

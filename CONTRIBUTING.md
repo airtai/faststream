@@ -36,17 +36,17 @@ After activating the virtual environment as described above, run:
 pip install -e ".[dev]"
 ```
 
-This will install all the dependencies and your local FastStream in your virtual environment.
+This will install all the dependencies and your local **FastStream** in your virtual environment.
 
-### Using Your local FastStream
+### Using Your local **FastStream**
 
-If you create a Python file that imports and uses FastStream, and run it with the Python from your local environment, it will use your local FastStream source code.
+If you create a Python file that imports and uses **FastStream**, and run it with the Python from your local environment, it will use your local **FastStream** source code.
 
-Whenever you update your local FastStream source code, it will automatically use the latest version when you run your Python file again. This is because it is installed with `-e`.
+Whenever you update your local **FastStream** source code, it will automatically use the latest version when you run your Python file again. This is because it is installed with `-e`.
 
 This way, you don't have to "install" your local version to be able to test every change.
 
-To use your local FastStream CLI, type:
+To use your local **FastStream CLI**, type:
 
 ```bash
 python -m faststream ...
@@ -56,7 +56,7 @@ python -m faststream ...
 
 ### Pytest
 
-To run tests with your current FastStream application and Python environment, use:
+To run tests with your current **FastStream** application and Python environment, use:
 
 ```bash
 pytest tests
@@ -72,6 +72,7 @@ In your project, you'll find some *pytest marks*:
 * **rabbit**
 * **kafka**
 * **nats**
+* **redis**
 * **all**
 
 By default, running *pytest* will execute "not slow" tests.
@@ -85,7 +86,7 @@ pytest -m 'all'
 If you don't have a local broker instance running, you can run tests without those dependencies:
 
 ```bash
-pytest -m 'not rabbit and not kafka and not nats'
+pytest -m 'not rabbit and not kafka and not nats and not redis'
 ```
 
 To run tests based on RabbitMQ, Kafka, or other dependencies, the following dependencies are needed to be started as docker containers:
@@ -127,6 +128,14 @@ services:
     ports:
       - 4222:4222
       - 8222:8222  # management
+    # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
+    security_opt:
+      - no-new-privileges:true
+  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
+  redis:
+    image: redis:alpine
+    ports:
+      - 6379:6379
     # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
     security_opt:
       - no-new-privileges:true

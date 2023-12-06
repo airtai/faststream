@@ -53,7 +53,7 @@ class NatsLoggingMixin(LoggingMixin):
             + (f"%(stream)-{self._max_stream_len}s | " if self._max_stream_len else "")
             + (f"%(queue)-{self._max_queue_len}s | " if self._max_queue_len else "")
             + f"%(subject)-{self._max_subject_len}s | "
-            + "%(message_id)-10s "
+            + f"%(message_id)-{self._message_id_ln}s "
             "- %(message)s"
         )
 
@@ -63,11 +63,6 @@ class NatsLoggingMixin(LoggingMixin):
         subject: Optional[str] = None,
         stream: Optional[str] = None,
     ) -> None:
-        if subject is not None:
-            self._max_subject_len = max((self._max_subject_len, len(subject)))
-
-        if queue is not None:
-            self._max_queue_len = max((self._max_queue_len, len(queue)))
-
-        if stream is not None:
-            self._max_stream_len = max((self._max_stream_len, len(stream)))
+        self._max_subject_len = max((self._max_subject_len, len(subject or "")))
+        self._max_queue_len = max((self._max_queue_len, len(queue or "")))
+        self._max_stream_len = max((self._max_stream_len, len(stream or "")))

@@ -4,48 +4,60 @@ from faststream import TestApp
 from faststream.kafka import TestKafkaBroker
 from faststream.nats import TestNatsBroker
 from faststream.rabbit import TestRabbitBroker
+from faststream.redis import TestRedisBroker
 
 
 @pytest.mark.asyncio
 async def test_broker_kafka():
-    from docs.docs_src.getting_started.publishing.broker_kafka import (
+    from docs.docs_src.getting_started.publishing.kafka.broker import (
         app,
         broker,
         handle,
         handle_next,
     )
 
-    async with TestKafkaBroker(broker, connect_only=True):
-        async with TestApp(app):
-            handle.mock.assert_called_once_with("")
-            handle_next.mock.assert_called_once_with("Hi!")
+    async with TestKafkaBroker(broker), TestApp(app):
+        handle.mock.assert_called_once_with("")
+        handle_next.mock.assert_called_once_with("Hi!")
 
 
 @pytest.mark.asyncio
 async def test_broker_rabbit():
-    from docs.docs_src.getting_started.publishing.broker_rabbit import (
+    from docs.docs_src.getting_started.publishing.rabbit.broker import (
         app,
         broker,
         handle,
         handle_next,
     )
 
-    async with TestRabbitBroker(broker, connect_only=True):
-        async with TestApp(app):
-            handle.mock.assert_called_once_with("")
-            handle_next.mock.assert_called_once_with("Hi!")
+    async with TestRabbitBroker(broker), TestApp(app):
+        handle.mock.assert_called_once_with("")
+        handle_next.mock.assert_called_once_with("Hi!")
 
 
 @pytest.mark.asyncio
 async def test_broker_nats():
-    from docs.docs_src.getting_started.publishing.broker_nats import (
+    from docs.docs_src.getting_started.publishing.nats.broker import (
         app,
         broker,
         handle,
         handle_next,
     )
 
-    async with TestNatsBroker(broker, connect_only=True):
-        async with TestApp(app):
-            handle.mock.assert_called_once_with("")
-            handle_next.mock.assert_called_once_with("Hi!")
+    async with TestNatsBroker(broker), TestApp(app):
+        handle.mock.assert_called_once_with("")
+        handle_next.mock.assert_called_once_with("Hi!")
+
+
+@pytest.mark.asyncio
+async def test_broker_redis():
+    from docs.docs_src.getting_started.publishing.redis.broker import (
+        app,
+        broker,
+        handle,
+        handle_next,
+    )
+
+    async with TestRedisBroker(broker), TestApp(app):
+        handle.mock.assert_called_once_with("")
+        handle_next.mock.assert_called_once_with("Hi!")

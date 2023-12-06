@@ -12,11 +12,8 @@ from tests.tools import spy_decorator
 async def test_ack_exc():
     from docs.docs_src.rabbit.ack.errors import app, broker, handle
 
-    async with TestRabbitBroker(broker, with_real=True, connect_only=True):
-        with patch.object(
-            IncomingMessage, "ack", spy_decorator(IncomingMessage.ack)
-        ) as m:
-            async with TestApp(app):
-                await handle.wait_call(3)
+    with patch.object(IncomingMessage, "ack", spy_decorator(IncomingMessage.ack)) as m:
+        async with TestRabbitBroker(broker, with_real=True), TestApp(app):
+            await handle.wait_call(3)
 
-                m.mock.assert_called_once()
+            m.mock.assert_called_once()

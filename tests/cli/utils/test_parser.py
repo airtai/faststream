@@ -22,18 +22,20 @@ ARG5 = (
     "1",
 )
 ARG6 = ("--some-key",)
+ARG7 = ("--k7", "1", "--k7", "2")
 
 
 @pytest.mark.parametrize(
     "args",
     (
-        (APPLICATION, *ARG1, *ARG2, *ARG3, *ARG4, *ARG5, *ARG6),
-        (*ARG1, APPLICATION, *ARG2, *ARG3, *ARG4, *ARG5, *ARG6),
-        (*ARG1, *ARG2, APPLICATION, *ARG3, *ARG4, *ARG5, *ARG6),
-        (*ARG1, *ARG2, *ARG3, APPLICATION, *ARG4, *ARG5, *ARG6),
-        (*ARG1, *ARG2, *ARG3, *ARG4, APPLICATION, *ARG5, *ARG6),
-        (*ARG1, *ARG2, *ARG3, *ARG4, *ARG5, APPLICATION, *ARG6),
-        (*ARG1, *ARG2, *ARG3, *ARG4, *ARG5, *ARG6, APPLICATION),
+        (APPLICATION, *ARG1, *ARG2, *ARG3, *ARG4, *ARG5, *ARG6, *ARG7),
+        (*ARG1, APPLICATION, *ARG2, *ARG3, *ARG4, *ARG5, *ARG6, *ARG7),
+        (*ARG1, *ARG2, APPLICATION, *ARG3, *ARG4, *ARG5, *ARG6, *ARG7),
+        (*ARG1, *ARG2, *ARG3, APPLICATION, *ARG4, *ARG5, *ARG6, *ARG7),
+        (*ARG1, *ARG2, *ARG3, *ARG4, APPLICATION, *ARG5, *ARG6, *ARG7),
+        (*ARG1, *ARG2, *ARG3, *ARG4, *ARG5, APPLICATION, *ARG6, *ARG7),
+        (*ARG1, *ARG2, *ARG3, *ARG4, *ARG5, *ARG6, APPLICATION, *ARG7),
+        (*ARG1, *ARG2, *ARG3, *ARG4, *ARG5, *ARG6, *ARG7, APPLICATION),
     ),
 )
 def test_custom_argument_parsing(args: Tuple[str]):
@@ -46,4 +48,5 @@ def test_custom_argument_parsing(args: Tuple[str]):
         "k4": False,
         "k5": ["1", "1"],
         "some_key": True,
+        "k7": ["1", "2"],
     }

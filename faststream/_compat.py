@@ -1,4 +1,3 @@
-import importlib.util
 import json
 import os
 import sys
@@ -13,17 +12,21 @@ from pydantic import BaseModel
 
 if sys.version_info < (3, 12):
     from typing_extensions import TypedDict as TypedDict
+    from typing_extensions import Unpack as Unpack
     from typing_extensions import override as override
 else:
     from typing import TypedDict as TypedDict
+    from typing import Unpack as Unpack
     from typing import override as override
 
 if sys.version_info < (3, 11):
     from typing_extensions import Never as Never
+    from typing_extensions import NotRequired as NotRequired
     from typing_extensions import Required as Required
     from typing_extensions import Self as Self
 else:
     from typing import Never as Never
+    from typing import NotRequired as NotRequired
     from typing import Required as Required
     from typing import Self as Self
 
@@ -45,10 +48,6 @@ else:
 from faststream.types import AnyDict
 
 ModelVar = TypeVar("ModelVar", bound=BaseModel)
-
-
-def is_installed(package: str) -> bool:
-    return bool(importlib.util.find_spec(package))
 
 
 IS_OPTIMIZED = os.getenv("PYTHONOPTIMIZE", False)
@@ -83,12 +82,9 @@ try:
 except ImportError:
     HAS_FASTAPI = False
 
-
 JsonSchemaValue = Mapping[str, Any]
 
 if PYDANTIC_V2:
-    from pydantic import ConfigDict as ConfigDict
-
     if PYDANTIC_VERSION >= "2.4.0":
         from pydantic.annotated_handlers import (
             GetJsonSchemaHandler as GetJsonSchemaHandler,
@@ -103,6 +99,7 @@ if PYDANTIC_V2:
         from pydantic_core.core_schema import (
             general_plain_validator_function as with_info_plain_validator_function,
         )
+
     from pydantic_core import CoreSchema as CoreSchema
     from pydantic_core import to_jsonable_python
 
@@ -138,17 +135,10 @@ if PYDANTIC_V2:
         return model.model_copy(**kwargs)
 
 else:
-    from pydantic.config import BaseConfig, get_config
-    from pydantic.config import ConfigDict as CD
     from pydantic.json import pydantic_encoder
 
     GetJsonSchemaHandler = Any  # type: ignore[assignment,misc]
     CoreSchema = Any  # type: ignore[assignment,misc]
-
-    def ConfigDict(  # type: ignore[no-redef]
-        **kwargs: Any,
-    ) -> Type[BaseConfig]:
-        return get_config(CD(**kwargs))  # type: ignore
 
     SCHEMA_FIELD = "schema_extra"
 

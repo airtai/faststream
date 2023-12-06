@@ -30,3 +30,14 @@
     def handle_msg(msg_body):
         ...
     ```
+
+=== "Redis"
+    ```python
+    from faststream.redis import RedisBroker
+
+    broker = RedisBroker()
+
+    @broker.subscriber("test")  # channel name
+    def handle_msg(msg_body):
+        ...
+    ```

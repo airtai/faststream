@@ -12,6 +12,5 @@ async def test():
     with mock_pydantic_settings_env({"host": "localhost"}):
         from docs.docs_src.getting_started.cli.nats_context import app, broker
 
-        async with TestNatsBroker(broker):
-            async with TestApp(app, {"env": ""}):
-                assert context.get("settings").host == "localhost"
+        async with TestNatsBroker(broker), TestApp(app, {"env": ""}):
+            assert context.get("settings").host == "localhost"

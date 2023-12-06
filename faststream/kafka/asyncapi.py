@@ -25,6 +25,9 @@ class Handler(LogicHandler, AsyncAPIOperation):
     """
 
     def schema(self) -> Dict[str, Channel]:
+        if not self.include_in_schema:
+            return {}
+
         channels = {}
 
         payloads = self.get_payloads()
@@ -65,6 +68,9 @@ class Publisher(LogicPublisher, AsyncAPIOperation):
     """
 
     def schema(self) -> Dict[str, Channel]:
+        if not self.include_in_schema:
+            return {}
+
         payloads = self.get_payloads()
 
         return {

@@ -26,6 +26,6 @@ To set a local context (available only within the message processing scope), use
 
 {!> includes/getting_started/context/custom_local.md !}
 
-You can also set the context yourself, and it will remain within the current call stack until you clear it.
+You can also set the context by yourself, and it will remain within the current call stack until you clear it.
 
 {!> includes/getting_started/context/manual_local.md !}

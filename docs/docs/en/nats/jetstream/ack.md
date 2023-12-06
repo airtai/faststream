@@ -56,3 +56,5 @@ If you want to interrupt message processing at any call stack, you can raise `fa
 ```
 
 This way, **FastStream** interrupts the current message proccessing and acknowledges it immediately. Also, you can raise `NackMessage` and `RejectMessage` too.
+
+{!> includes/en/no_ack.md !}

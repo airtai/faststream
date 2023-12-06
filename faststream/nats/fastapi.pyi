@@ -177,8 +177,7 @@ class NatsRouter(StreamRouter[Msg]):
         title: Optional[str] = None,
         description: Optional[str] = None,
         **__service_kwargs: Any,
-    ) -> Callable[[Msg, bool], Awaitable[T_HandlerReturn]]:
-        pass
+    ) -> Callable[[Msg, bool], Awaitable[T_HandlerReturn]]: ...
     @override
     def subscriber(  # type: ignore[override]
         self,
@@ -208,9 +207,11 @@ class NatsRouter(StreamRouter[Msg]):
         middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
         filter: Filter[NatsMessage] = default_filter,
         retry: bool = False,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -230,6 +231,7 @@ class NatsRouter(StreamRouter[Msg]):
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
     ) -> Publisher: ...
     @overload
     def after_startup(

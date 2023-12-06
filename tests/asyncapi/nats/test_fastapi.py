@@ -1,7 +1,7 @@
 from typing import Type
 
-from faststream.kafka.test import TestKafkaBroker
 from faststream.nats.fastapi import NatsRouter
+from faststream.nats.test import TestNatsBroker
 from tests.asyncapi.base.arguments import FastAPICompatible
 from tests.asyncapi.base.fastapi import FastAPITestCase
 from tests.asyncapi.base.publisher import PublisherTestcase
@@ -9,7 +9,7 @@ from tests.asyncapi.base.publisher import PublisherTestcase
 
 class TestRouterArguments(FastAPITestCase, FastAPICompatible):
     broker_class: Type[NatsRouter] = NatsRouter
-    broker_wrapper = staticmethod(TestKafkaBroker)
+    broker_wrapper = staticmethod(TestNatsBroker)
 
     def build_app(self, router):
         return router

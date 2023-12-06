@@ -1,5 +1,3 @@
-[Note]: # (This is an auto-generated file. Please edit docs/docs/en/index.md instead)
-
 # FastStream
 
 <b>Effortless event stream integration for your services</b>
@@ -54,12 +52,12 @@
 
 ## Features
 
-[**FastStream**](https://faststream.airt.ai/) simplifies the process of writing producers and consumers for message queues, handling all the
+[**FastStream**](https://faststream.airt.ai/latest/) simplifies the process of writing producers and consumers for message queues, handling all the
 parsing, networking and documentation generation automatically.
 
 Making streaming microservices has never been easier. Designed with junior developers in mind, **FastStream** simplifies your work while keeping the door open for more advanced use cases. Here's a look at the core features that make **FastStream** a go-to framework for modern, data-centric microservices.
 
-- **Multiple Brokers**: **FastStream** provides a unified API to work across multiple message brokers (**Kafka**, **RabbitMQ**, **NATS**, support)
+- **Multiple Brokers**: **FastStream** provides a unified API to work across multiple message brokers (**Kafka**, **RabbitMQ**, **NATS**, **Redis** support)
 
 - [**Pydantic Validation**](#writing-app-code): Leverage [**Pydantic's**](https://docs.pydantic.dev/) validation capabilities to serialize and validates incoming messages
 
@@ -81,7 +79,7 @@ That's **FastStream** in a nutshell—easy, efficient, and powerful. Whether you
 
 ---
 
-**Documentation**: <a href="https://faststream.airt.ai/?utm_source=github&utm_medium=acquisition&utm_campaign=measure" target="_blank">https://faststream.airt.ai/</a>
+**Documentation**: <a href="https://faststream.airt.ai/latest/" target="_blank">https://faststream.airt.ai/latest/</a>
 
 ---
 
@@ -102,6 +100,8 @@ pip install faststream[kafka]
 pip install faststream[rabbit]
 # or
 pip install faststream[nats]
+# or
+pip install faststream[redis]
 ```
 
 By default **FastStream** uses **PydanticV2** written in **Rust**, but you can downgrade it manually, if your platform has no **Rust** support - **FastStream** will work correctly with **PydanticV1** as well.
@@ -129,10 +129,12 @@ from faststream import FastStream
 from faststream.kafka import KafkaBroker
 # from faststream.rabbit import RabbitBroker
 # from faststream.nats import NatsBroker
+# from faststream.redis import RedisBroker
 
 broker = KafkaBroker("localhost:9092")
 # broker = RabbitBroker("amqp://guest:guest@localhost:5672/")
 # broker = NatsBroker("nats://localhost:4222/")
+# broker = RedisBroker("redis://localhost:6379/")
 
 app = FastStream(broker)
 
@@ -242,7 +244,7 @@ The availability of such documentation significantly simplifies the integration 
 
 ## Dependencies
 
-**FastStream** (thanks to [**FastDepend**](https://lancetnik.github.io/FastDepends/)) has a dependency management system similar to `pytest fixtures` and `FastAPI Depends` at the same time. Function arguments declare which dependencies you want are needed, and a special decorator delivers them from the global Context object.
+**FastStream** (thanks to [**FastDepends**](https://lancetnik.github.io/FastDepends/)) has a dependency management system similar to `pytest fixtures` and `FastAPI Depends` at the same time. Function arguments declare which dependencies you want are needed, and a special decorator delivers them from the global Context object.
 
 ```python
 from faststream import Depends, Logger

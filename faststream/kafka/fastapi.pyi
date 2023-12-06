@@ -112,6 +112,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         ),
         # broker kwargs
         apply_types: bool = True,
+        validate: bool = True,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
         middlewares: Optional[
@@ -191,9 +192,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         max_records: Optional[int] = None,
         batch_timeout_ms: int = 200,
         retry: Union[bool, int] = False,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -251,9 +254,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         max_records: Optional[int] = None,
         batch_timeout_ms: int = 200,
         retry: Union[bool, int] = False,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -392,6 +397,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
     ) -> Publisher: ...
     @overload
     def after_startup(

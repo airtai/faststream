@@ -7,6 +7,5 @@ from faststream.rabbit import TestApp, TestRabbitBroker
 async def test_index():
     from docs.docs_src.rabbit.subscription.index import app, broker, handle
 
-    async with TestRabbitBroker(broker, connect_only=True):
-        async with TestApp(app):
-            handle.mock.assert_called_once_with("message")
+    async with TestRabbitBroker(broker), TestApp(app):
+        handle.mock.assert_called_once_with("message")

@@ -3,6 +3,7 @@ from asyncio import AbstractEventLoop
 from types import TracebackType
 from typing import (
     Any,
+    AsyncContextManager,
     Awaitable,
     Callable,
     Dict,
@@ -31,7 +32,6 @@ from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
-from faststream.broker.push_back_watcher import BaseWatcher
 from faststream.broker.security import BaseSecurity
 from faststream.broker.types import (
     CustomDecoder,
@@ -56,8 +56,8 @@ class KafkaBroker(
     KafkaLoggingMixin,
     BrokerAsyncUsecase[aiokafka.ConsumerRecord, ConsumerConnectionParams],
 ):
-    handlers: Dict[str, Handler]  # type: ignore[assignment]
-    _publishers: Dict[str, Publisher]  # type: ignore[assignment]
+    handlers: Dict[str, Handler]
+    _publishers: Dict[str, Publisher]
     _producer: Optional[AioKafkaFastProducer]
 
     def __init__(
@@ -91,6 +91,7 @@ class KafkaBroker(
         loop: Optional[AbstractEventLoop] = None,
         # broker args
         apply_types: bool = True,
+        validate: bool = True,
         dependencies: Sequence[Depends] = (),
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
@@ -187,7 +188,8 @@ class KafkaBroker(
         func: Callable[
             [StreamMessage[aiokafka.ConsumerRecord]], Awaitable[T_HandlerReturn]
         ],
-        watcher: BaseWatcher,
+        watcher: Callable[..., AsyncContextManager[None]],
+        **kwargs: Any,
     ) -> Callable[
         [StreamMessage[aiokafka.ConsumerRecord]],
         Awaitable[WrappedReturn[T_HandlerReturn]],
@@ -243,9 +245,11 @@ class KafkaBroker(
         max_records: Optional[int] = None,
         batch_timeout_ms: int = 200,
         retry: Union[bool, int] = False,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -305,9 +309,11 @@ class KafkaBroker(
         max_records: Optional[int] = None,
         batch_timeout_ms: int = 200,
         retry: Union[bool, int] = False,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -329,6 +335,7 @@ class KafkaBroker(
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
     ) -> Publisher: ...
     @override
     async def publish(  # type: ignore[override]

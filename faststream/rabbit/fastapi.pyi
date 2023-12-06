@@ -5,12 +5,10 @@ from typing import (
     Callable,
     Dict,
     List,
-    Mapping,
     Optional,
     Sequence,
     Type,
     Union,
-    overload,
 )
 
 import aio_pika
@@ -22,7 +20,7 @@ from fastapi.utils import generate_unique_id
 from pamqp.common import FieldTable
 from starlette import routing
 from starlette.responses import JSONResponse, Response
-from starlette.types import AppType, ASGIApp, Lifespan
+from starlette.types import ASGIApp, Lifespan
 from yarl import URL
 
 from faststream._compat import override
@@ -41,7 +39,7 @@ from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.rabbit.asyncapi import Publisher
 from faststream.rabbit.broker import RabbitBroker
 from faststream.rabbit.message import RabbitMessage
-from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
+from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue, ReplyConfig
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.types import AnyDict
 
@@ -99,8 +97,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         generate_unique_id_function: Callable[[APIRoute], str] = Default(
             generate_unique_id
         ),
-    ) -> None:
-        pass
+    ) -> None: ...
     def add_api_mq_route(  # type: ignore[override]
         self,
         queue: Union[str, RabbitQueue],
@@ -121,8 +118,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         title: Optional[str] = None,
         description: Optional[str] = None,
         **__service_kwargs: Any,
-    ) -> Callable[[IncomingMessage, bool], Awaitable[T_HandlerReturn]]:
-        pass
+    ) -> Callable[[IncomingMessage, bool], Awaitable[T_HandlerReturn]]: ...
     @override
     def subscriber(  # type: ignore[override]
         self,
@@ -130,6 +126,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         exchange: Union[str, RabbitExchange, None] = None,
         *,
         consume_args: Optional[AnyDict] = None,
+        reply_config: Optional[ReplyConfig] = None,
         # broker arguments
         dependencies: Sequence[params.Depends] = (),
         filter: Filter[RabbitMessage] = default_filter,
@@ -139,9 +136,11 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         ] = None,
         retry: Union[bool, int] = False,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -163,6 +162,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
         # message args
         headers: Optional[aio_pika.abc.HeadersType] = None,
         content_type: Optional[str] = None,
@@ -176,26 +176,6 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         user_id: Optional[str] = None,
         app_id: Optional[str] = None,
     ) -> Publisher: ...
-    @overload
-    def after_startup(
-        self,
-        func: Callable[[AppType], Mapping[str, Any]],
-    ) -> Callable[[AppType], Mapping[str, Any]]: ...
-    @overload
-    def after_startup(
-        self,
-        func: Callable[[AppType], Awaitable[Mapping[str, Any]]],
-    ) -> Callable[[AppType], Awaitable[Mapping[str, Any]]]: ...
-    @overload
-    def after_startup(
-        self,
-        func: Callable[[AppType], None],
-    ) -> Callable[[AppType], None]: ...
-    @overload
-    def after_startup(
-        self,
-        func: Callable[[AppType], Awaitable[None]],
-    ) -> Callable[[AppType], Awaitable[None]]: ...
     @override
     @staticmethod
     def _setup_log_context(  # type: ignore[override]

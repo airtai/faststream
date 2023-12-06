@@ -1,3 +1,4 @@
+import importlib
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 from typing import Tuple
@@ -30,7 +31,7 @@ def try_import_app(module: Path, app: str) -> FastStream:
     except FileNotFoundError as e:
         typer.echo(e, err=True)
         raise typer.BadParameter(
-            "Please, input module like [python_file:faststream_app_name]"
+            "Please, input module like [python_file:faststream_app_name] or [module:attribute]"
         ) from e
 
     else:
@@ -105,3 +106,56 @@ def get_app_path(app: str) -> Tuple[Path, str]:
         mod_path = mod_path / i
 
     return mod_path, app_name
+
+
+def import_from_string(import_str: str) -> Tuple[Path, FastStream]:
+    """
+    Import FastStream application from module specified by a string.
+
+    Parameters:
+        import_str (str): A string in the format "<module>:<attribute>" specifying the module and faststream application to import.
+
+    Returns:
+        Tuple[ModuleType, FastStream]: A tuple containing the imported module and the faststream application.
+
+    Raises:
+        typer.BadParameter: Raised if the given value is not of type string, if the import string is not in the format
+            "<module>:<attribute>", if the module is not found, or if the faststream appliation is not found in the module.
+    """
+    if not isinstance(import_str, str):
+        raise typer.BadParameter("Given value is not of type string")
+
+    module_str, _, attrs_str = import_str.partition(":")
+    if not module_str or not attrs_str:
+        raise typer.BadParameter(
+            f'Import string "{import_str}" must be in format "<module>:<attribute>"'
+        )
+
+    try:
+        module = importlib.import_module(  # nosemgrep: python.lang.security.audit.non-literal-import.non-literal-import
+            module_str
+        )
+
+    except ModuleNotFoundError:
+        module_path, app_name = get_app_path(import_str)
+        instance = try_import_app(module_path, app_name)
+
+    else:
+        attr = module
+        try:
+            for attr_str in attrs_str.split("."):
+                attr = getattr(attr, attr_str)
+            instance = attr  # type: ignore[assignment]
+
+        except AttributeError as e:
+            typer.echo(e, err=True)
+            raise typer.BadParameter(
+                f'Attribute "{attrs_str}" not found in module "{module_str}".'
+            ) from e
+
+        if module.__file__:
+            module_path = Path(module.__file__).resolve().parent
+        else:
+            module_path = Path.cwd()
+
+    return module_path, instance

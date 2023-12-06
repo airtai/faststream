@@ -12,3 +12,8 @@
     ```python linenums="1" hl_lines="14-16"
     {!> docs_src/getting_started/cli/nats_context.py!}
     ```
+
+=== "Redis"
+    ```python linenums="1" hl_lines="14-16"
+    {!> docs_src/getting_started/cli/redis_context.py!}
+    ```

@@ -18,7 +18,7 @@ from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.rabbit.asyncapi import Publisher
 from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.shared.router import RabbitRoute
-from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
+from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue, ReplyConfig
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.types import AnyDict
 
@@ -34,6 +34,7 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
         ] = None,
         parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
         decoder: Optional[CustomDecoder[RabbitMessage]] = None,
+        include_in_schema: bool = True,
     ): ...
     @staticmethod
     @override
@@ -51,6 +52,7 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
         exchange: Union[str, RabbitExchange, None] = None,
         *,
         consume_args: Optional[AnyDict] = None,
+        reply_config: Optional[ReplyConfig] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
         filter: Filter[RabbitMessage] = default_filter,
@@ -65,9 +67,11 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
             ]
         ] = None,
         retry: Union[bool, int] = False,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
+        include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -89,6 +93,7 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
+        include_in_schema: bool = True,
         # message args
         headers: Optional[aio_pika.abc.HeadersType] = None,
         content_type: Optional[str] = None,

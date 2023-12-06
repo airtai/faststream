@@ -48,7 +48,8 @@ def extract_lines(embedded_line):
     elif Path("./docs_src").exists():
         to_expand_path = Path("./") / to_expand_path
     else:
-        raise ValueError(f"Couldn't find docs_src directory")
+        raise ValueError("Couldn't find docs_src directory")
+
     return read_lines_from_file(to_expand_path, lines_spec)
 
 

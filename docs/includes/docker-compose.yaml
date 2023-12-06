@@ -37,3 +37,11 @@ services:
     # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
     security_opt:
       - no-new-privileges:true
+  # nosemgrep: yaml.docker-compose.security.writable-filesystem-service.writable-filesystem-service
+  redis:
+    image: redis:alpine
+    ports:
+      - 6379:6379
+    # https://semgrep.dev/r?q=yaml.docker-compose.security.no-new-privileges.no-new-privileges
+    security_opt:
+      - no-new-privileges:true

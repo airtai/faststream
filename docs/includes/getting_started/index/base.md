@@ -12,3 +12,8 @@
     ```python linenums="1" title="serve.py"
     {!> docs_src/getting_started/index/base_nats.py!}
     ```
+
+=== "Redis"
+    ```python linenums="1" title="serve.py"
+    {!> docs_src/getting_started/index/base_redis.py!}
+    ```

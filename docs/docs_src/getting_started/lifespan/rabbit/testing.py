@@ -13,7 +13,9 @@ async def handle():
 
 @pytest.mark.asyncio
 async def test_lifespan():
-    async with TestRabbitBroker(app.broker, connect_only=True):
-        async with TestApp(app):
-            # test something
-            pass
+    async with (
+        TestRabbitBroker(app.broker, connect_only=True),
+        TestApp(app),
+    ):
+        # test something
+        pass

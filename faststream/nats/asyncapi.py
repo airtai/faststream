@@ -15,6 +15,9 @@ from faststream.nats.publisher import LogicPublisher
 
 class Handler(LogicNatsHandler):
     def schema(self) -> Dict[str, Channel]:
+        if not self.include_in_schema:
+            return {}
+
         payloads = self.get_payloads()
         handler_name = self._title or f"{self.subject}:{self.call_name}"
         return {
@@ -41,6 +44,9 @@ class Handler(LogicNatsHandler):
 
 class Publisher(LogicPublisher):
     def schema(self) -> Dict[str, Channel]:
+        if not self.include_in_schema:
+            return {}
+
         payloads = self.get_payloads()
 
         return {

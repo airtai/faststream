@@ -8,7 +8,6 @@ from faststream.nats import TestNatsBroker
 async def test_basic():
     from examples.nats.e03_publisher import app, broker, handler, response_handler
 
-    async with TestNatsBroker(broker):
-        async with TestApp(app):
-            handler.mock.assert_called_once_with("Hi!")
-            response_handler.mock.assert_called_once_with("Response")
+    async with TestNatsBroker(broker), TestApp(app):
+        handler.mock.assert_called_once_with("Hi!")
+        response_handler.mock.assert_called_once_with("Response")

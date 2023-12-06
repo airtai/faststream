@@ -28,21 +28,78 @@ class BrokerPublishTestcase:
     @pytest.mark.parametrize(
         ("message", "message_type", "expected_message"),
         (
-            ("hello", str, "hello"),
-            (b"hello", bytes, b"hello"),
-            (1, int, 1),
-            (1.0, float, 1.0),
-            (False, bool, False),
-            ({"m": 1}, Dict[str, int], {"m": 1}),
-            ([1, 2, 3], List[int], [1, 2, 3]),
-            (now, datetime, now),
-            (
+            pytest.param(
+                "hello",
+                str,
+                "hello",
+                id="str->str",
+            ),
+            pytest.param(
+                b"hello",
+                bytes,
+                b"hello",
+                id="bytes->bytes",
+            ),
+            pytest.param(
+                1,
+                int,
+                1,
+                id="int->int",
+            ),
+            pytest.param(
+                1.0,
+                float,
+                1.0,
+                id="float->float",
+            ),
+            pytest.param(
+                False,
+                bool,
+                False,
+                id="bool->bool",
+            ),
+            pytest.param(
+                {"m": 1},
+                Dict[str, int],
+                {"m": 1},
+                id="dict->dict",
+            ),
+            pytest.param(
+                [1, 2, 3],
+                List[int],
+                [1, 2, 3],
+                id="list->list",
+            ),
+            pytest.param(
+                now,
+                datetime,
+                now,
+                id="datetime->datetime",
+            ),
+            pytest.param(
                 model_to_json(SimpleModel(r="hello!")).encode(),
                 SimpleModel,
                 SimpleModel(r="hello!"),
+                id="bytes->model",
             ),
-            (SimpleModel(r="hello!"), SimpleModel, SimpleModel(r="hello!")),
-            (SimpleModel(r="hello!"), dict, {"r": "hello!"}),
+            pytest.param(
+                SimpleModel(r="hello!"),
+                SimpleModel,
+                SimpleModel(r="hello!"),
+                id="model->model",
+            ),
+            pytest.param(
+                SimpleModel(r="hello!"),
+                dict,
+                {"r": "hello!"},
+                id="model->dict",
+            ),
+            pytest.param(
+                {"r": "hello!"},
+                SimpleModel,
+                SimpleModel(r="hello!"),
+                id="dict->model",
+            ),
         ),
     )
     async def test_serialize(
@@ -326,6 +383,35 @@ class BrokerPublishTestcase:
                     asyncio.create_task(
                         pub_broker.publish("Hello!", queue, reply_to=queue + "reply")
                     ),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        mock.assert_called_with("Hello!")
+
+    @pytest.mark.asyncio
+    async def test_publisher_after_start(
+        self,
+        pub_broker: BrokerUsecase,
+        queue: str,
+        event,
+        mock,
+    ):
+        @pub_broker.subscriber(queue)
+        async def handler(m):
+            event.set()
+            mock(m)
+
+        async with pub_broker:
+            await pub_broker.start()
+
+            pub = pub_broker.publisher(queue)
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(pub.publish("Hello!")),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
