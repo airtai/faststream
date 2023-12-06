@@ -52,7 +52,7 @@ class Publisher(LogicPublisher):
                 publish=Operation(
                     bindings=OperationBinding(
                         amqp=amqp.OperationBinding(
-                            cc=self.routing,
+                            cc=self.routing or None,
                             deliveryMode=2 if self.persist else 1,
                             mandatory=self.mandatory,
                             replyTo=self.reply_to,
