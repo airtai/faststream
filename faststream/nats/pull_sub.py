@@ -12,7 +12,7 @@ class PullSub(BaseModel):
         self,
         batch_size: int = 1,
         timeout: Optional[float] = 5.0,
-        as_list: bool = True,
+        as_list: bool = False,
     ) -> None:
         super().__init__(
             batch_size=batch_size,
