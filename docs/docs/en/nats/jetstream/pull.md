@@ -24,4 +24,7 @@ The **Pull** consumer is just a regular *Stream* consumer, but with the `pull_su
 
 The batch size doesn't mean that your `msg` argument is a list of messages, but it means that you consume up to `10` messages for one request to **NATS** and call your handler for each message in an `asyncio.gather` pool.
 
+!!! tip
+    If you want to consume list of messages, just set the `as_list=True` in `PullSub` class.
+
 So, your subject will be processed much faster, without blocking for each message processing. However, if your subject has fewer than `10` messages, your request to **NATS** will be blocked for `timeout` (5 seconds by default) while trying to collect the required number of messages. Therefor, you should choose `batch_size` and `timeout` accurately to optimize your consumer efficiency.
