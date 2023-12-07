@@ -1,4 +1,6 @@
-from typing import Optional
+from typing import Optional, Mapping
+
+from redis.asyncio.connection import Connection
 
 from faststream.security import BaseSecurity, SASLPlaintext
 from faststream.types import AnyDict
@@ -16,22 +18,31 @@ def parse_security(security: Optional[BaseSecurity]) -> AnyDict:
 
 
 def _parse_base_security(security: BaseSecurity) -> AnyDict:
-    return {
-        "ssl": security.use_ssl,
-    }
+    if security.use_ssl:
+        
+        class SSLConnection(Connection):
+            def __init__(
+                self,
+                _security: BaseSecurity = security,
+                **kwargs,
+            ):
+                self._security = _security
+                super().__init__(**kwargs)
+
+            def _connection_arguments(self) -> Mapping:
+                kwargs = super()._connection_arguments()
+                kwargs["ssl"] = self._security.ssl_context
+                return kwargs
+        
+        return {"connection_class": SSLConnection}
+    else:
+        return {}
 
 
 def _parse_sasl_plaintext(security: SASLPlaintext) -> AnyDict:
-    return {
-        "ssl": security.use_ssl,
+    security_dict = {
         "username": security.username,
         "password": security.password,
     }
 
-
-# ssl_keyfile: Optional[str] = None
-# ssl_certfile: Optional[str] = None
-# ssl_cert_reqs: str = "required"
-# ssl_ca_certs: Optional[str] = None
-# ssl_ca_data: Optional[str] = None
-# ssl_check_hostname: bool = False
+    return dict(**security_dict, **_parse_base_security(security))
