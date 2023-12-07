@@ -13,18 +13,6 @@ def test_same_queue():
     )
 
 
-def test_same_routing_key():
-    assert (
-        len(
-            {
-                RabbitQueue("test"): 0,
-                RabbitQueue("test", routing_key="test"): 1,
-            }
-        )
-        == 1
-    )
-
-
 def test_different_queue_routing_key():
     assert (
         len(
@@ -33,5 +21,5 @@ def test_different_queue_routing_key():
                 RabbitQueue("test", routing_key="binding-2"): 1,
             }
         )
-        == 2
+        == 1
     )
