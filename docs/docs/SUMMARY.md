@@ -172,7 +172,6 @@
                 - info
                     - [Contact](api/faststream/asyncapi/schema/info/Contact.md)
                     - [ContactDict](api/faststream/asyncapi/schema/info/ContactDict.md)
-                    - [EmailStr](api/faststream/asyncapi/schema/info/EmailStr.md)
                     - [Info](api/faststream/asyncapi/schema/info/Info.md)
                     - [License](api/faststream/asyncapi/schema/info/License.md)
                     - [LicenseDict](api/faststream/asyncapi/schema/info/LicenseDict.md)
@@ -416,6 +415,8 @@
                 - [PullSub](api/faststream/nats/pull_sub/PullSub.md)
             - router
                 - [NatsRouter](api/faststream/nats/router/NatsRouter.md)
+            - security
+                - [parse_security](api/faststream/nats/security/parse_security.md)
             - shared
                 - logging
                     - [NatsLoggingMixin](api/faststream/nats/shared/logging/NatsLoggingMixin.md)
@@ -524,6 +525,8 @@
                 - [ListSub](api/faststream/redis/schemas/ListSub.md)
                 - [PubSub](api/faststream/redis/schemas/PubSub.md)
                 - [StreamSub](api/faststream/redis/schemas/StreamSub.md)
+            - security
+                - [parse_security](api/faststream/redis/security/parse_security.md)
             - shared
                 - logging
                     - [RedisLoggingMixin](api/faststream/redis/shared/logging/RedisLoggingMixin.md)

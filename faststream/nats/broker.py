@@ -94,11 +94,7 @@ class NatsBroker(
             )
 
         super().__init__(
-            url=(
-                [servers]
-                if isinstance(servers, str)
-                else list(servers)
-            ),
+            url=([servers] if isinstance(servers, str) else list(servers)),
             protocol=protocol,
             protocol_version=protocol_version,
             security=security,

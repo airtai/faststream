@@ -1,4 +1,4 @@
-from typing import Optional, Mapping
+from typing import Any, Optional
 
 from redis.asyncio.connection import Connection
 
@@ -19,21 +19,21 @@ def parse_security(security: Optional[BaseSecurity]) -> AnyDict:
 
 def _parse_base_security(security: BaseSecurity) -> AnyDict:
     if security.use_ssl:
-        
+
         class SSLConnection(Connection):
             def __init__(
                 self,
                 _security: BaseSecurity = security,
-                **kwargs,
+                **kwargs: Any,
             ):
                 self._security = _security
                 super().__init__(**kwargs)
 
-            def _connection_arguments(self) -> Mapping:
-                kwargs = super()._connection_arguments()
+            def _connection_arguments(self) -> Any:
+                kwargs = super()._connection_arguments()  # type: ignore
                 kwargs["ssl"] = self._security.ssl_context
                 return kwargs
-        
+
         return {"connection_class": SSLConnection}
     else:
         return {}
