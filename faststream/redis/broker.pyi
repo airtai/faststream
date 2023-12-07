@@ -37,6 +37,7 @@ from faststream.redis.message import AnyRedisDict, RedisMessage
 from faststream.redis.producer import RedisFastProducer
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 from faststream.redis.shared.logging import RedisLoggingMixin
+from faststream.security import BaseSecurity
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
 Channel: TypeAlias = str
@@ -75,6 +76,7 @@ class RedisBroker(
         parser_class: Type[BaseParser] = DefaultParser,
         connection_class: Type[Connection] = Connection,
         encoder_class: Type[Encoder] = Encoder,
+        security: Optional[BaseSecurity] = None,
         # broker args
         apply_types: bool = True,
         validate: bool = True,
@@ -117,6 +119,7 @@ class RedisBroker(
         parser_class: Type[BaseParser] = DefaultParser,
         connection_class: Type[Connection] = Connection,
         encoder_class: Type[Encoder] = Encoder,
+        security: Optional[BaseSecurity] = None,
     ) -> "Redis[bytes]": ...
     @override
     async def _connect(  # type: ignore[override]
@@ -124,8 +127,6 @@ class RedisBroker(
         url: str,
         host: str = "localhost",
         port: Union[str, int] = 6379,
-        username: Optional[str] = None,
-        password: Optional[str] = None,
         db: Union[str, int] = 0,
         client_name: Optional[str] = None,
         health_check_interval: float = 0,
@@ -143,6 +144,7 @@ class RedisBroker(
         parser_class: Type[BaseParser] = DefaultParser,
         connection_class: Type[Connection] = Connection,
         encoder_class: Type[Encoder] = Encoder,
+        security: Optional[BaseSecurity] = None,
     ) -> "Redis[bytes]": ...
     async def _close(
         self,

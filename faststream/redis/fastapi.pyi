@@ -40,6 +40,7 @@ from faststream.redis.asyncapi import Publisher
 from faststream.redis.broker import RedisBroker
 from faststream.redis.message import AnyRedisDict, RedisMessage
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
+from faststream.security import BaseSecurity
 from faststream.types import AnyDict
 
 Channel: TypeAlias = str
@@ -54,8 +55,6 @@ class RedisRouter(StreamRouter[AnyRedisDict]):
         *,
         host: str = "localhost",
         port: Union[str, int] = 6379,
-        username: Optional[str] = None,
-        password: Optional[str] = None,
         db: Union[str, int] = 0,
         client_name: Optional[str] = None,
         health_check_interval: float = 0,
@@ -73,12 +72,7 @@ class RedisRouter(StreamRouter[AnyRedisDict]):
         parser_class: Type[BaseParser] = DefaultParser,
         connection_class: Type[Connection] = Connection,
         encoder_class: Type[Encoder] = Encoder,
-        ssl_keyfile: Optional[str] = None,
-        ssl_certfile: Optional[str] = None,
-        ssl_cert_reqs: str = "required",
-        ssl_ca_certs: Optional[str] = None,
-        ssl_ca_data: Optional[str] = None,
-        ssl_check_hostname: bool = False,
+        security: Optional[BaseSecurity] = None,
         # broker args
         parser: Optional[CustomParser[AnyRedisDict, RedisMessage]] = None,
         decoder: Optional[CustomDecoder[RedisMessage]] = None,

@@ -69,8 +69,6 @@ class RedisBroker(
         self.global_polling_interval = polling_interval
         self._producer = None
 
-        kwargs.update(parse_security(security))
-
         super().__init__(
             url=url,
             protocol_version=protocol_version,
@@ -99,9 +97,10 @@ class RedisBroker(
     ) -> "Redis[bytes]":
         url_options: AnyDict = parse_url(url)
         url_options.update(kwargs)
+        url_options.update(parse_security(self.security))
         pool = ConnectionPool(**url_options)
 
-        client = Redis(connection_pool=pool)
+        client = Redis.from_pool(pool)
         self._producer = RedisFastProducer(
             connection=client,
             parser=self._global_parser,  # type: ignore[arg-type]

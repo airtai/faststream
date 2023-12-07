@@ -40,9 +40,8 @@ def _parse_base_security(security: BaseSecurity) -> AnyDict:
 
 
 def _parse_sasl_plaintext(security: SASLPlaintext) -> AnyDict:
-    security_dict = {
+    return {
+        **_parse_base_security(security),
         "username": security.username,
         "password": security.password,
     }
-
-    return dict(**security_dict, **_parse_base_security(security))
