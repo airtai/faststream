@@ -90,6 +90,7 @@
         - [Acknowledgement](redis/streams/ack.md)
     - [RPC](redis/rpc.md)
     - [Message Information](redis/message.md)
+    - [Security Configuration](redis/security.md)
 - [Reference - Code API](api/faststream/index.md)
     - faststream
         - [BaseMiddleware](api/faststream/BaseMiddleware.md)

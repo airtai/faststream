@@ -69,6 +69,12 @@ class RedisBroker(
         self.global_polling_interval = polling_interval
         self._producer = None
 
+        if protocol is None:
+            if security is not None and security.use_ssl:
+                protocol = "redis-secure"
+            else:
+                protocol = "redis"
+
         kwargs.update(parse_security(security))
 
         super().__init__(
