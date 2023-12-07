@@ -19,7 +19,6 @@ from typing import (
     overload,
 )
 
-from aiokafka.producer.producer import _missing
 from fast_depends.dependencies import Depends
 from fastapi import params
 from fastapi.datastructures import Default
@@ -50,7 +49,7 @@ from faststream.broker.types import (
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.asyncapi import Publisher
 from faststream.kafka.broker import KafkaBroker
-from faststream.kafka.message import ConsumerRecord, KafkaMessage
+from faststream.kafka.message import ConsumerRecord, KafkaMessage, _missing
 from faststream.log import access_logger
 
 Partition = TypeVar("Partition")

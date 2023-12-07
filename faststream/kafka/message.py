@@ -8,6 +8,8 @@ from faststream.broker.message import StreamMessage
 KT = TypeVar("KT")
 VT = TypeVar("VT")
 
+_missing = object()
+
 
 @dataclass
 class ConsumerRecord(Generic[KT, VT]):

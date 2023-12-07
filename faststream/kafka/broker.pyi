@@ -19,7 +19,6 @@ from typing import (
     overload,
 )
 
-from aiokafka.producer.producer import _missing
 from fast_depends.dependencies import Depends
 from kafka.coordinator.assignors.abstract import AbstractPartitionAssignor
 from kafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
@@ -42,7 +41,7 @@ from faststream.broker.types import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.asyncapi import Handler, Publisher
-from faststream.kafka.message import ConsumerRecord, KafkaMessage
+from faststream.kafka.message import ConsumerRecord, KafkaMessage, _missing
 from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.kafka.shared.logging import KafkaLoggingMixin
 from faststream.kafka.shared.schemas import ConsumerConnectionParams
