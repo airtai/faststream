@@ -7,8 +7,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from redis.exceptions import AuthenticationError
 
-__all__ = ["test_without_ssl_warning"]
-
 
 @contextmanager
 def patch_asyncio_open_connection() -> Tuple[MagicMock, MagicMock]:
