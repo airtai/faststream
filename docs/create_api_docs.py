@@ -263,6 +263,14 @@ def _generate_api_docs_for_module(root_path: Path, module_name: str) -> str:
 
     _update_api_docs(symbols, root_path, module_name)
 
+    # todo: fix the problem and remove this
+    src = """                    - [ContactDict](api/faststream/asyncapi/schema/info/ContactDict.md)
+"""
+    dst = """                    - [ContactDict](api/faststream/asyncapi/schema/info/ContactDict.md)
+                    - [EmailStr](api/faststream/asyncapi/schema/info/EmailStr.md)
+"""
+    api_summary = api_summary.replace(src, dst)
+
     return api_summary
 
 

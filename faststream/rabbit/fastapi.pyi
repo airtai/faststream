@@ -41,6 +41,7 @@ from faststream.rabbit.broker import RabbitBroker
 from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue, ReplyConfig
 from faststream.rabbit.shared.types import TimeoutType
+from faststream.security import BaseSecurity
 from faststream.types import AnyDict
 
 class RabbitRouter(StreamRouter[IncomingMessage]):
@@ -61,6 +62,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         ssl_options: Optional[aio_pika.abc.SSLOptions] = None,
         timeout: aio_pika.abc.TimeoutType = None,
         client_properties: Optional[FieldTable] = None,
+        security: Optional[BaseSecurity] = None,
         # specific args
         max_consumers: Optional[int] = None,
         # Broker kwargs

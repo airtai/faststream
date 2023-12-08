@@ -37,7 +37,9 @@ from faststream.redis.asyncapi import Handler, Publisher
 from faststream.redis.message import AnyRedisDict, RedisMessage
 from faststream.redis.producer import RedisFastProducer
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
+from faststream.redis.security import parse_security
 from faststream.redis.shared.logging import RedisLoggingMixin
+from faststream.security import BaseSecurity
 from faststream.types import AnyDict, DecodedMessage
 from faststream.utils.context.main import context
 
@@ -61,6 +63,7 @@ class RedisBroker(
         *,
         protocol: Optional[str] = None,
         protocol_version: Optional[str] = "custom",
+        security: Optional[BaseSecurity] = None,
         **kwargs: Any,
     ) -> None:
         self.global_polling_interval = polling_interval
@@ -69,6 +72,7 @@ class RedisBroker(
         super().__init__(
             url=url,
             protocol_version=protocol_version,
+            security=security,
             **kwargs,
         )
 
@@ -93,9 +97,10 @@ class RedisBroker(
     ) -> "Redis[bytes]":
         url_options: AnyDict = parse_url(url)
         url_options.update(kwargs)
+        url_options.update(parse_security(self.security))
         pool = ConnectionPool(**url_options)
 
-        client = Redis(connection_pool=pool)
+        client = Redis.from_pool(pool)
         self._producer = RedisFastProducer(
             connection=client,
             parser=self._global_parser,  # type: ignore[arg-type]

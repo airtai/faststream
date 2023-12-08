@@ -2,7 +2,7 @@ import ssl
 
 from faststream.app import FastStream
 from faststream.asyncapi.generate import get_app_schema
-from faststream.rabbit import RabbitBroker
+from faststream.redis import RedisBroker
 from faststream.security import (
     BaseSecurity,
     SASLPlaintext,
@@ -13,12 +13,11 @@ def test_base_security_schema():
     ssl_context = ssl.create_default_context()
     security = BaseSecurity(ssl_context=ssl_context)
 
-    broker = RabbitBroker("amqp://guest:guest@localhost:5672/", security=security)
+    broker = RedisBroker("rediss://localhost:6379/", security=security)
 
     assert (
-        broker.url == "amqps://guest:guest@localhost:5672/"  # pragma: allowlist secret
+        broker.url == "rediss://localhost:6379/"  # pragma: allowlist secret
     )  # pragma: allowlist secret
-    assert broker._connection_kwargs.get("ssl_context") is ssl_context
 
     schema = get_app_schema(FastStream(broker)).to_jsonable()
 
@@ -30,10 +29,10 @@ def test_base_security_schema():
         "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
         "servers": {
             "development": {
-                "protocol": "amqps",
-                "protocolVersion": "0.9.1",
+                "protocol": "rediss",
+                "protocolVersion": "custom",
                 "security": [],
-                "url": "amqps://guest:guest@localhost:5672/",  # pragma: allowlist secret
+                "url": "rediss://localhost:6379/",
             }
         },
     }
@@ -48,15 +47,14 @@ def test_plaintext_security_schema():
         password="password",  # pragma: allowlist secret
     )
 
-    broker = RabbitBroker("amqp://guest:guest@localhost:5672/", security=security)
+    broker = RedisBroker("redis://localhost:6379/", security=security)
 
     assert (
-        broker.url
-        == "amqps://admin:password@localhost:5672/"  # pragma: allowlist secret
+        broker.url == "redis://localhost:6379/"  # pragma: allowlist secret
     )  # pragma: allowlist secret
-    assert broker._connection_kwargs.get("ssl_context") is ssl_context
 
     schema = get_app_schema(FastStream(broker)).to_jsonable()
+
     assert schema == {
         "asyncapi": "2.6.0",
         "channels": {},
@@ -69,10 +67,10 @@ def test_plaintext_security_schema():
         "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
         "servers": {
             "development": {
-                "protocol": "amqps",
-                "protocolVersion": "0.9.1",
+                "protocol": "redis",
+                "protocolVersion": "custom",
                 "security": [{"user-password": []}],
-                "url": "amqps://admin:password@localhost:5672/",  # pragma: allowlist secret
+                "url": "redis://localhost:6379/",
             }
         },
     }
@@ -84,14 +82,14 @@ def test_plaintext_security_schema_without_ssl():
         password="password",  # pragma: allowlist secret
     )
 
-    broker = RabbitBroker("amqp://guest:guest@localhost:5672/", security=security)
+    broker = RedisBroker("redis://localhost:6379/", security=security)
 
     assert (
-        broker.url
-        == "amqp://admin:password@localhost:5672/"  # pragma: allowlist secret
+        broker.url == "redis://localhost:6379/"  # pragma: allowlist secret
     )  # pragma: allowlist secret
 
     schema = get_app_schema(FastStream(broker)).to_jsonable()
+
     assert schema == {
         "asyncapi": "2.6.0",
         "channels": {},
@@ -104,10 +102,10 @@ def test_plaintext_security_schema_without_ssl():
         "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
         "servers": {
             "development": {
-                "protocol": "amqp",
-                "protocolVersion": "0.9.1",
+                "protocol": "redis",
+                "protocolVersion": "custom",
                 "security": [{"user-password": []}],
-                "url": "amqp://admin:password@localhost:5672/",  # pragma: allowlist secret
+                "url": "redis://localhost:6379/",
             }
         },
     }
