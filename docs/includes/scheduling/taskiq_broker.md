@@ -5,7 +5,7 @@
 
     taskiq_broker.task(
         message={"user": "John", "user_id": 1},
-        topic="test-subject",
+        topic="in-topic",
         schedule=[{
             "cron": "* * * * *",
         }],
@@ -24,7 +24,7 @@
 
     taskiq_broker.task(
         message={"user": "John", "user_id": 1},
-        queue="test-queue",
+        queue="in-queue",
         schedule=[{
             "cron": "* * * * *",
         }],
@@ -36,14 +36,14 @@
     )
     ```
 
-=== "Nats"
+=== "NATS"
     ```python linenums="1"
     from taskiq_faststream import StreamScheduler
     from taskiq.schedule_sources import LabelScheduleSource
 
     taskiq_broker.task(
         message={"user": "John", "user_id": 1},
-        subject="test-subject",
+        subject="in-subject",
         schedule=[{
             "cron": "* * * * *",
         }],
@@ -62,7 +62,7 @@
 
     taskiq_broker.task(
         message={"user": "John", "user_id": 1},
-        channel="test-subject",
+        channel="in-channel",
         schedule=[{
             "cron": "* * * * *",
         }],
