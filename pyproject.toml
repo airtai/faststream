@@ -58,7 +58,7 @@ rabbit = [
 ]
 
 kafka = [
-    "aiokafka>=0.8,<0.9",
+    "aiokafka>=0.8,<0.10",
 ]
 
 nats = [
