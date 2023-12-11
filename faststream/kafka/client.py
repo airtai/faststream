@@ -189,8 +189,6 @@ class AsyncConfluentProducer:
         if timestamp_ms is not None:
             kwargs["timestamp"] = timestamp_ms
 
-        self.producer.poll(0)
-
         # result = self.loop.create_future()
         # def ack(err, msg):
         #     if err:
