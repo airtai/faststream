@@ -38,7 +38,7 @@ from faststream.broker.types import (
 from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.kafka.asyncapi import Handler, Publisher
-from faststream.kafka.client import ConsumerRecord
+from faststream.kafka.client import AsyncConfluentProducer, ConsumerRecord
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.kafka.security import parse_security
@@ -179,7 +179,7 @@ class KafkaBroker(
             ConsumerConnectionParams: The connection parameters.
         """
         security_params = parse_security(self.security)
-        producer = aiokafka.AIOKafkaProducer(
+        producer = AsyncConfluentProducer(
             **kwargs, **security_params, client_id=client_id
         )
         await producer.start()
