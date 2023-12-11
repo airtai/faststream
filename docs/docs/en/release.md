@@ -12,6 +12,26 @@ hide:
 ---
 
 # Release Notes
+## 0.3.2
+
+### What's Changed
+
+#### New features:
+
+* feat: add Redis security configuration by [@sternakt](https://github.com/sternakt){.external-link target="_blank"} and [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1025](https://github.com/airtai/faststream/pull/1025){.external-link target="_blank"}
+* feat: add list of Messages NATS PullSub by [@SepehrBazyar](https://github.com/SepehrBazyar){.external-link target="_blank"} in [#1023](https://github.com/airtai/faststream/pull/1023){.external-link target="_blank"}
+
+#### Chore:
+
+* chore: polishing by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1016](https://github.com/airtai/faststream/pull/1016){.external-link target="_blank"}
+* chore: update release notes by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1017](https://github.com/airtai/faststream/pull/1017){.external-link target="_blank"}
+* chore: bump pytest-asyncio from 0.21.1 to 0.23.2 by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [#1019](https://github.com/airtai/faststream/pull/1019){.external-link target="_blank"}
+* chore: bump semgrep from 1.50.0 to 1.51.0 by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [#1018](https://github.com/airtai/faststream/pull/1018){.external-link target="_blank"}
+* chore: add pull_request permission to workflow by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1022](https://github.com/airtai/faststream/pull/1022){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.3.1...0.3.2](https://github.com/airtai/faststream/compare/0.3.1...0.3.2){.external-link target="_blank"}
+
 ## 0.3.1
 
 ### What's Changed

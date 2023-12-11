@@ -100,10 +100,10 @@ lint = [
     "mypy==1.7.1",
     "black==23.11.0",
     "isort==5.12.0",
-    "ruff==0.1.6",
+    "ruff==0.1.7",
     "pyupgrade-directories==0.3.0",
-    "bandit==1.7.5",
-    "semgrep==1.51.0",
+    "bandit==1.7.6",
+    "semgrep==1.52.0",
 ]
 
 test-core = [
