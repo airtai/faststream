@@ -125,7 +125,7 @@ testing = [
 
 dev = [
     "faststream[rabbit,kafka,nats,docs,redis,lint,testing,devdocs]",
-    "pre-commit==3.5.0",
+    "pre-commit==3.6.0",
     "detect-secrets==1.4.0",
 ]
 
