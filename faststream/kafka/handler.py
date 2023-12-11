@@ -21,7 +21,8 @@ from faststream.broker.types import (
     T_HandlerReturn,
 )
 from faststream.broker.wrapper import HandlerCallWrapper
-from faststream.kafka.message import ConsumerRecord, KafkaMessage
+from faststream.kafka.client import ConsumerRecord
+from faststream.kafka.message import KafkaMessage
 from faststream.kafka.parser import AioKafkaParser
 from faststream.kafka.shared.schemas import ConsumerConnectionParams
 

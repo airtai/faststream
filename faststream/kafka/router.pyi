@@ -17,7 +17,8 @@ from faststream.broker.types import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.asyncapi import Publisher
-from faststream.kafka.message import ConsumerRecord, KafkaMessage
+from faststream.kafka.client import ConsumerRecord
+from faststream.kafka.message import KafkaMessage
 from faststream.kafka.shared.router import KafkaRoute
 
 Partition = TypeVar("Partition")

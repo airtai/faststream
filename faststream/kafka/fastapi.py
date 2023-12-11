@@ -1,6 +1,6 @@
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.kafka.broker import KafkaBroker
-from faststream.kafka.message import ConsumerRecord
+from faststream.kafka.client import ConsumerRecord
 
 
 class KafkaRouter(StreamRouter[ConsumerRecord]):

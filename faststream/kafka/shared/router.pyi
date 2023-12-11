@@ -8,7 +8,8 @@ from faststream.broker.core.asyncronous import default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import CustomDecoder, CustomParser, Filter, T_HandlerReturn
-from faststream.kafka.message import ConsumerRecord, KafkaMessage
+from faststream.kafka.client import ConsumerRecord
+from faststream.kafka.message import KafkaMessage
 
 class KafkaRoute:
     """Delayed `KafkaBroker.subscriber()` registration object"""

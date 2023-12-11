@@ -3,7 +3,8 @@ from uuid import uuid4
 
 from faststream.broker.message import StreamMessage
 from faststream.broker.parsers import decode_message
-from faststream.kafka.message import ConsumerRecord, KafkaMessage
+from faststream.kafka.client import ConsumerRecord
+from faststream.kafka.message import KafkaMessage
 from faststream.types import DecodedMessage
 from faststream.utils.context.main import context
 

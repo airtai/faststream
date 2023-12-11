@@ -49,7 +49,8 @@ from faststream.broker.types import (
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.asyncapi import Publisher
 from faststream.kafka.broker import KafkaBroker
-from faststream.kafka.message import ConsumerRecord, KafkaMessage, _missing
+from faststream.kafka.client import ConsumerRecord
+from faststream.kafka.message import KafkaMessage, _missing
 from faststream.log import access_logger
 
 Partition = TypeVar("Partition")

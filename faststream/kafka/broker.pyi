@@ -41,7 +41,8 @@ from faststream.broker.types import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.asyncapi import Handler, Publisher
-from faststream.kafka.message import ConsumerRecord, KafkaMessage, _missing
+from faststream.kafka.client import ConsumerRecord
+from faststream.kafka.message import KafkaMessage, _missing
 from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.kafka.shared.logging import KafkaLoggingMixin
 from faststream.kafka.shared.schemas import ConsumerConnectionParams
