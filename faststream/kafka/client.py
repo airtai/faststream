@@ -140,6 +140,7 @@ class AsyncConfluentProducer:
             "message.max.bytes": max_request_size,
             "linger.ms": linger_ms,
             "enable.idempotence": enable_idempotence,
+            "transactional.id": transactional_id,
             "transaction.timeout.ms": transaction_timeout_ms,
             "fetch.error.backoff.ms": retry_backoff_ms,
             "security.protocol": security_protocol,
