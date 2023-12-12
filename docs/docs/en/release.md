@@ -12,6 +12,20 @@ hide:
 ---
 
 # Release Notes
+## 0.3.3
+
+### What's Changed
+
+Features:
+
+* feat: add support for Python 3.12 by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1034](https://github.com/airtai/faststream/pull/1034){.external-link target="_blank"}
+
+Chores:
+
+* chore: updated release notes and upgraded packages by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1029](https://github.com/airtai/faststream/pull/1029){.external-link target="_blank"}
+
+**Full Changelog**: [#0.3.2...0.3.3](https://github.com/airtai/faststream/compare/0.3.2...0.3.3){.external-link target="_blank"}
+
 ## 0.3.2
 
 ### What's Changed
