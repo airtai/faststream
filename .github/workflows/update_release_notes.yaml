@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
         contents: write
+        pull-requests: write
     env:
       TAG_NAME: ${{ github.ref_name }}
       BRANCH_NAME: update-release-notes-${{ github.ref_name }}
@@ -20,7 +21,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
