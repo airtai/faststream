@@ -130,11 +130,15 @@ class AsyncConfluentProducer:
         if compression_type is None:
             compression_type = "none"
 
+        if acks is _missing or acks == "all":
+            acks = -1
+
         self.config = {
             "bootstrap.servers": bootstrap_servers,
             "client.id": client_id,
             "metadata.max.age.ms": metadata_max_age_ms,
             "request.timeout.ms": request_timeout_ms,
+            "acks": acks,
             "compression.type": compression_type,
             "partitioner": partitioner,
             "message.max.bytes": max_request_size,
@@ -142,7 +146,7 @@ class AsyncConfluentProducer:
             "enable.idempotence": enable_idempotence,
             "transactional.id": transactional_id,
             "transaction.timeout.ms": transaction_timeout_ms,
-            "fetch.error.backoff.ms": retry_backoff_ms,
+            "retry.backoff.ms": retry_backoff_ms,
             "security.protocol": security_protocol.lower(),
             "connections.max.idle.ms": connections_max_idle_ms,
             "sasl.mechanism": sasl_mechanism,
