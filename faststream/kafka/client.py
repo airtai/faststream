@@ -143,7 +143,7 @@ class AsyncConfluentProducer:
             "transactional.id": transactional_id,
             "transaction.timeout.ms": transaction_timeout_ms,
             "fetch.error.backoff.ms": retry_backoff_ms,
-            "security.protocol": security_protocol,
+            "security.protocol": security_protocol.lower(),
             "connections.max.idle.ms": connections_max_idle_ms,
             "sasl.mechanism": sasl_mechanism,
             "sasl.username": sasl_plain_username,

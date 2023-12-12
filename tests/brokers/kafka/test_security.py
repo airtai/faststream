@@ -33,17 +33,24 @@ async def test_base_security():
             await basic_broker.start()
 
         consumer_call_kwargs = consumer.call_args.kwargs
-        producer_call_kwargs = producer.call_args.kwargs
+        producer_call_config_arg = producer.call_args[0][0]
 
         call_kwargs = {}
-        producer.call_args[0][0]["security.protocol"] == "SSL"
-        # call_kwargs["security_protocol"] = "SSL"
+        call_kwargs["security_protocol"] = "SSL"
 
-        # assert call_kwargs.items() <= consumer_call_kwargs.items()
-        # assert call_kwargs.items() <= producer_call_kwargs.items()
+        confluent_config = {".".join(k.split("_")): v for k, v in call_kwargs.items()}
+        confluent_config["security.protocol"] = confluent_config[
+            "security.protocol"
+        ].lower()
 
-        # assert type(consumer_call_kwargs["ssl_context"]) == ssl.SSLContext
-        # assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
+        assert call_kwargs.items() <= consumer_call_kwargs.items()
+        assert confluent_config.items() <= producer_call_config_arg.items()
+
+        assert type(consumer_call_kwargs["ssl_context"]) == ssl.SSLContext
+        assert (
+            producer_call_config_arg["security.protocol"]
+            == confluent_config["security.protocol"]
+        )
 
 
 @pytest.mark.asyncio
@@ -58,7 +65,7 @@ async def test_scram256():
             await scram256_broker.start()
 
         consumer_call_kwargs = consumer.call_args.kwargs
-        producer_call_kwargs = producer.call_args.kwargs
+        producer_call_config_arg = producer.call_args[0][0]
 
         call_kwargs = {}
         call_kwargs["sasl_mechanism"] = "SCRAM-SHA-256"
@@ -66,11 +73,21 @@ async def test_scram256():
         call_kwargs["sasl_plain_password"] = "password"  # pragma: allowlist secret
         call_kwargs["security_protocol"] = "SASL_SSL"
 
+        confluent_config = {".".join(k.split("_")): v for k, v in call_kwargs.items()}
+        confluent_config["security.protocol"] = confluent_config[
+            "security.protocol"
+        ].lower()
+        confluent_config["sasl.username"] = confluent_config.pop("sasl.plain.username")
+        confluent_config["sasl.password"] = confluent_config.pop("sasl.plain.password")
+
         assert call_kwargs.items() <= consumer_call_kwargs.items()
-        assert call_kwargs.items() <= producer_call_kwargs.items()
+        assert confluent_config.items() <= producer_call_config_arg.items()
 
         assert type(consumer_call_kwargs["ssl_context"]) == ssl.SSLContext
-        assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
+        assert (
+            producer_call_config_arg["security.protocol"]
+            == confluent_config["security.protocol"]
+        )
 
 
 @pytest.mark.asyncio
@@ -85,7 +102,7 @@ async def test_scram512():
             await scram512_broker.start()
 
         consumer_call_kwargs = consumer.call_args.kwargs
-        producer_call_kwargs = producer.call_args.kwargs
+        producer_call_config_arg = producer.call_args[0][0]
 
         call_kwargs = {}
         call_kwargs["sasl_mechanism"] = "SCRAM-SHA-512"
@@ -93,11 +110,21 @@ async def test_scram512():
         call_kwargs["sasl_plain_password"] = "password"  # pragma: allowlist secret
         call_kwargs["security_protocol"] = "SASL_SSL"
 
+        confluent_config = {".".join(k.split("_")): v for k, v in call_kwargs.items()}
+        confluent_config["security.protocol"] = confluent_config[
+            "security.protocol"
+        ].lower()
+        confluent_config["sasl.username"] = confluent_config.pop("sasl.plain.username")
+        confluent_config["sasl.password"] = confluent_config.pop("sasl.plain.password")
+
         assert call_kwargs.items() <= consumer_call_kwargs.items()
-        assert call_kwargs.items() <= producer_call_kwargs.items()
+        assert confluent_config.items() <= producer_call_config_arg.items()
 
         assert type(consumer_call_kwargs["ssl_context"]) == ssl.SSLContext
-        assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
+        assert (
+            producer_call_config_arg["security.protocol"]
+            == confluent_config["security.protocol"]
+        )
 
 
 @pytest.mark.asyncio
@@ -112,7 +139,7 @@ async def test_plaintext():
             await plaintext_broker.start()
 
         consumer_call_kwargs = consumer.call_args.kwargs
-        producer_call_kwargs = producer.call_args.kwargs
+        producer_call_config_arg = producer.call_args[0][0]
 
         call_kwargs = {}
         call_kwargs["sasl_mechanism"] = "PLAIN"
@@ -120,8 +147,18 @@ async def test_plaintext():
         call_kwargs["sasl_plain_password"] = "password"  # pragma: allowlist secret
         call_kwargs["security_protocol"] = "SASL_SSL"
 
+        confluent_config = {".".join(k.split("_")): v for k, v in call_kwargs.items()}
+        confluent_config["security.protocol"] = confluent_config[
+            "security.protocol"
+        ].lower()
+        confluent_config["sasl.username"] = confluent_config.pop("sasl.plain.username")
+        confluent_config["sasl.password"] = confluent_config.pop("sasl.plain.password")
+
         assert call_kwargs.items() <= consumer_call_kwargs.items()
-        assert call_kwargs.items() <= producer_call_kwargs.items()
+        assert confluent_config.items() <= producer_call_config_arg.items()
 
         assert type(consumer_call_kwargs["ssl_context"]) == ssl.SSLContext
-        assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
+        assert (
+            producer_call_config_arg["security.protocol"]
+            == confluent_config["security.protocol"]
+        )
