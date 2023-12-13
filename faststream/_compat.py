@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+from importlib.metadata import version as get_version
 from typing import Any, Callable, Dict, List, Mapping, Optional, Type, TypeVar, Union
 
 from fast_depends._compat import PYDANTIC_V2 as PYDANTIC_V2
@@ -8,6 +9,7 @@ from fast_depends._compat import (  # type: ignore[attr-defined]
     PYDANTIC_VERSION as PYDANTIC_VERSION,
 )
 from fast_depends._compat import FieldInfo
+from packaging.version import parse
 from pydantic import BaseModel
 
 if sys.version_info < (3, 12):
@@ -52,6 +54,8 @@ ModelVar = TypeVar("ModelVar", bound=BaseModel)
 
 IS_OPTIMIZED = os.getenv("PYTHONOPTIMIZE", False)
 
+ANYIO_VERSION = parse(get_version("anyio"))
+ANYIO_V3 = ANYIO_VERSION.major == 3
 
 def is_test_env() -> bool:
     return bool(os.getenv("PYTEST_CURRENT_TEST"))
@@ -184,3 +188,9 @@ else:
         serialization: Any = None,
     ) -> JsonSchemaValue:
         return {}
+
+
+if ANYIO_V3:
+    from anyio import ExceptionGroup as ExceptionGroup  # type: ignore[attr-defined]
+else:
+    ExceptionGroup = ExceptionGroup
