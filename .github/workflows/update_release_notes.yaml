@@ -20,6 +20,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: tibdex/github-app-token@v1
+        id: generate-token
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -45,11 +51,10 @@ jobs:
         if: steps.git-check.outputs.changes_detected
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.generate-token.outputs.token }}
           branch: ${{ env.BRANCH_NAME }}
-          base: "main" # The branch you want to merge into
           title: "Update Release Notes for ${{ env.TAG_NAME }}"
           commit-message: "Update Release Notes for ${{ env.TAG_NAME }}"
           body: "This is an automated pull request to update the release notes for ${{ env.TAG_NAME }}"
-          labels: documentation
-          delete-branch: true
+          base: "main" # The branch you want to merge into
+          reviewers: davorrunje, Lancetnik, kumaranvpl, sternakt
