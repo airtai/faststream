@@ -138,7 +138,12 @@ class LogicNatsHandler(AsyncHandler[Msg]):
                     batch=self.pull_sub.batch_size,
                     timeout=self.pull_sub.timeout,
                 )
-                await asyncio.gather(*map(self.consume, messages))
+
+                if messages:
+                    if self.pull_sub.batch:
+                        await self.consume(messages)  # type: ignore[arg-type]
+                    else:
+                        await asyncio.gather(*map(self.consume, messages))
 
     @staticmethod
     def get_routing_hash(subject: str) -> str:

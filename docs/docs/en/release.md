@@ -12,38 +12,150 @@ hide:
 ---
 
 # Release Notes
+## 0.3.3
+
+### What's Changed
+
+Features:
+
+* feat: add support for Python 3.12 by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1034](https://github.com/airtai/faststream/pull/1034){.external-link target="_blank"}
+
+Chores:
+
+* chore: updated release notes and upgraded packages by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1029](https://github.com/airtai/faststream/pull/1029){.external-link target="_blank"}
+
+**Full Changelog**: [#0.3.2...0.3.3](https://github.com/airtai/faststream/compare/0.3.2...0.3.3){.external-link target="_blank"}
+
+## 0.3.2
+
+### What's Changed
+
+#### New features:
+
+* feat: add Redis security configuration by [@sternakt](https://github.com/sternakt){.external-link target="_blank"} and [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1025](https://github.com/airtai/faststream/pull/1025){.external-link target="_blank"}
+* feat: add list of Messages NATS PullSub by [@SepehrBazyar](https://github.com/SepehrBazyar){.external-link target="_blank"} in [#1023](https://github.com/airtai/faststream/pull/1023){.external-link target="_blank"}
+
+#### Chore:
+
+* chore: polishing by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1016](https://github.com/airtai/faststream/pull/1016){.external-link target="_blank"}
+* chore: update release notes by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1017](https://github.com/airtai/faststream/pull/1017){.external-link target="_blank"}
+* chore: bump pytest-asyncio from 0.21.1 to 0.23.2 by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [#1019](https://github.com/airtai/faststream/pull/1019){.external-link target="_blank"}
+* chore: bump semgrep from 1.50.0 to 1.51.0 by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [#1018](https://github.com/airtai/faststream/pull/1018){.external-link target="_blank"}
+* chore: add pull_request permission to workflow by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1022](https://github.com/airtai/faststream/pull/1022){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.3.1...0.3.2](https://github.com/airtai/faststream/compare/0.3.1...0.3.2){.external-link target="_blank"}
+
 ## 0.3.1
 
 ### What's Changed
 
 Features:
-* feat: added reply-to delivery mode for RabbitMQ by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/1015](https://github.com/airtai/faststream/pull/1015){.external-link target="_blank"}
+
+* feat: added reply-to delivery mode for RabbitMQ by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1015](https://github.com/airtai/faststream/pull/1015){.external-link target="_blank"}
 
 Bug fixes:
-* fix: non-payload information injected included in AsyncAPI docs by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/1015](https://github.com/airtai/faststream/pull/1015){.external-link target="_blank"}
+
+* fix: non-payload information injected included in AsyncAPI docs by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1015](https://github.com/airtai/faststream/pull/1015){.external-link target="_blank"}
 
 Documentation:
-* docs: fix misspelled FastDepends reference in README.md by [@spectacularfailure](https://github.com/spectacularfailure){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/1013](https://github.com/airtai/faststream/pull/1013){.external-link target="_blank"}
+
+* docs: fix misspelled FastDepends reference in README.md by [@spectacularfailure](https://github.com/spectacularfailure){.external-link target="_blank"} in [#1013](https://github.com/airtai/faststream/pull/1013){.external-link target="_blank"}
 
 ### New Contributors
-* [@spectacularfailure](https://github.com/spectacularfailure){.external-link target="_blank"} made their first contribution in [https://github.com/airtai/faststream/pull/1013](https://github.com/airtai/faststream/pull/1013){.external-link target="_blank"}
 
-**Full Changelog**: [https://github.com/airtai/faststream/compare/0.3.0...0.3.1](https://github.com/airtai/faststream/compare/0.3.0...0.3.1){.external-link target="_blank"}
+* [@spectacularfailure](https://github.com/spectacularfailure){.external-link target="_blank"} made their first contribution in [#1013](https://github.com/airtai/faststream/pull/1013){.external-link target="_blank"}
+
+**Full Changelog**: [#0.3.0...0.3.1](https://github.com/airtai/faststream/compare/0.3.0...0.3.1){.external-link target="_blank"}
+
+## 0.3.0
+
+### What's Changed
+
+The main feature of the 0.3.0 release is added Redis support by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1003](https://github.com/airtai/faststream/pull/1003){.external-link target="_blank"}
+
+You can install it by the following command:
+
+```bash
+pip install "faststream[redis]"
+```
+
+Here is a little code example
+
+```python
+from faststream import FastStream, Logger
+from faststream.redis import RedisBroker
+
+broker = RedisBroker()
+app = FastStream(broker)
+
+[@broker](https://github.com/broker){.external-link target="_blank"}.subscriber(
+    channel="test",  # or
+    # list="test",     or
+    # stream="test",
+)
+async def handle(msg: str, logger: Logger):
+    logger.info(msg)
+```
+
+#### Other features
+
+* feat: show reload directories with `--reload` flag by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#981](https://github.com/airtai/faststream/pull/981){.external-link target="_blank"}
+* feat: implement validate and no_ack subscriber options (#926) by [@mihail8531](https://github.com/mihail8531){.external-link target="_blank"} in [#988](https://github.com/airtai/faststream/pull/988){.external-link target="_blank"}
+* other features by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1003](https://github.com/airtai/faststream/pull/1003){.external-link target="_blank"}
+    * Improve error logs (missing CLI arguments, undefined starting)
+    * Add `faststream docs serve --reload ...` option for documentation hotreload
+    * Add `faststream run --reload-extension .env` option to watch by changes in such files
+    * Support `faststream run -k 1 -k 2 ...` as `k=["1", "2"]` extra options
+    * Add subscriber, publisher and router `include_in_schema: bool` argument to disable **AsyncAPI** render
+    * remove `watchfiles` from default distribution
+    * Allow create `broker.publisher` with already running broker
+    * **FastAPI**-like lifespan `FastStream` application context manager
+    * automatic `TestBroker(connect_only=...)` argument based on AST
+    * add `NatsMessage.in_progress()` method
+
+#### Testing
+
+* test: improve coverage by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#983](https://github.com/airtai/faststream/pull/983){.external-link target="_blank"}
+
+#### Documentation
+
+* docs: fix module name in NATS example by [@SepehrBazyar](https://github.com/SepehrBazyar){.external-link target="_blank"} in [#993](https://github.com/airtai/faststream/pull/993){.external-link target="_blank"}
+* docs: Update docs to add  how to customize asyncapi docs by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#999](https://github.com/airtai/faststream/pull/999){.external-link target="_blank"}
+* docs: polish Redis pages by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1005](https://github.com/airtai/faststream/pull/1005){.external-link target="_blank"}
+* docs: bump docs to the new taskiq-faststream version by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1009](https://github.com/airtai/faststream/pull/1009){.external-link target="_blank"}
+
+#### Chore
+
+* chore: add broken link checker by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#985](https://github.com/airtai/faststream/pull/985){.external-link target="_blank"}
+* chore: disable verbose in check broken links workflow by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#986](https://github.com/airtai/faststream/pull/986){.external-link target="_blank"}
+* chore: add left out md files to fix broken links by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#987](https://github.com/airtai/faststream/pull/987){.external-link target="_blank"}
+* chore: update mike workflow to use config by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#982](https://github.com/airtai/faststream/pull/982){.external-link target="_blank"}
+* chore: add workflow to update release notes automatically by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#992](https://github.com/airtai/faststream/pull/992){.external-link target="_blank"}
+* chore: pip packages version updated by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#998](https://github.com/airtai/faststream/pull/998){.external-link target="_blank"}
+* chore: create PR to merge updated release notes by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1004](https://github.com/airtai/faststream/pull/1004){.external-link target="_blank"}
+
+### New Contributors
+* [@SepehrBazyar](https://github.com/SepehrBazyar){.external-link target="_blank"} made their first contribution in [#993](https://github.com/airtai/faststream/pull/993){.external-link target="_blank"}
+* [@mihail8531](https://github.com/mihail8531){.external-link target="_blank"} made their first contribution in [#988](https://github.com/airtai/faststream/pull/988){.external-link target="_blank"}
+
+**Full Changelog**: [#0.2.15...0.3.0](https://github.com/airtai/faststream/compare/0.2.15...0.3.0){.external-link target="_blank"}
 
 ## 0.3.0rc0
 
 ### What's Changed
 
-The main feature of the 0.3.x release is added Redis support by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/1003](https://github.com/airtai/faststream/pull/1003){.external-link target="_blank"}
+The main feature of the 0.3.x release is added Redis support by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1003](https://github.com/airtai/faststream/pull/1003){.external-link target="_blank"}
 
 You can install it manually:
 
 ```bash
 pip install faststream==0.3.0rc0 && pip install "faststream[redis]"
 ```
+
 #### Other features
 
-* feat: show reload directories with --reload flag by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/981](https://github.com/airtai/faststream/pull/981){.external-link target="_blank"}
+* feat: show reload directories with `--reload` flag by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#981](https://github.com/airtai/faststream/pull/981){.external-link target="_blank"}
 * Improve error logs (missing CLI arguments, undefined starting)
 * Add `faststream docs serve --reload ...` option for documentation hotreload
 * Add `faststream run --reload-extension .env` option to watch by changes in such files
@@ -57,27 +169,27 @@ pip install faststream==0.3.0rc0 && pip install "faststream[redis]"
 
 #### Testing
 
-* test: improve coverage by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/983](https://github.com/airtai/faststream/pull/983){.external-link target="_blank"}
+* test: improve coverage by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#983](https://github.com/airtai/faststream/pull/983){.external-link target="_blank"}
 
 #### Documentation
 
-* docs: fix module name in NATS example by [@SepehrBazyar](https://github.com/SepehrBazyar){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/993](https://github.com/airtai/faststream/pull/993){.external-link target="_blank"}
-* docs: Update docs to add  how to customize asyncapi docs by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/999](https://github.com/airtai/faststream/pull/999){.external-link target="_blank"}
+* docs: fix module name in NATS example by [@SepehrBazyar](https://github.com/SepehrBazyar){.external-link target="_blank"} in [#993](https://github.com/airtai/faststream/pull/993){.external-link target="_blank"}
+* docs: Update docs to add  how to customize asyncapi docs by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#999](https://github.com/airtai/faststream/pull/999){.external-link target="_blank"}
 
 #### Chore
 
-* chore: add broken link checker by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/985](https://github.com/airtai/faststream/pull/985){.external-link target="_blank"}
-* chore: disable verbose in check broken links workflow by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/986](https://github.com/airtai/faststream/pull/986){.external-link target="_blank"}
-* chore: add left out md files to fix broken links by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/987](https://github.com/airtai/faststream/pull/987){.external-link target="_blank"}
-* chore: update mike workflow to use config by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/982](https://github.com/airtai/faststream/pull/982){.external-link target="_blank"}
-* chore: add workflow to update release notes automatically by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/992](https://github.com/airtai/faststream/pull/992){.external-link target="_blank"}
-* chore: pip packages version updated by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/998](https://github.com/airtai/faststream/pull/998){.external-link target="_blank"}
+* chore: add broken link checker by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#985](https://github.com/airtai/faststream/pull/985){.external-link target="_blank"}
+* chore: disable verbose in check broken links workflow by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#986](https://github.com/airtai/faststream/pull/986){.external-link target="_blank"}
+* chore: add left out md files to fix broken links by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#987](https://github.com/airtai/faststream/pull/987){.external-link target="_blank"}
+* chore: update mike workflow to use config by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#982](https://github.com/airtai/faststream/pull/982){.external-link target="_blank"}
+* chore: add workflow to update release notes automatically by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#992](https://github.com/airtai/faststream/pull/992){.external-link target="_blank"}
+* chore: pip packages version updated by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#998](https://github.com/airtai/faststream/pull/998){.external-link target="_blank"}
+
 ### New Contributors
-* [@SepehrBazyar](https://github.com/SepehrBazyar){.external-link target="_blank"} made their first contribution in [https://github.com/airtai/faststream/pull/993](https://github.com/airtai/faststream/pull/993){.external-link target="_blank"}
 
-**Full Changelog**: [https://github.com/airtai/faststream/compare/0.2.15...0.3.0rc0](https://github.com/airtai/faststream/compare/0.2.15...0.3.0rc0){.external-link target="_blank"}
+* [@SepehrBazyar](https://github.com/SepehrBazyar){.external-link target="_blank"} made their first contribution in [#993](https://github.com/airtai/faststream/pull/993){.external-link target="_blank"}
 
-
+**Full Changelog**: [#0.2.15...0.3.0rc0](https://github.com/airtai/faststream/compare/0.2.15...0.3.0rc0){.external-link target="_blank"}
 
 ## 0.2.15
 

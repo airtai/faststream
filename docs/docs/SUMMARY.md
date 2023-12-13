@@ -90,6 +90,7 @@
         - [Acknowledgement](redis/streams/ack.md)
     - [RPC](redis/rpc.md)
     - [Message Information](redis/message.md)
+    - [Security Configuration](redis/security.md)
 - [Reference - Code API](api/faststream/index.md)
     - faststream
         - [BaseMiddleware](api/faststream/BaseMiddleware.md)
@@ -418,6 +419,8 @@
                 - [PullSub](api/faststream/nats/pull_sub/PullSub.md)
             - router
                 - [NatsRouter](api/faststream/nats/router/NatsRouter.md)
+            - security
+                - [parse_security](api/faststream/nats/security/parse_security.md)
             - shared
                 - logging
                     - [NatsLoggingMixin](api/faststream/nats/shared/logging/NatsLoggingMixin.md)
@@ -526,6 +529,8 @@
                 - [ListSub](api/faststream/redis/schemas/ListSub.md)
                 - [PubSub](api/faststream/redis/schemas/PubSub.md)
                 - [StreamSub](api/faststream/redis/schemas/StreamSub.md)
+            - security
+                - [parse_security](api/faststream/redis/security/parse_security.md)
             - shared
                 - logging
                     - [RedisLoggingMixin](api/faststream/redis/shared/logging/RedisLoggingMixin.md)

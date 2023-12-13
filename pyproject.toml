@@ -26,6 +26,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Operating System :: OS Independent",
     "Topic :: Internet",
     "Topic :: Software Development :: Libraries :: Application Frameworks",
@@ -58,7 +59,7 @@ rabbit = [
 ]
 
 kafka = [
-    "aiokafka>=0.8,<0.9",
+    "aiokafka>=0.9,<0.10",
     "confluent-kafka>=2,<3",
     "asyncer>=0.0.2, <0.1",
 ]
@@ -78,7 +79,7 @@ docs = [
 
 # dev dependencies
 devdocs = [
-    "mkdocs-material==9.4.14",
+    "mkdocs-material==9.5.1",
     "mkdocs-static-i18n==1.2.0",
     "mdx-include==1.4.2",
     "mkdocstrings[python]==0.24.0",
@@ -101,11 +102,11 @@ lint = [
     "types-docutils",
     "mypy==1.7.1",
     "black==23.11.0",
-    "isort==5.12.0",
-    "ruff==0.1.6",
+    "isort==5.13.0",
+    "ruff==0.1.7",
     "pyupgrade-directories==0.3.0",
-    "bandit==1.7.5",
-    "semgrep==1.51.0",
+    "bandit==1.7.6",
+    "semgrep==1.52.0",
 ]
 
 test-core = [

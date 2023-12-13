@@ -17,9 +17,9 @@ from typing import (
 )
 
 import aiokafka
+from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
+from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
 from fast_depends.dependencies import Depends
-from kafka.coordinator.assignors.abstract import AbstractPartitionAssignor
-from kafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
 
 from faststream.__about__ import __version__
 from faststream._compat import override

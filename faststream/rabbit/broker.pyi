@@ -42,6 +42,7 @@ from faststream.rabbit.shared.logging import RabbitLoggingMixin
 from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue, ReplyConfig
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.rabbit.types import AioPikaSendableMessage
+from faststream.security import BaseSecurity
 from faststream.types import AnyDict, SendableMessage
 
 class RabbitBroker(
@@ -70,6 +71,7 @@ class RabbitBroker(
         ssl_options: Optional[aio_pika.abc.SSLOptions] = None,
         timeout: aio_pika.abc.TimeoutType = None,
         client_properties: Optional[FieldTable] = None,
+        security: Optional[BaseSecurity] = None,
         # specific args
         max_consumers: Optional[int] = None,
         # broker args
@@ -115,6 +117,7 @@ class RabbitBroker(
         ssl_options: Optional[aio_pika.abc.SSLOptions] = None,
         timeout: aio_pika.abc.TimeoutType = None,
         client_properties: Optional[FieldTable] = None,
+        security: Optional[BaseSecurity] = None,
     ) -> aio_pika.RobustConnection: ...
     # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument.hardcoded-password-default-argument
     @override
