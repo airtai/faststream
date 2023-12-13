@@ -42,6 +42,10 @@ Or you can decorate your processing function and return a batch of messages, as 
 
 The application in the example imelements both of these ways, so feel free to use whichever option fits your needs better.
 
+!!! note
+    Also, you can publishes messages in batches right from a `broker` object: just call  
+    `#!python broker.publish_batch("msg2", "msg2", topic="output_data")`
+
 ## Why Publish in Batches?
 
 In the above example, we've explored how to leverage the `#!python @broker.publisher(...)` decorator to efficiently publish messages in batches using **FastStream** and **Kafka**. By following the two key steps outlined in the previous sections, you can significantly enhance the performance and reliability of your **Kafka**-based applications.

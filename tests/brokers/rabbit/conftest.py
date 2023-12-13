@@ -23,7 +23,7 @@ class Settings:
     queue = "test_queue"
 
 
-@pytest.fixture
+@pytest.fixture()
 def exchange(queue):
     return RabbitExchange(name=queue)
 
@@ -33,12 +33,12 @@ def settings():
     return Settings()
 
 
-@pytest.fixture
+@pytest.fixture()
 def router():
     return RabbitRouter()
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture()
 @pytest.mark.rabbit
 async def broker(settings):
     broker = RabbitBroker(settings.url, apply_types=False)
@@ -46,7 +46,7 @@ async def broker(settings):
         yield broker
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture()
 @pytest.mark.rabbit
 async def full_broker(settings):
     broker = RabbitBroker(settings.url)
@@ -54,7 +54,7 @@ async def full_broker(settings):
         yield broker
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture()
 async def test_broker():
     broker = RabbitBroker()
     async with TestRabbitBroker(broker) as br:

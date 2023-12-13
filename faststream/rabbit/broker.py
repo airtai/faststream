@@ -357,6 +357,7 @@ class RabbitBroker(
                 title=title,
                 virtual_host=self.virtual_host,
                 include_in_schema=include_in_schema,
+                graceful_timeout=self.graceful_timeout,
             ),
         )
 

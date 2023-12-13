@@ -383,6 +383,7 @@ class NatsBroker(
                 title=title,
                 description=description,
                 include_in_schema=include_in_schema,
+                graceful_timeout=self.graceful_timeout,
                 log_context_builder=partial(
                     self._get_log_context,
                     stream=stream.name if stream else "",

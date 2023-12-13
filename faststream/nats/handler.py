@@ -47,6 +47,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         stream: Optional[JStream] = None,
         pull_sub: Optional[PullSub] = None,
         extra_options: Optional[AnyDict] = None,
+        graceful_timeout: Optional[float] = None,
         # AsyncAPI information
         description: Optional[str] = None,
         title: Optional[str] = None,
@@ -67,6 +68,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
             description=description,
             include_in_schema=include_in_schema,
             title=title,
+            graceful_timeout=graceful_timeout,
         )
 
         self.task = None
@@ -132,8 +134,8 @@ class LogicNatsHandler(AsyncHandler[Msg]):
 
         sub = cast(JetStreamContext.PullSubscription, self.subscription)
 
-        while self.subscription is not None:  # pragma: no branch
-            with suppress(TimeoutError):
+        while self.running:  # pragma: no branch
+            with suppress(TimeoutError), self.lock:
                 messages = await sub.fetch(
                     batch=self.pull_sub.batch_size,
                     timeout=self.pull_sub.timeout,

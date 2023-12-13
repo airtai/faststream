@@ -90,6 +90,7 @@ class KafkaBroker(
         transaction_timeout_ms: int = 60000,
         loop: Optional[AbstractEventLoop] = None,
         # broker args
+        graceful_timeout: Optional[float] = None,
         apply_types: bool = True,
         validate: bool = True,
         dependencies: Sequence[Depends] = (),

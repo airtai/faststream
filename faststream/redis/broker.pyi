@@ -78,6 +78,7 @@ class RedisBroker(
         encoder_class: Type[Encoder] = Encoder,
         security: Optional[BaseSecurity] = None,
         # broker args
+        graceful_timeout: Optional[float] = None,
         apply_types: bool = True,
         validate: bool = True,
         dependencies: Sequence[Depends] = (),

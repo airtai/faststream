@@ -71,3 +71,26 @@ This way, you will have three routes to interact with your application's **Async
 To test your **FastAPI StreamRouter**, you can still use it with the *TestClient*:
 
 {! includes/getting_started/integrations/fastapi/6.md !}
+
+## Miltiple Routers
+
+Using **FastStream** as a **FastAPI** plugin you are still able to separate messages processing logic between different routers (like with a regular HTTPRouter). But it can be confusing - how you should include multiple routers, if we have to setup `router.lifespan_context` as a **FastAPI** object lifespan.
+
+You can make it in a two ways, depends on you reminds.
+
+### Routers nesting
+
+If you want to use the **SAME CONNECTION** for all of you routers you should nested them each over and finally use only the core router to include in into **FastAPI** object.
+
+{! includes/getting_started/integrations/fastapi/multiple.md !}
+
+This way the core router collects all nested routers publishers and subscribers and stores it like its own.
+
+### Custom lifespan
+
+Overwise, if you want to has multiple connections to various broker instances, you should start routers independently in your custom lifespan
+
+{! includes/getting_started/integrations/fastapi/multiple_lifespan.md !}
+
+!!! warning
+    This way you lose AsyncAPI schema, but we are working on it.

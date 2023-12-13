@@ -52,11 +52,11 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
         self,
         *,
         log_context_builder: Callable[[StreamMessage[Any]], Dict[str, str]],
+        graceful_timeout: Optional[float] = None,
         # Redis info
         channel: Optional[PubSub] = None,
         list: Optional[ListSub] = None,
         stream: Optional[StreamSub] = None,
-        last_id: str = "$",
         # AsyncAPI information
         description: Optional[str] = None,
         title: Optional[str] = None,
@@ -69,13 +69,14 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
         self.subscription = None
         self.task = None
 
-        self.last_id = last_id
+        self.last_id = stream.last_id if stream else "$"
 
         super().__init__(
             log_context_builder=log_context_builder,
             description=description,
             title=title,
             include_in_schema=include_in_schema,
+            graceful_timeout=graceful_timeout,
         )
 
     @property

@@ -107,6 +107,7 @@ class NatsBroker(
         pending_size: int = DEFAULT_PENDING_SIZE,
         flush_timeout: Optional[float] = None,
         # broker args
+        graceful_timeout: Optional[float] = None,
         apply_types: bool = True,
         validate: bool = True,
         dependencies: Sequence[Depends] = (),

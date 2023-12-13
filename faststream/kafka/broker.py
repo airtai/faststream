@@ -418,6 +418,7 @@ class KafkaBroker(
                 batch_timeout_ms=batch_timeout_ms,
                 max_records=max_records,
                 include_in_schema=include_in_schema,
+                graceful_timeout=self.graceful_timeout,
             ),
         )
 

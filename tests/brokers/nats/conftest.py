@@ -26,12 +26,12 @@ def stream(queue):
     return JStream(queue)
 
 
-@pytest.fixture
+@pytest.fixture()
 def router():
     return NatsRouter()
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture()
 @pytest.mark.nats
 async def broker(settings):
     broker = NatsBroker([settings.url], apply_types=False)
@@ -39,7 +39,7 @@ async def broker(settings):
         yield broker
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture()
 @pytest.mark.nats
 async def full_broker(settings):
     broker = NatsBroker([settings.url])
@@ -47,7 +47,7 @@ async def full_broker(settings):
         yield broker
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture()
 async def test_broker():
     broker = NatsBroker()
     async with TestNatsBroker(broker) as br:

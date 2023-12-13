@@ -99,7 +99,7 @@ class FakeProducer(NatsFastProducer):
                     raise_timeout=raise_timeout,
                 )
 
-                if rpc:  # pragma: no branch
+                if rpc:
                     return r
 
         return None

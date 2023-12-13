@@ -11,7 +11,7 @@ from faststream.broker.core.asyncronous import BrokerAsyncUsecase
 class LocalCustomParserTestcase:
     broker_class: Type[BrokerAsyncUsecase]
 
-    @pytest.fixture
+    @pytest.fixture()
     def raw_broker(self):
         return None
 

@@ -89,6 +89,7 @@ devdocs = [
     "mkdocs-glightbox==0.3.5",  # img zoom
     "pillow==10.1.0",
     "cairosvg==2.7.1",
+    "requests",  # do not pin it
 ]
 
 lint = [

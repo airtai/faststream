@@ -23,11 +23,11 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
         br.include_router(router)
         return br
 
-    @pytest.fixture
+    @pytest.fixture()
     def pub_broker(self, broker):
         return broker
 
-    @pytest.fixture
+    @pytest.fixture()
     def raw_broker(self, pub_broker):
         return pub_broker
 
@@ -459,7 +459,7 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
 
 @pytest.mark.asyncio
 class RouterLocalTestcase(RouterTestcase):
-    @pytest.fixture
+    @pytest.fixture()
     def pub_broker(self, test_broker):
         return test_broker
 

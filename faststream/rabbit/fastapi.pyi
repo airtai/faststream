@@ -65,6 +65,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         security: Optional[BaseSecurity] = None,
         # specific args
         max_consumers: Optional[int] = None,
+        graceful_timeout: Optional[float] = None,
         # Broker kwargs
         decoder: Optional[CustomDecoder[RabbitMessage]] = None,
         parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
