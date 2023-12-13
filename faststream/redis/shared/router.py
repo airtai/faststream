@@ -24,7 +24,7 @@ class RedisRouter(BrokerRouter[int, AnyRedisDict]):
         prefix: str = "",
         handlers: Sequence[RedisRoute[AnyRedisDict, SendableMessage]] = (),
         **kwargs: Any,
-    ):
+    ) -> None:
         for h in handlers:
             if not (channel := h.kwargs.pop("channel", None)):
                 if list := h.kwargs.pop("list", None):

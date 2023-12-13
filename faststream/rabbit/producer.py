@@ -67,7 +67,7 @@ class AioPikaFastProducer:
         declarer: RabbitDeclarer,
         parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage, RabbitMessage]],
         decoder: Optional[AsyncCustomDecoder[RabbitMessage]],
-    ):
+    ) -> None:
         """Initialize a class instance.
 
         Args:
@@ -239,7 +239,7 @@ class _RPCCallback:
 
     """
 
-    def __init__(self, lock: anyio.Lock, callback_queue: aio_pika.RobustQueue):
+    def __init__(self, lock: anyio.Lock, callback_queue: aio_pika.RobustQueue) -> None:
         """Initialize an object of a class.
 
         Args:

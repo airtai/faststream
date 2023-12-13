@@ -40,7 +40,7 @@ class BaseWatcher(ABC):
         self,
         max_tries: int = 0,
         logger: Optional[Logger] = None,
-    ):
+    ) -> None:
         """Initialize the class.
 
         Args:
@@ -203,7 +203,7 @@ class CounterWatcher(BaseWatcher):
         self,
         max_tries: int = 3,
         logger: Optional[Logger] = None,
-    ):
+    ) -> None:
         """Initialize the class.
 
         Args:
@@ -280,7 +280,7 @@ class WatcherContext:
         message: Union[SyncStreamMessage[MsgType], StreamMessage[MsgType]],
         watcher: BaseWatcher,
         **extra_ack_args: Any,
-    ):
+    ) -> None:
         """Initialize a new instance of the class.
 
         Args:

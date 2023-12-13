@@ -28,7 +28,7 @@ class FakePublisher:
 
     """
 
-    def __init__(self, method: Callable[..., Awaitable[SendableMessage]]):
+    def __init__(self, method: Callable[..., Awaitable[SendableMessage]]) -> None:
         """Initialize an object.
 
         Args:
@@ -121,7 +121,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
     def __init__(
         self,
         call: Callable[P_HandlerParams, T_HandlerReturn],
-    ):
+    ) -> None:
         """Initialize a handler.
 
         Args:

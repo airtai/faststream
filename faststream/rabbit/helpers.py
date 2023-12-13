@@ -34,7 +34,7 @@ class RabbitDeclarer(Singleton):
     queues: Dict[Union[RabbitQueue, str], aio_pika.RobustQueue]
     exchanges: Dict[Union[RabbitExchange, str], aio_pika.RobustExchange]
 
-    def __init__(self, channel: aio_pika.RobustChannel):
+    def __init__(self, channel: aio_pika.RobustChannel) -> None:
         """Initialize the class.
 
         Args:

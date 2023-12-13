@@ -52,7 +52,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         description: Optional[str] = None,
         title: Optional[str] = None,
         include_in_schema: bool = True,
-    ):
+    ) -> None:
         reg, path = compile_path(subject, replace_symbol="*")
         self.subject = path
         self.path_regex = reg

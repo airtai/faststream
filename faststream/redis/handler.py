@@ -61,7 +61,7 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
         description: Optional[str] = None,
         title: Optional[str] = None,
         include_in_schema: bool = True,
-    ):
+    ) -> None:
         self.channel = channel
         self.list_sub = list
         self.stream_sub = stream

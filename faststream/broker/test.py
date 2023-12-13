@@ -130,7 +130,7 @@ class TestBroker(Generic[Broker]):
         broker: Broker,
         with_real: bool = False,
         connect_only: Optional[bool] = None,
-    ):
+    ) -> None:
         self.with_real = with_real
         self.broker = broker
 

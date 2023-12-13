@@ -70,7 +70,7 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
         title: Optional[str] = None,
         description: Optional[str] = None,
         include_in_schema: bool = True,
-    ):
+    ) -> None:
         """Initialize a Kafka consumer for the specified topics.
 
         Args:

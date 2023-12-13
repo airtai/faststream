@@ -33,7 +33,7 @@ class ContextRepo(Singleton):
     _global_context: AnyDict
     _scope_context: Dict[str, ContextVar[Any]]
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the class.
 
         Attributes:

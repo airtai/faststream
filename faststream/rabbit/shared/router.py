@@ -35,7 +35,7 @@ class RabbitRouter(BrokerRouter[int, IncomingMessage]):
         prefix: str = "",
         handlers: Sequence[RabbitRoute[IncomingMessage, SendableMessage]] = (),
         **kwargs: Any,
-    ):
+    ) -> None:
         """Override the `__init__` method of the parent class.
 
         Args:

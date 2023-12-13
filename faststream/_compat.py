@@ -57,6 +57,7 @@ IS_OPTIMIZED = os.getenv("PYTHONOPTIMIZE", False)
 ANYIO_VERSION = parse(get_version("anyio"))
 ANYIO_V3 = ANYIO_VERSION.major == 3
 
+
 def is_test_env() -> bool:
     return bool(os.getenv("PYTEST_CURRENT_TEST"))
 

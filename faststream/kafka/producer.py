@@ -26,7 +26,7 @@ class AioKafkaFastProducer:
     def __init__(
         self,
         producer: AIOKafkaProducer,
-    ):
+    ) -> None:
         """Initialize the class.
 
         Args:

@@ -95,7 +95,7 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
         description: Optional[str] = None,
         title: Optional[str] = None,
         include_in_schema: bool = True,
-    ):
+    ) -> None:
         """Initialize a new instance of the class.
 
         Args:
@@ -198,7 +198,7 @@ class AsyncHandler(BaseHandler[MsgType]):
         title: Optional[str] = None,
         include_in_schema: bool = True,
         graceful_timeout: Optional[float] = None,
-    ):
+    ) -> None:
         super().__init__(
             log_context_builder=log_context_builder,
             description=description,
@@ -375,8 +375,8 @@ class AsyncHandler(BaseHandler[MsgType]):
 
 
 class MultiLock:
-    def __init__(self):
-        self.queue = asyncio.Queue()
+    def __init__(self) -> None:
+        self.queue: "asyncio.Queue[None]" = asyncio.Queue()
 
     def __enter__(self) -> Self:
         self.queue.put_nowait(None)
@@ -395,7 +395,7 @@ class MultiLock:
     def empty(self) -> bool:
         return self.queue.empty()
 
-    async def wait_release(self, timeout: Optional[float] = None):
+    async def wait_release(self, timeout: Optional[float] = None) -> None:
         if timeout:
             with anyio.move_on_after(timeout):
                 await self.queue.join()

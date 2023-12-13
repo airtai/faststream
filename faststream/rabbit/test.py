@@ -171,7 +171,7 @@ class FakeProducer(AioPikaFastProducer):
     This class extends AioPikaFastProducer and is used to simulate RabbitMQ message publishing during tests.
     """
 
-    def __init__(self, broker: RabbitBroker):
+    def __init__(self, broker: RabbitBroker) -> None:
         """
         Initialize a FakeProducer instance.
 

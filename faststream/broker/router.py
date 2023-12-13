@@ -53,7 +53,7 @@ class BrokerRoute(Generic[MsgType, T_HandlerReturn]):
         call: Callable[..., T_HandlerReturn],
         *args: Any,
         **kwargs: Any,
-    ):
+    ) -> None:
         """Initialize a callable object with arguments and keyword arguments.
 
         Args:
@@ -147,7 +147,7 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
         parser: Optional[CustomParser[MsgType, StreamMessage[MsgType]]] = None,
         decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
         include_in_schema: Optional[bool] = None,
-    ):
+    ) -> None:
         """Initialize a class object.
 
         Args:

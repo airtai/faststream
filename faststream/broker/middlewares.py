@@ -41,15 +41,13 @@ class BaseMiddleware:
 
         after_publish(err: Optional[Exception]) -> None:
             Asynchronous function to handle the after publish event.
-
     """
 
-    def __init__(self, msg: Any):
+    def __init__(self, msg: Any) -> None:
         """Initialize the class.
 
         Args:
             msg: Any message to be stored.
-
         """
         self.msg = msg
 
@@ -71,7 +69,6 @@ class BaseMiddleware:
 
         Returns:
             Optional boolean value indicating whether the processing was successful or not.
-
         """
         return False
 
@@ -94,7 +91,6 @@ class BaseMiddleware:
 
         Returns:
             A boolean indicating whether the exception was handled or not.
-
         """
         return await self.after_processed(exc_type, exc_val, exec_tb)
 
@@ -106,7 +102,6 @@ class BaseMiddleware:
 
         Returns:
             The consumed message.
-
         """
         return msg
 
@@ -118,7 +113,6 @@ class BaseMiddleware:
 
         Raises:
             err : If an exception occurred during consumption
-
         """
         if err is not None:
             raise err
@@ -144,7 +138,6 @@ class BaseMiddleware:
 
         Note:
             This function is an async function.
-
         """
         err: Optional[Exception]
         try:
@@ -163,7 +156,6 @@ class BaseMiddleware:
 
         Returns:
             The published message.
-
         """
         return msg
 
@@ -178,7 +170,6 @@ class BaseMiddleware:
 
         Raises:
             Exception: If an error occurred during the publish
-
         """
         if err is not None:
             raise err
@@ -221,10 +212,9 @@ class CriticalLogMiddleware(BaseMiddleware):
     Methods:
         __call__(msg: Any) -> Self: Returns the middleware instance
         after_processed(exc_type: Optional[Type[BaseException]] = None, exc_val: Optional[BaseException] = None, exec_tb: Optional[TracebackType] = None) -> bool: Logs critical errors if they occur and returns True
-
     """
 
-    def __init__(self, logger: Optional[logging.Logger], log_level: int):
+    def __init__(self, logger: Optional[logging.Logger], log_level: int,) -> None:
         """Initialize the class.
 
         Args:
@@ -232,7 +222,6 @@ class CriticalLogMiddleware(BaseMiddleware):
 
         Returns:
             None
-
         """
         self.logger = logger
         self.log_level = log_level
@@ -245,7 +234,6 @@ class CriticalLogMiddleware(BaseMiddleware):
 
         Returns:
             The object itself.
-
         """
         return self
 
@@ -271,7 +259,6 @@ class CriticalLogMiddleware(BaseMiddleware):
 
         Returns:
             bool: True if the method is successfully executed.
-
         """
         if self.logger is not None:
             c = context.get_local("log_context")

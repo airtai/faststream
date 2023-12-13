@@ -25,7 +25,7 @@ def _parse_base_security(security: BaseSecurity) -> AnyDict:
                 self,
                 _security: BaseSecurity = security,
                 **kwargs: Any,
-            ):
+            ) -> None:
                 self._security = _security
                 super().__init__(**kwargs)
 

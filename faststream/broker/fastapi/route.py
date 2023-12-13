@@ -149,7 +149,7 @@ class StreamMessage(Request):
         body: Optional[AnyDict] = None,
         headers: Optional[AnyDict] = None,
         path: Optional[AnyDict] = None,
-    ):
+    ) -> None:
         """Initialize a class instance.
 
         Args:

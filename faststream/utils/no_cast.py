@@ -13,7 +13,7 @@ class NoCast(CustomField):
         use : Returns the provided keyword arguments as a dictionary.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(cast=False)
 
     def use(self, **kwargs: Any) -> AnyDict:

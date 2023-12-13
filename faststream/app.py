@@ -75,7 +75,7 @@ class ABCApp(ABC):
         identifier: Optional[str] = None,
         tags: Optional[Sequence[Union[Tag, TagDict, AnyDict]]] = None,
         external_docs: Optional[Union[ExternalDocs, ExternalDocsDict, AnyDict]] = None,
-    ):
+    ) -> None:
         """Initialize an instance of the class.
 
         Args:
@@ -212,7 +212,7 @@ class FastStream(ABCApp):
         identifier: Optional[str] = None,
         tags: Optional[Sequence[Union[Tag, TagDict, AnyDict]]] = None,
         external_docs: Optional[Union[ExternalDocs, ExternalDocsDict, AnyDict]] = None,
-    ):
+    ) -> None:
         """Asyncronous FastStream Application class
 
         stores and run broker, control hooks

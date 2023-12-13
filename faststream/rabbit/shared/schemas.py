@@ -73,7 +73,7 @@ class RabbitQueue(NameRequired):
         robust: bool = True,
         bind_arguments: Optional[AnyDict] = None,
         routing_key: str = "",
-    ):
+    ) -> None:
         """Initialize a class object.
 
         Args:
@@ -173,7 +173,7 @@ class RabbitExchange(NameRequired):
         bind_to: Optional["RabbitExchange"] = None,
         bind_arguments: Optional[AnyDict] = None,
         routing_key: str = "",
-    ):
+    ) -> None:
         """Initialize a RabbitExchange object.
 
         Args:

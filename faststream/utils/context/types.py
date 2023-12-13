@@ -28,7 +28,7 @@ class Context(CustomField):
         cast: bool = False,
         default: Any = _empty,
         prefix: str = "",
-    ):
+    ) -> None:
         """Initialize the object.
 
         Args:

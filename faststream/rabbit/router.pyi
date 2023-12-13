@@ -35,7 +35,7 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
         parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
         decoder: Optional[CustomDecoder[RabbitMessage]] = None,
         include_in_schema: bool = True,
-    ): ...
+    ) -> None: ...
     @staticmethod
     @override
     def _get_publisher_key(publisher: Publisher) -> int: ...  # type: ignore[override]

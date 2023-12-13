@@ -32,7 +32,7 @@ class KafkaRouter(BrokerRouter[str, ConsumerRecord]):
         prefix: str = "",
         handlers: Sequence[KafkaRoute[ConsumerRecord, SendableMessage]] = (),
         **kwargs: Any,
-    ):
+    ) -> None:
         """Initialize the class.
 
         Args:

@@ -65,7 +65,7 @@ class LogicHandler(AsyncHandler[aio_pika.IncomingMessage], BaseRMQInformation):
         title: Optional[str] = None,
         include_in_schema: bool = True,
         virtual_host: str = "/",
-    ):
+    ) -> None:
         """Initialize a RabbitMQ consumer.
 
         Args:

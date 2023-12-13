@@ -41,7 +41,7 @@ class NameRequired(BaseModel):
 
         return self.name == __value.name
 
-    def __init__(self, name: str, **kwargs: Any):
+    def __init__(self, name: str, **kwargs: Any) -> None:
         """This is a Python function.
 
         Args:

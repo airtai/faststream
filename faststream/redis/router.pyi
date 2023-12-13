@@ -42,7 +42,7 @@ class RedisRouter(BrokerRouter[int, AnyRedisDict]):
             Sequence[Callable[[AnyRedisDict], BaseMiddleware]]
         ] = None,
         include_in_schema: bool = True,
-    ): ...
+    ) -> None: ...
     @override
     @staticmethod
     def _get_publisher_key(publisher: Publisher) -> int:  # type: ignore[override]
