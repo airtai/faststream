@@ -179,7 +179,7 @@ class KafkaBroker(
             ConsumerConnectionParams: The connection parameters.
         """
         security_params = parse_security(self.security)
-        producer = AsyncConfluentProducer(
+        producer = aiokafka.AIOKafkaProducer(
             **kwargs, **security_params, client_id=client_id
         )
         await producer.start()
@@ -550,3 +550,32 @@ class KafkaBroker(
         """
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
         await self._producer.publish_batch(*args, **kwargs)
+
+
+class ConfluentKafkaBroker(KafkaBroker):
+    @override
+    async def _connect(  # type: ignore[override]
+        self,
+        *,
+        client_id: str,
+        **kwargs: Any,
+    ) -> ConsumerConnectionParams:
+        """
+        Connects to Kafka, initializes the producer, and returns connection parameters.
+
+        Args:
+            client_id (str): The client ID.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            ConsumerConnectionParams: The connection parameters.
+        """
+        security_params = parse_security(self.security)
+        producer = AsyncConfluentProducer(
+            **kwargs, **security_params, client_id=client_id
+        )
+        await producer.start()
+        self._producer = AioKafkaFastProducer(
+            producer=producer,
+        )
+        return filter_by_dict(ConsumerConnectionParams, {**kwargs, **security_params})

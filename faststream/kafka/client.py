@@ -1,12 +1,21 @@
 import asyncio
 from time import time
-from typing import Generic, Iterable, List, Optional, Sequence, Tuple, TypeVar, NamedTuple, Dict
-
-from confluent_kafka import KafkaException, Producer, Consumer
-from pydantic import BaseModel
-from pydantic.dataclasses import dataclass
+from typing import (
+    Dict,
+    Generic,
+    Iterable,
+    List,
+    NamedTuple,
+    Optional,
+    Sequence,
+    Tuple,
+    TypeVar,
+)
 
 from asyncer import asyncify
+from confluent_kafka import Consumer, KafkaException, Producer
+from pydantic import BaseModel
+from pydantic.dataclasses import dataclass
 
 KT = TypeVar("KT")
 VT = TypeVar("VT")
@@ -249,7 +258,7 @@ class AsyncConfluentConsumer:
         *topics,
         loop=None,
         bootstrap_servers="localhost",
-        client_id='confluent-kafka-consumer',
+        client_id="confluent-kafka-consumer",
         group_id=None,
         group_instance_id=None,
         key_deserializer=None,
@@ -287,17 +296,20 @@ class AsyncConfluentConsumer:
     ):
         if group_id is None:
             group_id = "confluent-kafka-consumer-group"
-        if isinstance(bootstrap_servers, Iterable) and not isinstance(bootstrap_servers, str):
+        if isinstance(bootstrap_servers, Iterable) and not isinstance(
+            bootstrap_servers, str
+        ):
             bootstrap_servers = ",".join(bootstrap_servers)
         self.topics = list(topics)
         if not isinstance(partition_assignment_strategy, str):
-            partition_assignment_strategy = ",".join([x().name for x in partition_assignment_strategy])
+            partition_assignment_strategy = ",".join(
+                [x().name for x in partition_assignment_strategy]
+            )
         self.config = {
             "bootstrap.servers": bootstrap_servers,
             "client.id": client_id,
             "group.id": group_id,
             "group.instance.id": group_instance_id,
-
             "fetch.wait.max.ms": fetch_max_wait_ms,
             "fetch.max.bytes": fetch_max_bytes,
             "fetch.min.bytes": fetch_min_bytes,
@@ -311,16 +323,14 @@ class AsyncConfluentConsumer:
             "metadata.max.age.ms": metadata_max_age_ms,
             "partition.assignment.strategy": partition_assignment_strategy,
             "max.poll.interval.ms": max_poll_interval_ms,
-
             "session.timeout.ms": session_timeout_ms,
             "heartbeat.interval.ms": heartbeat_interval_ms,
-
-            'security.protocol': security_protocol,
+            "security.protocol": security_protocol,
             "connections.max.idle.ms": connections_max_idle_ms,
             "isolation.level": isolation_level,
-            'sasl.mechanism': sasl_mechanism,
-            'sasl.username': sasl_plain_username,
-            'sasl.password': sasl_plain_password,
+            "sasl.mechanism": sasl_mechanism,
+            "sasl.username": sasl_plain_username,
+            "sasl.password": sasl_plain_password,
             "sasl.kerberos.service.name": sasl_kerberos_service_name,
         }
         self.consumer = Consumer(self.config)
@@ -330,7 +340,7 @@ class AsyncConfluentConsumer:
         await asyncify(self.consumer.subscribe)(self.topics)
 
     async def poll(self, timeout_ms=1000) -> Optional[ConsumerRecord]:
-        timeout = timeout_ms/1000
+        timeout = timeout_ms / 1000
         msg = await asyncify(self.consumer.poll)(timeout)
         if msg is None:
             return msg
@@ -338,7 +348,7 @@ class AsyncConfluentConsumer:
         headers = () if msg.headers() is None else msg.headers()
         timestamp_type, timestamp = msg.timestamp()
         # https://docs.confluent.io/platform/current/clients/confluent-kafka-python/html/index.html#confluent_kafka.Message.timestamp
-        timestamp_type = timestamp_type - 1 
+        timestamp_type = timestamp_type - 1
         consumer_record = ConsumerRecord(
             topic=msg.topic(),
             partition=msg.partition(),
@@ -367,7 +377,9 @@ class AsyncConfluentConsumer:
                 break
         return msg
 
-    async def getmany(self, timeout_ms=0, max_records=10) -> Dict[TopicPartition, List[ConsumerRecord]]:
+    async def getmany(
+        self, timeout_ms=0, max_records=10
+    ) -> Dict[TopicPartition, List[ConsumerRecord]]:
         messages = {}
         for i in range(max_records):
             print(f"Here at {i}")

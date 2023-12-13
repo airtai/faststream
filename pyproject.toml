@@ -227,6 +227,7 @@ testpaths = [
 markers = [
     "rabbit",
     "kafka",
+    "confluent_kafka",
     "nats",
     "redis",
     "slow",
