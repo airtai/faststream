@@ -35,7 +35,7 @@ class NatsRouter(BaseRouter):
         parser: Optional[CustomParser[Msg, NatsMessage]] = None,
         decoder: Optional[CustomDecoder[NatsMessage]] = None,
         include_in_schema: bool = True,
-    ): ...
+    ) -> None: ...
     @override
     @staticmethod
     def _get_publisher_key(publisher: Publisher) -> str: ...  # type: ignore[override]

@@ -74,6 +74,7 @@ class RedisRouter(StreamRouter[AnyRedisDict]):
         encoder_class: Type[Encoder] = Encoder,
         security: Optional[BaseSecurity] = None,
         # broker args
+        graceful_timeout: Optional[float] = None,
         parser: Optional[CustomParser[AnyRedisDict, RedisMessage]] = None,
         decoder: Optional[CustomDecoder[RedisMessage]] = None,
         middlewares: Optional[

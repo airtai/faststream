@@ -16,12 +16,12 @@ def settings():
     return Settings()
 
 
-@pytest.fixture
+@pytest.fixture()
 def router():
     return KafkaRouter()
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture()
 @pytest.mark.kafka
 async def broker(settings):
     broker = KafkaBroker(settings.url, apply_types=False)
@@ -29,7 +29,7 @@ async def broker(settings):
         yield broker
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture()
 @pytest.mark.kafka
 async def full_broker(settings):
     broker = KafkaBroker(settings.url)
@@ -37,7 +37,7 @@ async def full_broker(settings):
         yield broker
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture()
 async def test_broker():
     broker = KafkaBroker()
     async with TestKafkaBroker(broker) as br:

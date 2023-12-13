@@ -1,3 +1,7 @@
+---
+search:
+  exclude: true
+---
 - [Features](faststream.md)
 - Tutorial
     - [Getting Started](getting-started/index.md)
@@ -62,6 +66,7 @@
     - [Acknowledgement](rabbit/ack.md)
     - [Declare Queue/Exchange](rabbit/declare.md)
     - [Message Information](rabbit/message.md)
+    - [Security Configuration](rabbit/security.md)
 - [NATS](nats/index.md)
     - Subscription
         - [Direct](nats/examples/direct.md)
@@ -228,6 +233,7 @@
             - handler
                 - [AsyncHandler](api/faststream/broker/handler/AsyncHandler.md)
                 - [BaseHandler](api/faststream/broker/handler/BaseHandler.md)
+                - [MultiLock](api/faststream/broker/handler/MultiLock.md)
             - message
                 - [ABCStreamMessage](api/faststream/broker/message/ABCStreamMessage.md)
                 - [StreamMessage](api/faststream/broker/message/StreamMessage.md)

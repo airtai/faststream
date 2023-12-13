@@ -3,6 +3,6 @@ from uuid import uuid4
 import pytest
 
 
-@pytest.fixture
+@pytest.fixture()
 def queue():
     return str(uuid4())

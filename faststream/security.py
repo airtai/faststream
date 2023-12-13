@@ -37,7 +37,7 @@ class BaseSecurity:
         self,
         ssl_context: Optional[SSLContext] = None,
         use_ssl: Optional[bool] = None,
-    ):
+    ) -> None:
         if ssl_context is not None:
             use_ssl = True
 
@@ -90,7 +90,7 @@ class SASLPlaintext(BaseSecurity):
         password: str,
         ssl_context: Optional[SSLContext] = None,
         use_ssl: Optional[bool] = None,
-    ):
+    ) -> None:
         super().__init__(ssl_context, use_ssl)
         self.username = username
         self.password = password
@@ -141,7 +141,7 @@ class SASLScram256(BaseSecurity):
         password: str,
         ssl_context: Optional[SSLContext] = None,
         use_ssl: Optional[bool] = None,
-    ):
+    ) -> None:
         super().__init__(ssl_context, use_ssl)
         self.username = username
         self.password = password
@@ -192,7 +192,7 @@ class SASLScram512(BaseSecurity):
         password: str,
         ssl_context: Optional[SSLContext] = None,
         use_ssl: Optional[bool] = None,
-    ):
+    ) -> None:
         super().__init__(ssl_context, use_ssl)
         self.username = username
         self.password = password

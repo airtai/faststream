@@ -31,10 +31,10 @@ def patch_asyncio_open_connection() -> Tuple[MagicMock, MagicMock]:
 @pytest.mark.redis
 async def test_base_security():
     with patch_asyncio_open_connection() as connection:
-        from docs.docs_src.redis.basic_security.app import broker as basic_broker
+        from docs.docs_src.redis.security.basic import broker as basic_broker
 
         async with basic_broker:
-            await basic_broker.start()
+            await basic_broker._connection.ping()
 
         await sleep(1)
 
@@ -45,11 +45,11 @@ async def test_base_security():
 @pytest.mark.redis
 async def test_plaintext_security():
     with patch_asyncio_open_connection() as connection:
-        from docs.docs_src.redis.plaintext_security.app import broker as basic_broker
+        from docs.docs_src.redis.security.plaintext import broker as basic_broker
 
         with pytest.raises(AuthenticationError):
             async with basic_broker:
-                await basic_broker.start()
+                await basic_broker._connection.ping()
 
         await sleep(1)
 

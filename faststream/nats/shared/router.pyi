@@ -62,7 +62,7 @@ class NatsRouter(BrokerRouter[str, Msg], metaclass=ABCMeta):
         prefix: str = "",
         handlers: Sequence[NatsRoute] = (),
         **kwargs: Any,
-    ): ...
+    ) -> None: ...
     @override
     def subscriber(  # type: ignore[override]
         self,

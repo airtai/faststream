@@ -82,19 +82,19 @@ Next, let's define the schema for our message. You can either define it in the P
 Or you can load the schema from an avsc file as:
 
 ``` python
-{!> docs_src/getting_started/serialization/avro.py [ln:20] !}
+{!> docs_src/getting_started/serialization/avro.py [ln:21] !}
 ```
 
 The contents of the `person.avsc` file are:
 
-```avro
+``` avro
 {!> docs_src/getting_started/serialization/person.avsc !}
 ```
 
 Finally, let's use Avro's `schemaless_reader` and `schemaless_writer` to decode and encode messages in the `FastStream` app.
 
-``` python linenums="1" hl_lines="1 3 25-28 31 40-42"
-{!> docs_src/getting_started/serialization/avro.py !}
+``` python linenums="1" hl_lines="1 3 15-18 21 30-32"
+{!> docs_src/getting_started/serialization/avro.py [ln:1-9,23-45] !}
 ```
 
 ## Tips

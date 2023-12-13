@@ -54,9 +54,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         await consume_broker.start()
         await asyncio.wait(
             (
-                asyncio.create_task(
-                    consume_broker.publish("hello", queue, stream=stream.name)
-                ),
+                asyncio.create_task(consume_broker.publish("hello", queue)),
                 asyncio.create_task(event.wait()),
             ),
             timeout=3,

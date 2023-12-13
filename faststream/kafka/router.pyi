@@ -38,7 +38,7 @@ class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
         parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         include_in_schema: bool = True,
-    ): ...
+    ) -> None: ...
     @override
     @staticmethod
     def _get_publisher_key(publisher: Publisher) -> str: ...  # type: ignore[override]

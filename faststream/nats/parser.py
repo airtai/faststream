@@ -11,7 +11,7 @@ from faststream.utils.context.main import context
 
 
 class NatsParser:
-    def __init__(self, is_js: bool):
+    def __init__(self, is_js: bool) -> None:
         self.is_js = is_js
 
     @overload

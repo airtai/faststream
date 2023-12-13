@@ -1,5 +1,4 @@
 import logging
-from itertools import zip_longest
 
 import pytest
 
@@ -10,38 +9,47 @@ from faststream.rabbit import RabbitBroker
 
 @pytest.mark.parametrize(
     ("level", "broker"),
-    tuple(
-        zip_longest(
-            (
-                logging.ERROR,
-                *LogLevels._member_map_.values(),
-                *LogLevels.__members__.values(),
-            ),
-            [],
-            fillvalue=FastStream(RabbitBroker()),
-        )
+    (
+        pytest.param(logging.ERROR, RabbitBroker(), id=str(logging.ERROR)),
+        *(
+            pytest.param(level, RabbitBroker(), id=level)
+            for level in LogLevels.__members__.keys()
+        ),
+        *(
+            pytest.param(level, RabbitBroker(), id=str(level))
+            for level in LogLevels.__members__.values()
+        ),
     ),
 )
 def test_set_level(level, app: FastStream):
     level = get_log_level(level)
-
     set_log_level(level, app)
     assert app.logger.level is app.broker.logger.level is level
 
 
 @pytest.mark.parametrize(
     ("level", "broker"),
-    tuple(
-        zip_longest(
-            [],
-            (
-                FastStream(),
-                FastStream(RabbitBroker(), logger=None),
-                FastStream(RabbitBroker(logger=None)),
-                FastStream(RabbitBroker(logger=None), logger=None),
-            ),
-            fillvalue=LogLevels.critical,
-        )
+    (
+        pytest.param(
+            logging.CRITICAL,
+            FastStream(),
+            id="empty app",
+        ),
+        pytest.param(
+            logging.CRITICAL,
+            FastStream(RabbitBroker(), logger=None),
+            id="app without logger",
+        ),
+        pytest.param(
+            logging.CRITICAL,
+            FastStream(RabbitBroker(logger=None)),
+            id="broker without logger",
+        ),
+        pytest.param(
+            logging.CRITICAL,
+            FastStream(RabbitBroker(logger=None), logger=None),
+            id="both without logger",
+        ),
     ),
 )
 def test_set_level_to_none(level, app: FastStream):

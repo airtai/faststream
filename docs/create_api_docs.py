@@ -6,7 +6,6 @@ from pkgutil import walk_packages
 from types import FunctionType, ModuleType
 from typing import Any, List, Optional, Tuple, Type, Union
 
-
 API_META = (
     "# 0.5 - API\n"
     "# 2 - Release\n"
@@ -293,6 +292,7 @@ def create_api_docs(
     ))
 
     (docs_dir / "SUMMARY.md").write_text(summary)
+
 
 if __name__ == "__main__":
     root = Path(__file__).resolve().parent

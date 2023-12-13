@@ -1,16 +1,14 @@
-# Kafka Security Configuration
-
 # FastStream Kafka Security
 
-This chapter discusses the security options available in FastStream and how to use them.
+This chapter discusses the security options available in **FastStream** and how to use them.
 
 ## Security Objects
 
-FastStream allows you to enhance the security of applications by using security objects when creating brokers. These security objects encapsulate security-related configurations and mechanisms. Security objects supported in FastStream are (More are planned in the future such as SASL OAuth):
+**FastStream** allows you to enhance the security of applications by using security objects when creating brokers. These security objects encapsulate security-related configurations and mechanisms. Security objects supported in **FastStream** are (More are planned in the future such as SASL OAuth):
 
 ### 1. BaseSecurity Object
 
-**Purpose:** The `BaseSecurity` object wraps `ssl.SSLContext` object and is used to enable SSL/TLS encryption for secure communication between FastStream services and external components such as message brokers.
+**Purpose:** The `BaseSecurity` object wraps `ssl.SSLContext` object and is used to enable SSL/TLS encryption for secure communication between **FastStream** services and external components such as message brokers.
 
 **Usage:**
 

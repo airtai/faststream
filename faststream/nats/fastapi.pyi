@@ -107,6 +107,7 @@ class NatsRouter(StreamRouter[Msg]):
         pending_size: int = DEFAULT_PENDING_SIZE,
         flush_timeout: Optional[float] = None,
         # Broker kwargs
+        graceful_timeout: Optional[float] = None,
         decoder: Optional[CustomDecoder[NatsMessage]] = None,
         parser: Optional[CustomParser[Msg, NatsMessage]] = None,
         middlewares: Optional[
