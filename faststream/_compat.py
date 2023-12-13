@@ -189,4 +189,9 @@ else:
 if ANYIO_V3:
     from anyio import ExceptionGroup as ExceptionGroup  # type: ignore[attr-defined]
 else:
-    ExceptionGroup = ExceptionGroup
+    if sys.version_info < (3, 11):
+        from exceptiongroup import (  # type: ignore[assignment]
+            ExceptionGroup as ExceptionGroup,
+        )
+    else:
+        ExceptionGroup = ExceptionGroup
