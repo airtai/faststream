@@ -1,12 +1,12 @@
 import logging
 from collections import defaultdict
-from enum import StrEnum, auto
+from enum import Enum
 from typing import DefaultDict, Optional, Union
 
 from faststream.app import FastStream
 
 
-class LogLevels(StrEnum):
+class LogLevels(str, Enum):
     """A class to represent log levels.
 
     Attributes:
@@ -15,14 +15,13 @@ class LogLevels(StrEnum):
         warning : warning log level
         info : info log level
         debug : debug log level
-
     """
 
-    critical = auto()
-    error = auto()
-    warning = auto()
-    info = auto()
-    debug = auto()
+    critical = "critical"
+    error = "error"
+    warning = "warning"
+    info = "info"
+    debug = "debug"
 
 
 LOG_LEVELS: DefaultDict[str, int] = defaultdict(
