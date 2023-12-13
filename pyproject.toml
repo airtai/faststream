@@ -47,8 +47,9 @@ classifiers = [
 dynamic = ["version"]
 
 dependencies = [
+    "anyio>=3.7.1,<5",
     "fast-depends>=2.2.0,<3",
-    "typer>=0.9,<1",
+    "typer>=0.9,<0.10",
     "uvloop>=0.18.0; sys_platform != 'win32' and (sys_platform != 'cygwin' and platform_python_implementation != 'PyPy')",
 ]
 

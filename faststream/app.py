@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, TypeVar, Union
 import anyio
 from pydantic import AnyHttpUrl
 
-from faststream._compat import ParamSpec
+from faststream._compat import ExceptionGroup, ParamSpec
 from faststream.asyncapi.schema import (
     Contact,
     ContactDict,
@@ -346,7 +346,7 @@ class FastStream(ABCApp):
                     tg.start_soon(self._start, log_level, run_extra_options)
                     await self._stop(log_level)
                     tg.cancel_scope.cancel()
-            except anyio.ExceptionGroup as e:
+            except ExceptionGroup as e:
                 for ex in e.exceptions:
                     raise ex from None
 
