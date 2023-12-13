@@ -5,6 +5,7 @@ import pytest
 from anyio.abc import TaskStatus
 
 from faststream.broker.handler import MultiLock
+from tests.marks import python310
 
 
 @pytest.fixture()
@@ -29,6 +30,7 @@ def test_base(lock: MultiLock):
 
 
 @pytest.mark.asyncio
+@python310
 async def test_wait_correct(lock: MultiLock):
     async def func():
         with lock:
