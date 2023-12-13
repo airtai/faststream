@@ -1,9 +1,9 @@
-from typing import Any
+from typing import Any, Union
 
 import aiokafka
 
 from faststream.broker.message import StreamMessage
-from faststream.kafka.client import ConsumerRecord
+from faststream.kafka.client import ConsumerRecord, AsyncConfluentConsumer
 
 
 class KafkaMessage(StreamMessage[ConsumerRecord]):
@@ -26,7 +26,7 @@ class KafkaMessage(StreamMessage[ConsumerRecord]):
     def __init__(
         self,
         *args: Any,
-        consumer: aiokafka.AIOKafkaConsumer,
+        consumer: Union[aiokafka.AIOKafkaConsumer, AsyncConfluentConsumer],
         is_manual: bool = False,
         **kwargs: Any,
     ) -> None:

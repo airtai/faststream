@@ -21,7 +21,7 @@ from faststream.broker.types import (
     T_HandlerReturn,
 )
 from faststream.broker.wrapper import HandlerCallWrapper
-from faststream.kafka.client import ConsumerRecord
+from faststream.kafka.client import ConsumerRecord, AsyncConfluentConsumer
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.parser import AioKafkaParser
 from faststream.kafka.shared.schemas import ConsumerConnectionParams
@@ -33,7 +33,7 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
     Attributes:
         topics : sequence of strings representing the topics to consume from
         group_id : optional string representing the consumer group ID
-        consumer : optional AIOKafkaConsumer object representing the Kafka consumer
+        consumer : optional AIOKafkaConsumer or AsyncConfluentConsumer object representing the Kafka consumer
         task : optional asyncio.Task object representing the task for consuming messages
         batch : boolean indicating whether to consume messages in batches
 
@@ -51,7 +51,7 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
     topics: Sequence[str]
     group_id: Optional[str] = None
 
-    consumer: Optional[AIOKafkaConsumer] = None
+    consumer: Optional[Union[AIOKafkaConsumer, AsyncConfluentConsumer]] = None
     task: Optional["asyncio.Task[Any]"] = None
     batch: bool = False
 
@@ -63,7 +63,7 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
         # Kafka information
         group_id: Optional[str] = None,
         client_id: str = "faststream-" + __version__,
-        builder: Callable[..., AIOKafkaConsumer],
+        builder: Callable[..., Union[AIOKafkaConsumer, AsyncConfluentConsumer]],
         is_manual: bool = False,
         batch: bool = False,
         batch_timeout_ms: int = 200,
@@ -79,7 +79,7 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
             *topics: Variable length argument list of topics to consume from.
             group_id: Optional group ID for the consumer.
             client_id: Client ID for the consumer.
-            builder: Callable that constructs an AIOKafkaConsumer instance.
+            builder: Callable that constructs an AIOKafkaConsumer or AsyncConfluentConsumer instance.
             batch: Flag indicating whether to consume messages in batches.
             batch_timeout_ms: Timeout in milliseconds for batch consumption.
             max_records: Maximum number of records to consume in a batch.
