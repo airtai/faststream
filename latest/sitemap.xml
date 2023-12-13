@@ -649,6 +649,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/broker/handler/BaseHandler/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/broker/handler/MultiLock/</loc>
+        <lastmod>2023-12-13</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/broker/handler/MultiLock/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/broker/message/ABCStreamMessage/</loc>
         <lastmod>2023-12-13</lastmod>
         <changefreq>daily</changefreq>
@@ -2543,6 +2549,12 @@
         <lastmod>2023-12-13</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/rabbit/rpc/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/rabbit/security/</loc>
+        <lastmod>2023-12-13</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/rabbit/security/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/latest/rabbit/examples/</loc>
