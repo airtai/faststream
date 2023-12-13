@@ -1,6 +1,7 @@
 name: Update Release Notes
 
 on:
+  workflow_dispatch: null
   push:
     tags:
       - '*'
