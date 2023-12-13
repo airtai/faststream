@@ -1,6 +1,7 @@
 name: Update Release Notes
 
 on:
+  workflow_dispatch: null
   push:
     tags:
       - '*'
@@ -15,15 +16,15 @@ jobs:
       TAG_NAME: ${{ github.ref_name }}
       BRANCH_NAME: update-release-notes-${{ github.ref_name }}
     steps:
-      - name: Configure Git user
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      
+      - name: Configure Git user
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
 
       - uses: tibdex/github-app-token@v1
         id: generate-token
