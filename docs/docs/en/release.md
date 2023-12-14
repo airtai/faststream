@@ -12,6 +12,22 @@ hide:
 ---
 
 # Release Notes
+## 0.3.6
+
+### What's Changed
+
+* chore: correct update release CI by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1050](https://github.com/airtai/faststream/pull/1050){.external-link target="_blank"}
+* Update Release Notes for main by [@faststream](https://github.com/faststream){.external-link target="_blank"}-release-notes-updater in [#1051](https://github.com/airtai/faststream/pull/1051){.external-link target="_blank"}
+* chore: fix building docs script by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1055](https://github.com/airtai/faststream/pull/1055){.external-link target="_blank"}
+* 0.3.6 by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1056](https://github.com/airtai/faststream/pull/1056){.external-link target="_blank"}
+  * bug: remove `packaging` dependency
+  * bug: correct **FastAPI** batch consuming
+  * docs: add search meta to all pages
+  * docs: polish all pages styles, fix typos
+  * chore: add ruff rule to check print
+
+**Full Changelog**: [#0.3.5...0.3.6](https://github.com/airtai/faststream/compare/0.3.5...0.3.6){.external-link target="_blank"}
+
 ## 0.3.5
 
 ### What's Changed
