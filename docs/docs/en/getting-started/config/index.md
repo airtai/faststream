@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Settings and Environment Variables
 
 In many cases, your application may require external settings or configurations, such as a broker connection or database credentials.
@@ -47,7 +57,7 @@ It will also convert and validate the data, so when you use that `settings` obje
 Now you can use the new `settings` object in your application:
 
 ```python linenums='1' hl_lines="3 9 14" title="serve.py"
-{!> docs_src/getting_started/config/usage.py !}
+{! docs_src/getting_started/config/usage.py !}
 ```
 
 ### Running the Application
@@ -91,7 +101,7 @@ QUEUE="test-queue"
 Then update your `config.py` as follows:
 
 ```python linenums='1' hl_lines="1 11"
-{!> docs_src/getting_started/config/settings_env.py !}
+{! docs_src/getting_started/config/settings_env.py !}
 ```
 
 This way, you can specify different `.env` files directly from your terminal, which can be extremely helpful for various testing and production scenarios.

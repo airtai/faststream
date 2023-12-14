@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Tasks Scheduling
 
 **FastStream** is a framework for asynchronous service development. It allows you to build disturbed event-based systems in an easy way. Tasks scheduling is a pretty often usecase in such systems.
@@ -26,7 +36,7 @@ Let's take a look at the code example.
 
 At first, we should create a regular **FastStream** application.
 
-{!> includes/scheduling/app.md !}
+{! includes/scheduling/app.md !}
 
 ### Broker Wrapper
 
@@ -40,7 +50,7 @@ taskiq_broker = BrokerWrapper(broker)
 
 It creates a *taskiq-compatible* object, that can be used as an object to create a regular [**taskiq** scheduler](https://taskiq-python.github.io/guide/scheduling-tasks.html){.external-link target="_blank"}.
 
-{!> includes/scheduling/taskiq_broker.md !}
+{! includes/scheduling/taskiq_broker.md !}
 
 !!! note ""
     We patched the original `TaskiqScheduler` to support message generation callbacks, but its signature remains the same.
@@ -104,7 +114,7 @@ Also, you can integrate your **FastStream** application with any other libraries
 
 As an example, you can use [**Rocketry**](https://github.com/Miksus/rocketry){.external-link target="_blank"}:
 
-```python
+```python linenums="1"
 import asyncio
 
 from rocketry import Rocketry

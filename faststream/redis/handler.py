@@ -201,8 +201,8 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
                         for i in msgs:
                             await self.consume(i)
 
-                finally:
-                    await anyio.sleep(sleep)
+                    else:
+                        await anyio.sleep(sleep)
 
     async def _consume_stream_msg(
         self,

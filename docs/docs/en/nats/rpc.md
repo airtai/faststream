@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # RPC over NATS
 
 Because **NATS** has zero cost for creating new subjects, we can easily set up a new subject consumer just for the one response message. This way, your request message will be published to one topic, and the response message will be consumed from another one (temporary subject), which allows you to use regular **FastStream RPC** syntax in the **NATS** case too.
@@ -13,7 +23,7 @@ Just send a message like a regular one and get a response synchronously.
 
 It is very close to the common **requests** syntax:
 
-``` python hl_lines="1 4"
+```python hl_lines="1 4"
 msg = await broker.publish(
     "Hi!",
     subject="test",
@@ -32,7 +42,7 @@ Also, if you want to create a permanent request-reply data flow, probably, you s
 
 So, if you have such one, you can specify it with the `reply_to` argument. This way, **FastStream** will send a response to this subject automatically.
 
-``` python hl_lines="1 8"
+```python hl_lines="1 8"
 @broker.subscriber("response-subject")
 async def consume_responses(msg):
     ...

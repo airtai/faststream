@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # FastStream RabbitMQ Security
 
 This chapter discusses the security options available in **FastStream** and how to use them.
@@ -13,7 +23,7 @@ This chapter discusses the security options available in **FastStream** and how 
 **Usage:**
 
 ```python linenums="1" hl_lines="6-7 9"
-{!> docs_src/rabbit/security/basic.py !}
+{! docs_src/rabbit/security/basic.py !}
 ```
 
 ### 2. SASLPlaintext Object with SSL/TLS
@@ -23,5 +33,5 @@ This chapter discusses the security options available in **FastStream** and how 
 **Usage:**
 
 ```python linenums="1" hl_lines="6-11 13"
-{!> docs_src/rabbit/security/plaintext.py !}
+{! docs_src/rabbit/security/plaintext.py !}
 ```

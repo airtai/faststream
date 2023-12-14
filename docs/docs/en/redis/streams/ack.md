@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Stream Acknowledgement
 
 When working with *Redis* streams in the **FastStream** library, it's important to manage message acknowledgements carefully to ensure that messages are not lost and that they have been processed as intended.
@@ -31,10 +41,10 @@ Using `ack` will mark the message as processed in the stream, while `nack` is us
 
 If the need arises to instantly interrupt message processing at any point in the call stack and acknowledge the message, you can achieve this by raising the `faststream.exceptions.AckMessage` exception:
 
-``` python linenums="1" hl_lines="2 16"
-{!> docs_src/redis/stream/ack_errors.py !}
+```python linenums="1" hl_lines="2 16"
+{! docs_src/redis/stream/ack_errors.py !}
 ```
 
 By raising `AckMessage`, **FastStream** will halt the current message processing routine and immediately acknowledge it. Analogously, raising `NackMessage` would prevent the message from being acknowledged and could lead to its subsequent reprocessing by the same or a different consumer.
 
-{!> includes/en/no_ack.md !}
+{! includes/en/no_ack.md !}

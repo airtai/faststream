@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Redis Broker
 
 ## Redis Overview
@@ -43,7 +53,7 @@ To connect to **Redis** using the **FastStream** `RedisBroker` module, follow th
 Here's a simplified code example demonstrating how to establish a connection to **Redis** using **FastStream**'s `RedisBroker` module:
 
 ```python linenums="1"
-{!> docs_src/index/redis/basic.py!}
+{! docs_src/index/redis/basic.py!}
 ```
 
 This minimal example illustrates how **FastStream** simplifies the process of connecting to **Redis** and performing basic message processing from the *in-channel* to the *out-channel*. Depending on your specific use case and requirements, you can further customize your **Redis** integration with **FastStream** to build efficient and responsive applications.

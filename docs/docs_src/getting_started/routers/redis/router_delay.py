@@ -1,5 +1,6 @@
 from faststream import FastStream
-from faststream.redis import RedisBroker, RedisRouter, RedisRoute
+from faststream.redis import RedisBroker
+from faststream.redis import RedisRouter, RedisRoute
 
 broker = RedisBroker("redis://localhost:6379")
 app = FastStream(broker)
@@ -10,7 +11,11 @@ async def handle(name: str, user_id: int):
     assert user_id == 1
 
 
-router = RedisRouter(handlers=(RedisRoute(handle, "test-channel"),))
+router = RedisRouter(
+    handlers=(
+        RedisRoute(handle, "test-channel"),
+    )
+)
 
 broker.include_router(router)
 

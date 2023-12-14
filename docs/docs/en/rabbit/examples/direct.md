@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Direct Exchange
 
 The **Direct** Exchange is the basic way to route messages in *RabbitMQ*. Its core is very simple: the `exchange` sends messages to those queues whose `routing_key` matches the `routing_key` of the message being sent.
@@ -25,7 +35,7 @@ Thus, *RabbitMQ* can independently balance the load on queue consumers. You can 
 The argument `auto_delete=True` in this and subsequent examples is used only to clear the state of *RabbitMQ* after example runs.
 
 ```python linenums="1"
-{!> docs_src/rabbit/subscription/direct.py !}
+{! docs_src/rabbit/subscription/direct.py !}
 ```
 
 ### Consumer Announcement
@@ -33,13 +43,13 @@ The argument `auto_delete=True` in this and subsequent examples is used only to 
 First, we announce our **Direct** exchange and several queues that will listen to it:
 
 ```python linenums="7"
-{!> docs_src/rabbit/subscription/direct.py [ln:7-10]!}
+{! docs_src/rabbit/subscription/direct.py [ln:7-10] !}
 ```
 
 Then we sign up several consumers using the advertised queues to the `exchange` we created:
 
 ```python linenums="13" hl_lines="1 6 11"
-{!> docs_src/rabbit/subscription/direct.py [ln:13-25]!}
+{! docs_src/rabbit/subscription/direct.py [ln:13-25] !}
 ```
 
 !!! note
@@ -52,23 +62,23 @@ Then we sign up several consumers using the advertised queues to the `exchange` 
 Now, the distribution of messages between these consumers will look like this:
 
 ```python linenums="30"
-{!> docs_src/rabbit/subscription/direct.py [ln:30]!}
+{! docs_src/rabbit/subscription/direct.py [ln:30.5] !}
 ```
 
-Message `1` will be sent to `handler1` because it listens to the `exchange` using a queue with the routing key `test-q-1`.
+Message `1` will be sent to `handler1` because it listens to the `#!python "exchange"` using a queue with the routing key `#!python "test-q-1"`.
 
 ---
 
 ```python linenums="31"
-{!> docs_src/rabbit/subscription/direct.py [ln:31]!}
+{! docs_src/rabbit/subscription/direct.py [ln:31.5] !}
 ```
 
-Message `2` will be sent to `handler2` because it listens to the `exchange` using the same queue, but `handler1` is busy.
+Message `2` will be sent to `handler2` because it listens to the `#!python "exchange"` using the same queue, but `handler1` is busy.
 
 ---
 
 ```python linenums="32"
-{!> docs_src/rabbit/subscription/direct.py [ln:32]!}
+{! docs_src/rabbit/subscription/direct.py [ln:32.5] !}
 ```
 
 Message `3` will be sent to `handler1` again because it is currently free.
@@ -76,7 +86,7 @@ Message `3` will be sent to `handler1` again because it is currently free.
 ---
 
 ```python linenums="33"
-{!> docs_src/rabbit/subscription/direct.py [ln:33]!}
+{! docs_src/rabbit/subscription/direct.py [ln:33.5] !}
 ```
 
-Message `4` will be sent to `handler3` because it is the only one listening to the `exchange` using a queue with the routing key `test-q-2`.
+Message `4` will be sent to `handler3` because it is the only one listening to the `#!python "exchange"` using a queue with the routing key `#!python "test-q-2"`.

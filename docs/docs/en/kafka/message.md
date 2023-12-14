@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Access to Message Information
 
 As you may know, **FastStream** serializes a message body and provides you access to it through function arguments. However, there are times when you need to access additional message attributes such as offsets, headers, or other metadata.
@@ -52,4 +62,4 @@ async def base_handler(
     print(headers)
 ```
 
-{!> includes/message/headers.md !}
+{! includes/message/headers.md !}

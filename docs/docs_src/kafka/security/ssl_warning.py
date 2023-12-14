@@ -9,4 +9,4 @@ def test_without_ssl_warning():
     with pytest.warns(RuntimeWarning, match=ssl_not_set_error_msg):
         parse_security(security)
 
-    SASLPlaintext(username="admin", password="password", use_ssl=False)  # pragma: allowlist secret
+    SASLPlaintext(username="admin", password="password", use_ssl=False)

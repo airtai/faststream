@@ -1,10 +1,20 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Publishing Basics
 
 **FastStream** is broker-agnostic and easy to use, even as a client in non-**FastStream** applications.
 
 It offers several use cases for publishing messages:
 
-* Using `#!python broker.publish(...)`
+* Using `#!python broker.publish(...)` method
 * Using the `#!python @broker.publisher(...)` decorator
 * Using a publisher object decorator
 * Using a publisher object directly
@@ -35,4 +45,4 @@ You just need to `#!python connect` your broker, and you are ready to send a mes
 
 To publish a message, simply set up the message content and a routing key:
 
-{!> includes/getting_started/publishing/index.md !}
+{! includes/getting_started/publishing/index.md !}

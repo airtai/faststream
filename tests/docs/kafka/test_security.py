@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from docs.docs_src.kafka.security_without_ssl.example import test_without_ssl_warning
+from docs.docs_src.kafka.security.ssl_warning import test_without_ssl_warning
 
 __all__ = ["test_without_ssl_warning"]
 
@@ -27,7 +27,11 @@ def patch_aio_consumer_and_producer() -> Tuple[MagicMock, MagicMock]:
 @pytest.mark.kafka
 async def test_base_security():
     with patch_aio_consumer_and_producer() as (consumer, producer):
-        from docs.docs_src.kafka.basic_security.app import broker as basic_broker
+        from docs.docs_src.kafka.security.basic import broker as basic_broker
+
+        @basic_broker.subscriber("test")
+        async def handler():
+            ...
 
         async with basic_broker:
             await basic_broker.start()
@@ -49,9 +53,13 @@ async def test_base_security():
 @pytest.mark.kafka
 async def test_scram256():
     with patch_aio_consumer_and_producer() as (consumer, producer):
-        from docs.docs_src.kafka.sasl_scram256_security.app import (
+        from docs.docs_src.kafka.security.sasl_scram256 import (
             broker as scram256_broker,
         )
+
+        @scram256_broker.subscriber("test")
+        async def handler():
+            ...
 
         async with scram256_broker:
             await scram256_broker.start()
@@ -76,9 +84,13 @@ async def test_scram256():
 @pytest.mark.kafka
 async def test_scram512():
     with patch_aio_consumer_and_producer() as (consumer, producer):
-        from docs.docs_src.kafka.sasl_scram512_security.app import (
+        from docs.docs_src.kafka.security.sasl_scram512 import (
             broker as scram512_broker,
         )
+
+        @scram512_broker.subscriber("test")
+        async def handler():
+            ...
 
         async with scram512_broker:
             await scram512_broker.start()
@@ -103,9 +115,13 @@ async def test_scram512():
 @pytest.mark.kafka
 async def test_plaintext():
     with patch_aio_consumer_and_producer() as (consumer, producer):
-        from docs.docs_src.kafka.plaintext_security.app import (
+        from docs.docs_src.kafka.security.plaintext import (
             broker as plaintext_broker,
         )
+
+        @plaintext_broker.subscriber("test")
+        async def handler():
+            ...
 
         async with plaintext_broker:
             await plaintext_broker.start()

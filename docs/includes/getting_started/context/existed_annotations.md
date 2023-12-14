@@ -15,8 +15,8 @@
 
     To use them, simply import and use them as subscriber argument annotations.
 
-    ```python linenums="1" hl_lines="3-8 17-20"
-    {!> docs_src/getting_started/context/kafka/existed_context.py [ln:1-11,26-35] !}
+    ```python linenums="1" hl_lines="3-8 16-19"
+    {!> docs_src/getting_started/context/kafka/existed_context.py [ln:1-11,25-35] !}
     ```
 
 === "RabbitMQ"
@@ -36,8 +36,8 @@
 
     To use them, simply import and use them as subscriber argument annotations.
 
-    ```python linenums="1" hl_lines="3-8 17-20"
-    {!> docs_src/getting_started/context/rabbit/existed_context.py [ln:1-11,26-35] !}
+    ```python linenums="1" hl_lines="3-8 16-19"
+    {!> docs_src/getting_started/context/rabbit/existed_context.py [ln:1-11,25-35] !}
     ```
 
 === "NATS"
@@ -57,13 +57,13 @@
         ```
     To use them, simply import and use them as subscriber argument annotations.
 
-    ```python linenums="1" hl_lines="3-8 17-20"
-    {!> docs_src/getting_started/context/nats/existed_context.py [ln:1-11,26-35] !}
+    ```python linenums="1" hl_lines="3-8 16-19"
+    {!> docs_src/getting_started/context/nats/existed_context.py [ln:1-11,25-35] !}
     ```
 
 === "Redis"
     ```python
-    from faststream.rabbit.annotations import (
+    from faststream.redis.annotations import (
         Logger, ContextRepo, RedisMessage,
         RedisBroker, Redis, NoCast,
     )
@@ -77,6 +77,6 @@
         ```
     To use them, simply import and use them as subscriber argument annotations.
 
-    ```python linenums="1" hl_lines="3-8 17-20"
-    {!> docs_src/getting_started/context/redis/existed_context.py [ln:1-11,26-35] !}
+    ```python linenums="1" hl_lines="3-8 16-19"
+    {!> docs_src/getting_started/context/redis/existed_context.py [ln:1-11,25-35] !}
     ```

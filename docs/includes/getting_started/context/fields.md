@@ -6,21 +6,7 @@
     {{ comment_1 }}
 
     ```python
-    {!> docs_src/getting_started/context/kafka/fields_access.py [ln:11] !}
-    ```
-
-    {{ comment_2 }}
-
-
-    ```python
-    {!> docs_src/getting_started/context/kafka/fields_access.py [ln:12] !}
-    ```
-
-    {{ comment_3 }}
-
-
-    ```python
-    {!> docs_src/getting_started/context/kafka/fields_access.py [ln:13] !}
+    {!> docs_src/getting_started/context/kafka/fields_access.py [ln:11.5] !}
     ```
 
 === "RabbitMQ"
@@ -31,21 +17,7 @@
     {{ comment_1 }}
 
     ```python
-    {!> docs_src/getting_started/context/rabbit/fields_access.py [ln:11] !}
-    ```
-
-    {{ comment_2 }}
-
-
-    ```python
-    {!> docs_src/getting_started/context/rabbit/fields_access.py [ln:12] !}
-    ```
-
-    {{ comment_3 }}
-
-
-    ```python
-    {!> docs_src/getting_started/context/rabbit/fields_access.py [ln:13] !}
+    {!> docs_src/getting_started/context/rabbit/fields_access.py [ln:11.5] !}
     ```
 
 === "NATS"
@@ -56,21 +28,7 @@
     {{ comment_1 }}
 
     ```python
-    {!> docs_src/getting_started/context/nats/fields_access.py [ln:11] !}
-    ```
-
-    {{ comment_2 }}
-
-
-    ```python
-    {!> docs_src/getting_started/context/nats/fields_access.py [ln:12] !}
-    ```
-
-    {{ comment_3 }}
-
-
-    ```python
-    {!> docs_src/getting_started/context/nats/fields_access.py [ln:13] !}
+    {!> docs_src/getting_started/context/nats/fields_access.py [ln:11.5] !}
     ```
 
 === "Redis"
@@ -81,19 +39,19 @@
     {{ comment_1 }}
 
     ```python
-    {!> docs_src/getting_started/context/redis/fields_access.py [ln:11] !}
+    {!> docs_src/getting_started/context/redis/fields_access.py [ln:11.5] !}
     ```
 
-    {{ comment_2 }}
+{{ comment_2 }}
 
 
-    ```python
-    {!> docs_src/getting_started/context/redis/fields_access.py [ln:12] !}
-    ```
+```python
+{! docs_src/getting_started/context/kafka/fields_access.py [ln:12.5] !}
+```
 
-    {{ comment_3 }}
+{{ comment_3 }}
 
 
-    ```python
-    {!> docs_src/getting_started/context/redis/fields_access.py [ln:13] !}
-    ```
+```python
+{! docs_src/getting_started/context/kafka/fields_access.py [ln:13.5] !}
+```

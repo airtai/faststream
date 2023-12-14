@@ -214,7 +214,11 @@ class CriticalLogMiddleware(BaseMiddleware):
         after_processed(exc_type: Optional[Type[BaseException]] = None, exc_val: Optional[BaseException] = None, exec_tb: Optional[TracebackType] = None) -> bool: Logs critical errors if they occur and returns True
     """
 
-    def __init__(self, logger: Optional[logging.Logger], log_level: int,) -> None:
+    def __init__(
+        self,
+        logger: Optional[logging.Logger],
+        log_level: int,
+    ) -> None:
         """Initialize the class.
 
         Args:
