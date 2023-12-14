@@ -12,6 +12,24 @@ hide:
 ---
 
 # Release Notes
+## 0.3.5
+
+### What's Changed
+
+A large update by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1048](https://github.com/airtai/faststream/pull/1048){.external-link target="_blank"}
+
+Provides with the ability to setup `graceful_timeout` to wait for consumed messages processed correctly before apllication shutdown - `Broker(graceful_timeout=30.0)` (waits up to 30 seconds)
+
+* allows to get acces to `context.get_local("message"` from **FastAPI** plugin
+* docs: fix Avro custom serialization example
+* docs: add KafkaBroker `publish_batch` notice
+* docs: add RabbitMQ security page
+* fix: respect retry attempts with `NackMessage` exception
+* test Kafka nack and reject behavior
+* bug: fix import error with anyio version 4.x by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1049](https://github.com/airtai/faststream/pull/1049){.external-link target="_blank"}
+
+**Full Changelog**: [#0.3.4...0.3.5](https://github.com/airtai/faststream/compare/0.3.4...0.3.5){.external-link target="_blank"}
+
 ## 0.3.4
 
 ### What's Changed
