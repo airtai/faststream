@@ -36,8 +36,7 @@ class TestKafka(BaseCase):
     test_class = TestKafkaBroker
 
     @pytest.fixture(scope="class")
-    @staticmethod
-    def setup():
+    def setup(self):
         from docs.docs_src.getting_started.subscription.kafka.pydantic_annotated_fields import (
             broker,
             handle,
@@ -50,8 +49,7 @@ class TestRabbit(BaseCase):
     test_class = TestRabbitBroker
 
     @pytest.fixture(scope="class")
-    @staticmethod
-    def setup():
+    def setup(self):
         from docs.docs_src.getting_started.subscription.rabbit.pydantic_annotated_fields import (
             broker,
             handle,
@@ -64,8 +62,7 @@ class TestNats(BaseCase):
     test_class = TestNatsBroker
 
     @pytest.fixture(scope="class")
-    @staticmethod
-    def setup():
+    def setup(self):
         from docs.docs_src.getting_started.subscription.nats.pydantic_annotated_fields import (
             broker,
             handle,
@@ -78,8 +75,7 @@ class TestRedis(BaseCase):
     test_class = TestRedisBroker
 
     @pytest.fixture(scope="class")
-    @staticmethod
-    def setup():
+    def setup(self):
         from docs.docs_src.getting_started.subscription.redis.pydantic_annotated_fields import (
             broker,
             handle,
