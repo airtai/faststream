@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Middlewares
 
 **Middlewares** are a powerful mechanism that allows you to add additional logic to any stage of the message processing pipeline.
@@ -17,7 +27,7 @@ Unfortunately, this powerful feature has a somewhat complex signature too.
 
 Using middlewares, you can wrap the entire message processing pipeline. In this case, you need to specify `on_receive` and `after_processed` methods:
 
-``` python
+```python
 from faststream import BaseMiddleware
 
 class MyMiddleware(BaseMiddleware):
@@ -46,7 +56,7 @@ Also, using middlewares, you are able to wrap consumer function calls directly.
 
 In this case, you need to specify `on_receive` and `after_processed` methods:
 
-``` python
+```python
 from typing import Optional
 
 from faststream import BaseMiddleware:
@@ -70,7 +80,7 @@ Finally, using middlewares, you are able to patch outgoing messages too. For exa
 
 In this, case you need to specify `on_publish` and `after_publish` methods:
 
-``` python
+```python
 from typing import Optional
 
 from faststream import BaseMiddleware:

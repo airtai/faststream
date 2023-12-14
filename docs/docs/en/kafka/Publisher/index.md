@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Publishing
 
 The **FastStream** KafkaBroker supports all regular [publishing use cases](../../getting-started/publishing/index.md){.internal-link}, and you can use them without any changes.
@@ -18,10 +28,10 @@ You can specify the topic to send by its name.
     {!> docs_src/kafka/raw_publish/example.py [ln:8] !}
     ```
 
-1. Publish a message using the `publish` method
+2. Publish a message using the `publish` method
 
     ```python linenums="1"
-    {!> docs_src/kafka/raw_publish/example.py [ln:26-32] !}
+    {!> docs_src/kafka/raw_publish/example.py [ln:26.9,27.7,28.9,29.9,30.9,31.9,32.9] !}
     ```
 
 This is the most basic way of using the KafkaBroker to publish a message.
@@ -36,16 +46,16 @@ The simplest way to use a KafkaBroker for publishing has a significant limitatio
     {!> docs_src/kafka/publisher_object/example.py [ln:8] !}
     ```
 
-1. Create a publisher instance
+2. Create a publisher instance
 
     ```python linenums="1"
     {!> docs_src/kafka/publisher_object/example.py [ln:17] !}
     ```
 
-1. Publish a message using the `publish` method of the prepared publisher
+3. Publish a message using the `publish` method of the prepared publisher
 
     ```python linenums="1"
-    {!> docs_src/kafka/publisher_object/example.py [ln:26-31] !}
+    {!> docs_src/kafka/publisher_object/example.py [ln:26.9,27.7,28.9,29.9,30.9,31.9] !}
     ```
 
 Now, when you wrap your broker into a FastStream object, the publisher will be exported to the AsyncAPI documentation.
@@ -61,7 +71,7 @@ This method relies on the return type annotation of the handler function to prop
 Let's start by examining the entire application that utilizes the Publisher Decorator and then proceed to walk through it step by step.
 
 ```python linenums="1"
-{!> docs_src/kafka/publish_example/app.py [ln:1-26] !}
+{! docs_src/kafka/publish_example/app.py [ln:1-26] !}
 ```
 
 1. **Initialize the KafkaBroker instance:** Start by initializing a KafkaBroker instance with the necessary configuration, including Kafka broker address.
@@ -70,19 +80,19 @@ Let's start by examining the entire application that utilizes the Publisher Deco
     {!> docs_src/kafka/publish_example/app.py [ln:13] !}
     ```
 
-1. **Prepare your publisher object to use later as a decorator:**
+2. **Prepare your publisher object to use later as a decorator:**
 
     ```python linenums="1"
     {!> docs_src/kafka/publish_example/app.py [ln:17] !}
     ```
 
-1. **Create your processing logic:** Write a function that will consume the incoming messages in the defined format and produce a response to the defined topic
+3. **Create your processing logic:** Write a function that will consume the incoming messages in the defined format and produce a response to the defined topic
 
     ```python linenums="1"
     {!> docs_src/kafka/publish_example/app.py [ln:22-23] !}
     ```
 
-1. **Decorate your processing function:** To connect your processing function to the desired Kafka topics you need to decorate it with `#!python @broker.subscriber` and `#!python @broker.publisher` decorators. Now, after you start your application, your processing function will be called whenever a new message in the subscribed topic is available and produce the function return value to the topic defined in the publisher decorator.
+4. **Decorate your processing function:** To connect your processing function to the desired Kafka topics you need to decorate it with `#!python @broker.subscriber(...)` and `#!python @broker.publisher(...)` decorators. Now, after you start your application, your processing function will be called whenever a new message in the subscribed topic is available and produce the function return value to the topic defined in the publisher decorator.
 
     ```python linenums="1"
     {!> docs_src/kafka/publish_example/app.py [ln:20-23] !}

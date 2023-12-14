@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Using FastStream with Django
 
 [**Django**](https://www.djangoproject.com/){.external-link target="_blank"} is a high-level Python web framework that encourages rapid development and clean, pragmatic design. Built by experienced developers, it takes care of much of the hassle of web development, so you can focus on writing your app without needing to reinvent the wheel. It’s free and open source.

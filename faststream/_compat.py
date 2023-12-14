@@ -9,7 +9,6 @@ from fast_depends._compat import (  # type: ignore[attr-defined]
     PYDANTIC_VERSION as PYDANTIC_VERSION,
 )
 from fast_depends._compat import FieldInfo
-from packaging.version import parse
 from pydantic import BaseModel
 
 if sys.version_info < (3, 12):
@@ -54,9 +53,6 @@ ModelVar = TypeVar("ModelVar", bound=BaseModel)
 
 IS_OPTIMIZED = os.getenv("PYTHONOPTIMIZE", False)
 
-ANYIO_VERSION = parse(get_version("anyio"))
-ANYIO_V3 = ANYIO_VERSION.major == 3
-
 
 def is_test_env() -> bool:
     return bool(os.getenv("PYTEST_CURRENT_TEST"))
@@ -67,7 +63,7 @@ try:
 
     HAS_FASTAPI = True
 
-    major, minor, _ = map(int, FASTAPI_VERSION.split("."))
+    major, minor, *_ = map(int, FASTAPI_VERSION.split("."))
     FASTAPI_V2 = major > 0 or minor > 100
 
     if FASTAPI_V2:
@@ -191,11 +187,15 @@ else:
         return {}
 
 
+anyio_major, *_ = map(int, get_version("anyio").split("."))
+ANYIO_V3 = anyio_major == 3
+
+
 if ANYIO_V3:
     from anyio import ExceptionGroup as ExceptionGroup  # type: ignore[attr-defined]
 else:
     if sys.version_info < (3, 11):
-        from exceptiongroup import (  # type: ignore[assignment]
+        from exceptiongroup import (  # type: ignore[assignment,no-redef]
             ExceptionGroup as ExceptionGroup,
         )
     else:

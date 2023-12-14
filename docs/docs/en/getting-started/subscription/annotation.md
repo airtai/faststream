@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Annotation Serialization
 
 ## Basic usage
@@ -6,7 +16,7 @@ As you already know, **FastStream** serializes your incoming message body accord
 
 So, there are some valid usecases:
 
-{!> includes/getting_started/subscription/annotation/1.md !}
+{! includes/getting_started/subscription/annotation/1.md !}
 
 As with other Python primitive types as well (`#!python float`, `#!python bool`, `#!python datetime`, etc)
 
@@ -21,10 +31,10 @@ But how can we serialize more complex message, like `#!json { "name": "John", "u
 
 For sure, we can serialize it as a simple `#!python dict`
 
-{!> includes/getting_started/subscription/annotation/2.md !}
+{! includes/getting_started/subscription/annotation/2.md !}
 
 But it doesn't looks like a correct message validation, does it?
 
 For this reason, **FastStream** supports per-argument message serialization: you can declare multiple arguments with various types and your message will unpack to them:
 
-{!> includes/getting_started/subscription/annotation/3.md !}
+{! includes/getting_started/subscription/annotation/3.md !}

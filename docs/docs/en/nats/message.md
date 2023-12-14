@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Access to Message Information
 
 As you know, **FastStream** serializes a message body and provides you access to it through function arguments. But sometimes you need to access message_id, headers, or other meta-information.
@@ -8,7 +18,7 @@ You can get it in a simple way: just acces the message object in the [Context](.
 
 It contains the required information such as:
 
-{!> includes/message/attrs.md !}
+{! includes/message/attrs.md !}
 
 It is a **FastStream** wrapper around a native broker library message (`nats.aio.msg.Msg` in the *NATS*' case) that you can access with `raw_message`.
 
@@ -67,13 +77,13 @@ async def base_handler(
 
 But this code is too long to reuse everywhere. In this case, you can use a Python [`Annotated`](https://docs.python.org/3/library/typing.html#typing.Annotated){.external-link target="_blank"} feature:
 
-{!> includes/message/annotated.md !}
+{! includes/message/annotated.md !}
 
-{!> includes/message/headers.md !}
+{! includes/message/headers.md !}
 
 ## Subject Pattern Access
 
-As you know, **NATS** allows you to use a pattern like this `logs.*` to subscriber to subjects. Getting access to the real `*` value is an often-used scenario, and **FastStream** provide it to you with the `Path` object (which is a shortcut to `#!python Context("message.path.*")`).
+As you know, **NATS** allows you to use a pattern like this `#!python "logs.*"` to subscriber to subjects. Getting access to the real `*` value is an often-used scenario, and **FastStream** provide it to you with the `Path` object (which is a shortcut to `#!python Context("message.path.*")`).
 
 To use it, you just need to replace your `*` with `{variable-name}` and use `Path` as a regular `Context` object:
 

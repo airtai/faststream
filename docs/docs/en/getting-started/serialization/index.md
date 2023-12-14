@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Custom Serialization
 
 By default, **FastStream** uses the *JSON* format to send and receive messages. However, if you need to handle messages in other formats or with additional serialization steps, such as *gzip*, *lz4*, *Avro*, *Protobuf* or *Msgpack*, you can easily modify the serialization logic.

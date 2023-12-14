@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Serving the AsyncAPI Documentation
 
 FastStream provides a command to serve the AsyncAPI documentation.
@@ -5,25 +15,25 @@ FastStream provides a command to serve the AsyncAPI documentation.
 !!! note
     This feature requires an Internet connection to obtain the **AsyncAPI HTML** via **CDN**.
 
-``` shell
-{!> docs_src/getting_started/asyncapi/serve.py[ln:17]!}
+```shell
+{! docs_src/getting_started/asyncapi/serve.py [ln:17] !}
 ```
 
 In the above command, we are providing the path in the format of `python_module:FastStream`. Alternatively, you can also specify `asyncapi.json` or `asyncapi.yaml` to serve the AsyncAPI documentation.
 
 === "JSON"
-    ``` shell
-    {!> docs_src/getting_started/asyncapi/serve.py[ln:21]!}
+    ```shell
+    {!> docs_src/getting_started/asyncapi/serve.py [ln:21] !}
     ```
 
 === "YAML"
-    ``` shell
-    {!> docs_src/getting_started/asyncapi/serve.py[ln:25]!}
+    ```shell
+    {!> docs_src/getting_started/asyncapi/serve.py [ln:25] !}
     ```
 
 After running the command, it should serve the AsyncAPI documentation on port **8000** and display the following logs in the terminal.
 
-``` {.shell .no-copy}
+```{.shell .no-copy}
 INFO:     Started server process [2364992]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.

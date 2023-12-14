@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Lifespan Hooks
 
 ## Usage example
@@ -86,7 +96,7 @@ Also, we don't want the model to finish its work incorrectly when the applicatio
 If you want to declare multiple lifecycle hooks, they will be used in the order they are registered:
 
 ```python linenums="1" hl_lines="6 11"
-{!> docs_src/getting_started/lifespan/multiple.py !}
+{! docs_src/getting_started/lifespan/multiple.py !}
 ```
 
 ## Some more details

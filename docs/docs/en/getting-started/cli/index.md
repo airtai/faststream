@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # CLI
 
 **FastStream** has its own built-in **CLI** tool for your maximum comfort as a developer.

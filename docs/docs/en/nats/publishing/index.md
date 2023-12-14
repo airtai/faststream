@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Publishing
 
 **FastStream** `NatsBroker` supports all regular [publishing usecases](../../getting-started/publishing/index.md){.internal-link}. You can use them without any changes.
@@ -8,7 +18,7 @@ However, if you wish to further customize the publishing logic, you should take 
 
 `NatsBroker` also uses the unified `publish` method (from a `publisher` object) to send messages.
 
-``` python
+```python
 import asyncio
 from faststream.nats import NatsBroker
 

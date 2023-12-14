@@ -134,6 +134,7 @@ markdown_extensions:
       toc_depth: 3
   - mdx_include:
       base_path: .
+      line_slice_separator: []
   - extra
   - admonition                   # !!! note blocks support
   - pymdownx.details             # admonition collapsible

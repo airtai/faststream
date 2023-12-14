@@ -44,8 +44,6 @@ class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
         Returns:
             None: This method does not return a value.
         """
-        print("try to ack")
         if self.is_manual and not self.commited:
-            print("acked")
             await self.consumer.commit()
             await super().ack()

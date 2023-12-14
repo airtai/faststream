@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Basic Subscriber
 
 If you know nothing about *RabbitMQ* and how it works, you will still able to use **FastStream RabbitBroker**.
@@ -5,7 +15,7 @@ If you know nothing about *RabbitMQ* and how it works, you will still able to us
 Just use the `#!python @broker.subscriber(...)` method with a string as a routing key.
 
 ```python linenums="1"
-{!> docs_src/rabbit/subscription/index.py !}
+{! docs_src/rabbit/subscription/index.py !}
 ```
 
 This is the principle all **FastStream** brokers work by: you don't need to learn them in-depth if you want to *just send a message*.
