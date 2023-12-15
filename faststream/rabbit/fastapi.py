@@ -1,7 +1,25 @@
 from aio_pika import IncomingMessage
 
+from faststream._compat import Annotated
+from faststream.broker.fastapi.context import Context, ContextRepo, Logger
 from faststream.broker.fastapi.router import StreamRouter
-from faststream.rabbit.broker import RabbitBroker
+from faststream.rabbit.broker import RabbitBroker as RB
+from faststream.rabbit.message import RabbitMessage as RM
+from faststream.rabbit.producer import AioPikaFastProducer
+
+__all__ = (
+    "Context",
+    "Logger",
+    "ContextRepo",
+    "RabbitMessage",
+    "RabbitBroker",
+    "RabbitProducer",
+    "RabbitRouter",
+)
+
+RabbitMessage = Annotated[RM, Context("message")]
+RabbitBroker = Annotated[RB, Context("broker")]
+RabbitProducer = Annotated[AioPikaFastProducer, Context("broker._producer")]
 
 
 class RabbitRouter(StreamRouter[IncomingMessage]):
@@ -12,15 +30,14 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
 
     Methods:
         _setup_log_context : sets up the log context for the main broker and the including broker
-
     """
 
-    broker_class = RabbitBroker
+    broker_class = RB
 
     @staticmethod
     def _setup_log_context(
-        main_broker: RabbitBroker,
-        including_broker: RabbitBroker,
+        main_broker: RB,
+        including_broker: RB,
     ) -> None:
         """Sets up the log context for a main broker and an including broker.
 
@@ -30,7 +47,6 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
 
         Returns:
             None
-
         """
         for h in including_broker.handlers.values():
             main_broker._setup_log_context(h.queue, h.exchange)

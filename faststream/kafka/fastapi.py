@@ -1,7 +1,25 @@
 from aiokafka import ConsumerRecord
 
+from faststream._compat import Annotated
+from faststream.broker.fastapi.context import Context, ContextRepo, Logger
 from faststream.broker.fastapi.router import StreamRouter
-from faststream.kafka.broker import KafkaBroker
+from faststream.kafka.broker import KafkaBroker as KB
+from faststream.kafka.message import KafkaMessage as KM
+from faststream.kafka.producer import AioKafkaFastProducer
+
+__all__ = (
+    "Context",
+    "Logger",
+    "ContextRepo",
+    "KafkaRouter",
+    "KafkaMessage",
+    "KafkaBroker",
+    "KafkaProducer",
+)
+
+KafkaMessage = Annotated[KM, Context("message")]
+KafkaBroker = Annotated[KB, Context("broker")]
+KafkaProducer = Annotated[AioKafkaFastProducer, Context("broker._producer")]
 
 
 class KafkaRouter(StreamRouter[ConsumerRecord]):
@@ -12,15 +30,14 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
 
     Methods:
         _setup_log_context : sets up the log context for the main broker and including broker
-
     """
 
-    broker_class = KafkaBroker
+    broker_class = KB
 
     @staticmethod
     def _setup_log_context(
-        main_broker: KafkaBroker,
-        including_broker: KafkaBroker,
+        main_broker: KB,
+        including_broker: KB,
     ) -> None:
         """Set up log context for a Kafka broker.
 
@@ -30,7 +47,6 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
 
         Returns:
             None
-
         """
         for h in including_broker.handlers.values():
             main_broker._setup_log_context(h.topics)

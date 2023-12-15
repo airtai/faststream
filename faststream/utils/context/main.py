@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
-from typing import Any, Dict, Iterator, TypeVar
+from inspect import _empty
+from typing import Any, Dict, Iterator, Mapping, TypeVar
 
 from faststream.types import AnyDict
 from faststream.utils.classes import Singleton
@@ -27,7 +28,6 @@ class ContextRepo(Singleton):
         __getattr__ : gets the value of a context variable using attribute access
         context : gets the current context as a dictionary
         scope : creates a context scope for a specific key and value
-
     """
 
     _global_context: AnyDict
@@ -39,7 +39,6 @@ class ContextRepo(Singleton):
         Attributes:
             _global_context : a dictionary representing the global context
             _scope_context : a dictionary representing the scope context
-
         """
         self._global_context = {"context": self}
         self._scope_context = {}
@@ -53,7 +52,6 @@ class ContextRepo(Singleton):
 
         Returns:
             None.
-
         """
         self._global_context[key] = v
 
@@ -65,7 +63,6 @@ class ContextRepo(Singleton):
 
         Returns:
             None
-
         """
         self._global_context.pop(key, None)
 
@@ -78,7 +75,6 @@ class ContextRepo(Singleton):
 
         Returns:
             Token[T]: A token representing the context variable.
-
         """
         context_var = self._scope_context.get(key)
         if context_var is None:
@@ -95,7 +91,6 @@ class ContextRepo(Singleton):
 
         Returns:
             None
-
         """
         self._scope_context[key].reset(tag)
 
@@ -107,7 +102,6 @@ class ContextRepo(Singleton):
 
         Returns:
             The value of the local variable.
-
         """
         context_var = self._scope_context.get(key)
         if context_var is not None:  # pragma: no branch
@@ -127,9 +121,32 @@ class ContextRepo(Singleton):
 
         Returns:
             The value associated with the key.
-
         """
         return self._global_context.get(key, self.get_local(key, default))
+
+    def resolve(self, argument: str) -> Any:
+        """Resolve the context of an argument.
+
+        Args:
+            argument: A string representing the argument.
+
+        Returns:
+            The resolved context of the argument.
+
+        Raises:
+            AttributeError: If the attribute does not exist in the context.
+        """
+        first, *keys = argument.split(".")
+
+        if (v := self.get(first, _empty)) is _empty:
+            raise KeyError(f"`{self.context}` does not contains `{first}` key")
+
+        for i in keys:
+            if isinstance(v, Mapping):
+                v = v[i]
+            else:
+                v = getattr(v, i)
+        return v
 
     def __getattr__(self, __name: str) -> Any:
         """This is a function that is part of a class. It is used to get an attribute value using the `__getattr__` method.
@@ -139,7 +156,6 @@ class ContextRepo(Singleton):
 
         Returns:
             The value of the attribute.
-
         """
         return self.get(__name)
 
@@ -163,7 +179,6 @@ class ContextRepo(Singleton):
 
         Returns:
             An iterator that yields None
-
         """
         token = self.set_local(key, value)
         try:

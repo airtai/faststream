@@ -96,7 +96,7 @@ search:
     - [RPC](redis/rpc.md)
     - [Message Information](redis/message.md)
     - [Security Configuration](redis/security.md)
-- [Reference - Code API](api/faststream/index.md)
+- [Reference - Code API](api/index.md)
     - faststream
         - [BaseMiddleware](api/faststream/BaseMiddleware.md)
         - [Context](api/faststream/Context.md)
@@ -224,6 +224,8 @@ search:
                 - [StreamMessage](api/faststream/broker/fastapi/StreamMessage.md)
                 - [StreamRoute](api/faststream/broker/fastapi/StreamRoute.md)
                 - [StreamRouter](api/faststream/broker/fastapi/StreamRouter.md)
+                - context
+                    - [Context](api/faststream/broker/fastapi/context/Context.md)
                 - route
                     - [StreamMessage](api/faststream/broker/fastapi/route/StreamMessage.md)
                     - [StreamRoute](api/faststream/broker/fastapi/route/StreamRoute.md)
@@ -333,6 +335,7 @@ search:
             - broker
                 - [KafkaBroker](api/faststream/kafka/broker/KafkaBroker.md)
             - fastapi
+                - [Context](api/faststream/kafka/fastapi/Context.md)
                 - [KafkaRouter](api/faststream/kafka/fastapi/KafkaRouter.md)
             - handler
                 - [LogicHandler](api/faststream/kafka/handler/LogicHandler.md)
@@ -396,6 +399,7 @@ search:
             - broker
                 - [NatsBroker](api/faststream/nats/broker/NatsBroker.md)
             - fastapi
+                - [Context](api/faststream/nats/fastapi/Context.md)
                 - [NatsRouter](api/faststream/nats/fastapi/NatsRouter.md)
             - handler
                 - [LogicNatsHandler](api/faststream/nats/handler/LogicNatsHandler.md)
@@ -452,6 +456,7 @@ search:
             - broker
                 - [RabbitBroker](api/faststream/rabbit/broker/RabbitBroker.md)
             - fastapi
+                - [Context](api/faststream/rabbit/fastapi/Context.md)
                 - [RabbitRouter](api/faststream/rabbit/fastapi/RabbitRouter.md)
             - handler
                 - [LogicHandler](api/faststream/rabbit/handler/LogicHandler.md)
@@ -508,6 +513,7 @@ search:
             - broker
                 - [RedisBroker](api/faststream/redis/broker/RedisBroker.md)
             - fastapi
+                - [Context](api/faststream/redis/fastapi/Context.md)
                 - [RedisRouter](api/faststream/redis/fastapi/RedisRouter.md)
             - handler
                 - [LogicRedisHandler](api/faststream/redis/handler/LogicRedisHandler.md)
@@ -580,7 +586,6 @@ search:
                     - [compile_path](api/faststream/utils/context/path/compile_path.md)
                 - types
                     - [Context](api/faststream/utils/context/types/Context.md)
-                    - [resolve_context](api/faststream/utils/context/types/resolve_context.md)
             - data
                 - [filter_by_dict](api/faststream/utils/data/filter_by_dict.md)
             - functions
