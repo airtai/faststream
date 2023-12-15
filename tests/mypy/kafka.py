@@ -2,12 +2,7 @@ from typing import Awaitable, Callable
 
 from aiokafka import ConsumerRecord
 
-from faststream.kafka import (
-    KafkaBroker,
-    KafkaMessage,
-    KafkaRoute,
-    KafkaRouter,
-)
+from faststream.kafka import KafkaBroker, KafkaMessage, KafkaRoute, KafkaRouter
 from faststream.kafka.fastapi import KafkaRouter as FastAPIRouter
 from faststream.types import DecodedMessage
 
