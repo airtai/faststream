@@ -12,6 +12,15 @@ hide:
 ---
 
 # Release Notes
+## 0.3.7
+
+### What's Changed
+
+* feat (#974): add FastAPI Context by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1060](https://github.com/airtai/faststream/pull/1060){.external-link target="_blank"}
+* chore: update pre-commit by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1058](https://github.com/airtai/faststream/pull/1058){.external-link target="_blank"}
+
+**Full Changelog**: [#0.3.6...0.3.7](https://github.com/airtai/faststream/compare/0.3.6...0.3.7){.external-link target="_blank"}
+
 ## 0.3.6
 
 ### What's Changed
