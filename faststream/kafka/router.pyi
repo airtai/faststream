@@ -1,5 +1,6 @@
 from typing import Any, Callable, Dict, Literal, Optional, Sequence, TypeVar, Union
 
+import aiokafka
 from fast_depends.dependencies import Depends
 from kafka.coordinator.assignors.abstract import AbstractPartitionAssignor
 from kafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
@@ -17,13 +18,12 @@ from faststream.broker.types import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.asyncapi import Publisher
-from faststream.kafka.client import ConsumerRecord
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.shared.router import KafkaRoute
 
 Partition = TypeVar("Partition")
 
-class KafkaRouter(BrokerRouter[str, ConsumerRecord]):
+class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
     _publishers: Dict[str, Publisher]  # type: ignore[assignment]
 
     def __init__(
@@ -33,9 +33,9 @@ class KafkaRouter(BrokerRouter[str, ConsumerRecord]):
         *,
         dependencies: Sequence[Depends] = (),
         middlewares: Optional[
-            Sequence[Callable[[ConsumerRecord], BaseMiddleware]]
+            Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
         ] = None,
-        parser: Optional[CustomParser[ConsumerRecord, KafkaMessage]] = None,
+        parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         include_in_schema: bool = True,
     ): ...
@@ -99,12 +99,12 @@ class KafkaRouter(BrokerRouter[str, ConsumerRecord]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[ConsumerRecord, KafkaMessage]] = None,
+        parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
-                    [ConsumerRecord],
+                    [aiokafka.ConsumerRecord],
                     BaseMiddleware,
                 ]
             ]
@@ -122,5 +122,5 @@ class KafkaRouter(BrokerRouter[str, ConsumerRecord]):
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
-        HandlerCallWrapper[ConsumerRecord, P_HandlerParams, T_HandlerReturn],
+        HandlerCallWrapper[aiokafka.ConsumerRecord, P_HandlerParams, T_HandlerReturn],
     ]: ...

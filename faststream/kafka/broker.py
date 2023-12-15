@@ -38,7 +38,6 @@ from faststream.broker.types import (
 from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.kafka.asyncapi import Handler, Publisher
-from faststream.kafka.client import ConsumerRecord
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.kafka.security import parse_security
@@ -51,7 +50,7 @@ from faststream.utils.data import filter_by_dict
 
 class KafkaBroker(
     KafkaLoggingMixin,
-    BrokerAsyncUsecase[ConsumerRecord, ConsumerConnectionParams],
+    BrokerAsyncUsecase[aiokafka.ConsumerRecord, ConsumerConnectionParams],
 ):
     """
     KafkaBroker is a class for managing Kafka message consumption and publishing.
@@ -292,22 +291,22 @@ class KafkaBroker(
         dependencies: Sequence[Depends] = (),
         parser: Optional[
             Union[
-                CustomParser[ConsumerRecord, KafkaMessage],
-                CustomParser[Tuple[ConsumerRecord, ...], KafkaMessage],
+                CustomParser[aiokafka.ConsumerRecord, KafkaMessage],
+                CustomParser[Tuple[aiokafka.ConsumerRecord, ...], KafkaMessage],
             ]
         ] = None,
         decoder: Optional[CustomDecoder] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
-                    [ConsumerRecord],
+                    [aiokafka.ConsumerRecord],
                     BaseMiddleware,
                 ]
             ]
         ] = None,
         filter: Union[
             Filter[KafkaMessage],
-            Filter[StreamMessage[Tuple[ConsumerRecord, ...]]],
+            Filter[StreamMessage[Tuple[aiokafka.ConsumerRecord, ...]]],
         ] = default_filter,
         batch: bool = False,
         max_records: Optional[int] = None,
@@ -321,9 +320,11 @@ class KafkaBroker(
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
         Union[
-            HandlerCallWrapper[ConsumerRecord, P_HandlerParams, T_HandlerReturn],
             HandlerCallWrapper[
-                Tuple[ConsumerRecord, ...], P_HandlerParams, T_HandlerReturn
+                aiokafka.ConsumerRecord, P_HandlerParams, T_HandlerReturn
+            ],
+            HandlerCallWrapper[
+                Tuple[aiokafka.ConsumerRecord, ...], P_HandlerParams, T_HandlerReturn
             ],
         ],
     ]:
@@ -353,10 +354,10 @@ class KafkaBroker(
             exclude_internal_topics (bool): Whether to exclude internal topics.
             isolation_level (Literal["read_uncommitted", "read_committed"]): Isolation level.
             dependencies (Sequence[Depends]): Additional dependencies for message handling.
-            parser (Optional[Union[CustomParser[faststream.kafka.ConsumerRecord], CustomParser[Tuple[faststream.kafka.ConsumerRecord, ...]]]]): Message parser.
+            parser (Optional[Union[CustomParser[aiokafka.ConsumerRecord], CustomParser[Tuple[aiokafka.ConsumerRecord, ...]]]]): Message parser.
             decoder (Optional[CustomDecoder]): Message decoder.
-            middlewares (Optional[Sequence[Callable[[faststream.kafka.ConsumerRecord], BaseMiddleware]]]): Message middlewares.
-            filter (Union[Filter[KafkaMessage], Filter[StreamMessage[Tuple[faststream.kafka.ConsumerRecord, ...]]]]): Message filter.
+            middlewares (Optional[Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]]): Message middlewares.
+            filter (Union[Filter[KafkaMessage], Filter[StreamMessage[Tuple[aiokafka.ConsumerRecord, ...]]]]): Message filter.
             batch (bool): Whether to process messages in batches.
             max_records (Optional[int]): Maximum number of records to process in each batch.
             batch_timeout_ms (int): Batch timeout in milliseconds.
@@ -424,7 +425,9 @@ class KafkaBroker(
 
         def consumer_wrapper(
             func: Callable[P_HandlerParams, T_HandlerReturn],
-        ) -> HandlerCallWrapper[ConsumerRecord, P_HandlerParams, T_HandlerReturn]:
+        ) -> HandlerCallWrapper[
+            aiokafka.ConsumerRecord, P_HandlerParams, T_HandlerReturn
+        ]:
             """A wrapper function for a consumer handler.
 
             Args:

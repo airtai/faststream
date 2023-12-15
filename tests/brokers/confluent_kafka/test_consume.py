@@ -19,11 +19,12 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         @broker.subscriber(queue, batch=True)
         async def handler(msg):
+            # print(f"At handler - {msg}")
             await msgs_queue.put(msg)
 
         async with broker:
             await broker.start()
-
+            # await asyncio.sleep(3)
             await broker.publish_batch(1, "hi", topic=queue)
 
             result, _ = await asyncio.wait(

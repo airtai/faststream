@@ -1,5 +1,6 @@
 from typing import Any, Callable, Literal, Optional, Sequence, Tuple, Union, overload
 
+import aiokafka
 from fast_depends.dependencies import Depends
 from kafka.coordinator.assignors.abstract import AbstractPartitionAssignor
 from kafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
@@ -8,7 +9,6 @@ from faststream.broker.core.asyncronous import default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import CustomDecoder, CustomParser, Filter, T_HandlerReturn
-from faststream.kafka.client import ConsumerRecord
 from faststream.kafka.message import KafkaMessage
 
 class KafkaRoute:
@@ -50,17 +50,21 @@ class KafkaRoute:
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[Tuple[ConsumerRecord, ...], KafkaMessage]] = None,
+        parser: Optional[
+            CustomParser[Tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
+        ] = None,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
-                    [ConsumerRecord],
+                    [aiokafka.ConsumerRecord],
                     BaseMiddleware,
                 ]
             ]
         ] = None,
-        filter: Filter[StreamMessage[Tuple[ConsumerRecord, ...]]] = default_filter,
+        filter: Filter[
+            StreamMessage[Tuple[aiokafka.ConsumerRecord, ...]]
+        ] = default_filter,
         batch: Literal[True] = True,
         max_records: Optional[int] = None,
         batch_timeout_ms: int = 200,
@@ -107,12 +111,12 @@ class KafkaRoute:
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[ConsumerRecord, KafkaMessage]] = None,
+        parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
-                    [ConsumerRecord],
+                    [aiokafka.ConsumerRecord],
                     BaseMiddleware,
                 ]
             ]

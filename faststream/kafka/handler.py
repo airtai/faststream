@@ -3,7 +3,7 @@ from itertools import chain
 from typing import Any, Callable, Dict, Optional, Sequence, Tuple, Union
 
 import anyio
-from aiokafka import AIOKafkaConsumer
+from aiokafka import AIOKafkaConsumer, ConsumerRecord
 from aiokafka.errors import KafkaError
 from fast_depends.core import CallModel
 
@@ -21,7 +21,7 @@ from faststream.broker.types import (
     T_HandlerReturn,
 )
 from faststream.broker.wrapper import HandlerCallWrapper
-from faststream.kafka.client import ConsumerRecord, AsyncConfluentConsumer
+from faststream.kafka.client import AsyncConfluentConsumer
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.parser import AioKafkaParser
 from faststream.kafka.shared.schemas import ConsumerConnectionParams

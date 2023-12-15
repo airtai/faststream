@@ -2,13 +2,14 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 from uuid import uuid4
 
+from aiokafka import ConsumerRecord
+
 from faststream._compat import override
 from faststream.broker.parsers import encode_message
 from faststream.broker.test import TestBroker, call_handler
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.asyncapi import Publisher
 from faststream.kafka.broker import KafkaBroker
-from faststream.kafka.client import ConsumerRecord
 from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.types import SendableMessage
 

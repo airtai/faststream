@@ -3,10 +3,10 @@ from typing import Any, Union
 import aiokafka
 
 from faststream.broker.message import StreamMessage
-from faststream.kafka.client import ConsumerRecord, AsyncConfluentConsumer
+from faststream.kafka.client import AsyncConfluentConsumer
 
 
-class KafkaMessage(StreamMessage[ConsumerRecord]):
+class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
     """
     Represents a Kafka message in the FastStream framework.
 

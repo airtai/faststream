@@ -1,7 +1,8 @@
 from typing import Awaitable, Callable
 
+from aiokafka import ConsumerRecord
+
 from faststream.kafka import (
-    ConsumerRecord,
     KafkaBroker,
     KafkaMessage,
     KafkaRoute,

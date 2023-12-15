@@ -1,10 +1,11 @@
 import logging
 from typing import Any, Iterable, Optional, Sequence
 
+from aiokafka import ConsumerRecord
+
 from faststream._compat import override
 from faststream.broker.core.mixins import LoggingMixin
 from faststream.broker.message import StreamMessage
-from faststream.kafka.client import ConsumerRecord
 from faststream.log import access_logger
 from faststream.types import AnyDict
 
