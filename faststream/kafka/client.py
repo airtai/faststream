@@ -91,9 +91,6 @@ class AsyncConfluentProducer:
     ) -> None:
         """
         Initialize the AsyncConfluentProducer.
-
-        Args:
-            config (dict): Configuration dictionary for the Kafka producer.
         """
 
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
@@ -157,11 +154,6 @@ class AsyncConfluentProducer:
     ) -> None:
         """
         Send a single message to a Kafka topic.
-
-        Args:
-            topic (str): Name of the Kafka topic.
-            key (str): Key of the message.
-            value (str): Value of the message.
         """
         d = locals()
         d.pop("topic")
@@ -199,9 +191,6 @@ class AsyncConfluentProducer:
     ) -> None:
         """
         Send a batch of messages to a Kafka topic.
-
-        Args:
-            batch (asyncio.Queue): A queue containing messages to be sent.
         """
         # print("Sending batch messages")
         tasks = [
