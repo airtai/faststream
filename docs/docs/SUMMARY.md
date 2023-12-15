@@ -179,6 +179,7 @@ search:
                     - [Contact](api/faststream/asyncapi/schema/info/Contact.md)
                     - [ContactDict](api/faststream/asyncapi/schema/info/ContactDict.md)
                     - [EmailStr](api/faststream/asyncapi/schema/info/EmailStr.md)
+                    - [EmailStr](api/faststream/asyncapi/schema/info/EmailStr.md)
                     - [Info](api/faststream/asyncapi/schema/info/Info.md)
                     - [License](api/faststream/asyncapi/schema/info/License.md)
                     - [LicenseDict](api/faststream/asyncapi/schema/info/LicenseDict.md)
@@ -322,7 +323,7 @@ search:
             - [SkipMessage](api/faststream/exceptions/SkipMessage.md)
             - [StopConsume](api/faststream/exceptions/StopConsume.md)
         - kafka
-            - [ConsumerRecord](api/faststream/kafka/ConsumerRecord.md)
+            - [ConfluentKafkaBroker](api/faststream/kafka/ConfluentKafkaBroker.md)
             - [KafkaBroker](api/faststream/kafka/KafkaBroker.md)
             - [KafkaRoute](api/faststream/kafka/KafkaRoute.md)
             - [KafkaRouter](api/faststream/kafka/KafkaRouter.md)
@@ -333,12 +334,20 @@ search:
                 - [Publisher](api/faststream/kafka/asyncapi/Publisher.md)
             - broker
                 - [KafkaBroker](api/faststream/kafka/broker/KafkaBroker.md)
+            - client
+                - [AsyncConfluentConsumer](api/faststream/kafka/client/AsyncConfluentConsumer.md)
+                - [AsyncConfluentProducer](api/faststream/kafka/client/AsyncConfluentProducer.md)
+                - [BatchBuilder](api/faststream/kafka/client/BatchBuilder.md)
+                - [MsgToSend](api/faststream/kafka/client/MsgToSend.md)
+                - [TopicPartition](api/faststream/kafka/client/TopicPartition.md)
+                - [create_topics](api/faststream/kafka/client/create_topics.md)
+            - confluent_broker
+                - [ConfluentKafkaBroker](api/faststream/kafka/confluent_broker/ConfluentKafkaBroker.md)
             - fastapi
                 - [KafkaRouter](api/faststream/kafka/fastapi/KafkaRouter.md)
             - handler
                 - [LogicHandler](api/faststream/kafka/handler/LogicHandler.md)
             - message
-                - [ConsumerRecord](api/faststream/kafka/message/ConsumerRecord.md)
                 - [KafkaMessage](api/faststream/kafka/message/KafkaMessage.md)
             - parser
                 - [AioKafkaParser](api/faststream/kafka/parser/AioKafkaParser.md)
