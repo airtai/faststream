@@ -7,7 +7,7 @@ ssl_context = ssl.create_default_context()
 security = SASLScram512(
     ssl_context=ssl_context,
     username="admin",
-    password="password",
+    password="password",  # pragma: allowlist secret
 )
 
 broker = KafkaBroker("localhost:9092", security=security)
