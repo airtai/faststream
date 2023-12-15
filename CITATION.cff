@@ -1,0 +1,38 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: FastStream
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Nikita
+    family-names: Pastukhov
+    email: diementros@yandex.com
+  - given-names: Davor
+    family-names: Runje
+    email: davor@airt.ai
+    affiliation: airt
+    orcid: 'https://orcid.org/0000-0001-6912-9900'
+  - given-names: Tvrtko
+    family-names: Sternak
+    email: tvrtko@airt.ai
+    affiliation: airt
+  - given-names: Kumaran
+    family-names: Rajendhiran
+    email: kumaran@airt.ai
+    affiliation: airt
+  - given-names: Harish Mohan
+    family-names: Raj
+    email: harish@airt.ai
+    affiliation: airt
+  - given-names: Robert
+    family-names: Jambrecic
+    email: robert@airt.ai
+    affiliation: airt
+  - name: airt
+    city: Zagreb
+    email: info@airt.ai
+    website: 'https://airt.ai'
