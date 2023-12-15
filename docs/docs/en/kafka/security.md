@@ -33,7 +33,7 @@ This chapter discusses the security options available in **FastStream** and how 
 **Usage:**
 
 ```python linenums="1"
-{! docs_src/kafka/security/plaintext.py !}
+{! docs_src/kafka/security/plaintext.py [ln:1-10.25,11-] !}
 ```
 
 **Using any SASL authentication without SSL:**
@@ -47,7 +47,7 @@ The following example will log a **RuntimeWarning**:
 If the user does not want to use SSL encryption without the waringning getting logged, they must explicitly set the `use_ssl` parameter to `False` when creating a SASL object.
 
 ```python linenums="1"
-{! docs_src/kafka/security/ssl_warning.py [ln:12.5] !}
+{! docs_src/kafka/security/ssl_warning.py [ln:12.5-12.72] !}
 ```
 
 ### 3. SASLScram256/512 Object with SSL/TLS
@@ -58,10 +58,10 @@ If the user does not want to use SSL encryption without the waringning getting l
 
 === "SCRAM256"
     ```python linenums="1"
-    {!> docs_src/kafka/security/sasl_scram256.py !}
+    {!> docs_src/kafka/security/sasl_scram256.py [ln:1-10.25,11-] !}
     ```
 
 === "SCRAM512"
     ```python linenums="1"
-    {!> docs_src/kafka/security/sasl_scram512.py !}
+    {!> docs_src/kafka/security/sasl_scram512.py [ln:1-10.25,11-] !}
     ```

@@ -40,7 +40,7 @@ def convert_links_and_usernames(text):
         text = re.sub(r"(https?://.*\/(.*))", r'[#\2](\1){.external-link target="_blank"}', text)
 
         # Convert GitHub usernames to links
-        text = re.sub(r"@(\w+)", r'[@\1](https://github.com/\1){.external-link target="_blank"}', text)
+        text = re.sub(r"@(\w+) ", r'[@\1](https://github.com/\1){.external-link target="_blank"} ', text)
 
 
     return text
