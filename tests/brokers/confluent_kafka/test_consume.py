@@ -7,25 +7,50 @@ from aiokafka import AIOKafkaConsumer
 from faststream.exceptions import AckMessage
 from faststream.kafka import ConfluentKafkaBroker
 from faststream.kafka.annotations import KafkaMessage
+from faststream.kafka.client import AsyncConfluentConsumer
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
 
 @pytest.mark.confluent_kafka
 class TestConsume(BrokerRealConsumeTestcase):
+
     @pytest.mark.asyncio
-    async def test_consume_batch(self, queue: str, broker: ConfluentKafkaBroker):
+    async def test_consume_single_message(
+        self,
+        confluent_kafka_topic: str,
+        consume_broker: ConfluentKafkaBroker,
+        event: asyncio.Event,
+    ):
+        @consume_broker.subscriber(confluent_kafka_topic)
+        def subscriber(m):
+            event.set()
+
+        async with consume_broker:
+            await consume_broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume_broker.publish("hello", confluent_kafka_topic)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+
+    @pytest.mark.asyncio
+    async def test_consume_batch(self, confluent_kafka_topic: str, broker: ConfluentKafkaBroker):
         msgs_queue = asyncio.Queue(maxsize=1)
 
-        @broker.subscriber(queue, batch=True)
+        @broker.subscriber(confluent_kafka_topic, batch=True)
         async def handler(msg):
-            # print(f"At handler - {msg}")
+            print(f"At handler - {msg}")
             await msgs_queue.put(msg)
 
         async with broker:
             await broker.start()
             # await asyncio.sleep(3)
-            await broker.publish_batch(1, "hi", topic=queue)
+            await broker.publish_batch(1, "hi", topic=confluent_kafka_topic)
 
             result, _ = await asyncio.wait(
                 (asyncio.create_task(msgs_queue.get()),),
@@ -50,7 +75,7 @@ class TestConsume(BrokerRealConsumeTestcase):
             await full_broker.start()
 
             with patch.object(
-                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+                AsyncConfluentConsumer, "commit", spy_decorator(AsyncConfluentConsumer.commit)
             ) as m:
                 await asyncio.wait(
                     (

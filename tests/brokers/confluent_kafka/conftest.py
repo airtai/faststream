@@ -1,7 +1,11 @@
 from dataclasses import dataclass
+from uuid import uuid4
+import asyncio
 
 import pytest
 import pytest_asyncio
+from confluent_kafka.admin import AdminClient, NewTopic
+from confluent_kafka import Producer, Consumer
 
 from faststream.kafka import ConfluentKafkaBroker, KafkaRouter, TestKafkaBroker
 
@@ -27,6 +31,36 @@ async def broker(settings):
     broker = ConfluentKafkaBroker(settings.url, apply_types=False)
     async with broker:
         yield broker
+
+
+@pytest_asyncio.fixture(scope="session")
+@pytest.mark.confluent_kafka
+async def confluent_kafka_topic(settings):
+    topic = str(uuid4())
+    
+    config = {"bootstrap.servers": settings.url}
+
+    p = Producer(config)
+    to_send = f"test msg - {topic}"
+    p.produce(topic, to_send.encode("utf-8"))
+    p.flush()
+
+
+    while True:
+        c= Consumer({**config, **{"group.id": f"{topic}-group", "auto.offset.reset": "earliest"}})
+        c.subscribe([topic])
+        msg = c.poll()
+        if msg is None or msg.error():
+            continue
+        if msg.value().decode("utf-8") == to_send:
+            print("Got back the sent message")
+            print(msg.value().decode("utf-8"))
+
+            break
+        c.close()
+        await asyncio.sleep(1)
+
+    return topic
 
 
 @pytest_asyncio.fixture
