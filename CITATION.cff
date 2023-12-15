@@ -1,0 +1,27 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: FastStream
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - name: airt
+    country: HR
+    email: info@airt.ai
+    website: 'https://airt.ai/'
+  - given-names: Nikita
+    family-names: Pastukhov
+    email: diementros@yandex.com
+repository-code: 'https://github.com/airtai/faststream'
+url: 'https://faststream.airt.ai/latest/'
+abstract: >-
+  FastStream is a powerful and easy-to-use Python framework
+  for building asynchronous services interacting with event
+  streams such as Apache Kafka, RabbitMQ, NATS and Redis.
+keywords:
+  - pydantic
+  - faststream
+license: Apache-2.0
