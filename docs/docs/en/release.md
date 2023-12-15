@@ -12,15 +12,31 @@ hide:
 ---
 
 # Release Notes
+## 0.3.6
+
+### What's Changed
+
+* chore: correct update release CI by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1050](https://github.com/airtai/faststream/pull/1050){.external-link target="_blank"}
+* Update Release Notes for main by [@faststream](https://github.com/faststream){.external-link target="_blank"}-release-notes-updater in [#1051](https://github.com/airtai/faststream/pull/1051){.external-link target="_blank"}
+* chore: fix building docs script by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1055](https://github.com/airtai/faststream/pull/1055){.external-link target="_blank"}
+* 0.3.6 by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1056](https://github.com/airtai/faststream/pull/1056){.external-link target="_blank"}
+  * bug: remove `packaging` dependency
+  * bug: correct **FastAPI** batch consuming
+  * docs: add search meta to all pages
+  * docs: polish all pages styles, fix typos
+  * chore: add ruff rule to check print
+
+**Full Changelog**: [#0.3.5...0.3.6](https://github.com/airtai/faststream/compare/0.3.5...0.3.6){.external-link target="_blank"}
+
 ## 0.3.5
 
 ### What's Changed
 
 A large update by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1048](https://github.com/airtai/faststream/pull/1048){.external-link target="_blank"}
 
-Provides with the ability to setup `graceful_timeout` to wait for consumed messages processed correctly before apllication shutdown - `Broker(graceful_timeout=30.0)` (waits up to 30 seconds)
+Provides with the ability to setup `graceful_timeout` to wait for consumed messages processed correctly before apllication shutdown - `#!python Broker(graceful_timeout=30.0)` (waits up to `#!python 30` seconds)
 
-* allows to get acces to `context.get_local("message"` from **FastAPI** plugin
+* allows to get acces to `#!python context.get_local("message")` from **FastAPI** plugin
 * docs: fix Avro custom serialization example
 * docs: add KafkaBroker `publish_batch` notice
 * docs: add RabbitMQ security page
@@ -127,7 +143,7 @@ from faststream.redis import RedisBroker
 broker = RedisBroker()
 app = FastStream(broker)
 
-[@broker](https://github.com/broker){.external-link target="_blank"}.subscriber(
+@broker.subscriber(
     channel="test",  # or
     # list="test",     or
     # stream="test",
@@ -147,7 +163,7 @@ async def handle(msg: str, logger: Logger):
     * Support `faststream run -k 1 -k 2 ...` as `k=["1", "2"]` extra options
     * Add subscriber, publisher and router `include_in_schema: bool` argument to disable **AsyncAPI** render
     * remove `watchfiles` from default distribution
-    * Allow create `broker.publisher` with already running broker
+    * Allow create `#!python broker.publisher(...)` with already running broker
     * **FastAPI**-like lifespan `FastStream` application context manager
     * automatic `TestBroker(connect_only=...)` argument based on AST
     * add `NatsMessage.in_progress()` method
@@ -200,7 +216,7 @@ pip install faststream==0.3.0rc0 && pip install "faststream[redis]"
 * Support `faststream run -k 1 -k 2 ...` as `k=["1", "2"]` extra options
 * Add subscriber, publisher and router `include_in_schema: bool` argument to disable **AsyncAPI** render
 * remove `watchfiles` from default distribution
-* Allow create `broker.publisher` with already running broker
+* Allow create `#!python @broker.publisher(...)` with already running broker
 * **FastAPI**-like lifespan `FastStream` application context manager
 * automatic `TestBroker(connect_only=...)` argument based on AST
 * add `NatsMessage.in_progress()` method

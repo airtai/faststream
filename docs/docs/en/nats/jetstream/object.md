@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Object Storage
 
 Object storage is almost identical to the [*Key-Value*](./key-value.md) stroge concept, so you can reuse the guide.
@@ -16,8 +26,8 @@ The main difference between *KV* and *Object* storages is that in the *Object* s
 
 First of all, you need to create an *Object* storage object and pass in to the context:
 
-```python linenums="1" hl_lines="14-15"
-{!> docs_src/nats/js/object.py [ln:7-9,13-14,24-29] !}
+```python linenums="1" hl_lines="12-13"
+{! docs_src/nats/js/object.py [ln:7-10,13-15,24-29] !}
 ```
 
 !!! tip
@@ -31,20 +41,20 @@ Next, we are ready to use this object right in the our handlers.
 
 Let's create an Annotated object to shorten `Context` object access:
 
-```python linenums="1" hl_lines="5"
-{!> docs_src/nats/js/object.py [ln:3-4,11] !}
+```python linenums="1" hl_lines="4"
+{! docs_src/nats/js/object.py [ln:3-5,11] !}
 ```
 
 And just use it in a handler:
 
-```python linenums="1" hl_lines="8 10-11"
-{!> docs_src/nats/js/object.py [ln:1,6,17-21] !}
+```python linenums="1" hl_lines="6 8-9"
+{! docs_src/nats/js/object.py [ln:1-2,6,16-21] !}
 ```
 
 Finally, let's test our code behavior by putting something into the *Object storage* and sending a message:
 
 ```python linenums="1" hl_lines="3-4"
-{!> docs_src/nats/js/object.py [ln:32-35] !}
+{! docs_src/nats/js/object.py [ln:32-35] !}
 ```
 
 !!! tip

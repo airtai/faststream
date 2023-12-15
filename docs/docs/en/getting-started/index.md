@@ -1,6 +1,13 @@
 ---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
 hide:
-    - toc
+  - toc
 run_docker: To start a new project, we need a test broker container
 ---
 
@@ -25,7 +32,7 @@ faststream run serve:app
 
 After running the command, you should see the following output:
 
-``` {.shell .no-copy}
+```{.shell .no-copy}
 INFO     - FastStream app starting...
 INFO     - test |            - `BaseHandler` waiting for messages
 INFO     - FastStream app started successfully! To exit, press CTRL+C

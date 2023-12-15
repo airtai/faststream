@@ -17,6 +17,8 @@ class UserInfo(BaseModel):
 
 
 @broker.subscriber("test-subject")
-async def handle(user: UserInfo):
+async def handle(
+    user: UserInfo,
+):
     assert user.name == "John"
     assert user.user_id == 1

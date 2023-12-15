@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # NATS JetStream
 
 The default *NATS* usage is suitable for scenarios where:
@@ -26,7 +36,7 @@ Also, **NATS JetStream** has built-in `key-value` (similar to **Redis**) and `ob
 **FastStream** does not provide access to this functionality directly, but it is covered by the [nats-py](https://github.com/nats-io/nats.py){.external-link target="_blank"} library used. You can access the **JS** object from the application context:
 
 ```python linenums="1" hl_lines="2 7 11-12 21"
-{!> docs_src/nats/js/main.py !}
+{! docs_src/nats/js/main.py !}
 ```
 
 !!! tip

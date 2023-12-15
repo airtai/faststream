@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Publisher Testing
 
 If you are working with a Publisher object (either as a decorator or directly), you have several testing features available:
@@ -20,7 +30,7 @@ Let's take a look at a simple application example with a publisher as a decorato
 
 To test it, you just need to patch your broker with a special *TestBroker*.
 
-{!> includes/getting_started/publishing/testing/3.md !}
+{! includes/getting_started/publishing/testing/3.md !}
 
 By default, it patches you broker to run **In-Memory**, so you can use it without any external broker. It should be extremely usefull in your CI or local development environment.
 

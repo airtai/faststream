@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Consuming Acknowledgements
 
 As you may know, *Kafka* consumer should commit a topic offset when consuming a message.
@@ -44,10 +54,10 @@ async def base_handler(body: str, msg: KafkaMessage):
 
 If you wish to interrupt the processing of a message at any call stack level and acknowledge the message, you can achieve that by raising the `faststream.exceptions.AckMessage`.
 
-``` python linenums="1" hl_lines="2 18"
-{!> docs_src/kafka/ack/errors.py !}
+```python linenums="1" hl_lines="2 18"
+{! docs_src/kafka/ack/errors.py !}
 ```
 
 This way, **FastStream** interrupts the current message processing and acknowledges it immediately. Similarly, you can raise `NackMessage` as well to prevent the message from being committed.
 
-{!> includes/en/no_ack.md !}
+{! includes/en/no_ack.md !}

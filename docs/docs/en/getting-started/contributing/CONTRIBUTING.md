@@ -100,7 +100,7 @@ pytest -m 'not rabbit and not kafka and not nats and not redis'
 To run tests based on RabbitMQ, Kafka, or other dependencies, the following dependencies are needed to be started as docker containers:
 
 ```yaml
-{!> includes/docker-compose.yaml !}
+{! includes/docker-compose.yaml !}
 ```
 
 You can start the dependencies easily using provided script by running:

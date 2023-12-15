@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Consuming Acknowledgements
 
 As you may know, *RabbitMQ* employs a rather extensive [Acknowledgement](https://www.rabbitmq.com/confirms.html){.external-link target="_blank"} policy.
@@ -63,10 +73,10 @@ async def base_handler(body: str, msg: RabbitMessage):
 
 If you want to interrupt message processing at any call stack, you can raise `faststream.exceptions.AckMessage`
 
-``` python linenums="1" hl_lines="2 16"
-{!> docs_src/rabbit/ack/errors.py !}
+```python linenums="1" hl_lines="2 16"
+{! docs_src/rabbit/ack/errors.py !}
 ```
 
 This way, **FastStream** interrupts the current message proccessing and acknowledges it immediately. Also, you can raise `NackMessage` and `RejectMessage` too.
 
-{!> includes/en/no_ack.md !}
+{! includes/en/no_ack.md !}

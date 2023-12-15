@@ -12,7 +12,6 @@ def parse_cli_args(*args: str) -> Tuple[str, Dict[str, SettingField]]:
 
     Returns:
         A tuple containing the application name and a dictionary of additional keyword arguments.
-
     """
     extra_kwargs: Dict[str, SettingField] = {}
 
@@ -70,7 +69,6 @@ def remove_prefix(text: str, prefix: str) -> str:
 
     Returns:
         str: The text with the prefix removed. If the text does not start with the prefix, the original text is returned.
-
     """
     if text.startswith(prefix):
         return text[len(prefix) :]

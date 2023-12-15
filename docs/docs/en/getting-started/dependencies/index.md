@@ -1,4 +1,6 @@
 ---
+search:
+  boost: 10
 nested: A nested dependency is called here
 ---
 
@@ -119,7 +121,7 @@ from faststream import Depends, apply_types
 def simple_dependency(a: int, b: int = 3) -> str:
     return a + b  # 'return' is cast to `str` for the first time
 
-@inject
+@apply_types
 def method(a: int, d: int = Depends(simple_dependency)):
     # 'd' is cast to `int` for the second time
     return a + d

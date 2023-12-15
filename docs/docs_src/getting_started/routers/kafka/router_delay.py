@@ -1,5 +1,6 @@
 from faststream import FastStream
-from faststream.kafka import KafkaBroker, KafkaRoute, KafkaRouter
+from faststream.kafka import KafkaBroker
+from faststream.kafka import KafkaRoute, KafkaRouter
 
 broker = KafkaBroker("localhost:9092")
 app = FastStream(broker)
@@ -10,7 +11,11 @@ async def handle(name: str, user_id: int):
     assert user_id == 1
 
 
-router = KafkaRouter(handlers=(KafkaRoute(handle, "test-topic"),))
+router = KafkaRouter(
+    handlers=(
+        KafkaRoute(handle, "test-topic"),
+    )
+)
 
 broker.include_router(router)
 

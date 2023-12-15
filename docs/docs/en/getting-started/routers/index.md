@@ -1,4 +1,11 @@
 ---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
 # template variables
 note_decor: Now you can use the created router to register handlers and publishers as if it were a regular broker
 note_include: Then you can simply include all the handlers declared using the router in your broker
@@ -26,13 +33,13 @@ First, you need to import the *Broker Router* from the same module from where yo
 {{ includes }}
 
 !!! tip
-    Also, when creating a *Broker Router*, you can specify [middleware](../middlewares/index.md), [dependencies](../dependencies/global.md), [parser](../serialization/parser.md) and [decoder](../serialization/decoder.md) to apply them to all subscribers declared via this router.
+    Also, when creating a *Broker Router*, you can specify [middleware](../middlewares/index.md), [dependencies](../dependencies/index.md#top-level-dependencies), [parser](../serialization/parser.md) and [decoder](../serialization/decoder.md) to apply them to all subscribers declared via this router.
 
 ## Delay Handler Registration
 
 If you want to separate your application's core logic from **FastStream**'s routing logic, you can write some core functions and use them as *Broker Router* `handlers` later:
 
-{!> includes/getting_started/routers/2.md !}
+{! includes/getting_started/routers/2.md !}
 
 !!! warning
     Be careful, this way you won't be able to test your handlers with a [`mock`](../subscription/test.md) object.

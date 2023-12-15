@@ -16,7 +16,6 @@ class Context(CustomField):
     Methods:
         __init__ : constructor method
         use : method to use the context
-
     """
 
     param_name: str
@@ -38,7 +37,6 @@ class Context(CustomField):
 
         Raises:
             TypeError: If the default value is not provided.
-
         """
         self.name = real_name
         self.default = default
@@ -48,7 +46,7 @@ class Context(CustomField):
             required=(default is _empty),
         )
 
-    def use(self, **kwargs: Any) -> AnyDict:
+    def use(self, /, **kwargs: Any) -> AnyDict:
         """Use the given keyword arguments.
 
         Args:
@@ -60,8 +58,6 @@ class Context(CustomField):
         Raises:
             KeyError: If the parameter name is not found in the keyword arguments
             AttributeError: If the parameter name is not a valid attribute
-
-
         """
         name = f"{self.prefix}{self.name or self.param_name}"
 
@@ -85,7 +81,6 @@ def resolve_context(argument: str) -> Any:
 
     Raises:
         AttributeError: If the attribute does not exist in the context.
-
     """
     keys = argument.split(".")
 

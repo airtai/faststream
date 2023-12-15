@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Publishing
 
 **FastStream** `RabbitBroker` supports all regular [publishing usecases](../getting-started/publishing/index.md){.internal-link}. you can use them without any changes.
@@ -12,7 +22,7 @@ However, in this case, an object of the `aio_pika.Message` class (if necessary) 
 
 You can specify queue (used as a routing_key) and exchange (optionally) to send by their name.
 
-``` python
+```python
 import asyncio
 from faststream.rabbit import RabbitBroker
 
@@ -31,7 +41,7 @@ If you don't specify any exchange, the message will be send to the default one.
 
 Also, you are able to use special **RabbitQueue** and **RabbitExchange** objects as `queue` and `exchange` arguments:
 
-``` python
+```python
 from faststream.rabbit import RabbitExchange, RabbitQueue
 
 await broker.publish(

@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # RPC over RMQ
 
 ## Blocking Request
@@ -10,7 +20,7 @@ Just send a message like a regular one and get a response synchronously.
 
 It is very close to common **requests** syntax:
 
-``` python hl_lines="1 4"
+```python hl_lines="1 4"
 msg = await broker.publish(
     "Hi!",
     queue="test",
@@ -29,7 +39,7 @@ Also, if you want to create a permanent request-reply data flow, probably, you s
 
 So, if you have such one, you can specify it with the `reply_to` argument. This way, **FastStream** will send a response to this queue automatically.
 
-``` python hl_lines="1 8"
+```python hl_lines="1 8"
 @broker.subscriber("response-queue")
 async def consume_responses(msg):
     ...
