@@ -134,6 +134,7 @@ class TestConsumeList:
 
         mock.assert_called_once_with(b"hello")
 
+    @pytest.mark.slow
     async def test_consume_list_batch_with_one(self, queue: str, broker: RedisBroker):
         msgs_queue = asyncio.Queue(maxsize=1)
 
@@ -153,6 +154,7 @@ class TestConsumeList:
 
         assert ["hi"] == [r.result()[0] for r in result]
 
+    @pytest.mark.slow
     async def test_consume_list_batch(self, queue: str, broker: RedisBroker):
         msgs_queue = asyncio.Queue(maxsize=1)
 
@@ -172,6 +174,7 @@ class TestConsumeList:
 
         assert [{1, "hi"}] == [set(r.result()) for r in result]
 
+    @pytest.mark.slow
     async def test_consume_list_batch_native(self, queue: str, broker: RedisBroker):
         msgs_queue = asyncio.Queue(maxsize=1)
 

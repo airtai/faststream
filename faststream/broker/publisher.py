@@ -4,7 +4,7 @@ from inspect import unwrap
 from typing import Any, Callable, Generic, List, Optional, Tuple
 from unittest.mock import MagicMock
 
-from fast_depends._compat import CreateBaseModel, create_model
+from fast_depends._compat import create_model, get_config_base
 from fast_depends.core import CallModel, build_call_model
 
 from faststream.asyncapi.base import AsyncAPIOperation
@@ -117,7 +117,7 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
                 model=create_model("Fake"),
                 response_model=create_model(
                     "",
-                    __base__=(CreateBaseModel,),  # type: ignore[arg-type]
+                    __config__=get_config_base(),  # type: ignore[arg-type]
                     response__=(self._schema, ...),
                 ),
             )

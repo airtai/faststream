@@ -8,7 +8,9 @@ from fastapi import Depends, FastAPI, Header
 from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
 
+from faststream import context
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase
+from faststream.broker.fastapi.context import Context
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.types import AnyCallable
 
@@ -39,6 +41,29 @@ class FastAPITestcase:
 
         assert event.is_set()
         mock.assert_called_with("hi")
+
+    async def test_context(self, mock: Mock, queue: str, event: asyncio.Event):
+        router = self.router_class()
+
+        context_key = "message.headers.correlation_id"
+
+        @router.subscriber(queue)
+        async def hello(msg=Context(context_key)):
+            event.set()
+            return mock(msg == context.resolve(context_key))
+
+        async with router.broker:
+            await router.broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(router.broker.publish("", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        mock.assert_called_with(True)
 
     async def test_double_real(self, mock: Mock, queue: str, event: asyncio.Event):
         event2 = asyncio.Event()
