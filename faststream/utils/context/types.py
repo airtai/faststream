@@ -1,5 +1,5 @@
 from inspect import _empty
-from typing import Any, Mapping
+from typing import Any
 
 from fast_depends.library import CustomField
 
@@ -62,33 +62,9 @@ class Context(CustomField):
         name = f"{self.prefix}{self.name or self.param_name}"
 
         try:
-            kwargs[self.param_name] = resolve_context(name)
+            kwargs[self.param_name] = context.resolve(name)
         except (KeyError, AttributeError):
             if self.required is False:
                 kwargs[self.param_name] = self.default
 
         return kwargs
-
-
-def resolve_context(argument: str) -> Any:
-    """Resolve the context of an argument.
-
-    Args:
-        argument: A string representing the argument.
-
-    Returns:
-        The resolved context of the argument.
-
-    Raises:
-        AttributeError: If the attribute does not exist in the context.
-    """
-    keys = argument.split(".")
-
-    v = context.context[keys[0]]
-    for i in keys[1:]:
-        if isinstance(v, Mapping):
-            v = v[i]
-        else:
-            v = getattr(v, i)
-
-    return v

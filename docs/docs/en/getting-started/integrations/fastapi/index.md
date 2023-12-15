@@ -22,12 +22,14 @@ Just import a **StreamRouter** you need and declare the message handler in the s
 
     Note that the code below uses `fastapi.Depends`, not `faststream.Depends`.
 
+    Also, instead original `faststream.Context` you should use `faststream.[broker].fastapi.Context` (the same with [already created annotations](../../context/existed.md#annotated-aliases){.internal-link})
+
 {! includes/getting_started/integrations/fastapi/1.md !}
 
 When processing a message from a broker, the entire message body is placed simultaneously in both the `body` and `path` request parameters. You can access them in any way convenient for you. The message header is placed in `headers`.
 
 Also, this router can be fully used as an `HttpRouter` (of which it is the inheritor). So, you can
-use it to declare any `get`, `post`, `put` and other HTTP methods. For example, this is done at [**line 23**](#__codelineno-0-23).
+use it to declare any `get`, `post`, `put` and other HTTP methods. For example, this is done at [**line 20**](#__codelineno-0-20).
 
 !!! warning
     If your **ASGI** server does not support installing **state** inside **lifespan**, you can disable this behavior as follows:
