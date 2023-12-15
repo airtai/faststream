@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from docs.docs_src.kafka.security_without_ssl.example import test_without_ssl_warning
+from docs.docs_src.kafka.security.ssl_warning import test_without_ssl_warning
 
 __all__ = ["test_without_ssl_warning"]
 
@@ -27,7 +27,7 @@ def patch_aio_consumer_and_producer() -> Tuple[MagicMock, MagicMock]:
 @pytest.mark.confluent_kafka
 async def test_base_security():
     with patch_aio_consumer_and_producer() as (consumer, producer):
-        from docs.docs_src.kafka.basic_security.confluent_kafka_app import (
+        from docs.docs_src.kafka.security.confluent_kafka_app import (
             broker as basic_broker,
         )
 
