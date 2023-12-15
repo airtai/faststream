@@ -192,7 +192,7 @@ class AsyncConfluentProducer:
         """
         Send a batch of messages to a Kafka topic.
         """
-        # print("Sending batch messages")
+        print("Sending batch messages")
         tasks = [
             self.send(
                 topic=topic,
@@ -205,7 +205,7 @@ class AsyncConfluentProducer:
             for msg in batch._builder
         ]
         await asyncio.gather(*tasks)
-        # print("Batch messages sent")
+        print("Batch messages sent")
 
 
 class TopicPartition(NamedTuple):
@@ -322,7 +322,9 @@ class AsyncConfluentConsumer:
     async def start(self) -> None:
         # create_topics(topics=self.topics, config=self.config)
         # await asyncify(create_topics)(topics=self.topics, config=self.config)
+        print("Subscribing to topic")
         await asyncify(self.consumer.subscribe)(self.topics)
+        print("Subscribedddddd")
 
     async def convert_to_consumer_record(self, msg: Message) -> ConsumerRecord:
         if msg is None:
@@ -385,7 +387,7 @@ class AsyncConfluentConsumer:
     async def getmany(
         self, timeout_ms: int = 0, max_records: Optional[int] = 10
     ) -> Dict[TopicPartition, List[ConsumerRecord]]:
-        # print("at getmany")
+        print("at getmany")
 
         if max_records is None:
             max_records = 10
@@ -402,7 +404,7 @@ class AsyncConfluentConsumer:
         consumer_records = await self.consume(
             max_records=max_records, timeout_ms=timeout_ms
         )
-        # print(f"{consumer_records=}")
+        print(f"{consumer_records=}")
         for record in consumer_records:
             tp = TopicPartition(topic=record.topic, partition=record.partition)
             if tp not in messages:
