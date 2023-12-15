@@ -12,15 +12,15 @@ class BrokerTestclientTestcase(
 ):
     build_message: AnyCallable
 
-    @pytest.fixture
+    @pytest.fixture()
     def pub_broker(self, test_broker):
         yield test_broker
 
-    @pytest.fixture
+    @pytest.fixture()
     def consume_broker(self, test_broker):
         yield test_broker
 
-    @pytest.fixture
+    @pytest.fixture()
     def rpc_broker(self, test_broker):
         yield test_broker
 

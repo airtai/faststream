@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+from importlib.metadata import version as get_version
 from typing import Any, Callable, Dict, List, Mapping, Optional, Type, TypeVar, Union
 
 from fast_depends._compat import PYDANTIC_V2 as PYDANTIC_V2
@@ -53,12 +54,16 @@ ModelVar = TypeVar("ModelVar", bound=BaseModel)
 IS_OPTIMIZED = os.getenv("PYTHONOPTIMIZE", False)
 
 
+def is_test_env() -> bool:
+    return bool(os.getenv("PYTEST_CURRENT_TEST"))
+
+
 try:
     from fastapi import __version__ as FASTAPI_VERSION
 
     HAS_FASTAPI = True
 
-    major, minor, _ = map(int, FASTAPI_VERSION.split("."))
+    major, minor, *_ = map(int, FASTAPI_VERSION.split("."))
     FASTAPI_V2 = major > 0 or minor > 100
 
     if FASTAPI_V2:
@@ -180,3 +185,18 @@ else:
         serialization: Any = None,
     ) -> JsonSchemaValue:
         return {}
+
+
+anyio_major, *_ = map(int, get_version("anyio").split("."))
+ANYIO_V3 = anyio_major == 3
+
+
+if ANYIO_V3:
+    from anyio import ExceptionGroup as ExceptionGroup  # type: ignore[attr-defined]
+else:
+    if sys.version_info < (3, 11):
+        from exceptiongroup import (  # type: ignore[assignment,no-redef]
+            ExceptionGroup as ExceptionGroup,
+        )
+    else:
+        ExceptionGroup = ExceptionGroup

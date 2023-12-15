@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Redis Streams
 
 [Redis Streams](https://redis.io/docs/data-types/streams/){.external-link target="_blank"} are a data structure introduced in **Redis 5.0** that offer a reliable and highly scalable way to handle streams of data. They are similar to logging systems like **Apache Kafka**, where data is stored in a log structure and can be consumed by multiple clients. **Streams** provide a sequence of ordered messages, and they are designed to handle a high volume of data by allowing partitioning and multiple consumers.

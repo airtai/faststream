@@ -1,3 +1,7 @@
+---
+search:
+  exclude: true
+---
 - [Features](faststream.md)
 - Tutorial
     - [Getting Started](getting-started/index.md)
@@ -62,6 +66,7 @@
     - [Acknowledgement](rabbit/ack.md)
     - [Declare Queue/Exchange](rabbit/declare.md)
     - [Message Information](rabbit/message.md)
+    - [Security Configuration](rabbit/security.md)
 - [NATS](nats/index.md)
     - Subscription
         - [Direct](nats/examples/direct.md)

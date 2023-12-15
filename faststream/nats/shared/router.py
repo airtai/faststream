@@ -21,7 +21,7 @@ class NatsRouter(BrokerRouter[str, Msg]):
         prefix: str = "",
         handlers: Sequence[NatsRoute[Msg, SendableMessage]] = (),
         **kwargs: Any,
-    ):
+    ) -> None:
         for h in handlers:
             if not (subj := h.kwargs.pop("subject", None)):
                 subj, h.args = h.args[0], h.args[1:]

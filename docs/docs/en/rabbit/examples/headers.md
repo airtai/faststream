@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Header Exchange
 
 The **Header** Exchange is the most complex and flexible way to route messages in *RabbitMQ*. This `exchange` type sends messages to queues according by matching the queue binding arguments with message headers.
@@ -7,7 +17,7 @@ At the same time, if several consumers are subscribed to the queue, messages wil
 ## Example
 
 ```python linenums="1"
-{!> docs_src/rabbit/subscription/header.py !}
+{! docs_src/rabbit/subscription/header.py !}
 ```
 
 ### Consumer Announcement
@@ -15,7 +25,7 @@ At the same time, if several consumers are subscribed to the queue, messages wil
 First, we announce our **Header** exchange and several queues that will listen to it:
 
 ```python linenums="7" hl_lines="1 6 11 16"
-{!> docs_src/rabbit/subscription/header.py [ln:7-23]!}
+{! docs_src/rabbit/subscription/header.py [ln:7-23] !}
 ```
 
 The `x-match` argument indicates whether the arguments should match the message headers in whole or in part.
@@ -23,7 +33,7 @@ The `x-match` argument indicates whether the arguments should match the message 
 Then we signed up several consumers using the advertised queues to the `exchange` we created:
 
 ```python linenums="26" hl_lines="1 6 11 16"
-{!> docs_src/rabbit/subscription/header.py [ln:26-43]!}
+{! docs_src/rabbit/subscription/header.py [ln:26-43] !}
 ```
 
 !!! note
@@ -36,15 +46,15 @@ Then we signed up several consumers using the advertised queues to the `exchange
 Now the distribution of messages between these consumers will look like this:
 
 ```python linenums="48"
-{!> docs_src/rabbit/subscription/header.py [ln:48]!}
+{! docs_src/rabbit/subscription/header.py [ln:48.5] !}
 ```
 
-Message `1` will be sent to `handler1` because it listens to a queue whose `key` header matches the `key` header of the message.
+Message `1` will be sent to `handler1` because it listens to a queue whose `#!python "key"` header matches the `#!python "key"` header of the message.
 
 ---
 
 ```python linenums="49"
-{!> docs_src/rabbit/subscription/header.py [ln:49]!}
+{! docs_src/rabbit/subscription/header.py [ln:49.5]!}
 ```
 
 Message `2` will be sent to `handler2` because it listens to `exchange` using the same queue, but `handler1` is busy.
@@ -52,7 +62,7 @@ Message `2` will be sent to `handler2` because it listens to `exchange` using th
 ---
 
 ```python linenums="50"
-{!> docs_src/rabbit/subscription/header.py [ln:50]!}
+{! docs_src/rabbit/subscription/header.py [ln:50.5]!}
 ```
 
 Message `3` will be sent to `handler1` again because it is currently free.
@@ -60,23 +70,23 @@ Message `3` will be sent to `handler1` again because it is currently free.
 ---
 
 ```python linenums="51"
-{!> docs_src/rabbit/subscription/header.py [ln:51]!}
+{! docs_src/rabbit/subscription/header.py [ln:51.5]!}
 ```
 
-Message `4` will be sent to `handler3` because it listens to a queue whose `key` header coincided with the `key` header of the message.
+Message `4` will be sent to `handler3` because it listens to a queue whose `#!python "key"` header coincided with the `#!python "key"` header of the message.
 
 ---
 
 ```python linenums="52"
-{!> docs_src/rabbit/subscription/header.py [ln:52]!}
+{! docs_src/rabbit/subscription/header.py [ln:52.5]!}
 ```
 
-Message `5` will be sent to `handler3` because it listens to a queue whose header `key2` coincided with the header `key2` of the message.
+Message `5` will be sent to `handler3` because it listens to a queue whose header `#!python "key2"` coincided with the header `#!python "key2"` of the message.
 
 ---
 
 ```python linenums="53"
-{!> docs_src/rabbit/subscription/header.py [ln:53-55]!}
+{! docs_src/rabbit/subscription/header.py [ln:53.5,54.5,55.5]!}
 ```
 
 Message `6` will be sent to `handler3` and `handler4` because the message headers completely match the queue keys.

@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Topic Exchange
 
 The **Topic** Exchange is a powerful *RabbitMQ* routing tool. This type of `exchange` sends messages to the queue in accordance with the *pattern* specified when they are connected to `exchange` and the `routing_key` of the message itself.
@@ -7,7 +17,7 @@ At the same time, if several consumers are subscribed to the queue, messages wil
 ## Example
 
 ```python linenums="1"
-{!> docs_src/rabbit/subscription/topic.py !}
+{! docs_src/rabbit/subscription/topic.py !}
 ```
 
 ### Consumer Announcement
@@ -15,7 +25,7 @@ At the same time, if several consumers are subscribed to the queue, messages wil
 First, we announce our **Topic** exchange and several queues that will listen to it:
 
 ```python linenums="7" hl_lines="1 3-4"
-{!> docs_src/rabbit/subscription/topic.py [ln:7-10]!}
+{! docs_src/rabbit/subscription/topic.py [ln:7-10]!}
 ```
 
 At the same time, in the `routing_key` of our queues, we specify the *pattern* of routing keys that will be processed by this queue.
@@ -23,7 +33,7 @@ At the same time, in the `routing_key` of our queues, we specify the *pattern* o
 Then we sign up several consumers using the advertised queues to the `exchange` we created:
 
 ```python linenums="13" hl_lines="1 6 11"
-{!> docs_src/rabbit/subscription/topic.py [ln:13-25]!}
+{! docs_src/rabbit/subscription/topic.py [ln:13-25]!}
 ```
 
 !!! note
@@ -36,23 +46,23 @@ Then we sign up several consumers using the advertised queues to the `exchange` 
 Now the distribution of messages between these consumers will look like this:
 
 ```python linenums="30"
-{!> docs_src/rabbit/subscription/topic.py [ln:30]!}
+{! docs_src/rabbit/subscription/topic.py [ln:30.5]!}
 ```
 
-Message `1` will be sent to `handler1` because it listens to `exchange` using a queue with the routing key `*.info`.
+Message `1` will be sent to `handler1` because it listens to `#!python "exchange"` using a queue with the routing key `#!python "*.info"`.
 
 ---
 
 ```python linenums="31"
-{!> docs_src/rabbit/subscription/topic.py [ln:31]!}
+{! docs_src/rabbit/subscription/topic.py [ln:31.5]!}
 ```
 
-Message `2` will be sent to `handler2` because it listens to `exchange` using the same queue, but `handler1` is busy.
+Message `2` will be sent to `handler2` because it listens to `#!python "exchange"` using the same queue, but `handler1` is busy.
 
 ---
 
 ```python linenums="32"
-{!> docs_src/rabbit/subscription/topic.py [ln:32]!}
+{! docs_src/rabbit/subscription/topic.py [ln:32.5]!}
 ```
 
 Message `3` will be sent to `handler1` again because it is currently free.
@@ -60,7 +70,7 @@ Message `3` will be sent to `handler1` again because it is currently free.
 ---
 
 ```python linenums="33"
-{!> docs_src/rabbit/subscription/topic.py [ln:33]!}
+{! docs_src/rabbit/subscription/topic.py [ln:33.5]!}
 ```
 
-Message `4` will be sent to `handler3` because it is the only one listening to `exchange` using a queue with the routing key `*.debug`.
+Message `4` will be sent to `handler3` because it is the only one listening to `#!python "exchange"` using a queue with the routing key `#!python "*.debug"`.

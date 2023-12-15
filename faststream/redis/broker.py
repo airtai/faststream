@@ -223,6 +223,7 @@ class RedisBroker(
                     self._get_log_context,
                     channel=any_of.name,
                 ),
+                graceful_timeout=self.graceful_timeout,
                 # Redis
                 channel=channel,
                 list=list,

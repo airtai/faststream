@@ -58,7 +58,7 @@ class TestRedisBroker(TestBroker[RedisBroker]):
 
 
 class FakeProducer(RedisFastProducer):
-    def __init__(self, broker: RedisBroker):
+    def __init__(self, broker: RedisBroker) -> None:
         self.broker = broker
 
     @override

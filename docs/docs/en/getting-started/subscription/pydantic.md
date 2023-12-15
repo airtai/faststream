@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Pydantic Serialization
 
 ## pydantic.Field
@@ -8,10 +18,18 @@ You can access this information with extra details using `pydantic.Field` (such 
 
 Just use `pydantic.Field` as a function default argument:
 
-{!> includes/getting_started/subscription/pydantic/1.md !}
+{! includes/getting_started/subscription/pydantic/1.md !}
+
+
+!!! tip
+    Also you can use `typing.Annotated` (python 3.9+) or `typing_extensions.Annotated` to declare your handler fields
+
+    ```python
+    {!> docs_src/getting_started/subscription/kafka/pydantic_annotated_fields.py [ln:14.5,15.5,16.5,17.5,18.5,19.5,20.5,21.5] !}
+    ```
 
 ## pydantic.BaseModel
 
 To make your message schema reusable between different subscribers and publishers, you can decalre it as a `pydantic.BaseModel` and use it as a single message annotation:
 
-{!> includes/getting_started/subscription/pydantic/2.md !}
+{! includes/getting_started/subscription/pydantic/2.md !}

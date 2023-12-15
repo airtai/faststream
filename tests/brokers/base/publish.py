@@ -20,7 +20,7 @@ now = datetime.now()
 
 
 class BrokerPublishTestcase:
-    @pytest.fixture
+    @pytest.fixture()
     def pub_broker(self, full_broker):
         yield full_broker
 

@@ -47,11 +47,12 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         stream: Optional[JStream] = None,
         pull_sub: Optional[PullSub] = None,
         extra_options: Optional[AnyDict] = None,
+        graceful_timeout: Optional[float] = None,
         # AsyncAPI information
         description: Optional[str] = None,
         title: Optional[str] = None,
         include_in_schema: bool = True,
-    ):
+    ) -> None:
         reg, path = compile_path(subject, replace_symbol="*")
         self.subject = path
         self.path_regex = reg
@@ -67,6 +68,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
             description=description,
             include_in_schema=include_in_schema,
             title=title,
+            graceful_timeout=graceful_timeout,
         )
 
         self.task = None
@@ -132,18 +134,19 @@ class LogicNatsHandler(AsyncHandler[Msg]):
 
         sub = cast(JetStreamContext.PullSubscription, self.subscription)
 
-        while self.subscription is not None:  # pragma: no branch
+        while self.running:  # pragma: no branch
             with suppress(TimeoutError):
-                messages = await sub.fetch(
-                    batch=self.pull_sub.batch_size,
-                    timeout=self.pull_sub.timeout,
-                )
+                with self.lock:
+                    messages = await sub.fetch(
+                        batch=self.pull_sub.batch_size,
+                        timeout=self.pull_sub.timeout,
+                    )
 
-                if messages:
-                    if self.pull_sub.batch:
-                        await self.consume(messages)  # type: ignore[arg-type]
-                    else:
-                        await asyncio.gather(*map(self.consume, messages))
+                    if messages:
+                        if self.pull_sub.batch:
+                            await self.consume(messages)  # type: ignore[arg-type]
+                        else:
+                            await asyncio.gather(*map(self.consume, messages))
 
     @staticmethod
     def get_routing_hash(subject: str) -> str:

@@ -1,3 +1,4 @@
+import warnings
 from typing import Optional, Pattern
 
 from pydantic import Field, PositiveFloat, PositiveInt
@@ -11,6 +12,7 @@ class PubSub(NameRequired):
     polling_interval: PositiveFloat = 1.0
     path_regex: Optional[Pattern[str]] = None
     pattern: bool = False
+    last_id: str = "$"
 
     def __init__(
         self,
@@ -74,6 +76,7 @@ class StreamSub(NameRequired):
     consumer: Optional[str] = None
     batch: bool = False
     no_ack: bool = False
+    last_id: str = "$"
 
     def __init__(
         self,
@@ -83,6 +86,7 @@ class StreamSub(NameRequired):
         consumer: Optional[str] = None,
         batch: bool = False,
         no_ack: bool = False,
+        last_id: Optional[str] = None,
     ) -> None:
         """
         Redis Stream subscriber parameters
@@ -98,12 +102,30 @@ class StreamSub(NameRequired):
         if (group and not consumer) or (not group and consumer):
             raise ValueError("You should specify `group` and `consumer` both")
 
+        if group and consumer:
+            msg: Optional[str] = None
+
+            if last_id:
+                msg = "`last_id` has no effect with consumer group"
+
+            if no_ack:
+                msg = "`no_ack` has no effect with consumer group"
+
+            if msg:
+                warnings.warn(
+                    message=msg,
+                    category=RuntimeWarning,
+                    stacklevel=1,
+                )
+
         super().__init__(
             name=stream,
             group=group,
             consumer=consumer,
             polling_interval=polling_interval,
             batch=batch,
+            no_ack=no_ack,
+            last_id=last_id or "$",
         )
 
     def __hash__(self) -> int:

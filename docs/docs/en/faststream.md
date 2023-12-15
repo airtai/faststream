@@ -1,7 +1,6 @@
 ---
 hide:
   - navigation
-  - footer
 search:
   exclude: true
 ---
@@ -98,7 +97,7 @@ That's **FastStream** in a nutshell—easy, efficient, and powerful. Whether you
 **FastStream** works on **Linux**, **macOS**, **Windows** and most **Unix**-style operating systems.
 You can install it with `pip` as usual:
 
-{!> includes/index/1.md !}
+{! includes/index/1.md !}
 
 !!! tip ""
     By default **FastStream** uses **PydanticV2** written in **Rust**, but you can downgrade it manually, if your platform has no **Rust** support - **FastStream** will work correctly with **PydanticV1** as well.
@@ -107,8 +106,8 @@ You can install it with `pip` as usual:
 
 ## Writing app code
 
-**FastStream** brokers provide convenient function decorators `#!python @broker.subscriber`
-and `#!python @broker.publisher` to allow you to delegate the actual process of:
+**FastStream** brokers provide convenient function decorators `#!python @broker.subscriber(...)`
+and `#!python @broker.publisher(...)` to allow you to delegate the actual process of:
 
 - consuming and producing data to Event queues, and
 
@@ -121,12 +120,12 @@ JSON-encoded data into Python objects, making it easy to work with structured da
 
 Here is an example Python app using **FastStream** that consumes data from an incoming data stream and outputs the data to another one:
 
-{!> includes/index/2.md !}
+{! includes/index/2.md !}
 
 Also, **Pydantic**’s [`BaseModel`](https://docs.pydantic.dev/usage/models/){.external-link target="_blank"} class allows you
 to define messages using a declarative syntax, making it easy to specify the fields and types of your messages.
 
-{!> includes/index/3.md !}
+{! includes/index/3.md !}
 
 ---
 
@@ -138,7 +137,7 @@ The Tester will redirect your `subscriber` and `publisher` decorated functions t
 
 Using pytest, the test for our service would look like this:
 
-{!> includes/index/4.md !}
+{! includes/index/4.md !}
 
 ## Running the application
 
@@ -146,13 +145,13 @@ The application can be started using the built-in **FastStream** CLI command.
 
 To run the service, use the **FastStream CLI** command and pass the module (in this case, the file where the app implementation is located) and the app symbol to the command.
 
-``` shell
+```shell
 faststream run basic:app
 ```
 
 After running the command, you should see the following output:
 
-``` {.shell .no-copy}
+```{.shell .no-copy}
 INFO     - FastStream app starting...
 INFO     - input_data |            - `HandleMsg` waiting for messages
 INFO     - FastStream app started successfully! To exit press CTRL+C
@@ -161,13 +160,13 @@ INFO     - FastStream app started successfully! To exit press CTRL+C
 
 Also, **FastStream** provides you with a great hot reload feature to improve your Development Experience
 
-``` shell
+```shell
 faststream run basic:app --reload
 ```
 
 And multiprocessing horizontal scaling feature as well:
 
-``` shell
+```shell
 faststream run basic:app --workers 3
 ```
 
@@ -189,8 +188,8 @@ The availability of such documentation significantly simplifies the integration 
 
 **FastStream** (thanks to [**FastDepends**](https://lancetnik.github.io/FastDepends/){.external-link target="_blank"}) has a dependency management system similar to `pytest fixtures` and `FastAPI Depends` at the same time. Function arguments declare which dependencies you want are needed, and a special decorator delivers them from the global Context object.
 
-```python linenums="1" hl_lines="9-10"
-{!> docs_src/index/dependencies.py [ln:1,6-14] !}
+```python linenums="1" hl_lines="8-9"
+{! docs_src/index/dependencies.py [ln:1,5-14] !}
 ```
 
 ---
@@ -228,16 +227,16 @@ As evident, **FastStream** is an incredibly user-friendly framework. However, we
 Save application description inside `description.txt`:
 
 ```
-{!> docs_src/index/app_description.txt !}
+{! docs_src/index/app_description.txt !}
 ```
 
 and run the following command to create a new **FastStream** project:
 
-``` shell
+```shell
 faststream_gen -i description.txt
 ```
 
-``` {.shell .no-copy}
+```{.shell .no-copy}
 ✨  Generating a new FastStream application!
  ✔ Application description validated.
  ✔ FastStream app skeleton code generated. akes around 15 to 45 seconds)...

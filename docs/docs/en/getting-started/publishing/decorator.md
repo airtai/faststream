@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Publisher Decorator
 
 The second easiest way to publish messages is by using the Publisher Decorator. This method has an [**AsyncAPI**](../asyncapi/custom.md){.internal-link} representation and is suitable for quickly creating applications. However, it doesn't provide all testing features.
@@ -7,13 +17,13 @@ It creates a structured DataPipeline unit with an input and output. The order of
 !!! note
     It uses the handler function's return type annotation to cast the function's return value before sending, so be accurate with it.
 
-{!> includes/getting_started/publishing/decorator/1.md !}
+{! includes/getting_started/publishing/decorator/1.md !}
 
 ## Message Broadcasting
 
 The decorator can be used multiple times with one function to broadcast the function's return:
 
-```python
+```python hl_lines="2-3"
 @broker.subscriber("in")
 @broker.publisher("first-out")
 @broker.publisher("second-out")

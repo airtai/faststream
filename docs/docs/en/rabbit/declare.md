@@ -1,11 +1,21 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # RabbitMQ Queue/Exchange Declaration
 
 **FastStream** declares and validates all exchanges and queues using *publishers* and *subscribers* *RabbitMQ* objects, but sometimes you need to declare them manually.
 
 **RabbitBroker** provides a way to achieve this easily.
 
-``` python linenums="1" hl_lines="15-20 22-27"
-{!> docs_src/rabbit/declare.py !}
+```python linenums="1" hl_lines="15-20 22-27"
+{! docs_src/rabbit/declare.py !}
 ```
 
 These methods require just one argument (`RabbitQueue`/`RabbitExchange`) containing information about your *RabbitMQ* required objects. They declare/validate *RabbitMQ* objects and return low-level **aio-pika** robust objects to interact with.

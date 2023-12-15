@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Existing Fields
 
 **Context** already contains some global objects that you can always access:
@@ -13,7 +23,7 @@ At the same time, thanks to `contextlib.ContextVar`, **message** is local for yo
 
 By default, the context searches for an object based on the argument name.
 
-{!> includes/getting_started/context/access.md !}
+{! includes/getting_started/context/access.md !}
 
 ## Annotated Aliases
 
@@ -25,4 +35,4 @@ Also, **FastStream** has already created `Annotated` aliases to provide you with
 from faststream import Logger, ContextRepo
 ```
 
-{!> includes/getting_started/context/existed_annotations.md !}
+{! includes/getting_started/context/existed_annotations.md !}

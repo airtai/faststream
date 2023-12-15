@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Publisher Object
 
 The Publisher Object provides a full-featured way to publish messages. It has an [**AsyncAPI**](../asyncapi/custom.md){.internal-link} representation and includes [testability](./test.md){.internal-link} features. This method creates a reusable Publisher object.
@@ -7,13 +17,13 @@ Additionally, this object can be used as a decorator. The order of Subscriber an
 !!! note
     It uses the handler function's return type annotation to cast the function's return value before sending, so be accurate with it.
 
-{!> includes/getting_started/publishing/object/1.md !}
+{! includes/getting_started/publishing/object/1.md !}
 
 ## Message Broadcasting
 
 The decorator can be used multiple times with one function to broadcast the function's return:
 
-```python
+```python hl_lines="1-2"
 @publisher1
 @publisher2
 @broker.subscriber("in")

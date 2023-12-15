@@ -74,6 +74,7 @@ class RabbitBroker(
         security: Optional[BaseSecurity] = None,
         # specific args
         max_consumers: Optional[int] = None,
+        graceful_timeout: Optional[float] = None,
         # broker args
         apply_types: bool = True,
         validate: bool = True,

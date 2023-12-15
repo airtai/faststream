@@ -44,7 +44,7 @@ class TestNatsBroker(TestBroker[NatsBroker]):
 
 
 class FakeProducer(NatsFastProducer):
-    def __init__(self, broker: NatsBroker):
+    def __init__(self, broker: NatsBroker) -> None:
         self.broker = broker
 
     @override
@@ -99,7 +99,7 @@ class FakeProducer(NatsFastProducer):
                     raise_timeout=raise_timeout,
                 )
 
-                if rpc:  # pragma: no branch
+                if rpc:
                     return r
 
         return None

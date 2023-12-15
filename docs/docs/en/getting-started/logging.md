@@ -1,6 +1,16 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Application and Access Logging
 
-**FastStream** uses two previously configured loggers:
+**FastStream** uses two already configured loggers:
 
 * `faststream` - used by `FastStream` app
 * `faststream.access` - used by the broker
@@ -41,7 +51,7 @@ If you want to completely disable the default logging of `FastStream`, you can s
 from faststream import FastStream
 from faststream.rabbit import RabbitBroker
 
-broker = RabbitBroker(logger=None)  # Disables broker logs
+broker = RabbitBroker(logger=None)     # Disables broker logs
 app = FastStream(broker, logger=None)  # Disables application logs
 ```
 

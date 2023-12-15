@@ -32,7 +32,7 @@ class NatsFastProducer:
         connection: Client,
         parser: Optional[AsyncCustomParser[Msg, NatsMessage]],
         decoder: Optional[AsyncCustomDecoder[NatsMessage]],
-    ):
+    ) -> None:
         self._connection = connection
         self._parser = resolve_custom_func(parser, Parser.parse_message)
         self._decoder = resolve_custom_func(decoder, Parser.decode_message)
@@ -105,7 +105,7 @@ class NatsJSFastProducer:
         connection: JetStreamContext,
         parser: Optional[AsyncCustomParser[Msg, NatsMessage]],
         decoder: Optional[AsyncCustomDecoder[NatsMessage]],
-    ):
+    ) -> None:
         self._connection = connection
         self._parser = resolve_custom_func(parser, Parser.parse_message)
         self._decoder = resolve_custom_func(decoder, Parser.decode_message)

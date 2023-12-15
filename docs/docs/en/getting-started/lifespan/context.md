@@ -1,10 +1,20 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Lifespan Context Manager
 
 Also, you can define *startup* and *shutdown* logic using the `lifespan` parameter of the **FastSTream** app, and a "context manager" (I'll show you what that is in a second).
 
 Let's start with an example from [hooks page](./hooks.md#another-example){.internal-link} and refactor it using "context manager".
 
-We create an async function `lifespan()` with `yield` like this:
+We create an async function `lifespan()` with `#!python yield` like this:
 
 {! includes/getting_started/lifespan/ml_context.md !}
 

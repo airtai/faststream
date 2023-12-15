@@ -9,7 +9,7 @@ from faststream.utils.functions import timeout_scope
 
 
 class BrokerRPCTestcase:
-    @pytest.fixture
+    @pytest.fixture()
     def rpc_broker(self, broker):
         return broker
 
@@ -22,6 +22,7 @@ class BrokerRPCTestcase:
         async with rpc_broker:
             await rpc_broker.start()
             r = await rpc_broker.publish("hello", queue, rpc_timeout=3, rpc=True)
+
         assert r == "1"
 
     @pytest.mark.asyncio

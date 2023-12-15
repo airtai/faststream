@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Redis Channels
 
 [**Redis Pub/Sub Channels**](https://redis.io/docs/interact/pubsub/){.external-link target="_blank"} are a feature of **Redis** that enables messaging between clients through a publish/subscribe (pub/sub) pattern. A **Redis** channel is essentially a medium through which messages are transmitted. Different clients can subscribe to these channels to listen for messages, while other clients can publish messages to these channels.

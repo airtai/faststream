@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Serialization examples
 
 ## Protobuf
@@ -32,14 +42,14 @@ python -m grpc_tools.protoc --python_out=. --pyi_out=. -I . message.proto
 
 This generates two files: `message_pb2.py` and `message_pb2.pyi`. We can use the generated class to serialize our messages:
 
-``` python linenums="1" hl_lines="1 10-13 16 23"
-{!> docs_src/getting_started/serialization/protobuf.py !}
+```python linenums="1" hl_lines="1 10-13 16 23"
+{! docs_src/getting_started/serialization/protobuf.py !}
 ```
 
 Note that we used the `NoCast` annotation to exclude the message from the `pydantic` representation of our handler.
 
-``` python
-{!> docs_src/getting_started/serialization/protobuf.py [ln:17] !}
+```python
+{! docs_src/getting_started/serialization/protobuf.py [ln:17] !}
 ```
 
 ## Msgpack
@@ -54,8 +64,8 @@ pip install msgpack
 
 Since there is no need for a schema, you can easily write a *Msgpack* decoder:
 
-``` python linenums="1" hl_lines="1 10-11 14 21"
-{!> docs_src/getting_started/serialization/msgpack_ex.py !}
+```python linenums="1" hl_lines="1 10-11 14 21"
+{! docs_src/getting_started/serialization/msgpack_ex.py !}
 ```
 
 Using *Msgpack* is much simpler than using *Protobuf* schemas. Therefore, if you don't have strict message size limitations, you can use *Msgpack* serialization in most cases.
@@ -75,26 +85,26 @@ pip install fastavro
 
 Next, let's define the schema for our message. You can either define it in the Python file itself as:
 
-``` python
-{!> docs_src/getting_started/serialization/avro.py [ln:10-19] !}
+```python
+{! docs_src/getting_started/serialization/avro.py [ln:10-19] !}
 ```
 
 Or you can load the schema from an avsc file as:
 
-``` python
-{!> docs_src/getting_started/serialization/avro.py [ln:20] !}
+```python
+{! docs_src/getting_started/serialization/avro.py [ln:21] !}
 ```
 
 The contents of the `person.avsc` file are:
 
-```avro
-{!> docs_src/getting_started/serialization/person.avsc !}
+```json title="person.avsc"
+{! docs_src/getting_started/serialization/person.avsc !}
 ```
 
 Finally, let's use Avro's `schemaless_reader` and `schemaless_writer` to decode and encode messages in the `FastStream` app.
 
-``` python linenums="1" hl_lines="1 3 25-28 31 40-42"
-{!> docs_src/getting_started/serialization/avro.py !}
+```python linenums="1" hl_lines="1 3 15-18 21 30-32"
+{! docs_src/getting_started/serialization/avro.py [ln:1-10,22-45] !}
 ```
 
 ## Tips

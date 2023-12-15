@@ -54,7 +54,7 @@ class FakeProducer(AioKafkaFastProducer):
     This class extends AioKafkaFastProducer and is used to simulate Kafka message publishing during tests.
     """
 
-    def __init__(self, broker: KafkaBroker):
+    def __init__(self, broker: KafkaBroker) -> None:
         """
         Initialize the FakeProducer.
 
@@ -111,16 +111,13 @@ class FakeProducer(AioKafkaFastProducer):
 
         for handler in self.broker.handlers.values():  # pragma: no branch
             if topic in handler.topics:
-                r = await call_handler(
+                return await call_handler(
                     handler=handler,
                     message=[incoming] if handler.batch else incoming,
                     rpc=rpc,
                     rpc_timeout=rpc_timeout,
                     raise_timeout=raise_timeout,
                 )
-
-                if rpc:  # pragma: no branch
-                    return r
 
         return None
 

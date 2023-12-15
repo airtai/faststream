@@ -16,8 +16,18 @@ def test_import_wrong():
 @pytest.mark.parametrize(
     ("test_input", "exp_module", "exp_app"),
     (
-        pytest.param("module:app", "module", "app"),
-        pytest.param("module.module.module:app", "module/module/module", "app"),
+        pytest.param(
+            "module:app",
+            "module",
+            "app",
+            id="simple",
+        ),
+        pytest.param(
+            "module.module.module:app",
+            "module/module/module",
+            "app",
+            id="nested init",
+        ),
     ),
 )
 def test_get_app_path(test_input, exp_module, exp_app):
@@ -33,7 +43,7 @@ def test_get_app_path_wrong():
 
 def test_import_from_string_import_wrong():
     with pytest.raises(BadParameter):
-        module, app = import_from_string("tests:test_object")
+        import_from_string("tests:test_object")
 
 
 @pytest.mark.parametrize(
@@ -51,11 +61,23 @@ def test_import_from_string(test_input, exp_module):
 
 
 @pytest.mark.parametrize(
-    "test_input,exp_module",
+    ("test_input", "exp_module"),
     (
-        pytest.param("examples.kafka:app", "examples/kafka/__init__.py"),
-        pytest.param("examples.nats:app", "examples/nats/__init__.py"),
-        pytest.param("examples.rabbit:app", "examples/rabbit/__init__.py"),
+        pytest.param(
+            "examples.kafka:app",
+            "examples/kafka/__init__.py",
+            id="kafka init",
+        ),
+        pytest.param(
+            "examples.nats:app",
+            "examples/nats/__init__.py",
+            id="nats init",
+        ),
+        pytest.param(
+            "examples.rabbit:app",
+            "examples/rabbit/__init__.py",
+            id="rabbit init",
+        ),
     ),
 )
 def test_import_module(test_input, exp_module):

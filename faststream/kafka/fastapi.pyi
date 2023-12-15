@@ -110,6 +110,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
             generate_unique_id
         ),
         # broker kwargs
+        graceful_timeout: Optional[float] = None,
         apply_types: bool = True,
         validate: bool = True,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,

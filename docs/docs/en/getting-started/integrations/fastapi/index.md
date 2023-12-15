@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # **FastAPI** Plugin
 
 ## Handling messages
@@ -17,7 +27,7 @@ Just import a **StreamRouter** you need and declare the message handler in the s
 When processing a message from a broker, the entire message body is placed simultaneously in both the `body` and `path` request parameters. You can access them in any way convenient for you. The message header is placed in `headers`.
 
 Also, this router can be fully used as an `HttpRouter` (of which it is the inheritor). So, you can
-use it to declare any `get`, `post`, `put` and other HTTP methods. For example, this is done at **line 23**.
+use it to declare any `get`, `post`, `put` and other HTTP methods. For example, this is done at [**line 23**](#__codelineno-0-23).
 
 !!! warning
     If your **ASGI** server does not support installing **state** inside **lifespan**, you can disable this behavior as follows:
@@ -71,3 +81,26 @@ This way, you will have three routes to interact with your application's **Async
 To test your **FastAPI StreamRouter**, you can still use it with the *TestClient*:
 
 {! includes/getting_started/integrations/fastapi/6.md !}
+
+## Miltiple Routers
+
+Using **FastStream** as a **FastAPI** plugin you are still able to separate messages processing logic between different routers (like with a regular `HTTPRouter`). But it can be confusing - how you should include multiple routers, if we have to setup `router.lifespan_context` as a **FastAPI** object lifespan.
+
+You can make it in a two ways, depends on you reminds.
+
+### Routers nesting
+
+If you want to use the **SAME CONNECTION** for all of you routers you should nest them each other and finally use only the core router to include it into **FastAPI** object.
+
+{! includes/getting_started/integrations/fastapi/multiple.md !}
+
+This way the core router collects all nested routers publishers and subscribers and stores it like its own.
+
+### Custom lifespan
+
+Overwise, if you want to has multiple connections to different broker instances, you should start routers independently in your custom lifespan
+
+{! includes/getting_started/integrations/fastapi/multiple_lifespan.md !}
+
+!!! warning
+    This way you lose AsyncAPI schema, but we are working on it.

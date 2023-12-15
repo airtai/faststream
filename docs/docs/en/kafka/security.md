@@ -1,21 +1,29 @@
-# Kafka Security Configuration
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
 
 # FastStream Kafka Security
 
-This chapter discusses the security options available in FastStream and how to use them.
+This chapter discusses the security options available in **FastStream** and how to use them.
 
 ## Security Objects
 
-FastStream allows you to enhance the security of applications by using security objects when creating brokers. These security objects encapsulate security-related configurations and mechanisms. Security objects supported in FastStream are (More are planned in the future such as SASL OAuth):
+**FastStream** allows you to enhance the security of applications by using security objects when creating brokers. These security objects encapsulate security-related configurations and mechanisms. Security objects supported in **FastStream** are (More are planned in the future such as SASL OAuth):
 
 ### 1. BaseSecurity Object
 
-**Purpose:** The `BaseSecurity` object wraps `ssl.SSLContext` object and is used to enable SSL/TLS encryption for secure communication between FastStream services and external components such as message brokers.
+**Purpose:** The `BaseSecurity` object wraps `ssl.SSLContext` object and is used to enable SSL/TLS encryption for secure communication between **FastStream** services and external components such as message brokers.
 
 **Usage:**
 
-```python linenums="1"
-{!> docs_src/kafka/basic_security/app.py [ln:1-11] !}
+```python linenums="1" hl_lines="4 7 9"
+{! docs_src/kafka/security/basic.py !}
 ```
 
 ### 2. SASLPlaintext Object with SSL/TLS
@@ -25,7 +33,7 @@ FastStream allows you to enhance the security of applications by using security 
 **Usage:**
 
 ```python linenums="1"
-{!> docs_src/kafka/plaintext_security/app.py [ln:1-11] !}
+{! docs_src/kafka/security/plaintext.py !}
 ```
 
 **Using any SASL authentication without SSL:**
@@ -33,13 +41,13 @@ FastStream allows you to enhance the security of applications by using security 
 The following example will log a **RuntimeWarning**:
 
 ```python linenums="1"
-{!> docs_src/kafka/security_without_ssl/example.py [ln:8] !}
+{! docs_src/kafka/security/ssl_warning.py [ln:8.16] !}
 ```
 
 If the user does not want to use SSL encryption without the waringning getting logged, they must explicitly set the `use_ssl` parameter to `False` when creating a SASL object.
 
 ```python linenums="1"
-{!> docs_src/kafka/security_without_ssl/example.py [ln:12] !}
+{! docs_src/kafka/security/ssl_warning.py [ln:12.5] !}
 ```
 
 ### 3. SASLScram256/512 Object with SSL/TLS
@@ -50,10 +58,10 @@ If the user does not want to use SSL encryption without the waringning getting l
 
 === "SCRAM256"
     ```python linenums="1"
-    {!> docs_src/kafka/sasl_scram256_security/app.py [ln:1-11] !}
+    {!> docs_src/kafka/security/sasl_scram256.py !}
     ```
 
 === "SCRAM512"
     ```python linenums="1"
-    {!> docs_src/kafka/sasl_scram512_security/app.py [ln:1-11] !}
+    {!> docs_src/kafka/security/sasl_scram512.py !}
     ```

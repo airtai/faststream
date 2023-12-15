@@ -1,3 +1,13 @@
+---
+# 0.5 - API
+# 2 - Release
+# 3 - Contributing
+# 5 - Template Page
+# 10 - Default
+search:
+  boost: 10
+---
+
 # Key-Value Storage
 
 ## Overview
@@ -18,8 +28,8 @@ This interface provides you with rich abilities to use it like a regular *KV* st
 
 First of all, you need to create a *Key-Value* storage object and pass it into the context:
 
-```python linenums="1" hl_lines="14-15"
-{!> docs_src/nats/js/key_value.py [ln:5-7,11-12,22-27] !}
+```python linenums="1" hl_lines="12-13"
+{! docs_src/nats/js/key_value.py [ln:5-8,11-13,22-27] !}
 ```
 
 !!! tip
@@ -33,20 +43,20 @@ Next, we are ready to use this object right in our handlers.
 
 Let's create an annotated object to shorten context object access:
 
-```python linenums="1" hl_lines="5"
-{!> docs_src/nats/js/key_value.py [ln:1-2,9] !}
+```python linenums="1" hl_lines="4"
+{! docs_src/nats/js/key_value.py [ln:1-3,9] !}
 ```
 
 And just use it in a handler:
 
-```python linenums="1" hl_lines="4 7-8"
-{!> docs_src/nats/js/key_value.py [ln:4,15-19] !}
+```python linenums="1" hl_lines="4 6-8"
+{! docs_src/nats/js/key_value.py [ln:4,14-19] !}
 ```
 
 Finally, let's test our code behavior by putting something into the KV storage and sending a message:
 
 ```python linenums="1" hl_lines="3-4"
-{!> docs_src/nats/js/key_value.py [ln:30-33] !}
+{! docs_src/nats/js/key_value.py [ln:30-33] !}
 ```
 
 ??? example "Full listing"

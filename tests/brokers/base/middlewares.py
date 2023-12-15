@@ -12,7 +12,7 @@ from faststream.broker.middlewares import BaseMiddleware
 class LocalMiddlewareTestcase:
     broker_class: Type[BrokerUsecase]
 
-    @pytest.fixture
+    @pytest.fixture()
     def raw_broker(self):
         return None
 
