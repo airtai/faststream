@@ -45,7 +45,7 @@ class FastAPITestcase:
     async def test_context(self, mock: Mock, queue: str, event: asyncio.Event):
         router = self.router_class()
 
-        context_key = "message.headers.correlation_id"
+        context_key = "message.headers"
 
         @router.subscriber(queue)
         async def hello(msg=Context(context_key)):
