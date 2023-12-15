@@ -12,6 +12,31 @@ hide:
 ---
 
 # Release Notes
+## 0.3.7
+
+### What's Changed
+
+* feat (#974): add FastAPI Context by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1060](https://github.com/airtai/faststream/pull/1060){.external-link target="_blank"}
+* chore: update pre-commit by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1058](https://github.com/airtai/faststream/pull/1058){.external-link target="_blank"}
+
+Support regular FastStream Context with FastAPI plugin
+
+```python
+from fastapi import FastAPI
+from faststream.redis.fastapi import RedisRouter, Logger
+
+router = RedisRouter()
+
+@router.subscriber("test")
+async def handler(msg, logger: Logger):
+    logger.info(msg)
+
+app = FastAPI(lifespan=router.lifespan_context)
+app.include_router(router)
+```
+
+**Full Changelog**: [#0.3.6...0.3.7](https://github.com/airtai/faststream/compare/0.3.6...0.3.7){.external-link target="_blank"}
+
 ## 0.3.6
 
 ### What's Changed
@@ -62,7 +87,6 @@ Provides with the ability to setup `graceful_timeout` to wait for consumed messa
 
 * chore: updated release notes by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1040](https://github.com/airtai/faststream/pull/1040){.external-link target="_blank"}
 * chore: use Github App to generate token for release notes PR by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1043](https://github.com/airtai/faststream/pull/1043){.external-link target="_blank"}
-
 
 **Full Changelog**: [#0.3.3...0.3.4](https://github.com/airtai/faststream/compare/0.3.3...0.3.4){.external-link target="_blank"}
 
