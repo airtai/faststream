@@ -25,10 +25,10 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/scheduling/"/>
     </url>
     <url>
-        <loc>https://faststream.airt.ai/latest/api/faststream/</loc>
+        <loc>https://faststream.airt.ai/latest/api/</loc>
         <lastmod>2023-12-15</lastmod>
         <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/BaseMiddleware/</loc>
@@ -613,6 +613,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/broker/fastapi/StreamRouter/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/broker/fastapi/context/Context/</loc>
+        <lastmod>2023-12-15</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/broker/fastapi/context/Context/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/broker/fastapi/route/StreamMessage/</loc>
         <lastmod>2023-12-15</lastmod>
         <changefreq>daily</changefreq>
@@ -1063,6 +1069,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/kafka/broker/KafkaBroker/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/kafka/fastapi/Context/</loc>
+        <lastmod>2023-12-15</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/kafka/fastapi/Context/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/kafka/fastapi/KafkaRouter/</loc>
         <lastmod>2023-12-15</lastmod>
         <changefreq>daily</changefreq>
@@ -1321,6 +1333,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/nats/broker/NatsBroker/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/nats/fastapi/Context/</loc>
+        <lastmod>2023-12-15</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/nats/fastapi/Context/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/nats/fastapi/NatsRouter/</loc>
         <lastmod>2023-12-15</lastmod>
         <changefreq>daily</changefreq>
@@ -1549,6 +1567,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/rabbit/broker/RabbitBroker/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/rabbit/fastapi/Context/</loc>
+        <lastmod>2023-12-15</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/rabbit/fastapi/Context/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/rabbit/fastapi/RabbitRouter/</loc>
         <lastmod>2023-12-15</lastmod>
         <changefreq>daily</changefreq>
@@ -1763,6 +1787,12 @@
         <lastmod>2023-12-15</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/redis/broker/RedisBroker/"/>
+    </url>
+    <url>
+        <loc>https://faststream.airt.ai/latest/api/faststream/redis/fastapi/Context/</loc>
+        <lastmod>2023-12-15</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/redis/fastapi/Context/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/redis/fastapi/RedisRouter/</loc>
@@ -2069,12 +2099,6 @@
         <lastmod>2023-12-15</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/utils/context/types/Context/"/>
-    </url>
-    <url>
-        <loc>https://faststream.airt.ai/latest/api/faststream/utils/context/types/resolve_context/</loc>
-        <lastmod>2023-12-15</lastmod>
-        <changefreq>daily</changefreq>
-        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/api/faststream/utils/context/types/resolve_context/"/>
     </url>
     <url>
         <loc>https://faststream.airt.ai/latest/api/faststream/utils/data/filter_by_dict/</loc>
