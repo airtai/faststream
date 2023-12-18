@@ -13,7 +13,9 @@ async def test_fastapi_raw_integration():
     )
 
     async with TestKafkaBroker(broker):
-        with TestClient(app):
+        with TestClient(app) as client:
+            assert client.get("/").json() == {"Hello": "World"}
+
             await broker.publish("", "test")
 
             base_handler.mock.assert_called_once_with("")

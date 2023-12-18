@@ -25,7 +25,7 @@ def read_source_ast(filename: str) -> ast.Module:
 
 
 def find_ast_node(module: ast.Module, lineno: Optional[int]) -> Optional[ast.AST]:
-    if lineno is not None:
+    if lineno is not None:  # pragma: no branch
         for i in getattr(module, "body", ()):
             if i.lineno == lineno:
                 return cast(ast.AST, i)

@@ -9,7 +9,7 @@ async def base_handler1(logger: Logger):
     logger.info("base_handler1")
 
 @broker.subscriber("test-subj-1", "workers")
-async def base_handler2(logger: Logger):
+async def base_handler2(logger: Logger):  # pragma: no branch
     logger.info("base_handler2")
 
 @broker.subscriber("test-subj-2", "workers")

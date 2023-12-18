@@ -52,5 +52,5 @@ class RedisLoggingMixin(LoggingMixin):
         self,
         channel: Optional[str] = None,
     ) -> None:
-        if channel is not None:
+        if channel is not None:  # pragma: no branch
             self._max_channel_name = max((self._max_channel_name, len(channel)))

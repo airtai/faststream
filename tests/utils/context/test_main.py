@@ -101,8 +101,8 @@ async def test_reset_global(context: ContextRepo):
     context.reset_global("key")
 
     @apply_types
-    async def use(key=Context()):  # pragma: no cover
-        return key is None
+    async def use(key=Context()):
+        ...
 
     with pytest.raises(ValidationError):
         await use()

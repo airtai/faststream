@@ -148,7 +148,8 @@ class RabbitBroker(
             protocol_version=protocol_version,
             security=security,
             ssl_context=security_args.get(
-                "ssl_context", kwargs.pop("ssl_context", None)
+                "ssl_context",
+                kwargs.pop("ssl_context", None),
             ),
             **kwargs,
         )

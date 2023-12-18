@@ -93,7 +93,9 @@ class FakeProducer(NatsFastProducer):
             if call:
                 r = await call_handler(
                     handler=handler,
-                    message=incoming,
+                    message=[incoming]
+                    if getattr(handler.pull_sub, "batch", False)
+                    else incoming,
                     rpc=rpc,
                     rpc_timeout=rpc_timeout,
                     raise_timeout=raise_timeout,
