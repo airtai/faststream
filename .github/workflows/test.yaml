@@ -75,7 +75,7 @@ jobs:
       - name: Store coverage files
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage-${{ runner.os }}-py${{ matrix.python-version }}
           path: coverage
 
   test-macos-latest:
@@ -151,7 +151,7 @@ jobs:
       - name: Store coverage files
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage-${{ runner.os }}-py${{ matrix.python-version }}
           path: coverage
 
   test-kafka-smoke:
@@ -199,7 +199,7 @@ jobs:
       - name: Store coverage files
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage-${{ runner.os }}-py${{ matrix.python-version }}
           path: coverage
 
   test-rabbit-smoke:
@@ -247,7 +247,7 @@ jobs:
       - name: Store coverage files
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage-${{ runner.os }}-py${{ matrix.python-version }}
           path: coverage
 
   test-nats-smoke:
@@ -295,7 +295,7 @@ jobs:
       - name: Store coverage files
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage-${{ runner.os }}-py${{ matrix.python-version }}
           path: coverage
 
   test-redis-smoke:
@@ -350,7 +350,7 @@ jobs:
       - name: Store coverage html
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-html
+          name: coverage-${{ runner.os }}-py${{ matrix.python-version }}
           path: htmlcov
 
   # https://github.com/marketplace/actions/alls-green#why
