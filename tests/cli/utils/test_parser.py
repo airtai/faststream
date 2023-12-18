@@ -22,7 +22,7 @@ ARG5 = (
     "1",
 )
 ARG6 = ("--some-key",)
-ARG7 = ("--k7", "1", "--k7", "2")
+ARG7 = ("--k7", "1", "2", "--k7", "3")
 
 
 @pytest.mark.parametrize(
@@ -48,5 +48,5 @@ def test_custom_argument_parsing(args: Tuple[str]):
         "k4": False,
         "k5": ["1", "1"],
         "some_key": True,
-        "k7": ["1", "2"],
+        "k7": ["1", "2", "3"],
     }

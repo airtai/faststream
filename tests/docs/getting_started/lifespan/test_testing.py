@@ -13,6 +13,6 @@ from docs.docs_src.getting_started.lifespan.redis.testing import (
 from tests.marks import python39
 
 test_lifespan_red = python39(_test_lifespan_red)
-test_lifespan_red = python39(_test_lifespan_r)
-test_lifespan_red = python39(_test_lifespan_n)
-test_lifespan_red = python39(_test_lifespan_k)
+test_lifespan_r = python39(_test_lifespan_r)
+test_lifespan_n = python39(_test_lifespan_n)
+test_lifespan_k = python39(_test_lifespan_k)

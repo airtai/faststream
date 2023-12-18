@@ -149,3 +149,24 @@ class TestTestclient(BrokerTestclientTestcase):
         await test_broker.start()
         await test_broker.publish("hello", queue)
         subscriber.mock.assert_called_once_with("hello")
+
+    async def test_consume_batch(
+        self,
+        queue: str,
+        test_broker: NatsBroker,
+        stream: JStream,
+        event: asyncio.Event,
+        mock,
+    ):
+        @test_broker.subscriber(
+            queue,
+            stream=stream,
+            pull_sub=PullSub(1, batch=True),
+        )
+        def subscriber(m):
+            mock(m)
+            event.set()
+
+        await test_broker.start()
+        await test_broker.publish("hello", queue)
+        subscriber.mock.assert_called_once_with(["hello"])

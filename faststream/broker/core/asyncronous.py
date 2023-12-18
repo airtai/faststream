@@ -440,25 +440,3 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
             _get_dependant=_get_dependant,
             _process_kwargs=_process_kwargs,
         )
-
-    async def _execute_handler(
-        self,
-        func: Callable[[StreamMessage[MsgType]], Awaitable[T_HandlerReturn]],
-        message: StreamMessage[MsgType],
-    ) -> T_HandlerReturn:
-        """Executes a handler function asynchronously.
-
-        Args:
-            func: The handler function to be executed.
-            message: The message to be passed to the handler function.
-
-        Returns:
-            The return value of the handler function.
-
-        Raises:
-            AckMessage: If the handler function raises an AckMessage exception.
-            NackMessage: If the handler function raises a NackMessage exception.
-            RejectMessage: If the handler function raises a RejectMessage exception.
-
-        """
-        return await func(message)

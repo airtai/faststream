@@ -117,11 +117,9 @@ class RedisParser:
                 handler
                 and handler.channel is not None
                 and (path_re := handler.channel.path_regex) is not None
+                and (match := path_re.match(channel)) is not None
             ):
-                if path_re is not None:
-                    match = path_re.match(channel)
-                    if match:
-                        path = match.groupdict()
+                path = match.groupdict()
 
             return OneRedisMessage(
                 raw_message=message,

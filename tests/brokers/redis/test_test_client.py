@@ -199,3 +199,12 @@ class TestTestclient(BrokerTestclientTestcase):
         await test_broker.publish("hello", queue)
         m.mock.assert_called_once_with("hello")
         publisher.mock.assert_called_once_with([1, 2, 3])
+
+    async def test_publish_to_none(
+        self,
+        test_broker: RedisBroker,
+        queue: str,
+    ):
+        await test_broker.start()
+        with pytest.raises(ValueError):
+            await test_broker.publish("hello")

@@ -141,7 +141,8 @@ class TestBroker(Generic[Broker]):
                     TestApp.__name__,
                 )
 
-            except Exception as e:
+            except Exception as e:  # pragma: no cover
+                # TODO: remove with 0.5.0
                 warnings.warn(
                     (
                         f"\nError `{repr(e)}` occured at `{self.__class__.__name__}` AST parsing"

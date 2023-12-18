@@ -116,7 +116,7 @@ def run(
     app, extra = parse_cli_args(app, *ctx.args)
     casted_log_level = get_log_level(log_level)
 
-    if app_dir:
+    if app_dir:  # pragma: no branch
         sys.path.insert(0, app_dir)
 
     args = (app, extra, casted_log_level)
