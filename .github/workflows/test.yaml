@@ -73,9 +73,9 @@ jobs:
           COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}
           CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}
       - name: Store coverage files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: coverage-${{ runner.os }}-py${{ matrix.python-version }}
+          name: coverage
           path: coverage
 
   test-macos-latest:
@@ -149,9 +149,9 @@ jobs:
           COVERAGE_FILE: coverage/.coverage.kafka-py
           CONTEXT: kafka-py
       - name: Store coverage files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: coverage-${{ runner.os }}-py${{ matrix.python-version }}
+          name: coverage
           path: coverage
 
   test-kafka-smoke:
@@ -197,9 +197,9 @@ jobs:
           COVERAGE_FILE: coverage/.coverage.rabbit-py
           CONTEXT: rabbit-py
       - name: Store coverage files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: coverage-${{ runner.os }}-py${{ matrix.python-version }}
+          name: coverage
           path: coverage
 
   test-rabbit-smoke:
@@ -245,9 +245,9 @@ jobs:
           COVERAGE_FILE: coverage/.coverage.nats-py
           CONTEXT: nats-py
       - name: Store coverage files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: coverage-${{ runner.os }}-py${{ matrix.python-version }}
+          name: coverage
           path: coverage
 
   test-nats-smoke:
@@ -293,9 +293,9 @@ jobs:
           COVERAGE_FILE: coverage/.coverage.redis-py
           CONTEXT: redis-py
       - name: Store coverage files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: coverage-${{ runner.os }}-py${{ matrix.python-version }}
+          name: coverage
           path: coverage
 
   test-redis-smoke:
@@ -335,7 +335,7 @@ jobs:
           cache-dependency-path: pyproject.toml
 
       - name: Get coverage files
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: coverage
           path: coverage
@@ -348,9 +348,9 @@ jobs:
       - run: coverage html --show-contexts --title "FastStream coverage for ${{ github.sha }}"
 
       - name: Store coverage html
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: coverage-${{ runner.os }}-py${{ matrix.python-version }}
+          name: coverage-html
           path: htmlcov
 
   # https://github.com/marketplace/actions/alls-green#why
