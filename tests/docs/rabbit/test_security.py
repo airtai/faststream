@@ -46,7 +46,7 @@ async def test_base_security():
                     "protocol": "amqps",
                     "protocolVersion": "0.9.1",
                     "security": [],
-                    "url": "amqps://guest:guest@localhost:5672/",
+                    "url": "amqps://guest:guest@localhost:5672/",  # pragma: allowlist secret
                 }
             },
         }
@@ -80,7 +80,7 @@ async def test_plaintext_security():
                     "protocol": "amqps",
                     "protocolVersion": "0.9.1",
                     "security": [{"user-password": []}],
-                    "url": "amqps://admin:password@localhost:5672/",
+                    "url": "amqps://admin:password@localhost:5672/",  # pragma: allowlist secret
                 }
             },
         }
