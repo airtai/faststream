@@ -38,7 +38,7 @@ from faststream.broker.types import (
 from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.kafka.asyncapi import Handler, Publisher
-from faststream.kafka.client import AsyncConfluentProducer, AsyncConfluentConsumer
+from faststream.kafka.client import AsyncConfluentConsumer, AsyncConfluentProducer
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.kafka.security import parse_security
