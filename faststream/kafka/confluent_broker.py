@@ -17,8 +17,6 @@ from typing import (
 )
 
 import aiokafka
-from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
-from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
 from fast_depends.dependencies import Depends
 
 from faststream.__about__ import __version__
@@ -274,9 +272,7 @@ class ConfluentKafkaBroker(
         auto_commit: bool = True,
         auto_commit_interval_ms: int = 5000,
         check_crcs: bool = True,
-        partition_assignment_strategy: Sequence[AbstractPartitionAssignor] = (
-            RoundRobinPartitionAssignor,
-        ),
+        partition_assignment_strategy: Sequence[str] = ("roundrobin",),
         max_poll_interval_ms: int = 300000,
         rebalance_timeout_ms: Optional[int] = None,
         session_timeout_ms: int = 10000,

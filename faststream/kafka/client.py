@@ -281,7 +281,10 @@ class AsyncConfluentConsumer:
         self.topics = list(topics)
         if not isinstance(partition_assignment_strategy, str):
             partition_assignment_strategy = ",".join(
-                [x().name for x in partition_assignment_strategy]
+                [
+                    x if isinstance(x, str) else x().name
+                    for x in partition_assignment_strategy
+                ]
             )
         self.config = {
             "allow.auto.create.topics": True,
