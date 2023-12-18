@@ -64,7 +64,7 @@ parsing, networking and documentation generation automatically.
 
 Making streaming microservices has never been easier. Designed with junior developers in mind, **FastStream** simplifies your work while keeping the door open for more advanced use cases. Here's a look at the core features that make **FastStream** a go-to framework for modern, data-centric microservices.
 
-- **Multiple Brokers**: **FastStream** provides a unified API to work across multiple message brokers (**Kafka**, **RabbitMQ**, **NATS** support)
+- **Multiple Brokers**: **FastStream** provides a unified API to work across multiple message brokers ([**Kafka**](https://kafka.apache.org/){target="_blank"}, [**RabbitMQ**](https://www.rabbitmq.com/){target="_blank"}, [**NATS**](https://nats.io/){target="_blank"}, [**Redis**](https://redis.io/){.external-link target="_blank"} support)
 
 - [**Pydantic Validation**](#writing-app-code): Leverage [**Pydantic's**](https://docs.pydantic.dev/){.external-link target="_blank"} validation capabilities to serialize and validates incoming messages
 

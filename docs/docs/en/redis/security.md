@@ -33,5 +33,5 @@ This chapter discusses the security options available in **FastStream** and how 
 **Usage:**
 
 ```python linenums="1" hl_lines="6-11 13"
-{! docs_src/redis/security/plaintext.py !}
+{! docs_src/redis/security/plaintext.py [ln:1-10.25,11-] !}
 ```
