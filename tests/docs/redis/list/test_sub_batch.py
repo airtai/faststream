@@ -1,9 +1,11 @@
 import pytest
 
 from faststream.redis import TestRedisBroker
+from tests.marks import python39
 
 
 @pytest.mark.asyncio
+@python39
 async def test_list_publisher():
     from docs.docs_src.redis.list.sub_batch import broker, handle
 
