@@ -12,6 +12,21 @@ hide:
 ---
 
 # Release Notes
+## 0.3.8
+
+### What's Changed
+
+* bug: Fix `faststream.redis.fastapi.RedisRouter` stream and list subscription
+* bug: Fix `TestNatsClient` with `batch=True`
+* chore: add citation file by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1061](https://github.com/airtai/faststream/pull/1061){.external-link target="_blank"}
+* docs: remove pragma comments by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1063](https://github.com/airtai/faststream/pull/1063){.external-link target="_blank"}
+* docs: update README by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1064](https://github.com/airtai/faststream/pull/1064){.external-link target="_blank"}
+* chore: increase rate limit and max connections by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1070](https://github.com/airtai/faststream/pull/1070){.external-link target="_blank"}
+* chore: packages updated by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1076](https://github.com/airtai/faststream/pull/1076){.external-link target="_blank"}
+* tests (#570): cover docs by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1077](https://github.com/airtai/faststream/pull/1077){.external-link target="_blank"}
+
+**Full Changelog**: [#0.3.7...0.3.8](https://github.com/airtai/faststream/compare/0.3.7...0.3.8){.external-link target="_blank"}
+
 ## 0.3.7
 
 ### What's Changed
