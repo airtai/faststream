@@ -119,7 +119,7 @@ test-core = [
 
 testing = [
     "faststream[test-core]",
-    "fastapi==0.104.1",
+    "fastapi==0.105.0",
     "pydantic-settings==2.1.0",
     "httpx==0.25.2",
     "PyYAML==6.0.1",
