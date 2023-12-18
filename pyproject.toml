@@ -103,7 +103,7 @@ lint = [
     "types-docutils",
     "mypy==1.7.1",
     "black==23.11.0",
-    "isort==5.13.0",
+    "isort==5.13.2",
     "ruff==0.1.7",
     "pyupgrade-directories==0.3.0",
     "bandit==1.7.6",
