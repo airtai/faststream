@@ -126,7 +126,7 @@ class RedisBroker(
         )
 
         await super().start()
-        assert self._connection, NOT_CONNECTED_YET  # nosec B101
+        assert self._connection, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
 
         for handler in self.handlers.values():
             if (stream := handler.stream_sub) is not None and stream.group:
@@ -149,7 +149,10 @@ class RedisBroker(
         func: Callable[[StreamMessage[Any]], Awaitable[T_HandlerReturn]],
         watcher: Callable[..., AsyncContextManager[None]],
         **kwargs: Any,
-    ) -> Callable[[StreamMessage[Any]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
+    ) -> Callable[
+        [StreamMessage[Any]],
+        Awaitable[WrappedReturn[T_HandlerReturn]],
+    ]:
         @wraps(func)
         async def process_wrapper(
             message: StreamMessage[Any],
@@ -237,7 +240,11 @@ class RedisBroker(
 
         def consumer_wrapper(
             func: Callable[P_HandlerParams, T_HandlerReturn],
-        ) -> HandlerCallWrapper[AnyRedisDict, P_HandlerParams, T_HandlerReturn,]:
+        ) -> HandlerCallWrapper[
+            AnyRedisDict,
+            P_HandlerParams,
+            T_HandlerReturn,
+        ]:
             handler_call, dependant = self._wrap_handler(
                 func,
                 extra_dependencies=dependencies,
@@ -306,7 +313,7 @@ class RedisBroker(
         *args: Any,
         **kwargs: Any,
     ) -> Optional[DecodedMessage]:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
         return await self._producer.publish(*args, **kwargs)
 
     async def publish_batch(
@@ -314,5 +321,5 @@ class RedisBroker(
         *args: Any,
         **kwargs: Any,
     ) -> None:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
         return await self._producer.publish_batch(*args, **kwargs)

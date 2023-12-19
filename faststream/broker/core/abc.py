@@ -531,7 +531,7 @@ def extend_dependencies(
 
 
 def _patch_fastapi_dependant(
-    dependant: CallModel[P_HandlerParams, Awaitable[T_HandlerReturn]]
+    dependant: CallModel[P_HandlerParams, Awaitable[T_HandlerReturn]],
 ) -> CallModel[P_HandlerParams, Awaitable[T_HandlerReturn]]:
     """Patch FastAPI dependant.
 

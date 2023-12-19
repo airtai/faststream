@@ -84,7 +84,7 @@ class TestApp:
         exc_val: Optional[BaseException] = None,
         exec_tb: Optional[TracebackType] = None,
     ) -> None:
-        assert self.app._stop_event, "You should call `__enter__` first"  # nosec B101
+        assert self.app._stop_event, "You should call `__enter__` first"  # nosec B101 # noqa: S101
         self.app._stop_event.set()
         self.exit_stack.close()
 
@@ -115,7 +115,7 @@ class TestApp:
             None
 
         """
-        assert self.app._stop_event, "You should call `__enter__` first"  # nosec B101
+        assert self.app._stop_event, "You should call `__enter__` first"  # nosec B101 # noqa: S101
         await self.lifespan_scope.__aexit__(exc_type, exc_val, exec_tb)
         self.app._stop_event.set()
         await self._task.__aexit__(None, None, None)
@@ -200,13 +200,13 @@ class TestBroker(Generic[Broker]):
                 p.set_test(mock=mock, with_fake=False)
                 for f, _, _, _, _, _ in handler.calls:
                     f.set_test()
-                    assert f.mock  # nosec B101
+                    assert f.mock  # nosec B101 # noqa: S101
                     f.mock.side_effect = mock
 
             else:
                 f = cls.create_publisher_fake_subscriber(broker, p)
                 f.set_test()
-                assert f.mock  # nosec B101
+                assert f.mock  # nosec B101 # noqa: S101
                 p.set_test(mock=f.mock, with_fake=True)
 
             cls.patch_publisher(broker, p)

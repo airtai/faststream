@@ -63,7 +63,7 @@ class LogicPublisher(ABCPublisher[IncomingMessage]):
             AssertionError: If `_producer` is not set up.
 
         """
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
         return await self._producer.publish(
             message=message,
             exchange=self.exchange,

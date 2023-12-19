@@ -248,7 +248,7 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
         """
 
         def router_subscriber_wrapper(
-            func: Callable[P_HandlerParams, T_HandlerReturn]
+            func: Callable[P_HandlerParams, T_HandlerReturn],
         ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
             """Wraps a function with a router subscriber.
 

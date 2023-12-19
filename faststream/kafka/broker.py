@@ -208,7 +208,10 @@ class KafkaBroker(
         func: Callable[[KafkaMessage], Awaitable[T_HandlerReturn]],
         watcher: Callable[..., AsyncContextManager[None]],
         **kwargs: Any,
-    ) -> Callable[[KafkaMessage], Awaitable[WrappedReturn[T_HandlerReturn]],]:
+    ) -> Callable[
+        [KafkaMessage],
+        Awaitable[WrappedReturn[T_HandlerReturn]],
+    ]:
         """
         Wrap a message processing function with a watcher and publisher.
 
@@ -534,7 +537,7 @@ class KafkaBroker(
         Raises:
             RuntimeError: If KafkaBroker is not started yet.
         """
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
         return await self._producer.publish(*args, **kwargs)
 
     async def publish_batch(
@@ -552,5 +555,5 @@ class KafkaBroker(
         Raises:
             RuntimeError: If KafkaBroker is not started yet.
         """
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
         await self._producer.publish_batch(*args, **kwargs)

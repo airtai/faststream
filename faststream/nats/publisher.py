@@ -32,8 +32,8 @@ class LogicPublisher(BasePublisher[Msg]):
         headers: Optional[Dict[str, str]] = None,
         **producer_kwargs: Any,
     ) -> Optional[DecodedMessage]:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-        assert self.subject, "You have to specify outgoing subject"  # nosec B101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
+        assert self.subject, "You have to specify outgoing subject"  # nosec B101 # noqa: S101
 
         extra: AnyDict = {
             "reply_to": reply_to or self.reply_to,

@@ -195,7 +195,7 @@ class StreamMessage(Request):
             This function is used to create a session for handling requests. It takes a dependant object, which represents the session, and a dependency overrides provider, which allows for overriding dependencies. It returns a callable that takes a native message and returns an awaitable sendable message. The session is created based on the dependant object and the message passed to the callable. The session is then used to call the function obtained from the dependant object, and the result is returned.
 
         """
-        assert dependant.call  # nosec B101
+        assert dependant.call  # nosec B101 # noqa: S101
 
         func = get_app(dependant, dependency_overrides_provider)
 

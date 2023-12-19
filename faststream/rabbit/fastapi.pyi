@@ -57,7 +57,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         host: str = "localhost",
         port: int = 5672,
         login: str = "guest",
-        password: str = "guest",
+        password: str = "guest",  # noqa: S107
         virtualhost: str = "/",
         ssl_options: Optional[aio_pika.abc.SSLOptions] = None,
         timeout: aio_pika.abc.TimeoutType = None,

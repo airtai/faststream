@@ -171,9 +171,7 @@ class NatsBroker(
         )
 
         await super().start()
-        assert (
-            self._connection and self.stream
-        ), "Broker should be started already"  # nosec B101
+        assert self._connection and self.stream, "Broker should be started already"  # nosec B101 # noqa: S101
 
         for handler in self.handlers.values():
             stream = handler.stream
@@ -222,7 +220,10 @@ class NatsBroker(
         func: Callable[[StreamMessage[Msg]], Awaitable[T_HandlerReturn]],
         watcher: Callable[..., AsyncContextManager[None]],
         **kwargs: Any,
-    ) -> Callable[[StreamMessage[Msg]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
+    ) -> Callable[
+        [StreamMessage[Msg]],
+        Awaitable[WrappedReturn[T_HandlerReturn]],
+    ]:
         @wraps(func)
         async def process_wrapper(
             message: StreamMessage[Msg],
@@ -398,7 +399,11 @@ class NatsBroker(
 
         def consumer_wrapper(
             func: Callable[P_HandlerParams, T_HandlerReturn],
-        ) -> HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn,]:
+        ) -> HandlerCallWrapper[
+            Msg,
+            P_HandlerParams,
+            T_HandlerReturn,
+        ]:
             handler_call, dependant = self._wrap_handler(
                 func,
                 extra_dependencies=dependencies,
@@ -467,10 +472,10 @@ class NatsBroker(
         **kwargs: Any,
     ) -> Optional[DecodedMessage]:
         if stream is None:
-            assert self._producer, NOT_CONNECTED_YET  # nosec B101
+            assert self._producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
             return await self._producer.publish(*args, **kwargs)
         else:
-            assert self._js_producer, NOT_CONNECTED_YET  # nosec B101
+            assert self._js_producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
             return await self._js_producer.publish(
                 *args,
                 stream=stream,

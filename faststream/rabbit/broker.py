@@ -286,7 +286,7 @@ class RabbitBroker(
         )
 
         await super().start()
-        assert self.declarer, NOT_CONNECTED_YET  # nosec B101
+        assert self.declarer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
 
         for publisher in self._publishers.values():
             if publisher.exchange is not None:
@@ -488,7 +488,7 @@ class RabbitBroker(
         Returns:
             Union[aiormq.abc.ConfirmationFrameType, SendableMessage]: The confirmation frame or the response message.
         """
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
         return await self._producer.publish(*args, **kwargs)
 
     def _process_message(
@@ -569,7 +569,7 @@ class RabbitBroker(
         Raises:
             RuntimeError: If the declarer is not initialized in the `connect` method.
         """
-        assert self.declarer, NOT_CONNECTED_YET  # nosec B101
+        assert self.declarer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
         return await self.declarer.declare_queue(queue)
 
     async def declare_exchange(
@@ -588,5 +588,5 @@ class RabbitBroker(
         Raises:
             RuntimeError: If the declarer is not initialized in the `connect` method.
         """
-        assert self.declarer, NOT_CONNECTED_YET  # nosec B101
+        assert self.declarer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
         return await self.declarer.declare_exchange(exchange)

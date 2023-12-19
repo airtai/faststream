@@ -102,8 +102,6 @@ lint = [
     "types-Pygments",
     "types-docutils",
     "mypy==1.7.1",
-    "black==23.12.0",
-    "isort==5.13.2",
     "ruff==0.1.8",
     "pyupgrade-directories==0.3.0",
     "bandit==1.7.6",
@@ -176,34 +174,37 @@ disallow_incomplete_defs = true
 disallow_untyped_decorators = true
 disallow_any_unimported = false
 
-[tool.isort]
-profile = "black"
-known_first_party = ["faststream"]
-
-[tool.black]
-line-length = 88
-target-version = ['py38']
-include = '\.pyi?$'
-
 [tool.ruff]
 fix = true
 line-length = 88
-target-version = "py38"
+target-version = 'py38'
+include = ["faststream/**/*.py", "faststream/**/*.pyi", "tests/**/*.pi", "pyproject.toml"]
+
+[tool.ruff.lint]
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-    "Q",   # flake8-quotes
-    "T20", # flake8-print
-    "SIM", # flake8-simplify
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # pyflakes
+    "I",     # isort
+    "ASYNC", # flake8-async
+    "C",     # flake8-comprehensions
+    "S",     # flake8-bandit
+    "B",     # flake8-bugbear
+    "Q",     # flake8-quotes
+    "T20",   # flake8-print
+    "SIM",   # flake8-simplify
 ]
+
 ignore = [
-    "E501",  # line too long, handled by black
+    "E501",  # line too long, handled by formatter later
     "C901",  # too complex
 ]
+
+[tool.ruff.lint.isort]
+case-sensitive = true
+
+[tool.ruff.format]
+docstring-code-format = true
 
 [tool.ruff.pydocstyle]
 convention = "google"

@@ -192,9 +192,9 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
             AssertionError: If the broker has not been started before calling this function.
 
         """
-        assert self._wrapped_call, "You should use `set_wrapped` first"  # nosec B101
+        assert self._wrapped_call, "You should use `set_wrapped` first"  # nosec B101 # noqa: S101
         if self.is_test:
-            assert self.mock  # nosec B101
+            assert self.mock  # nosec B101 # noqa: S101
             self.mock(message.decoded_body)
         return self._wrapped_call(message)
 
@@ -211,7 +211,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
             None
 
         """
-        assert (  # nosec B101
+        assert (  # nosec B101 # noqa: S101
             self.future is not None
         ), "You can use this method only with TestClient"
         with anyio.fail_after(timeout):
@@ -236,7 +236,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
         if not self.is_test:
             return
 
-        assert (  # nosec B101
+        assert (  # nosec B101 # noqa: S101
             self.future is not None
         ), "You can use this method only with TestClient"
 

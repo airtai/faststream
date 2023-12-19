@@ -44,6 +44,7 @@ class Components(BaseModel):
         - messageBindings
 
     """
+
     messages: Optional[Dict[str, Message]] = None
     schemas: Optional[Dict[str, Dict[str, Any]]] = None
     securitySchemes: Optional[Dict[str, Dict[str, Any]]] = None

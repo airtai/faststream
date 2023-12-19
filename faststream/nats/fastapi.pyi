@@ -39,7 +39,7 @@ from nats.aio.msg import Msg
 from nats.js import api
 from starlette import routing
 from starlette.responses import JSONResponse, Response
-from starlette.types import AppType, ASGIApp, Lifespan
+from starlette.types import ASGIApp, AppType, Lifespan
 
 from faststream._compat import override
 from faststream.asyncapi import schema as asyncapi

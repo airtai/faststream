@@ -35,15 +35,13 @@ class LogicPublisher(BasePublisher[AnyRedisDict]):
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
     ) -> Optional[DecodedMessage]:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
 
         channel = PubSub.validate(channel or self.channel)
         list = ListSub.validate(list or self.list)
         stream = StreamSub.validate(stream or self.stream)
 
-        assert any(
-            (channel, list, stream)
-        ), "You have to specify outgoing channel"  # nosec B101
+        assert any((channel, list, stream)), "You have to specify outgoing channel"  # nosec B101 # noqa: S101
 
         headers_to_send = (self.headers or {}).copy()
         if headers is not None:
@@ -73,5 +71,5 @@ class LogicPublisher(BasePublisher[AnyRedisDict]):
     @property
     def channel_name(self) -> str:
         any_of = self.channel or self.list or self.stream
-        assert any_of, INCORRECT_SETUP_MSG  # nosec B101
+        assert any_of, INCORRECT_SETUP_MSG  # nosec B101 # noqa: S101
         return any_of.name

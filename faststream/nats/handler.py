@@ -130,7 +130,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
             self.task = None
 
     async def _consume(self) -> None:
-        assert self.pull_sub  # nosec B101
+        assert self.pull_sub  # nosec B101 # noqa: S101
 
         sub = cast(JetStreamContext.PullSubscription, self.subscription)
 
