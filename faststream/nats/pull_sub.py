@@ -4,6 +4,8 @@ from pydantic import BaseModel, Field
 
 
 class PullSub(BaseModel):
+    """A class to represent a NATS pull subscription."""
+
     batch_size: int = Field(default=1)
     timeout: Optional[float] = Field(default=5.0)
     batch: bool = Field(default=False)

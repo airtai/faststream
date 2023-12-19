@@ -29,6 +29,8 @@ __all__ = (
 
 
 class JStream(NameRequired):
+    """A class to represent a JetStream stream."""
+
     config: StreamConfig
 
     subjects: List[str] = Field(default_factory=list)

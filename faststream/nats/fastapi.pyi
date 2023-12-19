@@ -74,7 +74,7 @@ class NatsRouter(StreamRouter[Msg]):
     # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument.hardcoded-password-default-argument
     def __init__(
         self,
-        servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),  # noqa: B006
+        servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),
         *,
         error_cb: Optional[ErrorCallback] = None,
         disconnected_cb: Optional[Callback] = None,

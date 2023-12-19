@@ -31,6 +31,8 @@ from faststream.utils.context.path import compile_path
 
 
 class LogicNatsHandler(AsyncHandler[Msg]):
+    """A class to represent a NATS handler."""
+
     subscription: Union[
         None,
         Subscription,
@@ -130,7 +132,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
             self.task = None
 
     async def _consume(self) -> None:
-        assert self.pull_sub  # nosec B101 # noqa: S101
+        assert self.pull_sub  # nosec B101
 
         sub = cast(JetStreamContext.PullSubscription, self.subscription)
 

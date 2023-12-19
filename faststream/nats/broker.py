@@ -64,6 +64,8 @@ class NatsBroker(
     NatsLoggingMixin,
     BrokerAsyncUsecase[Msg, Client],
 ):
+    """A class to represent a NATS broker."""
+
     url: List[str]
     stream: Optional[JetStreamContext]
 
@@ -74,7 +76,7 @@ class NatsBroker(
 
     def __init__(
         self,
-        servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),  # noqa: B006
+        servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),
         *,
         security: Optional[BaseSecurity] = None,
         protocol: str = "nats",
@@ -171,7 +173,8 @@ class NatsBroker(
         )
 
         await super().start()
-        assert self._connection and self.stream, "Broker should be started already"  # nosec B101 # noqa: S101
+        assert self._connection  # nosec B101
+        assert self.stream, "Broker should be started already"  # nosec B101
 
         for handler in self.handlers.values():
             stream = handler.stream
@@ -472,10 +475,10 @@ class NatsBroker(
         **kwargs: Any,
     ) -> Optional[DecodedMessage]:
         if stream is None:
-            assert self._producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
+            assert self._producer, NOT_CONNECTED_YET  # nosec B101
             return await self._producer.publish(*args, **kwargs)
         else:
-            assert self._js_producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
+            assert self._js_producer, NOT_CONNECTED_YET  # nosec B101
             return await self._js_producer.publish(
                 *args,
                 stream=stream,

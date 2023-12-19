@@ -98,14 +98,14 @@ def gen(
 
         name = out or "asyncapi.yaml"
 
-        with open(name, "w") as f:
+        with Path(name).open("w") as f:
             f.write(schema)
 
     else:
         schema = raw_schema.to_jsonable()
         name = out or "asyncapi.json"
 
-        with open(name, "w") as f:
+        with Path(name).open("w") as f:
             json.dump(schema, f, indent=2)
 
     typer.echo(f"Your project AsyncAPI scheme was placed to `{name}`")

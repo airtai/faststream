@@ -19,6 +19,8 @@ Channel: TypeAlias = str
 
 
 class RedisRouter(BrokerRouter[int, AnyRedisDict]):
+    """A class to represent a Redis router."""
+
     def __init__(
         self,
         prefix: str = "",

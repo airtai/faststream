@@ -4,6 +4,8 @@ from faststream.nats.js_stream import JStream
 
 
 class StreamBuilder:
+    """A class to build streams."""
+
     streams: Dict[str, JStream]
 
     def __init__(self) -> None:

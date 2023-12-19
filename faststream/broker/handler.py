@@ -305,7 +305,7 @@ class AsyncHandler(BaseHandler[MsgType]):
                 message.processed = processed
 
                 if await filter_(message):
-                    assert (  # nosec B101 # noqa: S101
+                    assert (  # nosec B101
                         not processed
                     ), "You can't proccess a message with multiple consumers"
 
@@ -362,7 +362,7 @@ class AsyncHandler(BaseHandler[MsgType]):
                         if IS_OPTIMIZED:  # pragma: no cover
                             break
 
-            assert not self.running or processed, "You have to consume message"  # nosec B101 # noqa: S101
+            assert not self.running or processed, "You have to consume message"  # nosec B101
 
         context.reset_local("log_context", log_context_tag)
 

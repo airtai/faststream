@@ -184,17 +184,20 @@ include = ["faststream/**/*.py", "faststream/**/*.pyi", "tests/**/*.pi", "pyproj
 select = [
     "E",     # pycodestyle errors
     "W",     # pycodestyle warnings
+    "C90",   # mccabe
     "N",     # pep8-naming
     "D",     # pydocstyle
     "F",     # pyflakes
     "I",     # isort
     "ASYNC", # flake8-async
     "C",     # flake8-comprehensions
-    "S",     # flake8-bandit
     "B",     # flake8-bugbear
     "Q",     # flake8-quotes
     "T20",   # flake8-print
     "SIM",   # flake8-simplify
+    "PT",    # flake8-pytest-style
+    "PTH",   # flake8-use-pathlib
+    "RUF",   # Ruff-specific rules
 ]
 
 ignore = [
@@ -208,7 +211,6 @@ ignore = [
 
     # todo pydocstyle
     "D100",  # missing docstring in public module
-    "D101",
     "D102",
     "D103",
     "D104",  # missing docstring in public package

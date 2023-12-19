@@ -25,6 +25,8 @@ from faststream.utils.functions import timeout_scope
 
 
 class RedisFastProducer:
+    """A class to represent a Redis producer."""
+
     _connection: "Redis[bytes]"
     _decoder: AsyncDecoder[Any]
     _parser: AsyncParser[AnyRedisDict, Any]

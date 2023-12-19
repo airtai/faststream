@@ -108,7 +108,7 @@ def get_app_broker_server(
     servers = {}
 
     broker = app.broker
-    assert broker  # nosec B101 # noqa: S101
+    assert broker  # nosec B101
 
     broker_meta: Dict[str, Any] = {
         "protocol": broker.protocol,
@@ -161,7 +161,7 @@ def get_app_broker_channels(
 
     """
     channels = {}
-    assert app.broker  # nosec B101 # noqa: S101
+    assert app.broker  # nosec B101
 
     for h in app.broker.handlers.values():
         channels.update(h.schema())
@@ -198,7 +198,7 @@ def _resolve_msg_payloads(
     else:
         m.payload["oneOf"] = one_of_list
 
-    assert m.title  # nosec B101 # noqa: S101
+    assert m.title  # nosec B101
     messages[m.title] = m
     return Reference(**{"$ref": f"#/components/messages/{m.title}"})
 

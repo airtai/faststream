@@ -84,7 +84,7 @@ class TestApp:
         exc_val: Optional[BaseException] = None,
         exec_tb: Optional[TracebackType] = None,
     ) -> None:
-        assert self.app._stop_event, "You should call `__enter__` first"  # nosec B101 # noqa: S101
+        assert self.app._stop_event, "You should call `__enter__` first"  # nosec B101
         self.app._stop_event.set()
         self.exit_stack.close()
 
@@ -115,13 +115,15 @@ class TestApp:
             None
 
         """
-        assert self.app._stop_event, "You should call `__enter__` first"  # nosec B101 # noqa: S101
+        assert self.app._stop_event, "You should call `__enter__` first"  # nosec B101
         await self.lifespan_scope.__aexit__(exc_type, exc_val, exec_tb)
         self.app._stop_event.set()
         await self._task.__aexit__(None, None, None)
 
 
 class TestBroker(Generic[Broker]):
+    """A class to represent a test broker."""
+
     # This is set so pytest ignores this class
     __test__ = False
 
@@ -145,7 +147,7 @@ class TestBroker(Generic[Broker]):
                 # TODO: remove with 0.5.0
                 warnings.warn(
                     (
-                        f"\nError `{repr(e)}` occured at `{self.__class__.__name__}` AST parsing"
+                        f"\nError `{e!r}` occured at `{self.__class__.__name__}` AST parsing"
                         "\nPlease, report us by creating an Issue with your TestClient usecase"
                         "\nhttps://github.com/airtai/faststream/issues/new?labels=bug&template=bug_report.md&title=Bug:%20TestClient%20AST%20parsing"
                     ),
@@ -200,13 +202,13 @@ class TestBroker(Generic[Broker]):
                 p.set_test(mock=mock, with_fake=False)
                 for f, _, _, _, _, _ in handler.calls:
                     f.set_test()
-                    assert f.mock  # nosec B101 # noqa: S101
+                    assert f.mock  # nosec B101
                     f.mock.side_effect = mock
 
             else:
                 f = cls.create_publisher_fake_subscriber(broker, p)
                 f.set_test()
-                assert f.mock  # nosec B101 # noqa: S101
+                assert f.mock  # nosec B101
                 p.set_test(mock=f.mock, with_fake=True)
 
             cls.patch_publisher(broker, p)

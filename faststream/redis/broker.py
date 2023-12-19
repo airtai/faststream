@@ -144,7 +144,7 @@ class RedisBroker(
         )
 
         await super().start()
-        assert self._connection, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
+        assert self._connection, NOT_CONNECTED_YET  # nosec B101
 
         for handler in self.handlers.values():
             if (stream := handler.stream_sub) is not None and stream.group:
@@ -331,7 +331,7 @@ class RedisBroker(
         *args: Any,
         **kwargs: Any,
     ) -> Optional[DecodedMessage]:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
         return await self._producer.publish(*args, **kwargs)
 
     async def publish_batch(
@@ -339,5 +339,5 @@ class RedisBroker(
         *args: Any,
         **kwargs: Any,
     ) -> None:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
         return await self._producer.publish_batch(*args, **kwargs)

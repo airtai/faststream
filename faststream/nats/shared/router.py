@@ -16,6 +16,8 @@ __all__ = (
 
 
 class NatsRouter(BrokerRouter[str, Msg]):
+    """A class to represent a NATS router."""
+
     def __init__(
         self,
         prefix: str = "",

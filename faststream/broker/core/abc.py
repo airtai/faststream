@@ -461,8 +461,8 @@ class BrokerUsecase(
         """
         if self.started and not is_test_env():  # pragma: no cover
             warnings.warn(
-                "You are trying to register `handler` with already running broker\n"  # noqa: E501
-                "It has no effect until broker restarting.",  # noqa: E501
+                "You are trying to register `handler` with already running broker\n"
+                "It has no effect until broker restarting.",
                 category=RuntimeWarning,
                 stacklevel=1,
             )

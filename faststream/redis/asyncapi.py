@@ -14,6 +14,8 @@ from faststream.redis.publisher import LogicPublisher
 
 
 class Handler(LogicRedisHandler):
+    """A class to represent a Redis handler."""
+
     @property
     def name(self) -> str:
         return self._title or f"{self.channel_name}:{self.call_name}"
@@ -62,6 +64,8 @@ class Handler(LogicRedisHandler):
 
 
 class Publisher(LogicPublisher):
+    """A class to represent a Redis publisher."""
+
     def schema(self) -> Dict[str, Channel]:
         if not self.include_in_schema:
             return {}

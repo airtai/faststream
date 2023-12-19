@@ -338,7 +338,7 @@ class FastStream(ABCApp):
         Returns:
             Block an event loop until stopped
         """
-        assert self.broker, "You should setup a broker"  # nosec B101 # noqa: S101
+        assert self.broker, "You should setup a broker"  # nosec B101
 
         self._init_async_cycle()
         async with self.lifespan_context(**(run_extra_options or {})):
@@ -387,7 +387,7 @@ class FastStream(ABCApp):
         Returns:
             None
         """
-        assert (  # nosec B101 # noqa: S101
+        assert (  # nosec B101
             self._stop_event
         ), "You should call `_init_async_cycle` first"
         await self._stop_event.wait()

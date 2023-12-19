@@ -17,6 +17,8 @@ __all__ = ("TestKafkaBroker",)
 
 
 class TestKafkaBroker(TestBroker[KafkaBroker]):
+    """A class to test Kafka brokers."""
+
     @staticmethod
     async def _fake_connect(broker: KafkaBroker, *args: Any, **kwargs: Any) -> None:
         broker._producer = FakeProducer(broker)

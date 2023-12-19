@@ -63,11 +63,11 @@ class LogicPublisher(ABCPublisher[ConsumerRecord]):
             ValueError: If `message` is not a sequence when `messages` is empty.
 
         """
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
-        assert (  # nosec B101 # noqa: S101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        assert (  # nosec B101
             self.batch or len(messages) < 2
         ), "You can't send multiple messages without `batch` flag"
-        assert self.topic, "You have to specify outgoing topic"  # nosec B101 # noqa: S101
+        assert self.topic, "You have to specify outgoing topic"  # nosec B101
 
         if not self.batch:
             return await self._producer.publish(

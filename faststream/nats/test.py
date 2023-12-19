@@ -17,6 +17,8 @@ __all__ = ("TestNatsBroker",)
 
 
 class TestNatsBroker(TestBroker[NatsBroker]):
+    """A class to test NATS brokers."""
+
     @staticmethod
     def patch_publisher(broker: NatsBroker, publisher: Any) -> None:
         publisher._producer = broker._producer

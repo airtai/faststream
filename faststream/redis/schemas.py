@@ -9,6 +9,7 @@ from faststream.utils.context.path import compile_path
 
 
 class PubSub(NameRequired):
+    """A class to represent a Redis PubSub channel.""" ""
     polling_interval: PositiveFloat = 1.0
     path_regex: Optional[Pattern[str]] = None
     pattern: bool = False
@@ -44,6 +45,8 @@ class PubSub(NameRequired):
 
 
 class ListSub(NameRequired):
+    """A class to represent a Redis List subscriber."""
+
     polling_interval: PositiveFloat = 0.1
     batch: bool = False
     max_records: PositiveInt = 10
@@ -71,6 +74,8 @@ class ListSub(NameRequired):
 
 
 class StreamSub(NameRequired):
+    """A class to represent a Redis Stream subscriber."""
+
     polling_interval: Optional[PositiveInt] = Field(default=100, description="ms")
     group: Optional[str] = None
     consumer: Optional[str] = None

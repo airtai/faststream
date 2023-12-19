@@ -531,7 +531,7 @@ class KafkaBroker(
         Raises:
             RuntimeError: If KafkaBroker is not started yet.
         """
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
         return await self._producer.publish(*args, **kwargs)
 
     async def publish_batch(
@@ -548,5 +548,5 @@ class KafkaBroker(
         Raises:
             RuntimeError: If KafkaBroker is not started yet.
         """
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
         await self._producer.publish_batch(*args, **kwargs)

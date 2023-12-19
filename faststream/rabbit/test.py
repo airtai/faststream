@@ -27,6 +27,8 @@ __all__ = ("TestRabbitBroker",)
 
 
 class TestRabbitBroker(TestBroker[RabbitBroker]):
+    """A class to test RabbitMQ brokers."""
+
     @classmethod
     def _patch_test_broker(cls, broker: RabbitBroker) -> None:
         broker._channel = AsyncMock()

@@ -24,7 +24,7 @@ class ColourizedFormatter(logging.Formatter):
 
     """
 
-    level_name_colors: DefaultDict[str, Callable[[str], str]] = defaultdict(
+    level_name_colors: DefaultDict[str, Callable[[str], str]] = defaultdict(  # noqa: RUF012
         lambda: str,
         **{
             str(logging.DEBUG): lambda level_name: click.style(

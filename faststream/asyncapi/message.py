@@ -156,8 +156,7 @@ def get_model_schema(
     model = None
     use_original_model = False
     if params_number == 1:
-        name, param = tuple(params.items())[0]
-
+        name, param = next(iter(params.items()))
         if (
             param.annotation
             and isclass(param.annotation)

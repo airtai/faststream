@@ -66,7 +66,7 @@ class AioKafkaFastProducer:
             AssertionError: If the broker is not connected.
 
         """
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         message, content_type = encode_message(message)
 
@@ -118,7 +118,7 @@ class AioKafkaFastProducer:
             AssertionError: If the broker is not connected.
 
         """
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101 # noqa: S101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         batch = self._producer.create_batch()
 

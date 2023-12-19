@@ -6,6 +6,8 @@ from faststream.nats.shared.router import NatsRouter as BaseRouter
 
 
 class NatsRouter(BaseRouter):
+    """A class to represent a NATS router."""
+
     _publishers: Dict[str, Publisher]  # type: ignore[assignment]
 
     @override

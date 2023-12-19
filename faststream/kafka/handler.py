@@ -203,7 +203,7 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
         )
 
     async def _consume(self) -> None:
-        assert self.consumer, "You need to start handler first"  # nosec B101 # noqa: S101
+        assert self.consumer, "You need to start handler first"  # nosec B101
 
         connected = True
         while self.running:

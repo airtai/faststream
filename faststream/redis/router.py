@@ -8,6 +8,8 @@ from faststream.types import AnyDict
 
 
 class RedisRouter(BaseRouter):
+    """A class to represent a Redis router."""
+
     _publishers: Dict[int, Publisher]  # type: ignore[assignment]
 
     @override

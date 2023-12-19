@@ -9,6 +9,8 @@ from faststream.types import AnyDict
 
 
 class NatsLoggingMixin(LoggingMixin):
+    """A class to represent a NATS logging mixin."""
+
     _max_queue_len: int
     _max_subject_len: int
 

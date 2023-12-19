@@ -16,6 +16,8 @@ __all__ = ("TestRedisBroker",)
 
 
 class TestRedisBroker(TestBroker[RedisBroker]):
+    """A class to test Redis brokers."""
+
     @staticmethod
     def patch_publisher(
         broker: RedisBroker,
@@ -53,7 +55,7 @@ class TestRedisBroker(TestBroker[RedisBroker]):
         publisher: Publisher,
     ) -> None:
         any_of = publisher.channel or publisher.list or publisher.stream
-        assert any_of  # nosec B101 # noqa: S101
+        assert any_of  # nosec B101
         broker.handlers.pop(Handler.get_routing_hash(any_of), None)
 
 

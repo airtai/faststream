@@ -19,6 +19,8 @@ bDATA_KEY = DATA_KEY.encode()  # noqa: N816
 
 
 class RawMessage(BaseModel):
+    """A class to represent a raw Redis message."""
+
     data: bytes
     headers: AnyDict = Field(default_factory=dict)
 
@@ -69,6 +71,8 @@ class RawMessage(BaseModel):
 
 
 class RedisParser:
+    """A class to represent a Redis parser."""
+
     @classmethod
     @overload
     async def parse_message(

@@ -44,7 +44,8 @@ class ExtendedFilter(watchfiles.PythonFilter):  # type: ignore[misc]
 
         """
         super().__init__(ignore_paths=ignore_paths, extra_extensions=extra_extensions)
-        self.ignore_dirs = self.ignore_dirs + (
+        self.ignore_dirs = (
+            *self.ignore_dirs,
             "venv",
             "env",
             ".github",

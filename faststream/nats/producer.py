@@ -23,6 +23,8 @@ from faststream.utils.functions import timeout_scope
 
 
 class NatsFastProducer:
+    """A class to represent a NATS producer."""
+
     _connection: Client
     _decoder: AsyncDecoder[Any]
     _parser: AsyncParser[Msg, Any]
@@ -96,6 +98,8 @@ class NatsFastProducer:
 
 
 class NatsJSFastProducer:
+    """A class to represent a NATS JetStream producer."""
+
     _connection: JetStreamContext
     _decoder: AsyncDecoder[Any]
     _parser: AsyncParser[Msg, Any]

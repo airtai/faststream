@@ -43,6 +43,8 @@ class ABCStreamMessage(Generic[Msg]):
 
 
 class SyncStreamMessage(ABCStreamMessage[Msg]):
+    """A generic class to represent a stream message."""
+
     def ack(self, **kwargs: Any) -> None:
         self.commited = True
 
@@ -54,6 +56,8 @@ class SyncStreamMessage(ABCStreamMessage[Msg]):
 
 
 class StreamMessage(ABCStreamMessage[Msg]):
+    """A generic class to represent a stream message."""
+
     async def ack(self, **kwargs: Any) -> None:
         self.commited = True
 
