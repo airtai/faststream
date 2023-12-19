@@ -94,7 +94,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
         await test_broker.start()
 
-        assert 1 == await test_broker.publish(1, "test.name.useless", rpc=True)
+        assert await test_broker.publish(1, "test.name.useless", rpc=True) == 1
         handler.mock.assert_called_once_with(1)
 
     async def test_list(
@@ -108,7 +108,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
         await test_broker.start()
 
-        assert 1 == await test_broker.publish(1, list=queue, rpc=True)
+        assert await test_broker.publish(1, list=queue, rpc=True) == 1
         handler.mock.assert_called_once_with(1)
 
     async def test_batch_pub_by_default_pub(
@@ -166,7 +166,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
         await test_broker.start()
 
-        assert 1 == await test_broker.publish(1, stream=queue, rpc=True)
+        assert await test_broker.publish(1, stream=queue, rpc=True) == 1
         handler.mock.assert_called_once_with(1)
 
     async def test_stream_batch_pub_by_default_pub(

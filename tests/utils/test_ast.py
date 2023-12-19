@@ -39,16 +39,14 @@ async def test_base_async():
 
 
 def test_nested():
-    with A() as a:
-        with B():
-            assert a.contains
+    with A() as a, B():
+        assert a.contains
 
 
 @pytest.mark.asyncio
 async def test_nested_async():
-    async with A() as a:
-        async with B():
-            assert a.contains
+    async with A() as a, B():
+        assert a.contains
 
 
 @pytest.mark.asyncio
@@ -71,9 +69,8 @@ def test_base_invalid():
 
 
 def test_nested_invalid():
-    with B():
-        with A() as a:
-            assert not a.contains
+    with B(), A() as a:
+        assert not a.contains
 
 
 def test_not_broken():

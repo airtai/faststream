@@ -142,10 +142,7 @@ class ContextRepo(Singleton):
             raise KeyError(f"`{self.context}` does not contains `{first}` key")
 
         for i in keys:
-            if isinstance(v, Mapping):
-                v = v[i]
-            else:
-                v = getattr(v, i)
+            v = v[i] if isinstance(v, Mapping) else getattr(v, i)
         return v
 
     def __getattr__(self, __name: str) -> Any:

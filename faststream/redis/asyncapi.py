@@ -29,16 +29,10 @@ class Handler(LogicRedisHandler):
             method = "lpop"
 
         elif (ch := self.channel) is not None:
-            if ch.pattern:
-                method = "psubscribe"
-            else:
-                method = "subscribe"
+            method = "psubscribe" if ch.pattern else "subscribe"
 
         elif (stream := self.stream_sub) is not None:
-            if stream.group:
-                method = "xreadgroup"
-            else:
-                method = "xread"
+            method = "xreadgroup" if stream.group else "xread"
 
         else:
             raise AssertionError("unreachable")

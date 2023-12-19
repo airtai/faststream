@@ -16,9 +16,10 @@ def patch_aio_consumer_and_producer() -> Tuple[MagicMock, MagicMock]:
         consumer = MagicMock(return_value=AsyncMock())
         producer = MagicMock(return_value=AsyncMock())
 
-        with patch("aiokafka.AIOKafkaConsumer", new=consumer):
-            with patch("aiokafka.AIOKafkaProducer", new=producer):
-                yield consumer, producer
+        with patch("aiokafka.AIOKafkaConsumer", new=consumer), patch(
+            "aiokafka.AIOKafkaProducer", new=producer
+        ):
+            yield consumer, producer
     finally:
         pass
 

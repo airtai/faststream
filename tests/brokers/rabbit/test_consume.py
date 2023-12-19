@@ -310,25 +310,21 @@ class TestConsume(BrokerRealConsumeTestcase):
             await full_broker.start()
             with patch.object(
                 IncomingMessage, "reject", spy_decorator(IncomingMessage.reject)
-            ) as m:
-                with patch.object(
-                    IncomingMessage, "reject", spy_decorator(IncomingMessage.reject)
-                ) as m1:
-                    with patch.object(
-                        IncomingMessage, "reject", spy_decorator(IncomingMessage.reject)
-                    ) as m2:
-                        await asyncio.wait(
-                            (
-                                asyncio.create_task(
-                                    full_broker.publish("hello", queue)
-                                ),
-                                asyncio.create_task(event.wait()),
-                            ),
-                            timeout=3,
-                        )
-                        assert not m.mock.called
-                        assert not m1.mock.called
-                        assert not m2.mock.called
+            ) as m, patch.object(
+                IncomingMessage, "reject", spy_decorator(IncomingMessage.reject)
+            ) as m1, patch.object(
+                IncomingMessage, "reject", spy_decorator(IncomingMessage.reject)
+            ) as m2:
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(full_broker.publish("hello", queue)),
+                        asyncio.create_task(event.wait()),
+                    ),
+                    timeout=3,
+                )
+                assert not m.mock.called
+                assert not m1.mock.called
+                assert not m2.mock.called
 
         assert event.is_set()
 

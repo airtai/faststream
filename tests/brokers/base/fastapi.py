@@ -305,10 +305,11 @@ class FastAPILocalTestcase:
             mock.async_called()
             return {"async_called": mock.sync_called.called}
 
-        async with self.broker_test(router.broker):
-            async with router.lifespan_context(app) as context:
-                assert context["sync_called"]
-                assert context["async_called"]
+        async with self.broker_test(router.broker), router.lifespan_context(
+            app
+        ) as context:
+            assert context["sync_called"]
+            assert context["async_called"]
 
         mock.sync_called.assert_called_once()
         mock.async_called.assert_called_once()
@@ -325,9 +326,10 @@ class FastAPILocalTestcase:
         app = FastAPI(lifespan=router.lifespan_context)
         app.include_router(router)
 
-        async with self.broker_test(router.broker):
-            async with router.lifespan_context(app) as context:
-                assert context["lifespan"]
+        async with self.broker_test(router.broker), router.lifespan_context(
+            app
+        ) as context:
+            assert context["lifespan"]
 
         mock.start.assert_called_once()
         mock.close.assert_called_once()

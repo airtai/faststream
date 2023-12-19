@@ -268,7 +268,7 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
                 wrapped_func,
                 *args,
                 dependencies=(*self._dependencies, *dependencies),
-                middlewares=(*(self._middlewares or ()), *(middlewares or ())) or None,
+                middlewares=(*(self._middlewares or ()), *(middlewares or ())),
                 parser=parser or self._parser,
                 decoder=decoder or self._decoder,
                 include_in_schema=(

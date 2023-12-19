@@ -125,9 +125,10 @@ async def test_running(async_mock, app: FastStream):
     app._init_async_cycle()
     app._stop_event.set()
 
-    with patch.object(app.broker, "start", async_mock.broker_run):
-        with patch.object(app.broker, "close", async_mock.broker_stopped):
-            await app.run()
+    with patch.object(app.broker, "start", async_mock.broker_run), patch.object(
+        app.broker, "close", async_mock.broker_stopped
+    ):
+        await app.run()
 
     async_mock.broker_run.assert_called_once()
     async_mock.broker_stopped.assert_called_once()
@@ -146,9 +147,10 @@ async def test_running_lifespan_contextmanager(async_mock, mock: Mock, app: Fast
     app._init_async_cycle()
     app._stop_event.set()
 
-    with patch.object(app.broker, "start", async_mock.broker_run):
-        with patch.object(app.broker, "close", async_mock.broker_stopped):
-            await app.run(run_extra_options={"env": "test"})
+    with patch.object(app.broker, "start", async_mock.broker_run), patch.object(
+        app.broker, "close", async_mock.broker_stopped
+    ):
+        await app.run(run_extra_options={"env": "test"})
 
     async_mock.broker_run.assert_called_once()
     async_mock.broker_stopped.assert_called_once()
@@ -162,11 +164,12 @@ async def test_running_lifespan_contextmanager(async_mock, mock: Mock, app: Fast
 async def test_stop_with_sigint(async_mock, app: FastStream):
     app._init_async_cycle()
 
-    with patch.object(app.broker, "start", async_mock.broker_run_sigint):
-        with patch.object(app.broker, "close", async_mock.broker_stopped_sigint):
-            async with anyio.create_task_group() as tg:
-                tg.start_soon(app.run)
-                tg.start_soon(_kill, signal.SIGINT)
+    with patch.object(app.broker, "start", async_mock.broker_run_sigint), patch.object(
+        app.broker, "close", async_mock.broker_stopped_sigint
+    ):
+        async with anyio.create_task_group() as tg:
+            tg.start_soon(app.run)
+            tg.start_soon(_kill, signal.SIGINT)
 
     async_mock.broker_run_sigint.assert_called_once()
     async_mock.broker_stopped_sigint.assert_called_once()
@@ -177,11 +180,12 @@ async def test_stop_with_sigint(async_mock, app: FastStream):
 async def test_stop_with_sigterm(async_mock, app: FastStream):
     app._init_async_cycle()
 
-    with patch.object(app.broker, "start", async_mock.broker_run_sigterm):
-        with patch.object(app.broker, "close", async_mock.broker_stopped_sigterm):
-            async with anyio.create_task_group() as tg:
-                tg.start_soon(app.run)
-                tg.start_soon(_kill, signal.SIGTERM)
+    with patch.object(app.broker, "start", async_mock.broker_run_sigterm), patch.object(
+        app.broker, "close", async_mock.broker_stopped_sigterm
+    ):
+        async with anyio.create_task_group() as tg:
+            tg.start_soon(app.run)
+            tg.start_soon(_kill, signal.SIGTERM)
 
     async_mock.broker_run_sigterm.assert_called_once()
     async_mock.broker_stopped_sigterm.assert_called_once()
@@ -235,9 +239,8 @@ def test_sync_test_app_with_excp(mock: Mock):
     app.on_startup(mock.on)
     app.on_shutdown(mock.off)
 
-    with pytest.raises(ValueError):
-        with TestApp(app):
-            raise ValueError()
+    with pytest.raises(ValueError), TestApp(app):
+        raise ValueError()
 
     mock.on.assert_called_once()
     mock.off.assert_called_once()
@@ -253,10 +256,11 @@ async def test_lifespan_contextmanager(async_mock: AsyncMock, app: FastStream):
 
     app = FastStream(app.broker, lifespan=lifespan)
 
-    with patch.object(app.broker, "start", async_mock.broker_run):
-        with patch.object(app.broker, "close", async_mock.broker_stopped):
-            async with TestApp(app, {"env": "test"}):
-                pass
+    with patch.object(app.broker, "start", async_mock.broker_run), patch.object(
+        app.broker, "close", async_mock.broker_stopped
+    ):
+        async with TestApp(app, {"env": "test"}):
+            pass
 
     async_mock.on.assert_awaited_once_with("test")
     async_mock.off.assert_awaited_once()
@@ -273,10 +277,10 @@ def test_sync_lifespan_contextmanager(async_mock: AsyncMock, app: FastStream):
 
     app = FastStream(app.broker, lifespan=lifespan)
 
-    with patch.object(app.broker, "start", async_mock.broker_run):
-        with patch.object(app.broker, "close", async_mock.broker_stopped):
-            with TestApp(app, {"env": "test"}):
-                pass
+    with patch.object(app.broker, "start", async_mock.broker_run), patch.object(
+        app.broker, "close", async_mock.broker_stopped
+    ), TestApp(app, {"env": "test"}):
+        pass
 
     async_mock.on.assert_awaited_once_with("test")
     async_mock.off.assert_awaited_once()

@@ -198,6 +198,7 @@ select = [
     "B",   # flake8-bugbear
     "Q",   # flake8-quotes
     "T20", # flake8-print
+    "SIM", # flake8-simplify
 ]
 ignore = [
     "E501",  # line too long, handled by black

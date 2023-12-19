@@ -212,7 +212,7 @@ def _move_pydantic_refs(
 
     data = original.copy()
 
-    for k in data.keys():
+    for k in data:
         if k == "$ref":
             data[k] = data[k].replace(key, "components/schemas")
 

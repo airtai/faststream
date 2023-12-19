@@ -28,10 +28,10 @@ def change_logger_handlers(logger: logging.Logger, fmt: str) -> None:
         formatter = handler.formatter
         if formatter is not None:  # pragma: no branch
             use_colors = getattr(formatter, "use_colors", None)
-            if use_colors is not None:  # pragma: no branch
-                kwargs = {"use_colors": use_colors}
-            else:  # pragma: no cover
-                kwargs = {}
+            kwargs = (
+                {"use_colors": use_colors} if use_colors is not None else {}
+            )  # pragma: no branch
+
             handler.setFormatter(type(formatter)(fmt, **kwargs))
 
 

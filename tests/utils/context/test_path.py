@@ -26,11 +26,14 @@ async def test_nats_path():
         return 1
 
     async with TestNatsBroker(broker) as br:
-        assert 1 == await br.publish(
-            "",
-            "in.john.1",
-            rpc=True,
-            rpc_timeout=1.0,
+        assert (
+            await br.publish(
+                "",
+                "in.john.1",
+                rpc=True,
+                rpc_timeout=1.0,
+            )
+            == 1
         )
 
 
@@ -48,11 +51,14 @@ async def test_redis_path():
         return 1
 
     async with TestRedisBroker(broker) as br:
-        assert 1 == await br.publish(
-            "",
-            "in.john.1",
-            rpc=True,
-            rpc_timeout=1.0,
+        assert (
+            await br.publish(
+                "",
+                "in.john.1",
+                rpc=True,
+                rpc_timeout=1.0,
+            )
+            == 1
         )
 
 
@@ -79,10 +85,13 @@ async def test_rabbit_path():
         return 1
 
     async with TestRabbitBroker(broker) as br:
-        assert 1 == await br.publish(
-            "",
-            "in.john.1",
-            "test",
-            rpc=True,
-            rpc_timeout=1.0,
+        assert (
+            await br.publish(
+                "",
+                "in.john.1",
+                "test",
+                rpc=True,
+                rpc_timeout=1.0,
+            )
+            == 1
         )

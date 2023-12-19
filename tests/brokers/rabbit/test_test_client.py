@@ -53,9 +53,9 @@ class TestTestclient(BrokerTestclientTestcase):
             return 2
 
         await test_broker.start()
-        assert 1 == await test_broker.publish("", queue, rpc=True)
-        assert 2 == await test_broker.publish(
-            "", queue + "1", exchange="test", rpc=True
+        assert await test_broker.publish("", queue, rpc=True) == 1
+        assert (
+            await test_broker.publish("", queue + "1", exchange="test", rpc=True) == 2
         )
         assert None is await test_broker.publish("", exchange="test2", rpc=True)
 
@@ -97,8 +97,8 @@ class TestTestclient(BrokerTestclientTestcase):
             return 2
 
         await test_broker.start()
-        assert 1 == await test_broker.publish("", "logs.info", exchange=exch, rpc=True)
-        assert 2 == await test_broker.publish("", "logs.error", exchange=exch, rpc=True)
+        assert await test_broker.publish("", "logs.info", exchange=exch, rpc=True) == 1
+        assert await test_broker.publish("", "logs.error", exchange=exch, rpc=True) == 2
         assert None is await test_broker.publish("", "logs.error", rpc=True)
 
     async def test_header(
@@ -132,13 +132,16 @@ class TestTestclient(BrokerTestclientTestcase):
             return 3
 
         await test_broker.start()
-        assert 2 == await test_broker.publish(
-            exchange=exch, rpc=True, headers={"key": 2, "key2": 2}
+        assert (
+            await test_broker.publish(
+                exchange=exch, rpc=True, headers={"key": 2, "key2": 2}
+            )
+            == 2
         )
-        assert 1 == await test_broker.publish(
-            exchange=exch, rpc=True, headers={"key": 2}
+        assert (
+            await test_broker.publish(exchange=exch, rpc=True, headers={"key": 2}) == 1
         )
-        assert 3 == await test_broker.publish(exchange=exch, rpc=True, headers={})
+        assert await test_broker.publish(exchange=exch, rpc=True, headers={}) == 3
 
     async def test_consume_manual_ack(
         self,

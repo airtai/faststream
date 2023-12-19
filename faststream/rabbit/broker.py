@@ -514,10 +514,7 @@ class RabbitBroker(
         Returns:
             Callable: A wrapper function for processing messages.
         """
-        if reply_config is None:
-            reply_kwargs = {}
-        else:
-            reply_kwargs = model_to_dict(reply_config)
+        reply_kwargs = {} if reply_config is None else model_to_dict(reply_config)
 
         @wraps(func)
         async def process_wrapper(

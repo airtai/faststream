@@ -13,7 +13,7 @@ from faststream.rabbit import RabbitBroker
         pytest.param(logging.ERROR, RabbitBroker(), id=str(logging.ERROR)),
         *(
             pytest.param(level, RabbitBroker(), id=level)
-            for level in LogLevels.__members__.keys()
+            for level in LogLevels.__members__
         ),
         *(
             pytest.param(level, RabbitBroker(), id=str(level))

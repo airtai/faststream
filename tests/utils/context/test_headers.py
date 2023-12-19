@@ -18,13 +18,16 @@ async def test_nats_headers():
         return 1
 
     async with TestNatsBroker(broker) as br:
-        assert 1 == await br.publish(
-            "",
-            "in",
-            headers={
-                "name": "john",
-                "id": "1",
-            },
-            rpc=True,
-            rpc_timeout=1.0,
+        assert (
+            await br.publish(
+                "",
+                "in",
+                headers={
+                    "name": "john",
+                    "id": "1",
+                },
+                rpc=True,
+                rpc_timeout=1.0,
+            )
+            == 1
         )

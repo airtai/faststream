@@ -1,6 +1,6 @@
 import asyncio
 from secrets import token_hex
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 from uuid import uuid4
 
 import nats
@@ -20,6 +20,29 @@ from faststream.nats.message import NatsMessage
 from faststream.nats.parser import Parser
 from faststream.types import DecodedMessage, SendableMessage
 from faststream.utils.functions import timeout_scope
+
+
+async def _send_msg(
+    producer: Union["NatsFastProducer", "NatsJSFastProducer"],
+    *,
+    rpc_timeout: Optional[float],
+    raise_timeout: bool,
+    future: "asyncio.Future[Msg]",
+) -> Optional[DecodedMessage]:
+    msg: Any = None
+    with timeout_scope(rpc_timeout, raise_timeout):
+        msg = await future
+
+    if msg:  # pragma: no branch
+        if msg.headers:  # pragma: no cover
+            if (
+                msg.headers.get(nats.js.api.Header.STATUS)
+                == nats.aio.client.NO_RESPONDERS_STATUS
+            ):
+                raise nats.errors.NoRespondersError
+        else:
+            return await producer._decoder(await producer._parser(msg))
+    return None
 
 
 class NatsFastProducer:
@@ -78,21 +101,16 @@ class NatsFastProducer:
             headers=headers_to_send,
         )
 
-        if rpc:
-            msg: Any = None
-            with timeout_scope(rpc_timeout, raise_timeout):
-                msg = await future
-
-            if msg:  # pragma: no branch
-                if msg.headers:  # pragma: no cover
-                    if (
-                        msg.headers.get(nats.js.api.Header.STATUS)
-                        == nats.aio.client.NO_RESPONDERS_STATUS
-                    ):
-                        raise nats.errors.NoRespondersError
-                return await self._decoder(await self._parser(msg))
-
-        return None
+        return (
+            await _send_msg(
+                self,
+                rpc_timeout=raise_timeout,
+                raise_timeout=raise_timeout,
+                future=future,
+            )
+            if rpc
+            else None
+        )
 
 
 class NatsJSFastProducer:
@@ -154,18 +172,13 @@ class NatsJSFastProducer:
             timeout=timeout,
         )
 
-        if rpc:
-            msg: Any = None
-            with timeout_scope(rpc_timeout, raise_timeout):
-                msg = await future
-
-            if msg:  # pragma: no branch
-                if msg.headers:  # pragma: no cover
-                    if (
-                        msg.headers.get(nats.js.api.Header.STATUS)
-                        == nats.aio.client.NO_RESPONDERS_STATUS
-                    ):
-                        raise nats.errors.NoRespondersError
-                return await self._decoder(await self._parser(msg))
-
-        return None
+        return (
+            await _send_msg(
+                self,
+                rpc_timeout=raise_timeout,
+                raise_timeout=raise_timeout,
+                future=future,
+            )
+            if rpc
+            else None
+        )

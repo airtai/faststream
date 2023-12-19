@@ -289,10 +289,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             NotImplementedError: If silent animals are not supported.
 
         """
-        if lifespan is not None:
-            lifespan_context = lifespan
-        else:
-            lifespan_context = _DefaultLifespan(self)
+        lifespan_context = lifespan if lifespan is not None else _DefaultLifespan(self)
 
         @asynccontextmanager
         async def start_broker_lifespan(

@@ -135,18 +135,17 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         sub = cast(JetStreamContext.PullSubscription, self.subscription)
 
         while self.running:  # pragma: no branch
-            with suppress(TimeoutError):
-                with self.lock:
-                    messages = await sub.fetch(
-                        batch=self.pull_sub.batch_size,
-                        timeout=self.pull_sub.timeout,
-                    )
+            with suppress(TimeoutError), self.lock:
+                messages = await sub.fetch(
+                    batch=self.pull_sub.batch_size,
+                    timeout=self.pull_sub.timeout,
+                )
 
-                    if messages:
-                        if self.pull_sub.batch:
-                            await self.consume(messages)  # type: ignore[arg-type]
-                        else:
-                            await asyncio.gather(*map(self.consume, messages))
+                if messages:
+                    if self.pull_sub.batch:
+                        await self.consume(messages)  # type: ignore[arg-type]
+                    else:
+                        await asyncio.gather(*map(self.consume, messages))
 
     @staticmethod
     def get_routing_hash(subject: str) -> str:

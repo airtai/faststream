@@ -552,10 +552,7 @@ def _patch_fastapi_dependant(
     for p in params:
         if p.name not in params_names:
             params_names.add(p.name)
-            if PYDANTIC_V2:
-                info = p.field_info
-            else:
-                info = p
+            info = p.field_info if PYDANTIC_V2 else p
             params_unique[p.name] = (info.annotation, info.default)
 
     dependant.model = create_model(  # type: ignore[call-overload]

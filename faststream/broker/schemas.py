@@ -108,9 +108,8 @@ class NameRequired(BaseModel):
             The validated value.
 
         """
-        if value is not None:
-            if isinstance(value, str):
-                value = cls(value, **kwargs)
+        if value is not None and isinstance(value, str):
+            value = cls(value, **kwargs)
         return value
 
 
