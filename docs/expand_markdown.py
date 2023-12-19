@@ -11,7 +11,7 @@ app = typer.Typer()
 
 
 def read_lines_from_file(file_path, lines_spec):
-    with open(file_path, "r") as file:
+    with open(file_path) as file:
         all_lines = file.readlines()
 
     # Check if lines_spec is empty (indicating all lines should be read)
@@ -58,7 +58,7 @@ def expand_markdown(
     input_markdown_path: Path = typer.Argument(...),
     output_markdown_path: Path = typer.Argument(...),
 ):
-    with open(input_markdown_path, "r") as input_file, open(
+    with open(input_markdown_path) as input_file, open(
         output_markdown_path, "w"
     ) as output_file:
         for line in input_file:
@@ -71,7 +71,7 @@ def expand_markdown(
 
 
 def remove_lines_between_dashes(file_path: Path):
-    with open(file_path, "r") as file:
+    with open(file_path) as file:
         lines = file.readlines()
 
     start_dash_index = None

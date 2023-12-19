@@ -177,7 +177,7 @@ disallow_any_unimported = false
 [tool.ruff]
 fix = true
 line-length = 88
-target-version = 'py38'
+# target-version = 'py38'
 include = ["faststream/**/*.py", "faststream/**/*.pyi", "tests/**/*.pi", "pyproject.toml"]
 
 [tool.ruff.lint]
@@ -216,6 +216,7 @@ ignore = [
     "D106",  # Missing docstring in public nested class
     "D107",
     "D418",  # Function decorated with `@overload` shouldn't contain a docstring
+
 ]
 
 [tool.ruff.lint.isort]
@@ -240,10 +241,6 @@ extend-immutable-calls = [
     "fastapi.datastructures.Default",
     "kafka.partitioner.default.DefaultPartitioner",
 ]
-
-[tool.ruff.lint.pyupgrade]
-# Preserve types, even if a file imports `from __future__ import annotations`.
-keep-runtime-typing = true
 
 [tool.pytest.ini_options]
 minversion = "7.0"
