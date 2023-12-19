@@ -88,7 +88,7 @@ class StreamSub(NameRequired):
         no_ack: bool = False,
         last_id: Optional[str] = None,
     ) -> None:
-        """Redis Stream subscriber parameters
+        """Redis Stream subscriber parameters.
 
         Args:
             stream: (str): Redis Stream name.

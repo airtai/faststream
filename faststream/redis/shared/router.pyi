@@ -23,7 +23,7 @@ from faststream.redis.schemas import ListSub, PubSub, StreamSub
 Channel: TypeAlias = str
 
 class RedisRoute:
-    """Delayed `RedisBroker.subscriber()` registration object"""
+    """Delayed `RedisBroker.subscriber()` registration object."""
 
     def __init__(
         self,

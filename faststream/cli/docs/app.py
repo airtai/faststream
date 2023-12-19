@@ -36,7 +36,7 @@ def serve(
         help="Restart documentation at directory files changes",
     ),
 ) -> None:
-    """Serve project AsyncAPI schema"""
+    """Serve project AsyncAPI schema."""
     if ":" in app:
         module, _ = import_from_string(app)
 
@@ -85,7 +85,7 @@ def gen(
         help="output filename",
     ),
 ) -> None:
-    """Generate project AsyncAPI schema"""
+    """Generate project AsyncAPI schema."""
     _, app_obj = import_from_string(app)
     raw_schema = get_app_schema(app_obj)
 

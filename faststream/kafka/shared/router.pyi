@@ -12,7 +12,7 @@ from faststream.broker.types import CustomDecoder, CustomParser, Filter, T_Handl
 from faststream.kafka.message import KafkaMessage
 
 class KafkaRoute:
-    """Delayed `KafkaBroker.subscriber()` registration object"""
+    """Delayed `KafkaBroker.subscriber()` registration object."""
 
     @overload
     def __init__(
