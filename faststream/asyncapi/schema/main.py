@@ -98,6 +98,7 @@ class Schema(BaseModel):
     externalDocs: Optional[Union[ExternalDocs, ExternalDocsDict, Dict[str, Any]]] = None
 
     def to_jsonable(self) -> Any:
+        """Convert the schema to a JSON-serializable object."""
         return model_to_jsonable(
             self,
             by_alias=True,
@@ -105,6 +106,7 @@ class Schema(BaseModel):
         )
 
     def to_json(self) -> str:
+        """Convert the schema to a JSON string."""
         return model_to_json(
             self,
             by_alias=True,
@@ -112,6 +114,7 @@ class Schema(BaseModel):
         )
 
     def to_yaml(self) -> str:
+        """Convert the schema to a YAML string."""
         from io import StringIO
 
         import yaml

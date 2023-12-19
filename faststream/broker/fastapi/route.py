@@ -157,6 +157,7 @@ class StreamMessage(Request):
         Args:
             body: The body of the request as a dictionary.
             headers: The headers of the request as a dictionary.
+            path: The path of the request as a dictionary.
 
         Attributes:
             scope: A dictionary to store the scope of the request.

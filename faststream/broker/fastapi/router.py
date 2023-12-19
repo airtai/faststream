@@ -136,6 +136,8 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             lifespan: Optional lifespan for the class
             generate_unique_id_function: Function to generate unique ID for the class
             asyncapi_tags: Optional sequence of asyncapi tags for the class schema
+            schema_url: Optional URL for the class schema
+            **connection_kwars: Additional keyword arguments for the connection
 
         """
         assert (  # nosec B101 # noqa: S101

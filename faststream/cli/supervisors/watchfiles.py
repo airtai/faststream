@@ -84,6 +84,7 @@ class WatchReloader(BaseReload):
             args: The arguments to be passed to the target callable.
             reload_dirs: A sequence of directories to watch for changes.
             reload_delay: The delay in seconds between checking for changes. Default is 0.3.
+            extra_extensions: A sequence of extra extensions to include.
 
         Returns:
             None.

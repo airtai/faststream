@@ -8,7 +8,7 @@ import click
 
 from faststream.utils.context.main import context
 
-original_makeRecord = logging.Logger.makeRecord
+original_makeRecord = logging.Logger.makeRecord  # noqa: N816
 
 
 class ColourizedFormatter(logging.Formatter):
@@ -85,7 +85,7 @@ class ColourizedFormatter(logging.Formatter):
         """
         return self.level_name_colors[str(level_no)](level_name)
 
-    def formatMessage(self, record: logging.LogRecord) -> str:
+    def formatMessage(self, record: logging.LogRecord) -> str:  # noqa: N802
         """Formats the log message.
 
         Args:

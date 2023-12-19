@@ -82,6 +82,7 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
 
     @abstractmethod
     async def start(self) -> None:
+        """Start the broker async usecase."""
         super()._abc_start()
         for h in self.handlers.values():
             for f, _, _, _, _, _ in h.calls:
@@ -169,6 +170,7 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
             func: A callable function that takes a StreamMessage and returns an Awaitable.
             watcher: An instance of BaseWatcher.
             disable_watcher: Whether to use watcher context.
+            kwargs: Additional keyword arguments.
 
         Returns:
             A callable function that takes a StreamMessage and returns an Awaitable.
@@ -245,6 +247,7 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
             filter: Filter function for filtering the messages to be processed.
             _raw: Whether to return the raw message instead of the processed result.
             _get_dependant: Optional argument to get the dependant object.
+            **broker_kwargs: Keyword arguments to be passed to the message broker.
 
         Returns:
             A callable decorator that wraps the decorated function and handles the subscription.
@@ -283,6 +286,7 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
             decoder: Custom decoder object
             parser: Custom parser object
             middlewares: Sequence of middlewares
+            graceful_timeout: Graceful timeout
             **kwargs: Keyword arguments
 
         """
@@ -324,6 +328,7 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         return self._connection
 
     async def __aenter__(self) -> Self:
+        """Enter the context manager."""
         await self.connect()
         return self
 

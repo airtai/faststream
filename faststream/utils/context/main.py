@@ -99,6 +99,7 @@ class ContextRepo(Singleton):
 
         Args:
             key: The key of the local variable to retrieve.
+            default: The default value to return if the local variable is not found.
 
         Returns:
             The value of the local variable.
@@ -118,6 +119,7 @@ class ContextRepo(Singleton):
 
         Args:
             key: The key to retrieve the value for.
+            default: The default value to return if the key is not found.
 
         Returns:
             The value associated with the key.

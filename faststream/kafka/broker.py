@@ -53,6 +53,7 @@ class KafkaBroker(
     BrokerAsyncUsecase[aiokafka.ConsumerRecord, ConsumerConnectionParams],
 ):
     """KafkaBroker is a class for managing Kafka message consumption and publishing.
+
     It extends BrokerAsyncUsecase to handle asynchronous operations.
 
     Args:
@@ -211,6 +212,7 @@ class KafkaBroker(
             func (Callable[[KafkaMessage], Awaitable[T_HandlerReturn]]): The message processing function.
             watcher (BaseWatcher): The message watcher.
             disable_watcher: Whether to use watcher context.
+            **kwargs: Additional keyword arguments.
 
         Returns:
             Callable[[KafkaMessage], Awaitable[WrappedReturn[T_HandlerReturn]]]: The wrapped message processing function.
@@ -358,6 +360,7 @@ class KafkaBroker(
             no_ack (bool): Whether not to ack/nack/reject messages.
             title (Optional[str]): AsyncAPI title.
             description (Optional[str]): AsyncAPI description.
+            include_in_schema (bool): Whether to include the message handler in the AsyncAPI schema.
             **original_kwargs: Additional keyword arguments.
 
         Returns:
@@ -485,6 +488,8 @@ class KafkaBroker(
             batch (bool): Whether to publish messages in batches.
             title (Optional[str]): AsyncAPI title.
             description (Optional[str]): AsyncAPI description.
+            schema (Optional[Any]): AsyncAPI schema.
+            include_in_schema (bool): Whether to include the message publisher in the AsyncAPI schema.
 
         Returns:
             Publisher: A message publisher.

@@ -15,7 +15,7 @@ from faststream.types import AnyDict, DecodedMessage, SendableMessage
 from faststream.utils.context.main import context
 
 DATA_KEY = "__data__"
-bDATA_KEY = DATA_KEY.encode()
+bDATA_KEY = DATA_KEY.encode()  # noqa: N816
 
 
 class RawMessage(BaseModel):

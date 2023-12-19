@@ -65,6 +65,7 @@ class NameRequired(BaseModel):
 
         Args:
             value: The value to validate.
+            **kwargs: Additional keyword arguments.
 
         Returns:
             The validated value.
@@ -86,6 +87,7 @@ class NameRequired(BaseModel):
 
         Args:
             value: The value to be validated
+            **kwargs: Additional keyword arguments
 
         Returns:
             None
@@ -103,6 +105,7 @@ class NameRequired(BaseModel):
 
         Args:
             value: The value to be validated.
+            **kwargs: Additional keyword arguments.
 
         Returns:
             The validated value.

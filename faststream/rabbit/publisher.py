@@ -54,6 +54,7 @@ class LogicPublisher(ABCPublisher[IncomingMessage]):
             rpc_timeout: Timeout for RPC.
             raise_timeout: Whether to raise an exception if timeout occurs.
             correlation_id: Correlation ID for the message.
+            priority: Priority for the message.
             **message_kwargs: Additional keyword arguments for the message.
 
         Returns:

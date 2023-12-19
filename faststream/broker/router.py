@@ -157,6 +157,7 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
             middlewares (Optional[Sequence[Callable[[StreamMessage[MsgType]], AsyncContextManager[None]]]]): Middlewares for the object.
             parser (Optional[CustomParser[MsgType]]): Parser for the object.
             decoder (Optional[CustomDecoder[StreamMessage[MsgType]]]): Decoder for the object.
+            include_in_schema (Optional[bool]): Whether to include the object in the schema.
 
         """
         self.prefix = prefix
@@ -199,6 +200,7 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
             middlewares : optional sequence of middlewares
             parser : optional custom parser
             decoder : optional custom decoder
+            include_in_schema : whether to include the object in the schema
             **kwargs : additional keyword arguments
 
         Returns:
@@ -238,6 +240,7 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
             middlewares: Optional sequence of middlewares
             parser: Optional custom parser
             decoder: Optional custom decoder
+            include_in_schema: Whether to include the object in the schema
             **kwargs: Variable length keyword arguments
 
         Returns:

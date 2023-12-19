@@ -184,6 +184,8 @@ include = ["faststream/**/*.py", "faststream/**/*.pyi", "tests/**/*.pi", "pyproj
 select = [
     "E",     # pycodestyle errors
     "W",     # pycodestyle warnings
+    "N",     # pep8-naming
+    "D",     # pydocstyle
     "F",     # pyflakes
     "I",     # isort
     "ASYNC", # flake8-async
@@ -198,6 +200,22 @@ select = [
 ignore = [
     "E501",  # line too long, handled by formatter later
     "C901",  # too complex
+
+    # todo pep8-naming
+    "N817",  # CamelCase `*` imported as acronym `*`
+    "N815",  # Variable `*` in class scope should not be mixedCase
+    "N803",  # Argument name `expandMessageExamples` should be lowercase
+
+    # todo pydocstyle
+    "D100",  # missing docstring in public module
+    "D101",
+    "D102",
+    "D103",
+    "D104",  # missing docstring in public package
+    "D105",
+    "D106",  # Missing docstring in public nested class
+    "D107",
+    "D418",  # Function decorated with `@overload` shouldn't contain a docstring
 ]
 
 [tool.ruff.lint.isort]
@@ -222,6 +240,10 @@ extend-immutable-calls = [
     "fastapi.datastructures.Default",
     "kafka.partitioner.default.DefaultPartitioner",
 ]
+
+[tool.ruff.lint.pyupgrade]
+# Preserve types, even if a file imports `from __future__ import annotations`.
+keep-runtime-typing = true
 
 [tool.pytest.ini_options]
 minversion = "7.0"

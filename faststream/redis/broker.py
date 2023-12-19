@@ -50,6 +50,8 @@ class RedisBroker(
     RedisLoggingMixin,
     BrokerAsyncUsecase[AnyRedisDict, "Redis[bytes]"],
 ):
+    """Redis broker."""
+
     url: str
     handlers: Dict[int, Handler]
     _publishers: Dict[int, Publisher]
@@ -66,6 +68,16 @@ class RedisBroker(
         security: Optional[BaseSecurity] = None,
         **kwargs: Any,
     ) -> None:
+        """Redis broker.
+
+        Args:
+            url : URL of the Redis server
+            polling_interval : interval in seconds to poll the Redis server for new messages (default: None)
+            protocol : protocol of the Redis server (default: None)
+            protocol_version : protocol version of the Redis server (default: "custom")
+            security : security settings for the Redis server (default: None)
+            kwargs : additional keyword arguments
+        """
         self.global_polling_interval = polling_interval
         self._producer = None
 
@@ -84,6 +96,12 @@ class RedisBroker(
         *args: Any,
         **kwargs: Any,
     ) -> "Redis[bytes]":
+        """Connect to the Redis server.
+
+        Args:
+            args : additional positional arguments
+            kwargs : additional keyword arguments
+        """
         connection = await super().connect(*args, **kwargs)
         for p in self._publishers.values():
             p._producer = self._producer

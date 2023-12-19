@@ -97,6 +97,7 @@ class StreamSub(NameRequired):
             consumer: (str | None): consumer name.
             batch: (bool): consume messages in batches.
             no_ack: (bool): do not add message to PEL.
+            last_id: (str | None): start reading from this ID.
         """
         if (group and not consumer) or (not group and consumer):
             raise ValueError("You should specify `group` and `consumer` both")

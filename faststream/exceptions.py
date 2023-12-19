@@ -1,12 +1,12 @@
-class SkipMessage(Exception):
+class SkipMessage(Exception):  # noqa: N818
     """Watcher Instruction to skip message."""
 
 
-class StopConsume(Exception):
+class StopConsume(Exception):  # noqa: N818
     """Raise it to stop Handler consuming."""
 
 
-class HandlerException(Exception):
+class HandlerException(Exception):  # noqa: N818
     """Base Handler Exception."""
 
 

@@ -112,9 +112,17 @@ class RabbitBroker(
 
         Args:
             url (Union[str, URL, None], optional): The RabbitMQ connection URL. Defaults to "amqp://guest:guest@localhost:5672/".
+            host (Optional[str], optional): The RabbitMQ host. Defaults to None.
+            port (Optional[int], optional): The RabbitMQ port. Defaults to None.
+            login (Optional[str], optional): The RabbitMQ login. Defaults to None.
+            password (Optional[str], optional): The RabbitMQ password. Defaults to None.
+            virtualhost (Optional[str], optional): The RabbitMQ virtual host. Defaults to None.
+            ssl_options (Optional[SSLOptions], optional): The RabbitMQ SSL options. Defaults to None.
+            client_properties (Optional[FieldTable], optional): The RabbitMQ client properties. Defaults to None.
             max_consumers (Optional[int], optional): Maximum number of consumers to limit message consumption. Defaults to None.
             protocol (str, optional): The protocol to use (e.g., "amqp"). Defaults to "amqp".
             protocol_version (Optional[str], optional): The protocol version to use (e.g., "0.9.1"). Defaults to "0.9.1".
+            security (Optional[BaseSecurity], optional): The security mechanism to use. Defaults to None.
             **kwargs: Additional keyword arguments.
         """
         security_args = parse_security(security)
@@ -219,6 +227,14 @@ class RabbitBroker(
         """Connect to the RabbitMQ server.
 
         Args:
+            url (str): The RabbitMQ connection URL.
+            host (Optional[str], optional): The RabbitMQ host. Defaults to None.
+            port (Optional[int], optional): The RabbitMQ port. Defaults to None.
+            login (Optional[str], optional): The RabbitMQ login. Defaults to None.
+            password (Optional[str], optional): The RabbitMQ password. Defaults to None.
+            virtualhost (Optional[str], optional): The RabbitMQ virtual host. Defaults to None.
+            ssl_options (Optional[SSLOptions], optional): The RabbitMQ SSL options. Defaults to None.
+            client_properties (Optional[FieldTable], optional): The RabbitMQ client properties. Defaults to None.
             **kwargs: Additional keyword arguments.
 
         Returns:
@@ -323,9 +339,17 @@ class RabbitBroker(
             queue (Union[str, RabbitQueue]): The name of the RabbitMQ queue.
             exchange (Union[str, RabbitExchange, None], optional): The name of the RabbitMQ exchange. Defaults to None.
             consume_args (Optional[AnyDict], optional): Additional arguments for message consumption.
+            reply_config (Optional[ReplyConfig], optional): The reply configuration for the message.
+            dependencies (Sequence[Depends], optional): Additional dependencies for the handler function. Defaults to ().
+            parser (Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]], optional): Optional custom parser for parsing the input. Defaults to None.
+            decoder (Optional[CustomDecoder[RabbitMessage]], optional): Optional custom decoder for decoding the input. Defaults to None.
+            middlewares (Optional[Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]], optional): Optional sequence of middlewares to be applied. Defaults to None.
+            filter (Filter[RabbitMessage], optional): Optional filter for filtering messages. Defaults to default_filter.
             no_ack (bool): Whether not to ack/nack/reject messages.
             title (Optional[str]): Title for AsyncAPI docs.
             description (Optional[str]): Description for AsyncAPI docs.
+            include_in_schema (bool): Whether to include the handler in AsyncAPI docs.
+            **original_kwargs (Any): Additional keyword arguments.
 
         Returns:
             Callable: A decorator function for defining message subscribers.
@@ -432,6 +456,9 @@ class RabbitBroker(
             reply_to (Optional[str], optional): The reply-to queue name. Defaults to None.
             title (Optional[str]): Title for AsyncAPI docs.
             description (Optional[str]): Description for AsyncAPI docs.
+            schema (Optional[Any]): Schema for AsyncAPI docs.
+            include_in_schema (bool): Whether to include the publisher in AsyncAPI docs.
+            priority (Optional[int]): Priority for the message.
             **message_kwargs (Any): Additional message properties and content.
 
         Returns:
@@ -499,7 +526,8 @@ class RabbitBroker(
         Args:
             func (Callable): The handler function for processing the message.
             watcher (BaseWatcher): The message watcher for tracking message processing.
-            disable_watcher: Whether to use watcher context.
+            reply_config (Optional[ReplyConfig], optional): The reply configuration for the message.
+            **kwargs (Any): Additional keyword arguments.
 
         Returns:
             Callable: A wrapper function for processing messages.

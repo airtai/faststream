@@ -113,7 +113,8 @@ class ABCApp(ABC):
         self.external_docs = external_docs
 
     def set_broker(self, broker: BrokerAsyncUsecase[Any, Any]) -> None:
-        """Set already existed App object broker
+        """Set already existed App object broker.
+
         Usefull then you create/init broker in `on_startup` hook.
         """
         self.broker = broker
@@ -223,9 +224,16 @@ class FastStream(ABCApp):
         Args:
             broker: async broker to run (may be `None`, then specify by `set_broker`)
             logger: logger object to log startup/shutdown messages (`None` to disable)
+            lifespan: lifespan context to run application
             title: application title - for AsyncAPI docs
             version: application version - for AsyncAPI docs
             description: application description - for AsyncAPI docs
+            terms_of_service: application terms of service - for AsyncAPI docs
+            license: application license - for AsyncAPI docs
+            contact: application contact - for AsyncAPI docs
+            identifier: application identifier - for AsyncAPI docs
+            tags: application tags - for AsyncAPI docs
+            external_docs: application external docs - for AsyncAPI docs
         """
         super().__init__(
             broker=broker,
@@ -325,6 +333,7 @@ class FastStream(ABCApp):
 
         Args:
             log_level: force application log level
+            run_extra_options: extra options for running the app
 
         Returns:
             Block an event loop until stopped

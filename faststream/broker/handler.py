@@ -99,8 +99,10 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
         """Initialize a new instance of the class.
 
         Args:
+            log_context_builder: A callable that builds the log context.
             description: Optional description of the instance.
             title: Optional title of the instance.
+            include_in_schema: Whether to include the instance in the schema.
 
         """
         self.calls = []  # type: ignore[assignment]
@@ -116,12 +118,14 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
 
     @property
     def call_name(self) -> str:
+        """Returns the name of the handler call."""
         caller = unwrap(self.calls[0][0]._original_call)
         name = getattr(caller, "__name__", str(caller))
         return to_camelcase(name)
 
     @property
     def description(self) -> Optional[str]:
+        """Returns the description of the handler."""
         if not self.calls:  # pragma: no cover
             description = None
 
@@ -148,6 +152,7 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
         raise NotImplementedError()
 
     def get_payloads(self) -> List[Tuple[AnyDict, str]]:
+        """Get the payloads of the handler."""
         payloads: List[Tuple[AnyDict, str]] = []
 
         for h, _, _, _, _, dep in self.calls:
@@ -199,6 +204,7 @@ class AsyncHandler(BaseHandler[MsgType]):
         include_in_schema: bool = True,
         graceful_timeout: Optional[float] = None,
     ) -> None:
+        """Initialize a new instance of the class."""
         super().__init__(
             log_context_builder=log_context_builder,
             description=description,
@@ -364,36 +370,46 @@ class AsyncHandler(BaseHandler[MsgType]):
 
     @abstractmethod
     async def start(self) -> None:
+        """Start the handler."""
         self.running = True
 
     @abstractmethod
     async def close(self) -> None:
+        """Close the handler."""
         self.running = False
         await self.lock.wait_release(self.graceful_timeout)
 
 
 class MultiLock:
+    """A class representing a multi lock."""
+
     def __init__(self) -> None:
+        """Initialize a new instance of the class."""
         self.queue: "asyncio.Queue[None]" = asyncio.Queue()
 
     def __enter__(self) -> Self:
+        """Enter the context."""
         self.queue.put_nowait(None)
         return self
 
     def __exit__(self, *args: Any, **kwargs: Any) -> None:
+        """Exit the context."""
         with suppress(asyncio.QueueEmpty, ValueError):
             self.queue.get_nowait()
             self.queue.task_done()
 
     @property
     def qsize(self) -> int:
+        """Return the size of the queue."""
         return self.queue.qsize()
 
     @property
     def empty(self) -> bool:
+        """Return whether the queue is empty."""
         return self.queue.empty()
 
     async def wait_release(self, timeout: Optional[float] = None) -> None:
+        """Wait for the queue to be released."""
         if timeout:
             with anyio.move_on_after(timeout):
                 await self.queue.join()

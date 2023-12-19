@@ -143,6 +143,7 @@ class BrokerUsecase(
             protocol_version: The version of the protocol.
             description: A description of the broker.
             tags: Tags associated with the broker.
+            asyncapi_url: The URL or list of URLs to the AsyncAPI schema.
             apply_types: Whether to apply types to messages.
             validate: Whether to cast types using Pydantic validation.
             logger: The logger to use.
@@ -152,6 +153,7 @@ class BrokerUsecase(
             middlewares: Middlewares to use.
             decoder: Custom decoder for messages.
             parser: Custom parser for messages.
+            security: Security scheme to use.
             **kwargs: Additional keyword arguments.
 
         """
@@ -396,6 +398,7 @@ class BrokerUsecase(
             func: A callable that takes a StreamMessage of type MsgType and returns an Awaitable of type T_HandlerReturn.
             watcher: An instance of BaseWatcher.
             disable_watcher: Whether to use watcher context.
+            kwargs: Additional keyword arguments.
 
         Returns:
             A callable that takes a StreamMessage of type MsgType and returns an Awaitable of type WrappedReturn[T_HandlerReturn].

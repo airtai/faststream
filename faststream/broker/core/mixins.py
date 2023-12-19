@@ -50,6 +50,7 @@ class LoggingMixin:
 
     @property
     def fmt(self) -> str:  # pragma: no cover
+        """Getter method for _fmt attribute."""
         return self._fmt or ""
 
     def _get_log_context(
