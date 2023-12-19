@@ -1,12 +1,15 @@
 from typing import Any, Union
 
 import aiokafka
+import confluent_kafka
 
 from faststream.broker.message import StreamMessage
 from faststream.kafka.client import AsyncConfluentConsumer
 
 
-class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
+class KafkaMessage(
+    StreamMessage[Union[aiokafka.ConsumerRecord, confluent_kafka.Message]]
+):
     """
     Represents a Kafka message in the FastStream framework.
 

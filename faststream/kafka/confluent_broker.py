@@ -16,7 +16,7 @@ from typing import (
     Union,
 )
 
-import aiokafka
+import confluent_kafka
 from fast_depends.dependencies import Depends
 
 from faststream.__about__ import __version__
@@ -49,7 +49,7 @@ from faststream.utils.data import filter_by_dict
 
 class ConfluentKafkaBroker(
     KafkaLoggingMixin,
-    BrokerAsyncUsecase[aiokafka.ConsumerRecord, ConsumerConnectionParams],
+    BrokerAsyncUsecase[confluent_kafka.Message, ConsumerConnectionParams],
 ):
     """
     KafkaBroker is a class for managing Kafka message consumption and publishing.
@@ -288,22 +288,22 @@ class ConfluentKafkaBroker(
         dependencies: Sequence[Depends] = (),
         parser: Optional[
             Union[
-                CustomParser[aiokafka.ConsumerRecord, KafkaMessage],
-                CustomParser[Tuple[aiokafka.ConsumerRecord, ...], KafkaMessage],
+                CustomParser[confluent_kafka.Message, KafkaMessage],
+                CustomParser[Tuple[confluent_kafka.Message, ...], KafkaMessage],
             ]
         ] = None,
         decoder: Optional[CustomDecoder] = None,
         middlewares: Optional[
             Sequence[
                 Callable[
-                    [aiokafka.ConsumerRecord],
+                    [confluent_kafka.Message],
                     BaseMiddleware,
                 ]
             ]
         ] = None,
         filter: Union[
             Filter[KafkaMessage],
-            Filter[StreamMessage[Tuple[aiokafka.ConsumerRecord, ...]]],
+            Filter[StreamMessage[Tuple[confluent_kafka.Message, ...]]],
         ] = default_filter,
         batch: bool = False,
         max_records: Optional[int] = None,
@@ -318,10 +318,10 @@ class ConfluentKafkaBroker(
         [Callable[P_HandlerParams, T_HandlerReturn]],
         Union[
             HandlerCallWrapper[
-                aiokafka.ConsumerRecord, P_HandlerParams, T_HandlerReturn
+                confluent_kafka.Message, P_HandlerParams, T_HandlerReturn
             ],
             HandlerCallWrapper[
-                Tuple[aiokafka.ConsumerRecord, ...], P_HandlerParams, T_HandlerReturn
+                Tuple[confluent_kafka.Message, ...], P_HandlerParams, T_HandlerReturn
             ],
         ],
     ]:
@@ -351,10 +351,10 @@ class ConfluentKafkaBroker(
             exclude_internal_topics (bool): Whether to exclude internal topics.
             isolation_level (Literal["read_uncommitted", "read_committed"]): Isolation level.
             dependencies (Sequence[Depends]): Additional dependencies for message handling.
-            parser (Optional[Union[CustomParser[aiokafka.ConsumerRecord], CustomParser[Tuple[aiokafka.ConsumerRecord, ...]]]]): Message parser.
+            parser (Optional[Union[CustomParser[confluent_kafka.Message], CustomParser[Tuple[confluent_kafka.Message, ...]]]]): Message parser.
             decoder (Optional[CustomDecoder]): Message decoder.
-            middlewares (Optional[Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]]): Message middlewares.
-            filter (Union[Filter[KafkaMessage], Filter[StreamMessage[Tuple[aiokafka.ConsumerRecord, ...]]]]): Message filter.
+            middlewares (Optional[Sequence[Callable[[confluent_kafka.Message], BaseMiddleware]]]): Message middlewares.
+            filter (Union[Filter[KafkaMessage], Filter[StreamMessage[Tuple[confluent_kafka.Message, ...]]]]): Message filter.
             batch (bool): Whether to process messages in batches.
             max_records (Optional[int]): Maximum number of records to process in each batch.
             batch_timeout_ms (int): Batch timeout in milliseconds.
@@ -423,7 +423,7 @@ class ConfluentKafkaBroker(
         def consumer_wrapper(
             func: Callable[P_HandlerParams, T_HandlerReturn],
         ) -> HandlerCallWrapper[
-            aiokafka.ConsumerRecord, P_HandlerParams, T_HandlerReturn
+            confluent_kafka.Message, P_HandlerParams, T_HandlerReturn
         ]:
             """A wrapper function for a consumer handler.
 

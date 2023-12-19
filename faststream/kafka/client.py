@@ -13,7 +13,6 @@ from typing import (
     Union,
 )
 
-from aiokafka import ConsumerRecord
 from asyncer import asyncify
 from confluent_kafka import Consumer, KafkaException, Message, Producer
 from confluent_kafka.admin import AdminClient, NewTopic
@@ -329,45 +328,27 @@ class AsyncConfluentConsumer:
         await asyncify(self.consumer.subscribe)(self.topics)
         print("Subscribedddddd")
 
-    async def convert_to_consumer_record(self, msg: Message) -> ConsumerRecord:
+    async def check_msg_error(self, msg: Message) -> Message:
         if msg is None:
             return msg
         if msg.error():
             print(f"Consumer error: {msg.error()}")
             return None
-        serialized_key_size = 0 if msg.key() is None else len(msg.key())
-        headers = () if msg.headers() is None else msg.headers()
-        timestamp_type, timestamp = msg.timestamp()
-        # https://docs.confluent.io/platform/current/clients/confluent-kafka-python/html/index.html#confluent_kafka.Message.timestamp
-        timestamp_type = timestamp_type - 1
-        consumer_record = ConsumerRecord(
-            topic=msg.topic(),
-            partition=msg.partition(),
-            offset=msg.offset(),
-            timestamp=timestamp,
-            timestamp_type=timestamp_type,
-            key=msg.key(),
-            value=msg.value(),
-            checksum=sum(msg.value()),
-            serialized_key_size=serialized_key_size,
-            serialized_value_size=len(msg.value()),
-            headers=headers,
-        )
-        return consumer_record
+        return msg
 
-    async def poll(self, timeout_ms: int = 1000) -> Optional[ConsumerRecord]:
+    async def poll(self, timeout_ms: int = 1000) -> Optional[Message]:
         timeout = timeout_ms / 1000
         msg = await asyncify(self.consumer.poll)(timeout)
-        return await self.convert_to_consumer_record(msg)
+        return await self.check_msg_error(msg)
 
     async def consume(
         self, timeout_ms: int = 1000, max_records: int = 1
-    ) -> List[ConsumerRecord]:
+    ) -> List[Message]:
         timeout = timeout_ms / 1000
         messages = await asyncify(self.consumer.consume)(
             num_messages=max_records, timeout=timeout
         )
-        tasks = [self.convert_to_consumer_record(msg) for msg in messages]
+        tasks = [self.check_msg_error(msg) for msg in messages]
         consumer_records = await asyncio.gather(*tasks)
         return [record for record in consumer_records if record is not None]
 
@@ -377,11 +358,8 @@ class AsyncConfluentConsumer:
     async def stop(self) -> None:
         await asyncify(self.consumer.close)()
 
-    async def getone(self) -> ConsumerRecord:
+    async def getone(self) -> Message:
         while True:
-            # msg = await self.poll()
-            # if msg is not None:
-            #     break
             consumer_records = await self.consume(max_records=1)
             if consumer_records:
                 break
@@ -389,27 +367,19 @@ class AsyncConfluentConsumer:
 
     async def getmany(
         self, timeout_ms: int = 0, max_records: Optional[int] = 10
-    ) -> Dict[TopicPartition, List[ConsumerRecord]]:
+    ) -> Dict[TopicPartition, List[Message]]:
         print("at getmany")
 
         if max_records is None:
             max_records = 10
-        messages: Dict[TopicPartition, List[ConsumerRecord]] = {}
-        # for i in range(max_records):
-        #     msg = await self.poll(timeout_ms=timeout_ms)
-        #     print(f"Here at {i} - {msg}")
-        #     if msg is None:
-        #         continue
-        #     tp = TopicPartition(topic=msg.topic, partition=msg.partition)
-        #     if tp not in messages:
-        #         messages[tp] = []
-        #     messages[tp].append(msg)
+        messages: Dict[TopicPartition, List[Message]] = {}
+
         consumer_records = await self.consume(
             max_records=max_records, timeout_ms=timeout_ms
         )
         print(f"{consumer_records=}")
         for record in consumer_records:
-            tp = TopicPartition(topic=record.topic, partition=record.partition)
+            tp = TopicPartition(topic=record.topic(), partition=record.partition())
             if tp not in messages:
                 messages[tp] = []
             messages[tp].append(record)

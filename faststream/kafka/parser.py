@@ -1,7 +1,8 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 from uuid import uuid4
 
 from aiokafka import ConsumerRecord
+from confluent_kafka import Message
 
 from faststream.broker.message import StreamMessage
 from faststream.broker.parsers import decode_message
@@ -13,8 +14,8 @@ from faststream.utils.context.main import context
 class AioKafkaParser:
     @staticmethod
     async def parse_message(
-        message: ConsumerRecord,
-    ) -> StreamMessage[ConsumerRecord]:
+        message: Union[ConsumerRecord, Message],
+    ) -> StreamMessage[Union[ConsumerRecord, Message]]:
         """Parses a Kafka message.
 
         Args:
@@ -24,14 +25,28 @@ class AioKafkaParser:
             A StreamMessage object representing the parsed message.
 
         """
-        headers = {i: j.decode() for i, j in message.headers}
+        if isinstance(message, ConsumerRecord):
+            headers = {i: j.decode() for i, j in message.headers}
+            body = message.value
+            offset = message.offset
+            timestamp = message.timestamp
+        elif isinstance(message, Message):
+            headers = {}
+            if message.headers() is not None:
+                headers = {i: j.decode() for i, j in message.headers()}
+            body = message.value()
+            offset = message.offset()
+            _, timestamp = message.timestamp()
+        else:
+            raise ValueError(f"Unknown {message} with type {type(message)}")
+
         handler = context.get_local("handler_")
         return KafkaMessage(
-            body=message.value,
+            body=body,
             headers=headers,
             reply_to=headers.get("reply_to", ""),
             content_type=headers.get("content-type"),
-            message_id=f"{message.offset}-{message.timestamp}",
+            message_id=f"{offset}-{timestamp}",
             correlation_id=headers.get("correlation_id", str(uuid4())),
             raw_message=message,
             consumer=handler.consumer,
@@ -40,12 +55,12 @@ class AioKafkaParser:
 
     @staticmethod
     async def parse_message_batch(
-        message: Tuple[ConsumerRecord, ...],
+        message: Tuple[Union[ConsumerRecord, Message], ...],
     ) -> KafkaMessage:
         """Parses a batch of messages from a Kafka consumer.
 
         Args:
-            message : A tuple of ConsumerRecord objects representing the messages to parse.
+            message : A tuple of ConsumerRecord or Message objects representing the messages to parse.
 
         Returns:
             A StreamMessage object containing the parsed messages.
@@ -59,14 +74,31 @@ class AioKafkaParser:
         """
         first = message[0]
         last = message[-1]
-        headers = {i: j.decode() for i, j in first.headers}
+
+        if isinstance(first, ConsumerRecord):
+            headers = {i: j.decode() for i, j in first.headers}
+            body = [m.value for m in message]
+            first_offset = first.offset
+            last_offset = last.offset
+            first_timestamp = first.timestamp
+        elif isinstance(first, Message):
+            headers = {}
+            if first.headers() is not None:
+                headers = {i: j.decode() for i, j in first.headers()}
+            body = [m.value() for m in message]
+            first_offset = first.offset()
+            last_offset = last.offset()
+            _, first_timestamp = first.timestamp()
+        else:
+            raise ValueError(f"Unknown {message} with type {type(message)}")
+
         handler = context.get_local("handler_")
         return KafkaMessage(
-            body=[m.value for m in message],
+            body=body,
             headers=headers,
             reply_to=headers.get("reply_to", ""),
             content_type=headers.get("content-type"),
-            message_id=f"{first.offset}-{last.offset}-{first.timestamp}",
+            message_id=f"{first_offset}-{last_offset}-{first_timestamp}",
             correlation_id=headers.get("correlation_id", str(uuid4())),
             raw_message=message,
             consumer=handler.consumer,
@@ -74,7 +106,9 @@ class AioKafkaParser:
         )
 
     @staticmethod
-    async def decode_message(msg: StreamMessage[ConsumerRecord]) -> DecodedMessage:
+    async def decode_message(
+        msg: StreamMessage[Union[ConsumerRecord, Message]]
+    ) -> DecodedMessage:
         """Decodes a message.
 
         Args:
@@ -88,7 +122,7 @@ class AioKafkaParser:
 
     @classmethod
     async def decode_message_batch(
-        cls, msg: StreamMessage[Tuple[ConsumerRecord, ...]]
+        cls, msg: StreamMessage[Tuple[Union[ConsumerRecord, Message], ...]]
     ) -> List[DecodedMessage]:
         """Decode a batch of messages.
 
