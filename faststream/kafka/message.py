@@ -6,8 +6,7 @@ from faststream.broker.message import StreamMessage
 
 
 class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
-    """
-    Represents a Kafka message in the FastStream framework.
+    """Represents a Kafka message in the FastStream framework.
 
     This class extends `StreamMessage` and is specialized for handling Kafka ConsumerRecord objects.
 
@@ -35,8 +34,7 @@ class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
         self.consumer = consumer
 
     async def ack(self, **kwargs: Any) -> None:
-        """
-        Acknowledge the Kafka message.
+        """Acknowledge the Kafka message.
 
         Args:
             **kwargs (Any): Additional keyword arguments.

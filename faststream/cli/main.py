@@ -58,9 +58,7 @@ def main(
         help="Show current platform, python and FastStream version",
     ),
 ) -> None:
-    """
-    Generate, run and manage FastStream apps to greater development experience
-    """
+    """Generate, run and manage FastStream apps to greater development experience"""
 
 
 @cli.command(

@@ -20,7 +20,7 @@ class ExtendedFilter(watchfiles.PythonFilter):  # type: ignore[misc]
                 ignore_paths : Optional sequence of paths to ignore
                 extra_extensions : Sequence of extra extensions to include
 
-            Returns:
+    Returns:
                 None
 
     """

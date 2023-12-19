@@ -114,7 +114,8 @@ class ABCApp(ABC):
 
     def set_broker(self, broker: BrokerAsyncUsecase[Any, Any]) -> None:
         """Set already existed App object broker
-        Usefull then you create/init broker in `on_startup` hook"""
+        Usefull then you create/init broker in `on_startup` hook
+        """
         self.broker = broker
 
     def on_startup(
@@ -122,7 +123,8 @@ class ABCApp(ABC):
         func: Callable[P_HookParams, T_HookReturn],
     ) -> Callable[P_HookParams, T_HookReturn]:
         """Add hook running BEFORE broker connected
-        This hook also takes an extra CLI options as a kwargs"""
+        This hook also takes an extra CLI options as a kwargs
+        """
         self._on_startup_calling.append(apply_types(func))
         return func
 

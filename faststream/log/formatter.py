@@ -52,8 +52,7 @@ class ColourizedFormatter(logging.Formatter):
         style: Literal["%", "{", "$"] = "%",
         use_colors: Optional[bool] = None,
     ) -> None:
-        """
-        Initialize the formatter with specified format strings.
+        """Initialize the formatter with specified format strings.
 
         Initialize the formatter either with the specified format string, or a
         default as described above. Allow for specialized date formatting with

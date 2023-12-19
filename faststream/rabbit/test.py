@@ -68,8 +68,7 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
 
 
 class PatchedMessage(IncomingMessage):
-    """
-    Patched message class for testing purposes.
+    """Patched message class for testing purposes.
 
     This class extends aio_pika's IncomingMessage class and is used to simulate RabbitMQ message handling during tests.
     """
@@ -118,8 +117,7 @@ def build_message(
     reply_to: Optional[str] = None,
     **message_kwargs: Any,
 ) -> PatchedMessage:
-    """
-    Build a patched RabbitMQ message for testing.
+    """Build a patched RabbitMQ message for testing.
 
     Args:
         message (AioPikaSendableMessage): The message content.
@@ -165,15 +163,13 @@ def build_message(
 
 
 class FakeProducer(AioPikaFastProducer):
-    """
-    A fake RabbitMQ producer for testing purposes.
+    """A fake RabbitMQ producer for testing purposes.
 
     This class extends AioPikaFastProducer and is used to simulate RabbitMQ message publishing during tests.
     """
 
     def __init__(self, broker: RabbitBroker) -> None:
-        """
-        Initialize a FakeProducer instance.
+        """Initialize a FakeProducer instance.
 
         Args:
             broker (RabbitBroker): The RabbitBroker instance to be used for message publishing.
@@ -197,8 +193,7 @@ class FakeProducer(AioPikaFastProducer):
         reply_to: Optional[str] = None,
         **message_kwargs: Any,
     ) -> Optional[SendableMessage]:
-        """
-        Publish a message to a RabbitMQ queue or exchange.
+        """Publish a message to a RabbitMQ queue or exchange.
 
         Args:
             message (AioPikaSendableMessage, optional): The message to be published.

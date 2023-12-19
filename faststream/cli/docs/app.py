@@ -37,7 +37,6 @@ def serve(
     ),
 ) -> None:
     """Serve project AsyncAPI schema"""
-
     if ":" in app:
         module, _ = import_from_string(app)
 

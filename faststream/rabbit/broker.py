@@ -60,8 +60,7 @@ class RabbitBroker(
     RabbitLoggingMixin,
     BrokerAsyncUsecase[aio_pika.IncomingMessage, aio_pika.RobustConnection],
 ):
-    """
-    A RabbitMQ broker for FastAPI applications.
+    """A RabbitMQ broker for FastAPI applications.
 
     This class extends the base `BrokerAsyncUsecase` and provides asynchronous support for RabbitMQ as a message broker.
 
@@ -109,8 +108,7 @@ class RabbitBroker(
         security: Optional[BaseSecurity] = None,
         **kwargs: Any,
     ) -> None:
-        """
-        Initialize the RabbitBroker.
+        """Initialize the RabbitBroker.
 
         Args:
             url (Union[str, URL, None], optional): The RabbitMQ connection URL. Defaults to "amqp://guest:guest@localhost:5672/".
@@ -171,8 +169,7 @@ class RabbitBroker(
         exc_val: Optional[BaseException] = None,
         exec_tb: Optional[TracebackType] = None,
     ) -> None:
-        """
-        Close the RabbitMQ broker.
+        """Close the RabbitMQ broker.
 
         Args:
             exc_type (Optional[Type[BaseException]], optional): The type of exception. Defaults to None.
@@ -192,8 +189,7 @@ class RabbitBroker(
         await super()._close(exc_type, exc_val, exec_tb)
 
     async def connect(self, *args: Any, **kwargs: Any) -> aio_pika.RobustConnection:
-        """
-        Connect to the RabbitMQ server.
+        """Connect to the RabbitMQ server.
 
         Args:
             *args: Additional positional arguments.
@@ -220,8 +216,7 @@ class RabbitBroker(
         client_properties: Optional[FieldTable] = None,
         **kwargs: Any,
     ) -> aio_pika.RobustConnection:
-        """
-        Connect to the RabbitMQ server.
+        """Connect to the RabbitMQ server.
 
         Args:
             **kwargs: Additional keyword arguments.
@@ -274,8 +269,7 @@ class RabbitBroker(
         return connection
 
     async def start(self) -> None:
-        """
-        Start the RabbitMQ broker.
+        """Start the RabbitMQ broker.
 
         Raises:
             RuntimeError: If the declarer is not initialized in the `connect` method.
@@ -323,8 +317,7 @@ class RabbitBroker(
         [Callable[P_HandlerParams, T_HandlerReturn]],
         HandlerCallWrapper[aio_pika.IncomingMessage, P_HandlerParams, T_HandlerReturn],
     ]:
-        """
-        Decorator to define a message subscriber.
+        """Decorator to define a message subscriber.
 
         Args:
             queue (Union[str, RabbitQueue]): The name of the RabbitMQ queue.
@@ -426,8 +419,7 @@ class RabbitBroker(
         priority: Optional[int] = None,
         **message_kwargs: Any,
     ) -> Publisher:
-        """
-        Define a message publisher.
+        """Define a message publisher.
 
         Args:
             queue (Union[RabbitQueue, str], optional): The name of the RabbitMQ queue. Defaults to "".
@@ -478,8 +470,7 @@ class RabbitBroker(
         *args: Any,
         **kwargs: Any,
     ) -> Union[aiormq.abc.ConfirmationFrameType, SendableMessage]:
-        """
-        Publish a message to the RabbitMQ broker.
+        """Publish a message to the RabbitMQ broker.
 
         Args:
             *args: Additional positional arguments.
@@ -503,8 +494,7 @@ class RabbitBroker(
         [StreamMessage[aio_pika.IncomingMessage]],
         Awaitable[WrappedReturn[T_HandlerReturn]],
     ]:
-        """
-        Process a message using the provided handler function.
+        """Process a message using the provided handler function.
 
         Args:
             func (Callable): The handler function for processing the message.
@@ -557,8 +547,7 @@ class RabbitBroker(
         self,
         queue: RabbitQueue,
     ) -> aio_pika.RobustQueue:
-        """
-        Declare a RabbitMQ queue.
+        """Declare a RabbitMQ queue.
 
         Args:
             queue (RabbitQueue): The RabbitMQ queue to declare.
@@ -576,8 +565,7 @@ class RabbitBroker(
         self,
         exchange: RabbitExchange,
     ) -> aio_pika.RobustExchange:
-        """
-        Declare a RabbitMQ exchange.
+        """Declare a RabbitMQ exchange.
 
         Args:
             exchange (RabbitExchange): The RabbitMQ exchange to declare.

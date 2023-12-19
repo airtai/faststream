@@ -80,12 +80,12 @@ class AsyncPublisherProtocol(Protocol):
         publish(message: SendableMessage, correlation_id: Optional[str] = None, **kwargs: Any) -> Optional[SendableMessage]:
             Publishes a message asynchronously.
 
-            Args:
+    Args:
                 message: The message to be published.
                 correlation_id: The correlation ID for the message (optional).
                 **kwargs: Additional keyword arguments.
 
-            Returns:
+    Returns:
                 The published message (optional).
 
     """
