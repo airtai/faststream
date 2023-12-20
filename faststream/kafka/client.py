@@ -1,9 +1,11 @@
 import asyncio
+from collections import defaultdict
 from ssl import SSLContext
 from time import time
 from typing import (
     Any,
     Callable,
+    DefaultDict,
     Dict,
     Iterable,
     List,
@@ -13,10 +15,11 @@ from typing import (
     Union,
 )
 
-from asyncer import asyncify
 from confluent_kafka import Consumer, KafkaException, Message, Producer
 from confluent_kafka.admin import AdminClient, NewTopic
 from pydantic import BaseModel
+
+from faststream.utils.functions import call_or_await
 
 _missing = object()
 
@@ -470,82 +473,35 @@ class AsyncConfluentConsumer:
     async def start(self) -> None:
         """Starts the Kafka consumer and subscribes to the specified topics."""
         # create_topics(topics=self.topics, config=self.config)
-        # await asyncify(create_topics)(topics=self.topics, config=self.config)
+        # await call_or_await(create_topics)(topics=self.topics, config=self.config)
         print("Subscribing to topic")
-        await asyncify(self.consumer.subscribe)(self.topics)
+        await call_or_await(self.consumer.subscribe, self.topics)
         print("Subscribedddddd")
-
-    async def check_msg_error(self, msg: Message) -> Message:
-        """Checks for errors in the consumed message.
-
-        Args:
-            msg (Message): The message to check for errors.
-
-        Returns:
-            Message: The original message if no error is found, otherwise None.
-        """
-        if msg is None:
-            return msg
-        if msg.error():
-            print(f"Consumer error: {msg.error()}")
-            return None
-        return msg
-
-    async def poll(self, timeout_ms: int = 1000) -> Optional[Message]:
-        """Polls for a single message with a specified timeout.
-
-        Args:
-            timeout_ms (int): The timeout in milliseconds to wait for a message.
-
-        Returns:
-            Optional[Message]: The consumed message or None if no message is available within the timeout.
-        """
-        timeout = timeout_ms / 1000
-        msg = await asyncify(self.consumer.poll)(timeout)
-        return await self.check_msg_error(msg)
-
-    async def consume(
-        self, timeout_ms: int = 1000, max_records: int = 1
-    ) -> List[Message]:
-        """Consumes a batch of messages with a specified timeout and maximum number of records.
-
-        Args:
-            timeout_ms (int): The timeout in milliseconds to wait for messages.
-            max_records (int): The maximum number of messages to return.
-
-        Returns:
-            List[Message]: A list of consumed messages.
-        """
-        timeout = timeout_ms / 1000
-        messages = await asyncify(self.consumer.consume)(
-            num_messages=max_records, timeout=timeout
-        )
-        tasks = [self.check_msg_error(msg) for msg in messages]
-        consumer_records = await asyncio.gather(*tasks)
-        return [record for record in consumer_records if record is not None]
 
     async def commit(self) -> None:
         """Commits the offsets of all messages returned by the last poll operation."""
-        await asyncify(self.consumer.commit)()
+        await call_or_await(self.consumer.commit)
 
     async def stop(self) -> None:
         """Stops the Kafka consumer and releases all resources."""
-        await asyncify(self.consumer.close)()
+        await call_or_await(self.consumer.close)
 
-    async def getone(self) -> Message:
+    async def getone(self, timeout_ms: int = 1000) -> Message:
         """Consumes a single message from Kafka.
 
         Returns:
             Message: The consumed message.
         """
         while True:
-            consumer_records = await self.consume(max_records=1)
-            if consumer_records:
-                break
-        return consumer_records[0]
+            timeout = timeout_ms / 1000
+            msg = await call_or_await(self.consumer.poll, timeout)
+            if (record := check_msg_error(msg)) is not None:
+                return record
 
     async def getmany(
-        self, timeout_ms: int = 0, max_records: Optional[int] = 10
+        self,
+        timeout_ms: int = 0,
+        max_records: Optional[int] = 10,
     ) -> Dict[TopicPartition, List[Message]]:
         """Consumes a batch of messages from Kafka and groups them by topic and partition.
 
@@ -558,17 +514,37 @@ class AsyncConfluentConsumer:
         """
         print("at getmany")
 
-        if max_records is None:
-            max_records = 10
-        messages: Dict[TopicPartition, List[Message]] = {}
-
-        consumer_records = await self.consume(
-            max_records=max_records, timeout_ms=timeout_ms
+        raw_messages = await call_or_await(
+            self.consumer.consume,
+            num_messages=max_records or 10,
+            timeout=timeout_ms / 1000,
         )
-        print(f"{consumer_records=}")
-        for record in consumer_records:
+
+        validated_messages = filter(
+            lambda x: x is not None,
+            map(check_msg_error, raw_messages),
+        )
+
+        messages: DefaultDict[TopicPartition, List[Message]] = defaultdict(list)
+        for record in validated_messages:
             tp = TopicPartition(topic=record.topic(), partition=record.partition())
-            if tp not in messages:
-                messages[tp] = []
             messages[tp].append(record)
+
         return messages
+
+
+def check_msg_error(msg: Message) -> Message:
+    """Checks for errors in the consumed message.
+
+    Args:
+        msg (Message): The message to check for errors.
+
+    Returns:
+        Message: The original message if no error is found, otherwise None.
+    """
+    if msg is None:
+        return msg
+    if msg.error():
+        print(f"Consumer error: {msg.error()}")
+        return None
+    return msg

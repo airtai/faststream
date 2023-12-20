@@ -9,7 +9,7 @@ from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 @pytest.mark.asyncio
 class TestTestclient(BrokerTestclientTestcase):
-    @pytest.mark.confluent_kafka
+    @pytest.mark.confluent
     async def test_with_real_testclient(
         self,
         broker: ConfluentKafkaBroker,
@@ -99,7 +99,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert len(routes) == 2
 
-    @pytest.mark.confluent_kafka
+    @pytest.mark.confluent
     async def test_real_respect_middleware(self, queue):
         routes = []
 

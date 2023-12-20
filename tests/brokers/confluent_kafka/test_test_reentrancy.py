@@ -37,7 +37,7 @@ async def test_with_fake_broker():
 
 
 @pytest.mark.asyncio
-@pytest.mark.confluent_kafka
+@pytest.mark.confluent
 async def test_with_real_broker():
     await _test_with_broker(True)
     await _test_with_broker(True)

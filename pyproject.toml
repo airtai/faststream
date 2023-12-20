@@ -62,8 +62,10 @@ rabbit = [
 
 kafka = [
     "aiokafka>=0.9,<0.10",
+]
+
+confluent = [
     "confluent-kafka>=2,<3",
-    "asyncer>=0.0.2, <0.1",
 ]
 
 nats = [
@@ -103,6 +105,7 @@ lint = [
     "types-redis",
     "types-Pygments",
     "types-docutils",
+    "confluent-kafka-stubs",
     "mypy==1.7.1",
     "black==23.12.0",
     "isort==5.13.2",
@@ -130,7 +133,7 @@ testing = [
 ]
 
 dev = [
-    "faststream[rabbit,kafka,nats,docs,redis,lint,testing,devdocs]",
+    "faststream[rabbit,kafka,confluent,nats,docs,redis,lint,testing,devdocs]",
     "pre-commit==3.5.0; python_version < '3.9'",
     "pre-commit==3.6.0; python_version >= '3.9'",
     "detect-secrets==1.4.0",
@@ -232,7 +235,7 @@ testpaths = [
 markers = [
     "rabbit",
     "kafka",
-    "confluent_kafka",
+    "confluent",
     "nats",
     "redis",
     "slow",

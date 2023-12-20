@@ -5,7 +5,7 @@ from faststream.kafka.test import TestKafkaBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
-@pytest.mark.confluent_kafka
+@pytest.mark.confluent
 class TestRabbitRouter(FastAPITestcase):
     router_class = KafkaRouter
 

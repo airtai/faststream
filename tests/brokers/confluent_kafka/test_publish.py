@@ -6,7 +6,7 @@ from faststream.kafka import ConfluentKafkaBroker
 from tests.brokers.base.publish import BrokerPublishTestcase
 
 
-@pytest.mark.confluent_kafka
+@pytest.mark.confluent
 class TestPublish(BrokerPublishTestcase):
     @pytest.mark.asyncio
     async def test_publish_batch(self, queue: str, broker: ConfluentKafkaBroker):

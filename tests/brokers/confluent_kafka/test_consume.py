@@ -12,9 +12,8 @@ from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
 
-@pytest.mark.confluent_kafka
+@pytest.mark.confluent
 class TestConsume(BrokerRealConsumeTestcase):
-
     @pytest.mark.asyncio
     async def test_consume_single_message(
         self,
@@ -30,7 +29,9 @@ class TestConsume(BrokerRealConsumeTestcase):
             await consume_broker.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(consume_broker.publish("hello", confluent_kafka_topic)),
+                    asyncio.create_task(
+                        consume_broker.publish("hello", confluent_kafka_topic)
+                    ),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
@@ -39,7 +40,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         assert event.is_set()
 
     @pytest.mark.asyncio
-    async def test_consume_batch(self, confluent_kafka_topic: str, broker: ConfluentKafkaBroker):
+    async def test_consume_batch(
+        self, confluent_kafka_topic: str, broker: ConfluentKafkaBroker
+    ):
         msgs_queue = asyncio.Queue(maxsize=1)
 
         @broker.subscriber(confluent_kafka_topic, batch=True)
@@ -75,7 +78,9 @@ class TestConsume(BrokerRealConsumeTestcase):
             await full_broker.start()
 
             with patch.object(
-                AsyncConfluentConsumer, "commit", spy_decorator(AsyncConfluentConsumer.commit)
+                AsyncConfluentConsumer,
+                "commit",
+                spy_decorator(AsyncConfluentConsumer.commit),
             ) as m:
                 await asyncio.wait(
                     (

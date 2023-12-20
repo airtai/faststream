@@ -4,7 +4,7 @@ from faststream.kafka import KafkaRoute, KafkaRouter
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 
-@pytest.mark.confluent_kafka
+@pytest.mark.confluent
 class TestRouter(RouterTestcase):
     broker_class = KafkaRouter
     route_class = KafkaRoute
