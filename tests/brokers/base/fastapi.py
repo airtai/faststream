@@ -17,8 +17,8 @@ from faststream.types import AnyCallable
 Broker = TypeVar("Broker", bound=BrokerAsyncUsecase)
 
 
-@pytest.mark.asyncio
-class FastAPITestcase:
+@pytest.mark.asyncio()
+class FastAPITestcase:  # noqa: D101
     router_class: Type[StreamRouter[BrokerAsyncUsecase]]
 
     async def test_base_real(self, mock: Mock, queue: str, event: asyncio.Event):
@@ -123,8 +123,8 @@ class FastAPITestcase:
         mock.assert_called_once_with("hi")
 
 
-@pytest.mark.asyncio
-class FastAPILocalTestcase:
+@pytest.mark.asyncio()
+class FastAPILocalTestcase:  # noqa: D101
     router_class: Type[StreamRouter[BrokerAsyncUsecase]]
     broker_test: Callable[[Broker], Broker]
     build_message: AnyCallable

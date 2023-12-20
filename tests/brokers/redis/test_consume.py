@@ -9,9 +9,9 @@ from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
 
-@pytest.mark.redis
-@pytest.mark.asyncio
-class TestConsume(BrokerRealConsumeTestcase):
+@pytest.mark.redis()
+@pytest.mark.asyncio()
+class TestConsume(BrokerRealConsumeTestcase):  # noqa: D101
     async def test_consume_native(
         self,
         consume_broker: RedisBroker,
@@ -85,9 +85,9 @@ class TestConsume(BrokerRealConsumeTestcase):
         mock.assert_called_once_with("hello")
 
 
-@pytest.mark.redis
-@pytest.mark.asyncio
-class TestConsumeList:
+@pytest.mark.redis()
+@pytest.mark.asyncio()
+class TestConsumeList:  # noqa: D101
     async def test_consume_list(
         self,
         broker: RedisBroker,
@@ -136,7 +136,7 @@ class TestConsumeList:
 
         mock.assert_called_once_with(b"hello")
 
-    @pytest.mark.slow
+    @pytest.mark.slow()
     async def test_consume_list_batch_with_one(self, queue: str, broker: RedisBroker):
         msgs_queue = asyncio.Queue(maxsize=1)
 
@@ -156,7 +156,7 @@ class TestConsumeList:
 
         assert ["hi"] == [r.result()[0] for r in result]
 
-    @pytest.mark.slow
+    @pytest.mark.slow()
     async def test_consume_list_batch(self, queue: str, broker: RedisBroker):
         msgs_queue = asyncio.Queue(maxsize=1)
 
@@ -176,7 +176,7 @@ class TestConsumeList:
 
         assert [{1, "hi"}] == [set(r.result()) for r in result]
 
-    @pytest.mark.slow
+    @pytest.mark.slow()
     async def test_consume_list_batch_native(self, queue: str, broker: RedisBroker):
         msgs_queue = asyncio.Queue(maxsize=1)
 
@@ -197,9 +197,9 @@ class TestConsumeList:
         assert [{1, "hi"}] == [set(r.result()) for r in result]
 
 
-@pytest.mark.redis
-@pytest.mark.asyncio
-class TestConsumeStream:
+@pytest.mark.redis()
+@pytest.mark.asyncio()
+class TestConsumeStream:  # noqa: D101
     async def test_consume_stream(
         self,
         broker: RedisBroker,
@@ -304,7 +304,7 @@ class TestConsumeStream:
 
         mock.assert_called_once_with([{"message": "hello"}])
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_nack(
         self,
         queue: str,
@@ -332,7 +332,7 @@ class TestConsumeStream:
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_ack(
         self,
         queue: str,

@@ -178,7 +178,7 @@ disallow_any_unimported = false
 fix = true
 line-length = 88
 # target-version = 'py38'
-include = ["faststream/**/*.py", "faststream/**/*.pyi", "tests/**/*.pi", "pyproject.toml"]
+include = ["faststream/**/*.py", "faststream/**/*.pyi", "tests/**/*.py", "pyproject.toml"]
 
 [tool.ruff.lint]
 select = [

@@ -12,7 +12,7 @@ from faststream.rabbit import (
 from faststream.redis import RedisBroker, TestRedisBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_nats_path():
     broker = NatsBroker()
 
@@ -37,7 +37,7 @@ async def test_nats_path():
         )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_redis_path():
     broker = RedisBroker()
 
@@ -62,7 +62,7 @@ async def test_redis_path():
         )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_rabbit_path():
     broker = RabbitBroker()
 

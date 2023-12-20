@@ -6,9 +6,9 @@ from faststream.kafka import KafkaBroker
 from tests.brokers.base.publish import BrokerPublishTestcase
 
 
-@pytest.mark.kafka
-class TestPublish(BrokerPublishTestcase):
-    @pytest.mark.asyncio
+@pytest.mark.kafka()
+class TestPublish(BrokerPublishTestcase):  # noqa: D101
+    @pytest.mark.asyncio()
     async def test_publish_batch(self, queue: str, broker: KafkaBroker):
         msgs_queue = asyncio.Queue(maxsize=2)
 
@@ -31,7 +31,7 @@ class TestPublish(BrokerPublishTestcase):
 
         assert {1, "hi"} == {r.result() for r in result}
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_batch_publisher_manual(self, queue: str, broker: KafkaBroker):
         msgs_queue = asyncio.Queue(maxsize=2)
 
@@ -56,7 +56,7 @@ class TestPublish(BrokerPublishTestcase):
 
         assert {1, "hi"} == {r.result() for r in result}
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_batch_publisher_decorator(self, queue: str, broker: KafkaBroker):
         msgs_queue = asyncio.Queue(maxsize=2)
 

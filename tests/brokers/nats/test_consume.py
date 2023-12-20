@@ -11,8 +11,8 @@ from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
 
-@pytest.mark.nats
-class TestConsume(BrokerRealConsumeTestcase):
+@pytest.mark.nats()
+class TestConsume(BrokerRealConsumeTestcase):  # noqa: D101
     async def test_consume_js(
         self,
         queue: str,
@@ -96,7 +96,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         assert event.is_set()
         mock.assert_called_once_with([b"hello"])
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_ack(
         self,
         queue: str,
@@ -127,7 +127,7 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_ack_manual(
         self,
         queue: str,
@@ -159,7 +159,7 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_ack_raise(
         self,
         queue: str,
@@ -191,7 +191,7 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_nack(
         self,
         queue: str,
@@ -223,7 +223,7 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_consume_no_ack(
         self, queue: str, full_broker: NatsBroker, event: asyncio.Event
     ):

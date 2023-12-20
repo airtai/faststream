@@ -4,7 +4,7 @@ from faststream import TestApp
 from faststream.kafka import TestKafkaBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_sub_dep_kafka():
     from docs.docs_src.getting_started.dependencies.sub_dep_kafka import (
         app,

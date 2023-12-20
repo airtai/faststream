@@ -72,8 +72,7 @@ def _touch_file(path: Path) -> Path:
 
 @app.command()
 def preview():
-    """
-    A quick server to preview a built site with translations.
+    """A quick server to preview a built site with translations.
     For development, prefer the command live (or just mkdocs serve).
     This is here only to preview a builded site.
     """

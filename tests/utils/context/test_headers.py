@@ -4,7 +4,7 @@ from faststream import Header
 from faststream.nats import NatsBroker, TestNatsBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_nats_headers():
     broker = NatsBroker()
 

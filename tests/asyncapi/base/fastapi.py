@@ -11,11 +11,11 @@ from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.types import MsgType
 
 
-class FastAPITestCase:
+class FastAPITestCase:  # noqa: D101
     broker_class: Type[StreamRouter[MsgType]]
     broker_wrapper: Callable[[BrokerUsecase[MsgType, Any]], BrokerUsecase[MsgType, Any]]
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_fastapi_full_information(self):
         broker = self.broker_class(
             protocol="custom",
@@ -68,7 +68,7 @@ class FastAPITestCase:
                     "components": {"messages": {}, "schemas": {}},
                 }
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_fastapi_asyncapi_routes(self):
         broker = self.broker_class(schema_url="/asyncapi_schema")
 
@@ -92,7 +92,7 @@ class FastAPITestCase:
                 response_html = client.get("/asyncapi_schema")
                 assert response_html.status_code == 200
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_fastapi_asyncapi_not_fount(self):
         broker = self.broker_class(include_in_schema=False)
 
@@ -110,7 +110,7 @@ class FastAPITestCase:
                 response_html = client.get("/asyncapi")
                 assert response_html.status_code == 404
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_fastapi_asyncapi_not_fount_by_url(self):
         broker = self.broker_class(schema_url=None)
 

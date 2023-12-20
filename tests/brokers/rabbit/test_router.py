@@ -6,8 +6,8 @@ from faststream.rabbit import RabbitBroker, RabbitQueue, RabbitRoute, RabbitRout
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 
-@pytest.mark.rabbit
-class TestRouter(RouterTestcase):
+@pytest.mark.rabbit()
+class TestRouter(RouterTestcase):  # noqa: D101
     broker_class = RabbitRouter
     route_class = RabbitRoute
 
@@ -77,6 +77,6 @@ class TestRouter(RouterTestcase):
             assert event.is_set()
 
 
-class TestRouterLocal(RouterLocalTestcase):
+class TestRouterLocal(RouterLocalTestcase):  # noqa: D101
     broker_class = RabbitRouter
     route_class = RabbitRoute

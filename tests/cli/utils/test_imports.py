@@ -15,7 +15,7 @@ def test_import_wrong():
 
 @pytest.mark.parametrize(
     ("test_input", "exp_module", "exp_app"),
-    (
+    (  # noqa: PT007
         pytest.param(
             "module:app",
             "module",
@@ -37,7 +37,7 @@ def test_get_app_path(test_input, exp_module, exp_app):
 
 
 def test_get_app_path_wrong():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # noqa: PT011
         get_app_path("module.app")
 
 
@@ -48,7 +48,7 @@ def test_import_from_string_import_wrong():
 
 @pytest.mark.parametrize(
     ("test_input", "exp_module"),
-    (
+    (  # noqa: PT007
         pytest.param("examples.kafka.testing:app", "examples/kafka/testing.py"),
         pytest.param("examples.nats.e01_basic:app", "examples/nats/e01_basic.py"),
         pytest.param("examples.rabbit.topic:app", "examples/rabbit/topic.py"),
@@ -62,7 +62,7 @@ def test_import_from_string(test_input, exp_module):
 
 @pytest.mark.parametrize(
     ("test_input", "exp_module"),
-    (
+    (  # noqa: PT007
         pytest.param(
             "examples.kafka:app",
             "examples/kafka/__init__.py",

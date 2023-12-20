@@ -6,7 +6,7 @@ from faststream.rabbit import TestRabbitBroker
 from faststream.redis import TestRedisBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_custom_local_context_kafka():
     from docs.docs_src.getting_started.context.kafka.custom_local_context import (
         broker,
@@ -19,7 +19,7 @@ async def test_custom_local_context_kafka():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_custom_local_context_rabbit():
     from docs.docs_src.getting_started.context.rabbit.custom_local_context import (
         broker,
@@ -32,7 +32,7 @@ async def test_custom_local_context_rabbit():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_custom_local_context_nats():
     from docs.docs_src.getting_started.context.nats.custom_local_context import (
         broker,
@@ -45,7 +45,7 @@ async def test_custom_local_context_nats():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_custom_local_context_redis():
     from docs.docs_src.getting_started.context.redis.custom_local_context import (
         broker,

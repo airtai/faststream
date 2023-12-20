@@ -6,7 +6,7 @@ import pytest
 from faststream.broker.core.abc import BrokerUsecase
 
 
-class BrokerConnectionTestcase:
+class BrokerConnectionTestcase:  # noqa: D101
     broker: Type[BrokerUsecase]
 
     def get_broker_args(self, settings):
@@ -15,7 +15,7 @@ class BrokerConnectionTestcase:
     async def ping(self, broker) -> bool:
         return True
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_close_before_start(self, async_mock):
         br = self.broker()
         assert br._connection is None
@@ -24,7 +24,7 @@ class BrokerConnectionTestcase:
         await br._close()
         assert not br.started
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_warning(self, broker: BrokerUsecase):
         del os.environ["PYTEST_CURRENT_TEST"]
 
@@ -35,7 +35,7 @@ class BrokerConnectionTestcase:
                 broker.subscriber("test")
         assert not broker.started
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_init_connect_by_url(self, settings):
         args, kwargs = self.get_broker_args(settings)
         broker = self.broker(*args, **kwargs)
@@ -43,7 +43,7 @@ class BrokerConnectionTestcase:
         assert await self.ping(broker)
         await broker.close()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_connection_by_url(self, settings):
         args, kwargs = self.get_broker_args(settings)
         broker = self.broker()
@@ -51,7 +51,7 @@ class BrokerConnectionTestcase:
         assert await self.ping(broker)
         await broker.close()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_connect_by_url_priority(self, settings):
         args, kwargs = self.get_broker_args(settings)
         broker = self.broker("wrong_url")
@@ -59,7 +59,7 @@ class BrokerConnectionTestcase:
         assert await self.ping(broker)
         await broker.close()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_connect_merge_args_and_kwargs_base(self, settings):
         args, kwargs = self.get_broker_args(settings)
         broker = self.broker(*args)

@@ -7,7 +7,7 @@ from faststream.rabbit import TestRabbitBroker
 from faststream.redis import TestRedisBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_fastapi_kafka_depends():
     from docs.docs_src.integrations.fastapi.kafka.depends import app, router
 
@@ -22,7 +22,7 @@ async def test_fastapi_kafka_depends():
         handler.mock.assert_called_once_with("Hello, Kafka!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_fastapi_rabbit_depends():
     from docs.docs_src.integrations.fastapi.rabbit.depends import app, router
 
@@ -37,7 +37,7 @@ async def test_fastapi_rabbit_depends():
         handler.mock.assert_called_once_with("Hello, Rabbit!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_fastapi_nats_depends():
     from docs.docs_src.integrations.fastapi.nats.depends import app, router
 
@@ -52,7 +52,7 @@ async def test_fastapi_nats_depends():
         handler.mock.assert_called_once_with("Hello, NATS!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_fastapi_redis_depends():
     from docs.docs_src.integrations.fastapi.redis.depends import app, router
 

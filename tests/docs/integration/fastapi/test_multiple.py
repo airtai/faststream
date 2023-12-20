@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 
-class BaseCase:
+class BaseCase:  # noqa: D101
     def test_running(self, data):
         app, broker = data
 
@@ -17,8 +17,8 @@ class BaseCase:
                 assert h.running
 
 
-@pytest.mark.kafka
-class TestKafka(BaseCase):
+@pytest.mark.kafka()
+class TestKafka(BaseCase):  # noqa: D101
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.kafka.multiple import app, core_router
@@ -26,8 +26,8 @@ class TestKafka(BaseCase):
         return (app, core_router.broker)
 
 
-@pytest.mark.nats
-class TestNats(BaseCase):
+@pytest.mark.nats()
+class TestNats(BaseCase):  # noqa: D101
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.nats.multiple import app, core_router
@@ -35,8 +35,8 @@ class TestNats(BaseCase):
         return (app, core_router.broker)
 
 
-@pytest.mark.rabbit
-class TestRabbit(BaseCase):
+@pytest.mark.rabbit()
+class TestRabbit(BaseCase):  # noqa: D101
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.rabbit.multiple import app, core_router
@@ -44,8 +44,8 @@ class TestRabbit(BaseCase):
         return (app, core_router.broker)
 
 
-@pytest.mark.redis
-class TestRedis(BaseCase):
+@pytest.mark.redis()
+class TestRedis(BaseCase):  # noqa: D101
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.redis.multiple import app, core_router

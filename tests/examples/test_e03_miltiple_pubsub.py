@@ -10,7 +10,7 @@ from examples.e03_miltiple_pubsub import (
 from faststream.rabbit import TestApp, TestRabbitBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_example():
     async with TestRabbitBroker(broker), TestApp(app):
         await handle.wait_call(3)

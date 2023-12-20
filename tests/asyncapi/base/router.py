@@ -6,7 +6,7 @@ from faststream.broker.core.abc import BrokerUsecase
 from faststream.broker.router import BrokerRoute, BrokerRouter
 
 
-class RouterTestcase:
+class RouterTestcase:  # noqa: D101
     broker_class: Type[BrokerUsecase]
     router_class: Type[BrokerRouter]
     route_class: Type[BrokerRoute]
@@ -26,7 +26,7 @@ class RouterTestcase:
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
         payload = schema["components"]["schemas"]
-        key = list(payload.keys())[0]
+        key = list(payload.keys())[0]  # noqa: RUF015
         assert payload[key]["title"] == key == "Handle:Message:Payload"
 
     def test_not_include(self):

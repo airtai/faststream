@@ -6,17 +6,17 @@ from faststream.rabbit.test import TestRabbitBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
-@pytest.mark.rabbit
-class TestRouter(FastAPITestcase):
+@pytest.mark.rabbit()
+class TestRouter(FastAPITestcase):  # noqa: D101
     router_class = RabbitRouter
 
 
-class TestRouterLocal(FastAPILocalTestcase):
+class TestRouterLocal(FastAPILocalTestcase):  # noqa: D101
     router_class = RabbitRouter
     broker_test = staticmethod(TestRabbitBroker)
     build_message = staticmethod(build_message)
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_path(self):
         router = self.router_class()
 

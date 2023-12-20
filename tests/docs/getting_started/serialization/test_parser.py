@@ -7,7 +7,7 @@ from faststream.rabbit import TestRabbitBroker
 from faststream.redis import TestRedisBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_parser_nats():
     from docs.docs_src.getting_started.serialization.parser_nats import (
         app,
@@ -19,7 +19,7 @@ async def test_parser_nats():
         handle.mock.assert_called_once_with("")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_parser_kafka():
     from docs.docs_src.getting_started.serialization.parser_kafka import (
         app,
@@ -31,7 +31,7 @@ async def test_parser_kafka():
         handle.mock.assert_called_once_with("")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_parser_rabbit():
     from docs.docs_src.getting_started.serialization.parser_rabbit import (
         app,
@@ -43,7 +43,7 @@ async def test_parser_rabbit():
         handle.mock.assert_called_once_with("")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_parser_redis():
     from docs.docs_src.getting_started.serialization.parser_redis import (
         app,

@@ -7,7 +7,7 @@ from faststream.rabbit import TestRabbitBroker
 from faststream.redis import TestRedisBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_base_router_kafka():
     from docs.docs_src.getting_started.routers.kafka.router import (
         app,
@@ -21,7 +21,7 @@ async def test_base_router_kafka():
         handle_response.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_base_router_rabbit():
     from docs.docs_src.getting_started.routers.rabbit.router import (
         app,
@@ -35,7 +35,7 @@ async def test_base_router_rabbit():
         handle_response.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_base_router_nats():
     from docs.docs_src.getting_started.routers.nats.router import (
         app,
@@ -49,7 +49,7 @@ async def test_base_router_nats():
         handle_response.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_base_router_redis():
     from docs.docs_src.getting_started.routers.redis.router import (
         app,

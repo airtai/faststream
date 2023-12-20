@@ -3,7 +3,7 @@ from faststream.redis import RedisBroker
 from tests.asyncapi.base.publisher import PublisherTestcase
 
 
-class TestArguments(PublisherTestcase):
+class TestArguments(PublisherTestcase):  # noqa: D101
     broker_class = RedisBroker
 
     def test_channel_publisher(self):
@@ -14,7 +14,7 @@ class TestArguments(PublisherTestcase):
             ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
-        key = tuple(schema["channels"].keys())[0]
+        key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
             "redis": {
@@ -32,7 +32,7 @@ class TestArguments(PublisherTestcase):
             ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
-        key = tuple(schema["channels"].keys())[0]
+        key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
             "redis": {"bindingVersion": "custom", "channel": "test", "method": "rpush"}
@@ -46,7 +46,7 @@ class TestArguments(PublisherTestcase):
             ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
-        key = tuple(schema["channels"].keys())[0]
+        key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
             "redis": {"bindingVersion": "custom", "channel": "test", "method": "xadd"}

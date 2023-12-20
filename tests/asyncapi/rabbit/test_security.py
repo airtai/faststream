@@ -57,25 +57,28 @@ def test_plaintext_security_schema():
     assert broker._connection_kwargs.get("ssl_context") is ssl_context
 
     schema = get_app_schema(FastStream(broker)).to_jsonable()
-    assert schema == {
-        "asyncapi": "2.6.0",
-        "channels": {},
-        "components": {
-            "messages": {},
-            "schemas": {},
-            "securitySchemes": {"user-password": {"type": "userPassword"}},
-        },
-        "defaultContentType": "application/json",
-        "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
-        "servers": {
-            "development": {
-                "protocol": "amqps",
-                "protocolVersion": "0.9.1",
-                "security": [{"user-password": []}],
-                "url": "amqps://admin:password@localhost:5672/",  # pragma: allowlist secret
-            }
-        },
-    }
+    assert (
+        schema
+        == {
+            "asyncapi": "2.6.0",
+            "channels": {},
+            "components": {
+                "messages": {},
+                "schemas": {},
+                "securitySchemes": {"user-password": {"type": "userPassword"}},
+            },
+            "defaultContentType": "application/json",
+            "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
+            "servers": {
+                "development": {
+                    "protocol": "amqps",
+                    "protocolVersion": "0.9.1",
+                    "security": [{"user-password": []}],
+                    "url": "amqps://admin:password@localhost:5672/",  # pragma: allowlist secret
+                }
+            },
+        }
+    )
 
 
 def test_plaintext_security_schema_without_ssl():
@@ -92,22 +95,25 @@ def test_plaintext_security_schema_without_ssl():
     )  # pragma: allowlist secret
 
     schema = get_app_schema(FastStream(broker)).to_jsonable()
-    assert schema == {
-        "asyncapi": "2.6.0",
-        "channels": {},
-        "components": {
-            "messages": {},
-            "schemas": {},
-            "securitySchemes": {"user-password": {"type": "userPassword"}},
-        },
-        "defaultContentType": "application/json",
-        "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
-        "servers": {
-            "development": {
-                "protocol": "amqp",
-                "protocolVersion": "0.9.1",
-                "security": [{"user-password": []}],
-                "url": "amqp://admin:password@localhost:5672/",  # pragma: allowlist secret
-            }
-        },
-    }
+    assert (
+        schema
+        == {
+            "asyncapi": "2.6.0",
+            "channels": {},
+            "components": {
+                "messages": {},
+                "schemas": {},
+                "securitySchemes": {"user-password": {"type": "userPassword"}},
+            },
+            "defaultContentType": "application/json",
+            "info": {"description": "", "title": "FastStream", "version": "0.1.0"},
+            "servers": {
+                "development": {
+                    "protocol": "amqp",
+                    "protocolVersion": "0.9.1",
+                    "security": [{"user-password": []}],
+                    "url": "amqp://admin:password@localhost:5672/",  # pragma: allowlist secret
+                }
+            },
+        }
+    )
