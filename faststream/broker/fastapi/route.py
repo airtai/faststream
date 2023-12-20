@@ -51,7 +51,7 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
 
     def __init__(
         self,
-        path: Union[NameRequired, str],
+        path: Union[NameRequired, str, None],
         *extra: Union[NameRequired, str],
         endpoint: Union[
             Callable[P_HandlerParams, T_HandlerReturn],
@@ -77,10 +77,10 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
             None.
 
         """
-        self.path = path
+        self.path = path or ""
         self.broker = broker
 
-        path_name = (path if isinstance(path, str) else path.name) or ""
+        path_name = self.path if isinstance(self.path, str) else self.path.name
 
         if isinstance(endpoint, HandlerCallWrapper):
             orig_call = endpoint._original_call

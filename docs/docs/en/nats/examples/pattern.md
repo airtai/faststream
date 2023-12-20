@@ -21,7 +21,7 @@ Thus, *NATS* can independently balance the load on queue consumers. You can incr
 ## Example
 
 ```python linenums="1"
-{! docs_src/nats/pattern.py !}
+{! docs_src/nats/pattern.py [ln:1-12.42,13-] !}
 ```
 
 ### Consumer Announcement
@@ -29,7 +29,7 @@ Thus, *NATS* can independently balance the load on queue consumers. You can incr
 To begin with, we have announced several consumers for two `subjects`: `#!python "*.info"` and `#!python "*.error"`:
 
 ```python linenums="7" hl_lines="1 5 9"
-{! docs_src/nats/pattern.py [ln:7-17] !}
+{! docs_src/nats/pattern.py [ln:7-12.42,13-17] !}
 ```
 
 At the same time, in the `subject` of our consumers, we specify the *pattern* that will be processed by these consumers.

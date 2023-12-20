@@ -32,7 +32,7 @@ async def handler():
 Full example:
 
 ```python linenums="1"
-{! docs_src/nats/direct.py !}
+{! docs_src/nats/direct.py [ln:1-12.42,13-] !}
 ```
 
 ### Consumer Announcement
@@ -40,7 +40,7 @@ Full example:
 To begin with, we have declared several consumers for two `subjects`: `#!python "test-subj-1"` and `#!python "test-subj-2"`:
 
 ```python linenums="7" hl_lines="1 5 9"
-{! docs_src/nats/direct.py [ln:7-17] !}
+{! docs_src/nats/direct.py [ln:7-12.42,13-17] !}
 ```
 
 !!! note

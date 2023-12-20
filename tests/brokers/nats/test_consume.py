@@ -46,7 +46,11 @@ class TestConsume(BrokerRealConsumeTestcase):
         event: asyncio.Event,
         mock,
     ):
-        @consume_broker.subscriber(queue, stream=stream, pull_sub=PullSub(1))
+        @consume_broker.subscriber(
+            queue,
+            stream=stream,
+            pull_sub=PullSub(1),
+        )
         def subscriber(m):
             mock(m)
             event.set()
@@ -63,7 +67,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         assert event.is_set()
         mock.assert_called_once_with("hello")
 
-    async def test_consume_batch_pull(
+    async def test_consume_batch(
         self,
         queue: str,
         consume_broker: NatsBroker,
@@ -83,9 +87,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         await consume_broker.start()
         await asyncio.wait(
             (
-                asyncio.create_task(
-                    consume_broker.publish(b"hello", queue, stream=stream.name)
-                ),
+                asyncio.create_task(consume_broker.publish(b"hello", queue)),
                 asyncio.create_task(event.wait()),
             ),
             timeout=3,

@@ -1,10 +1,12 @@
 import asyncio
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
+from redis.asyncio import Redis
 
-from faststream.redis import ListSub, PubSub, RedisBroker, StreamSub
+from faststream.redis import ListSub, PubSub, RedisBroker, RedisMessage, StreamSub
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
+from tests.tools import spy_decorator
 
 
 @pytest.mark.redis
@@ -197,7 +199,6 @@ class TestConsumeList:
 
 @pytest.mark.redis
 @pytest.mark.asyncio
-@pytest.mark.slow
 class TestConsumeStream:
     async def test_consume_stream(
         self,
@@ -213,7 +214,6 @@ class TestConsumeStream:
 
         async with broker:
             await broker.start()
-            await asyncio.sleep(1)
 
             await asyncio.wait(
                 (
@@ -239,7 +239,6 @@ class TestConsumeStream:
 
         async with broker:
             await broker.start()
-            await asyncio.sleep(1)
 
             await asyncio.wait(
                 (
@@ -267,7 +266,6 @@ class TestConsumeStream:
 
         async with broker:
             await broker.start()
-            await asyncio.sleep(1)
 
             await asyncio.wait(
                 (
@@ -293,7 +291,6 @@ class TestConsumeStream:
 
         async with broker:
             await broker.start()
-            await asyncio.sleep(1)
 
             await asyncio.wait(
                 (
@@ -306,3 +303,58 @@ class TestConsumeStream:
             )
 
         mock.assert_called_once_with([{"message": "hello"}])
+
+    @pytest.mark.asyncio
+    async def test_consume_nack(
+        self,
+        queue: str,
+        full_broker: RedisBroker,
+        event: asyncio.Event,
+    ):
+        @full_broker.subscriber(stream=StreamSub(queue, group="group", consumer=queue))
+        async def handler(msg: RedisMessage):
+            event.set()
+            await msg.nack()
+
+        async with full_broker:
+            await full_broker.start()
+
+            with patch.object(Redis, "xack", spy_decorator(Redis.xack)) as m:
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(full_broker.publish("hello", stream=queue)),
+                        asyncio.create_task(event.wait()),
+                    ),
+                    timeout=3,
+                )
+
+                assert not m.mock.called
+
+        assert event.is_set()
+
+    @pytest.mark.asyncio
+    async def test_consume_ack(
+        self,
+        queue: str,
+        full_broker: RedisBroker,
+        event: asyncio.Event,
+    ):
+        @full_broker.subscriber(stream=StreamSub(queue, group="group", consumer=queue))
+        async def handler(msg: RedisMessage):
+            event.set()
+
+        async with full_broker:
+            await full_broker.start()
+
+            with patch.object(Redis, "xack", spy_decorator(Redis.xack)) as m:
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(full_broker.publish("hello", stream=queue)),
+                        asyncio.create_task(event.wait()),
+                    ),
+                    timeout=3,
+                )
+
+                m.mock.assert_called_once()
+
+        assert event.is_set()

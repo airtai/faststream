@@ -211,9 +211,11 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
                         timeout_ms=self.batch_timeout_ms,
                         max_records=self.max_records,
                     )
-                    if not messages:
+
+                    if not messages:  # pragma: no cover
                         await anyio.sleep(self.batch_timeout_ms / 1000)
                         continue
+
                     msg = tuple(chain(*messages.values()))
                 else:
                     msg = await self.consumer.getone()

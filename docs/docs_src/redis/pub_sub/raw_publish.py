@@ -11,12 +11,12 @@ class Data(BaseModel):
     )
 
 
-broker = RedisBroker("localhost:6379")
+broker = RedisBroker("redis://localhost:6379")
 app = FastStream(broker)
 
 
 @broker.subscriber("input_data")
-async def on_input_data(msg: Data, logger: Logger) -> Data:
+async def on_input_data(msg: Data, logger: Logger):
     logger.info(f"on_input_data({msg=})")
 
 

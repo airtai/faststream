@@ -16,10 +16,18 @@ from docs.docs_src.getting_started.subscription.rabbit.testing import (
 from docs.docs_src.getting_started.subscription.rabbit.testing import (
     test_validation_error as test_validation_error_r,
 )
+from docs.docs_src.getting_started.subscription.redis.testing import (
+    test_handle as test_handle_rd,
+)
+from docs.docs_src.getting_started.subscription.redis.testing import (
+    test_validation_error as test_validation_error_rd,
+)
 
 __all__ = (
     "test_handle_r",
     "test_validation_error_r",
+    "test_handle_rd",
+    "test_validation_error_rd",
     "test_handle_k",
     "test_validation_error_k",
     "test_handle_n",

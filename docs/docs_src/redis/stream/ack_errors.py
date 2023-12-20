@@ -2,7 +2,7 @@ from faststream import FastStream
 from faststream.exceptions import AckMessage
 from faststream.redis import RedisBroker, StreamSub
 
-broker = RedisBroker("localhost:6379")
+broker = RedisBroker("redis://localhost:6379")
 app = FastStream(broker)
 
 
@@ -18,4 +18,4 @@ def processing_logic(body):
 
 @app.after_startup
 async def test_publishing():
-    await broker.publish("Hello World!", "test-stream")
+    await broker.publish("Hello World!", stream="test-stream")

@@ -81,7 +81,7 @@ docs = [
 
 # dev dependencies
 devdocs = [
-    "mkdocs-material==9.5.1",
+    "mkdocs-material==9.5.2",
     "mkdocs-static-i18n==1.2.0",
     "mdx-include==1.4.2",
     "mkdocstrings[python]==0.24.0",
@@ -104,9 +104,9 @@ lint = [
     "types-Pygments",
     "types-docutils",
     "mypy==1.7.1",
-    "black==23.11.0",
-    "isort==5.13.0",
-    "ruff==0.1.7",
+    "black==23.12.0",
+    "isort==5.13.2",
+    "ruff==0.1.8",
     "pyupgrade-directories==0.3.0",
     "bandit==1.7.6",
     "semgrep==1.52.0",
@@ -121,7 +121,7 @@ test-core = [
 
 testing = [
     "faststream[test-core]",
-    "fastapi==0.104.1",
+    "fastapi==0.105.0",
     "pydantic-settings==2.1.0",
     "httpx==0.25.2",
     "PyYAML==6.0.1",
@@ -260,7 +260,7 @@ omit = [
 [tool.coverage.report]
 show_missing = true
 skip_empty = true
-exclude_lines = [
+exclude_also = [
     "if __name__ == .__main__.:",
     "self.logger",
     "def __repr__",
@@ -279,6 +279,16 @@ omit = [
     '*/__main__.py',
     '*/__init__.py',
     '*/annotations.py',
+    'docs/docs_src/getting_started/serialization/avro.py',
+    'docs/docs_src/getting_started/serialization/msgpack_ex.py',
+    'docs/docs_src/getting_started/serialization/protobuf.py',
+    'docs/docs_src/integrations/http_frameworks_integrations/aiohttp.py',
+    'docs/docs_src/integrations/http_frameworks_integrations/blacksheep.py',
+    'docs/docs_src/integrations/http_frameworks_integrations/falcon.py',
+    'docs/docs_src/integrations/http_frameworks_integrations/litestar.py',
+    'docs/docs_src/integrations/http_frameworks_integrations/quart.py',
+    'docs/docs_src/integrations/http_frameworks_integrations/sanic.py',
+    'docs/docs_src/integrations/http_frameworks_integrations/tornado.py',
 ]
 
 [tool.bandit]

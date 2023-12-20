@@ -22,7 +22,7 @@ jobs:
 
       - run: pip install smokeshow
 
-      - uses: dawidd6/action-download-artifact@v2.28.0 # nosemgrep
+      - uses: dawidd6/action-download-artifact@v3.0.0 # nosemgrep
         with:
           workflow: test.yaml
           commit: ${{ github.event.workflow_run.head_sha }}

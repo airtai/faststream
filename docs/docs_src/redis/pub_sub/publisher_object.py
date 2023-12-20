@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, NonNegativeFloat
 from faststream import FastStream, Logger
 from faststream.redis import RedisBroker, TestRedisBroker
 
-broker = RedisBroker("localhost:6379")
+broker = RedisBroker("redis://localhost:6379")
 app = FastStream(broker)
 
 

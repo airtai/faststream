@@ -40,6 +40,9 @@ class Handler(LogicRedisHandler):
             else:
                 method = "xread"
 
+        else:
+            raise AssertionError("unreachable")
+
         return {
             self.name: Channel(
                 description=self.description,
@@ -78,6 +81,8 @@ class Publisher(LogicPublisher):
             method = "publish"
         elif self.stream is not None:
             method = "xadd"
+        else:
+            raise AssertionError("unreachable")
 
         return {
             self.name: Channel(
