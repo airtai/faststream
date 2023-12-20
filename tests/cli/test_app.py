@@ -139,7 +139,10 @@ async def test_exception_group(async_mock: AsyncMock, app: FastStream):
     app._stop_event.set()
 
     async_mock.excp.side_effect = ValueError("Ooops!")
-    app.on_startup(async_mock.excp)
+
+    @app.on_startup
+    async def raises():
+        await async_mock.excp()
 
     with pytest.raises(ValueError):
         with patch.object(app.broker, "start", async_mock.broker_run):
