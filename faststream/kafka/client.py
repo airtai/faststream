@@ -216,7 +216,22 @@ def create_topics(
     topics: List[str], config: Dict[str, Optional[Union[str, int, float, bool, Any]]]
 ) -> None:
     print("Creating AdminClient to create topics")
-    admin_client = AdminClient(config)
+    needed_config_params = [
+        "allow.auto.create.topics",
+        "bootstrap.servers",
+        "client.id",
+        "request.timeout.ms",
+        "metadata.max.age.ms",
+        "security.protocol",
+        "connections.max.idle.ms",
+        "sasl.mechanism",
+        "sasl.username",
+        "sasl.password",
+        "sasl.kerberos.service.name",
+    ]
+
+    admin_client_config = {x: config[x] for x in needed_config_params if x in config}
+    admin_client = AdminClient(admin_client_config)
     fs = admin_client.create_topics(
         [NewTopic(topic, num_partitions=1, replication_factor=1) for topic in topics]
     )
@@ -296,7 +311,7 @@ class AsyncConfluentConsumer:
             "fetch.max.bytes": fetch_max_bytes,
             "fetch.min.bytes": fetch_min_bytes,
             "max.partition.fetch.bytes": max_partition_fetch_bytes,
-            "request.timeout.ms": request_timeout_ms,
+            # "request.timeout.ms": request_timeout_ms,
             "fetch.error.backoff.ms": retry_backoff_ms,
             "auto.offset.reset": auto_offset_reset,
             "enable.auto.commit": enable_auto_commit,
