@@ -41,7 +41,9 @@ class FastAPICompatible:  # noqa: D101
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert key == "custom_name"
-        assert schema["channels"][key]["description"] == "test description"
+        assert schema["channels"][key]["description"] == "Test description", schema[
+            "channels"
+        ][key]["description"]
 
     def test_no_type(self):
         broker = self.broker_class()
