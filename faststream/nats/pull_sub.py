@@ -16,6 +16,13 @@ class PullSub(BaseModel):
         timeout: Optional[float] = 5.0,
         batch: bool = False,
     ) -> None:
+        """Initialize the NATS pull subscription.
+
+        Args:
+            batch_size: The batch size.
+            timeout: The timeout.
+            batch: Whether to batch.
+        """
         super().__init__(
             batch_size=batch_size,
             timeout=timeout,

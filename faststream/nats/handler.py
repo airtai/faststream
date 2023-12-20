@@ -55,6 +55,20 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         title: Optional[str] = None,
         include_in_schema: bool = True,
     ) -> None:
+        """Initialize the NATS handler.
+
+        Args:
+            subject: The NATS subject.
+            log_context_builder: The log context builder.
+            queue: The NATS queue.
+            stream: The NATS stream.
+            pull_sub: The NATS pull subscription.
+            extra_options: The extra options.
+            graceful_timeout: The graceful timeout.
+            description: The description.
+            title: The title.
+            include_in_schema: Whether to include the handler in the schema.
+        """
         reg, path = compile_path(subject, replace_symbol="*")
         self.subject = path
         self.path_regex = reg

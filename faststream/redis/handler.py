@@ -64,6 +64,18 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
         title: Optional[str] = None,
         include_in_schema: bool = True,
     ) -> None:
+        """Initialize the Redis handler.
+
+        Args:
+            log_context_builder: The log context builder.
+            graceful_timeout: The graceful timeout.
+            channel: The channel.
+            list: The list.
+            stream: The stream.
+            description: The description.
+            title: The title.
+            include_in_schema: Whether to include in schema.
+        """
         self.channel = channel
         self.list_sub = list
         self.stream_sub = stream

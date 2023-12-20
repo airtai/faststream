@@ -203,6 +203,7 @@ select = [
 ignore = [
     "E501",  # line too long, handled by formatter later
     "C901",  # too complex
+    "D418",  # Function decorated with `@overload` shouldn't contain a docstring
 
     # todo pep8-naming
     "N817",  # CamelCase `*` imported as acronym `*`
@@ -216,9 +217,6 @@ ignore = [
     "D104",  # missing docstring in public package
     "D105",
     "D106",  # Missing docstring in public nested class
-    "D107",
-    "D418",  # Function decorated with `@overload` shouldn't contain a docstring
-
 ]
 
 [tool.ruff.lint.isort]

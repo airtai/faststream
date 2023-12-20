@@ -43,6 +43,14 @@ class JStream(NameRequired):
         declare: bool = True,
         **kwargs: Any,
     ) -> None:
+        """Initialize the JetStream stream.
+
+        Args:
+            name: The stream name.
+            *args: The arguments.
+            declare: Whether to declare the stream.
+            **kwargs: The keyword arguments.
+        """
         super().__init__(
             name=name,
             declare=declare,

@@ -133,6 +133,14 @@ class TestBroker(Generic[Broker]):
         with_real: bool = False,
         connect_only: Optional[bool] = None,
     ) -> None:
+        """Initialize a class instance.
+
+        Args:
+            broker: An instance of the Broker class.
+            with_real: Whether to use a real broker.
+            connect_only: Whether to only connect to the broker.
+
+        """
         self.with_real = with_real
         self.broker = broker
 

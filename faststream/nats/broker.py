@@ -83,6 +83,15 @@ class NatsBroker(
         protocol_version: Optional[str] = "custom",
         **kwargs: Any,
     ) -> None:
+        """Initialize the NatsBroker object.
+
+        Args:
+            servers (Union[str, Sequence[str]]): The NATS server(s) to connect to.
+            security (Optional[BaseSecurity]): The security options.
+            protocol (str): The protocol to use.
+            protocol_version (Optional[str]): The protocol version to use.
+            **kwargs (Any): Additional keyword arguments.
+        """
         kwargs.update(parse_security(security))
 
         if kwargs.get("tls"):  # pragma: no cover

@@ -63,6 +63,13 @@ class RedisFastProducer:
             AsyncCustomDecoder[BatchRedisMessage],
         ],
     ) -> None:
+        """Initialize the Redis producer.
+
+        Args:
+            connection: The Redis connection.
+            parser: The parser.
+            decoder: The decoder.
+        """
         self._connection = connection
         self._parser = resolve_custom_func(
             parser,  # type: ignore[arg-type,assignment]

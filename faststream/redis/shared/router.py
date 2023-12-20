@@ -27,6 +27,13 @@ class RedisRouter(BrokerRouter[int, AnyRedisDict]):
         handlers: Sequence[RedisRoute[AnyRedisDict, SendableMessage]] = (),
         **kwargs: Any,
     ) -> None:
+        """Initialize the Redis router.
+
+        Args:
+            prefix: The prefix.
+            handlers: The handlers.
+            **kwargs: The keyword arguments.
+        """
         for h in handlers:
             if not (channel := h.kwargs.pop("channel", None)):
                 if list := h.kwargs.pop("list", None):

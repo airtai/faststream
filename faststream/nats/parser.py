@@ -14,6 +14,11 @@ class NatsParser:
     """A class to parse NATS messages."""
 
     def __init__(self, is_js: bool) -> None:
+        """Initialize the NATS parser.
+
+        Args:
+            is_js: Whether the parser is for JetStream.
+        """
         self.is_js = is_js
 
     @overload

@@ -35,6 +35,13 @@ class NatsFastProducer:
         parser: Optional[AsyncCustomParser[Msg, NatsMessage]],
         decoder: Optional[AsyncCustomDecoder[NatsMessage]],
     ) -> None:
+        """Initialize the NATS producer.
+
+        Args:
+            connection: The NATS connection.
+            parser: The parser.
+            decoder: The decoder.
+        """
         self._connection = connection
         self._parser = resolve_custom_func(parser, Parser.parse_message)
         self._decoder = resolve_custom_func(decoder, Parser.decode_message)
@@ -110,6 +117,13 @@ class NatsJSFastProducer:
         parser: Optional[AsyncCustomParser[Msg, NatsMessage]],
         decoder: Optional[AsyncCustomDecoder[NatsMessage]],
     ) -> None:
+        """Initialize the NATS JetStream producer.
+
+        Args:
+            connection: The NATS JetStream connection.
+            parser: The parser.
+            decoder: The decoder.
+        """
         self._connection = connection
         self._parser = resolve_custom_func(parser, Parser.parse_message)
         self._decoder = resolve_custom_func(decoder, Parser.decode_message)

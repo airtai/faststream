@@ -28,6 +28,14 @@ class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
         is_manual: bool = False,
         **kwargs: Any,
     ) -> None:
+        """Initialize the KafkaMessage object.
+
+        Args:
+            *args (Any): Additional positional arguments.
+            consumer (aiokafka.AIOKafkaConsumer): The Kafka consumer.
+            is_manual (bool): Whether the message is manually acknowledged.
+            **kwargs (Any): Additional keyword arguments.
+        """
         super().__init__(*args, **kwargs)
 
         self.is_manual = is_manual

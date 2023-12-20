@@ -22,6 +22,15 @@ class NatsLoggingMixin(LoggingMixin):
         log_fmt: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
+        """Initialize the NATS logging mixin.
+
+        Args:
+            *args: The arguments.
+            logger: The logger.
+            log_level: The log level.
+            log_fmt: The log format.
+            **kwargs: The keyword arguments.
+        """
         super().__init__(
             *args,
             logger=logger,

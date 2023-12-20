@@ -37,6 +37,12 @@ class BaseSecurity:
         ssl_context: Optional[SSLContext] = None,
         use_ssl: Optional[bool] = None,
     ) -> None:
+        """Initialize the security configuration.
+
+        Args:
+            ssl_context (Optional[SSLContext]): An SSLContext object for SSL encryption. If None, SSL encryption is disabled.
+            use_ssl (Optional[bool]): A boolean indicating whether to use SSL encryption. Defaults to True.
+        """
         if ssl_context is not None:
             use_ssl = True
 
@@ -87,6 +93,14 @@ class SASLPlaintext(BaseSecurity):
         ssl_context: Optional[SSLContext] = None,
         use_ssl: Optional[bool] = None,
     ) -> None:
+        """Initialize the SASL/PLAINTEXT security configuration.
+
+        Args:
+            username (str): The username for authentication.
+            password (str): The password for authentication.
+            ssl_context (Optional[SSLContext]): An SSLContext object for SSL encryption. If None, SSL encryption is disabled.
+            use_ssl (Optional[bool]): A boolean indicating whether to use SSL encryption. Defaults to True.
+        """
         super().__init__(ssl_context, use_ssl)
         self.username = username
         self.password = password
@@ -135,6 +149,14 @@ class SASLScram256(BaseSecurity):
         ssl_context: Optional[SSLContext] = None,
         use_ssl: Optional[bool] = None,
     ) -> None:
+        """Initialize the SASL/SCRAM-SHA-256 security configuration.
+
+        Args:
+            username (str): The username for authentication.
+            password (str): The password for authentication.
+            ssl_context (Optional[SSLContext]): An SSLContext object for SSL encryption. If None, SSL encryption is disabled.
+            use_ssl (Optional[bool]): A boolean indicating whether to use SSL encryption. Defaults to True.
+        """
         super().__init__(ssl_context, use_ssl)
         self.username = username
         self.password = password
@@ -183,6 +205,14 @@ class SASLScram512(BaseSecurity):
         ssl_context: Optional[SSLContext] = None,
         use_ssl: Optional[bool] = None,
     ) -> None:
+        """Initialize the SASL/SCRAM-SHA-512 security configuration.
+
+        Args:
+            username (str): The username for authentication.
+            password (str): The password for authentication.
+            ssl_context (Optional[SSLContext]): An SSLContext object for SSL encryption. If None, SSL encryption is disabled.
+            use_ssl (Optional[bool]): A boolean indicating whether to use SSL encryption. Defaults to True.
+        """
         super().__init__(ssl_context, use_ssl)
         self.username = username
         self.password = password

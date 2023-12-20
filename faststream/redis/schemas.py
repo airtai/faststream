@@ -9,7 +9,8 @@ from faststream.utils.context.path import compile_path
 
 
 class PubSub(NameRequired):
-    """A class to represent a Redis PubSub channel.""" ""
+    """A class to represent a Redis PubSub channel."""
+
     polling_interval: PositiveFloat = 1.0
     path_regex: Optional[Pattern[str]] = None
     pattern: bool = False
@@ -21,6 +22,13 @@ class PubSub(NameRequired):
         pattern: bool = False,
         polling_interval: PositiveFloat = 1.0,
     ) -> None:
+        """Redis PubSub channel parameters.
+
+        Args:
+            channel: (str): Redis PubSub channel name.
+            pattern: (bool): use pattern matching.
+            polling_interval: (float): wait message block.
+        """
         reg, path = compile_path(channel, replace_symbol="*")
 
         if reg is not None:
@@ -58,6 +66,14 @@ class ListSub(NameRequired):
         max_records: PositiveInt = 10,
         polling_interval: PositiveFloat = 0.1,
     ) -> None:
+        """Redis List subscriber parameters.
+
+        Args:
+            channel: (str): Redis List name.
+            batch: (bool): consume messages in batches.
+            max_records: (int): max records per batch.
+            polling_interval: (float): wait message block.
+        """
         super().__init__(
             name=channel,
             batch=batch,
