@@ -9,21 +9,7 @@ from faststream.types import DecoratedCallable
 
 
 class ExtendedFilter(watchfiles.PythonFilter):  # type: ignore[misc]
-    """A class that extends the `watchfiles.PythonFilter` class.
-
-    Attributes:
-        ignore_dirs : Tuple of directories to ignore
-
-    Methods:
-        __init__ : Initializes the `ExtendedFilter` object
-            Args:
-                ignore_paths : Optional sequence of paths to ignore
-                extra_extensions : Sequence of extra extensions to include
-
-    Returns:
-                None
-
-    """
+    """A class that extends the `watchfiles.PythonFilter` class."""
 
     ignore_dirs: Tuple[str, ...]
 
@@ -37,7 +23,7 @@ class ExtendedFilter(watchfiles.PythonFilter):  # type: ignore[misc]
 
         Args:
             ignore_paths: Optional sequence of paths to ignore.
-            extra_extensions: Sequence of extra extensions.
+            extra_extensions: Sequence of extra extensions to include.
 
         Returns:
             None
@@ -57,18 +43,7 @@ class ExtendedFilter(watchfiles.PythonFilter):  # type: ignore[misc]
 
 
 class WatchReloader(BaseReload):
-    """A class to reload a target function when files in specified directories change.
-
-    Attributes:
-        target : the function to be reloaded
-        args : arguments to be passed to the target function
-        reload_dirs : directories to watch for file changes
-        reload_delay : delay in seconds between each check for file changes
-
-    Methods:
-        should_restart() -> bool: Checks if any files in the watched directories have changed and returns True if a change is detected, False otherwise.
-
-    """
+    """A class to reload a target function when files in specified directories change."""
 
     def __init__(
         self,
@@ -81,10 +56,10 @@ class WatchReloader(BaseReload):
         """Initialize a WatchFilesReloader object.
 
         Args:
-            target: The target callable to be executed.
-            args: The arguments to be passed to the target callable.
-            reload_dirs: A sequence of directories to watch for changes.
-            reload_delay: The delay in seconds between checking for changes. Default is 0.3.
+            target : the function to be reloaded
+            args : arguments to be passed to the target function
+            reload_dirs : directories to watch for file changes
+            reload_delay : delay in seconds between each check for file changes
             extra_extensions: A sequence of extra extensions to include.
 
         Returns:

@@ -1,6 +1,7 @@
 import logging
 import re
 from pathlib import Path
+from typing import Optional
 
 import typer
 
@@ -10,8 +11,8 @@ logging.basicConfig(level=logging.INFO)
 app = typer.Typer()
 
 
-def read_lines_from_file(file_path, lines_spec):
-    with open(file_path) as file:
+def read_lines_from_file(file_path: Path, lines_spec: Optional[str]):
+    with file_path.open() as file:
         all_lines = file.readlines()
 
     # Check if lines_spec is empty (indicating all lines should be read)
@@ -35,22 +36,22 @@ def read_lines_from_file(file_path, lines_spec):
     return "".join(selected_lines)
 
 
-def extract_lines(embedded_line):
-    to_expand_path = re.search("{!>(.*)!}", embedded_line).group(1).strip()
+def extract_lines(embedded_line: str) -> str:
+    to_expand_path_elements = re.search("{!>(.*)!}", embedded_line).group(1).strip()
     lines_spec = ""
-    if "[ln:" in to_expand_path:
-        to_expand_path, lines_spec = to_expand_path.split("[ln:")
-        to_expand_path = to_expand_path.strip()
+    if "[ln:" in to_expand_path_elements:
+        to_expand_path_elements, lines_spec = to_expand_path_elements.split("[ln:")
+        to_expand_path_elements = to_expand_path_elements.strip()
         lines_spec = lines_spec[:-1]
 
     if Path("./docs/docs_src").exists():
-        to_expand_path = Path("./docs") / to_expand_path
+        base_path = Path("./docs")
     elif Path("./docs_src").exists():
-        to_expand_path = Path("./") / to_expand_path
+        base_path = Path("./")
     else:
         raise ValueError("Couldn't find docs_src directory")
 
-    return read_lines_from_file(to_expand_path, lines_spec)
+    return read_lines_from_file(base_path / to_expand_path_elements, lines_spec)
 
 
 @app.command()
@@ -58,8 +59,8 @@ def expand_markdown(
     input_markdown_path: Path = typer.Argument(...),
     output_markdown_path: Path = typer.Argument(...),
 ):
-    with open(input_markdown_path) as input_file, open(
-        output_markdown_path, "w"
+    with input_markdown_path.open() as input_file, output_markdown_path.open(
+        "w"
     ) as output_file:
         for line in input_file:
             # Check if the line does not contain the "{!>" pattern
@@ -71,7 +72,7 @@ def expand_markdown(
 
 
 def remove_lines_between_dashes(file_path: Path):
-    with open(file_path) as file:
+    with file_path.open() as file:
         lines = file.readlines()
 
     start_dash_index = None
@@ -91,7 +92,7 @@ def remove_lines_between_dashes(file_path: Path):
                 start_dash_index = end_dash_index = None
                 break  # NOTE: Remove this line if you have multiple dash chunks
 
-    with open(file_path, "w") as file:
+    with file_path.open("w") as file:
         file.writelines(new_lines)
 
 

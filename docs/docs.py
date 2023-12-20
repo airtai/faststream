@@ -73,6 +73,7 @@ def _touch_file(path: Path) -> Path:
 @app.command()
 def preview():
     """A quick server to preview a built site with translations.
+
     For development, prefer the command live (or just mkdocs serve).
     This is here only to preview a builded site.
     """
@@ -89,10 +90,8 @@ def preview():
 
 @app.command()
 def live(port: Annotated[Optional[str], typer.Argument()] = None):
-    if port:
-        dev_server = f"0.0.0.0:{port}"
-    else:
-        dev_server = DEV_SERVER
+    dev_server = f"0.0.0.0:{port}" if port else DEV_SERVER
+
     typer.echo("Serving mkdocs with live reload")
     typer.echo(f"Serving at: http://{dev_server}")
     mkdocs.commands.serve.serve(dev_addr=dev_server)
@@ -170,7 +169,7 @@ def mv(path: str = typer.Argument(...), new_path: str = typer.Argument(...)):
 
 @app.command()
 def update_readme() -> None:
-    """Update README.md by expanding embeddings in docs/docs/en/index.md"""
+    """Update README.md by expanding embeddings in docs/docs/en/index.md."""
     # todo: fix this function
     typer.echo("Skipping updating README.md for now")
     return None
@@ -189,7 +188,7 @@ def update_readme() -> None:
 
 @app.command()
 def update_contributing():
-    """Update CONTRIBUTING.md by expanding embeddings in docs/docs/en/CONTRIBUTING.md"""
+    """Update CONTRIBUTING.md by expanding embeddings in docs/docs/en/CONTRIBUTING.md."""
     typer.echo("Updating CONTRIBUTING.md")
     expand_markdown(
         input_markdown_path=EN_CONTRIBUTING_PATH,
@@ -202,15 +201,20 @@ def update_contributing():
 
     relative_path = EN_CONTRIBUTING_PATH.relative_to(BASE_DIR.parent)
 
-    CONTRIBUTING_PATH.write_text("\n".join((
-        f"> **_NOTE:_**  This is an auto-generated file. Please edit {relative_path} instead.",
-        *content
-    ))+"\n")
+    CONTRIBUTING_PATH.write_text(
+        "\n".join(
+            (
+                f"> **_NOTE:_**  This is an auto-generated file. Please edit {relative_path} instead.",
+                *content,
+            )
+        )
+        + "\n"
+    )
 
 
 @app.command()
 def build_api_docs():
-    """Build api docs for faststream"""
+    """Build api docs for faststream."""
     typer.echo("Updating API docs")
     create_api_docs(root_path=BASE_DIR, module="faststream")
 
