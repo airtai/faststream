@@ -70,13 +70,14 @@ jobs:
       - name: Test
         run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not rabbit and not redis)) or (not nats and not kafka and not rabbit and not redis)"
         env:
-          COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}
-          CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}
+          COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
+          CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
       - name: Store coverage files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: .coverage.${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
           path: coverage
+          if-no-files-found: error
 
   test-macos-latest:
     if: github.event.pull_request.draft == false
@@ -149,10 +150,11 @@ jobs:
           COVERAGE_FILE: coverage/.coverage.kafka-py
           CONTEXT: kafka-py
       - name: Store coverage files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: .coverage.kafka-py
           path: coverage
+          if-no-files-found: error
 
   test-kafka-smoke:
     if: github.event.pull_request.draft == false
@@ -197,10 +199,11 @@ jobs:
           COVERAGE_FILE: coverage/.coverage.rabbit-py
           CONTEXT: rabbit-py
       - name: Store coverage files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: .coverage.rabbit-py
           path: coverage
+          if-no-files-found: error
 
   test-rabbit-smoke:
     if: github.event.pull_request.draft == false
@@ -245,10 +248,11 @@ jobs:
           COVERAGE_FILE: coverage/.coverage.nats-py
           CONTEXT: nats-py
       - name: Store coverage files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: .coverage.nats-py
           path: coverage
+          if-no-files-found: error
 
   test-nats-smoke:
     if: github.event.pull_request.draft == false
@@ -293,10 +297,11 @@ jobs:
           COVERAGE_FILE: coverage/.coverage.redis-py
           CONTEXT: redis-py
       - name: Store coverage files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: .coverage.redis-py
           path: coverage
+          if-no-files-found: error
 
   test-redis-smoke:
     if: github.event.pull_request.draft == false
@@ -335,10 +340,11 @@ jobs:
           cache-dependency-path: pyproject.toml
 
       - name: Get coverage files
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: coverage
+          pattern: .coverage*
           path: coverage
+          merge-multiple: true
 
       - run: pip install coverage[toml]
 
@@ -348,7 +354,7 @@ jobs:
       - run: coverage html --show-contexts --title "FastStream coverage for ${{ github.sha }}"
 
       - name: Store coverage html
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-html
           path: htmlcov
