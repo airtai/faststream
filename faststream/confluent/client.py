@@ -110,7 +110,7 @@ class AsyncConfluentProducer:
         enable_idempotence: bool = False,
         transactional_id: Optional[Union[str, int]] = None,
         transaction_timeout_ms: int = 60000,
-        sasl_mechanism: str = "PLAIN",
+        sasl_mechanism: Optional[str] = None,
         sasl_plain_password: Optional[str] = None,
         sasl_plain_username: Optional[str] = None,
         sasl_kerberos_service_name: str = "kafka",
@@ -181,11 +181,17 @@ class AsyncConfluentProducer:
             "retry.backoff.ms": retry_backoff_ms,
             "security.protocol": security_protocol.lower(),
             "connections.max.idle.ms": connections_max_idle_ms,
-            "sasl.mechanism": sasl_mechanism,
-            "sasl.username": sasl_plain_username,
-            "sasl.password": sasl_plain_password,
             "sasl.kerberos.service.name": sasl_kerberos_service_name,
         }
+        if sasl_mechanism:
+            self.config.update(
+                {
+                    "sasl.mechanism": sasl_mechanism,
+                    "sasl.username": sasl_plain_username,
+                    "sasl.password": sasl_plain_password,
+                }
+            )
+
         self.producer = Producer(self.config)
         # self.producer.init_transactions()
         self.producer.list_topics()
@@ -368,7 +374,7 @@ class AsyncConfluentConsumer:
         exclude_internal_topics: bool = True,
         connections_max_idle_ms: int = 540000,
         isolation_level: str = "read_uncommitted",
-        sasl_mechanism: str = "PLAIN",
+        sasl_mechanism: Optional[str] = None,
         sasl_plain_password: Optional[str] = None,
         sasl_plain_username: Optional[str] = None,
         sasl_kerberos_service_name: str = "kafka",
@@ -456,14 +462,19 @@ class AsyncConfluentConsumer:
             "max.poll.interval.ms": max_poll_interval_ms,
             "session.timeout.ms": session_timeout_ms,
             "heartbeat.interval.ms": heartbeat_interval_ms,
-            "security.protocol": security_protocol,
+            "security.protocol": security_protocol.lower(),
             "connections.max.idle.ms": connections_max_idle_ms,
             "isolation.level": isolation_level,
-            "sasl.mechanism": sasl_mechanism,
-            "sasl.username": sasl_plain_username,
-            "sasl.password": sasl_plain_password,
             "sasl.kerberos.service.name": sasl_kerberos_service_name,
         }
+        if sasl_mechanism:
+            self.config.update(
+                {
+                    "sasl.mechanism": sasl_mechanism,
+                    "sasl.username": sasl_plain_username,
+                    "sasl.password": sasl_plain_password,
+                }
+            )
 
         self.loop = loop or asyncio.get_event_loop()
 
