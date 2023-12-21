@@ -9,7 +9,7 @@ from faststream.broker.schemas import NameRequired
 from faststream.rabbit.shared.constants import ExchangeType
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.types import AnyDict
-from faststream.utils.context.path import compile_path
+from faststream.utils.path import compile_path
 
 
 class RabbitQueue(NameRequired):

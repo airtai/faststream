@@ -9,7 +9,7 @@ def compile_path(
     replace_symbol: str,
 ) -> Tuple[Optional[Pattern[str]], str]:
     path_regex = "^"
-    path_format = ""
+    original_path = ""
 
     idx = 0
     params = set()
@@ -20,8 +20,8 @@ def compile_path(
         path_regex += re.escape(path[idx : match.start()])
         path_regex += f"(?P<{param_name.replace('+', '')}>[^/]+)"
 
-        path_format += path[idx : match.start()]
-        path_format += replace_symbol
+        original_path += path[idx : match.start()]
+        original_path += replace_symbol
 
         if param_name in params:
             duplicated_params.add(param_name)
@@ -41,5 +41,5 @@ def compile_path(
         path_regex += re.escape(path[idx:]) + "$"
         regex = re.compile(path_regex)
 
-    path_format += path[idx:]
-    return regex, path_format
+    original_path += path[idx:]
+    return regex, original_path

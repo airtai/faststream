@@ -79,6 +79,33 @@ jobs:
           path: coverage
           if-no-files-found: error
 
+  test-orjson:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[nats,kafka,rabbit,redis,docs,testing] orjson
+      - run: mkdir coverage
+      - name: Test
+        run: bash scripts/test.sh -m"(slow and (not nats and not kafka and not rabbit and not redis)) or (not nats and not kafka and not rabbit and not redis)"
+        env:
+          COVERAGE_FILE: coverage/.coverage.orjson
+          CONTEXT: orjson
+      - name: Store coverage files
+        uses: actions/upload-artifact@v4
+        with:
+          name: .coverage.orjson
+          path: coverage
+          if-no-files-found: error
+
   test-macos-latest:
     if: github.event.pull_request.draft == false
     runs-on: macos-latest

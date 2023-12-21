@@ -5,7 +5,7 @@ from pydantic import Field, PositiveFloat, PositiveInt
 
 from faststream._compat import PYDANTIC_V2
 from faststream.broker.schemas import NameRequired
-from faststream.utils.context.path import compile_path
+from faststream.utils.path import compile_path
 
 
 class PubSub(NameRequired):

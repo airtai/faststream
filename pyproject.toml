@@ -51,7 +51,6 @@ dependencies = [
     "fast-depends>=2.2.6,<3",
     "typer>=0.9,<1",
     "typing-extensions>=4.8.0",
-    "uvloop>=0.18.0; sys_platform != 'win32' and (sys_platform != 'cygwin' and platform_python_implementation != 'PyPy')",
 ]
 
 [project.optional-dependencies]
@@ -268,6 +267,7 @@ concurrency = [
 ]
 source = [
     "docs/docs_src",
+    "examples",
     "faststream",
     "tests"
 ]
@@ -309,6 +309,10 @@ omit = [
     'docs/docs_src/integrations/http_frameworks_integrations/quart.py',
     'docs/docs_src/integrations/http_frameworks_integrations/sanic.py',
     'docs/docs_src/integrations/http_frameworks_integrations/tornado.py',
+    'examples/howto/structlogs.py',
+    'examples/serialization/avro/avro.py',
+    'examples/serialization/msgpack/pack.py',
+    'examples/serialization/protobuf/protobuf.py',
 ]
 
 [tool.bandit]

@@ -153,3 +153,16 @@ def test_default(context: ContextRepo):
         "key5", {"key6": False}
     ):
         use()
+
+
+def test_initial():
+    @apply_types
+    def use(
+        a,
+        key=Context(initial=list),
+    ):
+        key.append(a)
+        return key
+
+    assert use(1) == [1]
+    assert use(2) == [1, 2]
