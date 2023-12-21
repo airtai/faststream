@@ -1,10 +1,10 @@
 #!/bin/bash
 
 echo "Running pyup_dirs..."
-pyup_dirs --py38-plus --recursive faststream examples tests
+pyup_dirs --py38-plus --recursive faststream examples tests docs
 
-echo "Running ruff..."
-ruff faststream tests --fix
+echo "Running ruff linter (isort, flake, pyupgrade, etc. replacement)..."
+ruff check
 
-echo "Running black..."
-black faststream tests
+echo "Running ruff formater (black replacement)..."
+ruff format

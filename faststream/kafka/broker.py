@@ -52,8 +52,8 @@ class KafkaBroker(
     KafkaLoggingMixin,
     BrokerAsyncUsecase[aiokafka.ConsumerRecord, ConsumerConnectionParams],
 ):
-    """
-    KafkaBroker is a class for managing Kafka message consumption and publishing.
+    """KafkaBroker is a class for managing Kafka message consumption and publishing.
+
     It extends BrokerAsyncUsecase to handle asynchronous operations.
 
     Args:
@@ -89,8 +89,7 @@ class KafkaBroker(
         security: Optional[BaseSecurity] = None,
         **kwargs: Any,
     ) -> None:
-        """
-        Initialize a KafkaBroker instance.
+        """Initialize a KafkaBroker instance.
 
         Args:
             bootstrap_servers (Union[str, Iterable[str]]): Kafka bootstrap server(s).
@@ -126,8 +125,7 @@ class KafkaBroker(
         exc_val: Optional[BaseException] = None,
         exec_tb: Optional[TracebackType] = None,
     ) -> None:
-        """
-        Close the KafkaBroker, stopping the producer and cleaning up resources.
+        """Close the KafkaBroker, stopping the producer and cleaning up resources.
 
         Args:
             exc_type (Optional[Type[BaseException]]): The exception type.
@@ -145,8 +143,7 @@ class KafkaBroker(
         *args: Any,
         **kwargs: Any,
     ) -> ConsumerConnectionParams:
-        """
-        Establishes a connection to Kafka and returns connection parameters.
+        """Establishes a connection to Kafka and returns connection parameters.
 
         Args:
             *args: Additional arguments.
@@ -167,8 +164,7 @@ class KafkaBroker(
         client_id: str,
         **kwargs: Any,
     ) -> ConsumerConnectionParams:
-        """
-        Connects to Kafka, initializes the producer, and returns connection parameters.
+        """Connects to Kafka, initializes the producer, and returns connection parameters.
 
         Args:
             client_id (str): The client ID.
@@ -188,9 +184,7 @@ class KafkaBroker(
         return filter_by_dict(ConsumerConnectionParams, {**kwargs, **security_params})
 
     async def start(self) -> None:
-        """
-        Start the KafkaBroker and message handlers.
-        """
+        """Start the KafkaBroker and message handlers."""
         context.set_global(
             "default_log_context",
             self._get_log_context(None, ""),
@@ -208,14 +202,17 @@ class KafkaBroker(
         func: Callable[[KafkaMessage], Awaitable[T_HandlerReturn]],
         watcher: Callable[..., AsyncContextManager[None]],
         **kwargs: Any,
-    ) -> Callable[[KafkaMessage], Awaitable[WrappedReturn[T_HandlerReturn]],]:
-        """
-        Wrap a message processing function with a watcher and publisher.
+    ) -> Callable[
+        [KafkaMessage],
+        Awaitable[WrappedReturn[T_HandlerReturn]],
+    ]:
+        """Wrap a message processing function with a watcher and publisher.
 
         Args:
             func (Callable[[KafkaMessage], Awaitable[T_HandlerReturn]]): The message processing function.
             watcher (BaseWatcher): The message watcher.
             disable_watcher: Whether to use watcher context.
+            **kwargs: Additional keyword arguments.
 
         Returns:
             Callable[[KafkaMessage], Awaitable[WrappedReturn[T_HandlerReturn]]]: The wrapped message processing function.
@@ -328,8 +325,7 @@ class KafkaBroker(
             ],
         ],
     ]:
-        """
-        Create a message subscriber for the specified topics.
+        """Create a message subscriber for the specified topics.
 
         Args:
             *topics (str): The topics to subscribe to.
@@ -364,6 +360,7 @@ class KafkaBroker(
             no_ack (bool): Whether not to ack/nack/reject messages.
             title (Optional[str]): AsyncAPI title.
             description (Optional[str]): AsyncAPI description.
+            include_in_schema (bool): Whether to include the message handler in the AsyncAPI schema.
             **original_kwargs: Additional keyword arguments.
 
         Returns:
@@ -479,8 +476,7 @@ class KafkaBroker(
         schema: Optional[Any] = None,
         include_in_schema: bool = True,
     ) -> Publisher:
-        """
-        Create a message publisher for the specified topic.
+        """Create a message publisher for the specified topic.
 
         Args:
             topic (str): The topic to publish messages to.
@@ -492,6 +488,8 @@ class KafkaBroker(
             batch (bool): Whether to publish messages in batches.
             title (Optional[str]): AsyncAPI title.
             description (Optional[str]): AsyncAPI description.
+            schema (Optional[Any]): AsyncAPI schema.
+            include_in_schema (bool): Whether to include the message publisher in the AsyncAPI schema.
 
         Returns:
             Publisher: A message publisher.
@@ -524,8 +522,7 @@ class KafkaBroker(
         *args: Any,
         **kwargs: Any,
     ) -> None:
-        """
-        Publish a message to Kafka.
+        """Publish a message to Kafka.
 
         Args:
             *args: Positional arguments for message publishing.
@@ -542,8 +539,7 @@ class KafkaBroker(
         *args: Any,
         **kwargs: Any,
     ) -> None:
-        """
-        Publish a batch of messages to Kafka.
+        """Publish a batch of messages to Kafka.
 
         Args:
             *args: Positional arguments for message publishing.

@@ -4,7 +4,7 @@ from examples.router.delay_registration import app, broker
 from faststream.kafka import TestApp, TestKafkaBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_example():
     handle = broker.handlers["prefix_in"].calls[0][0]
 

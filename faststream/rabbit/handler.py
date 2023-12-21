@@ -70,10 +70,14 @@ class LogicHandler(AsyncHandler[aio_pika.IncomingMessage], BaseRMQInformation):
 
         Args:
             queue: RabbitQueue object representing the queue to consume from
+            log_context_builder: Callable that returns a dictionary with log context information
+            graceful_timeout: Optional float representing the graceful timeout
             exchange: RabbitExchange object representing the exchange to bind the queue to (optional)
             consume_args: Additional arguments for consuming from the queue (optional)
             description: Description of the consumer (optional)
             title: Title of the consumer (optional)
+            include_in_schema: Whether to include the consumer in the API specification (optional)
+            virtual_host: Virtual host to connect to (optional)
 
         """
         super().__init__(

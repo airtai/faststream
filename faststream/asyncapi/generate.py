@@ -88,7 +88,7 @@ def get_app_schema(app: Union[FastStream, "StreamRouter[Any]"]) -> Schema:
 
 
 def get_app_broker_server(
-    app: Union[FastStream, "StreamRouter[Any]"]
+    app: Union[FastStream, "StreamRouter[Any]"],
 ) -> Dict[str, Server]:
     """Get the broker server for an application.
 
@@ -146,7 +146,7 @@ def get_app_broker_server(
 
 
 def get_app_broker_channels(
-    app: Union[FastStream, "StreamRouter[Any]"]
+    app: Union[FastStream, "StreamRouter[Any]"],
 ) -> Dict[str, Channel]:
     """Get the broker channels for an application.
 
@@ -212,7 +212,7 @@ def _move_pydantic_refs(
 
     data = original.copy()
 
-    for k in data.keys():
+    for k in data:
         if k == "$ref":
             data[k] = data[k].replace(key, "components/schemas")
 

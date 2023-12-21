@@ -6,11 +6,15 @@ from faststream.broker.message import StreamMessage
 
 
 class ConsumerProtocol(Protocol):
+    """A protocol for Kafka consumers."""
+
     async def commit(self) -> None:
         ...
 
 
 class FakeConsumer:
+    """A fake Kafka consumer."""
+
     async def commit(self) -> None:
         pass
 
@@ -19,8 +23,7 @@ FAKE_CONSUMER = FakeConsumer()
 
 
 class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
-    """
-    Represents a Kafka message in the FastStream framework.
+    """Represents a Kafka message in the FastStream framework.
 
     This class extends `StreamMessage` and is specialized for handling Kafka ConsumerRecord objects.
 
@@ -42,14 +45,21 @@ class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
         is_manual: bool = False,
         **kwargs: Any,
     ) -> None:
+        """Initialize the KafkaMessage object.
+
+        Args:
+            *args (Any): Additional positional arguments.
+            consumer (aiokafka.AIOKafkaConsumer): The Kafka consumer.
+            is_manual (bool): Whether the message is manually acknowledged.
+            **kwargs (Any): Additional keyword arguments.
+        """
         super().__init__(*args, **kwargs)
 
         self.is_manual = is_manual
         self.consumer = consumer
 
     async def ack(self, **kwargs: Any) -> None:
-        """
-        Acknowledge the Kafka message.
+        """Acknowledge the Kafka message.
 
         Args:
             **kwargs (Any): Additional keyword arguments.

@@ -156,8 +156,7 @@ def get_model_schema(
     model = None
     use_original_model = False
     if params_number == 1:
-        name, param = tuple(params.items())[0]
-
+        name, param = next(iter(params.items()))
         if (
             param.annotation
             and isclass(param.annotation)
@@ -180,10 +179,7 @@ def get_model_schema(
         param_body: Dict[str, Any] = body.get("properties", {})
         param_body = param_body[name]
 
-        if PYDANTIC_V2:
-            original_title = param.title
-        else:
-            original_title = param.field_info.title  # type: ignore[attr-defined]
+        original_title = param.title if PYDANTIC_V2 else param.field_info.title  # type: ignore[attr-defined]
 
         if original_title:
             use_original_model = True

@@ -6,7 +6,7 @@ from faststream.rabbit import TestRabbitBroker
 from faststream.redis import TestRedisBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_fields_access_kafka():
     from docs.docs_src.getting_started.context.kafka.fields_access import (
         broker,
@@ -19,7 +19,7 @@ async def test_fields_access_kafka():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_fields_access_rabbit():
     from docs.docs_src.getting_started.context.rabbit.fields_access import (
         broker,
@@ -32,7 +32,7 @@ async def test_fields_access_rabbit():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_fields_access_nats():
     from docs.docs_src.getting_started.context.nats.fields_access import (
         broker,
@@ -45,7 +45,7 @@ async def test_fields_access_nats():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_fields_access_redis():
     from docs.docs_src.getting_started.context.redis.fields_access import (
         broker,

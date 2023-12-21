@@ -103,8 +103,7 @@ def get_app_path(app: str) -> Tuple[Path, str]:
 
 
 def import_from_string(import_str: str) -> Tuple[Path, FastStream]:
-    """
-    Import FastStream application from module specified by a string.
+    """Import FastStream application from module specified by a string.
 
     Parameters:
         import_str (str): A string in the format "<module>:<attribute>" specifying the module and faststream application to import.

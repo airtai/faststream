@@ -21,7 +21,9 @@ class AsyncAPIOperation:
 
     @abstractproperty
     def name(self) -> str:
+        """Returns the name of the API operation."""
         raise NotImplementedError()
 
     def schema(self) -> Dict[str, Channel]:  # pragma: no cover
+        """Returns the schema of the API operation as a dictionary of channel names and channel objects."""
         return {}

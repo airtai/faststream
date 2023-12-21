@@ -69,6 +69,7 @@ class KafkaLoggingMixin(LoggingMixin):
         Args:
             message: Optional stream message of type ConsumerRecord
             topics: Sequence of topics
+            group_id: Optional group ID
 
         Returns:
             A dictionary containing the log context
@@ -105,6 +106,7 @@ class KafkaLoggingMixin(LoggingMixin):
 
         Args:
             topics: An iterable of topics.
+            group_id: Optional group ID.
 
         Returns:
             None.

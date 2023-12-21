@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 from faststream.kafka import TestKafkaBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_fastapi_raw_integration():
     from docs.docs_src.integrations.http_frameworks_integrations.fastapi import (
         app,

@@ -1,3 +1,5 @@
+"""A Python framework for building services interacting with Apache Kafka, RabbitMQ, NATS and Redis."""
+
 from faststream.annotations import ContextRepo, Logger, NoCast
 from faststream.app import FastStream
 from faststream.broker.middlewares import BaseMiddleware

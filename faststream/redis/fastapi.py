@@ -29,6 +29,8 @@ Redis = Annotated[RedisClient, Context("broker._connection")]
 
 
 class RedisRouter(StreamRouter[AnyRedisDict]):
+    """A class to represent a Redis router."""
+
     broker_class = RB
 
     def subscriber(

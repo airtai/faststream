@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from faststream.utils import apply_types
 
 
-class Base(BaseModel):
+class Base(BaseModel):  # noqa: D101
     field: int
 
 
@@ -25,5 +25,5 @@ def test_model():
     is_casted, m = cast_model({"field": "1"})
     assert is_casted, m.field == (True, 1)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # noqa: PT011
         cast_model(("field", 1))

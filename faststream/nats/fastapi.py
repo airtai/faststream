@@ -31,6 +31,8 @@ NatsJsProducer = Annotated[NatsJSFastProducer, Context("broker._js_producer")]
 
 
 class NatsRouter(StreamRouter[Msg]):
+    """A class to represent a NATS router."""
+
     broker_class = NB
 
     @override

@@ -17,8 +17,8 @@ from faststream.types import AnyCallable
 Broker = TypeVar("Broker", bound=BrokerAsyncUsecase)
 
 
-@pytest.mark.asyncio
-class FastAPITestcase:
+@pytest.mark.asyncio()
+class FastAPITestcase:  # noqa: D101
     router_class: Type[StreamRouter[BrokerAsyncUsecase]]
 
     async def test_base_real(self, mock: Mock, queue: str, event: asyncio.Event):
@@ -147,8 +147,8 @@ class FastAPITestcase:
         mock.assert_called_once_with("hi")
 
 
-@pytest.mark.asyncio
-class FastAPILocalTestcase:
+@pytest.mark.asyncio()
+class FastAPILocalTestcase:  # noqa: D101
     router_class: Type[StreamRouter[BrokerAsyncUsecase]]
     broker_test: Callable[[Broker], Broker]
     build_message: AnyCallable
@@ -329,10 +329,11 @@ class FastAPILocalTestcase:
             mock.async_called()
             return {"async_called": mock.sync_called.called}
 
-        async with self.broker_test(router.broker):
-            async with router.lifespan_context(app) as context:
-                assert context["sync_called"]
-                assert context["async_called"]
+        async with self.broker_test(router.broker), router.lifespan_context(
+            app
+        ) as context:
+            assert context["sync_called"]
+            assert context["async_called"]
 
         mock.sync_called.assert_called_once()
         mock.async_called.assert_called_once()
@@ -349,9 +350,10 @@ class FastAPILocalTestcase:
         app = FastAPI(lifespan=router.lifespan_context)
         app.include_router(router)
 
-        async with self.broker_test(router.broker):
-            async with router.lifespan_context(app) as context:
-                assert context["lifespan"]
+        async with self.broker_test(router.broker), router.lifespan_context(
+            app
+        ) as context:
+            assert context["lifespan"]
 
         mock.start.assert_called_once()
         mock.close.assert_called_once()

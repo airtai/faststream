@@ -4,7 +4,7 @@ from typing import Any, Callable, Optional
 from faststream.utils.context.types import Context as Context_
 
 
-def Context(
+def Context(  # noqa: N802
     real_name: str = "",
     *,
     cast: bool = False,
@@ -19,7 +19,7 @@ def Context(
     )
 
 
-def Header(
+def Header(  # noqa: N802
     real_name: str = "",
     *,
     cast: bool = True,
@@ -33,7 +33,7 @@ def Header(
     )
 
 
-def Path(
+def Path(  # noqa: N802
     real_name: str = "",
     *,
     cast: bool = True,

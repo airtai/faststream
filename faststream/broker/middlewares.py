@@ -223,6 +223,7 @@ class CriticalLogMiddleware(BaseMiddleware):
 
         Args:
             logger: an instance of the logging.Logger class
+            log_level: the log level to use for logging
 
         Returns:
             None

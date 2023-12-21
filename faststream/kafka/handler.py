@@ -75,14 +75,18 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
 
         Args:
             *topics: Variable length argument list of topics to consume from.
+            log_context_builder: Callable that builds the log context.
+            graceful_timeout: Optional timeout in seconds for graceful shutdown.
             group_id: Optional group ID for the consumer.
             client_id: Client ID for the consumer.
             builder: Callable that constructs an AIOKafkaConsumer instance.
+            is_manual: Flag indicating whether to manually commit offsets.
             batch: Flag indicating whether to consume messages in batches.
             batch_timeout_ms: Timeout in milliseconds for batch consumption.
             max_records: Maximum number of records to consume in a batch.
             title: Optional title for the consumer.
             description: Optional description for the consumer.
+            include_in_schema: Flag indicating whether to include the consumer in the API specification.
 
         Raises:
             NotImplementedError: If silent animals are not supported.

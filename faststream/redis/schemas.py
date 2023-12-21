@@ -9,6 +9,8 @@ from faststream.utils.path import compile_path
 
 
 class PubSub(NameRequired):
+    """A class to represent a Redis PubSub channel."""
+
     polling_interval: PositiveFloat = 1.0
     path_regex: Optional[Pattern[str]] = None
     pattern: bool = False
@@ -20,6 +22,13 @@ class PubSub(NameRequired):
         pattern: bool = False,
         polling_interval: PositiveFloat = 1.0,
     ) -> None:
+        """Redis PubSub channel parameters.
+
+        Args:
+            channel: (str): Redis PubSub channel name.
+            pattern: (bool): use pattern matching.
+            polling_interval: (float): wait message block.
+        """
         reg, path = compile_path(channel, replace_symbol="*")
 
         if reg is not None:
@@ -44,6 +53,8 @@ class PubSub(NameRequired):
 
 
 class ListSub(NameRequired):
+    """A class to represent a Redis List subscriber."""
+
     polling_interval: PositiveFloat = 0.1
     batch: bool = False
     max_records: PositiveInt = 10
@@ -55,6 +66,14 @@ class ListSub(NameRequired):
         max_records: PositiveInt = 10,
         polling_interval: PositiveFloat = 0.1,
     ) -> None:
+        """Redis List subscriber parameters.
+
+        Args:
+            channel: (str): Redis List name.
+            batch: (bool): consume messages in batches.
+            max_records: (int): max records per batch.
+            polling_interval: (float): wait message block.
+        """
         super().__init__(
             name=channel,
             batch=batch,
@@ -71,6 +90,8 @@ class ListSub(NameRequired):
 
 
 class StreamSub(NameRequired):
+    """A class to represent a Redis Stream subscriber."""
+
     polling_interval: Optional[PositiveInt] = Field(default=100, description="ms")
     group: Optional[str] = None
     consumer: Optional[str] = None
@@ -88,8 +109,7 @@ class StreamSub(NameRequired):
         no_ack: bool = False,
         last_id: Optional[str] = None,
     ) -> None:
-        """
-        Redis Stream subscriber parameters
+        """Redis Stream subscriber parameters.
 
         Args:
             stream: (str): Redis Stream name.
@@ -98,6 +118,7 @@ class StreamSub(NameRequired):
             consumer: (str | None): consumer name.
             batch: (bool): consume messages in batches.
             no_ack: (bool): do not add message to PEL.
+            last_id: (str | None): start reading from this ID.
         """
         if (group and not consumer) or (not group and consumer):
             raise ValueError("You should specify `group` and `consumer` both")

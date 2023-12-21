@@ -9,9 +9,9 @@ from tests.brokers.base.publish import BrokerPublishTestcase
 from tests.tools import spy_decorator
 
 
-@pytest.mark.rabbit
-class TestPublish(BrokerPublishTestcase):
-    @pytest.mark.asyncio
+@pytest.mark.rabbit()
+class TestPublish(BrokerPublishTestcase):  # noqa: D101
+    @pytest.mark.asyncio()
     async def test_reply_config(
         self,
         pub_broker: RabbitBroker,

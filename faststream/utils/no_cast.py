@@ -14,6 +14,7 @@ class NoCast(CustomField):
     """
 
     def __init__(self) -> None:
+        """Initialize the NoCast object."""
         super().__init__(cast=False)
 
     def use(self, **kwargs: Any) -> AnyDict:

@@ -145,9 +145,7 @@ async def test_exception_group(async_mock: AsyncMock, app: FastStream):
     async def raises():
         await async_mock.excp()
 
-    with patch.object(
-        app.broker, "start", async_mock.broker_run
-    ), patch.object(  # noqa: SIM117
+    with patch.object(app.broker, "start", async_mock.broker_run), patch.object(  # noqa: SIM117
         app.broker, "close", async_mock.broker_stopped
     ):
         with pytest.raises(ValueError):  # noqa: PT011

@@ -31,6 +31,8 @@ from faststream.utils.path import compile_path
 
 
 class LogicNatsHandler(AsyncHandler[Msg]):
+    """A class to represent a NATS handler."""
+
     subscription: Union[
         None,
         Subscription,
@@ -53,6 +55,20 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         title: Optional[str] = None,
         include_in_schema: bool = True,
     ) -> None:
+        """Initialize the NATS handler.
+
+        Args:
+            subject: The NATS subject.
+            log_context_builder: The log context builder.
+            queue: The NATS queue.
+            stream: The NATS stream.
+            pull_sub: The NATS pull subscription.
+            extra_options: The extra options.
+            graceful_timeout: The graceful timeout.
+            description: The description.
+            title: The title.
+            include_in_schema: Whether to include the handler in the schema.
+        """
         reg, path = compile_path(subject, replace_symbol="*")
         self.subject = path
         self.path_regex = reg
@@ -135,18 +151,17 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         sub = cast(JetStreamContext.PullSubscription, self.subscription)
 
         while self.running:  # pragma: no branch
-            with suppress(TimeoutError):
-                with self.lock:
-                    messages = await sub.fetch(
-                        batch=self.pull_sub.batch_size,
-                        timeout=self.pull_sub.timeout,
-                    )
+            with suppress(TimeoutError), self.lock:
+                messages = await sub.fetch(
+                    batch=self.pull_sub.batch_size,
+                    timeout=self.pull_sub.timeout,
+                )
 
-                    if messages:
-                        if self.pull_sub.batch:
-                            await self.consume(messages)  # type: ignore[arg-type]
-                        else:
-                            await asyncio.gather(*map(self.consume, messages))
+                if messages:
+                    if self.pull_sub.batch:
+                        await self.consume(messages)  # type: ignore[arg-type]
+                    else:
+                        await asyncio.gather(*map(self.consume, messages))
 
     @staticmethod
     def get_routing_hash(subject: str) -> str:

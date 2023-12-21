@@ -91,6 +91,9 @@ class RabbitRouter(BaseRouter):
             reply_to: The reply-to address for the message.
             title: The title of the message (AsyncAPI information).
             description: The description of the message (AsyncAPI information).
+            schema: The schema of the message (AsyncAPI information).
+            include_in_schema: Whether to include the message in the API specification (AsyncAPI information).
+            priority: The priority of the message.
             **message_kwargs: Additional keyword arguments to include in the message.
 
         Returns:

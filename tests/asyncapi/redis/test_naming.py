@@ -6,7 +6,7 @@ from faststream.redis import RedisBroker
 from tests.asyncapi.base.naming import NamingTestCase
 
 
-class TestNaming(NamingTestCase):
+class TestNaming(NamingTestCase):  # noqa: D101
     broker_class = RedisBroker
 
     def test_base(self):
@@ -60,7 +60,7 @@ class TestNaming(NamingTestCase):
 
     @pytest.mark.parametrize(
         "args",
-        (
+        (  # noqa: PT007
             pytest.param({"channel": "test"}, id="channel"),
             pytest.param({"list": "test"}, id="list"),
             pytest.param({"stream": "test"}, id="stream"),
@@ -78,7 +78,7 @@ class TestNaming(NamingTestCase):
 
     @pytest.mark.parametrize(
         "args",
-        (
+        (  # noqa: PT007
             pytest.param({"channel": "test"}, id="channel"),
             pytest.param({"list": "test"}, id="list"),
             pytest.param({"stream": "test"}, id="stream"),

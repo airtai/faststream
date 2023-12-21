@@ -74,21 +74,7 @@ T_HandlerReturn = TypeVar(
 
 
 class AsyncPublisherProtocol(Protocol):
-    """A protocol for an asynchronous publisher.
-
-    Methods:
-        publish(message: SendableMessage, correlation_id: Optional[str] = None, **kwargs: Any) -> Optional[SendableMessage]:
-            Publishes a message asynchronously.
-
-            Args:
-                message: The message to be published.
-                correlation_id: The correlation ID for the message (optional).
-                **kwargs: Additional keyword arguments.
-
-            Returns:
-                The published message (optional).
-
-    """
+    """A protocol for an asynchronous publisher."""
 
     async def publish(
         self,
@@ -96,7 +82,7 @@ class AsyncPublisherProtocol(Protocol):
         correlation_id: Optional[str] = None,
         **kwargs: Any,
     ) -> Optional[SendableMessage]:
-        """Publishes a message.
+        """Publishes a message asynchronously.
 
         Args:
             message: The message to be published.

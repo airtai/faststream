@@ -143,6 +143,7 @@ class BrokerUsecase(
             protocol_version: The version of the protocol.
             description: A description of the broker.
             tags: Tags associated with the broker.
+            asyncapi_url: The URL or list of URLs to the AsyncAPI schema.
             apply_types: Whether to apply types to messages.
             validate: Whether to cast types using Pydantic validation.
             logger: The logger to use.
@@ -152,6 +153,7 @@ class BrokerUsecase(
             middlewares: Middlewares to use.
             decoder: Custom decoder for messages.
             parser: Custom parser for messages.
+            security: Security scheme to use.
             **kwargs: Additional keyword arguments.
 
         """
@@ -396,6 +398,7 @@ class BrokerUsecase(
             func: A callable that takes a StreamMessage of type MsgType and returns an Awaitable of type T_HandlerReturn.
             watcher: An instance of BaseWatcher.
             disable_watcher: Whether to use watcher context.
+            kwargs: Additional keyword arguments.
 
         Returns:
             A callable that takes a StreamMessage of type MsgType and returns an Awaitable of type WrappedReturn[T_HandlerReturn].
@@ -458,8 +461,8 @@ class BrokerUsecase(
         """
         if self.started and not is_test_env():  # pragma: no cover
             warnings.warn(
-                "You are trying to register `handler` with already running broker\n"  # noqa: E501
-                "It has no effect until broker restarting.",  # noqa: E501
+                "You are trying to register `handler` with already running broker\n"
+                "It has no effect until broker restarting.",
                 category=RuntimeWarning,
                 stacklevel=1,
             )
@@ -531,7 +534,7 @@ def extend_dependencies(
 
 
 def _patch_fastapi_dependant(
-    dependant: CallModel[P_HandlerParams, Awaitable[T_HandlerReturn]]
+    dependant: CallModel[P_HandlerParams, Awaitable[T_HandlerReturn]],
 ) -> CallModel[P_HandlerParams, Awaitable[T_HandlerReturn]]:
     """Patch FastAPI dependant.
 
@@ -552,10 +555,7 @@ def _patch_fastapi_dependant(
     for p in params:
         if p.name not in params_names:
             params_names.add(p.name)
-            if PYDANTIC_V2:
-                info = p.field_info
-            else:
-                info = p
+            info = p.field_info if PYDANTIC_V2 else p
             params_unique[p.name] = (info.annotation, info.default)
 
     dependant.model = create_model(  # type: ignore[call-overload]

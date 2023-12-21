@@ -29,7 +29,7 @@ def test_base(lock: MultiLock):
     assert lock.qsize == 0
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @python310
 async def test_wait_correct(lock: MultiLock):
     async def func():
@@ -52,7 +52,7 @@ async def test_wait_correct(lock: MultiLock):
         await tg.start(check)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_nowait_correct(lock: MultiLock):
     async def func():
         with lock:

@@ -12,8 +12,8 @@ from tests.brokers.base.middlewares import LocalMiddlewareTestcase
 from tests.brokers.base.parser import LocalCustomParserTestcase
 
 
-@pytest.mark.asyncio
-class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
+@pytest.mark.asyncio()
+class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):  # noqa: D101
     build_message: AnyCallable
     route_class: Type[BrokerRoute]
 
@@ -331,11 +331,11 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
         event: asyncio.Event,
         mock: Mock,
     ):
-        class mid1(BaseMiddleware):
+        class mid1(BaseMiddleware):  # noqa: N801
             async def on_receive(self) -> None:
                 mock.mid1()
 
-        class mid2(BaseMiddleware):
+        class mid2(BaseMiddleware):  # noqa: N801
             async def on_receive(self) -> None:
                 mock.mid1.assert_called_once()
                 mock.mid2()
@@ -457,8 +457,8 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):
             mock.decoder.assert_called_once()
 
 
-@pytest.mark.asyncio
-class RouterLocalTestcase(RouterTestcase):
+@pytest.mark.asyncio()
+class RouterLocalTestcase(RouterTestcase):  # noqa: D101
     @pytest.fixture()
     def pub_broker(self, test_broker):
         return test_broker

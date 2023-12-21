@@ -7,11 +7,11 @@ from faststream.asyncapi.generate import get_app_schema
 from faststream.broker.core.abc import BrokerUsecase
 
 
-class PublisherTestcase:
+class PublisherTestcase:  # noqa: D101
     broker_class: Type[BrokerUsecase]
 
     def build_app(self, broker):
-        """Patch it to test FastAPI scheme generation too"""
+        """Patch it to test FastAPI scheme generation too"""  # noqa: D415
         return FastStream(broker)
 
     def test_publisher_with_description(self):
@@ -23,7 +23,7 @@ class PublisherTestcase:
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
-        key = tuple(schema["channels"].keys())[0]
+        key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
         assert schema["channels"][key]["description"] == "test description"
 
     def test_basic_publisher(self):
@@ -35,7 +35,7 @@ class PublisherTestcase:
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
-        key = tuple(schema["channels"].keys())[0]
+        key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
         assert schema["channels"][key].get("description") is None
         assert schema["channels"][key].get("publish") is not None
 

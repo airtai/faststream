@@ -73,7 +73,7 @@ except ImportError:
 
 
 try:
-    from fastapi import __version__ as FASTAPI_VERSION
+    from fastapi import __version__ as FASTAPI_VERSION  # noqa: N812
 
     HAS_FASTAPI = True
 

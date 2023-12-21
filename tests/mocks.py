@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from typing import Any, Mapping
 from unittest.mock import Mock
 
-from pytest import MonkeyPatch
+from pytest import MonkeyPatch  # noqa: PT013
 
 
 @contextmanager

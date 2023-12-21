@@ -7,7 +7,7 @@ from faststream.rabbit import TestRabbitBroker
 from faststream.redis import TestRedisBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_kafka_filtering():
     from docs.docs_src.getting_started.subscription.kafka.filter import (
         app,
@@ -21,7 +21,7 @@ async def test_kafka_filtering():
         default_handler.mock.assert_called_once_with("Hello, FastStream!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_rabbit_filtering():
     from docs.docs_src.getting_started.subscription.rabbit.filter import (
         app,
@@ -35,7 +35,7 @@ async def test_rabbit_filtering():
         default_handler.mock.assert_called_once_with("Hello, FastStream!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_nats_filtering():
     from docs.docs_src.getting_started.subscription.nats.filter import (
         app,
@@ -49,7 +49,7 @@ async def test_nats_filtering():
         default_handler.mock.assert_called_once_with("Hello, FastStream!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_redis_filtering():
     from docs.docs_src.getting_started.subscription.redis.filter import (
         app,

@@ -221,6 +221,8 @@ class RabbitExchange(NameRequired):
 
 
 class ReplyConfig(BaseModel):
+    """A class to represent a reply configuration."""
+
     mandatory: bool = True
     immediate: bool = False
     persist: bool = False

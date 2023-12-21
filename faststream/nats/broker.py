@@ -64,6 +64,8 @@ class NatsBroker(
     NatsLoggingMixin,
     BrokerAsyncUsecase[Msg, Client],
 ):
+    """A class to represent a NATS broker."""
+
     url: List[str]
     stream: Optional[JetStreamContext]
 
@@ -74,13 +76,22 @@ class NatsBroker(
 
     def __init__(
         self,
-        servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),  # noqa: B006
+        servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),
         *,
         security: Optional[BaseSecurity] = None,
         protocol: str = "nats",
         protocol_version: Optional[str] = "custom",
         **kwargs: Any,
     ) -> None:
+        """Initialize the NatsBroker object.
+
+        Args:
+            servers (Union[str, Sequence[str]]): The NATS server(s) to connect to.
+            security (Optional[BaseSecurity]): The security options.
+            protocol (str): The protocol to use.
+            protocol_version (Optional[str]): The protocol version to use.
+            **kwargs (Any): Additional keyword arguments.
+        """
         kwargs.update(parse_security(security))
 
         if kwargs.get("tls"):  # pragma: no cover
@@ -171,9 +182,8 @@ class NatsBroker(
         )
 
         await super().start()
-        assert (
-            self._connection and self.stream
-        ), "Broker should be started already"  # nosec B101
+        assert self._connection  # nosec B101
+        assert self.stream, "Broker should be started already"  # nosec B101
 
         for handler in self.handlers.values():
             stream = handler.stream
@@ -222,7 +232,10 @@ class NatsBroker(
         func: Callable[[StreamMessage[Msg]], Awaitable[T_HandlerReturn]],
         watcher: Callable[..., AsyncContextManager[None]],
         **kwargs: Any,
-    ) -> Callable[[StreamMessage[Msg]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
+    ) -> Callable[
+        [StreamMessage[Msg]],
+        Awaitable[WrappedReturn[T_HandlerReturn]],
+    ]:
         @wraps(func)
         async def process_wrapper(
             message: StreamMessage[Msg],
@@ -398,7 +411,11 @@ class NatsBroker(
 
         def consumer_wrapper(
             func: Callable[P_HandlerParams, T_HandlerReturn],
-        ) -> HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn,]:
+        ) -> HandlerCallWrapper[
+            Msg,
+            P_HandlerParams,
+            T_HandlerReturn,
+        ]:
             handler_call, dependant = self._wrap_handler(
                 func,
                 extra_dependencies=dependencies,

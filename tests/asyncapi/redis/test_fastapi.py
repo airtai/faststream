@@ -7,7 +7,7 @@ from tests.asyncapi.base.fastapi import FastAPITestCase
 from tests.asyncapi.base.publisher import PublisherTestcase
 
 
-class TestRouterArguments(FastAPITestCase, FastAPICompatible):
+class TestRouterArguments(FastAPITestCase, FastAPICompatible):  # noqa: D101
     broker_class: Type[RedisRouter] = RedisRouter
     broker_wrapper = staticmethod(TestRedisBroker)
 
@@ -15,7 +15,7 @@ class TestRouterArguments(FastAPITestCase, FastAPICompatible):
         return router
 
 
-class TestRouterPublisher(PublisherTestcase):
+class TestRouterPublisher(PublisherTestcase):  # noqa: D101
     broker_class = RedisRouter
 
     def build_app(self, router):

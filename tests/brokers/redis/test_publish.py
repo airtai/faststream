@@ -7,9 +7,9 @@ from faststream.redis import ListSub, RedisBroker
 from tests.brokers.base.publish import BrokerPublishTestcase
 
 
-@pytest.mark.redis
-@pytest.mark.asyncio
-class TestPublish(BrokerPublishTestcase):
+@pytest.mark.redis()
+@pytest.mark.asyncio()
+class TestPublish(BrokerPublishTestcase):  # noqa: D101
     async def test_list_publisher(
         self,
         queue: str,

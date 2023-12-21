@@ -104,6 +104,8 @@ class BaseWatcher(ABC):
 
 
 class EndlessWatcher(BaseWatcher):
+    """A class to watch and track messages."""
+
     def add(self, message_id: str) -> None:
         """Add a message to the list.
 
@@ -142,6 +144,8 @@ class EndlessWatcher(BaseWatcher):
 
 
 class OneTryWatcher(BaseWatcher):
+    """A class to watch and track messages."""
+
     def add(self, message_id: str) -> None:
         """Add a message.
 

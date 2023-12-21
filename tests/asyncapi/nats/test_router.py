@@ -6,7 +6,7 @@ from tests.asyncapi.base.publisher import PublisherTestcase
 from tests.asyncapi.base.router import RouterTestcase
 
 
-class TestRouter(RouterTestcase):
+class TestRouter(RouterTestcase):  # noqa: D101
     broker_class = NatsBroker
     router_class = NatsRouter
     route_class = NatsRoute
@@ -67,7 +67,7 @@ class TestRouter(RouterTestcase):
         }
 
 
-class TestRouterArguments(ArgumentsTestcase):
+class TestRouterArguments(ArgumentsTestcase):  # noqa: D101
     broker_class = NatsRouter
 
     def build_app(self, router):
@@ -76,7 +76,7 @@ class TestRouterArguments(ArgumentsTestcase):
         return FastStream(broker)
 
 
-class TestRouterPublisher(PublisherTestcase):
+class TestRouterPublisher(PublisherTestcase):  # noqa: D101
     broker_class = NatsRouter
 
     def build_app(self, router):

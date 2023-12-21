@@ -159,7 +159,10 @@ class RedisBroker(
         func: Callable[[StreamMessage[Any]], Awaitable[T_HandlerReturn]],
         watcher: Callable[..., AsyncContextManager[None]],
         **kwargs: Any,
-    ) -> Callable[[StreamMessage[Any]], Awaitable[WrappedReturn[T_HandlerReturn]],]: ...
+    ) -> Callable[
+        [StreamMessage[Any]],
+        Awaitable[WrappedReturn[T_HandlerReturn]],
+    ]: ...
     @override
     def subscriber(  # type: ignore[override]
         self,

@@ -10,8 +10,8 @@ from faststream.nats.test import TestNatsBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
-@pytest.mark.nats
-class TestRouter(FastAPITestcase):
+@pytest.mark.nats()
+class TestRouter(FastAPITestcase):  # noqa: D101
     router_class = NatsRouter
 
     async def test_consume_batch(
@@ -46,7 +46,7 @@ class TestRouter(FastAPITestcase):
         mock.assert_called_once_with(["hello"])
 
 
-class TestRouterLocal(FastAPILocalTestcase):
+class TestRouterLocal(FastAPILocalTestcase):  # noqa: D101
     router_class = NatsRouter
     broker_test = staticmethod(TestNatsBroker)
     build_message = staticmethod(build_message)

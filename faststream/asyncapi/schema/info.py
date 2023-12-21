@@ -24,12 +24,21 @@ except ImportError:  # pragma: no cover
     # NOTE: EmailStr mock was copied from the FastAPI
     # https://github.com/tiangolo/fastapi/blob/master/fastapi/openapi/models.py#24
     class EmailStr(str):  # type: ignore
+        """EmailStr is a string that should be an email.
+
+        Note: EmailStr mock was copied from the FastAPI:
+        https://github.com/tiangolo/fastapi/blob/master/fastapi/openapi/models.py#24
+
+        """
+
         @classmethod
         def __get_validators__(cls) -> Iterable[Callable[..., Any]]:
+            """Returns the validators for the EmailStr class."""
             yield cls.validate
 
         @classmethod
         def validate(cls, v: Any) -> str:
+            """Validates the EmailStr class."""
             logger.warning(
                 "email-validator bot installed, email fields will be treated as str.\n"
                 "To install, run: pip install email-validator"
@@ -50,6 +59,12 @@ except ImportError:  # pragma: no cover
             core_schema: CoreSchema,
             handler: GetJsonSchemaHandler,
         ) -> JsonSchemaValue:
+            """Returns the JSON schema for the EmailStr class.
+
+            Args:
+                core_schema : the core schema
+                handler : the handler
+            """
             return {"type": "string", "format": "email"}
 
         @classmethod
@@ -58,6 +73,12 @@ except ImportError:  # pragma: no cover
             source: Type[Any],
             handler: Callable[[Any], CoreSchema],
         ) -> JsonSchemaValue:
+            """Returns the core schema for the EmailStr class.
+
+            Args:
+                source : the source
+                handler : the handler
+            """
             return with_info_plain_validator_function(cls._validate)  # type: ignore[no-any-return]
 
 

@@ -23,6 +23,8 @@ from faststream.utils.functions import timeout_scope
 
 
 class NatsFastProducer:
+    """A class to represent a NATS producer."""
+
     _connection: Client
     _decoder: AsyncDecoder[Any]
     _parser: AsyncParser[Msg, Any]
@@ -33,6 +35,13 @@ class NatsFastProducer:
         parser: Optional[AsyncCustomParser[Msg, NatsMessage]],
         decoder: Optional[AsyncCustomDecoder[NatsMessage]],
     ) -> None:
+        """Initialize the NATS producer.
+
+        Args:
+            connection: The NATS connection.
+            parser: The parser.
+            decoder: The decoder.
+        """
         self._connection = connection
         self._parser = resolve_custom_func(parser, Parser.parse_message)
         self._decoder = resolve_custom_func(decoder, Parser.decode_message)
@@ -84,7 +93,7 @@ class NatsFastProducer:
                 msg = await future
 
             if msg:  # pragma: no branch
-                if msg.headers:  # pragma: no cover
+                if msg.headers:  # pragma: no cover # noqa: SIM102
                     if (
                         msg.headers.get(nats.js.api.Header.STATUS)
                         == nats.aio.client.NO_RESPONDERS_STATUS
@@ -96,6 +105,8 @@ class NatsFastProducer:
 
 
 class NatsJSFastProducer:
+    """A class to represent a NATS JetStream producer."""
+
     _connection: JetStreamContext
     _decoder: AsyncDecoder[Any]
     _parser: AsyncParser[Msg, Any]
@@ -106,6 +117,13 @@ class NatsJSFastProducer:
         parser: Optional[AsyncCustomParser[Msg, NatsMessage]],
         decoder: Optional[AsyncCustomDecoder[NatsMessage]],
     ) -> None:
+        """Initialize the NATS JetStream producer.
+
+        Args:
+            connection: The NATS JetStream connection.
+            parser: The parser.
+            decoder: The decoder.
+        """
         self._connection = connection
         self._parser = resolve_custom_func(parser, Parser.parse_message)
         self._decoder = resolve_custom_func(decoder, Parser.decode_message)
@@ -160,7 +178,7 @@ class NatsJSFastProducer:
                 msg = await future
 
             if msg:  # pragma: no branch
-                if msg.headers:  # pragma: no cover
+                if msg.headers:  # pragma: no cover # noqa: SIM102
                     if (
                         msg.headers.get(nats.js.api.Header.STATUS)
                         == nats.aio.client.NO_RESPONDERS_STATUS

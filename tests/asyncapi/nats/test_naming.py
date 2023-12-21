@@ -4,7 +4,7 @@ from faststream.nats import NatsBroker
 from tests.asyncapi.base.naming import NamingTestCase
 
 
-class TestNaming(NamingTestCase):
+class TestNaming(NamingTestCase):  # noqa: D101
     broker_class = NatsBroker
 
     def test_base(self):

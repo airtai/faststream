@@ -6,7 +6,7 @@ from faststream.rabbit import TestRabbitBroker
 from faststream.redis import TestRedisBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_nested_depends_kafka():
     from docs.docs_src.getting_started.dependencies.basic.kafka.nested_depends import (
         broker,
@@ -18,7 +18,7 @@ async def test_nested_depends_kafka():
         handler.mock.assert_called_once_with({})
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_nested_depends_rabbit():
     from docs.docs_src.getting_started.dependencies.basic.rabbit.nested_depends import (
         broker,
@@ -30,7 +30,7 @@ async def test_nested_depends_rabbit():
         handler.mock.assert_called_once_with({})
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_nested_depends_nats():
     from docs.docs_src.getting_started.dependencies.basic.nats.nested_depends import (
         broker,
@@ -42,7 +42,7 @@ async def test_nested_depends_nats():
         handler.mock.assert_called_once_with({})
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_nested_depends_redis():
     from docs.docs_src.getting_started.dependencies.basic.redis.nested_depends import (
         broker,

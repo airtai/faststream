@@ -83,6 +83,7 @@ class ContextRepo(Singleton):
 
         Args:
             key: The key of the local variable to retrieve.
+            default: The default value to return if the local variable is not found.
 
         Returns:
             The value of the local variable.
@@ -102,6 +103,7 @@ class ContextRepo(Singleton):
 
         Args:
             key: The key to retrieve the value for.
+            default: The default value to return if the key is not found.
 
         Returns:
             The value associated with the key.
@@ -126,11 +128,7 @@ class ContextRepo(Singleton):
             raise KeyError(f"`{self.context}` does not contains `{first}` key")
 
         for i in keys:
-            if isinstance(v, Mapping):
-                v = v[i]
-            else:
-                v = getattr(v, i)
-
+            v = v[i] if isinstance(v, Mapping) else getattr(v, i)
         return v
 
     def __getattr__(self, __name: str) -> Any:

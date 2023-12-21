@@ -14,6 +14,8 @@ if TYPE_CHECKING:
 
 
 class AioKafkaParser:
+    """A class to parse Kafka messages."""
+
     @staticmethod
     async def parse_message(
         message: ConsumerRecord,

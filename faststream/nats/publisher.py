@@ -13,6 +13,8 @@ from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
 @dataclass
 class LogicPublisher(BasePublisher[Msg]):
+    """A class to represent a NATS publisher."""
+
     subject: str = field(default="")
     reply_to: str = field(default="")
     headers: Optional[Dict[str, str]] = field(default=None)

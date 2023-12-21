@@ -29,6 +29,8 @@ def resolve_payloads(
 
     Args:
         payloads: A list of dictionaries representing payloads.
+        extra: The extra string to be added to the title (default '').
+        served_words: The number of words to be served (default 1).
 
     Returns:
         A dictionary representing the resolved payload.
