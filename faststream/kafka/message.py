@@ -1,14 +1,12 @@
-from typing import Any, Union
+from typing import Any
 
 import aiokafka
-import confluent_kafka
 
 from faststream.broker.message import StreamMessage
-from faststream.kafka.client import AsyncConfluentConsumer
 
 
 class KafkaMessage(
-    StreamMessage[Union[aiokafka.ConsumerRecord, confluent_kafka.Message]]
+    StreamMessage[aiokafka.ConsumerRecord]
 ):
     """
     Represents a Kafka message in the FastStream framework.
@@ -29,7 +27,7 @@ class KafkaMessage(
     def __init__(
         self,
         *args: Any,
-        consumer: Union[aiokafka.AIOKafkaConsumer, AsyncConfluentConsumer],
+        consumer: aiokafka.AIOKafkaConsumer,
         is_manual: bool = False,
         **kwargs: Any,
     ) -> None:

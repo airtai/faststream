@@ -1,11 +1,10 @@
-from typing import Dict, Optional, Union
+from typing import Dict, Optional
 from uuid import uuid4
 
 from aiokafka import AIOKafkaProducer
 
 from faststream.broker.parsers import encode_message
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.kafka.client import AsyncConfluentProducer
 from faststream.types import SendableMessage
 
 
@@ -22,16 +21,16 @@ class AioKafkaFastProducer:
 
     """
 
-    _producer: Optional[Union[AIOKafkaProducer, AsyncConfluentProducer]]
+    _producer: Optional[AIOKafkaProducer]
 
     def __init__(
         self,
-        producer: Union[AIOKafkaProducer, AsyncConfluentProducer],
-    ):
+        producer: AIOKafkaProducer,
+    ) -> None:
         """Initialize the class.
 
         Args:
-            producer: An instance of either AIOKafkaProducer or AsyncConfluentProducer.
+            producer: An instance of AIOKafkaProducer.
         !!! note
 
         """

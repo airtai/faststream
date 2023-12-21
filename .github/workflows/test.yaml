@@ -154,7 +154,7 @@ jobs:
           name: coverage
           path: coverage
 
-  test-confluent-kafka-real:
+  test-confluent-real:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     services:
@@ -186,7 +186,7 @@ jobs:
         run: pip install .[nats,kafka,rabbit,redis,docs,testing]
       - run: mkdir coverage
       - name: Test
-        run: bash scripts/test.sh -m "(slow and confluent_kafka) or confluent_kafka"
+        run: bash scripts/test.sh -m "(slow and confluent) or confluent"
         env:
           COVERAGE_FILE: coverage/.coverage.kafka-py
           CONTEXT: kafka-py
@@ -362,7 +362,7 @@ jobs:
     needs:
       - test
       - test-kafka-real
-      - test-confluent-kafka-real
+      - test-confluent-real
       - test-rabbit-real
       - test-nats-real
       - test-redis-real
@@ -406,7 +406,7 @@ jobs:
       - test-macos-latest
       - test-windows-latest
       - test-kafka-real
-      - test-confluent-kafka-real
+      - test-confluent-real
       - test-kafka-smoke
       - test-rabbit-real
       - test-rabbit-smoke
