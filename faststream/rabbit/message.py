@@ -6,8 +6,7 @@ from faststream.broker.message import StreamMessage
 
 
 class RabbitMessage(StreamMessage[aio_pika.IncomingMessage]):
-    """
-    A message class for working with RabbitMQ messages.
+    """A message class for working with RabbitMQ messages.
 
     This class extends `StreamMessage` to provide additional functionality for acknowledging, rejecting,
     or nack-ing RabbitMQ messages.
@@ -25,8 +24,7 @@ class RabbitMessage(StreamMessage[aio_pika.IncomingMessage]):
     """
 
     async def ack(self, **kwargs: Any) -> None:
-        """
-        Acknowledge the RabbitMQ message.
+        """Acknowledge the RabbitMQ message.
 
         Acknowledgment indicates that the message has been successfully processed.
 
@@ -44,8 +42,7 @@ class RabbitMessage(StreamMessage[aio_pika.IncomingMessage]):
         await pika_message.ack()
 
     async def nack(self, **kwargs: Any) -> None:
-        """
-        Negative Acknowledgment of the RabbitMQ message.
+        """Negative Acknowledgment of the RabbitMQ message.
 
         Nack-ing a message indicates that the message processing has failed and should be requeued.
 
@@ -63,8 +60,7 @@ class RabbitMessage(StreamMessage[aio_pika.IncomingMessage]):
         await pika_message.nack()
 
     async def reject(self, **kwargs: Any) -> None:
-        """
-        Reject the RabbitMQ message.
+        """Reject the RabbitMQ message.
 
         Rejecting a message indicates that the message processing has failed, and it should not be requeued.
 

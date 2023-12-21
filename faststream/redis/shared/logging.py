@@ -9,6 +9,8 @@ from faststream.types import AnyDict
 
 
 class RedisLoggingMixin(LoggingMixin):
+    """A class to represent a Redis logging mixin."""
+
     _max_channel_name: int
 
     def __init__(
@@ -19,6 +21,15 @@ class RedisLoggingMixin(LoggingMixin):
         log_fmt: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
+        """Initialize the Redis logging mixin.
+
+        Args:
+            *args: The arguments.
+            logger: The logger.
+            log_level: The log level.
+            log_fmt: The log format.
+            **kwargs: The keyword arguments.
+        """
         super().__init__(
             *args,
             logger=logger,

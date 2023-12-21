@@ -113,16 +113,20 @@ class ABCApp(ABC):
         self.external_docs = external_docs
 
     def set_broker(self, broker: BrokerAsyncUsecase[Any, Any]) -> None:
-        """Set already existed App object broker
-        Usefull then you create/init broker in `on_startup` hook"""
+        """Set already existed App object broker.
+
+        Usefull then you create/init broker in `on_startup` hook.
+        """
         self.broker = broker
 
     def on_startup(
         self,
         func: Callable[P_HookParams, T_HookReturn],
     ) -> Callable[P_HookParams, T_HookReturn]:
-        """Add hook running BEFORE broker connected
-        This hook also takes an extra CLI options as a kwargs"""
+        """Add hook running BEFORE broker connected.
+
+        This hook also takes an extra CLI options as a kwargs.
+        """
         self._on_startup_calling.append(apply_types(func))
         return func
 
@@ -130,7 +134,7 @@ class ABCApp(ABC):
         self,
         func: Callable[P_HookParams, T_HookReturn],
     ) -> Callable[P_HookParams, T_HookReturn]:
-        """Add hook running BEFORE broker disconnected"""
+        """Add hook running BEFORE broker disconnected."""
         self._on_shutdown_calling.append(apply_types(func))
         return func
 
@@ -138,7 +142,7 @@ class ABCApp(ABC):
         self,
         func: Callable[P_HookParams, T_HookReturn],
     ) -> Callable[P_HookParams, T_HookReturn]:
-        """Add hook running AFTER broker connected"""
+        """Add hook running AFTER broker connected."""
         self._after_startup_calling.append(apply_types(func))
         return func
 
@@ -146,7 +150,7 @@ class ABCApp(ABC):
         self,
         func: Callable[P_HookParams, T_HookReturn],
     ) -> Callable[P_HookParams, T_HookReturn]:
-        """Add hook running AFTER broker disconnected"""
+        """Add hook running AFTER broker disconnected."""
         self._after_shutdown_calling.append(apply_types(func))
         return func
 
@@ -213,16 +217,23 @@ class FastStream(ABCApp):
         tags: Optional[Sequence[Union[Tag, TagDict, AnyDict]]] = None,
         external_docs: Optional[Union[ExternalDocs, ExternalDocsDict, AnyDict]] = None,
     ) -> None:
-        """Asyncronous FastStream Application class
+        """Asyncronous FastStream Application class.
 
         stores and run broker, control hooks
 
         Args:
             broker: async broker to run (may be `None`, then specify by `set_broker`)
             logger: logger object to log startup/shutdown messages (`None` to disable)
+            lifespan: lifespan context to run application
             title: application title - for AsyncAPI docs
             version: application version - for AsyncAPI docs
             description: application description - for AsyncAPI docs
+            terms_of_service: application terms of service - for AsyncAPI docs
+            license: application license - for AsyncAPI docs
+            contact: application contact - for AsyncAPI docs
+            identifier: application identifier - for AsyncAPI docs
+            tags: application tags - for AsyncAPI docs
+            external_docs: application external docs - for AsyncAPI docs
         """
         super().__init__(
             broker=broker,
@@ -255,7 +266,7 @@ class FastStream(ABCApp):
         self,
         func: Callable[P_HookParams, T_HookReturn],
     ) -> Callable[P_HookParams, T_HookReturn]:
-        """Add hook running BEFORE broker connected
+        """Add hook running BEFORE broker connected.
 
         This hook also takes an extra CLI options as a kwargs
 
@@ -272,7 +283,7 @@ class FastStream(ABCApp):
         self,
         func: Callable[P_HookParams, T_HookReturn],
     ) -> Callable[P_HookParams, T_HookReturn]:
-        """Add hook running BEFORE broker disconnected
+        """Add hook running BEFORE broker disconnected.
 
         Args:
             func: async or sync func to call as a hook
@@ -287,7 +298,7 @@ class FastStream(ABCApp):
         self,
         func: Callable[P_HookParams, T_HookReturn],
     ) -> Callable[P_HookParams, T_HookReturn]:
-        """Add hook running AFTER broker connected
+        """Add hook running AFTER broker connected.
 
         Args:
             func: async or sync func to call as a hook
@@ -302,7 +313,7 @@ class FastStream(ABCApp):
         self,
         func: Callable[P_HookParams, T_HookReturn],
     ) -> Callable[P_HookParams, T_HookReturn]:
-        """Add hook running AFTER broker disconnected
+        """Add hook running AFTER broker disconnected.
 
         Args:
             func: async or sync func to call as a hook
@@ -318,10 +329,11 @@ class FastStream(ABCApp):
         log_level: int = logging.INFO,
         run_extra_options: Optional[Dict[str, SettingField]] = None,
     ) -> None:
-        """Run FastStream Application
+        """Run FastStream Application.
 
         Args:
             log_level: force application log level
+            run_extra_options: extra options for running the app
 
         Returns:
             Block an event loop until stopped

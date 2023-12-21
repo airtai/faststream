@@ -8,7 +8,8 @@ from faststream.utils.context import ContextRepo as CR
 from faststream.utils.context.main import context
 
 
-def Context(name: str) -> Any:
+def Context(name: str) -> Any:  # noqa: N802
+    """A dependency that returns a context object."""
     return params.Depends(
         lambda: context.resolve(name),
         use_cache=True,

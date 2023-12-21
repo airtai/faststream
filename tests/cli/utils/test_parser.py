@@ -27,7 +27,7 @@ ARG7 = ("--k7", "1", "2", "--k7", "3")
 
 @pytest.mark.parametrize(
     "args",
-    (
+    (  # noqa: PT007
         (APPLICATION, *ARG1, *ARG2, *ARG3, *ARG4, *ARG5, *ARG6, *ARG7),
         (*ARG1, APPLICATION, *ARG2, *ARG3, *ARG4, *ARG5, *ARG6, *ARG7),
         (*ARG1, *ARG2, APPLICATION, *ARG3, *ARG4, *ARG5, *ARG6, *ARG7),

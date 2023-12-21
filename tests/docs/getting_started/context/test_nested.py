@@ -3,7 +3,7 @@ import pytest
 from faststream.rabbit import TestRabbitBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test():
     from docs.docs_src.getting_started.context.nested import broker, handler
 

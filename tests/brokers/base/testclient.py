@@ -7,24 +7,24 @@ from tests.brokers.base.publish import BrokerPublishTestcase
 from tests.brokers.base.rpc import BrokerRPCTestcase
 
 
-class BrokerTestclientTestcase(
+class BrokerTestclientTestcase(  # noqa: D101
     BrokerPublishTestcase, BrokerConsumeTestcase, BrokerRPCTestcase
 ):
     build_message: AnyCallable
 
     @pytest.fixture()
     def pub_broker(self, test_broker):
-        yield test_broker
+        return test_broker
 
     @pytest.fixture()
     def consume_broker(self, test_broker):
-        yield test_broker
+        return test_broker
 
     @pytest.fixture()
     def rpc_broker(self, test_broker):
-        yield test_broker
+        return test_broker
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_subscriber_mock(self, queue: str, test_broker: BrokerUsecase):
         @test_broker.subscriber(queue)
         async def m():
@@ -34,7 +34,7 @@ class BrokerTestclientTestcase(
         await test_broker.publish("hello", queue)
         m.mock.assert_called_once_with("hello")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_publisher_mock(self, queue: str, test_broker: BrokerUsecase):
         publisher = test_broker.publisher(queue + "resp")
 
@@ -47,7 +47,7 @@ class BrokerTestclientTestcase(
         await test_broker.publish("hello", queue)
         publisher.mock.assert_called_with("response")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_manual_publisher_mock(self, queue: str, test_broker: BrokerUsecase):
         publisher = test_broker.publisher(queue + "resp")
 
@@ -59,7 +59,7 @@ class BrokerTestclientTestcase(
         await test_broker.publish("hello", queue)
         publisher.mock.assert_called_with("response")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_exception_raises(self, queue: str, test_broker: BrokerUsecase):
         @test_broker.subscriber(queue)
         async def m():  # pragma: no cover
@@ -67,5 +67,5 @@ class BrokerTestclientTestcase(
 
         await test_broker.start()
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # noqa: PT011
             await test_broker.publish("hello", queue)

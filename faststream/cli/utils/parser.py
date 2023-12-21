@@ -20,11 +20,14 @@ def parse_cli_args(*args: str) -> Tuple[str, Dict[str, SettingField]]:
 
     field_args: List[str] = []
     app = ""
-    for item in reduce(
-        lambda acc, x: acc + x.split("="),  # type: ignore
-        args,
-        [],
-    ) + ["-"]:
+    for item in [
+        *reduce(
+            lambda acc, x: acc + x.split("="),  # type: ignore
+            args,
+            [],
+        ),
+        "-",
+    ]:
         if ":" in item:
             app = item
 
@@ -45,7 +48,7 @@ def parse_cli_args(*args: str) -> Tuple[str, Dict[str, SettingField]]:
                         if not isinstance(exists, list):
                             v = [exists, v]
                         else:
-                            v = exists + [v]
+                            v = [*exists, v]
 
                     extra_kwargs[key] = v
                     field_args = []

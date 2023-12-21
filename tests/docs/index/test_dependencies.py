@@ -3,7 +3,7 @@ import pytest
 from faststream.kafka import TestKafkaBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_index_dep():
     from docs.docs_src.index.dependencies import base_handler, broker
 

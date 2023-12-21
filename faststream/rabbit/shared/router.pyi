@@ -16,7 +16,7 @@ from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
 from faststream.types import AnyDict
 
 class RabbitRoute:
-    """Delayed `RabbitBroker.subscriber()` registration object"""
+    """Delayed `RabbitBroker.subscriber()` registration object."""
 
     def __init__(
         self,

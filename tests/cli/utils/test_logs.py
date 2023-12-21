@@ -9,11 +9,11 @@ from faststream.rabbit import RabbitBroker
 
 @pytest.mark.parametrize(
     ("level", "broker"),
-    (
+    (  # noqa: PT007
         pytest.param(logging.ERROR, RabbitBroker(), id=str(logging.ERROR)),
         *(
             pytest.param(level, RabbitBroker(), id=level)
-            for level in LogLevels.__members__.keys()
+            for level in LogLevels.__members__
         ),
         *(
             pytest.param(level, RabbitBroker(), id=str(level))
@@ -29,7 +29,7 @@ def test_set_level(level, app: FastStream):
 
 @pytest.mark.parametrize(
     ("level", "broker"),
-    (
+    (  # noqa: PT007
         pytest.param(
             logging.CRITICAL,
             FastStream(),

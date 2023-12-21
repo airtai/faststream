@@ -6,13 +6,13 @@ from faststream.redis import RedisBroker, RedisRoute, RedisRouter
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 
-@pytest.mark.redis
-class TestRouter(RouterTestcase):
+@pytest.mark.redis()
+class TestRouter(RouterTestcase):  # noqa: D101
     broker_class = RedisRouter
     route_class = RedisRoute
 
 
-class TestRouterLocal(RouterLocalTestcase):
+class TestRouterLocal(RouterLocalTestcase):  # noqa: D101
     broker_class = RedisRouter
     route_class = RedisRoute
 

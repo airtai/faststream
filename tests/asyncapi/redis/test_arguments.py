@@ -3,7 +3,7 @@ from faststream.redis import RedisBroker, StreamSub
 from tests.asyncapi.base.arguments import ArgumentsTestcase
 
 
-class TestArguments(ArgumentsTestcase):
+class TestArguments(ArgumentsTestcase):  # noqa: D101
     broker_class = RedisBroker
 
     def test_channel_subscriber(self):
@@ -14,7 +14,7 @@ class TestArguments(ArgumentsTestcase):
             ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
-        key = tuple(schema["channels"].keys())[0]
+        key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
             "redis": {
@@ -32,7 +32,7 @@ class TestArguments(ArgumentsTestcase):
             ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
-        key = tuple(schema["channels"].keys())[0]
+        key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
             "redis": {
@@ -50,7 +50,7 @@ class TestArguments(ArgumentsTestcase):
             ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
-        key = tuple(schema["channels"].keys())[0]
+        key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
             "redis": {"bindingVersion": "custom", "channel": "test", "method": "lpop"}
@@ -64,7 +64,7 @@ class TestArguments(ArgumentsTestcase):
             ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
-        key = tuple(schema["channels"].keys())[0]
+        key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
             "redis": {"bindingVersion": "custom", "channel": "test", "method": "xread"}
@@ -78,7 +78,7 @@ class TestArguments(ArgumentsTestcase):
             ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
-        key = tuple(schema["channels"].keys())[0]
+        key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
             "redis": {

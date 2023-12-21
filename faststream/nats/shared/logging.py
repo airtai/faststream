@@ -9,6 +9,8 @@ from faststream.types import AnyDict
 
 
 class NatsLoggingMixin(LoggingMixin):
+    """A class to represent a NATS logging mixin."""
+
     _max_queue_len: int
     _max_subject_len: int
 
@@ -20,6 +22,15 @@ class NatsLoggingMixin(LoggingMixin):
         log_fmt: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
+        """Initialize the NATS logging mixin.
+
+        Args:
+            *args: The arguments.
+            logger: The logger.
+            log_level: The log level.
+            log_fmt: The log format.
+            **kwargs: The keyword arguments.
+        """
         super().__init__(
             *args,
             logger=logger,

@@ -10,8 +10,7 @@ Warning: This will send your data to the broker unencrypted!
 
 
 class BaseSecurity:
-    """
-    Base class for defining security configurations.
+    """Base class for defining security configurations.
 
     This class provides a base for defining security configurations for communication with a broker. It allows setting
     SSL encryption and provides methods to retrieve security requirements and schemas.
@@ -38,6 +37,12 @@ class BaseSecurity:
         ssl_context: Optional[SSLContext] = None,
         use_ssl: Optional[bool] = None,
     ) -> None:
+        """Initialize the security configuration.
+
+        Args:
+            ssl_context (Optional[SSLContext]): An SSLContext object for SSL encryption. If None, SSL encryption is disabled.
+            use_ssl (Optional[bool]): A boolean indicating whether to use SSL encryption. Defaults to True.
+        """
         if ssl_context is not None:
             use_ssl = True
 
@@ -45,8 +50,7 @@ class BaseSecurity:
         self.ssl_context = ssl_context
 
     def get_requirement(self) -> List[AnyDict]:
-        """
-        Get the security requirements.
+        """Get the security requirements.
 
         Returns:
             List[AnyDict]: A list of dictionaries representing security requirements.
@@ -54,8 +58,7 @@ class BaseSecurity:
         return []
 
     def get_schema(self) -> Dict[str, Dict[str, str]]:
-        """
-        Get the security schema.
+        """Get the security schema.
 
         Returns:
             Dict[str, Dict[str, str]]: A dictionary representing the security schema.
@@ -64,8 +67,7 @@ class BaseSecurity:
 
 
 class SASLPlaintext(BaseSecurity):
-    """
-    Security configuration for SASL/PLAINTEXT authentication.
+    """Security configuration for SASL/PLAINTEXT authentication.
 
     This class defines security configuration for SASL/PLAINTEXT authentication, which includes a username and password.
 
@@ -91,13 +93,20 @@ class SASLPlaintext(BaseSecurity):
         ssl_context: Optional[SSLContext] = None,
         use_ssl: Optional[bool] = None,
     ) -> None:
+        """Initialize the SASL/PLAINTEXT security configuration.
+
+        Args:
+            username (str): The username for authentication.
+            password (str): The password for authentication.
+            ssl_context (Optional[SSLContext]): An SSLContext object for SSL encryption. If None, SSL encryption is disabled.
+            use_ssl (Optional[bool]): A boolean indicating whether to use SSL encryption. Defaults to True.
+        """
         super().__init__(ssl_context, use_ssl)
         self.username = username
         self.password = password
 
     def get_requirement(self) -> List[AnyDict]:
-        """
-        Get the security requirements for SASL/PLAINTEXT authentication.
+        """Get the security requirements for SASL/PLAINTEXT authentication.
 
         Returns:
             List[AnyDict]: A list of dictionaries representing security requirements.
@@ -105,8 +114,7 @@ class SASLPlaintext(BaseSecurity):
         return [{"user-password": []}]
 
     def get_schema(self) -> Dict[str, Dict[str, str]]:
-        """
-        Get the security schema for SASL/PLAINTEXT authentication.
+        """Get the security schema for SASL/PLAINTEXT authentication.
 
         Returns:
             Dict[str, Dict[str, str]]: A dictionary representing the security schema.
@@ -115,8 +123,7 @@ class SASLPlaintext(BaseSecurity):
 
 
 class SASLScram256(BaseSecurity):
-    """
-    Security configuration for SASL/SCRAM-SHA-256 authentication.
+    """Security configuration for SASL/SCRAM-SHA-256 authentication.
 
     This class defines security configuration for SASL/SCRAM-SHA-256 authentication, which includes a username and password.
 
@@ -142,13 +149,20 @@ class SASLScram256(BaseSecurity):
         ssl_context: Optional[SSLContext] = None,
         use_ssl: Optional[bool] = None,
     ) -> None:
+        """Initialize the SASL/SCRAM-SHA-256 security configuration.
+
+        Args:
+            username (str): The username for authentication.
+            password (str): The password for authentication.
+            ssl_context (Optional[SSLContext]): An SSLContext object for SSL encryption. If None, SSL encryption is disabled.
+            use_ssl (Optional[bool]): A boolean indicating whether to use SSL encryption. Defaults to True.
+        """
         super().__init__(ssl_context, use_ssl)
         self.username = username
         self.password = password
 
     def get_requirement(self) -> List[AnyDict]:
-        """
-        Get the security requirements for SASL/SCRAM-SHA-256 authentication.
+        """Get the security requirements for SASL/SCRAM-SHA-256 authentication.
 
         Returns:
             List[AnyDict]: A list of dictionaries representing security requirements.
@@ -156,8 +170,7 @@ class SASLScram256(BaseSecurity):
         return [{"scram256": []}]
 
     def get_schema(self) -> Dict[str, Dict[str, str]]:
-        """
-        Get the security schema for SASL/SCRAM-SHA-256 authentication.
+        """Get the security schema for SASL/SCRAM-SHA-256 authentication.
 
         Returns:
             Dict[str, Dict[str, str]]: A dictionary representing the security schema.
@@ -166,8 +179,7 @@ class SASLScram256(BaseSecurity):
 
 
 class SASLScram512(BaseSecurity):
-    """
-    Security configuration for SASL/SCRAM-SHA-512 authentication.
+    """Security configuration for SASL/SCRAM-SHA-512 authentication.
 
     This class defines security configuration for SASL/SCRAM-SHA-512 authentication, which includes a username and password.
 
@@ -193,13 +205,20 @@ class SASLScram512(BaseSecurity):
         ssl_context: Optional[SSLContext] = None,
         use_ssl: Optional[bool] = None,
     ) -> None:
+        """Initialize the SASL/SCRAM-SHA-512 security configuration.
+
+        Args:
+            username (str): The username for authentication.
+            password (str): The password for authentication.
+            ssl_context (Optional[SSLContext]): An SSLContext object for SSL encryption. If None, SSL encryption is disabled.
+            use_ssl (Optional[bool]): A boolean indicating whether to use SSL encryption. Defaults to True.
+        """
         super().__init__(ssl_context, use_ssl)
         self.username = username
         self.password = password
 
     def get_requirement(self) -> List[AnyDict]:
-        """
-        Get the security requirements for SASL/SCRAM-SHA-512 authentication.
+        """Get the security requirements for SASL/SCRAM-SHA-512 authentication.
 
         Returns:
             List[AnyDict]: A list of dictionaries representing security requirements.
@@ -207,8 +226,7 @@ class SASLScram512(BaseSecurity):
         return [{"scram512": []}]
 
     def get_schema(self) -> Dict[str, Dict[str, str]]:
-        """
-        Get the security schema for SASL/SCRAM-SHA-512 authentication.
+        """Get the security schema for SASL/SCRAM-SHA-512 authentication.
 
         Returns:
             Dict[str, Dict[str, str]]: A dictionary representing the security schema.

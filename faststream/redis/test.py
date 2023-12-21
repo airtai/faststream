@@ -16,6 +16,8 @@ __all__ = ("TestRedisBroker",)
 
 
 class TestRedisBroker(TestBroker[RedisBroker]):
+    """A class to test Redis brokers."""
+
     @staticmethod
     def patch_publisher(
         broker: RedisBroker,

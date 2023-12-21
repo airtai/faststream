@@ -58,9 +58,7 @@ def main(
         help="Show current platform, python and FastStream version",
     ),
 ) -> None:
-    """
-    Generate, run and manage FastStream apps to greater development experience
-    """
+    """Generate, run and manage FastStream apps to greater development experience."""
 
 
 @cli.command(
@@ -106,7 +104,7 @@ def run(
         ),
     ),
 ) -> None:
-    """Run [MODULE:APP] FastStream application"""
+    """Run [MODULE:APP] FastStream application."""
     if watch_extensions and not reload:
         typer.echo(
             "Extra reload extensions has no effect without `--reload` flag."

@@ -6,8 +6,8 @@ from faststream.nats import NatsRoute, NatsRouter
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 
-@pytest.mark.nats
-class TestRouter(RouterTestcase):
+@pytest.mark.nats()
+class TestRouter(RouterTestcase):  # noqa: D101
     broker_class = NatsRouter
     route_class = NatsRoute
 
@@ -40,6 +40,6 @@ class TestRouter(RouterTestcase):
         assert event.is_set()
 
 
-class TestRouterLocal(RouterLocalTestcase):
+class TestRouterLocal(RouterLocalTestcase):  # noqa: D101
     broker_class = NatsRouter
     route_class = NatsRoute

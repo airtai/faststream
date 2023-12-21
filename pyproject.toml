@@ -95,6 +95,7 @@ devdocs = [
     "mkdocs-glightbox==0.3.5",  # img zoom
     "pillow==10.1.0",
     "cairosvg==2.7.1",
+    "black==23.12.0",
     "requests",  # do not pin it
 ]
 
@@ -107,8 +108,6 @@ lint = [
     "types-docutils",
     "confluent-kafka-stubs",
     "mypy==1.7.1",
-    "black==23.12.0",
-    "isort==5.13.2",
     "ruff==0.1.8",
     "pyupgrade-directories==0.3.0",
     "bandit==1.7.6",
@@ -181,33 +180,57 @@ disallow_incomplete_defs = true
 disallow_untyped_decorators = true
 disallow_any_unimported = false
 
-[tool.isort]
-profile = "black"
-known_first_party = ["faststream"]
-
-[tool.black]
-line-length = 88
-target-version = ['py38']
-include = '\.pyi?$'
-
 [tool.ruff]
 fix = true
 line-length = 88
-target-version = "py38"
+# target-version = 'py38'
+include = ["faststream/**/*.py", "faststream/**/*.pyi", "tests/**/*.py", "docs/**/*.py", "pyproject.toml"]
+exclude = ["docs/docs_src"]
+
+[tool.ruff.lint]
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-    "Q",   # flake8-quotes
-    "T20", # flake8-print
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "C90",   # mccabe
+    "N",     # pep8-naming
+    "D",     # pydocstyle
+    "F",     # pyflakes
+    "I",     # isort
+    "ASYNC", # flake8-async
+    "C",     # flake8-comprehensions
+    "B",     # flake8-bugbear
+    "Q",     # flake8-quotes
+    "T20",   # flake8-print
+    "SIM",   # flake8-simplify
+    "PT",    # flake8-pytest-style
+    "PTH",   # flake8-use-pathlib
+    "RUF",   # Ruff-specific rules
 ]
+
 ignore = [
-    "E501",  # line too long, handled by black
+    "E501",  # line too long, handled by formatter later
     "C901",  # too complex
+    "D418",  # Function decorated with `@overload` shouldn't contain a docstring
+
+    # todo pep8-naming
+    "N817",  # CamelCase `*` imported as acronym `*`
+    "N815",  # Variable `*` in class scope should not be mixedCase
+    "N803",  # Argument name `expandMessageExamples` should be lowercase
+
+    # todo pydocstyle
+    "D100",  # missing docstring in public module
+    "D102",
+    "D103",
+    "D104",  # missing docstring in public package
+    "D105",
+    "D106",  # Missing docstring in public nested class
 ]
+
+[tool.ruff.lint.isort]
+case-sensitive = true
+
+[tool.ruff.format]
+docstring-code-format = true
 
 [tool.ruff.pydocstyle]
 convention = "google"

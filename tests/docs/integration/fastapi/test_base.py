@@ -7,7 +7,7 @@ from faststream.rabbit import TestRabbitBroker
 from faststream.redis import TestRedisBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_fastapi_kafka_base():
     from docs.docs_src.integrations.fastapi.kafka.base import app, hello, router
 
@@ -19,12 +19,12 @@ async def test_fastapi_kafka_base():
 
         hello.mock.assert_called_once_with({"m": {}})
 
-        list(br._publishers.values())[0].mock.assert_called_with(
+        list(br._publishers.values())[0].mock.assert_called_with(  # noqa: RUF015
             {"response": "Hello, Kafka!"}
         )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_fastapi_rabbit_base():
     from docs.docs_src.integrations.fastapi.rabbit.base import app, hello, router
 
@@ -36,12 +36,12 @@ async def test_fastapi_rabbit_base():
 
         hello.mock.assert_called_once_with({"m": {}})
 
-        list(br._publishers.values())[0].mock.assert_called_with(
+        list(br._publishers.values())[0].mock.assert_called_with(  # noqa: RUF015
             {"response": "Hello, Rabbit!"}
         )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_fastapi_nats_base():
     from docs.docs_src.integrations.fastapi.nats.base import app, hello, router
 
@@ -53,12 +53,12 @@ async def test_fastapi_nats_base():
 
         hello.mock.assert_called_once_with({"m": {}})
 
-        list(br._publishers.values())[0].mock.assert_called_with(
+        list(br._publishers.values())[0].mock.assert_called_with(  # noqa: RUF015
             {"response": "Hello, NATS!"}
         )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_fastapi_redis_base():
     from docs.docs_src.integrations.fastapi.redis.base import app, hello, router
 
@@ -70,6 +70,6 @@ async def test_fastapi_redis_base():
 
         hello.mock.assert_called_once_with({"m": {}})
 
-        list(br._publishers.values())[0].mock.assert_called_with(
+        list(br._publishers.values())[0].mock.assert_called_with(  # noqa: RUF015
             {"response": "Hello, Redis!"}
         )

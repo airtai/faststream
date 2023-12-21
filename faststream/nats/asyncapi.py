@@ -14,6 +14,8 @@ from faststream.nats.publisher import LogicPublisher
 
 
 class Handler(LogicNatsHandler):
+    """A class to represent a NATS handler."""
+
     def schema(self) -> Dict[str, Channel]:
         if not self.include_in_schema:
             return {}
@@ -43,6 +45,8 @@ class Handler(LogicNatsHandler):
 
 
 class Publisher(LogicPublisher):
+    """A class to represent a NATS publisher."""
+
     def schema(self) -> Dict[str, Channel]:
         if not self.include_in_schema:
             return {}

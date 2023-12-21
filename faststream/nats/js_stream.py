@@ -29,6 +29,8 @@ __all__ = (
 
 
 class JStream(NameRequired):
+    """A class to represent a JetStream stream."""
+
     config: StreamConfig
 
     subjects: List[str] = Field(default_factory=list)
@@ -41,6 +43,14 @@ class JStream(NameRequired):
         declare: bool = True,
         **kwargs: Any,
     ) -> None:
+        """Initialize the JetStream stream.
+
+        Args:
+            name: The stream name.
+            *args: The arguments.
+            declare: Whether to declare the stream.
+            **kwargs: The keyword arguments.
+        """
         super().__init__(
             name=name,
             declare=declare,

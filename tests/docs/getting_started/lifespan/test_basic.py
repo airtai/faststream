@@ -10,7 +10,7 @@ from tests.mocks import mock_pydantic_settings_env
 
 
 @pydanticV2
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_rabbit_basic_lifespan():
     with mock_pydantic_settings_env({"host": "localhost"}):
         from docs.docs_src.getting_started.lifespan.rabbit.basic import app, broker
@@ -20,7 +20,7 @@ async def test_rabbit_basic_lifespan():
 
 
 @pydanticV2
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_kafka_basic_lifespan():
     with mock_pydantic_settings_env({"host": "localhost"}):
         from docs.docs_src.getting_started.lifespan.kafka.basic import app, broker
@@ -30,7 +30,7 @@ async def test_kafka_basic_lifespan():
 
 
 @pydanticV2
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_nats_basic_lifespan():
     with mock_pydantic_settings_env({"host": "localhost"}):
         from docs.docs_src.getting_started.lifespan.nats.basic import app, broker
@@ -40,7 +40,7 @@ async def test_nats_basic_lifespan():
 
 
 @pydanticV2
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_redis_basic_lifespan():
     with mock_pydantic_settings_env({"host": "localhost"}):
         from docs.docs_src.getting_started.lifespan.redis.basic import app, broker

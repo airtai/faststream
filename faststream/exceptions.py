@@ -1,25 +1,25 @@
-class SkipMessage(Exception):
-    """Watcher Instruction to skip message"""
+class SkipMessage(Exception):  # noqa: N818
+    """Watcher Instruction to skip message."""
 
 
-class StopConsume(Exception):
-    """Raise it to stop Handler consuming"""
+class StopConsume(Exception):  # noqa: N818
+    """Raise it to stop Handler consuming."""
 
 
-class HandlerException(Exception):
-    """Base Handler Exception"""
+class HandlerException(Exception):  # noqa: N818
+    """Base Handler Exception."""
 
 
 class AckMessage(HandlerException):
-    """Raise it to `ack` a message immediately"""
+    """Raise it to `ack` a message immediately."""
 
 
 class NackMessage(HandlerException):
-    """Raise it to `nack` a message immediately"""
+    """Raise it to `nack` a message immediately."""
 
 
 class RejectMessage(HandlerException):
-    """Raise it to `reject` a message immediately"""
+    """Raise it to `reject` a message immediately."""
 
 
 WRONG_PUBLISH_ARGS = ValueError(

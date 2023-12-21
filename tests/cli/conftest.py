@@ -8,7 +8,7 @@ def broker():
     # separate import from e2e tests
     from faststream.rabbit import RabbitBroker
 
-    yield RabbitBroker()
+    return RabbitBroker()
 
 
 @pytest.fixture()

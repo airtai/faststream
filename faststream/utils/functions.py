@@ -28,7 +28,7 @@ __all__ = (
 
 @overload
 def to_async(
-    func: Callable[F_Spec, Awaitable[F_Return]]
+    func: Callable[F_Spec, Awaitable[F_Return]],
 ) -> Callable[F_Spec, Awaitable[F_Return]]:
     """Convert a synchronous function to an asynchronous function.
 
@@ -61,7 +61,7 @@ def to_async(
     func: Union[
         Callable[F_Spec, F_Return],
         Callable[F_Spec, Awaitable[F_Return]],
-    ]
+    ],
 ) -> Callable[F_Spec, Awaitable[F_Return]]:
     """Converts a synchronous function to an asynchronous function.
 
@@ -118,10 +118,7 @@ def timeout_scope(
     raise_timeout: bool = False,
 ) -> ContextManager[anyio.CancelScope]:
     scope: Callable[[Optional[float]], ContextManager[anyio.CancelScope]]
-    if raise_timeout:
-        scope = anyio.fail_after
-    else:
-        scope = anyio.move_on_after
+    scope = anyio.fail_after if raise_timeout else anyio.move_on_after
 
     return scope(timeout)
 
@@ -132,7 +129,7 @@ async def fake_context(*args: Any, **kwargs: Any) -> AsyncIterator[None]:
 
 
 def drop_response_type(
-    model: CallModel[F_Spec, F_Return]
+    model: CallModel[F_Spec, F_Return],
 ) -> CallModel[F_Spec, F_Return]:
     model.response_model = None
     return model

@@ -7,7 +7,7 @@ from faststream.kafka import KafkaBroker, KafkaRouter, TestKafkaBroker
 
 
 @dataclass
-class Settings:
+class Settings:  # noqa: D101
     url = "localhost:9092"
 
 
@@ -22,7 +22,7 @@ def router():
 
 
 @pytest_asyncio.fixture()
-@pytest.mark.kafka
+@pytest.mark.kafka()
 async def broker(settings):
     broker = KafkaBroker(settings.url, apply_types=False)
     async with broker:
@@ -30,7 +30,7 @@ async def broker(settings):
 
 
 @pytest_asyncio.fixture()
-@pytest.mark.kafka
+@pytest.mark.kafka()
 async def full_broker(settings):
     broker = KafkaBroker(settings.url)
     async with broker:

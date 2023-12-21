@@ -74,7 +74,7 @@ class NatsBroker(
 
     def __init__(
         self,
-        servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),  # noqa: B006
+        servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),
         *,
         error_cb: Optional[ErrorCallback] = None,
         disconnected_cb: Optional[Callback] = None,
@@ -134,7 +134,7 @@ class NatsBroker(
     ) -> None: ...
     async def connect(
         self,
-        servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),  # noqa: B006
+        servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),
         *,
         error_cb: Optional[ErrorCallback] = None,
         disconnected_cb: Optional[Callback] = None,
@@ -170,7 +170,7 @@ class NatsBroker(
     @override
     async def _connect(  # type: ignore[override]
         self,
-        servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),  # noqa: B006
+        servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),
         *,
         error_cb: Optional[ErrorCallback] = None,
         disconnected_cb: Optional[Callback] = None,
@@ -215,7 +215,10 @@ class NatsBroker(
         func: Callable[[StreamMessage[Msg]], Awaitable[T_HandlerReturn]],
         watcher: Callable[..., AsyncContextManager[None]],
         **kwargs: Any,
-    ) -> Callable[[StreamMessage[Msg]], Awaitable[WrappedReturn[T_HandlerReturn]],]: ...
+    ) -> Callable[
+        [StreamMessage[Msg]],
+        Awaitable[WrappedReturn[T_HandlerReturn]],
+    ]: ...
     def _log_connection_broken(
         self,
         error_cb: Optional[ErrorCallback] = None,

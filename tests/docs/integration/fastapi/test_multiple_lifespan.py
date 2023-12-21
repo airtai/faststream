@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 
-class BaseCase:
+class BaseCase:  # noqa: D101
     def test_running(self, data):
         app, core_router, nested_router = data
 
@@ -28,8 +28,8 @@ class BaseCase:
                 assert h.running
 
 
-@pytest.mark.kafka
-class TestKafka(BaseCase):
+@pytest.mark.kafka()
+class TestKafka(BaseCase):  # noqa: D101
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.kafka.multiple_lifespan import (
@@ -41,8 +41,8 @@ class TestKafka(BaseCase):
         return (app, core_router, nested_router)
 
 
-@pytest.mark.nats
-class TestNats(BaseCase):
+@pytest.mark.nats()
+class TestNats(BaseCase):  # noqa: D101
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.nats.multiple_lifespan import (
@@ -54,8 +54,8 @@ class TestNats(BaseCase):
         return (app, core_router, nested_router)
 
 
-@pytest.mark.rabbit
-class TestRabbit(BaseCase):
+@pytest.mark.rabbit()
+class TestRabbit(BaseCase):  # noqa: D101
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.rabbit.multiple_lifespan import (
@@ -67,8 +67,8 @@ class TestRabbit(BaseCase):
         return (app, core_router, nested_router)
 
 
-@pytest.mark.redis
-class TestRedis(BaseCase):
+@pytest.mark.redis()
+class TestRedis(BaseCase):  # noqa: D101
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.redis.multiple_lifespan import (

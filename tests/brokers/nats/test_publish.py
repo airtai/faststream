@@ -3,9 +3,11 @@ import pytest
 from tests.brokers.base.publish import BrokerPublishTestcase
 
 
-@pytest.mark.nats
+@pytest.mark.nats()
 class TestPublish(BrokerPublishTestcase):
-    @pytest.mark.asyncio
+    """Test publish method of NATS broker."""
+
+    @pytest.mark.asyncio()
     async def test_stream_publish(
         self,
         queue: str,
@@ -19,7 +21,7 @@ class TestPublish(BrokerPublishTestcase):
         await test_broker.publish("Hi!", queue, stream="test")
         m.mock.assert_called_once_with("Hi!")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_wrong_stream_publish(
         self,
         queue: str,

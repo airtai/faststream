@@ -8,9 +8,9 @@ from faststream.redis import TestRedisBroker
 from tests.marks import python39
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @python39
-class BaseCase:
+class BaseCase:  # noqa: D101
     async def test_handle(self, setup):
         broker, handle = setup
 
@@ -30,7 +30,7 @@ class BaseCase:
             handle.mock.assert_called_once_with("wrong message")
 
 
-class TestKafka(BaseCase):
+class TestKafka(BaseCase):  # noqa: D101
     test_class = TestKafkaBroker
 
     @pytest.fixture(scope="class")
@@ -43,7 +43,7 @@ class TestKafka(BaseCase):
         return (broker, handle)
 
 
-class TestRabbit(BaseCase):
+class TestRabbit(BaseCase):  # noqa: D101
     test_class = TestRabbitBroker
 
     @pytest.fixture(scope="class")
@@ -56,7 +56,7 @@ class TestRabbit(BaseCase):
         return (broker, handle)
 
 
-class TestNats(BaseCase):
+class TestNats(BaseCase):  # noqa: D101
     test_class = TestNatsBroker
 
     @pytest.fixture(scope="class")
@@ -69,7 +69,7 @@ class TestNats(BaseCase):
         return (broker, handle)
 
 
-class TestRedis(BaseCase):
+class TestRedis(BaseCase):  # noqa: D101
     test_class = TestRedisBroker
 
     @pytest.fixture(scope="class")

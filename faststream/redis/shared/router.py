@@ -19,12 +19,21 @@ Channel: TypeAlias = str
 
 
 class RedisRouter(BrokerRouter[int, AnyRedisDict]):
+    """A class to represent a Redis router."""
+
     def __init__(
         self,
         prefix: str = "",
         handlers: Sequence[RedisRoute[AnyRedisDict, SendableMessage]] = (),
         **kwargs: Any,
     ) -> None:
+        """Initialize the Redis router.
+
+        Args:
+            prefix: The prefix.
+            handlers: The handlers.
+            **kwargs: The keyword arguments.
+        """
         for h in handlers:
             if not (channel := h.kwargs.pop("channel", None)):
                 if list := h.kwargs.pop("list", None):

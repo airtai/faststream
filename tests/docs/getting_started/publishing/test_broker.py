@@ -7,7 +7,7 @@ from faststream.rabbit import TestRabbitBroker
 from faststream.redis import TestRedisBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_broker_kafka():
     from docs.docs_src.getting_started.publishing.kafka.broker import (
         app,
@@ -21,7 +21,7 @@ async def test_broker_kafka():
         handle_next.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_broker_rabbit():
     from docs.docs_src.getting_started.publishing.rabbit.broker import (
         app,
@@ -35,7 +35,7 @@ async def test_broker_rabbit():
         handle_next.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_broker_nats():
     from docs.docs_src.getting_started.publishing.nats.broker import (
         app,
@@ -49,7 +49,7 @@ async def test_broker_nats():
         handle_next.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_broker_redis():
     from docs.docs_src.getting_started.publishing.redis.broker import (
         app,

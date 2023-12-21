@@ -4,9 +4,12 @@ from faststream.nats.js_stream import JStream
 
 
 class StreamBuilder:
+    """A class to build streams."""
+
     streams: Dict[str, JStream]
 
     def __init__(self) -> None:
+        """Initialize the stream builder."""
         self.streams = {}
 
     def stream(
@@ -16,6 +19,14 @@ class StreamBuilder:
         declare: bool = True,
         **kwargs: Any,
     ) -> Optional[JStream]:
+        """Get a stream.
+
+        Args:
+            *args: The arguments.
+            name: The stream name.
+            declare: Whether to declare the stream.
+            **kwargs: The keyword arguments.
+        """
         stream = JStream.validate(name)
 
         if stream is not None:

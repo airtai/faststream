@@ -1,3 +1,5 @@
+"""AsyncAPI schema related functions."""
+
 from faststream.asyncapi.schema.bindings import (
     ChannelBinding,
     OperationBinding,

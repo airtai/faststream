@@ -16,15 +16,16 @@ def patch_aio_consumer_and_producer() -> Tuple[MagicMock, MagicMock]:
         consumer = MagicMock(return_value=AsyncMock())
         producer = MagicMock(return_value=AsyncMock())
 
-        with patch("aiokafka.AIOKafkaConsumer", new=consumer):
-            with patch("aiokafka.AIOKafkaProducer", new=producer):
-                yield consumer, producer
+        with patch("aiokafka.AIOKafkaConsumer", new=consumer), patch(
+            "aiokafka.AIOKafkaProducer", new=producer
+        ):
+            yield consumer, producer
     finally:
         pass
 
 
-@pytest.mark.asyncio
-@pytest.mark.kafka
+@pytest.mark.asyncio()
+@pytest.mark.kafka()
 async def test_base_security():
     with patch_aio_consumer_and_producer() as (consumer, producer):
         from docs.docs_src.kafka.security.basic import broker as basic_broker
@@ -49,8 +50,8 @@ async def test_base_security():
         assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
 
 
-@pytest.mark.asyncio
-@pytest.mark.kafka
+@pytest.mark.asyncio()
+@pytest.mark.kafka()
 async def test_scram256():
     with patch_aio_consumer_and_producer() as (consumer, producer):
         from docs.docs_src.kafka.security.sasl_scram256 import (
@@ -80,8 +81,8 @@ async def test_scram256():
         assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
 
 
-@pytest.mark.asyncio
-@pytest.mark.kafka
+@pytest.mark.asyncio()
+@pytest.mark.kafka()
 async def test_scram512():
     with patch_aio_consumer_and_producer() as (consumer, producer):
         from docs.docs_src.kafka.security.sasl_scram512 import (
@@ -111,8 +112,8 @@ async def test_scram512():
         assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
 
 
-@pytest.mark.asyncio
-@pytest.mark.kafka
+@pytest.mark.asyncio()
+@pytest.mark.kafka()
 async def test_plaintext():
     with patch_aio_consumer_and_producer() as (consumer, producer):
         from docs.docs_src.kafka.security.plaintext import (
