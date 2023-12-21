@@ -96,6 +96,9 @@ jobs:
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m"(slow and (not nats and not kafka and not rabbit and not redis)) or (not nats and not kafka and not rabbit and not redis)"
+        env:
+          COVERAGE_FILE: coverage/.coverage.orjson
+          CONTEXT: orjson
       - name: Store coverage files
         uses: actions/upload-artifact@v4
         with:
