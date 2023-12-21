@@ -2,12 +2,11 @@ import asyncio
 from unittest.mock import patch
 
 import pytest
-from aiokafka import AIOKafkaConsumer
 
+from faststream.confluent import KafkaBroker
+from faststream.confluent.annotations import KafkaMessage
+from faststream.confluent.client import AsyncConfluentConsumer
 from faststream.exceptions import AckMessage
-from faststream.kafka import ConfluentKafkaBroker
-from faststream.kafka.annotations import KafkaMessage
-from faststream.kafka.client import AsyncConfluentConsumer
 from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
@@ -18,7 +17,7 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_single_message(
         self,
         confluent_kafka_topic: str,
-        consume_broker: ConfluentKafkaBroker,
+        consume_broker: KafkaBroker,
         event: asyncio.Event,
     ):
         @consume_broker.subscriber(confluent_kafka_topic)
@@ -40,9 +39,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         assert event.is_set()
 
     @pytest.mark.asyncio
-    async def test_consume_batch(
-        self, confluent_kafka_topic: str, broker: ConfluentKafkaBroker
-    ):
+    async def test_consume_batch(self, confluent_kafka_topic: str, broker: KafkaBroker):
         msgs_queue = asyncio.Queue(maxsize=1)
 
         @broker.subscriber(confluent_kafka_topic, batch=True)
@@ -67,7 +64,7 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack(
         self,
         queue: str,
-        full_broker: ConfluentKafkaBroker,
+        full_broker: KafkaBroker,
         event: asyncio.Event,
     ):
         @full_broker.subscriber(queue, group_id="test", auto_commit=False)
@@ -103,7 +100,7 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack_manual(
         self,
         queue: str,
-        full_broker: ConfluentKafkaBroker,
+        full_broker: KafkaBroker,
         event: asyncio.Event,
     ):
         @full_broker.subscriber(queue, group_id="test", auto_commit=False)
@@ -115,7 +112,9 @@ class TestConsume(BrokerRealConsumeTestcase):
             await full_broker.start()
 
             with patch.object(
-                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+                AsyncConfluentConsumer,
+                "commit",
+                spy_decorator(AsyncConfluentConsumer.commit),
             ) as m:
                 await asyncio.wait(
                     (
@@ -138,7 +137,7 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_ack_raise(
         self,
         queue: str,
-        full_broker: ConfluentKafkaBroker,
+        full_broker: KafkaBroker,
         event: asyncio.Event,
     ):
         @full_broker.subscriber(queue, group_id="test", auto_commit=False)
@@ -150,7 +149,9 @@ class TestConsume(BrokerRealConsumeTestcase):
             await full_broker.start()
 
             with patch.object(
-                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+                AsyncConfluentConsumer,
+                "commit",
+                spy_decorator(AsyncConfluentConsumer.commit),
             ) as m:
                 await asyncio.wait(
                     (
@@ -173,7 +174,7 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_nack(
         self,
         queue: str,
-        full_broker: ConfluentKafkaBroker,
+        full_broker: KafkaBroker,
         event: asyncio.Event,
     ):
         @full_broker.subscriber(queue, group_id="test", auto_commit=False)
@@ -185,7 +186,9 @@ class TestConsume(BrokerRealConsumeTestcase):
             await full_broker.start()
 
             with patch.object(
-                AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+                AsyncConfluentConsumer,
+                "commit",
+                spy_decorator(AsyncConfluentConsumer.commit),
             ) as m:
                 await asyncio.wait(
                     (
@@ -208,7 +211,7 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_no_ack(
         self,
         queue: str,
-        full_broker: ConfluentKafkaBroker,
+        full_broker: KafkaBroker,
         event: asyncio.Event,
     ):
         @full_broker.subscriber(queue, group_id="test", no_ack=True)
@@ -217,7 +220,9 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         await full_broker.start()
         with patch.object(
-            AIOKafkaConsumer, "commit", spy_decorator(AIOKafkaConsumer.commit)
+            AsyncConfluentConsumer,
+            "commit",
+            spy_decorator(AsyncConfluentConsumer.commit),
         ) as m:
             await asyncio.wait(
                 (

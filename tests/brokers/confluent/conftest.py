@@ -6,7 +6,7 @@ import pytest
 import pytest_asyncio
 from confluent_kafka import Consumer, Producer
 
-from faststream.kafka import ConfluentKafkaBroker, KafkaRouter, TestKafkaBroker
+from faststream.confluent import KafkaBroker, KafkaRouter, TestKafkaBroker
 
 
 @dataclass
@@ -27,7 +27,7 @@ def router():
 @pytest_asyncio.fixture
 @pytest.mark.confluent
 async def broker(settings):
-    broker = ConfluentKafkaBroker(settings.url, apply_types=False)
+    broker = KafkaBroker(settings.url, apply_types=False)
     async with broker:
         yield broker
 
@@ -69,13 +69,13 @@ async def confluent_kafka_topic(settings):
 @pytest_asyncio.fixture
 @pytest.mark.confluent
 async def full_broker(settings):
-    broker = ConfluentKafkaBroker(settings.url)
+    broker = KafkaBroker(settings.url)
     async with broker:
         yield broker
 
 
 @pytest_asyncio.fixture
 async def test_broker():
-    broker = ConfluentKafkaBroker()
+    broker = KafkaBroker()
     async with TestKafkaBroker(broker) as br:
         yield br
