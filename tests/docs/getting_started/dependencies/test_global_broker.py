@@ -4,7 +4,7 @@ from faststream import TestApp
 from faststream.kafka import TestKafkaBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_global_broker_kafka():
     from docs.docs_src.getting_started.dependencies.global_broker_kafka import (
         app,
@@ -20,5 +20,5 @@ async def test_global_broker_kafka():
             }
         )
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # noqa: PT011
             await broker.publish({"name": "Ted", "user_id": 1}, "test-topic")

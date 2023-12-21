@@ -11,9 +11,9 @@ from tests.brokers.base.consume import BrokerRealConsumeTestcase
 from tests.tools import spy_decorator
 
 
-@pytest.mark.kafka
-class TestConsume(BrokerRealConsumeTestcase):
-    @pytest.mark.asyncio
+@pytest.mark.kafka()
+class TestConsume(BrokerRealConsumeTestcase):  # noqa: D101
+    @pytest.mark.asyncio()
     async def test_consume_batch(self, queue: str, broker: KafkaBroker):
         msgs_queue = asyncio.Queue(maxsize=1)
 
@@ -33,8 +33,8 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert [{1, "hi"}] == [set(r.result()) for r in result]
 
-    @pytest.mark.asyncio
-    @pytest.mark.slow
+    @pytest.mark.asyncio()
+    @pytest.mark.slow()
     async def test_consume_ack(
         self,
         queue: str,
@@ -67,8 +67,8 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
-    @pytest.mark.slow
+    @pytest.mark.asyncio()
+    @pytest.mark.slow()
     async def test_consume_ack_manual(
         self,
         queue: str,
@@ -102,8 +102,8 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
-    @pytest.mark.slow
+    @pytest.mark.asyncio()
+    @pytest.mark.slow()
     async def test_consume_ack_raise(
         self,
         queue: str,
@@ -137,8 +137,8 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
-    @pytest.mark.slow
+    @pytest.mark.asyncio()
+    @pytest.mark.slow()
     async def test_nack(
         self,
         queue: str,
@@ -172,8 +172,8 @@ class TestConsume(BrokerRealConsumeTestcase):
 
         assert event.is_set()
 
-    @pytest.mark.asyncio
-    @pytest.mark.slow
+    @pytest.mark.asyncio()
+    @pytest.mark.slow()
     async def test_consume_no_ack(
         self,
         queue: str,

@@ -3,7 +3,7 @@ from faststream.nats import NatsBroker
 from tests.asyncapi.base.publisher import PublisherTestcase
 
 
-class TestArguments(PublisherTestcase):
+class TestArguments(PublisherTestcase):  # noqa: D101
     broker_class = NatsBroker
 
     def test_publisher_bindings(self):
@@ -14,7 +14,7 @@ class TestArguments(PublisherTestcase):
             ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
-        key = tuple(schema["channels"].keys())[0]
+        key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
             "nats": {"bindingVersion": "custom", "subject": "test"}

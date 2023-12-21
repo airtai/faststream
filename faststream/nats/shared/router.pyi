@@ -21,7 +21,7 @@ from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 
 class NatsRoute:
-    """Delayed `NatsBroker.subscriber()` registration object"""
+    """Delayed `NatsBroker.subscriber()` registration object."""
 
     def __init__(
         self,

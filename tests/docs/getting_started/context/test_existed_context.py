@@ -6,7 +6,7 @@ from faststream.rabbit import TestRabbitBroker
 from faststream.redis import TestRedisBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_existed_context_kafka():
     from docs.docs_src.getting_started.context.kafka.existed_context import (
         broker_object,
@@ -23,7 +23,7 @@ async def test_existed_context_kafka():
         assert resp.mock.call_count == 2
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_existed_context_rabbit():
     from docs.docs_src.getting_started.context.rabbit.existed_context import (
         broker_object,
@@ -40,7 +40,7 @@ async def test_existed_context_rabbit():
         assert resp.mock.call_count == 2
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_existed_context_nats():
     from docs.docs_src.getting_started.context.nats.existed_context import (
         broker_object,
@@ -57,7 +57,7 @@ async def test_existed_context_nats():
         assert resp.mock.call_count == 2
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_existed_context_redis():
     from docs.docs_src.getting_started.context.redis.existed_context import (
         broker_object,

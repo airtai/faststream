@@ -12,6 +12,8 @@ from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
 @dataclass
 class LogicPublisher(BasePublisher[AnyRedisDict]):
+    """A class to represent a Redis publisher."""
+
     channel: Optional[PubSub] = field(default=None)
     list: Optional[ListSub] = field(default=None)
     stream: Optional[StreamSub] = field(default=None)
@@ -41,9 +43,7 @@ class LogicPublisher(BasePublisher[AnyRedisDict]):
         list = ListSub.validate(list or self.list)
         stream = StreamSub.validate(stream or self.stream)
 
-        assert any(
-            (channel, list, stream)
-        ), "You have to specify outgoing channel"  # nosec B101
+        assert any((channel, list, stream)), "You have to specify outgoing channel"  # nosec B101
 
         headers_to_send = (self.headers or {}).copy()
         if headers is not None:

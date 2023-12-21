@@ -3,7 +3,7 @@ import pytest
 from faststream.utils.ast import is_contains_context_name
 
 
-class Context:
+class Context:  # noqa: D101
     def __enter__(self) -> "Context":
         return self
 
@@ -17,13 +17,13 @@ class Context:
         pass
 
 
-class A(Context):
-    def __init__(self):
+class A(Context):  # noqa: D101
+    def __init__(self):  # noqa: D107
         self.contains = is_contains_context_name(self.__class__.__name__, B.__name__)
 
 
-class B(Context):
-    def __init__(self):
+class B(Context):  # noqa: D101
+    def __init__(self):  # noqa: D107
         pass
 
 
@@ -32,34 +32,32 @@ def test_base():
         assert a.contains
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_base_async():
     async with A() as a, B():
         assert a.contains
 
 
 def test_nested():
-    with A() as a:
-        with B():
-            assert a.contains
+    with A() as a, B():
+        assert a.contains
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_nested_async():
-    async with A() as a:
-        async with B():
-            assert a.contains
+    async with A() as a, B():
+        assert a.contains
 
 
-@pytest.mark.asyncio
-async def test_async_A():
+@pytest.mark.asyncio()
+async def test_async_A():  # noqa: N802
     async with A() as a:
         with B():
             assert a.contains
 
 
-@pytest.mark.asyncio
-async def test_async_B():
+@pytest.mark.asyncio()
+async def test_async_B():  # noqa: N802
     with A() as a:
         async with B():
             assert a.contains
@@ -71,9 +69,8 @@ def test_base_invalid():
 
 
 def test_nested_invalid():
-    with B():
-        with A() as a:
-            assert not a.contains
+    with B(), A() as a:
+        assert not a.contains
 
 
 def test_not_broken():
@@ -81,5 +78,5 @@ def test_not_broken():
         assert a.contains
 
         # test ast proccesses another context correctly
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # noqa: PT011
             raise ValueError()

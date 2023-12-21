@@ -4,7 +4,7 @@ from faststream.kafka import KafkaBroker
 from tests.asyncapi.base.naming import NamingTestCase
 
 
-class TestNaming(NamingTestCase):
+class TestNaming(NamingTestCase):  # noqa: D101
     broker_class = KafkaBroker
 
     def test_base(self):

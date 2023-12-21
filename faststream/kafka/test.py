@@ -17,6 +17,8 @@ __all__ = ("TestKafkaBroker",)
 
 
 class TestKafkaBroker(TestBroker[KafkaBroker]):
+    """A class to test Kafka brokers."""
+
     @staticmethod
     async def _fake_connect(broker: KafkaBroker, *args: Any, **kwargs: Any) -> None:
         broker._producer = FakeProducer(broker)
@@ -48,15 +50,13 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
 
 
 class FakeProducer(AioKafkaFastProducer):
-    """
-    A fake Kafka producer for testing purposes.
+    """A fake Kafka producer for testing purposes.
 
     This class extends AioKafkaFastProducer and is used to simulate Kafka message publishing during tests.
     """
 
     def __init__(self, broker: KafkaBroker) -> None:
-        """
-        Initialize the FakeProducer.
+        """Initialize the FakeProducer.
 
         Args:
             broker (KafkaBroker): The KafkaBroker instance to associate with this FakeProducer.
@@ -79,8 +79,7 @@ class FakeProducer(AioKafkaFastProducer):
         rpc_timeout: Optional[float] = None,
         raise_timeout: bool = False,
     ) -> Optional[SendableMessage]:
-        """
-        Publish a message to the Kafka broker.
+        """Publish a message to the Kafka broker.
 
         Args:
             message (SendableMessage): The message to be published.
@@ -129,8 +128,7 @@ class FakeProducer(AioKafkaFastProducer):
         timestamp_ms: Optional[int] = None,
         headers: Optional[Dict[str, str]] = None,
     ) -> None:
-        """
-        Publish a batch of messages to the Kafka broker.
+        """Publish a batch of messages to the Kafka broker.
 
         Args:
             *msgs (SendableMessage): Variable number of messages to be published.
@@ -172,8 +170,7 @@ def build_message(
     *,
     reply_to: str = "",
 ) -> ConsumerRecord:
-    """
-    Build a Kafka ConsumerRecord for a sendable message.
+    """Build a Kafka ConsumerRecord for a sendable message.
 
     Args:
         message (SendableMessage): The sendable message to be encoded.

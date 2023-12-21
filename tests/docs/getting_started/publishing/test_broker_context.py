@@ -7,8 +7,8 @@ from faststream.rabbit import TestRabbitBroker
 from faststream.redis import TestRedisBroker
 
 
-@pytest.mark.asyncio
-@pytest.mark.kafka
+@pytest.mark.asyncio()
+@pytest.mark.kafka()
 async def test_broker_context_kafka():
     from docs.docs_src.getting_started.publishing.kafka.broker_context import (
         app,
@@ -21,8 +21,8 @@ async def test_broker_context_kafka():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
-@pytest.mark.nats
+@pytest.mark.asyncio()
+@pytest.mark.nats()
 async def test_broker_context_nats():
     from docs.docs_src.getting_started.publishing.nats.broker_context import (
         app,
@@ -35,8 +35,8 @@ async def test_broker_context_nats():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
-@pytest.mark.rabbit
+@pytest.mark.asyncio()
+@pytest.mark.rabbit()
 async def test_broker_context_rabbit():
     from docs.docs_src.getting_started.publishing.rabbit.broker_context import (
         app,
@@ -49,8 +49,8 @@ async def test_broker_context_rabbit():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
-@pytest.mark.redis
+@pytest.mark.asyncio()
+@pytest.mark.redis()
 async def test_broker_context_redis():
     from docs.docs_src.getting_started.publishing.redis.broker_context import (
         app,

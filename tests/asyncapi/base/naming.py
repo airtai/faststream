@@ -8,11 +8,11 @@ from faststream.asyncapi.generate import get_app_schema
 from faststream.broker.core.abc import BrokerUsecase
 
 
-class BaseNaming:
+class BaseNaming:  # noqa: D101
     broker_class: Type[BrokerUsecase]
 
 
-class SubscriberNaming(BaseNaming):
+class SubscriberNaming(BaseNaming):  # noqa: D101
     def test_subscriber_naming(self):
         broker = self.broker_class()
 
@@ -95,7 +95,7 @@ class SubscriberNaming(BaseNaming):
         ]
 
 
-class FilterNaming(BaseNaming):
+class FilterNaming(BaseNaming):  # noqa: D101
     def test_subscriber_filter_base(self):
         broker = self.broker_class()
 
@@ -171,7 +171,7 @@ class FilterNaming(BaseNaming):
         ]
 
 
-class PublisherNaming(BaseNaming):
+class PublisherNaming(BaseNaming):  # noqa: D101
     def test_publisher_naming_base(self):
         broker = self.broker_class()
 
@@ -341,5 +341,5 @@ class PublisherNaming(BaseNaming):
         ]
 
 
-class NamingTestCase(SubscriberNaming, FilterNaming, PublisherNaming):
+class NamingTestCase(SubscriberNaming, FilterNaming, PublisherNaming):  # noqa: D101
     pass

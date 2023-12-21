@@ -8,7 +8,7 @@ from tests.marks import python39
 
 
 @python39
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_annotated_kafka():
     from docs.docs_src.getting_started.context.kafka.annotated import (
         base_handler,
@@ -22,7 +22,7 @@ async def test_annotated_kafka():
 
 
 @python39
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_annotated_rabbit():
     from docs.docs_src.getting_started.context.rabbit.annotated import (
         base_handler,
@@ -36,7 +36,7 @@ async def test_annotated_rabbit():
 
 
 @python39
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_annotated_nats():
     from docs.docs_src.getting_started.context.nats.annotated import (
         base_handler,
@@ -50,7 +50,7 @@ async def test_annotated_nats():
 
 
 @python39
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_annotated_redis():
     from docs.docs_src.getting_started.context.redis.annotated import (
         base_handler,

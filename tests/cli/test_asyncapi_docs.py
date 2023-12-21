@@ -21,7 +21,7 @@ SERVE_CMD = serve_cmd.split(" ")[1:-1]
 
 
 def test_gen_asyncapi_json_for_kafka_app(runner: CliRunner, kafka_basic_project: Path):
-    r = runner.invoke(cli, GEN_JSON_CMD + ["--out", "shema.json", kafka_basic_project])
+    r = runner.invoke(cli, GEN_JSON_CMD + ["--out", "shema.json", kafka_basic_project])  # noqa: RUF005
     assert r.exit_code == 0
 
     schema_path = Path.cwd() / "shema.json"
@@ -35,7 +35,7 @@ def test_gen_asyncapi_json_for_kafka_app(runner: CliRunner, kafka_basic_project:
 
 
 def test_gen_asyncapi_yaml_for_kafka_app(runner: CliRunner, kafka_basic_project: Path):
-    r = runner.invoke(cli, GEN_YAML_CMD + [kafka_basic_project])
+    r = runner.invoke(cli, GEN_YAML_CMD + [kafka_basic_project])  # noqa: RUF005
     assert r.exit_code == 0
 
     schema_path = Path.cwd() / "asyncapi.yaml"
@@ -49,7 +49,7 @@ def test_gen_asyncapi_yaml_for_kafka_app(runner: CliRunner, kafka_basic_project:
 
 
 def test_gen_wrong_path(runner: CliRunner):
-    r = runner.invoke(cli, GEN_JSON_CMD + ["basic:app1"])
+    r = runner.invoke(cli, GEN_JSON_CMD + ["basic:app1"])  # noqa: RUF005
     assert r.exit_code == 2
     assert "No such file or directory" in r.stdout
 
@@ -62,7 +62,7 @@ def test_serve_asyncapi_docs(
 ):
     with monkeypatch.context() as m:
         m.setattr(uvicorn, "run", mock)
-        r = runner.invoke(cli, SERVE_CMD + [kafka_basic_project])
+        r = runner.invoke(cli, SERVE_CMD + [kafka_basic_project])  # noqa: RUF005
 
     assert r.exit_code == 0
     mock.assert_called_once()
@@ -75,12 +75,12 @@ def test_serve_asyncapi_json_schema(
     monkeypatch,
     mock: Mock,
 ):
-    r = runner.invoke(cli, GEN_JSON_CMD + [kafka_basic_project])
+    r = runner.invoke(cli, GEN_JSON_CMD + [kafka_basic_project])  # noqa: RUF005
     schema_path = Path.cwd() / "asyncapi.json"
 
     with monkeypatch.context() as m:
         m.setattr(uvicorn, "run", mock)
-        r = runner.invoke(cli, SERVE_CMD + [str(schema_path)])
+        r = runner.invoke(cli, SERVE_CMD + [str(schema_path)])  # noqa: RUF005
 
     assert r.exit_code == 0
     mock.assert_called_once()
@@ -95,12 +95,12 @@ def test_serve_asyncapi_yaml_schema(
     monkeypatch,
     mock: Mock,
 ):
-    r = runner.invoke(cli, GEN_YAML_CMD + [kafka_basic_project])
+    r = runner.invoke(cli, GEN_YAML_CMD + [kafka_basic_project])  # noqa: RUF005
     schema_path = Path.cwd() / "asyncapi.yaml"
 
     with monkeypatch.context() as m:
         m.setattr(uvicorn, "run", mock)
-        r = runner.invoke(cli, SERVE_CMD + [str(schema_path)])
+        r = runner.invoke(cli, SERVE_CMD + [str(schema_path)])  # noqa: RUF005
 
     assert r.exit_code == 0
     mock.assert_called_once()

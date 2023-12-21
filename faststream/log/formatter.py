@@ -8,7 +8,7 @@ import click
 
 from faststream.utils.context.main import context
 
-original_makeRecord = logging.Logger.makeRecord
+original_makeRecord = logging.Logger.makeRecord  # noqa: N816
 
 
 class ColourizedFormatter(logging.Formatter):
@@ -24,7 +24,7 @@ class ColourizedFormatter(logging.Formatter):
 
     """
 
-    level_name_colors: DefaultDict[str, Callable[[str], str]] = defaultdict(
+    level_name_colors: DefaultDict[str, Callable[[str], str]] = defaultdict(  # noqa: RUF012
         lambda: str,
         **{
             str(logging.DEBUG): lambda level_name: click.style(
@@ -52,8 +52,7 @@ class ColourizedFormatter(logging.Formatter):
         style: Literal["%", "{", "$"] = "%",
         use_colors: Optional[bool] = None,
     ) -> None:
-        """
-        Initialize the formatter with specified format strings.
+        """Initialize the formatter with specified format strings.
 
         Initialize the formatter either with the specified format string, or a
         default as described above. Allow for specialized date formatting with
@@ -86,7 +85,7 @@ class ColourizedFormatter(logging.Formatter):
         """
         return self.level_name_colors[str(level_no)](level_name)
 
-    def formatMessage(self, record: logging.LogRecord) -> str:
+    def formatMessage(self, record: logging.LogRecord) -> str:  # noqa: N802
         """Formats the log message.
 
         Args:

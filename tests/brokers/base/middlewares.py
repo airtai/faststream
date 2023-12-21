@@ -8,8 +8,8 @@ from faststream.broker.core.abc import BrokerUsecase
 from faststream.broker.middlewares import BaseMiddleware
 
 
-@pytest.mark.asyncio
-class LocalMiddlewareTestcase:
+@pytest.mark.asyncio()
+class LocalMiddlewareTestcase:  # noqa: D101
     broker_class: Type[BrokerUsecase]
 
     @pytest.fixture()
@@ -24,7 +24,7 @@ class LocalMiddlewareTestcase:
     async def test_local_middleware(
         self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
     ):
-        class mid(BaseMiddleware):
+        class mid(BaseMiddleware):  # noqa: N801
             async def on_receive(self):
                 mock.start(self.msg)
                 return await super().on_receive()
@@ -62,7 +62,7 @@ class LocalMiddlewareTestcase:
         event1 = asyncio.Event()
         event2 = asyncio.Event()
 
-        class mid(BaseMiddleware):
+        class mid(BaseMiddleware):  # noqa: N801
             async def on_receive(self):
                 mock.start(self.msg)
                 return await super().on_receive()
@@ -109,7 +109,7 @@ class LocalMiddlewareTestcase:
         event1 = asyncio.Event()
         event2 = asyncio.Event()
 
-        class mid(BaseMiddleware):
+        class mid(BaseMiddleware):  # noqa: N801
             async def on_consume(self, msg):
                 mock.start(msg)
                 return await super().on_consume(msg)
@@ -221,12 +221,12 @@ class LocalMiddlewareTestcase:
         mock.assert_called_once_with("rrrr")
 
 
-@pytest.mark.asyncio
-class MiddlewareTestcase(LocalMiddlewareTestcase):
+@pytest.mark.asyncio()
+class MiddlewareTestcase(LocalMiddlewareTestcase):  # noqa: D101
     async def test_global_middleware(
         self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
     ):
-        class mid(BaseMiddleware):
+        class mid(BaseMiddleware):  # noqa: N801
             async def on_receive(self):
                 mock.start(self.msg)
                 return await super().on_receive()

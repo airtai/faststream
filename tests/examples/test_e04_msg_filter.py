@@ -4,7 +4,7 @@ from examples.e04_msg_filter import app, broker, handle_json, handle_other_messa
 from faststream.rabbit import TestApp, TestRabbitBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_example():
     async with TestRabbitBroker(broker), TestApp(app):
         await handle_json.wait_call(3)

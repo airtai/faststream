@@ -5,7 +5,7 @@ import pytest
 from faststream.cli.supervisors.basereload import BaseReload
 
 
-class PatchedBaseReload(BaseReload):
+class PatchedBaseReload(BaseReload):  # noqa: D101
     def restart(self) -> None:
         super().restart()
         self.should_exit.set()
@@ -18,7 +18,7 @@ def empty():
     pass
 
 
-@pytest.mark.slow
+@pytest.mark.slow()
 def test_base():
     processor = PatchedBaseReload(target=empty, args=())
 

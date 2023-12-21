@@ -26,7 +26,7 @@ def test_int():
 
     assert cast_int() == (True, 1)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # noqa: PT011
         assert cast_int([])
 
 
@@ -41,5 +41,5 @@ def test_cast_default():
 
     assert cast_default() == (True, 1)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # noqa: PT011
         assert cast_default([])

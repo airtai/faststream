@@ -7,9 +7,9 @@ from faststream.redis import ListSub, RedisBroker, StreamSub, TestRedisBroker
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
-@pytest.mark.asyncio
-class TestTestclient(BrokerTestclientTestcase):
-    @pytest.mark.redis
+@pytest.mark.asyncio()
+class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
+    @pytest.mark.redis()
     async def test_with_real_testclient(
         self,
         broker: RedisBroker,
@@ -56,7 +56,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert len(routes) == 2
 
-    @pytest.mark.redis
+    @pytest.mark.redis()
     async def test_real_respect_middleware(self, queue):
         routes = []
 
@@ -94,7 +94,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
         await test_broker.start()
 
-        assert 1 == await test_broker.publish(1, "test.name.useless", rpc=True)
+        assert await test_broker.publish(1, "test.name.useless", rpc=True) == 1
         handler.mock.assert_called_once_with(1)
 
     async def test_list(
@@ -108,7 +108,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
         await test_broker.start()
 
-        assert 1 == await test_broker.publish(1, list=queue, rpc=True)
+        assert await test_broker.publish(1, list=queue, rpc=True) == 1
         handler.mock.assert_called_once_with(1)
 
     async def test_batch_pub_by_default_pub(
@@ -166,7 +166,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
         await test_broker.start()
 
-        assert 1 == await test_broker.publish(1, stream=queue, rpc=True)
+        assert await test_broker.publish(1, stream=queue, rpc=True) == 1
         handler.mock.assert_called_once_with(1)
 
     async def test_stream_batch_pub_by_default_pub(
@@ -206,5 +206,5 @@ class TestTestclient(BrokerTestclientTestcase):
         queue: str,
     ):
         await test_broker.start()
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # noqa: PT011
             await test_broker.publish("hello")

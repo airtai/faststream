@@ -1,6 +1,6 @@
 import asyncio
 from secrets import token_hex
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 from uuid import uuid4
 
 import nats
@@ -22,9 +22,30 @@ from faststream.types import DecodedMessage, SendableMessage
 from faststream.utils.functions import timeout_scope
 
 
-class NatsFastProducer:
-    """A class to represent a NATS producer."""
+async def _send_msg(
+    producer: Union["NatsFastProducer", "NatsJSFastProducer"],
+    *,
+    rpc_timeout: Optional[float],
+    raise_timeout: bool,
+    future: "asyncio.Future[Msg]",
+) -> Optional[DecodedMessage]:
+    msg: Any = None
+    with timeout_scope(rpc_timeout, raise_timeout):
+        msg = await future
 
+    if msg:  # pragma: no branch
+        if msg.headers:  # pragma: no cover
+            if (
+                msg.headers.get(nats.js.api.Header.STATUS)
+                == nats.aio.client.NO_RESPONDERS_STATUS
+            ):
+                raise nats.errors.NoRespondersError
+        else:
+            return await producer._decoder(await producer._parser(msg))
+    return None
+
+
+class NatsFastProducer:
     _connection: Client
     _decoder: AsyncDecoder[Any]
     _parser: AsyncParser[Msg, Any]
@@ -35,13 +56,6 @@ class NatsFastProducer:
         parser: Optional[AsyncCustomParser[Msg, NatsMessage]],
         decoder: Optional[AsyncCustomDecoder[NatsMessage]],
     ) -> None:
-        """Initialize the NATS producer.
-
-        Args:
-            connection: The NATS connection.
-            parser: The parser.
-            decoder: The decoder.
-        """
         self._connection = connection
         self._parser = resolve_custom_func(parser, Parser.parse_message)
         self._decoder = resolve_custom_func(decoder, Parser.decode_message)
@@ -87,26 +101,19 @@ class NatsFastProducer:
             headers=headers_to_send,
         )
 
-        if rpc:
-            msg: Any = None
-            with timeout_scope(rpc_timeout, raise_timeout):
-                msg = await future
-
-            if msg:  # pragma: no branch
-                if msg.headers:  # pragma: no cover # noqa: SIM102
-                    if (
-                        msg.headers.get(nats.js.api.Header.STATUS)
-                        == nats.aio.client.NO_RESPONDERS_STATUS
-                    ):
-                        raise nats.errors.NoRespondersError
-                return await self._decoder(await self._parser(msg))
-
-        return None
+        return (
+            await _send_msg(
+                self,
+                rpc_timeout=raise_timeout,
+                raise_timeout=raise_timeout,
+                future=future,
+            )
+            if rpc
+            else None
+        )
 
 
 class NatsJSFastProducer:
-    """A class to represent a NATS JetStream producer."""
-
     _connection: JetStreamContext
     _decoder: AsyncDecoder[Any]
     _parser: AsyncParser[Msg, Any]
@@ -117,13 +124,6 @@ class NatsJSFastProducer:
         parser: Optional[AsyncCustomParser[Msg, NatsMessage]],
         decoder: Optional[AsyncCustomDecoder[NatsMessage]],
     ) -> None:
-        """Initialize the NATS JetStream producer.
-
-        Args:
-            connection: The NATS JetStream connection.
-            parser: The parser.
-            decoder: The decoder.
-        """
         self._connection = connection
         self._parser = resolve_custom_func(parser, Parser.parse_message)
         self._decoder = resolve_custom_func(decoder, Parser.decode_message)
@@ -172,18 +172,13 @@ class NatsJSFastProducer:
             timeout=timeout,
         )
 
-        if rpc:
-            msg: Any = None
-            with timeout_scope(rpc_timeout, raise_timeout):
-                msg = await future
-
-            if msg:  # pragma: no branch
-                if msg.headers:  # pragma: no cover # noqa: SIM102
-                    if (
-                        msg.headers.get(nats.js.api.Header.STATUS)
-                        == nats.aio.client.NO_RESPONDERS_STATUS
-                    ):
-                        raise nats.errors.NoRespondersError
-                return await self._decoder(await self._parser(msg))
-
-        return None
+        return (
+            await _send_msg(
+                self,
+                rpc_timeout=raise_timeout,
+                raise_timeout=raise_timeout,
+                future=future,
+            )
+            if rpc
+            else None
+        )

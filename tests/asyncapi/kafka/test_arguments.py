@@ -3,7 +3,7 @@ from faststream.kafka import KafkaBroker
 from tests.asyncapi.base.arguments import ArgumentsTestcase
 
 
-class TestArguments(ArgumentsTestcase):
+class TestArguments(ArgumentsTestcase):  # noqa: D101
     broker_class = KafkaBroker
 
     def test_subscriber_bindings(self):
@@ -14,7 +14,7 @@ class TestArguments(ArgumentsTestcase):
             ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
-        key = tuple(schema["channels"].keys())[0]
+        key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
             "kafka": {"bindingVersion": "0.4.0", "topic": "test"}

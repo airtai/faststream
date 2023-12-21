@@ -8,12 +8,12 @@ from faststream.broker.core.abc import BrokerUsecase
 from faststream.utils.functions import timeout_scope
 
 
-class BrokerRPCTestcase:
+class BrokerRPCTestcase:  # noqa: D101
     @pytest.fixture()
     def rpc_broker(self, broker):
         return broker
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_rpc(self, queue: str, rpc_broker: BrokerUsecase):
         @rpc_broker.subscriber(queue)
         async def m(m):  # pragma: no cover
@@ -25,7 +25,7 @@ class BrokerRPCTestcase:
 
         assert r == "1"
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_rpc_timeout_raises(self, queue: str, rpc_broker: BrokerUsecase):
         @rpc_broker.subscriber(queue)
         async def m(m):  # pragma: no cover
@@ -43,7 +43,7 @@ class BrokerRPCTestcase:
                     raise_timeout=True,
                 )
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_rpc_timeout_none(self, queue: str, rpc_broker: BrokerUsecase):
         @rpc_broker.subscriber(queue)
         async def m(m):  # pragma: no cover
@@ -61,7 +61,7 @@ class BrokerRPCTestcase:
 
         assert r is None
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_rpc_with_reply(
         self,
         queue: str,
@@ -91,10 +91,10 @@ class BrokerRPCTestcase:
         mock.assert_called_with("1")
 
 
-class ReplyAndConsumeForbidden:
-    @pytest.mark.asyncio
+class ReplyAndConsumeForbidden:  # noqa: D101
+    @pytest.mark.asyncio()
     async def test_rpc_with_reply_and_callback(self, full_broker: BrokerUsecase):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # noqa: PT011
             await full_broker.publish(
                 "hello",
                 "some",

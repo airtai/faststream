@@ -1,3 +1,4 @@
+"""CLI entry point to FastStream library."""
 import warnings
 
 from faststream.cli.main import cli

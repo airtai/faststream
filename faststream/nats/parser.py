@@ -11,7 +11,14 @@ from faststream.utils.context.main import context
 
 
 class NatsParser:
+    """A class to parse NATS messages."""
+
     def __init__(self, is_js: bool) -> None:
+        """Initialize the NATS parser.
+
+        Args:
+            is_js: Whether the parser is for JetStream.
+        """
         self.is_js = is_js
 
     @overload
@@ -28,7 +35,10 @@ class NatsParser:
 
     async def parse_message(
         self, message: Union[Msg, List[Msg]], *, path: Optional[AnyDict] = None
-    ) -> Union[StreamMessage[Msg], StreamMessage[List[Msg]],]:
+    ) -> Union[
+        StreamMessage[Msg],
+        StreamMessage[List[Msg]],
+    ]:
         if isinstance(message, list):
             return NatsMessage(
                 is_js=self.is_js,

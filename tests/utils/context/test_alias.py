@@ -6,7 +6,7 @@ from faststream._compat import Annotated
 from faststream.utils import Context, ContextRepo, apply_types
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_base_context_alias(context: ContextRepo):
     key = 1000
     context.set_global("key", key)
@@ -18,7 +18,7 @@ async def test_base_context_alias(context: ContextRepo):
     assert await func()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_context_cast(context: ContextRepo):
     key = 1000
     context.set_global("key", key)
@@ -30,7 +30,7 @@ async def test_context_cast(context: ContextRepo):
     assert await func()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_nested_context_alias(context: ContextRepo):
     model = SomeModel(field=SomeModel(field=1000))
     context.set_global("model", model)
@@ -54,7 +54,7 @@ async def test_nested_context_alias(context: ContextRepo):
     assert await func(model=model)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_annotated_alias(context: ContextRepo):
     model = SomeModel(field=SomeModel(field=1000))
     context.set_global("model", model)
@@ -66,9 +66,9 @@ async def test_annotated_alias(context: ContextRepo):
     assert await func(model=model)
 
 
-class SomeModel:
+class SomeModel:  # noqa: D101
     field: Any = ""
     another_field: Any = None
 
-    def __init__(self, field):
+    def __init__(self, field):  # noqa: D107
         self.field = field

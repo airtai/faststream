@@ -7,9 +7,9 @@ from faststream.nats import JStream, NatsBroker, PullSub, TestNatsBroker
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
-@pytest.mark.asyncio
-class TestTestclient(BrokerTestclientTestcase):
-    @pytest.mark.nats
+@pytest.mark.asyncio()
+class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
+    @pytest.mark.nats()
     async def test_with_real_testclient(
         self,
         broker: NatsBroker,
@@ -56,7 +56,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert len(routes) == 2
 
-    @pytest.mark.nats
+    @pytest.mark.nats()
     async def test_real_respect_middleware(self, queue):
         routes = []
 

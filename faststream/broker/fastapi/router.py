@@ -27,7 +27,7 @@ from fastapi.utils import generate_unique_id
 from starlette import routing
 from starlette.responses import JSONResponse, Response
 from starlette.routing import BaseRoute, _DefaultLifespan
-from starlette.types import AppType, ASGIApp, Lifespan
+from starlette.types import ASGIApp, AppType, Lifespan
 
 from faststream.asyncapi import schema as asyncapi
 from faststream.asyncapi.schema import Schema
@@ -136,6 +136,8 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             lifespan: Optional lifespan for the class
             generate_unique_id_function: Function to generate unique ID for the class
             asyncapi_tags: Optional sequence of asyncapi tags for the class schema
+            schema_url: Optional URL for the class schema
+            **connection_kwars: Additional keyword arguments for the connection
 
         """
         assert (  # nosec B101
@@ -289,10 +291,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             NotImplementedError: If silent animals are not supported.
 
         """
-        if lifespan is not None:
-            lifespan_context = lifespan
-        else:
-            lifespan_context = _DefaultLifespan(self)
+        lifespan_context = lifespan if lifespan is not None else _DefaultLifespan(self)
 
         @asynccontextmanager
         async def start_broker_lifespan(

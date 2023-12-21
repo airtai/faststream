@@ -36,8 +36,7 @@ def serve(
         help="Restart documentation at directory files changes",
     ),
 ) -> None:
-    """Serve project AsyncAPI schema"""
-
+    """Serve project AsyncAPI schema."""
     if ":" in app:
         module, _ = import_from_string(app)
 
@@ -86,7 +85,7 @@ def gen(
         help="output filename",
     ),
 ) -> None:
-    """Generate project AsyncAPI schema"""
+    """Generate project AsyncAPI schema."""
     _, app_obj = import_from_string(app)
     raw_schema = get_app_schema(app_obj)
 
@@ -99,14 +98,14 @@ def gen(
 
         name = out or "asyncapi.yaml"
 
-        with open(name, "w") as f:
+        with Path(name).open("w") as f:
             f.write(schema)
 
     else:
         schema = raw_schema.to_jsonable()
         name = out or "asyncapi.json"
 
-        with open(name, "w") as f:
+        with Path(name).open("w") as f:
             json.dump(schema, f, indent=2)
 
     typer.echo(f"Your project AsyncAPI scheme was placed to `{name}`")

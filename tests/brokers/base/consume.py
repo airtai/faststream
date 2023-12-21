@@ -9,8 +9,8 @@ from faststream.broker.core.abc import BrokerUsecase
 from faststream.exceptions import StopConsume
 
 
-@pytest.mark.asyncio
-class BrokerConsumeTestcase:
+@pytest.mark.asyncio()
+class BrokerConsumeTestcase:  # noqa: D101
     @pytest.fixture()
     def consume_broker(self, broker: BrokerUsecase):
         return broker
@@ -216,9 +216,9 @@ class BrokerConsumeTestcase:
         mock.assert_called_once_with({"x": 1}, "100", consume_broker)
 
 
-@pytest.mark.asyncio
-class BrokerRealConsumeTestcase(BrokerConsumeTestcase):
-    @pytest.mark.slow
+@pytest.mark.asyncio()
+class BrokerRealConsumeTestcase(BrokerConsumeTestcase):  # noqa: D101
+    @pytest.mark.slow()
     async def test_stop_consume_exc(
         self,
         queue: str,

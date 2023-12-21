@@ -15,10 +15,12 @@ from faststream.types import AnyDict, DecodedMessage, SendableMessage
 from faststream.utils.context.main import context
 
 DATA_KEY = "__data__"
-bDATA_KEY = DATA_KEY.encode()
+bDATA_KEY = DATA_KEY.encode()  # noqa: N816
 
 
 class RawMessage(BaseModel):
+    """A class to represent a raw Redis message."""
+
     data: bytes
     headers: AnyDict = Field(default_factory=dict)
 
@@ -69,6 +71,8 @@ class RawMessage(BaseModel):
 
 
 class RedisParser:
+    """A class to represent a Redis parser."""
+
     @classmethod
     @overload
     async def parse_message(

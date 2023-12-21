@@ -89,5 +89,7 @@ class Reference(BaseModel):
 
 
 class Parameter(BaseModel):
+    """A class to represent a parameter."""
+
     # TODO
     ...

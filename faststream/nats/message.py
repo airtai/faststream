@@ -8,6 +8,8 @@ from faststream.broker.message import StreamMessage
 
 @dataclass
 class NatsMessage(StreamMessage[Msg]):
+    """A class to represent a NATS message."""
+
     is_js: bool = True
 
     async def ack(self, **kwargs: Any) -> None:

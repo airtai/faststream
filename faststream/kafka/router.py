@@ -81,6 +81,8 @@ class KafkaRouter(BaseRouter):
             batch (bool, optional): Whether to publish the message as part of a batch.
             title (str, optional): The title of the message.
             description (str, optional): The description of the message.
+            schema (Any, optional): The schema of the message.
+            include_in_schema (bool, optional): Whether to include the message in the API specification.
 
         Returns:
             Publisher: The publisher object used to publish the message.

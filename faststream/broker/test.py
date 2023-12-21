@@ -122,6 +122,8 @@ class TestApp:
 
 
 class TestBroker(Generic[Broker]):
+    """A class to represent a test broker."""
+
     # This is set so pytest ignores this class
     __test__ = False
 
@@ -131,6 +133,14 @@ class TestBroker(Generic[Broker]):
         with_real: bool = False,
         connect_only: Optional[bool] = None,
     ) -> None:
+        """Initialize a class instance.
+
+        Args:
+            broker: An instance of the Broker class.
+            with_real: Whether to use a real broker.
+            connect_only: Whether to only connect to the broker.
+
+        """
         self.with_real = with_real
         self.broker = broker
 
@@ -145,7 +155,7 @@ class TestBroker(Generic[Broker]):
                 # TODO: remove with 0.5.0
                 warnings.warn(
                     (
-                        f"\nError `{repr(e)}` occured at `{self.__class__.__name__}` AST parsing"
+                        f"\nError `{e!r}` occured at `{self.__class__.__name__}` AST parsing"
                         "\nPlease, report us by creating an Issue with your TestClient usecase"
                         "\nhttps://github.com/airtai/faststream/issues/new?labels=bug&template=bug_report.md&title=Bug:%20TestClient%20AST%20parsing"
                     ),

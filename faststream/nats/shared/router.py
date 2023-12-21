@@ -16,12 +16,21 @@ __all__ = (
 
 
 class NatsRouter(BrokerRouter[str, Msg]):
+    """A class to represent a NATS router."""
+
     def __init__(
         self,
         prefix: str = "",
         handlers: Sequence[NatsRoute[Msg, SendableMessage]] = (),
         **kwargs: Any,
     ) -> None:
+        """Initialize the NATS router.
+
+        Args:
+            prefix: The prefix.
+            handlers: The handlers.
+            **kwargs: The keyword arguments.
+        """
         for h in handlers:
             if not (subj := h.kwargs.pop("subject", None)):
                 subj, h.args = h.args[0], h.args[1:]

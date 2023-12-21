@@ -6,7 +6,7 @@ from faststream.rabbit import TestRabbitBroker
 from faststream.redis import TestRedisBroker
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_default_arguments_kafka():
     from docs.docs_src.getting_started.context.kafka.default_arguments import (
         broker,
@@ -19,7 +19,7 @@ async def test_default_arguments_kafka():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_default_arguments_rabbit():
     from docs.docs_src.getting_started.context.rabbit.default_arguments import (
         broker,
@@ -32,7 +32,7 @@ async def test_default_arguments_rabbit():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_default_arguments_nats():
     from docs.docs_src.getting_started.context.nats.default_arguments import (
         broker,
@@ -45,7 +45,7 @@ async def test_default_arguments_nats():
         handle.mock.assert_called_once_with("Hi!")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_default_arguments_redis():
     from docs.docs_src.getting_started.context.redis.default_arguments import (
         broker,
