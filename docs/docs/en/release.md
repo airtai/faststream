@@ -12,6 +12,21 @@ hide:
 ---
 
 # Release Notes
+## 0.3.9
+
+### What's Changed
+
+#### Bug fixes:
+
+* fix (#1082): correct NatsTestClient stream publisher by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1083](https://github.com/airtai/faststream/pull/1083){.external-link target="_blank"}
+
+#### Chore:
+
+* chore: adding pragmas for detect-secrets by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1080](https://github.com/airtai/faststream/pull/1080){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.3.8...0.3.9](https://github.com/airtai/faststream/compare/0.3.8...0.3.9){.external-link target="_blank"}
+
 ## 0.3.8
 
 ### What's Changed

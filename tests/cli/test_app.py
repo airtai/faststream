@@ -134,6 +134,23 @@ async def test_running(async_mock, app: FastStream):
 
 
 @pytest.mark.asyncio
+async def test_exception_group(async_mock: AsyncMock, app: FastStream):
+    app._init_async_cycle()
+    app._stop_event.set()
+
+    async_mock.excp.side_effect = ValueError("Ooops!")
+
+    @app.on_startup
+    async def raises():
+        await async_mock.excp()
+
+    with pytest.raises(ValueError):
+        with patch.object(app.broker, "start", async_mock.broker_run):
+            with patch.object(app.broker, "close", async_mock.broker_stopped):
+                await app.run()
+
+
+@pytest.mark.asyncio
 async def test_running_lifespan_contextmanager(async_mock, mock: Mock, app: FastStream):
     @asynccontextmanager
     async def lifespan(env: str):
