@@ -7,9 +7,11 @@ from faststream.kafka import ConfluentKafkaBroker, TestKafkaBroker
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 class TestTestclient(BrokerTestclientTestcase):
-    @pytest.mark.confluent
+    """A class to represent a test Kafka broker."""
+
+    @pytest.mark.confluent()
     async def test_with_real_testclient(
         self,
         broker: ConfluentKafkaBroker,
@@ -99,7 +101,7 @@ class TestTestclient(BrokerTestclientTestcase):
 
         assert len(routes) == 2
 
-    @pytest.mark.confluent
+    @pytest.mark.confluent()
     async def test_real_respect_middleware(self, queue):
         routes = []
 

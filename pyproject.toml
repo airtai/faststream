@@ -106,7 +106,7 @@ lint = [
     "types-redis",
     "types-Pygments",
     "types-docutils",
-    "confluent-kafka-stubs",
+    "confluent-kafka-stubs; python_version >= '3.11'",
     "mypy==1.7.1",
     "ruff==0.1.8",
     "pyupgrade-directories==0.3.0",

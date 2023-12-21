@@ -11,6 +11,8 @@ from faststream.utils.context.main import context
 
 
 class AsyncConfluentParser:
+    """A class to parse Kafka messages."""
+
     @staticmethod
     async def parse_message(
         message: Message,

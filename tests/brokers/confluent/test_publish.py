@@ -6,9 +6,11 @@ from faststream.kafka import ConfluentKafkaBroker
 from tests.brokers.base.publish import BrokerPublishTestcase
 
 
-@pytest.mark.confluent
+@pytest.mark.confluent()
 class TestPublish(BrokerPublishTestcase):
-    @pytest.mark.asyncio
+    """A class to represent a test Kafka broker."""
+
+    @pytest.mark.asyncio()
     async def test_publish_batch(self, queue: str, broker: ConfluentKafkaBroker):
         msgs_queue = asyncio.Queue(maxsize=2)
 
@@ -31,7 +33,7 @@ class TestPublish(BrokerPublishTestcase):
 
         assert {1, "hi"} == {r.result() for r in result}
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_batch_publisher_manual(
         self, queue: str, broker: ConfluentKafkaBroker
     ):
@@ -58,7 +60,7 @@ class TestPublish(BrokerPublishTestcase):
 
         assert {1, "hi"} == {r.result() for r in result}
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_batch_publisher_decorator(
         self, queue: str, broker: ConfluentKafkaBroker
     ):

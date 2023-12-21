@@ -11,6 +11,8 @@ from faststream.confluent import KafkaBroker, KafkaRouter, TestKafkaBroker
 
 @dataclass
 class Settings:
+    """A class to represent the settings for the Kafka broker."""
+
     url = "localhost:9092"
 
 
@@ -19,13 +21,13 @@ def settings():
     return Settings()
 
 
-@pytest.fixture
+@pytest.fixture()
 def router():
     return KafkaRouter()
 
 
 @pytest_asyncio.fixture
-@pytest.mark.confluent
+@pytest.mark.confluent()
 async def broker(settings):
     broker = KafkaBroker(settings.url, apply_types=False)
     async with broker:
@@ -33,7 +35,7 @@ async def broker(settings):
 
 
 @pytest_asyncio.fixture(scope="session")
-@pytest.mark.confluent
+@pytest.mark.confluent()
 async def confluent_kafka_topic(settings):
     topic = str(uuid4())
 
@@ -67,7 +69,7 @@ async def confluent_kafka_topic(settings):
 
 
 @pytest_asyncio.fixture
-@pytest.mark.confluent
+@pytest.mark.confluent()
 async def full_broker(settings):
     broker = KafkaBroker(settings.url)
     async with broker:

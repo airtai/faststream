@@ -75,17 +75,22 @@ class LogicHandler(AsyncHandler[Message]):
 
         Args:
             *topics: Variable length argument list of topics to consume from.
+            log_context_builder: Callable that builds a log context from a message.
+            graceful_timeout: Optional timeout in seconds for graceful shutdown.
             group_id: Optional group ID for the consumer.
             client_id: Client ID for the consumer.
             builder: Callable that constructs an AsyncConfluentConsumer instance.
+            is_manual: Flag indicating whether to manually commit offsets.
             batch: Flag indicating whether to consume messages in batches.
             batch_timeout_ms: Timeout in milliseconds for batch consumption.
             max_records: Maximum number of records to consume in a batch.
             title: Optional title for the consumer.
             description: Optional description for the consumer.
+            include_in_schema: Flag indicating whether to include the consumer in the schema.
+
 
         Raises:
-            NotImplementedError: If silent animals are not supported.
+            ValueError: If the topics are not specified.
 
         """
         super().__init__(

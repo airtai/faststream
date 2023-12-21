@@ -7,8 +7,7 @@ from faststream.confluent.client import AsyncConfluentConsumer
 
 
 class KafkaMessage(StreamMessage[confluent_kafka.Message]):
-    """
-    Represents a Kafka message in the FastStream framework.
+    """Represents a Kafka message in the FastStream framework.
 
     This class extends `StreamMessage` and is specialized for handling Kafka ConsumerRecord objects.
 
@@ -30,14 +29,22 @@ class KafkaMessage(StreamMessage[confluent_kafka.Message]):
         is_manual: bool = False,
         **kwargs: Any,
     ) -> None:
+        """Constructor method for the KafkaMessage class.
+
+        Args:
+            *args (Any): Additional positional arguments.
+            consumer (AsyncConfluentConsumer): The Kafka consumer that received the message.
+            is_manual (bool): Whether the consumer is manual or not.
+            **kwargs (Any): Additional keyword arguments.
+
+        """
         super().__init__(*args, **kwargs)
 
         self.is_manual = is_manual
         self.consumer = consumer
 
     async def ack(self, **kwargs: Any) -> None:
-        """
-        Acknowledge the Kafka message.
+        """Acknowledge the Kafka message.
 
         Args:
             **kwargs (Any): Additional keyword arguments.

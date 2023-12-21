@@ -31,7 +31,7 @@ from kafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
 from kafka.partitioner.default import DefaultPartitioner
 from starlette import routing
 from starlette.responses import JSONResponse, Response
-from starlette.types import AppType, ASGIApp, Lifespan
+from starlette.types import ASGIApp, AppType, Lifespan
 
 from faststream.__about__ import __version__
 from faststream._compat import override

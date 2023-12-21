@@ -25,8 +25,7 @@ _missing = object()
 
 
 class MsgToSend(BaseModel):
-    """
-    A Pydantic model representing a message to be sent to Kafka.
+    """A Pydantic model representing a message to be sent to Kafka.
 
     Attributes:
         timestamp (int): The timestamp of the message.
@@ -42,9 +41,7 @@ class MsgToSend(BaseModel):
 
 
 class BatchBuilder:
-    """
-    A helper class to build a batch of messages to send to Kafka.
-    """
+    """A helper class to build a batch of messages to send to Kafka."""
 
     def __init__(self) -> None:
         """Initializes a new BatchBuilder instance."""
@@ -81,9 +78,7 @@ class BatchBuilder:
 
 
 class AsyncConfluentProducer:
-    """
-    An asynchronous Python Kafka client using the "confluent-kafka" package.
-    """
+    """An asynchronous Python Kafka client using the "confluent-kafka" package."""
 
     def __init__(
         self,
@@ -152,7 +147,6 @@ class AsyncConfluentProducer:
         Raises:
             ValueError: If the provided bootstrap_servers is not a string or list of strings.
         """
-
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
             bootstrap_servers, str
         ):
@@ -198,15 +192,11 @@ class AsyncConfluentProducer:
         self.loop = loop or asyncio.get_event_loop()
 
     async def start(self) -> None:
-        """
-        Start the Kafka producer.
-        """
+        """Start the Kafka producer."""
         pass
 
     async def stop(self) -> None:
-        """
-        Stop the Kafka producer and flush remaining messages.
-        """
+        """Stop the Kafka producer and flush remaining messages."""
         self.producer.flush()
 
     async def send(
@@ -288,8 +278,7 @@ class AsyncConfluentProducer:
 
 
 class TopicPartition(NamedTuple):
-    """
-    A named tuple representing a Kafka topic and partition.
+    """A named tuple representing a Kafka topic and partition.
 
     Attributes:
         topic (str): The name of the Kafka topic.
