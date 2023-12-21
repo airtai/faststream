@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.kafka.confluent_broker.ConfluentKafkaBroker
+::: faststream.confluent.TestKafkaBroker
