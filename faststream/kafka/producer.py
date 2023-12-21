@@ -12,7 +12,7 @@ class AioKafkaFastProducer:
     """A class to represent a fast Kafka producer.
 
     Attributes:
-        _producer : AIOKafkaProducer or AsyncConfluentProducer object representing the Kafka producer
+        _producer : AIOKafkaProducer object representing the Kafka producer
 
     Methods:
         publish : Publishes a message to a Kafka topic.
@@ -31,7 +31,6 @@ class AioKafkaFastProducer:
 
         Args:
             producer: An instance of AIOKafkaProducer.
-        !!! note
 
         """
         self._producer = producer

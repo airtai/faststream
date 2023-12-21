@@ -5,9 +5,7 @@ import aiokafka
 from faststream.broker.message import StreamMessage
 
 
-class KafkaMessage(
-    StreamMessage[aiokafka.ConsumerRecord]
-):
+class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
     """
     Represents a Kafka message in the FastStream framework.
 

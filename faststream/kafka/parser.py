@@ -74,9 +74,7 @@ class AioKafkaParser:
         )
 
     @staticmethod
-    async def decode_message(
-        msg: StreamMessage[ConsumerRecord]
-    ) -> DecodedMessage:
+    async def decode_message(msg: StreamMessage[ConsumerRecord]) -> DecodedMessage:
         """Decodes a message.
 
         Args:

@@ -61,7 +61,7 @@ class LogicHandler(AsyncHandler[ConsumerRecord]):
         # Kafka information
         group_id: Optional[str] = None,
         client_id: str = "faststream-" + __version__,
-        builder: Callable[..., AIOKafkaConsumer ],
+        builder: Callable[..., AIOKafkaConsumer],
         is_manual: bool = False,
         batch: bool = False,
         batch_timeout_ms: int = 200,
