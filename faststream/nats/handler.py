@@ -27,7 +27,7 @@ from faststream.nats.message import NatsMessage
 from faststream.nats.parser import JsParser, Parser
 from faststream.nats.pull_sub import PullSub
 from faststream.types import AnyDict
-from faststream.utils.context.path import compile_path
+from faststream.utils.path import compile_path
 
 
 class LogicNatsHandler(AsyncHandler[Msg]):

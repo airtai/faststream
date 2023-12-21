@@ -491,7 +491,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             ), "You need to run application lifespan at first"
 
             return Response(
-                content=json.dumps(self.schema.to_jsonable(), indent=4),
+                content=json.dumps(self.schema.to_jsonable(), indent=2),
                 headers={"Content-Type": "application/octet-stream"},
             )
 

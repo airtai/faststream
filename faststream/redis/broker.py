@@ -41,7 +41,7 @@ from faststream.redis.security import parse_security
 from faststream.redis.shared.logging import RedisLoggingMixin
 from faststream.security import BaseSecurity
 from faststream.types import AnyDict, DecodedMessage
-from faststream.utils.context.main import context
+from faststream.utils.context.repository import context
 
 Channel: TypeAlias = str
 

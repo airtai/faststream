@@ -5,7 +5,7 @@ from typing import Any, AsyncIterator, Optional, Type
 
 from faststream._compat import Self
 from faststream.types import DecodedMessage, SendableMessage
-from faststream.utils.context.main import context
+from faststream.utils.context.repository import context
 
 
 class BaseMiddleware:

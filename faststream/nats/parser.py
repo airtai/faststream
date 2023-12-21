@@ -1,4 +1,4 @@
-from typing import List, Optional, Pattern, Union, overload
+from typing import TYPE_CHECKING, List, Optional, Union, overload
 from uuid import uuid4
 
 from nats.aio.msg import Msg
@@ -7,7 +7,10 @@ from faststream.broker.message import StreamMessage
 from faststream.broker.parsers import decode_message
 from faststream.nats.message import NatsMessage
 from faststream.types import AnyDict, DecodedMessage
-from faststream.utils.context.main import context
+from faststream.utils.context.repository import context
+
+if TYPE_CHECKING:
+    from faststream.nats.asyncapi import Handler
 
 
 class NatsParser:
@@ -27,7 +30,10 @@ class NatsParser:
         ...
 
     async def parse_message(
-        self, message: Union[Msg, List[Msg]], *, path: Optional[AnyDict] = None
+        self,
+        message: Union[Msg, List[Msg]],
+        *,
+        path: Optional[AnyDict] = None,
     ) -> Union[StreamMessage[Msg], StreamMessage[List[Msg]],]:
         if isinstance(message, list):
             return NatsMessage(
@@ -37,10 +43,10 @@ class NatsParser:
             )
 
         else:
-            path_re: Optional[Pattern[str]]
+            handler: Optional["Handler"]
             if (
                 path is None
-                and (handler := context.get_local("handler_"))
+                and (handler := context.get_local("handler_")) is not None
                 and (path_re := handler.path_regex) is not None
                 and (match := path_re.match(message.subject)) is not None
             ):

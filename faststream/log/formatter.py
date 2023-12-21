@@ -6,7 +6,7 @@ from typing import Callable, DefaultDict, Literal, Mapping, Optional, Tuple, Typ
 
 import click
 
-from faststream.utils.context.main import context
+from faststream.utils.context.repository import context
 
 original_makeRecord = logging.Logger.makeRecord
 
@@ -144,8 +144,8 @@ def make_record_with_extra(
 
     """
     if extra is None:
-        extra = context.get_local(
-            "log_context", default=context.get("default_log_context")
+        extra = context.get_local(key="log_context") or context.get(
+            "default_log_context"
         )
 
     record = original_makeRecord(

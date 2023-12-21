@@ -16,7 +16,7 @@ async def base_handler1(logger: Logger):
 
 
 @broker.subscriber(queue_1, exch)
-async def base_handler2(logger: Logger):
+async def base_handler2(logger: Logger):  # pragma: no cover
     logger.info("base_handler2")
 
 

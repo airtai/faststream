@@ -55,7 +55,7 @@ from faststream.nats.security import parse_security
 from faststream.nats.shared.logging import NatsLoggingMixin
 from faststream.security import BaseSecurity
 from faststream.types import AnyDict, DecodedMessage
-from faststream.utils.context.main import context
+from faststream.utils.context.repository import context
 
 Subject: TypeAlias = str
 

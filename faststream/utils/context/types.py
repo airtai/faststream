@@ -1,10 +1,10 @@
 from inspect import _empty
-from typing import Any
+from typing import Any, Callable, Optional
 
 from fast_depends.library import CustomField
 
 from faststream.types import AnyDict
-from faststream.utils.context.main import context
+from faststream.utils.context.repository import context
 
 
 class Context(CustomField):
@@ -24,8 +24,9 @@ class Context(CustomField):
         self,
         real_name: str = "",
         *,
-        cast: bool = False,
         default: Any = _empty,
+        initial: Optional[Callable[..., Any]] = None,
+        cast: bool = False,
         prefix: str = "",
     ) -> None:
         """Initialize the object.
@@ -34,6 +35,7 @@ class Context(CustomField):
             real_name: The real name of the object.
             cast: Whether to cast the object.
             default: The default value of the object.
+            initial: The initial value builder.
 
         Raises:
             TypeError: If the default value is not provided.
@@ -41,6 +43,7 @@ class Context(CustomField):
         self.name = real_name
         self.default = default
         self.prefix = prefix
+        self.initial = initial
         super().__init__(
             cast=cast,
             required=(default is _empty),
@@ -61,10 +64,34 @@ class Context(CustomField):
         """
         name = f"{self.prefix}{self.name or self.param_name}"
 
-        try:
-            kwargs[self.param_name] = context.resolve(name)
-        except (KeyError, AttributeError):
-            if self.required is False:
-                kwargs[self.param_name] = self.default
+        if (
+            v := resolve_context_by_name(
+                name=name,
+                default=self.default,
+                initial=self.initial,
+            )
+        ) is not _empty:
+            kwargs[self.param_name] = v
 
         return kwargs
+
+
+def resolve_context_by_name(
+    name: str,
+    default: Any,
+    initial: Optional[Callable[..., Any]],
+) -> Any:
+    value: Any = _empty
+
+    try:
+        value = context.resolve(name)
+
+    except (KeyError, AttributeError):
+        if default is not _empty:
+            value = default
+
+        elif initial is not None:
+            value = initial()
+            context.set_global(name, value)
+
+    return value

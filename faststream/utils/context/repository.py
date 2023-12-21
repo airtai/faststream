@@ -146,6 +146,7 @@ class ContextRepo(Singleton):
                 v = v[i]
             else:
                 v = getattr(v, i)
+
         return v
 
     def __getattr__(self, __name: str) -> Any:

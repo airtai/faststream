@@ -1,6 +1,7 @@
 import logging
 import sys
 import warnings
+from contextlib import suppress
 from typing import Dict, List, Optional
 
 import anyio
@@ -14,7 +15,6 @@ from faststream.cli.docs.app import docs_app
 from faststream.cli.utils.imports import import_from_string
 from faststream.cli.utils.logs import LogLevels, get_log_level, set_log_level
 from faststream.cli.utils.parser import parse_cli_args
-from faststream.log import logger
 from faststream.types import SettingField
 
 cli = typer.Typer(pretty_exceptions_short=True)
@@ -29,7 +29,6 @@ def version_callback(version: bool) -> None:
 
     Returns:
         None
-
     """
     if version is True:
         import platform
@@ -173,18 +172,15 @@ def _run(
 
     Note:
         This function uses the `anyio.run()` function to run the application.
-
     """
     _, app_obj = import_from_string(app)
 
     set_log_level(log_level, app_obj)
 
     if sys.platform not in ("win32", "cygwin", "cli"):  # pragma: no cover
-        try:
+        with suppress(ImportError):
             import uvloop
-        except ImportError:
-            logger.warning("You have no installed `uvloop`")
-        else:
+
             uvloop.install()  # type: ignore[attr-defined]
 
     try:

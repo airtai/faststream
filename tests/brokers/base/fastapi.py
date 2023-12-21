@@ -65,6 +65,30 @@ class FastAPITestcase:
         assert event.is_set()
         mock.assert_called_with(True)
 
+    async def test_initial_context(self, queue: str, event: asyncio.Event):
+        router = self.router_class()
+
+        @router.subscriber(queue)
+        async def hello(msg: int, data=Context(queue, initial=set)):
+            data.add(msg)
+            if len(data) == 2:
+                event.set()
+
+        async with router.broker:
+            await router.broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(router.broker.publish(1, queue)),
+                    asyncio.create_task(router.broker.publish(2, queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        assert context.get(queue) == {1, 2}
+        context.reset_global(queue)
+
     async def test_double_real(self, mock: Mock, queue: str, event: asyncio.Event):
         event2 = asyncio.Event()
         router = self.router_class()

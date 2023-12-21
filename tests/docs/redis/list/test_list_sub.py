@@ -4,7 +4,7 @@ from faststream.redis import TestRedisBroker
 
 
 @pytest.mark.asyncio
-async def test_list_publisher():
+async def test_list():
     from docs.docs_src.redis.list.list_sub import broker, handle
 
     async with TestRedisBroker(broker) as br:

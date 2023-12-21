@@ -41,7 +41,7 @@ from faststream.broker.types import (
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.exceptions import HandlerException, StopConsume
 from faststream.types import AnyDict, SendableMessage
-from faststream.utils.context.main import context
+from faststream.utils.context.repository import context
 from faststream.utils.functions import to_async
 
 

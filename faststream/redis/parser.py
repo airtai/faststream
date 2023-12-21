@@ -1,4 +1,4 @@
-from typing import Optional, Pattern, Tuple, Union, overload
+from typing import TYPE_CHECKING, Optional, Tuple, Union, overload
 from uuid import uuid4
 
 from pydantic import BaseModel, Field
@@ -12,7 +12,10 @@ from faststream.redis.message import (
     OneRedisMessage,
 )
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
-from faststream.utils.context.main import context
+from faststream.utils.context.repository import context
+
+if TYPE_CHECKING:
+    from faststream.redis.asyncapi import Handler
 
 DATA_KEY = "__data__"
 bDATA_KEY = DATA_KEY.encode()
@@ -93,9 +96,7 @@ class RedisParser:
         id_ = str(uuid4())
 
         if message["type"] == "batch":
-            data = dump_json(
-                [cls.parse_one_msg(x)[0] for x in message["data"]]
-            ).encode()
+            data = dump_json([cls.parse_one_msg(x)[0] for x in message["data"]])
 
             return BatchRedisMessage(
                 raw_message=message,
@@ -110,16 +111,16 @@ class RedisParser:
 
             channel = message.get("channel", b"").decode()
 
-            handler = context.get_local("handler_")
-            path_re: Optional[Pattern[str]]
-            path: AnyDict = {}
+            handler: Optional["Handler"] = context.get_local("handler_")
             if (
-                handler
+                handler is not None
                 and handler.channel is not None
                 and (path_re := handler.channel.path_regex) is not None
                 and (match := path_re.match(channel)) is not None
             ):
                 path = match.groupdict()
+            else:
+                path = {}
 
             return OneRedisMessage(
                 raw_message=message,
