@@ -56,8 +56,10 @@ class FakeProducer(NatsFastProducer):
         subject: str,
         reply_to: str = "",
         headers: Optional[Dict[str, str]] = None,
-        stream: Optional[str] = None,
         correlation_id: Optional[str] = None,
+        # NatsJSFastProducer compatibility
+        timeout: Optional[float] = None,
+        stream: Optional[str] = None,
         *,
         rpc: bool = False,
         rpc_timeout: Optional[float] = None,
@@ -73,6 +75,9 @@ class FakeProducer(NatsFastProducer):
 
         for handler in self.broker.handlers.values():  # pragma: no branch
             call = False
+
+            if stream and getattr(handler.stream, "name", None) != stream:
+                continue
 
             if subject == handler.subject:
                 call = True
