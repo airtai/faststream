@@ -78,7 +78,7 @@ jobs:
           name: .coverage.${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
           path: coverage
           if-no-files-found: error
-  
+
   test-orjson:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest

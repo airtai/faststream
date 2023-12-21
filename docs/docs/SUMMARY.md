@@ -340,6 +340,8 @@ search:
             - handler
                 - [LogicHandler](api/faststream/kafka/handler/LogicHandler.md)
             - message
+                - [ConsumerProtocol](api/faststream/kafka/message/ConsumerProtocol.md)
+                - [FakeConsumer](api/faststream/kafka/message/FakeConsumer.md)
                 - [KafkaMessage](api/faststream/kafka/message/KafkaMessage.md)
             - parser
                 - [AioKafkaParser](api/faststream/kafka/parser/AioKafkaParser.md)
@@ -580,12 +582,11 @@ search:
                     - [Context](api/faststream/utils/context/builders/Context.md)
                     - [Header](api/faststream/utils/context/builders/Header.md)
                     - [Path](api/faststream/utils/context/builders/Path.md)
-                - main
-                    - [ContextRepo](api/faststream/utils/context/main/ContextRepo.md)
-                - path
-                    - [compile_path](api/faststream/utils/context/path/compile_path.md)
+                - repository
+                    - [ContextRepo](api/faststream/utils/context/repository/ContextRepo.md)
                 - types
                     - [Context](api/faststream/utils/context/types/Context.md)
+                    - [resolve_context_by_name](api/faststream/utils/context/types/resolve_context_by_name.md)
             - data
                 - [filter_by_dict](api/faststream/utils/data/filter_by_dict.md)
             - functions
@@ -597,6 +598,8 @@ search:
                 - [to_async](api/faststream/utils/functions/to_async.md)
             - no_cast
                 - [NoCast](api/faststream/utils/no_cast/NoCast.md)
+            - path
+                - [compile_path](api/faststream/utils/path/compile_path.md)
 - Contributing
     - [Development](getting-started/contributing/CONTRIBUTING.md)
     - [Documentation](getting-started/contributing/docs.md)

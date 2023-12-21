@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.utils.context.path.compile_path
+::: faststream.utils.context.types.resolve_context_by_name

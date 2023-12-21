@@ -8,27 +8,11 @@ from faststream.utils.classes import Singleton
 
 T = TypeVar("T")
 
+__all__ = ("ContextRepo", "context")
+
 
 class ContextRepo(Singleton):
-    """A class to represent a context repository.
-
-    Attributes:
-        _global_context : dictionary representing the global context
-        _scope_context : dictionary representing the scope context
-
-    Methods:
-        __init__ : initializes the ContextRepo object
-        set_global : sets a global context variable
-        reset_global : resets a global context variable
-        set_local : sets a local context variable
-        reset_local : resets a local context variable
-        get_local : gets the value of a local context variable
-        clear : clears the global and scope context
-        get : gets the value of a context variable
-        __getattr__ : gets the value of a context variable using attribute access
-        context : gets the current context as a dictionary
-        scope : creates a context scope for a specific key and value
-    """
+    """A class to represent a context repository."""
 
     _global_context: AnyDict
     _scope_context: Dict[str, ContextVar[Any]]
