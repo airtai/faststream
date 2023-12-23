@@ -318,3 +318,13 @@ omit = [
 ]
 
 [tool.bandit]
+
+[tool.black]
+line-length = 88
+
+extend-exclude = """
+/(
+    docs/docs_src
+    | some_other_dir
+)/
+"""

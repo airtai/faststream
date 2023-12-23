@@ -215,10 +215,7 @@ class NatsBroker(
         func: Callable[[StreamMessage[Msg]], Awaitable[T_HandlerReturn]],
         watcher: Callable[..., AsyncContextManager[None]],
         **kwargs: Any,
-    ) -> Callable[
-        [StreamMessage[Msg]],
-        Awaitable[WrappedReturn[T_HandlerReturn]],
-    ]: ...
+    ) -> Callable[[StreamMessage[Msg]], Awaitable[WrappedReturn[T_HandlerReturn]],]: ...
     def _log_connection_broken(
         self,
         error_cb: Optional[ErrorCallback] = None,

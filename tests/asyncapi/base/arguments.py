@@ -70,7 +70,7 @@ class FastAPICompatible:  # noqa: D101
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
         payload = schema["components"]["schemas"]
-        assert tuple(schema["channels"].values())[0].get("description") is None  # noqa: RUF015
+        assert next(iter(schema["channels"].values())).get("description") is None
 
         for key, v in payload.items():
             assert key == "Handle:Message:Payload"
@@ -333,7 +333,7 @@ class FastAPICompatible:  # noqa: D101
             else:
 
                 class Config:
-                    schema_extra = {"examples": [{"name": "john", "id": 1}]}  # noqa: RUF012
+                    schema_extra = {"examples": [{"name": "john", "id": 1}]}
 
         broker = self.broker_class()
 
@@ -379,7 +379,11 @@ class FastAPICompatible:  # noqa: D101
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
         assert (
-            len(list(schema["components"]["messages"].values())[0]["payload"]["oneOf"])  # noqa: RUF015
+            len(
+                next(iter(schema["components"]["messages"].values()))["payload"][
+                    "oneOf"
+                ]
+            )
             == 2
         )
 

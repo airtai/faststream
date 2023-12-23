@@ -160,10 +160,7 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         func: Callable[[StreamMessage[MsgType]], Awaitable[T_HandlerReturn]],
         watcher: Callable[..., AsyncContextManager[None]],
         **kwargs: Any,
-    ) -> Callable[
-        [StreamMessage[MsgType]],
-        Awaitable[WrappedReturn[T_HandlerReturn]],
-    ]:
+    ) -> Callable[[StreamMessage[MsgType]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
         """Process a message.
 
         Args:
