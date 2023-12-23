@@ -1,12 +1,12 @@
 from typing import TYPE_CHECKING, Any, List, Literal, Optional, TypeVar, Union
 
-from redis.asyncio import Redis
-
 from faststream._compat import NotRequired, TypedDict, override
 from faststream.broker.message import StreamMessage
 from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
+    from redis.asyncio import Redis
+
     from faststream.redis.asyncapi import Handler
 
 
