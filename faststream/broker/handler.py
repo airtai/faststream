@@ -275,21 +275,18 @@ class AsyncHandler(BaseHandler[MsgType]):
         async with AsyncExitStack() as stack:
             stack.enter_context(self.lock)
 
-            gl_middlewares: List[BaseMiddleware] = []
-
             stack.enter_context(context.scope("handler_", self))
 
-            for m in self.global_middlewares:
-                gl_middlewares.append(await stack.enter_async_context(m(msg)))
+            gl_middlewares: List[BaseMiddleware] = [
+                await stack.enter_async_context(m(msg)) for m in self.global_middlewares
+            ]
 
             logged = False
             processed = False
             for handler, filter_, parser, decoder, middlewares, _ in self.calls:
-                local_middlewares: List[BaseMiddleware] = []
-                for local_m in middlewares:
-                    local_middlewares.append(
-                        await stack.enter_async_context(local_m(msg))
-                    )
+                local_middlewares: List[BaseMiddleware] = [
+                    await stack.enter_async_context(m(msg)) for m in middlewares
+                ]
 
                 all_middlewares = gl_middlewares + local_middlewares
 

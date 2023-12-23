@@ -222,9 +222,7 @@ class RedisBroker(
         stream = StreamSub.validate(stream)
 
         if (any_of := channel or list or stream) is None:
-            raise ValueError(
-                "You should specify `channel`, `list`, `stream` subscriber type"
-            )
+            raise ValueError(INCORRECT_SETUP_MSG)
 
         if all((channel, list)):
             raise ValueError("You can't use `PubSub` and `ListSub` both")

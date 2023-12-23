@@ -91,7 +91,7 @@ def get_app_path(app: str) -> Tuple[Path, str]:
 
     """
     if ":" not in app:
-        raise ValueError(f"{app} is not a FastStream")
+        raise ValueError(f"`{app}` is not a FastStream")
 
     module, app_name = app.split(":", 2)
 
