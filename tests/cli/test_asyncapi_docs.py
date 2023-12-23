@@ -21,7 +21,7 @@ SERVE_CMD = serve_cmd.split(" ")[1:-1]
 
 
 def test_gen_asyncapi_json_for_kafka_app(runner: CliRunner, kafka_basic_project: Path):
-    r = runner.invoke(cli, GEN_JSON_CMD + ["--out", "shema.json", kafka_basic_project])  # noqa: RUF005
+    r = runner.invoke(cli, GEN_JSON_CMD + ["--out", "shema.json", kafka_basic_project])
     assert r.exit_code == 0
 
     schema_path = Path.cwd() / "shema.json"
