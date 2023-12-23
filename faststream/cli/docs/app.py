@@ -1,4 +1,5 @@
 import json
+import sys
 import warnings
 from pathlib import Path
 from typing import Optional, Sequence
@@ -35,9 +36,20 @@ def serve(
         is_flag=True,
         help="Restart documentation at directory files changes",
     ),
+    app_dir: str = typer.Option(
+        ".",
+        "--app-dir",
+        help=(
+            "Look for APP in the specified directory, by adding this to the PYTHONPATH."
+            " Defaults to the current working directory."
+        ),
+    ),
 ) -> None:
     """Serve project AsyncAPI schema."""
     if ":" in app:
+        if app_dir:  # pragma: no branch
+            sys.path.insert(0, app_dir)
+
         module, _ = import_from_string(app)
 
         module_parent = module.parent
@@ -84,8 +96,19 @@ def gen(
         None,
         help="output filename",
     ),
+    app_dir: str = typer.Option(
+        ".",
+        "--app-dir",
+        help=(
+            "Look for APP in the specified directory, by adding this to the PYTHONPATH."
+            " Defaults to the current working directory."
+        ),
+    ),
 ) -> None:
     """Generate project AsyncAPI schema."""
+    if app_dir:  # pragma: no branch
+        sys.path.insert(0, app_dir)
+
     _, app_obj = import_from_string(app)
     raw_schema = get_app_schema(app_obj)
 
