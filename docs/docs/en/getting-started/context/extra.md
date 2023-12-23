@@ -29,3 +29,9 @@ By default, context fields are **NOT CAST** to the type specified in their annot
 If you require this functionality, you can enable the appropriate flag.
 
 {! includes/getting_started/context/cast.md !}
+
+## Initial Value
+
+Also, `Context` provides you with a `initial` option to setup base context value without previous `set_global` call.
+
+{! includes/getting_started/context/initial.md !}
