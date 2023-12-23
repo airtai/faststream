@@ -219,7 +219,7 @@
 <a id=__codelineno-0-84 name=__codelineno-0-84></a>        <span class=n>to_send</span><span class=p>:</span> <span class=n>Sequence</span><span class=p>[</span><span class=n>SendableMessage</span><span class=p>]</span>
 <a id=__codelineno-0-85 name=__codelineno-0-85></a>        <span class=k>if</span> <span class=ow>not</span> <span class=n>messages</span><span class=p>:</span>
 <a id=__codelineno-0-86 name=__codelineno-0-86></a>            <span class=k>if</span> <span class=ow>not</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>message</span><span class=p>,</span> <span class=n>Sequence</span><span class=p>):</span>
-<a id=__codelineno-0-87 name=__codelineno-0-87></a>                <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span>
+<a id=__codelineno-0-87 name=__codelineno-0-87></a>                <span class=k>raise</span> <span class=ne>TypeError</span><span class=p>(</span>
 <a id=__codelineno-0-88 name=__codelineno-0-88></a>                    <span class=sa>f</span><span class=s2>&quot;Message: </span><span class=si>{</span><span class=n>message</span><span class=si>}</span><span class=s2> should be Sequence type to send in batch&quot;</span>
 <a id=__codelineno-0-89 name=__codelineno-0-89></a>                <span class=p>)</span>
 <a id=__codelineno-0-90 name=__codelineno-0-90></a>            <span class=k>else</span><span class=p>:</span>
