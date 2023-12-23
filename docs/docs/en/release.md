@@ -12,6 +12,29 @@ hide:
 ---
 
 # Release Notes
+## 0.3.10
+
+### What's Changed
+
+#### New features
+
+* feat: Context initial option by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1086](https://github.com/airtai/faststream/pull/1086){.external-link target="_blank"}
+
+#### Bug fixes
+
+* fix (#1087): add app_dir option to docs serve/gen commands by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1088](https://github.com/airtai/faststream/pull/1088){.external-link target="_blank"}
+
+#### Documentation
+
+* docs: add Context initial section by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1089](https://github.com/airtai/faststream/pull/1089){.external-link target="_blank"}
+
+#### Other
+
+* chore: linting by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1081](https://github.com/airtai/faststream/pull/1081){.external-link target="_blank"}
+* chore: delete accidentally added .bak file by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1085](https://github.com/airtai/faststream/pull/1085){.external-link target="_blank"}
+
+**Full Changelog**: [#0.3.9...0.3.10](https://github.com/airtai/faststream/compare/0.3.9...0.3.10){.external-link target="_blank"}
+
 ## 0.3.9
 
 ### What's Changed
