@@ -37,7 +37,7 @@ def test_get_app_path(test_input, exp_module, exp_app):
 
 
 def test_get_app_path_wrong():
-    with pytest.raises(ValueError):  # noqa: PT011
+    with pytest.raises(ValueError, match="`module.app` is not a FastStream"):
         get_app_path("module.app")
 
 

@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from faststream._compat import HAS_FASTAPI, PYDANTIC_V2
 from faststream.app import FastStream
@@ -13,8 +13,9 @@ from faststream.asyncapi.schema import (
 )
 from faststream.constants import ContentTypes
 
-if HAS_FASTAPI:
-    from faststream.broker.fastapi.router import StreamRouter
+if TYPE_CHECKING:
+    if HAS_FASTAPI:
+        from faststream.broker.fastapi.router import StreamRouter
 
 
 def get_app_schema(app: Union[FastStream, "StreamRouter[Any]"]) -> Schema:
