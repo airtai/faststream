@@ -119,7 +119,7 @@ testing = [
     "faststream[test-core]",
     "fastapi==0.105.0",
     "pydantic-settings==2.1.0",
-    "httpx==0.25.2",
+    "httpx==0.26.0",
     "PyYAML==6.0.1",
     "watchfiles==0.21.0",
     "email-validator==2.1.0.post1",
