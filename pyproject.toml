@@ -78,7 +78,7 @@ docs = [
 
 # dev dependencies
 devdocs = [
-    "mkdocs-material==9.5.2",
+    "mkdocs-material==9.5.3",
     "mkdocs-static-i18n==1.2.0",
     "mdx-include==1.4.2",
     "mkdocstrings[python]==0.24.0",
