@@ -1,3 +1,5 @@
+"""Create API documentation for a module."""
+
 import itertools
 from importlib import import_module
 from inspect import getmembers, isclass, isfunction
@@ -269,7 +271,14 @@ def _generate_api_docs_for_module(root_path: Path, module_name: str) -> str:
 def create_api_docs(
     root_path: Path,
     module: str,
-):
+) -> None:
+    """Generate API documentation for a module.
+
+    Args:
+        root_path: The root path of the project.
+        module: The name of the module.
+
+    """
     api = _generate_api_docs_for_module(root_path, module)
 
     docs_dir = root_path / "docs"
