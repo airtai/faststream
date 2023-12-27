@@ -118,7 +118,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         self.max_workers = max_workers
         self.subscription = None
 
-        self.send_stream, self.receive_stream = anyio.create_memory_object_stream[Msg](
+        self.send_stream, self.receive_stream = anyio.create_memory_object_stream(
             max_buffer_size=max_workers
         )
         self.limiter = anyio.Semaphore(max_workers)
