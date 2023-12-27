@@ -92,7 +92,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
             Doc("AsyncAPI subscriber title"),
         ] = None,
         include_in_schema: Annotated[
-            Optional[str],
+            bool,
             Doc("Whether to include the handler in AsyncAPI schema"),
         ] = True,
     ) -> None:
@@ -145,13 +145,13 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         )
 
     @override
-    async def start(
+    async def start(  # type: ignore[override]
         self,
         connection: Annotated[
             Union[Client, JetStreamContext],
             Doc("NATS client or JS Context object using to create subscription"),
         ],
-    ) -> None:  # type: ignore[override]
+    ) -> None:
         """Create NATS subscription and start consume task."""
         if self.pull_sub is not None:
             connection = cast(JetStreamContext, connection)
@@ -240,7 +240,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
 
     async def __consume_msg(
         self,
-        msg: Union[Msg, List[Msg]],
+        msg: Msg,
     ) -> None:
         """Proxy method to call `self.consume` with semaphore block."""
         async with self.limiter:

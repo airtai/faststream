@@ -291,7 +291,7 @@ def get_app(
                 body=request._body,
                 dependant=dependant,
                 dependency_overrides_provider=dependency_overrides_provider,
-                **kwargs,
+                **kwargs,  # type: ignore[arg-type]
             )
 
             values, errors, _, _2, _3 = solved_result
