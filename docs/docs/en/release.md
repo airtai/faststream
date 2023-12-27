@@ -12,6 +12,31 @@ hide:
 ---
 
 # Release Notes
+## 0.3.11
+
+### What's Changed
+
+NATS concurent subscriber:
+
+By default,  NATS subscriber consumes messages with a block per subject. So, you can't process multiple messages from the same subject at the same time. But, with the `broker.subscriber(..., max_workers=...)` option, you can! It creates an async tasks pool to consume multiple messages from the same subject and allows you to process them concurently!
+
+```python
+from faststream import FastStream
+from faststream.nats import NatsBroker
+
+broker = NatsBroker()
+app = FastStream()
+
+@broker.subscriber("test-subject", max_workers=10)
+async def handler(...):
+   """Can process up to 10 messages in the same time."""
+```
+
+* Update Release Notes for 0.3.10 by @faststream-release-notes-updater in [#1091](https://github.com/airtai/faststream/pull/1091){.external-link target="_blank"}
+* fix (#1100): FastAPI 0.106 compatibility by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1102](https://github.com/airtai/faststream/pull/1102){.external-link target="_blank"}
+
+**Full Changelog**: [#0.3.10...0.3.11](https://github.com/airtai/faststream/compare/0.3.10...0.3.11){.external-link target="_blank"}
+
 ## 0.3.10
 
 ### What's Changed
