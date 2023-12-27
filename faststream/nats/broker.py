@@ -314,6 +314,7 @@ class NatsBroker(
         middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
         filter: Filter[NatsMessage] = default_filter,
         no_ack: bool = False,
+        max_workers: int = 1,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
@@ -394,6 +395,7 @@ class NatsBroker(
                 description=description,
                 include_in_schema=include_in_schema,
                 graceful_timeout=self.graceful_timeout,
+                max_workers=max_workers,
                 log_context_builder=partial(
                     self._get_log_context,
                     stream=stream.name if stream else "",

@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Any, Type
 
 from dirty_equals import IsStr
 from pydantic import create_model
@@ -9,7 +9,7 @@ from faststream.broker.core.abc import BrokerUsecase
 
 
 class BaseNaming:  # noqa: D101
-    broker_class: Type[BrokerUsecase]
+    broker_class: Type[BrokerUsecase[Any, Any]]
 
 
 class SubscriberNaming(BaseNaming):  # noqa: D101

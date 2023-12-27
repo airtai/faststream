@@ -1,15 +1,18 @@
 import asyncio
 from contextlib import suppress
-from typing import Any, Callable, Dict, Optional, Sequence, Union, cast
+from typing import Any, Callable, Dict, List, Optional, Sequence, Union, cast
 
+import anyio
+from anyio.abc import TaskGroup, TaskStatus
 from fast_depends.core import CallModel
 from nats.aio.client import Client
 from nats.aio.msg import Msg
 from nats.aio.subscription import Subscription
 from nats.errors import TimeoutError
 from nats.js import JetStreamContext
+from typing_extensions import Doc
 
-from faststream._compat import override
+from faststream._compat import Annotated, override
 from faststream.broker.handler import AsyncHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
@@ -39,36 +42,61 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         JetStreamContext.PushSubscription,
         JetStreamContext.PullSubscription,
     ]
-    task: Optional["asyncio.Task[Any]"] = None
+    task_group: Optional[TaskGroup]
+    task: Optional["asyncio.Task[Any]"]
 
     def __init__(
         self,
-        subject: str,
-        log_context_builder: Callable[[StreamMessage[Any]], Dict[str, str]],
-        queue: str = "",
-        stream: Optional[JStream] = None,
-        pull_sub: Optional[PullSub] = None,
-        extra_options: Optional[AnyDict] = None,
-        graceful_timeout: Optional[float] = None,
+        subject: Annotated[
+            str,
+            Doc("NATS subject to subscribe"),
+        ],
+        log_context_builder: Annotated[
+            Callable[[StreamMessage[Any]], Dict[str, str]],
+            Doc("Function to create log extra data by message"),
+        ],
+        queue: Annotated[
+            str,
+            Doc("NATS queue name"),
+        ] = "",
+        stream: Annotated[
+            Optional[JStream],
+            Doc("NATS Stream object"),
+        ] = None,
+        pull_sub: Annotated[
+            Optional[PullSub],
+            Doc("NATS Pull consumer parameters container"),
+        ] = None,
+        extra_options: Annotated[
+            Optional[AnyDict],
+            Doc("Extra arguments for subscription creation"),
+        ] = None,
+        graceful_timeout: Annotated[
+            Optional[float],
+            Doc(
+                "Wait up to this time (if setted up) in graceful shutdown mode. "
+                "Kills task forcely if expired."
+            ),
+        ] = None,
+        max_workers: Annotated[
+            int,
+            Doc("Process up to this parameter messages concurently"),
+        ] = 1,
         # AsyncAPI information
-        description: Optional[str] = None,
-        title: Optional[str] = None,
-        include_in_schema: bool = True,
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI subscriber description"),
+        ] = None,
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI subscriber title"),
+        ] = None,
+        include_in_schema: Annotated[
+            Optional[str],
+            Doc("Whether to include the handler in AsyncAPI schema"),
+        ] = True,
     ) -> None:
-        """Initialize the NATS handler.
-
-        Args:
-            subject: The NATS subject.
-            log_context_builder: The log context builder.
-            queue: The NATS queue.
-            stream: The NATS stream.
-            pull_sub: The NATS pull subscription.
-            extra_options: The extra options.
-            graceful_timeout: The graceful timeout.
-            description: The description.
-            title: The title.
-            include_in_schema: Whether to include the handler in the schema.
-        """
+        """Initialize the NATS handler."""
         reg, path = compile_path(subject, replace_symbol="*")
         self.subject = path
         self.path_regex = reg
@@ -87,8 +115,14 @@ class LogicNatsHandler(AsyncHandler[Msg]):
             graceful_timeout=graceful_timeout,
         )
 
-        self.task = None
+        self.max_workers = max_workers
         self.subscription = None
+
+        self.send_stream, self.receive_stream = anyio.create_memory_object_stream[Msg](
+            max_buffer_size=max_workers
+        )
+        self.limiter = anyio.Semaphore(max_workers)
+        self.task = None
 
     def add_call(
         self,
@@ -111,7 +145,14 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         )
 
     @override
-    async def start(self, connection: Union[Client, JetStreamContext]) -> None:  # type: ignore[override]
+    async def start(
+        self,
+        connection: Annotated[
+            Union[Client, JetStreamContext],
+            Doc("NATS client or JS Context object using to create subscription"),
+        ],
+    ) -> None:  # type: ignore[override]
+        """Create NATS subscription and start consume task."""
         if self.pull_sub is not None:
             connection = cast(JetStreamContext, connection)
 
@@ -122,19 +163,26 @@ class LogicNatsHandler(AsyncHandler[Msg]):
                 subject=self.subject,
                 **self.extra_options,
             )
-            self.task = asyncio.create_task(self._consume())
+            self.task = asyncio.create_task(self._consume_pull())
 
         else:
+            if self.max_workers > 1:
+                self.task = asyncio.create_task(self._serve_consume_queue())
+                cb = self.__put_msg
+            else:
+                cb = self.consume
+
             self.subscription = await connection.subscribe(
                 subject=self.subject,
                 queue=self.queue,
-                cb=self.consume,  # type: ignore[arg-type]
+                cb=cb,  # type: ignore[arg-type]
                 **self.extra_options,
             )
 
         await super().start()
 
     async def close(self) -> None:
+        """Clean up handler subscription, cancel consume task in graceful mode."""
         await super().close()
 
         if self.subscription is not None:
@@ -145,10 +193,19 @@ class LogicNatsHandler(AsyncHandler[Msg]):
             self.task.cancel()
             self.task = None
 
-    async def _consume(self) -> None:
+    async def _consume_pull(
+        self,
+        *,
+        task_status: TaskStatus[None] = anyio.TASK_STATUS_IGNORED,
+    ) -> None:
+        """Endless task consuming messages using NATS Pull subscriber."""
         assert self.pull_sub  # nosec B101
 
         sub = cast(JetStreamContext.PullSubscription, self.subscription)
+
+        cb = self.__consume_msg if self.max_workers > 1 else self.consume
+
+        task_status.started()
 
         while self.running:  # pragma: no branch
             with suppress(TimeoutError), self.lock:
@@ -160,9 +217,46 @@ class LogicNatsHandler(AsyncHandler[Msg]):
                 if messages:
                     if self.pull_sub.batch:
                         await self.consume(messages)  # type: ignore[arg-type]
+
                     else:
-                        await asyncio.gather(*map(self.consume, messages))
+                        async with anyio.create_task_group() as tg:
+                            for msg in messages:
+                                tg.start_soon(cb, msg)
+
+    async def _serve_consume_queue(
+        self,
+        *,
+        task_status: TaskStatus[None] = anyio.TASK_STATUS_IGNORED,
+    ) -> None:
+        """Endless task consuming messages from in-memory queue.
+
+        Suitable to batch messages by amount, timestamps, etc and call `consume` for this batches.
+        """
+        async with anyio.create_task_group() as tg:
+            task_status.started()
+
+            async for msg in self.receive_stream:
+                tg.start_soon(self.__consume_msg, msg)
+
+    async def __consume_msg(
+        self,
+        msg: Union[Msg, List[Msg]],
+    ) -> None:
+        """Proxy method to call `self.consume` with semaphore block."""
+        async with self.limiter:
+            await self.consume(msg)
+
+    async def __put_msg(self, msg: Msg) -> None:
+        """Proxy method to put msg into in-memory queue with semaphore block."""
+        async with self.limiter:
+            await self.send_stream.send(msg)
 
     @staticmethod
-    def get_routing_hash(subject: str) -> str:
+    def get_routing_hash(
+        subject: Annotated[str, Doc("NATS subject to consume messages")],
+    ) -> str:
+        """Get handler hash by outer data.
+
+        Using to find handler in `broker.handlers` dictionary.
+        """
         return subject

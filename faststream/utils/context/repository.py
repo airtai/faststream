@@ -1,12 +1,10 @@
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from inspect import _empty
-from typing import Any, Dict, Iterator, Mapping, TypeVar
+from typing import Any, Dict, Iterator, Mapping
 
 from faststream.types import AnyDict
 from faststream.utils.classes import Singleton
-
-T = TypeVar("T")
 
 __all__ = ("ContextRepo", "context")
 
@@ -50,7 +48,7 @@ class ContextRepo(Singleton):
         """
         self._global_context.pop(key, None)
 
-    def set_local(self, key: str, value: T) -> "Token[T]":
+    def set_local(self, key: str, value: Any) -> "Token[Any]":
         """Set a local context variable.
 
         Args:
@@ -170,4 +168,4 @@ class ContextRepo(Singleton):
             self.reset_local(key, token)
 
 
-context: ContextRepo = ContextRepo()
+context = ContextRepo()
