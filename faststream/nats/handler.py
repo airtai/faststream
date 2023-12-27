@@ -1,9 +1,10 @@
 import asyncio
 from contextlib import suppress
-from typing import Any, Callable, Dict, List, Optional, Sequence, Union, cast
+from typing import Any, Callable, Dict, Optional, Sequence, Union, cast
 
 import anyio
 from anyio.abc import TaskGroup, TaskStatus
+from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 from fast_depends.core import CallModel
 from nats.aio.client import Client
 from nats.aio.msg import Msg
@@ -44,6 +45,8 @@ class LogicNatsHandler(AsyncHandler[Msg]):
     ]
     task_group: Optional[TaskGroup]
     task: Optional["asyncio.Task[Any]"]
+    send_stream: MemoryObjectSendStream[Msg]
+    receive_stream: MemoryObjectReceiveStream[Msg]
 
     def __init__(
         self,
