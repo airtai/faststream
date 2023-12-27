@@ -27,7 +27,7 @@ from fastapi.routing import run_endpoint_function
 from starlette.requests import Request
 from starlette.routing import BaseRoute
 
-from faststream._compat import raise_fastapi_validation_error
+from faststream._compat import FASTAPI_V106, raise_fastapi_validation_error
 from faststream.broker.core.asyncronous import BrokerAsyncUsecase
 from faststream.broker.message import StreamMessage as NativeMessage
 from faststream.broker.schemas import NameRequired
@@ -44,7 +44,6 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
         path : path of the route
         broker : BrokerAsyncUsecase object representing the broker for the route
         dependant : Dependable object representing the dependencies for the route
-
     """
 
     handler: HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]
@@ -75,7 +74,6 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
 
         Returns:
             None.
-
         """
         self.path = path or ""
         self.broker = broker
@@ -136,7 +134,6 @@ class StreamMessage(Request):
     Methods:
         __init__ : initializes the StreamMessage object
         get_session : returns a callable function that handles the session of the message
-
     """
 
     scope: AnyDict
@@ -194,7 +191,6 @@ class StreamMessage(Request):
 
         Note:
             This function is used to create a session for handling requests. It takes a dependant object, which represents the session, and a dependency overrides provider, which allows for overriding dependencies. It returns a callable that takes a native message and returns an awaitable sendable message. The session is created based on the dependant object and the message passed to the callable. The session is then used to call the function obtained from the dependant object, and the result is returned.
-
         """
         assert dependant.call  # nosec B101
 
@@ -257,7 +253,7 @@ class StreamMessage(Request):
 def get_app(
     dependant: Dependant,
     dependency_overrides_provider: Optional[Any] = None,
-) -> Callable[[StreamMessage], Coroutine[Any, Any, SendableMessage]]:
+) -> Callable[[StreamMessage], Coroutine[Any, Any, SendableMessage],]:
     """Creates a FastAPI application.
 
     Args:
@@ -269,7 +265,6 @@ def get_app(
 
     Raises:
         AssertionError: If the code reaches an unreachable state.
-
     """
 
     async def app(request: StreamMessage) -> SendableMessage:
@@ -283,16 +278,20 @@ def get_app(
 
         Raises:
             AssertionError: If the code reaches an unreachable point.
-
         """
         async with AsyncExitStack() as stack:
-            request.scope["fastapi_astack"] = stack
+            if FASTAPI_V106:
+                kwargs = {"async_exit_stack": stack}
+            else:
+                request.scope["fastapi_astack"] = stack
+                kwargs = {}
 
             solved_result = await solve_dependencies(
                 request=request,
                 body=request._body,
                 dependant=dependant,
                 dependency_overrides_provider=dependency_overrides_provider,
+                **kwargs,  # type: ignore[arg-type]
             )
 
             values, errors, _, _2, _3 = solved_result

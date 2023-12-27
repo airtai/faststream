@@ -3,6 +3,7 @@ from abc import abstractmethod
 from contextlib import AsyncExitStack, suppress
 from inspect import unwrap
 from typing import (
+    TYPE_CHECKING,
     Any,
     Awaitable,
     Callable,
@@ -43,6 +44,9 @@ from faststream.exceptions import HandlerException, StopConsume
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils.context.repository import context
 from faststream.utils.functions import to_async
+
+if TYPE_CHECKING:
+    from contextvars import Token
 
 
 class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
@@ -272,6 +276,7 @@ class AsyncHandler(BaseHandler[MsgType]):
         if not self.running:
             return result_msg
 
+        log_context_tag: Optional["Token[Any]"] = None
         async with AsyncExitStack() as stack:
             stack.enter_context(self.lock)
 
@@ -295,7 +300,8 @@ class AsyncHandler(BaseHandler[MsgType]):
 
                 if not logged:  # pragma: no branch
                     log_context_tag = context.set_local(
-                        "log_context", self.log_context_builder(message)
+                        "log_context",
+                        self.log_context_builder(message),
                     )
 
                 message.decoded_body = await decoder(message)
@@ -363,7 +369,8 @@ class AsyncHandler(BaseHandler[MsgType]):
                 not self.running or processed
             ), "You have to consume message"  # nosec B101
 
-        context.reset_local("log_context", log_context_tag)
+        if log_context_tag is not None:
+            context.reset_local("log_context", log_context_tag)
 
         return result_msg
 

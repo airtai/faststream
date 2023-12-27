@@ -233,8 +233,8 @@ class NatsBroker(
         pending_bytes_limit: Optional[int] = None,
         # Core arguments
         max_msgs: int = 0,
-        ack_first: bool = False,
         # JS arguments
+        ack_first: bool = False,
         stream: Union[str, JStream, None] = None,
         durable: Optional[str] = None,
         config: Optional[api.ConsumerConfig] = None,
@@ -254,6 +254,7 @@ class NatsBroker(
         filter: Filter[NatsMessage] = default_filter,
         retry: bool = False,
         no_ack: bool = False,
+        max_workers: int = 1,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,

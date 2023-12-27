@@ -79,6 +79,7 @@ try:
 
     major, minor, *_ = map(int, FASTAPI_VERSION.split("."))
     FASTAPI_V2 = major > 0 or minor > 100
+    FASTAPI_V106 = major > 0 or minor >= 106
 
     if FASTAPI_V2:
         from fastapi._compat import _normalize_errors
