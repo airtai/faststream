@@ -101,7 +101,7 @@ lint = [
     "types-redis",
     "types-Pygments",
     "types-docutils",
-    "mypy==1.7.1",
+    "mypy==1.8.0",
     "ruff==0.1.9",
     "pyupgrade-directories==0.3.0",
     "bandit==1.7.6",
