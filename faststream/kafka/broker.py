@@ -202,7 +202,10 @@ class KafkaBroker(
         func: Callable[[KafkaMessage], Awaitable[T_HandlerReturn]],
         watcher: Callable[..., AsyncContextManager[None]],
         **kwargs: Any,
-    ) -> Callable[[KafkaMessage], Awaitable[WrappedReturn[T_HandlerReturn]],]:
+    ) -> Callable[
+        [KafkaMessage],
+        Awaitable[WrappedReturn[T_HandlerReturn]],
+    ]:
         """Wrap a message processing function with a watcher and publisher.
 
         Args:

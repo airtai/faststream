@@ -333,7 +333,7 @@ class FastAPICompatible:  # noqa: D101
             else:
 
                 class Config:
-                    schema_extra = {"examples": [{"name": "john", "id": 1}]}
+                    schema_extra = {"examples": [{"name": "john", "id": 1}]}  # noqa: RUF012
 
         broker = self.broker_class()
 

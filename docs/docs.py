@@ -1,3 +1,5 @@
+"""A script to help with the translation of the docs."""
+
 import os
 import subprocess
 from http.server import HTTPServer, SimpleHTTPRequestHandler

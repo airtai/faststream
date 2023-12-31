@@ -232,7 +232,10 @@ class NatsBroker(
         func: Callable[[StreamMessage[Msg]], Awaitable[T_HandlerReturn]],
         watcher: Callable[..., AsyncContextManager[None]],
         **kwargs: Any,
-    ) -> Callable[[StreamMessage[Msg]], Awaitable[WrappedReturn[T_HandlerReturn]],]:
+    ) -> Callable[
+        [StreamMessage[Msg]],
+        Awaitable[WrappedReturn[T_HandlerReturn]],
+    ]:
         @wraps(func)
         async def process_wrapper(
             message: StreamMessage[Msg],
@@ -410,7 +413,11 @@ class NatsBroker(
 
         def consumer_wrapper(
             func: Callable[P_HandlerParams, T_HandlerReturn],
-        ) -> HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn,]:
+        ) -> HandlerCallWrapper[
+            Msg,
+            P_HandlerParams,
+            T_HandlerReturn,
+        ]:
             handler_call, dependant = self._wrap_handler(
                 func,
                 extra_dependencies=dependencies,

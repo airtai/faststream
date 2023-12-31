@@ -12,4 +12,4 @@ python310 = pytest.mark.skipif(
 
 pydanticV1 = pytest.mark.skipif(PYDANTIC_V2, reason="requires PydanticV2")  # noqa: N816
 
-pydanticV2 = pytest.mark.skipif(not PYDANTIC_V2, reason="requires PydanticV1")
+pydanticV2 = pytest.mark.skipif(not PYDANTIC_V2, reason="requires PydanticV1")  # noqa: N816

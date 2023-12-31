@@ -253,7 +253,10 @@ class StreamMessage(Request):
 def get_app(
     dependant: Dependant,
     dependency_overrides_provider: Optional[Any] = None,
-) -> Callable[[StreamMessage], Coroutine[Any, Any, SendableMessage],]:
+) -> Callable[
+    [StreamMessage],
+    Coroutine[Any, Any, SendableMessage],
+]:
     """Creates a FastAPI application.
 
     Args:

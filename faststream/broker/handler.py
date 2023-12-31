@@ -365,9 +365,7 @@ class AsyncHandler(BaseHandler[MsgType]):
                         if IS_OPTIMIZED:  # pragma: no cover
                             break
 
-            assert (
-                not self.running or processed
-            ), "You have to consume message"  # nosec B101
+            assert not self.running or processed, "You have to consume message"  # nosec B101
 
         if log_context_tag is not None:
             context.reset_local("log_context", log_context_tag)
