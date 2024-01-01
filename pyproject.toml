@@ -87,7 +87,7 @@ devdocs = [
     "mike==2.0.0",  # versioning
     "mkdocs-minify-plugin==0.7.1",
     "mkdocs-macros-plugin==1.0.5",  # includes with variables
-    "mkdocs-glightbox==0.3.5",  # img zoom
+    "mkdocs-glightbox==0.3.6",  # img zoom
     "pillow==10.1.0",
     "cairosvg==2.7.1",
     "black==23.12.0",
