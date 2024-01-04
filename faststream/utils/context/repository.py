@@ -94,7 +94,7 @@ class ContextRepo(Singleton):
 
     def clear(self) -> None:
         self._global_context = {"context": self}
-        self._scope_context = {}
+        self._scope_context.clear()
 
     def get(self, key: str, default: Any = None) -> Any:
         """Get the value associated with a key.
