@@ -62,7 +62,12 @@
 <span class=normal><a href=#__codelineno-0-102>102</a></span>
 <span class=normal><a href=#__codelineno-0-103>103</a></span>
 <span class=normal><a href=#__codelineno-0-104>104</a></span>
-<span class=normal><a href=#__codelineno-0-105>105</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-64 name=__codelineno-0-64></a><span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span>
+<span class=normal><a href=#__codelineno-0-105>105</a></span>
+<span class=normal><a href=#__codelineno-0-106>106</a></span>
+<span class=normal><a href=#__codelineno-0-107>107</a></span>
+<span class=normal><a href=#__codelineno-0-108>108</a></span>
+<span class=normal><a href=#__codelineno-0-109>109</a></span>
+<span class=normal><a href=#__codelineno-0-110>110</a></span></pre></div></td><td class=code><div><pre><span></span><code><a id=__codelineno-0-64 name=__codelineno-0-64></a><span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span>
 <a id=__codelineno-0-65 name=__codelineno-0-65></a>    <span class=bp>self</span><span class=p>,</span>
 <a id=__codelineno-0-66 name=__codelineno-0-66></a>    <span class=n>name</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>
 <a id=__codelineno-0-67 name=__codelineno-0-67></a>    <span class=n>durable</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
@@ -90,20 +95,25 @@
 <a id=__codelineno-0-89 name=__codelineno-0-89></a><span class=sd>        routing_key (str, optional): Routing key for the object. Defaults to &quot;&quot;.</span>
 <a id=__codelineno-0-90 name=__codelineno-0-90></a>
 <a id=__codelineno-0-91 name=__codelineno-0-91></a><span class=sd>    &quot;&quot;&quot;</span>
-<a id=__codelineno-0-92 name=__codelineno-0-92></a>    <span class=n>re</span><span class=p>,</span> <span class=n>routing_key</span> <span class=o>=</span> <span class=n>compile_path</span><span class=p>(</span><span class=n>routing_key</span><span class=p>,</span> <span class=n>replace_symbol</span><span class=o>=</span><span class=s2>&quot;*&quot;</span><span class=p>)</span>
-<a id=__codelineno-0-93 name=__codelineno-0-93></a>    <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=fm>__init__</span><span class=p>(</span>
-<a id=__codelineno-0-94 name=__codelineno-0-94></a>        <span class=n>name</span><span class=o>=</span><span class=n>name</span><span class=p>,</span>
-<a id=__codelineno-0-95 name=__codelineno-0-95></a>        <span class=n>path_regex</span><span class=o>=</span><span class=n>re</span><span class=p>,</span>
-<a id=__codelineno-0-96 name=__codelineno-0-96></a>        <span class=n>durable</span><span class=o>=</span><span class=n>durable</span><span class=p>,</span>
-<a id=__codelineno-0-97 name=__codelineno-0-97></a>        <span class=n>exclusive</span><span class=o>=</span><span class=n>exclusive</span><span class=p>,</span>
-<a id=__codelineno-0-98 name=__codelineno-0-98></a>        <span class=n>bind_arguments</span><span class=o>=</span><span class=n>bind_arguments</span><span class=p>,</span>
-<a id=__codelineno-0-99 name=__codelineno-0-99></a>        <span class=n>routing_key</span><span class=o>=</span><span class=n>routing_key</span><span class=p>,</span>
-<a id=__codelineno-0-100 name=__codelineno-0-100></a>        <span class=n>robust</span><span class=o>=</span><span class=n>robust</span><span class=p>,</span>
-<a id=__codelineno-0-101 name=__codelineno-0-101></a>        <span class=n>passive</span><span class=o>=</span><span class=n>passive</span><span class=p>,</span>
-<a id=__codelineno-0-102 name=__codelineno-0-102></a>        <span class=n>auto_delete</span><span class=o>=</span><span class=n>auto_delete</span><span class=p>,</span>
-<a id=__codelineno-0-103 name=__codelineno-0-103></a>        <span class=n>arguments</span><span class=o>=</span><span class=n>arguments</span><span class=p>,</span>
-<a id=__codelineno-0-104 name=__codelineno-0-104></a>        <span class=n>timeout</span><span class=o>=</span><span class=n>timeout</span><span class=p>,</span>
-<a id=__codelineno-0-105 name=__codelineno-0-105></a>    <span class=p>)</span>
+<a id=__codelineno-0-92 name=__codelineno-0-92></a>    <span class=n>re</span><span class=p>,</span> <span class=n>routing_key</span> <span class=o>=</span> <span class=n>compile_path</span><span class=p>(</span>
+<a id=__codelineno-0-93 name=__codelineno-0-93></a>        <span class=n>routing_key</span><span class=p>,</span>
+<a id=__codelineno-0-94 name=__codelineno-0-94></a>        <span class=n>replace_symbol</span><span class=o>=</span><span class=s2>&quot;*&quot;</span><span class=p>,</span>
+<a id=__codelineno-0-95 name=__codelineno-0-95></a>        <span class=n>patch_regex</span><span class=o>=</span><span class=k>lambda</span> <span class=n>x</span><span class=p>:</span> <span class=n>x</span><span class=o>.</span><span class=n>replace</span><span class=p>(</span><span class=sa>r</span><span class=s2>&quot;\#&quot;</span><span class=p>,</span> <span class=s2>&quot;.+&quot;</span><span class=p>),</span>
+<a id=__codelineno-0-96 name=__codelineno-0-96></a>    <span class=p>)</span>
+<a id=__codelineno-0-97 name=__codelineno-0-97></a>
+<a id=__codelineno-0-98 name=__codelineno-0-98></a>    <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=fm>__init__</span><span class=p>(</span>
+<a id=__codelineno-0-99 name=__codelineno-0-99></a>        <span class=n>name</span><span class=o>=</span><span class=n>name</span><span class=p>,</span>
+<a id=__codelineno-0-100 name=__codelineno-0-100></a>        <span class=n>path_regex</span><span class=o>=</span><span class=n>re</span><span class=p>,</span>
+<a id=__codelineno-0-101 name=__codelineno-0-101></a>        <span class=n>durable</span><span class=o>=</span><span class=n>durable</span><span class=p>,</span>
+<a id=__codelineno-0-102 name=__codelineno-0-102></a>        <span class=n>exclusive</span><span class=o>=</span><span class=n>exclusive</span><span class=p>,</span>
+<a id=__codelineno-0-103 name=__codelineno-0-103></a>        <span class=n>bind_arguments</span><span class=o>=</span><span class=n>bind_arguments</span><span class=p>,</span>
+<a id=__codelineno-0-104 name=__codelineno-0-104></a>        <span class=n>routing_key</span><span class=o>=</span><span class=n>routing_key</span><span class=p>,</span>
+<a id=__codelineno-0-105 name=__codelineno-0-105></a>        <span class=n>robust</span><span class=o>=</span><span class=n>robust</span><span class=p>,</span>
+<a id=__codelineno-0-106 name=__codelineno-0-106></a>        <span class=n>passive</span><span class=o>=</span><span class=n>passive</span><span class=p>,</span>
+<a id=__codelineno-0-107 name=__codelineno-0-107></a>        <span class=n>auto_delete</span><span class=o>=</span><span class=n>auto_delete</span><span class=p>,</span>
+<a id=__codelineno-0-108 name=__codelineno-0-108></a>        <span class=n>arguments</span><span class=o>=</span><span class=n>arguments</span><span class=p>,</span>
+<a id=__codelineno-0-109 name=__codelineno-0-109></a>        <span class=n>timeout</span><span class=o>=</span><span class=n>timeout</span><span class=p>,</span>
+<a id=__codelineno-0-110 name=__codelineno-0-110></a>    <span class=p>)</span>
 </code></pre></div></td></tr></table></div> </details> <div class="doc doc-children"> <div class="doc doc-object doc-attribute"> <h3 id=faststream.rabbit.RabbitQueue.arguments class="doc doc-heading"> <span class="doc doc-object-name doc-attribute-name">arguments</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small> </span> <a href=#faststream.rabbit.RabbitQueue.arguments class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=n>arguments</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>AnyDict</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span>
 </code></pre></div> <div class="doc doc-contents "> </div> </div> <div class="doc doc-object doc-attribute"> <h3 id=faststream.rabbit.RabbitQueue.auto_delete class="doc doc-heading"> <span class="doc doc-object-name doc-attribute-name">auto_delete</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small> </span> <a href=#faststream.rabbit.RabbitQueue.auto_delete class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=n>auto_delete</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>False</span>
 </code></pre></div> <div class="doc doc-contents "> </div> </div> <div class="doc doc-object doc-attribute"> <h3 id=faststream.rabbit.RabbitQueue.bind_arguments class="doc doc-heading"> <span class="doc doc-object-name doc-attribute-name">bind_arguments</span> <span class="doc doc-labels"> <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small> <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small> </span> <a href=#faststream.rabbit.RabbitQueue.bind_arguments class=headerlink title="Permanent link">#</a></h3> <div class="doc-signature highlight"><pre><span></span><code><a id=__codelineno-0-1 name=__codelineno-0-1 href=#__codelineno-0-1></a><span class=n>bind_arguments</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=n>AnyDict</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span>
