@@ -7,7 +7,7 @@ from faststream.broker.message import StreamMessage
 from faststream.broker.parsers import decode_message
 from faststream.confluent.message import KafkaMessage
 from faststream.types import DecodedMessage
-from faststream.utils.context.main import context
+from faststream.utils.context.repository import context
 
 
 class AsyncConfluentParser:
