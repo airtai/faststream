@@ -19,6 +19,7 @@ from confluent_kafka import Consumer, KafkaException, Message, Producer
 from confluent_kafka.admin import AdminClient, NewTopic
 from pydantic import BaseModel
 
+from faststream.log import logger
 from faststream.utils.functions import call_or_await
 
 _missing = object()
@@ -261,7 +262,6 @@ class AsyncConfluentProducer:
             topic (str): The topic to send the messages to.
             partition (Optional[int]): The partition to send the messages to.
         """
-        print("Sending batch messages")
         tasks = [
             self.send(
                 topic=topic,
@@ -274,7 +274,6 @@ class AsyncConfluentProducer:
             for msg in batch._builder
         ]
         await asyncio.gather(*tasks)
-        print("Batch messages sent")
 
 
 class TopicPartition(NamedTuple):
@@ -321,9 +320,9 @@ def create_topics(
     for topic, f in fs.items():
         try:
             f.result()  # The result itself is None
-            print(f"Topic {topic} created at create_topics")
+            logger.info(f"Topic {topic} created at create_topics")
         except Exception as e:
-            print(f"Failed to create topic {topic}: {e}")
+            logger.warn(f"Failed to create topic {topic}: {e}")
 
 
 class AsyncConfluentConsumer:
@@ -474,9 +473,7 @@ class AsyncConfluentConsumer:
         """Starts the Kafka consumer and subscribes to the specified topics."""
         # create_topics(topics=self.topics, config=self.config)
         # await call_or_await(create_topics)(topics=self.topics, config=self.config)
-        print("Subscribing to topic")
         await call_or_await(self.consumer.subscribe, self.topics)
-        print("Subscribedddddd")
 
     async def commit(self) -> None:
         """Commits the offsets of all messages returned by the last poll operation."""
@@ -512,8 +509,6 @@ class AsyncConfluentConsumer:
         Returns:
             Dict[TopicPartition, List[Message]]: A dictionary where keys are TopicPartition named tuples and values are lists of messages.
         """
-        print("at getmany")
-
         raw_messages = await call_or_await(
             self.consumer.consume,
             num_messages=max_records or 10,
@@ -545,6 +540,5 @@ def check_msg_error(msg: Message) -> Message:
     if msg is None:
         return msg
     if msg.error():
-        print(f"Consumer error: {msg.error()}")
         return None
     return msg
