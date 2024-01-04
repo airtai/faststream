@@ -1,5 +1,6 @@
-import json
 from typing import TYPE_CHECKING
+
+from faststream._compat import json_dumps
 
 if TYPE_CHECKING:
     from faststream.asyncapi.schema import Schema
@@ -93,7 +94,7 @@ def get_asyncapi_html(
         <script>
     """
         f"""
-            AsyncApiStandalone.render({json.dumps(config)}, document.getElementById('asyncapi'));
+            AsyncApiStandalone.render({json_dumps(config).decode()}, document.getElementById('asyncapi'));
     """
         """
         </script>

@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.utils.context.main.ContextRepo
+::: faststream.utils.path.compile_path

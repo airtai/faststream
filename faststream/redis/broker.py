@@ -41,7 +41,7 @@ from faststream.redis.security import parse_security
 from faststream.redis.shared.logging import RedisLoggingMixin
 from faststream.security import BaseSecurity
 from faststream.types import AnyDict, DecodedMessage
-from faststream.utils.context.main import context
+from faststream.utils.context.repository import context
 
 Channel: TypeAlias = str
 
@@ -222,9 +222,7 @@ class RedisBroker(
         stream = StreamSub.validate(stream)
 
         if (any_of := channel or list or stream) is None:
-            raise ValueError(
-                "You should specify `channel`, `list`, `stream` subscriber type"
-            )
+            raise ValueError(INCORRECT_SETUP_MSG)
 
         if all((channel, list)):
             raise ValueError("You can't use `PubSub` and `ListSub` both")

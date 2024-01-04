@@ -12,8 +12,8 @@ async def handle(msg):
     raise ValueError()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_handle():
     async with TestRabbitBroker(broker) as br:
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # noqa: PT011
             await br.publish("hello!", "test-queue")

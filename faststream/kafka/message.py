@@ -1,8 +1,25 @@
-from typing import Any
+from typing import Any, Protocol
 
 import aiokafka
 
 from faststream.broker.message import StreamMessage
+
+
+class ConsumerProtocol(Protocol):
+    """A protocol for Kafka consumers."""
+
+    async def commit(self) -> None:
+        ...
+
+
+class FakeConsumer:
+    """A fake Kafka consumer."""
+
+    async def commit(self) -> None:
+        pass
+
+
+FAKE_CONSUMER = FakeConsumer()
 
 
 class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
@@ -24,7 +41,7 @@ class KafkaMessage(StreamMessage[aiokafka.ConsumerRecord]):
     def __init__(
         self,
         *args: Any,
-        consumer: aiokafka.AIOKafkaConsumer,
+        consumer: ConsumerProtocol,
         is_manual: bool = False,
         **kwargs: Any,
     ) -> None:

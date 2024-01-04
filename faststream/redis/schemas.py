@@ -5,7 +5,7 @@ from pydantic import Field, PositiveFloat, PositiveInt
 
 from faststream._compat import PYDANTIC_V2
 from faststream.broker.schemas import NameRequired
-from faststream.utils.context.path import compile_path
+from faststream.utils.path import compile_path
 
 
 class PubSub(NameRequired):
@@ -29,7 +29,11 @@ class PubSub(NameRequired):
             pattern: (bool): use pattern matching.
             polling_interval: (float): wait message block.
         """
-        reg, path = compile_path(channel, replace_symbol="*")
+        reg, path = compile_path(
+            channel,
+            replace_symbol="*",
+            patch_regex=lambda x: x.replace(r"\*", ".*"),
+        )
 
         if reg is not None:
             pattern = True

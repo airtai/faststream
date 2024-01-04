@@ -14,4 +14,4 @@ async def handle(msg, logger: Logger):
 
 @app.after_startup
 async def test_publishing():
-    assert "pong" == (await broker.publish("ping", "test-queue", rpc=True))
+    assert (await broker.publish("ping", "test-queue", rpc=True)) == "pong"

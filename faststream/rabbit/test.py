@@ -1,4 +1,4 @@
-import re
+from itertools import zip_longest
 from typing import Any, Optional, Union
 from unittest.mock import AsyncMock
 from uuid import uuid4
@@ -240,14 +240,19 @@ class FakeProducer(AioPikaFastProducer):
                     call = True
 
                 elif handler.exchange.type == ExchangeType.TOPIC:
-                    call = bool(
-                        re.match(
-                            handler.queue.routing_key.replace(".", r"\.").replace(
-                                "*", ".*"
-                            ),
-                            incoming.routing_key or "",
-                        )
-                    )
+                    call = True
+
+                    for current, base in zip_longest(
+                        (incoming.routing_key or "").split("."),
+                        handler.queue.routing.split("."),
+                        fillvalue=None,
+                    ):
+                        if base == "#":
+                            break
+
+                        if base != "*" and current != base:
+                            call = False
+                            break
 
                 elif handler.exchange.type == ExchangeType.HEADERS:  # pramga: no branch
                     queue_headers = (handler.queue.bind_arguments or {}).copy()

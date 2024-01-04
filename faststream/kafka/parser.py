@@ -1,13 +1,16 @@
-from typing import List, Tuple
+from typing import TYPE_CHECKING, List, Optional, Tuple
 from uuid import uuid4
 
 from aiokafka import ConsumerRecord
 
 from faststream.broker.message import StreamMessage
 from faststream.broker.parsers import decode_message
-from faststream.kafka.message import KafkaMessage
+from faststream.kafka.message import FAKE_CONSUMER, KafkaMessage
 from faststream.types import DecodedMessage
-from faststream.utils.context.main import context
+from faststream.utils.context.repository import context
+
+if TYPE_CHECKING:
+    from faststream.kafka.asyncapi import Handler
 
 
 class AioKafkaParser:
@@ -24,10 +27,9 @@ class AioKafkaParser:
 
         Returns:
             A StreamMessage object representing the parsed message.
-
         """
         headers = {i: j.decode() for i, j in message.headers}
-        handler = context.get_local("handler_")
+        handler: Optional["Handler"] = context.get_local("handler_")
         return KafkaMessage(
             body=message.value,
             headers=headers,
@@ -36,8 +38,8 @@ class AioKafkaParser:
             message_id=f"{message.offset}-{message.timestamp}",
             correlation_id=headers.get("correlation_id", str(uuid4())),
             raw_message=message,
-            consumer=handler.consumer,
-            is_manual=handler.is_manual,
+            consumer=getattr(handler, "consumer", None) or FAKE_CONSUMER,
+            is_manual=getattr(handler, "is_manual", True),
         )
 
     @staticmethod
@@ -57,12 +59,11 @@ class AioKafkaParser:
 
         Static Method:
             This method is a static method. It does not require an instance of the class to be called.
-
         """
         first = message[0]
         last = message[-1]
         headers = {i: j.decode() for i, j in first.headers}
-        handler = context.get_local("handler_")
+        handler: Optional["Handler"] = context.get_local("handler_")
         return KafkaMessage(
             body=[m.value for m in message],
             headers=headers,
@@ -71,8 +72,8 @@ class AioKafkaParser:
             message_id=f"{first.offset}-{last.offset}-{first.timestamp}",
             correlation_id=headers.get("correlation_id", str(uuid4())),
             raw_message=message,
-            consumer=handler.consumer,
-            is_manual=handler.is_manual,
+            consumer=getattr(handler, "consumer", None) or FAKE_CONSUMER,
+            is_manual=getattr(handler, "is_manual", True),
         )
 
     @staticmethod
@@ -84,7 +85,6 @@ class AioKafkaParser:
 
         Returns:
             The decoded message.
-
         """
         return decode_message(msg)
 
@@ -99,6 +99,5 @@ class AioKafkaParser:
 
         Returns:
             A list of decoded messages.
-
         """
         return [decode_message(await cls.parse_message(m)) for m in msg.raw_message]

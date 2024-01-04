@@ -11,7 +11,16 @@ logging.basicConfig(level=logging.INFO)
 app = typer.Typer()
 
 
-def read_lines_from_file(file_path: Path, lines_spec: Optional[str]):
+def read_lines_from_file(file_path: Path, lines_spec: Optional[str]) -> str:
+    """Read lines from a file.
+
+    Args:
+        file_path: The path to the file.
+        lines_spec: A comma-separated string of line numbers and/or line ranges.
+
+    Returns:
+        A string containing the lines from the file.
+    """
     with file_path.open() as file:
         all_lines = file.readlines()
 

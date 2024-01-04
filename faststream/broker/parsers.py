@@ -4,7 +4,7 @@ from contextlib import suppress
 from functools import partial
 from typing import Any, Optional, Tuple, Union, cast, overload
 
-from faststream._compat import dump_json
+from faststream._compat import dump_json, json_loads
 from faststream.broker.message import StreamMessage
 from faststream.broker.types import (
     AsyncCustomDecoder,
@@ -44,11 +44,11 @@ def decode_message(message: StreamMessage[Any]) -> DecodedMessage:
         if ContentTypes.text.value in content_type:
             m = body.decode()
         elif ContentTypes.json.value in content_type:  # pragma: no branch
-            m = json.loads(body)
+            m = json_loads(body)
 
     else:
         with suppress(json.JSONDecodeError):
-            m = json.loads(body)
+            m = json_loads(body)
 
     return m
 
@@ -73,7 +73,7 @@ def encode_message(msg: SendableMessage) -> Tuple[bytes, Optional[ContentType]]:
         return msg.encode(), ContentTypes.text.value
 
     return (
-        dump_json(msg).encode(),
+        dump_json(msg),
         ContentTypes.json.value,
     )
 

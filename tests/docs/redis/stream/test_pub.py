@@ -4,7 +4,7 @@ from faststream.redis import TestRedisBroker
 
 
 @pytest.mark.asyncio()
-async def test_stream_sub():
+async def test_stream_pub():
     from docs.docs_src.redis.stream.pub import broker, on_input_data
 
     publisher = list(broker._publishers.values())[0]  # noqa: RUF015

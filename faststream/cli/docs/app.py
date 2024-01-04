@@ -1,4 +1,5 @@
 import json
+import sys
 import warnings
 from pathlib import Path
 from typing import Optional, Sequence
@@ -6,7 +7,7 @@ from typing import Optional, Sequence
 import typer
 
 from faststream.__about__ import INSTALL_WATCHFILES, INSTALL_YAML
-from faststream._compat import model_parse
+from faststream._compat import json_dumps, model_parse
 from faststream.asyncapi.generate import get_app_schema
 from faststream.asyncapi.schema import Schema
 from faststream.asyncapi.site import serve_app
@@ -35,9 +36,20 @@ def serve(
         is_flag=True,
         help="Restart documentation at directory files changes",
     ),
+    app_dir: str = typer.Option(
+        ".",
+        "--app-dir",
+        help=(
+            "Look for APP in the specified directory, by adding this to the PYTHONPATH."
+            " Defaults to the current working directory."
+        ),
+    ),
 ) -> None:
     """Serve project AsyncAPI schema."""
     if ":" in app:
+        if app_dir:  # pragma: no branch
+            sys.path.insert(0, app_dir)
+
         module, _ = import_from_string(app)
 
         module_parent = module.parent
@@ -84,8 +96,19 @@ def gen(
         None,
         help="output filename",
     ),
+    app_dir: str = typer.Option(
+        ".",
+        "--app-dir",
+        help=(
+            "Look for APP in the specified directory, by adding this to the PYTHONPATH."
+            " Defaults to the current working directory."
+        ),
+    ),
 ) -> None:
     """Generate project AsyncAPI schema."""
+    if app_dir:  # pragma: no branch
+        sys.path.insert(0, app_dir)
+
     _, app_obj = import_from_string(app)
     raw_schema = get_app_schema(app_obj)
 
@@ -124,7 +147,7 @@ def _parse_and_serve(
         schema_filepath = Path.cwd() / app
 
         if schema_filepath.suffix == ".json":
-            data = schema_filepath.read_text()
+            data = schema_filepath.read_bytes()
 
         elif schema_filepath.suffix == ".yaml" or schema_filepath.suffix == ".yml":
             try:
@@ -136,7 +159,7 @@ def _parse_and_serve(
             with schema_filepath.open("r") as f:
                 schema = yaml.safe_load(f)
 
-            data = json.dumps(schema)
+            data = json_dumps(schema)
 
         else:
             raise ValueError(

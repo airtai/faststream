@@ -1,5 +1,4 @@
 import asyncio
-import json
 from contextlib import suppress
 from functools import partial
 from typing import (
@@ -22,7 +21,7 @@ from fast_depends.core import CallModel
 from redis.asyncio.client import PubSub as RPubSub
 from redis.asyncio.client import Redis
 
-from faststream._compat import override
+from faststream._compat import json_loads, override
 from faststream.broker.handler import AsyncHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
@@ -258,7 +257,7 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
                         m = msg.get(bDATA_KEY, msg)
                         try:
                             data, _ = RedisParser.parse_one_msg(m)
-                            data = json.loads(data)
+                            data = json_loads(data)
                         except Exception:
                             data = m
                         parsed.append(data)
@@ -305,7 +304,7 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
                 for m in msg:
                     try:
                         data, _ = RedisParser.parse_one_msg(m)
-                        data = json.loads(data)
+                        data = json_loads(data)
                     except Exception:
                         data = m
                     parsed.append(data)

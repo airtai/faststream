@@ -13,13 +13,13 @@ async def broker():
         yield br
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_incorrect(broker):
     with pytest.raises(RequestValidationError):
         await broker.publish("user-id", "test-q")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_handler(broker):
     user_id = 1
 
