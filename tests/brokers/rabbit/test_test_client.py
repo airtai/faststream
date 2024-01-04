@@ -78,28 +78,47 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
 
         assert mock.call_count == 1
 
-    async def test_topic(
-        self,
-        test_broker: RabbitBroker,
-    ):
+    async def test_any_topic_routing(self, test_broker: RabbitBroker):
         exch = RabbitExchange("test", type=ExchangeType.TOPIC)
 
         @test_broker.subscriber(
-            RabbitQueue("logs", routing_key="*.info"), exchange=exch
+            RabbitQueue("test", routing_key="test.*.subj.*"),
+            exchange=exch,
         )
-        async def handler(m):
-            return 1
-
-        @test_broker.subscriber(
-            RabbitQueue("logs2", routing_key="*.error"), exchange=exch
-        )
-        async def handler2(m):
-            return 2
+        def subscriber():
+            ...
 
         await test_broker.start()
-        assert await test_broker.publish("", "logs.info", exchange=exch, rpc=True) == 1
-        assert await test_broker.publish("", "logs.error", exchange=exch, rpc=True) == 2
-        assert None is await test_broker.publish("", "logs.error", rpc=True)
+        await test_broker.publish("hello", "test.a.subj.b", exchange=exch)
+        subscriber.mock.assert_called_once_with("hello")
+
+    async def test_ending_topic_routing(self, test_broker: RabbitBroker):
+        exch = RabbitExchange("test", type=ExchangeType.TOPIC)
+
+        @test_broker.subscriber(
+            RabbitQueue("test", routing_key="test.#"),
+            exchange=exch,
+        )
+        def subscriber():
+            ...
+
+        await test_broker.start()
+        await test_broker.publish("hello", "test.a.subj.b", exchange=exch)
+        subscriber.mock.assert_called_once_with("hello")
+
+    async def test_mixed_topic_routing(self, test_broker: RabbitBroker):
+        exch = RabbitExchange("test", type=ExchangeType.TOPIC)
+
+        @test_broker.subscriber(
+            RabbitQueue("test", routing_key="*.*.subj.#"),
+            exchange=exch,
+        )
+        def subscriber():
+            ...
+
+        await test_broker.start()
+        await test_broker.publish("hello", "test.a.subj.b.c", exchange=exch)
+        subscriber.mock.assert_called_once_with("hello")
 
     async def test_header(
         self,

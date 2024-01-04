@@ -1,4 +1,4 @@
-from typing import Any, Optional, Pattern
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import uuid4
 
 import aio_pika
@@ -8,8 +8,11 @@ from faststream.broker.message import StreamMessage
 from faststream.broker.parsers import decode_message, encode_message
 from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.types import AioPikaSendableMessage
-from faststream.types import AnyDict, DecodedMessage
-from faststream.utils.context.main import context
+from faststream.types import DecodedMessage
+from faststream.utils.context.repository import context
+
+if TYPE_CHECKING:
+    from faststream.rabbit.asyncapi import Handler
 
 
 class AioPikaParser:
@@ -24,7 +27,6 @@ class AioPikaParser:
 
         encode_message(message: AioPikaSendableMessage, persist: bool = False, callback_queue: Optional[aio_pika.abc.AbstractRobustQueue] = None, reply_to: Optional[str] = None, **message_kwargs: Any) -> aio_pika.Message:
             Encodes a message into an aio_pika.Message object.
-
     """
 
     @staticmethod
@@ -38,17 +40,16 @@ class AioPikaParser:
 
         Returns:
             A StreamMessage object representing the parsed message.
-
         """
-        handler = context.get_local("handler_")
-        path: AnyDict = {}
-        path_re: Optional[Pattern[str]]
+        handler: Optional["Handler"] = context.get_local("handler_")
         if (
-            handler
+            handler is not None
             and (path_re := handler.queue.path_regex) is not None
             and (match := path_re.match(message.routing_key or "")) is not None
         ):
             path = match.groupdict()
+        else:
+            path = {}
 
         return RabbitMessage(
             body=message.body,
@@ -72,7 +73,6 @@ class AioPikaParser:
 
         Returns:
             The decoded message.
-
         """
         return decode_message(msg)
 
@@ -98,7 +98,6 @@ class AioPikaParser:
 
         Raises:
             NotImplementedError: If the message is not an instance of aio_pika.Message.
-
         """
         if isinstance(message, aio_pika.Message):
             return message

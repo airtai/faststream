@@ -1,5 +1,5 @@
 from inspect import _empty
-from typing import Any
+from typing import Any, Callable, Optional
 
 from faststream.utils.context.types import Context as Context_
 
@@ -9,11 +9,13 @@ def Context(  # noqa: N802
     *,
     cast: bool = False,
     default: Any = _empty,
+    initial: Optional[Callable[..., Any]] = None,
 ) -> Any:
     return Context_(
         real_name=real_name,
         cast=cast,
         default=default,
+        initial=initial,
     )
 
 

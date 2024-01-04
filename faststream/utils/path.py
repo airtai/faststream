@@ -1,15 +1,16 @@
 import re
-from typing import Optional, Pattern, Tuple
+from typing import Callable, Optional, Pattern, Tuple
 
-PARAM_REGEX = re.compile("{([a-zA-Z_]+)}")
+PARAM_REGEX = re.compile("{([a-zA-Z0-9_]+)}")
 
 
 def compile_path(
     path: str,
     replace_symbol: str,
+    patch_regex: Callable[[str], str] = lambda x: x,
 ) -> Tuple[Optional[Pattern[str]], str]:
     path_regex = "^"
-    path_format = ""
+    original_path = ""
 
     idx = 0
     params = set()
@@ -18,10 +19,10 @@ def compile_path(
         param_name = match.groups("str")[0]
 
         path_regex += re.escape(path[idx : match.start()])
-        path_regex += f"(?P<{param_name.replace('+', '')}>[^/]+)"
+        path_regex += f"(?P<{param_name.replace('+', '')}>[^.]+)"
 
-        path_format += path[idx : match.start()]
-        path_format += replace_symbol
+        original_path += path[idx : match.start()]
+        original_path += replace_symbol
 
         if param_name in params:
             duplicated_params.add(param_name)
@@ -39,7 +40,7 @@ def compile_path(
         regex = None
     else:
         path_regex += re.escape(path[idx:]) + "$"
-        regex = re.compile(path_regex)
+        regex = re.compile(patch_regex(path_regex))
 
-    path_format += path[idx:]
-    return regex, path_format
+    original_path += path[idx:]
+    return regex, original_path

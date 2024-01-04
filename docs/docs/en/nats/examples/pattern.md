@@ -14,9 +14,7 @@ search:
 
 ## Scaling
 
-If one `subject` is being listened to by several consumers with the same `queue group`, the message will go to a random consumer each time.
-
-Thus, *NATS* can independently balance the load on queue consumers. You can increase the processing speed of the message flow from the queue by simply launching additional instances of the consumer service. You don't need to make changes to the current infrastructure configuration: *NATS* will take care of how to distribute messages between your services.
+{! includes/en/nats/scaling.md !}
 
 ## Example
 

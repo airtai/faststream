@@ -12,6 +12,70 @@ hide:
 ---
 
 # Release Notes
+## 0.3.12
+
+### What's Changed
+
+#### Bug fixes
+
+* fix (#1110): correct RMQ Topic pattern test publish by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1112](https://github.com/airtai/faststream/pull/1112){.external-link target="_blank"}
+
+#### Misc
+
+* chore: upgraded packages, black replaced with ruff format by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1097](https://github.com/airtai/faststream/pull/1097){.external-link target="_blank"}
+* chore: upgraded packages by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1111](https://github.com/airtai/faststream/pull/1111){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.3.11...0.3.12](https://github.com/airtai/faststream/compare/0.3.11...0.3.12){.external-link target="_blank"}
+
+## 0.3.11
+
+### What's Changed
+
+NATS concurent subscriber:
+
+By default,  NATS subscriber consumes messages with a block per subject. So, you can't process multiple messages from the same subject at the same time. But, with the `broker.subscriber(..., max_workers=...)` option, you can! It creates an async tasks pool to consume multiple messages from the same subject and allows you to process them concurently!
+
+```python
+from faststream import FastStream
+from faststream.nats import NatsBroker
+
+broker = NatsBroker()
+app = FastStream()
+
+@broker.subscriber("test-subject", max_workers=10)
+async def handler(...):
+   """Can process up to 10 messages in the same time."""
+```
+
+* Update Release Notes for 0.3.10 by @faststream-release-notes-updater in [#1091](https://github.com/airtai/faststream/pull/1091){.external-link target="_blank"}
+* fix (#1100): FastAPI 0.106 compatibility by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1102](https://github.com/airtai/faststream/pull/1102){.external-link target="_blank"}
+
+**Full Changelog**: [#0.3.10...0.3.11](https://github.com/airtai/faststream/compare/0.3.10...0.3.11){.external-link target="_blank"}
+
+## 0.3.10
+
+### What's Changed
+
+#### New features
+
+* feat: Context initial option by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1086](https://github.com/airtai/faststream/pull/1086){.external-link target="_blank"}
+
+#### Bug fixes
+
+* fix (#1087): add app_dir option to docs serve/gen commands by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1088](https://github.com/airtai/faststream/pull/1088){.external-link target="_blank"}
+
+#### Documentation
+
+* docs: add Context initial section by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1089](https://github.com/airtai/faststream/pull/1089){.external-link target="_blank"}
+
+#### Other
+
+* chore: linting by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1081](https://github.com/airtai/faststream/pull/1081){.external-link target="_blank"}
+* chore: delete accidentally added .bak file by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1085](https://github.com/airtai/faststream/pull/1085){.external-link target="_blank"}
+
+**Full Changelog**: [#0.3.9...0.3.10](https://github.com/airtai/faststream/compare/0.3.9...0.3.10){.external-link target="_blank"}
+
 ## 0.3.9
 
 ### What's Changed

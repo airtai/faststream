@@ -1,17 +1,26 @@
 import logging
-from typing import Any
+from inspect import Signature
+from typing import Any, Callable, Optional
 
 from fastapi import params
 
 from faststream._compat import Annotated
 from faststream.utils.context import ContextRepo as CR
-from faststream.utils.context.main import context
+from faststream.utils.context.types import resolve_context_by_name
 
 
-def Context(name: str) -> Any:  # noqa: N802
-    """A dependency that returns a context object."""
+def Context(  # noqa: N802
+    name: str,
+    *,
+    default: Any = Signature.empty,
+    initial: Optional[Callable[..., Any]] = None,
+) -> Any:
     return params.Depends(
-        lambda: context.resolve(name),
+        lambda: resolve_context_by_name(
+            name=name,
+            default=default,
+            initial=initial,
+        ),
         use_cache=True,
     )
 

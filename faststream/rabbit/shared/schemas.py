@@ -9,7 +9,7 @@ from faststream.broker.schemas import NameRequired
 from faststream.rabbit.shared.constants import ExchangeType
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.types import AnyDict
-from faststream.utils.context.path import compile_path
+from faststream.utils.path import compile_path
 
 
 class RabbitQueue(NameRequired):
@@ -89,7 +89,12 @@ class RabbitQueue(NameRequired):
             routing_key (str, optional): Routing key for the object. Defaults to "".
 
         """
-        re, routing_key = compile_path(routing_key, replace_symbol="*")
+        re, routing_key = compile_path(
+            routing_key,
+            replace_symbol="*",
+            patch_regex=lambda x: x.replace(r"\#", ".+"),
+        )
+
         super().__init__(
             name=name,
             path_regex=re,

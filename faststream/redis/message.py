@@ -1,10 +1,13 @@
-from typing import Any, List, Literal, Optional, TypeVar, Union
-
-from redis.asyncio import Redis
+from typing import TYPE_CHECKING, Any, List, Literal, Optional, TypeVar, Union
 
 from faststream._compat import NotRequired, TypedDict, override
 from faststream.broker.message import StreamMessage
-from faststream.utils.context.main import context
+from faststream.utils.context.repository import context
+
+if TYPE_CHECKING:
+    from redis.asyncio import Redis
+
+    from faststream.redis.asyncapi import Handler
 
 
 class PubSubMessage(TypedDict):
@@ -52,10 +55,11 @@ class RedisAckMixin(StreamMessage[MsgType]):
         redis: "Redis[bytes]",
         **kwargs: Any,
     ) -> None:
+        handler: Optional["Handler"]
         if (
             not self.commited
             and (ids := self.raw_message.get("message_ids"))
-            and (handler := context.get_local("handler_"))
+            and (handler := context.get_local("handler_")) is not None
             and (stream := handler.stream_sub)
             and (group := stream.group)
         ):

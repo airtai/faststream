@@ -9,3 +9,6 @@ ruff check --exit-non-zero-on-fix
 
 echo "Running ruff formater (black replacement)..."
 ruff format
+
+# echo "Running black..."
+# black faststream examples tests docs

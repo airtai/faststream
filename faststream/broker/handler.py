@@ -3,6 +3,7 @@ from abc import abstractmethod
 from contextlib import AsyncExitStack, suppress
 from inspect import unwrap
 from typing import (
+    TYPE_CHECKING,
     Any,
     Awaitable,
     Callable,
@@ -41,8 +42,11 @@ from faststream.broker.types import (
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.exceptions import HandlerException, StopConsume
 from faststream.types import AnyDict, SendableMessage
-from faststream.utils.context.main import context
+from faststream.utils.context.repository import context
 from faststream.utils.functions import to_async
+
+if TYPE_CHECKING:
+    from contextvars import Token
 
 
 class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
@@ -272,24 +276,22 @@ class AsyncHandler(BaseHandler[MsgType]):
         if not self.running:
             return result_msg
 
+        log_context_tag: Optional["Token[Any]"] = None
         async with AsyncExitStack() as stack:
             stack.enter_context(self.lock)
 
-            gl_middlewares: List[BaseMiddleware] = []
-
             stack.enter_context(context.scope("handler_", self))
 
-            for m in self.global_middlewares:
-                gl_middlewares.append(await stack.enter_async_context(m(msg)))
+            gl_middlewares: List[BaseMiddleware] = [
+                await stack.enter_async_context(m(msg)) for m in self.global_middlewares
+            ]
 
             logged = False
             processed = False
             for handler, filter_, parser, decoder, middlewares, _ in self.calls:
-                local_middlewares: List[BaseMiddleware] = []
-                for local_m in middlewares:
-                    local_middlewares.append(
-                        await stack.enter_async_context(local_m(msg))
-                    )
+                local_middlewares: List[BaseMiddleware] = [
+                    await stack.enter_async_context(m(msg)) for m in middlewares
+                ]
 
                 all_middlewares = gl_middlewares + local_middlewares
 
@@ -298,7 +300,8 @@ class AsyncHandler(BaseHandler[MsgType]):
 
                 if not logged:  # pragma: no branch
                     log_context_tag = context.set_local(
-                        "log_context", self.log_context_builder(message)
+                        "log_context",
+                        self.log_context_builder(message),
                     )
 
                 message.decoded_body = await decoder(message)
@@ -364,7 +367,8 @@ class AsyncHandler(BaseHandler[MsgType]):
 
             assert not self.running or processed, "You have to consume message"  # nosec B101
 
-        context.reset_local("log_context", log_context_tag)
+        if log_context_tag is not None:
+            context.reset_local("log_context", log_context_tag)
 
         return result_msg
 

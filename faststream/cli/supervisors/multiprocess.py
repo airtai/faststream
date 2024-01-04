@@ -1,9 +1,11 @@
-from multiprocessing.context import SpawnProcess
-from typing import Any, List, Tuple
+from typing import TYPE_CHECKING, Any, List, Tuple
 
 from faststream.cli.supervisors.basereload import BaseReload
 from faststream.log import logger
 from faststream.types import DecoratedCallable
+
+if TYPE_CHECKING:
+    from multiprocessing.context import SpawnProcess
 
 
 class Multiprocess(BaseReload):
@@ -40,7 +42,7 @@ class Multiprocess(BaseReload):
         super().__init__(target, args, None)
 
         self.workers = workers
-        self.processes: List[SpawnProcess] = []
+        self.processes: List["SpawnProcess"] = []
 
     def startup(self) -> None:
         logger.info(f"Started parent process [{self.pid}]")

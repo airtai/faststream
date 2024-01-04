@@ -1,7 +1,5 @@
-from typing import Any, Optional, Union, overload
+from typing import TYPE_CHECKING, Any, Optional, Union, overload
 from uuid import uuid4
-
-from redis.asyncio.client import PubSub, Redis
 
 from faststream.broker.parsers import encode_message, resolve_custom_func
 from faststream.broker.types import (
@@ -22,6 +20,9 @@ from faststream.redis.parser import DATA_KEY, RawMessage, RedisParser
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
 from faststream.utils.functions import timeout_scope
+
+if TYPE_CHECKING:
+    from redis.asyncio.client import PubSub, Redis
 
 
 class RedisFastProducer:
@@ -94,7 +95,7 @@ class RedisFastProducer:
         if not any((channel, list, stream)):
             raise ValueError(INCORRECT_SETUP_MSG)
 
-        psub: Optional[PubSub] = None
+        psub: Optional["PubSub"] = None
         if rpc is True:
             if reply_to:
                 raise WRONG_PUBLISH_ARGS

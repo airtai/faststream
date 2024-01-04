@@ -18,7 +18,7 @@ async def handle():
     return "response"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_handle():
     async with TestKafkaBroker(broker) as br:
         await br.publish({"msg": "test"}, "test")

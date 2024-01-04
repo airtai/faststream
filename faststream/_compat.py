@@ -58,6 +58,20 @@ def is_test_env() -> bool:
     return bool(os.getenv("PYTEST_CURRENT_TEST"))
 
 
+json_dumps: Callable[..., bytes]
+try:
+    import orjson
+
+    json_loads = orjson.loads
+    json_dumps = orjson.dumps
+
+except ImportError:
+    json_loads = json.loads
+
+    def json_dumps(*a: Any, **kw: Any) -> bytes:
+        return json.dumps(*a, **kw).encode()
+
+
 try:
     from fastapi import __version__ as FASTAPI_VERSION  # noqa: N812
 
@@ -65,6 +79,7 @@ try:
 
     major, minor, *_ = map(int, FASTAPI_VERSION.split("."))
     FASTAPI_V2 = major > 0 or minor > 100
+    FASTAPI_V106 = major > 0 or minor >= 106
 
     if FASTAPI_V2:
         from fastapi._compat import _normalize_errors
@@ -116,8 +131,8 @@ if PYDANTIC_V2:
     ) -> Any:
         return to_jsonable_python(model, **kwargs)
 
-    def dump_json(data: Any) -> str:
-        return json.dumps(model_to_jsonable(data))
+    def dump_json(data: Any) -> bytes:
+        return json_dumps(model_to_jsonable(data))
 
     def get_model_fields(model: Type[BaseModel]) -> Dict[str, FieldInfo]:
         return model.model_fields
@@ -147,8 +162,8 @@ else:
 
     SCHEMA_FIELD = "schema_extra"
 
-    def dump_json(data: Any) -> str:
-        return json.dumps(data, default=pydantic_encoder)
+    def dump_json(data: Any) -> bytes:
+        return json_dumps(data, default=pydantic_encoder)
 
     def get_model_fields(model: Type[BaseModel]) -> Dict[str, FieldInfo]:
         return model.__fields__  # type: ignore[return-value]
@@ -171,7 +186,7 @@ else:
         model: BaseModel,
         **kwargs: Any,
     ) -> Any:
-        return json.loads(model.json(**kwargs))
+        return json_loads(model.json(**kwargs))
 
     def model_copy(model: ModelVar, **kwargs: Any) -> ModelVar:
         return model.copy(**kwargs)

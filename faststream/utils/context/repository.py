@@ -1,34 +1,16 @@
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from inspect import _empty
-from typing import Any, Dict, Iterator, Mapping, TypeVar
+from typing import Any, Dict, Iterator, Mapping
 
 from faststream.types import AnyDict
 from faststream.utils.classes import Singleton
 
-T = TypeVar("T")
+__all__ = ("ContextRepo", "context")
 
 
 class ContextRepo(Singleton):
-    """A class to represent a context repository.
-
-    Attributes:
-        _global_context : dictionary representing the global context
-        _scope_context : dictionary representing the scope context
-
-    Methods:
-        __init__ : initializes the ContextRepo object
-        set_global : sets a global context variable
-        reset_global : resets a global context variable
-        set_local : sets a local context variable
-        reset_local : resets a local context variable
-        get_local : gets the value of a local context variable
-        clear : clears the global and scope context
-        get : gets the value of a context variable
-        __getattr__ : gets the value of a context variable using attribute access
-        context : gets the current context as a dictionary
-        scope : creates a context scope for a specific key and value
-    """
+    """A class to represent a context repository."""
 
     _global_context: AnyDict
     _scope_context: Dict[str, ContextVar[Any]]
@@ -66,7 +48,7 @@ class ContextRepo(Singleton):
         """
         self._global_context.pop(key, None)
 
-    def set_local(self, key: str, value: T) -> "Token[T]":
+    def set_local(self, key: str, value: Any) -> "Token[Any]":
         """Set a local context variable.
 
         Args:
@@ -112,7 +94,7 @@ class ContextRepo(Singleton):
 
     def clear(self) -> None:
         self._global_context = {"context": self}
-        self._scope_context = {}
+        self._scope_context.clear()
 
     def get(self, key: str, default: Any = None) -> Any:
         """Get the value associated with a key.
@@ -186,4 +168,4 @@ class ContextRepo(Singleton):
             self.reset_local(key, token)
 
 
-context: ContextRepo = ContextRepo()
+context = ContextRepo()
