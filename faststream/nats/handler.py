@@ -100,7 +100,11 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         ] = True,
     ) -> None:
         """Initialize the NATS handler."""
-        reg, path = compile_path(subject, replace_symbol="*")
+        reg, path = compile_path(
+            subject,
+            replace_symbol="*",
+            patch_regex=lambda x: x.replace(".>", "..+"),
+        )
         self.subject = path
         self.path_regex = reg
 

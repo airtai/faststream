@@ -89,7 +89,12 @@ class RabbitQueue(NameRequired):
             routing_key (str, optional): Routing key for the object. Defaults to "".
 
         """
-        re, routing_key = compile_path(routing_key, replace_symbol="*")
+        re, routing_key = compile_path(
+            routing_key,
+            replace_symbol="*",
+            patch_regex=lambda x: x.replace(r"\#", ".+"),
+        )
+
         super().__init__(
             name=name,
             path_regex=re,

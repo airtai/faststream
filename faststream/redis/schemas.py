@@ -29,7 +29,11 @@ class PubSub(NameRequired):
             pattern: (bool): use pattern matching.
             polling_interval: (float): wait message block.
         """
-        reg, path = compile_path(channel, replace_symbol="*")
+        reg, path = compile_path(
+            channel,
+            replace_symbol="*",
+            patch_regex=lambda x: x.replace(r"\*", ".*"),
+        )
 
         if reg is not None:
             pattern = True
