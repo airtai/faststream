@@ -12,6 +12,22 @@ hide:
 ---
 
 # Release Notes
+## 0.3.12
+
+### What's Changed
+
+#### Bug fixes
+
+* fix (#1110): correct RMQ Topic pattern test publish by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1112](https://github.com/airtai/faststream/pull/1112){.external-link target="_blank"}
+
+#### Misc
+
+* chore: upgraded packages, black replaced with ruff format by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1097](https://github.com/airtai/faststream/pull/1097){.external-link target="_blank"}
+* chore: upgraded packages by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1111](https://github.com/airtai/faststream/pull/1111){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.3.11...0.3.12](https://github.com/airtai/faststream/compare/0.3.11...0.3.12){.external-link target="_blank"}
+
 ## 0.3.11
 
 ### What's Changed
