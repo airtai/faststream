@@ -28,7 +28,11 @@ class AsyncConfluentParser:
         """
         headers = {}
         if message.headers() is not None:
-            headers = {i: j.decode() for i, j in message.headers()}
+            for i, j in message.headers():  # type: ignore[union-attr]
+                if isinstance(j, str):
+                    headers[i] = j
+                else:
+                    headers[i] = j.decode()
         body = message.value()
         offset = message.offset()
         _, timestamp = message.timestamp()
@@ -70,7 +74,11 @@ class AsyncConfluentParser:
 
         headers = {}
         if first.headers() is not None:
-            headers = {i: j.decode() for i, j in first.headers()}
+            for i, j in first.headers():  # type: ignore[union-attr]
+                if isinstance(j, str):
+                    headers[i] = j
+                else:
+                    headers[i] = j.decode()
         body = [m.value() for m in message]
         first_offset = first.offset()
         last_offset = last.offset()
