@@ -15,7 +15,7 @@ from typing import (
     Union,
 )
 
-from confluent_kafka import Consumer, KafkaException, Message, Producer
+from confluent_kafka import Consumer, KafkaException, Message, Producer, KafkaError
 from confluent_kafka.admin import AdminClient, NewTopic
 from pydantic import BaseModel
 
@@ -70,7 +70,7 @@ class BatchBuilder:
         if timestamp is None:
             timestamp = round(time() * 1000)
         if key is None and value is None:
-            raise KafkaException("Both key and value can't be None")
+            raise KafkaException(KafkaError(40, reason="Both key and value can't be None"))
         if headers is None:
             headers = []
         self._builder.append(
@@ -509,26 +509,26 @@ class AsyncConfluentConsumer:
         Returns:
             Dict[TopicPartition, List[Message]]: A dictionary where keys are TopicPartition named tuples and values are lists of messages.
         """
-        raw_messages = await call_or_await(
+        raw_messages: List[Optional[Message]] = await call_or_await(
             self.consumer.consume,
             num_messages=max_records or 10,
             timeout=timeout_ms / 1000,
         )
 
-        validated_messages = filter(
+        validated_messages: Iterable[Message] = filter(
             lambda x: x is not None,
             map(check_msg_error, raw_messages),
         )
 
         messages: DefaultDict[TopicPartition, List[Message]] = defaultdict(list)
         for record in validated_messages:
-            tp = TopicPartition(topic=record.topic(), partition=record.partition())
+            tp = TopicPartition(topic=record.topic(), partition=record.partition()) # type: ignore[arg-type]
             messages[tp].append(record)
 
         return messages
 
 
-def check_msg_error(msg: Message) -> Message:
+def check_msg_error(msg: Optional[Message]) -> Optional[Message]:
     """Checks for errors in the consumed message.
 
     Args:

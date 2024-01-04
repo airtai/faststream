@@ -77,8 +77,8 @@ class KafkaLoggingMixin(LoggingMixin):
         """
         if topics:
             topic = ", ".join(topics)
-        elif message is not None:
-            topic = message.raw_message.topic
+        elif message is not None and message.raw_message.topic() is not None:
+            topic = message.raw_message.topic() # type: ignore[assignment]
         else:
             topic = ""
 
