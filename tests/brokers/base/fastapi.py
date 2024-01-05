@@ -9,7 +9,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
 
 from faststream import context
-from faststream.broker.core.asyncronous import BrokerAsyncUsecase
+from faststream.broker.core.asynchronous import BrokerAsyncUsecase
 from faststream.broker.fastapi.context import Context
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.types import AnyCallable

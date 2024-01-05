@@ -16,7 +16,7 @@ from faststream.asyncapi.schema import (
     Tag,
     TagDict,
 )
-from faststream.broker.core.asyncronous import BrokerAsyncUsecase
+from faststream.broker.core.asynchronous import BrokerAsyncUsecase
 from faststream.cli.supervisors.utils import set_exit
 from faststream.log import logger
 from faststream.types import AnyCallable, AnyDict, AsyncFunc, Lifespan, SettingField

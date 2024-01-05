@@ -11,7 +11,7 @@ from anyio.from_thread import start_blocking_portal
 
 from faststream.app import FastStream
 from faststream.broker.core.abc import BrokerUsecase
-from faststream.broker.core.asyncronous import BrokerAsyncUsecase
+from faststream.broker.core.asynchronous import BrokerAsyncUsecase
 from faststream.broker.handler import AsyncHandler
 from faststream.broker.middlewares import CriticalLogMiddleware
 from faststream.broker.wrapper import HandlerCallWrapper
