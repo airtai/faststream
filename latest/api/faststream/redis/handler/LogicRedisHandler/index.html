@@ -379,7 +379,7 @@
 <a id=__codelineno-0-310 name=__codelineno-0-310></a>            <span class=k>if</span> <span class=k>await</span> <span class=n>filter_</span><span class=p>(</span><span class=n>message</span><span class=p>):</span>
 <a id=__codelineno-0-311 name=__codelineno-0-311></a>                <span class=k>assert</span> <span class=p>(</span>  <span class=c1># nosec B101</span>
 <a id=__codelineno-0-312 name=__codelineno-0-312></a>                    <span class=ow>not</span> <span class=n>processed</span>
-<a id=__codelineno-0-313 name=__codelineno-0-313></a>                <span class=p>),</span> <span class=s2>&quot;You can&#39;t proccess a message with multiple consumers&quot;</span>
+<a id=__codelineno-0-313 name=__codelineno-0-313></a>                <span class=p>),</span> <span class=s2>&quot;You can&#39;t process a message with multiple consumers&quot;</span>
 <a id=__codelineno-0-314 name=__codelineno-0-314></a>
 <a id=__codelineno-0-315 name=__codelineno-0-315></a>                <span class=k>try</span><span class=p>:</span>
 <a id=__codelineno-0-316 name=__codelineno-0-316></a>                    <span class=k>async</span> <span class=k>with</span> <span class=n>AsyncExitStack</span><span class=p>()</span> <span class=k>as</span> <span class=n>consume_stack</span><span class=p>:</span>
