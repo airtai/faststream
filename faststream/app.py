@@ -115,7 +115,7 @@ class ABCApp(ABC):
     def set_broker(self, broker: BrokerAsyncUsecase[Any, Any]) -> None:
         """Set already existed App object broker.
 
-        Usefull then you create/init broker in `on_startup` hook.
+        Useful then you create/init broker in `on_startup` hook.
         """
         self.broker = broker
 
@@ -217,7 +217,7 @@ class FastStream(ABCApp):
         tags: Optional[Sequence[Union[Tag, TagDict, AnyDict]]] = None,
         external_docs: Optional[Union[ExternalDocs, ExternalDocsDict, AnyDict]] = None,
     ) -> None:
-        """Asyncronous FastStream Application class.
+        """Asynchronous FastStream Application class.
 
         stores and run broker, control hooks
 
