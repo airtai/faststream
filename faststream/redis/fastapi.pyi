@@ -24,7 +24,7 @@ from starlette.types import ASGIApp, Lifespan
 
 from faststream._compat import TypeAlias, override
 from faststream.asyncapi import schema as asyncapi
-from faststream.broker.core.asyncronous import default_filter
+from faststream.broker.core.asynchronous import default_filter
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (

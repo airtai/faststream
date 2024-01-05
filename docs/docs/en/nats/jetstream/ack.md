@@ -41,7 +41,7 @@ async def base_handler(body: str):
 
 ## Manual Acknowledgement
 
-If you want to acknowledge a message manually, you can get access directy to the message object via the [Context](../../getting-started/context/existed.md){.internal-link} and call the method.
+If you want to acknowledge a message manually, you can get access directly to the message object via the [Context](../../getting-started/context/existed.md){.internal-link} and call the method.
 
 ```python
 from faststream.nats.annotations import NatsMessage
@@ -65,6 +65,6 @@ If you want to interrupt message processing at any call stack, you can raise `fa
 {! docs_src/nats/ack/errors.py !}
 ```
 
-This way, **FastStream** interrupts the current message proccessing and acknowledges it immediately. Also, you can raise `NackMessage` and `RejectMessage` too.
+This way, **FastStream** interrupts the current message processing and acknowledges it immediately. Also, you can raise `NackMessage` and `RejectMessage` too.
 
 {! includes/en/no_ack.md !}

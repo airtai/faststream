@@ -12,7 +12,7 @@ search:
 
 To start consuming from a **Kafka** topic, simply decorate your consuming function with a `#!python @broker.subscriber(...)` decorator, passing a string as a topic key.
 
-In the folowing example, we will create a simple FastStream app that will consume `HelloWorld` messages from a `#!python "hello_world"` topic.
+In the following example, we will create a simple FastStream app that will consume `HelloWorld` messages from a `#!python "hello_world"` topic.
 
 The full app code looks like this:
 

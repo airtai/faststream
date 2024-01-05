@@ -245,7 +245,7 @@ class CounterWatcher(BaseWatcher):
             if is_max:
                 self.logger.error(f"Already retried {self.max_tries} times. Skipped.")
             else:
-                self.logger.error("Error is occured. Pushing back to queue.")
+                self.logger.error("Error is occurred. Pushing back to queue.")
         return is_max
 
     def remove(self, message: str) -> None:

@@ -3,7 +3,7 @@ from typing import Any, Callable, Optional, Sequence, Union
 import aio_pika
 from fast_depends.dependencies import Depends
 
-from faststream.broker.core.asyncronous import default_filter
+from faststream.broker.core.asynchronous import default_filter
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
     CustomDecoder,

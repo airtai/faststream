@@ -10,7 +10,7 @@ search:
 
 # Publishing
 
-**FastStream** `NatsBroker` supports all regular [publishing usecases](../../getting-started/publishing/index.md){.internal-link}. You can use them without any changes.
+**FastStream** `NatsBroker` supports all regular [publishing use cases](../../getting-started/publishing/index.md){.internal-link}. You can use them without any changes.
 
 However, if you wish to further customize the publishing logic, you should take a deeper look at specific `NatsBroker` parameters.
 

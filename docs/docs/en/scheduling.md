@@ -10,17 +10,17 @@ search:
 
 # Tasks Scheduling
 
-**FastStream** is a framework for asynchronous service development. It allows you to build disturbed event-based systems in an easy way. Tasks scheduling is a pretty often usecase in such systems.
+**FastStream** is a framework for asynchronous service development. It allows you to build disturbed event-based systems in an easy way. Tasks scheduling is a pretty often use case in such systems.
 
-Unfortunatelly, this functional conflicts with the original **FastStream** ideology and can't be implemented as a part of the framework. But, you can integrate scheduling in your **FastStream** application by using some extra dependencies. And we have some reciepts how to make it.
+Unfortunately, this functional conflicts with the original **FastStream** ideology and can't be implemented as a part of the framework. But, you can integrate scheduling in your **FastStream** application by using some extra dependencies. And we have some receipts how to make it.
 
 ## Taskiq-FastStream
 
 [**Taskiq**](https://github.com/taskiq-python/taskiq){.external-link target="_blank"} is an asynchronous distributed task queue for python. This project takes inspiration from big projects such as **Celery** and **Dramatiq**.
 
-As a **Celery** replacement, **Taskiq** should support tasks sheduling and delayied publishing, of course. And it does!
+As a **Celery** replacement, **Taskiq** should support tasks scheduling and delayed publishing, of course. And it does!
 
-By the way, you can easely integrate **FastStream** with the **Taskiq**. It allows you to create cron or delayied tasks to publish messages and trigger some functions this way.
+By the way, you can easily integrate **FastStream** with the **Taskiq**. It allows you to create cron or delayied tasks to publish messages and trigger some functions this way.
 
 We have a helpful project to provide you with this feature - [**Taskiq-FastStream**](https://github.com/taskiq-python/taskiq-faststream){.external-link target="_blank"}.
 
@@ -55,7 +55,7 @@ It creates a *taskiq-compatible* object, that can be used as an object to create
 !!! note ""
     We patched the original `TaskiqScheduler` to support message generation callbacks, but its signature remains the same.
 
-`#!python broker.task(...)` has the same with the original `broker.publish(...)` signature and allows you to plan your publishing tasks usign the great **taskiq** `schedule` option (you can learn more about it [here](https://taskiq-python.github.io/available-components/schedule-sources.html#labelschedulesource){.external-link target="_blank"}).
+`#!python broker.task(...)` has the same with the original `broker.publish(...)` signature and allows you to plan your publishing tasks using the great **taskiq** `schedule` option (you can learn more about it [here](https://taskiq-python.github.io/available-components/schedule-sources.html#labelschedulesource){.external-link target="_blank"}).
 
 Finally, to run the scheduler, please use the **taskiq CLI** command:
 
@@ -65,7 +65,7 @@ taskiq scheduler module:scheduler
 
 ### Application Wrapper
 
-If you don't wont to lost application **AsyncAPI** schema or/and lifespans, you can wrap not the broker, but application by itself using `AppWrapper` class.
+If you don't want to lose application **AsyncAPI** schema or/and lifespans, you can wrap not the broker, but the application itself using `AppWrapper` class.
 
 ```python
 from taskiq_faststream import AppWrapper

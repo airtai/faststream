@@ -30,6 +30,6 @@ Just use `pydantic.Field` as a function default argument:
 
 ## pydantic.BaseModel
 
-To make your message schema reusable between different subscribers and publishers, you can decalre it as a `pydantic.BaseModel` and use it as a single message annotation:
+To make your message schema reusable between different subscribers and publishers, you can declare it as a `pydantic.BaseModel` and use it as a single message annotation:
 
 {! includes/getting_started/subscription/pydantic/2.md !}

@@ -11,7 +11,7 @@ from anyio.from_thread import start_blocking_portal
 
 from faststream.app import FastStream
 from faststream.broker.core.abc import BrokerUsecase
-from faststream.broker.core.asyncronous import BrokerAsyncUsecase
+from faststream.broker.core.asynchronous import BrokerAsyncUsecase
 from faststream.broker.handler import AsyncHandler
 from faststream.broker.middlewares import CriticalLogMiddleware
 from faststream.broker.wrapper import HandlerCallWrapper
@@ -155,8 +155,8 @@ class TestBroker(Generic[Broker]):
                 # TODO: remove with 0.5.0
                 warnings.warn(
                     (
-                        f"\nError `{e!r}` occured at `{self.__class__.__name__}` AST parsing"
-                        "\nPlease, report us by creating an Issue with your TestClient usecase"
+                        f"\nError `{e!r}` occurred at `{self.__class__.__name__}` AST parsing"
+                        "\nPlease, report us by creating an Issue with your TestClient use case"
                         "\nhttps://github.com/airtai/faststream/issues/new?labels=bug&template=bug_report.md&title=Bug:%20TestClient%20AST%20parsing"
                     ),
                     category=RuntimeWarning,

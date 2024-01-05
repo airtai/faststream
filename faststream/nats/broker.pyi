@@ -38,7 +38,7 @@ from nats.js.client import JetStreamContext
 
 from faststream._compat import override
 from faststream.asyncapi import schema as asyncapi
-from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
+from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (

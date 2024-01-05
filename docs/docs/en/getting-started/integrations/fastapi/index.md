@@ -84,7 +84,7 @@ To test your **FastAPI StreamRouter**, you can still use it with the *TestClient
 
 {! includes/getting_started/integrations/fastapi/6.md !}
 
-## Miltiple Routers
+## Multiple Routers
 
 Using **FastStream** as a **FastAPI** plugin you are still able to separate messages processing logic between different routers (like with a regular `HTTPRouter`). But it can be confusing - how you should include multiple routers, if we have to setup `router.lifespan_context` as a **FastAPI** object lifespan.
 
@@ -100,7 +100,7 @@ This way the core router collects all nested routers publishers and subscribers 
 
 ### Custom lifespan
 
-Overwise, if you want to has multiple connections to different broker instances, you should start routers independently in your custom lifespan
+Otherwise, if you want to has multiple connections to different broker instances, you should start routers independently in your custom lifespan
 
 {! includes/getting_started/integrations/fastapi/multiple_lifespan.md !}
 

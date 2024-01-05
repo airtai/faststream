@@ -23,7 +23,7 @@ from fast_depends.dependencies import Depends
 
 from faststream.__about__ import __version__
 from faststream._compat import override
-from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
+from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (

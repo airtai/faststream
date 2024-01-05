@@ -14,7 +14,7 @@ search:
 
 As you already know, **FastStream** serializes your incoming message body according to the function type annotations using [**Pydantic**](https://docs.pydantic.dev){.external-link target="_blank"}.
 
-So, there are some valid usecases:
+So, there are some valid use cases:
 
 {! includes/getting_started/subscription/annotation/1.md !}
 
@@ -23,7 +23,7 @@ As with other Python primitive types as well (`#!python float`, `#!python bool`,
 !!! note
     If the incoming message cannot be serialized by the described schema, **FastStream** raises a `pydantic.ValidationError` with a correct log message.
 
-Also, thanks to **Pydantic** (again), **FastStream** is able to serialize (and validate) more complex types like `pydantic.HttpUrl`, `pydantic.PostitiveInt`, etc.
+Also, thanks to **Pydantic** (again), **FastStream** is able to serialize (and validate) more complex types like `pydantic.HttpUrl`, `pydantic.PositiveInt`, etc.
 
 ## JSON Basic Serialization
 

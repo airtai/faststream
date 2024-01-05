@@ -12,7 +12,7 @@ search:
 
 ## Overview
 
-**NATS JetStream** supports two various way to consume messages: [**Push** and **Pull**](https://docs.nats.io/using-nats/developer/develop_jetstream/consumers#push-and-pull-consumers){.external-link targer="_blank} consumers.
+**NATS JetStream** supports two various way to consume messages: [**Push** and **Pull**](https://docs.nats.io/using-nats/developer/develop_jetstream/consumers#push-and-pull-consumers){.external-link target="_blank} consumers.
 
 The **Push** consumer is used by default to consume messages with the **FastStream**. It means that the **NATS** server delivers messages to your consumer as far as possible by itself. However, it also means that **NATS** should control all current consumer connections and increase server load.
 
@@ -37,4 +37,4 @@ The batch size doesn't mean that your `msg` argument is a list of messages, but 
 !!! tip
     If you want to consume list of messages, just set the `batch=True` in `PullSub` class.
 
-So, your subject will be processed much faster, without blocking for each message processing. However, if your subject has fewer than `#!python 10` messages, your request to **NATS** will be blocked for `timeout` (5 seconds by default) while trying to collect the required number of messages. Therefor, you should choose `batch_size` and `timeout` accurately to optimize your consumer efficiency.
+So, your subject will be processed much faster, without blocking for each message processing. However, if your subject has fewer than `#!python 10` messages, your request to **NATS** will be blocked for `timeout` (5 seconds by default) while trying to collect the required number of messages. Therefore, you should choose `batch_size` and `timeout` accurately to optimize your consumer efficiency.
