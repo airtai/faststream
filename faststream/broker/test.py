@@ -155,8 +155,8 @@ class TestBroker(Generic[Broker]):
                 # TODO: remove with 0.5.0
                 warnings.warn(
                     (
-                        f"\nError `{e!r}` occured at `{self.__class__.__name__}` AST parsing"
-                        "\nPlease, report us by creating an Issue with your TestClient usecase"
+                        f"\nError `{e!r}` occurred at `{self.__class__.__name__}` AST parsing"
+                        "\nPlease, report us by creating an Issue with your TestClient use case"
                         "\nhttps://github.com/airtai/faststream/issues/new?labels=bug&template=bug_report.md&title=Bug:%20TestClient%20AST%20parsing"
                     ),
                     category=RuntimeWarning,
