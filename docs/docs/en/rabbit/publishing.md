@@ -56,7 +56,7 @@ If you specify exchange that doesn't exist, RabbitBroker will create a required 
 !!! tip
     Be accurate with it: if you have already created an **Exchange** with specific parameters and try to send a message by exchange name to it, the broker will try to create it. So, **Exchange** parameters conflict will occur.
 
-    If you are trying to send a message to a specific **Exchange**, sending it with a defined **RabbitExchange** object is the preffered way.
+    If you are trying to send a message to a specific **Exchange**, sending it with a defined **RabbitExchange** object is the preferred way.
 
 ## Basic Arguments
 

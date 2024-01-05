@@ -27,7 +27,7 @@ All of these variants have their own advantages and limitations, so you can choo
 
 It automatically sets up all required headers, especially the `correlation_id`, which is used to trace message processing pipelines across all services.
 
-The `content-type` is a meaningfull header for **FastStream** services. It helps the framework serialize messages faster, selecting the right serializer based on the header. This header is automatically set by **FastStream** too, but you should set it up manually using other libraries to interact with **FastStream** applications.
+The `content-type` is a meaningful header for **FastStream** services. It helps the framework serialize messages faster, selecting the right serializer based on the header. This header is automatically set by **FastStream** too, but you should set it up manually using other libraries to interact with **FastStream** applications.
 
 Content-Type can be:
 

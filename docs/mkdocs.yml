@@ -58,7 +58,7 @@ theme:
     - content.tabs.link          # sync total page tabs
     # - content.tooltips           # (insiders) improved tooltips
     - content.code.copy
-    - content.code.annotate      # code anotations with # (1)
+    - content.code.annotate      # code annotations with # (1)
     # - content.code.select        # (insiders) highlight line under cursor
     - content.action.edit        # add edit btn at every page
 

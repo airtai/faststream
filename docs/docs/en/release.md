@@ -32,9 +32,9 @@ hide:
 
 ### What's Changed
 
-NATS concurent subscriber:
+NATS concurrent subscriber:
 
-By default,  NATS subscriber consumes messages with a block per subject. So, you can't process multiple messages from the same subject at the same time. But, with the `broker.subscriber(..., max_workers=...)` option, you can! It creates an async tasks pool to consume multiple messages from the same subject and allows you to process them concurently!
+By default,  NATS subscriber consumes messages with a block per subject. So, you can't process multiple messages from the same subject at the same time. But, with the `broker.subscriber(..., max_workers=...)` option, you can! It creates an async tasks pool to consume multiple messages from the same subject and allows you to process them concurrently!
 
 ```python
 from faststream import FastStream
@@ -153,9 +153,9 @@ app.include_router(router)
 
 A large update by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1048](https://github.com/airtai/faststream/pull/1048){.external-link target="_blank"}
 
-Provides with the ability to setup `graceful_timeout` to wait for consumed messages processed correctly before apllication shutdown - `#!python Broker(graceful_timeout=30.0)` (waits up to `#!python 30` seconds)
+Provides with the ability to setup `graceful_timeout` to wait for consumed messages processed correctly before application shutdown - `#!python Broker(graceful_timeout=30.0)` (waits up to `#!python 30` seconds)
 
-* allows to get acces to `#!python context.get_local("message")` from **FastAPI** plugin
+* allows to get access to `#!python context.get_local("message")` from **FastAPI** plugin
 * docs: fix Avro custom serialization example
 * docs: add KafkaBroker `publish_batch` notice
 * docs: add RabbitMQ security page
@@ -405,7 +405,7 @@ pip install faststream==0.3.0rc0 && pip install "faststream[redis]"
 
 #### Documentation
 
-* docs: reduce builded docs size by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/952](https://github.com/airtai/faststream/pull/952){.external-link target="_blank"}
+* docs: reduce built docs size by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/952](https://github.com/airtai/faststream/pull/952){.external-link target="_blank"}
 * docs: fix update_release script by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/945](https://github.com/airtai/faststream/pull/945){.external-link target="_blank"}
 
 #### Misc
@@ -611,7 +611,7 @@ Also, the original message `Context` annotation was copied from `faststream.[bro
 
 * Remove faststream_gen docs and remove code to generate fastream_gen docs by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/824](https://github.com/airtai/faststream/pull/824){.external-link target="_blank"}
 * Update docs article to use cookiecutter template by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/828](https://github.com/airtai/faststream/pull/828){.external-link target="_blank"}
-* Split real broker tests to independant runs by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/825](https://github.com/airtai/faststream/pull/825){.external-link target="_blank"}
+* Split real broker tests to independent runs by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/825](https://github.com/airtai/faststream/pull/825){.external-link target="_blank"}
 * Remove unused docs/docs_src/kafka examples and its tests by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/829](https://github.com/airtai/faststream/pull/829){.external-link target="_blank"}
 * Run docs deployment only for specific file changes by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/830](https://github.com/airtai/faststream/pull/830){.external-link target="_blank"}
 * Fix formatting in deploy docs workflow by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [https://github.com/airtai/faststream/pull/833](https://github.com/airtai/faststream/pull/833){.external-link target="_blank"}

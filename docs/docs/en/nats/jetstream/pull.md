@@ -37,4 +37,4 @@ The batch size doesn't mean that your `msg` argument is a list of messages, but 
 !!! tip
     If you want to consume list of messages, just set the `batch=True` in `PullSub` class.
 
-So, your subject will be processed much faster, without blocking for each message processing. However, if your subject has fewer than `#!python 10` messages, your request to **NATS** will be blocked for `timeout` (5 seconds by default) while trying to collect the required number of messages. Therefor, you should choose `batch_size` and `timeout` accurately to optimize your consumer efficiency.
+So, your subject will be processed much faster, without blocking for each message processing. However, if your subject has fewer than `#!python 10` messages, your request to **NATS** will be blocked for `timeout` (5 seconds by default) while trying to collect the required number of messages. Therefore, you should choose `batch_size` and `timeout` accurately to optimize your consumer efficiency.

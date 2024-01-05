@@ -117,7 +117,7 @@ Compression can significantly reduce message size, especially if there are repea
 
 ### Broker-Level Serialization
 
-You can still set a custom `decoder` at the Broker or Router level. However, if you want to automatically encode publishing messages as well, you should explore [Middleware](../middlewares/index.md){.internal-link} for serialization implimentation.
+You can still set a custom `decoder` at the Broker or Router level. However, if you want to automatically encode publishing messages as well, you should explore [Middleware](../middlewares/index.md){.internal-link} for serialization implementation.
 
 [^1]:
     For example, a message like `#!json { "name": "John", "age": 25 }` in *JSON* takes **27** bytes, while in *Protobuf*, it takes only **11** bytes. With lists and more complex structures, the savings can be even more significant (up to 20x times).
