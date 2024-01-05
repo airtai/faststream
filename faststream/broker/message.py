@@ -39,30 +39,30 @@ class ABCStreamMessage(Generic[Msg]):
     )
 
     processed: bool = field(default=False, init=False)
-    commited: bool = field(default=False, init=False)
+    committed: bool = field(default=False, init=False)
 
 
 class SyncStreamMessage(ABCStreamMessage[Msg]):
     """A generic class to represent a stream message."""
 
     def ack(self, **kwargs: Any) -> None:
-        self.commited = True
+        self.committed = True
 
     def nack(self, **kwargs: Any) -> None:
-        self.commited = True
+        self.committed = True
 
     def reject(self, **kwargs: Any) -> None:
-        self.commited = True
+        self.committed = True
 
 
 class StreamMessage(ABCStreamMessage[Msg]):
     """A generic class to represent a stream message."""
 
     async def ack(self, **kwargs: Any) -> None:
-        self.commited = True
+        self.committed = True
 
     async def nack(self, **kwargs: Any) -> None:
-        self.commited = True
+        self.committed = True
 
     async def reject(self, **kwargs: Any) -> None:
-        self.commited = True
+        self.committed = True

@@ -111,7 +111,7 @@ Finally, let's use Avro's `schemaless_reader` and `schemaless_writer` to decode 
 
 ### Data Compression
 
-If you are dealing with very large messages, consider compressing them as well. You can explore libraries such as [**lz4**](https://github.com/python-lz4/python-lz4){.external-link targer="_blank"} or [**zstd**](https://github.com/sergey-dryabzhinsky/python-zstd){.external-link targer="_blank"} for compression algorithms.
+If you are dealing with very large messages, consider compressing them as well. You can explore libraries such as [**lz4**](https://github.com/python-lz4/python-lz4){.external-link target="_blank"} or [**zstd**](https://github.com/sergey-dryabzhinsky/python-zstd){.external-link target="_blank"} for compression algorithms.
 
 Compression can significantly reduce message size, especially if there are repeated blocks. However, in the case of small message bodies, data compression may increase the message size. Therefore, you should assess the compression impact based on your specific application requirements.
 
