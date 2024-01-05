@@ -44,7 +44,7 @@ The following example will log a **RuntimeWarning**:
 {! docs_src/kafka/security/ssl_warning.py [ln:8.16] !}
 ```
 
-If the user does not want to use SSL encryption without the waringning getting logged, they must explicitly set the `use_ssl` parameter to `False` when creating a SASL object.
+If the user does not want to use SSL encryption without the warning getting logged, they must explicitly set the `use_ssl` parameter to `False` when creating a SASL object.
 
 ```python linenums="1"
 {! docs_src/kafka/security/ssl_warning.py [ln:12.5-12.72] !}

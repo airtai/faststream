@@ -10,7 +10,7 @@ search:
 
 # Tasks Scheduling
 
-**FastStream** is a framework for asynchronous service development. It allows you to build disturbed event-based systems in an easy way. Tasks scheduling is a pretty often usecase in such systems.
+**FastStream** is a framework for asynchronous service development. It allows you to build disturbed event-based systems in an easy way. Tasks scheduling is a pretty often use case in such systems.
 
 Unfortunately, this functional conflicts with the original **FastStream** ideology and can't be implemented as a part of the framework. But, you can integrate scheduling in your **FastStream** application by using some extra dependencies. And we have some receipts how to make it.
 
