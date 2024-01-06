@@ -34,8 +34,7 @@ def version_callback(version: bool) -> None:
         import platform
 
         typer.echo(
-            "Running FastStream %s with %s %s on %s"
-            % (
+            "Running FastStream {} with {} {} on {}".format(
                 __version__,
                 platform.python_implementation(),
                 platform.python_version(),

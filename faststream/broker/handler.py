@@ -19,8 +19,9 @@ from typing import (
 
 import anyio
 from fast_depends.core import CallModel
+from typing_extensions import Self, override
 
-from faststream._compat import IS_OPTIMIZED, Self, override
+from faststream._compat import IS_OPTIMIZED
 from faststream.asyncapi.base import AsyncAPIOperation
 from faststream.asyncapi.message import parse_handler_params
 from faststream.asyncapi.utils import to_camelcase

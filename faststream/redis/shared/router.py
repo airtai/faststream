@@ -1,6 +1,8 @@
 from typing import Any, Callable, Sequence, Union
 
-from faststream._compat import TypeAlias, model_copy, override
+from typing_extensions import TypeAlias, override
+
+from faststream._compat import model_copy
 from faststream.broker.router import BrokerRoute as RedisRoute
 from faststream.broker.router import BrokerRouter
 from faststream.broker.types import P_HandlerParams, T_HandlerReturn

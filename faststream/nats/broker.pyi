@@ -6,12 +6,7 @@ from typing import (
     AsyncContextManager,
     Awaitable,
     Callable,
-    Dict,
-    List,
-    Optional,
     Sequence,
-    Type,
-    Union,
 )
 
 from fast_depends.dependencies import Depends
@@ -35,8 +30,8 @@ from nats.aio.client import (
 from nats.aio.msg import Msg
 from nats.js import api
 from nats.js.client import JetStreamContext
+from typing_extensions import override
 
-from faststream._compat import override
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
@@ -65,23 +60,23 @@ class NatsBroker(
     NatsLoggingMixin,
     BrokerAsyncUsecase[Msg, Client],
 ):
-    stream: Optional[JetStreamContext]
+    stream: JetStreamContext | None
 
-    handlers: Dict[Subject, Handler]
-    _publishers: Dict[Subject, Publisher]
-    _producer: Optional[NatsFastProducer]
-    _js_producer: Optional[NatsJSFastProducer]
+    handlers: dict[Subject, Handler]
+    _publishers: dict[Subject, Publisher]
+    _producer: NatsFastProducer | None
+    _js_producer: NatsJSFastProducer | None
 
     def __init__(
         self,
-        servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),
+        servers: str | Sequence[str] = ("nats://localhost:4222",),
         *,
-        error_cb: Optional[ErrorCallback] = None,
-        disconnected_cb: Optional[Callback] = None,
-        closed_cb: Optional[Callback] = None,
-        discovered_server_cb: Optional[Callback] = None,
-        reconnected_cb: Optional[Callback] = None,
-        name: Optional[str] = None,
+        error_cb: ErrorCallback | None = None,
+        disconnected_cb: Callback | None = None,
+        closed_cb: Callback | None = None,
+        discovered_server_cb: Callback | None = None,
+        reconnected_cb: Callback | None = None,
+        name: str | None = None,
         pedantic: bool = False,
         verbose: bool = False,
         allow_reconnect: bool = True,
@@ -93,55 +88,48 @@ class NatsBroker(
         dont_randomize: bool = False,
         flusher_queue_size: int = DEFAULT_MAX_FLUSHER_QUEUE_SIZE,
         no_echo: bool = False,
-        tls: Optional[ssl.SSLContext] = None,
-        tls_hostname: Optional[str] = None,
-        user: Optional[str] = None,
-        password: Optional[str] = None,
-        token: Optional[str] = None,
+        tls: ssl.SSLContext | None = None,
+        tls_hostname: str | None = None,
+        user: str | None = None,
+        password: str | None = None,
+        token: str | None = None,
         drain_timeout: int = DEFAULT_DRAIN_TIMEOUT,
-        signature_cb: Optional[SignatureCallback] = None,
-        user_jwt_cb: Optional[JWTCallback] = None,
-        user_credentials: Optional[Credentials] = None,
-        nkeys_seed: Optional[str] = None,
-        inbox_prefix: Union[str, bytes] = DEFAULT_INBOX_PREFIX,
+        signature_cb: SignatureCallback | None = None,
+        user_jwt_cb: JWTCallback | None = None,
+        user_credentials: Credentials | None = None,
+        nkeys_seed: str | None = None,
+        inbox_prefix: str | bytes = DEFAULT_INBOX_PREFIX,
         pending_size: int = DEFAULT_PENDING_SIZE,
-        flush_timeout: Optional[float] = None,
+        flush_timeout: float | None = None,
         # broker args
-        graceful_timeout: Optional[float] = None,
+        graceful_timeout: float | None = None,
         apply_types: bool = True,
         validate: bool = True,
         dependencies: Sequence[Depends] = (),
-        decoder: Optional[CustomDecoder[NatsMessage]] = None,
-        parser: Optional[CustomParser[Msg, NatsMessage]] = None,
-        middlewares: Optional[
-            Sequence[
-                Callable[
-                    [Msg],
-                    BaseMiddleware,
-                ]
-            ]
-        ] = None,
+        decoder: CustomDecoder[NatsMessage] | None = None,
+        parser: CustomParser[Msg, NatsMessage] | None = None,
+        middlewares: Sequence[Callable[[Msg], BaseMiddleware]] | None = None,
         # AsyncAPI args
-        asyncapi_url: Union[str, List[str], None] = None,
+        asyncapi_url: str | list[str] | None = None,
         protocol: str = "nats",
-        protocol_version: Optional[str] = "custom",
-        description: Optional[str] = None,
-        tags: Optional[Sequence[asyncapi.Tag]] = None,
+        protocol_version: str | None = "custom",
+        description: str | None = None,
+        tags: Sequence[asyncapi.Tag] | None = None,
         # logging args
-        logger: Optional[logging.Logger] = access_logger,
+        logger: logging.Logger | None = access_logger,
         log_level: int = logging.INFO,
-        log_fmt: Optional[str] = None,
+        log_fmt: str | None = None,
     ) -> None: ...
     async def connect(
         self,
-        servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),
+        servers: str | Sequence[str] = ("nats://localhost:4222",),
         *,
-        error_cb: Optional[ErrorCallback] = None,
-        disconnected_cb: Optional[Callback] = None,
-        closed_cb: Optional[Callback] = None,
-        discovered_server_cb: Optional[Callback] = None,
-        reconnected_cb: Optional[Callback] = None,
-        name: Optional[str] = None,
+        error_cb: ErrorCallback | None = None,
+        disconnected_cb: Callback | None = None,
+        closed_cb: Callback | None = None,
+        discovered_server_cb: Callback | None = None,
+        reconnected_cb: Callback | None = None,
+        name: str | None = None,
         pedantic: bool = False,
         verbose: bool = False,
         allow_reconnect: bool = True,
@@ -153,31 +141,31 @@ class NatsBroker(
         dont_randomize: bool = False,
         flusher_queue_size: int = DEFAULT_MAX_FLUSHER_QUEUE_SIZE,
         no_echo: bool = False,
-        tls: Optional[ssl.SSLContext] = None,
-        tls_hostname: Optional[str] = None,
-        user: Optional[str] = None,
-        password: Optional[str] = None,
-        token: Optional[str] = None,
+        tls: ssl.SSLContext | None = None,
+        tls_hostname: str | None = None,
+        user: str | None = None,
+        password: str | None = None,
+        token: str | None = None,
         drain_timeout: int = DEFAULT_DRAIN_TIMEOUT,
-        signature_cb: Optional[SignatureCallback] = None,
-        user_jwt_cb: Optional[JWTCallback] = None,
-        user_credentials: Optional[Credentials] = None,
-        nkeys_seed: Optional[str] = None,
-        inbox_prefix: Union[str, bytes] = DEFAULT_INBOX_PREFIX,
+        signature_cb: SignatureCallback | None = None,
+        user_jwt_cb: JWTCallback | None = None,
+        user_credentials: Credentials | None = None,
+        nkeys_seed: str | None = None,
+        inbox_prefix: str | bytes = DEFAULT_INBOX_PREFIX,
         pending_size: int = DEFAULT_PENDING_SIZE,
-        flush_timeout: Optional[float] = None,
+        flush_timeout: float | None = None,
     ) -> Client: ...
     @override
     async def _connect(  # type: ignore[override]
         self,
-        servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),
+        servers: str | Sequence[str] = ("nats://localhost:4222",),
         *,
-        error_cb: Optional[ErrorCallback] = None,
-        disconnected_cb: Optional[Callback] = None,
-        closed_cb: Optional[Callback] = None,
-        discovered_server_cb: Optional[Callback] = None,
-        reconnected_cb: Optional[Callback] = None,
-        name: Optional[str] = None,
+        error_cb: ErrorCallback | None = None,
+        disconnected_cb: Callback | None = None,
+        closed_cb: Callback | None = None,
+        discovered_server_cb: Callback | None = None,
+        reconnected_cb: Callback | None = None,
+        name: str | None = None,
         pedantic: bool = False,
         verbose: bool = False,
         allow_reconnect: bool = True,
@@ -189,25 +177,25 @@ class NatsBroker(
         dont_randomize: bool = False,
         flusher_queue_size: int = DEFAULT_MAX_FLUSHER_QUEUE_SIZE,
         no_echo: bool = False,
-        tls: Optional[ssl.SSLContext] = None,
-        tls_hostname: Optional[str] = None,
-        user: Optional[str] = None,
-        password: Optional[str] = None,
-        token: Optional[str] = None,
+        tls: ssl.SSLContext | None = None,
+        tls_hostname: str | None = None,
+        user: str | None = None,
+        password: str | None = None,
+        token: str | None = None,
         drain_timeout: int = DEFAULT_DRAIN_TIMEOUT,
-        signature_cb: Optional[SignatureCallback] = None,
-        user_jwt_cb: Optional[JWTCallback] = None,
-        user_credentials: Optional[Credentials] = None,
-        nkeys_seed: Optional[str] = None,
-        inbox_prefix: Union[str, bytes] = DEFAULT_INBOX_PREFIX,
+        signature_cb: SignatureCallback | None = None,
+        user_jwt_cb: JWTCallback | None = None,
+        user_credentials: Credentials | None = None,
+        nkeys_seed: str | None = None,
+        inbox_prefix: str | bytes = DEFAULT_INBOX_PREFIX,
         pending_size: int = DEFAULT_PENDING_SIZE,
-        flush_timeout: Optional[float] = None,
+        flush_timeout: float | None = None,
     ) -> Client: ...
     async def _close(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
-        exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
+        exc_type: type[BaseException] | None = None,
+        exc_val: BaseException | None = None,
+        exec_tb: TracebackType | None = None,
     ) -> None: ...
     async def start(self) -> None: ...
     def _process_message(
@@ -221,46 +209,46 @@ class NatsBroker(
     ]: ...
     def _log_connection_broken(
         self,
-        error_cb: Optional[ErrorCallback] = None,
+        error_cb: ErrorCallback | None = None,
     ) -> ErrorCallback: ...
     def _log_reconnected(
         self,
-        cb: Optional[Callback] = None,
+        cb: Callback | None = None,
     ) -> Callback: ...
     @override
     def subscriber(  # type: ignore[override]
         self,
         subject: str,
         queue: str = "",
-        pending_msgs_limit: Optional[int] = None,
-        pending_bytes_limit: Optional[int] = None,
+        pending_msgs_limit: int | None = None,
+        pending_bytes_limit: int | None = None,
         # Core arguments
         max_msgs: int = 0,
         # JS arguments
         ack_first: bool = False,
-        stream: Union[str, JStream, None] = None,
-        durable: Optional[str] = None,
-        config: Optional[api.ConsumerConfig] = None,
+        stream: str | JStream | None = None,
+        durable: str | None = None,
+        config: api.ConsumerConfig | None = None,
         ordered_consumer: bool = False,
-        idle_heartbeat: Optional[float] = None,
+        idle_heartbeat: float | None = None,
         flow_control: bool = False,
-        deliver_policy: Optional[api.DeliverPolicy] = None,
-        headers_only: Optional[bool] = None,
+        deliver_policy: api.DeliverPolicy | None = None,
+        headers_only: bool | None = None,
         # pull arguments
-        pull_sub: Optional[PullSub] = None,
+        pull_sub: PullSub | None = None,
         inbox_prefix: bytes = api.INBOX_PREFIX,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[Msg, NatsMessage]] = None,
-        decoder: Optional[CustomDecoder[NatsMessage]] = None,
-        middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
+        parser: CustomParser[Msg, NatsMessage] | None = None,
+        decoder: CustomDecoder[NatsMessage] | None = None,
+        middlewares: Sequence[Callable[[Msg], BaseMiddleware]] | None = None,
         filter: Filter[NatsMessage] = default_filter,
         retry: bool = False,
         no_ack: bool = False,
         max_workers: int = 1,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
+        title: str | None = None,
+        description: str | None = None,
         include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
@@ -271,16 +259,16 @@ class NatsBroker(
     def publisher(  # type: ignore[override]
         self,
         subject: str,
-        headers: Optional[Dict[str, str]] = None,
+        headers: dict[str, str] | None = None,
         # Core
         reply_to: str = "",
         # JS
-        stream: Union[str, JStream, None] = None,
-        timeout: Optional[float] = None,
+        stream: str | JStream | None = None,
+        timeout: float | None = None,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        schema: Optional[Any] = None,
+        title: str | None = None,
+        description: str | None = None,
+        schema: Any | None = None,
         include_in_schema: bool = True,
     ) -> Publisher: ...
     @override
@@ -288,14 +276,14 @@ class NatsBroker(
         self,
         message: SendableMessage,
         subject: str,
-        headers: Optional[Dict[str, str]] = None,
+        headers: dict[str, str] | None = None,
         reply_to: str = "",
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
         # JS arguments
-        stream: Optional[str] = None,
-        timeout: Optional[float] = None,
+        stream: str | None = None,
+        timeout: float | None = None,
         *,
         rpc: bool = False,
-        rpc_timeout: Optional[float] = 30.0,
+        rpc_timeout: float | None = 30.0,
         raise_timeout: bool = False,
-    ) -> Optional[DecodedMessage]: ...
+    ) -> DecodedMessage | None: ...

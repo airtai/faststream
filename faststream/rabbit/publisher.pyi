@@ -1,11 +1,10 @@
 from abc import abstractproperty
 from dataclasses import dataclass, field
-from typing import Optional, Union
 
 import aio_pika
 import aiormq
+from typing_extensions import override
 
-from faststream._compat import override
 from faststream.rabbit.producer import AioPikaFastProducer
 from faststream.rabbit.shared.publisher import ABCPublisher
 from faststream.rabbit.shared.types import TimeoutType
@@ -14,10 +13,10 @@ from faststream.types import SendableMessage
 
 @dataclass
 class LogicPublisher(ABCPublisher[aio_pika.IncomingMessage]):
-    _producer: Optional[AioPikaFastProducer] = field(default=None, init=False)
+    _producer: AioPikaFastProducer | None = field(default=None, init=False)
 
     @property
-    def routing(self) -> Optional[str]: ...
+    def routing(self) -> str | None: ...
     def _get_routing_hash(self) -> int: ...
     @abstractproperty
     def name(self) -> str:
@@ -32,21 +31,21 @@ class LogicPublisher(ABCPublisher[aio_pika.IncomingMessage]):
         immediate: bool = False,
         timeout: TimeoutType = None,
         persist: bool = False,
-        reply_to: Optional[str] = None,
+        reply_to: str | None = None,
         # rpc args
         rpc: bool = False,
-        rpc_timeout: Optional[float] = 30.0,
+        rpc_timeout: float | None = 30.0,
         raise_timeout: bool = False,
         # message args
-        headers: Optional[aio_pika.abc.HeadersType] = None,
-        content_type: Optional[str] = None,
-        content_encoding: Optional[str] = None,
-        priority: Optional[int] = None,
-        correlation_id: Optional[str] = None,
-        expiration: Optional[aio_pika.abc.DateType] = None,
-        message_id: Optional[str] = None,
-        timestamp: Optional[aio_pika.abc.DateType] = None,
-        type: Optional[str] = None,
-        user_id: Optional[str] = None,
-        app_id: Optional[str] = None,
-    ) -> Union[aiormq.abc.ConfirmationFrameType, SendableMessage]: ...
+        headers: aio_pika.abc.HeadersType | None = None,
+        content_type: str | None = None,
+        content_encoding: str | None = None,
+        priority: int | None = None,
+        correlation_id: str | None = None,
+        expiration: aio_pika.abc.DateType | None = None,
+        message_id: str | None = None,
+        timestamp: aio_pika.abc.DateType | None = None,
+        type: str | None = None,
+        user_id: str | None = None,
+        app_id: str | None = None,
+    ) -> aiormq.abc.ConfirmationFrameType | SendableMessage: ...

@@ -1,11 +1,11 @@
 from abc import ABCMeta
-from typing import Any, Callable, Optional, Sequence, Union
+from typing import Any, Callable, Sequence
 
 from fast_depends.dependencies import Depends
 from nats.aio.msg import Msg
 from nats.js import api
+from typing_extensions import override
 
-from faststream._compat import override
 from faststream.broker.core.asynchronous import default_filter
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.router import BrokerRouter
@@ -28,30 +28,30 @@ class NatsRoute:
         call: Callable[..., T_HandlerReturn],
         subject: str,
         queue: str = "",
-        pending_msgs_limit: Optional[int] = None,
-        pending_bytes_limit: Optional[int] = None,
+        pending_msgs_limit: int | None = None,
+        pending_bytes_limit: int | None = None,
         # Core arguments
         max_msgs: int = 0,
         ack_first: bool = False,
         # JS arguments
-        stream: Union[str, JStream, None] = None,
-        durable: Optional[str] = None,
-        config: Optional[api.ConsumerConfig] = None,
+        stream: str | JStream | None = None,
+        durable: str | None = None,
+        config: api.ConsumerConfig | None = None,
         ordered_consumer: bool = False,
-        idle_heartbeat: Optional[float] = None,
+        idle_heartbeat: float | None = None,
         flow_control: bool = False,
-        deliver_policy: Optional[api.DeliverPolicy] = None,
-        headers_only: Optional[bool] = None,
+        deliver_policy: api.DeliverPolicy | None = None,
+        headers_only: bool | None = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[Msg, NatsMessage]] = None,
-        decoder: Optional[CustomDecoder[NatsMessage]] = None,
-        middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
+        parser: CustomParser[Msg, NatsMessage] | None = None,
+        decoder: CustomDecoder[NatsMessage] | None = None,
+        middlewares: Sequence[Callable[[Msg], BaseMiddleware]] | None = None,
         filter: Filter[NatsMessage] = default_filter,
         retry: bool = False,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
+        title: str | None = None,
+        description: str | None = None,
         include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> None: ...

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Tuple, Union, overload
+from typing import TYPE_CHECKING, Optional, Sequence, Tuple, Union, overload
 from uuid import uuid4
 
 from pydantic import BaseModel, Field
@@ -30,7 +30,7 @@ class RawMessage(BaseModel):
     @classmethod
     def build(
         cls,
-        message: SendableMessage,
+        message: Union[Sequence[SendableMessage], SendableMessage],
         reply_to: str = "",
         headers: Optional[AnyDict] = None,
         correlation_id: Optional[str] = None,
@@ -58,7 +58,7 @@ class RawMessage(BaseModel):
     @classmethod
     def encode(
         cls,
-        message: SendableMessage,
+        message: Union[Sequence[SendableMessage], SendableMessage],
         reply_to: str = "",
         headers: Optional[AnyDict] = None,
         correlation_id: Optional[str] = None,

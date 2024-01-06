@@ -5,19 +5,15 @@ from typing import (
     AsyncContextManager,
     Awaitable,
     Callable,
-    Dict,
     Mapping,
-    Optional,
     Sequence,
-    Type,
-    Union,
 )
 
 from fast_depends.dependencies import Depends
 from redis.asyncio.client import Redis
 from redis.asyncio.connection import BaseParser, Connection, DefaultParser, Encoder
+from typing_extensions import TypeAlias, override
 
-from faststream._compat import TypeAlias, override
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
@@ -47,111 +43,109 @@ class RedisBroker(
     BrokerAsyncUsecase[AnyRedisDict, "Redis[bytes]"],
 ):
     url: str
-    handlers: Dict[int, Handler]
-    _publishers: Dict[int, Publisher]
+    handlers: dict[int, Handler]
+    _publishers: dict[int, Publisher]
 
-    _producer: Optional[RedisFastProducer]
+    _producer: RedisFastProducer | None
 
     def __init__(
         self,
         url: str = "redis://localhost:6379",
-        polling_interval: Optional[float] = None,
+        polling_interval: float | None = None,
         *,
         host: str = "localhost",
-        port: Union[str, int] = 6379,
-        db: Union[str, int] = 0,
-        client_name: Optional[str] = None,
+        port: str | int = 6379,
+        db: str | int = 0,
+        client_name: str | None = None,
         health_check_interval: float = 0,
-        max_connections: Optional[int] = None,
-        socket_timeout: Optional[float] = None,
-        socket_connect_timeout: Optional[float] = None,
+        max_connections: int | None = None,
+        socket_timeout: float | None = None,
+        socket_connect_timeout: float | None = None,
         socket_read_size: int = 65536,
         socket_keepalive: bool = False,
-        socket_keepalive_options: Optional[Mapping[int, Union[int, bytes]]] = None,
+        socket_keepalive_options: Mapping[int, int | bytes] | None = None,
         socket_type: int = 0,
         retry_on_timeout: bool = False,
         encoding: str = "utf-8",
         encoding_errors: str = "strict",
         decode_responses: bool = False,
-        parser_class: Type[BaseParser] = DefaultParser,
-        connection_class: Type[Connection] = Connection,
-        encoder_class: Type[Encoder] = Encoder,
-        security: Optional[BaseSecurity] = None,
+        parser_class: type[BaseParser] = DefaultParser,
+        connection_class: type[Connection] = Connection,
+        encoder_class: type[Encoder] = Encoder,
+        security: BaseSecurity | None = None,
         # broker args
-        graceful_timeout: Optional[float] = None,
+        graceful_timeout: float | None = None,
         apply_types: bool = True,
         validate: bool = True,
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[AnyRedisDict, RedisMessage]] = None,
-        decoder: Optional[CustomDecoder[RedisMessage]] = None,
-        middlewares: Optional[
-            Sequence[Callable[[AnyRedisDict], BaseMiddleware]]
-        ] = None,
+        parser: CustomParser[AnyRedisDict, RedisMessage] | None = None,
+        decoder: CustomDecoder[RedisMessage] | None = None,
+        middlewares: Sequence[Callable[[AnyRedisDict], BaseMiddleware]] | None = None,
         # AsyncAPI args
-        asyncapi_url: Optional[str] = None,
-        protocol: Optional[str] = None,
-        protocol_version: Optional[str] = "custom",
-        description: Optional[str] = None,
-        tags: Optional[Sequence[asyncapi.Tag]] = None,
+        asyncapi_url: str | None = None,
+        protocol: str | None = None,
+        protocol_version: str | None = "custom",
+        description: str | None = None,
+        tags: Sequence[asyncapi.Tag] | None = None,
         # logging args
-        logger: Optional[logging.Logger] = access_logger,
+        logger: logging.Logger | None = access_logger,
         log_level: int = logging.INFO,
-        log_fmt: Optional[str] = None,
+        log_fmt: str | None = None,
     ) -> None: ...
     async def connect(
         self,
         url: str = "redis://localhost:6379",
         host: str = "localhost",
-        port: Union[str, int] = 6379,
-        db: Union[str, int] = 0,
-        client_name: Optional[str] = None,
+        port: str | int = 6379,
+        db: str | int = 0,
+        client_name: str | None = None,
         health_check_interval: float = 0,
-        max_connections: Optional[int] = None,
-        socket_timeout: Optional[float] = None,
-        socket_connect_timeout: Optional[float] = None,
+        max_connections: int | None = None,
+        socket_timeout: float | None = None,
+        socket_connect_timeout: float | None = None,
         socket_read_size: int = 65536,
         socket_keepalive: bool = False,
-        socket_keepalive_options: Optional[Mapping[int, Union[int, bytes]]] = None,
+        socket_keepalive_options: Mapping[int, int | bytes] | None = None,
         socket_type: int = 0,
         retry_on_timeout: bool = False,
         encoding: str = "utf-8",
         encoding_errors: str = "strict",
         decode_responses: bool = False,
-        parser_class: Type[BaseParser] = DefaultParser,
-        connection_class: Type[Connection] = Connection,
-        encoder_class: Type[Encoder] = Encoder,
-        security: Optional[BaseSecurity] = None,
-    ) -> "Redis[bytes]": ...
+        parser_class: type[BaseParser] = DefaultParser,
+        connection_class: type[Connection] = Connection,
+        encoder_class: type[Encoder] = Encoder,
+        security: BaseSecurity | None = None,
+    ) -> Redis[bytes]: ...
     @override
     async def _connect(  # type: ignore[override]
         self,
         url: str,
         host: str = "localhost",
-        port: Union[str, int] = 6379,
-        db: Union[str, int] = 0,
-        client_name: Optional[str] = None,
+        port: str | int = 6379,
+        db: str | int = 0,
+        client_name: str | None = None,
         health_check_interval: float = 0,
-        max_connections: Optional[int] = None,
-        socket_timeout: Optional[float] = None,
-        socket_connect_timeout: Optional[float] = None,
+        max_connections: int | None = None,
+        socket_timeout: float | None = None,
+        socket_connect_timeout: float | None = None,
         socket_read_size: int = 65536,
         socket_keepalive: bool = False,
-        socket_keepalive_options: Optional[Mapping[int, Union[int, bytes]]] = None,
+        socket_keepalive_options: Mapping[int, int | bytes] | None = None,
         socket_type: int = 0,
         retry_on_timeout: bool = False,
         encoding: str = "utf-8",
         encoding_errors: str = "strict",
         decode_responses: bool = False,
-        parser_class: Type[BaseParser] = DefaultParser,
-        connection_class: Type[Connection] = Connection,
-        encoder_class: Type[Encoder] = Encoder,
-        security: Optional[BaseSecurity] = None,
-    ) -> "Redis[bytes]": ...
+        parser_class: type[BaseParser] = DefaultParser,
+        connection_class: type[Connection] = Connection,
+        encoder_class: type[Encoder] = Encoder,
+        security: BaseSecurity | None = None,
+    ) -> Redis[bytes]: ...
     async def _close(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
-        exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
+        exc_type: type[BaseException] | None = None,
+        exc_val: BaseException | None = None,
+        exec_tb: TracebackType | None = None,
     ) -> None: ...
     async def start(self) -> None: ...
     def _process_message(
@@ -166,22 +160,20 @@ class RedisBroker(
     @override
     def subscriber(  # type: ignore[override]
         self,
-        channel: Union[Channel, PubSub, None] = None,
+        channel: Channel | PubSub | None = None,
         *,
-        list: Union[Channel, ListSub, None] = None,
-        stream: Union[Channel, StreamSub, None] = None,
+        list: Channel | ListSub | None = None,
+        stream: Channel | StreamSub | None = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[AnyRedisDict, RedisMessage]] = None,
-        decoder: Optional[CustomDecoder[RedisMessage]] = None,
-        middlewares: Optional[
-            Sequence[Callable[[AnyRedisDict], BaseMiddleware]]
-        ] = None,
+        parser: CustomParser[AnyRedisDict, RedisMessage] | None = None,
+        decoder: CustomDecoder[RedisMessage] | None = None,
+        middlewares: Sequence[Callable[[AnyRedisDict], BaseMiddleware]] | None = None,
         filter: Filter[RedisMessage] = default_filter,
         no_ack: bool = False,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
+        title: str | None = None,
+        description: str | None = None,
         include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
@@ -191,32 +183,32 @@ class RedisBroker(
     @override
     def publisher(  # type: ignore[override]
         self,
-        channel: Union[Channel, PubSub, None] = None,
-        list: Union[Channel, ListSub, None] = None,
-        stream: Union[Channel, StreamSub, None] = None,
-        headers: Optional[AnyDict] = None,
+        channel: Channel | PubSub | None = None,
+        list: Channel | ListSub | None = None,
+        stream: Channel | StreamSub | None = None,
+        headers: AnyDict | None = None,
         reply_to: str = "",
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        schema: Optional[Any] = None,
+        title: str | None = None,
+        description: str | None = None,
+        schema: Any | None = None,
         include_in_schema: bool = True,
     ) -> Publisher: ...
     @override
     async def publish(  # type: ignore[override]
         self,
         message: SendableMessage,
-        channel: Optional[str] = None,
+        channel: str | None = None,
         reply_to: str = "",
-        headers: Optional[AnyDict] = None,
-        correlation_id: Optional[str] = None,
+        headers: AnyDict | None = None,
+        correlation_id: str | None = None,
         *,
-        list: Optional[str] = None,
-        stream: Optional[str] = None,
+        list: str | None = None,
+        stream: str | None = None,
         rpc: bool = False,
-        rpc_timeout: Optional[float] = 30.0,
+        rpc_timeout: float | None = 30.0,
         raise_timeout: bool = False,
-    ) -> Optional[DecodedMessage]: ...
+    ) -> DecodedMessage | None: ...
     async def publish_batch(
         self,
         *msgs: SendableMessage,

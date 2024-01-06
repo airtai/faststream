@@ -1,8 +1,8 @@
 from nats.aio.client import Client as NatsClient
 from nats.aio.msg import Msg
 from nats.js.client import JetStreamContext
+from typing_extensions import Annotated, override
 
-from faststream._compat import Annotated, override
 from faststream.broker.fastapi.context import Context, ContextRepo, Logger
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.nats.broker import NatsBroker as NB

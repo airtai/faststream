@@ -20,9 +20,9 @@ import aiokafka
 from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
 from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
 from fast_depends.dependencies import Depends
+from typing_extensions import override
 
 from faststream.__about__ import __version__
-from faststream._compat import override
 from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware

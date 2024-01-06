@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
-from typing import Optional, Union
+from typing import Optional, Sequence, Union, cast
 
-from faststream._compat import override
+from typing_extensions import override
+
 from faststream.broker.publisher import BasePublisher
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.redis.message import AnyRedisDict
@@ -51,7 +52,7 @@ class LogicPublisher(BasePublisher[AnyRedisDict]):
 
         if getattr(list, "batch", False):
             await self._producer.publish_batch(
-                *message,
+                *cast(Sequence[SendableMessage], message),
                 list=list.name,  # type: ignore[union-attr]
             )
             return None

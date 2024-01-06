@@ -4,7 +4,6 @@ from unittest.mock import MagicMock
 
 import anyio
 
-from faststream._compat import Self
 from faststream.broker.message import StreamMessage
 from faststream.broker.types import (
     AsyncPublisherProtocol,
@@ -100,7 +99,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
             "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
             Callable[P_HandlerParams, T_HandlerReturn],
         ],
-    ) -> Self:
+    ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
         """Create a new instance of the class.
 
         Args:

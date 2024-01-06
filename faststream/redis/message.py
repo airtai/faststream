@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Any, List, Literal, Optional, TypeVar, Union
 
-from faststream._compat import NotRequired, TypedDict, override
+from typing_extensions import NotRequired, TypedDict, override
+
 from faststream.broker.message import StreamMessage
 from faststream.utils.context.repository import context
 

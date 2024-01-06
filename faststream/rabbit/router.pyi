@@ -1,9 +1,9 @@
-from typing import Any, Callable, Optional, Sequence, Union
+from typing import Any, Callable, Sequence
 
 import aio_pika
 from fast_depends.dependencies import Depends
+from typing_extensions import override
 
-from faststream._compat import override
 from faststream.broker.core.asynchronous import default_filter
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.router import BrokerRouter
@@ -29,11 +29,10 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
         handlers: Sequence[RabbitRoute] = (),
         *,
         dependencies: Sequence[Depends] = (),
-        middlewares: Optional[
-            Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
-        ] = None,
-        parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
-        decoder: Optional[CustomDecoder[RabbitMessage]] = None,
+        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
+        | None = None,
+        parser: CustomParser[aio_pika.IncomingMessage, RabbitMessage] | None = None,
+        decoder: CustomDecoder[RabbitMessage] | None = None,
         include_in_schema: bool = True,
     ) -> None: ...
     @staticmethod
@@ -48,29 +47,23 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
     @override
     def subscriber(  # type: ignore[override]
         self,
-        queue: Union[str, RabbitQueue],
-        exchange: Union[str, RabbitExchange, None] = None,
+        queue: str | RabbitQueue,
+        exchange: str | RabbitExchange | None = None,
         *,
-        consume_args: Optional[AnyDict] = None,
-        reply_config: Optional[ReplyConfig] = None,
+        consume_args: AnyDict | None = None,
+        reply_config: ReplyConfig | None = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
         filter: Filter[RabbitMessage] = default_filter,
-        parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
-        decoder: Optional[CustomDecoder[RabbitMessage]] = None,
-        middlewares: Optional[
-            Sequence[
-                Callable[
-                    [aio_pika.IncomingMessage],
-                    BaseMiddleware,
-                ]
-            ]
-        ] = None,
-        retry: Union[bool, int] = False,
+        parser: CustomParser[aio_pika.IncomingMessage, RabbitMessage] | None = None,
+        decoder: CustomDecoder[RabbitMessage] | None = None,
+        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
+        | None = None,
+        retry: bool | int = False,
         no_ack: bool = False,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
+        title: str | None = None,
+        description: str | None = None,
         include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
@@ -80,30 +73,30 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
     @override
     def publisher(  # type: ignore[override]
         self,
-        queue: Union[RabbitQueue, str] = "",
-        exchange: Union[RabbitExchange, str, None] = None,
+        queue: RabbitQueue | str = "",
+        exchange: RabbitExchange | str | None = None,
         *,
         routing_key: str = "",
         mandatory: bool = True,
         immediate: bool = False,
         timeout: TimeoutType = None,
         persist: bool = False,
-        reply_to: Optional[str] = None,
+        reply_to: str | None = None,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        schema: Optional[Any] = None,
+        title: str | None = None,
+        description: str | None = None,
+        schema: Any | None = None,
         include_in_schema: bool = True,
         # message args
-        headers: Optional[aio_pika.abc.HeadersType] = None,
-        content_type: Optional[str] = None,
-        content_encoding: Optional[str] = None,
-        priority: Optional[int] = None,
-        correlation_id: Optional[str] = None,
-        expiration: Optional[aio_pika.abc.DateType] = None,
-        message_id: Optional[str] = None,
-        timestamp: Optional[aio_pika.abc.DateType] = None,
-        type: Optional[str] = None,
-        user_id: Optional[str] = None,
-        app_id: Optional[str] = None,
+        headers: aio_pika.abc.HeadersType | None = None,
+        content_type: str | None = None,
+        content_encoding: str | None = None,
+        priority: int | None = None,
+        correlation_id: str | None = None,
+        expiration: aio_pika.abc.DateType | None = None,
+        message_id: str | None = None,
+        timestamp: aio_pika.abc.DateType | None = None,
+        type: str | None = None,
+        user_id: str | None = None,
+        app_id: str | None = None,
     ) -> Publisher: ...

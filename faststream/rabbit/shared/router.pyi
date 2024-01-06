@@ -1,4 +1,4 @@
-from typing import Any, Callable, Optional, Sequence, Union
+from typing import Any, Callable, Sequence
 
 import aio_pika
 from fast_depends.dependencies import Depends
@@ -21,27 +21,21 @@ class RabbitRoute:
     def __init__(
         self,
         call: Callable[..., T_HandlerReturn],
-        queue: Union[str, RabbitQueue],
-        exchange: Union[str, RabbitExchange, None] = None,
+        queue: str | RabbitQueue,
+        exchange: str | RabbitExchange | None = None,
         *,
-        consume_args: Optional[AnyDict] = None,
+        consume_args: AnyDict | None = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
         filter: Filter[RabbitMessage] = default_filter,
-        parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
-        decoder: Optional[CustomDecoder[RabbitMessage]] = None,
-        middlewares: Optional[
-            Sequence[
-                Callable[
-                    [aio_pika.IncomingMessage],
-                    BaseMiddleware,
-                ]
-            ]
-        ] = None,
-        retry: Union[bool, int] = False,
+        parser: CustomParser[aio_pika.IncomingMessage, RabbitMessage] | None = None,
+        decoder: CustomDecoder[RabbitMessage] | None = None,
+        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
+        | None = None,
+        retry: bool | int = False,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
+        title: str | None = None,
+        description: str | None = None,
         include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> None: ...

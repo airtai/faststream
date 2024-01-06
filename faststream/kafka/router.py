@@ -1,6 +1,7 @@
 from typing import Any, Dict, Optional
 
-from faststream._compat import override
+from typing_extensions import override
+
 from faststream.kafka.asyncapi import Publisher
 from faststream.kafka.shared.router import KafkaRouter as BaseRouter
 

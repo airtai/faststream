@@ -2,7 +2,7 @@ import inspect
 import json
 from contextlib import suppress
 from functools import partial
-from typing import Any, Optional, Tuple, Union, cast, overload
+from typing import Any, Optional, Sequence, Tuple, Union, cast, overload
 
 from faststream._compat import dump_json, json_loads
 from faststream.broker.message import StreamMessage
@@ -53,7 +53,9 @@ def decode_message(message: StreamMessage[Any]) -> DecodedMessage:
     return m
 
 
-def encode_message(msg: SendableMessage) -> Tuple[bytes, Optional[ContentType]]:
+def encode_message(
+    msg: Union[Sequence[SendableMessage], SendableMessage],
+) -> Tuple[bytes, Optional[ContentType]]:
     """Encodes a message.
 
     Args:

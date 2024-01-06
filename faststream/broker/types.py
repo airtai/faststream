@@ -1,6 +1,7 @@
 from typing import Any, Awaitable, Callable, Optional, Protocol, Tuple, TypeVar, Union
 
-from faststream._compat import ParamSpec, TypeAlias
+from typing_extensions import ParamSpec, TypeAlias
+
 from faststream.broker.message import StreamMessage
 from faststream.types import DecodedMessage, SendableMessage
 

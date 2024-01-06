@@ -4,8 +4,9 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, TypeVar, Union
 
 import anyio
 from pydantic import AnyHttpUrl
+from typing_extensions import ParamSpec
 
-from faststream._compat import ExceptionGroup, ParamSpec
+from faststream._compat import ExceptionGroup
 from faststream.asyncapi.schema import (
     Contact,
     ContactDict,
@@ -17,7 +18,7 @@ from faststream.asyncapi.schema import (
     TagDict,
 )
 from faststream.broker.core.asynchronous import BrokerAsyncUsecase
-from faststream.cli.supervisors.utils import set_exit
+from faststream.cli.supervisors.utils import HANDLED_SIGNALS
 from faststream.log import logger
 from faststream.types import AnyCallable, AnyDict, AsyncFunc, Lifespan, SettingField
 from faststream.utils import apply_types, context
@@ -177,7 +178,6 @@ class FastStream(ABCApp):
         _after_startup_calling : list of async functions to be called after startup
         _on_shutdown_calling : list of async functions to be called on shutdown
         _after_shutdown_calling : list of async functions to be called after shutdown
-        _stop_event : event to stop the application
 
     Methods:
         __init__ : initializes the FastStream application
@@ -186,7 +186,6 @@ class FastStream(ABCApp):
         after_startup : adds a hook to run after the broker is connected
         after_shutdown : adds a hook to run after the broker is disconnected
         run : runs the FastStream application
-        _init_async_cycle : initializes the async cycle
         _start : starts the FastStream application
         _stop : stops the FastStream application
         _startup : runs the startup hooks
@@ -198,8 +197,6 @@ class FastStream(ABCApp):
     _after_startup_calling: List[AsyncFunc]
     _on_shutdown_calling: List[AsyncFunc]
     _after_shutdown_calling: List[AsyncFunc]
-
-    _stop_event: Optional[anyio.Event]
 
     def __init__(
         self,
@@ -249,8 +246,6 @@ class FastStream(ABCApp):
             external_docs=external_docs,
         )
 
-        self._stop_event = None
-
         self.lifespan_context = (
             apply_types(
                 func=lifespan,
@@ -259,8 +254,6 @@ class FastStream(ABCApp):
             if lifespan is not None
             else fake_context
         )
-
-        set_exit(lambda *_: self.__exit())
 
     def on_startup(
         self,
@@ -340,7 +333,6 @@ class FastStream(ABCApp):
         """
         assert self.broker, "You should setup a broker"  # nosec B101
 
-        self._init_async_cycle()
         async with self.lifespan_context(**(run_extra_options or {})):
             try:
                 async with anyio.create_task_group() as tg:
@@ -350,10 +342,6 @@ class FastStream(ABCApp):
             except ExceptionGroup as e:
                 for ex in e.exceptions:
                     raise ex from None
-
-    def _init_async_cycle(self) -> None:
-        if self._stop_event is None:
-            self._stop_event = anyio.Event()
 
     async def _start(
         self,
@@ -381,21 +369,15 @@ class FastStream(ABCApp):
         Args:
             log_level (int): log level for logging messages (default: logging.INFO)
 
-        Raises:
-            AssertionError: If `_init_async_cycle` has not been called before calling `_stop`
-
         Returns:
             None
         """
-        assert (  # nosec B101
-            self._stop_event
-        ), "You should call `_init_async_cycle` first"
-        await self._stop_event.wait()
-        self._stop_event = None
-
-        self._log(log_level, "FastStream app shutting down...")
-        await self._shutdown()
-        self._log(log_level, "FastStream app shut down gracefully.")
+        with anyio.open_signal_receiver(*HANDLED_SIGNALS) as signals:
+            async for _ in signals:
+                self._log(log_level, "FastStream app shutting down...")
+                await self._shutdown()
+                self._log(log_level, "FastStream app shut down gracefully.")
+                return
 
     async def _startup(self, **run_extra_options: SettingField) -> None:
         """Executes startup tasks.
@@ -424,7 +406,3 @@ class FastStream(ABCApp):
 
         for func in self._after_shutdown_calling:
             await func()
-
-    def __exit(self) -> None:
-        if self._stop_event is not None:  # pragma: no branch
-            self._stop_event.set()

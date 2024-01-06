@@ -17,8 +17,8 @@ from fast_depends.dependencies import Depends
 from redis.asyncio.client import Redis
 from redis.asyncio.connection import ConnectionPool, parse_url
 from redis.exceptions import ResponseError
+from typing_extensions import TypeAlias, override
 
-from faststream._compat import TypeAlias, override
 from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware

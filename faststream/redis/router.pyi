@@ -1,15 +1,12 @@
 from typing import (
     Any,
     Callable,
-    Dict,
-    Optional,
     Sequence,
-    Union,
 )
 
 from fast_depends.dependencies import Depends
+from typing_extensions import override
 
-from faststream._compat import override
 from faststream.broker.core.asynchronous import default_filter
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.router import BrokerRouter
@@ -28,7 +25,7 @@ from faststream.redis.shared.router import RedisRoute
 from faststream.types import AnyDict
 
 class RedisRouter(BrokerRouter[int, AnyRedisDict]):
-    _publishers: Dict[int, Publisher]  # type: ignore[assignment]
+    _publishers: dict[int, Publisher]  # type: ignore[assignment]
 
     def __init__(
         self,
@@ -36,11 +33,9 @@ class RedisRouter(BrokerRouter[int, AnyRedisDict]):
         handlers: Sequence[RedisRoute] = (),
         *,
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[AnyRedisDict, RedisMessage]] = None,
-        decoder: Optional[CustomDecoder[RedisMessage]] = None,
-        middlewares: Optional[
-            Sequence[Callable[[AnyRedisDict], BaseMiddleware]]
-        ] = None,
+        parser: CustomParser[AnyRedisDict, RedisMessage] | None = None,
+        decoder: CustomDecoder[RedisMessage] | None = None,
+        middlewares: Sequence[Callable[[AnyRedisDict], BaseMiddleware]] | None = None,
         include_in_schema: bool = True,
     ) -> None: ...
     @override
@@ -56,22 +51,20 @@ class RedisRouter(BrokerRouter[int, AnyRedisDict]):
     @override
     def subscriber(  # type: ignore[override]
         self,
-        channel: Union[str, PubSub, None] = None,
+        channel: str | PubSub | None = None,
         *,
-        list: Union[str, ListSub, None] = None,
-        stream: Union[str, StreamSub, None] = None,
+        list: str | ListSub | None = None,
+        stream: str | StreamSub | None = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[AnyRedisDict, RedisMessage]] = None,
-        decoder: Optional[CustomDecoder[RedisMessage]] = None,
-        middlewares: Optional[
-            Sequence[Callable[[AnyRedisDict], BaseMiddleware]]
-        ] = None,
+        parser: CustomParser[AnyRedisDict, RedisMessage] | None = None,
+        decoder: CustomDecoder[RedisMessage] | None = None,
+        middlewares: Sequence[Callable[[AnyRedisDict], BaseMiddleware]] | None = None,
         filter: Filter[RedisMessage] = default_filter,
         no_ack: bool = False,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
+        title: str | None = None,
+        description: str | None = None,
         include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
@@ -81,14 +74,14 @@ class RedisRouter(BrokerRouter[int, AnyRedisDict]):
     @override
     def publisher(  # type: ignore[override]
         self,
-        channel: Union[str, PubSub, None] = None,
-        list: Union[str, ListSub, None] = None,
-        stream: Union[str, StreamSub, None] = None,
-        headers: Optional[AnyDict] = None,
+        channel: str | PubSub | None = None,
+        list: str | ListSub | None = None,
+        stream: str | StreamSub | None = None,
+        headers: AnyDict | None = None,
         reply_to: str = "",
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        schema: Optional[Any] = None,
+        title: str | None = None,
+        description: str | None = None,
+        schema: Any | None = None,
         include_in_schema: bool = True,
     ) -> Publisher: ...

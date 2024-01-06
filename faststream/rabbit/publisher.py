@@ -3,8 +3,8 @@ from typing import Any, Optional, Union
 
 import aiormq
 from aio_pika import IncomingMessage
+from typing_extensions import override
 
-from faststream._compat import override
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.rabbit.producer import AioPikaFastProducer
 from faststream.rabbit.shared.publisher import ABCPublisher
