@@ -1,17 +1,18 @@
 import logging
 import os
 import signal
-import sys
 from contextlib import asynccontextmanager
 from unittest.mock import AsyncMock, Mock, patch
 
 import anyio
 import pytest
 
+from faststream._compat import IS_WINDOWS
 from faststream import FastStream, TestApp
 from faststream.log import logger
 from faststream.rabbit import RabbitBroker
 from faststream.utils import Context
+from tests.tools import fake_open_signal_receiver
 
 
 def test_init(app: FastStream, context: Context, broker: RabbitBroker):
@@ -122,12 +123,9 @@ async def test_shutdown_lifespan_after_broker_stopped(
 
 @pytest.mark.asyncio()
 async def test_running(async_mock, app: FastStream):
-    app._init_async_cycle()
-    app._stop_event.set()
-
     with patch.object(app.broker, "start", async_mock.broker_run), patch.object(
         app.broker, "close", async_mock.broker_stopped
-    ):
+    ), patch.object(anyio, "open_signal_receiver", fake_open_signal_receiver):
         await app.run()
 
     async_mock.broker_run.assert_called_once()
@@ -136,19 +134,18 @@ async def test_running(async_mock, app: FastStream):
 
 @pytest.mark.asyncio()
 async def test_exception_group(async_mock: AsyncMock, app: FastStream):
-    app._init_async_cycle()
-    app._stop_event.set()
-
     async_mock.excp.side_effect = ValueError("Ooops!")
 
     @app.on_startup
     async def raises():
         await async_mock.excp()
 
-    with patch.object(app.broker, "start", async_mock.broker_run):  # noqa: SIM117
-        with patch.object(app.broker, "close", async_mock.broker_stopped):
-            with pytest.raises(ValueError):  # noqa: PT011
-                await app.run()
+    with patch.object(app.broker, "start", async_mock.broker_run), patch.object(
+        app.broker, "close", async_mock.broker_stopped
+    ), patch.object(
+        anyio, "open_signal_receiver", fake_open_signal_receiver
+    ), pytest.raises(ValueError):  # noqa: PT011
+        await app.run()
 
 
 @pytest.mark.asyncio()
@@ -161,11 +158,10 @@ async def test_running_lifespan_contextmanager(async_mock, mock: Mock, app: Fast
 
     app = FastStream(app.broker, lifespan=lifespan)
 
-    app._init_async_cycle()
-    app._stop_event.set()
-
     with patch.object(app.broker, "start", async_mock.broker_run), patch.object(
         app.broker, "close", async_mock.broker_stopped
+    ), patch.object(
+        anyio, "open_signal_receiver", fake_open_signal_receiver
     ):
         await app.run(run_extra_options={"env": "test"})
 
@@ -177,10 +173,22 @@ async def test_running_lifespan_contextmanager(async_mock, mock: Mock, app: Fast
 
 
 @pytest.mark.asyncio()
-@pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
-async def test_stop_with_sigint(async_mock, app: FastStream):
-    app._init_async_cycle()
+@pytest.mark.skipif(not IS_WINDOWS, reason="does not run on unix")
+async def test_stop_with_sigbreak(async_mock, app: FastStream):
+    with patch.object(app.broker, "start", async_mock.broker_run_sigint), patch.object(
+        app.broker, "close", async_mock.broker_stopped_sigint
+    ):
+        async with anyio.create_task_group() as tg:
+            tg.start_soon(app.run)
+            tg.start_soon(_kill, signal.SIGBREAK)
 
+    async_mock.broker_run_sigint.assert_called_once()
+    async_mock.broker_stopped_sigint.assert_called_once()
+
+
+@pytest.mark.asyncio()
+@pytest.mark.skipif(IS_WINDOWS, reason="does not run on windows")
+async def test_stop_with_sigint(async_mock, app: FastStream):
     with patch.object(app.broker, "start", async_mock.broker_run_sigint), patch.object(
         app.broker, "close", async_mock.broker_stopped_sigint
     ):
@@ -193,10 +201,8 @@ async def test_stop_with_sigint(async_mock, app: FastStream):
 
 
 @pytest.mark.asyncio()
-@pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
+@pytest.mark.skipif(IS_WINDOWS, reason="does not run on windows")
 async def test_stop_with_sigterm(async_mock, app: FastStream):
-    app._init_async_cycle()
-
     with patch.object(app.broker, "start", async_mock.broker_run_sigterm), patch.object(
         app.broker, "close", async_mock.broker_stopped_sigterm
     ):

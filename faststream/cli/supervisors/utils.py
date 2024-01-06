@@ -6,6 +6,7 @@ from multiprocessing.context import SpawnProcess
 from types import FrameType
 from typing import Any, Callable, Optional
 
+from faststream._compat import IS_WINDOWS
 from faststream.types import DecoratedCallableNone
 
 multiprocessing.allow_connection_pickling()
@@ -16,6 +17,13 @@ HANDLED_SIGNALS = (
     signal.SIGINT,  # Unix signal 2. Sent by Ctrl+C.
     signal.SIGTERM,  # Unix signal 15. Sent by `kill <pid>`.
 )
+
+
+if IS_WINDOWS:
+    HANDLED_SIGNALS = (
+        *HANDLED_SIGNALS,
+        signal.SIGBREAK
+    )
 
 
 def set_exit(func: Callable[[int, Optional[FrameType]], Any]) -> None:

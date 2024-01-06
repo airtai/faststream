@@ -1,6 +1,6 @@
 import asyncio
 from contextlib import suppress
-from typing import Any, Callable, Dict, Optional, Sequence, Union, cast
+from typing import Any, Awaitable, Callable, Dict, Optional, Sequence, Union, cast
 
 import anyio
 from anyio.abc import TaskGroup, TaskStatus
@@ -30,7 +30,7 @@ from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.parser import JsParser, Parser
 from faststream.nats.pull_sub import PullSub
-from faststream.types import AnyDict
+from faststream.types import AnyDict, SendableMessage
 from faststream.utils.path import compile_path
 
 
@@ -160,6 +160,12 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         ],
     ) -> None:
         """Create NATS subscription and start consume task."""
+        if self.max_workers > 1:
+            self.task = asyncio.create_task(self._serve_consume_queue())
+            cb = self.__put_msg
+        else:
+            cb = self.consume
+
         if self.pull_sub is not None:
             connection = cast(JetStreamContext, connection)
 
@@ -170,15 +176,9 @@ class LogicNatsHandler(AsyncHandler[Msg]):
                 subject=self.subject,
                 **self.extra_options,
             )
-            self.task = asyncio.create_task(self._consume_pull())
+            self.task = asyncio.create_task(self._consume_pull(cb))
 
         else:
-            if self.max_workers > 1:
-                self.task = asyncio.create_task(self._serve_consume_queue())
-                cb = self.__put_msg
-            else:
-                cb = self.consume
-
             self.subscription = await connection.subscribe(
                 subject=self.subject,
                 queue=self.queue,
@@ -202,6 +202,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
 
     async def _consume_pull(
         self,
+        cb: Callable[[Msg], Awaitable[SendableMessage]],
         *,
         task_status: TaskStatus[None] = anyio.TASK_STATUS_IGNORED,
     ) -> None:
@@ -210,12 +211,10 @@ class LogicNatsHandler(AsyncHandler[Msg]):
 
         sub = cast(JetStreamContext.PullSubscription, self.subscription)
 
-        cb = self.__consume_msg if self.max_workers > 1 else self.consume
-
         task_status.started()
 
         while self.running:  # pragma: no branch
-            with suppress(TimeoutError), self.lock:
+            with suppress(TimeoutError):
                 messages = await sub.fetch(
                     batch=self.pull_sub.batch_size,
                     timeout=self.pull_sub.timeout,
