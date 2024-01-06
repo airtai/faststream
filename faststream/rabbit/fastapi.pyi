@@ -3,11 +3,8 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    Dict,
-    List,
     Optional,
     Sequence,
-    Type,
     Union,
 )
 
@@ -45,7 +42,7 @@ from faststream.security import BaseSecurity
 from faststream.types import AnyDict
 
 class RabbitRouter(StreamRouter[IncomingMessage]):
-    broker_class: Type[RabbitBroker]
+    broker_class: type[RabbitBroker]
     broker: RabbitBroker
 
     # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument.hardcoded-password-default-argument
@@ -82,16 +79,16 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         setup_state: bool = True,
         # FastAPI kwargs
         prefix: str = "",
-        tags: Optional[List[Union[str, Enum]]] = None,
+        tags: Optional[list[Union[str, Enum]]] = None,
         dependencies: Optional[Sequence[params.Depends]] = None,
-        default_response_class: Type[Response] = Default(JSONResponse),
-        responses: Optional[Dict[Union[int, str], Dict[str, Any]]] = None,
-        callbacks: Optional[List[routing.BaseRoute]] = None,
-        routes: Optional[List[routing.BaseRoute]] = None,
+        default_response_class: type[Response] = Default(JSONResponse),
+        responses: Optional[dict[Union[int, str], dict[str, Any]]] = None,
+        callbacks: Optional[list[routing.BaseRoute]] = None,
+        routes: Optional[list[routing.BaseRoute]] = None,
         redirect_slashes: bool = True,
         default: Optional[ASGIApp] = None,
         dependency_overrides_provider: Optional[Any] = None,
-        route_class: Type[APIRoute] = APIRoute,
+        route_class: type[APIRoute] = APIRoute,
         on_startup: Optional[Sequence[Callable[[], Any]]] = None,
         on_shutdown: Optional[Sequence[Callable[[], Any]]] = None,
         deprecated: Optional[bool] = None,

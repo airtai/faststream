@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Literal, Optional, Sequence, TypeVar, Union
+from typing import Any, Callable, Literal, Optional, Sequence, TypeVar, Union
 
 import aiokafka
 from fast_depends.dependencies import Depends
@@ -24,7 +24,7 @@ from faststream.kafka.shared.router import KafkaRoute
 Partition = TypeVar("Partition")
 
 class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
-    _publishers: Dict[str, Publisher]  # type: ignore[assignment]
+    _publishers: dict[str, Publisher]  # type: ignore[assignment]
 
     def __init__(
         self,
@@ -55,7 +55,7 @@ class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         batch: bool = False,
         # AsyncAPI information

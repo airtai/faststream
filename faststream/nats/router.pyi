@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Optional, Sequence, Union
+from typing import Any, Callable, Optional, Sequence, Union
 
 from fast_depends.dependencies import Depends
 from nats.aio.msg import Msg
@@ -23,7 +23,7 @@ from faststream.nats.shared.router import NatsRoute
 from faststream.nats.shared.router import NatsRouter as BaseRouter
 
 class NatsRouter(BaseRouter):
-    _publishers: Dict[str, Publisher]  # type: ignore[assignment]
+    _publishers: dict[str, Publisher]  # type: ignore[assignment]
 
     def __init__(
         self,
@@ -49,7 +49,7 @@ class NatsRouter(BaseRouter):
     def publisher(  # type: ignore[override]
         self,
         subject: str,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         # AsyncAPI information
         title: Optional[str] = None,

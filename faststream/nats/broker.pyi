@@ -6,11 +6,8 @@ from typing import (
     AsyncContextManager,
     Awaitable,
     Callable,
-    Dict,
-    List,
     Optional,
     Sequence,
-    Type,
     Union,
 )
 
@@ -67,8 +64,8 @@ class NatsBroker(
 ):
     stream: Optional[JetStreamContext]
 
-    handlers: Dict[Subject, Handler]
-    _publishers: Dict[Subject, Publisher]
+    handlers: dict[Subject, Handler]
+    _publishers: dict[Subject, Publisher]
     _producer: Optional[NatsFastProducer]
     _js_producer: Optional[NatsJSFastProducer]
 
@@ -122,7 +119,7 @@ class NatsBroker(
             ]
         ] = None,
         # AsyncAPI args
-        asyncapi_url: Union[str, List[str], None] = None,
+        asyncapi_url: Union[str, list[str], None] = None,
         protocol: str = "nats",
         protocol_version: Optional[str] = "custom",
         description: Optional[str] = None,
@@ -205,7 +202,7 @@ class NatsBroker(
     ) -> Client: ...
     async def _close(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exec_tb: Optional[TracebackType] = None,
     ) -> None: ...
@@ -271,7 +268,7 @@ class NatsBroker(
     def publisher(  # type: ignore[override]
         self,
         subject: str,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         # Core
         reply_to: str = "",
         # JS
@@ -288,7 +285,7 @@ class NatsBroker(
         self,
         message: SendableMessage,
         subject: str,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         correlation_id: Optional[str] = None,
         # JS arguments

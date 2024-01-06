@@ -1,7 +1,6 @@
 from typing import (
     Any,
     Callable,
-    Dict,
     Optional,
     Sequence,
     Union,
@@ -28,7 +27,7 @@ from faststream.redis.shared.router import RedisRoute
 from faststream.types import AnyDict
 
 class RedisRouter(BrokerRouter[int, AnyRedisDict]):
-    _publishers: Dict[int, Publisher]  # type: ignore[assignment]
+    _publishers: dict[int, Publisher]  # type: ignore[assignment]
 
     def __init__(
         self,

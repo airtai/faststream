@@ -4,12 +4,9 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    Dict,
-    List,
     Mapping,
     Optional,
     Sequence,
-    Type,
     Union,
     overload,
 )
@@ -119,7 +116,7 @@ class NatsRouter(StreamRouter[Msg]):
             ]
         ] = None,
         # AsyncAPI args
-        asyncapi_url: Union[str, List[str], None] = None,
+        asyncapi_url: Union[str, list[str], None] = None,
         protocol: str = "nats",
         protocol_version: Optional[str] = "0.9.1",
         description: Optional[str] = None,
@@ -128,16 +125,16 @@ class NatsRouter(StreamRouter[Msg]):
         setup_state: bool = True,
         # FastAPI kwargs
         prefix: str = "",
-        tags: Optional[List[Union[str, Enum]]] = None,
+        tags: Optional[list[Union[str, Enum]]] = None,
         dependencies: Optional[Sequence[params.Depends]] = None,
-        default_response_class: Type[Response] = Default(JSONResponse),
-        responses: Optional[Dict[Union[int, str], Dict[str, Any]]] = None,
-        callbacks: Optional[List[routing.BaseRoute]] = None,
-        routes: Optional[List[routing.BaseRoute]] = None,
+        default_response_class: type[Response] = Default(JSONResponse),
+        responses: Optional[dict[Union[int, str], dict[str, Any]]] = None,
+        callbacks: Optional[list[routing.BaseRoute]] = None,
+        routes: Optional[list[routing.BaseRoute]] = None,
         redirect_slashes: bool = True,
         default: Optional[ASGIApp] = None,
         dependency_overrides_provider: Optional[Any] = None,
-        route_class: Type[APIRoute] = APIRoute,
+        route_class: type[APIRoute] = APIRoute,
         on_startup: Optional[Sequence[Callable[[], Any]]] = None,
         on_shutdown: Optional[Sequence[Callable[[], Any]]] = None,
         deprecated: Optional[bool] = None,
@@ -222,7 +219,7 @@ class NatsRouter(StreamRouter[Msg]):
     def publisher(  # type: ignore[override]
         self,
         subject: str,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         # Core
         reply_to: str = "",
         # JS

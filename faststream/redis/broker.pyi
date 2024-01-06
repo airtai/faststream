@@ -5,11 +5,9 @@ from typing import (
     AsyncContextManager,
     Awaitable,
     Callable,
-    Dict,
     Mapping,
     Optional,
     Sequence,
-    Type,
     Union,
 )
 
@@ -47,8 +45,8 @@ class RedisBroker(
     BrokerAsyncUsecase[AnyRedisDict, "Redis[bytes]"],
 ):
     url: str
-    handlers: Dict[int, Handler]
-    _publishers: Dict[int, Publisher]
+    handlers: dict[int, Handler]
+    _publishers: dict[int, Publisher]
 
     _producer: Optional[RedisFastProducer]
 
@@ -73,9 +71,9 @@ class RedisBroker(
         encoding: str = "utf-8",
         encoding_errors: str = "strict",
         decode_responses: bool = False,
-        parser_class: Type[BaseParser] = DefaultParser,
-        connection_class: Type[Connection] = Connection,
-        encoder_class: Type[Encoder] = Encoder,
+        parser_class: type[BaseParser] = DefaultParser,
+        connection_class: type[Connection] = Connection,
+        encoder_class: type[Encoder] = Encoder,
         security: Optional[BaseSecurity] = None,
         # broker args
         graceful_timeout: Optional[float] = None,
@@ -117,11 +115,11 @@ class RedisBroker(
         encoding: str = "utf-8",
         encoding_errors: str = "strict",
         decode_responses: bool = False,
-        parser_class: Type[BaseParser] = DefaultParser,
-        connection_class: Type[Connection] = Connection,
-        encoder_class: Type[Encoder] = Encoder,
+        parser_class: type[BaseParser] = DefaultParser,
+        connection_class: type[Connection] = Connection,
+        encoder_class: type[Encoder] = Encoder,
         security: Optional[BaseSecurity] = None,
-    ) -> "Redis[bytes]": ...
+    ) -> Redis[bytes]: ...
     @override
     async def _connect(  # type: ignore[override]
         self,
@@ -142,14 +140,14 @@ class RedisBroker(
         encoding: str = "utf-8",
         encoding_errors: str = "strict",
         decode_responses: bool = False,
-        parser_class: Type[BaseParser] = DefaultParser,
-        connection_class: Type[Connection] = Connection,
-        encoder_class: Type[Encoder] = Encoder,
+        parser_class: type[BaseParser] = DefaultParser,
+        connection_class: type[Connection] = Connection,
+        encoder_class: type[Encoder] = Encoder,
         security: Optional[BaseSecurity] = None,
-    ) -> "Redis[bytes]": ...
+    ) -> Redis[bytes]: ...
     async def _close(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exec_tb: Optional[TracebackType] = None,
     ) -> None: ...

@@ -102,8 +102,7 @@ lint = [
     "types-Pygments",
     "types-docutils",
     "mypy==1.8.0",
-    "ruff==0.1.9",
-    "pyupgrade-directories==0.3.0",
+    "ruff==0.1.11",
     "bandit==1.7.6",
     "semgrep==1.52.0",
 ]
@@ -177,7 +176,7 @@ disallow_any_unimported = false
 [tool.ruff]
 fix = true
 line-length = 88
-# target-version = 'py38'
+target-version = "py38"
 include = ["faststream/**/*.py", "faststream/**/*.pyi", "tests/**/*.py", "docs/**/*.py", "pyproject.toml"]
 exclude = ["docs/docs_src"]
 
@@ -201,6 +200,7 @@ select = [
     "TCH",   # flake8-type-checking   https://docs.astral.sh/ruff/rules/#flake8-type-checking-tch
     "RUF",   # Ruff-specific rules    https://docs.astral.sh/ruff/rules/#ruff-specific-rules-ruf
     "PERF",  # Perflint               https://docs.astral.sh/ruff/rules/#perflint-perf
+    "UP",    # pyupgrade              https://docs.astral.sh/ruff/rules/#pyupgrade-up
 ]
 
 ignore = [
@@ -318,17 +318,5 @@ omit = [
 ]
 
 [tool.bandit]
-
-[tool.black]
-line-length = 88
-
-extend-exclude = """
-/(
-    docs/docs_src
-    | some_other_dir
-)/
-"""
-
-[tool.codespell]
 
 ignore-words-list = "dependant"

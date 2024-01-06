@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from nats.js.api import (
     DiscardPolicy,
@@ -16,14 +16,14 @@ from faststream.broker.schemas import NameRequired
 class JStream(NameRequired):
     config: StreamConfig
 
-    subjects: List[str] = Field(default_factory=list)
+    subjects: list[str] = Field(default_factory=list)
     declare: bool = Field(default=True)
 
     def __init__(
         self,
         name: str,
         description: Optional[str] = None,
-        subjects: Optional[List[str]] = None,
+        subjects: Optional[list[str]] = None,
         retention: Optional[RetentionPolicy] = None,
         max_consumers: Optional[int] = None,
         max_msgs: Optional[int] = None,
@@ -39,7 +39,7 @@ class JStream(NameRequired):
         duplicate_window: float = 0,
         placement: Optional[Placement] = None,
         mirror: Optional[StreamSource] = None,
-        sources: Optional[List[StreamSource]] = None,
+        sources: Optional[list[StreamSource]] = None,
         sealed: bool = False,
         deny_delete: bool = False,
         deny_purge: bool = False,

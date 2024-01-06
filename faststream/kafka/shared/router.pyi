@@ -1,4 +1,4 @@
-from typing import Any, Callable, Literal, Optional, Sequence, Tuple, Union, overload
+from typing import Any, Callable, Literal, Optional, Sequence, Union, overload
 
 import aiokafka
 from fast_depends.dependencies import Depends
@@ -51,7 +51,7 @@ class KafkaRoute:
         # broker arguments
         dependencies: Sequence[Depends] = (),
         parser: Optional[
-            CustomParser[Tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
+            CustomParser[tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
         ] = None,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         middlewares: Optional[
@@ -63,7 +63,7 @@ class KafkaRoute:
             ]
         ] = None,
         filter: Filter[
-            StreamMessage[Tuple[aiokafka.ConsumerRecord, ...]]
+            StreamMessage[tuple[aiokafka.ConsumerRecord, ...]]
         ] = default_filter,
         batch: Literal[True] = True,
         max_records: Optional[int] = None,

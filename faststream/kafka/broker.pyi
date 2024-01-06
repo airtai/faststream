@@ -6,14 +6,10 @@ from typing import (
     AsyncContextManager,
     Awaitable,
     Callable,
-    Dict,
     Iterable,
-    List,
     Literal,
     Optional,
     Sequence,
-    Tuple,
-    Type,
     TypeVar,
     Union,
     overload,
@@ -56,8 +52,8 @@ class KafkaBroker(
     KafkaLoggingMixin,
     BrokerAsyncUsecase[aiokafka.ConsumerRecord, ConsumerConnectionParams],
 ):
-    handlers: Dict[str, Handler]
-    _publishers: Dict[str, Publisher]
+    handlers: dict[str, Handler]
+    _publishers: dict[str, Publisher]
     _producer: Optional[AioKafkaFastProducer]
 
     def __init__(
@@ -79,7 +75,7 @@ class KafkaBroker(
         compression_type: Optional[Literal["gzip", "snappy", "lz4", "zstd"]] = None,
         max_batch_size: int = 16384,
         partitioner: Callable[
-            [bytes, List[Partition], List[Partition]],
+            [bytes, list[Partition], list[Partition]],
             Partition,
         ] = DefaultPartitioner(),
         max_request_size: int = 1048576,
@@ -105,7 +101,7 @@ class KafkaBroker(
             ]
         ] = None,
         # AsyncAPI information
-        asyncapi_url: Union[str, List[str], None] = None,
+        asyncapi_url: Union[str, list[str], None] = None,
         protocol: str = "kafka",
         protocol_version: str = "auto",
         description: Optional[str] = None,
@@ -118,7 +114,7 @@ class KafkaBroker(
     ) -> None: ...
     async def _close(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exec_tb: Optional[TracebackType] = None,
     ) -> None: ...
@@ -141,7 +137,7 @@ class KafkaBroker(
         compression_type: Optional[Literal["gzip", "snappy", "lz4", "zstd"]] = None,
         max_batch_size: int = 16384,
         partitioner: Callable[
-            [bytes, List[Partition], List[Partition]],
+            [bytes, list[Partition], list[Partition]],
             Partition,
         ] = DefaultPartitioner(),
         max_request_size: int = 1048576,
@@ -172,7 +168,7 @@ class KafkaBroker(
         compression_type: Optional[Literal["gzip", "snappy", "lz4", "zstd"]] = None,
         max_batch_size: int = 16384,
         partitioner: Callable[
-            [bytes, List[Partition], List[Partition]],
+            [bytes, list[Partition], list[Partition]],
             Partition,
         ] = DefaultPartitioner(),
         max_request_size: int = 1048576,
@@ -292,7 +288,7 @@ class KafkaBroker(
         # broker arguments
         dependencies: Sequence[Depends] = (),
         parser: Optional[
-            CustomParser[Tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
+            CustomParser[tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
         ] = None,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         middlewares: Optional[
@@ -304,7 +300,7 @@ class KafkaBroker(
             ]
         ] = None,
         filter: Filter[
-            StreamMessage[Tuple[aiokafka.ConsumerRecord, ...]]
+            StreamMessage[tuple[aiokafka.ConsumerRecord, ...]]
         ] = default_filter,
         batch: Literal[True] = True,
         max_records: Optional[int] = None,
@@ -319,7 +315,7 @@ class KafkaBroker(
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
         HandlerCallWrapper[
-            Tuple[aiokafka.ConsumerRecord, ...], P_HandlerParams, T_HandlerReturn
+            tuple[aiokafka.ConsumerRecord, ...], P_HandlerParams, T_HandlerReturn
         ],
     ]: ...
     @override
@@ -329,7 +325,7 @@ class KafkaBroker(
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         batch: bool = False,
         # AsyncAPI information
@@ -346,7 +342,7 @@ class KafkaBroker(
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         correlation_id: Optional[str] = None,
         *,
         reply_to: str = "",
@@ -357,5 +353,5 @@ class KafkaBroker(
         topic: str,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
     ) -> None: ...

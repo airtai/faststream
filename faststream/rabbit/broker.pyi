@@ -6,10 +6,8 @@ from typing import (
     AsyncContextManager,
     Awaitable,
     Callable,
-    Dict,
     Optional,
     Sequence,
-    Type,
     Union,
 )
 
@@ -49,8 +47,8 @@ class RabbitBroker(
     RabbitLoggingMixin,
     BrokerAsyncUsecase[aio_pika.IncomingMessage, aio_pika.RobustConnection],
 ):
-    handlers: Dict[int, Handler]
-    _publishers: Dict[int, Publisher]
+    handlers: dict[int, Handler]
+    _publishers: dict[int, Publisher]
 
     declarer: Optional[RabbitDeclarer]
     _producer: Optional[AioPikaFastProducer]
@@ -102,7 +100,7 @@ class RabbitBroker(
     ) -> None: ...
     async def _close(
         self,
-        exc_type: Optional[Type[BaseException]] = None,
+        exc_type: Optional[type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
         exec_tb: Optional[TracebackType] = None,
     ) -> None: ...

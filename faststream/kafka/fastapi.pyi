@@ -5,15 +5,11 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    Dict,
     Iterable,
-    List,
     Literal,
     Mapping,
     Optional,
     Sequence,
-    Tuple,
-    Type,
     TypeVar,
     Union,
     overload,
@@ -58,7 +54,7 @@ from faststream.log import access_logger
 Partition = TypeVar("Partition")
 
 class KafkaRouter(StreamRouter[ConsumerRecord]):
-    broker_class: Type[KafkaBroker]
+    broker_class: type[KafkaBroker]
     broker: KafkaBroker
 
     def __init__(
@@ -80,7 +76,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         compression_type: Optional[Literal["gzip", "snappy", "lz4", "zstd"]] = None,
         max_batch_size: int = 16384,
         partitioner: Callable[
-            [bytes, List[Partition], List[Partition]],
+            [bytes, list[Partition], list[Partition]],
             Partition,
         ] = DefaultPartitioner(),
         max_request_size: int = 1048576,
@@ -92,16 +88,16 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         loop: Optional[AbstractEventLoop] = None,
         # FastAPI kwargs
         prefix: str = "",
-        tags: Optional[List[Union[str, Enum]]] = None,
+        tags: Optional[list[Union[str, Enum]]] = None,
         dependencies: Optional[Sequence[params.Depends]] = None,
-        default_response_class: Type[Response] = Default(JSONResponse),
-        responses: Optional[Dict[Union[int, str], Dict[str, Any]]] = None,
-        callbacks: Optional[List[routing.BaseRoute]] = None,
-        routes: Optional[List[routing.BaseRoute]] = None,
+        default_response_class: type[Response] = Default(JSONResponse),
+        responses: Optional[dict[Union[int, str], dict[str, Any]]] = None,
+        callbacks: Optional[list[routing.BaseRoute]] = None,
+        routes: Optional[list[routing.BaseRoute]] = None,
         redirect_slashes: bool = True,
         default: Optional[ASGIApp] = None,
         dependency_overrides_provider: Optional[Any] = None,
-        route_class: Type[APIRoute] = APIRoute,
+        route_class: type[APIRoute] = APIRoute,
         on_startup: Optional[Sequence[Callable[[], Any]]] = None,
         on_shutdown: Optional[Sequence[Callable[[], Any]]] = None,
         deprecated: Optional[bool] = None,
@@ -125,7 +121,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
             ]
         ] = None,
         # AsyncAPI information
-        asyncapi_url: Union[str, List[str], None] = None,
+        asyncapi_url: Union[str, list[str], None] = None,
         protocol: str = "kafka",
         protocol_version: str = "auto",
         description: Optional[str] = None,
@@ -175,7 +171,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         # broker arguments
         dependencies: Sequence[Depends] = (),
         parser: Optional[
-            CustomParser[Tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
+            CustomParser[tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
         ] = None,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         middlewares: Optional[
@@ -187,7 +183,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
             ]
         ] = None,
         filter: Filter[
-            StreamMessage[Tuple[aiokafka.ConsumerRecord, ...]]
+            StreamMessage[tuple[aiokafka.ConsumerRecord, ...]]
         ] = default_filter,
         batch: Literal[True] = True,
         max_records: Optional[int] = None,
@@ -202,7 +198,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
         HandlerCallWrapper[
-            Tuple[aiokafka.ConsumerRecord, ...], P_HandlerParams, T_HandlerReturn
+            tuple[aiokafka.ConsumerRecord, ...], P_HandlerParams, T_HandlerReturn
         ],
     ]: ...
     @overload
@@ -303,7 +299,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         # broker arguments
         dependencies: Sequence[Depends] = (),
         parser: Optional[
-            CustomParser[Tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
+            CustomParser[tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
         ] = None,
         decoder: Optional[CustomDecoder[KafkaMessage]] = None,
         middlewares: Optional[
@@ -315,7 +311,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
             ]
         ] = None,
         filter: Filter[
-            StreamMessage[Tuple[aiokafka.ConsumerRecord, ...]]
+            StreamMessage[tuple[aiokafka.ConsumerRecord, ...]]
         ] = default_filter,
         batch: Literal[True] = True,
         max_records: Optional[int] = None,
@@ -326,7 +322,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         description: Optional[str] = None,
         **__service_kwargs: Any,
     ) -> Callable[
-        [Tuple[aiokafka.ConsumerRecord, ...], bool], Awaitable[T_HandlerReturn]
+        [tuple[aiokafka.ConsumerRecord, ...], bool], Awaitable[T_HandlerReturn]
     ]: ...
     @overload
     def add_api_mq_route(
@@ -391,7 +387,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[dict[str, str]] = None,
         reply_to: str = "",
         batch: bool = False,
         # AsyncAPI information
