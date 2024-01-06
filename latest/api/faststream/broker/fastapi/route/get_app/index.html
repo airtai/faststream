@@ -118,7 +118,7 @@
 <a id=__codelineno-0-291 name=__codelineno-0-291></a>
 <a id=__codelineno-0-292 name=__codelineno-0-292></a>            <span class=n>solved_result</span> <span class=o>=</span> <span class=k>await</span> <span class=n>solve_dependencies</span><span class=p>(</span>
 <a id=__codelineno-0-293 name=__codelineno-0-293></a>                <span class=n>request</span><span class=o>=</span><span class=n>request</span><span class=p>,</span>
-<a id=__codelineno-0-294 name=__codelineno-0-294></a>                <span class=n>body</span><span class=o>=</span><span class=n>request</span><span class=o>.</span><span class=n>_body</span><span class=p>,</span>
+<a id=__codelineno-0-294 name=__codelineno-0-294></a>                <span class=n>body</span><span class=o>=</span><span class=n>request</span><span class=o>.</span><span class=n>_body</span><span class=p>,</span>  <span class=c1># type: ignore[arg-type]</span>
 <a id=__codelineno-0-295 name=__codelineno-0-295></a>                <span class=n>dependant</span><span class=o>=</span><span class=n>dependant</span><span class=p>,</span>
 <a id=__codelineno-0-296 name=__codelineno-0-296></a>                <span class=n>dependency_overrides_provider</span><span class=o>=</span><span class=n>dependency_overrides_provider</span><span class=p>,</span>
 <a id=__codelineno-0-297 name=__codelineno-0-297></a>                <span class=o>**</span><span class=n>kwargs</span><span class=p>,</span>  <span class=c1># type: ignore[arg-type]</span>
@@ -126,7 +126,7 @@
 <a id=__codelineno-0-299 name=__codelineno-0-299></a>
 <a id=__codelineno-0-300 name=__codelineno-0-300></a>            <span class=n>values</span><span class=p>,</span> <span class=n>errors</span><span class=p>,</span> <span class=n>_</span><span class=p>,</span> <span class=n>_2</span><span class=p>,</span> <span class=n>_3</span> <span class=o>=</span> <span class=n>solved_result</span>
 <a id=__codelineno-0-301 name=__codelineno-0-301></a>            <span class=k>if</span> <span class=n>errors</span><span class=p>:</span>
-<a id=__codelineno-0-302 name=__codelineno-0-302></a>                <span class=n>raise_fastapi_validation_error</span><span class=p>(</span><span class=n>errors</span><span class=p>,</span> <span class=n>request</span><span class=o>.</span><span class=n>_body</span><span class=p>)</span>
+<a id=__codelineno-0-302 name=__codelineno-0-302></a>                <span class=n>raise_fastapi_validation_error</span><span class=p>(</span><span class=n>errors</span><span class=p>,</span> <span class=n>request</span><span class=o>.</span><span class=n>_body</span><span class=p>)</span>  <span class=c1># type: ignore[arg-type]</span>
 <a id=__codelineno-0-303 name=__codelineno-0-303></a>
 <a id=__codelineno-0-304 name=__codelineno-0-304></a>            <span class=k>return</span> <span class=n>cast</span><span class=p>(</span>
 <a id=__codelineno-0-305 name=__codelineno-0-305></a>                <span class=n>SendableMessage</span><span class=p>,</span>

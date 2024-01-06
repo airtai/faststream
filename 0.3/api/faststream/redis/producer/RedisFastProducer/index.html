@@ -87,7 +87,7 @@
 <a id=__codelineno-0-10 name=__codelineno-0-10 href=#__codelineno-0-10></a>    <span class=n>rpc</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
 <a id=__codelineno-0-11 name=__codelineno-0-11 href=#__codelineno-0-11></a>    <span class=n>rpc_timeout</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>float</span><span class=p>]</span> <span class=o>=</span> <span class=mf>30.0</span><span class=p>,</span>
 <a id=__codelineno-0-12 name=__codelineno-0-12 href=#__codelineno-0-12></a>    <span class=n>raise_timeout</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>False</span>
-<a id=__codelineno-0-13 name=__codelineno-0-13 href=#__codelineno-0-13></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=n>DecodedMessage</span><span class=p>]</span>
+<a id=__codelineno-0-13 name=__codelineno-0-13 href=#__codelineno-0-13></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=n>Any</span><span class=p>]</span>
 </code></pre></div> <div class="doc doc-contents "> <details class=quote> <summary>Source code in <code>faststream/redis/producer.py</code></summary> <div class=highlight><table class=highlighttable><tr><td class=linenos><div class=linenodiv><pre><span></span><span class=normal><a href=#__codelineno-0-81> 81</a></span>
 <span class=normal><a href=#__codelineno-0-82> 82</a></span>
 <span class=normal><a href=#__codelineno-0-83> 83</a></span>
@@ -170,7 +170,7 @@
 <a id=__codelineno-0-91 name=__codelineno-0-91></a>    <span class=n>rpc</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
 <a id=__codelineno-0-92 name=__codelineno-0-92></a>    <span class=n>rpc_timeout</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>float</span><span class=p>]</span> <span class=o>=</span> <span class=mf>30.0</span><span class=p>,</span>
 <a id=__codelineno-0-93 name=__codelineno-0-93></a>    <span class=n>raise_timeout</span><span class=p>:</span> <span class=nb>bool</span> <span class=o>=</span> <span class=kc>False</span><span class=p>,</span>
-<a id=__codelineno-0-94 name=__codelineno-0-94></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=n>DecodedMessage</span><span class=p>]:</span>
+<a id=__codelineno-0-94 name=__codelineno-0-94></a><span class=p>)</span> <span class=o>-&gt;</span> <span class=n>Optional</span><span class=p>[</span><span class=n>Any</span><span class=p>]:</span>
 <a id=__codelineno-0-95 name=__codelineno-0-95></a>    <span class=k>if</span> <span class=ow>not</span> <span class=nb>any</span><span class=p>((</span><span class=n>channel</span><span class=p>,</span> <span class=nb>list</span><span class=p>,</span> <span class=n>stream</span><span class=p>)):</span>
 <a id=__codelineno-0-96 name=__codelineno-0-96></a>        <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=n>INCORRECT_SETUP_MSG</span><span class=p>)</span>
 <a id=__codelineno-0-97 name=__codelineno-0-97></a>
