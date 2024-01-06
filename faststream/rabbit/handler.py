@@ -2,8 +2,8 @@ from typing import Any, Callable, Dict, Optional, Sequence
 
 import aio_pika
 from fast_depends.core import CallModel
+from typing_extensions import override
 
-from faststream._compat import override
 from faststream.broker.handler import AsyncHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware

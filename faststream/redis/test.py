@@ -1,7 +1,6 @@
 import re
-from typing import Any, Optional
+from typing import Any, Optional, Sequence, Union
 
-from faststream._compat import override
 from faststream.broker.test import TestBroker, call_handler
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.redis.asyncapi import Handler, Publisher
@@ -10,7 +9,7 @@ from faststream.redis.message import AnyRedisDict
 from faststream.redis.parser import RawMessage
 from faststream.redis.producer import RedisFastProducer
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
-from faststream.types import AnyDict, DecodedMessage, SendableMessage
+from faststream.types import AnyDict, SendableMessage
 
 __all__ = ("TestRedisBroker",)
 
@@ -63,7 +62,6 @@ class FakeProducer(RedisFastProducer):
     def __init__(self, broker: RedisBroker) -> None:
         self.broker = broker
 
-    @override
     async def publish(
         self,
         message: SendableMessage,
@@ -77,7 +75,7 @@ class FakeProducer(RedisFastProducer):
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
-    ) -> Optional[DecodedMessage]:
+    ) -> Optional[Any]:
         any_of = channel or list or stream
         if any_of is None:
             raise ValueError(INCORRECT_SETUP_MSG)
@@ -145,7 +143,7 @@ class FakeProducer(RedisFastProducer):
 
 
 def build_message(
-    message: SendableMessage,
+    message: Union[Sequence[SendableMessage], SendableMessage],
     channel: str,
     *,
     reply_to: str = "",

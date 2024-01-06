@@ -30,8 +30,8 @@ from nats.aio.client import (
 from nats.aio.msg import Msg
 from nats.js import api
 from nats.js.client import JetStreamContext
+from typing_extensions import override
 
-from faststream._compat import override
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage

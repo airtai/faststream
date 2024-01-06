@@ -19,8 +19,8 @@ from typing import (
 
 from fast_depends.core import CallModel
 from fast_depends.dependencies import Depends
+from typing_extensions import Self, override
 
-from faststream._compat import Self, override
 from faststream.broker.core.abc import BrokerUsecase
 from faststream.broker.handler import AsyncHandler
 from faststream.broker.message import StreamMessage

@@ -79,9 +79,9 @@ class NatsParser:
             StreamMessage[Msg],
             StreamMessage[List[Msg]],
         ],
-    ) -> DecodedMessage:
+    ) -> Union[List[DecodedMessage], DecodedMessage]:
         if isinstance(msg.raw_message, list):
-            data = []
+            data: List[DecodedMessage] = []
 
             path: Optional[AnyDict] = None
             for m in msg.raw_message:

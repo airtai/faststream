@@ -10,44 +10,14 @@ from fast_depends._compat import (  # type: ignore[attr-defined]
 )
 from fast_depends._compat import FieldInfo
 from pydantic import BaseModel
+from typing_extensions import Never
+
+from faststream.types import AnyDict
 
 IS_WINDOWS = (
     sys.platform == "win32" or sys.platform == "cygwin" or sys.platform == "msys"
 )
 
-if sys.version_info < (3, 12):
-    from typing_extensions import TypedDict as TypedDict
-    from typing_extensions import Unpack as Unpack
-    from typing_extensions import override as override
-else:
-    from typing import TypedDict as TypedDict
-    from typing import Unpack as Unpack
-    from typing import override as override
-
-if sys.version_info < (3, 11):
-    from typing_extensions import Never as Never
-    from typing_extensions import NotRequired as NotRequired
-    from typing_extensions import Required as Required
-    from typing_extensions import Self as Self
-else:
-    from typing import Never as Never
-    from typing import NotRequired as NotRequired
-    from typing import Required as Required
-    from typing import Self as Self
-
-if sys.version_info < (3, 10):
-    from typing_extensions import Concatenate as Concatenate
-    from typing_extensions import ParamSpec as ParamSpec
-    from typing_extensions import TypeAlias as TypeAlias
-else:
-    from typing import Concatenate as Concatenate
-    from typing import ParamSpec as ParamSpec
-    from typing import TypeAlias as TypeAlias
-
-if sys.version_info < (3, 9):
-    from typing_extensions import Annotated as Annotated
-else:
-    from typing import Annotated as Annotated
 
 ModelVar = TypeVar("ModelVar", bound=BaseModel)
 
@@ -86,9 +56,7 @@ try:
         from fastapi._compat import _normalize_errors
         from fastapi.exceptions import RequestValidationError
 
-        def raise_fastapi_validation_error(
-            errors: List[Any], body: Dict[str, Any]
-        ) -> Never:
+        def raise_fastapi_validation_error(errors: List[Any], body: AnyDict) -> Never:
             raise RequestValidationError(_normalize_errors(errors), body=body)
 
     else:
@@ -99,9 +67,7 @@ try:
 
         ROUTER_VALIDATION_ERROR_MODEL = create_model("StreamRoute")
 
-        def raise_fastapi_validation_error(
-            errors: List[Any], body: Dict[str, Any]
-        ) -> Never:
+        def raise_fastapi_validation_error(errors: List[Any], body: AnyDict) -> Never:
             raise RequestValidationError(errors, ROUTER_VALIDATION_ERROR_MODEL)  # type: ignore[misc]
 
 except ImportError:
@@ -145,7 +111,7 @@ if PYDANTIC_V2:
     def model_to_json(model: BaseModel, **kwargs: Any) -> str:
         return model.model_dump_json(**kwargs)
 
-    def model_to_dict(model: BaseModel, **kwargs: Any) -> Dict[str, Any]:
+    def model_to_dict(model: BaseModel, **kwargs: Any) -> AnyDict:
         return model.model_dump(**kwargs)
 
     def model_parse(
@@ -153,7 +119,7 @@ if PYDANTIC_V2:
     ) -> ModelVar:
         return model.model_validate_json(data, **kwargs)
 
-    def model_schema(model: Type[BaseModel], **kwargs: Any) -> Dict[str, Any]:
+    def model_schema(model: Type[BaseModel], **kwargs: Any) -> AnyDict:
         return model.model_json_schema(**kwargs)
 
     def model_copy(model: ModelVar, **kwargs: Any) -> ModelVar:
@@ -176,7 +142,7 @@ else:
     def model_to_json(model: BaseModel, **kwargs: Any) -> str:
         return model.json(**kwargs)
 
-    def model_to_dict(model: BaseModel, **kwargs: Any) -> Dict[str, Any]:
+    def model_to_dict(model: BaseModel, **kwargs: Any) -> AnyDict:
         return model.dict(**kwargs)
 
     def model_parse(
@@ -184,7 +150,7 @@ else:
     ) -> ModelVar:
         return model.parse_raw(data, **kwargs)
 
-    def model_schema(model: Type[BaseModel], **kwargs: Any) -> Dict[str, Any]:
+    def model_schema(model: Type[BaseModel], **kwargs: Any) -> AnyDict:
         return model.schema(**kwargs)
 
     def model_to_jsonable(

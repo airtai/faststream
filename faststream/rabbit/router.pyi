@@ -2,8 +2,8 @@ from typing import Any, Callable, Sequence
 
 import aio_pika
 from fast_depends.dependencies import Depends
+from typing_extensions import override
 
-from faststream._compat import override
 from faststream.broker.core.asynchronous import default_filter
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.router import BrokerRouter

@@ -11,9 +11,8 @@ from nats.aio.msg import Msg
 from nats.aio.subscription import Subscription
 from nats.errors import TimeoutError
 from nats.js import JetStreamContext
-from typing_extensions import Doc
+from typing_extensions import Annotated, Doc, override
 
-from faststream._compat import Annotated, override
 from faststream.broker.handler import AsyncHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
@@ -160,6 +159,7 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         ],
     ) -> None:
         """Create NATS subscription and start consume task."""
+        cb: Callable[[Msg], Awaitable[SendableMessage]]
         if self.max_workers > 1:
             self.task = asyncio.create_task(self._serve_consume_queue())
             cb = self.__put_msg

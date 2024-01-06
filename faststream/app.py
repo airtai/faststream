@@ -4,8 +4,9 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, TypeVar, Union
 
 import anyio
 from pydantic import AnyHttpUrl
+from typing_extensions import ParamSpec
 
-from faststream._compat import ExceptionGroup, ParamSpec
+from faststream._compat import ExceptionGroup
 from faststream.asyncapi.schema import (
     Contact,
     ContactDict,

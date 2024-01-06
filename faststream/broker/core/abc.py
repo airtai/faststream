@@ -307,7 +307,7 @@ class BrokerUsecase(
             dependant = _patch_fastapi_dependant(dependant)
 
         if self._is_apply_types and not _raw:
-            f = apply_types(None, cast=self._is_validate)(f, dependant)  # type: ignore[arg-type]
+            f = apply_types(None, cast=self._is_validate)(f, dependant)  # type: ignore[arg-type,assignment]
 
         decode_f = self._wrap_decode_message(
             func=f,

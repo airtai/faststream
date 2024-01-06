@@ -3,8 +3,8 @@ from dataclasses import dataclass, field
 
 import aio_pika
 import aiormq
+from typing_extensions import override
 
-from faststream._compat import override
 from faststream.rabbit.producer import AioPikaFastProducer
 from faststream.rabbit.shared.publisher import ABCPublisher
 from faststream.rabbit.shared.types import TimeoutType

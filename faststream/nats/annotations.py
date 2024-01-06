@@ -1,7 +1,7 @@
 from nats.aio.client import Client as NatsClient
 from nats.js.client import JetStreamContext
+from typing_extensions import Annotated
 
-from faststream._compat import Annotated
 from faststream.annotations import ContextRepo, Logger, NoCast
 from faststream.nats.broker import NatsBroker as NB
 from faststream.nats.message import NatsMessage as NM

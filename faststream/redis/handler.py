@@ -20,8 +20,9 @@ import anyio
 from fast_depends.core import CallModel
 from redis.asyncio.client import PubSub as RPubSub
 from redis.asyncio.client import Redis
+from typing_extensions import override
 
-from faststream._compat import json_loads, override
+from faststream._compat import json_loads
 from faststream.broker.handler import AsyncHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
@@ -40,7 +41,6 @@ from faststream.redis.message import (
 )
 from faststream.redis.parser import RawMessage, RedisParser, bDATA_KEY
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
-from faststream.types import AnyDict
 
 
 class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
@@ -101,16 +101,16 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
     def add_call(
         self,
         *,
-        handler: HandlerCallWrapper[AnyDict, P_HandlerParams, T_HandlerReturn],
+        handler: HandlerCallWrapper[AnyRedisDict, P_HandlerParams, T_HandlerReturn],
         dependant: CallModel[P_HandlerParams, T_HandlerReturn],
-        parser: Optional[CustomParser[AnyDict, RedisMessage]],
+        parser: Optional[CustomParser[AnyRedisDict, RedisMessage]],
         decoder: Optional[CustomDecoder[RedisMessage]],
         filter: Filter[RedisMessage],
-        middlewares: Optional[Sequence[Callable[[AnyDict], BaseMiddleware]]],
+        middlewares: Optional[Sequence[Callable[[AnyRedisDict], BaseMiddleware]]],
     ) -> None:
         super().add_call(
             handler=handler,
-            parser=resolve_custom_func(parser, RedisParser.parse_message),
+            parser=resolve_custom_func(parser, RedisParser.parse_message),  # type: ignore[arg-type]
             decoder=resolve_custom_func(decoder, RedisParser.decode_message),
             filter=filter,  # type: ignore[arg-type]
             dependant=dependant,
@@ -242,7 +242,7 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
         self.started.set()
 
         for stream_name, msgs in cast(
-            Tuple[Tuple[bytes, Tuple[Tuple[bytes, AnyDict], ...]], ...],
+            Tuple[Tuple[bytes, Tuple[Tuple[bytes, Dict[Any, Any]], ...]], ...],
             await read,
         ):
             if msgs:

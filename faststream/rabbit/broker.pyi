@@ -13,9 +13,9 @@ import aio_pika
 import aiormq
 from fast_depends.dependencies import Depends
 from pamqp.common import FieldTable
+from typing_extensions import override
 from yarl import URL
 
-from faststream._compat import override
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage

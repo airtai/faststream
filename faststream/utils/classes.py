@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, ClassVar
 
 
 class Singleton:
@@ -12,9 +12,9 @@ class Singleton:
         _drop : sets the instance to None, allowing a new instance to be created
     """
 
-    _instance = None
+    _instance: ClassVar[Any] = None
 
-    def __new__(cls, *args: Any, **kwargs: Any) -> "Singleton":
+    def __new__(cls, *args: Any, **kwargs: Any) -> Any:
         """Create a singleton instance of a class.
 
         Args:

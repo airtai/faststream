@@ -1,8 +1,8 @@
 from typing import Any
 
 import pytest
+from typing_extensions import Annotated
 
-from faststream._compat import Annotated
 from faststream.utils import Context, ContextRepo, apply_types
 
 

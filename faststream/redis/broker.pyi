@@ -12,8 +12,8 @@ from typing import (
 from fast_depends.dependencies import Depends
 from redis.asyncio.client import Redis
 from redis.asyncio.connection import BaseParser, Connection, DefaultParser, Encoder
+from typing_extensions import TypeAlias, override
 
-from faststream._compat import TypeAlias, override
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage

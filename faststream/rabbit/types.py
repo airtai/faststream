@@ -1,8 +1,8 @@
 from typing import Union
 
 import aio_pika
+from typing_extensions import TypeAlias
 
-from faststream._compat import TypeAlias
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.types import SendableMessage
 

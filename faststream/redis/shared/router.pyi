@@ -5,8 +5,8 @@ from typing import (
 )
 
 from fast_depends.dependencies import Depends
+from typing_extensions import TypeAlias
 
-from faststream._compat import TypeAlias
 from faststream.broker.core.asynchronous import default_filter
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (

@@ -18,7 +18,7 @@ from faststream.redis.message import (
 )
 from faststream.redis.parser import DATA_KEY, RawMessage, RedisParser
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
-from faststream.types import AnyDict, DecodedMessage, SendableMessage
+from faststream.types import AnyDict, SendableMessage
 from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
@@ -91,7 +91,7 @@ class RedisFastProducer:
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
-    ) -> Optional[DecodedMessage]:
+    ) -> Optional[Any]:
         if not any((channel, list, stream)):
             raise ValueError(INCORRECT_SETUP_MSG)
 

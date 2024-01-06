@@ -1,6 +1,8 @@
 from typing import Any, Dict, Optional, Union
 
-from faststream._compat import model_copy, override
+from typing_extensions import override
+
+from faststream._compat import model_copy
 from faststream.redis.asyncapi import Handler, Publisher
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.shared.router import RedisRouter as BaseRouter

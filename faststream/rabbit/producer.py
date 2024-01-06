@@ -99,7 +99,7 @@ class AioPikaFastProducer:
         persist: bool = False,
         reply_to: Optional[str] = None,
         **message_kwargs: Any,
-    ) -> Union[aiormq.abc.ConfirmationFrameType, SendableMessage]:
+    ) -> Union[aiormq.abc.ConfirmationFrameType, Any]:
         """Publish a message to a RabbitMQ queue.
 
         Args:

@@ -1,6 +1,7 @@
 from typing import Any, Dict, Optional
 
-from faststream._compat import override
+from typing_extensions import override
+
 from faststream.nats.asyncapi import Publisher
 from faststream.nats.shared.router import NatsRouter as BaseRouter
 

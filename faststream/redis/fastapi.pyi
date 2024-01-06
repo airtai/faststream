@@ -16,8 +16,8 @@ from redis.asyncio.connection import BaseParser, Connection, DefaultParser, Enco
 from starlette import routing
 from starlette.responses import JSONResponse, Response
 from starlette.types import ASGIApp, Lifespan
+from typing_extensions import TypeAlias, override
 
-from faststream._compat import TypeAlias, override
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asynchronous import default_filter
 from faststream.broker.fastapi.router import StreamRouter

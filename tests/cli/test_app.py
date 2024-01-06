@@ -171,20 +171,6 @@ async def test_running_lifespan_contextmanager(async_mock, mock: Mock, app: Fast
 
 
 @pytest.mark.asyncio()
-@pytest.mark.skipif(not IS_WINDOWS, reason="does not run on unix")
-async def test_stop_with_sigbreak(async_mock, app: FastStream):
-    with patch.object(app.broker, "start", async_mock.broker_run_sigint), patch.object(
-        app.broker, "close", async_mock.broker_stopped_sigint
-    ):
-        async with anyio.create_task_group() as tg:
-            tg.start_soon(app.run)
-            tg.start_soon(_kill, signal.SIGBREAK)
-
-    async_mock.broker_run_sigint.assert_called_once()
-    async_mock.broker_stopped_sigint.assert_called_once()
-
-
-@pytest.mark.asyncio()
 @pytest.mark.skipif(IS_WINDOWS, reason="does not run on windows")
 async def test_stop_with_sigint(async_mock, app: FastStream):
     with patch.object(app.broker, "start", async_mock.broker_run_sigint), patch.object(

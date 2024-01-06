@@ -1,6 +1,6 @@
 from redis.asyncio.client import Redis as RedisClient
+from typing_extensions import Annotated
 
-from faststream._compat import Annotated
 from faststream.annotations import ContextRepo, Logger, NoCast
 from faststream.redis.broker import RedisBroker as RB
 from faststream.redis.message import RedisMessage as RM

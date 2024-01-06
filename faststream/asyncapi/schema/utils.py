@@ -1,8 +1,9 @@
 from typing import Optional, Union
 
 from pydantic import AnyHttpUrl, BaseModel, Field
+from typing_extensions import Required, TypedDict
 
-from faststream._compat import PYDANTIC_V2, Required, TypedDict
+from faststream._compat import PYDANTIC_V2
 
 
 class ExternalDocsDict(TypedDict, total=False):
