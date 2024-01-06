@@ -12,6 +12,23 @@ hide:
 ---
 
 # Release Notes
+## 0.3.13
+
+### What's Changed
+
+#### New features
+
+* New shutdown logic by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1117](https://github.com/airtai/faststream/pull/1117){.external-link target="_blank"}
+
+#### Bug fixes
+
+* Fix minor typos in documentation and code  by [@mj0nez](https://github.com/mj0nez){.external-link target="_blank"} in [#1116](https://github.com/airtai/faststream/pull/1116){.external-link target="_blank"}
+
+### New Contributors
+* [@mj0nez](https://github.com/mj0nez){.external-link target="_blank"} made their first contribution in [#1116](https://github.com/airtai/faststream/pull/1116){.external-link target="_blank"}
+
+**Full Changelog**: [#0.3.12...0.3.13](https://github.com/airtai/faststream/compare/0.3.12...0.3.13){.external-link target="_blank"}
+
 ## 0.3.12
 
 ### What's Changed
