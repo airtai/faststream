@@ -8,10 +8,8 @@ from typing import (
     Iterable,
     Literal,
     Mapping,
-    Optional,
     Sequence,
     TypeVar,
-    Union,
     overload,
 )
 
@@ -59,7 +57,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
 
     def __init__(
         self,
-        bootstrap_servers: Union[str, Iterable[str]] = "localhost",
+        bootstrap_servers: str | Iterable[str] = "localhost",
         *,
         # both
         client_id: str = "faststream-" + __version__,
@@ -68,12 +66,12 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         metadata_max_age_ms: int = 5 * 60 * 1000,
         api_version: str = "auto",
         connections_max_idle_ms: int = 540000,
-        security: Optional[BaseSecurity] = None,
+        security: BaseSecurity | None = None,
         # publisher
-        acks: Union[Literal[0, 1, -1, "all"], object] = _missing,
-        key_serializer: Optional[Callable[[Any], bytes]] = None,
-        value_serializer: Optional[Callable[[Any], bytes]] = None,
-        compression_type: Optional[Literal["gzip", "snappy", "lz4", "zstd"]] = None,
+        acks: Literal[0, 1, -1, "all"] | object = _missing,
+        key_serializer: Callable[[Any], bytes] | None = None,
+        value_serializer: Callable[[Any], bytes] | None = None,
+        compression_type: Literal["gzip", "snappy", "lz4", "zstd"] | None = None,
         max_batch_size: int = 16384,
         partitioner: Callable[
             [bytes, list[Partition], list[Partition]],
@@ -83,55 +81,48 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         linger_ms: int = 0,
         send_backoff_ms: int = 100,
         enable_idempotence: bool = False,
-        transactional_id: Optional[str] = None,
+        transactional_id: str | None = None,
         transaction_timeout_ms: int = 60000,
-        loop: Optional[AbstractEventLoop] = None,
+        loop: AbstractEventLoop | None = None,
         # FastAPI kwargs
         prefix: str = "",
-        tags: Optional[list[Union[str, Enum]]] = None,
-        dependencies: Optional[Sequence[params.Depends]] = None,
+        tags: list[str | Enum] | None = None,
+        dependencies: Sequence[params.Depends] | None = None,
         default_response_class: type[Response] = Default(JSONResponse),
-        responses: Optional[dict[Union[int, str], dict[str, Any]]] = None,
-        callbacks: Optional[list[routing.BaseRoute]] = None,
-        routes: Optional[list[routing.BaseRoute]] = None,
+        responses: dict[int | str, dict[str, Any]] | None = None,
+        callbacks: list[routing.BaseRoute] | None = None,
+        routes: list[routing.BaseRoute] | None = None,
         redirect_slashes: bool = True,
-        default: Optional[ASGIApp] = None,
-        dependency_overrides_provider: Optional[Any] = None,
+        default: ASGIApp | None = None,
+        dependency_overrides_provider: Any | None = None,
         route_class: type[APIRoute] = APIRoute,
-        on_startup: Optional[Sequence[Callable[[], Any]]] = None,
-        on_shutdown: Optional[Sequence[Callable[[], Any]]] = None,
-        deprecated: Optional[bool] = None,
+        on_startup: Sequence[Callable[[], Any]] | None = None,
+        on_shutdown: Sequence[Callable[[], Any]] | None = None,
+        deprecated: bool | None = None,
         include_in_schema: bool = True,
-        lifespan: Optional[Lifespan[Any]] = None,
+        lifespan: Lifespan[Any] | None = None,
         generate_unique_id_function: Callable[[APIRoute], str] = Default(
             generate_unique_id
         ),
         # broker kwargs
-        graceful_timeout: Optional[float] = None,
+        graceful_timeout: float | None = None,
         apply_types: bool = True,
         validate: bool = True,
-        decoder: Optional[CustomDecoder[KafkaMessage]] = None,
-        parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
-        middlewares: Optional[
-            Sequence[
-                Callable[
-                    [aiokafka.ConsumerRecord],
-                    BaseMiddleware,
-                ]
-            ]
-        ] = None,
+        decoder: CustomDecoder[KafkaMessage] | None = None,
+        parser: CustomParser[aiokafka.ConsumerRecord, KafkaMessage] | None = None,
+        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]] | None = None,
         # AsyncAPI information
-        asyncapi_url: Union[str, list[str], None] = None,
+        asyncapi_url: str | list[str] | None = None,
         protocol: str = "kafka",
         protocol_version: str = "auto",
-        description: Optional[str] = None,
-        asyncapi_tags: Optional[Sequence[asyncapi.Tag]] = None,
-        schema_url: Optional[str] = "/asyncapi",
+        description: str | None = None,
+        asyncapi_tags: Sequence[asyncapi.Tag] | None = None,
+        schema_url: str | None = "/asyncapi",
         setup_state: bool = True,
         # logging args
-        logger: Optional[logging.Logger] = access_logger,
+        logger: logging.Logger | None = access_logger,
         log_level: int = logging.INFO,
-        log_fmt: Optional[str] = None,
+        log_fmt: str | None = None,
         **kwargs: Any,
     ) -> None: ...
     @overload  # type: ignore[override]
@@ -139,9 +130,9 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
     def subscriber(
         self,
         *topics: str,
-        group_id: Optional[str] = None,
-        key_deserializer: Optional[Callable[[bytes], Any]] = None,
-        value_deserializer: Optional[Callable[[bytes], Any]] = None,
+        group_id: str | None = None,
+        key_deserializer: Callable[[bytes], Any] | None = None,
+        value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_wait_ms: int = 500,
         fetch_max_bytes: int = 52428800,
         fetch_min_bytes: int = 1,
@@ -158,11 +149,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 300000,
-        rebalance_timeout_ms: Optional[int] = None,
+        rebalance_timeout_ms: int | None = None,
         session_timeout_ms: int = 10000,
         heartbeat_interval_ms: int = 3000,
         consumer_timeout_ms: int = 200,
-        max_poll_records: Optional[int] = None,
+        max_poll_records: int | None = None,
         exclude_internal_topics: bool = True,
         isolation_level: Literal[
             "read_uncommitted",
@@ -170,29 +161,20 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[
-            CustomParser[tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
-        ] = None,
-        decoder: Optional[CustomDecoder[KafkaMessage]] = None,
-        middlewares: Optional[
-            Sequence[
-                Callable[
-                    [aiokafka.ConsumerRecord],
-                    BaseMiddleware,
-                ]
-            ]
-        ] = None,
+        parser: CustomParser[tuple[aiokafka.ConsumerRecord, ...], KafkaMessage] | None = None,
+        decoder: CustomDecoder[KafkaMessage] | None = None,
+        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]] | None = None,
         filter: Filter[
             StreamMessage[tuple[aiokafka.ConsumerRecord, ...]]
         ] = default_filter,
         batch: Literal[True] = True,
-        max_records: Optional[int] = None,
+        max_records: int | None = None,
         batch_timeout_ms: int = 200,
-        retry: Union[bool, int] = False,
+        retry: bool | int = False,
         no_ack: bool = False,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
+        title: str | None = None,
+        description: str | None = None,
         include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
@@ -205,9 +187,9 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
     def subscriber(
         self,
         *topics: str,
-        group_id: Optional[str] = None,
-        key_deserializer: Optional[Callable[[bytes], Any]] = None,
-        value_deserializer: Optional[Callable[[bytes], Any]] = None,
+        group_id: str | None = None,
+        key_deserializer: Callable[[bytes], Any] | None = None,
+        value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_wait_ms: int = 500,
         fetch_max_bytes: int = 52428800,
         fetch_min_bytes: int = 1,
@@ -224,11 +206,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 300000,
-        rebalance_timeout_ms: Optional[int] = None,
+        rebalance_timeout_ms: int | None = None,
         session_timeout_ms: int = 10000,
         heartbeat_interval_ms: int = 3000,
         consumer_timeout_ms: int = 200,
-        max_poll_records: Optional[int] = None,
+        max_poll_records: int | None = None,
         exclude_internal_topics: bool = True,
         isolation_level: Literal[
             "read_uncommitted",
@@ -236,25 +218,18 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
-        decoder: Optional[CustomDecoder[KafkaMessage]] = None,
-        middlewares: Optional[
-            Sequence[
-                Callable[
-                    [aiokafka.ConsumerRecord],
-                    BaseMiddleware,
-                ]
-            ]
-        ] = None,
+        parser: CustomParser[aiokafka.ConsumerRecord, KafkaMessage] | None = None,
+        decoder: CustomDecoder[KafkaMessage] | None = None,
+        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]] | None = None,
         filter: Filter[KafkaMessage] = default_filter,
         batch: Literal[False] = False,
-        max_records: Optional[int] = None,
+        max_records: int | None = None,
         batch_timeout_ms: int = 200,
-        retry: Union[bool, int] = False,
+        retry: bool | int = False,
         no_ack: bool = False,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
+        title: str | None = None,
+        description: str | None = None,
         include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
@@ -267,9 +242,9 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         self,
         *topics: str,
         endpoint: Callable[..., T_HandlerReturn],
-        group_id: Optional[str] = None,
-        key_deserializer: Optional[Callable[[bytes], Any]] = None,
-        value_deserializer: Optional[Callable[[bytes], Any]] = None,
+        group_id: str | None = None,
+        key_deserializer: Callable[[bytes], Any] | None = None,
+        value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_wait_ms: int = 500,
         fetch_max_bytes: int = 52428800,
         fetch_min_bytes: int = 1,
@@ -286,11 +261,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 300000,
-        rebalance_timeout_ms: Optional[int] = None,
+        rebalance_timeout_ms: int | None = None,
         session_timeout_ms: int = 10000,
         heartbeat_interval_ms: int = 3000,
         consumer_timeout_ms: int = 200,
-        max_poll_records: Optional[int] = None,
+        max_poll_records: int | None = None,
         exclude_internal_topics: bool = True,
         isolation_level: Literal[
             "read_uncommitted",
@@ -298,28 +273,19 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[
-            CustomParser[tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
-        ] = None,
-        decoder: Optional[CustomDecoder[KafkaMessage]] = None,
-        middlewares: Optional[
-            Sequence[
-                Callable[
-                    [aiokafka.ConsumerRecord],
-                    BaseMiddleware,
-                ]
-            ]
-        ] = None,
+        parser: CustomParser[tuple[aiokafka.ConsumerRecord, ...], KafkaMessage] | None = None,
+        decoder: CustomDecoder[KafkaMessage] | None = None,
+        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]] | None = None,
         filter: Filter[
             StreamMessage[tuple[aiokafka.ConsumerRecord, ...]]
         ] = default_filter,
         batch: Literal[True] = True,
-        max_records: Optional[int] = None,
+        max_records: int | None = None,
         batch_timeout_ms: int = 200,
-        retry: Union[bool, int] = False,
+        retry: bool | int = False,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
+        title: str | None = None,
+        description: str | None = None,
         **__service_kwargs: Any,
     ) -> Callable[
         [tuple[aiokafka.ConsumerRecord, ...], bool], Awaitable[T_HandlerReturn]
@@ -329,9 +295,9 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         self,
         *topics: str,
         endpoint: Callable[..., T_HandlerReturn],
-        group_id: Optional[str] = None,
-        key_deserializer: Optional[Callable[[bytes], Any]] = None,
-        value_deserializer: Optional[Callable[[bytes], Any]] = None,
+        group_id: str | None = None,
+        key_deserializer: Callable[[bytes], Any] | None = None,
+        value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_wait_ms: int = 500,
         fetch_max_bytes: int = 52428800,
         fetch_min_bytes: int = 1,
@@ -348,11 +314,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 300000,
-        rebalance_timeout_ms: Optional[int] = None,
+        rebalance_timeout_ms: int | None = None,
         session_timeout_ms: int = 10000,
         heartbeat_interval_ms: int = 3000,
         consumer_timeout_ms: int = 200,
-        max_poll_records: Optional[int] = None,
+        max_poll_records: int | None = None,
         exclude_internal_topics: bool = True,
         isolation_level: Literal[
             "read_uncommitted",
@@ -360,40 +326,33 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[aiokafka.ConsumerRecord, KafkaMessage]] = None,
-        decoder: Optional[CustomDecoder[KafkaMessage]] = None,
-        middlewares: Optional[
-            Sequence[
-                Callable[
-                    [aiokafka.ConsumerRecord],
-                    BaseMiddleware,
-                ]
-            ]
-        ] = None,
+        parser: CustomParser[aiokafka.ConsumerRecord, KafkaMessage] | None = None,
+        decoder: CustomDecoder[KafkaMessage] | None = None,
+        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]] | None = None,
         filter: Filter[KafkaMessage] = default_filter,
         batch: Literal[False] = False,
-        max_records: Optional[int] = None,
+        max_records: int | None = None,
         batch_timeout_ms: int = 200,
-        retry: Union[bool, int] = False,
+        retry: bool | int = False,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
+        title: str | None = None,
+        description: str | None = None,
         **__service_kwargs: Any,
     ) -> Callable[[aiokafka.ConsumerRecord, bool], Awaitable[T_HandlerReturn]]: ...
     @override
     def publisher(  # type: ignore[override]
         self,
         topic: str,
-        key: Optional[bytes] = None,
-        partition: Optional[int] = None,
-        timestamp_ms: Optional[int] = None,
-        headers: Optional[dict[str, str]] = None,
+        key: bytes | None = None,
+        partition: int | None = None,
+        timestamp_ms: int | None = None,
+        headers: dict[str, str] | None = None,
         reply_to: str = "",
         batch: bool = False,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        schema: Optional[Any] = None,
+        title: str | None = None,
+        description: str | None = None,
+        schema: Any | None = None,
         include_in_schema: bool = True,
     ) -> Publisher: ...
     @overload
