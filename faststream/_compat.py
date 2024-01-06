@@ -11,8 +11,6 @@ from fast_depends._compat import (  # type: ignore[attr-defined]
 from fast_depends._compat import FieldInfo
 from pydantic import BaseModel
 
-from faststream.types import AnyDict
-
 IS_WINDOWS = (
     sys.platform == "win32" or sys.platform == "cygwin" or sys.platform == "msys"
 )
@@ -36,7 +34,6 @@ else:
     from typing import NotRequired as NotRequired
     from typing import Required as Required
     from typing import Self as Self
-
 
 if sys.version_info < (3, 10):
     from typing_extensions import Concatenate as Concatenate
@@ -89,7 +86,9 @@ try:
         from fastapi._compat import _normalize_errors
         from fastapi.exceptions import RequestValidationError
 
-        def raise_fastapi_validation_error(errors: List[Any], body: AnyDict) -> Never:
+        def raise_fastapi_validation_error(
+            errors: List[Any], body: Dict[str, Any]
+        ) -> Never:
             raise RequestValidationError(_normalize_errors(errors), body=body)
 
     else:
@@ -100,7 +99,9 @@ try:
 
         ROUTER_VALIDATION_ERROR_MODEL = create_model("StreamRoute")
 
-        def raise_fastapi_validation_error(errors: List[Any], body: AnyDict) -> Never:
+        def raise_fastapi_validation_error(
+            errors: List[Any], body: Dict[str, Any]
+        ) -> Never:
             raise RequestValidationError(errors, ROUTER_VALIDATION_ERROR_MODEL)  # type: ignore[misc]
 
 except ImportError:
@@ -144,7 +145,7 @@ if PYDANTIC_V2:
     def model_to_json(model: BaseModel, **kwargs: Any) -> str:
         return model.model_dump_json(**kwargs)
 
-    def model_to_dict(model: BaseModel, **kwargs: Any) -> AnyDict:
+    def model_to_dict(model: BaseModel, **kwargs: Any) -> Dict[str, Any]:
         return model.model_dump(**kwargs)
 
     def model_parse(
@@ -152,7 +153,7 @@ if PYDANTIC_V2:
     ) -> ModelVar:
         return model.model_validate_json(data, **kwargs)
 
-    def model_schema(model: Type[BaseModel], **kwargs: Any) -> AnyDict:
+    def model_schema(model: Type[BaseModel], **kwargs: Any) -> Dict[str, Any]:
         return model.model_json_schema(**kwargs)
 
     def model_copy(model: ModelVar, **kwargs: Any) -> ModelVar:
@@ -175,7 +176,7 @@ else:
     def model_to_json(model: BaseModel, **kwargs: Any) -> str:
         return model.json(**kwargs)
 
-    def model_to_dict(model: BaseModel, **kwargs: Any) -> AnyDict:
+    def model_to_dict(model: BaseModel, **kwargs: Any) -> Dict[str, Any]:
         return model.dict(**kwargs)
 
     def model_parse(
@@ -183,7 +184,7 @@ else:
     ) -> ModelVar:
         return model.parse_raw(data, **kwargs)
 
-    def model_schema(model: Type[BaseModel], **kwargs: Any) -> AnyDict:
+    def model_schema(model: Type[BaseModel], **kwargs: Any) -> Dict[str, Any]:
         return model.schema(**kwargs)
 
     def model_to_jsonable(

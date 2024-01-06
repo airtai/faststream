@@ -1,4 +1,3 @@
-
 from nats.js.api import (
     DiscardPolicy,
     Placement,

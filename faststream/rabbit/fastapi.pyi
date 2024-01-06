@@ -64,7 +64,8 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         # Broker kwargs
         decoder: CustomDecoder[RabbitMessage] | None = None,
         parser: CustomParser[aio_pika.IncomingMessage, RabbitMessage] | None = None,
-        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]] | None = None,
+        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
+        | None = None,
         # AsyncAPI args
         asyncapi_url: str | None = None,
         protocol: str = "amqp",
@@ -106,7 +107,8 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         filter: Filter[RabbitMessage] = default_filter,
         parser: CustomParser[aio_pika.IncomingMessage, RabbitMessage] | None = None,
         decoder: CustomDecoder[RabbitMessage] | None = None,
-        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]] | None = None,
+        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
+        | None = None,
         retry: bool | int = False,
         # AsyncAPI information
         title: str | None = None,
@@ -126,7 +128,8 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         filter: Filter[RabbitMessage] = default_filter,
         parser: CustomParser[aio_pika.IncomingMessage, RabbitMessage] | None = None,
         decoder: CustomDecoder[RabbitMessage] | None = None,
-        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]] | None = None,
+        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
+        | None = None,
         retry: bool | int = False,
         no_ack: bool = False,
         # AsyncAPI information

@@ -32,7 +32,8 @@ class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
         handlers: Sequence[KafkaRoute] = (),
         *,
         dependencies: Sequence[Depends] = (),
-        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]] | None = None,
+        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
+        | None = None,
         parser: CustomParser[aiokafka.ConsumerRecord, KafkaMessage] | None = None,
         decoder: CustomDecoder[KafkaMessage] | None = None,
         include_in_schema: bool = True,
@@ -99,7 +100,8 @@ class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
         dependencies: Sequence[Depends] = (),
         parser: CustomParser[aiokafka.ConsumerRecord, KafkaMessage] | None = None,
         decoder: CustomDecoder[KafkaMessage] | None = None,
-        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]] | None = None,
+        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
+        | None = None,
         filter: Filter[KafkaMessage] = default_filter,
         batch: bool = False,
         max_records: int | None = None,

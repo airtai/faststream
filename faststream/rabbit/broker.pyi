@@ -77,7 +77,8 @@ class RabbitBroker(
         dependencies: Sequence[Depends] = (),
         decoder: CustomDecoder[RabbitMessage] | None = None,
         parser: CustomParser[aio_pika.IncomingMessage, RabbitMessage] | None = None,
-        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]] | None = None,
+        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
+        | None = None,
         # AsyncAPI args
         asyncapi_url: str | None = None,
         protocol: str = "amqp",
@@ -140,7 +141,8 @@ class RabbitBroker(
         filter: Filter[RabbitMessage] = default_filter,
         parser: CustomParser[aio_pika.IncomingMessage, RabbitMessage] | None = None,
         decoder: CustomDecoder[RabbitMessage] | None = None,
-        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]] | None = None,
+        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
+        | None = None,
         retry: bool | int = False,
         no_ack: bool = False,
         # AsyncAPI information

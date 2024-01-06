@@ -110,7 +110,8 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         validate: bool = True,
         decoder: CustomDecoder[KafkaMessage] | None = None,
         parser: CustomParser[aiokafka.ConsumerRecord, KafkaMessage] | None = None,
-        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]] | None = None,
+        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
+        | None = None,
         # AsyncAPI information
         asyncapi_url: str | list[str] | None = None,
         protocol: str = "kafka",
@@ -161,9 +162,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[tuple[aiokafka.ConsumerRecord, ...], KafkaMessage] | None = None,
+        parser: CustomParser[tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
+        | None = None,
         decoder: CustomDecoder[KafkaMessage] | None = None,
-        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]] | None = None,
+        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
+        | None = None,
         filter: Filter[
             StreamMessage[tuple[aiokafka.ConsumerRecord, ...]]
         ] = default_filter,
@@ -220,7 +223,8 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         dependencies: Sequence[Depends] = (),
         parser: CustomParser[aiokafka.ConsumerRecord, KafkaMessage] | None = None,
         decoder: CustomDecoder[KafkaMessage] | None = None,
-        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]] | None = None,
+        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
+        | None = None,
         filter: Filter[KafkaMessage] = default_filter,
         batch: Literal[False] = False,
         max_records: int | None = None,
@@ -273,9 +277,11 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[tuple[aiokafka.ConsumerRecord, ...], KafkaMessage] | None = None,
+        parser: CustomParser[tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
+        | None = None,
         decoder: CustomDecoder[KafkaMessage] | None = None,
-        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]] | None = None,
+        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
+        | None = None,
         filter: Filter[
             StreamMessage[tuple[aiokafka.ConsumerRecord, ...]]
         ] = default_filter,
@@ -328,7 +334,8 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         dependencies: Sequence[Depends] = (),
         parser: CustomParser[aiokafka.ConsumerRecord, KafkaMessage] | None = None,
         decoder: CustomDecoder[KafkaMessage] | None = None,
-        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]] | None = None,
+        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
+        | None = None,
         filter: Filter[KafkaMessage] = default_filter,
         batch: Literal[False] = False,
         max_records: int | None = None,

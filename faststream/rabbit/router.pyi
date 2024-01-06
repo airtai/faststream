@@ -29,7 +29,8 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
         handlers: Sequence[RabbitRoute] = (),
         *,
         dependencies: Sequence[Depends] = (),
-        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]] | None = None,
+        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
+        | None = None,
         parser: CustomParser[aio_pika.IncomingMessage, RabbitMessage] | None = None,
         decoder: CustomDecoder[RabbitMessage] | None = None,
         include_in_schema: bool = True,
@@ -56,7 +57,8 @@ class RabbitRouter(BrokerRouter[int, aio_pika.IncomingMessage]):
         filter: Filter[RabbitMessage] = default_filter,
         parser: CustomParser[aio_pika.IncomingMessage, RabbitMessage] | None = None,
         decoder: CustomDecoder[RabbitMessage] | None = None,
-        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]] | None = None,
+        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
+        | None = None,
         retry: bool | int = False,
         no_ack: bool = False,
         # AsyncAPI information

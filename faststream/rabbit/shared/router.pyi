@@ -30,7 +30,8 @@ class RabbitRoute:
         filter: Filter[RabbitMessage] = default_filter,
         parser: CustomParser[aio_pika.IncomingMessage, RabbitMessage] | None = None,
         decoder: CustomDecoder[RabbitMessage] | None = None,
-        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]] | None = None,
+        middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
+        | None = None,
         retry: bool | int = False,
         # AsyncAPI information
         title: str | None = None,
