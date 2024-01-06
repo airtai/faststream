@@ -11,7 +11,11 @@ from fast_depends._compat import (  # type: ignore[attr-defined]
 from fast_depends._compat import FieldInfo
 from pydantic import BaseModel
 
-IS_WINDOWS = sys.platform == "win32" or sys.platform == "cygwin" or sys.platform == "msys"
+from faststream.types import AnyDict
+
+IS_WINDOWS = (
+    sys.platform == "win32" or sys.platform == "cygwin" or sys.platform == "msys"
+)
 
 if sys.version_info < (3, 12):
     from typing_extensions import TypedDict as TypedDict
@@ -47,8 +51,6 @@ if sys.version_info < (3, 9):
     from typing_extensions import Annotated as Annotated
 else:
     from typing import Annotated as Annotated
-
-from faststream.types import AnyDict
 
 ModelVar = TypeVar("ModelVar", bound=BaseModel)
 

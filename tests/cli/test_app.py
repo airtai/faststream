@@ -7,8 +7,8 @@ from unittest.mock import AsyncMock, Mock, patch
 import anyio
 import pytest
 
-from faststream._compat import IS_WINDOWS
 from faststream import FastStream, TestApp
+from faststream._compat import IS_WINDOWS
 from faststream.log import logger
 from faststream.rabbit import RabbitBroker
 from faststream.utils import Context
@@ -160,9 +160,7 @@ async def test_running_lifespan_contextmanager(async_mock, mock: Mock, app: Fast
 
     with patch.object(app.broker, "start", async_mock.broker_run), patch.object(
         app.broker, "close", async_mock.broker_stopped
-    ), patch.object(
-        anyio, "open_signal_receiver", fake_open_signal_receiver
-    ):
+    ), patch.object(anyio, "open_signal_receiver", fake_open_signal_receiver):
         await app.run(run_extra_options={"env": "test"})
 
     async_mock.broker_run.assert_called_once()

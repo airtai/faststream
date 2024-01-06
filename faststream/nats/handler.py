@@ -77,13 +77,13 @@ class LogicNatsHandler(AsyncHandler[Msg]):
         graceful_timeout: Annotated[
             Optional[float],
             Doc(
-                "Wait up to this time (if setted up) in graceful shutdown mode. "
-                "Kills task forcely if expired."
+                "Wait up to this time (if set) in graceful shutdown mode. "
+                "Kills task forcefully if expired."
             ),
         ] = None,
         max_workers: Annotated[
             int,
-            Doc("Process up to this parameter messages concurently"),
+            Doc("Process up to this parameter messages concurrently"),
         ] = 1,
         # AsyncAPI information
         description: Annotated[

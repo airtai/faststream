@@ -310,7 +310,7 @@ class AsyncHandler(BaseHandler[MsgType]):
                 if await filter_(message):
                     assert (  # nosec B101
                         not processed
-                    ), "You can't proccess a message with multiple consumers"
+                    ), "You can't process a message with multiple consumers"
 
                     try:
                         async with AsyncExitStack() as consume_stack:

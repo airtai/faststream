@@ -32,7 +32,7 @@ from starlette.types import ASGIApp, AppType, Lifespan
 from faststream.asyncapi import schema as asyncapi
 from faststream.asyncapi.schema import Schema
 from faststream.asyncapi.site import get_asyncapi_html
-from faststream.broker.core.asyncronous import BrokerAsyncUsecase
+from faststream.broker.core.asynchronous import BrokerAsyncUsecase
 from faststream.broker.fastapi.route import StreamRoute
 from faststream.broker.publisher import BasePublisher
 from faststream.broker.schemas import NameRequired

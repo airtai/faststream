@@ -16,7 +16,7 @@ In this tutorial, let's see how to use the FastStream app alongside a **Django**
 
 ## ASGI
 
-[**ASGI**](https://asgi.readthedocs.io/en/latest/){.external-link target="_blank"} protocol supports lifespan events, and **Django** can be served as an **ASGI** application. So, the best way to integrate FastStream with the **Django** is by using **ASGI** lifespan. You can write it by yourself (it is really easy) or use something like [this](https://github.com/illagrenan/django-asgi-lifespan){.external-link target="_blank"}, but the prefered way for us is using [**Starlette**](https://www.starlette.io/){.external-link target="_blank"} Router.
+[**ASGI**](https://asgi.readthedocs.io/en/latest/){.external-link target="_blank"} protocol supports lifespan events, and **Django** can be served as an **ASGI** application. So, the best way to integrate FastStream with the **Django** is by using **ASGI** lifespan. You can write it by yourself (it is really easy) or use something like [this](https://github.com/illagrenan/django-asgi-lifespan){.external-link target="_blank"}, but the preferred way for us is using [**Starlette**](https://www.starlette.io/){.external-link target="_blank"} Router.
 
 Starlette Router allows you to serve any **ASGI** application you want, and it also supports lifespans. So, you can use it in your project to serve your regular Django **ASGI** and start up your FastStream broker too. Additionally, Starlette has much better static files support, providing an extra zero-cost feature.
 
@@ -171,4 +171,4 @@ app = Starlette(
     )
     ```
 
-This way we can easely integrate our **FastStream** apllication with the **Django**!
+This way we can easily integrate our **FastStream** application with the **Django**!

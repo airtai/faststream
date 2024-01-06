@@ -77,12 +77,12 @@ def preview():
     """A quick server to preview a built site with translations.
 
     For development, prefer the command live (or just mkdocs serve).
-    This is here only to preview a builded site.
+    This is here only to preview a built site.
     """
     _build()
     typer.echo("Warning: this is a very simple server.")
     typer.echo("For development, use the command live instead.")
-    typer.echo("This is here only to preview a builded site.")
+    typer.echo("This is here only to preview a built site.")
     os.chdir(BUILD_DIR)
     addr, port = DEV_SERVER.split(":")
     server = HTTPServer((addr, int(port)), SimpleHTTPRequestHandler)

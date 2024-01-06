@@ -328,3 +328,7 @@ extend-exclude = """
     | some_other_dir
 )/
 """
+
+[tool.codespell]
+
+ignore-words-list = "dependant"

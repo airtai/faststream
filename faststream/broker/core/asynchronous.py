@@ -57,7 +57,7 @@ async def default_filter(msg: StreamMessage[Any]) -> bool:
 
 
 class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
-    """A class representing a broker async usecase.
+    """A class representing a broker async use case.
 
     Attributes:
         handlers : A dictionary of handlers for different message types.
@@ -66,7 +66,7 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         _global_decoder : An optional global decoder for messages.
 
     Methods:
-        start() : Abstract method to start the broker async usecase.
+        start() : Abstract method to start the broker async use case.
         _connect(**kwargs: Any) : Abstract method to connect to the broker.
         _close(exc_type: Optional[Type[BaseException]] = None, exc_val: Optional[BaseException] = None, exec_tb: Optional[TracebackType] = None) : Abstract method to close the connection to the broker.
         close(exc_type: Optional[Type[BaseException]] = None, exc_val: Optional[BaseException] = None, exec_tb: Optional[TracebackType] = None) : Close the connection to the broker.
@@ -82,7 +82,7 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
 
     @abstractmethod
     async def start(self) -> None:
-        """Start the broker async usecase."""
+        """Start the broker async use case."""
         super()._abc_start()
         for h in self.handlers.values():
             for f, _, _, _, _, _ in h.calls:

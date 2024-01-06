@@ -13,7 +13,7 @@ async def base_handler(
     ...
 ```
 
-Using the special `Header` class is more convenient, as it also validates the header value using Pydantic. It works the same way as `Context`, but it is just a shorcut to `Context` with a default setup. So, you already know how to use it:
+Using the special `Header` class is more convenient, as it also validates the header value using Pydantic. It works the same way as `Context`, but it is just a shortcut to `Context` with a default setup. So, you already know how to use it:
 
 ```python hl_lines="6"
 from faststream import Header

@@ -111,7 +111,7 @@ This way, you can specify different `.env` files directly from your terminal, wh
 
 ### Choosing the `.env` File at Startup
 
-Now you can run the apllication with different `.env` files like so:
+Now you can run the application with different `.env` files like so:
 
 ```console
 ENV=.local.env faststream run serve:app

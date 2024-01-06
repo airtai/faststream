@@ -59,4 +59,4 @@ Here's a simplified code example demonstrating how to establish a connection to 
 
 This minimal example illustrates how FastStream simplifies the process of connecting to Kafka and performing basic message processing from the **in_topic** to the **out-topic**. Depending on your specific use case and requirements, you can further customize your Kafka integration with FastStream to build robust and efficient streaming applications.
 
-For more advanced configuration options and detailed usage instructions, please refer to the FastStream Kafka documentation and the [offical Kafka documentation](https://kafka.apache.org/){.external-link target="_blank"}.
+For more advanced configuration options and detailed usage instructions, please refer to the FastStream Kafka documentation and the [official Kafka documentation](https://kafka.apache.org/){.external-link target="_blank"}.

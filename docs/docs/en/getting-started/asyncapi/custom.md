@@ -14,7 +14,7 @@ In this guide, we will explore how to customize **AsyncAPI** documentation for y
 
 ## Prerequisites
 
-Before we dive into customization, ensure you have a basic **FastStream** application up and running. If you haven't done that yet, let's setup a simple appication right now.
+Before we dive into customization, ensure you have a basic **FastStream** application up and running. If you haven't done that yet, let's setup a simple application right now.
 
 Copy the following code in your basic.py file:
 
@@ -39,7 +39,7 @@ Let's start by customizing the app information that appears in your **AsyncAPI**
 3. Save the changes.
 4. Serve your **FastStream** app documentation.
 
-Copy the following code in your basic.py file, we have highligted the additional info passed to **FastStream** app:
+Copy the following code in your basic.py file, we have highlighted the additional info passed to **FastStream** app:
 
 ```python linenums="1" hl_lines="6-16"
 {! docs_src/getting_started/asyncapi/asyncapi_customization/custom_info.py !}
@@ -68,7 +68,7 @@ The next step is to customize broker information. This helps users understand th
 1. Save the changes.
 1. Serve your **FastStream** app.
 
-Copy the following code in your basic.py file, we have highligted the additional info passed to the **FastStream** app broker:
+Copy the following code in your basic.py file, we have highlighted the additional info passed to the **FastStream** app broker:
 
 ```python linenums="1" hl_lines="5-9"
 {! docs_src/getting_started/asyncapi/asyncapi_customization/custom_broker.py !}
@@ -96,7 +96,7 @@ Customizing handler information helps users comprehend the purpose and behavior 
 1. Save the changes.
 1. Serve your **FastStream** app.
 
-Copy the following code in your basic.py file, we have highligted the additional info passed to the **FastStream** app handlers:
+Copy the following code in your basic.py file, we have highlighted the additional info passed to the **FastStream** app handlers:
 
 ```python linenums="1" hl_lines="17-25 27-31"
 {! docs_src/getting_started/asyncapi/asyncapi_customization/custom_handler.py !}
@@ -122,7 +122,7 @@ To describe your message payload effectively, you can use Pydantic models. Here'
 4. Save the changes.
 5. Serve your **FastStream** app.
 
-Copy the following code in your basic.py file, we have highligted the creation of payload info and you can see it being passed to the return type and the `msg` argument type in the `on_input_data` function:
+Copy the following code in your basic.py file, we have highlighted the creation of payload info and you can see it being passed to the return type and the `msg` argument type in the `on_input_data` function:
 
 ```python linenums="1" hl_lines="7-10 19"
 {! docs_src/getting_started/asyncapi/asyncapi_customization/payload_info.py !}

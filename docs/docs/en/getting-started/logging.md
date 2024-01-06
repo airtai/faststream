@@ -136,7 +136,7 @@ async def handler(
 
 ### Structlog Example
 
-[**Structlog**](https://www.structlog.org/en/stable){.external-link target="_blank"} is a production-ready logging solution for Python. It can be easely integrated with any log storage system, making it suitable for use in production projects.
+[**Structlog**](https://www.structlog.org/en/stable){.external-link target="_blank"} is a production-ready logging solution for Python. It can be easily integrated with any log storage system, making it suitable for use in production projects.
 
 Here is a quick tutorial on integrating **Structlog** with **FastStream**:
 
@@ -216,4 +216,5 @@ TIMESPAMP [debug    ] `Handler` waiting for messages extra={'topic': 'topic', 'g
 TIMESPAMP [debug    ] `Handler` waiting for messages extra={'topic': 'topic', 'group_id': 'group2', 'message_id': ''}
 TIMESPAMP [info     ] FastStream app started successfully! To exit, press CTRL+C extra={'topic': '', 'group_id': '', 'message_id': ''}
 ```
+
 { data-search-exclude }

@@ -13,7 +13,7 @@ search:
 If you are working with a Publisher object (either as a decorator or directly), you have several testing features available:
 
 * In-memory TestClient
-* Publishing locally with error propogation
+* Publishing locally with error propagation
 * Checking the incoming message body
 
 ## Base Application
@@ -32,7 +32,7 @@ To test it, you just need to patch your broker with a special *TestBroker*.
 
 {! includes/getting_started/publishing/testing/3.md !}
 
-By default, it patches you broker to run **In-Memory**, so you can use it without any external broker. It should be extremely usefull in your CI or local development environment.
+By default, it patches you broker to run **In-Memory**, so you can use it without any external broker. It should be extremely useful in your CI or local development environment.
 
 Also, it allows you to check the outgoing message body in the same way as with a [subscriber](../subscription/test.md#validates-input){.internal-link}.
 

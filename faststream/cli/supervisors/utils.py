@@ -20,10 +20,7 @@ HANDLED_SIGNALS = (
 
 
 if IS_WINDOWS:
-    HANDLED_SIGNALS = (
-        *HANDLED_SIGNALS,
-        signal.SIGBREAK
-    )
+    HANDLED_SIGNALS = (*HANDLED_SIGNALS, signal.SIGBREAK)
 
 
 def set_exit(func: Callable[[int, Optional[FrameType]], Any]) -> None:
