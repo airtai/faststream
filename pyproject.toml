@@ -319,4 +319,6 @@ omit = [
 
 [tool.bandit]
 
+[tool.codespell]
+
 ignore-words-list = "dependant"

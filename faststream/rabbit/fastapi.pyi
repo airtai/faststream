@@ -46,7 +46,9 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
     # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument.hardcoded-password-default-argument
     def __init__(
         self,
-        url: str | URL | None = "amqp://guest:guest@localhost:5672/",
+        url: str
+        | URL
+        | None = "amqp://guest:guest@localhost:5672/",  # pragma: allowlist secret
         *,
         # aio-pika args
         host: str = "localhost",

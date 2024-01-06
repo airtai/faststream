@@ -23,11 +23,11 @@ jobs:
           set -ux
           python -m pip install --upgrade pip
           pip install -e ".[docs,rabbit,kafka,redis,nats,lint]"
-      
+
       - name: Run ruff
         shell: bash
         run: ruff faststream
-        
+
       - name: Run mypy
         shell: bash
         run: mypy faststream tests/mypy
