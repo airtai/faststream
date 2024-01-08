@@ -85,7 +85,7 @@ devdocs = [
     "mkdocs-literate-nav==0.6.1",
     "mkdocs-git-revision-date-localized-plugin==1.2.1",
     "mike==2.0.0",  # versioning
-    "mkdocs-minify-plugin==0.7.1",
+    "mkdocs-minify-plugin==0.7.2",
     "mkdocs-macros-plugin==1.0.5",  # includes with variables
     "mkdocs-glightbox==0.3.6",  # img zoom
     "pillow==10.1.0",
