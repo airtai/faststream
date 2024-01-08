@@ -110,7 +110,7 @@ lint = [
 test-core = [
     "coverage[toml]==7.4.0",
     "pytest==7.4.4",
-    "pytest-asyncio==0.23.2",
+    "pytest-asyncio==0.23.3",
     "dirty-equals==0.7.1.post0",
 ]
 
