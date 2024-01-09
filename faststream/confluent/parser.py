@@ -1,13 +1,16 @@
-from typing import List, Tuple
+from typing import TYPE_CHECKING, List, Optional, Tuple
 from uuid import uuid4
 
 from confluent_kafka import Message
 
 from faststream.broker.message import StreamMessage
 from faststream.broker.parsers import decode_message
-from faststream.confluent.message import KafkaMessage
+from faststream.confluent.message import FAKE_CONSUMER, KafkaMessage
 from faststream.types import DecodedMessage
 from faststream.utils.context.repository import context
+
+if TYPE_CHECKING:
+    from faststream.confluent.asyncapi import Handler
 
 
 class AsyncConfluentParser:
@@ -37,7 +40,7 @@ class AsyncConfluentParser:
         offset = message.offset()
         _, timestamp = message.timestamp()
 
-        handler = context.get_local("handler_")
+        handler: Optional["Handler"] = context.get_local("handler_")
         return KafkaMessage(
             body=body,
             headers=headers,
@@ -46,8 +49,8 @@ class AsyncConfluentParser:
             message_id=f"{offset}-{timestamp}",
             correlation_id=headers.get("correlation_id", str(uuid4())),
             raw_message=message,
-            consumer=handler.consumer,
-            is_manual=handler.is_manual,
+            consumer=getattr(handler, "consumer", None) or FAKE_CONSUMER,
+            is_manual=getattr(handler, "is_manual", True),
         )
 
     @staticmethod
@@ -84,7 +87,7 @@ class AsyncConfluentParser:
         last_offset = last.offset()
         _, first_timestamp = first.timestamp()
 
-        handler = context.get_local("handler_")
+        handler: Optional["Handler"] = context.get_local("handler_")
         return KafkaMessage(
             body=body,
             headers=headers,
@@ -93,8 +96,8 @@ class AsyncConfluentParser:
             message_id=f"{first_offset}-{last_offset}-{first_timestamp}",
             correlation_id=headers.get("correlation_id", str(uuid4())),
             raw_message=message,
-            consumer=handler.consumer,
-            is_manual=handler.is_manual,
+            consumer=getattr(handler, "consumer", None) or FAKE_CONSUMER,
+            is_manual=getattr(handler, "is_manual", True),
         )
 
     @staticmethod

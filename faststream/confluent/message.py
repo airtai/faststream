@@ -1,9 +1,25 @@
-from typing import Any
+from typing import Any, Protocol
 
 import confluent_kafka
 
 from faststream.broker.message import StreamMessage
-from faststream.confluent.client import AsyncConfluentConsumer
+
+
+class ConsumerProtocol(Protocol):
+    """A protocol for Kafka consumers."""
+
+    async def commit(self) -> None:
+        ...
+
+
+class FakeConsumer:
+    """A fake Kafka consumer."""
+
+    async def commit(self) -> None:
+        pass
+
+
+FAKE_CONSUMER = FakeConsumer()
 
 
 class KafkaMessage(StreamMessage[confluent_kafka.Message]):
@@ -25,7 +41,7 @@ class KafkaMessage(StreamMessage[confluent_kafka.Message]):
     def __init__(
         self,
         *args: Any,
-        consumer: AsyncConfluentConsumer,
+        consumer: ConsumerProtocol,
         is_manual: bool = False,
         **kwargs: Any,
     ) -> None:
@@ -52,6 +68,6 @@ class KafkaMessage(StreamMessage[confluent_kafka.Message]):
         Returns:
             None: This method does not return a value.
         """
-        if self.is_manual and not self.commited:  # type: ignore[attr-defined]
+        if self.is_manual and not self.committed:
             await self.consumer.commit()
             await super().ack()
