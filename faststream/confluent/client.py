@@ -322,7 +322,7 @@ def create_topics(
             f.result()  # The result itself is None
             logger.info(f"Topic {topic} created at create_topics")
         except Exception as e:
-            logger.warn(f"Failed to create topic {topic}: {e}")
+            logger.warning(f"Failed to create topic {topic}: {e}")
 
 
 class AsyncConfluentConsumer:
