@@ -1,65 +1,65 @@
-# import ssl
-# from contextlib import contextmanager
-# from typing import Tuple
-# from unittest.mock import AsyncMock, MagicMock, patch
+import ssl
+from contextlib import contextmanager
+from typing import Tuple
+from unittest.mock import AsyncMock, MagicMock, patch
 
-# import pytest
+import pytest
 
-# from docs.docs_src.kafka.security.ssl_warning import test_without_ssl_warning
+from docs.docs_src.kafka.security.ssl_warning import test_without_ssl_warning
 
-# __all__ = ["test_without_ssl_warning"]
-
-
-# @contextmanager
-# def patch_aio_consumer_and_producer() -> Tuple[MagicMock, MagicMock]:
-#     try:
-#         consumer = MagicMock(return_value=MagicMock())
-#         producer = MagicMock(return_value=MagicMock())
-
-#         with patch("faststream.confluent.client.Consumer", new=consumer), patch(
-#             "faststream.confluent.client.Producer", new=producer
-#         ):
-#             yield consumer, producer
-#         # with patch("faststream.confluent.client.AsyncConfluentConsumer", new=consumer), patch(
-#         #     "faststream.confluent.client.AsyncConfluentProducer", new=producer
-#         # ):
-#         #     yield consumer, producer
-#     finally:
-#         pass
+__all__ = ["test_without_ssl_warning"]
 
 
-# @pytest.mark.asyncio()
-# @pytest.mark.confluent()
-# async def test_base_security():
-#     with patch_aio_consumer_and_producer() as (consumer, producer):
-#         from docs.docs_src.kafka.security.confluent_kafka_app import (
-#             broker as basic_broker,
-#         )
+@contextmanager
+def patch_aio_consumer_and_producer() -> Tuple[MagicMock, MagicMock]:
+    try:
+        consumer = MagicMock(return_value=MagicMock())
+        producer = MagicMock(return_value=MagicMock())
 
-#         async with basic_broker:
-#             print("Starting")
-#             await basic_broker.start()
-#             print("Started")
+        with patch("faststream.confluent.client.Consumer", new=consumer), patch(
+            "faststream.confluent.client.Producer", new=producer
+        ):
+            yield consumer, producer
+        # with patch("faststream.confluent.client.AsyncConfluentConsumer", new=consumer), patch(
+        #     "faststream.confluent.client.AsyncConfluentProducer", new=producer
+        # ):
+        #     yield consumer, producer
+    finally:
+        pass
 
-#         consumer_call_kwargs = consumer.call_args.kwargs
-#         producer_call_config_arg = producer.call_args[0][0]
 
-#         call_kwargs = {}
-#         call_kwargs["security_protocol"] = "SSL"
+@pytest.mark.asyncio()
+@pytest.mark.confluent()
+async def test_base_security():
+    with patch_aio_consumer_and_producer() as (consumer, producer):
+        from docs.docs_src.kafka.security.confluent_kafka_app import (
+            broker as basic_broker,
+        )
 
-#         confluent_config = {".".join(k.split("_")): v for k, v in call_kwargs.items()}
-#         confluent_config["security.protocol"] = confluent_config[
-#             "security.protocol"
-#         ].lower()
+        async with basic_broker:
+            print("Starting")
+            await basic_broker.start()
+            print("Started")
 
-#         assert call_kwargs.items() <= consumer_call_kwargs.items()
-#         assert confluent_config.items() <= producer_call_config_arg.items()
+        consumer_call_kwargs = consumer.call_args.kwargs
+        producer_call_config_arg = producer.call_args[0][0]
 
-#         assert type(consumer_call_kwargs["ssl_context"]) == ssl.SSLContext
-#         assert (
-#             producer_call_config_arg["security.protocol"]
-#             == confluent_config["security.protocol"]
-#         )
+        call_kwargs = {}
+        call_kwargs["security_protocol"] = "SSL"
+
+        confluent_config = {".".join(k.split("_")): v for k, v in call_kwargs.items()}
+        confluent_config["security.protocol"] = confluent_config[
+            "security.protocol"
+        ].lower()
+
+        assert call_kwargs.items() <= consumer_call_kwargs.items()
+        assert confluent_config.items() <= producer_call_config_arg.items()
+
+        assert type(consumer_call_kwargs["ssl_context"]) == ssl.SSLContext
+        assert (
+            producer_call_config_arg["security.protocol"]
+            == confluent_config["security.protocol"]
+        )
 
 
 # @pytest.mark.asyncio()

@@ -15,7 +15,7 @@ from typing import (
     Union,
 )
 
-from confluent_kafka import Consumer, KafkaException, Message, Producer, KafkaError
+from confluent_kafka import Consumer, KafkaError, KafkaException, Message, Producer
 from confluent_kafka.admin import AdminClient, NewTopic
 from pydantic import BaseModel
 
