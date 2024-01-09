@@ -2,7 +2,8 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 from uuid import uuid4
 
-from faststream._compat import override
+from typing_extensions import override
+
 from faststream.broker.parsers import encode_message
 from faststream.broker.test import TestBroker, call_handler
 from faststream.broker.wrapper import HandlerCallWrapper

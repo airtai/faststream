@@ -5,9 +5,9 @@ from typing import Any, Callable, Dict, Optional, Sequence, Tuple, Union
 import anyio
 from confluent_kafka import KafkaException, Message
 from fast_depends.core import CallModel
+from typing_extensions import Unpack, override
 
 from faststream.__about__ import __version__
-from faststream._compat import Unpack, override
 from faststream.broker.handler import AsyncHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware

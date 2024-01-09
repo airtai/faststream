@@ -2,7 +2,7 @@ import ssl
 from asyncio import AbstractEventLoop
 from typing import List, Literal, Optional, Union
 
-from faststream._compat import Required, TypedDict
+from typing_extensions import Required, TypedDict
 
 
 class ConsumerConnectionParams(TypedDict, total=False):

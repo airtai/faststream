@@ -2,9 +2,9 @@ from dataclasses import dataclass, field
 from typing import Dict, Optional, Sequence
 
 from confluent_kafka import Message
+from typing_extensions import override
 
 from faststream.__about__ import __version__
-from faststream._compat import override
 from faststream.confluent.producer import AsyncConfluentFastProducer
 from faststream.confluent.shared.publisher import ABCPublisher
 from faststream.exceptions import NOT_CONNECTED_YET

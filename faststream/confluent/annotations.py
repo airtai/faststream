@@ -1,4 +1,5 @@
-from faststream._compat import Annotated
+from typing_extensions import Annotated
+
 from faststream.annotations import ContextRepo, Logger, NoCast
 from faststream.confluent.broker import KafkaBroker as KB
 from faststream.confluent.message import KafkaMessage as KM

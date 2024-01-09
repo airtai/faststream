@@ -26,9 +26,9 @@ from kafka.partitioner.default import DefaultPartitioner
 from starlette import routing
 from starlette.responses import JSONResponse, Response
 from starlette.types import ASGIApp, AppType, Lifespan
+from typing_extensions import override
 
 from faststream.__about__ import __version__
-from faststream._compat import override
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asyncronous import default_filter
 from faststream.broker.fastapi.router import StreamRouter

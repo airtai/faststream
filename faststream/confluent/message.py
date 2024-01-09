@@ -52,6 +52,6 @@ class KafkaMessage(StreamMessage[confluent_kafka.Message]):
         Returns:
             None: This method does not return a value.
         """
-        if self.is_manual and not self.commited:
+        if self.is_manual and not self.commited:  # type: ignore[attr-defined]
             await self.consumer.commit()
             await super().ack()
