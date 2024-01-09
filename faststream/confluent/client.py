@@ -70,7 +70,9 @@ class BatchBuilder:
         if timestamp is None:
             timestamp = round(time() * 1000)
         if key is None and value is None:
-            raise KafkaException(KafkaError(40, reason="Both key and value can't be None"))
+            raise KafkaException(
+                KafkaError(40, reason="Both key and value can't be None")
+            )
         if headers is None:
             headers = []
         self._builder.append(
@@ -321,7 +323,7 @@ def create_topics(
         try:
             f.result()  # The result itself is None
             logger.info(f"Topic {topic} created at create_topics")
-        except Exception as e:
+        except Exception as e:  # noqa: PERF203
             logger.warning(f"Failed to create topic {topic}: {e}")
 
 
@@ -522,7 +524,7 @@ class AsyncConfluentConsumer:
 
         messages: DefaultDict[TopicPartition, List[Message]] = defaultdict(list)
         for record in validated_messages:
-            tp = TopicPartition(topic=record.topic(), partition=record.partition()) # type: ignore[arg-type]
+            tp = TopicPartition(topic=record.topic(), partition=record.partition())  # type: ignore[arg-type]
             messages[tp].append(record)
 
         return messages
