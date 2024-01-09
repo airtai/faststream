@@ -3,13 +3,8 @@ from enum import Enum
 from typing import (
     Any,
     Callable,
-    Dict,
-    List,
     Mapping,
-    Optional,
     Sequence,
-    Type,
-    Union,
 )
 
 from fast_depends.dependencies import Depends
@@ -21,10 +16,10 @@ from redis.asyncio.connection import BaseParser, Connection, DefaultParser, Enco
 from starlette import routing
 from starlette.responses import JSONResponse, Response
 from starlette.types import ASGIApp, Lifespan
+from typing_extensions import TypeAlias, override
 
-from faststream._compat import TypeAlias, override
 from faststream.asyncapi import schema as asyncapi
-from faststream.broker.core.asyncronous import default_filter
+from faststream.broker.core.asynchronous import default_filter
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
@@ -51,64 +46,62 @@ class RedisRouter(StreamRouter[AnyRedisDict]):
     def __init__(
         self,
         url: str = "redis://localhost:6379",
-        polling_interval: Optional[float] = None,
+        polling_interval: float | None = None,
         *,
         host: str = "localhost",
-        port: Union[str, int] = 6379,
-        db: Union[str, int] = 0,
-        client_name: Optional[str] = None,
+        port: str | int = 6379,
+        db: str | int = 0,
+        client_name: str | None = None,
         health_check_interval: float = 0,
-        max_connections: Optional[int] = None,
-        socket_timeout: Optional[float] = None,
-        socket_connect_timeout: Optional[float] = None,
+        max_connections: int | None = None,
+        socket_timeout: float | None = None,
+        socket_connect_timeout: float | None = None,
         socket_read_size: int = 65536,
         socket_keepalive: bool = False,
-        socket_keepalive_options: Optional[Mapping[int, Union[int, bytes]]] = None,
+        socket_keepalive_options: Mapping[int, int | bytes] | None = None,
         socket_type: int = 0,
         retry_on_timeout: bool = False,
         encoding: str = "utf-8",
         encoding_errors: str = "strict",
         decode_responses: bool = False,
-        parser_class: Type[BaseParser] = DefaultParser,
-        connection_class: Type[Connection] = Connection,
-        encoder_class: Type[Encoder] = Encoder,
-        security: Optional[BaseSecurity] = None,
+        parser_class: type[BaseParser] = DefaultParser,
+        connection_class: type[Connection] = Connection,
+        encoder_class: type[Encoder] = Encoder,
+        security: BaseSecurity | None = None,
         # broker args
-        graceful_timeout: Optional[float] = None,
-        parser: Optional[CustomParser[AnyRedisDict, RedisMessage]] = None,
-        decoder: Optional[CustomDecoder[RedisMessage]] = None,
-        middlewares: Optional[
-            Sequence[Callable[[AnyRedisDict], BaseMiddleware]]
-        ] = None,
+        graceful_timeout: float | None = None,
+        parser: CustomParser[AnyRedisDict, RedisMessage] | None = None,
+        decoder: CustomDecoder[RedisMessage] | None = None,
+        middlewares: Sequence[Callable[[AnyRedisDict], BaseMiddleware]] | None = None,
         # AsyncAPI args
-        asyncapi_url: Optional[str] = None,
-        protocol: Optional[str] = None,
-        protocol_version: Optional[str] = "custom",
-        description: Optional[str] = None,
-        asyncapi_tags: Optional[Sequence[asyncapi.Tag]] = None,
-        schema_url: Optional[str] = "/asyncapi",
+        asyncapi_url: str | None = None,
+        protocol: str | None = None,
+        protocol_version: str | None = "custom",
+        description: str | None = None,
+        asyncapi_tags: Sequence[asyncapi.Tag] | None = None,
+        schema_url: str | None = "/asyncapi",
         setup_state: bool = True,
         # logging args
-        logger: Optional[logging.Logger] = access_logger,
+        logger: logging.Logger | None = access_logger,
         log_level: int = logging.INFO,
-        log_fmt: Optional[str] = None,
+        log_fmt: str | None = None,
         # FastAPI kwargs
         prefix: str = "",
-        tags: Optional[List[Union[str, Enum]]] = None,
-        dependencies: Optional[Sequence[params.Depends]] = None,
-        default_response_class: Type[Response] = Default(JSONResponse),
-        responses: Optional[Dict[Union[int, str], Dict[str, Any]]] = None,
-        callbacks: Optional[List[routing.BaseRoute]] = None,
-        routes: Optional[List[routing.BaseRoute]] = None,
+        tags: list[str | Enum] | None = None,
+        dependencies: Sequence[params.Depends] | None = None,
+        default_response_class: type[Response] = Default(JSONResponse),
+        responses: dict[int | str, dict[str, Any]] | None = None,
+        callbacks: list[routing.BaseRoute] | None = None,
+        routes: list[routing.BaseRoute] | None = None,
         redirect_slashes: bool = True,
-        default: Optional[ASGIApp] = None,
-        dependency_overrides_provider: Optional[Any] = None,
-        route_class: Type[APIRoute] = APIRoute,
-        on_startup: Optional[Sequence[Callable[[], Any]]] = None,
-        on_shutdown: Optional[Sequence[Callable[[], Any]]] = None,
-        deprecated: Optional[bool] = None,
+        default: ASGIApp | None = None,
+        dependency_overrides_provider: Any | None = None,
+        route_class: type[APIRoute] = APIRoute,
+        on_startup: Sequence[Callable[[], Any]] | None = None,
+        on_shutdown: Sequence[Callable[[], Any]] | None = None,
+        deprecated: bool | None = None,
         include_in_schema: bool = True,
-        lifespan: Optional[Lifespan[Any]] = None,
+        lifespan: Lifespan[Any] | None = None,
         generate_unique_id_function: Callable[[APIRoute], str] = Default(
             generate_unique_id
         ),
@@ -122,22 +115,20 @@ class RedisRouter(StreamRouter[AnyRedisDict]):
     @override
     def subscriber(  # type: ignore[override]
         self,
-        channel: Union[Channel, PubSub, None] = None,
+        channel: Channel | PubSub | None = None,
         *,
-        list: Union[Channel, ListSub, None] = None,
-        stream: Union[Channel, StreamSub, None] = None,
+        list: Channel | ListSub | None = None,
+        stream: Channel | StreamSub | None = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[AnyRedisDict, RedisMessage]] = None,
-        decoder: Optional[CustomDecoder[RedisMessage]] = None,
-        middlewares: Optional[
-            Sequence[Callable[[AnyRedisDict], BaseMiddleware]]
-        ] = None,
+        parser: CustomParser[AnyRedisDict, RedisMessage] | None = None,
+        decoder: CustomDecoder[RedisMessage] | None = None,
+        middlewares: Sequence[Callable[[AnyRedisDict], BaseMiddleware]] | None = None,
         filter: Filter[RedisMessage] = default_filter,
         no_ack: bool = False,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
+        title: str | None = None,
+        description: str | None = None,
         include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[
@@ -147,14 +138,14 @@ class RedisRouter(StreamRouter[AnyRedisDict]):
     @override
     def publisher(  # type: ignore[override]
         self,
-        channel: Union[Channel, PubSub, None] = None,
-        list: Union[Channel, ListSub, None] = None,
-        stream: Union[Channel, StreamSub, None] = None,
-        headers: Optional[AnyDict] = None,
+        channel: Channel | PubSub | None = None,
+        list: Channel | ListSub | None = None,
+        stream: Channel | StreamSub | None = None,
+        headers: AnyDict | None = None,
         reply_to: str = "",
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        schema: Optional[Any] = None,
+        title: str | None = None,
+        description: str | None = None,
+        schema: Any | None = None,
         include_in_schema: bool = True,
     ) -> Publisher: ...

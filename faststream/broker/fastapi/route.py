@@ -28,7 +28,7 @@ from starlette.requests import Request
 from starlette.routing import BaseRoute
 
 from faststream._compat import FASTAPI_V106, raise_fastapi_validation_error
-from faststream.broker.core.asyncronous import BrokerAsyncUsecase
+from faststream.broker.core.asynchronous import BrokerAsyncUsecase
 from faststream.broker.message import StreamMessage as NativeMessage
 from faststream.broker.schemas import NameRequired
 from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
@@ -139,7 +139,7 @@ class StreamMessage(Request):
     scope: AnyDict
     _cookies: AnyDict
     _headers: AnyDict  # type: ignore
-    _body: AnyDict  # type: ignore
+    _body: Union[AnyDict, List[Any]]  # type: ignore
     _query_params: AnyDict  # type: ignore
 
     def __init__(
@@ -291,7 +291,7 @@ def get_app(
 
             solved_result = await solve_dependencies(
                 request=request,
-                body=request._body,
+                body=request._body,  # type: ignore[arg-type]
                 dependant=dependant,
                 dependency_overrides_provider=dependency_overrides_provider,
                 **kwargs,  # type: ignore[arg-type]
@@ -299,7 +299,7 @@ def get_app(
 
             values, errors, _, _2, _3 = solved_result
             if errors:
-                raise_fastapi_validation_error(errors, request._body)
+                raise_fastapi_validation_error(errors, request._body)  # type: ignore[arg-type]
 
             return cast(
                 SendableMessage,

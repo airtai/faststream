@@ -2,9 +2,9 @@ from dataclasses import dataclass, field
 from typing import Dict, Optional, Sequence
 
 from aiokafka import ConsumerRecord
+from typing_extensions import override
 
 from faststream.__about__ import __version__
-from faststream._compat import override
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.kafka.shared.publisher import ABCPublisher

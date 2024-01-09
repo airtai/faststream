@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Any, List, Literal, Optional, TypeVar, Union
 
-from faststream._compat import NotRequired, TypedDict, override
+from typing_extensions import NotRequired, TypedDict, override
+
 from faststream.broker.message import StreamMessage
 from faststream.utils.context.repository import context
 
@@ -57,7 +58,7 @@ class RedisAckMixin(StreamMessage[MsgType]):
     ) -> None:
         handler: Optional["Handler"]
         if (
-            not self.commited
+            not self.committed
             and (ids := self.raw_message.get("message_ids"))
             and (handler := context.get_local("handler_")) is not None
             and (stream := handler.stream_sub)

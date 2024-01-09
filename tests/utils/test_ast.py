@@ -77,6 +77,6 @@ def test_not_broken():
     with A() as a, B():
         assert a.contains
 
-        # test ast proccesses another context correctly
+        # test ast processes another context correctly
         with pytest.raises(ValueError):  # noqa: PT011
             raise ValueError()

@@ -12,8 +12,7 @@ from typing import (
 )
 
 from pydantic import BaseModel
-
-from faststream._compat import ParamSpec, TypeAlias
+from typing_extensions import ParamSpec, TypeAlias
 
 AnyDict: TypeAlias = Dict[str, Any]
 
@@ -48,6 +47,8 @@ SendableMessage: TypeAlias = Union[
     None,
 ]
 
-SettingField: TypeAlias = Union[bool, str, List[str]]
+SettingField: TypeAlias = Union[
+    bool, str, List[Union[bool, str]], List[str], List[bool]
+]
 
 Lifespan: TypeAlias = Callable[..., AsyncContextManager[None]]

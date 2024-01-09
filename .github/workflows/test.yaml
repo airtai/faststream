@@ -16,13 +16,18 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: 3.9
       - name: Install Dependencies and library
         shell: bash
         run: |
           set -ux
           python -m pip install --upgrade pip
           pip install -e ".[docs,rabbit,kafka,redis,nats,lint]"
+
+      - name: Run ruff
+        shell: bash
+        run: ruff faststream
+
       - name: Run mypy
         shell: bash
         run: mypy faststream tests/mypy

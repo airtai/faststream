@@ -10,43 +10,14 @@ from fast_depends._compat import (  # type: ignore[attr-defined]
 )
 from fast_depends._compat import FieldInfo
 from pydantic import BaseModel
-
-if sys.version_info < (3, 12):
-    from typing_extensions import TypedDict as TypedDict
-    from typing_extensions import Unpack as Unpack
-    from typing_extensions import override as override
-else:
-    from typing import TypedDict as TypedDict
-    from typing import Unpack as Unpack
-    from typing import override as override
-
-if sys.version_info < (3, 11):
-    from typing_extensions import Never as Never
-    from typing_extensions import NotRequired as NotRequired
-    from typing_extensions import Required as Required
-    from typing_extensions import Self as Self
-else:
-    from typing import Never as Never
-    from typing import NotRequired as NotRequired
-    from typing import Required as Required
-    from typing import Self as Self
-
-
-if sys.version_info < (3, 10):
-    from typing_extensions import Concatenate as Concatenate
-    from typing_extensions import ParamSpec as ParamSpec
-    from typing_extensions import TypeAlias as TypeAlias
-else:
-    from typing import Concatenate as Concatenate
-    from typing import ParamSpec as ParamSpec
-    from typing import TypeAlias as TypeAlias
-
-if sys.version_info < (3, 9):
-    from typing_extensions import Annotated as Annotated
-else:
-    from typing import Annotated as Annotated
+from typing_extensions import Never
 
 from faststream.types import AnyDict
+
+IS_WINDOWS = (
+    sys.platform == "win32" or sys.platform == "cygwin" or sys.platform == "msys"
+)
+
 
 ModelVar = TypeVar("ModelVar", bound=BaseModel)
 

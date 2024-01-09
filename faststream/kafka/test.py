@@ -3,8 +3,8 @@ from typing import Any, Dict, Optional
 from uuid import uuid4
 
 from aiokafka import ConsumerRecord
+from typing_extensions import override
 
-from faststream._compat import override
 from faststream.broker.parsers import encode_message
 from faststream.broker.test import TestBroker, call_handler
 from faststream.broker.wrapper import HandlerCallWrapper

@@ -89,12 +89,12 @@ devdocs = [
     "mkdocs-literate-nav==0.6.1",
     "mkdocs-git-revision-date-localized-plugin==1.2.1",
     "mike==2.0.0",  # versioning
-    "mkdocs-minify-plugin==0.7.1",
+    "mkdocs-minify-plugin==0.7.2",
     "mkdocs-macros-plugin==1.0.5",  # includes with variables
     "mkdocs-glightbox==0.3.6",  # img zoom
-    "pillow==10.1.0",
+    "pillow==10.2.0",
     "cairosvg==2.7.1",
-    "black==23.12.0",
+    "black==23.12.1",
     "requests",  # do not pin it
 ]
 
@@ -107,8 +107,7 @@ lint = [
     "types-docutils",
     "confluent-kafka-stubs; python_version >= '3.11'",
     "mypy==1.8.0",
-    "ruff==0.1.9",
-    "pyupgrade-directories==0.3.0",
+    "ruff==0.1.11",
     "bandit==1.7.6",
     "semgrep==1.52.0",
 ]
@@ -116,7 +115,7 @@ lint = [
 test-core = [
     "coverage[toml]==7.4.0",
     "pytest==7.4.4",
-    "pytest-asyncio==0.23.2",
+    "pytest-asyncio==0.23.3",
     "dirty-equals==0.7.1.post0",
 ]
 
@@ -182,7 +181,7 @@ disallow_any_unimported = false
 [tool.ruff]
 fix = true
 line-length = 88
-# target-version = 'py38'
+target-version = "py38"
 include = ["faststream/**/*.py", "faststream/**/*.pyi", "tests/**/*.py", "docs/**/*.py", "pyproject.toml"]
 exclude = ["docs/docs_src"]
 
@@ -206,6 +205,7 @@ select = [
     "TCH",   # flake8-type-checking   https://docs.astral.sh/ruff/rules/#flake8-type-checking-tch
     "RUF",   # Ruff-specific rules    https://docs.astral.sh/ruff/rules/#ruff-specific-rules-ruf
     "PERF",  # Perflint               https://docs.astral.sh/ruff/rules/#perflint-perf
+    "UP",    # pyupgrade              https://docs.astral.sh/ruff/rules/#pyupgrade-up
 ]
 
 ignore = [
@@ -325,12 +325,6 @@ omit = [
 
 [tool.bandit]
 
-[tool.black]
-line-length = 88
+[tool.codespell]
 
-extend-exclude = """
-/(
-    docs/docs_src
-    | some_other_dir
-)/
-"""
+ignore-words-list = "dependant"

@@ -18,7 +18,7 @@ from faststream.broker.types import (
 from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.nats.message import NatsMessage
 from faststream.nats.parser import Parser
-from faststream.types import DecodedMessage, SendableMessage
+from faststream.types import SendableMessage
 from faststream.utils.functions import timeout_scope
 
 
@@ -57,7 +57,7 @@ class NatsFastProducer:
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
-    ) -> Optional[DecodedMessage]:
+    ) -> Optional[Any]:
         payload, content_type = encode_message(message)
 
         headers_to_send = {
@@ -141,7 +141,7 @@ class NatsJSFastProducer:
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
-    ) -> Optional[DecodedMessage]:
+    ) -> Optional[Any]:
         payload, content_type = encode_message(message)
 
         headers_to_send = {

@@ -14,7 +14,7 @@ As you know, **FastStream** serializes a message body and provides you access to
 
 ## Message Access
 
-You can get it in a simple way: just acces the message object in the [Context](../getting-started/context/existed.md){.internal-link}.
+You can get it in a simple way: just access the message object in the [Context](../getting-started/context/existed.md){.internal-link}.
 
 This message contains the required information such as:
 

@@ -2,7 +2,8 @@ from abc import ABC
 from dataclasses import dataclass, field
 from typing import Optional
 
-from faststream._compat import TypeAlias
+from typing_extensions import TypeAlias
+
 from faststream.broker.publisher import BasePublisher
 from faststream.broker.types import MsgType
 from faststream.rabbit.shared.schemas import BaseRMQInformation

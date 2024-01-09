@@ -1,6 +1,8 @@
 from typing import Any, Dict, Optional, Union
 
-from faststream._compat import model_copy, override
+from typing_extensions import override
+
+from faststream._compat import model_copy
 from faststream.rabbit.asyncapi import Publisher
 from faststream.rabbit.shared.router import RabbitRouter as BaseRouter
 from faststream.rabbit.shared.schemas import (

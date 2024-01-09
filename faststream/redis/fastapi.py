@@ -2,8 +2,8 @@ from typing import Any, Callable, Optional, Sequence, Union
 
 from fastapi import Depends
 from redis.asyncio.client import Redis as RedisClient
+from typing_extensions import Annotated, override
 
-from faststream._compat import Annotated, override
 from faststream.broker.fastapi.context import Context, ContextRepo, Logger
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.types import P_HandlerParams, T_HandlerReturn

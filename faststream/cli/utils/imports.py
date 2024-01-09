@@ -113,7 +113,7 @@ def import_from_string(import_str: str) -> Tuple[Path, FastStream]:
 
     Raises:
         typer.BadParameter: Raised if the given value is not of type string, if the import string is not in the format
-            "<module>:<attribute>", if the module is not found, or if the faststream appliation is not found in the module.
+            "<module>:<attribute>", if the module is not found, or if the faststream application is not found in the module.
     """
     if not isinstance(import_str, str):
         raise typer.BadParameter("Given value is not of type string")

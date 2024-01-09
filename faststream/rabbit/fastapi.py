@@ -1,6 +1,6 @@
 from aio_pika import IncomingMessage
+from typing_extensions import Annotated
 
-from faststream._compat import Annotated
 from faststream.broker.fastapi.context import Context, ContextRepo, Logger
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.rabbit.broker import RabbitBroker as RB

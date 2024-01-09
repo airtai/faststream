@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from nats.js.api import (
     DiscardPolicy,
     Placement,
@@ -16,37 +14,37 @@ from faststream.broker.schemas import NameRequired
 class JStream(NameRequired):
     config: StreamConfig
 
-    subjects: List[str] = Field(default_factory=list)
+    subjects: list[str] = Field(default_factory=list)
     declare: bool = Field(default=True)
 
     def __init__(
         self,
         name: str,
-        description: Optional[str] = None,
-        subjects: Optional[List[str]] = None,
-        retention: Optional[RetentionPolicy] = None,
-        max_consumers: Optional[int] = None,
-        max_msgs: Optional[int] = None,
-        max_bytes: Optional[int] = None,
-        discard: Optional[DiscardPolicy] = DiscardPolicy.OLD,
-        max_age: Optional[float] = None,  # in seconds
+        description: str | None = None,
+        subjects: list[str] | None = None,
+        retention: RetentionPolicy | None = None,
+        max_consumers: int | None = None,
+        max_msgs: int | None = None,
+        max_bytes: int | None = None,
+        discard: DiscardPolicy | None = DiscardPolicy.OLD,
+        max_age: float | None = None,  # in seconds
         max_msgs_per_subject: int = -1,
-        max_msg_size: Optional[int] = -1,
-        storage: Optional[StorageType] = None,
-        num_replicas: Optional[int] = None,
+        max_msg_size: int | None = -1,
+        storage: StorageType | None = None,
+        num_replicas: int | None = None,
         no_ack: bool = False,
-        template_owner: Optional[str] = None,
+        template_owner: str | None = None,
         duplicate_window: float = 0,
-        placement: Optional[Placement] = None,
-        mirror: Optional[StreamSource] = None,
-        sources: Optional[List[StreamSource]] = None,
+        placement: Placement | None = None,
+        mirror: StreamSource | None = None,
+        sources: list[StreamSource] | None = None,
         sealed: bool = False,
         deny_delete: bool = False,
         deny_purge: bool = False,
         allow_rollup_hdrs: bool = False,
-        republish: Optional[RePublish] = None,
-        allow_direct: Optional[bool] = None,
-        mirror_direct: Optional[bool] = None,
+        republish: RePublish | None = None,
+        allow_direct: bool | None = None,
+        mirror_direct: bool | None = None,
         # custom
         declare: bool = True,
     ) -> None: ...

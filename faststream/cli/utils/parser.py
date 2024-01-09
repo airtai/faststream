@@ -45,10 +45,10 @@ def parse_cli_args(*args: str) -> Tuple[str, Dict[str, SettingField]]:
 
                     key = remove_prefix(k, "no_")
                     if (exists := extra_kwargs.get(key)) is not None:
-                        if not isinstance(exists, list):
-                            v = [exists, v]
-                        else:
-                            v = [*exists, v]
+                        v = [
+                            *(exists if isinstance(exists, list) else [exists]),
+                            *(v if isinstance(v, list) else [v]),
+                        ]
 
                     extra_kwargs[key] = v
                     field_args = []

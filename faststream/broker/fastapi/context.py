@@ -3,8 +3,8 @@ from inspect import Signature
 from typing import Any, Callable, Optional
 
 from fastapi import params
+from typing_extensions import Annotated
 
-from faststream._compat import Annotated
 from faststream.utils.context import ContextRepo as CR
 from faststream.utils.context.types import resolve_context_by_name
 

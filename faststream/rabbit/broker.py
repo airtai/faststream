@@ -19,10 +19,11 @@ import aiormq
 from aio_pika.abc import SSLOptions
 from fast_depends.dependencies import Depends
 from pamqp.common import FieldTable
+from typing_extensions import override
 from yarl import URL
 
-from faststream._compat import model_to_dict, override
-from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
+from faststream._compat import model_to_dict
+from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (

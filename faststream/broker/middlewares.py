@@ -3,7 +3,8 @@ from contextlib import asynccontextmanager
 from types import TracebackType
 from typing import Any, AsyncIterator, Optional, Type
 
-from faststream._compat import Self
+from typing_extensions import Self
+
 from faststream.types import DecodedMessage, SendableMessage
 from faststream.utils.context.repository import context
 

@@ -1,6 +1,6 @@
 import pytest
+from typing_extensions import Annotated
 
-from faststream._compat import Annotated
 from faststream.utils import Depends, apply_types
 
 

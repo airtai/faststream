@@ -1,14 +1,13 @@
 from typing import Any, Callable, Dict, Iterable, Optional, Type, Union
 
 from pydantic import AnyHttpUrl, BaseModel
+from typing_extensions import Required, TypedDict
 
 from faststream._compat import (
     PYDANTIC_V2,
     CoreSchema,
     GetJsonSchemaHandler,
     JsonSchemaValue,
-    Required,
-    TypedDict,
     with_info_plain_validator_function,
 )
 from faststream.log import logger

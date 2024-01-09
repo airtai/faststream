@@ -29,9 +29,9 @@ from nats.js.client import (
     DEFAULT_JS_SUB_PENDING_MSGS_LIMIT,
     JetStreamContext,
 )
+from typing_extensions import TypeAlias, override
 
-from faststream._compat import TypeAlias, override
-from faststream.broker.core.asyncronous import BrokerAsyncUsecase, default_filter
+from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (

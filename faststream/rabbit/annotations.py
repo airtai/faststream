@@ -1,4 +1,5 @@
-from faststream._compat import Annotated
+from typing_extensions import Annotated
+
 from faststream.annotations import ContextRepo, Logger, NoCast
 from faststream.rabbit.broker import RabbitBroker as RB
 from faststream.rabbit.message import RabbitMessage as RM

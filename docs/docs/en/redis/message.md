@@ -26,7 +26,7 @@ When dealing with **Redis** broker in **FastStream**, you can easily access mess
 * `#!python message_id: str`
 * `#!python correlation_id: str`
 * `#!python processed: bool`
-* `#!python commited: bool`
+* `#!python committed: bool`
 
 For instance, if you need to retrieve headers from an incoming **Redis** message, here’s how you might do it:
 
