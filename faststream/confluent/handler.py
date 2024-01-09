@@ -217,7 +217,9 @@ class LogicHandler(AsyncHandler[Message]):
                         await anyio.sleep(self.batch_timeout_ms / 1000)
                         continue
 
-                    msg = tuple(chain(*messages.values()))
+                    msg: Union[Message, Tuple[Message, ...]] = tuple(
+                        chain(*messages.values())
+                    )
                 else:
                     msg = await self.consumer.getone()
 
@@ -229,7 +231,7 @@ class LogicHandler(AsyncHandler[Message]):
             else:
                 if connected is False:  # pragma: no cover
                     connected = True
-                await self.consume(msg)
+                await self.consume(msg)  # type: ignore[arg-type]
 
     @staticmethod
     def get_routing_hash(topics: Sequence[str], group_id: Optional[str] = None) -> str:
