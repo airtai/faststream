@@ -30,7 +30,7 @@ from typing_extensions import override
 
 from faststream.__about__ import __version__
 from faststream.asyncapi import schema as asyncapi
-from faststream.broker.core.asyncronous import default_filter
+from faststream.broker.core.asynchronous import default_filter
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware

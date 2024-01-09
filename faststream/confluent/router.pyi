@@ -4,7 +4,7 @@ import confluent_kafka
 from fast_depends.dependencies import Depends
 from typing_extensions import override
 
-from faststream.broker.core.asyncronous import default_filter
+from faststream.broker.core.asynchronous import default_filter
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.router import BrokerRouter
 from faststream.broker.types import (

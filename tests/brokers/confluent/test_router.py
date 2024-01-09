@@ -5,7 +5,7 @@ from unittest.mock import Mock
 import pytest
 
 from faststream import BaseMiddleware, Depends
-from faststream.broker.core.asyncronous import BrokerAsyncUsecase
+from faststream.broker.core.asynchronous import BrokerAsyncUsecase
 from faststream.broker.router import BrokerRoute, BrokerRouter
 from faststream.kafka import KafkaRoute, KafkaRouter
 from faststream.types import AnyCallable
