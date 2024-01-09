@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Literal, Optional, Sequence, TypeVar, Union
+from typing import Any, Callable, Literal, Sequence, TypeVar
 
 import confluent_kafka
 from fast_depends.dependencies import Depends
@@ -22,7 +22,7 @@ from faststream.confluent.shared.router import KafkaRoute
 Partition = TypeVar("Partition")
 
 class KafkaRouter(BrokerRouter[str, confluent_kafka.Message]):
-    _publishers: Dict[str, Publisher]  # type: ignore[assignment]
+    _publishers: dict[str, Publisher]  # type: ignore[assignment]
 
     def __init__(
         self,
@@ -30,11 +30,10 @@ class KafkaRouter(BrokerRouter[str, confluent_kafka.Message]):
         handlers: Sequence[KafkaRoute] = (),
         *,
         dependencies: Sequence[Depends] = (),
-        middlewares: Optional[
-            Sequence[Callable[[confluent_kafka.Message], BaseMiddleware]]
-        ] = None,
-        parser: Optional[CustomParser[confluent_kafka.Message, KafkaMessage]] = None,
-        decoder: Optional[CustomDecoder[KafkaMessage]] = None,
+        middlewares: Sequence[Callable[[confluent_kafka.Message], BaseMiddleware]]
+        | None = None,
+        parser: CustomParser[confluent_kafka.Message, KafkaMessage] | None = None,
+        decoder: CustomDecoder[KafkaMessage] | None = None,
         include_in_schema: bool = True,
     ) -> None: ...
     @override
@@ -50,25 +49,25 @@ class KafkaRouter(BrokerRouter[str, confluent_kafka.Message]):
     def publisher(  # type: ignore[override]
         self,
         topic: str,
-        key: Optional[bytes] = None,
-        partition: Optional[int] = None,
-        timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
+        key: bytes | None = None,
+        partition: int | None = None,
+        timestamp_ms: int | None = None,
+        headers: dict[str, str] | None = None,
         reply_to: str = "",
         batch: bool = False,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        schema: Optional[Any] = None,
+        title: str | None = None,
+        description: str | None = None,
+        schema: Any | None = None,
         include_in_schema: bool = True,
     ) -> Publisher: ...
     @override
     def subscriber(  # type: ignore[override]
         self,
         *topics: str,
-        group_id: Optional[str] = None,
-        key_deserializer: Optional[Callable[[bytes], Any]] = None,
-        value_deserializer: Optional[Callable[[bytes], Any]] = None,
+        group_id: str | None = None,
+        key_deserializer: Callable[[bytes], Any] | None = None,
+        value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_wait_ms: int = 500,
         fetch_max_bytes: int = 52428800,
         fetch_min_bytes: int = 1,
@@ -83,11 +82,11 @@ class KafkaRouter(BrokerRouter[str, confluent_kafka.Message]):
         check_crcs: bool = True,
         partition_assignment_strategy: Sequence[str] = ("roundrobin",),
         max_poll_interval_ms: int = 300000,
-        rebalance_timeout_ms: Optional[int] = None,
+        rebalance_timeout_ms: int | None = None,
         session_timeout_ms: int = 10000,
         heartbeat_interval_ms: int = 3000,
         consumer_timeout_ms: int = 200,
-        max_poll_records: Optional[int] = None,
+        max_poll_records: int | None = None,
         exclude_internal_topics: bool = True,
         isolation_level: Literal[
             "read_uncommitted",
@@ -95,25 +94,24 @@ class KafkaRouter(BrokerRouter[str, confluent_kafka.Message]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[confluent_kafka.Message, KafkaMessage]] = None,
-        decoder: Optional[CustomDecoder[KafkaMessage]] = None,
-        middlewares: Optional[
-            Sequence[
-                Callable[
-                    [confluent_kafka.Message],
-                    BaseMiddleware,
-                ]
+        parser: CustomParser[confluent_kafka.Message, KafkaMessage] | None = None,
+        decoder: CustomDecoder[KafkaMessage] | None = None,
+        middlewares: Sequence[
+            Callable[
+                [confluent_kafka.Message],
+                BaseMiddleware,
             ]
-        ] = None,
+        ]
+        | None = None,
         filter: Filter[KafkaMessage] = default_filter,
         batch: bool = False,
-        max_records: Optional[int] = None,
+        max_records: int | None = None,
         batch_timeout_ms: int = 200,
-        retry: Union[bool, int] = False,
+        retry: bool | int = False,
         no_ack: bool = False,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
+        title: str | None = None,
+        description: str | None = None,
         include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> Callable[

@@ -1,4 +1,4 @@
-from typing import Any, Callable, Literal, Optional, Sequence, Tuple, Union, overload
+from typing import Any, Callable, Literal, Sequence, overload
 
 import confluent_kafka
 from fast_depends.dependencies import Depends
@@ -19,9 +19,9 @@ class KafkaRoute:
         self,
         call: Callable[..., T_HandlerReturn],
         *topics: str,
-        group_id: Optional[str] = None,
-        key_deserializer: Optional[Callable[[bytes], Any]] = None,
-        value_deserializer: Optional[Callable[[bytes], Any]] = None,
+        group_id: str | None = None,
+        key_deserializer: Callable[[bytes], Any] | None = None,
+        value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_wait_ms: int = 500,
         fetch_max_bytes: int = 52428800,
         fetch_min_bytes: int = 1,
@@ -38,11 +38,11 @@ class KafkaRoute:
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 300000,
-        rebalance_timeout_ms: Optional[int] = None,
+        rebalance_timeout_ms: int | None = None,
         session_timeout_ms: int = 10000,
         heartbeat_interval_ms: int = 3000,
         consumer_timeout_ms: int = 200,
-        max_poll_records: Optional[int] = None,
+        max_poll_records: int | None = None,
         exclude_internal_topics: bool = True,
         isolation_level: Literal[
             "read_uncommitted",
@@ -50,28 +50,26 @@ class KafkaRoute:
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[
-            CustomParser[Tuple[confluent_kafka.Message, ...], KafkaMessage]
-        ] = None,
-        decoder: Optional[CustomDecoder[KafkaMessage]] = None,
-        middlewares: Optional[
-            Sequence[
-                Callable[
-                    [confluent_kafka.Message],
-                    BaseMiddleware,
-                ]
+        parser: CustomParser[tuple[confluent_kafka.Message, ...], KafkaMessage]
+        | None = None,
+        decoder: CustomDecoder[KafkaMessage] | None = None,
+        middlewares: Sequence[
+            Callable[
+                [confluent_kafka.Message],
+                BaseMiddleware,
             ]
-        ] = None,
+        ]
+        | None = None,
         filter: Filter[
-            StreamMessage[Tuple[confluent_kafka.Message, ...]]
+            StreamMessage[tuple[confluent_kafka.Message, ...]]
         ] = default_filter,
         batch: Literal[True] = True,
-        max_records: Optional[int] = None,
+        max_records: int | None = None,
         batch_timeout_ms: int = 200,
-        retry: Union[bool, int] = False,
+        retry: bool | int = False,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
+        title: str | None = None,
+        description: str | None = None,
         include_in_schema: bool = True,
         **__service_kwargs: Any,
     ) -> None: ...
@@ -80,9 +78,9 @@ class KafkaRoute:
         self,
         call: Callable[..., T_HandlerReturn],
         *topics: str,
-        group_id: Optional[str] = None,
-        key_deserializer: Optional[Callable[[bytes], Any]] = None,
-        value_deserializer: Optional[Callable[[bytes], Any]] = None,
+        group_id: str | None = None,
+        key_deserializer: Callable[[bytes], Any] | None = None,
+        value_deserializer: Callable[[bytes], Any] | None = None,
         fetch_max_wait_ms: int = 500,
         fetch_max_bytes: int = 52428800,
         fetch_min_bytes: int = 1,
@@ -99,11 +97,11 @@ class KafkaRoute:
             RoundRobinPartitionAssignor,
         ),
         max_poll_interval_ms: int = 300000,
-        rebalance_timeout_ms: Optional[int] = None,
+        rebalance_timeout_ms: int | None = None,
         session_timeout_ms: int = 10000,
         heartbeat_interval_ms: int = 3000,
         consumer_timeout_ms: int = 200,
-        max_poll_records: Optional[int] = None,
+        max_poll_records: int | None = None,
         exclude_internal_topics: bool = True,
         isolation_level: Literal[
             "read_uncommitted",
@@ -111,23 +109,22 @@ class KafkaRoute:
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[confluent_kafka.Message, KafkaMessage]] = None,
-        decoder: Optional[CustomDecoder[KafkaMessage]] = None,
-        middlewares: Optional[
-            Sequence[
-                Callable[
-                    [confluent_kafka.Message],
-                    BaseMiddleware,
-                ]
+        parser: CustomParser[confluent_kafka.Message, KafkaMessage] | None = None,
+        decoder: CustomDecoder[KafkaMessage] | None = None,
+        middlewares: Sequence[
+            Callable[
+                [confluent_kafka.Message],
+                BaseMiddleware,
             ]
-        ] = None,
+        ]
+        | None = None,
         filter: Filter[KafkaMessage] = default_filter,
         batch: Literal[False] = False,
-        max_records: Optional[int] = None,
+        max_records: int | None = None,
         batch_timeout_ms: int = 200,
-        retry: Union[bool, int] = False,
+        retry: bool | int = False,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
+        title: str | None = None,
+        description: str | None = None,
         **__service_kwargs: Any,
     ) -> None: ...
