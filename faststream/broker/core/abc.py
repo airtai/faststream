@@ -1,7 +1,5 @@
 import logging
-import warnings
-from abc import ABC, abstractmethod
-from types import TracebackType
+from abc import ABC
 from typing import (
     Any,
     Callable,
@@ -10,7 +8,6 @@ from typing import (
     Mapping,
     Optional,
     Sequence,
-    Type,
     Union,
 )
 
@@ -23,27 +20,15 @@ from faststream.broker.handler import BaseHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware, CriticalLogMiddleware
 from faststream.broker.publisher import BasePublisher
-from faststream.broker.router import BrokerRouter
 from faststream.broker.types import (
     ConnectionType,
     CustomDecoder,
     CustomParser,
-    Filter,
     MsgType,
-    P_HandlerParams,
-    T_HandlerReturn,
 )
-from faststream.broker.utils import (
-    change_logger_handlers,
-)
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.log import access_logger
 from faststream.security import BaseSecurity
-from faststream.types import AnyDict
 from faststream.utils import context
-from faststream.utils.functions import (
-    get_function_positional_arguments,
-)
 
 
 class BrokerUsecase(
@@ -181,172 +166,3 @@ class BrokerUsecase(
         self.description = description
         self.tags = tags
         self.security = security
-
-    def include_router(self, router: BrokerRouter[Any, MsgType]) -> None:
-        """Includes a router in the current object.
-
-        Args:
-            router: The router to be included.
-
-        Returns:
-            None
-        """
-        for r in router._handlers:
-            self.subscriber(*r.args, **r.kwargs)(r.call)
-
-        self._publishers = {**self._publishers, **router._publishers}
-
-    def include_routers(self, *routers: BrokerRouter[Any, MsgType]) -> None:
-        """Includes routers in the current object.
-
-        Args:
-            *routers: Variable length argument list of routers to include.
-
-        Returns:
-            None
-        """
-        for r in routers:
-            self.include_router(r)
-
-    def _resolve_connection_kwargs(self, *args: Any, **kwargs: Any) -> AnyDict:
-        """Resolve connection keyword arguments.
-
-        Args:
-            *args: Positional arguments passed to the function.
-            **kwargs: Keyword arguments passed to the function.
-
-        Returns:
-            A dictionary containing the resolved connection keyword arguments.
-        """
-        arguments = get_function_positional_arguments(self.__init__)  # type: ignore
-        init_kwargs = {
-            **self._connection_kwargs,
-            **dict(zip(arguments, self._connection_args)),
-        }
-
-        connect_kwargs = {
-            **kwargs,
-            **dict(zip(arguments, args)),
-        }
-        return {**init_kwargs, **connect_kwargs}
-
-    def _abc_start(self) -> None:
-        if not self.started:
-            self.started = True
-
-            if self.logger is not None:
-                change_logger_handlers(self.logger, self.fmt)
-
-    def _abc_close(
-        self,
-        exc_type: Optional[Type[BaseException]] = None,
-        exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
-    ) -> None:
-        """Closes the ABC.
-
-        Args:
-            exc_type: The exception type
-            exc_val: The exception value
-            exec_tb: The traceback
-
-        Returns:
-            None
-        """
-        self.started = False
-
-    def _abc__close(
-        self,
-        exc_type: Optional[Type[BaseException]] = None,
-        exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
-    ) -> None:
-        """Closes the connection.
-
-        Args:
-            exc_type: The type of the exception being handled (optional)
-            exc_val: The exception instance being handled (optional)
-            exec_tb: The traceback for the exception being handled (optional)
-
-        Returns:
-            None
-
-        Note:
-            This is an abstract method and must be implemented by subclasses.
-        """
-        self._connection = None
-
-    @abstractmethod
-    def subscriber(  # type: ignore[return]
-        self,
-        *broker_args: Any,
-        retry: Union[bool, int] = False,
-        dependencies: Sequence[Depends] = (),
-        decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
-        parser: Optional[CustomParser[MsgType, StreamMessage[MsgType]]] = None,
-        middlewares: Optional[
-            Sequence[
-                Callable[
-                    [StreamMessage[MsgType]],
-                    BaseMiddleware,
-                ]
-            ]
-        ] = None,
-        filter: Filter[StreamMessage[MsgType]] = lambda m: not m.processed,
-        _raw: bool = False,
-        _get_dependant: Optional[Any] = None,
-        **broker_kwargs: Any,
-    ) -> Callable[
-        [
-            Union[
-                Callable[P_HandlerParams, T_HandlerReturn],
-                HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
-            ]
-        ],
-        HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
-    ]:
-        """This is a function decorator for subscribing to a message broker.
-
-        Args:
-            *broker_args: Positional arguments to be passed to the broker.
-            retry: Whether to retry the subscription if it fails. Can be a boolean or an integer specifying the number of retries.
-            dependencies: Sequence of dependencies to be injected into the handler function.
-            decoder: Custom decoder function to decode the message.
-            parser: Custom parser function to parse the decoded message.
-            middlewares: Sequence of middleware functions to be applied to the message.
-            filter: Filter function to filter the messages to be processed.
-            _raw: Whether to return the raw message instead of the processed message.
-            _get_dependant: Optional parameter to get the dependant object.
-            **broker_kwargs: Keyword arguments to be passed to the broker.
-
-        Returns:
-            A callable object that can be used as a decorator for a handler function.
-
-        Raises:
-            RuntimeWarning: If the broker is already running.
-        """
-        if self.started and not is_test_env():  # pragma: no cover
-            warnings.warn(
-                "You are trying to register `handler` with already running broker\n"
-                "It has no effect until broker restarting.",
-                category=RuntimeWarning,
-                stacklevel=1,
-            )
-
-    @abstractmethod
-    def publisher(
-        self,
-        key: Any,
-        publisher: BasePublisher[MsgType],
-    ) -> BasePublisher[MsgType]:
-        """Publishes a publisher.
-
-        Args:
-            key: The key associated with the publisher.
-            publisher: The publisher to be published.
-
-        Returns:
-            The published publisher.
-        """
-        self._publishers = {**self._publishers, key: publisher}
-        return publisher

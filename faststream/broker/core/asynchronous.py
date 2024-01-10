@@ -1,29 +1,28 @@
 import logging
+import warnings
 from abc import abstractmethod
-from functools import wraps
 from types import TracebackType
 from typing import (
     Any,
-    Awaitable,
     Callable,
     Mapping,
     Optional,
     Sequence,
-    Sized,
-    Tuple,
     Type,
     Union,
     cast,
 )
 
-from fast_depends.core import CallModel
 from fast_depends.dependencies import Depends
-from typing_extensions import Self, override
+from typing_extensions import Self
 
+from faststream._compat import is_test_env
 from faststream.broker.core.abc import BrokerUsecase
 from faststream.broker.handler import BaseHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
+from faststream.broker.publisher import BasePublisher
+from faststream.broker.router import BrokerRouter
 from faststream.broker.types import (
     AsyncCustomDecoder,
     AsyncCustomParser,
@@ -35,10 +34,11 @@ from faststream.broker.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
+from faststream.broker.utils import change_logger_handlers
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.log import access_logger
 from faststream.types import AnyDict, SendableMessage
-from faststream.utils.functions import to_async
+from faststream.utils.functions import get_function_positional_arguments, to_async
 
 
 async def default_filter(msg: StreamMessage[Any]) -> bool:
@@ -77,14 +77,110 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
     _global_parser: Optional[AsyncCustomParser[MsgType, StreamMessage[MsgType]]]
     _global_decoder: Optional[AsyncCustomDecoder[StreamMessage[MsgType]]]
 
+    def include_router(self, router: BrokerRouter[Any, MsgType]) -> None:
+        """Includes a router in the current object.
+
+        Args:
+            router: The router to be included.
+
+        Returns:
+            None
+        """
+        for r in router._handlers:
+            self.subscriber(*r.args, **r.kwargs)(r.call)
+
+        self._publishers = {**self._publishers, **router._publishers}
+
+    def include_routers(self, *routers: BrokerRouter[Any, MsgType]) -> None:
+        """Includes routers in the current object.
+
+        Args:
+            *routers: Variable length argument list of routers to include.
+
+        Returns:
+            None
+        """
+        for r in routers:
+            self.include_router(r)
+
+    async def __aenter__(self) -> Self:
+        """Enter the context manager."""
+        await self.connect()
+        return self
+
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exec_tb: Optional[TracebackType],
+    ) -> None:
+        """Exit the context manager.
+
+        Args:
+            exc_type: The type of the exception raised, if any.
+            exc_val: The exception raised, if any.
+            exec_tb: The traceback of the exception raised, if any.
+
+        Returns:
+            None
+
+        Overrides:
+            This method overrides the __aexit__ method of the base class.
+        """
+        await self.close(exc_type, exc_val, exec_tb)
+
     @abstractmethod
     async def start(self) -> None:
         """Start the broker async use case."""
-        super()._abc_start()
+        self._abc_start()
         for h in self.handlers.values():
             for f in h.calls:
                 f.handler.refresh(with_mock=False)
         await self.connect()
+
+    def _abc_start(self) -> None:
+        if not self.started:
+            self.started = True
+
+            if self.logger is not None:
+                change_logger_handlers(self.logger, self.fmt)
+
+    async def connect(self, *args: Any, **kwargs: Any) -> ConnectionType:
+        """Connect to a remote server.
+
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            The connection object.
+        """
+        if self._connection is None:
+            _kwargs = self._resolve_connection_kwargs(*args, **kwargs)
+            self._connection = await self._connect(**_kwargs)
+        return self._connection
+
+    def _resolve_connection_kwargs(self, *args: Any, **kwargs: Any) -> AnyDict:
+        """Resolve connection keyword arguments.
+
+        Args:
+            *args: Positional arguments passed to the function.
+            **kwargs: Keyword arguments passed to the function.
+
+        Returns:
+            A dictionary containing the resolved connection keyword arguments.
+        """
+        arguments = get_function_positional_arguments(self.__init__)  # type: ignore
+        init_kwargs = {
+            **self._connection_kwargs,
+            **dict(zip(arguments, self._connection_args)),
+        }
+
+        connect_kwargs = {
+            **kwargs,
+            **dict(zip(arguments, args)),
+        }
+        return {**init_kwargs, **connect_kwargs}
 
     @abstractmethod
     async def _connect(self, **kwargs: Any) -> ConnectionType:
@@ -100,25 +196,6 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
             NotImplementedError: If the method is not implemented.
         """
         raise NotImplementedError()
-
-    @abstractmethod
-    async def _close(
-        self,
-        exc_type: Optional[Type[BaseException]] = None,
-        exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
-    ) -> None:
-        """Close the object.
-
-        Args:
-            exc_type: Optional. The type of the exception.
-            exc_val: Optional. The exception value.
-            exec_tb: Optional. The traceback of the exception.
-
-        Returns:
-            None
-        """
-        super()._abc__close(exc_type, exc_val, exec_tb)
 
     async def close(
         self,
@@ -139,13 +216,13 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         Raises:
             NotImplementedError: If the method is not implemented.
         """
-        super()._abc_close(exc_type, exc_val, exec_tb)
+        self.started = False
 
         for h in self.handlers.values():
             await h.close()
 
         if self._connection is not None:
-            await self._close(exc_type, exc_val, exec_tb)
+            self._connection = None
 
     @abstractmethod
     async def publish(
@@ -177,7 +254,6 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         """
         raise NotImplementedError()
 
-    @override
     @abstractmethod
     def subscriber(  # type: ignore[override,return]
         self,
@@ -220,7 +296,31 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         Raises:
             NotImplementedError: If silent animals are not supported.
         """
-        super().subscriber()
+        if self.started and not is_test_env():  # pragma: no cover
+            warnings.warn(
+                "You are trying to register `handler` with already running broker\n"
+                "It has no effect until broker restarting.",
+                category=RuntimeWarning,
+                stacklevel=1,
+            )
+
+    @abstractmethod
+    def publisher(
+        self,
+        key: Any,
+        publisher: BasePublisher[MsgType],
+    ) -> BasePublisher[MsgType]:
+        """Publishes a publisher.
+
+        Args:
+            key: The key associated with the publisher.
+            publisher: The publisher to be published.
+
+        Returns:
+            The published publisher.
+        """
+        self._publishers = {**self._publishers, key: publisher}
+        return publisher
 
     def __init__(
         self,
@@ -273,129 +373,3 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
             **kwargs,
         )
         self.graceful_timeout = graceful_timeout
-
-    async def connect(self, *args: Any, **kwargs: Any) -> ConnectionType:
-        """Connect to a remote server.
-
-        Args:
-            *args: Variable length argument list.
-            **kwargs: Arbitrary keyword arguments.
-
-        Returns:
-            The connection object.
-        """
-        if self._connection is None:
-            _kwargs = self._resolve_connection_kwargs(*args, **kwargs)
-            self._connection = await self._connect(**_kwargs)
-        return self._connection
-
-    async def __aenter__(self) -> Self:
-        """Enter the context manager."""
-        await self.connect()
-        return self
-
-    async def __aexit__(
-        self,
-        exc_type: Optional[Type[BaseException]],
-        exc_val: Optional[BaseException],
-        exec_tb: Optional[TracebackType],
-    ) -> None:
-        """Exit the context manager.
-
-        Args:
-            exc_type: The type of the exception raised, if any.
-            exc_val: The exception raised, if any.
-            exec_tb: The traceback of the exception raised, if any.
-
-        Returns:
-            None
-
-        Overrides:
-            This method overrides the __aexit__ method of the base class.
-        """
-        await self.close(exc_type, exc_val, exec_tb)
-
-    @override
-    def _wrap_decode_message(
-        self,
-        func: Callable[..., Awaitable[T_HandlerReturn]],
-        params: Sized = (),
-        _raw: bool = False,
-    ) -> Callable[[StreamMessage[MsgType]], Awaitable[T_HandlerReturn]]:
-        """Wraps a function to decode a message and pass it as an argument to the wrapped function.
-
-        Args:
-            func: The function to be wrapped.
-            params: The parameters to be passed to the wrapped function.
-            _raw: Whether to return the raw message or not.
-
-        Returns:
-            The wrapped function.
-        """
-        params_ln = len(params)
-
-        @wraps(func)
-        async def decode_wrapper(message: StreamMessage[MsgType]) -> T_HandlerReturn:
-            """A wrapper function to decode and handle a message.
-
-            Args:
-                message : The message to be decoded and handled
-
-            Returns:
-                The return value of the handler function
-            """
-            if _raw is True:
-                return await func(message)
-
-            msg = message.decoded_body
-            if params_ln > 1:
-                if isinstance(msg, Mapping):
-                    return await func(**msg)
-                elif isinstance(msg, Sequence):
-                    return await func(*msg)
-            else:
-                return await func(msg)
-
-            raise AssertionError("unreachable")
-
-        return decode_wrapper
-
-    @override
-    def _wrap_handler(
-        self,
-        func: Callable[P_HandlerParams, T_HandlerReturn],
-        *,
-        retry: Union[bool, int] = False,
-        extra_dependencies: Sequence[Depends] = (),
-        no_ack: bool = False,
-        _raw: bool = False,
-        _get_dependant: Optional[Any] = None,
-        _process_kwargs: Optional[AnyDict] = None,
-    ) -> Tuple[
-        HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
-        CallModel[P_HandlerParams, T_HandlerReturn],
-    ]:
-        """Wrap a handler function.
-
-        Args:
-            func: The handler function to wrap.
-            retry: Whether to retry the handler function if it fails. Can be a boolean or an integer specifying the number of retries.
-            extra_dependencies: Additional dependencies to inject into the handler function.
-            no_ack: Whether not to ack/nack/reject messages.
-            _raw: Whether to return the raw response from the handler function.
-            _get_dependant: An optional object to use as the dependant for the handler function.
-            **broker_log_context_kwargs: Additional keyword arguments to pass to the broker log context.
-
-        Returns:
-            A tuple containing the wrapped handler function and the call model.
-
-        """
-        return super()._wrap_handler(  # type: ignore[return-value]
-            func,
-            retry=retry,
-            extra_dependencies=extra_dependencies,
-            no_ack=no_ack,
-            _raw=_raw,
-            _get_dependant=_get_dependant,
-            _process_kwargs=_process_kwargs,
-        )
