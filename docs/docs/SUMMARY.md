@@ -179,7 +179,6 @@ search:
                     - [Contact](api/faststream/asyncapi/schema/info/Contact.md)
                     - [ContactDict](api/faststream/asyncapi/schema/info/ContactDict.md)
                     - [EmailStr](api/faststream/asyncapi/schema/info/EmailStr.md)
-                    - [EmailStr](api/faststream/asyncapi/schema/info/EmailStr.md)
                     - [Info](api/faststream/asyncapi/schema/info/Info.md)
                     - [License](api/faststream/asyncapi/schema/info/License.md)
                     - [LicenseDict](api/faststream/asyncapi/schema/info/LicenseDict.md)
@@ -334,12 +333,11 @@ search:
                 - [TopicPartition](api/faststream/confluent/client/TopicPartition.md)
                 - [check_msg_error](api/faststream/confluent/client/check_msg_error.md)
                 - [create_topics](api/faststream/confluent/client/create_topics.md)
-            - fastapi
-                - [Context](api/faststream/confluent/fastapi/Context.md)
-                - [KafkaRouter](api/faststream/confluent/fastapi/KafkaRouter.md)
             - handler
                 - [LogicHandler](api/faststream/confluent/handler/LogicHandler.md)
             - message
+                - [ConsumerProtocol](api/faststream/confluent/message/ConsumerProtocol.md)
+                - [FakeConsumer](api/faststream/confluent/message/FakeConsumer.md)
                 - [KafkaMessage](api/faststream/confluent/message/KafkaMessage.md)
             - parser
                 - [AsyncConfluentParser](api/faststream/confluent/parser/AsyncConfluentParser.md)

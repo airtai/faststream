@@ -327,4 +327,4 @@ omit = [
 
 [tool.codespell]
 
-ignore-words-list = "dependant"
+ignore-words = ".codespell-whitelist.txt"
