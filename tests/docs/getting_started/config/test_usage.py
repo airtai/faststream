@@ -1,8 +1,8 @@
-from tests.marks import pydanticV2
+from tests.marks import pydantic_v2
 from tests.mocks import mock_pydantic_settings_env
 
 
-@pydanticV2
+@pydantic_v2
 def test_exists_and_valid():
     with mock_pydantic_settings_env({"url": "localhost:9092"}):
         from docs.docs_src.getting_started.config.usage import settings
