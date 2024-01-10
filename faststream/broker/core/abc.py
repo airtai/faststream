@@ -1,29 +1,20 @@
 import logging
 import warnings
 from abc import ABC, abstractmethod
-from functools import partial
-from itertools import chain
 from types import TracebackType
 from typing import (
     Any,
-    Awaitable,
     Callable,
     Generic,
     List,
     Mapping,
     Optional,
     Sequence,
-    Sized,
-    Tuple,
     Type,
     Union,
-    cast,
 )
 
-from fast_depends._compat import PYDANTIC_V2
-from fast_depends.core import CallModel, build_call_model
 from fast_depends.dependencies import Depends
-from pydantic import create_model
 
 from faststream._compat import is_test_env
 from faststream.asyncapi import schema as asyncapi
@@ -32,7 +23,6 @@ from faststream.broker.handler import BaseHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware, CriticalLogMiddleware
 from faststream.broker.publisher import BasePublisher
-from faststream.broker.push_back_watcher import WatcherContext
 from faststream.broker.router import BrokerRouter
 from faststream.broker.types import (
     ConnectionType,
@@ -45,18 +35,14 @@ from faststream.broker.types import (
 )
 from faststream.broker.utils import (
     change_logger_handlers,
-    get_watcher,
-    set_message_context,
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.log import access_logger
 from faststream.security import BaseSecurity
-from faststream.types import AnyDict, F_Return, F_Spec
-from faststream.utils import apply_types, context
+from faststream.types import AnyDict
+from faststream.utils import context
 from faststream.utils.functions import (
-    fake_context,
     get_function_positional_arguments,
-    to_async,
 )
 
 
@@ -93,7 +79,6 @@ class BrokerUsecase(
         subscriber : decorator to register a subscriber
         publisher : register a publisher
         _wrap_decode_message : wrap a message decoding function
-
     """
 
     logger: Optional[logging.Logger]
@@ -205,7 +190,6 @@ class BrokerUsecase(
 
         Returns:
             None
-
         """
         for r in router._handlers:
             self.subscriber(*r.args, **r.kwargs)(r.call)
@@ -220,7 +204,6 @@ class BrokerUsecase(
 
         Returns:
             None
-
         """
         for r in routers:
             self.include_router(r)
@@ -234,7 +217,6 @@ class BrokerUsecase(
 
         Returns:
             A dictionary containing the resolved connection keyword arguments.
-
         """
         arguments = get_function_positional_arguments(self.__init__)  # type: ignore
         init_kwargs = {
@@ -247,106 +229,6 @@ class BrokerUsecase(
             **dict(zip(arguments, args)),
         }
         return {**init_kwargs, **connect_kwargs}
-
-    def _wrap_handler(
-        self,
-        func: Union[
-            HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
-            Callable[P_HandlerParams, T_HandlerReturn],
-        ],
-        *,
-        retry: Union[bool, int] = False,
-        extra_dependencies: Sequence[Depends] = (),
-        no_ack: bool = False,
-        _raw: bool = False,
-        _get_dependant: Optional[Any] = None,
-        _process_kwargs: Optional[AnyDict] = None,
-    ) -> Tuple[
-        HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
-        CallModel[Any, Any],
-    ]:
-        """Wrap a handler function.
-
-        Args:
-            func: The handler function to wrap.
-            retry: Whether to retry the handler function if it fails. Can be a boolean or an integer specifying the number of retries.
-            extra_dependencies: Additional dependencies for the handler function.
-            no_ack: Whether not to ack/nack/reject messages.
-            _raw: Whether to use the raw handler function.
-            _get_dependant: The dependant function to use.
-            **broker_log_context_kwargs: Additional keyword arguments for the broker log context.
-
-        Returns:
-            A tuple containing the wrapped handler function and the call model.
-
-        Raises:
-            NotImplementedError: If silent animals are not supported.
-
-        """
-        final_extra_deps = tuple(chain(extra_dependencies, self.dependencies))
-
-        build_dep = cast(
-            Callable[
-                [Callable[F_Spec, F_Return]],
-                CallModel[F_Spec, F_Return],
-            ],
-            _get_dependant
-            or partial(
-                build_call_model,
-                cast=self._is_validate,
-            ),
-        )
-
-        if isinstance(func, HandlerCallWrapper):
-            handler_call, func = func, func._original_call
-            if handler_call._wrapped_call is not None:
-                return handler_call, build_dep(func)
-
-        else:
-            handler_call = HandlerCallWrapper(func)
-
-        f = to_async(func)
-
-        dependant = build_dep(f)
-
-        extra = [build_dep(d.dependency) for d in final_extra_deps]
-        extend_dependencies(extra, dependant)
-
-        if getattr(dependant, "flat_params", None) is None:  # handle FastAPI Dependant
-            dependant = _patch_fastapi_dependant(dependant)
-            params = ()
-
-        else:
-            params = set(
-                chain(
-                    dependant.flat_params.keys(),
-                    *(d.flat_params.keys() for d in extra),
-                )
-            )
-
-        if self._is_apply_types and not _raw:
-            f = apply_types(None)(f, dependant)  # type: ignore[arg-type,assignment]
-
-        decode_f = self._wrap_decode_message(
-            func=f,
-            _raw=_raw,
-            params=params,
-        )
-
-        process_f = self._process_message(
-            func=decode_f,
-            watcher=(
-                partial(WatcherContext, watcher=get_watcher(self.logger, retry))  # type: ignore[arg-type]
-                if not no_ack
-                else fake_context
-            ),
-            **(_process_kwargs or {}),
-        )
-
-        process_f = set_message_context(process_f)
-
-        handler_call.set_wrapped(process_f)
-        return handler_call, dependant
 
     def _abc_start(self) -> None:
         if not self.started:
@@ -465,84 +347,6 @@ class BrokerUsecase(
 
         Returns:
             The published publisher.
-
-        Raises:
-            NotImplementedError: If the method is not implemented.
         """
         self._publishers = {**self._publishers, key: publisher}
         return publisher
-
-    @abstractmethod
-    def _wrap_decode_message(
-        self,
-        func: Callable[..., Awaitable[T_HandlerReturn]],
-        params: Sized = (),
-        _raw: bool = False,
-    ) -> Callable[[StreamMessage[MsgType]], Awaitable[T_HandlerReturn]]:
-        """Wrap a decoding message function.
-
-        Args:
-            func: The function to wrap.
-            params: The parameters to pass to the function.
-            _raw: Whether to return the raw message or not.
-
-        Returns:
-            The wrapped function.
-
-        Raises:
-            NotImplementedError: If the method is not implemented.
-        """
-        raise NotImplementedError()
-
-
-def extend_dependencies(
-    extra: Sequence[CallModel[Any, Any]], dependant: CallModel[Any, Any]
-) -> CallModel[Any, Any]:
-    """Extends the dependencies of a function or FastAPI dependency.
-
-    Args:
-        extra: Additional dependencies to be added.
-        dependant: The function or FastAPI dependency whose dependencies will be extended.
-
-    Returns:
-        The updated function or FastAPI dependency.
-    """
-    if isinstance(dependant, CallModel):
-        dependant.extra_dependencies = (*dependant.extra_dependencies, *extra)
-    else:  # FastAPI dependencies
-        dependant.dependencies.extend(extra)
-    return dependant
-
-
-def _patch_fastapi_dependant(
-    dependant: CallModel[P_HandlerParams, Awaitable[T_HandlerReturn]],
-) -> CallModel[P_HandlerParams, Awaitable[T_HandlerReturn]]:
-    """Patch FastAPI dependant.
-
-    Args:
-        dependant: The dependant to be patched.
-
-    Returns:
-        The patched dependant.
-    """
-    params = dependant.query_params + dependant.body_params  # type: ignore[attr-defined]
-
-    for d in dependant.dependencies:
-        params.extend(d.query_params + d.body_params)  # type: ignore[attr-defined]
-
-    params_unique = {}
-    params_names = set()
-    for p in params:
-        if p.name not in params_names:
-            params_names.add(p.name)
-            info = p.field_info if PYDANTIC_V2 else p
-            params_unique[p.name] = (info.annotation, info.default)
-
-    dependant.model = create_model(  # type: ignore[call-overload]
-        getattr(dependant.call.__name__, "__name__", type(dependant.call).__name__),
-        **params_unique,
-    )
-    dependant.custom_fields = {}
-    dependant.flat_params = params_unique  # type: ignore[assignment,misc]
-
-    return dependant
