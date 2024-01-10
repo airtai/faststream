@@ -114,7 +114,7 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
             path,
             *extra,
             raw=True,
-            _get_dependant=lambda call: dependant,
+            get_dependant=lambda call: dependant,
             **handle_kwargs,
         )(
             handler  # type: ignore[arg-type]
@@ -210,9 +210,6 @@ class StreamMessage(Request):
 
             Returns:
                 The sendable message
-
-            Raises:
-                TypeError: If the body of the message is not a dictionary
             """
             body = message.decoded_body
 

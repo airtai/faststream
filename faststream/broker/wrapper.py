@@ -52,7 +52,9 @@ class FakePublisher:
         Returns:
             The published message.
         """
-        return await self.method(message, *args, correlation_id=correlation_id, **kwargs)
+        return await self.method(
+            message, *args, correlation_id=correlation_id, **kwargs
+        )
 
 
 class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):

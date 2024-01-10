@@ -170,7 +170,12 @@ class BrokerUsecase(
         midd_args: Sequence[Callable[[MsgType], BaseMiddleware]] = (
             middlewares or empty_middleware
         )
-        self.middlewares = (CriticalLogMiddleware(logger, log_level), *midd_args)
+
+        if not is_test_env():
+            self.middlewares = (CriticalLogMiddleware(logger, log_level), *midd_args)
+        else:
+            self.middlewares = midd_args
+
         self.dependencies = dependencies
 
         self._connection_args = (url, *args)

@@ -12,7 +12,6 @@ from faststream.app import FastStream
 from faststream.broker.core.abc import BrokerUsecase
 from faststream.broker.core.asynchronous import BrokerAsyncUsecase
 from faststream.broker.handler import BaseHandler
-from faststream.broker.middlewares import CriticalLogMiddleware
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.types import SendableMessage, SettingField
 from faststream.utils.ast import is_contains_context_name
@@ -221,11 +220,6 @@ class TestBroker(Generic[Broker]):
         exc_val: Optional[BaseException] = None,
         exec_tb: Optional[TracebackType] = None,
     ) -> None:
-        broker.middlewares = [
-            CriticalLogMiddleware(broker.logger, broker.log_level),
-            *broker.middlewares,
-        ]
-
         for p in broker._publishers.values():
             if p._fake_handler:
                 p.reset_test()
@@ -233,8 +227,8 @@ class TestBroker(Generic[Broker]):
 
         for h in broker.handlers.values():
             h.running = False
-            for h in h.calls:
-                h.handler.reset_test()
+            for call in h.calls:
+                call.handler.reset_test()
 
     @staticmethod
     @abstractmethod
@@ -267,14 +261,7 @@ def patch_broker_calls(broker: BrokerUsecase[Any, Any]) -> None:
 
     Returns:
         None.
-
     """
-    broker.middlewares = tuple(
-        filter(  # type: ignore[assignment]
-            lambda x: not isinstance(x, CriticalLogMiddleware),
-            broker.middlewares,
-        )
-    )
     broker._abc_start()
 
     for handler in broker.handlers.values():

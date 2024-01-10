@@ -13,7 +13,6 @@ from typing import (
     Type,
     Union,
 )
-from fastapi import FastAPI
 
 import nats
 from fast_depends.dependencies import Depends
@@ -278,8 +277,6 @@ class NatsBroker(
         inbox_prefix: bytes = api.INBOX_PREFIX,
         # custom
         ack_first: bool = False,
-        retry: bool = False,
-        raw: bool = False,
         stream: Union[str, JStream, None] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
@@ -287,13 +284,12 @@ class NatsBroker(
         decoder: Optional[CustomDecoder[NatsMessage]] = None,
         middlewares: Sequence[Callable[[Msg], BaseMiddleware]] = (),
         filter: Filter[NatsMessage] = default_filter,
-        no_ack: bool = False,
         max_workers: int = 1,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
         include_in_schema: bool = True,
-        **original_kwargs: Any,
+        **wrapper_kwargs: Any,
     ) -> "WrapperProtocol[Msg]":
         stream = stream_builder.stream(stream)
 
@@ -388,12 +384,10 @@ class NatsBroker(
             dependencies=(*self.dependencies, *dependencies),
             middlewares=middlewares,
             # wrapper kwargs
-            no_ack=no_ack,
             is_validate=self._is_validate,
             apply_types=self._is_apply_types,
-            raw=raw,
-            retry=retry,
             producer=self,
+            **wrapper_kwargs,
         )
 
     @override

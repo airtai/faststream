@@ -96,6 +96,7 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
 
         Args:
             message: The message to be published.
+            *args: Additional positional arguments.
             correlation_id: Optional correlation ID for the message.
             **kwargs: Additional keyword arguments.
 

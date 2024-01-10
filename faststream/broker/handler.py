@@ -25,9 +25,10 @@ import anyio
 from fast_depends import inject
 from fast_depends.core import CallModel, build_call_model
 from fast_depends.dependencies import Depends
+from pydantic import create_model
 from typing_extensions import Self, override
 
-from faststream._compat import IS_OPTIMIZED
+from faststream._compat import IS_OPTIMIZED, PYDANTIC_V2
 from faststream.asyncapi.base import AsyncAPIOperation
 from faststream.asyncapi.message import parse_handler_params
 from faststream.asyncapi.utils import to_camelcase
@@ -47,7 +48,7 @@ from faststream.broker.types import (
 from faststream.broker.utils import get_watcher, set_message_context
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.exceptions import HandlerException, StopConsume
-from faststream.types import AnyDict, SendableMessage
+from faststream.types import AnyDict, F_Return, F_Spec, SendableMessage
 from faststream.utils.context.repository import context
 from faststream.utils.functions import fake_context, to_async
 
@@ -58,6 +59,8 @@ if TYPE_CHECKING:
     from faststream.broker.message import StreamMessage
 
     class WrapperProtocol(Generic[MsgType], Protocol):
+        """Annotation class to represent @subsriber return type."""
+
         @overload
         def __call__(
             self,
@@ -77,7 +80,7 @@ if TYPE_CHECKING:
         @overload
         def __call__(
             self,
-            func: Callable[P_HandlerParams, T_HandlerReturn] = None,
+            func: Callable[P_HandlerParams, T_HandlerReturn],
             *,
             filter: Filter["StreamMessage[MsgType]"],
             parser: CustomParser[MsgType, Any],
@@ -238,21 +241,29 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
         self,
         *,
         func: Callable[P_HandlerParams, T_HandlerReturn],
-        no_ack: bool,
         apply_types: bool,
         is_validate: bool,
         dependencies: Sequence[Depends],
-        raw: bool,
-        retry: int,
+        no_ack: bool = False,
+        raw: bool = False,
+        retry: Union[bool, int] = False,
+        get_dependant: Optional[Any] = None,
         **process_kwargs: Any,
     ) -> Tuple[
         HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
         CallModel[P_HandlerParams, T_HandlerReturn],
     ]:
-        build_dep = partial(
-            build_call_model,
-            cast=is_validate,
-            extra_dependencies=dependencies,
+        build_dep = build_dep = cast(
+            Callable[
+                [Callable[F_Spec, F_Return]],
+                CallModel[F_Spec, F_Return],
+            ],
+            get_dependant
+            or partial(
+                build_call_model,
+                cast=is_validate,
+                extra_dependencies=dependencies,
+            ),
         )
 
         if isinstance(func, HandlerCallWrapper):
@@ -266,14 +277,20 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
         f = to_async(func)
         dependant = build_dep(f)
 
-        if apply_types and not raw:
-            f = inject(None)(f, dependant)
+        if getattr(dependant, "flat_params", None) is None:  # FastAPI case
+            extra = [build_dep(d.dependency) for d in dependencies]
+            dependant.dependencies.extend(extra)
+            dependant = _patch_fastapi_dependant(dependant)
 
-        if not raw:
-            f = self._wrap_decode_message(
-                func=f,
-                params_ln=len(dependant.flat_params),
-            )
+        else:
+            if apply_types and not raw:
+                f = inject(None)(f, dependant)
+
+            if not raw:
+                f = self._wrap_decode_message(
+                    func=f,
+                    params_ln=len(dependant.flat_params),
+                )
 
         f = self._process_message(
             func=f,
@@ -532,3 +549,37 @@ class MultiLock:
         if timeout:
             with anyio.move_on_after(timeout):
                 await self.queue.join()
+
+
+def _patch_fastapi_dependant(
+    dependant: CallModel[P_HandlerParams, Awaitable[T_HandlerReturn]],
+) -> CallModel[P_HandlerParams, Awaitable[T_HandlerReturn]]:
+    """Patch FastAPI dependant.
+
+    Args:
+        dependant: The dependant to be patched.
+
+    Returns:
+        The patched dependant.
+    """
+    params = dependant.query_params + dependant.body_params  # type: ignore[attr-defined]
+
+    for d in dependant.dependencies:
+        params.extend(d.query_params + d.body_params)  # type: ignore[attr-defined]
+
+    params_unique = {}
+    params_names = set()
+    for p in params:
+        if p.name not in params_names:
+            params_names.add(p.name)
+            info = p.field_info if PYDANTIC_V2 else p
+            params_unique[p.name] = (info.annotation, info.default)
+
+    dependant.model = create_model(  # type: ignore[call-overload]
+        getattr(dependant.call.__name__, "__name__", type(dependant.call).__name__),
+        **params_unique,
+    )
+    dependant.custom_fields = {}
+    dependant.flat_params = params_unique  # type: ignore[assignment,misc]
+
+    return dependant

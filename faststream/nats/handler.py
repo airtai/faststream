@@ -42,8 +42,8 @@ from faststream.broker.wrapper import FakePublisher
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.parser import JsParser, Parser
-from faststream.nats.pull_sub import PullSub
 from faststream.nats.producer import NatsFastProducer
+from faststream.nats.pull_sub import PullSub
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils.path import compile_path
 

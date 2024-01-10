@@ -33,7 +33,7 @@ class TestRedisBroker(TestBroker[RedisBroker]):
             channel=publisher.channel,
             list=publisher.list,
             stream=publisher.stream,
-            _raw=True,
+            raw=True,
         )
         def f(msg: Any) -> None:
             pass
