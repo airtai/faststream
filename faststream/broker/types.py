@@ -83,17 +83,17 @@ class AsyncPublisherProtocol(Protocol):
         *args: Any,
         correlation_id: Optional[str] = None,
         **kwargs: Any,
-    ) -> Optional[SendableMessage]:
+    ) -> Any:
         """Publishes a message asynchronously.
 
         Args:
             message: The message to be published.
+            *args: Additional positional arguments.
             correlation_id: Optional correlation ID for the message.
             **kwargs: Additional keyword arguments.
 
         Returns:
             The published message, or None if the message was not published.
-
         """
         ...
 

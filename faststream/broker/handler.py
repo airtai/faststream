@@ -22,6 +22,7 @@ from typing import (
 )
 
 import anyio
+from fast_depends import inject
 from fast_depends.core import CallModel, build_call_model
 from fast_depends.dependencies import Depends
 from typing_extensions import Self, override
@@ -47,7 +48,6 @@ from faststream.broker.utils import get_watcher, set_message_context
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.exceptions import HandlerException, StopConsume
 from faststream.types import AnyDict, SendableMessage
-from faststream.utils import apply_types
 from faststream.utils.context.repository import context
 from faststream.utils.functions import fake_context, to_async
 
@@ -201,12 +201,15 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
                 HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
             ],
         ]:
+            total_deps = (*dependencies_, *dependencies)
+            total_middlewares = (*middlewares_, *middlewares)
+
             def real_wrapper(
                 func: Callable[P_HandlerParams, T_HandlerReturn],
             ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
                 handler, dependant = self.wrap_handler(
                     func=func,
-                    dependencies=(*dependencies_, *dependencies),
+                    dependencies=total_deps,
                     **wrap_kwargs,
                 )
 
@@ -217,7 +220,7 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
                         filter=to_async(filter),
                         parser=to_async(parser),
                         decoder=to_async(decoder),
-                        middlewares=(*middlewares_, *middlewares),
+                        middlewares=total_middlewares,
                     )
                 )
 
@@ -236,6 +239,7 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
         *,
         func: Callable[P_HandlerParams, T_HandlerReturn],
         no_ack: bool,
+        apply_types: bool,
         is_validate: bool,
         dependencies: Sequence[Depends],
         raw: bool,
@@ -262,9 +266,10 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
         f = to_async(func)
         dependant = build_dep(f)
 
-        if not raw:
-            f = apply_types(None)(f, dependant)
+        if apply_types and not raw:
+            f = inject(None)(f, dependant)
 
+        if not raw:
             f = self._wrap_decode_message(
                 func=f,
                 params_ln=len(dependant.flat_params),

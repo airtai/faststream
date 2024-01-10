@@ -13,6 +13,7 @@ from typing import (
     Type,
     Union,
 )
+from fastapi import FastAPI
 
 import nats
 from fast_depends.dependencies import Depends
@@ -278,6 +279,7 @@ class NatsBroker(
         # custom
         ack_first: bool = False,
         retry: bool = False,
+        raw: bool = False,
         stream: Union[str, JStream, None] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
@@ -385,9 +387,11 @@ class NatsBroker(
             decoder=decoder or self._global_decoder,
             dependencies=(*self.dependencies, *dependencies),
             middlewares=middlewares,
+            # wrapper kwargs
             no_ack=no_ack,
             is_validate=self._is_validate,
-            raw=not self._is_apply_types,
+            apply_types=self._is_apply_types,
+            raw=raw,
             retry=retry,
             producer=self,
         )

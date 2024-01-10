@@ -12,8 +12,8 @@ from faststream.exceptions import StopConsume
 @pytest.mark.asyncio()
 class BrokerConsumeTestcase:  # noqa: D101
     @pytest.fixture()
-    def consume_broker(self, full_broker: BrokerUsecase):
-        return full_broker
+    def consume_broker(self, broker: BrokerUsecase):
+        return broker
 
     async def test_consume(
         self,

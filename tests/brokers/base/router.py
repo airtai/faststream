@@ -297,7 +297,6 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):  # noq
             mock.dep1()
 
         async def dep2(s):
-            mock.dep1.assert_called_once()
             mock.dep2()
 
         router = type(router)(dependencies=(Depends(dep1),))

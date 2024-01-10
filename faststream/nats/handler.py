@@ -43,6 +43,7 @@ from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.parser import JsParser, Parser
 from faststream.nats.pull_sub import PullSub
+from faststream.nats.producer import NatsFastProducer
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils.path import compile_path
 
@@ -180,7 +181,7 @@ class LogicNatsHandler(BaseHandler[Msg]):
         self,
         func: Callable[[NatsMessage], Awaitable[T_HandlerReturn]],
         watcher: Callable[..., AsyncContextManager[None]],
-        producer: AsyncPublisherProtocol,
+        producer: NatsFastProducer,
     ) -> Callable[
         [NatsMessage],
         Awaitable[WrappedReturn[T_HandlerReturn]],

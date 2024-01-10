@@ -37,20 +37,22 @@ class FakePublisher:
     async def publish(
         self,
         message: SendableMessage,
+        *args: Any,
         correlation_id: Optional[str] = None,
         **kwargs: Any,
-    ) -> Optional[SendableMessage]:
+    ) -> Any:
         """Publish a message.
 
         Args:
             message: The message to be published.
+            *args: Additinal positional arguments.
             correlation_id: Optional correlation ID for the message.
             **kwargs: Additional keyword arguments.
 
         Returns:
             The published message.
         """
-        return await self.method(message, correlation_id=correlation_id, **kwargs)
+        return await self.method(message, *args, correlation_id=correlation_id, **kwargs)
 
 
 class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):

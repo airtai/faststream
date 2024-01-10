@@ -113,7 +113,7 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
         self.handler = broker.subscriber(
             path,
             *extra,
-            _raw=True,
+            raw=True,
             _get_dependant=lambda call: dependant,
             **handle_kwargs,
         )(
