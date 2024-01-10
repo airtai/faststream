@@ -11,7 +11,7 @@ from anyio.from_thread import start_blocking_portal
 from faststream.app import FastStream
 from faststream.broker.core.abc import BrokerUsecase
 from faststream.broker.core.asynchronous import BrokerAsyncUsecase
-from faststream.broker.handler import AsyncHandler
+from faststream.broker.handler import BaseHandler
 from faststream.broker.middlewares import CriticalLogMiddleware
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.types import SendableMessage, SettingField
@@ -197,10 +197,10 @@ class TestBroker(Generic[Broker]):
             if handler is not None:
                 mock = MagicMock()
                 p.set_test(mock=mock, with_fake=False)
-                for f, _, _, _, _, _ in handler.calls:
-                    f.set_test()
-                    assert f.mock  # nosec B101
-                    f.mock.side_effect = mock
+                for h in handler.calls:
+                    h.handler.set_test()
+                    assert h.handler.mock  # nosec B101
+                    h.handler.mock.side_effect = mock
 
             else:
                 f = cls.create_publisher_fake_subscriber(broker, p)
@@ -233,8 +233,8 @@ class TestBroker(Generic[Broker]):
 
         for h in broker.handlers.values():
             h.running = False
-            for f, _, _, _, _, _ in h.calls:
-                f.reset_test()
+            for h in h.calls:
+                h.handler.reset_test()
 
     @staticmethod
     @abstractmethod
@@ -278,12 +278,12 @@ def patch_broker_calls(broker: BrokerUsecase[Any, Any]) -> None:
     broker._abc_start()
 
     for handler in broker.handlers.values():
-        for f, _, _, _, _, _ in handler.calls:
-            f.set_test()
+        for h in handler.calls:
+            h.handler.set_test()
 
 
 async def call_handler(
-    handler: AsyncHandler[Any],
+    handler: BaseHandler[Any],
     message: Any,
     rpc: bool = False,
     rpc_timeout: Optional[float] = 30.0,

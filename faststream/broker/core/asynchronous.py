@@ -4,7 +4,6 @@ from functools import wraps
 from types import TracebackType
 from typing import (
     Any,
-    AsyncContextManager,
     Awaitable,
     Callable,
     Mapping,
@@ -22,7 +21,7 @@ from fast_depends.dependencies import Depends
 from typing_extensions import Self, override
 
 from faststream.broker.core.abc import BrokerUsecase
-from faststream.broker.handler import AsyncHandler
+from faststream.broker.handler import BaseHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
@@ -35,7 +34,6 @@ from faststream.broker.types import (
     MsgType,
     P_HandlerParams,
     T_HandlerReturn,
-    WrappedReturn,
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.log import access_logger
@@ -72,10 +70,9 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         close(exc_type: Optional[Type[BaseException]] = None, exc_val: Optional[BaseException] = None, exec_tb: Optional[TracebackType] = None) : Close the connection to the broker.
         _process_message(func: Callable[[StreamMessage[MsgType]], Awaitable[T_HandlerReturn]], watcher: BaseWatcher) : Abstract method to process a message.
         publish(message: SendableMessage, *args: Any, reply_to: str = "", rpc: bool = False, rpc_timeout: Optional[float]
-
     """
 
-    handlers: Mapping[Any, AsyncHandler[MsgType]]
+    handlers: Mapping[Any, BaseHandler[MsgType]]
     middlewares: Sequence[Callable[[MsgType], BaseMiddleware]]
     _global_parser: Optional[AsyncCustomParser[MsgType, StreamMessage[MsgType]]]
     _global_decoder: Optional[AsyncCustomDecoder[StreamMessage[MsgType]]]
@@ -85,8 +82,8 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
         """Start the broker async use case."""
         super()._abc_start()
         for h in self.handlers.values():
-            for f, _, _, _, _, _ in h.calls:
-                f.refresh(with_mock=False)
+            for f in h.calls:
+                f.handler.refresh(with_mock=False)
         await self.connect()
 
     @abstractmethod
@@ -101,7 +98,6 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
 
         Raises:
             NotImplementedError: If the method is not implemented.
-
         """
         raise NotImplementedError()
 
@@ -121,7 +117,6 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
 
         Returns:
             None
-
         """
         super()._abc__close(exc_type, exc_val, exec_tb)
 
@@ -143,7 +138,6 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
 
         Raises:
             NotImplementedError: If the method is not implemented.
-
         """
         super()._abc_close(exc_type, exc_val, exec_tb)
 
@@ -152,34 +146,6 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
 
         if self._connection is not None:
             await self._close(exc_type, exc_val, exec_tb)
-
-    @override
-    @abstractmethod
-    def _process_message(
-        self,
-        func: Callable[[StreamMessage[MsgType]], Awaitable[T_HandlerReturn]],
-        watcher: Callable[..., AsyncContextManager[None]],
-        **kwargs: Any,
-    ) -> Callable[
-        [StreamMessage[MsgType]],
-        Awaitable[WrappedReturn[T_HandlerReturn]],
-    ]:
-        """Process a message.
-
-        Args:
-            func: A callable function that takes a StreamMessage and returns an Awaitable.
-            watcher: An instance of BaseWatcher.
-            disable_watcher: Whether to use watcher context.
-            kwargs: Additional keyword arguments.
-
-        Returns:
-            A callable function that takes a StreamMessage and returns an Awaitable.
-
-        Raises:
-            NotImplementedError: If the method is not implemented.
-
-        """
-        raise NotImplementedError()
 
     @abstractmethod
     async def publish(
@@ -208,7 +174,6 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
 
         Raises:
             NotImplementedError: If the method is not implemented.
-
         """
         raise NotImplementedError()
 
@@ -254,7 +219,6 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
 
         Raises:
             NotImplementedError: If silent animals are not supported.
-
         """
         super().subscriber()
 
@@ -288,7 +252,6 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
             middlewares: Sequence of middlewares
             graceful_timeout: Graceful timeout
             **kwargs: Keyword arguments
-
         """
         super().__init__(
             *args,
@@ -320,7 +283,6 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
 
         Returns:
             The connection object.
-
         """
         if self._connection is None:
             _kwargs = self._resolve_connection_kwargs(*args, **kwargs)
@@ -350,7 +312,6 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
 
         Overrides:
             This method overrides the __aexit__ method of the base class.
-
         """
         await self.close(exc_type, exc_val, exec_tb)
 
@@ -370,10 +331,6 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
 
         Returns:
             The wrapped function.
-
-        Raises:
-            AssertionError: If the code reaches an unreachable state.
-
         """
         params_ln = len(params)
 
@@ -386,12 +343,6 @@ class BrokerAsyncUsecase(BrokerUsecase[MsgType, ConnectionType]):
 
             Returns:
                 The return value of the handler function
-
-            Raises:
-                AssertionError: If the code reaches an unreachable state
-            !!! note
-
-                The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)
             """
             if _raw is True:
                 return await func(message)

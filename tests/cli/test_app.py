@@ -144,7 +144,7 @@ async def test_exception_group(async_mock: AsyncMock, app: FastStream):
         app.broker, "close", async_mock.broker_stopped
     ), patch.object(
         anyio, "open_signal_receiver", fake_open_signal_receiver
-    ), pytest.raises(ValueError):  # noqa: PT011
+    ), pytest.raises(ValueError):
         await app.run()
 
 

@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from inspect import _empty
-from typing import Any, Dict, Iterator, Mapping, cast
+from typing import Any, Dict, Iterator, Mapping
 
 from faststream.types import AnyDict
 from faststream.utils.classes import Singleton
@@ -168,4 +168,4 @@ class ContextRepo(Singleton):
             self.reset_local(key, token)
 
 
-context: ContextRepo = cast(ContextRepo, ContextRepo())  # type: ignore[redundant-cast]
+context = ContextRepo()

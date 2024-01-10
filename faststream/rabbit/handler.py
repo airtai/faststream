@@ -4,7 +4,7 @@ import aio_pika
 from fast_depends.core import CallModel
 from typing_extensions import override
 
-from faststream.broker.handler import AsyncHandler
+from faststream.broker.handler import BaseHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.parsers import resolve_custom_func
@@ -27,7 +27,7 @@ from faststream.rabbit.shared.schemas import (
 from faststream.types import AnyDict
 
 
-class LogicHandler(AsyncHandler[aio_pika.IncomingMessage], BaseRMQInformation):
+class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
     """A class to handle logic for RabbitMQ message consumption.
 
     Attributes:

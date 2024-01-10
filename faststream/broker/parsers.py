@@ -35,7 +35,6 @@ def decode_message(message: StreamMessage[Any]) -> DecodedMessage:
 
     Raises:
         JSONDecodeError: If the message body cannot be decoded as JSON.
-
     """
     body: Any = getattr(message, "body", message)
     m: DecodedMessage = body
@@ -63,7 +62,6 @@ def encode_message(
 
     Returns:
         A tuple containing the encoded message as bytes and the content type of the message.
-
     """
     if msg is None:
         return b"", None
@@ -93,7 +91,6 @@ def resolve_custom_func(
 
     Returns:
         A resolved function of type SyncDecoder
-
     """
     ...
 
@@ -111,7 +108,6 @@ def resolve_custom_func(
 
     Returns:
         A resolved function of type SyncParser[MsgType].
-
     """
     ...
 
@@ -129,7 +125,6 @@ def resolve_custom_func(
 
     Returns:
         Resolved function.
-
     """
     ...
 
@@ -147,7 +142,6 @@ def resolve_custom_func(
 
     Returns:
         Resolved function.
-
     """
     ...
 
@@ -165,7 +159,6 @@ def resolve_custom_func(
 
     Returns:
         A decoder function.
-
     """
     ...
 
@@ -183,17 +176,25 @@ def resolve_custom_func(
 
     Returns:
         Resolved function.
-
     """
     ...
 
 
 def resolve_custom_func(  # type: ignore[misc]
     custom_func: Optional[
-        Union[CustomDecoder[StreamMsg], CustomParser[MsgType, StreamMsg]]
+        Union[
+            CustomDecoder[StreamMsg],
+            CustomParser[MsgType, StreamMsg],
+        ]
     ],
-    default_func: Union[Decoder[StreamMsg], Parser[MsgType, StreamMsg]],
-) -> Union[Decoder[StreamMsg], Parser[MsgType, StreamMsg]]:
+    default_func: Union[
+        Decoder[StreamMsg],
+        Parser[MsgType, StreamMsg],
+    ],
+) -> Union[
+    Decoder[StreamMsg],
+    Parser[MsgType, StreamMsg],
+]:
     """Resolve a custom function.
 
     Args:
@@ -202,7 +203,6 @@ def resolve_custom_func(  # type: ignore[misc]
 
     Returns:
         The resolved function of type Decoder or Parser.
-
     """
     if custom_func is None:
         return default_func

@@ -87,6 +87,7 @@ class NatsRouter(BaseRouter):
         filter: Filter[NatsMessage] = default_filter,
         retry: bool = False,
         no_ack: bool = False,
+        max_workers: int = 1,
         # AsyncAPI information
         title: str | None = None,
         description: str | None = None,

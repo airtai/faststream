@@ -1,11 +1,10 @@
 import logging
 import warnings
-from functools import partial, wraps
+from functools import partial
 from types import TracebackType
 from typing import (
+    TYPE_CHECKING,
     Any,
-    AsyncContextManager,
-    Awaitable,
     Callable,
     Dict,
     List,
@@ -32,18 +31,12 @@ from nats.js.client import (
 from typing_extensions import TypeAlias, override
 
 from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
-from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
-    AsyncPublisherProtocol,
     CustomDecoder,
     CustomParser,
     Filter,
-    P_HandlerParams,
-    T_HandlerReturn,
-    WrappedReturn,
 )
-from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.nats.asyncapi import Handler, Publisher
 from faststream.nats.helpers import stream_builder
@@ -58,6 +51,9 @@ from faststream.types import AnyDict, DecodedMessage
 from faststream.utils.context.repository import context
 
 Subject: TypeAlias = str
+
+if TYPE_CHECKING:
+    from faststream.broker.handler import WrapperProtocol
 
 
 class NatsBroker(
@@ -227,34 +223,6 @@ class NatsBroker(
             self._log(f"`{handler.call_name}` waiting for messages", extra=c)
             await handler.start(self.stream if is_js else self._connection)
 
-    def _process_message(
-        self,
-        func: Callable[[StreamMessage[Msg]], Awaitable[T_HandlerReturn]],
-        watcher: Callable[..., AsyncContextManager[None]],
-        **kwargs: Any,
-    ) -> Callable[
-        [StreamMessage[Msg]],
-        Awaitable[WrappedReturn[T_HandlerReturn]],
-    ]:
-        @wraps(func)
-        async def process_wrapper(
-            message: StreamMessage[Msg],
-        ) -> WrappedReturn[T_HandlerReturn]:
-            async with watcher(message):
-                r = await func(message)
-
-                pub_response: Optional[AsyncPublisherProtocol]
-                if message.reply_to:
-                    pub_response = FakePublisher(
-                        partial(self.publish, subject=message.reply_to)
-                    )
-                else:
-                    pub_response = None
-
-                return r, pub_response
-
-        return process_wrapper
-
     def _log_connection_broken(
         self,
         error_cb: Optional[ErrorCallback] = None,
@@ -309,12 +277,13 @@ class NatsBroker(
         inbox_prefix: bytes = api.INBOX_PREFIX,
         # custom
         ack_first: bool = False,
+        retry: bool = False,
         stream: Union[str, JStream, None] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
         parser: Optional[CustomParser[Msg, NatsMessage]] = None,
         decoder: Optional[CustomDecoder[NatsMessage]] = None,
-        middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]] = None,
+        middlewares: Sequence[Callable[[Msg], BaseMiddleware]] = (),
         filter: Filter[NatsMessage] = default_filter,
         no_ack: bool = False,
         max_workers: int = 1,
@@ -323,10 +292,7 @@ class NatsBroker(
         description: Optional[str] = None,
         include_in_schema: bool = True,
         **original_kwargs: Any,
-    ) -> Callable[
-        [Callable[P_HandlerParams, T_HandlerReturn]],
-        HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn],
-    ]:
+    ) -> "WrapperProtocol[Msg]":
         stream = stream_builder.stream(stream)
 
         if pull_sub is not None and stream is None:
@@ -399,6 +365,8 @@ class NatsBroker(
                 include_in_schema=include_in_schema,
                 graceful_timeout=self.graceful_timeout,
                 max_workers=max_workers,
+                middlewares=self.middlewares,
+                logger=self.logger,
                 log_context_builder=partial(
                     self._get_log_context,
                     stream=stream.name if stream else "",
@@ -411,32 +379,18 @@ class NatsBroker(
         if stream:
             stream.subjects.append(handler.subject)
 
-        def consumer_wrapper(
-            func: Callable[P_HandlerParams, T_HandlerReturn],
-        ) -> HandlerCallWrapper[
-            Msg,
-            P_HandlerParams,
-            T_HandlerReturn,
-        ]:
-            handler_call, dependant = self._wrap_handler(
-                func,
-                extra_dependencies=dependencies,
-                no_ack=no_ack,
-                **original_kwargs,
-            )
-
-            handler.add_call(
-                handler=handler_call,
-                filter=filter,
-                middlewares=middlewares,
-                parser=parser or self._global_parser,
-                decoder=decoder or self._global_decoder,
-                dependant=dependant,
-            )
-
-            return handler_call
-
-        return consumer_wrapper
+        return handler.add_call(
+            filter=filter,
+            parser=parser or self._global_parser,
+            decoder=decoder or self._global_decoder,
+            dependencies=(*self.dependencies, *dependencies),
+            middlewares=middlewares,
+            no_ack=no_ack,
+            is_validate=self._is_validate,
+            raw=not self._is_apply_types,
+            retry=retry,
+            producer=self,
+        )
 
     @override
     def publisher(  # type: ignore[override]
@@ -488,6 +442,7 @@ class NatsBroker(
         if stream is None:
             assert self._producer, NOT_CONNECTED_YET  # nosec B101
             return await self._producer.publish(*args, **kwargs)
+
         else:
             assert self._js_producer, NOT_CONNECTED_YET  # nosec B101
             return await self._js_producer.publish(

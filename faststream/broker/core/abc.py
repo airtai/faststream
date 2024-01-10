@@ -6,7 +6,6 @@ from itertools import chain
 from types import TracebackType
 from typing import (
     Any,
-    AsyncContextManager,
     Awaitable,
     Callable,
     Generic,
@@ -43,7 +42,6 @@ from faststream.broker.types import (
     MsgType,
     P_HandlerParams,
     T_HandlerReturn,
-    WrappedReturn,
 )
 from faststream.broker.utils import (
     change_logger_handlers,
@@ -172,7 +170,7 @@ class BrokerUsecase(
         midd_args: Sequence[Callable[[MsgType], BaseMiddleware]] = (
             middlewares or empty_middleware
         )
-        self.middlewares = [CriticalLogMiddleware(logger, log_level), *midd_args]
+        self.middlewares = (CriticalLogMiddleware(logger, log_level), *midd_args)
         self.dependencies = dependencies
 
         self._connection_args = (url, *args)
@@ -280,15 +278,25 @@ class BrokerUsecase(
             NotImplementedError: If silent animals are not supported.
 
         """
+        final_extra_deps = tuple(chain(extra_dependencies, self.dependencies))
+
         build_dep = cast(
-            Callable[[Callable[F_Spec, F_Return]], CallModel[F_Spec, F_Return]],
-            _get_dependant or partial(build_call_model, cast=self._is_validate),
+            Callable[
+                [Callable[F_Spec, F_Return]],
+                CallModel[F_Spec, F_Return],
+            ],
+            _get_dependant
+            or partial(
+                build_call_model,
+                cast=self._is_validate,
+            ),
         )
 
         if isinstance(func, HandlerCallWrapper):
             handler_call, func = func, func._original_call
             if handler_call._wrapped_call is not None:
                 return handler_call, build_dep(func)
+
         else:
             handler_call = HandlerCallWrapper(func)
 
@@ -296,27 +304,28 @@ class BrokerUsecase(
 
         dependant = build_dep(f)
 
-        extra = [
-            build_dep(d.dependency)
-            for d in chain(extra_dependencies, self.dependencies)
-        ]
-
+        extra = [build_dep(d.dependency) for d in final_extra_deps]
         extend_dependencies(extra, dependant)
 
         if getattr(dependant, "flat_params", None) is None:  # handle FastAPI Dependant
             dependant = _patch_fastapi_dependant(dependant)
+            params = ()
+
+        else:
+            params = set(
+                chain(
+                    dependant.flat_params.keys(),
+                    *(d.flat_params.keys() for d in extra),
+                )
+            )
 
         if self._is_apply_types and not _raw:
-            f = apply_types(None, cast=self._is_validate)(f, dependant)  # type: ignore[arg-type,assignment]
+            f = apply_types(None)(f, dependant)  # type: ignore[arg-type,assignment]
 
         decode_f = self._wrap_decode_message(
             func=f,
             _raw=_raw,
-            params=set(
-                chain(
-                    dependant.flat_params.keys(), *(d.flat_params.keys() for d in extra)
-                )
-            ),
+            params=params,
         )
 
         process_f = self._process_message(
@@ -338,9 +347,6 @@ class BrokerUsecase(
         if not self.started:
             self.started = True
 
-            for h in self.handlers.values():
-                h.global_middlewares = (*self.middlewares, *h.global_middlewares)
-
             if self.logger is not None:
                 change_logger_handlers(self.logger, self.fmt)
 
@@ -359,7 +365,6 @@ class BrokerUsecase(
 
         Returns:
             None
-
         """
         self.started = False
 
@@ -381,33 +386,8 @@ class BrokerUsecase(
 
         Note:
             This is an abstract method and must be implemented by subclasses.
-
         """
         self._connection = None
-
-    @abstractmethod
-    def _process_message(
-        self,
-        func: Callable[[StreamMessage[MsgType]], Awaitable[T_HandlerReturn]],
-        watcher: Callable[..., AsyncContextManager[None]],
-        **kwargs: Any,
-    ) -> Callable[[StreamMessage[MsgType]], Awaitable[WrappedReturn[T_HandlerReturn]]]:
-        """Processes a message using a given function and watcher.
-
-        Args:
-            func: A callable that takes a StreamMessage of type MsgType and returns an Awaitable of type T_HandlerReturn.
-            watcher: An instance of BaseWatcher.
-            disable_watcher: Whether to use watcher context.
-            kwargs: Additional keyword arguments.
-
-        Returns:
-            A callable that takes a StreamMessage of type MsgType and returns an Awaitable of type WrappedReturn[T_HandlerReturn].
-
-        Raises:
-            NotImplementedError: If the method is not implemented.
-
-        """
-        raise NotImplementedError()
 
     @abstractmethod
     def subscriber(  # type: ignore[return]
@@ -457,7 +437,6 @@ class BrokerUsecase(
 
         Raises:
             RuntimeWarning: If the broker is already running.
-
         """
         if self.started and not is_test_env():  # pragma: no cover
             warnings.warn(
@@ -484,7 +463,6 @@ class BrokerUsecase(
 
         Raises:
             NotImplementedError: If the method is not implemented.
-
         """
         self._publishers = {**self._publishers, key: publisher}
         return publisher
@@ -508,7 +486,6 @@ class BrokerUsecase(
 
         Raises:
             NotImplementedError: If the method is not implemented.
-
         """
         raise NotImplementedError()
 
@@ -524,7 +501,6 @@ def extend_dependencies(
 
     Returns:
         The updated function or FastAPI dependency.
-
     """
     if isinstance(dependant, CallModel):
         dependant.extra_dependencies = (*dependant.extra_dependencies, *extra)
@@ -543,7 +519,6 @@ def _patch_fastapi_dependant(
 
     Returns:
         The patched dependant.
-
     """
     params = dependant.query_params + dependant.body_params  # type: ignore[attr-defined]
 

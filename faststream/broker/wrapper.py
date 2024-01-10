@@ -24,7 +24,6 @@ class FakePublisher:
 
     Methods:
         publish : asynchronously publishes a message with optional correlation ID and additional keyword arguments
-
     """
 
     def __init__(self, method: Callable[..., Awaitable[SendableMessage]]) -> None:
@@ -32,7 +31,6 @@ class FakePublisher:
 
         Args:
             method: A callable that takes any number of arguments and returns an awaitable sendable message.
-
         """
         self.method = method
 
@@ -51,7 +49,6 @@ class FakePublisher:
 
         Returns:
             The published message.
-
         """
         return await self.method(message, correlation_id=correlation_id, **kwargs)
 
@@ -73,7 +70,6 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
         set_wrapped : Set the wrapped handler call
         call_wrapped : Call the wrapped handler
         wait_call : Wait for the handler call to complete
-
     """
 
     mock: Optional[MagicMock]
@@ -110,7 +106,6 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
 
         Note:
             If the "call" argument is already an instance of the class, it is returned as is. Otherwise, a new instance of the class is created using the superclass's __new__ method.
-
         """
         if isinstance(call, cls):
             return call
@@ -131,8 +126,6 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
             _wrapped_call: The wrapped handler function.
             _publishers: A list of publishers.
             mock: A MagicMock object.
-            __name__: The name of the handler function.
-
         """
         if not isinstance(call, HandlerCallWrapper):
             self._original_call = call
@@ -185,11 +178,6 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
 
         Returns:
             The result of the wrapped function call.
-
-        Raises:
-            AssertionError: If `set_wrapped` has not been called before calling this function.
-            AssertionError: If the broker has not been started before calling this function.
-
         """
         assert self._wrapped_call, "You should use `set_wrapped` first"  # nosec B101
         if self.is_test:
@@ -208,7 +196,6 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
 
         Returns:
             None
-
         """
         assert (  # nosec B101
             self.future is not None

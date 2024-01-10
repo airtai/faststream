@@ -80,6 +80,7 @@ class AsyncPublisherProtocol(Protocol):
     async def publish(
         self,
         message: SendableMessage,
+        *args: Any,
         correlation_id: Optional[str] = None,
         **kwargs: Any,
     ) -> Optional[SendableMessage]:

@@ -10,8 +10,8 @@ from faststream.utils.functions import timeout_scope
 
 class BrokerRPCTestcase:  # noqa: D101
     @pytest.fixture()
-    def rpc_broker(self, broker):
-        return broker
+    def rpc_broker(self, full_broker):
+        return full_broker
 
     @pytest.mark.asyncio()
     async def test_rpc(self, queue: str, rpc_broker: BrokerUsecase):

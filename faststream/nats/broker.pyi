@@ -34,17 +34,16 @@ from typing_extensions import override
 
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
+from faststream.broker.handler import WrapperProtocol
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
     Filter,
-    P_HandlerParams,
     T_HandlerReturn,
     WrappedReturn,
 )
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.log import access_logger
 from faststream.nats.asyncapi import Handler, Publisher
 from faststream.nats.js_stream import JStream
@@ -251,10 +250,7 @@ class NatsBroker(
         description: str | None = None,
         include_in_schema: bool = True,
         **__service_kwargs: Any,
-    ) -> Callable[
-        [Callable[P_HandlerParams, T_HandlerReturn]],
-        HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn],
-    ]: ...
+    ) -> WrapperProtocol[Msg]: ...
     @override
     def publisher(  # type: ignore[override]
         self,

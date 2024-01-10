@@ -1,30 +1,44 @@
 import asyncio
 from contextlib import suppress
-from typing import Any, Awaitable, Callable, Dict, Optional, Sequence, Union, cast
+from functools import partial, wraps
+from logging import Logger
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncContextManager,
+    Awaitable,
+    Callable,
+    Dict,
+    Optional,
+    Sequence,
+    Union,
+    cast,
+)
 
 import anyio
 from anyio.abc import TaskGroup, TaskStatus
 from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
-from fast_depends.core import CallModel
+from fast_depends.dependencies import Depends
 from nats.aio.client import Client
 from nats.aio.msg import Msg
 from nats.aio.subscription import Subscription
 from nats.errors import TimeoutError
 from nats.js import JetStreamContext
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Annotated, Doc
 
-from faststream.broker.handler import AsyncHandler
+from faststream.broker.handler import BaseHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.parsers import resolve_custom_func
 from faststream.broker.types import (
+    AsyncPublisherProtocol,
     CustomDecoder,
     CustomParser,
     Filter,
-    P_HandlerParams,
     T_HandlerReturn,
+    WrappedReturn,
 )
-from faststream.broker.wrapper import HandlerCallWrapper
+from faststream.broker.wrapper import FakePublisher
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.parser import JsParser, Parser
@@ -32,8 +46,11 @@ from faststream.nats.pull_sub import PullSub
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils.path import compile_path
 
+if TYPE_CHECKING:
+    from faststream.broker.handler import WrapperProtocol
 
-class LogicNatsHandler(AsyncHandler[Msg]):
+
+class LogicNatsHandler(BaseHandler[Msg]):
     """A class to represent a NATS handler."""
 
     subscription: Union[
@@ -57,6 +74,9 @@ class LogicNatsHandler(AsyncHandler[Msg]):
             Callable[[StreamMessage[Any]], Dict[str, str]],
             Doc("Function to create log extra data by message"),
         ],
+        logger: Annotated[
+            Optional[Logger], Doc("Logger to use with process message Watcher")
+        ] = None,
         queue: Annotated[
             str,
             Doc("NATS queue name"),
@@ -84,6 +104,10 @@ class LogicNatsHandler(AsyncHandler[Msg]):
             int,
             Doc("Process up to this parameter messages concurrently"),
         ] = 1,
+        middlewares: Annotated[
+            Sequence[Callable[[Msg], BaseMiddleware]],
+            Doc("Global middleware to use `on_receive`, `after_processed`"),
+        ] = (),
         # AsyncAPI information
         description: Annotated[
             Optional[str],
@@ -118,7 +142,9 @@ class LogicNatsHandler(AsyncHandler[Msg]):
             description=description,
             include_in_schema=include_in_schema,
             title=title,
+            middlewares=middlewares,
             graceful_timeout=graceful_timeout,
+            logger=logger,
         )
 
         self.max_workers = max_workers
@@ -133,25 +159,55 @@ class LogicNatsHandler(AsyncHandler[Msg]):
     def add_call(
         self,
         *,
-        handler: HandlerCallWrapper[Msg, P_HandlerParams, T_HandlerReturn],
-        dependant: CallModel[P_HandlerParams, T_HandlerReturn],
         parser: Optional[CustomParser[Msg, NatsMessage]],
         decoder: Optional[CustomDecoder[NatsMessage]],
         filter: Filter[NatsMessage],
-        middlewares: Optional[Sequence[Callable[[Msg], BaseMiddleware]]],
-    ) -> None:
+        middlewares: Sequence[Callable[[Msg], BaseMiddleware]],
+        dependencies: Sequence[Depends],
+        **wrap_kwargs: Any,
+    ) -> "WrapperProtocol[Msg]":
         parser_ = Parser if self.stream is None else JsParser
-        super().add_call(
-            handler=handler,
-            parser=resolve_custom_func(parser, parser_.parse_message),
-            decoder=resolve_custom_func(decoder, parser_.decode_message),
-            filter=filter,  # type: ignore[arg-type]
-            dependant=dependant,
-            middlewares=middlewares,
+        return super().add_call(
+            parser_=resolve_custom_func(parser, parser_.parse_message),
+            decoder_=resolve_custom_func(decoder, parser_.decode_message),
+            filter_=filter,
+            middlewares_=middlewares,
+            dependencies_=dependencies,
+            **wrap_kwargs,
         )
 
-    @override
-    async def start(  # type: ignore[override]
+    def _process_message(
+        self,
+        func: Callable[[NatsMessage], Awaitable[T_HandlerReturn]],
+        watcher: Callable[..., AsyncContextManager[None]],
+        producer: AsyncPublisherProtocol,
+    ) -> Callable[
+        [NatsMessage],
+        Awaitable[WrappedReturn[T_HandlerReturn]],
+    ]:
+        @wraps(func)
+        async def process_wrapper(
+            message: NatsMessage,
+        ) -> WrappedReturn[T_HandlerReturn]:
+            async with watcher(message):
+                r = await func(message)
+
+                pub_response: Optional[AsyncPublisherProtocol]
+                if message.reply_to:
+                    pub_response = FakePublisher(
+                        partial(
+                            producer.publish,
+                            subject=message.reply_to,
+                        )
+                    )
+                else:
+                    pub_response = None
+
+                return r, pub_response
+
+        return process_wrapper
+
+    async def start(
         self,
         connection: Annotated[
             Union[Client, JetStreamContext],

@@ -26,18 +26,27 @@ class NatsParser:
 
     @overload
     async def parse_message(
-        self, message: List[Msg], *, path: Optional[AnyDict] = None
+        self,
+        message: List[Msg],
+        *,
+        path: Optional[AnyDict] = None,
     ) -> StreamMessage[List[Msg]]:
         ...
 
     @overload
     async def parse_message(
-        self, message: Msg, *, path: Optional[AnyDict] = None
+        self,
+        message: Msg,
+        *,
+        path: Optional[AnyDict] = None,
     ) -> StreamMessage[Msg]:
         ...
 
     async def parse_message(
-        self, message: Union[Msg, List[Msg]], *, path: Optional[AnyDict] = None
+        self,
+        message: Union[Msg, List[Msg]],
+        *,
+        path: Optional[AnyDict] = None,
     ) -> Union[
         StreamMessage[Msg],
         StreamMessage[List[Msg]],
@@ -79,7 +88,10 @@ class NatsParser:
             StreamMessage[Msg],
             StreamMessage[List[Msg]],
         ],
-    ) -> Union[List[DecodedMessage], DecodedMessage]:
+    ) -> Union[
+        DecodedMessage,
+        List[DecodedMessage],
+    ]:
         if isinstance(msg.raw_message, list):
             data: List[DecodedMessage] = []
 

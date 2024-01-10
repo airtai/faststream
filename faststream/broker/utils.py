@@ -75,7 +75,6 @@ def set_message_context(
 
     Returns:
         The function with the message context set.
-
     """
 
     @wraps(func)
@@ -89,7 +88,6 @@ def set_message_context(
 
         Returns:
             The wrapped return value of the handler function.
-
         """
         with context.scope("message", message):
             return await func(message)

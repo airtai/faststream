@@ -9,7 +9,7 @@ from fast_depends.core import CallModel
 from typing_extensions import Unpack, override
 
 from faststream.__about__ import __version__
-from faststream.broker.handler import AsyncHandler
+from faststream.broker.handler import BaseHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.parsers import resolve_custom_func
@@ -26,7 +26,7 @@ from faststream.kafka.parser import AioKafkaParser
 from faststream.kafka.shared.schemas import ConsumerConnectionParams
 
 
-class LogicHandler(AsyncHandler[ConsumerRecord]):
+class LogicHandler(BaseHandler[ConsumerRecord]):
     """A class to handle logic for consuming messages from Kafka.
 
     Attributes:

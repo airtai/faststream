@@ -23,7 +23,7 @@ from redis.asyncio.client import Redis
 from typing_extensions import override
 
 from faststream._compat import json_loads
-from faststream.broker.handler import AsyncHandler
+from faststream.broker.handler import BaseHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.parsers import resolve_custom_func
@@ -43,7 +43,7 @@ from faststream.redis.parser import RawMessage, RedisParser, bDATA_KEY
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 
 
-class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
+class LogicRedisHandler(BaseHandler[AnyRedisDict]):
     """A class to represent a Redis handler."""
 
     subscription: Optional[RPubSub]

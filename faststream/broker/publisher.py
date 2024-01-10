@@ -76,7 +76,6 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
 
         Raises:
             TypeError: If `func` is not callable.
-
         """
         handler_call: HandlerCallWrapper[
             MsgType, P_HandlerParams, T_HandlerReturn
@@ -89,6 +88,7 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
     async def publish(
         self,
         message: SendableMessage,
+        *args: Any,
         correlation_id: Optional[str] = None,
         **kwargs: Any,
     ) -> Optional[SendableMessage]:
@@ -104,7 +104,6 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
 
         Raises:
             NotImplementedError: If the method is not implemented.
-
         """
         raise NotImplementedError()
 
