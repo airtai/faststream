@@ -10,7 +10,7 @@ search:
 
 # RabbitMQ Queue/Exchange Declaration
 
-**FastStream** declares and validates all exchanges and queues using *publishers* and *subscribers* *RabbitMQ* objects, but sometimes you need to declare them manually.
+**FastStream** *subscribers* declares and validates all using *RabbitMQ* exchanges and queues (*publishers* declares exchanges only), but sometimes you need to declare them manually.
 
 **RabbitBroker** provides a way to achieve this easily.
 
