@@ -37,6 +37,7 @@ from faststream.broker.types import (
     CustomParser,
     Filter,
 )
+from faststream.broker.utils import get_watcher_context
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.nats.asyncapi import Handler, Publisher
 from faststream.nats.helpers import stream_builder
@@ -285,6 +286,8 @@ class NatsBroker(
         middlewares: Sequence[Callable[[Msg], BaseMiddleware]] = (),
         filter: Filter[NatsMessage] = default_filter,
         max_workers: int = 1,
+        retry: bool = False,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
@@ -358,20 +361,21 @@ class NatsBroker(
                 stream=stream,
                 pull_sub=pull_sub,
                 extra_options=extra_options,
+                max_workers=max_workers,
+                producer=self,
+                # base options
                 title=title,
                 description=description,
                 include_in_schema=include_in_schema,
                 graceful_timeout=self.graceful_timeout,
-                max_workers=max_workers,
                 middlewares=self.middlewares,
-                logger=self.logger,
                 log_context_builder=partial(
                     self._get_log_context,
                     stream=stream.name if stream else "",
                     subject=subject,
                     queue=queue,
                 ),
-                producer=self,
+                watcher=get_watcher_context(self.logger, no_ack, retry),
             ),
         )
 

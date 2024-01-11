@@ -34,7 +34,6 @@ from faststream.broker.types import (
     Filter,
     P_HandlerParams,
     T_HandlerReturn,
-    WrappedReturn,
 )
 from faststream.kafka.asyncapi import Handler, Publisher
 from faststream.kafka.message import KafkaMessage
@@ -181,7 +180,7 @@ class KafkaBroker(
         **kwargs: Any,
     ) -> Callable[
         [StreamMessage[aiokafka.ConsumerRecord]],
-        Awaitable[WrappedReturn[T_HandlerReturn]],
+        Awaitable[T_HandlerReturn],
     ]: ...
     @override  # type: ignore[override]
     @overload

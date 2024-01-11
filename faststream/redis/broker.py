@@ -31,7 +31,6 @@ from faststream.broker.types import (
     P_HandlerParams,
     PublisherProtocol,
     T_HandlerReturn,
-    WrappedReturn,
 )
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.redis.asyncapi import Handler, Publisher
@@ -168,14 +167,11 @@ class RedisBroker(
         func: Callable[[StreamMessage[Any]], Awaitable[T_HandlerReturn]],
         watcher: Callable[..., AsyncContextManager[None]],
         **kwargs: Any,
-    ) -> Callable[
-        [StreamMessage[Any]],
-        Awaitable[WrappedReturn[T_HandlerReturn]],
-    ]:
+    ):
         @wraps(func)
         async def process_wrapper(
             message: StreamMessage[Any],
-        ) -> WrappedReturn[T_HandlerReturn]:
+        ):
             async with watcher(
                 message,
                 redis=self._connection,

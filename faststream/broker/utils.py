@@ -1,6 +1,7 @@
 import asyncio
 from contextlib import suppress
-from typing import TYPE_CHECKING, Optional, Type, Union
+from functools import partial
+from typing import TYPE_CHECKING, AsyncContextManager, Callable, Optional, Type, Union
 
 import anyio
 
@@ -9,7 +10,9 @@ from faststream.broker.push_back_watcher import (
     CounterWatcher,
     EndlessWatcher,
     OneTryWatcher,
+    WatcherContext,
 )
+from faststream.utils.functions import fake_context
 
 if TYPE_CHECKING:
     from logging import Logger
@@ -42,7 +45,7 @@ def change_logger_handlers(logger: "Logger", fmt: str) -> None:
 
 def get_watcher(
     logger: Optional["Logger"],
-    try_number: Union[bool, int] = True,
+    try_number: Union[bool, int],
 ) -> BaseWatcher:
     """Get a watcher object based on the provided parameters.
 
@@ -65,6 +68,17 @@ def get_watcher(
     else:
         watcher = CounterWatcher(logger=logger, max_tries=try_number)
     return watcher
+
+
+def get_watcher_context(
+    logger: Optional["Logger"],
+    no_ack: bool,
+    retry: Union[bool, int],
+) -> Callable[..., AsyncContextManager[None]]:
+    if no_ack:
+        return fake_context
+    else:
+        return partial(WatcherContext, watcher=get_watcher(logger, retry))
 
 
 class MultiLock:

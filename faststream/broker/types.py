@@ -1,4 +1,4 @@
-from typing import Any, Awaitable, Callable, Optional, Protocol, Tuple, TypeVar, Union
+from typing import Any, Awaitable, Callable, Optional, Protocol, TypeVar, Union
 
 from typing_extensions import ParamSpec, TypeAlias
 
@@ -98,15 +98,13 @@ class PublisherProtocol(Protocol):
         ...
 
 
-WrappedReturn: TypeAlias = Tuple[T_HandlerReturn, Optional[PublisherProtocol]]
-
 AsyncWrappedHandlerCall: TypeAlias = Callable[
     [StreamMessage[MsgType]],
-    Awaitable[Optional[WrappedReturn[T_HandlerReturn]]],
+    Awaitable[Optional[T_HandlerReturn]],
 ]
 SyncWrappedHandlerCall: TypeAlias = Callable[
     [StreamMessage[MsgType]],
-    Optional[WrappedReturn[T_HandlerReturn]],
+    Optional[T_HandlerReturn],
 ]
 WrappedHandlerCall: TypeAlias = Union[
     AsyncWrappedHandlerCall[MsgType, T_HandlerReturn],

@@ -1,7 +1,6 @@
 import asyncio
 from contextlib import suppress
-from functools import partial, wraps
-from logging import Logger
+from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -35,8 +34,6 @@ from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
     Filter,
-    T_HandlerReturn,
-    WrappedReturn,
 )
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
@@ -73,10 +70,11 @@ class LogicNatsHandler(BaseHandler[Msg]):
             Callable[[StreamMessage[Any]], Dict[str, str]],
             Doc("Function to create log extra data by message"),
         ],
+        watcher: Annotated[
+            Callable[..., AsyncContextManager[None]],
+            Doc("Watcher to ack message"),
+        ],
         producer,
-        logger: Annotated[
-            Optional[Logger], Doc("Logger to use with process message Watcher")
-        ] = None,
         queue: Annotated[
             str,
             Doc("NATS queue name"),
@@ -145,7 +143,7 @@ class LogicNatsHandler(BaseHandler[Msg]):
             title=title,
             middlewares=middlewares,
             graceful_timeout=graceful_timeout,
-            logger=logger,
+            watcher=watcher,
         )
 
         self.max_workers = max_workers
@@ -177,23 +175,23 @@ class LogicNatsHandler(BaseHandler[Msg]):
             **wrap_kwargs,
         )
 
-    def _process_message(
-        self,
-        func: Callable[[NatsMessage], Awaitable[T_HandlerReturn]],
-        watcher: Callable[..., AsyncContextManager[None]],
-    ) -> Callable[
-        [NatsMessage],
-        Awaitable[WrappedReturn[T_HandlerReturn]],
-    ]:
-        @wraps(func)
-        async def process_wrapper(
-            message: NatsMessage,
-        ) -> WrappedReturn[T_HandlerReturn]:
-            async with watcher(message):
-                r = await func(message)
-                return r, None
+    # def _process_message(
+    #     self,
+    #     func: Callable[[NatsMessage], Awaitable[T_HandlerReturn]],
+    #     watcher: Callable[..., AsyncContextManager[None]],
+    # ) -> Callable[
+    #     [NatsMessage],
+    #     Awaitable[WrappedReturn[T_HandlerReturn]],
+    # ]:
+    #     @wraps(func)
+    #     async def process_wrapper(
+    #         message: NatsMessage,
+    #     ) -> WrappedReturn[T_HandlerReturn]:
+    #         async with watcher(message):
+    #             r = await func(message)
+    #             return r, None
 
-        return process_wrapper
+    #     return process_wrapper
 
     def make_response_publisher(self, message: NatsMessage) -> Sequence[FakePublisher]:
         if message.reply_to:

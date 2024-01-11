@@ -11,8 +11,8 @@ from faststream.broker.types import (
     PublisherProtocol,
     T_HandlerReturn,
     WrappedHandlerCall,
-    WrappedReturn,
 )
+from faststream.types import SendableMessage
 
 
 class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
@@ -130,8 +130,8 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
         self,
         message: StreamMessage[MsgType],
     ) -> Union[
-        Optional[WrappedReturn[T_HandlerReturn]],
-        Awaitable[Optional[WrappedReturn[T_HandlerReturn]]],
+        Optional[SendableMessage],
+        Awaitable[Optional[SendableMessage]],
     ]:
         """Calls the wrapped function with the given message.
 

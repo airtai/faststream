@@ -3,10 +3,10 @@ from contextlib import AsyncExitStack
 from dataclasses import dataclass
 from inspect import unwrap
 from itertools import chain
-from logging import Logger
 from typing import (
     TYPE_CHECKING,
     Any,
+    AsyncContextManager,
     AsyncGenerator,
     Awaitable,
     Callable,
@@ -153,21 +153,21 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         *,
         log_context_builder: Callable[["StreamMessage[Any]"], Dict[str, str]],
         middlewares: Sequence[Callable[[MsgType], "BaseMiddleware"]],
-        logger: Optional[Logger],
         description: Optional[str],
         title: Optional[str],
         include_in_schema: bool,
         graceful_timeout: Optional[float],
+        watcher: Callable[..., AsyncContextManager[None]],
     ) -> None:
         """Initialize a new instance of the class."""
         self.calls = []
         self.middlewares = middlewares
 
         self.log_context_builder = log_context_builder
-        self.logger = logger
         self.running = False
 
         self.lock = MultiLock()
+        self.watcher = watcher
         self.graceful_timeout = graceful_timeout
 
         # AsyncAPI information
@@ -257,7 +257,6 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                 handler, dependant = self.wrap_handler(
                     func=func,
                     dependencies=total_deps,
-                    logger=self.logger,
                     **wrap_kwargs,
                 )
 
@@ -319,6 +318,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                 if (
                     message := cast("StreamMessage[MsgType]", await caller.asend(None))
                 ) is not None:
+                    await stack.enter_async_context(self.watcher(message))
                     stack.enter_context(context.scope("message", message))
                     stack.enter_context(
                         context.scope("log_context", self.log_context_builder(message))

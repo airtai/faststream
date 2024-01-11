@@ -35,7 +35,6 @@ from faststream.broker.types import (
     P_HandlerParams,
     PublisherProtocol,
     T_HandlerReturn,
-    WrappedReturn,
 )
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.rabbit.asyncapi import Handler, Publisher
@@ -513,35 +512,13 @@ class RabbitBroker(
         watcher: Callable[..., AsyncContextManager[None]],
         reply_config: Optional[ReplyConfig] = None,
         **kwargs: Any,
-    ) -> Callable[
-        [StreamMessage[aio_pika.IncomingMessage]],
-        Awaitable[WrappedReturn[T_HandlerReturn]],
-    ]:
-        """Process a message using the provided handler function.
-
-        Args:
-            func (Callable): The handler function for processing the message.
-            watcher (BaseWatcher): The message watcher for tracking message processing.
-            reply_config (Optional[ReplyConfig], optional): The reply configuration for the message.
-            **kwargs (Any): Additional keyword arguments.
-
-        Returns:
-            Callable: A wrapper function for processing messages.
-        """
+    ):
         reply_kwargs = {} if reply_config is None else model_to_dict(reply_config)
 
         @wraps(func)
         async def process_wrapper(
             message: RabbitMessage,
-        ) -> WrappedReturn[T_HandlerReturn]:
-            """Asynchronously process a message and wrap the return value.
-
-            Args:
-                message: The RabbitMessage to process.
-
-            Returns:
-                A tuple containing the return value of the handler function and an optional PublisherProtocol.
-            """
+        ):
             async with watcher(message):
                 r = await func(message)
 

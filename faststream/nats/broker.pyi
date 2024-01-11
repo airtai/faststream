@@ -3,8 +3,6 @@ import ssl
 from types import TracebackType
 from typing import (
     Any,
-    AsyncContextManager,
-    Awaitable,
     Callable,
     Sequence,
 )
@@ -35,14 +33,11 @@ from typing_extensions import override
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.core.handler import WrapperProtocol
-from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
     Filter,
-    T_HandlerReturn,
-    WrappedReturn,
 )
 from faststream.log import access_logger
 from faststream.nats.asyncapi import Handler, Publisher
@@ -197,15 +192,6 @@ class NatsBroker(
         exec_tb: TracebackType | None = None,
     ) -> None: ...
     async def start(self) -> None: ...
-    def _process_message(
-        self,
-        func: Callable[[StreamMessage[Msg]], Awaitable[T_HandlerReturn]],
-        watcher: Callable[..., AsyncContextManager[None]],
-        **kwargs: Any,
-    ) -> Callable[
-        [StreamMessage[Msg]],
-        Awaitable[WrappedReturn[T_HandlerReturn]],
-    ]: ...
     def _log_connection_broken(
         self,
         error_cb: ErrorCallback | None = None,

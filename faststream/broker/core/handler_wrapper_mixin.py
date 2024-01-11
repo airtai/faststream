@@ -1,9 +1,7 @@
 from functools import partial, wraps
-from logging import Logger
 from typing import (
     TYPE_CHECKING,
     Any,
-    AsyncContextManager,
     Awaitable,
     Callable,
     Generic,
@@ -21,7 +19,6 @@ from pydantic import create_model
 
 from faststream._compat import PYDANTIC_V2
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
-from faststream.broker.push_back_watcher import WatcherContext
 from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
@@ -29,11 +26,9 @@ from faststream.broker.types import (
     MsgType,
     P_HandlerParams,
     T_HandlerReturn,
-    WrappedReturn,
 )
-from faststream.broker.utils import get_watcher
 from faststream.types import F_Return, F_Spec
-from faststream.utils.functions import fake_context, to_async
+from faststream.utils.functions import to_async
 
 if TYPE_CHECKING:
     from typing import Protocol, overload
@@ -103,14 +98,10 @@ class WrapHandlerMixin(Generic[MsgType]):
         *,
         func: Callable[P_HandlerParams, T_HandlerReturn],
         dependencies: Sequence["Depends"],
-        logger: Optional[Logger],
         apply_types: bool,
         is_validate: bool,
         raw: bool = False,
-        no_ack: bool = False,
-        retry: Union[bool, int] = False,
         get_dependant: Optional[Any] = None,
-        **process_kwargs: Any,
     ) -> Tuple[
         HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
         "CallModel[P_HandlerParams, T_HandlerReturn]",
@@ -153,16 +144,6 @@ class WrapHandlerMixin(Generic[MsgType]):
                     func=f,
                     params_ln=len(dependant.flat_params),
                 )
-
-        f = self._process_message(
-            func=f,
-            watcher=(
-                partial(WatcherContext, watcher=get_watcher(logger, retry))  # type: ignore[arg-type]
-                if not no_ack
-                else fake_context
-            ),
-            **(process_kwargs or {}),
-        )
 
         handler_call.set_wrapped(f)
         return handler_call, dependant
@@ -208,17 +189,6 @@ class WrapHandlerMixin(Generic[MsgType]):
             raise AssertionError("unreachable")
 
         return decode_wrapper
-
-    def _process_message(
-        self,
-        func: Callable[[MsgType], Awaitable[T_HandlerReturn]],
-        watcher: Callable[..., AsyncContextManager[None]],
-        **kwargs: Any,
-    ) -> Callable[
-        ["StreamMessage[MsgType]"],
-        Awaitable[WrappedReturn[T_HandlerReturn]],
-    ]:
-        raise NotImplementedError()
 
 
 def _patch_fastapi_dependant(

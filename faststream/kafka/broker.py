@@ -1,4 +1,4 @@
-from functools import partial, wraps
+from functools import partial
 from types import TracebackType
 from typing import (
     Any,
@@ -35,7 +35,6 @@ from faststream.broker.types import (
     P_HandlerParams,
     PublisherProtocol,
     T_HandlerReturn,
-    WrappedReturn,
 )
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.kafka.asyncapi import Handler, Publisher
@@ -203,34 +202,10 @@ class KafkaBroker(
         func: Callable[[KafkaMessage], Awaitable[T_HandlerReturn]],
         watcher: Callable[..., AsyncContextManager[None]],
         **kwargs: Any,
-    ) -> Callable[
-        [KafkaMessage],
-        Awaitable[WrappedReturn[T_HandlerReturn]],
-    ]:
-        """Wrap a message processing function with a watcher and publisher.
-
-        Args:
-            func (Callable[[KafkaMessage], Awaitable[T_HandlerReturn]]): The message processing function.
-            watcher (BaseWatcher): The message watcher.
-            disable_watcher: Whether to use watcher context.
-            **kwargs: Additional keyword arguments.
-
-        Returns:
-            Callable[[KafkaMessage], Awaitable[WrappedReturn[T_HandlerReturn]]]: The wrapped message processing function.
-        """
-
-        @wraps(func)
+    ):
         async def process_wrapper(
             message: KafkaMessage,
-        ) -> WrappedReturn[T_HandlerReturn]:
-            """Asynchronously process a Kafka message and wrap the return value.
-
-            Args:
-                message (KafkaMessage): The Kafka message to process.
-
-            Returns:
-                WrappedReturn[T_HandlerReturn]: The wrapped return value.
-            """
+        ):
             async with watcher(message):
                 r = await func(message)
 

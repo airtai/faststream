@@ -3,8 +3,6 @@ from ssl import SSLContext
 from types import TracebackType
 from typing import (
     Any,
-    AsyncContextManager,
-    Awaitable,
     Callable,
     Sequence,
 )
@@ -19,7 +17,6 @@ from yarl import URL
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
-from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
     CustomDecoder,
@@ -27,7 +24,6 @@ from faststream.broker.types import (
     Filter,
     P_HandlerParams,
     T_HandlerReturn,
-    WrappedReturn,
 )
 from faststream.log import access_logger
 from faststream.rabbit.asyncapi import Handler, Publisher
@@ -216,18 +212,6 @@ class RabbitBroker(
         user_id: str | None = None,
         app_id: str | None = None,
     ) -> aiormq.abc.ConfirmationFrameType | SendableMessage: ...
-    def _process_message(
-        self,
-        func: Callable[
-            [StreamMessage[aio_pika.IncomingMessage]], Awaitable[T_HandlerReturn]
-        ],
-        watcher: Callable[..., AsyncContextManager[None]],
-        reply_config: ReplyConfig | None = None,
-        **kwargs: Any,
-    ) -> Callable[
-        [StreamMessage[aio_pika.IncomingMessage]],
-        Awaitable[WrappedReturn[T_HandlerReturn]],
-    ]: ...
     async def declare_queue(
         self,
         queue: RabbitQueue,
