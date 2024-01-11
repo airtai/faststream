@@ -9,15 +9,14 @@ from unittest.mock import AsyncMock, MagicMock
 from anyio.from_thread import start_blocking_portal
 
 from faststream.app import FastStream
-from faststream.broker.core.abc import BrokerUsecase
-from faststream.broker.core.asynchronous import BrokerAsyncUsecase
-from faststream.broker.handler import BaseHandler
-from faststream.broker.wrapper import HandlerCallWrapper
+from faststream.broker.core.broker import BrokerUsecase
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
+from faststream.broker.core.handler import BaseHandler
 from faststream.types import SendableMessage, SettingField
 from faststream.utils.ast import is_contains_context_name
 from faststream.utils.functions import timeout_scope
 
-Broker = TypeVar("Broker", bound=BrokerAsyncUsecase[Any, Any])
+Broker = TypeVar("Broker", bound=BrokerUsecase[Any, Any])
 
 
 class TestApp:
@@ -33,7 +32,6 @@ class TestApp:
         __init__ : initializes the TestApp object
         __aenter__ : enters the asynchronous context and starts the FastStream application
         __aexit__ : exits the asynchronous context and stops the FastStream application
-
     """
 
     __test__ = False
@@ -54,7 +52,6 @@ class TestApp:
 
         Returns:
             None
-
         """
         self.app = app
         self._extra_options = run_extra_options or {}
@@ -127,7 +124,6 @@ class TestBroker(Generic[Broker]):
             broker: An instance of the Broker class.
             with_real: Whether to use a real broker.
             connect_only: Whether to only connect to the broker.
-
         """
         self.with_real = with_real
         self.broker = broker
@@ -290,7 +286,6 @@ async def call_handler(
 
     Raises:
         TimeoutError: If the RPC times out and `raise_timeout` is True.
-
     """
     with timeout_scope(rpc_timeout, raise_timeout):
         result = await handler.consume(message)

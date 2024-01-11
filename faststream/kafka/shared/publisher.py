@@ -2,7 +2,7 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Dict, Optional
 
-from faststream.broker.publisher import BasePublisher
+from faststream.broker.core.publisher import BasePublisher
 from faststream.broker.types import MsgType
 
 

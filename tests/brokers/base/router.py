@@ -5,7 +5,7 @@ from unittest.mock import Mock
 import pytest
 
 from faststream import BaseMiddleware, Depends
-from faststream.broker.core.asynchronous import BrokerAsyncUsecase
+from faststream.broker.core.broker import BrokerUsecase
 from faststream.broker.router import BrokerRoute, BrokerRouter
 from faststream.types import AnyCallable
 from tests.brokers.base.middlewares import LocalMiddlewareTestcase
@@ -17,9 +17,7 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):  # noq
     build_message: AnyCallable
     route_class: Type[BrokerRoute]
 
-    def patch_broker(
-        self, br: BrokerAsyncUsecase, router: BrokerRouter
-    ) -> BrokerAsyncUsecase:
+    def patch_broker(self, br: BrokerUsecase, router: BrokerRouter) -> BrokerUsecase:
         br.include_router(router)
         return br
 
@@ -34,7 +32,7 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):  # noq
     async def test_empty_prefix(
         self,
         router: BrokerRouter,
-        pub_broker: BrokerAsyncUsecase,
+        pub_broker: BrokerUsecase,
         queue: str,
         event: asyncio.Event,
     ):
@@ -60,7 +58,7 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):  # noq
     async def test_not_empty_prefix(
         self,
         router: BrokerRouter,
-        pub_broker: BrokerAsyncUsecase,
+        pub_broker: BrokerUsecase,
         queue: str,
         event: asyncio.Event,
     ):
@@ -88,7 +86,7 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):  # noq
     async def test_empty_prefix_publisher(
         self,
         router: BrokerRouter,
-        pub_broker: BrokerAsyncUsecase,
+        pub_broker: BrokerUsecase,
         queue: str,
         event: asyncio.Event,
     ):
@@ -119,7 +117,7 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):  # noq
     async def test_not_empty_prefix_publisher(
         self,
         router: BrokerRouter,
-        pub_broker: BrokerAsyncUsecase,
+        pub_broker: BrokerUsecase,
         queue: str,
         event: asyncio.Event,
     ):
@@ -152,7 +150,7 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):  # noq
     async def test_manual_publisher(
         self,
         router: BrokerRouter,
-        pub_broker: BrokerAsyncUsecase,
+        pub_broker: BrokerUsecase,
         queue: str,
         event: asyncio.Event,
     ):
@@ -188,7 +186,7 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):  # noq
         event: asyncio.Event,
         router: BrokerRouter,
         queue: str,
-        pub_broker: BrokerAsyncUsecase,
+        pub_broker: BrokerUsecase,
     ):
         def response(m):
             event.set()
@@ -213,7 +211,7 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):  # noq
     async def test_nested_routers_sub(
         self,
         router: BrokerRouter,
-        pub_broker: BrokerAsyncUsecase,
+        pub_broker: BrokerUsecase,
         queue: str,
         event: asyncio.Event,
         mock: Mock,
@@ -249,7 +247,7 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):  # noq
     async def test_nested_routers_pub(
         self,
         router: BrokerRouter,
-        pub_broker: BrokerAsyncUsecase,
+        pub_broker: BrokerUsecase,
         queue: str,
         event: asyncio.Event,
     ):
@@ -286,7 +284,7 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):  # noq
     async def test_router_dependencies(
         self,
         router: BrokerRouter,
-        pub_broker: BrokerAsyncUsecase,
+        pub_broker: BrokerUsecase,
         queue: str,
         event: asyncio.Event,
         mock: Mock,
@@ -325,7 +323,7 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):  # noq
     async def test_router_middlewares(
         self,
         router: BrokerRouter,
-        pub_broker: BrokerAsyncUsecase,
+        pub_broker: BrokerUsecase,
         queue: str,
         event: asyncio.Event,
         mock: Mock,
@@ -365,7 +363,7 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):  # noq
     async def test_router_parser(
         self,
         router: BrokerRouter,
-        pub_broker: BrokerAsyncUsecase,
+        pub_broker: BrokerUsecase,
         queue: str,
         event: asyncio.Event,
         mock: Mock,
@@ -407,7 +405,7 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):  # noq
     async def test_router_parser_override(
         self,
         router: BrokerRouter,
-        pub_broker: BrokerAsyncUsecase,
+        pub_broker: BrokerUsecase,
         queue: str,
         event: asyncio.Event,
         mock: Mock,
@@ -465,7 +463,7 @@ class RouterLocalTestcase(RouterTestcase):  # noqa: D101
     async def test_publisher_mock(
         self,
         router: BrokerRouter,
-        pub_broker: BrokerAsyncUsecase,
+        pub_broker: BrokerUsecase,
         queue: str,
         event: asyncio.Event,
     ):
@@ -496,7 +494,7 @@ class RouterLocalTestcase(RouterTestcase):  # noqa: D101
     async def test_subscriber_mock(
         self,
         router: BrokerRouter,
-        pub_broker: BrokerAsyncUsecase,
+        pub_broker: BrokerUsecase,
         queue: str,
         event: asyncio.Event,
     ):
@@ -522,7 +520,7 @@ class RouterLocalTestcase(RouterTestcase):  # noqa: D101
             subscriber.mock.assert_called_with("hello")
 
     async def test_manual_publisher_mock(
-        self, router: BrokerRouter, queue: str, pub_broker: BrokerAsyncUsecase
+        self, router: BrokerRouter, queue: str, pub_broker: BrokerUsecase
     ):
         publisher = router.publisher(queue + "resp")
 

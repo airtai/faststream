@@ -4,7 +4,8 @@ import aio_pika
 from fast_depends.core import CallModel
 from typing_extensions import override
 
-from faststream.broker.handler import BaseHandler
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
+from faststream.broker.core.handler import BaseHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.parsers import resolve_custom_func
@@ -15,7 +16,6 @@ from faststream.broker.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.rabbit.helpers import RabbitDeclarer
 from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.parser import AioPikaParser

@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional, Union
 from nats.aio.msg import Msg
 from typing_extensions import override
 
-from faststream.broker.publisher import BasePublisher
+from faststream.broker.core.publisher import BasePublisher
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.nats.js_stream import JStream
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer

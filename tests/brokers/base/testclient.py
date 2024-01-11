@@ -1,6 +1,6 @@
 import pytest
 
-from faststream.broker.core.abc import BrokerUsecase
+from faststream.broker.core.broker import BrokerUsecase
 from faststream.types import AnyCallable
 from tests.brokers.base.consume import BrokerConsumeTestcase
 from tests.brokers.base.publish import BrokerPublishTestcase

@@ -5,9 +5,9 @@ from uuid import uuid4
 from aiokafka import ConsumerRecord
 from typing_extensions import override
 
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.parsers import encode_message
 from faststream.broker.test import TestBroker, call_handler
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.asyncapi import Publisher
 from faststream.kafka.broker import KafkaBroker
 from faststream.kafka.producer import AioKafkaFastProducer

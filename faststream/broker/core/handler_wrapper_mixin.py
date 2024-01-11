@@ -21,6 +21,7 @@ from fast_depends.dependencies import Depends
 from pydantic import create_model
 
 from faststream._compat import PYDANTIC_V2
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.push_back_watcher import WatcherContext
 from faststream.broker.types import (
@@ -32,8 +33,7 @@ from faststream.broker.types import (
     T_HandlerReturn,
     WrappedReturn,
 )
-from faststream.broker.utils import get_watcher, set_message_context
-from faststream.broker.wrapper import HandlerCallWrapper
+from faststream.broker.utils import get_watcher
 from faststream.types import F_Return, F_Spec
 from faststream.utils.functions import fake_context, to_async
 
@@ -113,8 +113,8 @@ class WrapHandlerMixin(Generic[MsgType]):
         logger: Optional[Logger],
         apply_types: bool,
         is_validate: bool,
-        no_ack: bool = False,
         raw: bool = False,
+        no_ack: bool = False,
         retry: Union[bool, int] = False,
         get_dependant: Optional[Any] = None,
         **process_kwargs: Any,
@@ -171,7 +171,6 @@ class WrapHandlerMixin(Generic[MsgType]):
             **(process_kwargs or {}),
         )
 
-        f = set_message_context(f)
         handler_call.set_wrapped(f)
         return handler_call, dependant
 

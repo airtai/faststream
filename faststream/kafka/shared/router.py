@@ -2,10 +2,10 @@ from typing import Any, Callable, Sequence
 
 from aiokafka import ConsumerRecord
 
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.router import BrokerRoute as KafkaRoute
 from faststream.broker.router import BrokerRouter
 from faststream.broker.types import P_HandlerParams, T_HandlerReturn
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.types import SendableMessage
 
 __all__ = (

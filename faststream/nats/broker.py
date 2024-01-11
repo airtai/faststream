@@ -30,7 +30,7 @@ from nats.js.client import (
 )
 from typing_extensions import TypeAlias, override
 
-from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
+from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
     CustomDecoder,
@@ -53,12 +53,12 @@ from faststream.utils.context.repository import context
 Subject: TypeAlias = str
 
 if TYPE_CHECKING:
-    from faststream.broker.handler import WrapperProtocol
+    from faststream.broker.core.handler import WrapperProtocol
 
 
 class NatsBroker(
     NatsLoggingMixin,
-    BrokerAsyncUsecase[Msg, Client],
+    BrokerUsecase[Msg, Client],
 ):
     """A class to represent a NATS broker."""
 
@@ -371,6 +371,7 @@ class NatsBroker(
                     subject=subject,
                     queue=queue,
                 ),
+                producer=self,
             ),
         )
 
@@ -386,7 +387,6 @@ class NatsBroker(
             # wrapper kwargs
             is_validate=self._is_validate,
             apply_types=self._is_apply_types,
-            producer=self,
             **wrapper_kwargs,
         )
 

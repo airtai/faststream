@@ -31,7 +31,8 @@ from typing_extensions import override
 
 from faststream.__about__ import __version__
 from faststream.asyncapi import schema as asyncapi
-from faststream.broker.core.asynchronous import default_filter
+from faststream.broker.core.broker import default_filter
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
@@ -43,7 +44,6 @@ from faststream.broker.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.asyncapi import Publisher
 from faststream.kafka.broker import KafkaBroker
 from faststream.kafka.message import KafkaMessage

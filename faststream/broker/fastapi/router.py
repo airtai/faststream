@@ -32,12 +32,12 @@ from starlette.types import ASGIApp, AppType, Lifespan
 from faststream.asyncapi import schema as asyncapi
 from faststream.asyncapi.schema import Schema
 from faststream.asyncapi.site import get_asyncapi_html
-from faststream.broker.core.asynchronous import BrokerAsyncUsecase
+from faststream.broker.core.broker import BrokerUsecase
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
+from faststream.broker.core.publisher import BasePublisher
 from faststream.broker.fastapi.route import StreamRoute
-from faststream.broker.publisher import BasePublisher
 from faststream.broker.schemas import NameRequired
 from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.types import AnyDict
 from faststream.utils.functions import to_async
 
@@ -70,8 +70,8 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         _setup_log_context : setup log context for the broker
     """
 
-    broker_class: Type[BrokerAsyncUsecase[MsgType, Any]]
-    broker: BrokerAsyncUsecase[MsgType, Any]
+    broker_class: Type[BrokerUsecase[MsgType, Any]]
+    broker: BrokerUsecase[MsgType, Any]
     docs_router: Optional[APIRouter]
     _after_startup_hooks: List[
         Callable[[AppType], Awaitable[Optional[Mapping[str, Any]]]]
@@ -592,8 +592,8 @@ class StreamRouter(APIRouter, Generic[MsgType]):
     @staticmethod
     @abstractmethod
     def _setup_log_context(
-        main_broker: BrokerAsyncUsecase[MsgType, Any],
-        including_broker: BrokerAsyncUsecase[MsgType, Any],
+        main_broker: BrokerUsecase[MsgType, Any],
+        including_broker: BrokerUsecase[MsgType, Any],
     ) -> None:
         """Set up log context.
 

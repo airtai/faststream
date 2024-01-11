@@ -26,29 +26,27 @@ from nats.errors import TimeoutError
 from nats.js import JetStreamContext
 from typing_extensions import Annotated, Doc
 
-from faststream.broker.handler import BaseHandler
+from faststream.broker.core.handler import BaseHandler
+from faststream.broker.core.publisher import FakePublisher
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.parsers import resolve_custom_func
 from faststream.broker.types import (
-    AsyncPublisherProtocol,
     CustomDecoder,
     CustomParser,
     Filter,
     T_HandlerReturn,
     WrappedReturn,
 )
-from faststream.broker.wrapper import FakePublisher
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.parser import JsParser, Parser
-from faststream.nats.producer import NatsFastProducer
 from faststream.nats.pull_sub import PullSub
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils.path import compile_path
 
 if TYPE_CHECKING:
-    from faststream.broker.handler import WrapperProtocol
+    from faststream.broker.core.handler import WrapperProtocol
 
 
 class LogicNatsHandler(BaseHandler[Msg]):
@@ -75,6 +73,7 @@ class LogicNatsHandler(BaseHandler[Msg]):
             Callable[[StreamMessage[Any]], Dict[str, str]],
             Doc("Function to create log extra data by message"),
         ],
+        producer,
         logger: Annotated[
             Optional[Logger], Doc("Logger to use with process message Watcher")
         ] = None,
@@ -133,6 +132,7 @@ class LogicNatsHandler(BaseHandler[Msg]):
         self.path_regex = reg
 
         self.queue = queue
+        self.producer = producer
 
         self.stream = stream
         self.pull_sub = pull_sub
@@ -181,7 +181,6 @@ class LogicNatsHandler(BaseHandler[Msg]):
         self,
         func: Callable[[NatsMessage], Awaitable[T_HandlerReturn]],
         watcher: Callable[..., AsyncContextManager[None]],
-        producer: NatsFastProducer,
     ) -> Callable[
         [NatsMessage],
         Awaitable[WrappedReturn[T_HandlerReturn]],
@@ -192,21 +191,22 @@ class LogicNatsHandler(BaseHandler[Msg]):
         ) -> WrappedReturn[T_HandlerReturn]:
             async with watcher(message):
                 r = await func(message)
-
-                pub_response: Optional[AsyncPublisherProtocol]
-                if message.reply_to:
-                    pub_response = FakePublisher(
-                        partial(
-                            producer.publish,
-                            subject=message.reply_to,
-                        )
-                    )
-                else:
-                    pub_response = None
-
-                return r, pub_response
+                return r, None
 
         return process_wrapper
+
+    def make_response_publisher(self, message: NatsMessage) -> Sequence[FakePublisher]:
+        if message.reply_to:
+            return (
+                FakePublisher(
+                    partial(
+                        self.producer.publish,
+                        subject=message.reply_to,
+                    )
+                ),
+            )
+
+        return ()
 
     async def start(
         self,

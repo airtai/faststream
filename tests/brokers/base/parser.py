@@ -4,20 +4,20 @@ from unittest.mock import Mock
 
 import pytest
 
-from faststream.broker.core.asynchronous import BrokerAsyncUsecase
+from faststream.broker.core.broker import BrokerUsecase
 
 
 @pytest.mark.asyncio()
 class LocalCustomParserTestcase:  # noqa: D101
-    broker_class: Type[BrokerAsyncUsecase]
+    broker_class: Type[BrokerUsecase]
 
     @pytest.fixture()
     def raw_broker(self):
         return None
 
     def patch_broker(
-        self, raw_broker: BrokerAsyncUsecase, broker: BrokerAsyncUsecase
-    ) -> BrokerAsyncUsecase:
+        self, raw_broker: BrokerUsecase, broker: BrokerUsecase
+    ) -> BrokerUsecase:
         return broker
 
     async def test_local_parser(

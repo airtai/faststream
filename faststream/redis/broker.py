@@ -19,19 +19,20 @@ from redis.asyncio.connection import ConnectionPool, parse_url
 from redis.exceptions import ResponseError
 from typing_extensions import TypeAlias, override
 
-from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
+from faststream.broker.core.broker import BrokerUsecase, default_filter
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
+from faststream.broker.core.publisher import FakePublisher
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
-    AsyncPublisherProtocol,
     CustomDecoder,
     CustomParser,
     Filter,
     P_HandlerParams,
+    PublisherProtocol,
     T_HandlerReturn,
     WrappedReturn,
 )
-from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.redis.asyncapi import Handler, Publisher
 from faststream.redis.message import AnyRedisDict, RedisMessage
@@ -48,7 +49,7 @@ Channel: TypeAlias = str
 
 class RedisBroker(
     RedisLoggingMixin,
-    BrokerAsyncUsecase[AnyRedisDict, "Redis[bytes]"],
+    BrokerUsecase[AnyRedisDict, "Redis[bytes]"],
 ):
     """Redis broker."""
 
@@ -181,7 +182,7 @@ class RedisBroker(
             ):
                 r = await func(message)
 
-                pub_response: Optional[AsyncPublisherProtocol]
+                pub_response: Optional[PublisherProtocol]
                 if message.reply_to:
                     pub_response = FakePublisher(
                         partial(self.publish, channel=message.reply_to)

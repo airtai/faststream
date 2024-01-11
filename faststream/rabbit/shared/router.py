@@ -4,10 +4,10 @@ from aio_pika.message import IncomingMessage
 from typing_extensions import override
 
 from faststream._compat import model_copy
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.router import BrokerRoute as RabbitRoute
 from faststream.broker.router import BrokerRouter
 from faststream.broker.types import P_HandlerParams, T_HandlerReturn
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.rabbit.shared.schemas import RabbitQueue
 from faststream.types import SendableMessage
 

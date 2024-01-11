@@ -8,4 +8,4 @@ search:
   boost: 0.5
 ---
 
-::: faststream.broker.core.asynchronous.BrokerAsyncUsecase
+::: faststream.broker.core.asynchronous.BrokerUsecase

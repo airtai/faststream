@@ -15,7 +15,8 @@ from redis.asyncio.connection import BaseParser, Connection, DefaultParser, Enco
 from typing_extensions import TypeAlias, override
 
 from faststream.asyncapi import schema as asyncapi
-from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
+from faststream.broker.core.broker import BrokerUsecase, default_filter
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
@@ -26,7 +27,6 @@ from faststream.broker.types import (
     T_HandlerReturn,
     WrappedReturn,
 )
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.log import access_logger
 from faststream.redis.asyncapi import Handler, Publisher
 from faststream.redis.message import AnyRedisDict, RedisMessage
@@ -40,7 +40,7 @@ Channel: TypeAlias = str
 
 class RedisBroker(
     RedisLoggingMixin,
-    BrokerAsyncUsecase[AnyRedisDict, "Redis[bytes]"],
+    BrokerUsecase[AnyRedisDict, "Redis[bytes]"],
 ):
     url: str
     handlers: dict[int, Handler]

@@ -23,19 +23,20 @@ from fast_depends.dependencies import Depends
 from typing_extensions import override
 
 from faststream.__about__ import __version__
-from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
+from faststream.broker.core.broker import BrokerUsecase, default_filter
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
+from faststream.broker.core.publisher import FakePublisher
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
-    AsyncPublisherProtocol,
     CustomDecoder,
     CustomParser,
     Filter,
     P_HandlerParams,
+    PublisherProtocol,
     T_HandlerReturn,
     WrappedReturn,
 )
-from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.kafka.asyncapi import Handler, Publisher
 from faststream.kafka.message import KafkaMessage
@@ -50,11 +51,11 @@ from faststream.utils.data import filter_by_dict
 
 class KafkaBroker(
     KafkaLoggingMixin,
-    BrokerAsyncUsecase[aiokafka.ConsumerRecord, ConsumerConnectionParams],
+    BrokerUsecase[aiokafka.ConsumerRecord, ConsumerConnectionParams],
 ):
     """KafkaBroker is a class for managing Kafka message consumption and publishing.
 
-    It extends BrokerAsyncUsecase to handle asynchronous operations.
+    It extends BrokerUsecase to handle asynchronous operations.
 
     Args:
         bootstrap_servers (Union[str, Iterable[str]]): Kafka bootstrap server(s).
@@ -233,7 +234,7 @@ class KafkaBroker(
             async with watcher(message):
                 r = await func(message)
 
-                pub_response: Optional[AsyncPublisherProtocol]
+                pub_response: Optional[PublisherProtocol]
                 if message.reply_to:
                     pub_response = FakePublisher(
                         partial(self.publish, topic=message.reply_to)

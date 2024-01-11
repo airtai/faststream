@@ -23,7 +23,8 @@ from typing_extensions import override
 
 from faststream.__about__ import __version__
 from faststream.asyncapi import schema as asyncapi
-from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
+from faststream.broker.core.broker import BrokerUsecase, default_filter
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.security import BaseSecurity
@@ -35,7 +36,6 @@ from faststream.broker.types import (
     T_HandlerReturn,
     WrappedReturn,
 )
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.asyncapi import Handler, Publisher
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.producer import AioKafkaFastProducer
@@ -48,7 +48,7 @@ Partition = TypeVar("Partition")
 
 class KafkaBroker(
     KafkaLoggingMixin,
-    BrokerAsyncUsecase[aiokafka.ConsumerRecord, ConsumerConnectionParams],
+    BrokerUsecase[aiokafka.ConsumerRecord, ConsumerConnectionParams],
 ):
     handlers: dict[str, Handler]
     _publishers: dict[str, Publisher]

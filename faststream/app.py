@@ -1,22 +1,20 @@
 import logging
-from typing import Any, Callable, Dict, List, Optional, Sequence, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    TypeVar,
+    Union,
+)
 
 import anyio
-from pydantic import AnyHttpUrl
 from typing_extensions import ParamSpec
 
 from faststream._compat import ExceptionGroup
-from faststream.asyncapi.schema import (
-    Contact,
-    ContactDict,
-    ExternalDocs,
-    ExternalDocsDict,
-    License,
-    LicenseDict,
-    Tag,
-    TagDict,
-)
-from faststream.broker.core.asynchronous import BrokerAsyncUsecase
 from faststream.cli.supervisors.utils import HANDLED_SIGNALS
 from faststream.log import logger
 from faststream.types import AnyDict, AsyncFunc, Lifespan, SettingField
@@ -25,6 +23,22 @@ from faststream.utils.functions import drop_response_type, fake_context, to_asyn
 
 P_HookParams = ParamSpec("P_HookParams")
 T_HookReturn = TypeVar("T_HookReturn")
+
+
+if TYPE_CHECKING:
+    from pydantic import AnyHttpUrl
+
+    from faststream.asyncapi.schema import (
+        Contact,
+        ContactDict,
+        ExternalDocs,
+        ExternalDocsDict,
+        License,
+        LicenseDict,
+        Tag,
+        TagDict,
+    )
+    from faststream.broker.core.broker import BrokerUsecase
 
 
 class FastStream:
@@ -57,19 +71,21 @@ class FastStream:
 
     def __init__(
         self,
-        broker: Optional[BrokerAsyncUsecase[Any, Any]] = None,
+        broker: Optional["BrokerUsecase[Any, Any]"] = None,
         logger: Optional[logging.Logger] = logger,
         lifespan: Optional[Lifespan] = None,
         # AsyncAPI args,
         title: str = "FastStream",
         version: str = "0.1.0",
         description: str = "",
-        terms_of_service: Optional[AnyHttpUrl] = None,
-        license: Optional[Union[License, LicenseDict, AnyDict]] = None,
-        contact: Optional[Union[Contact, ContactDict, AnyDict]] = None,
+        terms_of_service: Optional["AnyHttpUrl"] = None,
+        license: Optional[Union["License", "LicenseDict", AnyDict]] = None,
+        contact: Optional[Union["Contact", "ContactDict", AnyDict]] = None,
         identifier: Optional[str] = None,
-        tags: Optional[Sequence[Union[Tag, TagDict, AnyDict]]] = None,
-        external_docs: Optional[Union[ExternalDocs, ExternalDocsDict, AnyDict]] = None,
+        tags: Optional[Sequence[Union["Tag", "TagDict", AnyDict]]] = None,
+        external_docs: Optional[
+            Union["ExternalDocs", "ExternalDocsDict", AnyDict]
+        ] = None,
     ) -> None:
         """Asynchronous FastStream Application class.
 
@@ -119,7 +135,7 @@ class FastStream:
         self.asyncapi_tags = tags
         self.external_docs = external_docs
 
-    def set_broker(self, broker: BrokerAsyncUsecase[Any, Any]) -> None:
+    def set_broker(self, broker: "BrokerUsecase[Any, Any]") -> None:
         """Set already existed App object broker.
 
         Useful then you create/init broker in `on_startup` hook.

@@ -17,7 +17,8 @@ from typing_extensions import override
 from yarl import URL
 
 from faststream.asyncapi import schema as asyncapi
-from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
+from faststream.broker.core.broker import BrokerUsecase, default_filter
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
@@ -28,7 +29,6 @@ from faststream.broker.types import (
     T_HandlerReturn,
     WrappedReturn,
 )
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.log import access_logger
 from faststream.rabbit.asyncapi import Handler, Publisher
 from faststream.rabbit.helpers import RabbitDeclarer
@@ -43,7 +43,7 @@ from faststream.types import AnyDict, SendableMessage
 
 class RabbitBroker(
     RabbitLoggingMixin,
-    BrokerAsyncUsecase[aio_pika.IncomingMessage, aio_pika.RobustConnection],
+    BrokerUsecase[aio_pika.IncomingMessage, aio_pika.RobustConnection],
 ):
     handlers: dict[int, Handler]
     _publishers: dict[int, Publisher]

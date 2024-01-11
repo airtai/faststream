@@ -19,7 +19,6 @@ class LoggingMixin:
         fmt : getter method for _fmt attribute
         _get_log_context : returns a dictionary with log context information
         _log : logs a message with optional log level, extra data, and exception info
-
     """
 
     def __init__(
@@ -41,7 +40,6 @@ class LoggingMixin:
 
         Returns:
             None
-
         """
         self.logger = logger
         self.log_level = log_level
@@ -67,7 +65,6 @@ class LoggingMixin:
         Returns:
             A dictionary containing the log context with the following keys:
                 - message_id: The first 10 characters of the message_id if message is not None, otherwise an empty string
-
         """
         return {
             "message_id": message.message_id[: self._message_id_ln] if message else "",
@@ -90,7 +87,6 @@ class LoggingMixin:
 
         Returns:
             None
-
         """
         if self.logger is not None:
             self.logger.log(

@@ -7,7 +7,7 @@ from dirty_equals import IsDict, IsPartialDict
 from faststream import Context, FastStream
 from faststream._compat import PYDANTIC_V2
 from faststream.asyncapi.generate import get_app_schema
-from faststream.broker.core.abc import BrokerUsecase
+from faststream.broker.core.broker import BrokerUsecase
 
 
 class FastAPICompatible:  # noqa: D101

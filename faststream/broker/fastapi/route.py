@@ -28,11 +28,11 @@ from starlette.requests import Request
 from starlette.routing import BaseRoute
 
 from faststream._compat import FASTAPI_V106, raise_fastapi_validation_error
-from faststream.broker.core.asynchronous import BrokerAsyncUsecase
+from faststream.broker.core.broker import BrokerUsecase
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.message import StreamMessage as NativeMessage
 from faststream.broker.schemas import NameRequired
 from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.types import AnyDict, SendableMessage
 
 
@@ -42,7 +42,7 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
     Attributes:
         handler : HandlerCallWrapper object representing the handler for the route
         path : path of the route
-        broker : BrokerAsyncUsecase object representing the broker for the route
+        broker : BrokerUsecase object representing the broker for the route
         dependant : Dependable object representing the dependencies for the route
     """
 
@@ -56,7 +56,7 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
             Callable[P_HandlerParams, T_HandlerReturn],
             HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
         ],
-        broker: BrokerAsyncUsecase[MsgType, Any],
+        broker: BrokerUsecase[MsgType, Any],
         dependencies: Sequence[params.Depends] = (),
         dependency_overrides_provider: Optional[Any] = None,
         **handle_kwargs: Any,

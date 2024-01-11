@@ -4,10 +4,10 @@ from fastapi import Depends
 from redis.asyncio.client import Redis as RedisClient
 from typing_extensions import Annotated, override
 
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.fastapi.context import Context, ContextRepo, Logger
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.types import P_HandlerParams, T_HandlerReturn
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.redis.broker import RedisBroker as RB
 from faststream.redis.message import AnyRedisDict
 from faststream.redis.message import RedisMessage as RM

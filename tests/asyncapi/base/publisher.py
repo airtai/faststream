@@ -4,7 +4,7 @@ import pydantic
 
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
-from faststream.broker.core.abc import BrokerUsecase
+from faststream.broker.core.broker import BrokerUsecase
 
 
 class PublisherTestcase:  # noqa: D101

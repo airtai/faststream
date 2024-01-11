@@ -4,12 +4,12 @@ from uuid import uuid4
 
 from faststream.types import AnyDict, DecodedMessage
 
-Msg = TypeVar("Msg")
+MsgType = TypeVar("MsgType")
 
 
 @dataclass
-class ABCStreamMessage(Generic[Msg]):
-    """A generic class to represent a stream message.
+class StreamMessage(Generic[MsgType]):
+    """Generic class to represent a stream message.
 
     Attributes:
         raw_message : the raw message
@@ -21,10 +21,9 @@ class ABCStreamMessage(Generic[Msg]):
         message_id : the unique identifier of the message
         correlation_id : the correlation identifier of the message
         processed : a flag indicating whether the message has been processed or not
-
     """
 
-    raw_message: Msg
+    raw_message: "MsgType"
 
     body: Union[bytes, Any]
     decoded_body: Optional[DecodedMessage] = None
@@ -40,23 +39,6 @@ class ABCStreamMessage(Generic[Msg]):
 
     processed: bool = field(default=False, init=False)
     committed: bool = field(default=False, init=False)
-
-
-class SyncStreamMessage(ABCStreamMessage[Msg]):
-    """A generic class to represent a stream message."""
-
-    def ack(self, **kwargs: Any) -> None:
-        self.committed = True
-
-    def nack(self, **kwargs: Any) -> None:
-        self.committed = True
-
-    def reject(self, **kwargs: Any) -> None:
-        self.committed = True
-
-
-class StreamMessage(ABCStreamMessage[Msg]):
-    """A generic class to represent a stream message."""
 
     async def ack(self, **kwargs: Any) -> None:
         self.committed = True

@@ -3,10 +3,10 @@ from typing import Any, Callable, Sequence, Union
 from typing_extensions import TypeAlias, override
 
 from faststream._compat import model_copy
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.router import BrokerRoute as RedisRoute
 from faststream.broker.router import BrokerRouter
 from faststream.broker.types import P_HandlerParams, T_HandlerReturn
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.redis.message import AnyRedisDict
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 from faststream.types import SendableMessage

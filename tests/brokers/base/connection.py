@@ -3,7 +3,7 @@ from typing import Type
 
 import pytest
 
-from faststream.broker.core.abc import BrokerUsecase
+from faststream.broker.core.broker import BrokerUsecase
 
 
 class BrokerConnectionTestcase:  # noqa: D101

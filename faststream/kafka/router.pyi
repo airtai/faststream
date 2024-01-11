@@ -6,7 +6,8 @@ from kafka.coordinator.assignors.abstract import AbstractPartitionAssignor
 from kafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
 from typing_extensions import override
 
-from faststream.broker.core.asynchronous import default_filter
+from faststream.broker.core.broker import default_filter
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.router import BrokerRouter
 from faststream.broker.types import (
@@ -16,7 +17,6 @@ from faststream.broker.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.asyncapi import Publisher
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.shared.router import KafkaRoute

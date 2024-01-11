@@ -38,7 +38,8 @@ from starlette.types import ASGIApp, AppType, Lifespan
 from typing_extensions import override
 
 from faststream.asyncapi import schema as asyncapi
-from faststream.broker.core.asynchronous import default_filter
+from faststream.broker.core.broker import default_filter
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
@@ -48,7 +49,6 @@ from faststream.broker.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.nats.asyncapi import Publisher
 from faststream.nats.broker import NatsBroker
 from faststream.nats.js_stream import JStream

@@ -6,55 +6,13 @@ import anyio
 
 from faststream.broker.message import StreamMessage
 from faststream.broker.types import (
-    AsyncPublisherProtocol,
     MsgType,
     P_HandlerParams,
+    PublisherProtocol,
     T_HandlerReturn,
     WrappedHandlerCall,
     WrappedReturn,
 )
-from faststream.types import SendableMessage
-
-
-class FakePublisher:
-    """A class to represent a fake publisher.
-
-    Attributes:
-        method : a callable method that takes arguments and returns an awaitable sendable message
-
-    Methods:
-        publish : asynchronously publishes a message with optional correlation ID and additional keyword arguments
-    """
-
-    def __init__(self, method: Callable[..., Awaitable[SendableMessage]]) -> None:
-        """Initialize an object.
-
-        Args:
-            method: A callable that takes any number of arguments and returns an awaitable sendable message.
-        """
-        self.method = method
-
-    async def publish(
-        self,
-        message: SendableMessage,
-        *args: Any,
-        correlation_id: Optional[str] = None,
-        **kwargs: Any,
-    ) -> Any:
-        """Publish a message.
-
-        Args:
-            message: The message to be published.
-            *args: Additinal positional arguments.
-            correlation_id: Optional correlation ID for the message.
-            **kwargs: Additional keyword arguments.
-
-        Returns:
-            The published message.
-        """
-        return await self.method(
-            message, *args, correlation_id=correlation_id, **kwargs
-        )
 
 
 class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
@@ -65,7 +23,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
 
         _wrapped_call : WrappedHandlerCall object representing the wrapped handler call
         _original_call : original handler call
-        _publishers : list of AsyncPublisherProtocol objects
+        _publishers : list of PublisherProtocol objects
 
     Methods:
         __new__ : Create a new instance of the class
@@ -82,7 +40,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
 
     _wrapped_call: Optional[WrappedHandlerCall[MsgType, T_HandlerReturn]]
     _original_call: Callable[P_HandlerParams, T_HandlerReturn]
-    _publishers: List[AsyncPublisherProtocol]
+    _publishers: List[PublisherProtocol]
 
     __slots__ = (
         "mock",
@@ -226,9 +184,8 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
         if not self.is_test:
             return
 
-        assert (  # nosec B101
-            self.future is not None
-        ), "You can use this method only with TestClient"
+        if self.future is None:
+            raise ValueError("You can use this method only with TestClient")
 
         if self.future.done():
             self.future = asyncio.Future()

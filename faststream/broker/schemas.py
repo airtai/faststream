@@ -1,6 +1,6 @@
 from typing import Any, Optional, Type, TypeVar, Union, overload
 
-from pydantic import BaseModel, Field, Json
+from pydantic import BaseModel, Field
 
 Cls = TypeVar("Cls")
 NameRequiredCls = TypeVar("NameRequiredCls", bound="NameRequired")
@@ -114,14 +114,3 @@ class NameRequired(BaseModel):
         if value is not None and isinstance(value, str):
             value = cls(value, **kwargs)
         return value
-
-
-class RawDecoced(BaseModel):
-    """A class to represent a raw decoded message.
-
-    Attributes:
-        message : the decoded message, which can be either a JSON object or a string
-
-    """
-
-    message: Union[Json[Any], str]

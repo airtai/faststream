@@ -3,7 +3,7 @@ from typing import Optional, Sequence, Union, cast
 
 from typing_extensions import override
 
-from faststream.broker.publisher import BasePublisher
+from faststream.broker.core.publisher import BasePublisher
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.redis.message import AnyRedisDict
 from faststream.redis.producer import RedisFastProducer

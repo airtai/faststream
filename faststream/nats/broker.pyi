@@ -33,8 +33,8 @@ from nats.js.client import JetStreamContext
 from typing_extensions import override
 
 from faststream.asyncapi import schema as asyncapi
-from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
-from faststream.broker.handler import WrapperProtocol
+from faststream.broker.core.broker import BrokerUsecase, default_filter
+from faststream.broker.core.handler import WrapperProtocol
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
@@ -57,7 +57,7 @@ Subject = str
 
 class NatsBroker(
     NatsLoggingMixin,
-    BrokerAsyncUsecase[Msg, Client],
+    BrokerUsecase[Msg, Client],
 ):
     stream: JetStreamContext | None
 

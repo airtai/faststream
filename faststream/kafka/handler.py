@@ -9,7 +9,8 @@ from fast_depends.core import CallModel
 from typing_extensions import Unpack, override
 
 from faststream.__about__ import __version__
-from faststream.broker.handler import BaseHandler
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
+from faststream.broker.core.handler import BaseHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.parsers import resolve_custom_func
@@ -20,7 +21,6 @@ from faststream.broker.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.parser import AioKafkaParser
 from faststream.kafka.shared.schemas import ConsumerConnectionParams

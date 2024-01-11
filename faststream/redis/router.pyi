@@ -7,7 +7,8 @@ from typing import (
 from fast_depends.dependencies import Depends
 from typing_extensions import override
 
-from faststream.broker.core.asynchronous import default_filter
+from faststream.broker.core.broker import default_filter
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.router import BrokerRouter
 from faststream.broker.types import (
@@ -17,7 +18,6 @@ from faststream.broker.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.redis.asyncapi import Publisher
 from faststream.redis.message import AnyRedisDict, RedisMessage
 from faststream.redis.schemas import ListSub, PubSub, StreamSub

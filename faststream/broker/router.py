@@ -14,8 +14,9 @@ from typing import (
 
 from fast_depends.dependencies import Depends
 
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
+from faststream.broker.core.publisher import BasePublisher
 from faststream.broker.message import StreamMessage
-from faststream.broker.publisher import BasePublisher
 from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
@@ -23,7 +24,6 @@ from faststream.broker.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.types import AnyDict, SendableMessage
 
 PublisherKeyType = TypeVar("PublisherKeyType")
@@ -41,7 +41,6 @@ class BrokerRoute(Generic[MsgType, T_HandlerReturn]):
         call : callable object representing the route
         *args : variable length arguments for the route
         **kwargs : variable length keyword arguments for the route
-
     """
 
     call: Callable[..., T_HandlerReturn]
@@ -60,7 +59,6 @@ class BrokerRoute(Generic[MsgType, T_HandlerReturn]):
             call: A callable object.
             *args: Positional arguments to be passed to the callable object.
             **kwargs: Keyword arguments to be passed to the callable object.
-
         """
         self.call = call
         self.args = args
@@ -84,7 +82,6 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
         publisher : abstract method to define a publisher
         include_router : method to include a router
         include_routers : method to include multiple routers
-
     """
 
     prefix: str
@@ -106,7 +103,6 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
 
         Raises:
             NotImplementedError: This function is not implemented.
-
         """
         raise NotImplementedError()
 
@@ -158,7 +154,6 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
             parser (Optional[CustomParser[MsgType]]): Parser for the object.
             decoder (Optional[CustomDecoder[StreamMessage[MsgType]]]): Decoder for the object.
             include_in_schema (Optional[bool]): Whether to include the object in the schema.
-
         """
         self.prefix = prefix
         self.include_in_schema = include_in_schema
@@ -208,7 +203,6 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
 
         Raises:
             NotImplementedError: If the function is not implemented
-
         """
         raise NotImplementedError()
 
@@ -245,8 +239,6 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
 
         Returns:
             A callable object that wraps the decorated function
-
-        This function is decorated with `@abstractmethod`, indicating that it is an abstract method and must be implemented by any subclass.
         """
 
         def router_subscriber_wrapper(
@@ -270,17 +262,19 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
                 middlewares=(*(self._middlewares or ()), *(middlewares or ())),
                 parser=parser or self._parser,
                 decoder=decoder or self._decoder,
-                include_in_schema=(
-                    include_in_schema
-                    if self.include_in_schema is None
-                    else self.include_in_schema
-                ),
+                include_in_schema=self.solve_include_in_schema(include_in_schema),
                 **kwargs,
             )
             self._handlers.append(route)
             return wrapped_func
 
         return router_subscriber_wrapper
+
+    def solve_include_in_schema(self, include_in_schema: bool) -> bool:
+        if self.include_in_schema is None:
+            return include_in_schema
+        else:
+            return self.include_in_schema
 
     @abstractmethod
     def publisher(
@@ -301,7 +295,6 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
 
         Raises:
             NotImplementedError: If the method is not implemented
-
         """
         raise NotImplementedError()
 
@@ -313,7 +306,6 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
 
         Returns:
             None
-
         """
         for h in router._handlers:
             self.subscriber(*h.args, **h.kwargs)(h.call)
@@ -321,6 +313,7 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
         for p in router._publishers.values():
             p = self._update_publisher_prefix(self.prefix, p)
             key = self._get_publisher_key(p)
+            p.include_in_schema = self.solve_include_in_schema(p.include_in_schema)
             self._publishers[key] = self._publishers.get(key, p)
 
     def include_routers(
@@ -333,7 +326,6 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
 
         Returns:
             None
-
         """
         for r in routers:
             self.include_router(r)

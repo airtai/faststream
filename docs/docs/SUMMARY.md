@@ -216,7 +216,7 @@ search:
                     - [BrokerUsecase](api/faststream/broker/core/abc/BrokerUsecase.md)
                     - [extend_dependencies](api/faststream/broker/core/abc/extend_dependencies.md)
                 - asynchronous
-                    - [BrokerAsyncUsecase](api/faststream/broker/core/asynchronous/BrokerAsyncUsecase.md)
+                    - [BrokerUsecase](api/faststream/broker/core/asynchronous/BrokerUsecase.md)
                     - [default_filter](api/faststream/broker/core/asynchronous/default_filter.md)
                 - mixins
                     - [LoggingMixin](api/faststream/broker/core/mixins/LoggingMixin.md)

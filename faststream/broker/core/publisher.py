@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from dataclasses import dataclass, field
 from inspect import unwrap
-from typing import Any, Callable, Generic, List, Optional, Tuple
+from typing import Any, Awaitable, Callable, Generic, List, Optional, Tuple
 from unittest.mock import MagicMock
 
 from fast_depends._compat import create_model, get_config_base
@@ -10,9 +10,53 @@ from fast_depends.core import CallModel, build_call_model
 from faststream.asyncapi.base import AsyncAPIOperation
 from faststream.asyncapi.message import get_response_schema
 from faststream.asyncapi.utils import to_camelcase
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.types import AnyDict, SendableMessage
+
+
+class FakePublisher:
+    """A class to represent a fake publisher.
+
+    Attributes:
+        method : a callable method that takes arguments and returns an awaitable sendable message
+
+    Methods:
+        publish : asynchronously publishes a message with optional correlation ID and additional keyword arguments
+    """
+
+    def __init__(self, method: Callable[..., Awaitable[SendableMessage]]) -> None:
+        """Initialize an object.
+
+        Args:
+            method: A callable that takes any number of arguments and returns an awaitable sendable message.
+        """
+        self.method = method
+
+    async def publish(
+        self,
+        message: SendableMessage,
+        *args: Any,
+        correlation_id: Optional[str] = None,
+        **kwargs: Any,
+    ) -> Any:
+        """Publish a message.
+
+        Args:
+            message: The message to be published.
+            *args: Additinal positional arguments.
+            correlation_id: Optional correlation ID for the message.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            The published message.
+        """
+        return await self.method(
+            message,
+            *args,
+            correlation_id=correlation_id,
+            **kwargs,
+        )
 
 
 @dataclass

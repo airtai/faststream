@@ -5,7 +5,7 @@ from pydantic import create_model
 
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
-from faststream.broker.core.abc import BrokerUsecase
+from faststream.broker.core.broker import BrokerUsecase
 
 
 class BaseNaming:  # noqa: D101

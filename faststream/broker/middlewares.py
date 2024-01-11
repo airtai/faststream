@@ -243,10 +243,12 @@ class CriticalLogMiddleware(BaseMiddleware):
         """
         return self
 
-    async def on_receive(self) -> DecodedMessage:
+    async def on_consume(self, msg: DecodedMessage) -> DecodedMessage:
         if self.logger is not None:
             c = context.get_local("log_context")
             self.logger.log(self.log_level, "Received", extra=c)
+
+        return await super().on_consume(msg)
 
     async def after_processed(
         self,

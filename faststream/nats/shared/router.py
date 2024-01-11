@@ -3,10 +3,10 @@ from typing import Any, Callable, Sequence
 from nats.aio.msg import Msg
 from typing_extensions import override
 
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.router import BrokerRoute as NatsRoute
 from faststream.broker.router import BrokerRouter
 from faststream.broker.types import P_HandlerParams, T_HandlerReturn
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.types import SendableMessage
 
 __all__ = (

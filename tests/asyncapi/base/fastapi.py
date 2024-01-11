@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from faststream.asyncapi.generate import get_app_schema
-from faststream.broker.core.abc import BrokerUsecase
+from faststream.broker.core.broker import BrokerUsecase
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.types import MsgType
 

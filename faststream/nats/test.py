@@ -5,9 +5,9 @@ from uuid import uuid4
 from nats.aio.msg import Msg
 from typing_extensions import override
 
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.parsers import encode_message
 from faststream.broker.test import TestBroker, call_handler
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.nats.asyncapi import Handler, Publisher
 from faststream.nats.broker import NatsBroker
 from faststream.nats.producer import NatsFastProducer

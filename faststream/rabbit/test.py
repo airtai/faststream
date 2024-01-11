@@ -8,8 +8,8 @@ from aio_pika.message import IncomingMessage
 from pamqp import commands as spec
 from pamqp.header import ContentHeader
 
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.test import TestBroker, call_handler
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.rabbit.asyncapi import Publisher
 from faststream.rabbit.broker import RabbitBroker
 from faststream.rabbit.parser import AioPikaParser

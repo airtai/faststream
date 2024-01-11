@@ -1,8 +1,8 @@
 import re
 from typing import Any, Optional, Sequence, Union
 
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.test import TestBroker, call_handler
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.redis.asyncapi import Handler, Publisher
 from faststream.redis.broker import RedisBroker
 from faststream.redis.message import AnyRedisDict

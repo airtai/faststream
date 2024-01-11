@@ -5,7 +5,8 @@ from nats.aio.msg import Msg
 from nats.js import api
 from typing_extensions import override
 
-from faststream.broker.core.asynchronous import default_filter
+from faststream.broker.core.broker import default_filter
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
     CustomDecoder,
@@ -14,7 +15,6 @@ from faststream.broker.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.nats.asyncapi import Publisher
 from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage

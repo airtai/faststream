@@ -74,7 +74,7 @@ T_HandlerReturn = TypeVar(
 )
 
 
-class AsyncPublisherProtocol(Protocol):
+class PublisherProtocol(Protocol):
     """A protocol for an asynchronous publisher."""
 
     async def publish(
@@ -98,7 +98,7 @@ class AsyncPublisherProtocol(Protocol):
         ...
 
 
-WrappedReturn: TypeAlias = Tuple[T_HandlerReturn, Optional[AsyncPublisherProtocol]]
+WrappedReturn: TypeAlias = Tuple[T_HandlerReturn, Optional[PublisherProtocol]]
 
 AsyncWrappedHandlerCall: TypeAlias = Callable[
     [StreamMessage[MsgType]],

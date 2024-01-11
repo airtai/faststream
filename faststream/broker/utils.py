@@ -1,19 +1,24 @@
-import logging
-from functools import wraps
-from typing import Awaitable, Callable, Optional, Union
+import asyncio
+from contextlib import suppress
+from typing import TYPE_CHECKING, Optional, Type, Union
 
-from faststream.broker.message import StreamMessage
+import anyio
+
 from faststream.broker.push_back_watcher import (
     BaseWatcher,
     CounterWatcher,
     EndlessWatcher,
     OneTryWatcher,
 )
-from faststream.broker.types import MsgType, T_HandlerReturn, WrappedReturn
-from faststream.utils import context
+
+if TYPE_CHECKING:
+    from logging import Logger
+    from types import TracebackType
+
+    from typing_extensions import Self
 
 
-def change_logger_handlers(logger: logging.Logger, fmt: str) -> None:
+def change_logger_handlers(logger: "Logger", fmt: str) -> None:
     """Change the formatter of the logger handlers.
 
     Args:
@@ -36,7 +41,7 @@ def change_logger_handlers(logger: logging.Logger, fmt: str) -> None:
 
 
 def get_watcher(
-    logger: Optional[logging.Logger],
+    logger: Optional["Logger"],
     try_number: Union[bool, int] = True,
 ) -> BaseWatcher:
     """Get a watcher object based on the provided parameters.
@@ -62,34 +67,44 @@ def get_watcher(
     return watcher
 
 
-def set_message_context(
-    func: Callable[
-        [StreamMessage[MsgType]],
-        Awaitable[WrappedReturn[T_HandlerReturn]],
-    ],
-) -> Callable[[StreamMessage[MsgType]], Awaitable[WrappedReturn[T_HandlerReturn]]]:
-    """Sets the message context for a function.
+class MultiLock:
+    """A class representing a multi lock."""
 
-    Args:
-        func: The function to set the message context for.
+    def __init__(self) -> None:
+        """Initialize a new instance of the class."""
+        self.queue: "asyncio.Queue[None]" = asyncio.Queue()
 
-    Returns:
-        The function with the message context set.
-    """
+    def __enter__(self) -> "Self":
+        """Enter the context."""
+        self.queue.put_nowait(None)
+        return self
 
-    @wraps(func)
-    async def set_message_wrapper(
-        message: StreamMessage[MsgType],
-    ) -> WrappedReturn[T_HandlerReturn]:
-        """Wraps a function that handles a stream message.
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exec_tb: Optional["TracebackType"],
+    ) -> None:
+        """Exit the context."""
+        with suppress(asyncio.QueueEmpty, ValueError):
+            self.queue.get_nowait()
+            self.queue.task_done()
 
-        Args:
-            message: The stream message to be handled.
+    @property
+    def qsize(self) -> int:
+        """Return the size of the queue."""
+        return self.queue.qsize()
 
-        Returns:
-            The wrapped return value of the handler function.
+    @property
+    def empty(self) -> bool:
+        """Return whether the queue is empty."""
+        return self.queue.empty()
+
+    async def wait_release(self, timeout: Optional[float] = None) -> None:
+        """Wait for the queue to be released.
+
+        Using for graceful shutdown.
         """
-        with context.scope("message", message):
-            return await func(message)
-
-    return set_message_wrapper
+        if timeout:
+            with anyio.move_on_after(timeout):
+                await self.queue.join()
