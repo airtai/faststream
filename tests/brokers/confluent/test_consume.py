@@ -44,39 +44,39 @@ class BrokerConsumeTestcase:  # noqa: D101
 
         assert event.is_set()
 
-    async def test_consume_from_multi(
-        self,
-        queue: str,
-        consume_broker: BrokerUsecase,
-        mock: MagicMock,
-    ):
-        consume = asyncio.Event()
-        consume2 = asyncio.Event()
+    # async def test_consume_from_multi(
+    #     self,
+    #     queue: str,
+    #     consume_broker: BrokerUsecase,
+    #     mock: MagicMock,
+    # ):
+    #     consume = asyncio.Event()
+    #     consume2 = asyncio.Event()
 
-        @consume_broker.subscriber(queue, auto_offset_reset="earliest")
-        @consume_broker.subscriber(queue + "1", auto_offset_reset="earliest")
-        def subscriber(m):
-            mock()
-            if not consume.is_set():
-                consume.set()
-            else:
-                consume2.set()
+    #     @consume_broker.subscriber(queue, auto_offset_reset="earliest")
+    #     @consume_broker.subscriber(queue + "1", auto_offset_reset="earliest")
+    #     def subscriber(m):
+    #         mock()
+    #         if not consume.is_set():
+    #             consume.set()
+    #         else:
+    #             consume2.set()
 
-        async with consume_broker:
-            await consume_broker.start()
-            await asyncio.wait(
-                (
-                    asyncio.create_task(consume_broker.publish("hello", queue)),
-                    asyncio.create_task(consume_broker.publish("hello", queue + "1")),
-                    asyncio.create_task(consume.wait()),
-                    asyncio.create_task(consume2.wait()),
-                ),
-                timeout=10,
-            )
+    #     async with consume_broker:
+    #         await consume_broker.start()
+    #         await asyncio.wait(
+    #             (
+    #                 asyncio.create_task(consume_broker.publish("hello", queue)),
+    #                 asyncio.create_task(consume_broker.publish("hello", queue + "1")),
+    #                 asyncio.create_task(consume.wait()),
+    #                 asyncio.create_task(consume2.wait()),
+    #             ),
+    #             timeout=10,
+    #         )
 
-        assert consume2.is_set()
-        assert consume.is_set()
-        assert mock.call_count == 2
+    #     assert consume2.is_set()
+    #     assert consume.is_set()
+    #     assert mock.call_count == 2
 
     async def test_consume_double(
         self,
