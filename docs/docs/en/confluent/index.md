@@ -16,37 +16,16 @@ search:
 
 [Kafka](https://kafka.apache.org/){.external-link target="_blank"} is an open-source distributed streaming platform developed by the Apache Software Foundation. It is designed to handle high-throughput, fault-tolerant, real-time data streaming. Kafka is widely used for building real-time data pipelines and streaming applications.
 
-### Key Kafka Concepts
+### Confluent's Python Client for Apache Kafka
 
-#### 1. Publish-Subscribe Model
-
-Kafka is built around the publish-subscribe messaging model. In this model, data is published to topics, and multiple consumers can subscribe to these topics to receive the data. This decouples the producers of data from the consumers, allowing for flexibility and scalability.
-
-#### 2. Topics
-
-A **topic** in Kafka is a logical channel or category to which messages are published by producers and from which messages are consumed by consumers. Topics are used to organize and categorize data streams. Each topic can have multiple **partitions**, which enable Kafka to distribute data and provide parallelism for both producers and consumers.
-
-### AIOKafka library
-
-The `aiokafka` library, is an asynchronous Kafka client for Python, built on top of the `asyncio` framework. It is designed to work seamlessly with asynchronous code, making it suitable for applications with high concurrency requirements.
+The Confluent Kafka Python library is developed by Confluent, the company founded by the creators of Apache Kafka. It provides a high-level Kafka producer and consumer API that integrates well with the Kafka ecosystem. The Confluent library offers a comprehensive set of features, including support for Avro serialization, schema registry integration, and various configurations to fine-tune performance. As it is developed by Confluent, it enjoys strong support from the core team behind Kafka. This often translates to better compatibility with the latest Kafka releases and a more robust feature set.
 
 !!! note ""
-    If you prefer the `confluent-kafka-python` library instead, then please refer to [Confluent's KafkaBroker](../confluent/index.md)
+    If you prefer the `aiokafka` library instead, then please refer to [aiokafka's KafkaBroker](../kafka/index.md)
 
-## Kafka Topics
+### FastStream Confluent KafkaBroker
 
-### Understanding Kafka Topics
-
-Topics are fundamental to Kafka and serve as the central point of data distribution. Here are some key points about topics:
-
-- Topics allow you to logically group and categorize messages.
-- Each message sent to Kafka is associated with a specific topic.
-- Topics can have one or more partitions to enable parallel processing and scaling.
-- Consumers subscribe to topics to receive messages.
-
-### FastStream KafkaBroker
-
-The FastStream KafkaBroker is a key component of the FastStream framework that enables seamless integration with Apache Kafka using [aiokafka](https://github.com/aio-libs/aiokafka) library. With the KafkaBroker, developers can easily connect to Kafka brokers, produce messages to Kafka topics, and consume messages from Kafka topics within their FastStream applications.
+The FastStream Confluent KafkaBroker is a key component of the FastStream framework that enables seamless integration with Apache Kafka using [confluent kafka](https://github.com/confluentinc/confluent-kafka-python) python library. With the KafkaBroker, developers can easily connect to Kafka brokers, produce messages to Kafka topics, and consume messages from Kafka topics within their FastStream applications.
 
 ### Establishing a Connection
 
@@ -61,7 +40,7 @@ To connect to Kafka using the FastStream KafkaBroker module, follow these steps:
 Here's a simplified code example demonstrating how to establish a connection to Kafka using FastStream's KafkaBroker module:
 
 ```python linenums="1"
-{! docs_src/index/kafka/basic.py!}
+{! docs_src/index/confluent/basic.py!}
 ```
 
 This minimal example illustrates how FastStream simplifies the process of connecting to Kafka and performing basic message processing from the **in_topic** to the **out-topic**. Depending on your specific use case and requirements, you can further customize your Kafka integration with FastStream to build robust and efficient streaming applications.

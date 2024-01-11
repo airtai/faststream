@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from docs.docs_src.kafka.security.ssl_warning import test_without_ssl_warning
+from docs.docs_src.confluent.security.ssl_warning import test_without_ssl_warning
 
 __all__ = ["test_without_ssl_warning"]
 
@@ -32,9 +32,11 @@ def patch_aio_consumer_and_producer() -> Tuple[MagicMock, MagicMock]:
 @pytest.mark.confluent()
 async def test_base_security():
     with patch_aio_consumer_and_producer() as (consumer, producer):
-        from docs.docs_src.kafka.security.confluent_kafka_app import (
-            broker as basic_broker,
-        )
+        from docs.docs_src.confluent.security.basic import broker as basic_broker
+
+        @basic_broker.subscriber("test")
+        async def handler():
+            ...
 
         async with basic_broker:
             await basic_broker.start()
@@ -65,7 +67,7 @@ async def test_base_security():
 @pytest.mark.confluent()
 async def test_scram256():
     with patch_aio_consumer_and_producer() as (consumer, producer):
-        from docs.docs_src.kafka.sasl_scram256_security.confluent_kafka_app import (
+        from docs.docs_src.confluent.security.sasl_scram256 import (
             broker as scram256_broker,
         )
 
@@ -105,7 +107,7 @@ async def test_scram256():
 @pytest.mark.confluent()
 async def test_scram512():
     with patch_aio_consumer_and_producer() as (consumer, producer):
-        from docs.docs_src.kafka.sasl_scram512_security.confluent_kafka_app import (
+        from docs.docs_src.confluent.security.sasl_scram512 import (
             broker as scram512_broker,
         )
 
@@ -145,7 +147,7 @@ async def test_scram512():
 @pytest.mark.confluent()
 async def test_plaintext():
     with patch_aio_consumer_and_producer() as (consumer, producer):
-        from docs.docs_src.kafka.plaintext_security.confluent_kafka_app import (
+        from docs.docs_src.confluent.security.plaintext import (
             broker as plaintext_broker,
         )
 
