@@ -350,7 +350,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                             # TODO: need to test copy
                             result_to_send = result
 
-                            for m_pub in chain(middlewares, h.middlewares):
+                            for m_pub in middlewares:
                                 result_to_send = await pub_stack.enter_async_context(
                                     m_pub.publish_scope(result_to_send)
                                 )

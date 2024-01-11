@@ -79,6 +79,7 @@ class BrokerUsecase(
 
     handlers: Mapping[Any, "BaseHandler[MsgType]"]
     _publishers: Mapping[Any, "BasePublisher[MsgType]"]
+    middlewares: Sequence[Callable[[Any], "BaseMiddleware"]]
 
     def __init__(
         self,
@@ -120,7 +121,7 @@ class BrokerUsecase(
             Doc("Dependencies to apply to all broker subscribers"),
         ] = (),
         middlewares: Annotated[
-            Sequence[Callable[[MsgType], "BaseMiddleware"]],
+            Sequence[Callable[[Any], "BaseMiddleware"]],
             Doc("Middlewares to apply to all broker publishers/subscribers"),
         ] = (),
         graceful_timeout: Annotated[

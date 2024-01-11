@@ -1,5 +1,6 @@
 import logging
 import warnings
+from contextlib import AsyncExitStack
 from functools import partial
 from types import TracebackType
 from typing import (
@@ -48,7 +49,7 @@ from faststream.nats.pull_sub import PullSub
 from faststream.nats.security import parse_security
 from faststream.nats.shared.logging import NatsLoggingMixin
 from faststream.security import BaseSecurity
-from faststream.types import AnyDict, DecodedMessage
+from faststream.types import AnyDict, DecodedMessage, SendableMessage
 from faststream.utils.context.repository import context
 
 Subject: TypeAlias = str
@@ -437,21 +438,26 @@ class NatsBroker(
     @override
     async def publish(  # type: ignore[override]
         self,
+        message: SendableMessage,
         *args: Any,
         stream: Optional[str] = None,
         **kwargs: Any,
     ) -> Optional[DecodedMessage]:
         if stream is None:
             assert self._producer, NOT_CONNECTED_YET  # nosec B101
-            return await self._producer.publish(*args, **kwargs)
-
+            publisher = self._producer
         else:
             assert self._js_producer, NOT_CONNECTED_YET  # nosec B101
-            return await self._js_producer.publish(
-                *args,
-                stream=stream,
-                **kwargs,  # type: ignore[misc]
-            )
+            publisher = self._js_producer
+            kwargs["stream"] = stream
+
+        async with AsyncExitStack() as stack:
+            for m in self.middlewares:
+                message = await stack.enter_async_context(
+                    m(None).publish_scope(message)
+                )
+
+            return await publisher.publish(message, *args, **kwargs)
 
     def __set_publisher_producer(self, publisher: Publisher) -> None:
         if publisher.stream is not None:
