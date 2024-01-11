@@ -23,7 +23,7 @@ jobs:
         run: |
           set -ux
           python -m pip install --upgrade pip
-          pip install -e ".[docs,rabbit,kafka,redis,nats,lint]"
+          pip install -e ".[docs,rabbit,kafka,confluent,redis,nats,lint]"
 
       - name: Run ruff
         shell: bash
@@ -65,7 +65,7 @@ jobs:
           key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}-test-v03
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[rabbit,kafka,nats,redis,docs,testing]
+        run: pip install .[rabbit,kafka,confluent,nats,redis,docs,testing]
       - name: Install Pydantic v1
         if: matrix.pydantic-version == 'pydantic-v1'
         run: pip install "pydantic>=1.10.0,<2.0.0"
@@ -98,7 +98,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,redis,docs,testing] orjson
+        run: pip install .[nats,kafka,confluent,rabbit,redis,docs,testing] orjson
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m"(slow and (not nats and not kafka and not rabbit and not redis)) or (not nats and not kafka and not rabbit and not redis)"
@@ -125,7 +125,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[rabbit,kafka,nats,redis,docs,testing]
+        run: pip install .[rabbit,kafka,confluent,nats,redis,docs,testing]
       - name: Test
         run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not rabbit and not redis)) or (not nats and not kafka and not rabbit and not redis)"
 
@@ -142,7 +142,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[rabbit,kafka,nats,redis,docs,testing]
+        run: pip install .[rabbit,kafka,confluent,nats,redis,docs,testing]
       - name: Test
         run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not rabbit and not redis)) or (not nats and not kafka and not rabbit and not redis)"
 
@@ -175,7 +175,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,redis,docs,testing]
+        run: pip install .[nats,kafka,confluent,rabbit,redis,docs,testing]
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m "(slow and kafka) or kafka"
@@ -218,7 +218,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,redis,docs,testing]
+        run: pip install .[nats,kafka,confluent,rabbit,redis,docs,testing]
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m "(slow and confluent) or confluent"
@@ -266,7 +266,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,redis,docs,testing]
+        run: pip install .[nats,kafka,confluent,rabbit,redis,docs,testing]
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m "(slow and rabbit) or rabbit"
@@ -315,7 +315,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,redis,docs,testing]
+        run: pip install .[nats,kafka,confluent,rabbit,redis,docs,testing]
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m "(slow and nats) or nats"
@@ -364,7 +364,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,redis,docs,testing]
+        run: pip install .[nats,kafka,confluent,rabbit,redis,docs,testing]
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m "(slow and redis) or redis"
