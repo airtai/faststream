@@ -17,6 +17,7 @@ from tests.tools import spy_decorator
 
 @pytest.mark.asyncio()
 @pytest.mark.confluent()
+@pytest.mark.flaky(retries=3, delay=1)
 class BrokerConsumeTestcase:  # noqa: D101
     @pytest.fixture()
     def consume_broker(self, broker: BrokerUsecase):
@@ -44,39 +45,40 @@ class BrokerConsumeTestcase:  # noqa: D101
 
         assert event.is_set()
 
-    # async def test_consume_from_multi(
-    #     self,
-    #     queue: str,
-    #     consume_broker: BrokerUsecase,
-    #     mock: MagicMock,
-    # ):
-    #     consume = asyncio.Event()
-    #     consume2 = asyncio.Event()
+    # @pytest.mark.timeout(20)
+    async def test_consume_from_multi(
+        self,
+        queue: str,
+        consume_broker: BrokerUsecase,
+        mock: MagicMock,
+    ):
+        consume = asyncio.Event()
+        consume2 = asyncio.Event()
 
-    #     @consume_broker.subscriber(queue, auto_offset_reset="earliest")
-    #     @consume_broker.subscriber(queue + "1", auto_offset_reset="earliest")
-    #     def subscriber(m):
-    #         mock()
-    #         if not consume.is_set():
-    #             consume.set()
-    #         else:
-    #             consume2.set()
+        @consume_broker.subscriber(queue, auto_offset_reset="earliest")
+        @consume_broker.subscriber(queue + "1", auto_offset_reset="earliest")
+        def subscriber(m):
+            mock()
+            if not consume.is_set():
+                consume.set()
+            else:
+                consume2.set()
 
-    #     async with consume_broker:
-    #         await consume_broker.start()
-    #         await asyncio.wait(
-    #             (
-    #                 asyncio.create_task(consume_broker.publish("hello", queue)),
-    #                 asyncio.create_task(consume_broker.publish("hello", queue + "1")),
-    #                 asyncio.create_task(consume.wait()),
-    #                 asyncio.create_task(consume2.wait()),
-    #             ),
-    #             timeout=10,
-    #         )
+        async with consume_broker:
+            await consume_broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume_broker.publish("hello", queue)),
+                    asyncio.create_task(consume_broker.publish("hello", queue + "1")),
+                    asyncio.create_task(consume.wait()),
+                    asyncio.create_task(consume2.wait()),
+                ),
+                timeout=10,
+            )
 
-    #     assert consume2.is_set()
-    #     assert consume.is_set()
-    #     assert mock.call_count == 2
+        assert consume2.is_set()
+        assert consume.is_set()
+        assert mock.call_count == 2
 
     async def test_consume_double(
         self,
@@ -111,43 +113,44 @@ class BrokerConsumeTestcase:  # noqa: D101
         assert consume.is_set()
         assert mock.call_count == 2
 
-    # async def test_different_consume(
-    #     self,
-    #     queue: str,
-    #     consume_broker: BrokerUsecase,
-    #     mock: MagicMock,
-    # ):
-    #     consume = asyncio.Event()
-    #     consume2 = asyncio.Event()
+    # @pytest.mark.timeout(20)
+    async def test_different_consume(
+        self,
+        queue: str,
+        consume_broker: BrokerUsecase,
+        mock: MagicMock,
+    ):
+        consume = asyncio.Event()
+        consume2 = asyncio.Event()
 
-    #     @consume_broker.subscriber(queue, auto_offset_reset="earliest")
-    #     def handler(m):
-    #         mock.handler()
-    #         consume.set()
+        @consume_broker.subscriber(queue, auto_offset_reset="earliest")
+        def handler(m):
+            mock.handler()
+            consume.set()
 
-    #     another_topic = queue + "1"
+        another_topic = queue + "1"
 
-    #     @consume_broker.subscriber(another_topic, auto_offset_reset="earliest")
-    #     def handler2(m):
-    #         mock.handler2()
-    #         consume2.set()
+        @consume_broker.subscriber(another_topic, auto_offset_reset="earliest")
+        def handler2(m):
+            mock.handler2()
+            consume2.set()
 
-    #     async with consume_broker:
-    #         await consume_broker.start()
-    #         await asyncio.wait(
-    #             (
-    #                 asyncio.create_task(consume_broker.publish("hello", queue)),
-    #                 asyncio.create_task(consume_broker.publish("hello", another_topic)),
-    #                 asyncio.create_task(consume.wait()),
-    #                 asyncio.create_task(consume2.wait()),
-    #             ),
-    #             timeout=10,
-    #         )
+        async with consume_broker:
+            await consume_broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(consume_broker.publish("hello", queue)),
+                    asyncio.create_task(consume_broker.publish("hello", another_topic)),
+                    asyncio.create_task(consume.wait()),
+                    asyncio.create_task(consume2.wait()),
+                ),
+                timeout=10,
+            )
 
-    #     assert consume.is_set()
-    #     assert consume2.is_set()
-    #     mock.handler.assert_called_once()
-    #     mock.handler2.assert_called_once()
+        assert consume.is_set()
+        assert consume2.is_set()
+        mock.handler.assert_called_once()
+        mock.handler2.assert_called_once()
 
     async def test_consume_with_filter(
         self,

@@ -483,6 +483,7 @@ class AsyncConfluentConsumer:
 
     async def stop(self) -> None:
         """Stops the Kafka consumer and releases all resources."""
+        await call_or_await(self.consumer.commit, asynchronous=True)
         await call_or_await(self.consumer.close)
 
     async def getone(self, timeout_ms: int = 1000) -> Message:

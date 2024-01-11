@@ -9,6 +9,7 @@ from faststream.confluent import KafkaBroker
 
 
 @pytest.mark.asyncio()
+@pytest.mark.flaky(retries=3, delay=1)
 class LocalCustomParserTestcase:  # noqa: D101
     broker_class: Type[BrokerAsyncUsecase]
 
@@ -118,45 +119,46 @@ class LocalCustomParserTestcase:  # noqa: D101
             assert event.is_set()
             mock.assert_called_once_with(b"hello")
 
-    # async def test_local_parser_no_share_between_subscribers(
-    #     self,
-    #     event: asyncio.Event,
-    #     mock: Mock,
-    #     queue: str,
-    #     raw_broker,
-    # ):
-    #     broker = self.broker_class()
-    #     event2 = asyncio.Event()
+    @pytest.mark.timeout(20)
+    async def test_local_parser_no_share_between_subscribers(
+        self,
+        event: asyncio.Event,
+        mock: Mock,
+        queue: str,
+        raw_broker,
+    ):
+        broker = self.broker_class()
+        event2 = asyncio.Event()
 
-    #     async def custom_parser(msg, original):
-    #         msg = await original(msg)
-    #         mock(msg.body)
-    #         return msg
+        async def custom_parser(msg, original):
+            msg = await original(msg)
+            mock(msg.body)
+            return msg
 
-    #     @broker.subscriber(queue, parser=custom_parser, auto_offset_reset="earliest")
-    #     @broker.subscriber(queue + "1", auto_offset_reset="earliest")
-    #     async def handle(m):
-    #         if event.is_set():
-    #             event2.set()
-    #         else:
-    #             event.set()
+        @broker.subscriber(queue, parser=custom_parser, auto_offset_reset="earliest")
+        @broker.subscriber(queue + "1", auto_offset_reset="earliest")
+        async def handle(m):
+            if event.is_set():
+                event2.set()
+            else:
+                event.set()
 
-    #     broker = self.patch_broker(raw_broker, broker)
-    #     async with broker:
-    #         await broker.start()
-    #         await asyncio.wait(
-    #             (
-    #                 asyncio.create_task(broker.publish(b"hello", queue)),
-    #                 asyncio.create_task(broker.publish(b"hello", queue + "1")),
-    #                 asyncio.create_task(event.wait()),
-    #                 asyncio.create_task(event2.wait()),
-    #             ),
-    #             timeout=10,
-    #         )
+        broker = self.patch_broker(raw_broker, broker)
+        async with broker:
+            await broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(broker.publish(b"hello", queue)),
+                    asyncio.create_task(broker.publish(b"hello", queue + "1")),
+                    asyncio.create_task(event.wait()),
+                    asyncio.create_task(event2.wait()),
+                ),
+                timeout=10,
+            )
 
-    #         assert event.is_set()
-    #         assert event2.is_set()
-    #         mock.assert_called_once_with(b"hello")
+            assert event.is_set()
+            assert event2.is_set()
+            mock.assert_called_once_with(b"hello")
 
     async def test_local_parser_no_share_between_handlers(
         self,
