@@ -381,7 +381,7 @@ class BrokerUsecase(
         decoder: Optional[CustomDecoder["StreamMessage[MsgType]"]] = None,
         parser: Optional[CustomParser[MsgType, "StreamMessage[MsgType]"]] = None,
         dependencies: Sequence["Depends"] = (),
-        middlewares: Sequence[Callable[[MsgType], "BaseMiddleware"]] = (),
+        middlewares: Sequence["BaseMiddleware"] = (),
         raw: bool = False,
         no_ack: bool = False,
         retry: Union[bool, int] = False,

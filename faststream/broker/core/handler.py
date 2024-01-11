@@ -2,6 +2,7 @@ from abc import abstractmethod
 from contextlib import AsyncExitStack
 from dataclasses import dataclass
 from inspect import unwrap
+from itertools import chain
 from logging import Logger
 from typing import (
     TYPE_CHECKING,
@@ -15,7 +16,9 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    Type,
     Union,
+    cast,
 )
 
 from faststream.asyncapi.base import AsyncAPIOperation
@@ -33,7 +36,6 @@ from faststream.broker.types import (
     P_HandlerParams,
     PublisherProtocol,
     T_HandlerReturn,
-    WrappedReturn,
 )
 from faststream.broker.utils import MultiLock
 from faststream.exceptions import HandlerException, StopConsume
@@ -42,6 +44,8 @@ from faststream.utils.context.repository import context
 from faststream.utils.functions import to_async
 
 if TYPE_CHECKING:
+    from types import TracebackType
+
     from fast_depends.core import CallModel
     from fast_depends.dependencies import Depends
 
@@ -58,7 +62,7 @@ class HandlerItem(Generic[MsgType]):
     filter: Callable[["StreamMessage[MsgType]"], Awaitable[bool]]
     parser: AsyncParser[MsgType, Any]
     decoder: AsyncDecoder["StreamMessage[MsgType]"]
-    middlewares: Sequence[Callable[[Any], "BaseMiddleware"]]
+    middlewares: Sequence["BaseMiddleware"]
     dependant: "CallModel[Any, SendableMessage]"
 
     @property
@@ -82,10 +86,13 @@ class HandlerItem(Generic[MsgType]):
         return description
 
     async def call(
-        self, msg: MsgType, cache: Dict[Any, Any]
+        self,
+        msg: MsgType,
+        cache: Dict[Any, Any],
+        extra_middlewares: Sequence["BaseMiddleware"],
     ) -> AsyncGenerator[
-        Dict[str, str],
-        Optional["StreamMessage[MsgType]"],
+        Union["StreamMessage[MsgType]", None, SendableMessage],
+        None,
     ]:
         message = cache[self.parser] = cache.get(
             self.parser,
@@ -97,14 +104,11 @@ class HandlerItem(Generic[MsgType]):
         )
 
         if await self.filter(message):
-            log_context = yield message
+            yield message
 
             result = None
             async with AsyncExitStack() as consume_stack:
-                consume_stack.enter_context(context.scope("message", message))
-                consume_stack.enter_context(context.scope("log_context", log_context))
-
-                for middleware in self.middlewares:
+                for middleware in chain(self.middlewares, extra_middlewares):
                     message.decoded_body = await consume_stack.enter_async_context(
                         middleware.consume_scope(message.decoded_body)
                     )
@@ -225,7 +229,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         filter_: Filter["StreamMessage[MsgType]"],
         parser_: CustomParser[MsgType, Any],
         decoder_: CustomDecoder["StreamMessage[MsgType]"],
-        middlewares_: Sequence[Callable[[Any], "BaseMiddleware"]],
+        middlewares_: Sequence["BaseMiddleware"],
         dependencies_: Sequence["Depends"],
         **wrap_kwargs: Any,
     ) -> "WrapperProtocol[MsgType]":
@@ -235,7 +239,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
             filter: Filter["StreamMessage[MsgType]"] = filter_,
             parser: CustomParser[MsgType, Any] = parser_,
             decoder: CustomDecoder["StreamMessage[MsgType]"] = decoder_,
-            middlewares: Sequence[Callable[[Any], "BaseMiddleware"]] = (),
+            middlewares: Sequence["BaseMiddleware"] = (),
             dependencies: Sequence["Depends"] = (),
         ) -> Union[
             HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
@@ -245,7 +249,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
             ],
         ]:
             total_deps = (*dependencies_, *dependencies)
-            total_middlewares = (*self.middlewares, *middlewares_, *middlewares)
+            total_middlewares = (*middlewares_, *middlewares)
 
             def real_wrapper(
                 func: Callable[P_HandlerParams, T_HandlerReturn],
@@ -287,19 +291,22 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         Returns:
             The sendable message.
         """
-        result: Optional[WrappedReturn[SendableMessage]] = None
+        result: Optional[SendableMessage] = None
         result_msg: SendableMessage = None
 
         if not self.running:
             return result_msg
 
+        middlewares = []
         async with AsyncExitStack() as stack:
             stack.enter_context(self.lock)
 
             stack.enter_context(context.scope("handler_", self))
 
             for m in self.middlewares:
-                await stack.enter_async_context(m(msg))
+                middleware = m(msg)
+                middlewares.append(middleware)
+                await middleware.__aenter__()
 
             cache = {}
             processed = False
@@ -307,14 +314,29 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                 if processed:
                     break
 
-                caller = h.call(msg, cache)
+                caller = h.call(msg, cache, middlewares)
 
-                if (message := await caller.__anext__()) is not None:
+                if (
+                    message := cast("StreamMessage[MsgType]", await caller.asend(None))
+                ) is not None:
+                    stack.enter_context(context.scope("message", message))
+                    stack.enter_context(
+                        context.scope("log_context", self.log_context_builder(message))
+                    )
+
+                    @stack.push_async_callback
+                    async def close_middlewares(
+                        exc_type: Optional[Type[BaseException]] = None,
+                        exc_val: Optional[BaseException] = None,
+                        exec_tb: Optional["TracebackType"] = None,
+                    ) -> None:
+                        for m in middlewares:
+                            await m.__aexit__(exc_type, exc_val, exec_tb)
+
                     processed = True
+
                     try:
-                        await caller.asend(self.log_context_builder(message))
-                    except StopAsyncIteration as e:
-                        result = e.value
+                        result = cast(SendableMessage, await caller.asend(None))
                     except StopConsume:
                         await self.close()
                         return
@@ -324,17 +346,19 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                         *self.make_response_publisher(message),
                         *h.handler._publishers,
                     ):
-                        if publisher is not None:
-                            async with AsyncExitStack() as pub_stack:
-                                for m_pub in h.middlewares:
-                                    result = await pub_stack.enter_async_context(
-                                        m_pub.publish_scope(result)
-                                    )
+                        async with AsyncExitStack() as pub_stack:
+                            # TODO: need to test copy
+                            result_to_send = result
 
-                                await publisher.publish(
-                                    message=result,
-                                    correlation_id=message.correlation_id,
+                            for m_pub in chain(middlewares, h.middlewares):
+                                result_to_send = await pub_stack.enter_async_context(
+                                    m_pub.publish_scope(result_to_send)
                                 )
+
+                            await publisher.publish(
+                                message=result_to_send,
+                                correlation_id=message.correlation_id,
+                            )
 
             assert not self.running or processed, "You have to consume message"  # nosec B101
 

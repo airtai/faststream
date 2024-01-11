@@ -16,13 +16,11 @@ from typing import (
 )
 
 from fast_depends import inject
-from fast_depends.core import CallModel, build_call_model
-from fast_depends.dependencies import Depends
+from fast_depends.core import build_call_model
 from pydantic import create_model
 
 from faststream._compat import PYDANTIC_V2
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
-from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.push_back_watcher import WatcherContext
 from faststream.broker.types import (
     CustomDecoder,
@@ -40,7 +38,11 @@ from faststream.utils.functions import fake_context, to_async
 if TYPE_CHECKING:
     from typing import Protocol, overload
 
+    from fast_depends.core import CallModel
+    from fast_depends.dependencies import Depends
+
     from faststream.broker.message import StreamMessage
+    from faststream.broker.middlewares import BaseMiddleware
 
     class WrapperProtocol(Generic[MsgType], Protocol):
         """Annotation class to represent @subsriber return type."""
@@ -53,8 +55,8 @@ if TYPE_CHECKING:
             filter: Filter["StreamMessage[MsgType]"],
             parser: CustomParser[MsgType, Any],
             decoder: CustomDecoder["StreamMessage[MsgType]"],
-            middlewares: Sequence[Callable[[Any], BaseMiddleware]] = (),
-            dependencies: Sequence[Depends] = (),
+            middlewares: Sequence["BaseMiddleware"] = (),
+            dependencies: Sequence["Depends"] = (),
         ) -> Callable[
             [Callable[P_HandlerParams, T_HandlerReturn]],
             HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
@@ -69,8 +71,8 @@ if TYPE_CHECKING:
             filter: Filter["StreamMessage[MsgType]"],
             parser: CustomParser[MsgType, Any],
             decoder: CustomDecoder["StreamMessage[MsgType]"],
-            middlewares: Sequence[Callable[[Any], BaseMiddleware]] = (),
-            dependencies: Sequence[Depends] = (),
+            middlewares: Sequence["BaseMiddleware"] = (),
+            dependencies: Sequence["Depends"] = (),
         ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
             ...
 
@@ -81,8 +83,8 @@ if TYPE_CHECKING:
             filter: Filter["StreamMessage[MsgType]"],
             parser: CustomParser[MsgType, Any],
             decoder: CustomDecoder["StreamMessage[MsgType]"],
-            middlewares: Sequence[Callable[[Any], BaseMiddleware]] = (),
-            dependencies: Sequence[Depends] = (),
+            middlewares: Sequence["BaseMiddleware"] = (),
+            dependencies: Sequence["Depends"] = (),
         ) -> Union[
             HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
             Callable[
@@ -96,20 +98,11 @@ if TYPE_CHECKING:
 class WrapHandlerMixin(Generic[MsgType]):
     """A class to patch original handle function."""
 
-    def __init__(
-        self,
-        *,
-        middlewares: Sequence[Callable[[MsgType], BaseMiddleware]],
-    ) -> None:
-        """Initialize a new instance of the class."""
-        self.calls = []
-        self.middlewares = middlewares
-
     def wrap_handler(
         self,
         *,
         func: Callable[P_HandlerParams, T_HandlerReturn],
-        dependencies: Sequence[Depends],
+        dependencies: Sequence["Depends"],
         logger: Optional[Logger],
         apply_types: bool,
         is_validate: bool,
@@ -120,12 +113,12 @@ class WrapHandlerMixin(Generic[MsgType]):
         **process_kwargs: Any,
     ) -> Tuple[
         HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
-        CallModel[P_HandlerParams, T_HandlerReturn],
+        "CallModel[P_HandlerParams, T_HandlerReturn]",
     ]:
         build_dep = build_dep = cast(
             Callable[
                 [Callable[F_Spec, F_Return]],
-                CallModel[F_Spec, F_Return],
+                "CallModel[F_Spec, F_Return]",
             ],
             get_dependant
             or partial(
@@ -229,8 +222,8 @@ class WrapHandlerMixin(Generic[MsgType]):
 
 
 def _patch_fastapi_dependant(
-    dependant: CallModel[P_HandlerParams, Awaitable[T_HandlerReturn]],
-) -> CallModel[P_HandlerParams, Awaitable[T_HandlerReturn]]:
+    dependant: "CallModel[P_HandlerParams, Awaitable[T_HandlerReturn]]",
+) -> "CallModel[P_HandlerParams, Awaitable[T_HandlerReturn]]":
     """Patch FastAPI dependant.
 
     Args:
