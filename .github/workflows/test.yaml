@@ -189,6 +189,23 @@ jobs:
           path: coverage
           if-no-files-found: error
 
+  test-kafka-smoke:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[kafka,test-core]
+      - name: Test
+        run: bash scripts/test.sh -m "not kafka" tests/brokers/kafka/test_test_client.py
+
   test-confluent-real:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
@@ -231,7 +248,7 @@ jobs:
           name: coverage
           path: coverage
 
-  test-kafka-smoke:
+  test-confluent-smoke:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
@@ -244,9 +261,9 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[kafka,test-core]
+        run: pip install .[confluent,test-core]
       - name: Test
-        run: bash scripts/test.sh -m "not kafka" tests/brokers/kafka/test_test_client.py
+        run: bash scripts/test.sh -m "not confluent" tests/brokers/confluent/test_test_client.py
 
   test-rabbit-real:
     if: github.event.pull_request.draft == false
@@ -445,8 +462,9 @@ jobs:
       - test-macos-latest
       - test-windows-latest
       - test-kafka-real
-      - test-confluent-real
       - test-kafka-smoke
+      - test-confluent-real
+      - test-confluent-smoke
       - test-rabbit-real
       - test-rabbit-smoke
       - test-nats-real
