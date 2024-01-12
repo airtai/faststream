@@ -17,6 +17,21 @@ The `aiokafka` library, is an asynchronous Kafka client for Python, built on top
 !!! note ""
     If you prefer the `confluent-kafka-python` library instead, then please refer to [Confluent's KafkaBroker](../confluent/index.md)
 
+## Installation
+
+To install the latest stable version, please run the following command:
+
+```bash
+pip install faststream[kafka]
+```
+
+!!! note ""
+    If you prefer the latest pre-release version, run the following command instead:
+
+    ```bash
+    pip install faststream[kafka] --pre
+    ```
+
 ## FastStream KafkaBroker
 
 The FastStream KafkaBroker is a key component of the FastStream framework that enables seamless integration with Apache Kafka using [aiokafka](https://github.com/aio-libs/aiokafka) library. With the KafkaBroker, developers can easily connect to Kafka brokers, produce messages to Kafka topics, and consume messages from Kafka topics within their FastStream applications.
