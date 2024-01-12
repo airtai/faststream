@@ -21,17 +21,11 @@ Developed by Confluent, this library enjoys strong support from the core team be
 
 ## Installation
 
-To install the latest stable version, please run the following command:
-
-```bash
-pip install faststream[confluent]
-```
-
 !!! note ""
-    If you prefer the latest pre-release version, run the following command instead:
+    To install the latest pre-release version, please run the following command:
 
     ```bash
-    pip install faststream[confluent] --pre
+    pip install "faststream[confluent]"==0.4.0rc0
     ```
 
 ### FastStream Confluent KafkaBroker
