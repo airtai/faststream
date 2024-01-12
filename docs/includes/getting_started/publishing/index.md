@@ -1,4 +1,10 @@
-=== "Kafka"
+=== "AIOKafka"
+    ```python
+    async with KafkaBroker() as br:
+        await br.publish("message", "topic")
+    ```
+
+=== "Confluent"
     ```python
     async with KafkaBroker() as br:
         await br.publish("message", "topic")

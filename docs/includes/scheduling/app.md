@@ -1,6 +1,11 @@
-=== "Kafka"
+=== "AIOKafka"
     ```python linenums="1"
     {!> docs_src/index/kafka/basic.py!}
+    ```
+
+=== "Confluent"
+    ```python linenums="1"
+    {!> docs_src/index/confluent/basic.py!}
     ```
 
 === "RabbitMQ"

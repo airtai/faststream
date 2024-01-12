@@ -1,6 +1,17 @@
-=== "Kafka"
+=== "AIOKafka"
     ```python
     from faststream.kafka import KafkaBroker
+
+    broker = KafkaBroker()
+
+    @broker.subscriber("test")  # topic name
+    def handle_msg(msg_body):
+        ...
+    ```
+
+=== "Confluent"
+    ```python
+    from faststream.confluent import KafkaBroker
 
     broker = KafkaBroker()
 
