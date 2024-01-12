@@ -8,24 +8,20 @@ search:
   boost: 10
 ---
 
-# Kafka Routing
+# Confluent Kafka Routing
 
-## Kafka Overview
+## Confluent's Python Client for Apache Kafka
 
-### What is Kafka?
+The Confluent Kafka Python library is developed by Confluent, the company founded by the creators of Apache Kafka. It offers a high-level Kafka producer and consumer API that integrates well with the Kafka ecosystem. The Confluent library provides a comprehensive set of features, including support for Avro serialization, schema registry integration, and various configurations to fine-tune performance.
 
-[Kafka](https://kafka.apache.org/){.external-link target="_blank"} is an open-source distributed streaming platform developed by the Apache Software Foundation. It is designed to handle high-throughput, fault-tolerant, real-time data streaming. Kafka is widely used for building real-time data pipelines and streaming applications.
-
-### Confluent's Python Client for Apache Kafka
-
-The Confluent Kafka Python library is developed by Confluent, the company founded by the creators of Apache Kafka. It provides a high-level Kafka producer and consumer API that integrates well with the Kafka ecosystem. The Confluent library offers a comprehensive set of features, including support for Avro serialization, schema registry integration, and various configurations to fine-tune performance. As it is developed by Confluent, it enjoys strong support from the core team behind Kafka. This often translates to better compatibility with the latest Kafka releases and a more robust feature set.
+Developed by Confluent, this library enjoys strong support from the core team behind Kafka. This often translates to better compatibility with the latest Kafka releases and a more robust feature set.
 
 !!! note ""
     If you prefer the `aiokafka` library instead, then please refer to [aiokafka's KafkaBroker](../kafka/index.md)
 
 ### FastStream Confluent KafkaBroker
 
-The FastStream Confluent KafkaBroker is a key component of the FastStream framework that enables seamless integration with Apache Kafka using [confluent kafka](https://github.com/confluentinc/confluent-kafka-python) python library. With the KafkaBroker, developers can easily connect to Kafka brokers, produce messages to Kafka topics, and consume messages from Kafka topics within their FastStream applications.
+The FastStream Confluent KafkaBroker is a key component of the FastStream framework that enables seamless integration with Apache Kafka using [confluent kafka](https://github.com/confluentinc/confluent-kafka-python){.external-link target="_blank"} python library. With the KafkaBroker, developers can easily connect to Kafka brokers, produce messages to Kafka topics, and consume messages from Kafka topics within their FastStream applications.
 
 ### Establishing a Connection
 

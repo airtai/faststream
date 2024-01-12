@@ -1,4 +1,4 @@
-=== "Kafka"
+=== "AIOKafka"
     ```python linenums="1" hl_lines="11-13"
     {!> docs_src/getting_started/context/kafka/fields_access.py !}
     ```
@@ -7,6 +7,17 @@
 
     ```python
     {!> docs_src/getting_started/context/kafka/fields_access.py [ln:11.5] !}
+    ```
+
+=== "Confluent"
+    ```python linenums="1" hl_lines="11-13"
+    {!> docs_src/getting_started/context/confluent/fields_access.py !}
+    ```
+
+    {{ comment_1 }}
+
+    ```python
+    {!> docs_src/getting_started/context/confluent/fields_access.py [ln:11.5] !}
     ```
 
 === "RabbitMQ"

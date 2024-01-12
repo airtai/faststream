@@ -1,6 +1,11 @@
-=== "Kafka"
+=== "AIOKafka"
     ```python linenums="1" hl_lines="3 18"
     {!> docs_src/getting_started/lifespan/kafka/testing.py !}
+    ```
+
+=== "Confluent"
+    ```python linenums="1" hl_lines="3 18"
+    {!> docs_src/getting_started/lifespan/confluent/testing.py !}
     ```
 
 === "RabbitMQ"
