@@ -2719,6 +2719,12 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/kafka/ack/"/>
     </url>
     <url>
+        <loc>https://faststream.airt.ai/latest/kafka/kafka/</loc>
+        <lastmod>2024-01-12</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://faststream.airt.ai/latest/kafka/kafka/"/>
+    </url>
+    <url>
         <loc>https://faststream.airt.ai/latest/kafka/message/</loc>
         <lastmod>2024-01-12</lastmod>
         <changefreq>daily</changefreq>
