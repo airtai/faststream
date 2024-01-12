@@ -26,6 +26,13 @@ Kafka is built around the publish-subscribe messaging model. In this model, data
 
 A **topic** in Kafka is a logical channel or category to which messages are published by producers and from which messages are consumed by consumers. Topics are used to organize and categorize data streams. Each topic can have multiple **partitions**, which enable Kafka to distribute data and provide parallelism for both producers and consumers.
 
+### AIOKafka library
+
+The `aiokafka` library, is an asynchronous Kafka client for Python, built on top of the `asyncio` framework. It is designed to work seamlessly with asynchronous code, making it suitable for applications with high concurrency requirements.
+
+!!! note ""
+    If you prefer the `confluent-kafka-python` library instead, then please refer to [Confluent's KafkaBroker](../confluent/index.md)
+
 ## Kafka Topics
 
 ### Understanding Kafka Topics
@@ -39,7 +46,7 @@ Topics are fundamental to Kafka and serve as the central point of data distribut
 
 ### FastStream KafkaBroker
 
-The FastStream KafkaBroker is a key component of the FastStream framework that enables seamless integration with Apache Kafka. With the KafkaBroker, developers can easily connect to Kafka brokers, produce messages to Kafka topics, and consume messages from Kafka topics within their FastStream applications.
+The FastStream KafkaBroker is a key component of the FastStream framework that enables seamless integration with Apache Kafka using [aiokafka](https://github.com/aio-libs/aiokafka) library. With the KafkaBroker, developers can easily connect to Kafka brokers, produce messages to Kafka topics, and consume messages from Kafka topics within their FastStream applications.
 
 ### Establishing a Connection
 
