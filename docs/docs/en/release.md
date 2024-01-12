@@ -12,6 +12,33 @@ hide:
 ---
 
 # Release Notes
+## 0.4.0rc0
+
+### What's Changed
+
+This is a **preview version** of 0.4.0 release introducing support for Confluent-based Kafka broker.
+
+Here's a simplified code example demonstrating how to establish a connection to Kafka using FastStream's KafkaBroker module:
+```python
+from faststream import FastStream
+from faststream.confluent import KafkaBroker
+
+broker = KafkaBroker("localhost:9092")
+app = FastStream(broker)
+
+@broker.subscriber("in-topic")
+@broker.publisher("out-topic")
+async def handle_msg(user: str, user_id: int) -> str:
+    return f"User: {user_id} - {user} registered"
+```
+
+#### Changes
+
+* Add support for confluent python lib by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1042](https://github.com/airtai/faststream/pull/1042){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.3.13...0.4.0rc0](https://github.com/airtai/faststream/compare/0.3.13...0.4.0rc0){.external-link target="_blank"}
+
 ## 0.3.13
 
 ### What's Changed
