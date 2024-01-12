@@ -45,7 +45,7 @@ search:
     - [Config Management](getting-started/config/index.md)
     - [Task Scheduling](scheduling.md)
     - [FastStream Project Template](getting-started/template/index.md)
-- Kafka
+- [Kafka](kafka/kafka.md)
     - [AIOKafka](kafka/index.md)
         - [Subscription](kafka/Subscriber/index.md)
             - [Batch Subscriber](kafka/Subscriber/batch_subscriber.md)
