@@ -21,11 +21,13 @@ Developed by Confluent, this library enjoys strong support from the core team be
 
 ## Installation
 
-!!! note ""
-    To install the latest pre-release version, please run the following command:
+!!! warning ""
+    Support for `Confluent` is present **only** in the release candidate **v0.4.0rc0**.
+
+    Please run the following command to install it:
 
     ```bash
-    pip install "faststream[confluent]"==0.4.0rc0
+    pip install "faststream[confluent]==0.4.0rc0"
     ```
 
 ### FastStream Confluent KafkaBroker
