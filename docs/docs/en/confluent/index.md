@@ -21,7 +21,7 @@ Developed by Confluent, this library enjoys strong support from the core team be
 
 ## Installation
 
-!!! warning
+!!! warning "Available in v0.4.0rc0 only"
     Support for `Confluent` is present **only** in the release candidate **v0.4.0rc0**.
 
     Please run the following command to install it:
