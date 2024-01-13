@@ -106,8 +106,6 @@ class HandlerItem(Generic[MsgType]):
         message: "StreamMessage[MsgType]",
         extra_middlewares: Sequence["BaseMiddleware"],
     ) -> Optional[SendableMessage]:
-        assert message.decoded_body
-
         result: SendableMessage = None
         async with AsyncExitStack() as consume_stack:
             for middleware in chain(self.middlewares, extra_middlewares):
@@ -306,14 +304,11 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                 await middleware.__aenter__()
 
             cache = {}
-            processed = False
             for h in self.calls:
-                if processed:
-                    break
-
                 if (
                     message := cast(
-                        "StreamMessage[MsgType]", await h.is_suitable(msg, cache)
+                        "StreamMessage[MsgType]",
+                        await h.is_suitable(msg, cache),
                     )
                 ) is not None:
                     await stack.enter_async_context(self.watcher(message))
@@ -331,8 +326,6 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                         for m in middlewares:
                             await m.__aexit__(exc_type, exc_val, exec_tb)
 
-                    processed = True
-
                     try:
                         result_msg = cast(
                             SendableMessage, await h.call(message, middlewares)
@@ -342,7 +335,6 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                         return
 
                     async with AsyncExitStack() as pub_stack:
-                        # TODO: need to test copy
                         result_msg = result_msg
 
                         for m_pub in middlewares:
@@ -355,14 +347,13 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                             *self.make_response_publisher(message),
                             *h.handler._publishers,
                         ):
+                            # add publishers middlewares
                             await publisher.publish(
                                 message=result_msg,
                                 correlation_id=message.correlation_id,
                             )
 
-            assert not self.running or processed, "You have to consume message"  # nosec B101
-
-        return result_msg
+                    return result_msg
 
     def make_response_publisher(
         self, message: "StreamMessage[MsgType]"

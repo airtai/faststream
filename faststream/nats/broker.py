@@ -454,7 +454,7 @@ class NatsBroker(
         async with AsyncExitStack() as stack:
             for m in self.middlewares:
                 message = await stack.enter_async_context(
-                    m(None).publish_scope(message)
+                    m().publish_scope(message)
                 )
 
             return await publisher.publish(message, *args, **kwargs)
