@@ -44,13 +44,9 @@ class BaseMiddleware:
             Asynchronous function to handle the after publish event.
     """
 
-    def __init__(self, msg: Any) -> None:
-        """Initialize the class.
-
-        Args:
-            msg: Any message to be stored.
-        """
-        self.msg = msg
+    def __init__(self) -> None:
+        """Initialize the class."""
+        pass
 
     async def on_receive(self) -> None:
         pass

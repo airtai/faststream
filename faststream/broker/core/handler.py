@@ -7,7 +7,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     AsyncContextManager,
-    AsyncGenerator,
     Awaitable,
     Callable,
     Dict,
@@ -85,15 +84,11 @@ class HandlerItem(Generic[MsgType]):
         description = getattr(caller, "__doc__", None)
         return description
 
-    async def call(
+    async def is_suitable(
         self,
         msg: MsgType,
         cache: Dict[Any, Any],
-        extra_middlewares: Sequence["BaseMiddleware"],
-    ) -> AsyncGenerator[
-        Union["StreamMessage[MsgType]", None, SendableMessage],
-        None,
-    ]:
+    ) -> Optional["StreamMessage[MsgType]"]:
         message = cache[self.parser] = cache.get(
             self.parser,
             await self.parser(msg),
@@ -104,36 +99,40 @@ class HandlerItem(Generic[MsgType]):
         )
 
         if await self.filter(message):
-            yield message
+            return message
 
-            result = None
-            async with AsyncExitStack() as consume_stack:
-                for middleware in chain(self.middlewares, extra_middlewares):
-                    message.decoded_body = await consume_stack.enter_async_context(
-                        middleware.consume_scope(message.decoded_body)
-                    )
+    async def call(
+        self,
+        message: "StreamMessage[MsgType]",
+        extra_middlewares: Sequence["BaseMiddleware"],
+    ) -> Optional[SendableMessage]:
+        assert message.decoded_body
 
-                try:
-                    result = await self.handler.call_wrapped(message)
+        result: SendableMessage = None
+        async with AsyncExitStack() as consume_stack:
+            for middleware in chain(self.middlewares, extra_middlewares):
+                message.decoded_body = await consume_stack.enter_async_context(
+                    middleware.consume_scope(message.decoded_body)
+                )
 
-                except StopConsume:
-                    self.handler.trigger()
-                    raise
+            try:
+                result = await self.handler.call_wrapped(message)
 
-                except HandlerException:
-                    self.handler.trigger()
-                    raise
+            except StopConsume:
+                self.handler.trigger()
+                raise
 
-                except Exception as e:
-                    self.handler.trigger(error=e)
-                    raise e
+            except HandlerException:
+                self.handler.trigger()
+                raise
 
-                else:
-                    self.handler.trigger(result=result[0] if result else None)
-                    yield result
+            except Exception as e:
+                self.handler.trigger(error=e)
+                raise e
 
-        else:
-            yield None
+            else:
+                self.handler.trigger(result=result)
+                return result
 
 
 class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
@@ -290,8 +289,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         Returns:
             The sendable message.
         """
-        result: Optional[SendableMessage] = None
-        result_msg: SendableMessage = None
+        result_msg: Optional[SendableMessage] = None
 
         if not self.running:
             return result_msg
@@ -313,10 +311,10 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                 if processed:
                     break
 
-                caller = h.call(msg, cache, middlewares)
-
                 if (
-                    message := cast("StreamMessage[MsgType]", await caller.asend(None))
+                    message := cast(
+                        "StreamMessage[MsgType]", await h.is_suitable(msg, cache)
+                    )
                 ) is not None:
                     await stack.enter_async_context(self.watcher(message))
                     stack.enter_context(context.scope("message", message))
@@ -336,7 +334,9 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                     processed = True
 
                     try:
-                        result_msg = cast(SendableMessage, await caller.asend(None))
+                        result_msg = cast(
+                            SendableMessage, await h.call(message, middlewares)
+                        )
                     except StopConsume:
                         await self.close()
                         return

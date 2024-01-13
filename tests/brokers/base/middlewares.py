@@ -1,5 +1,5 @@
 import asyncio
-from typing import Type
+from typing import Optional, Type
 from unittest.mock import Mock
 
 import pytest
@@ -25,20 +25,21 @@ class LocalMiddlewareTestcase:  # noqa: D101
         self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
     ):
         class mid(BaseMiddleware):  # noqa: N801
-            async def on_receive(self):
-                mock.start(self.msg)
-                return await super().on_receive()
+            async def on_consume(self, msg):
+                mock.start(msg)
+                return await super().on_consume(msg)
 
-            async def after_processed(self, exc_type, exc_val, exec_tb):
+            async def after_consume(self, err: Optional[Exception]) -> None:
                 mock.end()
-                return await super().after_processed(exc_type, exc_val, exec_tb)
+                event.set()
+                return await super().after_consume(err)
 
         broker = self.broker_class()
 
-        @broker.subscriber(queue, middlewares=(mid,))
+        @broker.subscriber(queue, middlewares=(mid(),))
         async def handler(m):
-            event.set()
-            return ""
+            mock.inner(m)
+            return "end"
 
         broker = self.patch_broker(raw_broker, broker)
 
@@ -46,14 +47,16 @@ class LocalMiddlewareTestcase:  # noqa: D101
             await broker.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker.publish("", queue)),
+                    asyncio.create_task(broker.publish("start", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=3,
             )
 
+        mock.start.assert_called_once_with("start")
+        mock.inner.assert_called_once_with("start")
+
         assert event.is_set()
-        mock.start.assert_called_once()
         mock.end.assert_called_once()
 
     async def test_local_middleware_not_shared_between_subscribers(
@@ -236,7 +239,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):  # noqa: D101
                 return await super().after_processed(exc_type, exc_val, exec_tb)
 
         broker = self.broker_class(
-            middlewares=(mid,),
+            middlewares=(mid(None),),
         )
 
         @broker.subscriber(queue)
