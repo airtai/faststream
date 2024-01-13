@@ -197,7 +197,7 @@ class LocalCustomParserTestcase:  # noqa: D101
 
             assert event.is_set()
             assert event2.is_set()
-            assert mock.call_count == 2  # instead 4
+            assert mock.call_count == 1
 
 
 class CustomParserTestcase(LocalCustomParserTestcase):  # noqa: D101

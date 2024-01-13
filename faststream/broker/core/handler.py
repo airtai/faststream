@@ -336,27 +336,27 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                     processed = True
 
                     try:
-                        result = cast(SendableMessage, await caller.asend(None))
+                        result_msg = cast(SendableMessage, await caller.asend(None))
                     except StopConsume:
                         await self.close()
                         return
 
-                    # TODO: suppress all publishing errors and raise them after all publishers will be tried
-                    for publisher in (
-                        *self.make_response_publisher(message),
-                        *h.handler._publishers,
-                    ):
-                        async with AsyncExitStack() as pub_stack:
-                            # TODO: need to test copy
-                            result_to_send = result
+                    async with AsyncExitStack() as pub_stack:
+                        # TODO: need to test copy
+                        result_msg = result_msg
 
-                            for m_pub in middlewares:
-                                result_to_send = await pub_stack.enter_async_context(
-                                    m_pub.publish_scope(result_to_send)
-                                )
+                        for m_pub in middlewares:
+                            result_msg = await pub_stack.enter_async_context(
+                                m_pub.publish_scope(result_msg)
+                            )
 
+                        # TODO: suppress all publishing errors and raise them after all publishers will be tried
+                        for publisher in (
+                            *self.make_response_publisher(message),
+                            *h.handler._publishers,
+                        ):
                             await publisher.publish(
-                                message=result_to_send,
+                                message=result_msg,
                                 correlation_id=message.correlation_id,
                             )
 
