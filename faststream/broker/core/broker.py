@@ -342,7 +342,26 @@ class BrokerUsecase(
             await h.close()
 
         if self._connection is not None:
-            self._connection = None
+            await self._close(exc_type, exc_val, exec_tb)
+
+    @abstractmethod
+    async def _close(
+        self,
+        exc_type: Optional[Type[BaseException]] = None,
+        exc_val: Optional[BaseException] = None,
+        exec_tb: Optional["TracebackType"] = None,
+    ) -> None:
+        """Close the object.
+
+        Args:
+            exc_type: Optional. The type of the exception.
+            exc_val: Optional. The exception value.
+            exec_tb: Optional. The traceback of the exception.
+
+        Returns:
+            None
+        """
+        self._connection = None
 
     @abstractmethod
     async def publish(
