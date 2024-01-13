@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from contextlib import AsyncExitStack
+from contextlib import AsyncExitStack, asynccontextmanager
 from dataclasses import dataclass
 from inspect import unwrap
 from itertools import chain
@@ -7,6 +7,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     AsyncContextManager,
+    AsyncIterator,
     Awaitable,
     Callable,
     Dict,
@@ -17,7 +18,6 @@ from typing import (
     Tuple,
     Type,
     Union,
-    cast,
 )
 
 from faststream.asyncapi.base import AsyncAPIOperation
@@ -186,40 +186,12 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         self.running = False
         await self.lock.wait_release(self.graceful_timeout)
 
-    @property
-    def call_name(self) -> str:
-        """Returns the name of the handler call."""
-        return to_camelcase(self.calls[0].call_name)
-
-    @property
-    def description(self) -> Optional[str]:
-        """Returns the description of the handler."""
-        if self._description:
-            return self._description
-
-        if not self.calls:  # pragma: no cover
-            return None
-
-        else:
-            return self.calls[0].description
-
-    def get_payloads(self) -> List[Tuple[AnyDict, str]]:
-        """Get the payloads of the handler."""
-        payloads: List[Tuple[AnyDict, str]] = []
-
-        for h in self.calls:
-            body = parse_handler_params(
-                h.dependant,
-                prefix=f"{self._title or self.call_name}:Message",
-            )
-            payloads.append(
-                (
-                    body,
-                    to_camelcase(h.call_name),
-                )
-            )
-
-        return payloads
+    @asynccontextmanager
+    async def stop_scope(self) -> AsyncIterator[None]:
+        try:
+            yield
+        except StopConsume:
+            await self.close()
 
     def add_call(
         self,
@@ -295,8 +267,8 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         middlewares = []
         async with AsyncExitStack() as stack:
             stack.enter_context(self.lock)
-
             stack.enter_context(context.scope("handler_", self))
+            await stack.enter_async_context(self.stop_scope())
 
             for m in self.middlewares:
                 middleware = m(msg)
@@ -305,12 +277,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
 
             cache = {}
             for h in self.calls:
-                if (
-                    message := cast(
-                        "StreamMessage[MsgType]",
-                        await h.is_suitable(msg, cache),
-                    )
-                ) is not None:
+                if (message := await h.is_suitable(msg, cache)) is not None:
                     await stack.enter_async_context(self.watcher(message))
                     stack.enter_context(context.scope("message", message))
                     stack.enter_context(
@@ -326,13 +293,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                         for m in middlewares:
                             await m.__aexit__(exc_type, exc_val, exec_tb)
 
-                    try:
-                        result_msg = cast(
-                            SendableMessage, await h.call(message, middlewares)
-                        )
-                    except StopConsume:
-                        await self.close()
-                        return
+                    result_msg = await h.call(message, middlewares)
 
                     async with AsyncExitStack() as pub_stack:
                         result_msg = result_msg
@@ -359,3 +320,40 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         self, message: "StreamMessage[MsgType]"
     ) -> Sequence[PublisherProtocol]:
         raise NotImplementedError()
+
+    # AsyncAPI methods
+
+    @property
+    def call_name(self) -> str:
+        """Returns the name of the handler call."""
+        return to_camelcase(self.calls[0].call_name)
+
+    @property
+    def description(self) -> Optional[str]:
+        """Returns the description of the handler."""
+        if self._description:
+            return self._description
+
+        if not self.calls:  # pragma: no cover
+            return None
+
+        else:
+            return self.calls[0].description
+
+    def get_payloads(self) -> List[Tuple[AnyDict, str]]:
+        """Get the payloads of the handler."""
+        payloads: List[Tuple[AnyDict, str]] = []
+
+        for h in self.calls:
+            body = parse_handler_params(
+                h.dependant,
+                prefix=f"{self._title or self.call_name}:Message",
+            )
+            payloads.append(
+                (
+                    body,
+                    to_camelcase(h.call_name),
+                )
+            )
+
+        return payloads
