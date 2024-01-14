@@ -26,7 +26,7 @@ class LogicPublisher(BasePublisher[Msg]):
     )
 
     @override
-    async def publish(  # type: ignore[override]
+    async def _publish(  # type: ignore[override]
         self,
         message: SendableMessage = "",
         reply_to: str = "",

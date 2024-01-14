@@ -103,7 +103,7 @@ class PublisherProtocol(Protocol):
             **kwargs: Additional keyword arguments.
 
         Returns:
-            The published message, or None if the message was not published.
+            The response message or None.
         """
         ...
 
@@ -126,4 +126,8 @@ BrokerMiddleware: TypeAlias = Callable[[MsgType], BaseMiddleware]
 SubscriberMiddleware: TypeAlias = Callable[
     [Optional[DecodedMessage]],
     AsyncContextManager[DecodedMessage],
+]
+PublisherMiddleware: TypeAlias = Callable[
+    [Any],
+    AsyncContextManager[SendableMessage],
 ]

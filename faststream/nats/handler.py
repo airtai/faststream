@@ -9,6 +9,7 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    List,
     Optional,
     Sequence,
     Union,
@@ -42,6 +43,7 @@ if TYPE_CHECKING:
         CustomDecoder,
         CustomParser,
         Filter,
+        PublisherProtocol,
         SubscriberMiddleware,
     )
     from faststream.nats.message import NatsMessage
@@ -58,9 +60,10 @@ class LogicNatsHandler(BaseHandler["Msg"]):
         "JetStreamContext.PullSubscription",
     ]
     task_group: Optional["TaskGroup"]
-    task: Optional["asyncio.Task[Any]"]
+    tasks: List["asyncio.Task[Any]"]
     send_stream: "MemoryObjectSendStream[Msg]"
     receive_stream: "MemoryObjectReceiveStream[Msg]"
+    producer: Optional["PublisherProtocol"]
 
     def __init__(
         self,
@@ -76,7 +79,6 @@ class LogicNatsHandler(BaseHandler["Msg"]):
             Callable[..., AsyncContextManager[None]],
             Doc("Watcher to ack message"),
         ],
-        producer,
         queue: Annotated[
             str,
             Doc("NATS queue name"),
@@ -130,9 +132,7 @@ class LogicNatsHandler(BaseHandler["Msg"]):
         )
         self.subject = path
         self.path_regex = reg
-
         self.queue = queue
-        self.producer = producer
 
         self.stream = stream
         self.pull_sub = pull_sub
@@ -150,12 +150,13 @@ class LogicNatsHandler(BaseHandler["Msg"]):
 
         self.max_workers = max_workers
         self.subscription = None
+        self.producer = None
 
         self.send_stream, self.receive_stream = anyio.create_memory_object_stream(
             max_buffer_size=max_workers
         )
         self.limiter = anyio.Semaphore(max_workers)
-        self.task = None
+        self.tasks = []
 
     def add_call(
         self,
@@ -180,6 +181,8 @@ class LogicNatsHandler(BaseHandler["Msg"]):
     def make_response_publisher(
         self, message: "NatsMessage"
     ) -> Sequence[FakePublisher]:
+        assert self.producer, "You should setup producer first"
+
         if message.reply_to:
             return (
                 FakePublisher(
@@ -198,11 +201,17 @@ class LogicNatsHandler(BaseHandler["Msg"]):
             Union["Client", "JetStreamContext"],
             Doc("NATS client or JS Context object using to create subscription"),
         ],
+        producer: Annotated[
+            Optional["PublisherProtocol"],
+            Doc("Publisher to response RPC"),
+        ],
     ) -> None:
         """Create NATS subscription and start consume task."""
+        self.producer = producer
+
         cb: Callable[["Msg"], Awaitable[SendableMessage]]
         if self.max_workers > 1:
-            self.task = asyncio.create_task(self._serve_consume_queue())
+            self.tasks.append(asyncio.create_task(self._serve_consume_queue()))
             cb = self.__put_msg
         else:
             cb = self.consume
@@ -217,7 +226,7 @@ class LogicNatsHandler(BaseHandler["Msg"]):
                 subject=self.subject,
                 **self.extra_options,
             )
-            self.task = asyncio.create_task(self._consume_pull(cb))
+            self.tasks.append(asyncio.create_task(self._consume_pull(cb)))
 
         else:
             self.subscription = await connection.subscribe(
@@ -237,9 +246,9 @@ class LogicNatsHandler(BaseHandler["Msg"]):
             await self.subscription.unsubscribe()
             self.subscription = None
 
-        if self.task is not None:
-            self.task.cancel()
-            self.task = None
+        for t in self.tasks:
+            t.cancel()
+        self.tasks = []
 
     async def _consume_pull(
         self,

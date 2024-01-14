@@ -1,7 +1,18 @@
 from abc import abstractmethod
+from contextlib import AsyncExitStack
 from dataclasses import dataclass, field
 from inspect import unwrap
-from typing import Any, Awaitable, Callable, Generic, List, Optional, Tuple
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Awaitable,
+    Callable,
+    Generic,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+)
 from unittest.mock import MagicMock
 
 from fast_depends._compat import create_model, get_config_base
@@ -14,6 +25,9 @@ from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
 from faststream.types import AnyDict, SendableMessage
 
+if TYPE_CHECKING:
+    from faststream.broker.types import PublisherMiddleware
+
 
 class FakePublisher:
     """A class to represent a fake publisher.
@@ -25,13 +39,18 @@ class FakePublisher:
         publish : asynchronously publishes a message with optional correlation ID and additional keyword arguments
     """
 
-    def __init__(self, method: Callable[..., Awaitable[SendableMessage]]) -> None:
+    def __init__(
+        self,
+        method: Callable[..., Awaitable[SendableMessage]],
+        middlewares: Iterable["PublisherMiddleware"] = (),
+    ) -> None:
         """Initialize an object.
 
         Args:
             method: A callable that takes any number of arguments and returns an awaitable sendable message.
         """
         self.method = method
+        self.middlewares = middlewares
 
     async def publish(
         self,
@@ -51,12 +70,16 @@ class FakePublisher:
         Returns:
             The published message.
         """
-        return await self.method(
-            message,
-            *args,
-            correlation_id=correlation_id,
-            **kwargs,
-        )
+        async with AsyncExitStack() as stack:
+            for m in self.middlewares:
+                message = await stack.enter_async_context(m(message))
+
+            return await self.method(
+                message,
+                *args,
+                correlation_id=correlation_id,
+                **kwargs,
+            )
 
 
 @dataclass
@@ -67,17 +90,13 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
         title : optional title of the publisher
         _description : optional description of the publisher
         _fake_handler : boolean indicating if a fake handler is used
-        calls : list of callable objects
+        calls : list of callable objects to generate AsyncAPI
         mock : MagicMock object for mocking purposes
 
     Methods:
         description() : returns the description of the publisher
         __call__(func) : decorator to register a function as a handler for the publisher
         publish(message, correlation_id, **kwargs) : publishes a message with optional correlation ID
-
-    Raises:
-        NotImplementedError: if the publish method is not implemented.
-
     """
 
     title: Optional[str] = field(default=None)
@@ -87,6 +106,10 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
     calls: List[Callable[..., Any]] = field(
         init=False, default_factory=list, repr=False
     )
+    middlewares: Iterable["PublisherMiddleware"] = field(
+        default_factory=tuple, repr=False
+    )
+
     _fake_handler: bool = field(default=False, repr=False)
     mock: Optional[MagicMock] = field(init=False, default=None, repr=False)
 
@@ -135,7 +158,26 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
         *args: Any,
         correlation_id: Optional[str] = None,
         **kwargs: Any,
-    ) -> Optional[SendableMessage]:
+    ) -> Any:
+        async with AsyncExitStack() as stack:
+            for m in self.middlewares:
+                message = await stack.enter_async_context(m(message))
+
+            return await self._publish(
+                message,
+                *args,
+                correlation_id=correlation_id,
+                **kwargs,
+            )
+
+    @abstractmethod
+    async def _publish(
+        self,
+        message: SendableMessage,
+        *args: Any,
+        correlation_id: Optional[str] = None,
+        **kwargs: Any,
+    ) -> Any:
         """Publish a message.
 
         Args:

@@ -305,26 +305,26 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                         message, (m.consume_scope for m in middlewares)
                     )
 
-                    async with AsyncExitStack() as pub_stack:
-                        result_msg = result_msg
+                    if publishers := (
+                        *self.make_response_publisher(message),
+                        *h.handler._publishers,
+                    ):
+                        async with AsyncExitStack() as pub_stack:
+                            for m_pub in middlewares:
+                                result_msg = await pub_stack.enter_async_context(
+                                    m_pub.publish_scope(result_msg)
+                                )
 
-                        for m_pub in middlewares:
-                            result_msg = await pub_stack.enter_async_context(
-                                m_pub.publish_scope(result_msg)
-                            )
-
-                        # TODO: suppress all publishing errors and raise them after all publishers will be tried
-                        for publisher in (
-                            *self.make_response_publisher(message),
-                            *h.handler._publishers,
-                        ):
-                            # add publishers middlewares
-                            await publisher.publish(
-                                message=result_msg,
-                                correlation_id=message.correlation_id,
-                            )
+                            # TODO: suppress all publishing errors and raise them after all publishers will be tried
+                            for p in publishers:
+                                await p.publish(
+                                    message=result_msg,
+                                    correlation_id=message.correlation_id,
+                                )
 
                     return result_msg
+
+            raise AssertionError(f"Where is not suitable handler for {msg=}")
 
     def make_response_publisher(
         self, message: "StreamMessage[MsgType]"

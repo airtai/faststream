@@ -44,7 +44,7 @@ class BaseMiddleware:
             Asynchronous function to handle the after publish event.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, msg: Optional[Any] = None) -> None:
         """Initialize the class."""
         pass
 
@@ -91,7 +91,9 @@ class BaseMiddleware:
         """
         return await self.after_processed(exc_type, exc_val, exec_tb)
 
-    async def on_consume(self, msg: DecodedMessage) -> DecodedMessage:
+    async def on_consume(
+        self, msg: Optional[DecodedMessage]
+    ) -> Optional[DecodedMessage]:
         """Asynchronously consumes a message.
 
         Args:
@@ -147,7 +149,7 @@ class BaseMiddleware:
             err = None
         await self.after_consume(err)
 
-    async def on_publish(self, msg: SendableMessage) -> SendableMessage:
+    async def on_publish(self, msg: Any) -> SendableMessage:
         """Asynchronously handle a publish event.
 
         Args:
@@ -174,9 +176,7 @@ class BaseMiddleware:
             raise err
 
     @asynccontextmanager
-    async def publish_scope(
-        self, msg: SendableMessage
-    ) -> AsyncIterator[SendableMessage]:
+    async def publish_scope(self, msg: Any) -> AsyncIterator[SendableMessage]:
         """Publish a message and return an async iterator.
 
         Args:
@@ -230,18 +230,17 @@ class CriticalLogMiddleware(BaseMiddleware):
         self.logger = logger
         self.log_level = log_level
 
-    def __call__(self, msg: Any) -> Self:
+    def __call__(self, *args: Any) -> Self:
         """Call the object with a message.
-
-        Args:
-            msg: Any message to be passed to the object.
 
         Returns:
             The object itself.
         """
         return self
 
-    async def on_consume(self, msg: DecodedMessage) -> DecodedMessage:
+    async def on_consume(
+        self, msg: Optional[DecodedMessage]
+    ) -> Optional[DecodedMessage]:
         if self.logger is not None:
             c = context.get_local("log_context")
             self.logger.log(self.log_level, "Received", extra=c)

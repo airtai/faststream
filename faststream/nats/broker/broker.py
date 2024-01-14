@@ -36,6 +36,7 @@ from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
     Filter,
+    PublisherMiddleware,
     SubscriberMiddleware,
 )
 from faststream.broker.utils import get_watcher_context
@@ -181,6 +182,7 @@ class NatsBroker(
         await super().start()
         assert self._connection  # nosec B101
         assert self.stream, "Broker should be started already"  # nosec B101
+        assert self._producer, "Broker should be started already"  # nosec B101
 
         for handler in self.handlers.values():
             stream = handler.stream
@@ -222,7 +224,9 @@ class NatsBroker(
                 stream=stream.name if stream else "",
             )
             self._log(f"`{handler.call_name}` waiting for messages", extra=c)
-            await handler.start(self.stream if is_js else self._connection)
+            await handler.start(
+                self.stream if is_js else self._connection, self._producer
+            )
 
     def _log_connection_broken(
         self,
@@ -362,7 +366,6 @@ class NatsBroker(
                 pull_sub=pull_sub,
                 extra_options=extra_options,
                 max_workers=max_workers,
-                producer=self,
                 # base options
                 title=title,
                 description=description,
@@ -404,6 +407,8 @@ class NatsBroker(
         # JS
         stream: Union[str, JStream, None] = None,
         timeout: Optional[float] = None,
+        # specific
+        middlewares: Iterable[PublisherMiddleware] = (),
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
@@ -423,6 +428,8 @@ class NatsBroker(
                 # JS
                 timeout=timeout,
                 stream=stream,
+                # Specific
+                middlewares=middlewares,
                 # AsyncAPI
                 title=title,
                 _description=description,
@@ -452,9 +459,7 @@ class NatsBroker(
 
         async with AsyncExitStack() as stack:
             for m in self.middlewares:
-                message = await stack.enter_async_context(
-                    m(None).publish_scope(message)
-                )
+                message = await stack.enter_async_context(m().publish_scope(message))
 
             return await publisher.publish(message, *args, **kwargs)
 
