@@ -16,10 +16,8 @@ from nats.js.api import (
 from faststream.broker.test import TestApp
 from faststream.nats.annotations import NatsMessage
 from faststream.nats.broker import NatsBroker
-from faststream.nats.js_stream import JStream
-from faststream.nats.pull_sub import PullSub
-from faststream.nats.router import NatsRouter
-from faststream.nats.shared.router import NatsRoute
+from faststream.nats.router import NatsRoute, NatsRouter
+from faststream.nats.schemas import JStream, PullSub
 from faststream.nats.test import TestNatsBroker
 
 __all__ = (

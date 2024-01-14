@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional, Union
 
-from faststream.nats.js_stream import JStream
+from faststream.nats.schemas.js_stream import JStream
 
 
 class StreamBuilder:

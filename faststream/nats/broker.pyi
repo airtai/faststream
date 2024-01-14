@@ -3,7 +3,6 @@ import ssl
 from types import TracebackType
 from typing import (
     Any,
-    Callable,
     Iterable,
     Sequence,
 )
@@ -34,8 +33,8 @@ from typing_extensions import override
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.core.handler import WrapperProtocol
-from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
+    BrokerMiddleware,
     CustomDecoder,
     CustomParser,
     Filter,
@@ -43,10 +42,9 @@ from faststream.broker.types import (
 )
 from faststream.log import access_logger
 from faststream.nats.asyncapi import Handler, Publisher
-from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
-from faststream.nats.pull_sub import PullSub
+from faststream.nats.schemas import JStream, PullSub
 from faststream.nats.shared.logging import NatsLoggingMixin
 from faststream.types import DecodedMessage, SendableMessage
 
@@ -104,7 +102,7 @@ class NatsBroker(
         dependencies: Sequence[Depends] = (),
         decoder: CustomDecoder[NatsMessage] | None = None,
         parser: CustomParser[Msg, NatsMessage] | None = None,
-        middlewares: Sequence[Callable[[Msg], BaseMiddleware]] | None = None,
+        middlewares: Iterable[BrokerMiddleware[Msg]] = (),
         # AsyncAPI args
         asyncapi_url: str | list[str] | None = None,
         protocol: str = "nats",

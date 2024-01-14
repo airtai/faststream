@@ -44,9 +44,8 @@ if TYPE_CHECKING:
         Filter,
         SubscriberMiddleware,
     )
-    from faststream.nats.js_stream import JStream
     from faststream.nats.message import NatsMessage
-    from faststream.nats.pull_sub import PullSub
+    from faststream.nats.schemas import JStream, PullSub
 
 
 class LogicNatsHandler(BaseHandler["Msg"]):

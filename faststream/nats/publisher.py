@@ -6,8 +6,8 @@ from typing_extensions import override
 
 from faststream.broker.core.publisher import BasePublisher
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.nats.js_stream import JStream
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
+from faststream.nats.schemas import JStream
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
 

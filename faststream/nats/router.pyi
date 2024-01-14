@@ -7,8 +7,9 @@ from typing_extensions import override
 
 from faststream.broker.core.broker import default_filter
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
-from faststream.broker.middlewares import BaseMiddleware
+from faststream.broker.router import BrokerRouter
 from faststream.broker.types import (
+    BrokerMiddleware,
     CustomDecoder,
     CustomParser,
     Filter,
@@ -17,13 +18,48 @@ from faststream.broker.types import (
     T_HandlerReturn,
 )
 from faststream.nats.asyncapi import Publisher
-from faststream.nats.js_stream import JStream
 from faststream.nats.message import NatsMessage
-from faststream.nats.pull_sub import PullSub
-from faststream.nats.shared.router import NatsRoute
-from faststream.nats.shared.router import NatsRouter as BaseRouter
+from faststream.nats.schemas import JStream, PullSub
 
-class NatsRouter(BaseRouter):
+class NatsRoute:
+    """Delayed `NatsBroker.subscriber()` registration object."""
+
+    def __init__(
+        self,
+        call: Callable[..., T_HandlerReturn],
+        subject: str,
+        queue: str = "",
+        pending_msgs_limit: int | None = None,
+        pending_bytes_limit: int | None = None,
+        # Core arguments
+        max_msgs: int = 0,
+        ack_first: bool = False,
+        # JS arguments
+        stream: str | JStream | None = None,
+        durable: str | None = None,
+        config: api.ConsumerConfig | None = None,
+        ordered_consumer: bool = False,
+        idle_heartbeat: float | None = None,
+        flow_control: bool = False,
+        deliver_policy: api.DeliverPolicy | None = None,
+        headers_only: bool | None = None,
+        # broker arguments
+        dependencies: Sequence[Depends] = (),
+        parser: CustomParser[Msg, NatsMessage] | None = None,
+        decoder: CustomDecoder[NatsMessage] | None = None,
+        middlewares: Iterable[BrokerMiddleware[Msg]] = (),
+        filter: Filter[NatsMessage] = default_filter,
+        retry: bool = False,
+        no_ack: bool = False,
+        max_workers: int = 1,
+        # AsyncAPI information
+        title: str | None = None,
+        description: str | None = None,
+        include_in_schema: bool = True,
+        **__service_kwargs: Any,
+    ) -> None: ...
+
+class NatsRouter(BrokerRouter[str, Msg]):
     _publishers: dict[str, Publisher]  # type: ignore[assignment]
 
     def __init__(
@@ -32,7 +68,7 @@ class NatsRouter(BaseRouter):
         handlers: Sequence[NatsRoute] = (),
         *,
         dependencies: Sequence[Depends] = (),
-        middlewares: Sequence[Callable[[Msg], BaseMiddleware]] | None = None,
+        middlewares: Iterable[BrokerMiddleware[Msg]] = (),
         parser: CustomParser[Msg, NatsMessage] | None = None,
         decoder: CustomDecoder[NatsMessage] | None = None,
         include_in_schema: bool = True,
