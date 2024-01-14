@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from faststream import BaseMiddleware, Depends
+from faststream import Depends
 from faststream.broker.core.broker import BrokerUsecase
 from faststream.broker.router import BrokerRoute, BrokerRouter
 from faststream.types import AnyCallable
@@ -13,7 +13,10 @@ from tests.brokers.base.parser import LocalCustomParserTestcase
 
 
 @pytest.mark.asyncio()
-class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):  # noqa: D101
+class RouterTestcase(  # noqa: D101
+    LocalMiddlewareTestcase,
+    LocalCustomParserTestcase,
+):
     build_message: AnyCallable
     route_class: Type[BrokerRoute]
 
@@ -289,36 +292,17 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):  # noq
         event: asyncio.Event,
         mock: Mock,
     ):
-        pub_broker._is_apply_types = True
+        router = type(router)(dependencies=(Depends(lambda: 1),))
+        router2 = type(router)(dependencies=(Depends(lambda: 2),))
 
-        async def dep1(s):
-            mock.dep1()
+        @router2.subscriber(queue, dependencies=(Depends(lambda: 3),))
+        def subscriber():
+            ...
 
-        async def dep2(s):
-            mock.dep2()
-
-        router = type(router)(dependencies=(Depends(dep1),))
-
-        @router.subscriber(queue, dependencies=(Depends(dep2),))
-        def subscriber(s):
-            event.set()
-
+        router.include_router(router2)
         pub_broker.include_routers(router)
 
-        async with pub_broker:
-            await pub_broker.start()
-
-            await asyncio.wait(
-                (
-                    asyncio.create_task(pub_broker.publish("hello", queue)),
-                    asyncio.create_task(event.wait()),
-                ),
-                timeout=3,
-            )
-
-            assert event.is_set()
-            mock.dep1.assert_called_once()
-            mock.dep2.assert_called_once()
+        assert len(list(pub_broker.handlers.values())[0].calls[0].dependant.extra_dependencies) == 3
 
     async def test_router_middlewares(
         self,
@@ -328,37 +312,17 @@ class RouterTestcase(LocalMiddlewareTestcase, LocalCustomParserTestcase):  # noq
         event: asyncio.Event,
         mock: Mock,
     ):
-        class mid1(BaseMiddleware):  # noqa: N801
-            async def on_receive(self) -> None:
-                mock.mid1()
+        router = type(router)(middlewares=(1,))
+        router2 = type(router)(middlewares=(2,))
 
-        class mid2(BaseMiddleware):  # noqa: N801
-            async def on_receive(self) -> None:
-                mock.mid1.assert_called_once()
-                mock.mid2()
+        @router2.subscriber(queue, middlewares=(3,))
+        def subscriber():
+            ...
 
-        router = type(router)(middlewares=(mid1,))
-
-        @router.subscriber(queue, middlewares=(mid2,))
-        def subscriber(s):
-            event.set()
-
+        router.include_router(router2)
         pub_broker.include_routers(router)
 
-        async with pub_broker:
-            await pub_broker.start()
-
-            await asyncio.wait(
-                (
-                    asyncio.create_task(pub_broker.publish("hello", queue)),
-                    asyncio.create_task(event.wait()),
-                ),
-                timeout=3,
-            )
-
-            assert event.is_set()
-            mock.mid1.assert_called_once()
-            mock.mid2.assert_called_once()
+        assert list(pub_broker.handlers.values())[0].calls[0].middlewares == (1, 2, 3)
 
     async def test_router_parser(
         self,
