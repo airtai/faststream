@@ -41,12 +41,12 @@ from faststream.broker.types import (
 from faststream.broker.utils import get_watcher_context
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.nats.asyncapi import Handler, Publisher
+from faststream.nats.broker.logging import NatsLoggingMixin
 from faststream.nats.helpers import stream_builder
 from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.schemas import JStream, PullSub
 from faststream.nats.security import parse_security
-from faststream.nats.shared.logging import NatsLoggingMixin
 from faststream.security import BaseSecurity
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
 from faststream.utils.context.repository import context

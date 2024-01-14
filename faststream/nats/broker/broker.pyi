@@ -42,10 +42,10 @@ from faststream.broker.types import (
 )
 from faststream.log import access_logger
 from faststream.nats.asyncapi import Handler, Publisher
+from faststream.nats.broker.logging import NatsLoggingMixin
 from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.schemas import JStream, PullSub
-from faststream.nats.shared.logging import NatsLoggingMixin
 from faststream.types import DecodedMessage, SendableMessage
 
 Subject = str
