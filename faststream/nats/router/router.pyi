@@ -14,6 +14,7 @@ from faststream.broker.types import (
     CustomParser,
     Filter,
     P_HandlerParams,
+    PublisherMiddleware,
     SubscriberMiddleware,
     T_HandlerReturn,
 )
@@ -87,7 +88,13 @@ class NatsRouter(BrokerRouter[str, Msg]):
         self,
         subject: str,
         headers: dict[str, str] | None = None,
+        # Core
         reply_to: str = "",
+        # JS
+        stream: str | JStream | None = None,
+        timeout: float | None = None,
+        # specific
+        middlewares: Iterable[PublisherMiddleware] = (),
         # AsyncAPI information
         title: str | None = None,
         description: str | None = None,

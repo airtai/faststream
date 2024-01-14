@@ -38,6 +38,7 @@ from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
     Filter,
+    PublisherMiddleware,
     SubscriberMiddleware,
 )
 from faststream.log import access_logger
@@ -247,6 +248,8 @@ class NatsBroker(
         # JS
         stream: str | JStream | None = None,
         timeout: float | None = None,
+        # specific
+        middlewares: Iterable[PublisherMiddleware] = (),
         # AsyncAPI information
         title: str | None = None,
         description: str | None = None,
