@@ -8,6 +8,7 @@ from typing import (
     Awaitable,
     Callable,
     Dict,
+    Iterable,
     Optional,
     Sequence,
     Union,
@@ -15,50 +16,52 @@ from typing import (
 )
 
 import anyio
-from anyio.abc import TaskGroup, TaskStatus
-from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
-from fast_depends.dependencies import Depends
-from nats.aio.client import Client
-from nats.aio.msg import Msg
-from nats.aio.subscription import Subscription
 from nats.errors import TimeoutError
-from nats.js import JetStreamContext
 from typing_extensions import Annotated, Doc
 
 from faststream.broker.core.handler import BaseHandler
 from faststream.broker.core.publisher import FakePublisher
-from faststream.broker.message import StreamMessage
-from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.parsers import resolve_custom_func
-from faststream.broker.types import (
-    CustomDecoder,
-    CustomParser,
-    Filter,
-)
-from faststream.nats.js_stream import JStream
-from faststream.nats.message import NatsMessage
 from faststream.nats.parser import JsParser, Parser
-from faststream.nats.pull_sub import PullSub
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils.path import compile_path
 
 if TYPE_CHECKING:
+    from anyio.abc import TaskGroup, TaskStatus
+    from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
+    from fast_depends.dependencies import Depends
+    from nats.aio.client import Client
+    from nats.aio.msg import Msg
+    from nats.aio.subscription import Subscription
+    from nats.js import JetStreamContext
+
     from faststream.broker.core.handler import WrapperProtocol
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.types import (
+        BrokerMiddleware,
+        CustomDecoder,
+        CustomParser,
+        Filter,
+        SubscriberMiddleware,
+    )
+    from faststream.nats.js_stream import JStream
+    from faststream.nats.message import NatsMessage
+    from faststream.nats.pull_sub import PullSub
 
 
-class LogicNatsHandler(BaseHandler[Msg]):
+class LogicNatsHandler(BaseHandler["Msg"]):
     """A class to represent a NATS handler."""
 
     subscription: Union[
         None,
-        Subscription,
-        JetStreamContext.PushSubscription,
-        JetStreamContext.PullSubscription,
+        "Subscription",
+        "JetStreamContext.PushSubscription",
+        "JetStreamContext.PullSubscription",
     ]
-    task_group: Optional[TaskGroup]
+    task_group: Optional["TaskGroup"]
     task: Optional["asyncio.Task[Any]"]
-    send_stream: MemoryObjectSendStream[Msg]
-    receive_stream: MemoryObjectReceiveStream[Msg]
+    send_stream: "MemoryObjectSendStream[Msg]"
+    receive_stream: "MemoryObjectReceiveStream[Msg]"
 
     def __init__(
         self,
@@ -67,7 +70,7 @@ class LogicNatsHandler(BaseHandler[Msg]):
             Doc("NATS subject to subscribe"),
         ],
         log_context_builder: Annotated[
-            Callable[[StreamMessage[Any]], Dict[str, str]],
+            Callable[["StreamMessage[Any]"], Dict[str, str]],
             Doc("Function to create log extra data by message"),
         ],
         watcher: Annotated[
@@ -80,11 +83,11 @@ class LogicNatsHandler(BaseHandler[Msg]):
             Doc("NATS queue name"),
         ] = "",
         stream: Annotated[
-            Optional[JStream],
+            Optional["JStream"],
             Doc("NATS Stream object"),
         ] = None,
         pull_sub: Annotated[
-            Optional[PullSub],
+            Optional["PullSub"],
             Doc("NATS Pull consumer parameters container"),
         ] = None,
         extra_options: Annotated[
@@ -103,7 +106,7 @@ class LogicNatsHandler(BaseHandler[Msg]):
             Doc("Process up to this parameter messages concurrently"),
         ] = 1,
         middlewares: Annotated[
-            Sequence[Callable[[Msg], BaseMiddleware]],
+            Iterable["BrokerMiddleware[Msg]"],
             Doc("Global middleware to use `on_receive`, `after_processed`"),
         ] = (),
         # AsyncAPI information
@@ -158,11 +161,11 @@ class LogicNatsHandler(BaseHandler[Msg]):
     def add_call(
         self,
         *,
-        parser: Optional[CustomParser[Msg, NatsMessage]],
-        decoder: Optional[CustomDecoder[NatsMessage]],
-        filter: Filter[NatsMessage],
-        middlewares: Sequence[Callable[[Msg], BaseMiddleware]],
-        dependencies: Sequence[Depends],
+        parser: Optional["CustomParser[Msg, NatsMessage]"],
+        decoder: Optional["CustomDecoder[NatsMessage]"],
+        filter: "Filter[NatsMessage]",
+        middlewares: Iterable["SubscriberMiddleware"],
+        dependencies: Sequence["Depends"],
         **wrap_kwargs: Any,
     ) -> "WrapperProtocol[Msg]":
         parser_ = Parser if self.stream is None else JsParser
@@ -175,25 +178,9 @@ class LogicNatsHandler(BaseHandler[Msg]):
             **wrap_kwargs,
         )
 
-    # def _process_message(
-    #     self,
-    #     func: Callable[[NatsMessage], Awaitable[T_HandlerReturn]],
-    #     watcher: Callable[..., AsyncContextManager[None]],
-    # ) -> Callable[
-    #     [NatsMessage],
-    #     Awaitable[WrappedReturn[T_HandlerReturn]],
-    # ]:
-    #     @wraps(func)
-    #     async def process_wrapper(
-    #         message: NatsMessage,
-    #     ) -> WrappedReturn[T_HandlerReturn]:
-    #         async with watcher(message):
-    #             r = await func(message)
-    #             return r, None
-
-    #     return process_wrapper
-
-    def make_response_publisher(self, message: NatsMessage) -> Sequence[FakePublisher]:
+    def make_response_publisher(
+        self, message: "NatsMessage"
+    ) -> Sequence[FakePublisher]:
         if message.reply_to:
             return (
                 FakePublisher(
@@ -209,12 +196,12 @@ class LogicNatsHandler(BaseHandler[Msg]):
     async def start(
         self,
         connection: Annotated[
-            Union[Client, JetStreamContext],
+            Union["Client", "JetStreamContext"],
             Doc("NATS client or JS Context object using to create subscription"),
         ],
     ) -> None:
         """Create NATS subscription and start consume task."""
-        cb: Callable[[Msg], Awaitable[SendableMessage]]
+        cb: Callable[["Msg"], Awaitable[SendableMessage]]
         if self.max_workers > 1:
             self.task = asyncio.create_task(self._serve_consume_queue())
             cb = self.__put_msg
@@ -222,7 +209,7 @@ class LogicNatsHandler(BaseHandler[Msg]):
             cb = self.consume
 
         if self.pull_sub is not None:
-            connection = cast(JetStreamContext, connection)
+            connection = cast("JetStreamContext", connection)
 
             if self.stream is None:
                 raise ValueError("Pull subscriber can be used only with a stream")
@@ -257,14 +244,14 @@ class LogicNatsHandler(BaseHandler[Msg]):
 
     async def _consume_pull(
         self,
-        cb: Callable[[Msg], Awaitable[SendableMessage]],
+        cb: Callable[["Msg"], Awaitable[SendableMessage]],
         *,
-        task_status: TaskStatus[None] = anyio.TASK_STATUS_IGNORED,
+        task_status: "TaskStatus[None]" = anyio.TASK_STATUS_IGNORED,
     ) -> None:
         """Endless task consuming messages using NATS Pull subscriber."""
         assert self.pull_sub  # nosec B101
 
-        sub = cast(JetStreamContext.PullSubscription, self.subscription)
+        sub = cast("JetStreamContext.PullSubscription", self.subscription)
 
         task_status.started()
 
@@ -287,7 +274,7 @@ class LogicNatsHandler(BaseHandler[Msg]):
     async def _serve_consume_queue(
         self,
         *,
-        task_status: TaskStatus[None] = anyio.TASK_STATUS_IGNORED,
+        task_status: "TaskStatus[None]" = anyio.TASK_STATUS_IGNORED,
     ) -> None:
         """Endless task consuming messages from in-memory queue.
 
@@ -301,13 +288,13 @@ class LogicNatsHandler(BaseHandler[Msg]):
 
     async def __consume_msg(
         self,
-        msg: Msg,
+        msg: "Msg",
     ) -> None:
         """Proxy method to call `self.consume` with semaphore block."""
         async with self.limiter:
             await self.consume(msg)
 
-    async def __put_msg(self, msg: Msg) -> None:
+    async def __put_msg(self, msg: "Msg") -> None:
         """Proxy method to put msg into in-memory queue with semaphore block."""
         async with self.limiter:
             await self.send_stream.send(msg)

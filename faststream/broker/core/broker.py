@@ -4,8 +4,8 @@ from abc import ABC, abstractmethod
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Generic,
+    Iterable,
     List,
     Mapping,
     Optional,
@@ -45,8 +45,8 @@ if TYPE_CHECKING:
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
     from faststream.broker.core.publisher import BasePublisher
     from faststream.broker.message import StreamMessage
-    from faststream.broker.middlewares import BaseMiddleware
     from faststream.broker.router import BrokerRouter
+    from faststream.broker.types import BrokerMiddleware, SubscriberMiddleware
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, SendableMessage
 
@@ -79,7 +79,7 @@ class BrokerUsecase(
 
     handlers: Mapping[Any, "BaseHandler[MsgType]"]
     _publishers: Mapping[Any, "BasePublisher[MsgType]"]
-    middlewares: Sequence[Callable[[Any], "BaseMiddleware"]]
+    middlewares: Sequence["BrokerMiddleware[MsgType]"]
 
     def __init__(
         self,
@@ -121,7 +121,7 @@ class BrokerUsecase(
             Doc("Dependencies to apply to all broker subscribers"),
         ] = (),
         middlewares: Annotated[
-            Sequence[Callable[[Any], "BaseMiddleware"]],
+            Iterable["BrokerMiddleware[MsgType]"],
             Doc("Middlewares to apply to all broker publishers/subscribers"),
         ] = (),
         graceful_timeout: Annotated[
@@ -401,7 +401,7 @@ class BrokerUsecase(
         decoder: Optional[CustomDecoder["StreamMessage[MsgType]"]] = None,
         parser: Optional[CustomParser[MsgType, "StreamMessage[MsgType]"]] = None,
         dependencies: Sequence["Depends"] = (),
-        middlewares: Sequence["BaseMiddleware"] = (),
+        middlewares: Iterable["SubscriberMiddleware"] = (),
         raw: bool = False,
         no_ack: bool = False,
         retry: Union[bool, int] = False,

@@ -38,7 +38,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
     future: Optional["asyncio.Future[Any]"]
     is_test: bool
 
-    _wrapped_call: Optional[WrappedHandlerCall[MsgType, T_HandlerReturn]]
+    _wrapped_call: Optional[WrappedHandlerCall[MsgType, SendableMessage]]
     _original_call: Callable[P_HandlerParams, T_HandlerReturn]
     _publishers: List[PublisherProtocol]
 
@@ -116,7 +116,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
         return self._original_call(*args, **kwargs)
 
     def set_wrapped(
-        self, wrapped: WrappedHandlerCall[MsgType, T_HandlerReturn]
+        self, wrapped: WrappedHandlerCall[MsgType, SendableMessage]
     ) -> None:
         """Set the wrapped handler call.
 

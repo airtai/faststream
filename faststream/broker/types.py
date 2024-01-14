@@ -1,8 +1,18 @@
-from typing import Any, Awaitable, Callable, Optional, Protocol, TypeVar, Union
+from typing import (
+    Any,
+    AsyncContextManager,
+    Awaitable,
+    Callable,
+    Optional,
+    Protocol,
+    TypeVar,
+    Union,
+)
 
 from typing_extensions import ParamSpec, TypeAlias
 
 from faststream.broker.message import StreamMessage
+from faststream.broker.middlewares import BaseMiddleware
 from faststream.types import DecodedMessage, SendableMessage
 
 Decoded = TypeVar("Decoded", bound=DecodedMessage)
@@ -109,4 +119,11 @@ SyncWrappedHandlerCall: TypeAlias = Callable[
 WrappedHandlerCall: TypeAlias = Union[
     AsyncWrappedHandlerCall[MsgType, T_HandlerReturn],
     SyncWrappedHandlerCall[MsgType, T_HandlerReturn],
+]
+
+
+BrokerMiddleware: TypeAlias = Callable[[MsgType], BaseMiddleware]
+SubscriberMiddleware: TypeAlias = Callable[
+    [Optional[DecodedMessage]],
+    AsyncContextManager[DecodedMessage],
 ]

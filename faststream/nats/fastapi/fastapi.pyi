@@ -4,9 +4,8 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    Mapping,
+    Iterable,
     Sequence,
-    overload,
 )
 
 from fast_depends.dependencies import Depends
@@ -34,19 +33,20 @@ from nats.aio.msg import Msg
 from nats.js import api
 from starlette import routing
 from starlette.responses import JSONResponse, Response
-from starlette.types import ASGIApp, AppType, Lifespan
+from starlette.types import ASGIApp, Lifespan
 from typing_extensions import override
 
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.broker import default_filter
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.fastapi.router import StreamRouter
-from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
+    BrokerMiddleware,
     CustomDecoder,
     CustomParser,
     Filter,
     P_HandlerParams,
+    SubscriberMiddleware,
     T_HandlerReturn,
 )
 from faststream.nats.asyncapi import Publisher
@@ -105,7 +105,7 @@ class NatsRouter(StreamRouter[Msg]):
         graceful_timeout: float | None = None,
         decoder: CustomDecoder[NatsMessage] | None = None,
         parser: CustomParser[Msg, NatsMessage] | None = None,
-        middlewares: Sequence[Callable[[Msg], BaseMiddleware]] | None = None,
+        middlewares: Iterable[BrokerMiddleware[Msg]] = (),
         # AsyncAPI args
         asyncapi_url: str | list[str] | None = None,
         protocol: str = "nats",
@@ -159,7 +159,7 @@ class NatsRouter(StreamRouter[Msg]):
         dependencies: Sequence[Depends] = (),
         parser: CustomParser[Msg, NatsMessage] | None = None,
         decoder: CustomDecoder[NatsMessage] | None = None,
-        middlewares: Sequence[Callable[[Msg], BaseMiddleware]] | None = None,
+        middlewares: Iterable[SubscriberMiddleware] = (),
         filter: Filter[NatsMessage] = default_filter,
         retry: bool = False,
         # AsyncAPI information
@@ -193,7 +193,7 @@ class NatsRouter(StreamRouter[Msg]):
         dependencies: Sequence[Depends] = (),
         parser: CustomParser[Msg, NatsMessage] | None = None,
         decoder: CustomDecoder[NatsMessage] | None = None,
-        middlewares: Sequence[Callable[[Msg], BaseMiddleware]] | None = None,
+        middlewares: Iterable[SubscriberMiddleware] = (),
         filter: Filter[NatsMessage] = default_filter,
         retry: bool = False,
         no_ack: bool = False,
@@ -223,23 +223,3 @@ class NatsRouter(StreamRouter[Msg]):
         schema: Any | None = None,
         include_in_schema: bool = True,
     ) -> Publisher: ...
-    @overload
-    def after_startup(
-        self,
-        func: Callable[[AppType], Mapping[str, Any]],
-    ) -> Callable[[AppType], Mapping[str, Any]]: ...
-    @overload
-    def after_startup(
-        self,
-        func: Callable[[AppType], Awaitable[Mapping[str, Any]]],
-    ) -> Callable[[AppType], Awaitable[Mapping[str, Any]]]: ...
-    @overload
-    def after_startup(
-        self,
-        func: Callable[[AppType], None],
-    ) -> Callable[[AppType], None]: ...
-    @overload
-    def after_startup(
-        self,
-        func: Callable[[AppType], Awaitable[None]],
-    ) -> Callable[[AppType], Awaitable[None]]: ...

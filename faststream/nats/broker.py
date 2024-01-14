@@ -6,8 +6,8 @@ from types import TracebackType
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Dict,
+    Iterable,
     List,
     Optional,
     Sequence,
@@ -32,11 +32,11 @@ from nats.js.client import (
 from typing_extensions import TypeAlias, override
 
 from faststream.broker.core.broker import BrokerUsecase, default_filter
-from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
     Filter,
+    SubscriberMiddleware,
 )
 from faststream.broker.utils import get_watcher_context
 from faststream.exceptions import NOT_CONNECTED_YET
@@ -284,7 +284,7 @@ class NatsBroker(
         dependencies: Sequence[Depends] = (),
         parser: Optional[CustomParser[Msg, NatsMessage]] = None,
         decoder: Optional[CustomDecoder[NatsMessage]] = None,
-        middlewares: Sequence[Callable[[Msg], BaseMiddleware]] = (),
+        middlewares: Iterable[SubscriberMiddleware] = (),
         filter: Filter[NatsMessage] = default_filter,
         max_workers: int = 1,
         retry: bool = False,

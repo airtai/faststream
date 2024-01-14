@@ -1,4 +1,4 @@
-from typing import Any, Callable, Sequence
+from typing import Any, Callable, Iterable, Sequence
 
 from fast_depends.dependencies import Depends
 from nats.aio.msg import Msg
@@ -13,6 +13,7 @@ from faststream.broker.types import (
     CustomParser,
     Filter,
     P_HandlerParams,
+    SubscriberMiddleware,
     T_HandlerReturn,
 )
 from faststream.nats.asyncapi import Publisher
@@ -83,7 +84,7 @@ class NatsRouter(BaseRouter):
         dependencies: Sequence[Depends] = (),
         parser: CustomParser[Msg, NatsMessage] | None = None,
         decoder: CustomDecoder[NatsMessage] | None = None,
-        middlewares: Sequence[Callable[[Msg], BaseMiddleware]] | None = None,
+        middlewares: Iterable[SubscriberMiddleware] = (),
         filter: Filter[NatsMessage] = default_filter,
         retry: bool = False,
         no_ack: bool = False,

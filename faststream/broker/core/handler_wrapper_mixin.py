@@ -5,6 +5,7 @@ from typing import (
     Awaitable,
     Callable,
     Generic,
+    Iterable,
     Mapping,
     Optional,
     Sequence,
@@ -37,7 +38,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream.broker.message import StreamMessage
-    from faststream.broker.middlewares import BaseMiddleware
+    from faststream.broker.types import SubscriberMiddleware
 
     class WrapperProtocol(Generic[MsgType], Protocol):
         """Annotation class to represent @subsriber return type."""
@@ -50,7 +51,7 @@ if TYPE_CHECKING:
             filter: Filter["StreamMessage[MsgType]"],
             parser: CustomParser[MsgType, Any],
             decoder: CustomDecoder["StreamMessage[MsgType]"],
-            middlewares: Sequence["BaseMiddleware"] = (),
+            middlewares: Iterable["SubscriberMiddleware"] = (),
             dependencies: Sequence["Depends"] = (),
         ) -> Callable[
             [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -66,7 +67,7 @@ if TYPE_CHECKING:
             filter: Filter["StreamMessage[MsgType]"],
             parser: CustomParser[MsgType, Any],
             decoder: CustomDecoder["StreamMessage[MsgType]"],
-            middlewares: Sequence["BaseMiddleware"] = (),
+            middlewares: Iterable["SubscriberMiddleware"] = (),
             dependencies: Sequence["Depends"] = (),
         ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
             ...
@@ -78,7 +79,7 @@ if TYPE_CHECKING:
             filter: Filter["StreamMessage[MsgType]"],
             parser: CustomParser[MsgType, Any],
             decoder: CustomDecoder["StreamMessage[MsgType]"],
-            middlewares: Sequence["BaseMiddleware"] = (),
+            middlewares: Iterable["SubscriberMiddleware"] = (),
             dependencies: Sequence["Depends"] = (),
         ) -> Union[
             HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],

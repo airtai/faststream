@@ -115,7 +115,9 @@ class BaseMiddleware:
             raise err
 
     @asynccontextmanager
-    async def consume_scope(self, msg: DecodedMessage) -> AsyncIterator[DecodedMessage]:
+    async def consume_scope(
+        self, msg: Optional[DecodedMessage]
+    ) -> AsyncIterator[Optional[DecodedMessage]]:
         """Asynchronously consumes a message and returns an asynchronous iterator of decoded messages.
 
         Args:

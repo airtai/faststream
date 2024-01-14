@@ -27,8 +27,8 @@ from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.core.publisher import FakePublisher
 from faststream.broker.message import StreamMessage
-from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
+    BrokerMiddleware,
     CustomDecoder,
     CustomParser,
     Filter,
@@ -263,14 +263,7 @@ class KafkaBroker(
             ]
         ] = None,
         decoder: Optional[CustomDecoder] = None,
-        middlewares: Optional[
-            Sequence[
-                Callable[
-                    [aiokafka.ConsumerRecord],
-                    BaseMiddleware,
-                ]
-            ]
-        ] = None,
+        middlewares: Iterable["BrokerMiddleware[aiokafka.ConsumerRecord]"] = (),
         filter: Union[
             Filter[KafkaMessage],
             Filter[StreamMessage[Tuple[aiokafka.ConsumerRecord, ...]]],

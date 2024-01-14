@@ -12,6 +12,7 @@ from typing import (
     Callable,
     Dict,
     Generic,
+    Iterable,
     List,
     Optional,
     Sequence,
@@ -51,6 +52,7 @@ if TYPE_CHECKING:
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
     from faststream.broker.message import StreamMessage
     from faststream.broker.middlewares import BaseMiddleware
+    from faststream.broker.types import BrokerMiddleware, SubscriberMiddleware
 
 
 @dataclass(slots=True)
@@ -61,7 +63,7 @@ class HandlerItem(Generic[MsgType]):
     filter: Callable[["StreamMessage[MsgType]"], Awaitable[bool]]
     parser: AsyncParser[MsgType, Any]
     decoder: AsyncDecoder["StreamMessage[MsgType]"]
-    middlewares: Sequence["BaseMiddleware"]
+    middlewares: Iterable["SubscriberMiddleware"]
     dependant: "CallModel[Any, SendableMessage]"
 
     @property
@@ -104,13 +106,13 @@ class HandlerItem(Generic[MsgType]):
     async def call(
         self,
         message: "StreamMessage[MsgType]",
-        extra_middlewares: Sequence["BaseMiddleware"],
+        extra_middlewares: Iterable["SubscriberMiddleware"],
     ) -> Optional[SendableMessage]:
         result: SendableMessage = None
         async with AsyncExitStack() as consume_stack:
             for middleware in chain(self.middlewares, extra_middlewares):
                 message.decoded_body = await consume_stack.enter_async_context(
-                    middleware.consume_scope(message.decoded_body)
+                    middleware(message.decoded_body)
                 )
 
             try:
@@ -149,7 +151,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         self,
         *,
         log_context_builder: Callable[["StreamMessage[Any]"], Dict[str, str]],
-        middlewares: Sequence[Callable[[MsgType], "BaseMiddleware"]],
+        middlewares: Iterable["BrokerMiddleware[MsgType]"],
         description: Optional[str],
         title: Optional[str],
         include_in_schema: bool,
@@ -198,17 +200,18 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         filter_: Filter["StreamMessage[MsgType]"],
         parser_: CustomParser[MsgType, Any],
         decoder_: CustomDecoder["StreamMessage[MsgType]"],
-        middlewares_: Sequence["BaseMiddleware"],
+        middlewares_: Iterable["SubscriberMiddleware"],
         dependencies_: Sequence["Depends"],
         **wrap_kwargs: Any,
     ) -> "WrapperProtocol[MsgType]":
+        # TODO: should return SELF?
         def wrapper(
             func: Optional[Callable[P_HandlerParams, T_HandlerReturn]] = None,
             *,
             filter: Filter["StreamMessage[MsgType]"] = filter_,
             parser: CustomParser[MsgType, Any] = parser_,
             decoder: CustomDecoder["StreamMessage[MsgType]"] = decoder_,
-            middlewares: Sequence["BaseMiddleware"] = (),
+            middlewares: Iterable["SubscriberMiddleware"] = (),
             dependencies: Sequence["Depends"] = (),
         ) -> Union[
             HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
@@ -264,12 +267,13 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         if not self.running:
             return result_msg
 
-        middlewares = []
         async with AsyncExitStack() as stack:
             stack.enter_context(self.lock)
             stack.enter_context(context.scope("handler_", self))
             await stack.enter_async_context(self.stop_scope())
 
+            # enter all middlewares
+            middlewares: List["BaseMiddleware"] = []
             for m in self.middlewares:
                 middleware = m(msg)
                 middlewares.append(middleware)
@@ -279,11 +283,15 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
             for h in self.calls:
                 if (message := await h.is_suitable(msg, cache)) is not None:
                     await stack.enter_async_context(self.watcher(message))
-                    stack.enter_context(context.scope("message", message))
                     stack.enter_context(
-                        context.scope("log_context", self.log_context_builder(message))
+                        context.scope(
+                            "log_context",
+                            self.log_context_builder(message),
+                        )
                     )
+                    stack.enter_context(context.scope("message", message))
 
+                    # middlewares should be exited before scope does
                     @stack.push_async_callback
                     async def close_middlewares(
                         exc_type: Optional[Type[BaseException]] = None,
@@ -293,7 +301,9 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                         for m in middlewares:
                             await m.__aexit__(exc_type, exc_val, exec_tb)
 
-                    result_msg = await h.call(message, middlewares)
+                    result_msg = await h.call(
+                        message, (m.consume_scope for m in middlewares)
+                    )
 
                     async with AsyncExitStack() as pub_stack:
                         result_msg = result_msg

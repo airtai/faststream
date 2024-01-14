@@ -4,6 +4,7 @@ from types import TracebackType
 from typing import (
     Any,
     Callable,
+    Iterable,
     Sequence,
 )
 
@@ -38,6 +39,7 @@ from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
     Filter,
+    SubscriberMiddleware,
 )
 from faststream.log import access_logger
 from faststream.nats.asyncapi import Handler, Publisher
@@ -226,7 +228,7 @@ class NatsBroker(
         dependencies: Sequence[Depends] = (),
         parser: CustomParser[Msg, NatsMessage] | None = None,
         decoder: CustomDecoder[NatsMessage] | None = None,
-        middlewares: Sequence[Callable[[Msg], BaseMiddleware]] | None = None,
+        middlewares: Iterable[SubscriberMiddleware] = (),
         filter: Filter[NatsMessage] = default_filter,
         retry: bool = False,
         no_ack: bool = False,
