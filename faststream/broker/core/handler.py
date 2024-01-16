@@ -150,23 +150,23 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
     def __init__(
         self,
         *,
-        log_context_builder: Callable[["StreamMessage[Any]"], Dict[str, str]],
         middlewares: Iterable["BrokerMiddleware[MsgType]"],
         description: Optional[str],
         title: Optional[str],
         include_in_schema: bool,
         graceful_timeout: Optional[float],
         watcher: Callable[..., AsyncContextManager[None]],
+        extra_context: Optional[AnyDict],
     ) -> None:
         """Initialize a new instance of the class."""
         self.calls = []
         self.middlewares = middlewares
 
-        self.log_context_builder = log_context_builder
         self.running = False
 
         self.lock = MultiLock()
         self.watcher = watcher
+        self.extra_context = extra_context or {}
         self.graceful_timeout = graceful_timeout
 
         # AsyncAPI information
@@ -268,6 +268,9 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
             return result_msg
 
         async with AsyncExitStack() as stack:
+            for k, v in self.extra_context.items():
+                stack.enter_context(context.scope(k, v))
+
             stack.enter_context(self.lock)
             stack.enter_context(context.scope("handler_", self))
             await stack.enter_async_context(self.stop_scope())
@@ -286,7 +289,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                     stack.enter_context(
                         context.scope(
                             "log_context",
-                            self.log_context_builder(message),
+                            self.get_log_context(message),
                         )
                     )
                     stack.enter_context(context.scope("message", message))
@@ -330,6 +333,14 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         self, message: "StreamMessage[MsgType]"
     ) -> Sequence[PublisherProtocol]:
         raise NotImplementedError()
+
+    def get_log_context(
+        self,
+        message: Optional["StreamMessage[MsgType]"],
+    ) -> Dict[str, str]:
+        return {
+            "message_id": message.message_id if message else "",
+        }
 
     # AsyncAPI methods
 

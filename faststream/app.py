@@ -1,4 +1,5 @@
 import logging
+import logging.config
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -16,7 +17,7 @@ from typing_extensions import ParamSpec
 
 from faststream._compat import ExceptionGroup
 from faststream.cli.supervisors.utils import HANDLED_SIGNALS
-from faststream.log import logger
+from faststream.log.logging import logger
 from faststream.types import AnyDict, AsyncFunc, Lifespan, SettingField
 from faststream.utils import apply_types, context
 from faststream.utils.functions import drop_response_type, fake_context, to_async
@@ -108,7 +109,6 @@ class FastStream:
         self.broker = broker
         self.logger = logger
         self.context = context
-        context.set_global("app", self)
 
         self._on_startup_calling = []
         self._after_startup_calling = []

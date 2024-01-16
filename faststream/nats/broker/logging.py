@@ -1,12 +1,9 @@
 import logging
-from typing import Any, Optional
-
-from typing_extensions import override
+from inspect import Parameter
+from typing import Any, ClassVar, Optional, Union
 
 from faststream.broker.core.logging_mixin import LoggingMixin
-from faststream.broker.message import StreamMessage
-from faststream.log import access_logger
-from faststream.types import AnyDict
+from faststream.log.logging import get_broker_logger
 
 
 class NatsLoggingMixin(LoggingMixin):
@@ -14,11 +11,12 @@ class NatsLoggingMixin(LoggingMixin):
 
     _max_queue_len: int
     _max_subject_len: int
+    __max_msg_id_ln: ClassVar[int] = 10
 
     def __init__(
         self,
         *args: Any,
-        logger: Optional[logging.Logger] = access_logger,
+        logger: Union[logging.Logger, Parameter.empty] = Parameter.empty,
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = None,
         **kwargs: Any,
@@ -35,6 +33,16 @@ class NatsLoggingMixin(LoggingMixin):
         super().__init__(
             *args,
             logger=logger,
+            # TODO: generate unique logger names to not share between brokers
+            default_logger=get_broker_logger(
+                name="nats",
+                default_context={
+                    "subject": "",
+                    "stream": "",
+                    "queue": "",
+                },
+                message_id_ln=self.__max_msg_id_ln,
+            ),
             log_level=log_level,
             log_fmt=log_fmt,
             **kwargs,
@@ -43,30 +51,15 @@ class NatsLoggingMixin(LoggingMixin):
         self._max_stream_len = 0
         self._max_subject_len = 4
 
-    @override
-    def _get_log_context(  # type: ignore[override]
-        self,
-        message: Optional[StreamMessage[Any]],
-        subject: str,
-        queue: str = "",
-        stream: str = "",
-    ) -> AnyDict:
-        return {
-            "subject": subject,
-            "queue": queue,
-            "stream": stream,
-            **super()._get_log_context(message),
-        }
-
     @property
     def fmt(self) -> str:
         return self._fmt or (
-            "%(asctime)s %(levelname)s - "
+            "%(asctime)s %(levelname)8s - "
             + (f"%(stream)-{self._max_stream_len}s | " if self._max_stream_len else "")
             + (f"%(queue)-{self._max_queue_len}s | " if self._max_queue_len else "")
             + f"%(subject)-{self._max_subject_len}s | "
-            + f"%(message_id)-{self._message_id_ln}s "
-            "- %(message)s"
+            + f"%(message_id)-{self.__max_msg_id_ln}s - "
+            "%(message)s"
         )
 
     def _setup_log_context(

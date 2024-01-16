@@ -5,7 +5,6 @@ from typing_extensions import override
 
 from faststream.broker.core.logging_mixin import LoggingMixin
 from faststream.broker.message import StreamMessage
-from faststream.log import access_logger
 from faststream.types import AnyDict
 
 
@@ -17,7 +16,7 @@ class RedisLoggingMixin(LoggingMixin):
     def __init__(
         self,
         *args: Any,
-        logger: Optional[logging.Logger] = access_logger,
+        logger: Optional[logging.Logger] = None,
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = None,
         **kwargs: Any,

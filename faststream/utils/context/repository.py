@@ -152,7 +152,7 @@ class ContextRepo(Singleton):
             The resolved context of the argument.
 
         Raises:
-            AttributeError: If the attribute does not exist in the context.
+            AttributeError, KeyError: If the argument does not exist in the context.
         """
         first, *keys = argument.split(".")
 
@@ -161,6 +161,7 @@ class ContextRepo(Singleton):
 
         for i in keys:
             v = v[i] if isinstance(v, Mapping) else getattr(v, i)
+
         return v
 
     def clear(self) -> None:

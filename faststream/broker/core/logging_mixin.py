@@ -1,9 +1,7 @@
 import logging
-from typing import Any, Optional
+from inspect import Parameter
+from typing import Any, Optional, Union
 
-from faststream.broker.message import StreamMessage
-from faststream.broker.types import MsgType
-from faststream.log import access_logger
 from faststream.types import AnyDict
 
 
@@ -17,14 +15,14 @@ class LoggingMixin:
 
     Methods:
         fmt : getter method for _fmt attribute
-        _get_log_context : returns a dictionary with log context information
         _log : logs a message with optional log level, extra data, and exception info
     """
 
     def __init__(
         self,
         *args: Any,
-        logger: Optional[logging.Logger] = access_logger,
+        default_logger: logging.Logger,
+        logger: Union[logging.Logger, Parameter.empty] = Parameter.empty,
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = "%(asctime)s %(levelname)s - %(message)s",
         **kwargs: Any,
@@ -41,34 +39,20 @@ class LoggingMixin:
         Returns:
             None
         """
-        self.logger = logger
-        self.log_level = log_level
+        if logger is not Parameter.empty:
+            self.logger = logger
+            self.use_custom = True
+        else:
+            self.logger = default_logger
+            self.use_custom = False
+
+        self._msg_log_level = log_level
         self._fmt = log_fmt
-        self._message_id_ln = 10
 
     @property
     def fmt(self) -> str:  # pragma: no cover
         """Getter method for _fmt attribute."""
         return self._fmt or ""
-
-    def _get_log_context(
-        self,
-        message: Optional[StreamMessage[MsgType]],
-        **kwargs: str,
-    ) -> AnyDict:
-        """Get the log context.
-
-        Args:
-            message: Optional stream message
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            A dictionary containing the log context with the following keys:
-                - message_id: The first 10 characters of the message_id if message is not None, otherwise an empty string
-        """
-        return {
-            "message_id": message.message_id[: self._message_id_ln] if message else "",
-        }
 
     def _log(
         self,
@@ -90,7 +74,7 @@ class LoggingMixin:
         """
         if self.logger is not None:
             self.logger.log(
-                (log_level or self.log_level),
+                (log_level or self._msg_log_level),
                 message,
                 extra=extra,
                 exc_info=exc_info,

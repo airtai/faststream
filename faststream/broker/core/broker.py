@@ -1,6 +1,7 @@
 import logging
 import warnings
 from abc import ABC, abstractmethod
+from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -29,8 +30,7 @@ from faststream.broker.types import (
     Filter,
     MsgType,
 )
-from faststream.broker.utils import change_logger_handlers
-from faststream.log import access_logger
+from faststream.log.logging import set_logger_fmt
 from faststream.utils.context.repository import context
 from faststream.utils.functions import get_function_positional_arguments, to_async
 
@@ -79,7 +79,7 @@ class BrokerUsecase(
 
     handlers: Mapping[Any, "BaseHandler[MsgType]"]
     _publishers: Mapping[Any, "BasePublisher[MsgType]"]
-    middlewares: Sequence["BrokerMiddleware[MsgType]"]
+    middlewares: Iterable["BrokerMiddleware[MsgType]"]
 
     def __init__(
         self,
@@ -88,18 +88,14 @@ class BrokerUsecase(
             Doc("Broker address to connect"),
         ],
         *args: Any,
-        apply_types: Annotated[
-            bool,
-            Doc("Whether to use FastDepends or not"),
-        ] = True,
-        validate: Annotated[
-            bool,
-            Doc("Whether to cast types using Pydantic validation"),
-        ] = True,
+        default_logger: Annotated[
+            logging.Logger,
+            Doc("Default logger object"),
+        ],
         logger: Annotated[
-            Optional[logging.Logger],
-            Doc("Logger object for logging"),
-        ] = access_logger,
+            Union[logging.Logger, Parameter.empty],
+            Doc("User specified logger"),
+        ] = Parameter.empty,
         log_level: Annotated[
             int,
             Doc("Log level for logging"),
@@ -108,6 +104,14 @@ class BrokerUsecase(
             Optional[str],
             Doc("Log format for logging"),
         ] = "%(asctime)s %(levelname)s - %(message)s",
+        apply_types: Annotated[
+            bool,
+            Doc("Whether to use FastDepends or not"),
+        ] = True,
+        validate: Annotated[
+            bool,
+            Doc("Whether to cast types using Pydantic validation"),
+        ] = True,
         decoder: Annotated[
             Optional[CustomDecoder["StreamMessage[MsgType]"]],
             Doc("Custom decoder object"),
@@ -162,9 +166,11 @@ class BrokerUsecase(
             logger=logger,
             log_level=log_level,
             log_fmt=log_fmt,
+            default_logger=default_logger,
         )
 
-        context.set_global("logger", logger)
+        # TODO: remove this context to support multiple brokers
+        context.set_global("logger", self.logger)
         context.set_global("broker", self)
 
         self._connection_args = (url, *args)
@@ -180,7 +186,10 @@ class BrokerUsecase(
         self._publishers = {}
 
         if not is_test_env():
-            self.middlewares = (CriticalLogMiddleware(logger, log_level), *middlewares)
+            self.middlewares = (
+                CriticalLogMiddleware(self.logger, log_level),
+                *middlewares,
+            )
         else:
             self.middlewares = middlewares
 
@@ -268,8 +277,8 @@ class BrokerUsecase(
         if not self.running:
             self.running = True
 
-            if self.logger is not None:
-                change_logger_handlers(self.logger, self.fmt)
+            if not self.use_custom:
+                set_logger_fmt(self.logger, self.fmt)
 
     async def connect(self, *args: Any, **kwargs: Any) -> ConnectionType:
         """Connect to a remote server.

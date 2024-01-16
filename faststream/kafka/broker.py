@@ -44,7 +44,6 @@ from faststream.kafka.security import parse_security
 from faststream.kafka.shared.logging import KafkaLoggingMixin
 from faststream.kafka.shared.schemas import ConsumerConnectionParams
 from faststream.security import BaseSecurity
-from faststream.utils import context
 from faststream.utils.data import filter_by_dict
 
 
@@ -185,16 +184,13 @@ class KafkaBroker(
 
     async def start(self) -> None:
         """Start the KafkaBroker and message handlers."""
-        context.set_global(
-            "default_log_context",
-            self._get_log_context(None, ""),
-        )
-
         await super().start()
 
         for handler in self.handlers.values():
-            c = self._get_log_context(None, handler.topics, handler.group_id)
-            self._log(f"`{handler.call_name}` waiting for messages", extra=c)
+            self._log(
+                f"`{handler.call_name}` waiting for messages",
+                extra={"topic": handler.topics, "group": handler.group_id},
+            )
             await handler.start(**(self._connection or {}))
 
     def _process_message(
@@ -363,11 +359,6 @@ class KafkaBroker(
             key,
             Handler(
                 *topics,
-                log_context_builder=partial(
-                    self._get_log_context,
-                    topics=topics,
-                    group_id=group_id,
-                ),
                 is_manual=not auto_commit,
                 group_id=group_id,
                 client_id=self.client_id,

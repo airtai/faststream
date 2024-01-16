@@ -37,7 +37,6 @@ if TYPE_CHECKING:
     from nats.js import JetStreamContext
 
     from faststream.broker.core.handler import WrapperProtocol
-    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
         CustomDecoder,
@@ -71,14 +70,14 @@ class LogicNatsHandler(BaseHandler["Msg"]):
             str,
             Doc("NATS subject to subscribe"),
         ],
-        log_context_builder: Annotated[
-            Callable[["StreamMessage[Any]"], Dict[str, str]],
-            Doc("Function to create log extra data by message"),
-        ],
         watcher: Annotated[
             Callable[..., AsyncContextManager[None]],
             Doc("Watcher to ack message"),
         ],
+        extra_context: Annotated[
+            Optional[AnyDict],
+            Doc("Extra context to pass into consume scope"),
+        ] = None,
         queue: Annotated[
             str,
             Doc("NATS queue name"),
@@ -139,13 +138,13 @@ class LogicNatsHandler(BaseHandler["Msg"]):
         self.extra_options = extra_options or {}
 
         super().__init__(
-            log_context_builder=log_context_builder,
             description=description,
             include_in_schema=include_in_schema,
             title=title,
             middlewares=middlewares,
             graceful_timeout=graceful_timeout,
             watcher=watcher,
+            extra_context=extra_context,
         )
 
         self.max_workers = max_workers
@@ -316,3 +315,28 @@ class LogicNatsHandler(BaseHandler["Msg"]):
         Using to find handler in `broker.handlers` dictionary.
         """
         return subject
+
+    @staticmethod
+    def build_log_context(
+        message: Optional["NatsMessage"],
+        subject: str,
+        queue: str = "",
+        stream: Optional["JStream"] = None,
+    ) -> Dict[str, str]:
+        return {
+            "subject": subject,
+            "queue": queue,
+            "stream": getattr(stream, "name", ""),
+            "message_id": message.message_id if message else "",
+        }
+
+    def get_log_context(
+        self,
+        message: Optional["NatsMessage"],
+    ) -> Dict[str, str]:
+        return self.build_log_context(
+            message=message,
+            subject=self.subject,
+            queue=self.queue,
+            stream=self.stream,
+        )

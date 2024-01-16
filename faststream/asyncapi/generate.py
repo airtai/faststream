@@ -159,7 +159,6 @@ def get_app_broker_channels(
 
     Raises:
         AssertionError: If the app does not have a broker.
-
     """
     channels = {}
     assert app.broker  # nosec B101

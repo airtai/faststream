@@ -21,28 +21,6 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
 
-def change_logger_handlers(logger: "Logger", fmt: str) -> None:
-    """Change the formatter of the logger handlers.
-
-    Args:
-        logger (logging.Logger): The logger object.
-        fmt (str): The format string for the formatter.
-
-    Returns:
-        None
-
-    """
-    for handler in getattr(logger, "handlers", ()):
-        formatter = handler.formatter
-        if formatter is not None:  # pragma: no branch
-            use_colors = getattr(formatter, "use_colors", None)
-            kwargs = (
-                {"use_colors": use_colors} if use_colors is not None else {}
-            )  # pragma: no branch
-
-            handler.setFormatter(type(formatter)(fmt, **kwargs))
-
-
 def get_watcher(
     logger: Optional["Logger"],
     try_number: Union[bool, int],

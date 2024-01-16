@@ -1,13 +1,7 @@
 import logging
-from typing import Any, Iterable, Optional, Sequence
-
-from aiokafka import ConsumerRecord
-from typing_extensions import override
+from typing import Any, Iterable, Optional
 
 from faststream.broker.core.logging_mixin import LoggingMixin
-from faststream.broker.message import StreamMessage
-from faststream.log import access_logger
-from faststream.types import AnyDict
 
 
 class KafkaLoggingMixin(LoggingMixin):
@@ -18,7 +12,6 @@ class KafkaLoggingMixin(LoggingMixin):
 
     Methods:
         __init__ : initializes the KafkaLoggingMixin object
-        _get_log_context : returns the log context for a given message and topics
         fmt : returns the log format string
         _setup_log_context : sets up the log context for a given list of topics
 
@@ -29,7 +22,7 @@ class KafkaLoggingMixin(LoggingMixin):
     def __init__(
         self,
         *args: Any,
-        logger: Optional[logging.Logger] = access_logger,
+        logger: Optional[logging.Logger] = None,
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = None,
         **kwargs: Any,
@@ -56,38 +49,6 @@ class KafkaLoggingMixin(LoggingMixin):
         )
         self._max_topic_len = 4
         self._max_group_len = 0
-
-    @override
-    def _get_log_context(  # type: ignore[override]
-        self,
-        message: Optional[StreamMessage[ConsumerRecord]],
-        topics: Sequence[str] = (),
-        group_id: Optional[str] = None,
-    ) -> AnyDict:
-        """Get the log context.
-
-        Args:
-            message: Optional stream message of type ConsumerRecord
-            topics: Sequence of topics
-            group_id: Optional group ID
-
-        Returns:
-            A dictionary containing the log context
-
-        """
-        if topics:
-            topic = ", ".join(topics)
-        elif message is not None:
-            topic = message.raw_message.topic
-        else:
-            topic = ""
-
-        context = {
-            "topic": topic,
-            "group_id": group_id or "",
-            **super()._get_log_context(message),
-        }
-        return context
 
     @property
     def fmt(self) -> str:

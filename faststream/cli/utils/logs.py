@@ -65,7 +65,6 @@ def set_log_level(level: int, app: FastStream) -> None:
 
     Returns:
         None
-
     """
     if app.logger and isinstance(app.logger, logging.Logger):
         app.logger.setLevel(level)

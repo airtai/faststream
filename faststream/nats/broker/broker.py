@@ -1,7 +1,6 @@
 import logging
 import warnings
 from contextlib import AsyncExitStack
-from functools import partial
 from types import TracebackType
 from typing import (
     TYPE_CHECKING,
@@ -50,7 +49,6 @@ from faststream.nats.schemas import JStream, PullSub
 from faststream.nats.security import parse_security
 from faststream.security import BaseSecurity
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
-from faststream.utils.context.repository import context
 
 Subject: TypeAlias = str
 
@@ -174,18 +172,15 @@ class NatsBroker(
         self.__is_connected = False
 
     async def start(self) -> None:
-        context.set_global(
-            "default_log_context",
-            self._get_log_context(None, ""),
-        )
-
         await super().start()
         assert self._connection  # nosec B101
         assert self.stream, "Broker should be started already"  # nosec B101
         assert self._producer, "Broker should be started already"  # nosec B101
 
-        for handler in self.handlers.values():
+        for handler in filter(lambda h: not h.running, self.handlers.values()):
             stream = handler.stream
+
+            log_context = handler.get_log_context(None)
 
             if (is_js := stream is not None) and stream.declare:
                 try:  # pragma: no branch
@@ -197,12 +192,11 @@ class NatsBroker(
                 except nats.js.errors.BadRequestError as e:
                     old_config = (await self.stream.stream_info(stream.name)).config
 
-                    c = self._get_log_context(None, "")
                     if (
                         e.description
                         == "stream name already in use with a different configuration"
                     ):
-                        self._log(str(e), logging.WARNING, c)
+                        self._log(str(e), logging.WARNING, log_context)
                         await self.stream.update_stream(
                             config=stream.config,
                             subjects=tuple(
@@ -211,28 +205,23 @@ class NatsBroker(
                         )
 
                     else:  # pragma: no cover
-                        self._log(str(e), logging.ERROR, c, exc_info=e)
+                        self._log(str(e), logging.ERROR, log_context, exc_info=e)
 
                 finally:
                     # prevent from double declaration
                     stream.declare = False
 
-            c = self._get_log_context(
-                None,
-                subject=handler.subject,
-                queue=handler.queue,
-                stream=stream.name if stream else "",
-            )
-            self._log(f"`{handler.call_name}` waiting for messages", extra=c)
+            self._log(f"`{handler.call_name}` waiting for messages", extra=log_context)
             await handler.start(
-                self.stream if is_js else self._connection, self._producer
+                self.stream if is_js else self._connection,
+                self._producer,
             )
 
     def _log_connection_broken(
         self,
         error_cb: Optional[ErrorCallback] = None,
     ) -> ErrorCallback:
-        c = self._get_log_context(None, "")
+        c = Handler.build_log_context(None, "")
 
         async def wrapper(err: Exception) -> None:
             if error_cb is not None:
@@ -248,7 +237,7 @@ class NatsBroker(
         self,
         cb: Optional[Callback] = None,
     ) -> Callback:
-        c = self._get_log_context(None, "")
+        c = Handler.build_log_context(None, "")
 
         async def wrapper() -> None:
             if cb is not None:
@@ -306,7 +295,7 @@ class NatsBroker(
         self._setup_log_context(
             queue=queue,
             subject=subject,
-            stream=stream.name if stream else None,
+            stream=getattr(stream, "name", ""),
         )
         super().subscriber()
 
@@ -326,6 +315,9 @@ class NatsBroker(
         }
 
         if stream:
+            # TODO: pull & queue warning
+            # TODO: push & durable warning
+
             extra_options.update(
                 {
                     "durable": durable,
@@ -372,12 +364,6 @@ class NatsBroker(
                 include_in_schema=include_in_schema,
                 graceful_timeout=self.graceful_timeout,
                 middlewares=self.middlewares,
-                log_context_builder=partial(
-                    self._get_log_context,
-                    stream=stream.name if stream else "",
-                    subject=subject,
-                    queue=queue,
-                ),
                 watcher=get_watcher_context(self.logger, no_ack, retry),
             ),
         )

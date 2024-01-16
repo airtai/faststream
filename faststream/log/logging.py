@@ -1,69 +1,71 @@
 import logging
-import logging.config
-from functools import partial
-from typing import Any, Type
+import sys
+from logging import LogRecord
+from typing import Mapping
 
 from faststream.log.formatter import ColourizedFormatter
-from faststream.types import AnyDict
-
-
-def configure_formatter(
-    formatter: Type[logging.Formatter], *args: Any, **kwargs: Any
-) -> logging.Formatter:
-    """Configures a logging formatter.
-
-    Args:
-        formatter: The type of logging formatter to configure.
-        *args: Additional positional arguments to pass to the formatter constructor.
-        **kwargs: Additional keyword arguments to pass to the formatter constructor.
-
-    Returns:
-        An instance of the configured logging formatter.
-
-    """
-    return formatter(*args, **kwargs)
-
-
-LOGGING_CONFIG: AnyDict = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "default": {
-            "()": partial(configure_formatter, ColourizedFormatter),
-            "fmt": "%(asctime)s %(levelname)s - %(message)s",
-            "use_colors": True,
-        },
-        "access": {
-            "()": partial(configure_formatter, ColourizedFormatter),
-            "fmt": "%(asctime)s %(levelname)s - %(message)s",
-            "use_colors": True,
-        },
-    },
-    "handlers": {
-        "default": {
-            "formatter": "default",
-            "class": "logging.StreamHandler",
-            "stream": "ext://sys.stderr",
-        },
-        "access": {
-            "formatter": "access",
-            "class": "logging.StreamHandler",
-            "stream": "ext://sys.stdout",
-        },
-    },
-    "loggers": {
-        "faststream": {"handlers": ["default"], "level": "INFO", "propagate": False},
-        "faststream.error": {"level": "INFO"},
-        "faststream.access": {
-            "handlers": ["access"],
-            "level": "INFO",
-            "propagate": False,
-        },
-    },
-}
-
-logging.config.dictConfig(LOGGING_CONFIG)
-
+from faststream.utils.context.repository import context
 
 logger = logging.getLogger("faststream")
-access_logger = logging.getLogger("faststream.access")
+logger.propagate = False
+main_handler = logging.StreamHandler(stream=sys.stderr)
+main_handler.setFormatter(
+    ColourizedFormatter(
+        fmt="%(asctime)s %(levelname)8s - %(message)s",
+        use_colors=True,
+    )
+)
+logger.addHandler(main_handler)
+
+
+class ExtendedFilter(logging.Filter):
+    def __init__(
+        self,
+        default_context: Mapping[str, str],
+        message_id_ln: int,
+        name: str = "",
+    ) -> None:
+        self.default_context = default_context
+        self.message_id_ln = message_id_ln
+        super().__init__(name)
+
+    def filter(self, record: LogRecord) -> bool:
+        if is_suitable := super().filter(record):
+            log_context: Mapping[str, str] = (
+                context.get("log_context") or self.default_context
+            )
+
+            for k, v in log_context.items():
+                value = getattr(record, k, v)
+                setattr(record, k, value)
+
+            record.message_id = record.message_id[: self.message_id_ln]
+
+        return is_suitable
+
+
+def get_broker_logger(
+    name: str,
+    default_context: Mapping[str, str],
+    message_id_ln: int,
+) -> logging.Logger:
+    logger = logging.getLogger(f"faststream.access.{name}")
+    logger.propagate = False
+    logger.addFilter(ExtendedFilter(default_context, message_id_ln))
+    logger.setLevel(logging.INFO)
+    return logger
+
+
+def set_logger_fmt(
+    logger: logging.Logger,
+    fmt: str = "%(asctime)s %(levelname)s - %(message)s",
+) -> None:
+    handler = logging.StreamHandler(stream=sys.stdout)
+
+    formatter = ColourizedFormatter(
+        fmt=fmt,
+        use_colors=True,
+    )
+    handler.setFormatter(formatter)
+
+    logger.addHandler(handler)
