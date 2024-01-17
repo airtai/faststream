@@ -258,8 +258,11 @@ def publish(
 
 async def publish_message(app_obj, extra):
     try:
-        result = await app_obj.broker.publish(**extra)
-        return result
+        if await app_obj.broker.connect():
+            result = await app_obj.broker.publish(**extra)
+            return result
+        else:
+            raise ValueError("Failed to connect to the broker.")
     except Exception as e:
         typer.echo(f"Error when broker was publishing: {e}")
         sys.exit(1)
