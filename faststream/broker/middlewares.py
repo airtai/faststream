@@ -46,7 +46,7 @@ class BaseMiddleware:
 
     def __init__(self, msg: Optional[Any] = None) -> None:
         """Initialize the class."""
-        pass
+        self.msg = msg
 
     async def on_receive(self) -> None:
         pass

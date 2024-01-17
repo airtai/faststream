@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from functools import cached_property
 from typing import Optional, Sequence, Union, cast
 
 from typing_extensions import override
@@ -71,7 +72,7 @@ class LogicPublisher(BasePublisher[AnyRedisDict]):
                 raise_timeout=raise_timeout,
             )
 
-    @property
+    @cached_property
     def channel_name(self) -> str:
         any_of = self.channel or self.list or self.stream
         assert any_of, INCORRECT_SETUP_MSG  # nosec B101

@@ -302,7 +302,14 @@ class RouterTestcase(  # noqa: D101
         router.include_router(router2)
         pub_broker.include_routers(router)
 
-        assert len(list(pub_broker.handlers.values())[0].calls[0].dependant.extra_dependencies) == 3
+        assert (
+            len(
+                list(pub_broker.handlers.values())[0]
+                .calls[0]
+                .dependant.extra_dependencies
+            )
+            == 3
+        )
 
     async def test_router_middlewares(
         self,

@@ -177,7 +177,7 @@ class NatsBroker(
         assert self.stream, "Broker should be started already"  # nosec B101
         assert self._producer, "Broker should be started already"  # nosec B101
 
-        for handler in filter(lambda h: not h.running, self.handlers.values()):
+        for handler in self.handlers.values():
             stream = handler.stream
 
             log_context = handler.get_log_context(None)
@@ -447,6 +447,7 @@ class NatsBroker(
             for m in self.middlewares:
                 message = await stack.enter_async_context(m().publish_scope(message))
 
+            print(publisher)
             return await publisher.publish(message, *args, **kwargs)
 
     def __set_publisher_producer(self, publisher: Publisher) -> None:

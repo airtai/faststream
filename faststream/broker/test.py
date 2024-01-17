@@ -160,10 +160,10 @@ class TestBroker(Generic[Broker]):
 
     @asynccontextmanager
     async def _create_ctx(self) -> AsyncGenerator[Broker, None]:
-        if not self.with_real:
-            self._patch_test_broker(self.broker)
-        else:
+        if self.with_real:
             self._fake_start(self.broker)
+        else:
+            self._patch_test_broker(self.broker)
 
         async with self.broker:
             try:

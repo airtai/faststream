@@ -38,6 +38,13 @@ class TestNatsBroker(TestBroker[NatsBroker]):
     async def _fake_connect(broker: NatsBroker, *args: Any, **kwargs: Any) -> None:
         broker._js_producer = broker._producer = FakeProducer(broker)  # type: ignore[assignment]
 
+    @classmethod
+    def _fake_start(cls, broker: NatsBroker, *args: Any, **kwargs: Any) -> None:
+        super()._fake_start(broker, *args, **kwargs)
+
+        for h in broker.handlers.values():
+            h.producer = FakeProducer(broker)  # type: ignore[assignment]
+
     @staticmethod
     def remove_publisher_fake_subscriber(
         broker: NatsBroker, publisher: Publisher

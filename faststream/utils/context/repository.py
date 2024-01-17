@@ -93,8 +93,7 @@ class ContextRepo(Singleton):
         Returns:
             The value of the local variable.
         """
-        context_var = self._scope_context.get(key)
-        if context_var is not None:  # pragma: no branch
+        if (context_var := self._scope_context.get(key)) is not None:
             return context_var.get()
         else:
             return default
@@ -129,7 +128,10 @@ class ContextRepo(Singleton):
         Returns:
             The value associated with the key.
         """
-        return self._global_context.get(key, self.get_local(key, default))
+        if (glob := self._global_context.get(key, _empty)) is _empty:
+            return self.get_local(key, default)
+        else:
+            return glob
 
     def __getattr__(self, __name: str) -> Any:
         """This is a function that is part of a class. It is used to get an attribute value using the `__getattr__` method.

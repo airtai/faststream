@@ -1,4 +1,5 @@
 import warnings
+from functools import cached_property
 from typing import Optional, Pattern
 
 from pydantic import Field, PositiveFloat, PositiveInt
@@ -85,7 +86,7 @@ class ListSub(NameRequired):
             polling_interval=polling_interval,
         )
 
-    @property
+    @cached_property
     def records(self) -> Optional[PositiveInt]:
         return self.max_records if self.batch else None
 

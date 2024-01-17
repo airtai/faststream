@@ -21,6 +21,7 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
             event.set()
 
         async with TestNatsBroker(broker, with_real=True) as br:
+            print("here")
             await asyncio.wait(
                 (
                     asyncio.create_task(br.publish("hello", queue)),

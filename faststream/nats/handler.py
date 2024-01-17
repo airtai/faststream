@@ -180,19 +180,17 @@ class LogicNatsHandler(BaseHandler["Msg"]):
     def make_response_publisher(
         self, message: "NatsMessage"
     ) -> Sequence[FakePublisher]:
-        assert self.producer, "You should setup producer first"
+        if not message.reply_to or self.producer is None:
+            return ()
 
-        if message.reply_to:
-            return (
-                FakePublisher(
-                    partial(
-                        self.producer.publish,
-                        subject=message.reply_to,
-                    )
-                ),
-            )
-
-        return ()
+        return (
+            FakePublisher(
+                partial(
+                    self.producer.publish,
+                    subject=message.reply_to,
+                )
+            ),
+        )
 
     async def start(
         self,

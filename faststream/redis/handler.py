@@ -1,6 +1,6 @@
 import asyncio
 from contextlib import suppress
-from functools import partial
+from functools import cached_property, partial
 from typing import (
     Any,
     Awaitable,
@@ -92,7 +92,7 @@ class LogicRedisHandler(BaseHandler[AnyRedisDict]):
             graceful_timeout=graceful_timeout,
         )
 
-    @property
+    @cached_property
     def channel_name(self) -> str:
         any_of = self.channel or self.list_sub or self.stream_sub
         assert any_of, INCORRECT_SETUP_MSG  # nosec B101
