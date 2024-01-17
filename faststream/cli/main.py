@@ -218,24 +218,23 @@ def publish(
         help="Enable RPC mode and system output"
     ),
 ):
+    """Publish a message using the specified broker in a FastStream application.
+
+    This command publishes a message to a broker configured in a FastStream app instance.
+    It supports various brokers and can handle extra arguments specific to each broker type.
+
+    Args:
+        ctx (typer.Context): The Typer context for the command.
+        app (str): The FastStream application instance path, in the format 'module:instance'.
+        message (str): The message to be published.
+        rpc (bool): If True, enables RPC mode and displays system output.
+
+    The command allows extra CLI arguments to be passed, which are broker-specific.
+    These are parsed and passed to the broker's publish method.
     """
-        Publish a message using the specified broker in a FastStream application.
-
-        This command publishes a message to a broker configured in a FastStream app instance.
-        It supports various brokers and can handle extra arguments specific to each broker type.
-
-        Args:
-            ctx (typer.Context): The Typer context for the command.
-            app (str): The FastStream application instance path, in the format 'module:instance'.
-            message (str): The message to be published.
-            rpc (bool): If True, enables RPC mode and displays system output.
-
-        The command allows extra CLI arguments to be passed, which are broker-specific.
-        These are parsed and passed to the broker's publish method.
-        """
     app, extra = parse_cli_args(app, *ctx.args)
-    extra['message'] = message
-    extra['rpc'] = rpc
+    extra["message"] = message
+    extra["rpc"] = rpc
 
     try:
         if not app:
