@@ -16,7 +16,7 @@ import anyio
 from typing_extensions import ParamSpec
 
 from faststream._compat import ExceptionGroup
-from faststream.cli.supervisors.utils import HANDLED_SIGNALS
+from faststream.cli.supervisors.utils import HANDLED_SIGNALS, set_exit
 from faststream.log.logging import logger
 from faststream.types import AnyDict, AsyncFunc, Lifespan, SettingField
 from faststream.utils import apply_types, context
@@ -261,12 +261,20 @@ class FastStream:
         Returns:
             None
         """
-        with anyio.open_signal_receiver(*HANDLED_SIGNALS) as signals:
-            async for _ in signals:
-                self._log(log_level, "FastStream app shutting down...")
-                await self._shutdown()
-                self._log(log_level, "FastStream app shut down gracefully.")
-                return
+        try:
+            with anyio.open_signal_receiver(*HANDLED_SIGNALS) as signals:
+                async for _ in signals:
+                    break
+        except NotImplementedError:
+            # Windows
+            event = anyio.Event()
+            set_exit(lambda *_: event.set())
+            await event.wait()
+
+        self._log(log_level, "FastStream app shutting down...")
+        await self._shutdown()
+        self._log(log_level, "FastStream app shut down gracefully.")
+        return
 
     async def _startup(self, **run_extra_options: SettingField) -> None:
         """Executes startup tasks.
