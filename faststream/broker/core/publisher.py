@@ -2,6 +2,7 @@ from abc import abstractmethod
 from contextlib import AsyncExitStack
 from dataclasses import dataclass, field
 from inspect import unwrap
+from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -57,6 +58,7 @@ class FakePublisher:
         message: SendableMessage,
         *args: Any,
         correlation_id: Optional[str] = None,
+        extra_middlewares: Iterable["PublisherMiddleware"] = (),
         **kwargs: Any,
     ) -> Any:
         """Publish a message.
@@ -71,7 +73,7 @@ class FakePublisher:
             The published message.
         """
         async with AsyncExitStack() as stack:
-            for m in self.middlewares:
+            for m in chain(extra_middlewares, self.middlewares):
                 message = await stack.enter_async_context(m(message))
 
             return await self.method(
@@ -157,10 +159,11 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
         message: SendableMessage,
         *args: Any,
         correlation_id: Optional[str] = None,
+        extra_middlewares: Iterable["PublisherMiddleware"] = (),
         **kwargs: Any,
     ) -> Any:
         async with AsyncExitStack() as stack:
-            for m in self.middlewares:
+            for m in chain(extra_middlewares, self.middlewares):
                 message = await stack.enter_async_context(m(message))
 
             return await self._publish(

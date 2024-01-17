@@ -61,6 +61,47 @@ class LocalMiddlewareTestcase:  # noqa: D101
         assert event.is_set()
         mock.end.assert_called_once()
 
+    async def test_publisher_middleware(
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
+        raw_broker,
+    ):
+        @asynccontextmanager
+        async def mid(msg):
+            mock.enter()
+            yield msg
+            mock.end()
+            if mock.end.call_count > 1:
+                event.set()
+
+        broker = self.broker_class()
+
+        @broker.subscriber(queue)
+        @broker.publisher(queue + "1", middlewares=(mid,))
+        @broker.publisher(queue + "2", middlewares=(mid,))
+        async def handler(m):
+            mock.inner(m)
+            return "end"
+
+        broker = self.patch_broker(raw_broker, broker)
+
+        async with broker:
+            await broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(broker.publish("start", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        mock.inner.assert_called_once_with("start")
+        assert mock.enter.call_count == 2
+        assert mock.end.call_count == 2
+
     async def test_local_middleware_not_shared_between_subscribers(
         self, queue: str, mock: Mock, raw_broker
     ):
@@ -255,3 +296,50 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):  # noqa: D101
 
         assert event.is_set()
         mock.assert_called_once_with("rrrr")
+
+
+    async def test_global_publisher_middleware(
+        self,
+        event: asyncio.Event,
+        queue: str,
+        mock: Mock,
+        raw_broker,
+    ):
+        class Mid(BaseMiddleware):
+            async def on_publish(self, msg: str) -> str:
+                data = msg * 2
+                mock.enter(data)
+                return data
+
+            async def after_publish(self, *args, **kwargs):
+                mock.end()
+                if mock.end.call_count > 2:
+                    event.set()
+
+
+        broker = self.broker_class(middlewares=(Mid,))
+
+        @broker.subscriber(queue)
+        @broker.publisher(queue + "1")
+        @broker.publisher(queue + "2")
+        async def handler(m):
+            mock.inner(m)
+            return m
+
+        broker = self.patch_broker(raw_broker, broker)
+
+        async with broker:
+            await broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(broker.publish("1", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+        assert event.is_set()
+        mock.inner.assert_called_once_with("11")
+        assert mock.enter.call_count == 3
+        mock.enter.assert_called_with("1111")
+        assert mock.end.call_count == 3

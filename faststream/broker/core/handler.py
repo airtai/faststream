@@ -308,22 +308,16 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                         message, (m.consume_scope for m in middlewares)
                     )
 
-                    if publishers := (
-                        *self.make_response_publisher(message),
-                        *h.handler._publishers,
+                    # TODO: suppress all publishing errors and raise them after all publishers will be tried
+                    for p in chain(
+                        self.make_response_publisher(message),
+                        h.handler._publishers,
                     ):
-                        async with AsyncExitStack() as pub_stack:
-                            for m_pub in middlewares:
-                                result_msg = await pub_stack.enter_async_context(
-                                    m_pub.publish_scope(result_msg)
-                                )
-
-                            # TODO: suppress all publishing errors and raise them after all publishers will be tried
-                            for p in publishers:
-                                await p.publish(
-                                    message=result_msg,
-                                    correlation_id=message.correlation_id,
-                                )
+                        await p.publish(
+                            message=result_msg,
+                            correlation_id=message.correlation_id,
+                            extra_middlewares=(m.publish_scope for m in middlewares),
+                        )
 
                     return result_msg
 

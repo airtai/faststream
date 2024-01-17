@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Optional, Sequence
+from typing import Any, Callable, Dict, Iterable, Optional, Sequence
 
 from nats.aio.msg import Msg
 from typing_extensions import override
@@ -6,7 +6,11 @@ from typing_extensions import override
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.router import BrokerRoute as NatsRoute
 from faststream.broker.router import BrokerRouter
-from faststream.broker.types import P_HandlerParams, T_HandlerReturn
+from faststream.broker.types import (
+    P_HandlerParams,
+    PublisherMiddleware,
+    T_HandlerReturn,
+)
 from faststream.nats.asyncapi import Publisher
 from faststream.types import SendableMessage
 
@@ -69,6 +73,7 @@ class NatsRouter(BrokerRouter[str, Msg]):
         subject: str,
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
+        middlewares: Iterable["PublisherMiddleware"] = (),
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
@@ -84,6 +89,7 @@ class NatsRouter(BrokerRouter[str, Msg]):
                 title=title,
                 _description=description,
                 _schema=schema,
+                middlewares=middlewares,
                 include_in_schema=(
                     include_in_schema
                     if self.include_in_schema is None

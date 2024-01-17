@@ -447,7 +447,6 @@ class NatsBroker(
             for m in self.middlewares:
                 message = await stack.enter_async_context(m().publish_scope(message))
 
-            print(publisher)
             return await publisher.publish(message, *args, **kwargs)
 
     def __set_publisher_producer(self, publisher: Publisher) -> None:
