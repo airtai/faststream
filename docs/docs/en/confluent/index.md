@@ -19,6 +19,17 @@ Developed by Confluent, this library enjoys strong support from the core team be
 !!! note ""
     If you prefer the `aiokafka` library instead, then please refer to [aiokafka's KafkaBroker](../kafka/index.md)
 
+## Installation
+
+!!! warning "Available in v0.4.0rc0 only"
+    Support for `Confluent` is present **only** in the release candidate **v0.4.0rc0**.
+
+    Please run the following command to install it:
+
+    ```bash
+    pip install "faststream[confluent]==0.4.0rc0"
+    ```
+
 ### FastStream Confluent KafkaBroker
 
 The FastStream Confluent KafkaBroker is a key component of the FastStream framework that enables seamless integration with Apache Kafka using [confluent kafka](https://github.com/confluentinc/confluent-kafka-python){.external-link target="_blank"} python library. With the KafkaBroker, developers can easily connect to Kafka brokers, produce messages to Kafka topics, and consume messages from Kafka topics within their FastStream applications.

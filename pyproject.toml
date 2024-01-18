@@ -48,7 +48,7 @@ dynamic = ["version"]
 
 dependencies = [
     "anyio>=3.7.1,<5",
-    "fast-depends>=2.2.6,<3",
+    "fast-depends>=2.2.6,<2.4.0",
     "typer>=0.9,<1",
     "typing-extensions>=4.8.0",
 ]
@@ -82,12 +82,12 @@ docs = [
 
 # dev dependencies
 devdocs = [
-    "mkdocs-material==9.5.3",
+    "mkdocs-material==9.5.4",
     "mkdocs-static-i18n==1.2.0",
     "mdx-include==1.4.2",
     "mkdocstrings[python]==0.24.0",
     "mkdocs-literate-nav==0.6.1",
-    "mkdocs-git-revision-date-localized-plugin==1.2.1",
+    "mkdocs-git-revision-date-localized-plugin==1.2.2",
     "mike==2.0.0",  # versioning
     "mkdocs-minify-plugin==0.7.2",
     "mkdocs-macros-plugin==1.0.5",  # includes with variables
@@ -107,7 +107,7 @@ lint = [
     "types-docutils",
     "confluent-kafka-stubs; python_version >= '3.11'",
     "mypy==1.8.0",
-    "ruff==0.1.11",
+    "ruff==0.1.13",
     "bandit==1.7.6",
     "semgrep==1.52.0",
 ]
@@ -123,7 +123,7 @@ test-core = [
 
 testing = [
     "faststream[test-core]",
-    "fastapi==0.108.0",
+    "fastapi==0.109.0",
     "pydantic-settings==2.1.0",
     "httpx==0.26.0",
     "PyYAML==6.0.1",
