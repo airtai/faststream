@@ -97,9 +97,9 @@ def resolve_custom_func(
 
 @overload
 def resolve_custom_func(
-    custom_func: Optional[SyncParser[MsgType, StreamMsg]],
-    default_func: SyncParser[MsgType, StreamMsg],
-) -> SyncParser[MsgType, StreamMsg]:
+    custom_func: Optional[SyncParser[MsgType]],
+    default_func: SyncParser[MsgType],
+) -> SyncParser[MsgType]:
     """Resolve a custom function.
 
     Args:
@@ -131,9 +131,9 @@ def resolve_custom_func(
 
 @overload
 def resolve_custom_func(
-    custom_func: Optional[AsyncCustomParser[MsgType, StreamMsg]],
-    default_func: AsyncParser[MsgType, StreamMsg],
-) -> AsyncParser[MsgType, StreamMsg]:
+    custom_func: Optional[AsyncCustomParser[MsgType]],
+    default_func: AsyncParser[MsgType],
+) -> AsyncParser[MsgType]:
     """Resolve a custom function.
 
     Args:
@@ -165,9 +165,9 @@ def resolve_custom_func(
 
 @overload
 def resolve_custom_func(
-    custom_func: Optional[CustomParser[MsgType, StreamMsg]],
-    default_func: Parser[MsgType, StreamMsg],
-) -> Parser[MsgType, StreamMsg]:
+    custom_func: Optional[CustomParser[MsgType]],
+    default_func: Parser[MsgType],
+) -> Parser[MsgType]:
     """Resolve a custom function.
 
     Args:
@@ -184,16 +184,16 @@ def resolve_custom_func(  # type: ignore[misc]
     custom_func: Optional[
         Union[
             CustomDecoder[StreamMsg],
-            CustomParser[MsgType, StreamMsg],
+            CustomParser[MsgType],
         ]
     ],
     default_func: Union[
         Decoder[StreamMsg],
-        Parser[MsgType, StreamMsg],
+        Parser[MsgType],
     ],
 ) -> Union[
     Decoder[StreamMsg],
-    Parser[MsgType, StreamMsg],
+    Parser[MsgType],
 ]:
     """Resolve a custom function.
 
@@ -209,7 +209,7 @@ def resolve_custom_func(  # type: ignore[misc]
 
     original_params = inspect.signature(custom_func).parameters
     if len(original_params) == 1:
-        return cast(Union[Decoder[StreamMsg], Parser[MsgType, StreamMsg]], custom_func)
+        return cast(Union[Decoder[StreamMsg], Parser[MsgType]], custom_func)
 
     else:
         name = tuple(original_params.items())[1][0]

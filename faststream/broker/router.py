@@ -140,7 +140,7 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
                 ]
             ]
         ] = None,
-        parser: Optional[CustomParser[MsgType, StreamMessage[MsgType]]] = None,
+        parser: Optional[CustomParser[MsgType]] = None,
         decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
         include_in_schema: Optional[bool] = None,
     ) -> None:
@@ -178,7 +178,7 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
                 ]
             ]
         ] = None,
-        parser: Optional[CustomParser[MsgType, StreamMessage[MsgType]]] = None,
+        parser: Optional[CustomParser[MsgType]] = None,
         decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
         include_in_schema: Optional[bool] = None,
         **kwargs: Any,
@@ -218,7 +218,7 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
                 ]
             ]
         ] = None,
-        parser: Optional[CustomParser[MsgType, StreamMessage[MsgType]]] = None,
+        parser: Optional[CustomParser[MsgType]] = None,
         decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
         include_in_schema: bool = True,
         **kwargs: Any,

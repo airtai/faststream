@@ -7,7 +7,7 @@ from typing import (
     Awaitable,
     Callable,
     ContextManager,
-    List,
+    Iterable,
     Optional,
     Union,
     overload,
@@ -92,7 +92,7 @@ def to_async(
     return to_async_wrapper
 
 
-def get_function_positional_arguments(func: AnyCallable) -> List[str]:
+def get_function_positional_arguments(func: AnyCallable) -> Iterable[str]:
     """Get the positional arguments of a function.
 
     Args:
@@ -108,9 +108,9 @@ def get_function_positional_arguments(func: AnyCallable) -> List[str]:
         inspect.Parameter.POSITIONAL_OR_KEYWORD,
     )
 
-    return [
+    return (
         param.name for param in signature.parameters.values() if param.kind in arg_kinds
-    ]
+    )
 
 
 def timeout_scope(

@@ -30,13 +30,13 @@ class RedisFastProducer:
 
     _connection: "Redis[bytes]"
     _decoder: AsyncDecoder[Any]
-    _parser: AsyncParser[AnyRedisDict, Any]
+    _parser: AsyncParser[AnyRedisDict]
 
     @overload
     def __init__(
         self,
         connection: "Redis[bytes]",
-        parser: Optional[AsyncCustomParser[OneMessage, OneRedisMessage]],
+        parser: Optional[AsyncCustomParser[OneMessage]],
         decoder: Optional[AsyncCustomDecoder[OneRedisMessage]],
     ) -> None:
         pass
@@ -45,7 +45,7 @@ class RedisFastProducer:
     def __init__(
         self,
         connection: "Redis[bytes]",
-        parser: Optional[AsyncCustomParser[BatchMessage, BatchRedisMessage]],
+        parser: Optional[AsyncCustomParser[BatchMessage]],
         decoder: Optional[AsyncCustomDecoder[BatchRedisMessage]],
     ) -> None:
         pass
@@ -55,8 +55,8 @@ class RedisFastProducer:
         connection: "Redis[bytes]",
         parser: Union[
             None,
-            AsyncCustomParser[OneMessage, OneRedisMessage],
-            AsyncCustomParser[BatchMessage, BatchRedisMessage],
+            AsyncCustomParser[OneMessage],
+            AsyncCustomParser[BatchMessage],
         ],
         decoder: Union[
             None,

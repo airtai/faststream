@@ -34,7 +34,7 @@ class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
         dependencies: Sequence[Depends] = (),
         middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
         | None = None,
-        parser: CustomParser[aiokafka.ConsumerRecord, KafkaMessage] | None = None,
+        parser: CustomParser[aiokafka.ConsumerRecord] | None = None,
         decoder: CustomDecoder[KafkaMessage] | None = None,
         include_in_schema: bool = True,
     ) -> None: ...
@@ -98,7 +98,7 @@ class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[aiokafka.ConsumerRecord, KafkaMessage] | None = None,
+        parser: CustomParser[aiokafka.ConsumerRecord] | None = None,
         decoder: CustomDecoder[KafkaMessage] | None = None,
         middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
         | None = None,

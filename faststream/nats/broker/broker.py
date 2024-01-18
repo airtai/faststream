@@ -53,7 +53,7 @@ from faststream.types import AnyDict, DecodedMessage, SendableMessage
 Subject: TypeAlias = str
 
 if TYPE_CHECKING:
-    from faststream.broker.core.handler import WrapperProtocol
+    from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
 
 
 class NatsBroker(
@@ -177,6 +177,7 @@ class NatsBroker(
         assert self.stream, "Broker should be started already"  # nosec B101
         assert self._producer, "Broker should be started already"  # nosec B101
 
+        # TODO: filter by already running handlers after TestClient refactor
         for handler in self.handlers.values():
             stream = handler.stream
 
@@ -274,7 +275,7 @@ class NatsBroker(
         stream: Union[str, JStream, None] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[Msg, NatsMessage]] = None,
+        parser: Optional[CustomParser[Msg]] = None,
         decoder: Optional[CustomDecoder[NatsMessage]] = None,
         middlewares: Iterable[SubscriberMiddleware] = (),
         filter: Filter[NatsMessage] = default_filter,
@@ -445,7 +446,14 @@ class NatsBroker(
 
         async with AsyncExitStack() as stack:
             for m in self.middlewares:
-                message = await stack.enter_async_context(m().publish_scope(message))
+                message = await stack.enter_async_context(
+                    m().publish_scope(
+                        message,
+                        *args,
+                        stream=stream,
+                        **kwargs,
+                    )
+                )
 
             return await publisher.publish(message, *args, **kwargs)
 

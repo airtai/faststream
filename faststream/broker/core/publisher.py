@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import abstractmethod, abstractproperty
 from contextlib import AsyncExitStack
 from dataclasses import dataclass, field
 from inspect import unwrap
@@ -44,6 +44,7 @@ class FakePublisher:
         self,
         method: Callable[..., Awaitable[SendableMessage]],
         middlewares: Iterable["PublisherMiddleware"] = (),
+        **publish_kwargs: Any,
     ) -> None:
         """Initialize an object.
 
@@ -51,6 +52,7 @@ class FakePublisher:
             method: A callable that takes any number of arguments and returns an awaitable sendable message.
         """
         self.method = method
+        self.publish_kwargs = publish_kwargs
         self.middlewares = middlewares
 
     async def publish(
@@ -72,9 +74,13 @@ class FakePublisher:
         Returns:
             The published message.
         """
+        kwargs.update(self.publish_kwargs)
+
         async with AsyncExitStack() as stack:
             for m in chain(extra_middlewares, self.middlewares):
-                message = await stack.enter_async_context(m(message))
+                message = await stack.enter_async_context(
+                    m(message, *args, correlation_id=correlation_id, **kwargs)
+                )
 
             return await self.method(
                 message,
@@ -162,9 +168,18 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
         extra_middlewares: Iterable["PublisherMiddleware"] = (),
         **kwargs: Any,
     ) -> Any:
+        kwargs.update(self.publish_kwargs)
+
         async with AsyncExitStack() as stack:
             for m in chain(extra_middlewares, self.middlewares):
-                message = await stack.enter_async_context(m(message))
+                message = await stack.enter_async_context(
+                    m(
+                        message,
+                        *args,
+                        correlation_id=correlation_id,
+                        **kwargs,
+                    )
+                )
 
             return await self._publish(
                 message,
@@ -229,3 +244,7 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
                     payloads.append((body, to_camelcase(unwrap(call).__name__)))
 
         return payloads
+
+    @abstractproperty
+    def publish_kwargs(self) -> AnyDict:
+        raise NotImplementedError()

@@ -103,7 +103,7 @@ class LogicRedisHandler(BaseHandler[AnyRedisDict]):
         *,
         handler: HandlerCallWrapper[AnyRedisDict, P_HandlerParams, T_HandlerReturn],
         dependant: CallModel[P_HandlerParams, T_HandlerReturn],
-        parser: Optional[CustomParser[AnyRedisDict, RedisMessage]],
+        parser: Optional[CustomParser[AnyRedisDict]],
         decoder: Optional[CustomDecoder[RedisMessage]],
         filter: Filter[RedisMessage],
         middlewares: Optional[Sequence[Callable[[AnyRedisDict], BaseMiddleware]]],

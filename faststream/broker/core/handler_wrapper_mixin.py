@@ -14,20 +14,13 @@ from typing import (
     cast,
 )
 
-from fast_depends import inject
 from fast_depends.core import build_call_model
+from fast_depends.use import _InjectWrapper, inject
 from pydantic import create_model
 
 from faststream._compat import PYDANTIC_V2
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
-from faststream.broker.types import (
-    CustomDecoder,
-    CustomParser,
-    Filter,
-    MsgType,
-    P_HandlerParams,
-    T_HandlerReturn,
-)
+from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
 from faststream.types import F_Return, F_Spec
 from faststream.utils.functions import to_async
 
@@ -38,9 +31,14 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream.broker.message import StreamMessage
-    from faststream.broker.types import SubscriberMiddleware
+    from faststream.broker.types import (
+        CustomDecoder,
+        CustomParser,
+        Filter,
+        SubscriberMiddleware,
+    )
 
-    class WrapperProtocol(Generic[MsgType], Protocol):
+    class WrapperProtocol(Protocol[MsgType]):
         """Annotation class to represent @subsriber return type."""
 
         @overload
@@ -48,9 +46,9 @@ if TYPE_CHECKING:
             self,
             func: None = None,
             *,
-            filter: Filter["StreamMessage[MsgType]"],
-            parser: CustomParser[MsgType, Any],
-            decoder: CustomDecoder["StreamMessage[MsgType]"],
+            filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
+            parser: Optional["CustomParser[MsgType]"] = None,
+            decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
             middlewares: Iterable["SubscriberMiddleware"] = (),
             dependencies: Sequence["Depends"] = (),
         ) -> Callable[
@@ -64,11 +62,11 @@ if TYPE_CHECKING:
             self,
             func: Callable[P_HandlerParams, T_HandlerReturn],
             *,
-            filter: Filter["StreamMessage[MsgType]"],
-            parser: CustomParser[MsgType, Any],
-            decoder: CustomDecoder["StreamMessage[MsgType]"],
-            middlewares: Iterable["SubscriberMiddleware"] = (),
-            dependencies: Sequence["Depends"] = (),
+            filter: Optional[Filter[StreamMessage[MsgType]]] = None,
+            parser: Optional[CustomParser[MsgType]] = None,
+            decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
+            middlewares: Iterable[SubscriberMiddleware] = (),
+            dependencies: Sequence[Depends] = (),
         ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
             ...
 
@@ -76,11 +74,11 @@ if TYPE_CHECKING:
             self,
             func: Optional[Callable[P_HandlerParams, T_HandlerReturn]] = None,
             *,
-            filter: Filter["StreamMessage[MsgType]"],
-            parser: CustomParser[MsgType, Any],
-            decoder: CustomDecoder["StreamMessage[MsgType]"],
-            middlewares: Iterable["SubscriberMiddleware"] = (),
-            dependencies: Sequence["Depends"] = (),
+            filter: Optional[Filter[StreamMessage[MsgType]]] = None,
+            parser: Optional[CustomParser[MsgType]] = None,
+            decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
+            middlewares: Iterable[SubscriberMiddleware] = (),
+            dependencies: Sequence[Depends] = (),
         ) -> Union[
             HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
             Callable[
@@ -105,7 +103,7 @@ class WrapHandlerMixin(Generic[MsgType]):
         get_dependant: Optional[Any] = None,
     ) -> Tuple[
         HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
-        "CallModel[P_HandlerParams, T_HandlerReturn]",
+        "CallModel[..., Any]",
     ]:
         build_dep = build_dep = cast(
             Callable[
@@ -126,19 +124,22 @@ class WrapHandlerMixin(Generic[MsgType]):
                 return handler_call, build_dep(func)
 
         else:
-            handler_call = HandlerCallWrapper(func)
+            handler_call = HandlerCallWrapper[
+                MsgType, P_HandlerParams, T_HandlerReturn
+            ](func)
 
-        f = to_async(func)
+        f: Callable[..., Awaitable[T_HandlerReturn]] = to_async(func)
         dependant = build_dep(f)
 
         if getattr(dependant, "flat_params", None) is None:  # FastAPI case
             extra = [build_dep(d.dependency) for d in dependencies]
-            dependant.dependencies.extend(extra)
+            dependant.dependencies.extend(extra)  # type: ignore[attr-defined]
             dependant = _patch_fastapi_dependant(dependant)
 
         else:
             if apply_types and not raw:
-                f = inject(None)(f, dependant)
+                wrapper: _InjectWrapper[Any, Any] = inject(func=None)
+                f = wrapper(func=f, model=dependant)
 
             if not raw:
                 f = self._wrap_decode_message(

@@ -16,7 +16,6 @@ from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.types import DecodedMessage, SendableMessage
 
-Decoded = TypeVar("Decoded", bound=DecodedMessage)
 MsgType = TypeVar("MsgType")
 StreamMsg = TypeVar("StreamMsg", bound=StreamMessage[Any])
 ConnectionType = TypeVar("ConnectionType")
@@ -31,26 +30,26 @@ Filter: TypeAlias = Union[
 
 SyncParser: TypeAlias = Callable[
     [MsgType],
-    StreamMsg,
+    StreamMessage[MsgType],
 ]
 AsyncParser: TypeAlias = Callable[
     [MsgType],
-    Awaitable[StreamMsg],
+    Awaitable[StreamMessage[MsgType]],
 ]
 AsyncCustomParser: TypeAlias = Union[
-    AsyncParser[MsgType, StreamMsg],
+    AsyncParser[MsgType],
     Callable[
-        [MsgType, AsyncParser[MsgType, StreamMsg]],
-        Awaitable[StreamMsg],
+        [MsgType, AsyncParser[MsgType]],
+        Awaitable[StreamMessage[MsgType]],
     ],
 ]
 Parser: TypeAlias = Union[
-    AsyncParser[MsgType, StreamMsg],
-    SyncParser[MsgType, StreamMsg],
+    AsyncParser[MsgType],
+    SyncParser[MsgType],
 ]
 CustomParser: TypeAlias = Union[
-    AsyncCustomParser[MsgType, StreamMsg],
-    SyncParser[MsgType, StreamMsg],
+    AsyncCustomParser[MsgType],
+    SyncParser[MsgType],
 ]
 
 SyncDecoder: TypeAlias = Callable[
@@ -104,10 +103,13 @@ SubscriberMiddleware: TypeAlias = Callable[
     [Optional[DecodedMessage]],
     AsyncContextManager[Optional[DecodedMessage]],
 ]
-PublisherMiddleware: TypeAlias = Callable[
-    [Any],
-    AsyncContextManager[SendableMessage],
-]
+
+
+class PublisherMiddleware(Protocol):
+    def __call__(
+        self, __msg: Any, *__args: Any, **__kwargs: Any
+    ) -> AsyncContextManager[SendableMessage]:
+        ...
 
 
 class PublisherProtocol(Protocol):
@@ -115,7 +117,7 @@ class PublisherProtocol(Protocol):
 
     async def publish(
         self,
-        message: SendableMessage,
+        message: Any,
         *args: Any,
         correlation_id: Optional[str] = None,
         extra_middlewares: Iterable[PublisherMiddleware] = (),

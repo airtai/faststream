@@ -1,5 +1,5 @@
 import logging
-from inspect import Signature
+from inspect import Parameter
 from typing import Any, Callable, Optional
 
 from fastapi import params
@@ -12,7 +12,7 @@ from faststream.utils.context.types import resolve_context_by_name
 def Context(  # noqa: N802
     name: str,
     *,
-    default: Any = Signature.empty,
+    default: Any = Parameter.empty,
     initial: Optional[Callable[..., Any]] = None,
 ) -> Any:
     return params.Depends(

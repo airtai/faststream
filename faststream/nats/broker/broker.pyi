@@ -32,7 +32,7 @@ from typing_extensions import override
 
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.broker import BrokerUsecase, default_filter
-from faststream.broker.core.handler import WrapperProtocol
+from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
 from faststream.broker.types import (
     BrokerMiddleware,
     CustomDecoder,
@@ -41,7 +41,6 @@ from faststream.broker.types import (
     PublisherMiddleware,
     SubscriberMiddleware,
 )
-from faststream.log import access_logger
 from faststream.nats.asyncapi import Handler, Publisher
 from faststream.nats.broker.logging import NatsLoggingMixin
 from faststream.nats.message import NatsMessage
@@ -102,7 +101,7 @@ class NatsBroker(
         validate: bool = True,
         dependencies: Sequence[Depends] = (),
         decoder: CustomDecoder[NatsMessage] | None = None,
-        parser: CustomParser[Msg, NatsMessage] | None = None,
+        parser: CustomParser[Msg] | None = None,
         middlewares: Iterable[BrokerMiddleware[Msg]] = (),
         # AsyncAPI args
         asyncapi_url: str | list[str] | None = None,
@@ -111,7 +110,7 @@ class NatsBroker(
         description: str | None = None,
         tags: Sequence[asyncapi.Tag] | None = None,
         # logging args
-        logger: logging.Logger | None = access_logger,
+        logger: logging.Logger | None = None,
         log_level: int = logging.INFO,
         log_fmt: str | None = None,
     ) -> None: ...
@@ -225,7 +224,7 @@ class NatsBroker(
         inbox_prefix: bytes = api.INBOX_PREFIX,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[Msg, NatsMessage] | None = None,
+        parser: CustomParser[Msg] | None = None,
         decoder: CustomDecoder[NatsMessage] | None = None,
         middlewares: Iterable[SubscriberMiddleware] = (),
         filter: Filter[NatsMessage] = default_filter,

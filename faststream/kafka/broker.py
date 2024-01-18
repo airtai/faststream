@@ -254,8 +254,8 @@ class KafkaBroker(
         dependencies: Sequence[Depends] = (),
         parser: Optional[
             Union[
-                CustomParser[aiokafka.ConsumerRecord, KafkaMessage],
-                CustomParser[Tuple[aiokafka.ConsumerRecord, ...], KafkaMessage],
+                CustomParser[aiokafka.ConsumerRecord],
+                CustomParser[Tuple[aiokafka.ConsumerRecord, ...]],
             ]
         ] = None,
         decoder: Optional[CustomDecoder] = None,

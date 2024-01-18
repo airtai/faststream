@@ -1,6 +1,6 @@
 import logging
 from inspect import Parameter
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 from faststream.types import AnyDict
 
@@ -18,11 +18,13 @@ class LoggingMixin:
         _log : logs a message with optional log level, extra data, and exception info
     """
 
+    logger: Optional[logging.Logger]
+
     def __init__(
         self,
         *args: Any,
         default_logger: logging.Logger,
-        logger: Union[logging.Logger, Parameter.empty] = Parameter.empty,
+        logger: Union[logging.Logger, None, object] = Parameter.empty,
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = "%(asctime)s %(levelname)s - %(message)s",
         **kwargs: Any,
@@ -40,7 +42,7 @@ class LoggingMixin:
             None
         """
         if logger is not Parameter.empty:
-            self.logger = logger
+            self.logger = cast(Optional[logging.Logger], logger)
             self.use_custom = True
         else:
             self.logger = default_logger

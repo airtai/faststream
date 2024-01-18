@@ -33,7 +33,7 @@ class RedisRouter(BrokerRouter[int, AnyRedisDict]):
         handlers: Sequence[RedisRoute] = (),
         *,
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[AnyRedisDict, RedisMessage] | None = None,
+        parser: CustomParser[AnyRedisDict] | None = None,
         decoder: CustomDecoder[RedisMessage] | None = None,
         middlewares: Sequence[Callable[[AnyRedisDict], BaseMiddleware]] | None = None,
         include_in_schema: bool = True,
@@ -57,7 +57,7 @@ class RedisRouter(BrokerRouter[int, AnyRedisDict]):
         stream: str | StreamSub | None = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[AnyRedisDict, RedisMessage] | None = None,
+        parser: CustomParser[AnyRedisDict] | None = None,
         decoder: CustomDecoder[RedisMessage] | None = None,
         middlewares: Sequence[Callable[[AnyRedisDict], BaseMiddleware]] | None = None,
         filter: Filter[RedisMessage] = default_filter,

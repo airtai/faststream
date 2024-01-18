@@ -318,7 +318,7 @@ class RabbitBroker(
         reply_config: Optional[ReplyConfig] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]] = None,
+        parser: Optional[CustomParser[aio_pika.IncomingMessage]] = None,
         decoder: Optional[CustomDecoder[RabbitMessage]] = None,
         middlewares: Optional[
             Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]

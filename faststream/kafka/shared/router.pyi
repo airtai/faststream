@@ -50,11 +50,9 @@ class KafkaRoute:
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
-        | None = None,
+        parser: CustomParser[tuple[aiokafka.ConsumerRecord, ...]] | None = None,
         decoder: CustomDecoder[KafkaMessage] | None = None,
-        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
-        | None = None,
+        middlewares: Sequence[Callable[[aiokafka.ConsumerRecord]]] | None = None,
         filter: Filter[
             StreamMessage[tuple[aiokafka.ConsumerRecord, ...]]
         ] = default_filter,
@@ -104,7 +102,7 @@ class KafkaRoute:
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[aiokafka.ConsumerRecord, KafkaMessage] | None = None,
+        parser: CustomParser[aiokafka.ConsumerRecord] | None = None,
         decoder: CustomDecoder[KafkaMessage] | None = None,
         middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
         | None = None,

@@ -103,7 +103,7 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
             aio_pika.IncomingMessage, P_HandlerParams, T_HandlerReturn
         ],
         dependant: CallModel[P_HandlerParams, T_HandlerReturn],
-        parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]],
+        parser: Optional[CustomParser[aio_pika.IncomingMessage]],
         decoder: Optional[CustomDecoder[RabbitMessage]],
         filter: Filter[RabbitMessage],
         middlewares: Optional[

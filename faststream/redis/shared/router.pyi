@@ -32,7 +32,7 @@ class RedisRoute:
         stream: Channel | StreamSub | None = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[AnyRedisDict, RedisMessage] | None = None,
+        parser: CustomParser[AnyRedisDict] | None = None,
         decoder: CustomDecoder[RedisMessage] | None = None,
         middlewares: Sequence[Callable[[AnyRedisDict], BaseMiddleware]] | None = None,
         filter: Filter[RedisMessage] = default_filter,

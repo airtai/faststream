@@ -1,4 +1,4 @@
-from inspect import _empty
+from inspect import Parameter
 from typing import Any, Callable, Optional
 
 from fast_depends.library import CustomField
@@ -24,7 +24,7 @@ class Context(CustomField):
         self,
         real_name: str = "",
         *,
-        default: Any = _empty,
+        default: Any = Parameter.empty,
         initial: Optional[Callable[..., Any]] = None,
         cast: bool = False,
         prefix: str = "",
@@ -47,7 +47,7 @@ class Context(CustomField):
         self.initial = initial
         super().__init__(
             cast=cast,
-            required=(default is _empty),
+            required=(default is Parameter.empty),
         )
 
     def use(self, /, **kwargs: Any) -> AnyDict:
@@ -71,7 +71,7 @@ class Context(CustomField):
                 default=self.default,
                 initial=self.initial,
             )
-        ) is not _empty:
+        ) is not Parameter.empty:
             kwargs[self.param_name] = v
 
         return kwargs
@@ -82,13 +82,13 @@ def resolve_context_by_name(
     default: Any,
     initial: Optional[Callable[..., Any]],
 ) -> Any:
-    value: Any = _empty
+    value: Any = Parameter.empty
 
     try:
         value = context.resolve(name)
 
     except (KeyError, AttributeError):
-        if default is not _empty:
+        if default is not Parameter.empty:
             value = default
 
         elif initial is not None:

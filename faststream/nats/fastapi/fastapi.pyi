@@ -105,7 +105,7 @@ class NatsRouter(StreamRouter[Msg]):
         # Broker kwargs
         graceful_timeout: float | None = None,
         decoder: CustomDecoder[NatsMessage] | None = None,
-        parser: CustomParser[Msg, NatsMessage] | None = None,
+        parser: CustomParser[Msg] | None = None,
         middlewares: Iterable[BrokerMiddleware[Msg]] = (),
         # AsyncAPI args
         asyncapi_url: str | list[str] | None = None,
@@ -158,7 +158,7 @@ class NatsRouter(StreamRouter[Msg]):
         headers_only: bool | None = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[Msg, NatsMessage] | None = None,
+        parser: CustomParser[Msg] | None = None,
         decoder: CustomDecoder[NatsMessage] | None = None,
         middlewares: Iterable[SubscriberMiddleware] = (),
         filter: Filter[NatsMessage] = default_filter,
@@ -192,7 +192,7 @@ class NatsRouter(StreamRouter[Msg]):
         inbox_prefix: bytes = api.INBOX_PREFIX,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[Msg, NatsMessage] | None = None,
+        parser: CustomParser[Msg] | None = None,
         decoder: CustomDecoder[NatsMessage] | None = None,
         middlewares: Iterable[SubscriberMiddleware] = (),
         filter: Filter[NatsMessage] = default_filter,

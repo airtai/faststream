@@ -199,7 +199,7 @@ class RedisBroker(
         stream: Union[Channel, StreamSub, None] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[AnyRedisDict, RedisMessage]] = None,
+        parser: Optional[CustomParser[AnyRedisDict]] = None,
         decoder: Optional[CustomDecoder[RedisMessage]] = None,
         middlewares: Optional[
             Sequence[Callable[[AnyRedisDict], BaseMiddleware]]

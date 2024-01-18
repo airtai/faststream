@@ -46,7 +46,7 @@ class NatsRoute:
         headers_only: bool | None = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[Msg, NatsMessage] | None = None,
+        parser: CustomParser[Msg] | None = None,
         decoder: CustomDecoder[NatsMessage] | None = None,
         middlewares: Iterable[BrokerMiddleware[Msg]] = (),
         filter: Filter[NatsMessage] = default_filter,
@@ -70,7 +70,7 @@ class NatsRouter(BrokerRouter[str, Msg]):
         *,
         dependencies: Sequence[Depends] = (),
         middlewares: Iterable[BrokerMiddleware[Msg]] = (),
-        parser: CustomParser[Msg, NatsMessage] | None = None,
+        parser: CustomParser[Msg] | None = None,
         decoder: CustomDecoder[NatsMessage] | None = None,
         include_in_schema: bool = True,
     ) -> None: ...
@@ -125,7 +125,7 @@ class NatsRouter(BrokerRouter[str, Msg]):
         inbox_prefix: bytes = api.INBOX_PREFIX,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[Msg, NatsMessage] | None = None,
+        parser: CustomParser[Msg] | None = None,
         decoder: CustomDecoder[NatsMessage] | None = None,
         middlewares: Iterable[SubscriberMiddleware] = (),
         filter: Filter[NatsMessage] = default_filter,

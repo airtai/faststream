@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
-from inspect import _empty
+from inspect import Parameter
 from typing import Any, Dict, Iterator, Mapping
 
 from faststream.types import AnyDict
@@ -128,7 +128,7 @@ class ContextRepo(Singleton):
         Returns:
             The value associated with the key.
         """
-        if (glob := self._global_context.get(key, _empty)) is _empty:
+        if (glob := self._global_context.get(key, Parameter.empty)) is Parameter.empty:
             return self.get_local(key, default)
         else:
             return glob
@@ -158,7 +158,7 @@ class ContextRepo(Singleton):
         """
         first, *keys = argument.split(".")
 
-        if (v := self.get(first, _empty)) is _empty:
+        if (v := self.get(first, Parameter.empty)) is Parameter.empty:
             raise KeyError(f"`{self.context}` does not contains `{first}` key")
 
         for i in keys:

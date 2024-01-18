@@ -1,6 +1,5 @@
 import asyncio
 from contextlib import suppress
-from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -18,7 +17,7 @@ from typing import (
 
 import anyio
 from nats.errors import TimeoutError
-from typing_extensions import Annotated, Doc
+from typing_extensions import Annotated, Doc, override
 
 from faststream.broker.core.handler import BaseHandler
 from faststream.broker.core.publisher import FakePublisher
@@ -36,7 +35,8 @@ if TYPE_CHECKING:
     from nats.aio.subscription import Subscription
     from nats.js import JetStreamContext
 
-    from faststream.broker.core.handler import WrapperProtocol
+    from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
+    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
         CustomDecoder,
@@ -45,7 +45,6 @@ if TYPE_CHECKING:
         PublisherProtocol,
         SubscriberMiddleware,
     )
-    from faststream.nats.message import NatsMessage
     from faststream.nats.schemas import JStream, PullSub
 
 
@@ -157,12 +156,13 @@ class LogicNatsHandler(BaseHandler["Msg"]):
         self.limiter = anyio.Semaphore(max_workers)
         self.tasks = []
 
-    def add_call(
+    @override
+    def add_call(  # type: ignore[override]
         self,
         *,
-        parser: Optional["CustomParser[Msg, NatsMessage]"],
-        decoder: Optional["CustomDecoder[NatsMessage]"],
-        filter: "Filter[NatsMessage]",
+        filter: "Filter[StreamMessage[Msg]]",
+        parser: Optional["CustomParser[Msg]"],
+        decoder: Optional["CustomDecoder[StreamMessage[Msg]]"],
         middlewares: Iterable["SubscriberMiddleware"],
         dependencies: Sequence["Depends"],
         **wrap_kwargs: Any,
@@ -178,21 +178,20 @@ class LogicNatsHandler(BaseHandler["Msg"]):
         )
 
     def make_response_publisher(
-        self, message: "NatsMessage"
+        self, message: "StreamMessage[Msg]"
     ) -> Sequence[FakePublisher]:
         if not message.reply_to or self.producer is None:
             return ()
 
         return (
             FakePublisher(
-                partial(
-                    self.producer.publish,
-                    subject=message.reply_to,
-                )
+                self.producer.publish,
+                subject=message.reply_to,
             ),
         )
 
-    async def start(
+    @override
+    async def start(  # type: ignore[override]
         self,
         connection: Annotated[
             Union["Client", "JetStreamContext"],
@@ -316,7 +315,7 @@ class LogicNatsHandler(BaseHandler["Msg"]):
 
     @staticmethod
     def build_log_context(
-        message: Optional["NatsMessage"],
+        message: Optional["StreamMessage[Msg]"],
         subject: str,
         queue: str = "",
         stream: Optional["JStream"] = None,
@@ -330,7 +329,7 @@ class LogicNatsHandler(BaseHandler["Msg"]):
 
     def get_log_context(
         self,
-        message: Optional["NatsMessage"],
+        message: Optional["StreamMessage[Msg]"],
     ) -> Dict[str, str]:
         return self.build_log_context(
             message=message,

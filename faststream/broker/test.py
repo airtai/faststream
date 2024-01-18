@@ -12,7 +12,7 @@ from faststream.app import FastStream
 from faststream.broker.core.broker import BrokerUsecase
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.core.handler import BaseHandler
-from faststream.types import SendableMessage, SettingField
+from faststream.types import SettingField
 from faststream.utils.ast import is_contains_context_name
 from faststream.utils.functions import timeout_scope
 
@@ -271,7 +271,7 @@ async def call_handler(
     rpc: bool = False,
     rpc_timeout: Optional[float] = 30.0,
     raise_timeout: bool = False,
-) -> Optional[SendableMessage]:
+) -> Any:
     """Asynchronously call a handler function.
 
     Args:

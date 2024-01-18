@@ -22,12 +22,7 @@ from faststream._compat import is_test_env
 from faststream.broker.core.logging_mixin import LoggingMixin
 from faststream.broker.middlewares import CriticalLogMiddleware
 from faststream.broker.types import (
-    AsyncCustomDecoder,
-    AsyncCustomParser,
     ConnectionType,
-    CustomDecoder,
-    CustomParser,
-    Filter,
     MsgType,
 )
 from faststream.log.logging import set_logger_fmt
@@ -46,7 +41,15 @@ if TYPE_CHECKING:
     from faststream.broker.core.publisher import BasePublisher
     from faststream.broker.message import StreamMessage
     from faststream.broker.router import BrokerRouter
-    from faststream.broker.types import BrokerMiddleware, SubscriberMiddleware
+    from faststream.broker.types import (
+        AsyncCustomDecoder,
+        AsyncCustomParser,
+        BrokerMiddleware,
+        CustomDecoder,
+        CustomParser,
+        Filter,
+        SubscriberMiddleware,
+    )
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, SendableMessage
 
@@ -77,6 +80,7 @@ class BrokerUsecase(
         _global_decoder : An optional global decoder for messages.
     """
 
+    _connection: Optional[ConnectionType]
     handlers: Mapping[Any, "BaseHandler[MsgType]"]
     _publishers: Mapping[Any, "BasePublisher[MsgType]"]
     middlewares: Iterable["BrokerMiddleware[MsgType]"]
@@ -93,7 +97,7 @@ class BrokerUsecase(
             Doc("Default logger object"),
         ],
         logger: Annotated[
-            Union[logging.Logger, Parameter.empty],
+            Union[logging.Logger, object],
             Doc("User specified logger"),
         ] = Parameter.empty,
         log_level: Annotated[
@@ -113,11 +117,11 @@ class BrokerUsecase(
             Doc("Whether to cast types using Pydantic validation"),
         ] = True,
         decoder: Annotated[
-            Optional[CustomDecoder["StreamMessage[MsgType]"]],
+            Optional["CustomDecoder[StreamMessage[MsgType]]"],
             Doc("Custom decoder object"),
         ] = None,
         parser: Annotated[
-            Optional[CustomParser[MsgType, "StreamMessage[MsgType]"]],
+            Optional["CustomParser[MsgType]"],
             Doc("Custom parser object"),
         ] = None,
         dependencies: Annotated[
@@ -196,11 +200,11 @@ class BrokerUsecase(
         self.dependencies = dependencies
 
         self._global_parser = cast(
-            Optional[AsyncCustomParser[MsgType, "StreamMessage[MsgType]"]],
+            Optional["AsyncCustomParser[MsgType]"],
             to_async(parser) if parser else None,
         )
         self._global_decoder = cast(
-            Optional[AsyncCustomDecoder["StreamMessage[MsgType]"]],
+            Optional["AsyncCustomDecoder[StreamMessage[MsgType]]"],
             to_async(decoder) if decoder else None,
         )
 
@@ -277,7 +281,7 @@ class BrokerUsecase(
         if not self.running:
             self.running = True
 
-            if not self.use_custom:
+            if not self.use_custom and self.logger is not None:
                 set_logger_fmt(self.logger, self.fmt)
 
     async def connect(self, *args: Any, **kwargs: Any) -> ConnectionType:
@@ -305,7 +309,8 @@ class BrokerUsecase(
         Returns:
             A dictionary containing the resolved connection keyword arguments.
         """
-        arguments = get_function_positional_arguments(self.__init__)
+        arguments = get_function_positional_arguments(self.__init__)  # type: ignore[misc]
+
         init_kwargs = {
             **self._connection_kwargs,
             **dict(zip(arguments, self._connection_args)),
@@ -315,6 +320,7 @@ class BrokerUsecase(
             **kwargs,
             **dict(zip(arguments, args)),
         }
+
         return {**init_kwargs, **connect_kwargs}
 
     @abstractmethod
@@ -403,12 +409,12 @@ class BrokerUsecase(
         raise NotImplementedError()
 
     @abstractmethod
-    def subscriber(
+    def subscriber(  # type: ignore[return]
         self,
         *broker_args: Any,
-        filter: Filter["StreamMessage[MsgType]"] = default_filter,
-        decoder: Optional[CustomDecoder["StreamMessage[MsgType]"]] = None,
-        parser: Optional[CustomParser[MsgType, "StreamMessage[MsgType]"]] = None,
+        filter: "Filter[StreamMessage[MsgType]]" = default_filter,
+        decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
+        parser: Optional["CustomParser[MsgType]"] = None,
         dependencies: Sequence["Depends"] = (),
         middlewares: Iterable["SubscriberMiddleware"] = (),
         raw: bool = False,

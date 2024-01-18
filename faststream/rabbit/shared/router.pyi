@@ -28,7 +28,7 @@ class RabbitRoute:
         # broker arguments
         dependencies: Sequence[Depends] = (),
         filter: Filter[RabbitMessage] = default_filter,
-        parser: CustomParser[aio_pika.IncomingMessage, RabbitMessage] | None = None,
+        parser: CustomParser[aio_pika.IncomingMessage] | None = None,
         decoder: CustomDecoder[RabbitMessage] | None = None,
         middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         | None = None,

@@ -1,7 +1,7 @@
 import logging
 from contextlib import asynccontextmanager
 from types import TracebackType
-from typing import Any, AsyncIterator, Optional, Type
+from typing import Any, AsyncIterator, Optional, Type, cast
 
 from typing_extensions import Self
 
@@ -149,7 +149,7 @@ class BaseMiddleware:
             err = None
         await self.after_consume(err)
 
-    async def on_publish(self, msg: Any) -> SendableMessage:
+    async def on_publish(self, msg: Any, *args: Any, **kwargs: Any) -> Any:
         """Asynchronously handle a publish event.
 
         Args:
@@ -176,7 +176,9 @@ class BaseMiddleware:
             raise err
 
     @asynccontextmanager
-    async def publish_scope(self, msg: Any) -> AsyncIterator[SendableMessage]:
+    async def publish_scope(
+        self, msg: Any, *args: Any, **kwargs: Any
+    ) -> AsyncIterator[SendableMessage]:
         """Publish a message and return an async iterator.
 
         Args:
@@ -194,7 +196,7 @@ class BaseMiddleware:
         """
         err: Optional[Exception]
         try:
-            yield await self.on_publish(msg)
+            yield cast(SendableMessage, await self.on_publish(msg, *args, **kwargs))
         except Exception as e:
             err = e
         else:

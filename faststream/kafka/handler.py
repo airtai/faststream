@@ -153,9 +153,7 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
         *,
         handler: HandlerCallWrapper[ConsumerRecord, P_HandlerParams, T_HandlerReturn],
         dependant: CallModel[P_HandlerParams, T_HandlerReturn],
-        parser: CustomParser[
-            Union[ConsumerRecord, Tuple[ConsumerRecord, ...]], KafkaMessage
-        ],
+        parser: CustomParser[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]],
         decoder: Optional[CustomDecoder[KafkaMessage]],
         filter: Union[
             Filter[KafkaMessage],

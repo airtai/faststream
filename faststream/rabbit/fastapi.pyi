@@ -65,7 +65,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         graceful_timeout: float | None = None,
         # Broker kwargs
         decoder: CustomDecoder[RabbitMessage] | None = None,
-        parser: CustomParser[aio_pika.IncomingMessage, RabbitMessage] | None = None,
+        parser: CustomParser[aio_pika.IncomingMessage] | None = None,
         middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         | None = None,
         # AsyncAPI args
@@ -107,7 +107,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         # broker arguments
         dependencies: Sequence[params.Depends] = (),
         filter: Filter[RabbitMessage] = default_filter,
-        parser: CustomParser[aio_pika.IncomingMessage, RabbitMessage] | None = None,
+        parser: CustomParser[aio_pika.IncomingMessage] | None = None,
         decoder: CustomDecoder[RabbitMessage] | None = None,
         middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         | None = None,
@@ -128,7 +128,7 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         # broker arguments
         dependencies: Sequence[params.Depends] = (),
         filter: Filter[RabbitMessage] = default_filter,
-        parser: CustomParser[aio_pika.IncomingMessage, RabbitMessage] | None = None,
+        parser: CustomParser[aio_pika.IncomingMessage] | None = None,
         decoder: CustomDecoder[RabbitMessage] | None = None,
         middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         | None = None,

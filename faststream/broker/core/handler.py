@@ -1,6 +1,6 @@
+import dataclasses
 from abc import abstractmethod
 from contextlib import AsyncExitStack, asynccontextmanager
-from dataclasses import dataclass
 from inspect import unwrap
 from itertools import chain
 from typing import (
@@ -8,7 +8,6 @@ from typing import (
     Any,
     AsyncContextManager,
     AsyncIterator,
-    Awaitable,
     Callable,
     Dict,
     Generic,
@@ -19,27 +18,22 @@ from typing import (
     Tuple,
     Type,
     Union,
+    cast,
+    overload,
 )
 
 from faststream.asyncapi.base import AsyncAPIOperation
 from faststream.asyncapi.message import parse_handler_params
 from faststream.asyncapi.utils import to_camelcase
-from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.core.handler_wrapper_mixin import WrapHandlerMixin
 from faststream.broker.types import (
-    AsyncDecoder,
-    AsyncParser,
-    CustomDecoder,
-    CustomParser,
-    Filter,
     MsgType,
     P_HandlerParams,
-    PublisherProtocol,
     T_HandlerReturn,
 )
 from faststream.broker.utils import MultiLock
 from faststream.exceptions import HandlerException, StopConsume
-from faststream.types import AnyDict, SendableMessage
+from faststream.types import AnyDict
 from faststream.utils.context.repository import context
 from faststream.utils.functions import to_async
 
@@ -49,22 +43,36 @@ if TYPE_CHECKING:
     from fast_depends.core import CallModel
     from fast_depends.dependencies import Depends
 
+    from faststream.broker.core.call_wrapper import HandlerCallWrapper
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
     from faststream.broker.message import StreamMessage
     from faststream.broker.middlewares import BaseMiddleware
-    from faststream.broker.types import BrokerMiddleware, SubscriberMiddleware
+    from faststream.broker.types import (
+        AsyncDecoder,
+        AsyncFilter,
+        AsyncParser,
+        BrokerMiddleware,
+        CustomDecoder,
+        CustomParser,
+        Filter,
+        MsgType,
+        P_HandlerParams,
+        PublisherProtocol,
+        SubscriberMiddleware,
+        T_HandlerReturn,
+    )
 
 
-@dataclass(slots=True)
+@dataclasses.dataclass(slots=True)
 class HandlerItem(Generic[MsgType]):
     """A class representing handler overloaded item."""
 
-    handler: HandlerCallWrapper[MsgType, Any, SendableMessage]
-    filter: Callable[["StreamMessage[MsgType]"], Awaitable[bool]]
-    parser: AsyncParser[MsgType, Any]
-    decoder: AsyncDecoder["StreamMessage[MsgType]"]
+    handler: "HandlerCallWrapper[MsgType, ..., Any]"
+    filter: "AsyncFilter[StreamMessage[MsgType]]"
+    parser: "AsyncParser[MsgType]"
+    decoder: "AsyncDecoder[StreamMessage[MsgType]]"
     middlewares: Iterable["SubscriberMiddleware"]
-    dependant: "CallModel[Any, SendableMessage]"
+    dependant: "CallModel[..., Any]"
 
     @property
     def call_name(self) -> str:
@@ -91,9 +99,12 @@ class HandlerItem(Generic[MsgType]):
         msg: MsgType,
         cache: Dict[Any, Any],
     ) -> Optional["StreamMessage[MsgType]"]:
-        message = cache[self.parser] = cache.get(
-            self.parser,
-            await self.parser(msg),
+        message = cache[self.parser] = cast(
+            "StreamMessage[MsgType]",
+            cache.get(
+                self.parser,
+                await self.parser(msg),
+            ),
         )
         message.decoded_body = cache[self.decoder] = cache.get(
             self.decoder,
@@ -103,12 +114,13 @@ class HandlerItem(Generic[MsgType]):
         if await self.filter(message):
             return message
 
+        return None
+
     async def call(
         self,
         message: "StreamMessage[MsgType]",
         extra_middlewares: Iterable["SubscriberMiddleware"],
-    ) -> Optional[SendableMessage]:
-        result: SendableMessage = None
+    ) -> Any:
         async with AsyncExitStack() as consume_stack:
             for middleware in chain(self.middlewares, extra_middlewares):
                 message.decoded_body = await consume_stack.enter_async_context(
@@ -197,27 +209,53 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
 
     def add_call(
         self,
-        filter_: Filter["StreamMessage[MsgType]"],
-        parser_: CustomParser[MsgType, Any],
-        decoder_: CustomDecoder["StreamMessage[MsgType]"],
+        filter_: "Filter[StreamMessage[MsgType]]",
+        parser_: "CustomParser[MsgType]",
+        decoder_: "CustomDecoder[StreamMessage[MsgType]]",
         middlewares_: Iterable["SubscriberMiddleware"],
         dependencies_: Sequence["Depends"],
         **wrap_kwargs: Any,
     ) -> "WrapperProtocol[MsgType]":
-        # TODO: should return SELF?
+        @overload
+        def wrapper(
+            func: None = None,
+            *,
+            filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
+            parser: Optional["CustomParser[MsgType]"] = None,
+            decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
+            middlewares: Iterable["SubscriberMiddleware"] = (),
+            dependencies: Sequence["Depends"] = (),
+        ) -> Callable[
+            [Callable[P_HandlerParams, T_HandlerReturn]],
+            "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
+        ]:
+            ...
+
+        @overload
+        def wrapper(
+            func: Callable[P_HandlerParams, T_HandlerReturn],
+            *,
+            filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
+            parser: Optional["CustomParser[MsgType]"] = None,
+            decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
+            middlewares: Iterable["SubscriberMiddleware"] = (),
+            dependencies: Sequence["Depends"] = (),
+        ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
+            ...
+
         def wrapper(
             func: Optional[Callable[P_HandlerParams, T_HandlerReturn]] = None,
             *,
-            filter: Filter["StreamMessage[MsgType]"] = filter_,
-            parser: CustomParser[MsgType, Any] = parser_,
-            decoder: CustomDecoder["StreamMessage[MsgType]"] = decoder_,
+            filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
+            parser: Optional["CustomParser[MsgType]"] = None,
+            decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
             middlewares: Iterable["SubscriberMiddleware"] = (),
             dependencies: Sequence["Depends"] = (),
         ) -> Union[
-            HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
+            "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
             Callable[
                 [Callable[P_HandlerParams, T_HandlerReturn]],
-                HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
+                "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
             ],
         ]:
             total_deps = (*dependencies_, *dependencies)
@@ -225,7 +263,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
 
             def real_wrapper(
                 func: Callable[P_HandlerParams, T_HandlerReturn],
-            ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
+            ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
                 handler, dependant = self.wrap_handler(
                     func=func,
                     dependencies=total_deps,
@@ -233,12 +271,17 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                 )
 
                 self.calls.append(
-                    HandlerItem(
+                    HandlerItem[MsgType](
                         handler=handler,
                         dependant=dependant,
-                        filter=to_async(filter),
-                        parser=to_async(parser),
-                        decoder=to_async(decoder),
+                        filter=to_async(filter or filter_),
+                        parser=cast(
+                            "AsyncParser[MsgType]", to_async(parser or parser_)
+                        ),
+                        decoder=cast(
+                            "AsyncDecoder[StreamMessage[MsgType]]",
+                            to_async(decoder or decoder_),
+                        ),
                         middlewares=total_middlewares,
                     )
                 )
@@ -253,7 +296,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
 
         return wrapper
 
-    async def consume(self, msg: MsgType) -> SendableMessage:
+    async def consume(self, msg: MsgType) -> Any:
         """Consume a message asynchronously.
 
         Args:
@@ -262,10 +305,8 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         Returns:
             The sendable message.
         """
-        result_msg: Optional[SendableMessage] = None
-
         if not self.running:
-            return result_msg
+            return None
 
         async with AsyncExitStack() as stack:
             for k, v in self.extra_context.items():
@@ -282,7 +323,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                 middlewares.append(middleware)
                 await middleware.__aenter__()
 
-            cache = {}
+            cache: Dict[Any, Any] = {}
             for h in self.calls:
                 if (message := await h.is_suitable(msg, cache)) is not None:
                     await stack.enter_async_context(self.watcher(message))
@@ -305,7 +346,8 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                             await m.__aexit__(exc_type, exc_val, exec_tb)
 
                     result_msg = await h.call(
-                        message, (m.consume_scope for m in middlewares)
+                        message=message,
+                        extra_middlewares=(m.consume_scope for m in middlewares),
                     )
 
                     # TODO: suppress all publishing errors and raise them after all publishers will be tried
@@ -323,9 +365,11 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
 
             raise AssertionError(f"Where is not suitable handler for {msg=}")
 
+        return None
+
     def make_response_publisher(
         self, message: "StreamMessage[MsgType]"
-    ) -> Sequence[PublisherProtocol]:
+    ) -> Sequence["PublisherProtocol"]:
         raise NotImplementedError()
 
     def get_log_context(

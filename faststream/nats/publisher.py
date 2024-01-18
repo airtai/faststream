@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from functools import cached_property
 from typing import Any, Dict, Optional, Union
 
 from nats.aio.msg import Msg
@@ -39,6 +40,7 @@ class LogicPublisher(BasePublisher[Msg]):
 
         extra: AnyDict = {
             "reply_to": reply_to or self.reply_to,
+            **producer_kwargs,
         }
         if self.stream is not None:
             extra.update(
@@ -50,9 +52,13 @@ class LogicPublisher(BasePublisher[Msg]):
 
         return await self._producer.publish(
             message=message,
-            subject=self.subject,
             headers=headers or self.headers,
             correlation_id=correlation_id,
-            **extra,
             **producer_kwargs,
         )
+
+    @cached_property
+    def publish_kwargs(self) -> AnyDict:
+        return {
+            "subject": self.subject,
+        }

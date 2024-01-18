@@ -71,7 +71,7 @@ class FakeProducer(NatsFastProducer):
         rpc: bool = False,
         rpc_timeout: Optional[float] = None,
         raise_timeout: bool = False,
-    ) -> Optional[SendableMessage]:
+    ) -> Any:
         incoming = build_message(
             message=message,
             subject=subject,

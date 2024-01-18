@@ -13,7 +13,6 @@ from typing import (
     Mapping,
     Optional,
     Sequence,
-    Tuple,
     Type,
     Union,
     overload,
@@ -86,7 +85,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
 
     def __init__(
         self,
-        *connection_args: Tuple[Any, ...],
+        *connection_args: Any,
         prefix: str = "",
         tags: Optional[List[Union[str, Enum]]] = None,
         dependencies: Optional[Sequence[params.Depends]] = None,

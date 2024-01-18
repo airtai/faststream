@@ -88,7 +88,7 @@ class KafkaBroker(
         validate: bool = True,
         dependencies: Sequence[Depends] = (),
         decoder: CustomDecoder[KafkaMessage] | None = None,
-        parser: CustomParser[aiokafka.ConsumerRecord, KafkaMessage] | None = None,
+        parser: CustomParser[aiokafka.ConsumerRecord] | None = None,
         middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
         | None = None,
         # AsyncAPI information
@@ -218,7 +218,7 @@ class KafkaBroker(
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[aiokafka.ConsumerRecord, KafkaMessage] | None = None,
+        parser: CustomParser[aiokafka.ConsumerRecord] | None = None,
         decoder: CustomDecoder[KafkaMessage] | None = None,
         middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
         | None = None,
@@ -272,8 +272,7 @@ class KafkaBroker(
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[tuple[aiokafka.ConsumerRecord, ...], KafkaMessage]
-        | None = None,
+        parser: CustomParser[tuple[aiokafka.ConsumerRecord, ...]] | None = None,
         decoder: CustomDecoder[KafkaMessage] | None = None,
         middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
         | None = None,

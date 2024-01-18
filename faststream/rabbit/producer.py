@@ -58,14 +58,14 @@ class AioPikaFastProducer:
     _channel: aio_pika.RobustChannel
     _rpc_lock: anyio.Lock
     _decoder: AsyncDecoder[Any]
-    _parser: AsyncParser[aio_pika.IncomingMessage, Any]
+    _parser: AsyncParser[aio_pika.IncomingMessage]
     declarer: RabbitDeclarer
 
     def __init__(
         self,
         channel: aio_pika.RobustChannel,
         declarer: RabbitDeclarer,
-        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage, RabbitMessage]],
+        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]],
         decoder: Optional[AsyncCustomDecoder[RabbitMessage]],
     ) -> None:
         """Initialize a class instance.

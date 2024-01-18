@@ -69,7 +69,7 @@ class LocalMiddlewareTestcase:  # noqa: D101
         raw_broker,
     ):
         @asynccontextmanager
-        async def mid(msg):
+        async def mid(msg, *args, **kwargs):
             mock.enter()
             yield msg
             mock.end()
@@ -265,7 +265,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):  # noqa: D101
 
     async def test_patch_publish(self, queue: str, mock: Mock, event, raw_broker):
         class Mid(BaseMiddleware):
-            async def on_publish(self, msg: str) -> str:
+            async def on_publish(self, msg: str, *args, **kwargs) -> str:
                 return msg * 2
 
         broker = self.broker_class(middlewares=(Mid,))
@@ -297,7 +297,6 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):  # noqa: D101
         assert event.is_set()
         mock.assert_called_once_with("rrrr")
 
-
     async def test_global_publisher_middleware(
         self,
         event: asyncio.Event,
@@ -306,8 +305,9 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):  # noqa: D101
         raw_broker,
     ):
         class Mid(BaseMiddleware):
-            async def on_publish(self, msg: str) -> str:
+            async def on_publish(self, msg: str, *args, **kwargs) -> str:
                 data = msg * 2
+                assert kwargs
                 mock.enter(data)
                 return data
 
@@ -315,7 +315,6 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):  # noqa: D101
                 mock.end()
                 if mock.end.call_count > 2:
                     event.set()
-
 
         broker = self.broker_class(middlewares=(Mid,))
 

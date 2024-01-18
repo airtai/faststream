@@ -27,12 +27,12 @@ class NatsFastProducer:
 
     _connection: Client
     _decoder: AsyncDecoder[Any]
-    _parser: AsyncParser[Msg, Any]
+    _parser: AsyncParser[Msg]
 
     def __init__(
         self,
         connection: Client,
-        parser: Optional[AsyncCustomParser[Msg, NatsMessage]],
+        parser: Optional[AsyncCustomParser[Msg]],
         decoder: Optional[AsyncCustomDecoder[NatsMessage]],
     ) -> None:
         """Initialize the NATS producer.
@@ -109,12 +109,12 @@ class NatsJSFastProducer:
 
     _connection: JetStreamContext
     _decoder: AsyncDecoder[Any]
-    _parser: AsyncParser[Msg, Any]
+    _parser: AsyncParser[Msg]
 
     def __init__(
         self,
         connection: JetStreamContext,
-        parser: Optional[AsyncCustomParser[Msg, NatsMessage]],
+        parser: Optional[AsyncCustomParser[Msg]],
         decoder: Optional[AsyncCustomDecoder[NatsMessage]],
     ) -> None:
         """Initialize the NATS JetStream producer.

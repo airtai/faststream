@@ -10,9 +10,7 @@ from faststream.broker.types import (
     P_HandlerParams,
     PublisherProtocol,
     T_HandlerReturn,
-    WrappedHandlerCall,
 )
-from faststream.types import SendableMessage
 
 
 class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
@@ -38,7 +36,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
     future: Optional["asyncio.Future[Any]"]
     is_test: bool
 
-    _wrapped_call: Optional[WrappedHandlerCall[MsgType, SendableMessage]]
+    _wrapped_call: Optional[Callable[..., Awaitable[Any]]]
     _original_call: Callable[P_HandlerParams, T_HandlerReturn]
     _publishers: List[PublisherProtocol]
 
@@ -115,9 +113,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
         """
         return self._original_call(*args, **kwargs)
 
-    def set_wrapped(
-        self, wrapped: WrappedHandlerCall[MsgType, SendableMessage]
-    ) -> None:
+    def set_wrapped(self, wrapped: Callable[..., Awaitable[Any]]) -> None:
         """Set the wrapped handler call.
 
         Args:
@@ -129,10 +125,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
     def call_wrapped(
         self,
         message: StreamMessage[MsgType],
-    ) -> Union[
-        Optional[SendableMessage],
-        Awaitable[Optional[SendableMessage]],
-    ]:
+    ) -> Awaitable[Any]:
         """Calls the wrapped function with the given message.
 
         Args:
