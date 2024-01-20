@@ -40,8 +40,9 @@ from faststream.broker.types import (
 )
 from faststream.broker.utils import get_watcher_context
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.nats.asyncapi import Handler, Publisher
+from faststream.nats.asyncapi import AsyncAPIHandler, Publisher
 from faststream.nats.broker.logging import NatsLoggingMixin
+from faststream.nats.handler import BaseNatsHandler
 from faststream.nats.helpers import stream_builder
 from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
@@ -65,7 +66,7 @@ class NatsBroker(
     url: List[str]
     stream: Optional[JetStreamContext]
 
-    handlers: Dict[Subject, Handler]
+    handlers: Dict[Subject, AsyncAPIHandler]
     _publishers: Dict[Subject, Publisher]
     _producer: Optional[NatsFastProducer]
     _js_producer: Optional[NatsJSFastProducer]
@@ -222,7 +223,7 @@ class NatsBroker(
         self,
         error_cb: Optional[ErrorCallback] = None,
     ) -> ErrorCallback:
-        c = Handler.build_log_context(None, "")
+        c = BaseNatsHandler.build_log_context(None, "")
 
         async def wrapper(err: Exception) -> None:
             if error_cb is not None:
@@ -238,7 +239,7 @@ class NatsBroker(
         self,
         cb: Optional[Callback] = None,
     ) -> Callback:
-        c = Handler.build_log_context(None, "")
+        c = BaseNatsHandler.build_log_context(None, "")
 
         async def wrapper() -> None:
             if cb is not None:
@@ -349,10 +350,10 @@ class NatsBroker(
                 }
             )
 
-        key = Handler.get_routing_hash(subject)
+        key = BaseNatsHandler.get_routing_hash(subject)
         handler = self.handlers[key] = self.handlers.get(
             key,
-            Handler(
+            AsyncAPIHandler.create(
                 subject=subject,
                 queue=queue,
                 stream=stream,

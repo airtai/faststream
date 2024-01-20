@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from faststream.asyncapi.schema import (
     Channel,
@@ -9,11 +9,14 @@ from faststream.asyncapi.schema import (
 )
 from faststream.asyncapi.schema.bindings import nats
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.nats.handler import LogicNatsHandler
+from faststream.nats.handler import BaseNatsHandler, BatchHandler, DefaultHandler
 from faststream.nats.publisher import LogicPublisher
 
+if TYPE_CHECKING:
+    from faststream.nats.schemas.pull_sub import PullSub
 
-class Handler(LogicNatsHandler):
+
+class AsyncAPIHandler(BaseNatsHandler[Any]):
     """A class to represent a NATS handler."""
     def get_name(self) -> str:
         return f"{self.subject}:{self.call_name}"
@@ -41,6 +44,21 @@ class Handler(LogicNatsHandler):
                 ),
             )
         }
+
+    @staticmethod
+    def create(*args, pull_sub: Optional["PullSub"], **kwargs) -> "AsyncAPIHandler":
+        if getattr(pull_sub, "batch", False):
+            return BatchAsyncAPIHandler(*args, pull_sub=pull_sub, **kwargs)
+        else:
+            return DefaultAsyncAPIHandler(*args, pull_sub=pull_sub, **kwargs)
+
+
+class DefaultAsyncAPIHandler(AsyncAPIHandler, DefaultHandler):
+    """One-message consumer with AsyncAPI methods."""
+
+
+class BatchAsyncAPIHandler(AsyncAPIHandler, BatchHandler):
+    """Batch-message consumer with AsyncAPI methods."""
 
 
 class Publisher(LogicPublisher):
