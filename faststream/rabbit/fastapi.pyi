@@ -16,11 +16,12 @@ from pamqp.common import FieldTable
 from starlette import routing
 from starlette.responses import JSONResponse, Response
 from starlette.types import ASGIApp, Lifespan
-from typing_extensions import override
+from typing_extensions import Annotated, override
 from yarl import URL
 
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asynchronous import default_filter
+from faststream.broker.fastapi.context import Context, ContextRepo, Logger
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
@@ -32,16 +33,31 @@ from faststream.broker.types import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.rabbit.asyncapi import Publisher
-from faststream.rabbit.broker import RabbitBroker
-from faststream.rabbit.message import RabbitMessage
+from faststream.rabbit.broker import RabbitBroker as RB
+from faststream.rabbit.message import RabbitMessage as RM
+from faststream.rabbit.producer import AioPikaFastProducer
 from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue, ReplyConfig
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.security import BaseSecurity
 from faststream.types import AnyDict
 
+__all__ = (
+    "Context",
+    "Logger",
+    "ContextRepo",
+    "RabbitMessage",
+    "RabbitBroker",
+    "RabbitProducer",
+    "RabbitRouter",
+)
+
+RabbitMessage = Annotated[RM, Context("message")]
+RabbitBroker = Annotated[RB, Context("broker")]
+RabbitProducer = Annotated[AioPikaFastProducer, Context("broker._producer")]
+
 class RabbitRouter(StreamRouter[IncomingMessage]):
-    broker_class: type[RabbitBroker]
-    broker: RabbitBroker
+    broker_class: type[RB]
+    broker: RB
 
     # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument.hardcoded-password-default-argument
     def __init__(
@@ -64,8 +80,8 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         max_consumers: int | None = None,
         graceful_timeout: float | None = None,
         # Broker kwargs
-        decoder: CustomDecoder[RabbitMessage] | None = None,
-        parser: CustomParser[aio_pika.IncomingMessage, RabbitMessage] | None = None,
+        decoder: CustomDecoder[RM] | None = None,
+        parser: CustomParser[aio_pika.IncomingMessage, RM] | None = None,
         middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         | None = None,
         # AsyncAPI args
@@ -106,9 +122,9 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         consume_args: AnyDict | None = None,
         # broker arguments
         dependencies: Sequence[params.Depends] = (),
-        filter: Filter[RabbitMessage] = default_filter,
-        parser: CustomParser[aio_pika.IncomingMessage, RabbitMessage] | None = None,
-        decoder: CustomDecoder[RabbitMessage] | None = None,
+        filter: Filter[RM] = default_filter,
+        parser: CustomParser[aio_pika.IncomingMessage, RM] | None = None,
+        decoder: CustomDecoder[RM] | None = None,
         middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         | None = None,
         retry: bool | int = False,
@@ -127,9 +143,9 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         reply_config: ReplyConfig | None = None,
         # broker arguments
         dependencies: Sequence[params.Depends] = (),
-        filter: Filter[RabbitMessage] = default_filter,
-        parser: CustomParser[aio_pika.IncomingMessage, RabbitMessage] | None = None,
-        decoder: CustomDecoder[RabbitMessage] | None = None,
+        filter: Filter[RM] = default_filter,
+        parser: CustomParser[aio_pika.IncomingMessage, RM] | None = None,
+        decoder: CustomDecoder[RM] | None = None,
         middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
         | None = None,
         retry: bool | int = False,
@@ -176,6 +192,6 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
     @override
     @staticmethod
     def _setup_log_context(  # type: ignore[override]
-        main_broker: RabbitBroker,
-        including_broker: RabbitBroker,
+        main_broker: RB,
+        including_broker: RB,
     ) -> None: ...
