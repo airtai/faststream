@@ -24,7 +24,7 @@ from faststream.broker.core.handler import BaseHandler
 from faststream.broker.core.publisher import FakePublisher
 from faststream.broker.parsers import resolve_custom_func
 from faststream.broker.types import MsgType
-from faststream.nats.parser import JsParser, Parser
+from faststream.nats.parser import BatchParser, JsParser, NatsParser
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils.path import compile_path
 
@@ -273,7 +273,7 @@ class DefaultHandler(BaseNatsHandler["Msg"]):
         dependencies: Sequence["Depends"],
         **wrap_kwargs: Any,
     ) -> "WrapperProtocol[Msg]":
-        parser_ = Parser if self.stream is None else JsParser
+        parser_ = NatsParser if self.stream is None else JsParser
         return super().add_call(
             parser_=resolve_custom_func(parser, parser_.parse_message),
             decoder_=resolve_custom_func(decoder, parser_.decode_message),
@@ -361,6 +361,7 @@ class DefaultHandler(BaseNatsHandler["Msg"]):
 
 class BatchHandler(BaseNatsHandler[List["Msg"]]):
     """Batch-message consumer class."""
+
     pull_sub: "PullSub"
     stream: "JStream"
 
@@ -376,8 +377,8 @@ class BatchHandler(BaseNatsHandler[List["Msg"]]):
         **wrap_kwargs: Any,
     ) -> "WrapperProtocol[List[Msg]]":
         return super().add_call(
-            parser_=resolve_custom_func(parser, JsParser.parse_batch),
-            decoder_=resolve_custom_func(decoder, JsParser.decode_batch),
+            parser_=resolve_custom_func(parser, BatchParser.parse_batch),
+            decoder_=resolve_custom_func(decoder, BatchParser.decode_batch),
             filter_=filter,
             middlewares_=middlewares,
             dependencies_=dependencies,

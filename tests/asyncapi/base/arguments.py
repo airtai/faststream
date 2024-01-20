@@ -413,7 +413,6 @@ class FastAPICompatible:  # noqa: D101
         assert "Handle:Message:Payload" in list(payload.keys())
         assert "HandleDefault:Message:Payload" in list(payload.keys())
 
-
     def test_ignores_depends(self):
         broker = self.broker_class()
 

@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 
 class AsyncAPIHandler(BaseNatsHandler[Any]):
     """A class to represent a NATS handler."""
+
     def get_name(self) -> str:
         return f"{self.subject}:{self.call_name}"
 

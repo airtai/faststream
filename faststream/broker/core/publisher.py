@@ -106,6 +106,7 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
         __call__(func) : decorator to register a function as a handler for the publisher
         publish(message, correlation_id, **kwargs) : publishes a message with optional correlation ID
     """
+
     schema_: Optional[Any] = field(default=None)
 
     calls: List[Callable[..., Any]] = field(
@@ -209,9 +210,7 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
         payloads: List[Tuple[AnyDict, str]] = []
 
         if self.schema_:
-            params = {
-                "response__": (self.schema_, ...)
-            }
+            params = {"response__": (self.schema_, ...)}
 
             call_model: CallModel[Any, Any] = CallModel(
                 call=lambda: None,

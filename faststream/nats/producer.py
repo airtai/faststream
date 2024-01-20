@@ -17,7 +17,7 @@ from faststream.broker.types import (
 )
 from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.nats.message import NatsMessage
-from faststream.nats.parser import Parser
+from faststream.nats.parser import NatsParser
 from faststream.types import SendableMessage
 from faststream.utils.functions import timeout_scope
 
@@ -43,8 +43,8 @@ class NatsFastProducer:
             decoder: The decoder.
         """
         self._connection = connection
-        self._parser = resolve_custom_func(parser, Parser.parse_message)
-        self._decoder = resolve_custom_func(decoder, Parser.decode_message)
+        self._parser = resolve_custom_func(parser, NatsParser.parse_message)
+        self._decoder = resolve_custom_func(decoder, NatsParser.decode_message)
 
     async def publish(
         self,
@@ -125,8 +125,8 @@ class NatsJSFastProducer:
             decoder: The decoder.
         """
         self._connection = connection
-        self._parser = resolve_custom_func(parser, Parser.parse_message)
-        self._decoder = resolve_custom_func(decoder, Parser.decode_message)
+        self._parser = resolve_custom_func(parser, NatsParser.parse_message)
+        self._decoder = resolve_custom_func(decoder, NatsParser.decode_message)
 
     async def publish(
         self,
