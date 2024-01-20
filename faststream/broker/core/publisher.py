@@ -106,10 +106,7 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
         __call__(func) : decorator to register a function as a handler for the publisher
         publish(message, correlation_id, **kwargs) : publishes a message with optional correlation ID
     """
-
-    title: Optional[str] = field(default=None)
-    _description: Optional[str] = field(default=None)
-    _schema: Optional[Any] = field(default=None)
+    schema_: Optional[Any] = field(default=None)
 
     calls: List[Callable[..., Any]] = field(
         init=False, default_factory=list, repr=False
@@ -120,10 +117,6 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
 
     _fake_handler: bool = field(default=False, repr=False)
     mock: Optional[MagicMock] = field(init=False, default=None, repr=False)
-
-    @property
-    def description(self) -> Optional[str]:
-        return self._description
 
     def set_test(
         self,
@@ -215,14 +208,14 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
     def get_payloads(self) -> List[Tuple[AnyDict, str]]:
         payloads: List[Tuple[AnyDict, str]] = []
 
-        if self._schema:
+        if self.schema_:
             call_model: CallModel[Any, Any] = CallModel(
                 call=lambda: None,
                 model=create_model("Fake"),
                 response_model=create_model(
                     "",
                     __config__=get_config_base(),  # type: ignore[arg-type]
-                    response__=(self._schema, ...),
+                    response__=(self.schema_, ...),
                 ),
             )
 

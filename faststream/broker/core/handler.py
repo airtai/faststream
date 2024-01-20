@@ -163,12 +163,13 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         self,
         *,
         middlewares: Iterable["BrokerMiddleware[MsgType]"],
-        description: Optional[str],
-        title: Optional[str],
-        include_in_schema: bool,
         graceful_timeout: Optional[float],
         watcher: Callable[..., AsyncContextManager[None]],
         extra_context: Optional[AnyDict],
+        # AsyncAPI information
+        title: Optional[str],
+        description: Optional[str],
+        include_in_schema: bool,
     ) -> None:
         """Initialize a new instance of the class."""
         self.calls = []
@@ -182,9 +183,11 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         self.graceful_timeout = graceful_timeout
 
         # AsyncAPI information
-        self._description = description
-        self._title = title
-        super().__init__(include_in_schema=include_in_schema)
+        super().__init__(
+            title_=title,
+            description_=description,
+            include_in_schema=include_in_schema,
+        )
 
     @abstractmethod
     async def start(self) -> None:
@@ -387,12 +390,8 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         """Returns the name of the handler call."""
         return to_camelcase(self.calls[0].call_name)
 
-    @property
-    def description(self) -> Optional[str]:
+    def get_description(self) -> Optional[str]:
         """Returns the description of the handler."""
-        if self._description:
-            return self._description
-
         if not self.calls:  # pragma: no cover
             return None
 
@@ -406,13 +405,9 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         for h in self.calls:
             body = parse_handler_params(
                 h.dependant,
-                prefix=f"{self._title or self.call_name}:Message",
+                prefix=f"{self.title_ or self.call_name}:Message",
             )
-            payloads.append(
-                (
-                    body,
-                    to_camelcase(h.call_name),
-                )
-            )
+
+            payloads.append((body, to_camelcase(h.call_name)))
 
         return payloads

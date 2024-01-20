@@ -15,19 +15,18 @@ from faststream.nats.publisher import LogicPublisher
 
 class Handler(LogicNatsHandler):
     """A class to represent a NATS handler."""
+    def get_name(self) -> str:
+        return f"{self.subject}:{self.call_name}"
 
-    def schema(self) -> Dict[str, Channel]:
-        if not self.include_in_schema:
-            return {}
-
+    def get_schema(self) -> Dict[str, Channel]:
         payloads = self.get_payloads()
-        handler_name = self._title or f"{self.subject}:{self.call_name}"
+
         return {
-            handler_name: Channel(
+            self.name: Channel(
                 description=self.description,
                 subscribe=Operation(
                     message=Message(
-                        title=f"{handler_name}:Message",
+                        title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads),
                         correlationId=CorrelationId(
                             location="$message.header#/correlation_id"
@@ -47,10 +46,10 @@ class Handler(LogicNatsHandler):
 class Publisher(LogicPublisher):
     """A class to represent a NATS publisher."""
 
-    def schema(self) -> Dict[str, Channel]:
-        if not self.include_in_schema:
-            return {}
+    def get_name(self) -> str:
+        return f"{self.subject}:Publisher"
 
+    def get_schema(self) -> Dict[str, Channel]:
         payloads = self.get_payloads()
 
         return {
@@ -72,7 +71,3 @@ class Publisher(LogicPublisher):
                 ),
             )
         }
-
-    @property
-    def name(self) -> str:
-        return self.title or f"{self.subject}:Publisher"

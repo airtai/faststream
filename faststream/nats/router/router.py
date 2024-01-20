@@ -86,10 +86,11 @@ class NatsRouter(BrokerRouter[str, Msg]):
                 subject=subject,
                 reply_to=reply_to,
                 headers=headers,
-                title=title,
-                _description=description,
-                _schema=schema,
                 middlewares=middlewares,
+                # AsyncAPI information
+                title_=title,
+                description_=description,
+                schema_=schema,
                 include_in_schema=(
                     include_in_schema
                     if self.include_in_schema is None

@@ -418,9 +418,9 @@ class NatsBroker(
                 # Specific
                 middlewares=middlewares,
                 # AsyncAPI
-                title=title,
-                _description=description,
-                _schema=schema,
+                title_=title,
+                description_=description,
+                schema_=schema,
                 include_in_schema=include_in_schema,
             ),
         )
