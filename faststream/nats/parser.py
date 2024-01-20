@@ -85,7 +85,7 @@ class JsParser(NatsBaseParser):
             raw_message=message,
             body=message.data,
             path=path or {},
-            reply_to=headers.get("reply_to", ""),
+            reply_to=headers.get("reply_to", ""),  # differ from core
             headers=headers,
             content_type=headers.get("content-type", ""),
             message_id=headers.get("message_id", str(uuid4())),
