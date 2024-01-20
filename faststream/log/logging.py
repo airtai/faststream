@@ -39,7 +39,7 @@ class ExtendedFilter(logging.Filter):
                 value = getattr(record, k, v)
                 setattr(record, k, value)
 
-            record.message_id = record.message_id[: self.message_id_ln]
+            record.message_id = getattr(record, "message_id", "")[: self.message_id_ln]
 
         return is_suitable
 

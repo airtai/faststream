@@ -47,11 +47,25 @@ class AsyncAPIHandler(BaseNatsHandler[Any]):
         }
 
     @staticmethod
-    def create(*args, pull_sub: Optional["PullSub"], **kwargs) -> "AsyncAPIHandler":
+    def create(
+        *args,
+        pull_sub: Optional["PullSub"],
+        max_workers: int,
+        **kwargs,
+    ) -> "AsyncAPIHandler":
         if getattr(pull_sub, "batch", False):
-            return BatchAsyncAPIHandler(*args, pull_sub=pull_sub, **kwargs)
+            return BatchAsyncAPIHandler(
+                *args,
+                pull_sub=pull_sub,
+                **kwargs,
+            )
         else:
-            return DefaultAsyncAPIHandler(*args, pull_sub=pull_sub, **kwargs)
+            return DefaultAsyncAPIHandler(
+                *args,
+                pull_sub=pull_sub,
+                max_workers=max_workers,
+                **kwargs,
+            )
 
 
 class DefaultAsyncAPIHandler(AsyncAPIHandler, DefaultHandler):
