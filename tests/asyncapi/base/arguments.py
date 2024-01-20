@@ -3,6 +3,8 @@ from typing import Optional, Type
 
 import pydantic
 from dirty_equals import IsDict, IsPartialDict
+from fast_depends import Depends
+from fastapi import Depends as APIDepends
 
 from faststream import Context, FastStream
 from faststream._compat import PYDANTIC_V2
@@ -12,6 +14,7 @@ from faststream.broker.core.broker import BrokerUsecase
 
 class FastAPICompatible:  # noqa: D101
     broker_class: Type[BrokerUsecase]
+    dependency_builder = staticmethod(APIDepends)
 
     def build_app(self, broker):
         """Patch it to test FastAPI scheme generation too"""  # noqa: D415
@@ -44,6 +47,24 @@ class FastAPICompatible:  # noqa: D101
         assert schema["channels"][key]["description"] == "Test description", schema[
             "channels"
         ][key]["description"]
+
+    def test_empty(self):
+        broker = self.broker_class()
+
+        @broker.subscriber("test")
+        async def handle():
+            ...
+
+        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+
+        payload = schema["components"]["schemas"]
+
+        for key, v in payload.items():
+            assert key == "EmptyPayload"
+            assert v == {
+                "title": key,
+                "type": "null",
+            }
 
     def test_no_type(self):
         broker = self.broker_class()
@@ -393,7 +414,40 @@ class FastAPICompatible:  # noqa: D101
         assert "HandleDefault:Message:Payload" in list(payload.keys())
 
 
+    def test_ignores_depends(self):
+        broker = self.broker_class()
+
+        def dep(name: str = ""):
+            return name
+
+        def dep2(name2: str):
+            return name2
+
+        @broker.subscriber("test", dependencies=(self.dependency_builder(dep2),))
+        async def handle(id: int, message=self.dependency_builder(dep)):
+            ...
+
+        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+
+        payload = schema["components"]["schemas"]
+
+        for key, v in payload.items():
+            assert key == "Handle:Message:Payload"
+            assert v == {
+                "properties": {
+                    "id": {"title": "Id", "type": "integer"},
+                    "name": {"default": "", "title": "Name", "type": "string"},
+                    "name2": {"title": "Name2", "type": "string"},
+                },
+                "required": ["id", "name2"],
+                "title": key,
+                "type": "object",
+            }
+
+
 class ArgumentsTestcase(FastAPICompatible):  # noqa: D101
+    dependency_builder = staticmethod(Depends)
+
     def test_pydantic_field(self):
         broker = self.broker_class()
 

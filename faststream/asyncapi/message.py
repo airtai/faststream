@@ -2,7 +2,7 @@ from inspect import isclass
 from typing import Any, Dict, Optional, Sequence, Type, overload
 
 from fast_depends.core import CallModel
-from pydantic import BaseModel
+from pydantic import BaseModel, create_model
 
 from faststream._compat import PYDANTIC_V2, get_model_fields, model_schema
 
@@ -18,8 +18,14 @@ def parse_handler_params(call: CallModel[Any, Any], prefix: str = "") -> Dict[st
         A dictionary containing the parsed parameters.
 
     """
+    model = call.model
+
     body = get_model_schema(
-        call.model,
+        create_model(
+            model.__name__,
+            __config__=model.model_config,
+            **call.flat_params,
+        ),
         prefix=prefix,
         exclude=tuple(call.custom_fields.keys()),
     )

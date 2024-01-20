@@ -209,14 +209,19 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
         payloads: List[Tuple[AnyDict, str]] = []
 
         if self.schema_:
+            params = {
+                "response__": (self.schema_, ...)
+            }
+
             call_model: CallModel[Any, Any] = CallModel(
                 call=lambda: None,
                 model=create_model("Fake"),
                 response_model=create_model(
                     "",
                     __config__=get_config_base(),  # type: ignore[arg-type]
-                    response__=(self.schema_, ...),
+                    **params,  # type: ignore[arg-type]
                 ),
+                params=params,
             )
 
             body = get_response_schema(
