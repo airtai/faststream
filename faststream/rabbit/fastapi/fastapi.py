@@ -1,25 +1,7 @@
 from aio_pika import IncomingMessage
-from typing_extensions import Annotated
-
-from faststream.broker.fastapi.context import Context, ContextRepo, Logger
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.rabbit.broker import RabbitBroker as RB
-from faststream.rabbit.message import RabbitMessage as RM
-from faststream.rabbit.producer import AioPikaFastProducer
 
-__all__ = (
-    "Context",
-    "Logger",
-    "ContextRepo",
-    "RabbitMessage",
-    "RabbitBroker",
-    "RabbitProducer",
-    "RabbitRouter",
-)
-
-RabbitMessage = Annotated[RM, Context("message")]
-RabbitBroker = Annotated[RB, Context("broker")]
-RabbitProducer = Annotated[AioPikaFastProducer, Context("broker._producer")]
 
 
 class RabbitRouter(StreamRouter[IncomingMessage]):

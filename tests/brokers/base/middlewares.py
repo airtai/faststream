@@ -307,7 +307,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):  # noqa: D101
         class Mid(BaseMiddleware):
             async def on_publish(self, msg: str, *args, **kwargs) -> str:
                 data = msg * 2
-                assert kwargs
+                assert args or kwargs
                 mock.enter(data)
                 return data
 

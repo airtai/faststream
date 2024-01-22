@@ -12,6 +12,7 @@ from faststream.rabbit import (
     TestRabbitBroker,
 )
 from faststream.rabbit.annotations import RabbitMessage
+from faststream.rabbit.test import apply_pattern
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
@@ -270,3 +271,27 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
             await h2.wait_call(3)
 
         assert len(routes) == 2
+
+
+@pytest.mark.parametrize(
+    ("pattern", "current", "result"),
+    [
+        pytest.param("#", "1.2.3", True, id="#"),
+        pytest.param("*", "1", True, id="*"),
+        pytest.param("*", "1.2", False, id="* - broken"),
+        pytest.param("test.*", "test.1", True, id="test.*"),
+        pytest.param("test.#", "test.1", True, id="test.#"),
+        pytest.param("#.test.#", "1.2.test.1.2", True, id="#.test.#"),
+        pytest.param("#.test.*", "1.2.test.1", True, id="#.test.*"),
+        pytest.param("#.test.*.*", "1.2.test.1.2", True, id="#.test.*."),
+        pytest.param("#.test.*.*.*", "1.2.test.1.2", False, id="#.test.*.*.* - broken"),
+        pytest.param("#.test.*.test.#", "1.2.test.1.test.1.2", True, id="#.test.*.test.#"),
+        pytest.param("#.*.test", "1.2.2.test", True, id="#.*.test"),
+        pytest.param("#.2.*.test", "1.2.2.test", True, id="#.2.*.test"),
+        pytest.param("#.*.*.test", "1.2.2.test", True, id="#.*.*.test"),
+        pytest.param("*.*.*.test", "1.2.test", False, id="*.*.*.test - broken"),
+        pytest.param("#.*.*.test", "1.2.test", False, id="#.*.*.test - broken"),
+    ]
+)
+def test(pattern: str, current: str, result: bool):
+    assert apply_pattern(pattern, current) == result

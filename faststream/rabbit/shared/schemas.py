@@ -31,7 +31,6 @@ class RabbitQueue(NameRequired):
         __hash__ : returns the hash value of the queue
         routing : returns the routing key of the queue
         __init__ : initializes the RabbitQueue object with the given parameters
-
     """
 
     name: str = ""
@@ -87,7 +86,6 @@ class RabbitQueue(NameRequired):
             robust (bool, optional): Whether the object is robust. Defaults to True.
             bind_arguments (dict, optional): Bind arguments for the object. Defaults to None.
             routing_key (str, optional): Routing key for the object. Defaults to "".
-
         """
         re, routing_key = compile_path(
             routing_key,
@@ -137,7 +135,6 @@ class RabbitExchange(NameRequired):
     Methods:
         __hash__ : returns the hash value of the exchange
         __init__ : initializes the RabbitExchange object
-
     """
 
     type: str = ExchangeType.DIRECT.value
@@ -194,10 +191,6 @@ class RabbitExchange(NameRequired):
             bind_to (Optional["RabbitExchange"], optional): Exchange to bind to. Defaults to None.
             bind_arguments (Optional[AnyDict], optional): Arguments for the binding. Defaults to None.
             routing_key (str, optional): Routing key for the exchange. Defaults to "".
-
-        Raises:
-            NotImplementedError:
-
         """
         if routing_key and bind_to is None:  # pragma: no cover
             warnings.warn(
@@ -233,23 +226,6 @@ class ReplyConfig(BaseModel):
     persist: bool = False
 
 
-def get_routing_hash(
-    queue: RabbitQueue,
-    exchange: Optional[RabbitExchange] = None,
-) -> int:
-    """Calculate the routing hash for a RabbitMQ queue and exchange.
-
-    Args:
-        queue: The RabbitMQ queue.
-        exchange: The RabbitMQ exchange (optional).
-
-    Returns:
-        The routing hash as an integer.
-
-    """
-    return hash(queue) + hash(exchange or "")
-
-
 @dataclass
 class BaseRMQInformation:
     """BaseRMQInformation.
@@ -257,11 +233,9 @@ class BaseRMQInformation:
     Attributes:
         queue : RabbitQueue object representing the queue
         exchange : Optional RabbitExchange object representing the exchange
-        _description : Optional string describing the class
-
+        virtual_host : Virtual host to connect
     """
 
     queue: RabbitQueue = field(default=RabbitQueue(""))
     exchange: Optional[RabbitExchange] = field(default=None)
-    _description: Optional[str] = field(default=None)
     virtual_host: str = "/"

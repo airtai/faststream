@@ -1,12 +1,12 @@
 import logging
-from typing import Any, Optional
-
-from typing_extensions import override
+from inspect import Parameter
+from typing import TYPE_CHECKING, Any, ClassVar, Optional, Union
 
 from faststream.broker.core.logging_mixin import LoggingMixin
-from faststream.broker.message import StreamMessage
-from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
-from faststream.types import AnyDict
+from faststream.log.logging import get_broker_logger
+
+if TYPE_CHECKING:
+    from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
 
 
 class RabbitLoggingMixin(LoggingMixin):
@@ -21,16 +21,16 @@ class RabbitLoggingMixin(LoggingMixin):
         _get_log_context : Overrides the _get_log_context method of the LoggingMixin class to include RabbitMQ related context information.
         fmt : Returns the log format string.
         _setup_log_context : Sets up the log context by updating the maximum lengths of the queue and exchange names.
-
     """
 
     _max_queue_len: int
     _max_exchange_len: int
+    __max_msg_id_ln: ClassVar[int] = 10
 
     def __init__(
         self,
         *args: Any,
-        logger: Optional[logging.Logger] = None,
+        logger: Union[logging.Logger, object, None] = Parameter.empty,
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = None,
         **kwargs: Any,
@@ -46,45 +46,26 @@ class RabbitLoggingMixin(LoggingMixin):
 
         Returns:
             None
-
         """
         super().__init__(
             *args,
             logger=logger,
+            # TODO: generate unique logger names to not share between brokers
+            default_logger=get_broker_logger(
+                name="rabbit",
+                default_context={
+                    "queue": "",
+                    "exchange": "",
+                },
+                message_id_ln=self.__max_msg_id_ln,
+            ),
             log_level=log_level,
             log_fmt=log_fmt,
             **kwargs,
         )
+
         self._max_queue_len = 4
         self._max_exchange_len = 4
-
-    @override
-    def _get_log_context(  # type: ignore[override]
-        self,
-        message: Optional[StreamMessage[Any]],
-        queue: RabbitQueue,
-        exchange: Optional[RabbitExchange] = None,
-    ) -> AnyDict:
-        """Get the log context.
-
-        Args:
-            message: Optional stream message.
-            queue: RabbitQueue object.
-            exchange: Optional RabbitExchange object.
-
-        Returns:
-            Dictionary containing the log context.
-
-        Note:
-            This is a private method and should not be called directly.
-
-        """
-        context = {
-            "queue": queue.name,
-            "exchange": exchange.name if exchange else "default",
-            **super()._get_log_context(message),
-        }
-        return context
 
     @property
     def fmt(self) -> str:
@@ -92,29 +73,27 @@ class RabbitLoggingMixin(LoggingMixin):
             "%(asctime)s %(levelname)s - "
             f"%(exchange)-{self._max_exchange_len}s | "
             f"%(queue)-{self._max_queue_len}s | "
-            f"%(message_id)-{self._message_id_ln}s "
+            f"%(message_id)-{self.__max_msg_id_ln}s "
             "- %(message)s"
         )
 
     def _setup_log_context(
         self,
-        queue: Optional[RabbitQueue] = None,
-        exchange: Optional[RabbitExchange] = None,
+        queue: Optional["RabbitQueue"] = None,
+        exchange: Optional["RabbitExchange"] = None,
     ) -> None:
         """Set up log context.
 
         Args:
             queue: Optional RabbitQueue object representing the queue.
             exchange: Optional RabbitExchange object representing the exchange.
-
-        Returns:
-            None
-
         """
-        if exchange is not None:
-            self._max_exchange_len = max(
-                self._max_exchange_len, len(exchange.name or "")
-            )
+        self._max_exchange_len = max(
+            self._max_exchange_len,
+            len(getattr(exchange, "name", "")),
+        )
 
-        if queue is not None:  # pragma: no branch
-            self._max_queue_len = max(self._max_queue_len, len(queue.name))
+        self._max_queue_len = max(
+            self._max_queue_len,
+            len(getattr(queue, "name", "")),
+        )

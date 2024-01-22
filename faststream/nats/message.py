@@ -10,6 +10,8 @@ class NatsMessage(StreamMessage["Msg"]):
     """A class to represent a NATS message."""
 
     async def ack(self, **kwargs: Any) -> None:
+        # Check `self.raw_message._ackd` instead of `self.committed`
+        # to be compatible with `self.raw_message.ack()`
         if not self.raw_message._ackd:
             await self.raw_message.ack()
             await super().ack()

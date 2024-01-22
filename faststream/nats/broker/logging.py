@@ -16,7 +16,7 @@ class NatsLoggingMixin(LoggingMixin):
     def __init__(
         self,
         *args: Any,
-        logger: Union[logging.Logger, object] = Parameter.empty,
+        logger: Union[logging.Logger, object, None] = Parameter.empty,
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = None,
         **kwargs: Any,

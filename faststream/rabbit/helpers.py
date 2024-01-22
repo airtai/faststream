@@ -27,7 +27,6 @@ class RabbitDeclarer(Singleton):
 
         declare_exchange(exchange: RabbitExchange) -> aio_pika.RobustExchange
             Declares an exchange and returns the declared exchange object.
-
     """
 
     channel: aio_pika.RobustChannel
@@ -44,7 +43,6 @@ class RabbitDeclarer(Singleton):
             channel: Aio_pika RobustChannel object
             queues: A dictionary to store queues
             exchanges: A dictionary to store exchanges
-
         """
         self.channel = channel
         self.queues = {}
@@ -61,7 +59,6 @@ class RabbitDeclarer(Singleton):
 
         Returns:
             aio_pika.RobustQueue: The declared queue.
-
         """
         q = self.queues.get(queue)
         if q is None:
@@ -95,7 +92,6 @@ class RabbitDeclarer(Singleton):
 
         Raises:
             NotImplementedError: If silent animals are not supported.
-
         """
         exch = self.exchanges.get(exchange)
 

@@ -125,7 +125,7 @@ class BrokerUsecase(
             Doc("Custom parser object"),
         ] = None,
         dependencies: Annotated[
-            Sequence["Depends"],
+            Iterable["Depends"],
             Doc("Dependencies to apply to all broker subscribers"),
         ] = (),
         middlewares: Annotated[
@@ -309,7 +309,7 @@ class BrokerUsecase(
         Returns:
             A dictionary containing the resolved connection keyword arguments.
         """
-        arguments = get_function_positional_arguments(self.__init__)  # type: ignore[misc]
+        arguments = tuple(get_function_positional_arguments(self.__init__))  # type: ignore[misc]
 
         init_kwargs = {
             **self._connection_kwargs,

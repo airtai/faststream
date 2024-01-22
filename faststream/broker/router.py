@@ -7,7 +7,7 @@ from typing import (
     Generic,
     List,
     Optional,
-    Sequence,
+    Iterable,
     Tuple,
     TypeVar,
 )
@@ -130,31 +130,18 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
     def __init__(
         self,
         prefix: str = "",
-        handlers: Sequence[BrokerRoute[MsgType, SendableMessage]] = (),
-        dependencies: Sequence[Depends] = (),
-        middlewares: Optional[
-            Sequence[
-                Callable[
-                    [StreamMessage[MsgType]],
-                    AsyncContextManager[None],
-                ]
+        handlers: Iterable[BrokerRoute[MsgType, SendableMessage]] = (),
+        dependencies: Iterable[Depends] = (),
+        middlewares: Iterable[
+            Callable[
+                [StreamMessage[MsgType]],
+                AsyncContextManager[None],
             ]
-        ] = None,
+        ]= (),
         parser: Optional[CustomParser[MsgType]] = None,
         decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
         include_in_schema: Optional[bool] = None,
     ) -> None:
-        """Initialize a class object.
-
-        Args:
-            prefix (str): Prefix for the object.
-            handlers (Sequence[BrokerRoute[MsgType, SendableMessage]]): Handlers for the object.
-            dependencies (Sequence[Depends]): Dependencies for the object.
-            middlewares (Optional[Sequence[Callable[[StreamMessage[MsgType]], AsyncContextManager[None]]]]): Middlewares for the object.
-            parser (Optional[CustomParser[MsgType]]): Parser for the object.
-            decoder (Optional[CustomDecoder[StreamMessage[MsgType]]]): Decoder for the object.
-            include_in_schema (Optional[bool]): Whether to include the object in the schema.
-        """
         self.prefix = prefix
         self.include_in_schema = include_in_schema
         self._handlers = list(handlers)
@@ -169,15 +156,13 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
         self,
         subj: str,
         *args: Any,
-        dependencies: Sequence[Depends] = (),
-        middlewares: Optional[
-            Sequence[
-                Callable[
-                    [StreamMessage[MsgType]],
-                    AsyncContextManager[None],
-                ]
+        dependencies: Iterable[Depends] = (),
+        middlewares: Iterable[
+            Callable[
+                [StreamMessage[MsgType]],
+                AsyncContextManager[None],
             ]
-        ] = None,
+        ] = (),
         parser: Optional[CustomParser[MsgType]] = None,
         decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
         include_in_schema: Optional[bool] = None,
@@ -209,15 +194,13 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
     def _wrap_subscriber(
         self,
         *args: Any,
-        dependencies: Sequence[Depends] = (),
-        middlewares: Optional[
-            Sequence[
-                Callable[
-                    [StreamMessage[MsgType]],
-                    AsyncContextManager[None],
-                ]
+        dependencies: Iterable[Depends] = (),
+        middlewares: Iterable[
+            Callable[
+                [StreamMessage[MsgType]],
+                AsyncContextManager[None],
             ]
-        ] = None,
+        ] = (),
         parser: Optional[CustomParser[MsgType]] = None,
         decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
         include_in_schema: bool = True,
@@ -252,10 +235,8 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
             Returns:
                 The wrapped function.
             """
-            wrapped_func: HandlerCallWrapper[
-                MsgType, P_HandlerParams, T_HandlerReturn
-            ] = HandlerCallWrapper(func)
-            route: BrokerRoute[MsgType, T_HandlerReturn] = BrokerRoute(
+            wrapped_func = HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn](func)
+            route = BrokerRoute[MsgType, T_HandlerReturn](
                 wrapped_func,
                 *args,
                 dependencies=(*self._dependencies, *dependencies),

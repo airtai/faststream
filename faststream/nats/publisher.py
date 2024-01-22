@@ -30,30 +30,13 @@ class LogicPublisher(BasePublisher[Msg]):
     async def _publish(  # type: ignore[override]
         self,
         message: SendableMessage = "",
-        reply_to: str = "",
-        correlation_id: Optional[str] = None,
-        headers: Optional[Dict[str, str]] = None,
         **producer_kwargs: Any,
     ) -> Optional[DecodedMessage]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
         assert self.subject, "You have to specify outgoing subject"  # nosec B101
 
-        extra: AnyDict = {
-            "reply_to": reply_to or self.reply_to,
-            **producer_kwargs,
-        }
-        if self.stream is not None:
-            extra.update(
-                {
-                    "stream": self.stream.name,
-                    "timeout": self.timeout,
-                }
-            )
-
         return await self._producer.publish(
             message=message,
-            headers=headers or self.headers,
-            correlation_id=correlation_id,
             **producer_kwargs,
         )
 
@@ -61,4 +44,11 @@ class LogicPublisher(BasePublisher[Msg]):
     def publish_kwargs(self) -> AnyDict:
         return {
             "subject": self.subject,
-        }
+            "reply_to": self.reply_to,
+            "headers": self.headers,
+        } | (
+            {
+                "stream": self.stream.name,
+                "timeout": self.timeout,
+            } if self.stream is not None else {}
+        )

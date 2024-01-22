@@ -1,5 +1,4 @@
-from itertools import zip_longest
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, assert_never
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -57,6 +56,13 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
             pass
 
         return f
+
+    @classmethod
+    def _fake_start(cls, broker: RabbitBroker, *args: Any, **kwargs: Any) -> None:
+        super()._fake_start(broker, *args, **kwargs)
+
+        for h in broker.handlers.values():
+            h.producer = FakeProducer(broker)  # type: ignore[assignment]
 
     @staticmethod
     def remove_publisher_fake_subscriber(
@@ -240,21 +246,9 @@ class FakeProducer(AioPikaFastProducer):
                     call = True
 
                 elif handler.exchange.type == ExchangeType.TOPIC:
-                    call = True
+                    call = apply_pattern(handler.queue.routing, incoming.routing_key)
 
-                    for current, base in zip_longest(
-                        (incoming.routing_key or "").split("."),
-                        handler.queue.routing.split("."),
-                        fillvalue=None,
-                    ):
-                        if base == "#":
-                            break
-
-                        if base != "*" and current != base:
-                            call = False
-                            break
-
-                elif handler.exchange.type == ExchangeType.HEADERS:  # pramga: no branch
+                elif handler.exchange.type == ExchangeType.HEADERS:
                     queue_headers = (handler.queue.bind_arguments or {}).copy()
                     msg_headers = incoming.headers
 
@@ -275,8 +269,8 @@ class FakeProducer(AioPikaFastProducer):
                         if not none:
                             call = (matcher == "any") or full
 
-                else:  # pragma: no cover
-                    raise AssertionError("unreachable")
+                else:
+                    assert_never(handler.exchange.type)
 
                 if call:
                     r = await call_handler(
@@ -291,3 +285,44 @@ class FakeProducer(AioPikaFastProducer):
                         return r
 
         return None
+
+
+def apply_pattern(pattern: str, current: str) -> bool:
+    pattern_queue = iter(pattern.split("."))
+    current_queue = iter(current.split("."))
+
+    pattern_symb = next(pattern_queue, None)
+    while pattern_symb:
+        if (next_symb := next(current_queue, None)) is None:
+            return False
+
+        if pattern_symb == "#":
+            next_pattern = next(pattern_queue, None)
+
+            if next_pattern is None:
+                return True
+
+            if (next_symb := next(current_queue, None)) is None:
+                return False
+
+            while next_pattern == "*":
+                next_pattern = next(pattern_queue, None)
+                if (next_symb := next(current_queue, None)) is None:
+                    return False
+
+            while next_symb != next_pattern:
+                if (next_symb := next(current_queue, None)) is None:
+                    return False
+
+            pattern_symb = next(pattern_queue, None)
+
+        elif pattern_symb == "*":
+            pattern_symb = next(pattern_queue, None)
+
+        elif pattern_symb == next_symb:
+            pattern_symb = next(pattern_queue, None)
+
+        else:
+            return False
+
+    return next(current_queue, None) is None

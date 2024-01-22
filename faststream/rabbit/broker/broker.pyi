@@ -25,12 +25,11 @@ from faststream.broker.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
-from faststream.log import access_logger
 from faststream.rabbit.asyncapi import Handler, Publisher
+from faststream.rabbit.broker.logging import RabbitLoggingMixin
 from faststream.rabbit.helpers import RabbitDeclarer
 from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.producer import AioPikaFastProducer
-from faststream.rabbit.shared.logging import RabbitLoggingMixin
 from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue, ReplyConfig
 from faststream.rabbit.shared.types import TimeoutType
 from faststream.rabbit.types import AioPikaSendableMessage
@@ -84,7 +83,7 @@ class RabbitBroker(
         description: str | None = None,
         tags: Sequence[asyncapi.Tag] | None = None,
         # logging args
-        logger: logging.Logger | None = access_logger,
+        logger: logging.Logger | None = None,
         log_level: int = logging.INFO,
         log_fmt: str | None = None,
     ) -> None: ...

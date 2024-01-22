@@ -219,7 +219,7 @@ class BaseNatsHandler(BaseHandler[MsgType]):
             "subject": subject,
             "queue": queue,
             "stream": getattr(stream, "name", ""),
-            "message_id": message.message_id if message else "",
+            "message_id": getattr(message, "message_id", ""),
         }
 
     def get_log_context(

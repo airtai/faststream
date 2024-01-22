@@ -22,7 +22,7 @@ class BrokerConnectionTestcase:  # noqa: D101
         await br.close()
         br._connection = async_mock
         await br._close()
-        assert not br.started
+        assert not br.running
 
     @pytest.mark.asyncio()
     async def test_warning(self, broker: BrokerUsecase):
@@ -30,10 +30,10 @@ class BrokerConnectionTestcase:  # noqa: D101
 
         async with broker:
             await broker.start()
-            assert broker.started
+            assert broker.running
             with pytest.warns(RuntimeWarning):
                 broker.subscriber("test")
-        assert not broker.started
+        assert not broker.running
 
     @pytest.mark.asyncio()
     async def test_init_connect_by_url(self, settings):

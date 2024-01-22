@@ -1,7 +1,6 @@
 import logging
 import warnings
 from contextlib import AsyncExitStack
-from types import TracebackType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -15,9 +14,6 @@ from typing import (
 )
 
 import nats
-from fast_depends.dependencies import Depends
-from nats.aio.client import Callback, Client, ErrorCallback
-from nats.aio.msg import Msg
 from nats.aio.subscription import (
     DEFAULT_SUB_PENDING_BYTES_LIMIT,
     DEFAULT_SUB_PENDING_MSGS_LIMIT,
@@ -26,56 +22,62 @@ from nats.js import api
 from nats.js.client import (
     DEFAULT_JS_SUB_PENDING_BYTES_LIMIT,
     DEFAULT_JS_SUB_PENDING_MSGS_LIMIT,
-    JetStreamContext,
 )
-from typing_extensions import TypeAlias, override
+from typing_extensions import override
 
 from faststream.broker.core.broker import BrokerUsecase, default_filter
-from faststream.broker.types import (
-    CustomDecoder,
-    CustomParser,
-    Filter,
-    PublisherMiddleware,
-    SubscriberMiddleware,
-)
 from faststream.broker.utils import get_watcher_context
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.nats.asyncapi import AsyncAPIHandler, Publisher
 from faststream.nats.broker.logging import NatsLoggingMixin
 from faststream.nats.handler import BaseNatsHandler
 from faststream.nats.helpers import stream_builder
-from faststream.nats.message import NatsMessage
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
-from faststream.nats.schemas import JStream, PullSub
 from faststream.nats.security import parse_security
-from faststream.security import BaseSecurity
-from faststream.types import AnyDict, DecodedMessage, SendableMessage
-
-Subject: TypeAlias = str
 
 if TYPE_CHECKING:
-    from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
+    from types import TracebackType
 
+    from fast_depends.dependencies import Depends
+    from nats.aio.client import Callback, Client, ErrorCallback
+    from nats.aio.msg import Msg
+    from nats.js.client import JetStreamContext
+    from typing_extensions import TypeAlias
+
+    from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
+    from faststream.broker.types import (
+        CustomDecoder,
+        CustomParser,
+        Filter,
+        PublisherMiddleware,
+        SubscriberMiddleware,
+    )
+    from faststream.nats.message import NatsMessage
+    from faststream.nats.schemas import JStream, PullSub
+    from faststream.security import BaseSecurity
+    from faststream.types import AnyDict, DecodedMessage, SendableMessage
+
+    Subject: TypeAlias = str
 
 class NatsBroker(
     NatsLoggingMixin,
-    BrokerUsecase[Msg, Client],
+    BrokerUsecase["Msg", "Client"],
 ):
     """A class to represent a NATS broker."""
 
     url: List[str]
-    stream: Optional[JetStreamContext]
+    stream: Optional["JetStreamContext"]
 
-    handlers: Dict[Subject, AsyncAPIHandler]
-    _publishers: Dict[Subject, Publisher]
-    _producer: Optional[NatsFastProducer]
-    _js_producer: Optional[NatsJSFastProducer]
+    handlers: Dict["Subject", "AsyncAPIHandler"]
+    _publishers: Dict["Subject", "Publisher"]
+    _producer: Optional["NatsFastProducer"]
+    _js_producer: Optional["NatsJSFastProducer"]
 
     def __init__(
         self,
         servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),
         *,
-        security: Optional[BaseSecurity] = None,
+        security: Optional["BaseSecurity"] = None,
         protocol: str = "nats",
         protocol_version: Optional[str] = "custom",
         **kwargs: Any,
@@ -94,7 +96,7 @@ class NatsBroker(
         if kwargs.get("tls"):  # pragma: no cover
             warnings.warn(
                 (
-                    "\nNATS `tls` option was deprecated and will be removed in 0.4.0"
+                    "\nNATS `tls` option was deprecated and will be removed in 0.6.0"
                     "\nPlease, use `security` with `BaseSecurity` or `SASLPlaintext` instead"
                 ),
                 DeprecationWarning,
@@ -120,7 +122,7 @@ class NatsBroker(
         self,
         *args: Any,
         **kwargs: Any,
-    ) -> Client:
+    ) -> "Client":
         connection = await super().connect(*args, **kwargs)
         for p in self._publishers.values():
             self.__set_publisher_producer(p)
@@ -128,10 +130,10 @@ class NatsBroker(
 
     async def _connect(
         self,
-        error_cb: Optional[ErrorCallback] = None,
-        reconnected_cb: Optional[Callback] = None,
+        error_cb: Optional["ErrorCallback"] = None,
+        reconnected_cb: Optional["Callback"] = None,
         **kwargs: Any,
-    ) -> Client:
+    ) -> "Client":
         self.__is_connected = True
 
         connect = await nats.connect(
@@ -160,7 +162,7 @@ class NatsBroker(
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
+        exec_tb: Optional["TracebackType"] = None,
     ) -> None:
         self._producer = None
         self._js_producer = None
@@ -221,8 +223,8 @@ class NatsBroker(
 
     def _log_connection_broken(
         self,
-        error_cb: Optional[ErrorCallback] = None,
-    ) -> ErrorCallback:
+        error_cb: Optional["ErrorCallback"] = None,
+    ) -> "ErrorCallback":
         c = BaseNatsHandler.build_log_context(None, "")
 
         async def wrapper(err: Exception) -> None:
@@ -237,8 +239,8 @@ class NatsBroker(
 
     def _log_reconnected(
         self,
-        cb: Optional[Callback] = None,
-    ) -> Callback:
+        cb: Optional["Callback"] = None,
+    ) -> "Callback":
         c = BaseNatsHandler.build_log_context(None, "")
 
         async def wrapper() -> None:
@@ -262,24 +264,24 @@ class NatsBroker(
         max_msgs: int = 0,
         # JS arguments
         durable: Optional[str] = None,
-        config: Optional[api.ConsumerConfig] = None,
+        config: Optional["api.ConsumerConfig"] = None,
         ordered_consumer: bool = False,
         idle_heartbeat: Optional[float] = None,
         flow_control: bool = False,
-        deliver_policy: Optional[api.DeliverPolicy] = None,
+        deliver_policy: Optional["api.DeliverPolicy"] = None,
         headers_only: Optional[bool] = None,
         # pull arguments
-        pull_sub: Optional[PullSub] = None,
+        pull_sub: Optional["PullSub"] = None,
         inbox_prefix: bytes = api.INBOX_PREFIX,
         # custom
         ack_first: bool = False,
-        stream: Union[str, JStream, None] = None,
+        stream: Union[str, "JStream", None] = None,
         # broker arguments
-        dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[Msg]] = None,
-        decoder: Optional[CustomDecoder[NatsMessage]] = None,
-        middlewares: Iterable[SubscriberMiddleware] = (),
-        filter: Filter[NatsMessage] = default_filter,
+        dependencies: Iterable["Depends"] = (),
+        parser: Optional["CustomParser[Msg]"] = None,
+        decoder: Optional["CustomDecoder[NatsMessage]"] = None,
+        middlewares: Iterable["SubscriberMiddleware"] = (),
+        filter: "Filter[NatsMessage]" = default_filter,
         max_workers: int = 1,
         retry: bool = False,
         no_ack: bool = False,
@@ -289,6 +291,8 @@ class NatsBroker(
         include_in_schema: bool = True,
         **wrapper_kwargs: Any,
     ) -> "WrapperProtocol[Msg]":
+        super().subscriber()
+
         stream = stream_builder.stream(stream)
 
         if pull_sub is not None and stream is None:
@@ -299,9 +303,8 @@ class NatsBroker(
             subject=subject,
             stream=getattr(stream, "name", ""),
         )
-        super().subscriber()
 
-        extra_options: AnyDict = {
+        extra_options: "AnyDict" = {
             "pending_msgs_limit": pending_msgs_limit
             or (
                 DEFAULT_JS_SUB_PENDING_MSGS_LIMIT
@@ -351,23 +354,21 @@ class NatsBroker(
             )
 
         key = BaseNatsHandler.get_routing_hash(subject)
-        handler = self.handlers[key] = self.handlers.get(
-            key,
-            AsyncAPIHandler.create(
-                subject=subject,
-                queue=queue,
-                stream=stream,
-                pull_sub=pull_sub,
-                extra_options=extra_options,
-                max_workers=max_workers,
-                # base options
-                title=title,
-                description=description,
-                include_in_schema=include_in_schema,
-                graceful_timeout=self.graceful_timeout,
-                middlewares=self.middlewares,
-                watcher=get_watcher_context(self.logger, no_ack, retry),
-            ),
+        handler = self.handlers[key] = self.handlers.get(key) or AsyncAPIHandler.create(
+            subject=subject,
+            queue=queue,
+            stream=stream,
+            pull_sub=pull_sub,
+            extra_options=extra_options,
+            max_workers=max_workers,
+            # base options
+            graceful_timeout=self.graceful_timeout,
+            middlewares=self.middlewares,
+            watcher=get_watcher_context(self.logger, no_ack, retry),
+            # AsyncAPI
+            title=title,
+            description=description,
+            include_in_schema=include_in_schema,
         )
 
         if stream:
@@ -393,37 +394,34 @@ class NatsBroker(
         # Core
         reply_to: str = "",
         # JS
-        stream: Union[str, JStream, None] = None,
+        stream: Union[str, "JStream", None] = None,
         timeout: Optional[float] = None,
         # specific
-        middlewares: Iterable[PublisherMiddleware] = (),
+        middlewares: Iterable["PublisherMiddleware"] = (),
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
         include_in_schema: bool = True,
-    ) -> Publisher:
+    ) -> "Publisher":
         if (stream := stream_builder.stream(stream)) is not None:
             stream.subjects.append(subject)
 
-        publisher = self._publishers.get(
-            subject,
-            Publisher(
-                subject=subject,
-                headers=headers,
-                # Core
-                reply_to=reply_to,
-                # JS
-                timeout=timeout,
-                stream=stream,
-                # Specific
-                middlewares=middlewares,
-                # AsyncAPI
-                title_=title,
-                description_=description,
-                schema_=schema,
-                include_in_schema=include_in_schema,
-            ),
+        publisher = self._publishers.get(subject) or Publisher(
+            subject=subject,
+            headers=headers,
+            # Core
+            reply_to=reply_to,
+            # JS
+            timeout=timeout,
+            stream=stream,
+            # Specific
+            middlewares=middlewares,
+            # AsyncAPI
+            title_=title,
+            description_=description,
+            schema_=schema,
+            include_in_schema=include_in_schema,
         )
         super().publisher(subject, publisher)
         self.__set_publisher_producer(publisher)
@@ -432,11 +430,11 @@ class NatsBroker(
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: SendableMessage,
+        message: "SendableMessage",
         *args: Any,
         stream: Optional[str] = None,
         **kwargs: Any,
-    ) -> Optional[DecodedMessage]:
+    ) -> Optional["DecodedMessage"]:
         if stream is None:
             assert self._producer, NOT_CONNECTED_YET  # nosec B101
             publisher = self._producer
@@ -448,17 +446,12 @@ class NatsBroker(
         async with AsyncExitStack() as stack:
             for m in self.middlewares:
                 message = await stack.enter_async_context(
-                    m().publish_scope(
-                        message,
-                        *args,
-                        stream=stream,
-                        **kwargs,
-                    )
+                    m().publish_scope(message, *args, **kwargs)
                 )
 
             return await publisher.publish(message, *args, **kwargs)
 
-    def __set_publisher_producer(self, publisher: Publisher) -> None:
+    def __set_publisher_producer(self, publisher: "Publisher") -> None:
         if publisher.stream is not None:
             if self._js_producer is not None:
                 publisher._producer = self._js_producer

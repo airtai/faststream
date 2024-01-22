@@ -74,19 +74,19 @@ class FakePublisher:
         Returns:
             The published message.
         """
-        kwargs.update(self.publish_kwargs)
+        publish_kwargs = self.publish_kwargs | kwargs
 
         async with AsyncExitStack() as stack:
             for m in chain(extra_middlewares, self.middlewares):
                 message = await stack.enter_async_context(
-                    m(message, *args, correlation_id=correlation_id, **kwargs)
+                    m(message, *args, correlation_id=correlation_id, **publish_kwargs)
                 )
 
             return await self.method(
                 message,
                 *args,
                 correlation_id=correlation_id,
-                **kwargs,
+                **publish_kwargs,
             )
 
 
@@ -162,7 +162,7 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
         extra_middlewares: Iterable["PublisherMiddleware"] = (),
         **kwargs: Any,
     ) -> Any:
-        kwargs.update(self.publish_kwargs)
+        publish_kwargs = self.publish_kwargs | kwargs
 
         async with AsyncExitStack() as stack:
             for m in chain(extra_middlewares, self.middlewares):
@@ -171,7 +171,7 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
                         message,
                         *args,
                         correlation_id=correlation_id,
-                        **kwargs,
+                        **publish_kwargs,
                     )
                 )
 
@@ -179,7 +179,7 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
                 message,
                 *args,
                 correlation_id=correlation_id,
-                **kwargs,
+                **publish_kwargs,
             )
 
     @abstractmethod
