@@ -75,7 +75,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
     broker: BrokerAsyncUsecase[MsgType, Any]
     docs_router: Optional[APIRouter]
     _after_startup_hooks: List[
-        Callable[[AppType], Awaitable[Optional[Mapping[str, Any]]]]
+        Callable[[Any], Awaitable[Optional[Mapping[str, Any]]]]
     ]
     schema: Optional[Schema]
 
@@ -188,7 +188,10 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             on_shutdown=on_shutdown,
         )
 
-        self.docs_router = self.asyncapi_router(schema_url)
+        if self.include_in_schema:
+            self.docs_router = self.asyncapi_router(schema_url)
+        else:
+            self.docs_router = None
 
         self._after_startup_hooks = []
 
@@ -319,8 +322,8 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             self.contact = app.contact
             self.license = app.license_info
 
-            self.schema = get_app_schema(self)
             if self.docs_router:
+                self.schema = get_app_schema(self)
                 app.include_router(self.docs_router)
 
             async with lifespan_context(app) as maybe_context:
