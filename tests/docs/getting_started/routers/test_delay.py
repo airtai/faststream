@@ -1,6 +1,7 @@
 import pytest
 
 from faststream import TestApp
+from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 from faststream.kafka import TestKafkaBroker
 from faststream.nats import TestNatsBroker
 from faststream.rabbit import TestRabbitBroker
@@ -15,6 +16,19 @@ async def test_delay_router_kafka():
     )
 
     async with TestKafkaBroker(broker) as br, TestApp(app):
+        next(iter(br.handlers.values())).calls[0][0].mock.assert_called_once_with(
+            {"name": "John", "user_id": 1}
+        )
+
+
+@pytest.mark.asyncio()
+async def test_delay_router_confluent():
+    from docs.docs_src.getting_started.routers.confluent.router_delay import (
+        app,
+        broker,
+    )
+
+    async with TestConfluentKafkaBroker(broker) as br, TestApp(app):
         next(iter(br.handlers.values())).calls[0][0].mock.assert_called_once_with(
             {"name": "John", "user_id": 1}
         )

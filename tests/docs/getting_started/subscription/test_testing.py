@@ -1,3 +1,9 @@
+from docs.docs_src.getting_started.subscription.confluent.testing import (
+    test_handle as test_handle_confluent,
+)
+from docs.docs_src.getting_started.subscription.confluent.testing import (
+    test_validation_error as test_validation_error_confluent,
+)
 from docs.docs_src.getting_started.subscription.kafka.testing import (
     test_handle as test_handle_k,
 )
@@ -30,6 +36,8 @@ __all__ = (
     "test_validation_error_rd",
     "test_handle_k",
     "test_validation_error_k",
+    "test_handle_confluent",
+    "test_validation_error_confluent",
     "test_handle_n",
     "test_validation_error_n",
 )
