@@ -239,13 +239,14 @@ jobs:
       - name: Test
         run: bash scripts/test.sh -m "(slow and confluent) or confluent"
         env:
-          COVERAGE_FILE: coverage/.coverage.kafka-py
-          CONTEXT: kafka-py
+          COVERAGE_FILE: coverage/.coverage.confluent-py
+          CONTEXT: confluent-py
       - name: Store coverage files
         uses: actions/upload-artifact@v3
         with:
-          name: coverage
+          name: .coverage.confluent-py
           path: coverage
+          if-no-files-found: error
 
   test-confluent-smoke:
     if: github.event.pull_request.draft == false
