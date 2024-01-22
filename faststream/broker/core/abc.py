@@ -559,7 +559,7 @@ def _patch_fastapi_dependant(
             params_unique[p.name] = (info.annotation, info.default)
 
     dependant.model = create_model(  # type: ignore[call-overload]
-        getattr(dependant.call.__name__, "__name__", type(dependant.call).__name__),
+        getattr(dependant.call, "__name__", type(dependant.call).__name__),
         **params_unique,
     )
     dependant.custom_fields = {}

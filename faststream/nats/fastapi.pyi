@@ -30,15 +30,18 @@ from nats.aio.client import (
     JWTCallback,
     SignatureCallback,
 )
+from nats.aio.client import Client as NatsClient
 from nats.aio.msg import Msg
 from nats.js import api
+from nats.js.client import JetStreamContext
 from starlette import routing
 from starlette.responses import JSONResponse, Response
 from starlette.types import ASGIApp, AppType, Lifespan
-from typing_extensions import override
+from typing_extensions import Annotated, override
 
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asynchronous import default_filter
+from faststream.broker.fastapi.context import Context, ContextRepo, Logger
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
@@ -50,20 +53,41 @@ from faststream.broker.types import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.nats.asyncapi import Publisher
-from faststream.nats.broker import NatsBroker
+from faststream.nats.broker import NatsBroker as NB
 from faststream.nats.js_stream import JStream
-from faststream.nats.message import NatsMessage
+from faststream.nats.message import NatsMessage as NM
+from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.pull_sub import PullSub
 
+__all__ = (
+    "Context",
+    "Logger",
+    "ContextRepo",
+    "NatsRouter",
+    "NatsBroker",
+    "NatsMessage",
+    "Client",
+    "JsClient",
+    "NatsProducer",
+    "NatsJsProducer",
+)
+
+NatsMessage = Annotated[NM, Context("message")]
+NatsBroker = Annotated[NB, Context("broker")]
+Client = Annotated[NatsClient, Context("broker._connection")]
+JsClient = Annotated[JetStreamContext, Context("broker._stream")]
+NatsProducer = Annotated[NatsFastProducer, Context("broker._producer")]
+NatsJsProducer = Annotated[NatsJSFastProducer, Context("broker._js_producer")]
+
 class NatsRouter(StreamRouter[Msg]):
-    broker_class = NatsBroker
-    broker: NatsBroker
+    broker_class = NB
+    broker: NB
 
     @override
     @staticmethod
     def _setup_log_context(  # type: ignore[override]
-        main_broker: NatsBroker,
-        including_broker: NatsBroker,
+        main_broker: NB,
+        including_broker: NB,
     ) -> None: ...
 
     # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument.hardcoded-password-default-argument
@@ -103,8 +127,8 @@ class NatsRouter(StreamRouter[Msg]):
         flush_timeout: float | None = None,
         # Broker kwargs
         graceful_timeout: float | None = None,
-        decoder: CustomDecoder[NatsMessage] | None = None,
-        parser: CustomParser[Msg, NatsMessage] | None = None,
+        decoder: CustomDecoder[NM] | None = None,
+        parser: CustomParser[Msg, NM] | None = None,
         middlewares: Sequence[Callable[[Msg], BaseMiddleware]] | None = None,
         # AsyncAPI args
         asyncapi_url: str | list[str] | None = None,
@@ -157,10 +181,10 @@ class NatsRouter(StreamRouter[Msg]):
         headers_only: bool | None = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[Msg, NatsMessage] | None = None,
-        decoder: CustomDecoder[NatsMessage] | None = None,
+        parser: CustomParser[Msg, NM] | None = None,
+        decoder: CustomDecoder[NM] | None = None,
         middlewares: Sequence[Callable[[Msg], BaseMiddleware]] | None = None,
-        filter: Filter[NatsMessage] = default_filter,
+        filter: Filter[NM] = default_filter,
         retry: bool = False,
         # AsyncAPI information
         title: str | None = None,
@@ -191,10 +215,10 @@ class NatsRouter(StreamRouter[Msg]):
         inbox_prefix: bytes = api.INBOX_PREFIX,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[Msg, NatsMessage] | None = None,
-        decoder: CustomDecoder[NatsMessage] | None = None,
+        parser: CustomParser[Msg, NM] | None = None,
+        decoder: CustomDecoder[NM] | None = None,
         middlewares: Sequence[Callable[[Msg], BaseMiddleware]] | None = None,
-        filter: Filter[NatsMessage] = default_filter,
+        filter: Filter[NM] = default_filter,
         retry: bool = False,
         no_ack: bool = False,
         # AsyncAPI information
