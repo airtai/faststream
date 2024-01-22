@@ -1,6 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
+from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 from faststream.kafka import TestKafkaBroker
 from faststream.nats import TestNatsBroker
 from faststream.rabbit import TestRabbitBroker
@@ -36,6 +37,19 @@ class TestKafka(BaseCase):  # noqa: D101
     @pytest.fixture(scope="class")
     def setup(self):
         from docs.docs_src.getting_started.subscription.kafka.pydantic_annotated_fields import (
+            broker,
+            handle,
+        )
+
+        return (broker, handle)
+
+
+class TestConfluent(BaseCase):  # noqa: D101
+    test_class = TestConfluentKafkaBroker
+
+    @pytest.fixture(scope="class")
+    def setup(self):
+        from docs.docs_src.getting_started.subscription.confluent.pydantic_annotated_fields import (
             broker,
             handle,
         )

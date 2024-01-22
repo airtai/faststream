@@ -1,6 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 from faststream.kafka import TestKafkaBroker
 from faststream.nats import TestNatsBroker
 from faststream.rabbit import TestRabbitBroker
@@ -16,6 +17,19 @@ async def test_fastapi_kafka_startup():
         ...
 
     async with TestKafkaBroker(router.broker):
+        with TestClient(app):
+            hello.mock.assert_called_once_with("Hello!")
+
+
+@pytest.mark.asyncio()
+async def test_fastapi_confluent_startup():
+    from docs.docs_src.integrations.fastapi.confluent.startup import app, hello, router
+
+    @router.subscriber("test")
+    async def handler():
+        ...
+
+    async with TestConfluentKafkaBroker(router.broker):
         with TestClient(app):
             hello.mock.assert_called_once_with("Hello!")
 

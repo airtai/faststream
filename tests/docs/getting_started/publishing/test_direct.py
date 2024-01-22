@@ -1,3 +1,6 @@
+from docs.docs_src.getting_started.publishing.confluent.direct_testing import (
+    test_handle as test_handle_confluent,
+)
 from docs.docs_src.getting_started.publishing.kafka.direct_testing import (
     test_handle as test_handle_k,
 )
@@ -16,4 +19,5 @@ __all__ = (
     "test_handle_k",
     "test_handle_n",
     "test_handle_red",
+    "test_handle_confluent",
 )

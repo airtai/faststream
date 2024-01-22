@@ -20,7 +20,7 @@ Unfortunately, this functional conflicts with the original **FastStream** ideolo
 
 As a **Celery** replacement, **Taskiq** should support tasks scheduling and delayed publishing, of course. And it does!
 
-By the way, you can easily integrate **FastStream** with the **Taskiq**. It allows you to create cron or delayied tasks to publish messages and trigger some functions this way.
+By the way, you can easily integrate **FastStream** with the **Taskiq**. It allows you to create cron or delayed tasks to publish messages and trigger some functions this way.
 
 We have a helpful project to provide you with this feature - [**Taskiq-FastStream**](https://github.com/taskiq-python/taskiq-faststream){.external-link target="_blank"}.
 

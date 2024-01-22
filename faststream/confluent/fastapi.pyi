@@ -26,11 +26,12 @@ from kafka.partitioner.default import DefaultPartitioner
 from starlette import routing
 from starlette.responses import JSONResponse, Response
 from starlette.types import ASGIApp, AppType, Lifespan
-from typing_extensions import override
+from typing_extensions import Annotated, override
 
 from faststream.__about__ import __version__
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asynchronous import default_filter
+from faststream.broker.fastapi.context import Context, ContextRepo, Logger
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
@@ -44,16 +45,31 @@ from faststream.broker.types import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.confluent.asyncapi import Publisher
-from faststream.confluent.broker import KafkaBroker
+from faststream.confluent.broker import KafkaBroker as KB
 from faststream.confluent.client import _missing
-from faststream.confluent.message import KafkaMessage
+from faststream.confluent.message import KafkaMessage as KM
+from faststream.confluent.producer import AsyncConfluentFastProducer
 from faststream.log import access_logger
+
+__all__ = (
+    "Context",
+    "Logger",
+    "ContextRepo",
+    "KafkaRouter",
+    "KafkaMessage",
+    "KafkaBroker",
+    "KafkaProducer",
+)
+
+KafkaMessage = Annotated[KM, Context("message")]
+KafkaBroker = Annotated[KB, Context("broker")]
+KafkaProducer = Annotated[AsyncConfluentFastProducer, Context("broker._producer")]
 
 Partition = TypeVar("Partition")
 
 class KafkaRouter(StreamRouter[Message]):
-    broker_class: type[KafkaBroker]
-    broker: KafkaBroker
+    broker_class: type[KB]
+    broker: KB
 
     def __init__(
         self,
@@ -108,8 +124,8 @@ class KafkaRouter(StreamRouter[Message]):
         graceful_timeout: float | None = None,
         apply_types: bool = True,
         validate: bool = True,
-        decoder: CustomDecoder[KafkaMessage] | None = None,
-        parser: CustomParser[confluent_kafka.Message, KafkaMessage] | None = None,
+        decoder: CustomDecoder[KM] | None = None,
+        parser: CustomParser[confluent_kafka.Message, KM] | None = None,
         middlewares: Sequence[
             Callable[
                 [confluent_kafka.Message],
@@ -167,9 +183,8 @@ class KafkaRouter(StreamRouter[Message]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[tuple[confluent_kafka.Message, ...], KafkaMessage]
-        | None = None,
-        decoder: CustomDecoder[KafkaMessage] | None = None,
+        parser: CustomParser[tuple[confluent_kafka.Message, ...], KM] | None = None,
+        decoder: CustomDecoder[KM] | None = None,
         middlewares: Sequence[
             Callable[
                 [confluent_kafka.Message],
@@ -231,8 +246,8 @@ class KafkaRouter(StreamRouter[Message]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[confluent_kafka.Message, KafkaMessage] | None = None,
-        decoder: CustomDecoder[KafkaMessage] | None = None,
+        parser: CustomParser[confluent_kafka.Message, KM] | None = None,
+        decoder: CustomDecoder[KM] | None = None,
         middlewares: Sequence[
             Callable[
                 [confluent_kafka.Message],
@@ -240,7 +255,7 @@ class KafkaRouter(StreamRouter[Message]):
             ]
         ]
         | None = None,
-        filter: Filter[KafkaMessage] = default_filter,
+        filter: Filter[KM] = default_filter,
         batch: Literal[False] = False,
         max_records: int | None = None,
         batch_timeout_ms: int = 200,
@@ -292,9 +307,8 @@ class KafkaRouter(StreamRouter[Message]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[tuple[confluent_kafka.Message, ...], KafkaMessage]
-        | None = None,
-        decoder: CustomDecoder[KafkaMessage] | None = None,
+        parser: CustomParser[tuple[confluent_kafka.Message, ...], KM] | None = None,
+        decoder: CustomDecoder[KM] | None = None,
         middlewares: Sequence[
             Callable[
                 [confluent_kafka.Message],
@@ -352,8 +366,8 @@ class KafkaRouter(StreamRouter[Message]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[confluent_kafka.Message, KafkaMessage] | None = None,
-        decoder: CustomDecoder[KafkaMessage] | None = None,
+        parser: CustomParser[confluent_kafka.Message, KM] | None = None,
+        decoder: CustomDecoder[KM] | None = None,
         middlewares: Sequence[
             Callable[
                 [confluent_kafka.Message],
@@ -361,7 +375,7 @@ class KafkaRouter(StreamRouter[Message]):
             ]
         ]
         | None = None,
-        filter: Filter[KafkaMessage] = default_filter,
+        filter: Filter[KM] = default_filter,
         batch: Literal[False] = False,
         max_records: int | None = None,
         batch_timeout_ms: int = 200,
@@ -410,6 +424,6 @@ class KafkaRouter(StreamRouter[Message]):
     @override
     @staticmethod
     def _setup_log_context(  # type: ignore[override]
-        main_broker: KafkaBroker,
-        including_broker: KafkaBroker,
+        main_broker: KB,
+        including_broker: KB,
     ) -> None: ...

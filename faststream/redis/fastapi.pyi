@@ -12,14 +12,16 @@ from fastapi import params
 from fastapi.datastructures import Default
 from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
+from redis.asyncio.client import Redis as RedisClient
 from redis.asyncio.connection import BaseParser, Connection, DefaultParser, Encoder
 from starlette import routing
 from starlette.responses import JSONResponse, Response
 from starlette.types import ASGIApp, Lifespan
-from typing_extensions import TypeAlias, override
+from typing_extensions import Annotated, TypeAlias, override
 
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.asynchronous import default_filter
+from faststream.broker.fastapi.context import Context, ContextRepo, Logger
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
@@ -32,16 +34,32 @@ from faststream.broker.types import (
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.log import access_logger
 from faststream.redis.asyncapi import Publisher
-from faststream.redis.broker import RedisBroker
-from faststream.redis.message import AnyRedisDict, RedisMessage
+from faststream.redis.broker import RedisBroker as RB
+from faststream.redis.message import AnyRedisDict
+from faststream.redis.message import RedisMessage as RM
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 from faststream.security import BaseSecurity
 from faststream.types import AnyDict
 
+__all__ = (
+    "Context",
+    "Logger",
+    "ContextRepo",
+    "RedisRouter",
+    "RedisMessage",
+    "RedisBroker",
+    "Redis",
+)
+
+RedisMessage = Annotated[RM, Context("message")]
+RedisBroker = Annotated[RB, Context("broker")]
+Redis = Annotated[RedisClient, Context("broker._connection")]
+
 Channel: TypeAlias = str
 
 class RedisRouter(StreamRouter[AnyRedisDict]):
-    broker_class = RedisBroker
+    broker_class: type[RB]
+    broker: RB
 
     def __init__(
         self,
@@ -70,8 +88,8 @@ class RedisRouter(StreamRouter[AnyRedisDict]):
         security: BaseSecurity | None = None,
         # broker args
         graceful_timeout: float | None = None,
-        parser: CustomParser[AnyRedisDict, RedisMessage] | None = None,
-        decoder: CustomDecoder[RedisMessage] | None = None,
+        parser: CustomParser[AnyRedisDict, RM] | None = None,
+        decoder: CustomDecoder[RM] | None = None,
         middlewares: Sequence[Callable[[AnyRedisDict], BaseMiddleware]] | None = None,
         # AsyncAPI args
         asyncapi_url: str | None = None,
@@ -109,8 +127,8 @@ class RedisRouter(StreamRouter[AnyRedisDict]):
     @override
     @staticmethod
     def _setup_log_context(  # type: ignore[override]
-        main_broker: RedisBroker,
-        including_broker: RedisBroker,
+        main_broker: RB,
+        including_broker: RB,
     ) -> None: ...
     @override
     def subscriber(  # type: ignore[override]
@@ -121,10 +139,10 @@ class RedisRouter(StreamRouter[AnyRedisDict]):
         stream: Channel | StreamSub | None = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: CustomParser[AnyRedisDict, RedisMessage] | None = None,
-        decoder: CustomDecoder[RedisMessage] | None = None,
+        parser: CustomParser[AnyRedisDict, RM] | None = None,
+        decoder: CustomDecoder[RM] | None = None,
         middlewares: Sequence[Callable[[AnyRedisDict], BaseMiddleware]] | None = None,
-        filter: Filter[RedisMessage] = default_filter,
+        filter: Filter[RM] = default_filter,
         no_ack: bool = False,
         # AsyncAPI information
         title: str | None = None,

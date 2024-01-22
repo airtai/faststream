@@ -54,12 +54,12 @@ In other cases, `on_receive` will be called at every subscriber filter function 
 
 Also, using middlewares, you are able to wrap consumer function calls directly.
 
-In this case, you need to specify `on_receive` and `after_processed` methods:
+In this case, you need to specify `on_consume` and `after_consume` methods:
 
 ```python
 from typing import Optional
 
-from faststream import BaseMiddleware:
+from faststream import BaseMiddleware
 from faststream.types import DecodedMessage
 
 class MyMiddleware(BaseMiddleware):
@@ -83,7 +83,7 @@ In this, case you need to specify `on_publish` and `after_publish` methods:
 ```python
 from typing import Optional
 
-from faststream import BaseMiddleware:
+from faststream import BaseMiddleware
 from faststream.types import SendableMessage
 
 class MyMiddleware(BaseMiddleware):

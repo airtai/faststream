@@ -1,5 +1,6 @@
 import pytest
 
+from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 from faststream.kafka import TestKafkaBroker
 from faststream.nats import TestNatsBroker
 from faststream.rabbit import TestRabbitBroker
@@ -17,6 +18,23 @@ async def test_existed_context_kafka():
         ...
 
     async with TestKafkaBroker(broker_object) as br:
+        await br.publish("Hi!", "test-topic")
+        await br.publish("Hi!", "response-topic")
+
+        assert resp.mock.call_count == 2
+
+
+@pytest.mark.asyncio()
+async def test_existed_context_confluent():
+    from docs.docs_src.getting_started.context.confluent.existed_context import (
+        broker_object,
+    )
+
+    @broker_object.subscriber("response")
+    async def resp():
+        ...
+
+    async with TestConfluentKafkaBroker(broker_object) as br:
         await br.publish("Hi!", "test-topic")
         await br.publish("Hi!", "response-topic")
 

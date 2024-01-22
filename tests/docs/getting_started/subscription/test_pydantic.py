@@ -1,5 +1,6 @@
 import pytest
 
+from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 from faststream.kafka import TestKafkaBroker
 from faststream.nats import TestNatsBroker
 from faststream.rabbit import TestRabbitBroker
@@ -26,6 +27,18 @@ async def test_pydantic_model_kafka():
     )
 
     async with TestKafkaBroker(broker) as br:
+        await br.publish({"name": "John", "user_id": 1}, "test-topic")
+        handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
+
+
+@pytest.mark.asyncio()
+async def test_pydantic_model_confluent():
+    from docs.docs_src.getting_started.subscription.confluent.pydantic_model import (
+        broker,
+        handle,
+    )
+
+    async with TestConfluentKafkaBroker(broker) as br:
         await br.publish({"name": "John", "user_id": 1}, "test-topic")
         handle.mock.assert_called_once_with({"name": "John", "user_id": 1})
 

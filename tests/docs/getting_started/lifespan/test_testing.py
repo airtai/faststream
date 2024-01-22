@@ -1,3 +1,6 @@
+from docs.docs_src.getting_started.lifespan.confluent.testing import (
+    test_lifespan as _test_lifespan_confluent,
+)
 from docs.docs_src.getting_started.lifespan.kafka.testing import (
     test_lifespan as _test_lifespan_k,
 )
@@ -16,3 +19,4 @@ test_lifespan_red = python39(_test_lifespan_red)
 test_lifespan_r = python39(_test_lifespan_r)
 test_lifespan_n = python39(_test_lifespan_n)
 test_lifespan_k = python39(_test_lifespan_k)
+test_lifespan_confluent = python39(_test_lifespan_confluent)
