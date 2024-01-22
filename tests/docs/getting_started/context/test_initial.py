@@ -20,6 +20,20 @@ async def test_kafka():
 
 @pytest.mark.asyncio()
 @python39
+async def test_confluent():
+    from docs.docs_src.getting_started.context.confluent.initial import broker
+    from faststream.confluent import TestKafkaBroker
+
+    async with TestKafkaBroker(broker) as br:
+        await br.publish("", "test-topic")
+        await br.publish("", "test-topic")
+
+    assert context.get("collector") == ["", ""]
+    context.clear()
+
+
+@pytest.mark.asyncio()
+@python39
 async def test_rabbit():
     from docs.docs_src.getting_started.context.rabbit.initial import broker
     from faststream.rabbit import TestRabbitBroker

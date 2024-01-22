@@ -1,6 +1,7 @@
 import pytest
 
 from faststream import TestApp, context
+from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 from faststream.kafka import TestKafkaBroker
 from faststream.nats import TestNatsBroker
 from faststream.rabbit import TestRabbitBroker
@@ -26,6 +27,16 @@ async def test_kafka_basic_lifespan():
         from docs.docs_src.getting_started.lifespan.kafka.basic import app, broker
 
         async with TestKafkaBroker(broker), TestApp(app):
+            assert context.get("settings").host == "localhost"
+
+
+@pydanticV2
+@pytest.mark.asyncio()
+async def test_confluent_basic_lifespan():
+    with mock_pydantic_settings_env({"host": "localhost"}):
+        from docs.docs_src.getting_started.lifespan.confluent.basic import app, broker
+
+        async with TestConfluentKafkaBroker(broker), TestApp(app):
             assert context.get("settings").host == "localhost"
 
 

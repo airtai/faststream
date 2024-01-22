@@ -1,5 +1,6 @@
 import pytest
 
+from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 from faststream.kafka import TestKafkaBroker
 from faststream.nats import TestNatsBroker
 from faststream.rabbit import TestRabbitBroker
@@ -11,6 +12,20 @@ async def test_index_kafka_base():
     from docs.docs_src.index.kafka.basic import broker, handle_msg
 
     async with TestKafkaBroker(broker) as br:
+        await br.publish({"user": "John", "user_id": 1}, "in-topic")
+
+        handle_msg.mock.assert_called_once_with({"user": "John", "user_id": 1})
+
+        list(br._publishers.values())[0].mock.assert_called_once_with(  # noqa: RUF015
+            "User: 1 - John registered"
+        )
+
+
+@pytest.mark.asyncio()
+async def test_index_confluent_base():
+    from docs.docs_src.index.confluent.basic import broker, handle_msg
+
+    async with TestConfluentKafkaBroker(broker) as br:
         await br.publish({"user": "John", "user_id": 1}, "in-topic")
 
         handle_msg.mock.assert_called_once_with({"user": "John", "user_id": 1})
