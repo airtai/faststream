@@ -15,7 +15,6 @@ class ExchangeType(str, Enum):
         X_DELAYED_MESSAGE : x-delayed-message exchange type
         X_CONSISTENT_HASH : x-consistent-hash exchange type
         X_MODULUS_HASH : x-modulus-hash exchange type
-
     """
 
     FANOUT = "fanout"

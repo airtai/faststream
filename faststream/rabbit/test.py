@@ -13,13 +13,12 @@ from faststream.rabbit.asyncapi import Publisher
 from faststream.rabbit.broker import RabbitBroker
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.producer import AioPikaFastProducer
-from faststream.rabbit.shared.constants import ExchangeType
-from faststream.rabbit.shared.schemas import (
+from faststream.rabbit.schemas.constants import ExchangeType
+from faststream.rabbit.schemas.schemas import (
     RabbitExchange,
     RabbitQueue,
 )
-from faststream.rabbit.shared.types import TimeoutType
-from faststream.rabbit.types import AioPikaSendableMessage
+from faststream.rabbit.types import AioPikaSendableMessage, TimeoutType
 from faststream.types import SendableMessage
 
 __all__ = ("TestRabbitBroker",)

@@ -19,13 +19,12 @@ class Handler(LogicHandler, AsyncAPIOperation):
 
     Methods:
         schema() -> Dict[str, Channel]: Returns a dictionary of channels.
-
     """
 
-    def schema(self) -> Dict[str, Channel]:
-        if not self.include_in_schema:
-            return {}
+    def get_name(self) -> str:
+        return f'{",".join(self.topics)}:{self.call_name}'
 
+    def get_schema(self) -> Dict[str, Channel]:
         channels = {}
 
         payloads = self.get_payloads()
@@ -57,15 +56,12 @@ class Publisher(LogicPublisher, AsyncAPIOperation):
 
     Methods:
         schema() : returns the schema for the publisher
-
-    Raises:
-        NotImplementedError: If silent animals are not supported
-
     """
 
-    def schema(self) -> Dict[str, Channel]:
-        if not self.include_in_schema:
-            return {}
+    def get_name(self) -> str:
+        return f"{self.topic}:Publisher"
+
+    def get_schema(self) -> Dict[str, Channel]:
 
         payloads = self.get_payloads()
 
@@ -84,7 +80,3 @@ class Publisher(LogicPublisher, AsyncAPIOperation):
                 bindings=ChannelBinding(kafka=kafka.ChannelBinding(topic=self.topic)),
             )
         }
-
-    @property
-    def name(self) -> str:
-        return self.title or f"{self.topic}:Publisher"

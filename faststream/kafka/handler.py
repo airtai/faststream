@@ -1,29 +1,31 @@
 import asyncio
 from itertools import chain
-from typing import Any, Callable, Dict, Optional, Sequence, Tuple, Union
+from typing import Dict, Any, Callable, Iterable, Optional, Sequence, List, TYPE_CHECKING, AsyncContextManager
 
 import anyio
 from aiokafka import AIOKafkaConsumer, ConsumerRecord
 from aiokafka.errors import KafkaError
-from fast_depends.core import CallModel
 from typing_extensions import Unpack, override
 
 from faststream.__about__ import __version__
-from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.core.handler import BaseHandler
 from faststream.broker.message import StreamMessage
-from faststream.broker.middlewares import BaseMiddleware
+from faststream.broker.core.publisher import FakePublisher
 from faststream.broker.parsers import resolve_custom_func
 from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
     Filter,
-    P_HandlerParams,
-    T_HandlerReturn,
+    BrokerMiddleware,
+    SubscriberMiddleware,
 )
-from faststream.kafka.message import KafkaMessage
+from fast_depends.dependencies import Depends
 from faststream.kafka.parser import AioKafkaParser
 from faststream.kafka.shared.schemas import ConsumerConnectionParams
+from faststream.types import AnyDict
+
+if TYPE_CHECKING:
+    from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
 
 
 class LogicHandler(BaseHandler[ConsumerRecord]):
@@ -42,7 +44,6 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
         close : method to close the Kafka consumer and cancel the consuming task
         add_call : method to add a handler call for processing consumed messages
         _consume : method to consume messages from Kafka and call the appropriate handler
-
     """
 
     topics: Sequence[str]
@@ -56,8 +57,11 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
     def __init__(
         self,
         *topics: str,
-        log_context_builder: Callable[[StreamMessage[Any]], Dict[str, str]],
+        # Broker options
+        watcher: Callable[..., AsyncContextManager[None]],
+        extra_context: Optional[AnyDict] = None,
         graceful_timeout: Optional[float] = None,
+        middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"] = (),
         # Kafka information
         group_id: Optional[str] = None,
         client_id: str = "faststream-" + __version__,
@@ -67,8 +71,8 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
         batch_timeout_ms: int = 200,
         max_records: Optional[int] = None,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
+        title_: Optional[str] = None,
+        description_: Optional[str] = None,
         include_in_schema: bool = True,
     ) -> None:
         """Initialize a Kafka consumer for the specified topics.
@@ -93,11 +97,14 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
 
         """
         super().__init__(
-            log_context_builder=log_context_builder,
-            description=description,
-            title=title,
-            include_in_schema=include_in_schema,
+            middlewares=middlewares,
             graceful_timeout=graceful_timeout,
+            watcher=watcher,
+            extra_context=extra_context,
+            # AsyncAPI
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
         )
 
         self.group_id = group_id
@@ -122,10 +129,6 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
 
         Args:
             **consumer_kwargs: Additional keyword arguments to pass to the consumer.
-
-        Returns:
-            None
-
         """
         self.consumer = consumer = self.builder(
             *self.topics,
@@ -148,19 +151,17 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
             self.task.cancel()
             self.task = None
 
-    def add_call(
+    @override
+    def add_call(  # type: ignore[override]
         self,
         *,
-        handler: HandlerCallWrapper[ConsumerRecord, P_HandlerParams, T_HandlerReturn],
-        dependant: CallModel[P_HandlerParams, T_HandlerReturn],
-        parser: CustomParser[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]],
-        decoder: Optional[CustomDecoder[KafkaMessage]],
-        filter: Union[
-            Filter[KafkaMessage],
-            Filter[StreamMessage[Tuple[ConsumerRecord, ...]]],
-        ],
-        middlewares: Optional[Sequence[Callable[[ConsumerRecord], BaseMiddleware]]],
-    ) -> None:
+        filter: "Filter[StreamMessage[List[ConsumerRecord]]]",
+        parser: Optional["CustomParser[List[ConsumerRecord]]"],
+        decoder: Optional["CustomDecoder[StreamMessage[List[ConsumerRecord]]]"],
+        middlewares: Iterable["SubscriberMiddleware"],
+        dependencies: Sequence["Depends"],
+        **wrap_kwargs: Any,
+    ) -> "WrapperProtocol[List[ConsumerRecord]]":
         """Adds a call to the handler.
 
         Args:
@@ -170,10 +171,6 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
             decoder: Optional custom decoder for decoding the input.
             filter: The filter for filtering the input.
             middlewares: Optional sequence of middlewares to be applied.
-
-        Returns:
-            None
-
         """
         parser_ = resolve_custom_func(  # type: ignore[type-var]
             parser,  # type: ignore[arg-type]
@@ -191,13 +188,26 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
                 else AioKafkaParser.decode_message
             ),
         )
-        super().add_call(
-            handler=handler,
-            parser=parser_,
-            decoder=decoder_,
-            filter=filter,  # type: ignore[arg-type]
-            dependant=dependant,
-            middlewares=middlewares,
+        return super().add_call(
+            parser_=parser_,
+            decoder_=decoder_,
+            filter_=filter,
+            middlewares_=middlewares,
+            dependencies_=dependencies,
+            **wrap_kwargs,
+        )
+
+    def make_response_publisher(
+        self, message: "StreamMessage[Any]"
+    ) -> Sequence[FakePublisher]:
+        if not message.reply_to or self.producer is None:
+            return ()
+
+        return (
+            FakePublisher(
+                self.producer.publish,
+                topic=message.reply_to,
+            ),
         )
 
     async def _consume(self) -> None:
@@ -231,5 +241,27 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
                 await self.consume(msg)
 
     @staticmethod
-    def get_routing_hash(topics: Sequence[str], group_id: Optional[str] = None) -> str:
+    def get_routing_hash(topics: Iterable[str], group_id: Optional[str] = None) -> str:
         return "".join((*topics, group_id or ""))
+
+    @staticmethod
+    def build_log_context(
+        message: Optional["StreamMessage[ConsumerRecord]"],
+        topic: str,
+        group_id: str = "",
+    ) -> Dict[str, str]:
+        return {
+            "topic": topic,
+            "group_id": group_id,
+            "message_id": getattr(message, "message_id", ""),
+        }
+
+    def get_log_context(
+        self,
+        message: Optional["StreamMessage[ConsumerRecord]"],
+    ) -> Dict[str, str]:
+        return self.build_log_context(
+            message=message,
+            topic=message.raw_message.topic if message else ",".join(self.topics),
+            group_id=self.group_id,
+        )

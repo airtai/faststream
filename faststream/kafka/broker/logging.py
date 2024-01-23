@@ -1,7 +1,9 @@
 import logging
-from typing import Any, Iterable, Optional
+from inspect import Parameter
+from typing import Any, Iterable, Optional, Union, ClassVar
 
 from faststream.broker.core.logging_mixin import LoggingMixin
+from faststream.log.logging import get_broker_logger
 
 
 class KafkaLoggingMixin(LoggingMixin):
@@ -14,15 +16,13 @@ class KafkaLoggingMixin(LoggingMixin):
         __init__ : initializes the KafkaLoggingMixin object
         fmt : returns the log format string
         _setup_log_context : sets up the log context for a given list of topics
-
     """
-
-    _max_topic_len: int
+    __max_msg_id_ln: ClassVar[int] = 10
 
     def __init__(
         self,
         *args: Any,
-        logger: Optional[logging.Logger] = None,
+        logger: Union[logging.Logger, object, None] = Parameter.empty,
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = None,
         **kwargs: Any,
@@ -35,14 +35,19 @@ class KafkaLoggingMixin(LoggingMixin):
             log_level: Log level (default: logging.INFO)
             log_fmt: Optional log format string
             **kwargs: Arbitrary keyword arguments
-
-        Returns:
-            None
-
         """
         super().__init__(
             *args,
             logger=logger,
+            # TODO: generate unique logger names to not share between brokers
+            default_logger=get_broker_logger(
+                name="kafka",
+                default_context={
+                    "topic": "",
+                    "group_id": "",
+                },
+                message_id_ln=self.__max_msg_id_ln,
+            ),
             log_level=log_level,
             log_fmt=log_fmt,
             **kwargs,
@@ -56,7 +61,7 @@ class KafkaLoggingMixin(LoggingMixin):
             "%(asctime)s %(levelname)s - "
             + f"%(topic)-{self._max_topic_len}s | "
             + (f"%(group_id)-{self._max_group_len}s | " if self._max_group_len else "")
-            + f"%(message_id)-{self._message_id_ln}s "
+            + f"%(message_id)-{self.__max_msg_id_ln}s "
             + "- %(message)s"
         )
 
@@ -71,7 +76,6 @@ class KafkaLoggingMixin(LoggingMixin):
 
         Returns:
             None.
-
         """
         for t in topics:
             self._max_topic_len = max((self._max_topic_len, len(t)))

@@ -38,7 +38,7 @@ from faststream.broker.types import (
 from faststream.kafka.asyncapi import Handler, Publisher
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.producer import AioKafkaFastProducer
-from faststream.kafka.shared.logging import KafkaLoggingMixin
+from faststream.kafka.broker.logging import KafkaLoggingMixin
 from faststream.kafka.shared.schemas import ConsumerConnectionParams
 from faststream.log import access_logger
 from faststream.types import SendableMessage

@@ -5,30 +5,34 @@ from typing import (
     Optional,
     Type,
     Union,
+    TYPE_CHECKING,
 )
 
-import aio_pika
-import aiormq
 import anyio
-from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 
 from faststream.broker.parsers import resolve_custom_func
-from faststream.broker.types import (
-    AsyncCustomDecoder,
-    AsyncCustomParser,
-    AsyncDecoder,
-    AsyncParser,
-)
 from faststream.exceptions import WRONG_PUBLISH_ARGS
-from faststream.rabbit.helpers import RabbitDeclarer
-from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.parser import AioPikaParser
-from faststream.rabbit.shared.constants import RABBIT_REPLY
-from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
-from faststream.rabbit.shared.types import TimeoutType
-from faststream.rabbit.types import AioPikaSendableMessage
-from faststream.types import SendableMessage
+from faststream.rabbit.schemas.constants import RABBIT_REPLY
+from faststream.rabbit.schemas.schemas import RabbitExchange, RabbitQueue
 from faststream.utils.functions import fake_context, timeout_scope
+
+if TYPE_CHECKING:
+    import aio_pika
+    import aiormq
+    from anyio.streams.memory import MemoryObjectReceiveStream
+
+    from faststream.rabbit.helpers import RabbitDeclarer
+    from faststream.rabbit.message import RabbitMessage
+    from faststream.broker.types import (
+        AsyncCustomDecoder,
+        AsyncCustomParser,
+        AsyncDecoder,
+        AsyncParser,
+    )
+    from faststream.types import SendableMessage
+    from faststream.rabbit.types import AioPikaSendableMessage, TimeoutType
+
 
 
 class AioPikaFastProducer:
@@ -50,23 +54,20 @@ class AioPikaFastProducer:
         __init__(channel, declarer, parser, decoder): Initializes the AioPikaFastProducer object.
         publish(message, queue, exchange, routing_key, mandatory, immediate, timeout, rpc, rpc_timeout, raise_timeout, persist, reply_to, **message_kwargs): Publishes a message to a queue or exchange.
         _publish(message, exchange, routing_key, mandatory, immediate, timeout, persist, reply_to, **message_kwargs): Publishes a message to an exchange.
-
-    Note: This docstring is incomplete as it is difficult to understand the purpose and functionality of the class and its methods without more context.
-
     """
 
-    _channel: aio_pika.RobustChannel
+    _channel: "aio_pika.RobustChannel"
     _rpc_lock: anyio.Lock
-    _decoder: AsyncDecoder[Any]
-    _parser: AsyncParser[aio_pika.IncomingMessage]
-    declarer: RabbitDeclarer
+    _decoder: "AsyncDecoder[RabbitMessage]"
+    _parser: "AsyncParser[aio_pika.IncomingMessage]"
+    declarer: "RabbitDeclarer"
 
     def __init__(
         self,
-        channel: aio_pika.RobustChannel,
-        declarer: RabbitDeclarer,
-        parser: Optional[AsyncCustomParser[aio_pika.IncomingMessage]],
-        decoder: Optional[AsyncCustomDecoder[RabbitMessage]],
+        channel: "aio_pika.RobustChannel",
+        declarer: "RabbitDeclarer",
+        parser: Optional["AsyncCustomParser[aio_pika.IncomingMessage]"],
+        decoder: Optional["AsyncCustomDecoder[RabbitMessage]"],
     ) -> None:
         """Initialize a class instance.
 
@@ -75,7 +76,6 @@ class AioPikaFastProducer:
             declarer: The RabbitDeclarer object.
             parser: An optional AsyncCustomParser object for parsing incoming messages.
             decoder: An optional AsyncCustomDecoder object for decoding incoming messages.
-
         """
         self._channel = channel
         self.declarer = declarer
@@ -85,21 +85,21 @@ class AioPikaFastProducer:
 
     async def publish(
         self,
-        message: AioPikaSendableMessage = "",
-        queue: Union[RabbitQueue, str] = "",
-        exchange: Union[RabbitExchange, str, None] = None,
+        message: "AioPikaSendableMessage" = "",
+        queue: Union["RabbitQueue", str] = "",
+        exchange: Union["RabbitExchange", str, None] = None,
         *,
         routing_key: str = "",
         mandatory: bool = True,
         immediate: bool = False,
-        timeout: TimeoutType = None,
+        timeout: "TimeoutType" = None,
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
         persist: bool = False,
         reply_to: Optional[str] = None,
         **message_kwargs: Any,
-    ) -> Union[aiormq.abc.ConfirmationFrameType, Any]:
+    ) -> Union["aiormq.abc.ConfirmationFrameType", Any]:
         """Publish a message to a RabbitMQ queue.
 
         Args:
@@ -127,7 +127,7 @@ class AioPikaFastProducer:
         p_queue = RabbitQueue.validate(queue)
 
         context: AsyncContextManager[
-            Optional[MemoryObjectReceiveStream[aio_pika.IncomingMessage]]
+            Optional["MemoryObjectReceiveStream[aio_pika.IncomingMessage]"]
         ]
         if rpc is True:
             if reply_to is not None:
@@ -149,7 +149,7 @@ class AioPikaFastProducer:
                 immediate=immediate,
                 timeout=timeout,
                 persist=persist,
-                reply_to=RABBIT_REPLY if response_queue else reply_to,
+                reply_to=reply_to if response_queue is None else RABBIT_REPLY,
                 **message_kwargs,
             )
 
@@ -157,7 +157,7 @@ class AioPikaFastProducer:
                 return r
 
             else:
-                msg: Optional[aio_pika.IncomingMessage] = None
+                msg: Optional["aio_pika.IncomingMessage"] = None
                 with timeout_scope(rpc_timeout, raise_timeout):
                     msg = await response_queue.receive()
 
@@ -168,17 +168,17 @@ class AioPikaFastProducer:
 
     async def _publish(
         self,
-        message: AioPikaSendableMessage = "",
-        exchange: Union[RabbitExchange, str, None] = None,
+        message: "AioPikaSendableMessage" = "",
+        exchange: Union["RabbitExchange", str, None] = None,
         *,
         routing_key: str = "",
         mandatory: bool = True,
         immediate: bool = False,
-        timeout: TimeoutType = None,
+        timeout: "TimeoutType" = None,
         persist: bool = False,
         reply_to: Optional[str] = None,
         **message_kwargs: Any,
-    ) -> Union[aiormq.abc.ConfirmationFrameType, SendableMessage]:
+    ) -> Union["aiormq.abc.ConfirmationFrameType", "SendableMessage"]:
         """Publish a message to a RabbitMQ exchange.
 
         Args:
@@ -194,10 +194,6 @@ class AioPikaFastProducer:
 
         Returns:
             Union[aiormq.abc.ConfirmationFrameType, SendableMessage]: The result of the publish operation.
-
-        Raises:
-            NotImplementedError: If silent animals are not supported.
-
         """
         p_exchange = RabbitExchange.validate(exchange)
 
@@ -233,30 +229,23 @@ class _RPCCallback:
     Methods:
         __aenter__ : Asynchronous context manager method that acquires the lock and returns a memory object receive stream for incoming messages.
         __aexit__ : Asynchronous context manager method that releases the lock and cancels the consumer tag for the queue.
-
-    Returns:
-        None
-
     """
 
-    def __init__(self, lock: anyio.Lock, callback_queue: aio_pika.RobustQueue) -> None:
+    def __init__(self, lock: "anyio.Lock", callback_queue: "aio_pika.RobustQueue") -> None:
         """Initialize an object of a class.
 
         Args:
             lock: An instance of `anyio.Lock` used for synchronization.
             callback_queue: An instance of `aio_pika.RobustQueue` used for callback queue.
-
         """
         self.lock = lock
         self.queue = callback_queue
 
-    async def __aenter__(self) -> MemoryObjectReceiveStream[aio_pika.IncomingMessage]:
-        send_response_stream: MemoryObjectSendStream[Any]
-        receive_response_stream: MemoryObjectReceiveStream[aio_pika.IncomingMessage]
+    async def __aenter__(self) -> "MemoryObjectReceiveStream[aio_pika.IncomingMessage]":
         (
             send_response_stream,
             receive_response_stream,
-        ) = anyio.create_memory_object_stream(max_buffer_size=1)
+        ) = anyio.create_memory_object_stream["aio_pika.IncomingMessage"](max_buffer_size=1)
         await self.lock.acquire()
 
         self.consumer_tag = await self.queue.consume(
@@ -278,10 +267,6 @@ class _RPCCallback:
             exc_type: The type of the exception being handled, if any.
             exc_val: The exception instance being handled, if any.
             exec_tb: The traceback of the exception being handled, if any.
-
-        Returns:
-            None
-
         """
         self.lock.release()
         await self.queue.cancel(self.consumer_tag)

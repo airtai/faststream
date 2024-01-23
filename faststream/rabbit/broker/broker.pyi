@@ -30,8 +30,8 @@ from faststream.rabbit.broker.logging import RabbitLoggingMixin
 from faststream.rabbit.helpers import RabbitDeclarer
 from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.producer import AioPikaFastProducer
-from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue, ReplyConfig
-from faststream.rabbit.shared.types import TimeoutType
+from faststream.rabbit.schemas.schemas import RabbitExchange, RabbitQueue, ReplyConfig
+from faststream.rabbit.schemas.types import TimeoutType
 from faststream.rabbit.types import AioPikaSendableMessage
 from faststream.security import BaseSecurity
 from faststream.types import AnyDict, SendableMessage

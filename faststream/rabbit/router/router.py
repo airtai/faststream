@@ -5,7 +5,7 @@ from typing_extensions import override
 
 from faststream._compat import model_copy
 from faststream.rabbit.asyncapi import Publisher
-from faststream.rabbit.shared.schemas import (
+from faststream.rabbit.schemas.schemas import (
     RabbitExchange,
     RabbitQueue,
 )
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from faststream.broker.core.call_wrapper import HandlerCallWrapper
     from faststream.broker.types import PublisherMiddleware
     from faststream.types import SendableMessage
-    from faststream.rabbit.shared.types import TimeoutType
+    from faststream.rabbit.types import TimeoutType
 
 
 class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):

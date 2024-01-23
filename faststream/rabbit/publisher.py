@@ -7,17 +7,16 @@ from functools import cached_property
 from faststream.broker.core.publisher import BasePublisher
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.rabbit.handler import LogicHandler
-from faststream.rabbit.shared.schemas import BaseRMQInformation
+from faststream.rabbit.schemas.schemas import BaseRMQInformation
 
 
 if TYPE_CHECKING:
     import aiormq
 
     from aio_pika import IncomingMessage
-    
-    from faststream.rabbit.shared.types import TimeoutType
+
     from faststream.rabbit.producer import AioPikaFastProducer
-    from faststream.rabbit.types import AioPikaSendableMessage
+    from faststream.rabbit.types import AioPikaSendableMessage, TimeoutType
     from faststream.types import SendableMessage, AnyDict
 
 

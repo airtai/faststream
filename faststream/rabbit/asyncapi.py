@@ -12,8 +12,8 @@ from faststream.asyncapi.schema.bindings import amqp
 from faststream.asyncapi.utils import resolve_payloads
 from faststream.rabbit.handler import LogicHandler
 from faststream.rabbit.publisher import LogicPublisher
-from faststream.rabbit.shared.constants import ExchangeType
-from faststream.rabbit.shared.schemas import RabbitExchange
+from faststream.rabbit.schemas.constants import ExchangeType
+from faststream.rabbit.schemas.schemas import RabbitExchange
 
 
 class Publisher(LogicPublisher):

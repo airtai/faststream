@@ -1,10 +1,17 @@
-from typing import Dict, Union, cast
+from typing import Any, Optional, Union, Dict, cast, TYPE_CHECKING
 
-import aio_pika
+from aio_pika.connection import make_url
 
-from faststream._compat import model_to_dict
-from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
 from faststream.utils.classes import Singleton
+
+if TYPE_CHECKING:
+    import aio_pika
+
+    from yarl import URL
+    from aio_pika.abc import SSLOptions
+    from pamqp.common import FieldTable
+
+    from faststream.rabbit.schemas.schemas import RabbitExchange, RabbitQueue
 
 
 class RabbitDeclarer(Singleton):
@@ -29,11 +36,11 @@ class RabbitDeclarer(Singleton):
             Declares an exchange and returns the declared exchange object.
     """
 
-    channel: aio_pika.RobustChannel
-    queues: Dict[Union[RabbitQueue, str], aio_pika.RobustQueue]
-    exchanges: Dict[Union[RabbitExchange, str], aio_pika.RobustExchange]
+    channel: "aio_pika.RobustChannel"
+    queues: Dict["RabbitQueue", "aio_pika.RobustQueue"]
+    exchanges: Dict["RabbitExchange", "aio_pika.RobustExchange"]
 
-    def __init__(self, channel: aio_pika.RobustChannel) -> None:
+    def __init__(self, channel: "aio_pika.RobustChannel") -> None:
         """Initialize the class.
 
         Args:
@@ -50,8 +57,8 @@ class RabbitDeclarer(Singleton):
 
     async def declare_queue(
         self,
-        queue: RabbitQueue,
-    ) -> aio_pika.RobustQueue:
+        queue: "RabbitQueue",
+    ) -> "aio_pika.RobustQueue":
         """Declare a queue.
 
         Args:
@@ -60,28 +67,26 @@ class RabbitDeclarer(Singleton):
         Returns:
             aio_pika.RobustQueue: The declared queue.
         """
-        q = self.queues.get(queue)
-        if q is None:
-            q = cast(
-                aio_pika.RobustQueue,
+        if (q := self.queues.get(queue)) is None:
+            self.queues[queue] = q = cast(
+                "aio_pika.RobustQueue",
                 await self.channel.declare_queue(
-                    **model_to_dict(
-                        queue,
-                        exclude={
-                            "routing_key",
-                            "path_regex",
-                            "bind_arguments",
-                        },
-                    )
+                    name=queue.name,
+                    durable=queue.durable,
+                    exclusive=queue.exclusive,
+                    passive=queue.passive,
+                    auto_delete=queue.auto_delete,
+                    arguments=queue.arguments,
+                    timeout=queue.timeout,
+                    robust=queue.robust,
                 ),
             )
-            self.queues[queue] = q
         return q
 
     async def declare_exchange(
         self,
-        exchange: RabbitExchange,
-    ) -> aio_pika.RobustExchange:
+        exchange: "RabbitExchange",
+    ) -> "aio_pika.RobustExchange":
         """Declare an exchange.
 
         Args:
@@ -89,34 +94,62 @@ class RabbitDeclarer(Singleton):
 
         Returns:
             aio_pika.RobustExchange: The declared exchange.
-
-        Raises:
-            NotImplementedError: If silent animals are not supported.
         """
-        exch = self.exchanges.get(exchange)
-
-        if exch is None:
-            exch = cast(
-                aio_pika.RobustExchange,
+        if (exch := self.exchanges.get(exchange)) is None:
+            self.exchanges[exchange] = exch = cast(
+                "aio_pika.RobustExchange",
                 await self.channel.declare_exchange(
-                    **model_to_dict(
-                        exchange,
-                        exclude={
-                            "routing_key",
-                            "bind_arguments",
-                            "bind_to",
-                        },
-                    )
+                    name=exchange.name,
+                    type=exchange.type,
+                    durable=exchange.durable,
+                    auto_delete=exchange.auto_delete,
+                    internal=exchange.internal,
+                    passive=exchange.passive,
+                    arguments=exchange.arguments,
+                    timeout=exchange.timeout,
+                    robust=exchange.robust,
                 ),
             )
-            self.exchanges[exchange] = exch
 
         if exchange.bind_to is not None:
             parent = await self.declare_exchange(exchange.bind_to)
             await exch.bind(
                 exchange=parent,
                 routing_key=exchange.routing_key,
-                arguments=exchange.arguments,
+                arguments=exchange.bind_arguments,
+                timeout=exchange.timeout,
+                robust=exchange.robust,
             )
 
         return exch
+
+
+def build_url(
+    url: Union[str, "URL", None] = None,
+    *,
+    host: Optional[str] = None,
+    port: Optional[int] = None,
+    login: Optional[str] = None,
+    password: Optional[str] = None,
+    virtualhost: Optional[str] = None,
+    ssl: Optional[bool] = None,
+    ssl_options: Optional["SSLOptions"] = None,
+    client_properties: Optional["FieldTable"] = None,
+    **kwargs: Any,
+) -> "URL":
+    original_url = make_url(url)
+
+    return make_url(
+        host=host or original_url.host or "localhost",
+        port=port or original_url.port or 5672,
+        login=login or original_url.user or "guest",
+        password=password or original_url.password or "guest",
+        virtualhost=virtualhost or original_url.path.lstrip("/"),
+        ssl=ssl or original_url.scheme == "amqps",
+        ssl_options=ssl_options,
+        client_properties=client_properties,
+        **{
+            **kwargs,
+            **dict(original_url.query),
+        },
+    )

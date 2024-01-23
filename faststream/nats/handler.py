@@ -104,13 +104,13 @@ class BaseNatsHandler(BaseHandler[MsgType]):
             Doc("Global middleware to use `on_receive`, `after_processed`"),
         ] = (),
         # AsyncAPI information
-        description: Annotated[
-            Optional[str],
-            Doc("AsyncAPI subscriber description"),
-        ] = None,
-        title: Annotated[
+        title_: Annotated[
             Optional[str],
             Doc("AsyncAPI subscriber title"),
+        ] = None,
+        description_: Annotated[
+            Optional[str],
+            Doc("AsyncAPI subscriber description"),
         ] = None,
         include_in_schema: Annotated[
             bool,
@@ -132,13 +132,14 @@ class BaseNatsHandler(BaseHandler[MsgType]):
         self.extra_options = extra_options or {}
 
         super().__init__(
-            description=description,
-            include_in_schema=include_in_schema,
-            title=title,
             middlewares=middlewares,
             graceful_timeout=graceful_timeout,
             watcher=watcher,
             extra_context=extra_context,
+            # AsyncAPI
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
         )
 
         self.subscription = None
@@ -285,13 +286,13 @@ class DefaultHandler(BaseNatsHandler["Msg"]):
             Iterable["BrokerMiddleware[Msg]"],
             Doc("Global middleware to use `on_receive`, `after_processed`"),
         ] = (),
-        description: Annotated[
-            Optional[str],
-            Doc("AsyncAPI subscriber description"),
-        ] = None,
-        title: Annotated[
+        title_: Annotated[
             Optional[str],
             Doc("AsyncAPI subscriber title"),
+        ] = None,
+        description_: Annotated[
+            Optional[str],
+            Doc("AsyncAPI subscriber description"),
         ] = None,
         include_in_schema: Annotated[
             bool,
@@ -299,18 +300,18 @@ class DefaultHandler(BaseNatsHandler["Msg"]):
         ] = True,
     ) -> None:
         super().__init__(
-            subject,
-            watcher,
-            extra_context,
-            queue,
-            stream,
-            pull_sub,
-            extra_options,
-            graceful_timeout,
-            middlewares,
-            description,
-            title,
-            include_in_schema,
+            subject=subject,
+            watcher=watcher,
+            extra_context=extra_context,
+            queue=queue,
+            stream=stream,
+            pull_sub=pull_sub,
+            extra_options=extra_options,
+            graceful_timeout=graceful_timeout,
+            middlewares=middlewares,
+            description_=description_,
+            title_=title_,
+            include_in_schema=include_in_schema,
         )
 
         self.max_workers = max_workers

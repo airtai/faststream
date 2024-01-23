@@ -3,7 +3,6 @@ from faststream.broker.fastapi.router import StreamRouter
 from faststream.rabbit.broker import RabbitBroker as RB
 
 
-
 class RabbitRouter(StreamRouter[IncomingMessage]):
     """A class to represent a RabbitMQ router for incoming messages.
 

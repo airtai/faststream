@@ -167,8 +167,8 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         watcher: Callable[..., AsyncContextManager[None]],
         extra_context: Optional[AnyDict],
         # AsyncAPI information
-        title: Optional[str],
-        description: Optional[str],
+        title_: Optional[str],
+        description_: Optional[str],
         include_in_schema: bool,
     ) -> None:
         """Initialize a new instance of the class."""
@@ -184,8 +184,8 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
 
         # AsyncAPI information
         super().__init__(
-            title_=title,
-            description_=description,
+            title_=title_,
+            description_=description_,
             include_in_schema=include_in_schema,
         )
 
@@ -220,7 +220,8 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         **wrap_kwargs: Any,
     ) -> "WrapperProtocol[MsgType]":
         @overload
-        def wrapper(
+        def outer_wrapper(
+            self,
             func: None = None,
             *,
             filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
@@ -235,7 +236,8 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
             ...
 
         @overload
-        def wrapper(
+        def outer_wrapper(
+            self,
             func: Callable[P_HandlerParams, T_HandlerReturn],
             *,
             filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
@@ -246,7 +248,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
             ...
 
-        def wrapper(
+        def outer_wrapper(
             func: Optional[Callable[P_HandlerParams, T_HandlerReturn]] = None,
             *,
             filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
@@ -254,13 +256,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
             decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
             middlewares: Iterable["SubscriberMiddleware"] = (),
             dependencies: Sequence["Depends"] = (),
-        ) -> Union[
-            "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
-            Callable[
-                [Callable[P_HandlerParams, T_HandlerReturn]],
-                "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
-            ],
-        ]:
+        ) -> Any:
             total_deps = (*dependencies_, *dependencies)
             total_middlewares = (*middlewares_, *middlewares)
 
@@ -296,8 +292,8 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
 
             else:
                 return real_wrapper(func)
-
-        return wrapper
+        
+        return outer_wrapper
 
     async def consume(self, msg: MsgType) -> Any:
         """Consume a message asynchronously.

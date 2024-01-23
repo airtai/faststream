@@ -57,6 +57,7 @@ class ColourizedFormatter(logging.Formatter):
                 field=COLORED_LEVELS.get(record.levelno, record.levelname),
                 symbols=17,
             )
+
         return super().formatMessage(record)
 
 

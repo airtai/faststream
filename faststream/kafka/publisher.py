@@ -4,15 +4,15 @@ from typing import Dict, Optional, Sequence
 from aiokafka import ConsumerRecord
 from typing_extensions import override
 
+from faststream.broker.core.publisher import BasePublisher
 from faststream.__about__ import __version__
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.kafka.producer import AioKafkaFastProducer
-from faststream.kafka.shared.publisher import ABCPublisher
 from faststream.types import SendableMessage
 
 
 @dataclass
-class LogicPublisher(ABCPublisher[ConsumerRecord]):
+class LogicPublisher(BasePublisher[ConsumerRecord]):
     """A class to publish messages to a Kafka topic.
 
     Attributes:
@@ -27,13 +27,19 @@ class LogicPublisher(ABCPublisher[ConsumerRecord]):
         AssertionError: If `_producer` is not set up or if multiple messages are sent without the `batch` flag
 
     """
-
-    _producer: Optional[AioKafkaFastProducer] = field(default=None, init=False)
+    topic: str = ""
+    key: Optional[bytes] = None
+    partition: Optional[int] = None
+    timestamp_ms: Optional[int] = None
+    headers: Optional[Dict[str, str]] = None
+    reply_to: Optional[str] = ""
     batch: bool = field(default=False)
     client_id: str = field(default="faststream-" + __version__)
 
+    _producer: Optional[AioKafkaFastProducer] = field(default=None, init=False)
+
     @override
-    async def publish(  # type: ignore[override]
+    async def _publish(  # type: ignore[override]
         self,
         *messages: SendableMessage,
         message: SendableMessage = "",
@@ -61,7 +67,6 @@ class LogicPublisher(ABCPublisher[ConsumerRecord]):
             AssertionError: If `_producer` is not set up.
             AssertionError: If `batch` flag is not set and there are multiple messages.
             ValueError: If `message` is not a sequence when `messages` is empty.
-
         """
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
         assert (  # nosec B101
@@ -99,4 +104,5 @@ class LogicPublisher(ABCPublisher[ConsumerRecord]):
                 timestamp_ms=timestamp_ms or self.timestamp_ms,
                 headers=headers or self.headers,
             )
+
             return None

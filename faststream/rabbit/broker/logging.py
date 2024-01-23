@@ -6,7 +6,7 @@ from faststream.broker.core.logging_mixin import LoggingMixin
 from faststream.log.logging import get_broker_logger
 
 if TYPE_CHECKING:
-    from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue
+    from faststream.rabbit.schemas.schemas import RabbitExchange, RabbitQueue
 
 
 class RabbitLoggingMixin(LoggingMixin):

@@ -9,7 +9,7 @@ from faststream.broker.message import StreamMessage
 from faststream.broker.parsers import resolve_custom_func
 from faststream.rabbit.helpers import RabbitDeclarer
 from faststream.rabbit.parser import AioPikaParser
-from faststream.rabbit.shared.schemas import (
+from faststream.rabbit.schemas.schemas import (
     BaseRMQInformation,
     RabbitExchange,
     RabbitQueue,
@@ -64,8 +64,8 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
         consume_args: Optional[AnyDict] = None,
         reply_config: Optional[ReplyConfig] = None,
         # AsyncAPI information
-        description: Optional[str] = None,
-        title: Optional[str] = None,
+        title_: Optional[str] = None,
+        description_: Optional[str] = None,
         include_in_schema: bool = True,
         virtual_host: str = "/",
     ) -> None:
@@ -74,13 +74,14 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
         self.exchange = exchange
 
         super().__init__(
-            description=description,
-            include_in_schema=include_in_schema,
-            title=title,
             middlewares=middlewares,
             graceful_timeout=graceful_timeout,
             watcher=watcher,
             extra_context=extra_context,
+            # AsyncAPI
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
         )
         self.virtual_host = virtual_host
 
@@ -132,6 +133,8 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
                 exchange,
                 routing_key=self.queue.routing,
                 arguments=self.queue.bind_arguments,
+                timeout=self.queue.timeout,
+                robust=self.queue.robust,
             )
 
         self._consumer_tag = await queue.consume(

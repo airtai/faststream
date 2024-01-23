@@ -34,8 +34,8 @@ from faststream.broker.types import (
 from faststream.rabbit.asyncapi import Publisher
 from faststream.rabbit.broker import RabbitBroker
 from faststream.rabbit.message import RabbitMessage
-from faststream.rabbit.shared.schemas import RabbitExchange, RabbitQueue, ReplyConfig
-from faststream.rabbit.shared.types import TimeoutType
+from faststream.rabbit.schemas.schemas import RabbitExchange, RabbitQueue, ReplyConfig
+from faststream.rabbit.types import TimeoutType
 from faststream.security import BaseSecurity
 from faststream.types import AnyDict
 

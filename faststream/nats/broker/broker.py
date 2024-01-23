@@ -366,8 +366,8 @@ class NatsBroker(
             middlewares=self.middlewares,
             watcher=get_watcher_context(self.logger, no_ack, retry),
             # AsyncAPI
-            title=title,
-            description=description,
+            title_=title,
+            description_=description,
             include_in_schema=include_in_schema,
         )
 

@@ -21,12 +21,12 @@ from faststream.rabbit.broker.logging import RabbitLoggingMixin
 from faststream.rabbit.helpers import RabbitDeclarer
 from faststream.rabbit.producer import AioPikaFastProducer
 from faststream.rabbit.security import parse_security
-from faststream.rabbit.shared.constants import RABBIT_REPLY
-from faststream.rabbit.shared.schemas import (
+from faststream.rabbit.schemas.constants import RABBIT_REPLY
+from faststream.rabbit.schemas.schemas import (
     RabbitExchange,
     RabbitQueue,
 )
-from faststream.rabbit.shared.utils import build_url
+from faststream.rabbit.helpers import build_url
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -46,8 +46,8 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.rabbit.message import RabbitMessage
-    from faststream.rabbit.shared.schemas import ReplyConfig
-    from faststream.rabbit.shared.types import TimeoutType
+    from faststream.rabbit.schemas.schemas import ReplyConfig
+    from faststream.rabbit.types import TimeoutType
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
@@ -255,8 +255,8 @@ class RabbitBroker(
             watcher=get_watcher_context(self.logger, no_ack, retry),
             graceful_timeout=self.graceful_timeout,
             # AsyncAPI
-            title=title,
-            description=description,
+            title_=title,
+            description_=description,
             virtual_host=self.virtual_host,
             include_in_schema=include_in_schema,
         )

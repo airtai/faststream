@@ -7,12 +7,12 @@ from aio_pika.abc import DeliveryMode
 from faststream.broker.message import StreamMessage
 from faststream.broker.parsers import decode_message, encode_message
 from faststream.rabbit.message import RabbitMessage
-from faststream.rabbit.types import AioPikaSendableMessage
-from faststream.types import DecodedMessage
 from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
+    from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.rabbit.asyncapi import Handler
+    from faststream.types import DecodedMessage
 
 
 class AioPikaParser:
@@ -65,7 +65,7 @@ class AioPikaParser:
     @staticmethod
     async def decode_message(
         msg: StreamMessage[aio_pika.IncomingMessage],
-    ) -> DecodedMessage:
+    ) -> "DecodedMessage":
         """Decode a message.
 
         Args:
@@ -78,12 +78,12 @@ class AioPikaParser:
 
     @staticmethod
     def encode_message(
-        message: AioPikaSendableMessage,
+        message: "AioPikaSendableMessage",
         persist: bool = False,
         callback_queue: Optional[aio_pika.abc.AbstractRobustQueue] = None,
         reply_to: Optional[str] = None,
         **message_kwargs: Any,
-    ) -> aio_pika.Message:
+    ) -> "aio_pika.Message":
         """Encodes a message for sending using AioPika.
 
         Args:
@@ -111,11 +111,10 @@ class AioPikaParser:
 
             return aio_pika.Message(
                 message,
-                **{
+                **({
                     "delivery_mode": delivery_mode,
                     "content_type": content_type,
                     "reply_to": callback_queue or reply_to,
                     "correlation_id": str(uuid4()),
-                    **message_kwargs,
-                },
+                } | message_kwargs),
             )

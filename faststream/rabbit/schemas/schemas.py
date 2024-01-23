@@ -6,8 +6,8 @@ from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
 from faststream.broker.schemas import NameRequired
-from faststream.rabbit.shared.constants import ExchangeType
-from faststream.rabbit.shared.types import TimeoutType
+from faststream.rabbit.schemas.constants import ExchangeType
+from faststream.rabbit.types import TimeoutType
 from faststream.types import AnyDict
 from faststream.utils.path import compile_path
 
