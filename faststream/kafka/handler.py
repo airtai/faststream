@@ -1,6 +1,16 @@
 import asyncio
 from itertools import chain
-from typing import Dict, Any, Callable, Iterable, Optional, Sequence, List, TYPE_CHECKING, AsyncContextManager
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncContextManager,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+)
 
 import anyio
 from aiokafka import AIOKafkaConsumer, ConsumerRecord
@@ -9,23 +19,25 @@ from typing_extensions import Unpack, override
 
 from faststream.__about__ import __version__
 from faststream.broker.core.handler import BaseHandler
-from faststream.broker.message import StreamMessage
 from faststream.broker.core.publisher import FakePublisher
 from faststream.broker.parsers import resolve_custom_func
-from faststream.broker.types import (
-    CustomDecoder,
-    CustomParser,
-    Filter,
-    BrokerMiddleware,
-    SubscriberMiddleware,
-)
-from fast_depends.dependencies import Depends
 from faststream.kafka.parser import AioKafkaParser
 from faststream.kafka.shared.schemas import ConsumerConnectionParams
 from faststream.types import AnyDict
 
 if TYPE_CHECKING:
+    from fast_depends.dependencies import Depends
+
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.types import (
+        BrokerMiddleware,
+        CustomDecoder,
+        CustomParser,
+        Filter,
+        PublisherProtocol,
+        SubscriberMiddleware,
+    )
 
 
 class LogicHandler(BaseHandler[ConsumerRecord]):
@@ -119,10 +131,12 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
         self.builder = builder
         self.task = None
         self.consumer = None
+        self.producer = None
 
     @override
     async def start(  # type: ignore[override]
         self,
+        producer: Optional["PublisherProtocol"],
         **consumer_kwargs: Unpack[ConsumerConnectionParams],
     ) -> None:
         """Start the consumer.
@@ -130,6 +144,8 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
         Args:
             **consumer_kwargs: Additional keyword arguments to pass to the consumer.
         """
+        self.producer = producer
+
         self.consumer = consumer = self.builder(
             *self.topics,
             group_id=self.group_id,
@@ -238,6 +254,7 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
             else:
                 if connected is False:  # pragma: no cover
                     connected = True
+
                 await self.consume(msg)
 
     @staticmethod
@@ -248,11 +265,11 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
     def build_log_context(
         message: Optional["StreamMessage[ConsumerRecord]"],
         topic: str,
-        group_id: str = "",
+        group_id: Optional[str] = None,
     ) -> Dict[str, str]:
         return {
             "topic": topic,
-            "group_id": group_id,
+            "group_id": group_id or "",
             "message_id": getattr(message, "message_id", ""),
         }
 
@@ -260,8 +277,15 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
         self,
         message: Optional["StreamMessage[ConsumerRecord]"],
     ) -> Dict[str, str]:
+        if message is None:
+            topic = ",".join(self.topics)
+        elif isinstance(message.raw_message, Sequence):
+            topic = message.raw_message[0].topic
+        else:
+            topic = message.raw_message.topic
+
         return self.build_log_context(
             message=message,
-            topic=message.raw_message.topic if message else ",".join(self.topics),
+            topic=topic,
             group_id=self.group_id,
         )

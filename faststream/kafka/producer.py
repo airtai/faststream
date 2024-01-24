@@ -18,7 +18,6 @@ class AioKafkaFastProducer:
         publish : Publishes a message to a Kafka topic.
         stop : Stops the Kafka producer.
         publish_batch : Publishes a batch of messages to a Kafka topic.
-
     """
 
     _producer: Optional[AIOKafkaProducer]
@@ -31,7 +30,6 @@ class AioKafkaFastProducer:
 
         Args:
             producer: An instance of AIOKafkaProducer.
-
         """
         self._producer = producer
 
@@ -64,7 +62,6 @@ class AioKafkaFastProducer:
 
         Raises:
             AssertionError: If the broker is not connected.
-
         """
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
@@ -113,10 +110,6 @@ class AioKafkaFastProducer:
 
         Returns:
             None
-
-        Raises:
-            AssertionError: If the broker is not connected.
-
         """
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 

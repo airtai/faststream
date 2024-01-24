@@ -1,11 +1,20 @@
-from typing import Any, Callable, Dict, Optional, Sequence, AsyncContextManager, Iterable, TYPE_CHECKING
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncContextManager,
+    Callable,
+    Dict,
+    Iterable,
+    Optional,
+    Sequence,
+)
 
 import aio_pika
 from typing_extensions import override
 
 from faststream._compat import model_to_dict
 from faststream.broker.core.handler import BaseHandler
-from faststream.broker.message import StreamMessage
+from faststream.broker.core.publisher import FakePublisher
 from faststream.broker.parsers import resolve_custom_func
 from faststream.rabbit.helpers import RabbitDeclarer
 from faststream.rabbit.parser import AioPikaParser
@@ -15,11 +24,13 @@ from faststream.rabbit.schemas.schemas import (
     RabbitQueue,
     ReplyConfig,
 )
-from faststream.broker.core.publisher import FakePublisher
 from faststream.types import AnyDict
 
 if TYPE_CHECKING:
+    from fast_depends.dependencies import Depends
+
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
+    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
         CustomDecoder,
@@ -28,7 +39,6 @@ if TYPE_CHECKING:
         PublisherProtocol,
         SubscriberMiddleware,
     )
-    from fast_depends.dependencies import Depends
 
 
 class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):

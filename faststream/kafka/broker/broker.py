@@ -132,7 +132,7 @@ class KafkaBroker(
                 f"`{handler.call_name}` waiting for messages",
                 extra=handler.get_log_context(None),
             )
-            await handler.start(**(self._connection or {}))
+            await handler.start(self._producer, **(self._connection or {}))
 
     @override
     def subscriber(  # type: ignore[override]
@@ -232,7 +232,7 @@ class KafkaBroker(
             exclude_internal_topics=exclude_internal_topics,
             isolation_level=isolation_level,
         )
-        
+
         self.handlers[key] = handler = self.handlers.get(key) or Handler(
             *topics,
             is_manual=not auto_commit,
@@ -325,11 +325,11 @@ class KafkaBroker(
         **kwargs: Any,
     ) -> None:
         async with AsyncExitStack() as stack:
-            messages = [
+            wrapped_messages = [
                 await stack.enter_async_context(middleware().publish_scope(msg, **kwargs))
                 for msg in messages
                 for middleware in self.middlewares
-            ]
+            ] or messages
 
             assert self._producer, NOT_CONNECTED_YET  # nosec B101
-            await self._producer.publish_batch(*messages, **kwargs)
+            await self._producer.publish_batch(*wrapped_messages, **kwargs)

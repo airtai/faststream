@@ -1,11 +1,11 @@
 from types import TracebackType
 from typing import (
+    TYPE_CHECKING,
     Any,
     AsyncContextManager,
     Optional,
     Type,
     Union,
-    TYPE_CHECKING,
 )
 
 import anyio
@@ -20,18 +20,18 @@ from faststream.utils.functions import fake_context, timeout_scope
 if TYPE_CHECKING:
     import aio_pika
     import aiormq
-    from anyio.streams.memory import MemoryObjectReceiveStream
+    from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 
-    from faststream.rabbit.helpers import RabbitDeclarer
-    from faststream.rabbit.message import RabbitMessage
     from faststream.broker.types import (
         AsyncCustomDecoder,
         AsyncCustomParser,
         AsyncDecoder,
         AsyncParser,
     )
-    from faststream.types import SendableMessage
+    from faststream.rabbit.helpers import RabbitDeclarer
+    from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.types import AioPikaSendableMessage, TimeoutType
+    from faststream.types import SendableMessage
 
 
 
@@ -242,10 +242,12 @@ class _RPCCallback:
         self.queue = callback_queue
 
     async def __aenter__(self) -> "MemoryObjectReceiveStream[aio_pika.IncomingMessage]":
+        send_response_stream: "MemoryObjectSendStream[aio_pika.abc.AbstractIncomingMessage]"
+        receive_response_stream: "MemoryObjectReceiveStream[aio_pika.IncomingMessage]"
         (
             send_response_stream,
             receive_response_stream,
-        ) = anyio.create_memory_object_stream["aio_pika.IncomingMessage"](max_buffer_size=1)
+        ) = anyio.create_memory_object_stream(max_buffer_size=1)
         await self.lock.acquire()
 
         self.consumer_tag = await self.queue.consume(

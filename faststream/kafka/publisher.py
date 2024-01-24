@@ -1,14 +1,15 @@
 from dataclasses import dataclass, field
-from typing import Dict, Optional, Sequence
+from functools import cached_property
+from typing import Any, Dict, Optional, Sequence
 
 from aiokafka import ConsumerRecord
 from typing_extensions import override
 
-from faststream.broker.core.publisher import BasePublisher
 from faststream.__about__ import __version__
+from faststream.broker.core.publisher import BasePublisher
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.kafka.producer import AioKafkaFastProducer
-from faststream.types import SendableMessage
+from faststream.types import AnyDict, SendableMessage
 
 
 @dataclass
@@ -43,11 +44,8 @@ class LogicPublisher(BasePublisher[ConsumerRecord]):
         self,
         *messages: SendableMessage,
         message: SendableMessage = "",
-        key: Optional[bytes] = None,
-        partition: Optional[int] = None,
-        timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
         correlation_id: Optional[str] = None,
+        **kwargs: Any,
     ) -> None:
         """Publish messages to a topic.
 
@@ -77,14 +75,10 @@ class LogicPublisher(BasePublisher[ConsumerRecord]):
         if not self.batch:
             return await self._producer.publish(
                 message=next(iter(messages), message),
-                topic=self.topic,
-                key=key or self.key,
-                partition=partition or self.partition,
-                timestamp_ms=timestamp_ms or self.timestamp_ms,
                 correlation_id=correlation_id,
-                headers=headers or self.headers,
-                reply_to=self.reply_to or "",
+                **kwargs,
             )
+
         else:
             to_send: Sequence[SendableMessage]
             if not messages:
@@ -99,10 +93,22 @@ class LogicPublisher(BasePublisher[ConsumerRecord]):
 
             await self._producer.publish_batch(
                 *to_send,
-                topic=self.topic,
-                partition=partition or self.partition,
-                timestamp_ms=timestamp_ms or self.timestamp_ms,
-                headers=headers or self.headers,
+                **kwargs,
             )
 
             return None
+
+    @cached_property
+    def publish_kwargs(self) -> AnyDict:
+        kwargs = {
+            "topic": self.topic,
+            "partition": self.partition,
+            "timestamp_ms": self.timestamp_ms,
+            "headers": self.headers,
+        }
+        if not self.batch:
+            kwargs.update({
+                "key": self.key,
+                "reply_to": self.reply_to or "",
+            })
+        return kwargs

@@ -5,9 +5,9 @@ from typing import (
     Callable,
     Dict,
     Generic,
+    Iterable,
     List,
     Optional,
-    Iterable,
     Tuple,
     TypeVar,
 )
