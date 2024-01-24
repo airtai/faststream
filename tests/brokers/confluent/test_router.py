@@ -12,6 +12,7 @@ from faststream.types import AnyCallable
 
 
 @pytest.mark.asyncio()
+@pytest.mark.confluent()
 class RouterTestcase:  # noqa: D101
     build_message: AnyCallable
     route_class: Type[BrokerRoute]
