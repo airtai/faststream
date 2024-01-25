@@ -8,7 +8,7 @@ from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
 @pytest.mark.asyncio()
-@pytest.mark.flaky(retries=3, delay=1)
+@pytest.mark.flaky(reruns=3, reruns_delay=1)
 class TestTestclient(BrokerTestclientTestcase):
     """A class to represent a test Kafka broker."""
 

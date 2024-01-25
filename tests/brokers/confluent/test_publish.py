@@ -20,7 +20,7 @@ class SimpleModel(BaseModel):  # noqa: D101
 now = datetime.now()
 
 
-@pytest.mark.flaky(retries=3, delay=1)
+@pytest.mark.flaky(reruns=3, reruns_delay=1)
 class BrokerPublishTestcase:  # noqa: D101
     @pytest.fixture()
     def pub_broker(self, full_broker):
