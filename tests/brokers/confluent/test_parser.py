@@ -9,7 +9,7 @@ from faststream.confluent import KafkaBroker
 
 
 @pytest.mark.asyncio()
-@pytest.mark.flaky(retries=3, delay=1)
+@pytest.mark.flaky(reruns=3, reruns_delay=1)
 class LocalCustomParserTestcase:  # noqa: D101
     broker_class: Type[BrokerAsyncUsecase]
 
