@@ -27,7 +27,7 @@ Developed by Confluent, this library enjoys strong support from the core team be
     Please run the following command to install it:
 
     ```bash
-    pip install "faststream[confluent]>=0.4.0rc0"
+    pip install "faststream[confluent]>=0.4.0"
     ```
 
 ### FastStream Confluent KafkaBroker
