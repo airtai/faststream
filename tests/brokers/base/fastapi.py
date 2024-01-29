@@ -313,7 +313,7 @@ class FastAPILocalTestcase:  # noqa: D101
 
         mock.assert_called_once()
 
-    async def test_after_startup(self, mock: Mock):
+    async def test_hooks(self, mock: Mock):
         router = self.router_class()
 
         app = FastAPI(lifespan=router.lifespan_context)
@@ -329,6 +329,14 @@ class FastAPILocalTestcase:  # noqa: D101
             mock.async_called()
             return {"async_called": mock.sync_called.called}
 
+        @router.on_broker_shutdown
+        def test_shutdown_sync(app):
+            mock.sync_shutdown_called()
+
+        @router.on_broker_shutdown
+        async def test_shutdown_async(app):
+            mock.async_shutdown_called()
+
         async with self.broker_test(router.broker), router.lifespan_context(
             app
         ) as context:
@@ -337,6 +345,8 @@ class FastAPILocalTestcase:  # noqa: D101
 
         mock.sync_called.assert_called_once()
         mock.async_called.assert_called_once()
+        mock.sync_shutdown_called.assert_called_once()
+        mock.async_shutdown_called.assert_called_once()
 
     async def test_existed_lifespan_startup(self, mock: Mock):
         @asynccontextmanager
