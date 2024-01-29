@@ -94,7 +94,7 @@ devdocs = [
     "mkdocs-glightbox==0.3.6",  # img zoom
     "pillow==10.2.0",
     "cairosvg==2.7.1",
-    "black==23.12.1",
+    "black==24.1.1",
     "requests",  # do not pin it
 ]
 
