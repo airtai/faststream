@@ -82,7 +82,7 @@ docs = [
 
 # dev dependencies
 devdocs = [
-    "mkdocs-material==9.5.4",
+    "mkdocs-material==9.5.6",
     "mkdocs-static-i18n==1.2.0",
     "mdx-include==1.4.2",
     "mkdocstrings[python]==0.24.0",
@@ -94,7 +94,7 @@ devdocs = [
     "mkdocs-glightbox==0.3.6",  # img zoom
     "pillow==10.2.0",
     "cairosvg==2.7.1",
-    "black==23.12.1",
+    "black==24.1.1",
     "requests",  # do not pin it
 ]
 
@@ -113,12 +113,12 @@ lint = [
 ]
 
 test-core = [
-    "coverage[toml]==7.4.0",
+    "coverage[toml]==7.4.1",
     "pytest==7.4.4",
     "pytest-asyncio==0.23.3",
     "dirty-equals==0.7.1.post0",
     "pytest-timeout==2.2.0",
-    "pytest-retry==1.6.1; python_version > '3.8'",
+    "pytest-rerunfailures==13.0",
 ]
 
 testing = [

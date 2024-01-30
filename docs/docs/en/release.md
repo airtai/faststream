@@ -12,6 +12,72 @@ hide:
 ---
 
 # Release Notes
+## 0.4.0
+
+### What's Changed
+
+This release adds support for the [Confluent's Python Client for Apache Kafka (TM)](https://github.com/confluentinc/confluent-kafka-python). Confluent's Python Client for Apache Kafka does not support natively `async` functions and its integration with modern async-based services is a bit trickier. That was the reason why our initial supported by Kafka broker used [aiokafka](https://github.com/aio-libs/aiokafka). However, that choice was a less fortunate one as it is as well maintained as the Confluent version. After receiving numerous requests, we finally decided to bite the bullet and create an `async` wrapper around Confluent's Python Client and add full support for it in FastStream.
+
+If you want to try it out, install it first with:
+```sh
+pip install "faststream[confluent]>=0.4.0"
+```
+
+To connect to Kafka using the FastStream KafkaBroker module, follow these steps:
+
+1. Initialize the KafkaBroker instance: Start by initializing a KafkaBroker instance with the necessary configuration, including Kafka broker address.
+
+2. Create your processing logic: Write a function that will consume the incoming messages in the defined format and produce a response to the defined topic
+
+3. Decorate your processing function: To connect your processing function to the desired Kafka topics you need to decorate it with `@broker.subscriber(...)` and `@broker.publisher(...)` decorators. Now, after you start your application, your processing function will be called whenever a new message in the subscribed topic is available and produce the function return value to the topic defined in the publisher decorator.
+
+Here's a simplified code example demonstrating how to establish a connection to Kafka using FastStream's KafkaBroker module:
+
+```python
+from faststream import FastStream
+from faststream.confluent import KafkaBroker
+
+broker = KafkaBroker("localhost:9092")
+app = FastStream(broker)
+
+@broker.subscriber("in-topic")
+@broker.publisher("out-topic")
+async def handle_msg(user: str, user_id: int) -> str:
+    return f"User: {user_id} - {user} registered"
+```
+
+For more information, please visit the documentation at:
+
+https://faststream.airt.ai/latest/confluent/
+
+#### List of Changes
+
+* Update Release Notes for 0.3.13 by @faststream-release-notes-updater in https://github.com/airtai/faststream/pull/1119
+* docs: close #1125 by @Lancetnik in https://github.com/airtai/faststream/pull/1126
+* Add support for confluent python lib by @kumaranvpl in https://github.com/airtai/faststream/pull/1042
+* Update tutorial docs to include confluent code examples by @kumaranvpl in https://github.com/airtai/faststream/pull/1131
+* Add installation instructions for confluent by @kumaranvpl in https://github.com/airtai/faststream/pull/1132
+* Update Release Notes for 0.4.0rc0 by @faststream-release-notes-updater in https://github.com/airtai/faststream/pull/1130
+* chore: remove useless branch from CI by @Lancetnik in https://github.com/airtai/faststream/pull/1135
+* chore: bump mkdocs-git-revision-date-localized-plugin from 1.2.1 to 1.2.2 by @dependabot in https://github.com/airtai/faststream/pull/1140
+* chore: strict fast-depends version by @Lancetnik in https://github.com/airtai/faststream/pull/1145
+* chore: update copyright by @Lancetnik in https://github.com/airtai/faststream/pull/1144
+* fix: correct Windows shutdown by @Lancetnik in https://github.com/airtai/faststream/pull/1148
+* docs: fix typo by @saroz014 in https://github.com/airtai/faststream/pull/1154
+* Middleware Document Syntax Error by @SepehrBazyar in https://github.com/airtai/faststream/pull/1156
+* fix: correct FastAPI Context type hints by @Lancetnik in https://github.com/airtai/faststream/pull/1155
+* Fix bug which results in lost confluent coverage report by @kumaranvpl in https://github.com/airtai/faststream/pull/1160
+* Fix failing ack tests for confluent by @kumaranvpl in https://github.com/airtai/faststream/pull/1166
+* Update version to 0.4.0 and update docs by @kumaranvpl in https://github.com/airtai/faststream/pull/1171
+* feat #1180: add StreamRouter.on_broker_shutdown hook by @Lancetnik in https://github.com/airtai/faststream/pull/1182
+* Fix bug - using old upload-artifact version by @kumaranvpl in https://github.com/airtai/faststream/pull/1183
+* Release 0.4.0 by @davorrunje in https://github.com/airtai/faststream/pull/1184
+
+### New Contributors
+* @saroz014 made their first contribution in https://github.com/airtai/faststream/pull/1154
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.3.13...0.4.0
+
 ## 0.4.0rc0
 
 ### What's Changed

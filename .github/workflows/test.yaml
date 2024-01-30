@@ -242,7 +242,7 @@ jobs:
           COVERAGE_FILE: coverage/.coverage.confluent-py
           CONTEXT: confluent-py
       - name: Store coverage files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: .coverage.confluent-py
           path: coverage
