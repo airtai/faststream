@@ -21,6 +21,7 @@ async def test_custom_global_context_kafka():
 
         handle.mock.assert_called_once_with("Hi!")
 
+
 @pytest.mark.asyncio()
 async def test_custom_global_context_confluent():
     from docs.docs_src.getting_started.context.confluent.custom_global_context import (
@@ -33,6 +34,7 @@ async def test_custom_global_context_confluent():
         await br.publish("Hi!", "test-topic")
 
         handle.mock.assert_called_once_with("Hi!")
+
 
 @pytest.mark.asyncio()
 async def test_custom_global_context_rabbit():

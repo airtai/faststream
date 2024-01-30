@@ -74,12 +74,8 @@ class StreamRouter(APIRouter, Generic[MsgType]):
     broker_class: Type[BrokerAsyncUsecase[MsgType, Any]]
     broker: BrokerAsyncUsecase[MsgType, Any]
     docs_router: Optional[APIRouter]
-    _after_startup_hooks: List[
-        Callable[[Any], Awaitable[Optional[Mapping[str, Any]]]]
-    ]
-    _on_shutdown_hooks: List[
-        Callable[[Any], Awaitable[None]]
-    ]
+    _after_startup_hooks: List[Callable[[Any], Awaitable[Optional[Mapping[str, Any]]]]]
+    _on_shutdown_hooks: List[Callable[[Any], Awaitable[None]]]
     schema: Optional[Schema]
 
     title: str
