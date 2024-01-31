@@ -188,7 +188,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             on_shutdown=on_shutdown,
         )
 
-        self.weak_dependencies_provider = WeakSet()
+        self.weak_dependencies_provider: "WeakSet[Any]" = WeakSet()
         if dependency_overrides_provider is not None:
             self.weak_dependencies_provider.add(dependency_overrides_provider)
 

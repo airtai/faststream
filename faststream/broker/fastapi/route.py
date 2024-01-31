@@ -172,9 +172,7 @@ class StreamMessage(Request):
 
     @classmethod
     def get_session(
-        cls,
-        dependant: Dependant,
-        provider_factory: Callable[[], Any]
+        cls, dependant: Dependant, provider_factory: Callable[[], Any]
     ) -> Callable[[NativeMessage[Any]], Awaitable[SendableMessage]]:
         """Creates a session for handling requests.
 
