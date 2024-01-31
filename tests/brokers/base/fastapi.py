@@ -418,3 +418,36 @@ class FastAPILocalTestcase:  # noqa: D101
                     rpc_timeout=0.5,
                 )
                 assert r == "hi"
+
+    async def test_dependency_overrides(self, mock: Mock, queue: str):
+        router = self.router_class()
+        router2 = self.router_class()
+
+        def dep1():
+            mock.not_call()
+            pass
+
+        app = FastAPI(lifespan=router.lifespan_context)
+        app.dependency_overrides[dep1] = lambda: mock()
+
+        @router2.subscriber(queue)
+        async def hello_router2(dep = Depends(dep1)):
+            return "hi"
+
+        router.include_router(router2)
+        app.include_router(router)
+
+        async with self.broker_test(router.broker):
+            with TestClient(app) as client:
+                assert client.app_state["broker"] is router.broker
+
+                r = await router.broker.publish(
+                    "hi",
+                    queue,
+                    rpc=True,
+                    rpc_timeout=0.5,
+                )
+                assert r == "hi"
+
+        mock.assert_called_once()
+        assert not mock.not_call.called

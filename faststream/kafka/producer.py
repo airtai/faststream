@@ -85,8 +85,6 @@ class AioKafkaFastProducer:
             headers=[(i, (j or "").encode()) for i, j in headers_to_send.items()],
         )
 
-        return None
-
     async def stop(self) -> None:
         if self._producer is not None:  # pragma: no branch
             await self._producer.stop()
@@ -98,6 +96,8 @@ class AioKafkaFastProducer:
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
         headers: Optional[Dict[str, str]] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
     ) -> None:
         """Publish a batch of messages to a topic.
 
@@ -115,19 +115,26 @@ class AioKafkaFastProducer:
 
         batch = self._producer.create_batch()
 
+        headers_to_send = {
+            "correlation_id": correlation_id or str(uuid4()),
+            **(headers or {}),
+        }
+
+        if reply_to:
+            headers_to_send.update({"reply_to": reply_to})
+
         for msg in msgs:
             message, content_type = encode_message(msg)
 
-            headers_to_send = {
-                "content-type": content_type or "",
-                **(headers or {}),
-            }
+            final_headers = headers_to_send.copy()
+            if content_type:
+                final_headers.update({"content-type": content_type})
 
             batch.append(
                 key=None,
                 value=message,
                 timestamp=timestamp_ms,
-                headers=[(i, j.encode()) for i, j in headers_to_send.items()],
+                headers=[(i, j.encode()) for i, j in final_headers.items()],
             )
 
         await self._producer.send_batch(batch, topic, partition=partition)

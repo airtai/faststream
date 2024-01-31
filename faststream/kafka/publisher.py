@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from functools import cached_property
-from typing import Any, Dict, Optional, Sequence
+from typing import Any, Dict, Iterable, Optional, Union, cast
 
 from aiokafka import ConsumerRecord
 from typing_extensions import override
@@ -28,87 +28,65 @@ class LogicPublisher(BasePublisher[ConsumerRecord]):
         AssertionError: If `_producer` is not set up or if multiple messages are sent without the `batch` flag
 
     """
+
     topic: str = ""
-    key: Optional[bytes] = None
     partition: Optional[int] = None
     timestamp_ms: Optional[int] = None
     headers: Optional[Dict[str, str]] = None
     reply_to: Optional[str] = ""
-    batch: bool = field(default=False)
     client_id: str = field(default="faststream-" + __version__)
 
-    _producer: Optional[AioKafkaFastProducer] = field(default=None, init=False)
-
-    @override
-    async def _publish(  # type: ignore[override]
-        self,
-        *messages: SendableMessage,
-        message: SendableMessage = "",
-        correlation_id: Optional[str] = None,
-        **kwargs: Any,
-    ) -> None:
-        """Publish messages to a topic.
-
-        Args:
-            *messages: Variable length argument list of SendableMessage objects.
-            message: A SendableMessage object. Default is an empty string.
-            key: Optional bytes object representing the message key.
-            partition: Optional integer representing the partition to publish the message to.
-            timestamp_ms: Optional integer representing the timestamp of the message in milliseconds.
-            headers: Optional dictionary of header key-value pairs.
-            correlation_id: Optional string representing the correlation ID of the message.
-
-        Returns:
-            None
-
-        Raises:
-            AssertionError: If `_producer` is not set up.
-            AssertionError: If `batch` flag is not set and there are multiple messages.
-            ValueError: If `message` is not a sequence when `messages` is empty.
-        """
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-        assert (  # nosec B101
-            self.batch or len(messages) < 2
-        ), "You can't send multiple messages without `batch` flag"
-        assert self.topic, "You have to specify outgoing topic"  # nosec B101
-
-        if not self.batch:
-            return await self._producer.publish(
-                message=next(iter(messages), message),
-                correlation_id=correlation_id,
-                **kwargs,
-            )
-
-        else:
-            to_send: Sequence[SendableMessage]
-            if not messages:
-                if not isinstance(message, Sequence):
-                    raise TypeError(
-                        f"Message: {message} should be Sequence type to send in batch"
-                    )
-                else:
-                    to_send = message
-            else:
-                to_send = messages
-
-            await self._producer.publish_batch(
-                *to_send,
-                **kwargs,
-            )
-
-            return None
+    _producer: Optional[AioKafkaFastProducer] = field(
+        default=None,
+        init=False,
+        repr=False,
+    )
 
     @cached_property
     def publish_kwargs(self) -> AnyDict:
-        kwargs = {
+        return {
             "topic": self.topic,
             "partition": self.partition,
             "timestamp_ms": self.timestamp_ms,
             "headers": self.headers,
+            "reply_to": self.reply_to,
         }
-        if not self.batch:
-            kwargs.update({
-                "key": self.key,
-                "reply_to": self.reply_to or "",
-            })
-        return kwargs
+
+
+@dataclass
+class DefaultPublisher(LogicPublisher):
+    key: Optional[bytes] = None
+
+    @override
+    async def _publish(  # type: ignore[override]
+        self,
+        message: SendableMessage = "",
+        **kwargs: Any,
+    ) -> None:
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        return await self._producer.publish(
+            message=message,
+            **kwargs,
+        )
+
+    @cached_property
+    def publish_kwargs(self) -> AnyDict:
+        return super().publish_kwargs | {"key": self.key}
+
+
+class BatchPublisher(LogicPublisher):
+    @override
+    async def _publish(  # type: ignore[override]
+        self,
+        messages: Union[SendableMessage, Iterable[SendableMessage]],
+        *extra_messages: SendableMessage,
+        **kwargs: Any,
+    ) -> None:
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+
+        if extra_messages:
+            msgs = (cast(SendableMessage, messages), *extra_messages)
+        else:
+            msgs = cast(Iterable[SendableMessage], messages)
+
+        await self._producer.publish_batch(*msgs, **kwargs)

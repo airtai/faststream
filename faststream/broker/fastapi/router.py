@@ -17,6 +17,7 @@ from typing import (
     Union,
     overload,
 )
+from weakref import WeakSet
 
 from fastapi import APIRouter, FastAPI, params
 from fastapi.datastructures import Default
@@ -183,7 +184,14 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             on_shutdown=on_shutdown,
         )
 
-        self.docs_router = self.asyncapi_router(schema_url)
+        self.weak_dependencies_provider = WeakSet()
+        if dependency_overrides_provider is not None:
+            self.weak_dependencies_provider.add(dependency_overrides_provider)
+
+        if self.include_in_schema:
+            self.docs_router = self.asyncapi_router(schema_url)
+        else:
+            self.docs_router = None
 
         self._after_startup_hooks = []
 
@@ -212,7 +220,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             *extra,
             endpoint=endpoint,
             dependencies=dependencies,
-            dependency_overrides_provider=self.dependency_overrides_provider,
+            provider_factory=self.get_dependencies_overides_provider,
             broker=self.broker,
             **broker_kwargs,
         )
@@ -240,9 +248,6 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         Returns:
             A callable decorator that adds the decorated function as an endpoint for the specified path.
         """
-        current_dependencies = self.dependencies.copy()
-        if dependencies:
-            current_dependencies.extend(dependencies)
 
         def decorator(
             func: Callable[P_HandlerParams, T_HandlerReturn],
@@ -259,7 +264,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
                 path,
                 *extra,
                 endpoint=func,
-                dependencies=current_dependencies,
+                dependencies=(*self.dependencies, *(dependencies or ())),
                 **broker_kwargs,
             )
 
@@ -288,17 +293,20 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             Yields:
                 AsyncIterator[Mapping[str, Any]]: A mapping of context information during the lifespan of the broker.
             """
-            from faststream.asyncapi.generate import get_app_schema
-
-            self.title = app.title
-            self.description = app.description
-            self.version = app.version
-            self.contact = app.contact
-            self.license = app.license_info
-
-            self.schema = get_app_schema(self)
             if self.docs_router:
+                from faststream.asyncapi.generate import get_app_schema
+
+                self.title = app.title
+                self.description = app.description
+                self.version = app.version
+                self.contact = app.contact
+                self.license = app.license_info
+
+                self.schema = get_app_schema(self)
                 app.include_router(self.docs_router)
+
+            if not len(self.weak_dependencies_provider):
+                self.weak_dependencies_provider.add(app)
 
             async with lifespan_context(app) as maybe_context:
                 if maybe_context is None:
@@ -325,6 +333,12 @@ class StreamRouter(APIRouter, Generic[MsgType]):
                     await self.broker.close()
 
         return start_broker_lifespan
+
+    def get_dependencies_overides_provider(self) -> Optional[Any]:
+        if self.dependency_overrides_provider is not None:
+            return self.dependency_overrides_provider
+        else:
+            return next(iter(self.weak_dependencies_provider), None)
 
     @overload
     def after_startup(
@@ -567,11 +581,16 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         """
         if isinstance(router, StreamRouter):  # pragma: no branch
             self._setup_log_context(self.broker, router.broker)
-            self.broker.handlers = {**self.broker.handlers, **router.broker.handlers}
+            self.broker.handlers = {
+                **self.broker.handlers,
+                **router.broker.handlers,
+            }
             self.broker._publishers = {
                 **self.broker._publishers,
                 **router.broker._publishers,
             }
+
+            router.weak_dependencies_provider = self.weak_dependencies_provider
 
         super().include_router(
             router=router,

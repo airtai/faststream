@@ -18,15 +18,14 @@ from faststream.broker.utils import get_watcher_context
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.rabbit.asyncapi import Handler, Publisher
 from faststream.rabbit.broker.logging import RabbitLoggingMixin
-from faststream.rabbit.helpers import RabbitDeclarer
+from faststream.rabbit.helpers import RabbitDeclarer, build_url
 from faststream.rabbit.producer import AioPikaFastProducer
-from faststream.rabbit.security import parse_security
 from faststream.rabbit.schemas.constants import RABBIT_REPLY
 from faststream.rabbit.schemas.schemas import (
     RabbitExchange,
     RabbitQueue,
 )
-from faststream.rabbit.helpers import build_url
+from faststream.rabbit.security import parse_security
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -254,6 +253,7 @@ class RabbitBroker(
             middlewares=self.middlewares,
             watcher=get_watcher_context(self.logger, no_ack, retry),
             graceful_timeout=self.graceful_timeout,
+            extra_context={},
             # AsyncAPI
             title_=title,
             description_=description,

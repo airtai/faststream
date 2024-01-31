@@ -52,13 +52,13 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
         self,
         path: Union[NameRequired, str, None],
         *extra: Union[NameRequired, str],
+        provider_factory: Callable[[], Optional[Any]],
         endpoint: Union[
             Callable[P_HandlerParams, T_HandlerReturn],
             HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
         ],
         broker: BrokerUsecase[MsgType, Any],
-        dependencies: Sequence[params.Depends] = (),
-        dependency_overrides_provider: Optional[Any] = None,
+        dependencies: Sequence[params.Depends],
         **handle_kwargs: Any,
     ) -> None:
         """Initialize a class instance.
@@ -99,7 +99,7 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
         call = wraps(orig_call)(
             StreamMessage.get_session(
                 dependant,
-                dependency_overrides_provider,
+                provider_factory,
             )
         )
 
@@ -174,7 +174,7 @@ class StreamMessage(Request):
     def get_session(
         cls,
         dependant: Dependant,
-        dependency_overrides_provider: Optional[Any] = None,
+        provider_factory: Callable[[], Optional[Any]],
     ) -> Callable[[NativeMessage[Any]], Awaitable[SendableMessage]]:
         """Creates a session for handling requests.
 
@@ -190,7 +190,7 @@ class StreamMessage(Request):
         """
         assert dependant.call  # nosec B101
 
-        func = get_app(dependant, dependency_overrides_provider)
+        func = get_app(dependant, provider_factory)
 
         dependencies_names = tuple(i.name for i in dependant.dependencies)
 
@@ -242,7 +242,7 @@ class StreamMessage(Request):
 
 def get_app(
     dependant: Dependant,
-    dependency_overrides_provider: Optional[Any] = None,
+    provider_factory: Callable[[], Optional[Any]],
 ) -> Callable[
     [StreamMessage],
     Coroutine[Any, Any, SendableMessage],
@@ -283,7 +283,7 @@ def get_app(
                 request=request,
                 body=request._body,  # type: ignore[arg-type]
                 dependant=dependant,
-                dependency_overrides_provider=dependency_overrides_provider,
+                dependency_overrides_provider=provider_factory(),
                 **kwargs,  # type: ignore[arg-type]
             )
 

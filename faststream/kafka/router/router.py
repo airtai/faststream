@@ -1,14 +1,13 @@
-from typing import Any, Dict, Optional, Iterable, Callable
+from typing import Any, Callable, Dict, Iterable, Optional
 
 from aiokafka import ConsumerRecord
 from typing_extensions import override
 
-from faststream.broker.router import BrokerRoute
-from faststream.broker.router import BrokerRouter
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
+from faststream.broker.router import BrokerRoute, BrokerRouter
+from faststream.broker.types import P_HandlerParams, T_HandlerReturn
 from faststream.kafka.asyncapi import Publisher
 from faststream.types import SendableMessage
-from faststream.broker.core.call_wrapper import HandlerCallWrapper
-from faststream.broker.types import P_HandlerParams, T_HandlerReturn
 
 
 class KafkaRouter(BrokerRouter[str, ConsumerRecord]):
@@ -105,6 +104,8 @@ class KafkaRouter(BrokerRouter[str, ConsumerRecord]):
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
         batch: bool = False,
+        # publisher-specfic
+        middlewares: Iterable = (),
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
@@ -131,17 +132,20 @@ class KafkaRouter(BrokerRouter[str, ConsumerRecord]):
         """
         new_publisher = self._update_publisher_prefix(
             self.prefix,
-            Publisher(
+            Publisher.create(
                 topic=topic,
                 key=key,
                 partition=partition,
                 timestamp_ms=timestamp_ms,
                 headers=headers,
                 reply_to=reply_to,
-                title=title,
                 batch=batch,
-                _description=description,
-                _schema=schema,
+                # publisher-specific
+                middlewares=middlewares,
+                # AsyncAPI
+                title_=title,
+                schema_=schema,
+                description_=description,
                 include_in_schema=(
                     include_in_schema
                     if self.include_in_schema is None

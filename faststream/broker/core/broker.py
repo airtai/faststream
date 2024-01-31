@@ -173,7 +173,7 @@ class BrokerUsecase(
             default_logger=default_logger,
         )
 
-        # TODO: remove this context to support multiple brokers
+        # TODO: move this context to Handlers' extra_context to support multiple brokers
         context.set_global("logger", self.logger)
         context.set_global("broker", self)
 

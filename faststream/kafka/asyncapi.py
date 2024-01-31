@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Any, Dict, Optional
 
 from faststream.asyncapi.base import AsyncAPIOperation
 from faststream.asyncapi.schema import (
@@ -11,7 +11,7 @@ from faststream.asyncapi.schema import (
 from faststream.asyncapi.schema.bindings import kafka
 from faststream.asyncapi.utils import resolve_payloads
 from faststream.kafka.handler import LogicHandler
-from faststream.kafka.publisher import LogicPublisher
+from faststream.kafka.publisher import BatchPublisher, DefaultPublisher, LogicPublisher
 
 
 class Handler(LogicHandler, AsyncAPIOperation):
@@ -30,7 +30,7 @@ class Handler(LogicHandler, AsyncAPIOperation):
         payloads = self.get_payloads()
 
         for t in self.topics:
-            handler_name = self._title or f"{t}:{self.call_name}"
+            handler_name = self.title_ or f"{t}:{self.call_name}"
             channels[handler_name] = Channel(
                 description=self.description,
                 subscribe=Operation(
@@ -62,7 +62,6 @@ class Publisher(LogicPublisher, AsyncAPIOperation):
         return f"{self.topic}:Publisher"
 
     def get_schema(self) -> Dict[str, Channel]:
-
         payloads = self.get_payloads()
 
         return {
@@ -80,3 +79,15 @@ class Publisher(LogicPublisher, AsyncAPIOperation):
                 bindings=ChannelBinding(kafka=kafka.ChannelBinding(topic=self.topic)),
             )
         }
+
+    @staticmethod
+    def create(
+        *,
+        batch: bool,
+        key: Optional[bytes],
+        **kwargs: Any,
+    ) -> "LogicPublisher":
+        if batch:
+            return BatchPublisher(**kwargs)
+        else:
+            return DefaultPublisher(**kwargs, key=key)

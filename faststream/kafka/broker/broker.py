@@ -1,3 +1,4 @@
+from contextlib import AsyncExitStack
 from functools import partial
 from types import TracebackType
 from typing import (
@@ -13,7 +14,6 @@ from typing import (
     Type,
     Union,
 )
-from contextlib import AsyncExitStack
 
 import aiokafka
 from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
@@ -21,8 +21,6 @@ from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssigno
 from fast_depends.dependencies import Depends
 from typing_extensions import override
 
-from faststream.types import SendableMessage
-from faststream.broker.utils import get_watcher_context
 from faststream.__about__ import __version__
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
@@ -33,16 +31,19 @@ from faststream.broker.types import (
     CustomParser,
     Filter,
     P_HandlerParams,
+    PublisherMiddleware,
     T_HandlerReturn,
 )
+from faststream.broker.utils import get_watcher_context
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.kafka.asyncapi import Handler, Publisher
+from faststream.kafka.broker.logging import KafkaLoggingMixin
 from faststream.kafka.message import KafkaMessage
 from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.kafka.security import parse_security
-from faststream.kafka.broker.logging import KafkaLoggingMixin
 from faststream.kafka.shared.schemas import ConsumerConnectionParams
 from faststream.security import BaseSecurity
+from faststream.types import SendableMessage
 from faststream.utils.data import filter_by_dict
 
 
@@ -246,6 +247,7 @@ class KafkaBroker(
             graceful_timeout=self.graceful_timeout,
             middlewares=self.middlewares,
             watcher=get_watcher_context(self.logger, no_ack, retry),
+            extra_context={},
             # AsyncAPI
             title_=title,
             description_=description,
@@ -274,33 +276,42 @@ class KafkaBroker(
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
         batch: bool = False,
+        # specific
+        middlewares: Iterable["PublisherMiddleware"] = (),
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
         schema: Optional[Any] = None,
         include_in_schema: bool = True,
     ) -> Publisher:
-        publisher = self._publishers.get(
-            topic,
-            Publisher(
-                topic=topic,
-                client_id=self.client_id,
-                key=key,
-                batch=batch,
-                partition=partition,
-                timestamp_ms=timestamp_ms,
-                headers=headers,
-                reply_to=reply_to,
-                # AsyncAPI
-                title_=title,
-                description_=description,
-                schema_=schema,
-                include_in_schema=include_in_schema,
-            ),
+        if batch and key:
+            raise ValueError("You can't setup `key` with batch publisher")
+
+        publisher = self._publishers.get(topic) or Publisher.create(
+            # batch flag
+            batch=batch,
+            # default args
+            key=key,
+            # both args
+            topic=topic,
+            client_id=self.client_id,
+            partition=partition,
+            timestamp_ms=timestamp_ms,
+            headers=headers,
+            reply_to=reply_to,
+            # publisher-specific
+            middlewares=middlewares,
+            # AsyncAPI
+            title_=title,
+            description_=description,
+            schema_=schema,
+            include_in_schema=include_in_schema,
         )
+
         super().publisher(topic, publisher)
         if self._producer is not None:
             publisher._producer = self._producer
+
         return publisher
 
     @override

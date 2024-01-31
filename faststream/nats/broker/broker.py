@@ -361,6 +361,7 @@ class NatsBroker(
             pull_sub=pull_sub,
             extra_options=extra_options,
             max_workers=max_workers,
+            extra_context={},
             # base options
             graceful_timeout=self.graceful_timeout,
             middlewares=self.middlewares,
