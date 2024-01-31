@@ -26,8 +26,7 @@ async def test_raw_publish():
 
         await broker.publish(
             msg,
-            "input_data",
-            headers={"content-type": "application/json"},
+            topic="input_data",
         )
 
         handle_data.mock.assert_called_once_with(dict(msg))
