@@ -315,10 +315,7 @@ def apply_pattern(pattern: str, current: str) -> bool:
 
             pattern_symb = next(pattern_queue, None)
 
-        elif pattern_symb == "*":
-            pattern_symb = next(pattern_queue, None)
-
-        elif pattern_symb == next_symb:
+        elif pattern_symb == "*" or pattern_symb == next_symb:
             pattern_symb = next(pattern_queue, None)
 
         else:

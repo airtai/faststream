@@ -138,13 +138,16 @@ def build_url(
 ) -> "URL":
     original_url = make_url(url)
 
+    use_ssl = ssl or original_url.scheme == "amqps"
+    default_port = 5671 if use_ssl else 5672
+
     return make_url(
         host=host or original_url.host or "localhost",
-        port=port or original_url.port or 5672,
+        port=port or original_url.port or default_port,
         login=login or original_url.user or "guest",
         password=password or original_url.password or "guest",
         virtualhost=virtualhost or original_url.path.lstrip("/"),
-        ssl=ssl or original_url.scheme == "amqps",
+        ssl=use_ssl,
         ssl_options=ssl_options,
         client_properties=client_properties,
         **{

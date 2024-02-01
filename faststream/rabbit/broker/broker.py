@@ -30,9 +30,9 @@ from faststream.rabbit.security import parse_security
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from anyio.abc import TaskGroup
     import aiormq
     from aio_pika.abc import SSLOptions
+    from anyio.abc import TaskGroup
     from fast_depends.dependencies import Depends
     from pamqp.common import FieldTable
     from yarl import URL
