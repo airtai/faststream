@@ -12,7 +12,6 @@ from faststream.exceptions import (
     RejectMessage,
     SkipMessage,
 )
-from faststream.utils.functions import call_or_await
 
 if TYPE_CHECKING:
     from faststream.broker.message import StreamMessage
@@ -265,23 +264,23 @@ class WatcherContext:
         self,
         message: "StreamMessage[MsgType]",
         watcher: BaseWatcher,
-        **extra_ack_args: Any,
+        **extra_options: Any,
     ) -> None:
         """Initialize a new instance of the class.
 
         Args:
             watcher: An instance of BaseWatcher.
             message: An instance of StreamMessage.
-            **extra_ack_args: Additional arguments for acknowledgement.
+            **extra_options: Additional arguments for acknowledgement.
 
         Attributes:
             watcher: An instance of BaseWatcher.
             message: An instance of StreamMessage.
-            extra_ack_args: Additional arguments for acknowledgement.
+            extra_options: Additional arguments for acknowledgement.
         """
         self.watcher = watcher
         self.message = message
-        self.extra_ack_args = extra_ack_args or {}
+        self.extra_options = extra_options
 
     async def __aenter__(self) -> None:
         self.watcher.add(self.message.message_id)
@@ -329,12 +328,12 @@ class WatcherContext:
         return False
 
     async def __ack(self) -> None:
-        await call_or_await(self.message.ack, **self.extra_ack_args)
+        await self.message.ack(**self.extra_options)
         self.watcher.remove(self.message.message_id)
 
     async def __nack(self) -> None:
-        await call_or_await(self.message.nack, **self.extra_ack_args)
+        await self.message.nack(**self.extra_options)
 
     async def __reject(self) -> None:
-        await call_or_await(self.message.reject, **self.extra_ack_args)
+        await self.message.reject(**self.extra_options)
         self.watcher.remove(self.message.message_id)

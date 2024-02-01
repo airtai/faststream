@@ -34,7 +34,6 @@ if TYPE_CHECKING:
     from faststream.types import SendableMessage
 
 
-
 class AioPikaFastProducer:
     """A class for fast producing messages using aio-pika.
 
@@ -231,7 +230,9 @@ class _RPCCallback:
         __aexit__ : Asynchronous context manager method that releases the lock and cancels the consumer tag for the queue.
     """
 
-    def __init__(self, lock: "anyio.Lock", callback_queue: "aio_pika.RobustQueue") -> None:
+    def __init__(
+        self, lock: "anyio.Lock", callback_queue: "aio_pika.RobustQueue"
+    ) -> None:
         """Initialize an object of a class.
 
         Args:

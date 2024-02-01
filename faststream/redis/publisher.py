@@ -25,7 +25,7 @@ class LogicPublisher(BasePublisher[AnyRedisDict]):
     _producer: Optional[RedisFastProducer] = field(default=None, init=False)
 
     @override
-    async def publish(  # type: ignore[override]
+    async def _publish(  # type: ignore[override]
         self,
         message: SendableMessage,
         channel: Union[str, PubSub, None] = None,
@@ -41,15 +41,11 @@ class LogicPublisher(BasePublisher[AnyRedisDict]):
     ) -> Optional[DecodedMessage]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
-        channel = PubSub.validate(channel or self.channel)
-        list = ListSub.validate(list or self.list)
-        stream = StreamSub.validate(stream or self.stream)
+        channel = PubSub.validate(channel)
+        list = ListSub.validate(list)
+        stream = StreamSub.validate(stream)
 
         assert any((channel, list, stream)), "You have to specify outgoing channel"  # nosec B101
-
-        headers_to_send = (self.headers or {}).copy()
-        if headers is not None:
-            headers_to_send.update(headers)
 
         if getattr(list, "batch", False):
             await self._producer.publish_batch(
@@ -64,9 +60,9 @@ class LogicPublisher(BasePublisher[AnyRedisDict]):
                 channel=getattr(channel, "name", None),
                 list=getattr(list, "name", None),
                 stream=getattr(stream, "name", None),
-                reply_to=reply_to or self.reply_to,
+                reply_to=reply_to,
                 correlation_id=correlation_id,
-                headers=headers_to_send,
+                headers=headers,
                 rpc=rpc,
                 rpc_timeout=rpc_timeout,
                 raise_timeout=raise_timeout,
@@ -77,3 +73,13 @@ class LogicPublisher(BasePublisher[AnyRedisDict]):
         any_of = self.channel or self.list or self.stream
         assert any_of, INCORRECT_SETUP_MSG  # nosec B101
         return any_of.name
+
+    @cached_property
+    def publish_kwargs(self) -> AnyDict:
+        return {
+            "channel": self.channel,
+            "list": self.list,
+            "stream": self.stream,
+            "headers": self.headers,
+            "reply_to": self.reply_to,
+        }

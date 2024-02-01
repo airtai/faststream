@@ -13,6 +13,7 @@ from typing import (
     Tuple,
     Type,
     Union,
+    TYPE_CHECKING,
 )
 
 import aiokafka
@@ -46,6 +47,8 @@ from faststream.security import BaseSecurity
 from faststream.types import SendableMessage
 from faststream.utils.data import filter_by_dict
 
+if TYPE_CHECKING:
+    from anyio.abc import TaskGroup
 
 class KafkaBroker(
     KafkaLoggingMixin,
@@ -125,15 +128,15 @@ class KafkaBroker(
         )
         return filter_by_dict(ConsumerConnectionParams, {**kwargs, **security_params})
 
-    async def start(self) -> None:
-        await super().start()
+    async def start(self, task_group: Optional["TaskGroup"] = None) -> None:
+        await super().start(task_group)
 
         for handler in self.handlers.values():
             self._log(
                 f"`{handler.call_name}` waiting for messages",
                 extra=handler.get_log_context(None),
             )
-            await handler.start(self._producer, **(self._connection or {}))
+            await handler.start(self._producer, task_group=self.task_group, **(self._connection or {}))
 
     @override
     def subscriber(  # type: ignore[override]
@@ -337,7 +340,9 @@ class KafkaBroker(
     ) -> None:
         async with AsyncExitStack() as stack:
             wrapped_messages = [
-                await stack.enter_async_context(middleware().publish_scope(msg, **kwargs))
+                await stack.enter_async_context(
+                    middleware().publish_scope(msg, **kwargs)
+                )
                 for msg in messages
                 for middleware in self.middlewares
             ] or messages

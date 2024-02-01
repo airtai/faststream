@@ -30,6 +30,7 @@ from faststream.rabbit.security import parse_security
 if TYPE_CHECKING:
     from types import TracebackType
 
+    from anyio.abc import TaskGroup
     import aiormq
     from aio_pika.abc import SSLOptions
     from fast_depends.dependencies import Depends
@@ -61,7 +62,6 @@ class RabbitBroker(
 
     declarer: Optional[RabbitDeclarer]
     _producer: Optional[AioPikaFastProducer]
-    _connection: Optional["aio_pika.RobustConnection"]
     _channel: Optional["aio_pika.RobustChannel"]
 
     def __init__(
@@ -201,8 +201,9 @@ class RabbitBroker(
 
         await super()._close(exc_type, exc_val, exec_tb)
 
-    async def start(self) -> None:
-        await super().start()
+    async def start(self, task_group: Optional["TaskGroup"] = None) -> None:
+        await super().start(task_group)
+
         assert self.declarer, NOT_CONNECTED_YET  # nosec B101
 
         for publisher in self._publishers.values():
@@ -212,7 +213,7 @@ class RabbitBroker(
         for handler in self.handlers.values():
             c = handler.get_log_context(None)
             self._log(f"`{handler.call_name}` waiting for messages", extra=c)
-            await handler.start(self.declarer, self._producer)
+            await handler.start(self.declarer, self._producer, self.task_group)
 
     @override
     def subscriber(  # type: ignore[override]

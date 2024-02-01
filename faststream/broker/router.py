@@ -137,7 +137,7 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
                 [StreamMessage[MsgType]],
                 AsyncContextManager[None],
             ]
-        ]= (),
+        ] = (),
         parser: Optional[CustomParser[MsgType]] = None,
         decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
         include_in_schema: Optional[bool] = None,
@@ -235,7 +235,9 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
             Returns:
                 The wrapped function.
             """
-            wrapped_func = HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn](func)
+            wrapped_func = HandlerCallWrapper[
+                MsgType, P_HandlerParams, T_HandlerReturn
+            ](func)
             route = BrokerRoute[MsgType, T_HandlerReturn](
                 wrapped_func,
                 *args,

@@ -1,23 +1,20 @@
 from dataclasses import dataclass, field
-from typing import Any, Optional, Union, TYPE_CHECKING
+from functools import cached_property
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from typing_extensions import override
-from functools import cached_property
 
 from faststream.broker.core.publisher import BasePublisher
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.rabbit.handler import LogicHandler
 from faststream.rabbit.schemas.schemas import BaseRMQInformation
 
-
 if TYPE_CHECKING:
     import aiormq
 
-    from aio_pika import IncomingMessage
-
     from faststream.rabbit.producer import AioPikaFastProducer
     from faststream.rabbit.types import AioPikaSendableMessage, TimeoutType
-    from faststream.types import SendableMessage, AnyDict
+    from faststream.types import AnyDict, SendableMessage
 
 
 @dataclass
@@ -30,6 +27,7 @@ class LogicPublisher(BasePublisher["IncomingMessage"], BaseRMQInformation):
     Methods:
         publish : Publishes a message for logic processing.
     """
+
     routing_key: str = ""
     mandatory: bool = True
     immediate: bool = False
@@ -46,7 +44,9 @@ class LogicPublisher(BasePublisher["IncomingMessage"], BaseRMQInformation):
         return self.routing_key or self.queue.routing
 
     def _get_routing_hash(self) -> int:
-        return LogicHandler.get_routing_hash(self.queue, self.exchange) + hash(self.routing_key)
+        return LogicHandler.get_routing_hash(self.queue, self.exchange) + hash(
+            self.routing_key
+        )
 
     @override
     async def _publish(  # type: ignore[override]
@@ -63,7 +63,6 @@ class LogicPublisher(BasePublisher["IncomingMessage"], BaseRMQInformation):
         Returns:
             ConfirmationFrameType or SendableMessage: The result of the publish operation.
         """
-
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         return await self._producer.publish(
@@ -81,5 +80,5 @@ class LogicPublisher(BasePublisher["IncomingMessage"], BaseRMQInformation):
             "immediate": self.immediate,
             "persist": self.persist,
             "priority": self.priority,
-            "timeout": self.timeout
+            "timeout": self.timeout,
         }

@@ -1,4 +1,3 @@
-import asyncio
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
@@ -14,7 +13,7 @@ from typing import (
 
 import anyio
 from aiokafka import AIOKafkaConsumer, ConsumerRecord
-from aiokafka.errors import KafkaError
+from aiokafka.errors import KafkaError, ConsumerStoppedError
 from typing_extensions import Unpack, override
 
 from faststream.__about__ import __version__
@@ -26,6 +25,7 @@ from faststream.kafka.shared.schemas import ConsumerConnectionParams
 from faststream.types import AnyDict
 
 if TYPE_CHECKING:
+    from anyio.abc import TaskGroup, TaskStatus
     from fast_depends.dependencies import Depends
 
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
@@ -47,7 +47,6 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
         topics : sequence of strings representing the topics to consume from
         group_id : optional string representing the consumer group ID
         consumer : optional AIOKafkaConsumer object representing the Kafka consumer
-        task : optional asyncio.Task object representing the task for consuming messages
         batch : boolean indicating whether to consume messages in batches
 
     Methods:
@@ -59,11 +58,10 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
     """
 
     topics: Sequence[str]
-    group_id: Optional[str] = None
+    group_id: Optional[str]
 
-    consumer: Optional[AIOKafkaConsumer] = None
-    task: Optional["asyncio.Task[Any]"] = None
-    batch: bool = False
+    consumer: Optional[AIOKafkaConsumer]
+    batch: bool
 
     @override
     def __init__(
@@ -129,7 +127,6 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
         self.is_manual = is_manual
 
         self.builder = builder
-        self.task = None
         self.consumer = None
         self.producer = None
 
@@ -137,6 +134,7 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
     async def start(  # type: ignore[override]
         self,
         producer: Optional["PublisherProtocol"],
+        task_group: Optional["TaskGroup"],
         **consumer_kwargs: Unpack[ConsumerConnectionParams],
     ) -> None:
         """Start the consumer.
@@ -144,8 +142,6 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
         Args:
             **consumer_kwargs: Additional keyword arguments to pass to the consumer.
         """
-        self.producer = producer
-
         self.consumer = consumer = self.builder(
             *self.topics,
             group_id=self.group_id,
@@ -153,8 +149,10 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
             **consumer_kwargs,
         )
         await consumer.start()
-        self.task = asyncio.create_task(self._consume())
-        await super().start()
+
+        await super().start(producer=producer, task_group=task_group)
+        await task_group.start(self._consume)
+        
 
     async def close(self) -> None:
         await super().close()
@@ -162,10 +160,6 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
         if self.consumer is not None:
             await self.consumer.stop()
             self.consumer = None
-
-        if self.task is not None:
-            self.task.cancel()
-            self.task = None
 
     @override
     def add_call(  # type: ignore[override]
@@ -226,8 +220,14 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
             ),
         )
 
-    async def _consume(self) -> None:
+    async def _consume(
+        self,
+        *,
+        task_status: "TaskStatus[None]" = anyio.TASK_STATUS_IGNORED,
+    ) -> None:
         assert self.consumer, "You need to start handler first"  # nosec B101
+
+        task_status.started()
 
         connected = True
         while self.running:
@@ -250,6 +250,9 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
                 if connected is True:
                     connected = False
                 await anyio.sleep(5)
+
+            except ConsumerStoppedError:
+                return
 
             else:
                 if connected is False:  # pragma: no cover

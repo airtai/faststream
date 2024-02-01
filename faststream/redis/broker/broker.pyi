@@ -25,10 +25,10 @@ from faststream.broker.types import (
 )
 from faststream.log import access_logger
 from faststream.redis.asyncapi import Handler, Publisher
+from faststream.redis.broker.logging import RedisLoggingMixin
 from faststream.redis.message import AnyRedisDict, RedisMessage
 from faststream.redis.producer import RedisFastProducer
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
-from faststream.redis.shared.logging import RedisLoggingMixin
 from faststream.security import BaseSecurity
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
 

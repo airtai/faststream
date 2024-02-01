@@ -109,9 +109,7 @@ def get_function_positional_arguments(func: AnyCallable) -> Iterable[str]:
     )
 
     return (
-        param.name
-        for param in signature.parameters.values()
-        if param.kind in arg_kinds
+        param.name for param in signature.parameters.values() if param.kind in arg_kinds
     )
 
 

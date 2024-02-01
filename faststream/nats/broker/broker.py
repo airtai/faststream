@@ -38,6 +38,7 @@ from faststream.nats.security import parse_security
 if TYPE_CHECKING:
     from types import TracebackType
 
+    from anyio.abc import TaskGroup
     from fast_depends.dependencies import Depends
     from nats.aio.client import Callback, Client, ErrorCallback
     from nats.aio.msg import Msg
@@ -58,6 +59,7 @@ if TYPE_CHECKING:
     from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
     Subject: TypeAlias = str
+
 
 class NatsBroker(
     NatsLoggingMixin,
@@ -174,8 +176,9 @@ class NatsBroker(
         await super()._close(exc_type, exc_val, exec_tb)
         self.__is_connected = False
 
-    async def start(self) -> None:
-        await super().start()
+    async def start(self, task_group: Optional["TaskGroup"] = None) -> None:
+        await super().start(task_group)
+
         assert self._connection  # nosec B101
         assert self.stream, "Broker should be started already"  # nosec B101
         assert self._producer, "Broker should be started already"  # nosec B101
@@ -219,6 +222,7 @@ class NatsBroker(
             await handler.start(
                 self.stream if is_js else self._connection,
                 self._producer,
+                task_group=self.task_group,
             )
 
     def _log_connection_broken(

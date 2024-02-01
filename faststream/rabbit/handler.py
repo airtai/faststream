@@ -29,6 +29,7 @@ from faststream.types import AnyDict
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
+    from anyio.abc import TaskGroup
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
@@ -58,6 +59,7 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
         close : Closes the consumer and cancels message consumption
 
     """
+
     _consumer_tag: Optional[str]
     _queue_obj: Optional[aio_pika.RobustQueue]
 
@@ -127,14 +129,13 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
         self,
         declarer: RabbitDeclarer,
         producer: Optional["PublisherProtocol"],
+        task_group: "TaskGroup",
     ) -> None:
         """Starts the consumer for the RabbitMQ queue.
 
         Args:
             declarer: RabbitDeclarer object used to declare the queue and exchange
         """
-        self.producer = producer
-
         self._queue_obj = queue = await declarer.declare_queue(self.queue)
 
         if self.exchange is not None:
@@ -153,7 +154,7 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
             arguments=self.consume_args,
         )
 
-        await super().start()
+        await super().start(producer=producer, task_group=task_group)
 
     async def close(self) -> None:
         await super().close()
@@ -173,9 +174,7 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
 
         return (
             FakePublisher(
-                self.producer.publish,
-                routing_key=message.reply_to,
-                **self.reply_config
+                self.producer.publish, routing_key=message.reply_to, **self.reply_config
             ),
         )
 

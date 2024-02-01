@@ -50,5 +50,7 @@ class LogicPublisher(BasePublisher[Msg]):
             {
                 "stream": self.stream.name,
                 "timeout": self.timeout,
-            } if self.stream is not None else {}
+            }
+            if self.stream is not None
+            else {}
         )

@@ -1,31 +1,14 @@
 from typing import Any, Callable, Optional, Sequence, Union
 
 from fastapi import Depends
-from redis.asyncio.client import Redis as RedisClient
-from typing_extensions import Annotated, override
+from typing_extensions import override
 
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
-from faststream.broker.fastapi.context import Context, ContextRepo, Logger
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.types import P_HandlerParams, T_HandlerReturn
 from faststream.redis.broker import RedisBroker as RB
 from faststream.redis.message import AnyRedisDict
-from faststream.redis.message import RedisMessage as RM
 from faststream.redis.schemas import PubSub
-
-__all__ = (
-    "Context",
-    "Logger",
-    "ContextRepo",
-    "RedisRouter",
-    "RedisMessage",
-    "RedisBroker",
-    "Redis",
-)
-
-RedisMessage = Annotated[RM, Context("message")]
-RedisBroker = Annotated[RB, Context("broker")]
-Redis = Annotated[RedisClient, Context("broker._connection")]
 
 
 class RedisRouter(StreamRouter[AnyRedisDict]):

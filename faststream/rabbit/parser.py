@@ -10,8 +10,8 @@ from faststream.rabbit.message import RabbitMessage
 from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
-    from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.rabbit.asyncapi import Handler
+    from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.types import DecodedMessage
 
 
@@ -111,10 +111,13 @@ class AioPikaParser:
 
             return aio_pika.Message(
                 message,
-                **({
-                    "delivery_mode": delivery_mode,
-                    "content_type": content_type,
-                    "reply_to": callback_queue or reply_to,
-                    "correlation_id": str(uuid4()),
-                } | message_kwargs),
+                **(
+                    {
+                        "delivery_mode": delivery_mode,
+                        "content_type": content_type,
+                        "reply_to": callback_queue or reply_to,
+                        "correlation_id": str(uuid4()),
+                    }
+                    | message_kwargs
+                ),
             )

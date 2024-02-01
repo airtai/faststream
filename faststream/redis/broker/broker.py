@@ -1,49 +1,49 @@
-from functools import partial, wraps
+from contextlib import AsyncExitStack
 from types import TracebackType
 from typing import (
     Any,
-    AsyncContextManager,
-    Awaitable,
     Callable,
     Dict,
+    Iterable,
     Optional,
     Sequence,
     Type,
     Union,
+    TYPE_CHECKING,
 )
 from urllib.parse import urlparse
 
 from fast_depends.dependencies import Depends
 from redis.asyncio.client import Redis
 from redis.asyncio.connection import ConnectionPool, parse_url
-from redis.exceptions import ResponseError
 from typing_extensions import TypeAlias, override
 
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
-from faststream.broker.core.publisher import FakePublisher
-from faststream.broker.message import StreamMessage
-from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
     Filter,
     P_HandlerParams,
-    PublisherProtocol,
+    PublisherMiddleware,
+    SubscriberMiddleware,
     T_HandlerReturn,
 )
+from faststream.broker.utils import get_watcher_context
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.redis.asyncapi import Handler, Publisher
+from faststream.redis.broker.logging import RedisLoggingMixin
 from faststream.redis.message import AnyRedisDict, RedisMessage
 from faststream.redis.producer import RedisFastProducer
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.security import parse_security
-from faststream.redis.shared.logging import RedisLoggingMixin
 from faststream.security import BaseSecurity
-from faststream.types import AnyDict, DecodedMessage
-from faststream.utils.context.repository import context
+from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
 Channel: TypeAlias = str
+
+if TYPE_CHECKING:
+    from anyio.abc import TaskGroup
 
 
 class RedisBroker(
@@ -63,9 +63,9 @@ class RedisBroker(
         url: str = "redis://localhost:6379",
         polling_interval: Optional[float] = None,
         *,
+        security: Optional[BaseSecurity] = None,
         protocol: Optional[str] = None,
         protocol_version: Optional[str] = "custom",
-        security: Optional[BaseSecurity] = None,
         **kwargs: Any,
     ) -> None:
         """Redis broker.
@@ -137,58 +137,21 @@ class RedisBroker(
 
         await super()._close(exc_type, exc_val, exec_tb)
 
-    async def start(self) -> None:
-        context.set_global(
-            "default_log_context",
-            self._get_log_context(None, ""),
-        )
+    async def start(self, task_group: Optional["TaskGroup"] = None) -> None:
+        await super().start(task_group)
 
-        await super().start()
-        assert self._connection, NOT_CONNECTED_YET  # nosec B101
+        assert self._producer and self._connection, NOT_CONNECTED_YET  # nosec B101
 
         for handler in self.handlers.values():
-            if (stream := handler.stream_sub) is not None and stream.group:
-                try:
-                    await self._connection.xgroup_create(
-                        name=stream.name,
-                        groupname=stream.group,
-                        mkstream=True,
-                    )
-                except ResponseError as e:
-                    if "already exists" not in str(e):
-                        raise e
-
-            c = self._get_log_context(None, handler.channel_name)
-            self._log(f"`{handler.call_name}` waiting for messages", extra=c)
-            await handler.start(self._connection)
-
-    def _process_message(
-        self,
-        func: Callable[[StreamMessage[Any]], Awaitable[T_HandlerReturn]],
-        watcher: Callable[..., AsyncContextManager[None]],
-        **kwargs: Any,
-    ):
-        @wraps(func)
-        async def process_wrapper(
-            message: StreamMessage[Any],
-        ):
-            async with watcher(
-                message,
-                redis=self._connection,
-            ):
-                r = await func(message)
-
-                pub_response: Optional[PublisherProtocol]
-                if message.reply_to:
-                    pub_response = FakePublisher(
-                        partial(self.publish, channel=message.reply_to)
-                    )
-                else:
-                    pub_response = None
-
-                return r, pub_response
-
-        return process_wrapper
+            self._log(
+                f"`{handler.call_name}` waiting for messages",
+                extra=handler.get_log_context(None),
+            )
+            await handler.start(
+                self._connection,
+                producer=self._producer,
+                task_group=self.task_group,
+            )
 
     @override
     def subscriber(  # type: ignore[override]
@@ -201,15 +164,15 @@ class RedisBroker(
         dependencies: Sequence[Depends] = (),
         parser: Optional[CustomParser[AnyRedisDict]] = None,
         decoder: Optional[CustomDecoder[RedisMessage]] = None,
-        middlewares: Optional[
-            Sequence[Callable[[AnyRedisDict], BaseMiddleware]]
-        ] = None,
+        middlewares: Iterable[SubscriberMiddleware] = (),
         filter: Filter[RedisMessage] = default_filter,
+        retry: bool = False,
+        no_ack: bool = False,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
         include_in_schema: bool = True,
-        **original_kwargs: Any,
+        **wrapper_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
         HandlerCallWrapper[Any, P_HandlerParams, T_HandlerReturn],
@@ -232,50 +195,34 @@ class RedisBroker(
         super().subscriber()
 
         key = Handler.get_routing_hash(any_of)
-        handler = self.handlers[key] = self.handlers.get(
-            key,
-            Handler(  # type: ignore[abstract]
-                log_context_builder=partial(
-                    self._get_log_context,
-                    channel=any_of.name,
-                ),
-                graceful_timeout=self.graceful_timeout,
-                # Redis
-                channel=channel,
-                list=list,
-                stream=stream,
-                # AsyncAPI
-                title=title,
-                description=description,
-                include_in_schema=include_in_schema,
+        handler = self.handlers[key] = self.handlers.get(key) or Handler.create(  # type: ignore[abstract]
+            channel=channel,
+            list=list,
+            stream=stream,
+            # base options
+            extra_context={},
+            graceful_timeout=self.graceful_timeout,
+            middlewares=self.middlewares,
+            watcher=get_watcher_context(
+                self.logger, no_ack, retry, redis=self._connection
             ),
+            # AsyncAPI
+            title_=title,
+            description_=description,
+            include_in_schema=include_in_schema,
         )
 
-        def consumer_wrapper(
-            func: Callable[P_HandlerParams, T_HandlerReturn],
-        ) -> HandlerCallWrapper[
-            AnyRedisDict,
-            P_HandlerParams,
-            T_HandlerReturn,
-        ]:
-            handler_call, dependant = self._wrap_handler(
-                func,
-                extra_dependencies=dependencies,
-                **original_kwargs,
-            )
-
-            handler.add_call(
-                handler=handler_call,
-                filter=filter,
-                middlewares=middlewares,
-                parser=parser or self._global_parser,  # type: ignore[arg-type]
-                decoder=decoder or self._global_decoder,  # type: ignore[arg-type]
-                dependant=dependant,
-            )
-
-            return handler_call
-
-        return consumer_wrapper
+        return handler.add_call(
+            filter=filter,
+            parser=parser or self._global_parser,
+            decoder=decoder or self._global_decoder,
+            dependencies=(*self.dependencies, *dependencies),
+            middlewares=middlewares,
+            # wrapper kwargs
+            is_validate=self._is_validate,
+            apply_types=self._is_apply_types,
+            **wrapper_kwargs,
+        )
 
     @override
     def publisher(  # type: ignore[override]
@@ -285,6 +232,7 @@ class RedisBroker(
         stream: Union[Channel, StreamSub, None] = None,
         headers: Optional[AnyDict] = None,
         reply_to: str = "",
+        middlewares: Iterable[PublisherMiddleware] = (),
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
@@ -300,20 +248,18 @@ class RedisBroker(
             raise ValueError(INCORRECT_SETUP_MSG)
 
         key = Handler.get_routing_hash(any_of)
-        publisher = self._publishers.get(
-            key,
-            Publisher(
-                channel=channel,
-                list=list,
-                stream=stream,
-                headers=headers,
-                reply_to=reply_to,
-                # AsyncAPI
-                title=title,
-                _description=description,
-                _schema=schema,
-                include_in_schema=include_in_schema,
-            ),
+        publisher = self._publishers.get(key) or Publisher(
+            channel=channel,
+            list=list,
+            stream=stream,
+            headers=headers,
+            reply_to=reply_to,
+            middlewares=middlewares,
+            # AsyncAPI
+            title_=title,
+            description_=description,
+            schema_=schema,
+            include_in_schema=include_in_schema,
         )
         super().publisher(key, publisher)
         if self._producer is not None:
@@ -323,16 +269,32 @@ class RedisBroker(
     @override
     async def publish(  # type: ignore[override]
         self,
+        message: SendableMessage,
         *args: Any,
         **kwargs: Any,
     ) -> Optional[DecodedMessage]:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-        return await self._producer.publish(*args, **kwargs)
+        async with AsyncExitStack() as stack:
+            for m in self.middlewares:
+                message = await stack.enter_async_context(
+                    m().publish_scope(message, *args, **kwargs)
+                )
+
+            assert self._producer, NOT_CONNECTED_YET  # nosec B101
+            return await self._producer.publish(message, *args, **kwargs)
 
     async def publish_batch(
         self,
-        *args: Any,
+        *messages: Any,
         **kwargs: Any,
     ) -> None:
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
-        return await self._producer.publish_batch(*args, **kwargs)
+        async with AsyncExitStack() as stack:
+            wrapped_messages = [
+                await stack.enter_async_context(
+                    middleware().publish_scope(msg, **kwargs)
+                )
+                for msg in messages
+                for middleware in self.middlewares
+            ] or messages
+
+            assert self._producer, NOT_CONNECTED_YET  # nosec B101
+            return await self._producer.publish_batch(*wrapped_messages, **kwargs)

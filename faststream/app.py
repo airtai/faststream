@@ -11,6 +11,7 @@ from typing import (
     TypeVar,
     Union,
 )
+import signal
 
 import anyio
 from typing_extensions import ParamSpec
@@ -27,6 +28,7 @@ T_HookReturn = TypeVar("T_HookReturn")
 
 
 if TYPE_CHECKING:
+    from anyio.abc import TaskGroup
     from pydantic import AnyHttpUrl
 
     from faststream.asyncapi.schema import (
@@ -220,20 +222,44 @@ class FastStream:
         """
         assert self.broker, "You should setup a broker"  # nosec B101
 
+        send_stop_stream, receive_stop_stream = anyio.create_memory_object_stream(max_buffer_size=1)
+        set_exit(lambda signal, _: send_stop_stream.send_nowait(signal))
+        self.stop_stream = send_stop_stream
+
+        async def close_faster(send_stream):
+            """Function working then NATS blocks event-loop."""
+            try:
+                with anyio.open_signal_receiver(*HANDLED_SIGNALS) as signals:
+                    async for signal in signals:
+                        await send_stream.send(signal)
+
+            except NotImplementedError:
+                # Not compatible with Windows
+                pass
+
         async with self.lifespan_context(**(run_extra_options or {})):
             try:
                 async with anyio.create_task_group() as tg:
-                    tg.start_soon(self._start, log_level, run_extra_options)
+                    tg.start_soon(close_faster, send_stop_stream)
+
+                    await self._start(log_level, run_extra_options, tg)
+                    await receive_stop_stream.receive()
                     await self._stop(log_level)
+
                     tg.cancel_scope.cancel()
+
             except ExceptionGroup as e:
                 for ex in e.exceptions:
                     raise ex from None
+
+    async def stop(self):
+        await self.stop_stream.send(signal.SIGINT)
 
     async def _start(
         self,
         log_level: int = logging.INFO,
         run_extra_options: Optional[Dict[str, SettingField]] = None,
+        task_group: Optional["TaskGroup"] = None,
     ) -> None:
         """Start the FastStream app.
 
@@ -245,7 +271,7 @@ class FastStream:
             None
         """
         self._log(log_level, "FastStream app starting...")
-        await self._startup(**(run_extra_options or {}))
+        await self._startup(task_group=task_group, **(run_extra_options or {}))
         self._log(
             log_level, "FastStream app started successfully! To exit, press CTRL+C"
         )
@@ -253,31 +279,22 @@ class FastStream:
     async def _stop(self, log_level: int = logging.INFO) -> None:
         """Stop the application gracefully.
 
-        Blocking method (waits for SIGINT/SIGTERM).
-
         Args:
             log_level (int): log level for logging messages (default: logging.INFO)
 
         Returns:
             None
         """
-        try:
-            with anyio.open_signal_receiver(*HANDLED_SIGNALS) as signals:
-                async for _ in signals:
-                    break
-
-        except NotImplementedError:
-            # Windows
-            event = anyio.Event()
-            set_exit(lambda *_: event.set())
-            await event.wait()
-
         self._log(log_level, "FastStream app shutting down...")
         await self._shutdown()
         self._log(log_level, "FastStream app shut down gracefully.")
-        return
 
-    async def _startup(self, **run_extra_options: SettingField) -> None:
+    async def _startup(
+        self,
+        *,
+        task_group: Optional["TaskGroup"] = None,
+        **run_extra_options: SettingField,
+    ) -> None:
         """Executes startup tasks.
 
         Args:
@@ -290,7 +307,7 @@ class FastStream:
             await func(**run_extra_options)
 
         if self.broker is not None:
-            await self.broker.start()
+            await self.broker.start(task_group=task_group)
 
         for func in self._after_startup_calling:
             await func()

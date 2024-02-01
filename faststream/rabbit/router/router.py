@@ -1,24 +1,23 @@
-from typing import Any, Dict, Optional, Union, Iterable, TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Union
 
 from aio_pika.message import IncomingMessage
 from typing_extensions import override
 
 from faststream._compat import model_copy
+from faststream.broker.router import BrokerRoute as RabbitRoute
+from faststream.broker.router import BrokerRouter
+from faststream.broker.types import P_HandlerParams, T_HandlerReturn
 from faststream.rabbit.asyncapi import Publisher
 from faststream.rabbit.schemas.schemas import (
     RabbitExchange,
     RabbitQueue,
 )
-from faststream.broker.router import BrokerRoute as RabbitRoute
-from faststream.broker.router import BrokerRouter
-from faststream.broker.types import P_HandlerParams, T_HandlerReturn
-
 
 if TYPE_CHECKING:
     from faststream.broker.core.call_wrapper import HandlerCallWrapper
     from faststream.broker.types import PublisherMiddleware
-    from faststream.types import SendableMessage
     from faststream.rabbit.types import TimeoutType
+    from faststream.types import SendableMessage
 
 
 class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):

@@ -1,4 +1,4 @@
-from typing import Any, Optional, Union, Dict, cast, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Optional, Union, cast
 
 from aio_pika.connection import make_url
 
@@ -6,10 +6,9 @@ from faststream.utils.classes import Singleton
 
 if TYPE_CHECKING:
     import aio_pika
-
-    from yarl import URL
     from aio_pika.abc import SSLOptions
     from pamqp.common import FieldTable
+    from yarl import URL
 
     from faststream.rabbit.schemas.schemas import RabbitExchange, RabbitQueue
 

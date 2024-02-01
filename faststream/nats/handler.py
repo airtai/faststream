@@ -1,4 +1,3 @@
-import asyncio
 from abc import abstractmethod
 from contextlib import suppress
 from typing import (
@@ -17,7 +16,7 @@ from typing import (
 )
 
 import anyio
-from nats.errors import TimeoutError
+from nats.errors import ConnectionClosedError, TimeoutError
 from typing_extensions import Annotated, Doc, override
 
 from faststream.broker.core.handler import BaseHandler
@@ -29,7 +28,7 @@ from faststream.types import AnyDict, SendableMessage
 from faststream.utils.path import compile_path
 
 if TYPE_CHECKING:
-    from anyio.abc import TaskStatus
+    from anyio.abc import TaskGroup, TaskStatus
     from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
     from fast_depends.dependencies import Depends
     from nats.aio.client import Client
@@ -59,7 +58,6 @@ class BaseNatsHandler(BaseHandler[MsgType]):
         "JetStreamContext.PushSubscription",
         "JetStreamContext.PullSubscription",
     ]
-    tasks: List["asyncio.Task[Any]"]
     producer: Optional["PublisherProtocol"]
 
     def __init__(
@@ -76,18 +74,6 @@ class BaseNatsHandler(BaseHandler[MsgType]):
             Optional[AnyDict],
             Doc("Extra context to pass into consume scope"),
         ] = None,
-        queue: Annotated[
-            str,
-            Doc("NATS queue name"),
-        ] = "",
-        stream: Annotated[
-            Optional["JStream"],
-            Doc("NATS Stream object"),
-        ] = None,
-        pull_sub: Annotated[
-            Optional["PullSub"],
-            Doc("NATS Pull consumer parameters container"),
-        ] = None,
         extra_options: Annotated[
             Optional[AnyDict],
             Doc("Extra arguments for subscription creation"),
@@ -103,6 +89,18 @@ class BaseNatsHandler(BaseHandler[MsgType]):
             Iterable["BrokerMiddleware[MsgType]"],
             Doc("Global middleware to use `on_receive`, `after_processed`"),
         ] = (),
+        queue: Annotated[
+            str,
+            Doc("NATS queue name"),
+        ] = "",
+        stream: Annotated[
+            Optional["JStream"],
+            Doc("NATS Stream object"),
+        ] = None,
+        pull_sub: Annotated[
+            Optional["PullSub"],
+            Doc("NATS Pull consumer parameters container"),
+        ] = None,
         # AsyncAPI information
         title_: Annotated[
             Optional[str],
@@ -145,8 +143,6 @@ class BaseNatsHandler(BaseHandler[MsgType]):
         self.subscription = None
         self.producer = None
 
-        self.tasks = []
-
     @override
     async def start(  # type: ignore[override]
         self,
@@ -158,11 +154,14 @@ class BaseNatsHandler(BaseHandler[MsgType]):
             Optional["PublisherProtocol"],
             Doc("Publisher to response RPC"),
         ],
+        task_group: Annotated[
+            "TaskGroup",
+            Doc("Application TaskGroup to run tasks"),
+        ],
     ) -> None:
         """Create NATS subscription and start consume task."""
-        self.producer = producer
+        await super().start(producer=producer, task_group=task_group)
         await self.create_subscription(connection)
-        await super().start()
 
     async def close(self) -> None:
         """Clean up handler subscription, cancel consume task in graceful mode."""
@@ -171,10 +170,6 @@ class BaseNatsHandler(BaseHandler[MsgType]):
         if self.subscription is not None:
             await self.subscription.unsubscribe()
             self.subscription = None
-
-        for t in self.tasks:
-            t.cancel()
-        self.tasks = []
 
     @abstractmethod
     async def create_subscription(
@@ -254,50 +249,50 @@ class DefaultHandler(BaseNatsHandler["Msg"]):
         extra_context: Annotated[
             Optional[AnyDict],
             Doc("Extra context to pass into consume scope"),
-        ] = None,
+        ],
         queue: Annotated[
             str,
             Doc("NATS queue name"),
-        ] = "",
+        ],
         stream: Annotated[
             Optional["JStream"],
             Doc("NATS Stream object"),
-        ] = None,
+        ],
         pull_sub: Annotated[
             Optional["PullSub"],
             Doc("NATS Pull consumer parameters container"),
-        ] = None,
+        ],
         extra_options: Annotated[
             Optional[AnyDict],
             Doc("Extra arguments for subscription creation"),
-        ] = None,
+        ],
         graceful_timeout: Annotated[
             Optional[float],
             Doc(
                 "Wait up to this time (if set) in graceful shutdown mode. "
                 "Kills task forcefully if expired."
             ),
-        ] = None,
+        ],
         max_workers: Annotated[
             int,
             Doc("Process up to this parameter messages concurrently"),
-        ] = 1,
+        ],
         middlewares: Annotated[
             Iterable["BrokerMiddleware[Msg]"],
             Doc("Global middleware to use `on_receive`, `after_processed`"),
-        ] = (),
+        ],
         title_: Annotated[
             Optional[str],
             Doc("AsyncAPI subscriber title"),
-        ] = None,
+        ],
         description_: Annotated[
             Optional[str],
             Doc("AsyncAPI subscriber description"),
-        ] = None,
+        ],
         include_in_schema: Annotated[
             bool,
             Doc("Whether to include the handler in AsyncAPI schema"),
-        ] = True,
+        ],
     ) -> None:
         super().__init__(
             subject=subject,
@@ -352,7 +347,7 @@ class DefaultHandler(BaseNatsHandler["Msg"]):
         """Create NATS subscription and start consume task."""
         cb: Callable[["Msg"], Awaitable[SendableMessage]]
         if self.max_workers > 1:
-            self.tasks.append(asyncio.create_task(self._serve_consume_queue()))
+            await self.task_group.start(self._serve_consume_queue)
             cb = self.__put_msg
         else:
             cb = self.consume
@@ -367,7 +362,7 @@ class DefaultHandler(BaseNatsHandler["Msg"]):
                 subject=self.subject,
                 **self.extra_options,
             )
-            self.tasks.append(asyncio.create_task(self._consume_pull(cb)))
+            await self.task_group.start(self._consume_pull, cb)
 
         else:
             self.subscription = await connection.subscribe(
@@ -386,11 +381,10 @@ class DefaultHandler(BaseNatsHandler["Msg"]):
 
         Suitable to batch messages by amount, timestamps, etc and call `consume` for this batches.
         """
-        async with anyio.create_task_group() as tg:
-            task_status.started()
+        task_status.started()
 
-            async for msg in self.receive_stream:
-                tg.start_soon(self.__consume_msg, msg)
+        async for msg in self.receive_stream:
+            self.task_group.start_soon(self.__consume_msg, msg)
 
     async def _consume_pull(
         self,
@@ -406,16 +400,14 @@ class DefaultHandler(BaseNatsHandler["Msg"]):
         task_status.started()
 
         while self.running:  # pragma: no branch
-            with suppress(TimeoutError):
+            with suppress(TimeoutError, ConnectionClosedError):
                 messages = await sub.fetch(
                     batch=self.pull_sub.batch_size,
                     timeout=self.pull_sub.timeout,
                 )
 
-                if messages:
-                    async with anyio.create_task_group() as tg:
-                        for msg in messages:
-                            tg.start_soon(cb, msg)
+                for msg in messages:
+                    self.task_group.start_soon(cb, msg)
 
     async def __consume_msg(
         self,
@@ -470,7 +462,7 @@ class BatchHandler(BaseNatsHandler[List["Msg"]]):
             subject=self.subject,
             **self.extra_options,
         )
-        self.tasks.append(asyncio.create_task(self._consume_pull()))
+        await self.task_group.start(self._consume_pull)
 
     async def _consume_pull(
         self,
@@ -483,7 +475,7 @@ class BatchHandler(BaseNatsHandler[List["Msg"]]):
         task_status.started()
 
         while self.running:  # pragma: no branch
-            with suppress(TimeoutError):
+            with suppress(TimeoutError, ConnectionClosedError):
                 messages = await sub.fetch(
                     batch=self.pull_sub.batch_size,
                     timeout=self.pull_sub.timeout,

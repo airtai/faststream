@@ -1,7 +1,15 @@
 import asyncio
 from contextlib import suppress
 from functools import partial
-from typing import TYPE_CHECKING, AsyncContextManager, Callable, Optional, Type, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncContextManager,
+    Callable,
+    Optional,
+    Type,
+    Union,
+)
 
 import anyio
 
@@ -52,11 +60,14 @@ def get_watcher_context(
     logger: Optional["Logger"],
     no_ack: bool,
     retry: Union[bool, int],
+    **extra_options: Any,
 ) -> Callable[..., AsyncContextManager[None]]:
     if no_ack:
         return fake_context
     else:
-        return partial(WatcherContext, watcher=get_watcher(logger, retry))
+        return partial(
+            WatcherContext, watcher=get_watcher(logger, retry), **extra_options
+        )
 
 
 class MultiLock:

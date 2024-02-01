@@ -103,8 +103,11 @@ class Handler(LogicHandler):
         - name(): Returns the name of the handler.
         - get_payloads(): Returns a list of payloads.
     """
+
     def get_name(self) -> str:
-        return f"{self.queue.name}:{getattr(self.exchange, 'name', '_')}:{self.call_name}"
+        return (
+            f"{self.queue.name}:{getattr(self.exchange, 'name', '_')}:{self.call_name}"
+        )
 
     def get_schema(self) -> Dict[str, Channel]:
         payloads = self.get_payloads()

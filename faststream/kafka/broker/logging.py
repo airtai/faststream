@@ -1,6 +1,6 @@
 import logging
 from inspect import Parameter
-from typing import Any, Iterable, Optional, Union, ClassVar
+from typing import Any, ClassVar, Iterable, Optional, Union
 
 from faststream.broker.core.logging_mixin import LoggingMixin
 from faststream.log.logging import get_broker_logger
@@ -17,6 +17,7 @@ class KafkaLoggingMixin(LoggingMixin):
         fmt : returns the log format string
         _setup_log_context : sets up the log context for a given list of topics
     """
+
     __max_msg_id_ln: ClassVar[int] = 10
 
     def __init__(
@@ -58,7 +59,7 @@ class KafkaLoggingMixin(LoggingMixin):
     @property
     def fmt(self) -> str:
         return super().fmt or (
-            "%(asctime)s %(levelname)s - "
+            "%(asctime)s %(levelname)-8s - "
             + f"%(topic)-{self._max_topic_len}s | "
             + (f"%(group_id)-{self._max_group_len}s | " if self._max_group_len else "")
             + f"%(message_id)-{self.__max_msg_id_ln}s "

@@ -17,7 +17,6 @@ from typing import (
     Sequence,
     Tuple,
     Type,
-    Union,
     cast,
     overload,
 )
@@ -40,6 +39,7 @@ from faststream.utils.functions import to_async
 if TYPE_CHECKING:
     from types import TracebackType
 
+    from anyio.abc import TaskGroup
     from fast_depends.core import CallModel
     from fast_depends.dependencies import Depends
 
@@ -55,11 +55,8 @@ if TYPE_CHECKING:
         CustomDecoder,
         CustomParser,
         Filter,
-        MsgType,
-        P_HandlerParams,
         PublisherProtocol,
         SubscriberMiddleware,
-        T_HandlerReturn,
     )
 
 
@@ -177,6 +174,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
 
         self.running = False
 
+        self.producer = None
         self.lock = MultiLock()
         self.watcher = watcher
         self.extra_context = extra_context or {}
@@ -190,9 +188,15 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         )
 
     @abstractmethod
-    async def start(self) -> None:
+    async def start(
+        self,
+        producer: Optional["PublisherProtocol"],
+        task_group: "TaskGroup",
+    ) -> None:
         """Start the handler."""
         self.running = True
+        self.task_group = task_group
+        self.producer = producer
 
     @abstractmethod
     async def close(self) -> None:
@@ -292,7 +296,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
 
             else:
                 return real_wrapper(func)
-        
+
         return outer_wrapper
 
     async def consume(self, msg: MsgType) -> Any:
@@ -335,7 +339,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                     stack.enter_context(context.scope("message", message))
 
                     # middlewares should be exited before scope does
-                    @stack.push_async_callback
+                    @stack.push_async_exit
                     async def close_middlewares(
                         exc_type: Optional[Type[BaseException]] = None,
                         exc_val: Optional[BaseException] = None,
@@ -362,7 +366,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
 
                     return result_msg
 
-            raise AssertionError(f"Where is not suitable handler for {msg=}")
+            raise AssertionError(f"There is no suitable handler for {msg=}")
 
         return None
 

@@ -291,7 +291,7 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
         pytest.param("#.*.*.test", "1.2.2.test", True, id="#.*.*.test"),
         pytest.param("*.*.*.test", "1.2.test", False, id="*.*.*.test - broken"),
         pytest.param("#.*.*.test", "1.2.test", False, id="#.*.*.test - broken"),
-    ]
+    ],
 )
 def test(pattern: str, current: str, result: bool):
     assert apply_pattern(pattern, current) == result

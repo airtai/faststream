@@ -70,7 +70,7 @@ class RabbitLoggingMixin(LoggingMixin):
     @property
     def fmt(self) -> str:
         return super().fmt or (
-            "%(asctime)s %(levelname)s - "
+            "%(asctime)s %(levelname)-8s - "
             f"%(exchange)-{self._max_exchange_len}s | "
             f"%(queue)-{self._max_queue_len}s | "
             f"%(message_id)-{self.__max_msg_id_ln}s "

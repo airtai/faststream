@@ -48,6 +48,18 @@ class TestRedisBroker(TestBroker[RedisBroker]):
     ) -> None:
         broker._producer = FakeProducer(broker)  # type: ignore[assignment]
 
+    @classmethod
+    def _fake_start(
+        cls,
+        broker: RedisBroker,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
+        super()._fake_start(broker, *args, **kwargs)
+
+        for h in broker.handlers.values():
+            h.producer = FakeProducer(broker)  # type: ignore[assignment]
+
     @staticmethod
     def remove_publisher_fake_subscriber(
         broker: RedisBroker,
