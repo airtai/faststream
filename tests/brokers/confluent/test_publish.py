@@ -182,7 +182,6 @@ class BrokerPublishTestcase:  # noqa: D101
         mock.assert_called_with({"a": 1, "b": 1, "args": (2, 3)})
 
     @pytest.mark.asyncio()
-    # @pytest.mark.timeout(20)
     async def test_base_publisher(
         self,
         queue: str,
@@ -214,7 +213,6 @@ class BrokerPublishTestcase:  # noqa: D101
         mock.assert_called_once_with("")
 
     @pytest.mark.asyncio()
-    # @pytest.mark.timeout(20)
     async def test_publisher_object(
         self,
         queue: str,
@@ -248,7 +246,6 @@ class BrokerPublishTestcase:  # noqa: D101
         mock.assert_called_once_with("")
 
     @pytest.mark.asyncio()
-    # @pytest.mark.timeout(20)
     async def test_publish_manual(
         self,
         queue: str,
@@ -281,7 +278,6 @@ class BrokerPublishTestcase:  # noqa: D101
         mock.assert_called_once_with("")
 
     @pytest.mark.asyncio()
-    # @pytest.mark.timeout(20)
     async def test_multiple_publishers(
         self, queue: str, pub_broker: BrokerUsecase, mock
     ):

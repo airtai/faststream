@@ -17,7 +17,6 @@ from tests.tools import spy_decorator
 
 @pytest.mark.asyncio()
 @pytest.mark.confluent()
-@pytest.mark.flaky(reruns=3, reruns_delay=1)
 class BrokerConsumeTestcase:  # noqa: D101
     @pytest.fixture()
     def consume_broker(self, broker: BrokerUsecase):
@@ -45,7 +44,6 @@ class BrokerConsumeTestcase:  # noqa: D101
 
         assert event.is_set()
 
-    # @pytest.mark.timeout(20)
     async def test_consume_from_multi(
         self,
         queue: str,
@@ -113,7 +111,6 @@ class BrokerConsumeTestcase:  # noqa: D101
         assert consume.is_set()
         assert mock.call_count == 2
 
-    # @pytest.mark.timeout(20)
     async def test_different_consume(
         self,
         queue: str,
