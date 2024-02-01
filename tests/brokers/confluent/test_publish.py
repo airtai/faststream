@@ -20,7 +20,6 @@ class SimpleModel(BaseModel):  # noqa: D101
 now = datetime.now()
 
 
-@pytest.mark.flaky(reruns=3, reruns_delay=1)
 class BrokerPublishTestcase:  # noqa: D101
     @pytest.fixture()
     def pub_broker(self, full_broker):
@@ -182,7 +181,6 @@ class BrokerPublishTestcase:  # noqa: D101
         mock.assert_called_with({"a": 1, "b": 1, "args": (2, 3)})
 
     @pytest.mark.asyncio()
-    # @pytest.mark.timeout(20)
     async def test_base_publisher(
         self,
         queue: str,
@@ -214,7 +212,6 @@ class BrokerPublishTestcase:  # noqa: D101
         mock.assert_called_once_with("")
 
     @pytest.mark.asyncio()
-    # @pytest.mark.timeout(20)
     async def test_publisher_object(
         self,
         queue: str,
@@ -248,7 +245,6 @@ class BrokerPublishTestcase:  # noqa: D101
         mock.assert_called_once_with("")
 
     @pytest.mark.asyncio()
-    # @pytest.mark.timeout(20)
     async def test_publish_manual(
         self,
         queue: str,
@@ -281,7 +277,6 @@ class BrokerPublishTestcase:  # noqa: D101
         mock.assert_called_once_with("")
 
     @pytest.mark.asyncio()
-    # @pytest.mark.timeout(20)
     async def test_multiple_publishers(
         self, queue: str, pub_broker: BrokerUsecase, mock
     ):
@@ -321,7 +316,6 @@ class BrokerPublishTestcase:  # noqa: D101
         mock.resp2.assert_called_once_with("")
 
     @pytest.mark.asyncio()
-    @pytest.mark.timeout(20)
     async def test_reusable_publishers(
         self, queue: str, pub_broker: BrokerUsecase, mock
     ):

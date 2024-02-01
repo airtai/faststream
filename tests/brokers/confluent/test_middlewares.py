@@ -10,7 +10,6 @@ from faststream.confluent import KafkaBroker
 
 
 @pytest.mark.asyncio()
-@pytest.mark.flaky(reruns=3, reruns_delay=1)
 class LocalMiddlewareTestcase:  # noqa: D101
     broker_class: Type[BrokerUsecase]
 
@@ -58,7 +57,6 @@ class LocalMiddlewareTestcase:  # noqa: D101
         mock.start.assert_called_once()
         mock.end.assert_called_once()
 
-    # @pytest.mark.timeout(20)
     async def test_local_middleware_not_shared_between_subscribers(
         self, queue: str, mock: Mock, raw_broker
     ):
@@ -108,7 +106,6 @@ class LocalMiddlewareTestcase:  # noqa: D101
         mock.end.assert_called_once()
         assert mock.call_count == 2
 
-    # @pytest.mark.timeout(20)
     async def test_local_middleware_consume_not_shared_between_filters(
         self, queue: str, mock: Mock, raw_broker
     ):
