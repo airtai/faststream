@@ -12,6 +12,23 @@ hide:
 ---
 
 # Release Notes
+## 0.4.1
+
+### What's Changed
+
+#### Bug fixes
+
+* Fix: use FastAPI overrides in subscribers by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1189](https://github.com/airtai/faststream/pull/1189){.external-link target="_blank"}
+* Handle confluent consumer commit failure by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1193](https://github.com/airtai/faststream/pull/1193){.external-link target="_blank"}
+
+#### Documentation
+
+* Include Confluent in home and features pages by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1186](https://github.com/airtai/faststream/pull/1186){.external-link target="_blank"}
+* Use pydantic model for publishing in docs example by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1187](https://github.com/airtai/faststream/pull/1187){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.4.0...0.4.1](https://github.com/airtai/faststream/compare/0.4.0...0.4.1){.external-link target="_blank"}
+
 ## 0.4.0
 
 ### What's Changed
