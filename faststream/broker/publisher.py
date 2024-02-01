@@ -117,7 +117,7 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
             call_model: CallModel[Any, Any] = CallModel(
                 call=lambda: None,
                 model=create_model("Fake"),
-                response_model=create_model(
+                response_model=create_model(  # type: ignore[call-overload]
                     "",
                     __config__=get_config_base(),  # type: ignore[arg-type]
                     **params,  # type: ignore[arg-type]
