@@ -8,7 +8,6 @@ from fast_depends._compat import PYDANTIC_V2 as PYDANTIC_V2
 from fast_depends._compat import (  # type: ignore[attr-defined]
     PYDANTIC_VERSION as PYDANTIC_VERSION,
 )
-from fast_depends._compat import FieldInfo
 from pydantic import BaseModel
 from typing_extensions import Never
 
@@ -105,7 +104,7 @@ if PYDANTIC_V2:
     def dump_json(data: Any) -> bytes:
         return json_dumps(model_to_jsonable(data))
 
-    def get_model_fields(model: Type[BaseModel]) -> Dict[str, FieldInfo]:
+    def get_model_fields(model: Type[BaseModel]) -> Dict[str, Any]:
         return model.model_fields
 
     def model_to_json(model: BaseModel, **kwargs: Any) -> str:
@@ -136,7 +135,7 @@ else:
     def dump_json(data: Any) -> bytes:
         return json_dumps(data, default=pydantic_encoder)
 
-    def get_model_fields(model: Type[BaseModel]) -> Dict[str, FieldInfo]:
+    def get_model_fields(model: Type[BaseModel]) -> Dict[str, Any]:
         return model.__fields__  # type: ignore[return-value]
 
     def model_to_json(model: BaseModel, **kwargs: Any) -> str:
