@@ -404,8 +404,11 @@ class FastAPICompatible:  # noqa: D101
         def dep2(name2: str):
             return name2
 
-        @broker.subscriber("test", dependencies=(self.dependency_builder(dep2),))
-        async def handle(id: int, message=self.dependency_builder(dep)):
+        dependencies = (self.dependency_builder(dep2),)
+        message = self.dependency_builder(dep)
+
+        @broker.subscriber("test", dependencies=dependencies)
+        async def handle(id: int, message=message):
             ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
