@@ -281,6 +281,7 @@ class FakeProducer(AioPikaFastProducer):
 
 
 def apply_pattern(pattern: str, current: str) -> bool:
+    """Apply a pattern to a routing key."""
     pattern_queue = iter(pattern.split("."))
     current_queue = iter(current.split("."))
 
