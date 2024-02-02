@@ -37,21 +37,33 @@ def mock_app(request):
     return app
 
 
-@pytest.mark.parametrize("mock_app", [{"broker_type": RedisBroker, "producer_type": RedisFastProducer}], indirect=True)
+@pytest.mark.parametrize(
+    "mock_app",
+    [{"broker_type": RedisBroker, "producer_type": RedisFastProducer}],
+    indirect=True,
+)
 def test_publish_command_with_redis_options(mock_app):
     with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
         mock_app.broker.connect()
 
-        result = runner.invoke(faststream_app, [
-            "publish",
-            "fastream:app",
-            "hello world",
-            "--channel", "test channel",
-            "--reply_to", "tester",
-            "--list",  "0.1",
-            "--stream", "stream url",
-            "--correlation_id", "someId",
-        ])
+        result = runner.invoke(
+            faststream_app,
+            [
+                "publish",
+                "fastream:app",
+                "hello world",
+                "--channel",
+                "test channel",
+                "--reply_to",
+                "tester",
+                "--list",
+                "0.1",
+                "--stream",
+                "stream url",
+                "--correlation_id",
+                "someId",
+            ],
+        )
 
         assert result.exit_code == 0
         mock_app.broker._producer.publish.assert_awaited_once_with(
@@ -65,17 +77,26 @@ def test_publish_command_with_redis_options(mock_app):
         )
 
 
-@pytest.mark.parametrize("mock_app", [{"broker_type": ConfluentBroker, "producer_type": AsyncConfluentFastProducer}], indirect=True)
+@pytest.mark.parametrize(
+    "mock_app",
+    [{"broker_type": ConfluentBroker, "producer_type": AsyncConfluentFastProducer}],
+    indirect=True,
+)
 def test_publish_command_with_confluent_options(mock_app):
     with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
         mock_app.broker.connect()
-        result = runner.invoke(faststream_app, [
-            "publish",
-            "fastream:app",
-            "hello world",
-            "--topic", "confluent topic",
-            "--correlation_id", "someId",
-        ])
+        result = runner.invoke(
+            faststream_app,
+            [
+                "publish",
+                "fastream:app",
+                "hello world",
+                "--topic",
+                "confluent topic",
+                "--correlation_id",
+                "someId",
+            ],
+        )
 
         assert result.exit_code == 0
         mock_app.broker._producer.publish.assert_awaited_once_with(
@@ -86,17 +107,26 @@ def test_publish_command_with_confluent_options(mock_app):
         )
 
 
-@pytest.mark.parametrize("mock_app", [{"broker_type": KafkaBroker, "producer_type": AioKafkaFastProducer}], indirect=True)
+@pytest.mark.parametrize(
+    "mock_app",
+    [{"broker_type": KafkaBroker, "producer_type": AioKafkaFastProducer}],
+    indirect=True,
+)
 def test_publish_command_with_kafka_options(mock_app):
     with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
         mock_app.broker.connect()
-        result = runner.invoke(faststream_app, [
-            "publish",
-            "fastream:app",
-            "hello world",
-            "--topic", "kafka topic",
-            "--correlation_id", "someId",
-        ])
+        result = runner.invoke(
+            faststream_app,
+            [
+                "publish",
+                "fastream:app",
+                "hello world",
+                "--topic",
+                "kafka topic",
+                "--correlation_id",
+                "someId",
+            ],
+        )
 
         assert result.exit_code == 0
         mock_app.broker._producer.publish.assert_awaited_once_with(
@@ -107,18 +137,28 @@ def test_publish_command_with_kafka_options(mock_app):
         )
 
 
-@pytest.mark.parametrize("mock_app", [{"broker_type": NatsBroker, "producer_type": NatsFastProducer}], indirect=True)
+@pytest.mark.parametrize(
+    "mock_app",
+    [{"broker_type": NatsBroker, "producer_type": NatsFastProducer}],
+    indirect=True,
+)
 def test_publish_command_with_nats_options(mock_app):
     with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
         mock_app.broker.connect()
-        result = runner.invoke(faststream_app, [
-            "publish",
-            "fastream:app",
-            "hello world",
-            "--subject", "nats subject",
-            "--reply_to", "tester",
-            "--correlation_id", "someId",
-        ])
+        result = runner.invoke(
+            faststream_app,
+            [
+                "publish",
+                "fastream:app",
+                "hello world",
+                "--subject",
+                "nats subject",
+                "--reply_to",
+                "tester",
+                "--correlation_id",
+                "someId",
+            ],
+        )
 
         assert result.exit_code == 0
         mock_app.broker._producer.publish.assert_awaited_once_with(
@@ -130,17 +170,26 @@ def test_publish_command_with_nats_options(mock_app):
         )
 
 
-@pytest.mark.parametrize("mock_app", [{"broker_type": RabbitBroker, "producer_type": AioPikaFastProducer}], indirect=True)
+@pytest.mark.parametrize(
+    "mock_app",
+    [{"broker_type": RabbitBroker, "producer_type": AioPikaFastProducer}],
+    indirect=True,
+)
 def test_publish_command_with_rabbit_options(mock_app):
     with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
         mock_app.broker.connect()
-        result = runner.invoke(faststream_app, [
-            "publish",
-            "fastream:app",
-            "hello world",
-            "--correlation_id", "someId",
-            "--raise_timeout", "True",
-        ])
+        result = runner.invoke(
+            faststream_app,
+            [
+                "publish",
+                "fastream:app",
+                "hello world",
+                "--correlation_id",
+                "someId",
+                "--raise_timeout",
+                "True",
+            ],
+        )
 
         assert result.exit_code == 0
         mock_app.broker._producer.publish.assert_awaited_once_with(
