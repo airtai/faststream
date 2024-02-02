@@ -404,7 +404,7 @@ class FastAPICompatible:  # noqa: D101
         def dep2(name2: str):
             return name2
 
-        dependencies = (self.dependency_builder(dep2), )
+        dependencies = (self.dependency_builder(dep2),)
         message = self.dependency_builder(dep)
 
         @broker.subscriber("test", dependencies=dependencies)

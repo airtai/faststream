@@ -11,6 +11,7 @@ from pydantic import ValidationError
 from typer.core import TyperOption
 
 from faststream.__about__ import INSTALL_WATCHFILES, __version__
+from faststream.app import FastStream
 from faststream.cli.docs.app import docs_app
 from faststream.cli.utils.imports import import_from_string
 from faststream.cli.utils.logs import LogLevels, get_log_level, set_log_level
@@ -249,10 +250,10 @@ def publish(
         sys.exit(1)
 
 
-async def publish_message(app_obj, extra: Any) -> Any:
+async def publish_message(app_obj: FastStream, extra: Any) -> Any:
     try:
-        if await app_obj.broker.connect():
-            result = await app_obj.broker.publish(**extra)
+        if await app_obj.broker.connect():  # type: ignore[union-attr]
+            result = await app_obj.broker.publish(**extra)  # type: ignore[union-attr]
             return result
         else:
             raise ValueError("Failed to connect to the broker.")
