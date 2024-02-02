@@ -8,7 +8,6 @@ from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
 @pytest.mark.asyncio()
-@pytest.mark.flaky(reruns=3, reruns_delay=1)
 class TestTestclient(BrokerTestclientTestcase):
     """A class to represent a test Kafka broker."""
 
@@ -103,7 +102,6 @@ class TestTestclient(BrokerTestclientTestcase):
         assert len(routes) == 2
 
     @pytest.mark.confluent()
-    # @pytest.mark.timeout(20)
     async def test_real_respect_middleware(self, queue):
         routes = []
 

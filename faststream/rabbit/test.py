@@ -1,4 +1,3 @@
-from itertools import zip_longest
 from typing import Any, Optional, Union
 from unittest.mock import AsyncMock
 from uuid import uuid4
@@ -240,19 +239,7 @@ class FakeProducer(AioPikaFastProducer):
                     call = True
 
                 elif handler.exchange.type == ExchangeType.TOPIC:
-                    call = True
-
-                    for current, base in zip_longest(
-                        (incoming.routing_key or "").split("."),
-                        handler.queue.routing.split("."),
-                        fillvalue=None,
-                    ):
-                        if base == "#":
-                            break
-
-                        if base != "*" and current != base:
-                            call = False
-                            break
+                    call = apply_pattern(handler.queue.routing, incoming.routing_key or "")
 
                 elif handler.exchange.type == ExchangeType.HEADERS:  # pramga: no branch
                     queue_headers = (handler.queue.bind_arguments or {}).copy()
@@ -291,3 +278,42 @@ class FakeProducer(AioPikaFastProducer):
                         return r
 
         return None
+
+
+def apply_pattern(pattern: str, current: str) -> bool:
+    """Apply a pattern to a routing key."""
+    pattern_queue = iter(pattern.split("."))
+    current_queue = iter(current.split("."))
+
+    pattern_symb = next(pattern_queue, None)
+    while pattern_symb:
+        if (next_symb := next(current_queue, None)) is None:
+            return False
+
+        elif pattern_symb == "#":
+            next_pattern = next(pattern_queue, None)
+
+            if next_pattern is None:
+                return True
+
+            if (next_symb := next(current_queue, None)) is None:
+                return False
+
+            while next_pattern == "*":
+                next_pattern = next(pattern_queue, None)
+                if (next_symb := next(current_queue, None)) is None:
+                    return False
+
+            while next_symb != next_pattern:
+                if (next_symb := next(current_queue, None)) is None:
+                    return False
+
+            pattern_symb = next(pattern_queue, None)
+
+        elif pattern_symb == "*" or pattern_symb == next_symb:
+            pattern_symb = next(pattern_queue, None)
+
+        else:
+            return False
+
+    return next(current_queue, None) is None

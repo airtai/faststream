@@ -48,11 +48,11 @@ def test_plaintext_security_schema():
         password="password",  # pragma: allowlist secret
     )
 
-    broker = RabbitBroker("amqp://guest:guest@localhost:5672/", security=security)
+    broker = RabbitBroker("amqp://guest:guest@localhost/", security=security)
 
     assert (
         broker.url
-        == "amqps://admin:password@localhost:5672/"  # pragma: allowlist secret
+        == "amqps://admin:password@localhost:5671/"  # pragma: allowlist secret
     )  # pragma: allowlist secret
     assert broker._connection_kwargs.get("ssl_context") is ssl_context
 
@@ -74,7 +74,7 @@ def test_plaintext_security_schema():
                     "protocol": "amqps",
                     "protocolVersion": "0.9.1",
                     "security": [{"user-password": []}],
-                    "url": "amqps://admin:password@localhost:5672/",  # pragma: allowlist secret
+                    "url": "amqps://admin:password@localhost:5671/",  # pragma: allowlist secret
                 }
             },
         }

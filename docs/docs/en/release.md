@@ -12,6 +12,36 @@ hide:
 ---
 
 # Release Notes
+## 0.4.2
+
+### What's Changed
+
+#### Bug fixes
+
+* fix: correct RMQ Topic testing routing by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1196](https://github.com/airtai/faststream/pull/1196){.external-link target="_blank"}
+* fix #1191: correct RMQ ssl default port by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1195](https://github.com/airtai/faststream/pull/1195){.external-link target="_blank"}
+* fix #1143: ignore Depends in AsyncAPI by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1197](https://github.com/airtai/faststream/pull/1197){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.4.1...0.4.2](https://github.com/airtai/faststream/compare/0.4.1...0.4.2){.external-link target="_blank"}
+
+## 0.4.1
+
+### What's Changed
+
+#### Bug fixes
+
+* Fix: use FastAPI overrides in subscribers by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1189](https://github.com/airtai/faststream/pull/1189){.external-link target="_blank"}
+* Handle confluent consumer commit failure by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1193](https://github.com/airtai/faststream/pull/1193){.external-link target="_blank"}
+
+#### Documentation
+
+* Include Confluent in home and features pages by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1186](https://github.com/airtai/faststream/pull/1186){.external-link target="_blank"}
+* Use pydantic model for publishing in docs example by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1187](https://github.com/airtai/faststream/pull/1187){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.4.0...0.4.1](https://github.com/airtai/faststream/compare/0.4.0...0.4.1){.external-link target="_blank"}
+
 ## 0.4.0
 
 ### What's Changed
