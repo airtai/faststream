@@ -33,7 +33,6 @@ from faststream.broker.utils import get_watcher_context
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.redis.asyncapi import Handler, Publisher
 from faststream.redis.broker.logging import RedisLoggingMixin
-from faststream.redis.message import AnyRedisDict, RedisMessage
 from faststream.redis.producer import RedisFastProducer
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.security import parse_security
@@ -42,13 +41,10 @@ from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
 Channel: TypeAlias = str
 
-if TYPE_CHECKING:
-    from anyio.abc import TaskGroup
-
 
 class RedisBroker(
     RedisLoggingMixin,
-    BrokerUsecase[AnyRedisDict, "Redis[bytes]"],
+    BrokerUsecase["AnyRedisDict", "Redis[bytes]"],
 ):
     """Redis broker."""
 
@@ -137,8 +133,8 @@ class RedisBroker(
 
         await super()._close(exc_type, exc_val, exec_tb)
 
-    async def start(self, task_group: Optional["TaskGroup"] = None) -> None:
-        await super().start(task_group)
+    async def start(self) -> None:
+        await super().start()
 
         assert self._producer and self._connection, NOT_CONNECTED_YET  # nosec B101
 
@@ -150,7 +146,6 @@ class RedisBroker(
             await handler.start(
                 self._connection,
                 producer=self._producer,
-                task_group=self.task_group,
             )
 
     @override
@@ -162,10 +157,10 @@ class RedisBroker(
         stream: Union[Channel, StreamSub, None] = None,
         # broker arguments
         dependencies: Sequence[Depends] = (),
-        parser: Optional[CustomParser[AnyRedisDict]] = None,
-        decoder: Optional[CustomDecoder[RedisMessage]] = None,
-        middlewares: Iterable[SubscriberMiddleware] = (),
-        filter: Filter[RedisMessage] = default_filter,
+        parser: Optional["CustomParser[AnyRedisDict]"] = None,
+        decoder: Optional["CustomDecoder[RedisMessage]"] = None,
+        middlewares: Iterable["SubscriberMiddleware"] = (),
+        filter: Filter["RedisMessage"] = default_filter,
         retry: bool = False,
         no_ack: bool = False,
         # AsyncAPI information
@@ -203,9 +198,7 @@ class RedisBroker(
             extra_context={},
             graceful_timeout=self.graceful_timeout,
             middlewares=self.middlewares,
-            watcher=get_watcher_context(
-                self.logger, no_ack, retry, redis=self._connection
-            ),
+            watcher=get_watcher_context(self.logger, no_ack, retry),
             # AsyncAPI
             title_=title,
             description_=description,

@@ -12,20 +12,19 @@ from faststream.broker.types import (
     T_HandlerReturn,
 )
 from faststream.redis.asyncapi import Handler, Publisher
-from faststream.redis.message import AnyRedisDict
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.types import AnyDict, SendableMessage
 
 Channel: TypeAlias = str
 
 
-class RedisRouter(BrokerRouter[int, AnyRedisDict]):
+class RedisRouter(BrokerRouter[int, "AnyRedisDict"]):
     """A class to represent a Redis router."""
 
     def __init__(
         self,
         prefix: str = "",
-        handlers: Sequence[RedisRoute[AnyRedisDict, SendableMessage]] = (),
+        handlers: Sequence[RedisRoute["AnyRedisDict", SendableMessage]] = (),
         **kwargs: Any,
     ) -> None:
         """Initialize the Redis router.
@@ -61,7 +60,7 @@ class RedisRouter(BrokerRouter[int, AnyRedisDict]):
         **broker_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
-        HandlerCallWrapper[AnyRedisDict, P_HandlerParams, T_HandlerReturn],
+        HandlerCallWrapper["AnyRedisDict", P_HandlerParams, T_HandlerReturn],
     ]:
         channel = PubSub.validate(channel)
         list = ListSub.validate(list)

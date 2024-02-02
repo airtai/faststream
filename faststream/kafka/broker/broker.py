@@ -47,8 +47,6 @@ from faststream.security import BaseSecurity
 from faststream.types import SendableMessage
 from faststream.utils.data import filter_by_dict
 
-if TYPE_CHECKING:
-    from anyio.abc import TaskGroup
 
 class KafkaBroker(
     KafkaLoggingMixin,
@@ -128,15 +126,15 @@ class KafkaBroker(
         )
         return filter_by_dict(ConsumerConnectionParams, {**kwargs, **security_params})
 
-    async def start(self, task_group: Optional["TaskGroup"] = None) -> None:
-        await super().start(task_group)
+    async def start(self) -> None:
+        await super().start()
 
         for handler in self.handlers.values():
             self._log(
                 f"`{handler.call_name}` waiting for messages",
                 extra=handler.get_log_context(None),
             )
-            await handler.start(self._producer, task_group=self.task_group, **(self._connection or {}))
+            await handler.start(self._producer, **(self._connection or {}))
 
     @override
     def subscriber(  # type: ignore[override]

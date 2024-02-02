@@ -44,7 +44,9 @@ def decode_message(message: StreamMessage[Any]) -> DecodedMessage:
             m = body.decode()
         elif ContentTypes.json.value in content_type:  # pragma: no branch
             m = json_loads(body)
-
+        else:
+            with suppress(json.JSONDecodeError):
+                m = json_loads(body)
     else:
         with suppress(json.JSONDecodeError):
             m = json_loads(body)

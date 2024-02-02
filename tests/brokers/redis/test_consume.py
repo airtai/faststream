@@ -174,7 +174,7 @@ class TestConsumeList:  # noqa: D101
                 timeout=3,
             )
 
-        assert [{1, "hi"}] == [set(r.result()) for r in result]
+        assert [{"1", "hi"}] == [set(r.result()) for r in result]
 
     @pytest.mark.slow()
     async def test_consume_list_batch_native(self, queue: str, broker: RedisBroker):
@@ -194,7 +194,7 @@ class TestConsumeList:  # noqa: D101
                 timeout=3,
             )
 
-        assert [{1, "hi"}] == [set(r.result()) for r in result]
+        assert [{"1", "hi"}] == [set(r.result()) for r in result]
 
 
 @pytest.mark.redis()
@@ -250,7 +250,7 @@ class TestConsumeStream:  # noqa: D101
                 timeout=3,
             )
 
-        mock.assert_called_once_with({"message": "hello"})
+        mock.assert_called_once_with({b"message": b"hello"})
 
     async def test_consume_stream_batch(
         self,

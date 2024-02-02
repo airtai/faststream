@@ -4,7 +4,7 @@ from typing_extensions import Annotated
 from faststream.broker.fastapi.context import Context, ContextRepo, Logger
 from faststream.redis.broker import RedisBroker as RB
 from faststream.redis.fastapi.fastapi import RedisRouter
-from faststream.redis.message import RedisMessage as RM
+from faststream.redis.message import BaseMessage as RM
 
 __all__ = (
     "Context",

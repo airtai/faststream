@@ -29,7 +29,6 @@ from faststream.types import AnyDict
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
-    from anyio.abc import TaskGroup
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
@@ -129,7 +128,6 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
         self,
         declarer: RabbitDeclarer,
         producer: Optional["PublisherProtocol"],
-        task_group: "TaskGroup",
     ) -> None:
         """Starts the consumer for the RabbitMQ queue.
 
@@ -154,7 +152,7 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
             arguments=self.consume_args,
         )
 
-        await super().start(producer=producer, task_group=task_group)
+        await super().start(producer=producer)
 
     async def close(self) -> None:
         await super().close()

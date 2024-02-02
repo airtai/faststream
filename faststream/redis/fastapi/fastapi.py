@@ -7,11 +7,10 @@ from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.types import P_HandlerParams, T_HandlerReturn
 from faststream.redis.broker import RedisBroker as RB
-from faststream.redis.message import AnyRedisDict
 from faststream.redis.schemas import PubSub
 
 
-class RedisRouter(StreamRouter[AnyRedisDict]):
+class RedisRouter(StreamRouter["AnyRedisDict"]):
     """A class to represent a Redis router."""
 
     broker_class = RB
@@ -24,7 +23,7 @@ class RedisRouter(StreamRouter[AnyRedisDict]):
         **broker_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
-        HandlerCallWrapper[AnyRedisDict, P_HandlerParams, T_HandlerReturn],
+        "HandlerCallWrapper[AnyRedisDict, P_HandlerParams, T_HandlerReturn]",
     ]:
         return super().subscriber(
             path=channel,

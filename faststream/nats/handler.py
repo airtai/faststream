@@ -1,3 +1,4 @@
+import asyncio
 from abc import abstractmethod
 from contextlib import suppress
 from typing import (
@@ -28,7 +29,6 @@ from faststream.types import AnyDict, SendableMessage
 from faststream.utils.path import compile_path
 
 if TYPE_CHECKING:
-    from anyio.abc import TaskGroup, TaskStatus
     from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
     from fast_depends.dependencies import Depends
     from nats.aio.client import Client
@@ -142,6 +142,7 @@ class BaseNatsHandler(BaseHandler[MsgType]):
 
         self.subscription = None
         self.producer = None
+        self.tasks: List["asyncio.Task[Any]"] = []
 
     @override
     async def start(  # type: ignore[override]
@@ -154,13 +155,9 @@ class BaseNatsHandler(BaseHandler[MsgType]):
             Optional["PublisherProtocol"],
             Doc("Publisher to response RPC"),
         ],
-        task_group: Annotated[
-            "TaskGroup",
-            Doc("Application TaskGroup to run tasks"),
-        ],
     ) -> None:
         """Create NATS subscription and start consume task."""
-        await super().start(producer=producer, task_group=task_group)
+        await super().start(producer=producer)
         await self.create_subscription(connection)
 
     async def close(self) -> None:
@@ -170,6 +167,11 @@ class BaseNatsHandler(BaseHandler[MsgType]):
         if self.subscription is not None:
             await self.subscription.unsubscribe()
             self.subscription = None
+        
+        for task in self.tasks:
+            if not task.done():
+                task.cancel()
+        self.tasks = []
 
     @abstractmethod
     async def create_subscription(
@@ -347,7 +349,7 @@ class DefaultHandler(BaseNatsHandler["Msg"]):
         """Create NATS subscription and start consume task."""
         cb: Callable[["Msg"], Awaitable[SendableMessage]]
         if self.max_workers > 1:
-            await self.task_group.start(self._serve_consume_queue)
+            self.tasks.append(asyncio.create_task(self._serve_consume_queue()))
             cb = self.__put_msg
         else:
             cb = self.consume
@@ -362,7 +364,7 @@ class DefaultHandler(BaseNatsHandler["Msg"]):
                 subject=self.subject,
                 **self.extra_options,
             )
-            await self.task_group.start(self._consume_pull, cb)
+            self.tasks.append(asyncio.create_task(self._consume_pull(cb=cb)))
 
         else:
             self.subscription = await connection.subscribe(
@@ -374,40 +376,36 @@ class DefaultHandler(BaseNatsHandler["Msg"]):
 
     async def _serve_consume_queue(
         self,
-        *,
-        task_status: "TaskStatus[None]" = anyio.TASK_STATUS_IGNORED,
     ) -> None:
         """Endless task consuming messages from in-memory queue.
 
         Suitable to batch messages by amount, timestamps, etc and call `consume` for this batches.
         """
-        task_status.started()
-
-        async for msg in self.receive_stream:
-            self.task_group.start_soon(self.__consume_msg, msg)
+        async with anyio.create_task_group() as tg:
+            async for msg in self.receive_stream:
+                tg.start_soon(self.__consume_msg, msg)
 
     async def _consume_pull(
         self,
         cb: Callable[["Msg"], Awaitable[SendableMessage]],
-        *,
-        task_status: "TaskStatus[None]" = anyio.TASK_STATUS_IGNORED,
     ) -> None:
         """Endless task consuming messages using NATS Pull subscriber."""
         assert self.pull_sub  # nosec B101
 
         sub = cast("JetStreamContext.PullSubscription", self.subscription)
 
-        task_status.started()
-
         while self.running:  # pragma: no branch
+            messages = []
             with suppress(TimeoutError, ConnectionClosedError):
                 messages = await sub.fetch(
                     batch=self.pull_sub.batch_size,
                     timeout=self.pull_sub.timeout,
                 )
 
-                for msg in messages:
-                    self.task_group.start_soon(cb, msg)
+            if messages:
+                async with anyio.create_task_group() as tg:
+                    for msg in messages:
+                        tg.start_soon(cb, msg)
 
     async def __consume_msg(
         self,
@@ -462,17 +460,13 @@ class BatchHandler(BaseNatsHandler[List["Msg"]]):
             subject=self.subject,
             **self.extra_options,
         )
-        await self.task_group.start(self._consume_pull)
+        self.tasks.append(asyncio.create_task(self._consume_pull()))
 
     async def _consume_pull(
-        self,
-        *,
-        task_status: "TaskStatus[None]" = anyio.TASK_STATUS_IGNORED,
+        self
     ) -> None:
         """Endless task consuming messages using NATS Pull subscriber."""
         sub = cast("JetStreamContext.PullSubscription", self.subscription)
-
-        task_status.started()
 
         while self.running:  # pragma: no branch
             with suppress(TimeoutError, ConnectionClosedError):

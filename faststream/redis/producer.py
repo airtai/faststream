@@ -9,14 +9,7 @@ from faststream.broker.types import (
     AsyncParser,
 )
 from faststream.exceptions import WRONG_PUBLISH_ARGS
-from faststream.redis.message import (
-    AnyRedisDict,
-    BatchMessage,
-    BatchRedisMessage,
-    OneMessage,
-    OneRedisMessage,
-)
-from faststream.redis.parser import DATA_KEY, RawMessage, RedisParser
+from faststream.redis.parser import DATA_KEY, RawMessage, RedisPubSubParser
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils.functions import timeout_scope
@@ -30,14 +23,14 @@ class RedisFastProducer:
 
     _connection: "Redis[bytes]"
     _decoder: AsyncDecoder[Any]
-    _parser: AsyncParser[AnyRedisDict]
+    _parser: AsyncParser["AnyRedisDict"]
 
     @overload
     def __init__(
         self,
         connection: "Redis[bytes]",
-        parser: Optional[AsyncCustomParser[OneMessage]],
-        decoder: Optional[AsyncCustomDecoder[OneRedisMessage]],
+        parser: Optional["AsyncCustomParser"],
+        decoder: Optional["AsyncCustomDecoder[OneRedisMessage]"],
     ) -> None:
         pass
 
@@ -45,8 +38,8 @@ class RedisFastProducer:
     def __init__(
         self,
         connection: "Redis[bytes]",
-        parser: Optional[AsyncCustomParser[BatchMessage]],
-        decoder: Optional[AsyncCustomDecoder[BatchRedisMessage]],
+        parser: Optional["AsyncCustomParser[BatchMessage]"],
+        decoder: Optional["AsyncCustomDecoder[BatchRedisMessage]"],
     ) -> None:
         pass
 
@@ -55,13 +48,13 @@ class RedisFastProducer:
         connection: "Redis[bytes]",
         parser: Union[
             None,
-            AsyncCustomParser[OneMessage],
-            AsyncCustomParser[BatchMessage],
+            "AsyncCustomParser",
+            "AsyncCustomParser[BatchMessage]",
         ],
         decoder: Union[
             None,
-            AsyncCustomDecoder[OneRedisMessage],
-            AsyncCustomDecoder[BatchRedisMessage],
+            "AsyncCustomDecoder[OneRedisMessage]",
+            "AsyncCustomDecoder[BatchRedisMessage]",
         ],
     ) -> None:
         """Initialize the Redis producer.
@@ -74,9 +67,9 @@ class RedisFastProducer:
         self._connection = connection
         self._parser = resolve_custom_func(
             parser,  # type: ignore[arg-type,assignment]
-            RedisParser.parse_message,
+            RedisPubSubParser.parse_message,
         )
-        self._decoder = resolve_custom_func(decoder, RedisParser.decode_message)
+        self._decoder = resolve_custom_func(decoder, RedisPubSubParser.decode_message)
 
     async def publish(
         self,

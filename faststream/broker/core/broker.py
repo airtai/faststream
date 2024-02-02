@@ -16,7 +16,6 @@ from typing import (
     cast,
 )
 
-import anyio
 from typing_extensions import Annotated, Doc
 
 from faststream._compat import is_test_env
@@ -33,7 +32,6 @@ from faststream.utils.functions import get_function_positional_arguments, to_asy
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from anyio.abc import TaskGroup
     from fast_depends.dependencies import Depends
     from typing_extensions import Self
 
@@ -271,14 +269,8 @@ class BrokerUsecase(
         await self.close(exc_type, exc_val, exec_tb)
 
     @abstractmethod
-    async def start(self, task_group: Optional["TaskGroup"] = None) -> None:
+    async def start(self) -> None:
         """Start the broker async use case."""
-        if task_group is None:
-            task_group = anyio.create_task_group()
-            await task_group.__aenter__()
-
-        self.task_group = task_group
-
         self._abc_start()
         for h in self.handlers.values():
             for f in h.calls:

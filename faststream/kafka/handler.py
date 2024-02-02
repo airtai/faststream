@@ -1,3 +1,4 @@
+import asyncio
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
@@ -25,7 +26,6 @@ from faststream.kafka.shared.schemas import ConsumerConnectionParams
 from faststream.types import AnyDict
 
 if TYPE_CHECKING:
-    from anyio.abc import TaskGroup, TaskStatus
     from fast_depends.dependencies import Depends
 
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
@@ -129,12 +129,12 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
         self.builder = builder
         self.consumer = None
         self.producer = None
+        self.task: Optional["asyncio.Task[None]"] = None
 
     @override
     async def start(  # type: ignore[override]
         self,
         producer: Optional["PublisherProtocol"],
-        task_group: Optional["TaskGroup"],
         **consumer_kwargs: Unpack[ConsumerConnectionParams],
     ) -> None:
         """Start the consumer.
@@ -150,8 +150,8 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
         )
         await consumer.start()
 
-        await super().start(producer=producer, task_group=task_group)
-        await task_group.start(self._consume)
+        await super().start(producer=producer)
+        self.task = asyncio.create_task(self._consume())
         
 
     async def close(self) -> None:
@@ -160,6 +160,10 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
         if self.consumer is not None:
             await self.consumer.stop()
             self.consumer = None
+
+        if self.task is not None and not self.task.done():
+            self.task.cancel()
+        self.task = None
 
     @override
     def add_call(  # type: ignore[override]
@@ -221,13 +225,9 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
         )
 
     async def _consume(
-        self,
-        *,
-        task_status: "TaskStatus[None]" = anyio.TASK_STATUS_IGNORED,
+        self
     ) -> None:
         assert self.consumer, "You need to start handler first"  # nosec B101
-
-        task_status.started()
 
         connected = True
         while self.running:

@@ -11,12 +11,10 @@ from typing import (
     TypeVar,
     Union,
 )
-import signal
 
 import anyio
 from typing_extensions import ParamSpec
 
-from faststream._compat import ExceptionGroup
 from faststream.cli.supervisors.utils import HANDLED_SIGNALS, set_exit
 from faststream.log.logging import logger
 from faststream.types import AnyDict, AsyncFunc, Lifespan, SettingField
@@ -222,44 +220,31 @@ class FastStream:
         """
         assert self.broker, "You should setup a broker"  # nosec B101
 
-        send_stop_stream, receive_stop_stream = anyio.create_memory_object_stream(max_buffer_size=1)
-        set_exit(lambda signal, _: send_stop_stream.send_nowait(signal))
-        self.stop_stream = send_stop_stream
+        async with self.lifespan_context(**(run_extra_options or {})):
+            await self._start(log_level, run_extra_options)
 
-        async def close_faster(send_stream):
-            """Function working then NATS blocks event-loop."""
             try:
+                # TODO: make it stoppable
                 with anyio.open_signal_receiver(*HANDLED_SIGNALS) as signals:
-                    async for signal in signals:
-                        await send_stream.send(signal)
+                    async for _ in signals:
+                        self.stop()
+                        break
 
             except NotImplementedError:
-                # Not compatible with Windows
-                pass
+                set_exit(lambda *_: self.stop(log_level))
 
-        async with self.lifespan_context(**(run_extra_options or {})):
-            try:
-                async with anyio.create_task_group() as tg:
-                    tg.start_soon(close_faster, send_stop_stream)
+            await self.stop_event.wait()
+            await self._stop(log_level)
 
-                    await self._start(log_level, run_extra_options, tg)
-                    await receive_stop_stream.receive()
-                    await self._stop(log_level)
 
-                    tg.cancel_scope.cancel()
-
-            except ExceptionGroup as e:
-                for ex in e.exceptions:
-                    raise ex from None
-
-    async def stop(self):
-        await self.stop_stream.send(signal.SIGINT)
+    def stop(self, log_level: int = logging.INFO):
+        if not self.stop_event.is_set():
+            self.stop_event.set()
 
     async def _start(
         self,
         log_level: int = logging.INFO,
         run_extra_options: Optional[Dict[str, SettingField]] = None,
-        task_group: Optional["TaskGroup"] = None,
     ) -> None:
         """Start the FastStream app.
 
@@ -271,7 +256,7 @@ class FastStream:
             None
         """
         self._log(log_level, "FastStream app starting...")
-        await self._startup(task_group=task_group, **(run_extra_options or {}))
+        await self._startup(**(run_extra_options or {}))
         self._log(
             log_level, "FastStream app started successfully! To exit, press CTRL+C"
         )
@@ -291,8 +276,6 @@ class FastStream:
 
     async def _startup(
         self,
-        *,
-        task_group: Optional["TaskGroup"] = None,
         **run_extra_options: SettingField,
     ) -> None:
         """Executes startup tasks.
@@ -303,11 +286,13 @@ class FastStream:
         Returns:
             None
         """
+        self.stop_event = anyio.Event()
+
         for func in self._on_startup_calling:
             await func(**run_extra_options)
 
         if self.broker is not None:
-            await self.broker.start(task_group=task_group)
+            await self.broker.start()
 
         for func in self._after_startup_calling:
             await func()

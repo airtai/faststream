@@ -8,10 +8,10 @@ from faststream.asyncapi.schema import (
     Message,
     Operation,
 )
-from faststream.redis.schemas import ListSub, PubSub, StreamSub
+from faststream.redis.schemas import ListSub, PubSub, StreamSub, INCORRECT_SETUP_MSG
 from faststream.asyncapi.schema.bindings import redis
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.redis.handler import ListHandler, StreamHandler, ChannelHandler, BaseRedisHandler
+from faststream.redis.handler import (ListHandler, BatchListHandler, StreamHandler, BatchStreamHandler, ChannelHandler, BaseRedisHandler,)
 from faststream.redis.publisher import LogicPublisher
 
 
@@ -55,14 +55,23 @@ class Handler:
         stream: Optional[StreamSub],
         **kwargs,
     ) -> BaseRedisHandler:
-        if stream is not None:
-            return StreamAsyncAPIHandler(stream=stream, **kwargs)
-        
-        elif channel is not None:
+        if channel is not None:
             return ChannelAsyncAPIHandler(channel=channel, **kwargs)
 
+        elif stream is not None:
+            if stream.batch:
+                return BatchStreamAsyncAPIHandler(stream=stream, **kwargs)
+            else:
+                return StreamAsyncAPIHandler(stream=stream, **kwargs)
+
+        elif list is not None:
+            if list.batch:
+                return BatchListHandler(list=list, **kwargs)
+            else:
+                return ListAsyncAPIHandler(list=list, **kwargs)
+        
         else:
-            return ListAsyncAPIHandler(list=list, **kwargs)
+            raise ValueError(INCORRECT_SETUP_MSG)
 
 
 class ChannelAsyncAPIHandler(Handler, ChannelHandler):
@@ -74,7 +83,9 @@ class ChannelAsyncAPIHandler(Handler, ChannelHandler):
         )
 
 
-class StreamAsyncAPIHandler(Handler, StreamHandler):
+class _StreamHandlerMixin(Handler):
+    stream_sub: StreamSub
+
     @property
     def binding(self) -> redis.ChannelBinding:
         return redis.ChannelBinding(
@@ -84,14 +95,27 @@ class StreamAsyncAPIHandler(Handler, StreamHandler):
             method="xreadgroup" if self.stream_sub.group else "xread",
         )
 
+class StreamAsyncAPIHandler(_StreamHandlerMixin, StreamHandler):
+    pass
 
-class ListAsyncAPIHandler(Handler, ListHandler):
+
+class BatchStreamAsyncAPIHandler(_StreamHandlerMixin, BatchStreamHandler):
+    pass
+
+
+class _ListHandlerMixin(Handler):
     @property
     def binding(self) -> redis.ChannelBinding:
         return redis.ChannelBinding(
             channel=self.channel_name,
             method="lpop",
         )
+
+class ListAsyncAPIHandler(_ListHandlerMixin, ListHandler):
+    pass
+
+class BatchListAsyncAPIHandler(_ListHandlerMixin, BatchListHandler):
+    pass
 
 
 class Publisher(LogicPublisher):

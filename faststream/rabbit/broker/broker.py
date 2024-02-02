@@ -32,7 +32,6 @@ if TYPE_CHECKING:
 
     import aiormq
     from aio_pika.abc import SSLOptions
-    from anyio.abc import TaskGroup
     from fast_depends.dependencies import Depends
     from pamqp.common import FieldTable
     from yarl import URL
@@ -201,8 +200,8 @@ class RabbitBroker(
 
         await super()._close(exc_type, exc_val, exec_tb)
 
-    async def start(self, task_group: Optional["TaskGroup"] = None) -> None:
-        await super().start(task_group)
+    async def start(self) -> None:
+        await super().start()
 
         assert self.declarer, NOT_CONNECTED_YET  # nosec B101
 
@@ -213,7 +212,7 @@ class RabbitBroker(
         for handler in self.handlers.values():
             c = handler.get_log_context(None)
             self._log(f"`{handler.call_name}` waiting for messages", extra=c)
-            await handler.start(self.declarer, self._producer, self.task_group)
+            await handler.start(self.declarer, self._producer)
 
     @override
     def subscriber(  # type: ignore[override]

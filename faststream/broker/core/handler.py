@@ -39,7 +39,6 @@ from faststream.utils.functions import to_async
 if TYPE_CHECKING:
     from types import TracebackType
 
-    from anyio.abc import TaskGroup
     from fast_depends.core import CallModel
     from fast_depends.dependencies import Depends
 
@@ -179,6 +178,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         self.watcher = watcher
         self.extra_context = extra_context or {}
         self.graceful_timeout = graceful_timeout
+        self.extra_watcher_options = {}
 
         # AsyncAPI information
         super().__init__(
@@ -191,11 +191,9 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
     async def start(
         self,
         producer: Optional["PublisherProtocol"],
-        task_group: "TaskGroup",
     ) -> None:
         """Start the handler."""
         self.running = True
-        self.task_group = task_group
         self.producer = producer
 
     @abstractmethod
@@ -279,7 +277,8 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                         dependant=dependant,
                         filter=to_async(filter or filter_),
                         parser=cast(
-                            "AsyncParser[MsgType]", to_async(parser or parser_)
+                            "AsyncParser[MsgType]",
+                            to_async(parser or parser_),
                         ),
                         decoder=cast(
                             "AsyncDecoder[StreamMessage[MsgType]]",
@@ -317,9 +316,10 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
 
             stack.enter_context(self.lock)
             stack.enter_context(context.scope("handler_", self))
+            # Stop handler at StopConsume exception
             await stack.enter_async_context(self.stop_scope())
 
-            # enter all middlewares
+            # enter all with raw middlewares
             middlewares: List["BaseMiddleware"] = []
             for m in self.middlewares:
                 middleware = m(msg)
@@ -329,16 +329,17 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
             cache: Dict[Any, Any] = {}
             for h in self.calls:
                 if (message := await h.is_suitable(msg, cache)) is not None:
-                    await stack.enter_async_context(self.watcher(message))
+                    # Acknowledgement scope
+                    await stack.enter_async_context(
+                        self.watcher(message, **self.extra_watcher_options)
+                    )
+
                     stack.enter_context(
-                        context.scope(
-                            "log_context",
-                            self.get_log_context(message),
-                        )
+                        context.scope("log_context", self.get_log_context(message))
                     )
                     stack.enter_context(context.scope("message", message))
 
-                    # middlewares should be exited before scope does
+                    # Middlewares should be exited before log_context scope release
                     @stack.push_async_exit
                     async def close_middlewares(
                         exc_type: Optional[Type[BaseException]] = None,
@@ -350,10 +351,10 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
 
                     result_msg = await h.call(
                         message=message,
+                        # consumer middlewares
                         extra_middlewares=(m.consume_scope for m in middlewares),
                     )
 
-                    # TODO: suppress all publishing errors and raise them after all publishers will be tried
                     for p in chain(
                         self.make_response_publisher(message),
                         h.handler._publishers,
@@ -361,6 +362,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                         await p.publish(
                             message=result_msg,
                             correlation_id=message.correlation_id,
+                            # publisher middlewares
                             extra_middlewares=(m.publish_scope for m in middlewares),
                         )
 
