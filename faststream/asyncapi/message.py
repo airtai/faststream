@@ -23,7 +23,7 @@ def parse_handler_params(call: CallModel[Any, Any], prefix: str = "") -> Dict[st
     body = get_model_schema(
         create_model(  # type: ignore[call-overload]
             model.__name__,
-            **call.flat_params,   # type: ignore[arg-type]
+            **call.flat_params,  # type: ignore[arg-type]
         ),
         prefix=prefix,
         exclude=tuple(call.custom_fields.keys()),

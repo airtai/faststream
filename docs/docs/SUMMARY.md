@@ -297,6 +297,8 @@ search:
                     - [serve](api/faststream/cli/docs/app/serve.md)
             - main
                 - [main](api/faststream/cli/main/main.md)
+                - [publish](api/faststream/cli/main/publish.md)
+                - [publish_message](api/faststream/cli/main/publish_message.md)
                 - [run](api/faststream/cli/main/run.md)
                 - [version_callback](api/faststream/cli/main/version_callback.md)
             - supervisors
