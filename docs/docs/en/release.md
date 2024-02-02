@@ -12,6 +12,19 @@ hide:
 ---
 
 # Release Notes
+## 0.4.2
+
+### What's Changed
+
+#### Bug fixes
+
+* fix: correct RMQ Topic testing routing by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1196](https://github.com/airtai/faststream/pull/1196){.external-link target="_blank"}
+* fix #1191: correct RMQ ssl default port by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1195](https://github.com/airtai/faststream/pull/1195){.external-link target="_blank"}
+* fix #1143: ignore Depends in AsyncAPI by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1197](https://github.com/airtai/faststream/pull/1197){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.4.1...0.4.2](https://github.com/airtai/faststream/compare/0.4.1...0.4.2){.external-link target="_blank"}
+
 ## 0.4.1
 
 ### What's Changed
