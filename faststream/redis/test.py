@@ -3,9 +3,15 @@ from typing import Any, Optional, Sequence, Union
 
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.test import TestBroker, call_handler
-from faststream.redis.message import PubSubMessage, ListMessage, BatchListMessage, StreamMessage, BatchStreamMessage
 from faststream.redis.asyncapi import Handler, Publisher
 from faststream.redis.broker import RedisBroker
+from faststream.redis.message import (
+    BatchListMessage,
+    BatchStreamMessage,
+    ListMessage,
+    PubSubMessage,
+    StreamMessage,
+)
 from faststream.redis.parser import RawMessage, bDATA_KEY
 from faststream.redis.producer import RedisFastProducer
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
@@ -96,7 +102,6 @@ class FakeProducer(RedisFastProducer):
 
         for handler in self.broker.handlers.values():  # pragma: no branch
             call = False
-            batch = False
 
             if channel and (ch := handler.channel) is not None:
                 call = bool(

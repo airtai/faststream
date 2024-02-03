@@ -15,7 +15,7 @@ from typing import (
 import anyio
 from typing_extensions import ParamSpec
 
-from faststream.cli.supervisors.utils import HANDLED_SIGNALS, set_exit
+from faststream.cli.supervisors.utils import set_exit
 from faststream.log.logging import logger
 from faststream.types import AnyDict, AsyncFunc, Lifespan, SettingField
 from faststream.utils import apply_types, context
@@ -26,7 +26,6 @@ T_HookReturn = TypeVar("T_HookReturn")
 
 
 if TYPE_CHECKING:
-    from anyio.abc import TaskGroup
     from pydantic import AnyHttpUrl
 
     from faststream.asyncapi.schema import (
@@ -124,6 +123,8 @@ class FastStream:
             else fake_context
         )
 
+        self.should_exit = False
+
         # AsyncAPI information
         self.title = title
         self.version = version
@@ -220,26 +221,19 @@ class FastStream:
         """
         assert self.broker, "You should setup a broker"  # nosec B101
 
+        set_exit(lambda *_: self.stop())
+
         async with self.lifespan_context(**(run_extra_options or {})):
             await self._start(log_level, run_extra_options)
 
-            try:
-                # TODO: make it stoppable
-                with anyio.open_signal_receiver(*HANDLED_SIGNALS) as signals:
-                    async for _ in signals:
-                        self.stop()
-                        break
+            while not self.should_exit:
+                await anyio.sleep(0.1)
 
-            except NotImplementedError:
-                set_exit(lambda *_: self.stop(log_level))
-
-            await self.stop_event.wait()
             await self._stop(log_level)
 
-
-    def stop(self, log_level: int = logging.INFO):
-        if not self.stop_event.is_set():
-            self.stop_event.set()
+    def stop(self) -> None:
+        """Stop application manually."""
+        self.should_exit = True
 
     async def _start(
         self,
@@ -286,8 +280,6 @@ class FastStream:
         Returns:
             None
         """
-        self.stop_event = anyio.Event()
-
         for func in self._on_startup_calling:
             await func(**run_extra_options)
 
