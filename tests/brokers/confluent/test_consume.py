@@ -500,3 +500,47 @@ class TestConsume(BrokerRealConsumeTestcase):
             m.mock.assert_not_called()
 
         assert event.is_set()
+
+    @pytest.mark.asyncio()
+    @pytest.mark.slow()
+    async def test_consume_with_no_auto_commit(
+        self,
+        queue: str,
+        broker: KafkaBroker,
+        event: asyncio.Event,
+    ):
+        @broker.subscriber(
+            queue, auto_commit=False, group_id="test", auto_offset_reset="earliest"
+        )
+        def subscriber_no_auto_commit(msg):
+            event.set()
+            raise Exception("Prevent ack")
+
+        broker2 = KafkaBroker()
+        event2 = asyncio.Event()
+
+        @broker2.subscriber(
+            queue, auto_commit=True, group_id="test", auto_offset_reset="earliest"
+        )
+        def subscriber_with_auto_commit(m):
+            event2.set()
+
+        async with broker:
+            await broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(broker.publish("hello", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=10,
+            )
+
+        async with broker2:
+            await broker2.start()
+            await asyncio.wait(
+                (asyncio.create_task(event2.wait()),),
+                timeout=10,
+            )
+
+        assert event.is_set()
+        assert event2.is_set()
