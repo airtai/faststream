@@ -506,15 +506,15 @@ class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_with_no_auto_commit(
         self,
         queue: str,
-        broker: KafkaBroker,
+        full_broker: KafkaBroker,
         event: asyncio.Event,
     ):
-        @broker.subscriber(
+        @full_broker.subscriber(
             queue, auto_commit=False, group_id="test", auto_offset_reset="earliest"
         )
-        def subscriber_no_auto_commit(msg):
+        async def subscriber_no_auto_commit(msg: KafkaMessage):
+            await msg.nack()
             event.set()
-            raise Exception("Prevent ack")
 
         broker2 = KafkaBroker()
         event2 = asyncio.Event()
@@ -522,14 +522,14 @@ class TestConsume(BrokerRealConsumeTestcase):
         @broker2.subscriber(
             queue, auto_commit=True, group_id="test", auto_offset_reset="earliest"
         )
-        def subscriber_with_auto_commit(m):
+        async def subscriber_with_auto_commit(m):
             event2.set()
 
-        async with broker:
-            await broker.start()
+        async with full_broker:
+            await full_broker.start()
             await asyncio.wait(
                 (
-                    asyncio.create_task(broker.publish("hello", queue)),
+                    asyncio.create_task(full_broker.publish("hello", queue)),
                     asyncio.create_task(event.wait()),
                 ),
                 timeout=10,
