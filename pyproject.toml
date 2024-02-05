@@ -107,7 +107,7 @@ lint = [
     "types-docutils",
     "confluent-kafka-stubs; python_version >= '3.11'",
     "mypy==1.8.0",
-    "ruff==0.1.14",
+    "ruff==0.2.0",
     "bandit==1.7.6",
     "semgrep==1.52.0",
 ]
