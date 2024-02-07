@@ -49,7 +49,6 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
         @broker.subscriber(
             queue=publisher.queue,
             exchange=publisher.exchange,
-            raw=True,
         )
         def f(msg: Any) -> None:
             pass

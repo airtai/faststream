@@ -1,4 +1,6 @@
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional, Union
+
+from typing_extensions import overload
 
 from faststream.asyncapi.schema import (
     Channel,
@@ -48,20 +50,21 @@ class AsyncAPIHandler(BaseNatsHandler[Any]):
 
     @staticmethod
     def create(
-        *args,
+        *,
         pull_sub: Optional["PullSub"],
         max_workers: int,
         **kwargs,
-    ) -> "AsyncAPIHandler":
+    ) -> Union[
+        "DefaultAsyncAPIHandler",
+        "BatchAsyncAPIHandler",
+    ]:
         if getattr(pull_sub, "batch", False):
             return BatchAsyncAPIHandler(
-                *args,
                 pull_sub=pull_sub,
                 **kwargs,
             )
         else:
             return DefaultAsyncAPIHandler(
-                *args,
                 pull_sub=pull_sub,
                 max_workers=max_workers,
                 **kwargs,

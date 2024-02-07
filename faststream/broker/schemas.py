@@ -18,7 +18,6 @@ class NameRequired(BaseModel):
         validate(cls: Type[NameRequiredCls], value: Union[str, NameRequiredCls]) -> NameRequiredCls: Validate the given value and return a NameRequiredCls instance.
         validate(cls: Type[NameRequiredCls], value: None) -> None: Validate the given value and return None.
         validate(cls: Type[NameRequiredCls], value: Union[str, NameRequiredCls, None]) -> Optional[NameRequiredCls]: Validate the given value and return an optional NameRequiredCls instance.
-
     """
 
     name: str = Field(...)
@@ -36,21 +35,15 @@ class NameRequired(BaseModel):
         if __value is None:
             return False
 
-        if not isinstance(__value, NameRequired):  # pragma: no cover
-            return NotImplemented
+        if not isinstance(__value, NameRequired):
+            raise NotImplementedError(f"We can't compare {type(self).__name__} with {type(__value).__name__} object")
 
         return self.name == __value.name
 
     def __init__(self, name: str, **kwargs: Any) -> None:
-        """This is a Python function.
+        """Initial function.
 
-        Args:
-            name (str): The name of the object.
-            **kwargs (Any): Additional keyword arguments.
-
-        Returns:
-            None.
-
+        Maps positional name to pydantic `name` named argument.
         """
         super().__init__(name=name, **kwargs)
 

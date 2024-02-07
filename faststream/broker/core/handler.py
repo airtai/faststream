@@ -41,9 +41,13 @@ if TYPE_CHECKING:
 
     from fast_depends.core import CallModel
     from fast_depends.dependencies import Depends
+    from typing_extensions import Unpack
 
     from faststream.broker.core.call_wrapper import HandlerCallWrapper
-    from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
+    from faststream.broker.core.handler_wrapper_mixin import (
+        WrapExtraKwargs,
+        WrapperProtocol,
+    )
     from faststream.broker.message import StreamMessage
     from faststream.broker.middlewares import BaseMiddleware
     from faststream.broker.types import (
@@ -214,16 +218,16 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
 
     def add_call(
         self,
+        *,
         filter_: "Filter[StreamMessage[MsgType]]",
         parser_: "CustomParser[MsgType]",
         decoder_: "CustomDecoder[StreamMessage[MsgType]]",
         middlewares_: Iterable["SubscriberMiddleware"],
         dependencies_: Sequence["Depends"],
-        **wrap_kwargs: Any,
+        **wrapper_kwargs: "Unpack[WrapExtraKwargs]",
     ) -> "WrapperProtocol[MsgType]":
         @overload
         def outer_wrapper(
-            self,
             func: None = None,
             *,
             filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
@@ -239,7 +243,6 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
 
         @overload
         def outer_wrapper(
-            self,
             func: Callable[P_HandlerParams, T_HandlerReturn],
             *,
             filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
@@ -268,7 +271,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                 handler, dependant = self.wrap_handler(
                     func=func,
                     dependencies=total_deps,
-                    **wrap_kwargs,
+                    **wrapper_kwargs,
                 )
 
                 self.calls.append(

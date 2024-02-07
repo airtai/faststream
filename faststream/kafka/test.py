@@ -43,7 +43,6 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
         @broker.subscriber(  # type: ignore[call-overload,misc]
             publisher.topic,
             batch=isinstance(publisher, BatchPublisher),
-            raw=True,
         )
         def f(msg: Any) -> None:
             pass

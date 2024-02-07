@@ -106,6 +106,8 @@ SubscriberMiddleware: TypeAlias = Callable[
 
 
 class PublisherMiddleware(Protocol):
+    """Publisher middleware interface."""
+
     def __call__(
         self, __msg: Any, *__args: Any, **__kwargs: Any
     ) -> AsyncContextManager[SendableMessage]:
@@ -118,10 +120,10 @@ class PublisherProtocol(Protocol):
     async def publish(
         self,
         message: Any,
-        *args: Any,
+        *__args: Any,
         correlation_id: Optional[str] = None,
         extra_middlewares: Iterable[PublisherMiddleware] = (),
-        **kwargs: Any,
+        **__kwargs: Any,
     ) -> Any:
         """Publishes a message asynchronously.
 

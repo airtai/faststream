@@ -17,11 +17,11 @@ from typing import (
 from fast_depends.core import build_call_model
 from fast_depends.use import _InjectWrapper, inject
 from pydantic import create_model
+from typing_extensions import Annotated, Doc
 
 from faststream._compat import PYDANTIC_V2
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
-from faststream.types import F_Return, F_Spec
 from faststream.utils.functions import to_async
 
 if TYPE_CHECKING:
@@ -29,6 +29,7 @@ if TYPE_CHECKING:
 
     from fast_depends.core import CallModel
     from fast_depends.dependencies import Depends
+    from typing_extensions import TypedDict
 
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
@@ -37,6 +38,25 @@ if TYPE_CHECKING:
         Filter,
         SubscriberMiddleware,
     )
+
+    class WrapExtraKwargs(TypedDict):
+        """Class to annotate `wrap_handler` method extra options using `typing_extensions.Unpack`."""
+
+        apply_types: Annotated[
+            bool,
+            Doc("Flag to wrap original function to FastDepends"),
+        ]
+        is_validate: Annotated[
+            bool,
+            Doc(
+                "Flag to use pydantic to serialize incoming message body."
+                "Passing as `cast` option to FastDepends"
+            ),
+        ]
+        get_dependant: Annotated[
+            Optional[Any],
+            Doc("Function to build dependant object. Using FastDepends as default.")
+        ]
 
     class WrapperProtocol(Protocol[MsgType]):
         """Annotation class to represent @subsriber return type."""
@@ -97,18 +117,29 @@ class WrapHandlerMixin(Generic[MsgType]):
         *,
         func: Callable[P_HandlerParams, T_HandlerReturn],
         dependencies: Sequence["Depends"],
-        apply_types: bool,
-        is_validate: bool,
-        raw: bool = False,
-        get_dependant: Optional[Any] = None,
+        apply_types: Annotated[
+            bool,
+            Doc("Flag to wrap original function to FastDepends"),
+        ],
+        is_validate: Annotated[
+            bool,
+            Doc(
+                "Flag to use pydantic to serialize incoming message body."
+                "Passing as `cast` option to FastDepends"
+            ),
+        ],
+        get_dependant: Annotated[
+            Optional[Any],
+            Doc("Function to build dependant object. Using FastDepends as default.")
+        ],
     ) -> Tuple[
         HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
         "CallModel[..., Any]",
     ]:
-        build_dep = build_dep = cast(
+        build_dep = cast(
             Callable[
-                [Callable[F_Spec, F_Return]],
-                "CallModel[F_Spec, F_Return]",
+                [Callable[..., Any]],
+                "CallModel[..., Any]",
             ],
             get_dependant
             or partial(
@@ -137,15 +168,14 @@ class WrapHandlerMixin(Generic[MsgType]):
             dependant = _patch_fastapi_dependant(dependant)
 
         else:
-            if apply_types and not raw:
+            if apply_types:
                 wrapper: _InjectWrapper[Any, Any] = inject(func=None)
                 f = wrapper(func=f, model=dependant)
 
-            if not raw:
-                f = self._wrap_decode_message(
-                    func=f,
-                    params_ln=len(dependant.flat_params),
-                )
+            f = self._wrap_decode_message(
+                func=f,
+                params_ln=len(dependant.flat_params),
+            )
 
         handler_call.set_wrapped(f)
         return handler_call, dependant

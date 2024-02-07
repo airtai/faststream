@@ -35,8 +35,12 @@ if TYPE_CHECKING:
     from nats.aio.msg import Msg
     from nats.aio.subscription import Subscription
     from nats.js import JetStreamContext
+    from typing_extensions import Unpack
 
-    from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
+    from faststream.broker.core.handler_wrapper_mixin import (
+        WrapExtraKwargs,
+        WrapperProtocol,
+    )
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
@@ -62,6 +66,7 @@ class BaseNatsHandler(BaseHandler[MsgType]):
 
     def __init__(
         self,
+        *,
         subject: Annotated[
             str,
             Doc("NATS subject to subscribe"),
@@ -73,47 +78,47 @@ class BaseNatsHandler(BaseHandler[MsgType]):
         extra_context: Annotated[
             Optional[AnyDict],
             Doc("Extra context to pass into consume scope"),
-        ] = None,
+        ],
         extra_options: Annotated[
             Optional[AnyDict],
             Doc("Extra arguments for subscription creation"),
-        ] = None,
+        ],
         graceful_timeout: Annotated[
             Optional[float],
             Doc(
                 "Wait up to this time (if set) in graceful shutdown mode. "
                 "Kills task forcefully if expired."
             ),
-        ] = None,
+        ],
         middlewares: Annotated[
             Iterable["BrokerMiddleware[MsgType]"],
             Doc("Global middleware to use `on_receive`, `after_processed`"),
-        ] = (),
+        ],
         queue: Annotated[
             str,
             Doc("NATS queue name"),
-        ] = "",
+        ],
         stream: Annotated[
             Optional["JStream"],
             Doc("NATS Stream object"),
-        ] = None,
+        ],
         pull_sub: Annotated[
             Optional["PullSub"],
             Doc("NATS Pull consumer parameters container"),
-        ] = None,
+        ],
         # AsyncAPI information
         title_: Annotated[
             Optional[str],
             Doc("AsyncAPI subscriber title"),
-        ] = None,
+        ],
         description_: Annotated[
             Optional[str],
             Doc("AsyncAPI subscriber description"),
-        ] = None,
+        ],
         include_in_schema: Annotated[
             bool,
             Doc("Whether to include the handler in AsyncAPI schema"),
-        ] = True,
+        ],
     ) -> None:
         """Initialize the NATS handler."""
         reg, path = compile_path(
@@ -156,9 +161,9 @@ class BaseNatsHandler(BaseHandler[MsgType]):
             Doc("Publisher to response RPC"),
         ],
     ) -> None:
-        """Create NATS subscription and start consume task."""
+        """Create NATS subscription and start consume tasks."""
         await super().start(producer=producer)
-        await self.create_subscription(connection)
+        await self.create_subscription(connection=connection)
 
     async def close(self) -> None:
         """Clean up handler subscription, cancel consume task in graceful mode."""
@@ -167,7 +172,7 @@ class BaseNatsHandler(BaseHandler[MsgType]):
         if self.subscription is not None:
             await self.subscription.unsubscribe()
             self.subscription = None
-        
+
         for task in self.tasks:
             if not task.done():
                 task.cancel()
@@ -176,16 +181,23 @@ class BaseNatsHandler(BaseHandler[MsgType]):
     @abstractmethod
     async def create_subscription(
         self,
+        *,
         connection: Annotated[
             Union["Client", "JetStreamContext"],
             Doc("NATS client or JS Context object using to create subscription"),
         ],
     ) -> None:
+        """Create NATS subscription object to consume messages."""
         raise NotImplementedError()
 
     def make_response_publisher(
-        self, message: "StreamMessage[Any]"
+        self,
+        message: Annotated[
+            "StreamMessage[Any]",
+            Doc("Message requiring reply"),
+        ],
     ) -> Sequence[FakePublisher]:
+        """Create FakePublisher object to use it as one of `publishers` in `self.consume` scope."""
         if not message.reply_to or self.producer is None:
             return ()
 
@@ -198,7 +210,10 @@ class BaseNatsHandler(BaseHandler[MsgType]):
 
     @staticmethod
     def get_routing_hash(
-        subject: Annotated[str, Doc("NATS subject to consume messages")],
+        subject: Annotated[
+            str,
+            Doc("NATS subject to consume messages"),
+        ],
     ) -> str:
         """Get handler hash by outer data.
 
@@ -208,11 +223,25 @@ class BaseNatsHandler(BaseHandler[MsgType]):
 
     @staticmethod
     def build_log_context(
-        message: Optional["StreamMessage[Any]"],
-        subject: str,
-        queue: str = "",
-        stream: Optional["JStream"] = None,
+        message: Annotated[
+            Optional["StreamMessage[Any]"],
+            Doc("Message which we are building context for"),
+        ],
+        subject: Annotated[
+            str,
+            Doc("NATS subject we are listening"),
+        ],
+        *,
+        queue: Annotated[
+            str,
+            Doc("Using queue group name"),
+        ] = "",
+        stream: Annotated[
+            Optional["JStream"],
+            Doc("Stream object we are listening"),
+        ] = None,
     ) -> Dict[str, str]:
+        """Static method to build log context out of `self.consume` scope."""
         return {
             "subject": subject,
             "queue": queue,
@@ -222,8 +251,12 @@ class BaseNatsHandler(BaseHandler[MsgType]):
 
     def get_log_context(
         self,
-        message: Optional["StreamMessage[Any]"],
+        message: Annotated[
+            Optional["StreamMessage[Any]"],
+            Doc("Message which we are building context for"),
+        ],
     ) -> Dict[str, str]:
+        """Log context factory using in `self.consume` scope."""
         return self.build_log_context(
             message=message,
             subject=self.subject,
@@ -240,6 +273,7 @@ class DefaultHandler(BaseNatsHandler["Msg"]):
 
     def __init__(
         self,
+        *,
         subject: Annotated[
             str,
             Doc("NATS subject to subscribe"),
@@ -296,6 +330,11 @@ class DefaultHandler(BaseNatsHandler["Msg"]):
             Doc("Whether to include the handler in AsyncAPI schema"),
         ],
     ) -> None:
+        """Default handler initializer.
+
+        Has `max_workers`, `limiter`, `send_stream` and `receive_stream` custom attributes.
+        They are related for concurrent message processing in async pool.
+        """
         super().__init__(
             subject=subject,
             watcher=watcher,
@@ -322,13 +361,29 @@ class DefaultHandler(BaseNatsHandler["Msg"]):
     def add_call(  # type: ignore[override]
         self,
         *,
-        filter: "Filter[StreamMessage[Msg]]",
-        parser: Optional["CustomParser[Msg]"],
-        decoder: Optional["CustomDecoder[StreamMessage[Msg]]"],
-        middlewares: Iterable["SubscriberMiddleware"],
-        dependencies: Sequence["Depends"],
-        **wrap_kwargs: Any,
+        filter: Annotated[
+            "Filter[StreamMessage[Msg]]",
+            Doc("Filter function to decide about message processing"),
+        ],
+        parser: Annotated[
+            Optional["CustomParser[Msg]"],
+            Doc("Parser to map original **nats-py** Msg to FastStream one"),
+        ],
+        decoder: Annotated[
+            Optional["CustomDecoder[StreamMessage[Msg]]"],
+            Doc("Function to decode FastStream msg bytes body to python objects"),
+        ],
+        middlewares: Annotated[
+            Iterable["SubscriberMiddleware"],
+            Doc("`self.consume` scope middlewares"),
+        ],
+        dependencies: Annotated[
+            Sequence["Depends"],
+            Doc("Top-level dependencies passing to FastDepends"),
+        ],
+        **wrapper_kwargs: "Unpack[WrapExtraKwargs]",
     ) -> "WrapperProtocol[Msg]":
+        """Decorator to register user function as handler call."""
         parser_ = NatsParser if self.stream is None else JsParser
         return super().add_call(
             parser_=resolve_custom_func(parser, parser_.parse_message),
@@ -336,18 +391,19 @@ class DefaultHandler(BaseNatsHandler["Msg"]):
             filter_=filter,
             middlewares_=middlewares,
             dependencies_=dependencies,
-            **wrap_kwargs,
+            **wrapper_kwargs,
         )
 
     async def create_subscription(
         self,
+        *,
         connection: Annotated[
             Union["Client", "JetStreamContext"],
             Doc("NATS client or JS Context object using to create subscription"),
         ],
     ) -> None:
         """Create NATS subscription and start consume task."""
-        cb: Callable[["Msg"], Awaitable[SendableMessage]]
+        cb: Callable[["Msg"], Awaitable[Any]]
         if self.max_workers > 1:
             self.tasks.append(asyncio.create_task(self._serve_consume_queue()))
             cb = self.__put_msg
@@ -450,6 +506,7 @@ class BatchHandler(BaseNatsHandler[List["Msg"]]):
     @override
     async def create_subscription(  # type: ignore[override]
         self,
+        *,
         connection: Annotated[
             "JetStreamContext",
             Doc("JS Context object using to create subscription"),
@@ -462,10 +519,10 @@ class BatchHandler(BaseNatsHandler[List["Msg"]]):
         )
         self.tasks.append(asyncio.create_task(self._consume_pull()))
 
-    async def _consume_pull(
-        self
-    ) -> None:
+    async def _consume_pull(self) -> None:
         """Endless task consuming messages using NATS Pull subscriber."""
+        assert self.subscription, "You should call `create_subscription` at first."  # nosec B101
+
         sub = cast("JetStreamContext.PullSubscription", self.subscription)
 
         while self.running:  # pragma: no branch

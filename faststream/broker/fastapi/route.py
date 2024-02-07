@@ -94,6 +94,7 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
                 0,
                 get_parameterless_sub_dependant(depends=depends, path=path_name),
             )
+
         self.dependant = dependant
 
         call = wraps(orig_call)(
@@ -113,7 +114,6 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
         self.handler = broker.subscriber(
             path,
             *extra,
-            raw=True,
             get_dependant=lambda call: dependant,
             **handle_kwargs,
         )(

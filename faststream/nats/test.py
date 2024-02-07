@@ -31,7 +31,7 @@ class TestNatsBroker(TestBroker[NatsBroker]):
         broker: NatsBroker,
         publisher: "Publisher",
     ) -> HandlerCallWrapper[Any, Any, Any]:
-        @broker.subscriber(publisher.subject, raw=True)
+        @broker.subscriber(publisher.subject)
         def f(msg: Any) -> None:
             pass
 

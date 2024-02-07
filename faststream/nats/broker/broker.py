@@ -23,6 +23,7 @@ from nats.js.client import (
     DEFAULT_JS_SUB_PENDING_BYTES_LIMIT,
     DEFAULT_JS_SUB_PENDING_MSGS_LIMIT,
 )
+from nats.js.errors import BadRequestError
 from typing_extensions import override
 
 from faststream.broker.core.broker import BrokerUsecase, default_filter
@@ -137,27 +138,27 @@ class NatsBroker(
     ) -> "Client":
         self.__is_connected = True
 
-        connect = await nats.connect(
+        connection = await nats.connect(
             error_cb=self._log_connection_broken(error_cb),
             reconnected_cb=self._log_reconnected(reconnected_cb),
             **kwargs,
         )
 
         self._producer = NatsFastProducer(
-            connect,
+            connection=connection,
             decoder=self._global_decoder,
             parser=self._global_parser,
         )
 
-        stream = self.stream = connect.jetstream()
+        stream = self.stream = connection.jetstream()
 
         self._js_producer = NatsJSFastProducer(
-            stream,
+            connection=stream,
             decoder=self._global_decoder,
             parser=self._global_parser,
         )
 
-        return connect
+        return connection
 
     async def _close(
         self,
@@ -195,7 +196,7 @@ class NatsBroker(
                         subjects=stream.subjects,
                     )
 
-                except nats.js.errors.BadRequestError as e:
+                except BadRequestError as e:
                     old_config = (await self.stream.stream_info(stream.name)).config
 
                     if (
@@ -291,7 +292,8 @@ class NatsBroker(
         title: Optional[str] = None,
         description: Optional[str] = None,
         include_in_schema: bool = True,
-        **wrapper_kwargs: Any,
+        # Extra kwargs
+        get_dependant: Optional[Any] = None,
     ) -> "WrapperProtocol[Msg]":
         super().subscriber()
 
@@ -386,7 +388,7 @@ class NatsBroker(
             # wrapper kwargs
             is_validate=self._is_validate,
             apply_types=self._is_apply_types,
-            **wrapper_kwargs,
+            get_dependant=get_dependant,
         )
 
     @override
