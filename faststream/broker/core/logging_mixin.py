@@ -1,3 +1,4 @@
+from abc import abstractmethod
 import logging
 from inspect import Parameter
 from typing import Any, Optional, Union, cast
@@ -24,9 +25,9 @@ class LoggingMixin:
         self,
         *args: Any,
         default_logger: logging.Logger,
-        logger: Union[logging.Logger, None, object] = Parameter.empty,
-        log_level: int = logging.INFO,
-        log_fmt: Optional[str] = "%(asctime)s %(levelname)s - %(message)s",
+        logger: Union[logging.Logger, None, object],
+        log_level: int,
+        log_fmt: Optional[str],
         **kwargs: Any,
     ) -> None:
         """Initialize the class.
@@ -52,9 +53,13 @@ class LoggingMixin:
         self._fmt = log_fmt
 
     @property
-    def fmt(self) -> str:  # pragma: no cover
+    def fmt(self) -> str: 
         """Getter method for _fmt attribute."""
-        return self._fmt or ""
+        return self._fmt or self.get_fmt()
+
+    @abstractmethod
+    def get_fmt(self) -> str:
+        raise NotImplementedError()
 
     def _log(
         self,

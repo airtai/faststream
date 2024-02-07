@@ -51,9 +51,8 @@ class NatsLoggingMixin(LoggingMixin):
         self._max_stream_len = 0
         self._max_subject_len = 4
 
-    @property
-    def fmt(self) -> str:
-        return self._fmt or (
+    def get_fmt(self) -> str:
+        return (
             "%(asctime)s %(levelname)-8s - "
             + (f"%(stream)-{self._max_stream_len}s | " if self._max_stream_len else "")
             + (f"%(queue)-{self._max_queue_len}s | " if self._max_queue_len else "")

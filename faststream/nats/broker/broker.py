@@ -8,7 +8,6 @@ from typing import (
     Iterable,
     List,
     Optional,
-    Sequence,
     Type,
     Union,
 )
@@ -77,7 +76,7 @@ class NatsBroker(
 
     def __init__(
         self,
-        servers: Union[str, Sequence[str]] = ("nats://localhost:4222",),
+        servers: Union[str, Iterable[str]] = ("nats://localhost:4222",),
         *,
         security: Optional["BaseSecurity"] = None,
         protocol: str = "nats",
@@ -223,38 +222,6 @@ class NatsBroker(
                 self.stream if is_js else self._connection,
                 producer=self._producer,
             )
-
-    def _log_connection_broken(
-        self,
-        error_cb: Optional["ErrorCallback"] = None,
-    ) -> "ErrorCallback":
-        c = BaseNatsHandler.build_log_context(None, "")
-
-        async def wrapper(err: Exception) -> None:
-            if error_cb is not None:
-                await error_cb(err)
-
-            if self.__is_connected is True:
-                self._log(str(err), logging.WARNING, c, exc_info=err)
-                self.__is_connected = False
-
-        return wrapper
-
-    def _log_reconnected(
-        self,
-        cb: Optional["Callback"] = None,
-    ) -> "Callback":
-        c = BaseNatsHandler.build_log_context(None, "")
-
-        async def wrapper() -> None:
-            if cb is not None:
-                await cb()
-
-            if self.__is_connected is False:
-                self._log("Connection established", logging.INFO, c)
-                self.__is_connected = True
-
-        return wrapper
 
     @override
     def subscriber(  # type: ignore[override]
@@ -462,3 +429,35 @@ class NatsBroker(
                 publisher._producer = self._js_producer
         elif self._producer is not None:
             publisher._producer = self._producer
+
+    def _log_connection_broken(
+        self,
+        error_cb: Optional["ErrorCallback"] = None,
+    ) -> "ErrorCallback":
+        c = BaseNatsHandler.build_log_context(None, "")
+
+        async def wrapper(err: Exception) -> None:
+            if error_cb is not None:
+                await error_cb(err)
+
+            if self.__is_connected is True:
+                self._log(str(err), logging.WARNING, c, exc_info=err)
+                self.__is_connected = False
+
+        return wrapper
+
+    def _log_reconnected(
+        self,
+        cb: Optional["Callback"] = None,
+    ) -> "Callback":
+        c = BaseNatsHandler.build_log_context(None, "")
+
+        async def wrapper() -> None:
+            if cb is not None:
+                await cb()
+
+            if self.__is_connected is False:
+                self._log("Connection established", logging.INFO, c)
+                self.__is_connected = True
+
+        return wrapper
