@@ -14,12 +14,10 @@ from typing import (
     cast,
 )
 
-from fast_depends.core import build_call_model
+from fast_depends.core import CallModel, build_call_model
 from fast_depends.use import _InjectWrapper, inject
-from pydantic import create_model
 from typing_extensions import Annotated, Doc
 
-from faststream._compat import PYDANTIC_V2
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
 from faststream.utils.functions import to_async
@@ -27,7 +25,6 @@ from faststream.utils.functions import to_async
 if TYPE_CHECKING:
     from typing import Protocol, overload
 
-    from fast_depends.core import CallModel
     from fast_depends.dependencies import Depends
     from typing_extensions import TypedDict
 
@@ -115,7 +112,10 @@ class WrapHandlerMixin(Generic[MsgType]):
     def wrap_handler(
         self,
         *,
-        func: Callable[P_HandlerParams, T_HandlerReturn],
+        func: Union[
+            Callable[P_HandlerParams, T_HandlerReturn],
+            HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
+        ],
         dependencies: Sequence["Depends"],
         apply_types: Annotated[
             bool,
@@ -150,7 +150,9 @@ class WrapHandlerMixin(Generic[MsgType]):
         )
 
         if isinstance(func, HandlerCallWrapper):
-            handler_call, func = func, func._original_call
+            handler_call = cast(HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn], func)
+            func = handler_call._original_call
+
             if handler_call._wrapped_call is not None:
                 return handler_call, build_dep(func)
 
@@ -162,12 +164,7 @@ class WrapHandlerMixin(Generic[MsgType]):
         f: Callable[..., Awaitable[T_HandlerReturn]] = to_async(func)
         dependant = build_dep(f)
 
-        if getattr(dependant, "flat_params", None) is None:  # FastAPI case
-            extra = [build_dep(d.dependency) for d in dependencies]
-            dependant.dependencies.extend(extra)  # type: ignore[attr-defined]
-            dependant = _patch_fastapi_dependant(dependant)
-
-        else:
+        if isinstance(dependant, CallModel):  # not custom (FastAPI) case
             if apply_types:
                 wrapper: _InjectWrapper[Any, Any] = inject(func=None)
                 f = wrapper(func=f, model=dependant)
@@ -221,37 +218,3 @@ class WrapHandlerMixin(Generic[MsgType]):
             raise AssertionError("unreachable")
 
         return decode_wrapper
-
-
-def _patch_fastapi_dependant(
-    dependant: "CallModel[P_HandlerParams, Awaitable[T_HandlerReturn]]",
-) -> "CallModel[P_HandlerParams, Awaitable[T_HandlerReturn]]":
-    """Patch FastAPI dependant.
-
-    Args:
-        dependant: The dependant to be patched.
-
-    Returns:
-        The patched dependant.
-    """
-    params = dependant.query_params + dependant.body_params  # type: ignore[attr-defined]
-
-    for d in dependant.dependencies:
-        params.extend(d.query_params + d.body_params)  # type: ignore[attr-defined]
-
-    params_unique = {}
-    params_names = set()
-    for p in params:
-        if p.name not in params_names:
-            params_names.add(p.name)
-            info = p.field_info if PYDANTIC_V2 else p
-            params_unique[p.name] = (info.annotation, info.default)
-
-    dependant.model = create_model(  # type: ignore[call-overload]
-        getattr(dependant.call.__name__, "__name__", type(dependant.call).__name__),
-        **params_unique,
-    )
-    dependant.custom_fields = {}
-    dependant.flat_params = params_unique  # type: ignore[assignment,misc]
-
-    return dependant

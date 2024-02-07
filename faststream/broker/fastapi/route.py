@@ -24,10 +24,11 @@ from fastapi.dependencies.utils import (
     solve_dependencies,
 )
 from fastapi.routing import run_endpoint_function
+from pydantic import create_model
 from starlette.requests import Request
 from starlette.routing import BaseRoute
 
-from faststream._compat import FASTAPI_V106, raise_fastapi_validation_error
+from faststream._compat import FASTAPI_V106, PYDANTIC_V2, raise_fastapi_validation_error
 from faststream.broker.core.broker import BrokerUsecase
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.message import StreamMessage as NativeMessage
@@ -69,7 +70,7 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
             endpoint: The endpoint of the instance.
             broker: The broker of the instance.
             dependencies: The dependencies of the instance.
-            dependency_overrides_provider: The provider for dependency overrides.
+            provider_factory: The provider for dependency overrides.
             **handle_kwargs: Additional keyword arguments.
 
         Returns:
@@ -94,6 +95,7 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
                 0,
                 get_parameterless_sub_dependant(depends=depends, path=path_name),
             )
+        dependant = _patch_fastapi_dependant(dependant)
 
         self.dependant = dependant
 
@@ -114,7 +116,7 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
         self.handler = broker.subscriber(
             path,
             *extra,
-            get_dependant=lambda call: dependant,
+            get_dependant=lambda *_: dependant,
             **handle_kwargs,
         )(
             handler  # type: ignore[arg-type]
@@ -180,17 +182,14 @@ class StreamMessage(Request):
 
         Args:
             dependant: The dependant object representing the session.
-            dependency_overrides_provider: Optional provider for dependency overrides.
+            provider_factory: Optional provider for dependency overrides.
 
         Returns:
             A callable that takes a native message and returns an awaitable sendable message.
-
-        Raises:
-            AssertionError: If the dependant call is not defined.
         """
         assert dependant.call  # nosec B101
 
-        func = get_app(dependant, provider_factory)
+        consume = make_fastapi_consumer(dependant, provider_factory)
 
         dependencies_names = tuple(i.name for i in dependant.dependencies)
 
@@ -235,43 +234,22 @@ class StreamMessage(Request):
                     path={},
                 )
 
-            return await func(session)
+            return await consume(session)
 
         return app
 
 
-def get_app(
+def make_fastapi_consumer(
     dependant: Dependant,
     provider_factory: Callable[[], Optional[Any]],
 ) -> Callable[
     [StreamMessage],
     Coroutine[Any, Any, SendableMessage],
 ]:
-    """Creates a FastAPI application.
-
-    Args:
-        dependant: The dependant object that defines the endpoint function and its dependencies.
-        dependency_overrides_provider: Optional provider for dependency overrides.
-
-    Returns:
-        The FastAPI application as a callable that takes a StreamMessage object as input and returns a SendableMessage coroutine.
-
-    Raises:
-        AssertionError: If the code reaches an unreachable state.
-    """
+    """Creates a FastAPI-like consumer."""
 
     async def app(request: StreamMessage) -> SendableMessage:
-        """Handle an HTTP request and return a response.
-
-        Args:
-            request: The incoming HTTP request.
-
-        Returns:
-            The response to be sent back to the client.
-
-        Raises:
-            AssertionError: If the code reaches an unreachable point.
-        """
+        """Consume StreamMessage and return user function result."""
         async with AsyncExitStack() as stack:
             if FASTAPI_V106:
                 kwargs = {"async_exit_stack": stack}
@@ -303,3 +281,28 @@ def get_app(
         raise AssertionError("unreachable")
 
     return app
+
+
+def _patch_fastapi_dependant(dependant: Dependant) -> Dependant:
+    """Patch FastAPI by adding fields for AsyncAPI schema generation."""
+    params = dependant.query_params + dependant.body_params  # type: ignore[attr-defined]
+
+    for d in dependant.dependencies:
+        params.extend(d.query_params + d.body_params)  # type: ignore[attr-defined]
+
+    params_unique = {}
+    params_names = set()
+    for p in params:
+        if p.name not in params_names:
+            params_names.add(p.name)
+            info = p.field_info if PYDANTIC_V2 else p
+            params_unique[p.name] = (info.annotation, info.default)
+
+    dependant.model = create_model(  # type: ignore[call-overload]
+        getattr(dependant.call, "__name__", type(dependant.call).__name__),
+        **params_unique,
+    )
+    dependant.custom_fields = {}
+    dependant.flat_params = params_unique  # type: ignore[assignment,misc]
+
+    return dependant
