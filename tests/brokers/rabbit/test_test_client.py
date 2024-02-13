@@ -272,6 +272,7 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
 
         assert len(routes) == 2
 
+
 @pytest.mark.parametrize(
     ("pattern", "current", "result"),
     [
@@ -284,7 +285,9 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
         pytest.param("#.test.*", "1.2.test.1", True, id="#.test.*"),
         pytest.param("#.test.*.*", "1.2.test.1.2", True, id="#.test.*."),
         pytest.param("#.test.*.*.*", "1.2.test.1.2", False, id="#.test.*.*.* - broken"),
-        pytest.param("#.test.*.test.#", "1.2.test.1.test.1.2", True, id="#.test.*.test.#"),
+        pytest.param(
+            "#.test.*.test.#", "1.2.test.1.test.1.2", True, id="#.test.*.test.#"
+        ),
         pytest.param("#.*.test", "1.2.2.test", True, id="#.*.test"),
         pytest.param("#.2.*.test", "1.2.2.test", True, id="#.2.*.test"),
         pytest.param("#.*.*.test", "1.2.2.test", True, id="#.*.*.test"),
