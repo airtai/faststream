@@ -11,7 +11,7 @@ from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.redis.broker import RedisBroker as RB
 from faststream.redis.message import AnyRedisDict
 from faststream.redis.message import RedisMessage as RM
-from faststream.redis.schemas import PubSub
+from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 
 __all__ = (
     "Context",
@@ -37,14 +37,26 @@ class RedisRouter(StreamRouter[AnyRedisDict]):
         self,
         channel: Union[str, PubSub, None] = None,
         *,
+        list: Union[str, ListSub, None] = None,
+        stream: Union[str, StreamSub, None] = None,
         dependencies: Optional[Sequence[Depends]] = None,
         **broker_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
         HandlerCallWrapper[AnyRedisDict, P_HandlerParams, T_HandlerReturn],
     ]:
+        channel = PubSub.validate(channel)
+        list = ListSub.validate(list)
+        stream = StreamSub.validate(stream)
+
+        if (any_of := channel or list or stream) is None:
+            raise ValueError(INCORRECT_SETUP_MSG)
+
         return super().subscriber(
-            path=channel,
+            path=any_of.name,
+            channel=channel,
+            stream=stream,
+            list=list,
             dependencies=dependencies,
             **broker_kwargs,
         )

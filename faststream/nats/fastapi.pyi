@@ -1,3 +1,4 @@
+import logging
 import ssl
 from enum import Enum
 from typing import (
@@ -52,6 +53,7 @@ from faststream.broker.types import (
     T_HandlerReturn,
 )
 from faststream.broker.wrapper import HandlerCallWrapper
+from faststream.log import access_logger
 from faststream.nats.asyncapi import Publisher
 from faststream.nats.broker import NatsBroker as NB
 from faststream.nats.js_stream import JStream
@@ -126,10 +128,16 @@ class NatsRouter(StreamRouter[Msg]):
         pending_size: int = DEFAULT_PENDING_SIZE,
         flush_timeout: float | None = None,
         # Broker kwargs
+        apply_types: bool = True,
+        validate: bool = True,
         graceful_timeout: float | None = None,
         decoder: CustomDecoder[NM] | None = None,
         parser: CustomParser[Msg, NM] | None = None,
         middlewares: Sequence[Callable[[Msg], BaseMiddleware]] | None = None,
+        # logging args
+        logger: logging.Logger | None = access_logger,
+        log_level: int = logging.INFO,
+        log_fmt: str | None = None,
         # AsyncAPI args
         asyncapi_url: str | list[str] | None = None,
         protocol: str = "nats",

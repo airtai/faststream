@@ -88,6 +88,8 @@ class RedisRouter(StreamRouter[AnyRedisDict]):
         security: BaseSecurity | None = None,
         # broker args
         graceful_timeout: float | None = None,
+        apply_types: bool = True,
+        validate: bool = True,
         parser: CustomParser[AnyRedisDict, RM] | None = None,
         decoder: CustomDecoder[RM] | None = None,
         middlewares: Sequence[Callable[[AnyRedisDict], BaseMiddleware]] | None = None,
