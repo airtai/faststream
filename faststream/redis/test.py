@@ -75,6 +75,7 @@ class FakeProducer(RedisFastProducer):
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
+        maxlen: Optional[int] = None,
     ) -> Optional[Any]:
         any_of = channel or list or stream
         if any_of is None:
