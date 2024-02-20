@@ -102,6 +102,7 @@ class StreamSub(NameRequired):
     batch: bool = False
     no_ack: bool = False
     last_id: str = "$"
+    maxlen: Optional[PositiveInt] = None
 
     def __init__(
         self,
@@ -112,6 +113,7 @@ class StreamSub(NameRequired):
         batch: bool = False,
         no_ack: bool = False,
         last_id: Optional[str] = None,
+        maxlen: Optional[PositiveInt] = None,
     ) -> None:
         """Redis Stream subscriber parameters.
 
@@ -123,6 +125,7 @@ class StreamSub(NameRequired):
             batch: (bool): consume messages in batches.
             no_ack: (bool): do not add message to PEL.
             last_id: (str | None): start reading from this ID.
+            maxlen: (int | None): truncate old stream members beyond this size.
         """
         if (group and not consumer) or (not group and consumer):
             raise ValueError("You should specify `group` and `consumer` both")
@@ -151,6 +154,7 @@ class StreamSub(NameRequired):
             batch=batch,
             no_ack=no_ack,
             last_id=last_id or "$",
+            maxlen=maxlen,
         )
 
     def __hash__(self) -> int:
