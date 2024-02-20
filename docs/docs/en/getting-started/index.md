@@ -41,6 +41,25 @@ INFO     - FastStream app started successfully! To exit, press CTRL+C
 
 Enjoy your new development experience!
 
+### Manual run
+
+Also, you can run `FastStream` application manully, as a regular async function
+
+```python
+import asyncio
+
+async def main():
+    app = FastStream(...)
+    await app.run()  # blocking method
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+### Other tools integrations
+
+Also, if youn want to use **FastStream** as a part of another framework service, probably, you need no to use `FastStream` object at all (it is just a **CLI** tool target). Just start and stop your broker as a part of another framework lifespan. You can find such examples in the [integrations section](./integrations/frameworks/index.md){.internal-link}.
+
 ??? tip "Don't forget to stop the test broker container"
     ```bash
     docker container stop test-mq
