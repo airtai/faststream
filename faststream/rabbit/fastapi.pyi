@@ -1,3 +1,4 @@
+import logging
 from enum import Enum
 from typing import (
     Any,
@@ -32,6 +33,7 @@ from faststream.broker.types import (
     T_HandlerReturn,
 )
 from faststream.broker.wrapper import HandlerCallWrapper
+from faststream.log import access_logger
 from faststream.rabbit.asyncapi import Publisher
 from faststream.rabbit.broker import RabbitBroker as RB
 from faststream.rabbit.message import RabbitMessage as RM
@@ -80,6 +82,8 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         max_consumers: int | None = None,
         graceful_timeout: float | None = None,
         # Broker kwargs
+        apply_types: bool = True,
+        validate: bool = True,
         decoder: CustomDecoder[RM] | None = None,
         parser: CustomParser[aio_pika.IncomingMessage, RM] | None = None,
         middlewares: Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
@@ -92,6 +96,10 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         asyncapi_tags: Sequence[asyncapi.Tag] | None = None,
         schema_url: str | None = "/asyncapi",
         setup_state: bool = True,
+        # logging args
+        logger: logging.Logger | None = access_logger,
+        log_level: int = logging.INFO,
+        log_fmt: str | None = None,
         # FastAPI kwargs
         prefix: str = "",
         tags: list[str | Enum] | None = None,

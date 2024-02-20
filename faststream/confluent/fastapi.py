@@ -1,8 +1,15 @@
+from typing import Any, Callable
+
 from confluent_kafka import Message
 from typing_extensions import Annotated
 
 from faststream.broker.fastapi.context import Context, ContextRepo, Logger
 from faststream.broker.fastapi.router import StreamRouter
+from faststream.broker.types import (
+    P_HandlerParams,
+    T_HandlerReturn,
+)
+from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.confluent.broker import KafkaBroker as KB
 from faststream.confluent.message import KafkaMessage as KM
 from faststream.confluent.producer import AsyncConfluentFastProducer
@@ -33,6 +40,16 @@ class KafkaRouter(StreamRouter[Message]):
     """
 
     broker_class = KB
+
+    def subscriber(
+        self,
+        *topics: str,
+        **broker_kwargs: Any,
+    ) -> Callable[
+        [Callable[P_HandlerParams, T_HandlerReturn]],
+        HandlerCallWrapper[Any, P_HandlerParams, T_HandlerReturn],
+    ]:
+        return super().subscriber(topics[0], *topics, **broker_kwargs)
 
     @staticmethod
     def _setup_log_context(
