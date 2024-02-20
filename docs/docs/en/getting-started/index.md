@@ -43,7 +43,7 @@ Enjoy your new development experience!
 
 ### Manual run
 
-Also, you can run the `FastStream` application manully, as a regular async function:
+Also, you can run the `FastStream` application manually, as a regular async function:
 
 ```python
 import asyncio
@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
 ### Other tools integrations
 
-If you want to use **FastStream** as part of another framework service, probably, you probably don't need to utilize the `FastStream` object at all, as it is primarily intended as a **CLI** tool target. Instead, you can start and stop your broker as part of another framework's lifespan. You can find such examples in the [integrations section](./integrations/frameworks/index.md){.internal-link}.
+If you want to use **FastStream** as part of another framework service, you probably don't need to utilize the `FastStream` object at all, as it is primarily intended as a **CLI** tool target. Instead, you can start and stop your broker as part of another framework's lifespan. You can find such examples in the [integrations section](./integrations/frameworks/index.md){.internal-link}.
 
 ??? tip "Don't forget to stop the test broker container"
     ```bash
