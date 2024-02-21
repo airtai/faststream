@@ -67,9 +67,8 @@ class RabbitLoggingMixin(LoggingMixin):
         self._max_queue_len = 4
         self._max_exchange_len = 4
 
-    @property
-    def fmt(self) -> str:
-        return super().fmt or (
+    def get_fmt(self) -> str:
+        return (
             "%(asctime)s %(levelname)-8s - "
             f"%(exchange)-{self._max_exchange_len}s | "
             f"%(queue)-{self._max_queue_len}s | "

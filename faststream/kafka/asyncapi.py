@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Literal, Optional, Union, overload
 
 from faststream.asyncapi.base import AsyncAPIOperation
 from faststream.asyncapi.schema import (
@@ -80,14 +80,45 @@ class Publisher(LogicPublisher, AsyncAPIOperation):
             )
         }
 
+    @overload
+    @staticmethod
+    def create(
+        *,
+        batch: Literal[True],
+        key: Optional[bytes],
+        **kwargs: Any,
+    ) -> "AsyncAPIBatchPublisher":
+        ...
+
+    @overload
+    @staticmethod
+    def create(
+        *,
+        batch: Literal[False],
+        key: Optional[bytes],
+        **kwargs: Any,
+    ) -> "AsyncAPIDefaultPublisher":
+        ...
+
     @staticmethod
     def create(
         *,
         batch: bool,
         key: Optional[bytes],
         **kwargs: Any,
-    ) -> "LogicPublisher":
+    ) -> Union[
+        "AsyncAPIBatchPublisher",
+        "AsyncAPIDefaultPublisher",
+    ]:
         if batch:
-            return BatchPublisher(**kwargs)
+            return AsyncAPIBatchPublisher(**kwargs)
         else:
-            return DefaultPublisher(**kwargs, key=key)
+            return AsyncAPIDefaultPublisher(**kwargs, key=key)
+
+
+class AsyncAPIBatchPublisher(BatchPublisher, Publisher):
+    pass
+
+
+class AsyncAPIDefaultPublisher(DefaultPublisher, Publisher):
+    pass

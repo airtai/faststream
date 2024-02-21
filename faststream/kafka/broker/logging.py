@@ -56,9 +56,8 @@ class KafkaLoggingMixin(LoggingMixin):
         self._max_topic_len = 4
         self._max_group_len = 0
 
-    @property
-    def fmt(self) -> str:
-        return super().fmt or (
+    def get_fmt(self) -> str:
+        return (
             "%(asctime)s %(levelname)-8s - "
             + f"%(topic)-{self._max_topic_len}s | "
             + (f"%(group_id)-{self._max_group_len}s | " if self._max_group_len else "")

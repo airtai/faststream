@@ -1,7 +1,13 @@
-=== "Kafka"
+=== "AIOKafka"
 
     ```python linenums="1" hl_lines="9-15 17"
     {!> docs_src/integrations/fastapi/kafka/multiple_lifespan.py !}
+    ```
+
+=== "Confluent"
+
+    ```python linenums="1" hl_lines="9-15 17"
+    {!> docs_src/integrations/fastapi/confluent/multiple_lifespan.py !}
     ```
 
 === "RabbitMQ"

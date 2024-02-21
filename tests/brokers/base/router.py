@@ -306,7 +306,7 @@ class RouterTestcase(  # noqa: D101
             len(
                 list(pub_broker.handlers.values())[0]
                 .calls[0]
-                .dependant.extra_dependencies
+                .dependent.extra_dependencies
             )
             == 3
         )

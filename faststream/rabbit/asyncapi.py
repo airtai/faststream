@@ -26,7 +26,6 @@ class Publisher(LogicPublisher):
         get_payloads : Get the payloads for the publisher
     """
 
-    @property
     def get_name(self) -> str:
         routing = (
             self.routing_key
@@ -58,7 +57,7 @@ class Publisher(LogicPublisher):
                         payload=resolve_payloads(
                             payloads,
                             "Publisher",
-                            served_words=2 if self.title is None else 1,
+                            served_words=2 if self.title_ is None else 1,
                         ),
                         correlationId=CorrelationId(
                             location="$message.header#/correlation_id"

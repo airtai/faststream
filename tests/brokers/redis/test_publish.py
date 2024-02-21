@@ -1,10 +1,12 @@
 import asyncio
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
+from redis.asyncio import Redis
 
-from faststream.redis import ListSub, RedisBroker
+from faststream.redis import ListSub, RedisBroker, StreamSub
 from tests.brokers.base.publish import BrokerPublishTestcase
+from tests.tools import spy_decorator
 
 
 @pytest.mark.redis()
@@ -93,3 +95,38 @@ class TestPublish(BrokerPublishTestcase):  # noqa: D101
 
         assert event.is_set()
         mock.assert_called_once_with(["1", "2", "3"])
+
+    async def test_publisher_with_maxlen(
+        self,
+        queue: str,
+        pub_broker: RedisBroker,
+        event: asyncio.Event,
+        mock: MagicMock,
+    ):
+        stream = StreamSub(queue + "resp", maxlen=1)
+
+        @pub_broker.subscriber(stream=queue)
+        @pub_broker.publisher(stream=stream)
+        async def handler(msg):
+            return msg
+
+        @pub_broker.subscriber(stream=stream)
+        async def resp(msg):
+            event.set()
+            mock(msg)
+
+        with patch.object(Redis, "xadd", spy_decorator(Redis.xadd)) as m:
+            async with pub_broker:
+                await pub_broker.start()
+                await asyncio.wait(
+                    (
+                        asyncio.create_task(pub_broker.publish("hi", stream=queue)),
+                        asyncio.create_task(event.wait()),
+                    ),
+                    timeout=3,
+                )
+
+        assert event.is_set()
+        mock.assert_called_once_with("hi")
+
+        assert m.mock.call_args_list[-1].kwargs["maxlen"] == 1

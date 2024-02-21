@@ -32,7 +32,7 @@ class ExtendedFilter(logging.Filter):
     def filter(self, record: LogRecord) -> bool:
         if is_suitable := super().filter(record):
             log_context: Mapping[str, str] = (
-                context.get("log_context") or self.default_context
+                context.get_local("log_context") or self.default_context
             )
 
             for k, v in log_context.items():

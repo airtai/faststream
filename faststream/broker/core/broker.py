@@ -435,7 +435,7 @@ class BrokerUsecase(
             filter: Filter function for filtering the messages to be processed.
             no_ack: Disable FastStream acknowledgement behavior.
             raw: Whether to return the raw message instead of the processed result.
-            get_dependant: Optional argument to get the dependant object.
+            get_dependent: Optional argument to get the dependent object.
             **broker_kwargs: Keyword arguments to be passed to the message broker.
 
         Returns:

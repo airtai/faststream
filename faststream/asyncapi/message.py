@@ -19,12 +19,11 @@ def parse_handler_params(call: CallModel[Any, Any], prefix: str = "") -> Dict[st
 
     """
     model = call.model
-
+    assert model  # nosec B101
     body = get_model_schema(
-        create_model(
+        create_model(  # type: ignore[call-overload]
             model.__name__,
-            __config__=model.model_config,
-            **call.flat_params,
+            **call.flat_params,  # type: ignore[arg-type]
         ),
         prefix=prefix,
         exclude=tuple(call.custom_fields.keys()),

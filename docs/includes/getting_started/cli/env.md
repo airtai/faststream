@@ -1,6 +1,11 @@
-=== "Kafka"
+=== "AIOKafka"
     ```python linenums="1" hl_lines="14-16"
     {!> docs_src/getting_started/cli/kafka_context.py!}
+    ```
+
+=== "Confluent"
+    ```python linenums="1" hl_lines="14-16"
+    {!> docs_src/getting_started/cli/confluent_context.py!}
     ```
 
 === "RabbitMQ"

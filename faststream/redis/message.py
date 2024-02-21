@@ -1,4 +1,4 @@
-from typing import Any, List, Literal, Optional, Union, Dict, TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Union
 
 from typing_extensions import TypedDict, override
 
@@ -51,7 +51,7 @@ class RedisStreamMessage(BrokerStreamMessage[StreamMessage]):
     body: List[Any]
 
     @override
-    async def ack(
+    async def ack(  # type: ignore[override]
         self,
         redis: Optional["Redis[bytes]"] = None,
         group: Optional[str] = None,

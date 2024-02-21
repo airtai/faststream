@@ -2,6 +2,7 @@ from contextlib import AsyncExitStack
 from functools import partial
 from types import TracebackType
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -13,7 +14,6 @@ from typing import (
     Tuple,
     Type,
     Union,
-    TYPE_CHECKING,
 )
 
 import aiokafka
@@ -192,7 +192,7 @@ class KafkaBroker(
         title: Optional[str] = None,
         description: Optional[str] = None,
         include_in_schema: bool = True,
-        **wrapper_kwargs: Any,
+        get_dependent: Optional[Any] = None,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
         Union[
@@ -264,7 +264,7 @@ class KafkaBroker(
             # wrapper kwargs
             is_validate=self._is_validate,
             apply_types=self._is_apply_types,
-            **wrapper_kwargs,
+            get_dependent=get_dependent,
         )
 
     @override

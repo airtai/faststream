@@ -244,9 +244,12 @@ class FakeProducer(AioPikaFastProducer):
                     call = True
 
                 elif handler.exchange.type == ExchangeType.TOPIC:
-                    call = apply_pattern(handler.queue.routing, incoming.routing_key)
+                    call = apply_pattern(
+                        handler.queue.routing,
+                        incoming.routing_key or "",
+                    )
 
-                elif handler.exchange.type == ExchangeType.HEADERS:
+                elif handler.exchange.type == ExchangeType.HEADERS:  # pramga: no branch
                     queue_headers = (handler.queue.bind_arguments or {}).copy()
                     msg_headers = incoming.headers
 
@@ -268,7 +271,7 @@ class FakeProducer(AioPikaFastProducer):
                             call = (matcher == "any") or full
 
                 else:
-                    assert_never(handler.exchange.type)
+                    raise AssertionError("unreachable")
 
                 if call:
                     r = await call_handler(
@@ -286,6 +289,7 @@ class FakeProducer(AioPikaFastProducer):
 
 
 def apply_pattern(pattern: str, current: str) -> bool:
+    """Apply a pattern to a routing key."""
     pattern_queue = iter(pattern.split("."))
     current_queue = iter(current.split("."))
 
@@ -294,7 +298,7 @@ def apply_pattern(pattern: str, current: str) -> bool:
         if (next_symb := next(current_queue, None)) is None:
             return False
 
-        if pattern_symb == "#":
+        elif pattern_symb == "#":
             next_pattern = next(pattern_queue, None)
 
             if next_pattern is None:

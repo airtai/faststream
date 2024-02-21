@@ -8,38 +8,18 @@ search:
   boost: 10
 ---
 
-# Kafka Routing
+# AIOKafka Routing
 
-## Kafka Overview
+## AIOKafka library
 
-### What is Kafka?
+The `aiokafka` library, is an asynchronous Kafka client for Python, built on top of the `asyncio` framework. It is designed to work seamlessly with asynchronous code, making it suitable for applications with high concurrency requirements.
 
-[Kafka](https://kafka.apache.org/){.external-link target="_blank"} is an open-source distributed streaming platform developed by the Apache Software Foundation. It is designed to handle high-throughput, fault-tolerant, real-time data streaming. Kafka is widely used for building real-time data pipelines and streaming applications.
+!!! note ""
+    If you prefer the `confluent-kafka-python` library instead, then please refer to [Confluent's KafkaBroker](../confluent/index.md)
 
-### Key Kafka Concepts
+## FastStream KafkaBroker
 
-#### 1. Publish-Subscribe Model
-
-Kafka is built around the publish-subscribe messaging model. In this model, data is published to topics, and multiple consumers can subscribe to these topics to receive the data. This decouples the producers of data from the consumers, allowing for flexibility and scalability.
-
-#### 2. Topics
-
-A **topic** in Kafka is a logical channel or category to which messages are published by producers and from which messages are consumed by consumers. Topics are used to organize and categorize data streams. Each topic can have multiple **partitions**, which enable Kafka to distribute data and provide parallelism for both producers and consumers.
-
-## Kafka Topics
-
-### Understanding Kafka Topics
-
-Topics are fundamental to Kafka and serve as the central point of data distribution. Here are some key points about topics:
-
-- Topics allow you to logically group and categorize messages.
-- Each message sent to Kafka is associated with a specific topic.
-- Topics can have one or more partitions to enable parallel processing and scaling.
-- Consumers subscribe to topics to receive messages.
-
-### FastStream KafkaBroker
-
-The FastStream KafkaBroker is a key component of the FastStream framework that enables seamless integration with Apache Kafka. With the KafkaBroker, developers can easily connect to Kafka brokers, produce messages to Kafka topics, and consume messages from Kafka topics within their FastStream applications.
+The FastStream KafkaBroker is a key component of the FastStream framework that enables seamless integration with Apache Kafka using [aiokafka](https://github.com/aio-libs/aiokafka) library. With the KafkaBroker, developers can easily connect to Kafka brokers, produce messages to Kafka topics, and consume messages from Kafka topics within their FastStream applications.
 
 ### Establishing a Connection
 

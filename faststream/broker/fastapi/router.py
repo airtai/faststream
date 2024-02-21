@@ -74,6 +74,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
     broker: BrokerUsecase[MsgType, Any]
     docs_router: Optional[APIRouter]
     _after_startup_hooks: List[Callable[[Any], Awaitable[Optional[Mapping[str, Any]]]]]
+    _on_shutdown_hooks: List[Callable[[Any], Awaitable[None]]]
     schema: Optional[Schema]
 
     title: str
@@ -184,7 +185,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             on_shutdown=on_shutdown,
         )
 
-        self.weak_dependencies_provider = WeakSet()
+        self.weak_dependencies_provider: "WeakSet[Any]" = WeakSet()
         if dependency_overrides_provider is not None:
             self.weak_dependencies_provider.add(dependency_overrides_provider)
 
@@ -194,6 +195,13 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             self.docs_router = None
 
         self._after_startup_hooks = []
+        self._on_shutdown_hooks = []
+
+    def get_dependencies_overides_provider(self) -> Optional[Any]:
+        if self.dependency_overrides_provider is not None:
+            return self.dependency_overrides_provider
+        else:
+            return next(iter(self.weak_dependencies_provider), None)
 
     def add_api_mq_route(
         self,
@@ -293,6 +301,9 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             Yields:
                 AsyncIterator[Mapping[str, Any]]: A mapping of context information during the lifespan of the broker.
             """
+            if not len(self.weak_dependencies_provider):
+                self.weak_dependencies_provider.add(app)
+
             if self.docs_router:
                 from faststream.asyncapi.generate import get_app_schema
 
@@ -329,30 +340,19 @@ class StreamRouter(APIRouter, Generic[MsgType]):
                         # NOTE: old asgi compatibility
                         yield  # type: ignore
 
+                    for h in self._on_shutdown_hooks:
+                        await h(app)
+
                 finally:
                     await self.broker.close()
 
         return start_broker_lifespan
-
-    def get_dependencies_overides_provider(self) -> Optional[Any]:
-        if self.dependency_overrides_provider is not None:
-            return self.dependency_overrides_provider
-        else:
-            return next(iter(self.weak_dependencies_provider), None)
 
     @overload
     def after_startup(
         self,
         func: Callable[[AppType], Mapping[str, Any]],
     ) -> Callable[[AppType], Mapping[str, Any]]:
-        """A function decorator to be used for executing a function after startup.
-
-        Args:
-            func: A function that takes an `AppType` argument and returns a mapping of strings to any type.
-
-        Returns:
-            A decorated function that takes an `AppType` argument and returns a mapping of strings to any type.
-        """
         ...
 
     @overload
@@ -360,17 +360,6 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         self,
         func: Callable[[AppType], Awaitable[Mapping[str, Any]]],
     ) -> Callable[[AppType], Awaitable[Mapping[str, Any]]]:
-        """A function decorator to be used for running a function after the startup of an application.
-
-        Args:
-            func: The function to be decorated. It should take an argument of type AppType and return an awaitable mapping of strings to any type.
-
-        Returns:
-            The decorated function.
-
-        Note:
-            This function can be used as a decorator for other functions.
-        """
         ...
 
     @overload
@@ -378,14 +367,6 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         self,
         func: Callable[[AppType], None],
     ) -> Callable[[AppType], None]:
-        """A function decorator to be used for running a function after the startup of an application.
-
-        Args:
-            func: The function to be executed after startup.
-
-        Returns:
-            A decorated function that will be executed after startup.
-        """
         ...
 
     @overload
@@ -393,14 +374,6 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         self,
         func: Callable[[AppType], Awaitable[None]],
     ) -> Callable[[AppType], Awaitable[None]]:
-        """Decorator to register a function to be executed after the application startup.
-
-        Args:
-            func: A callable that takes an `AppType` argument and returns an awaitable `None`.
-
-        Returns:
-            A decorated function that takes an `AppType` argument and returns an awaitable `None`.
-        """
         ...
 
     def after_startup(
@@ -426,6 +399,41 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             The registered function.
         """
         self._after_startup_hooks.append(to_async(func))  # type: ignore
+        return func
+
+    @overload
+    def on_broker_shutdown(
+        self,
+        func: Callable[[AppType], None],
+    ) -> Callable[[AppType], None]:
+        ...
+
+    @overload
+    def on_broker_shutdown(
+        self,
+        func: Callable[[AppType], Awaitable[None]],
+    ) -> Callable[[AppType], Awaitable[None]]:
+        ...
+
+    def on_broker_shutdown(
+        self,
+        func: Union[
+            Callable[[AppType], None],
+            Callable[[AppType], Awaitable[None]],
+        ],
+    ) -> Union[
+        Callable[[AppType], None],
+        Callable[[AppType], Awaitable[None]],
+    ]:
+        """Register a function to be executed before broker stop.
+
+        Args:
+            func: A function to be executed before shutdown. It should take an `AppType` argument and return nothing.
+
+        Returns:
+            The registered function.
+        """
+        self._on_shutdown_hooks.append(to_async(func))  # type: ignore
         return func
 
     def publisher(
@@ -589,6 +597,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
                 **self.broker._publishers,
                 **router.broker._publishers,
             }
+            router.weak_dependencies_provider = self.weak_dependencies_provider
 
             router.weak_dependencies_provider = self.weak_dependencies_provider
 

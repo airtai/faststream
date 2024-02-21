@@ -12,6 +12,159 @@ hide:
 ---
 
 # Release Notes
+## 0.4.3
+
+### What's Changed
+
+Allow to specify **Redis Stream** maxlen option in publisher:
+
+```python
+@broker.publisher(stream=StreamSub("Output", max_len=10))
+async def on_input_data():
+    ....
+```
+
+* chore: bump version by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1198](https://github.com/airtai/faststream/pull/1198){.external-link target="_blank"}
+* Update Release Notes for 0.4.2 by @faststream-release-notes-updater in [#1199](https://github.com/airtai/faststream/pull/1199){.external-link target="_blank"}
+* Add missing API documentation for apply_pattern by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1201](https://github.com/airtai/faststream/pull/1201){.external-link target="_blank"}
+* chore: polishing by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1203](https://github.com/airtai/faststream/pull/1203){.external-link target="_blank"}
+* Comment out retry and timeout in a confluent test by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1207](https://github.com/airtai/faststream/pull/1207){.external-link target="_blank"}
+* Commit offsets only if auto_commit is True by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1208](https://github.com/airtai/faststream/pull/1208){.external-link target="_blank"}
+* Add a CI job to check for missed docs changes by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1217](https://github.com/airtai/faststream/pull/1217){.external-link target="_blank"}
+* fix: inconsistent NATS publisher signature by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1218](https://github.com/airtai/faststream/pull/1218){.external-link target="_blank"}
+* Upgrade packages by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1226](https://github.com/airtai/faststream/pull/1226){.external-link target="_blank"}
+* chore: bump dawidd6/action-download-artifact from 3.0.0 to 3.1.1 by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [#1239](https://github.com/airtai/faststream/pull/1239){.external-link target="_blank"}
+* chore: bump dependencies by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1246](https://github.com/airtai/faststream/pull/1246){.external-link target="_blank"}
+* feat (#1235): StreamSub maxlen parameter by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1245](https://github.com/airtai/faststream/pull/1245){.external-link target="_blank"}
+* fix (#1234): correct FastAPI path passing, fix typehints by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1236](https://github.com/airtai/faststream/pull/1236){.external-link target="_blank"}
+* fix (#1231): close RMQ while reconnecting by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1238](https://github.com/airtai/faststream/pull/1238){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.4.2...0.4.3](https://github.com/airtai/faststream/compare/0.4.2...0.4.3){.external-link target="_blank"}
+
+## 0.4.2
+
+### What's Changed
+
+#### Bug fixes
+
+* fix: correct RMQ Topic testing routing by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1196](https://github.com/airtai/faststream/pull/1196){.external-link target="_blank"}
+* fix #1191: correct RMQ ssl default port by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1195](https://github.com/airtai/faststream/pull/1195){.external-link target="_blank"}
+* fix #1143: ignore Depends in AsyncAPI by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1197](https://github.com/airtai/faststream/pull/1197){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.4.1...0.4.2](https://github.com/airtai/faststream/compare/0.4.1...0.4.2){.external-link target="_blank"}
+
+## 0.4.1
+
+### What's Changed
+
+#### Bug fixes
+
+* Fix: use FastAPI overrides in subscribers by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1189](https://github.com/airtai/faststream/pull/1189){.external-link target="_blank"}
+* Handle confluent consumer commit failure by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1193](https://github.com/airtai/faststream/pull/1193){.external-link target="_blank"}
+
+#### Documentation
+
+* Include Confluent in home and features pages by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1186](https://github.com/airtai/faststream/pull/1186){.external-link target="_blank"}
+* Use pydantic model for publishing in docs example by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1187](https://github.com/airtai/faststream/pull/1187){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.4.0...0.4.1](https://github.com/airtai/faststream/compare/0.4.0...0.4.1){.external-link target="_blank"}
+
+## 0.4.0
+
+### What's Changed
+
+This release adds support for the [Confluent's Python Client for Apache Kafka (TM)](https://github.com/confluentinc/confluent-kafka-python). Confluent's Python Client for Apache Kafka does not support natively `async` functions and its integration with modern async-based services is a bit trickier. That was the reason why our initial supported by Kafka broker used [aiokafka](https://github.com/aio-libs/aiokafka). However, that choice was a less fortunate one as it is as well maintained as the Confluent version. After receiving numerous requests, we finally decided to bite the bullet and create an `async` wrapper around Confluent's Python Client and add full support for it in FastStream.
+
+If you want to try it out, install it first with:
+```sh
+pip install "faststream[confluent]>=0.4.0"
+```
+
+To connect to Kafka using the FastStream KafkaBroker module, follow these steps:
+
+1. Initialize the KafkaBroker instance: Start by initializing a KafkaBroker instance with the necessary configuration, including Kafka broker address.
+
+2. Create your processing logic: Write a function that will consume the incoming messages in the defined format and produce a response to the defined topic
+
+3. Decorate your processing function: To connect your processing function to the desired Kafka topics you need to decorate it with `@broker.subscriber(...)` and `@broker.publisher(...)` decorators. Now, after you start your application, your processing function will be called whenever a new message in the subscribed topic is available and produce the function return value to the topic defined in the publisher decorator.
+
+Here's a simplified code example demonstrating how to establish a connection to Kafka using FastStream's KafkaBroker module:
+
+```python
+from faststream import FastStream
+from faststream.confluent import KafkaBroker
+
+broker = KafkaBroker("localhost:9092")
+app = FastStream(broker)
+
+@broker.subscriber("in-topic")
+@broker.publisher("out-topic")
+async def handle_msg(user: str, user_id: int) -> str:
+    return f"User: {user_id} - {user} registered"
+```
+
+For more information, please visit the documentation at:
+
+https://faststream.airt.ai/latest/confluent/
+
+#### List of Changes
+
+* Update Release Notes for 0.3.13 by @faststream-release-notes-updater in https://github.com/airtai/faststream/pull/1119
+* docs: close #1125 by @Lancetnik in https://github.com/airtai/faststream/pull/1126
+* Add support for confluent python lib by @kumaranvpl in https://github.com/airtai/faststream/pull/1042
+* Update tutorial docs to include confluent code examples by @kumaranvpl in https://github.com/airtai/faststream/pull/1131
+* Add installation instructions for confluent by @kumaranvpl in https://github.com/airtai/faststream/pull/1132
+* Update Release Notes for 0.4.0rc0 by @faststream-release-notes-updater in https://github.com/airtai/faststream/pull/1130
+* chore: remove useless branch from CI by @Lancetnik in https://github.com/airtai/faststream/pull/1135
+* chore: bump mkdocs-git-revision-date-localized-plugin from 1.2.1 to 1.2.2 by @dependabot in https://github.com/airtai/faststream/pull/1140
+* chore: strict fast-depends version by @Lancetnik in https://github.com/airtai/faststream/pull/1145
+* chore: update copyright by @Lancetnik in https://github.com/airtai/faststream/pull/1144
+* fix: correct Windows shutdown by @Lancetnik in https://github.com/airtai/faststream/pull/1148
+* docs: fix typo by @saroz014 in https://github.com/airtai/faststream/pull/1154
+* Middleware Document Syntax Error by @SepehrBazyar in https://github.com/airtai/faststream/pull/1156
+* fix: correct FastAPI Context type hints by @Lancetnik in https://github.com/airtai/faststream/pull/1155
+* Fix bug which results in lost confluent coverage report by @kumaranvpl in https://github.com/airtai/faststream/pull/1160
+* Fix failing ack tests for confluent by @kumaranvpl in https://github.com/airtai/faststream/pull/1166
+* Update version to 0.4.0 and update docs by @kumaranvpl in https://github.com/airtai/faststream/pull/1171
+* feat #1180: add StreamRouter.on_broker_shutdown hook by @Lancetnik in https://github.com/airtai/faststream/pull/1182
+* Fix bug - using old upload-artifact version by @kumaranvpl in https://github.com/airtai/faststream/pull/1183
+* Release 0.4.0 by @davorrunje in https://github.com/airtai/faststream/pull/1184
+
+### New Contributors
+* @saroz014 made their first contribution in https://github.com/airtai/faststream/pull/1154
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.3.13...0.4.0
+
+## 0.4.0rc0
+
+### What's Changed
+
+This is a **preview version** of 0.4.0 release introducing support for Confluent-based Kafka broker.
+
+Here's a simplified code example demonstrating how to establish a connection to Kafka using FastStream's KafkaBroker module:
+```python
+from faststream import FastStream
+from faststream.confluent import KafkaBroker
+
+broker = KafkaBroker("localhost:9092")
+app = FastStream(broker)
+
+@broker.subscriber("in-topic")
+@broker.publisher("out-topic")
+async def handle_msg(user: str, user_id: int) -> str:
+    return f"User: {user_id} - {user} registered"
+```
+
+#### Changes
+
+* Add support for confluent python lib by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1042](https://github.com/airtai/faststream/pull/1042){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.3.13...0.4.0rc0](https://github.com/airtai/faststream/compare/0.3.13...0.4.0rc0){.external-link target="_blank"}
+
 ## 0.3.13
 
 ### What's Changed
@@ -249,11 +402,11 @@ Bug fixes:
 
 Documentation:
 
-* docs: fix misspelled FastDepends reference in README.md by [@spectacularfailure](https://github.com/spectacularfailure){.external-link target="_blank"} in [#1013](https://github.com/airtai/faststream/pull/1013){.external-link target="_blank"}
+* docs: fix misspelled FastDepends reference in README.md by @spectacularfailure in [#1013](https://github.com/airtai/faststream/pull/1013){.external-link target="_blank"}
 
 ### New Contributors
 
-* [@spectacularfailure](https://github.com/spectacularfailure){.external-link target="_blank"} made their first contribution in [#1013](https://github.com/airtai/faststream/pull/1013){.external-link target="_blank"}
+* @spectacularfailure made their first contribution in [#1013](https://github.com/airtai/faststream/pull/1013){.external-link target="_blank"}
 
 **Full Changelog**: [#0.3.0...0.3.1](https://github.com/airtai/faststream/compare/0.3.0...0.3.1){.external-link target="_blank"}
 

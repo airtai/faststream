@@ -1,5 +1,5 @@
 from abc import abstractproperty
-from typing import Dict, Optional, Hashable
+from typing import Dict, Hashable, Optional
 
 from faststream.asyncapi.schema import (
     Channel,
@@ -8,15 +8,23 @@ from faststream.asyncapi.schema import (
     Message,
     Operation,
 )
-from faststream.redis.schemas import ListSub, PubSub, StreamSub, INCORRECT_SETUP_MSG
 from faststream.asyncapi.schema.bindings import redis
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.redis.handler import (ListHandler, BatchListHandler, StreamHandler, BatchStreamHandler, ChannelHandler, BaseRedisHandler,)
+from faststream.redis.handler import (
+    BaseRedisHandler,
+    BatchListHandler,
+    BatchStreamHandler,
+    ChannelHandler,
+    ListHandler,
+    StreamHandler,
+)
 from faststream.redis.publisher import LogicPublisher
+from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 
 
 class Handler:
     """A class to represent a Redis handler."""
+
     @staticmethod
     def get_routing_hash(channel: Hashable) -> int:
         return hash(channel)
@@ -43,7 +51,9 @@ class Handler:
                         ),
                     ),
                 ),
-                bindings=ChannelBinding(redis=self.binding,),
+                bindings=ChannelBinding(
+                    redis=self.binding,
+                ),
             )
         }
 
@@ -69,7 +79,7 @@ class Handler:
                 return BatchListHandler(list=list, **kwargs)
             else:
                 return ListAsyncAPIHandler(list=list, **kwargs)
-        
+
         else:
             raise ValueError(INCORRECT_SETUP_MSG)
 
@@ -79,7 +89,7 @@ class ChannelAsyncAPIHandler(Handler, ChannelHandler):
     def binding(self) -> redis.ChannelBinding:
         return redis.ChannelBinding(
             channel=self.channel_name,
-            method="psubscribe" if self.channel.pattern else "subscribe"
+            method="psubscribe" if self.channel.pattern else "subscribe",
         )
 
 
@@ -94,6 +104,7 @@ class _StreamHandlerMixin(Handler):
             consumer_name=self.stream_sub.consumer,
             method="xreadgroup" if self.stream_sub.group else "xread",
         )
+
 
 class StreamAsyncAPIHandler(_StreamHandlerMixin, StreamHandler):
     pass
@@ -111,8 +122,10 @@ class _ListHandlerMixin(Handler):
             method="lpop",
         )
 
+
 class ListAsyncAPIHandler(_ListHandlerMixin, ListHandler):
     pass
+
 
 class BatchListAsyncAPIHandler(_ListHandlerMixin, BatchListHandler):
     pass

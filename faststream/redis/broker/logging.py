@@ -49,9 +49,8 @@ class RedisLoggingMixin(LoggingMixin):
         )
         self._max_channel_name = 4
 
-    @property
-    def fmt(self) -> str:
-        return self._fmt or (
+    def get_fmt(self) -> str:
+        return (
             "%(asctime)s %(levelname)-8s - "
             f"%(channel)-{self._max_channel_name}s | "
             f"%(message_id)-{self.__max_msg_id_ln}s "

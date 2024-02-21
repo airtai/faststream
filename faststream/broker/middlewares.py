@@ -244,7 +244,7 @@ class CriticalLogMiddleware(BaseMiddleware):
         self, msg: Optional[DecodedMessage]
     ) -> Optional[DecodedMessage]:
         if self.logger is not None:
-            c = context.get_local("log_context")
+            c = context.get_local("log_context") or {}
             self.logger.log(self.log_level, "Received", extra=c)
 
         return await super().on_consume(msg)
@@ -266,7 +266,7 @@ class CriticalLogMiddleware(BaseMiddleware):
             bool: True if the method is successfully executed.
         """
         if self.logger is not None:
-            c = context.get_local("log_context")
+            c = context.get_local("log_context") or {}
 
             if exc_type and exc_val:
                 self.logger.error(

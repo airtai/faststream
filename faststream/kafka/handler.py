@@ -14,7 +14,7 @@ from typing import (
 
 import anyio
 from aiokafka import AIOKafkaConsumer, ConsumerRecord
-from aiokafka.errors import KafkaError, ConsumerStoppedError
+from aiokafka.errors import ConsumerStoppedError, KafkaError
 from typing_extensions import Unpack, override
 
 from faststream.__about__ import __version__
@@ -180,7 +180,7 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
 
         Args:
             handler: The handler function to be called.
-            dependant: The dependant model.
+            dependent: The dependent model.
             parser: Optional custom parser for parsing the input.
             decoder: Optional custom decoder for decoding the input.
             filter: The filter for filtering the input.

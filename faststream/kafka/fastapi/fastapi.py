@@ -1,6 +1,13 @@
+from typing import Any, Callable
+
 from aiokafka import ConsumerRecord
 
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.fastapi.router import StreamRouter
+from faststream.broker.types import (
+    P_HandlerParams,
+    T_HandlerReturn,
+)
 from faststream.kafka.broker import KafkaBroker as KB
 
 
@@ -15,6 +22,17 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
     """
 
     broker_class = KB
+
+    def subscriber(
+        self,
+        *topics: str,
+        **broker_kwargs: Any,
+    ) -> Callable[
+        [Callable[P_HandlerParams, T_HandlerReturn]],
+        HandlerCallWrapper[ConsumerRecord, P_HandlerParams, T_HandlerReturn],
+    ]:
+        return super().subscriber(
+            topics[0], *topics, **broker_kwargs)
 
     @staticmethod
     def _setup_log_context(

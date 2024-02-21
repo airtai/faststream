@@ -63,6 +63,10 @@ kafka = [
     "aiokafka>=0.9,<0.11",
 ]
 
+confluent = [
+    "confluent-kafka>=2,<3",
+]
+
 nats = [
     "nats-py>=2.3.1,<3.0.0"
 ]
@@ -78,46 +82,51 @@ docs = [
 
 # dev dependencies
 devdocs = [
-    "mkdocs-material==9.5.3",
+    "mkdocs-material==9.5.10",
     "mkdocs-static-i18n==1.2.0",
     "mdx-include==1.4.2",
     "mkdocstrings[python]==0.24.0",
     "mkdocs-literate-nav==0.6.1",
-    "mkdocs-git-revision-date-localized-plugin==1.2.1",
+    "mkdocs-git-revision-date-localized-plugin==1.2.2",
     "mike==2.0.0",  # versioning
-    "mkdocs-minify-plugin==0.7.1",
+    "mkdocs-minify-plugin==0.7.2",
     "mkdocs-macros-plugin==1.0.5",  # includes with variables
-    "mkdocs-glightbox==0.3.6",  # img zoom
-    "pillow==10.1.0",
+    "mkdocs-glightbox==0.3.7",  # img zoom
+    "pillow==10.2.0",
     "cairosvg==2.7.1",
-    "black==23.12.0",
+    "black==24.1.1",
     "requests",  # do not pin it
 ]
 
 lint = [
+    "mypy==1.8.0",
+    "ruff==0.2.1",
+    "bandit==1.7.6",
+    "semgrep==1.61.1",
+    "codespell==2.2.6",
+    # mypy extensions
     "types-PyYAML",
     "types-setuptools",
     "types-ujson",
     "types-redis",
     "types-Pygments",
     "types-docutils",
-    "mypy==1.8.0",
-    "ruff==0.1.11",
-    "bandit==1.7.6",
-    "semgrep==1.52.0",
+    "confluent-kafka-stubs; python_version >= '3.11'",
 ]
 
 test-core = [
-    "coverage[toml]==7.4.0",
-    "pytest==7.4.4",
-    "pytest-asyncio==0.23.2",
+    "coverage[toml]==7.4.1",
+    "pytest==8.0.1",
+    "pytest-asyncio==0.23.5",
     "dirty-equals==0.7.1.post0",
+    "pytest-timeout==2.2.0",
+    "pytest-rerunfailures==13.0",
 ]
 
 testing = [
     "faststream[test-core]",
-    "fastapi==0.108.0",
-    "pydantic-settings==2.1.0",
+    "fastapi==0.109.2",
+    "pydantic-settings>=2.0.0,<3.0.0",
     "httpx==0.26.0",
     "PyYAML==6.0.1",
     "watchfiles==0.21.0",
@@ -125,9 +134,9 @@ testing = [
 ]
 
 dev = [
-    "faststream[rabbit,kafka,nats,docs,redis,lint,testing,devdocs]",
+    "faststream[rabbit,kafka,confluent,nats,docs,redis,lint,testing,devdocs]",
     "pre-commit==3.5.0; python_version < '3.9'",
-    "pre-commit==3.6.0; python_version >= '3.9'",
+    "pre-commit==3.6.2; python_version >= '3.9'",
     "detect-secrets==1.4.0",
 ]
 
@@ -228,10 +237,10 @@ case-sensitive = true
 [tool.ruff.format]
 docstring-code-format = true
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
 
-[tool.ruff.flake8-bugbear]
+[tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = [
     "faststream.Depends", "faststream.Context", "faststream.broker.fastapi.context.Context",
     "faststream.Header", "faststream.Path",
@@ -254,6 +263,7 @@ testpaths = [
 markers = [
     "rabbit",
     "kafka",
+    "confluent",
     "nats",
     "redis",
     "slow",
@@ -320,5 +330,5 @@ omit = [
 [tool.bandit]
 
 [tool.codespell]
-
-ignore-words-list = "dependant"
+skip = "./venv,./docs/site/*"
+ignore-words = ".codespell-whitelist.txt"

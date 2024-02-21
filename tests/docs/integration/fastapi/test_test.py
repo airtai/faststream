@@ -1,3 +1,6 @@
+from docs.docs_src.integrations.fastapi.confluent.test import (
+    test_router as test_confluent,
+)
 from docs.docs_src.integrations.fastapi.kafka.test import test_router as test_k
 from docs.docs_src.integrations.fastapi.nats.test import test_router as test_n
 from docs.docs_src.integrations.fastapi.rabbit.test import test_router as test_r
@@ -8,4 +11,5 @@ __all__ = (
     "test_r",
     "test_n",
     "test_red",
+    "test_confluent",
 )

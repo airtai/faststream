@@ -28,7 +28,6 @@ def router():
 
 
 @pytest_asyncio.fixture()
-@pytest.mark.redis()
 async def broker(settings):
     broker = RedisBroker(settings.url, apply_types=False)
     async with broker:
@@ -36,7 +35,6 @@ async def broker(settings):
 
 
 @pytest_asyncio.fixture()
-@pytest.mark.redis()
 async def full_broker(settings):
     broker = RedisBroker(settings.url)
     async with broker:

@@ -53,7 +53,7 @@ class LoggingMixin:
         self._fmt = log_fmt
 
     @property
-    def fmt(self) -> str: 
+    def fmt(self) -> str:
         """Getter method for _fmt attribute."""
         return self._fmt or self.get_fmt()
 

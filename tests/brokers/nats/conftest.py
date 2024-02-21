@@ -32,7 +32,6 @@ def router():
 
 
 @pytest_asyncio.fixture()
-@pytest.mark.nats()
 async def broker(settings):
     broker = NatsBroker([settings.url], apply_types=False)
     async with broker:
@@ -40,7 +39,6 @@ async def broker(settings):
 
 
 @pytest_asyncio.fixture()
-@pytest.mark.nats()
 async def full_broker(settings):
     broker = NatsBroker([settings.url])
     async with broker:

@@ -49,12 +49,15 @@ class LogicPublisher(BasePublisher["AnyRedisDict"]):
                 return None
             else:
                 kwargs = {"list": list.name}
-        
-        elif (channel := PubSub.validate(channel)):
+
+        elif channel := PubSub.validate(channel):
             kwargs = {"channel": channel.name}
-        
-        elif (stream := StreamSub.validate(stream)):
-            kwargs = {"stream": stream.name}
+
+        elif stream := StreamSub.validate(stream):
+            kwargs = {
+                "stream": stream.name,
+                "maxlen": stream.maxlen,
+            }
 
         else:
             raise ValueError(INCORRECT_SETUP_MSG)

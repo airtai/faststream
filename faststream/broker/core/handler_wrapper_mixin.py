@@ -50,13 +50,13 @@ if TYPE_CHECKING:
                 "Passing as `cast` option to FastDepends"
             ),
         ]
-        get_dependant: Annotated[
+        get_dependent: Annotated[
             Optional[Any],
-            Doc("Function to build dependant object. Using FastDepends as default.")
+            Doc("Function to build dependent object. Using FastDepends as default.")
         ]
 
     class WrapperProtocol(Protocol[MsgType]):
-        """Annotation class to represent @subsriber return type."""
+        """Annotation class to represent @subscriber return type."""
 
         @overload
         def __call__(
@@ -128,9 +128,9 @@ class WrapHandlerMixin(Generic[MsgType]):
                 "Passing as `cast` option to FastDepends"
             ),
         ],
-        get_dependant: Annotated[
+        get_dependent: Annotated[
             Optional[Any],
-            Doc("Function to build dependant object. Using FastDepends as default.")
+            Doc("Function to build dependent object. Using FastDepends as default.")
         ],
     ) -> Tuple[
         HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
@@ -141,7 +141,7 @@ class WrapHandlerMixin(Generic[MsgType]):
                 [Callable[..., Any]],
                 "CallModel[..., Any]",
             ],
-            get_dependant
+            get_dependent
             or partial(
                 build_call_model,
                 cast=is_validate,
@@ -162,20 +162,20 @@ class WrapHandlerMixin(Generic[MsgType]):
             ](func)
 
         f: Callable[..., Awaitable[T_HandlerReturn]] = to_async(func)
-        dependant = build_dep(f)
+        dependent = build_dep(f)
 
-        if isinstance(dependant, CallModel):  # not custom (FastAPI) case
+        if isinstance(dependent, CallModel):  # not custom (FastAPI) case
             if apply_types:
                 wrapper: _InjectWrapper[Any, Any] = inject(func=None)
-                f = wrapper(func=f, model=dependant)
+                f = wrapper(func=f, model=dependent)
 
             f = self._wrap_decode_message(
                 func=f,
-                params_ln=len(dependant.flat_params),
+                params_ln=len(dependent.flat_params),
             )
 
         handler_call.set_wrapped(f)
-        return handler_call, dependant
+        return handler_call, dependent
 
     def _wrap_decode_message(
         self,

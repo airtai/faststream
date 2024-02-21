@@ -26,6 +26,18 @@ class TestKafka(BaseCase):  # noqa: D101
         return (app, core_router.broker)
 
 
+@pytest.mark.confluent()
+class TestConfluent(BaseCase):  # noqa: D101
+    @pytest.fixture(scope="class")
+    def data(self):
+        from docs.docs_src.integrations.fastapi.confluent.multiple import (
+            app,
+            core_router,
+        )
+
+        return (app, core_router.broker)
+
+
 @pytest.mark.nats()
 class TestNats(BaseCase):  # noqa: D101
     @pytest.fixture(scope="class")

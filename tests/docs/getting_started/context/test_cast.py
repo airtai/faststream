@@ -1,5 +1,6 @@
 import pytest
 
+from faststream.confluent import TestKafkaBroker as TestConfluentKafkaBroker
 from faststream.kafka import TestKafkaBroker
 from faststream.nats import TestNatsBroker
 from faststream.rabbit import TestRabbitBroker
@@ -15,6 +16,24 @@ async def test_cast_kafka():
     )
 
     async with TestKafkaBroker(broker) as br:
+        await br.publish("Hi!", "test-topic")
+
+        handle.mock.assert_called_once_with("Hi!")
+
+        await br.publish("Hi!", "test-topic2")
+
+        handle_int.mock.assert_called_once_with("Hi!")
+
+
+@pytest.mark.asyncio()
+async def test_cast_confluent():
+    from docs.docs_src.getting_started.context.confluent.cast import (
+        broker,
+        handle,
+        handle_int,
+    )
+
+    async with TestConfluentKafkaBroker(broker) as br:
         await br.publish("Hi!", "test-topic")
 
         handle.mock.assert_called_once_with("Hi!")

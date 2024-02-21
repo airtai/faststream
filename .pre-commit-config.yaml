@@ -20,6 +20,7 @@ repos:
     rev: v2.2.6
     hooks:
     -   id: codespell
+        args: [--ignore-words=.codespell-whitelist.txt]
         exclude: |
             (?x)^(
                 docs/overrides/home.html

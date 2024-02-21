@@ -260,7 +260,7 @@ class NatsBroker(
         description: Optional[str] = None,
         include_in_schema: bool = True,
         # Extra kwargs
-        get_dependant: Optional[Any] = None,
+        get_dependent: Optional[Any] = None,
     ) -> "WrapperProtocol[Msg]":
         super().subscriber()
 
@@ -355,7 +355,7 @@ class NatsBroker(
             # wrapper kwargs
             is_validate=self._is_validate,
             apply_types=self._is_apply_types,
-            get_dependant=get_dependant,
+            get_dependent=get_dependent,
         )
 
     @override

@@ -22,7 +22,7 @@ jobs:
         run: |
           set -ux
           python -m pip install --upgrade pip
-          pip install -e ".[docs,rabbit,kafka,redis,nats,lint]"
+          pip install -e ".[docs,rabbit,kafka,confluent,redis,nats,lint]"
 
       - name: Run ruff
         shell: bash
@@ -39,6 +39,26 @@ jobs:
       - name: Run Semgrep
         shell: bash
         run: semgrep scan --config auto --error
+
+  check-docs-changes:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install -e ".[dev]"
+      - name: Run build docs
+        run: bash scripts/build-docs.sh
+      - name: Check for changes
+        id: git-diff
+        run: git diff --exit-code
 
   test:
     if: github.event.pull_request.draft == false
@@ -57,14 +77,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
           cache-dependency-path: pyproject.toml
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: cache
         with:
           path: ${{ env.pythonLocation }}
           key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}-test-v03
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[rabbit,kafka,nats,redis,docs,testing]
+        run: pip install .[rabbit,kafka,confluent,nats,redis,docs,testing]
       - name: Install Pydantic v1
         if: matrix.pydantic-version == 'pydantic-v1'
         run: pip install "pydantic>=1.10.0,<2.0.0"
@@ -73,7 +93,7 @@ jobs:
         run: pip install --pre "pydantic>=2.0.0b2,<3.0.0"
       - run: mkdir coverage
       - name: Test
-        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not rabbit and not redis)) or (not nats and not kafka and not rabbit and not redis)"
+        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not confluent and not rabbit and not redis)) or (not nats and not kafka and not confluent and not rabbit and not redis)"
         env:
           COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
           CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}-${{ matrix.pydantic-version }}
@@ -97,10 +117,10 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,redis,docs,testing] orjson
+        run: pip install .[nats,kafka,confluent,rabbit,redis,docs,testing] orjson
       - run: mkdir coverage
       - name: Test
-        run: bash scripts/test.sh -m"(slow and (not nats and not kafka and not rabbit and not redis)) or (not nats and not kafka and not rabbit and not redis)"
+        run: bash scripts/test.sh -m"(slow and (not nats and not kafka and not confluent and not rabbit and not redis)) or (not nats and not kafka and not confluent and not rabbit and not redis)"
         env:
           COVERAGE_FILE: coverage/.coverage.orjson
           CONTEXT: orjson
@@ -124,9 +144,9 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[rabbit,kafka,nats,redis,docs,testing]
+        run: pip install .[rabbit,kafka,confluent,nats,redis,docs,testing]
       - name: Test
-        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not rabbit and not redis)) or (not nats and not kafka and not rabbit and not redis)"
+        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not confluent and not rabbit and not redis)) or (not nats and not kafka and not confluent and not rabbit and not redis)"
 
   test-windows-latest:
     if: github.event.pull_request.draft == false
@@ -141,9 +161,9 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[rabbit,kafka,nats,redis,docs,testing]
+        run: pip install .[rabbit,kafka,confluent,nats,redis,docs,testing]
       - name: Test
-        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not rabbit and not redis)) or (not nats and not kafka and not rabbit and not redis)"
+        run: bash scripts/test.sh -m "(slow and (not nats and not kafka and not confluent and not rabbit and not redis)) or (not nats and not kafka and not confluent and not rabbit and not redis)"
 
   test-kafka-real:
     if: github.event.pull_request.draft == false
@@ -174,7 +194,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,redis,docs,testing]
+        run: pip install .[nats,kafka,confluent,rabbit,redis,docs,testing]
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m "(slow and kafka) or kafka"
@@ -205,6 +225,66 @@ jobs:
       - name: Test
         run: bash scripts/test.sh -m "not kafka" tests/brokers/kafka/test_test_client.py
 
+  test-confluent-real:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    services:
+      kafka:
+        image: bitnami/kafka:3.5.0
+        ports:
+          - 9092:9092
+        env:
+          KAFKA_ENABLE_KRAFT: "true"
+          KAFKA_CFG_NODE_ID: "1"
+          KAFKA_CFG_PROCESS_ROLES: "broker,controller"
+          KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+          KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
+          KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+          KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://127.0.0.1:9092"
+          KAFKA_BROKER_ID: "1"
+          KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+          ALLOW_PLAINTEXT_LISTENER: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[nats,kafka,confluent,rabbit,redis,docs,testing]
+      - run: mkdir coverage
+      - name: Test
+        run: bash scripts/test.sh -m "(slow and confluent) or confluent"
+        env:
+          COVERAGE_FILE: coverage/.coverage.confluent-py
+          CONTEXT: confluent-py
+      - name: Store coverage files
+        uses: actions/upload-artifact@v4
+        with:
+          name: .coverage.confluent-py
+          path: coverage
+          if-no-files-found: error
+
+  test-confluent-smoke:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install .[confluent,test-core]
+      - name: Test
+        run: bash scripts/test.sh -m "not confluent" tests/brokers/confluent/test_test_client.py
+
   test-rabbit-real:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
@@ -223,7 +303,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,redis,docs,testing]
+        run: pip install .[nats,kafka,confluent,rabbit,redis,docs,testing]
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m "(slow and rabbit) or rabbit"
@@ -272,7 +352,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,redis,docs,testing]
+        run: pip install .[nats,kafka,confluent,rabbit,redis,docs,testing]
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m "(slow and nats) or nats"
@@ -321,7 +401,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install .[nats,kafka,rabbit,redis,docs,testing]
+        run: pip install .[nats,kafka,confluent,rabbit,redis,docs,testing]
       - run: mkdir coverage
       - name: Test
         run: bash scripts/test.sh -m "(slow and redis) or redis"
@@ -357,6 +437,7 @@ jobs:
     needs:
       - test
       - test-kafka-real
+      - test-confluent-real
       - test-rabbit-real
       - test-nats-real
       - test-redis-real
@@ -397,11 +478,14 @@ jobs:
 
     needs:
       - static_analysis
+      - check-docs-changes
       - coverage-combine
       - test-macos-latest
       - test-windows-latest
       - test-kafka-real
       - test-kafka-smoke
+      - test-confluent-real
+      - test-confluent-smoke
       - test-rabbit-real
       - test-rabbit-smoke
       - test-nats-real

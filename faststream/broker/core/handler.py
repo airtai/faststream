@@ -72,7 +72,7 @@ class HandlerItem(Generic[MsgType]):
     parser: "AsyncParser[MsgType]"
     decoder: "AsyncDecoder[StreamMessage[MsgType]]"
     middlewares: Iterable["SubscriberMiddleware"]
-    dependant: "CallModel[..., Any]"
+    dependent: "CallModel[..., Any]"
 
     @property
     def call_name(self) -> str:
@@ -106,6 +106,7 @@ class HandlerItem(Generic[MsgType]):
                 await self.parser(msg),
             ),
         )
+
         message.decoded_body = cache[self.decoder] = cache.get(
             self.decoder,
             await self.decoder(message),
@@ -268,7 +269,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
             def real_wrapper(
                 func: Callable[P_HandlerParams, T_HandlerReturn],
             ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
-                handler, dependant = self.wrap_handler(
+                handler, dependent = self.wrap_handler(
                     func=func,
                     dependencies=total_deps,
                     **wrapper_kwargs,
@@ -277,7 +278,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                 self.calls.append(
                     HandlerItem[MsgType](
                         handler=handler,
-                        dependant=dependant,
+                        dependent=dependent,
                         filter=to_async(filter or filter_),
                         parser=cast(
                             "AsyncParser[MsgType]",
@@ -409,7 +410,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
 
         for h in self.calls:
             body = parse_handler_params(
-                h.dependant,
+                h.dependent,
                 prefix=f"{self.title_ or self.call_name}:Message",
             )
 

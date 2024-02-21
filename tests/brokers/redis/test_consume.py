@@ -250,7 +250,7 @@ class TestConsumeStream:  # noqa: D101
                 timeout=3,
             )
 
-        mock.assert_called_once_with({b"message": b"hello"})
+        mock.assert_called_once_with({"message": "hello"})
 
     async def test_consume_stream_batch(
         self,

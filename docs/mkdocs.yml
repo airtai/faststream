@@ -3,7 +3,7 @@ site_name: FastStream
 site_description: FastStream Python messaging framework documentation
 site_url: https://faststream.airt.ai/
 site_author: airt
-copyright: '&copy; 2023 <a href="https://airt.ai/" target="_blank" rel="noopener">airt</a>'
+copyright: '&copy; 2024 <a href="https://airt.ai/" target="_blank" rel="noopener">airt</a>'
 
 docs_dir: docs
 

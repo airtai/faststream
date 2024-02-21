@@ -45,15 +45,25 @@ search:
     - [Config Management](getting-started/config/index.md)
     - [Task Scheduling](scheduling.md)
     - [FastStream Project Template](getting-started/template/index.md)
-- [Kafka](kafka/index.md)
-    - [Subscription](kafka/Subscriber/index.md)
-        - [Batch Subscriber](kafka/Subscriber/batch_subscriber.md)
-    - [Publishing](kafka/Publisher/index.md)
-        - [Batch Publishing](kafka/Publisher/batch_publisher.md)
-        - [Publish With Key](kafka/Publisher/using_a_key.md)
-    - [Acknowledgement](kafka/ack.md)
-    - [Message Information](kafka/message.md)
-    - [Security Configuration](kafka/security.md)
+- [Kafka](kafka/kafka.md)
+    - [AIOKafka](kafka/index.md)
+        - [Subscription](kafka/Subscriber/index.md)
+            - [Batch Subscriber](kafka/Subscriber/batch_subscriber.md)
+        - [Publishing](kafka/Publisher/index.md)
+            - [Batch Publishing](kafka/Publisher/batch_publisher.md)
+            - [Publish With Key](kafka/Publisher/using_a_key.md)
+        - [Acknowledgement](kafka/ack.md)
+        - [Message Information](kafka/message.md)
+        - [Security Configuration](kafka/security.md)
+    - [Confluent](confluent/index.md)
+        - [Subscription](confluent/Subscriber/index.md)
+            - [Batch Subscriber](confluent/Subscriber/batch_subscriber.md)
+        - [Publishing](confluent/Publisher/index.md)
+            - [Batch Publishing](confluent/Publisher/batch_publisher.md)
+            - [Publish With Key](confluent/Publisher/using_a_key.md)
+        - [Acknowledgement](confluent/ack.md)
+        - [Message Information](confluent/message.md)
+        - [Security Configuration](confluent/security.md)
 - [RabbitMQ](rabbit/index.md)
     - [Subscription](rabbit/examples/index.md)
         - [Direct](rabbit/examples/direct.md)
@@ -314,6 +324,60 @@ search:
                 - parser
                     - [parse_cli_args](api/faststream/cli/utils/parser/parse_cli_args.md)
                     - [remove_prefix](api/faststream/cli/utils/parser/remove_prefix.md)
+        - confluent
+            - [KafkaBroker](api/faststream/confluent/KafkaBroker.md)
+            - [KafkaRoute](api/faststream/confluent/KafkaRoute.md)
+            - [KafkaRouter](api/faststream/confluent/KafkaRouter.md)
+            - [TestApp](api/faststream/confluent/TestApp.md)
+            - [TestKafkaBroker](api/faststream/confluent/TestKafkaBroker.md)
+            - asyncapi
+                - [Handler](api/faststream/confluent/asyncapi/Handler.md)
+                - [Publisher](api/faststream/confluent/asyncapi/Publisher.md)
+            - broker
+                - [KafkaBroker](api/faststream/confluent/broker/KafkaBroker.md)
+            - client
+                - [AsyncConfluentConsumer](api/faststream/confluent/client/AsyncConfluentConsumer.md)
+                - [AsyncConfluentProducer](api/faststream/confluent/client/AsyncConfluentProducer.md)
+                - [BatchBuilder](api/faststream/confluent/client/BatchBuilder.md)
+                - [MsgToSend](api/faststream/confluent/client/MsgToSend.md)
+                - [TopicPartition](api/faststream/confluent/client/TopicPartition.md)
+                - [check_msg_error](api/faststream/confluent/client/check_msg_error.md)
+                - [create_topics](api/faststream/confluent/client/create_topics.md)
+            - fastapi
+                - [Context](api/faststream/confluent/fastapi/Context.md)
+                - [KafkaRouter](api/faststream/confluent/fastapi/KafkaRouter.md)
+            - handler
+                - [LogicHandler](api/faststream/confluent/handler/LogicHandler.md)
+            - message
+                - [ConsumerProtocol](api/faststream/confluent/message/ConsumerProtocol.md)
+                - [FakeConsumer](api/faststream/confluent/message/FakeConsumer.md)
+                - [KafkaMessage](api/faststream/confluent/message/KafkaMessage.md)
+            - parser
+                - [AsyncConfluentParser](api/faststream/confluent/parser/AsyncConfluentParser.md)
+            - producer
+                - [AsyncConfluentFastProducer](api/faststream/confluent/producer/AsyncConfluentFastProducer.md)
+            - publisher
+                - [LogicPublisher](api/faststream/confluent/publisher/LogicPublisher.md)
+            - router
+                - [KafkaRouter](api/faststream/confluent/router/KafkaRouter.md)
+            - security
+                - [parse_security](api/faststream/confluent/security/parse_security.md)
+            - shared
+                - logging
+                    - [KafkaLoggingMixin](api/faststream/confluent/shared/logging/KafkaLoggingMixin.md)
+                - publisher
+                    - [ABCPublisher](api/faststream/confluent/shared/publisher/ABCPublisher.md)
+                - router
+                    - [BrokerRouter](api/faststream/confluent/shared/router/BrokerRouter.md)
+                    - [KafkaRoute](api/faststream/confluent/shared/router/KafkaRoute.md)
+                    - [KafkaRouter](api/faststream/confluent/shared/router/KafkaRouter.md)
+                - schemas
+                    - [ConsumerConnectionParams](api/faststream/confluent/shared/schemas/ConsumerConnectionParams.md)
+            - test
+                - [FakeProducer](api/faststream/confluent/test/FakeProducer.md)
+                - [MockConfluentMessage](api/faststream/confluent/test/MockConfluentMessage.md)
+                - [TestKafkaBroker](api/faststream/confluent/test/TestKafkaBroker.md)
+                - [build_message](api/faststream/confluent/test/build_message.md)
         - constants
             - [ContentTypes](api/faststream/constants/ContentTypes.md)
         - exceptions
@@ -499,6 +563,7 @@ search:
                 - [FakeProducer](api/faststream/rabbit/test/FakeProducer.md)
                 - [PatchedMessage](api/faststream/rabbit/test/PatchedMessage.md)
                 - [TestRabbitBroker](api/faststream/rabbit/test/TestRabbitBroker.md)
+                - [apply_pattern](api/faststream/rabbit/test/apply_pattern.md)
                 - [build_message](api/faststream/rabbit/test/build_message.md)
         - redis
             - [ListSub](api/faststream/redis/ListSub.md)

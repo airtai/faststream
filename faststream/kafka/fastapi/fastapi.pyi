@@ -27,12 +27,17 @@ from kafka.partitioner.default import DefaultPartitioner
 from starlette import routing
 from starlette.responses import JSONResponse, Response
 from starlette.types import ASGIApp, AppType, Lifespan
-from typing_extensions import override
+from typing_extensions import Annotated, override
 
 from faststream.__about__ import __version__
 from faststream.asyncapi import schema as asyncapi
+<<<<<<< HEAD:faststream/kafka/fastapi/fastapi.pyi
 from faststream.broker.core.broker import default_filter
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
+=======
+from faststream.broker.core.asynchronous import default_filter
+from faststream.broker.fastapi.context import Context, ContextRepo, Logger
+>>>>>>> da825e4653c52e0782df8ef54bcd565aecd0e74d:faststream/kafka/fastapi.pyi
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
@@ -45,15 +50,30 @@ from faststream.broker.types import (
     T_HandlerReturn,
 )
 from faststream.kafka.asyncapi import Publisher
-from faststream.kafka.broker import KafkaBroker
-from faststream.kafka.message import KafkaMessage
+from faststream.kafka.broker import KafkaBroker as KB
+from faststream.kafka.message import KafkaMessage as KM
+from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.log import access_logger
+
+__all__ = (
+    "Context",
+    "Logger",
+    "ContextRepo",
+    "KafkaRouter",
+    "KafkaMessage",
+    "KafkaBroker",
+    "KafkaProducer",
+)
+
+KafkaMessage = Annotated[KM, Context("message")]
+KafkaBroker = Annotated[KB, Context("broker")]
+KafkaProducer = Annotated[AioKafkaFastProducer, Context("broker._producer")]
 
 Partition = TypeVar("Partition")
 
 class KafkaRouter(StreamRouter[ConsumerRecord]):
-    broker_class: type[KafkaBroker]
-    broker: KafkaBroker
+    broker_class: type[KB]
+    broker: KB
 
     def __init__(
         self,
@@ -108,8 +128,13 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         graceful_timeout: float | None = None,
         apply_types: bool = True,
         validate: bool = True,
+<<<<<<< HEAD:faststream/kafka/fastapi/fastapi.pyi
         decoder: CustomDecoder[KafkaMessage] | None = None,
         parser: CustomParser[aiokafka.ConsumerRecord] | None = None,
+=======
+        decoder: CustomDecoder[KM] | None = None,
+        parser: CustomParser[aiokafka.ConsumerRecord, KM] | None = None,
+>>>>>>> da825e4653c52e0782df8ef54bcd565aecd0e74d:faststream/kafka/fastapi.pyi
         middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
         | None = None,
         # AsyncAPI information
@@ -162,8 +187,13 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
+<<<<<<< HEAD:faststream/kafka/fastapi/fastapi.pyi
         parser: CustomParser[tuple[aiokafka.ConsumerRecord, ...]] | None = None,
         decoder: CustomDecoder[KafkaMessage] | None = None,
+=======
+        parser: CustomParser[tuple[aiokafka.ConsumerRecord, ...], KM] | None = None,
+        decoder: CustomDecoder[KM] | None = None,
+>>>>>>> da825e4653c52e0782df8ef54bcd565aecd0e74d:faststream/kafka/fastapi.pyi
         middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
         | None = None,
         filter: Filter[
@@ -220,11 +250,16 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
+<<<<<<< HEAD:faststream/kafka/fastapi/fastapi.pyi
         parser: CustomParser[aiokafka.ConsumerRecord] | None = None,
         decoder: CustomDecoder[KafkaMessage] | None = None,
+=======
+        parser: CustomParser[aiokafka.ConsumerRecord, KM] | None = None,
+        decoder: CustomDecoder[KM] | None = None,
+>>>>>>> da825e4653c52e0782df8ef54bcd565aecd0e74d:faststream/kafka/fastapi.pyi
         middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
         | None = None,
-        filter: Filter[KafkaMessage] = default_filter,
+        filter: Filter[KM] = default_filter,
         batch: Literal[False] = False,
         max_records: int | None = None,
         batch_timeout_ms: int = 200,
@@ -276,8 +311,13 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
+<<<<<<< HEAD:faststream/kafka/fastapi/fastapi.pyi
         parser: CustomParser[tuple[aiokafka.ConsumerRecord, ...]] | None = None,
         decoder: CustomDecoder[KafkaMessage] | None = None,
+=======
+        parser: CustomParser[tuple[aiokafka.ConsumerRecord, ...], KM] | None = None,
+        decoder: CustomDecoder[KM] | None = None,
+>>>>>>> da825e4653c52e0782df8ef54bcd565aecd0e74d:faststream/kafka/fastapi.pyi
         middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
         | None = None,
         filter: Filter[
@@ -330,11 +370,16 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         ] = "read_uncommitted",
         # broker arguments
         dependencies: Sequence[Depends] = (),
+<<<<<<< HEAD:faststream/kafka/fastapi/fastapi.pyi
         parser: CustomParser[aiokafka.ConsumerRecord] | None = None,
         decoder: CustomDecoder[KafkaMessage] | None = None,
+=======
+        parser: CustomParser[aiokafka.ConsumerRecord, KM] | None = None,
+        decoder: CustomDecoder[KM] | None = None,
+>>>>>>> da825e4653c52e0782df8ef54bcd565aecd0e74d:faststream/kafka/fastapi.pyi
         middlewares: Sequence[Callable[[aiokafka.ConsumerRecord], BaseMiddleware]]
         | None = None,
-        filter: Filter[KafkaMessage] = default_filter,
+        filter: Filter[KM] = default_filter,
         batch: Literal[False] = False,
         max_records: int | None = None,
         batch_timeout_ms: int = 200,
@@ -383,6 +428,6 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
     @override
     @staticmethod
     def _setup_log_context(  # type: ignore[override]
-        main_broker: KafkaBroker,
-        including_broker: KafkaBroker,
+        main_broker: KB,
+        including_broker: KB,
     ) -> None: ...
