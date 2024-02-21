@@ -13,6 +13,17 @@ from typing import (
 )
 
 import nats
+from nats.aio.client import (
+    DEFAULT_CONNECT_TIMEOUT,
+    DEFAULT_DRAIN_TIMEOUT,
+    DEFAULT_INBOX_PREFIX,
+    DEFAULT_MAX_FLUSHER_QUEUE_SIZE,
+    DEFAULT_MAX_OUTSTANDING_PINGS,
+    DEFAULT_MAX_RECONNECT_ATTEMPTS,
+    DEFAULT_PENDING_SIZE,
+    DEFAULT_PING_INTERVAL,
+    DEFAULT_RECONNECT_TIME_WAIT,
+)
 from nats.aio.subscription import (
     DEFAULT_SUB_PENDING_BYTES_LIMIT,
     DEFAULT_SUB_PENDING_MSGS_LIMIT,
@@ -26,6 +37,10 @@ from nats.js.errors import BadRequestError
 from typing_extensions import override
 
 from faststream.broker.core.broker import BrokerUsecase, default_filter
+from faststream.broker.types import (
+    CustomDecoder,
+    CustomParser,
+)
 from faststream.broker.utils import get_watcher_context
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.nats.asyncapi import AsyncAPIHandler, Publisher
@@ -36,18 +51,26 @@ from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.security import parse_security
 
 if TYPE_CHECKING:
+    import ssl
     from types import TracebackType
 
     from fast_depends.dependencies import Depends
-    from nats.aio.client import Callback, Client, ErrorCallback
+    from nats.aio.client import (
+        Callback,
+        Client,
+        Credentials,
+        ErrorCallback,
+        JWTCallback,
+        SignatureCallback,
+    )
     from nats.aio.msg import Msg
     from nats.js.client import JetStreamContext
     from typing_extensions import TypeAlias
 
+    from faststream.asyncapi import schema as asyncapi
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
     from faststream.broker.types import (
-        CustomDecoder,
-        CustomParser,
+        BrokerMiddleware,
         Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
@@ -78,10 +101,55 @@ class NatsBroker(
         self,
         servers: Union[str, Iterable[str]] = ("nats://localhost:4222",),
         *,
+        error_cb: Optional["ErrorCallback"] = None,
+        disconnected_cb: Optional["Callback"] = None,
+        closed_cb: Optional["Callback"] = None,
+        discovered_server_cb: Optional["Callback"] = None,
+        reconnected_cb: Optional["Callback"] = None,
+        name: Optional[str] = None,
+        pedantic: bool = False,
+        verbose: bool = False,
+        allow_reconnect: bool = True,
+        connect_timeout: int = DEFAULT_CONNECT_TIMEOUT,
+        reconnect_time_wait: int = DEFAULT_RECONNECT_TIME_WAIT,
+        max_reconnect_attempts: int = DEFAULT_MAX_RECONNECT_ATTEMPTS,
+        ping_interval: int = DEFAULT_PING_INTERVAL,
+        max_outstanding_pings: int = DEFAULT_MAX_OUTSTANDING_PINGS,
+        dont_randomize: bool = False,
+        flusher_queue_size: int = DEFAULT_MAX_FLUSHER_QUEUE_SIZE,
+        no_echo: bool = False,
+        tls: Optional["ssl.SSLContext"] = None,
+        tls_hostname: Optional[str] = None,
+        user: Optional[str] = None,
+        password: Optional[str] = None,
+        token: Optional[str] = None,
+        drain_timeout: int = DEFAULT_DRAIN_TIMEOUT,
+        signature_cb: Optional["SignatureCallback"] = None,
+        user_jwt_cb: Optional["JWTCallback"] = None,
+        user_credentials: Optional["Credentials"] = None,
+        nkeys_seed: Optional[str] = None,
+        inbox_prefix: Union[str, bytes] = DEFAULT_INBOX_PREFIX,
+        pending_size: int = DEFAULT_PENDING_SIZE,
+        flush_timeout: Optional[float] = None,
+        # broker args
+        graceful_timeout: Optional[float] = None,
+        apply_types: bool = True,
+        validate: bool = True,
+        dependencies: Iterable["Depends"] = (),
+        decoder: Optional[CustomDecoder["NatsMessage"]] = None,
+        parser: Optional[CustomParser["Msg"]] = None,
+        middlewares: Iterable["BrokerMiddleware[Msg]"] = (),
+        # AsyncAPI args
         security: Optional["BaseSecurity"] = None,
+        asyncapi_url: Union[str, Iterable[str], None] = None,
         protocol: str = "nats",
         protocol_version: Optional[str] = "custom",
-        **kwargs: Any,
+        description: Optional[str] = None,
+        tags: Optional[Iterable["asyncapi.Tag"]] = None,
+        # logging args
+        logger: Optional[logging.Logger] = None,
+        log_level: int = logging.INFO,
+        log_fmt: Optional[str] = None,
     ) -> None:
         """Initialize the NatsBroker object.
 
@@ -92,9 +160,9 @@ class NatsBroker(
             protocol_version (Optional[str]): The protocol version to use.
             **kwargs (Any): Additional keyword arguments.
         """
-        kwargs.update(parse_security(security))
+        kwargs = {} | parse_security(security)
 
-        if kwargs.get("tls"):  # pragma: no cover
+        if tls:  # pragma: no cover
             warnings.warn(
                 (
                     "\nNATS `tls` option was deprecated and will be removed in 0.6.0"
