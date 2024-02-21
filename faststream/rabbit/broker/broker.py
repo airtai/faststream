@@ -189,7 +189,9 @@ class RabbitBroker(
         exec_tb: Optional["TracebackType"] = None,
     ) -> None:
         if self._channel is not None:
-            await self._channel.close()
+            if not self._channel.is_closed:
+                await self._channel.close()
+
             self._channel = None
 
         self.declarer = None
