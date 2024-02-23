@@ -1,4 +1,3 @@
-from contextlib import contextmanager
 from typing import Any, Iterable
 from unittest.mock import MagicMock
 
@@ -12,11 +11,6 @@ def spy_decorator(method):
 
     wrapper.mock = mock
     return wrapper
-
-
-@contextmanager
-def fake_open_signal_receiver(*signals: int):
-    yield AsyncIterator((1,))
 
 
 class AsyncIterator:  # noqa: D101

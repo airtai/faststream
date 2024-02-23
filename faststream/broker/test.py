@@ -62,11 +62,11 @@ class TestApp:
 
             lifespan_context = self.app.lifespan_context(**self._extra_options)
             stack.enter_context(portal.wrap_async_context_manager(lifespan_context))
-            portal.call(partial(self.app._start, run_extra_options=self._extra_options))
+            portal.call(partial(self.app.start, **self._extra_options))
 
             @stack.callback
             def wait_shutdown() -> None:
-                portal.call(self.app._shutdown)
+                portal.call(self.app.stop)
 
             self.exit_stack = stack.pop_all()
 
@@ -83,7 +83,7 @@ class TestApp:
     async def __aenter__(self) -> FastStream:
         self.lifespan_scope = self.app.lifespan_context(**self._extra_options)
         await self.lifespan_scope.__aenter__()
-        await self.app._start(run_extra_options=self._extra_options)
+        await self.app.start(**self._extra_options)
         return self.app
 
     async def __aexit__(
@@ -102,7 +102,7 @@ class TestApp:
         Returns:
             None
         """
-        await self.app._shutdown()
+        await self.app.stop()
         await self.lifespan_scope.__aexit__(exc_type, exc_val, exc_tb)
 
 

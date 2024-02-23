@@ -11,13 +11,10 @@ from faststream import FastStream, TestApp
 from faststream._compat import IS_WINDOWS
 from faststream.log import logger
 from faststream.rabbit import RabbitBroker
-from faststream.utils import Context
-from tests.tools import fake_open_signal_receiver
 
 
-def test_init(app: FastStream, context: Context, broker: RabbitBroker):
+def test_init(app: FastStream, broker: RabbitBroker):
     assert app.broker is broker
-    assert context.app is app
     assert app.logger is logger
 
 
@@ -53,7 +50,7 @@ async def test_startup_calls_lifespans(mock: Mock, app_without_broker: FastStrea
     app_without_broker.on_startup(call1)
     app_without_broker.on_startup(call2)
 
-    await app_without_broker._startup()
+    await app_without_broker.start()
 
     mock.call_start1.assert_called_once()
     mock.call_start2.assert_called_once()
@@ -72,7 +69,7 @@ async def test_shutdown_calls_lifespans(mock: Mock, app_without_broker: FastStre
     app_without_broker.on_shutdown(call1)
     app_without_broker.on_shutdown(call2)
 
-    await app_without_broker._shutdown()
+    await app_without_broker.stop()
 
     mock.call_stop1.assert_called_once()
     mock.call_stop2.assert_called_once()
@@ -92,7 +89,7 @@ async def test_startup_lifespan_before_broker_started(async_mock, app: FastStrea
         async_mock.broker_start.assert_called_once()
 
     with patch.object(app.broker, "start", async_mock.broker_start):
-        await app._startup()
+        await app.start()
 
     async_mock.broker_start.assert_called_once()
     async_mock.after.assert_awaited_once()
@@ -114,7 +111,7 @@ async def test_shutdown_lifespan_after_broker_stopped(
         assert not async_mock.broker_stop.called
 
     with patch.object(app.broker, "close", async_mock.broker_stop):
-        await app._shutdown()
+        await app.stop()
 
     async_mock.broker_stop.assert_called_once()
     async_mock.after.assert_awaited_once()
@@ -123,9 +120,11 @@ async def test_shutdown_lifespan_after_broker_stopped(
 
 @pytest.mark.asyncio()
 async def test_running(async_mock, app: FastStream):
+    app.exit()
+
     with patch.object(app.broker, "start", async_mock.broker_run), patch.object(
         app.broker, "close", async_mock.broker_stopped
-    ), patch.object(anyio, "open_signal_receiver", fake_open_signal_receiver):
+    ):
         await app.run()
 
     async_mock.broker_run.assert_called_once()
@@ -134,17 +133,11 @@ async def test_running(async_mock, app: FastStream):
 
 @pytest.mark.asyncio()
 async def test_exception_group(async_mock: AsyncMock, app: FastStream):
-    async_mock.excp.side_effect = ValueError("Ooops!")
+    async_mock.side_effect = ValueError("Ooops!")
 
-    @app.on_startup
-    async def raises():
-        await async_mock.excp()
+    app.on_startup(async_mock)
 
-    with patch.object(app.broker, "start", async_mock.broker_run), patch.object(
-        app.broker, "close", async_mock.broker_stopped
-    ), patch.object(
-        anyio, "open_signal_receiver", fake_open_signal_receiver
-    ), pytest.raises(ValueError, match="Ooops!"):
+    with pytest.raises(ValueError, match="Ooops!"):
         await app.run()
 
 
@@ -157,10 +150,11 @@ async def test_running_lifespan_contextmanager(async_mock, mock: Mock, app: Fast
         mock.off()
 
     app = FastStream(app.broker, lifespan=lifespan)
+    app.exit()
 
     with patch.object(app.broker, "start", async_mock.broker_run), patch.object(
         app.broker, "close", async_mock.broker_stopped
-    ), patch.object(anyio, "open_signal_receiver", fake_open_signal_receiver):
+    ):
         await app.run(run_extra_options={"env": "test"})
 
     async_mock.broker_run.assert_called_once()

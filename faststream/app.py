@@ -221,54 +221,21 @@ class FastStream:
         """
         assert self.broker, "You should setup a broker"  # nosec B101
 
-        set_exit(lambda *_: self.stop())
+        set_exit(lambda *_: self.exit())
 
         async with self.lifespan_context(**(run_extra_options or {})):
-            await self._start(log_level, run_extra_options)
+            await self._startup(log_level, run_extra_options)
 
             while not self.should_exit:
                 await anyio.sleep(0.1)
 
-            await self._stop(log_level)
+            await self._shutdown(log_level)
 
-    def stop(self) -> None:
+    def exit(self) -> None:
         """Stop application manually."""
         self.should_exit = True
 
-    async def _start(
-        self,
-        log_level: int = logging.INFO,
-        run_extra_options: Optional[Dict[str, SettingField]] = None,
-    ) -> None:
-        """Start the FastStream app.
-
-        Args:
-            log_level (int): log level (default: logging.INFO)
-            run_extra_options (Optional[Dict[str, SettingField]]): extra options for running the app (default: None)
-
-        Returns:
-            None
-        """
-        self._log(log_level, "FastStream app starting...")
-        await self._startup(**(run_extra_options or {}))
-        self._log(
-            log_level, "FastStream app started successfully! To exit, press CTRL+C"
-        )
-
-    async def _stop(self, log_level: int = logging.INFO) -> None:
-        """Stop the application gracefully.
-
-        Args:
-            log_level (int): log level for logging messages (default: logging.INFO)
-
-        Returns:
-            None
-        """
-        self._log(log_level, "FastStream app shutting down...")
-        await self._shutdown()
-        self._log(log_level, "FastStream app shut down gracefully.")
-
-    async def _startup(
+    async def start(
         self,
         **run_extra_options: SettingField,
     ) -> None:
@@ -289,7 +256,7 @@ class FastStream:
         for func in self._after_startup_calling:
             await func()
 
-    async def _shutdown(self) -> None:
+    async def stop(self) -> None:
         """Executes shutdown tasks.
 
         Returns:
@@ -303,6 +270,39 @@ class FastStream:
 
         for func in self._after_shutdown_calling:
             await func()
+
+    async def _startup(
+        self,
+        log_level: int = logging.INFO,
+        run_extra_options: Optional[Dict[str, SettingField]] = None,
+    ) -> None:
+        """Start the FastStream app.
+
+        Args:
+            log_level (int): log level (default: logging.INFO)
+            run_extra_options (Optional[Dict[str, SettingField]]): extra options for running the app (default: None)
+
+        Returns:
+            None
+        """
+        self._log(log_level, "FastStream app starting...")
+        await self.start(**(run_extra_options or {}))
+        self._log(
+            log_level, "FastStream app started successfully! To exit, press CTRL+C"
+        )
+
+    async def _shutdown(self, log_level: int = logging.INFO) -> None:
+        """Stop the application gracefully.
+
+        Args:
+            log_level (int): log level for logging messages (default: logging.INFO)
+
+        Returns:
+            None
+        """
+        self._log(log_level, "FastStream app shutting down...")
+        await self.stop()
+        self._log(log_level, "FastStream app shut down gracefully.")
 
     def _log(self, level: int, message: str) -> None:
         """Logs a message with the specified log level.
