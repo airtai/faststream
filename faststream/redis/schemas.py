@@ -131,17 +131,12 @@ class StreamSub(NameRequired):
             raise ValueError("You should specify `group` and `consumer` both")
 
         if group and consumer:
-            msg: Optional[str] = None
-
-            if last_id:
-                msg = "`last_id` has no effect with consumer group"
+            if last_id is None:
+                last_id = ">"
 
             if no_ack:
-                msg = "`no_ack` has no effect with consumer group"
-
-            if msg:
                 warnings.warn(
-                    message=msg,
+                    message="`no_ack` has no effect with consumer group",
                     category=RuntimeWarning,
                     stacklevel=1,
                 )

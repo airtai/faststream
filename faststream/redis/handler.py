@@ -82,7 +82,7 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
         self.subscription = None
         self.task = None
 
-        self.last_id = stream.last_id if stream else "$"
+        self.last_id = getattr(stream, "last_id", "$")
 
         super().__init__(
             log_context_builder=log_context_builder,
@@ -228,7 +228,7 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
             read = client.xreadgroup(
                 groupname=stream.group,
                 consumername=stream.consumer,
-                streams={stream.name: ">"},
+                streams={stream.name: self.last_id},
                 block=stream.polling_interval,
                 noack=stream.no_ack,
             )
