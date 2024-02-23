@@ -76,7 +76,7 @@ class TestApp:
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
+        exc_tb: Optional[TracebackType] = None,
     ) -> None:
         self.exit_stack.close()
 
@@ -90,20 +90,20 @@ class TestApp:
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
+        exc_tb: Optional[TracebackType] = None,
     ) -> None:
         """Exit the asynchronous context manager.
 
         Args:
             exc_type: The type of the exception raised, if any.
             exc_val: The exception instance raised, if any.
-            exec_tb: The traceback for the exception raised, if any.
+            exc_tb: The traceback for the exception raised, if any.
 
         Returns:
             None
         """
         await self.app._shutdown()
-        await self.lifespan_scope.__aexit__(exc_type, exc_val, exec_tb)
+        await self.lifespan_scope.__aexit__(exc_type, exc_val, exc_tb)
 
 
 class TestBroker(Generic[Broker]):
@@ -214,7 +214,7 @@ class TestBroker(Generic[Broker]):
         broker: Broker,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
+        exc_tb: Optional[TracebackType] = None,
     ) -> None:
         for p in broker._publishers.values():
             if p._fake_handler:

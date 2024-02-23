@@ -225,6 +225,28 @@ class TestConsumeStream:  # noqa: D101
 
         mock.assert_called_once_with("hello")
 
+    async def test_consume_group(
+        self,
+        queue: str,
+        full_broker: RedisBroker,
+    ):
+        @full_broker.subscriber(stream=StreamSub(queue, group="group", consumer=queue))
+        async def handler(msg: RedisMessage):
+            ...
+
+        assert next(iter(full_broker.handlers.values())).last_id == ">"
+
+    async def test_consume_group_with_last_id(
+        self,
+        queue: str,
+        full_broker: RedisBroker,
+    ):
+        @full_broker.subscriber(stream=StreamSub(queue, group="group", consumer=queue, last_id="1"))
+        async def handler(msg: RedisMessage):
+            ...
+
+        assert next(iter(full_broker.handlers.values())).last_id == "1"
+
     async def test_consume_stream_native(
         self,
         broker: RedisBroker,

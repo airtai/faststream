@@ -234,9 +234,9 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):  # noqa: D101
                 mock.start(self.msg)
                 return await super().on_receive()
 
-            async def after_processed(self, exc_type, exc_val, exec_tb):
+            async def after_processed(self, exc_type, exc_val, exc_tb):
                 mock.end()
-                return await super().after_processed(exc_type, exc_val, exec_tb)
+                return await super().after_processed(exc_type, exc_val, exc_tb)
 
         broker = self.broker_class(
             middlewares=(mid,),

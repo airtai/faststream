@@ -91,7 +91,7 @@ class RabbitBroker(
         self,
         exc_type: type[BaseException] | None = None,
         exc_val: BaseException | None = None,
-        exec_tb: TracebackType | None = None,
+        exc_tb: TracebackType | None = None,
     ) -> None: ...
     # nosemgrep: python.lang.security.audit.hardcoded-password-default-argument.hardcoded-password-default-argument
     async def connect(

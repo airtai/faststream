@@ -251,14 +251,14 @@ class BrokerUsecase(
         self,
         exc_type: Optional[Type[BaseException]],
         exc_val: Optional[BaseException],
-        exec_tb: Optional["TracebackType"],
+        exc_tb: Optional["TracebackType"],
     ) -> None:
         """Exit the context manager.
 
         Args:
             exc_type: The type of the exception raised, if any.
             exc_val: The exception raised, if any.
-            exec_tb: The traceback of the exception raised, if any.
+            exc_tb: The traceback of the exception raised, if any.
 
         Returns:
             None
@@ -266,7 +266,7 @@ class BrokerUsecase(
         Overrides:
             This method overrides the __aexit__ method of the base class.
         """
-        await self.close(exc_type, exc_val, exec_tb)
+        await self.close(exc_type, exc_val, exc_tb)
 
     @abstractmethod
     async def start(self) -> None:
@@ -340,14 +340,14 @@ class BrokerUsecase(
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exec_tb: Optional["TracebackType"] = None,
+        exc_tb: Optional["TracebackType"] = None,
     ) -> None:
         """Closes the object.
 
         Args:
             exc_type: The type of the exception being handled, if any.
             exc_val: The exception instance being handled, if any.
-            exec_tb: The traceback of the exception being handled, if any.
+            exc_tb: The traceback of the exception being handled, if any.
 
         Returns:
             None
@@ -358,21 +358,21 @@ class BrokerUsecase(
             await h.close()
 
         if self._connection is not None:
-            await self._close(exc_type, exc_val, exec_tb)
+            await self._close(exc_type, exc_val, exc_tb)
 
     @abstractmethod
     async def _close(
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exec_tb: Optional["TracebackType"] = None,
+        exc_tb: Optional["TracebackType"] = None,
     ) -> None:
         """Close the object.
 
         Args:
             exc_type: Optional. The type of the exception.
             exc_val: Optional. The exception value.
-            exec_tb: Optional. The traceback of the exception.
+            exc_tb: Optional. The traceback of the exception.
 
         Returns:
             None

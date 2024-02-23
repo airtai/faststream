@@ -186,7 +186,7 @@ class RabbitBroker(
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exec_tb: Optional["TracebackType"] = None,
+        exc_tb: Optional["TracebackType"] = None,
     ) -> None:
         if self._channel is not None:
             if not self._channel.is_closed:
@@ -200,7 +200,7 @@ class RabbitBroker(
         if self._connection is not None:  # pragma: no branch
             await self._connection.close()
 
-        await super()._close(exc_type, exc_val, exec_tb)
+        await super()._close(exc_type, exc_val, exc_tb)
 
     async def start(self) -> None:
         await super().start()

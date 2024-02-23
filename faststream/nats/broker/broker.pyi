@@ -189,7 +189,7 @@ class NatsBroker(
         self,
         exc_type: type[BaseException] | None = None,
         exc_val: BaseException | None = None,
-        exec_tb: TracebackType | None = None,
+        exc_tb: TracebackType | None = None,
     ) -> None: ...
     async def start(self) -> None: ...
     def _log_connection_broken(

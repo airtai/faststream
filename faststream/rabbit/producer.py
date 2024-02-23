@@ -262,14 +262,14 @@ class _RPCCallback:
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
+        exc_tb: Optional[TracebackType] = None,
     ) -> None:
         """Exit method for an asynchronous context manager.
 
         Args:
             exc_type: The type of the exception being handled, if any.
             exc_val: The exception instance being handled, if any.
-            exec_tb: The traceback of the exception being handled, if any.
+            exc_tb: The traceback of the exception being handled, if any.
         """
         self.lock.release()
         await self.queue.cancel(self.consumer_tag)

@@ -126,12 +126,12 @@ class RedisBroker(
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
+        exc_tb: Optional[TracebackType] = None,
     ) -> None:
         if self._connection is not None:
             await self._connection.aclose()  # type: ignore[attr-defined]
 
-        await super()._close(exc_type, exc_val, exec_tb)
+        await super()._close(exc_type, exc_val, exc_tb)
 
     async def start(self) -> None:
         await super().start()

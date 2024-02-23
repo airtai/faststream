@@ -532,7 +532,7 @@ class _StreamHandlerMixin(BaseRedisHandler[MsgType]):
         )
 
         self.stream_sub = stream
-        self.last_id = stream.last_id if stream else "$"
+        self.last_id = getattr(stream, "last_id", "$")
 
     @cached_property
     def channel_name(self) -> str:
@@ -560,10 +560,10 @@ class _StreamHandlerMixin(BaseRedisHandler[MsgType]):
                 if "already exists" not in str(e):
                     raise e
 
-            read = lambda _: client.xreadgroup(  # noqa: E731
+            read = lambda last_id: client.xreadgroup(  # noqa: E731
                 groupname=stream.group,
                 consumername=stream.consumer,
-                streams={stream.name: ">"},
+                streams={stream.name: last_id},
                 block=stream.polling_interval,
                 noack=stream.no_ack,
             )

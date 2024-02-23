@@ -348,10 +348,10 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                     async def close_middlewares(
                         exc_type: Optional[Type[BaseException]] = None,
                         exc_val: Optional[BaseException] = None,
-                        exec_tb: Optional["TracebackType"] = None,
+                        exc_tb: Optional["TracebackType"] = None,
                     ) -> None:
                         for m in middlewares:
-                            await m.__aexit__(exc_type, exc_val, exec_tb)
+                            await m.__aexit__(exc_type, exc_val, exc_tb)
 
                     result_msg = await h.call(
                         message=message,

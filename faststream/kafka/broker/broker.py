@@ -91,13 +91,13 @@ class KafkaBroker(
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
+        exc_tb: Optional[TracebackType] = None,
     ) -> None:
         if self._producer is not None:  # pragma: no branch
             await self._producer.stop()
             self._producer = None
 
-        await super()._close(exc_type, exc_val, exec_tb)
+        await super()._close(exc_type, exc_val, exc_tb)
 
     async def connect(
         self,

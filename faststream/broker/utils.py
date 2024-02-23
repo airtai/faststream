@@ -86,7 +86,7 @@ class MultiLock:
         self,
         exc_type: Optional[Type[BaseException]],
         exc_val: Optional[BaseException],
-        exec_tb: Optional["TracebackType"],
+        exc_tb: Optional["TracebackType"],
     ) -> None:
         """Exit the context."""
         with suppress(asyncio.QueueEmpty, ValueError):

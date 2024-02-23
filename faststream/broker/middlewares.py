@@ -19,13 +19,13 @@ class BaseMiddleware:
         on_receive() -> None:
             Called when a message is received.
 
-        after_processed(exc_type: Optional[Type[BaseException]] = None, exc_val: Optional[BaseException] = None, exec_tb: Optional[TracebackType] = None) -> Optional[bool]:
+        after_processed(exc_type: Optional[Type[BaseException]] = None, exc_val: Optional[BaseException] = None, exc_tb: Optional[TracebackType] = None) -> Optional[bool]:
             Called after processing a message.
 
         __aenter__() -> Self:
             Called when entering a context.
 
-        __aexit__(exc_type: Optional[Type[BaseException]] = None, exc_val: Optional[BaseException] = None, exec_tb: Optional[TracebackType] = None) -> Optional[bool]:
+        __aexit__(exc_type: Optional[Type[BaseException]] = None, exc_val: Optional[BaseException] = None, exc_tb: Optional[TracebackType] = None) -> Optional[bool]:
             Called when exiting a context.
 
         on_consume(msg: DecodedMessage) -> DecodedMessage:
@@ -55,14 +55,14 @@ class BaseMiddleware:
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
+        exc_tb: Optional[TracebackType] = None,
     ) -> Optional[bool]:
         """Asynchronously called after processing.
 
         Args:
             exc_type: Optional exception type
             exc_val: Optional exception value
-            exec_tb: Optional traceback
+            exc_tb: Optional traceback
 
         Returns:
             Optional boolean value indicating whether the processing was successful or not.
@@ -77,19 +77,19 @@ class BaseMiddleware:
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
+        exc_tb: Optional[TracebackType] = None,
     ) -> Optional[bool]:
         """Exit the asynchronous context manager.
 
         Args:
             exc_type: The type of the exception raised, if any.
             exc_val: The exception instance raised, if any.
-            exec_tb: The traceback for the exception raised, if any.
+            exc_tb: The traceback for the exception raised, if any.
 
         Returns:
             A boolean indicating whether the exception was handled or not.
         """
-        return await self.after_processed(exc_type, exc_val, exec_tb)
+        return await self.after_processed(exc_type, exc_val, exc_tb)
 
     async def on_consume(
         self, msg: Optional[DecodedMessage]
@@ -212,7 +212,7 @@ class CriticalLogMiddleware(BaseMiddleware):
 
     Methods:
         __call__(msg: Any) -> Self: Returns the middleware instance
-        after_processed(exc_type: Optional[Type[BaseException]] = None, exc_val: Optional[BaseException] = None, exec_tb: Optional[TracebackType] = None) -> bool: Logs critical errors if they occur and returns True
+        after_processed(exc_type: Optional[Type[BaseException]] = None, exc_val: Optional[BaseException] = None, exc_tb: Optional[TracebackType] = None) -> bool: Logs critical errors if they occur and returns True
     """
 
     def __init__(
@@ -253,14 +253,14 @@ class CriticalLogMiddleware(BaseMiddleware):
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
+        exc_tb: Optional[TracebackType] = None,
     ) -> bool:
         """Asynchronously called after processing.
 
         Args:
             exc_type (Optional[Type[BaseException]]): Type of the exception raised during processing.
             exc_val (Optional[BaseException]): Value of the exception raised during processing.
-            exec_tb (Optional[TracebackType]): Traceback of the exception raised during processing.
+            exc_tb (Optional[TracebackType]): Traceback of the exception raised during processing.
 
         Returns:
             bool: True if the method is successfully executed.
