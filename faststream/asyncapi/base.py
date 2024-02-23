@@ -1,6 +1,6 @@
-from abc import abstractproperty
-from dataclasses import dataclass, field
-from typing import Dict
+from abc import abstractmethod
+from dataclasses import dataclass
+from typing import Dict, Optional
 
 from faststream.asyncapi.schema.channels import Channel
 
@@ -17,13 +17,34 @@ class AsyncAPIOperation:
 
     """
 
-    include_in_schema: bool = field(default=True)
+    title_: Optional[str] = None
+    description_: Optional[str] = None
+    include_in_schema: bool = True
 
-    @abstractproperty
+    @property
     def name(self) -> str:
         """Returns the name of the API operation."""
+        return self.title_ or self.get_name()
+
+    @abstractmethod
+    def get_name(self) -> str:
         raise NotImplementedError()
 
-    def schema(self) -> Dict[str, Channel]:  # pragma: no cover
+    @property
+    def description(self) -> Optional[str]:
+        """Returns the description of the API operation."""
+        return self.description_ or self.get_description()
+
+    def get_description(self) -> Optional[str]:
+        return None
+
+    def schema(self) -> Dict[str, Channel]:
         """Returns the schema of the API operation as a dictionary of channel names and channel objects."""
-        return {}
+        if self.include_in_schema:
+            return self.get_schema()
+        else:
+            return {}
+
+    @abstractmethod
+    def get_schema(self) -> Dict[str, Channel]:
+        raise NotImplementedError()

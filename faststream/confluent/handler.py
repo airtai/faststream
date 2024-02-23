@@ -153,7 +153,7 @@ class LogicHandler(AsyncHandler[Message]):
         self,
         *,
         handler: HandlerCallWrapper[Message, P_HandlerParams, T_HandlerReturn],
-        dependant: CallModel[P_HandlerParams, T_HandlerReturn],
+        dependent: CallModel[P_HandlerParams, T_HandlerReturn],
         parser: CustomParser[Union[Message, Tuple[Message, ...]], KafkaMessage],
         decoder: Optional[CustomDecoder[KafkaMessage]],
         filter: Union[
@@ -166,7 +166,7 @@ class LogicHandler(AsyncHandler[Message]):
 
         Args:
             handler: The handler function to be called.
-            dependant: The dependant model.
+            dependent: The dependent model.
             parser: Optional custom parser for parsing the input.
             decoder: Optional custom decoder for decoding the input.
             filter: The filter for filtering the input.
@@ -197,7 +197,7 @@ class LogicHandler(AsyncHandler[Message]):
             parser=parser_,
             decoder=decoder_,
             filter=filter,  # type: ignore[arg-type]
-            dependant=dependant,
+            dependent=dependent,
             middlewares=middlewares,
         )
 

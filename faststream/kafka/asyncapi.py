@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Any, Dict, Literal, Optional, Union, overload
 
 from faststream.asyncapi.base import AsyncAPIOperation
 from faststream.asyncapi.schema import (
@@ -11,7 +11,7 @@ from faststream.asyncapi.schema import (
 from faststream.asyncapi.schema.bindings import kafka
 from faststream.asyncapi.utils import resolve_payloads
 from faststream.kafka.handler import LogicHandler
-from faststream.kafka.publisher import LogicPublisher
+from faststream.kafka.publisher import BatchPublisher, DefaultPublisher, LogicPublisher
 
 
 class Handler(LogicHandler, AsyncAPIOperation):
@@ -19,19 +19,18 @@ class Handler(LogicHandler, AsyncAPIOperation):
 
     Methods:
         schema() -> Dict[str, Channel]: Returns a dictionary of channels.
-
     """
 
-    def schema(self) -> Dict[str, Channel]:
-        if not self.include_in_schema:
-            return {}
+    def get_name(self) -> str:
+        return f'{",".join(self.topics)}:{self.call_name}'
 
+    def get_schema(self) -> Dict[str, Channel]:
         channels = {}
 
         payloads = self.get_payloads()
 
         for t in self.topics:
-            handler_name = self._title or f"{t}:{self.call_name}"
+            handler_name = self.title_ or f"{t}:{self.call_name}"
             channels[handler_name] = Channel(
                 description=self.description,
                 subscribe=Operation(
@@ -57,16 +56,12 @@ class Publisher(LogicPublisher, AsyncAPIOperation):
 
     Methods:
         schema() : returns the schema for the publisher
-
-    Raises:
-        NotImplementedError: If silent animals are not supported
-
     """
 
-    def schema(self) -> Dict[str, Channel]:
-        if not self.include_in_schema:
-            return {}
+    def get_name(self) -> str:
+        return f"{self.topic}:Publisher"
 
+    def get_schema(self) -> Dict[str, Channel]:
         payloads = self.get_payloads()
 
         return {
@@ -85,6 +80,45 @@ class Publisher(LogicPublisher, AsyncAPIOperation):
             )
         }
 
-    @property
-    def name(self) -> str:
-        return self.title or f"{self.topic}:Publisher"
+    @overload
+    @staticmethod
+    def create(
+        *,
+        batch: Literal[True],
+        key: Optional[bytes],
+        **kwargs: Any,
+    ) -> "AsyncAPIBatchPublisher":
+        ...
+
+    @overload
+    @staticmethod
+    def create(
+        *,
+        batch: Literal[False],
+        key: Optional[bytes],
+        **kwargs: Any,
+    ) -> "AsyncAPIDefaultPublisher":
+        ...
+
+    @staticmethod
+    def create(
+        *,
+        batch: bool,
+        key: Optional[bytes],
+        **kwargs: Any,
+    ) -> Union[
+        "AsyncAPIBatchPublisher",
+        "AsyncAPIDefaultPublisher",
+    ]:
+        if batch:
+            return AsyncAPIBatchPublisher(**kwargs)
+        else:
+            return AsyncAPIDefaultPublisher(**kwargs, key=key)
+
+
+class AsyncAPIBatchPublisher(BatchPublisher, Publisher):
+    pass
+
+
+class AsyncAPIDefaultPublisher(DefaultPublisher, Publisher):
+    pass

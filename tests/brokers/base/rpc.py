@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 import anyio
 import pytest
 
-from faststream.broker.core.abc import BrokerUsecase
+from faststream.broker.core.broker import BrokerUsecase
 from faststream.utils.functions import timeout_scope
 
 

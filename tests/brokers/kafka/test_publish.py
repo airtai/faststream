@@ -62,6 +62,7 @@ class TestPublish(BrokerPublishTestcase):  # noqa: D101
 
         @broker.subscriber(queue)
         async def handler(msg):
+            print(msg)
             await msgs_queue.put(msg)
 
         @broker.publisher(queue, batch=True)

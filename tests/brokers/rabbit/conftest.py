@@ -39,7 +39,6 @@ def router():
 
 
 @pytest_asyncio.fixture()
-@pytest.mark.rabbit()
 async def broker(settings):
     broker = RabbitBroker(settings.url, apply_types=False)
     async with broker:
@@ -47,7 +46,6 @@ async def broker(settings):
 
 
 @pytest_asyncio.fixture()
-@pytest.mark.rabbit()
 async def full_broker(settings):
     broker = RabbitBroker(settings.url)
     async with broker:

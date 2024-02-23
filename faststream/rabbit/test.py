@@ -1,4 +1,4 @@
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, assert_never
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -7,19 +7,18 @@ from aio_pika.message import IncomingMessage
 from pamqp import commands as spec
 from pamqp.header import ContentHeader
 
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.test import TestBroker, call_handler
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.rabbit.asyncapi import Publisher
 from faststream.rabbit.broker import RabbitBroker
 from faststream.rabbit.parser import AioPikaParser
 from faststream.rabbit.producer import AioPikaFastProducer
-from faststream.rabbit.shared.constants import ExchangeType
-from faststream.rabbit.shared.schemas import (
+from faststream.rabbit.schemas.constants import ExchangeType
+from faststream.rabbit.schemas.schemas import (
     RabbitExchange,
     RabbitQueue,
 )
-from faststream.rabbit.shared.types import TimeoutType
-from faststream.rabbit.types import AioPikaSendableMessage
+from faststream.rabbit.types import AioPikaSendableMessage, TimeoutType
 from faststream.types import SendableMessage
 
 __all__ = ("TestRabbitBroker",)
@@ -50,12 +49,18 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
         @broker.subscriber(
             queue=publisher.queue,
             exchange=publisher.exchange,
-            _raw=True,
         )
         def f(msg: Any) -> None:
             pass
 
         return f
+
+    @classmethod
+    def _fake_start(cls, broker: RabbitBroker, *args: Any, **kwargs: Any) -> None:
+        super()._fake_start(broker, *args, **kwargs)
+
+        for h in broker.handlers.values():
+            h.producer = FakeProducer(broker)  # type: ignore[assignment]
 
     @staticmethod
     def remove_publisher_fake_subscriber(
@@ -240,7 +245,8 @@ class FakeProducer(AioPikaFastProducer):
 
                 elif handler.exchange.type == ExchangeType.TOPIC:
                     call = apply_pattern(
-                        handler.queue.routing, incoming.routing_key or ""
+                        handler.queue.routing,
+                        incoming.routing_key or "",
                     )
 
                 elif handler.exchange.type == ExchangeType.HEADERS:  # pramga: no branch
@@ -264,7 +270,7 @@ class FakeProducer(AioPikaFastProducer):
                         if not none:
                             call = (matcher == "any") or full
 
-                else:  # pragma: no cover
+                else:
                     raise AssertionError("unreachable")
 
                 if call:

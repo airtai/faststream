@@ -30,9 +30,9 @@ class LocalMiddlewareTestcase:  # noqa: D101
                 mock.start(self.msg)
                 return await super().on_receive()
 
-            async def after_processed(self, exc_type, exc_val, exec_tb):
+            async def after_processed(self, exc_type, exc_val, exc_tb):
                 mock.end()
-                return await super().after_processed(exc_type, exc_val, exec_tb)
+                return await super().after_processed(exc_type, exc_val, exc_tb)
 
         broker = self.broker_class()
 
@@ -68,9 +68,9 @@ class LocalMiddlewareTestcase:  # noqa: D101
                 mock.start(self.msg)
                 return await super().on_receive()
 
-            async def after_processed(self, exc_type, exc_val, exec_tb):
+            async def after_processed(self, exc_type, exc_val, exc_tb):
                 mock.end()
-                return await super().after_processed(exc_type, exc_val, exec_tb)
+                return await super().after_processed(exc_type, exc_val, exc_tb)
 
         broker = self.broker_class()
 
@@ -161,7 +161,7 @@ class LocalMiddlewareTestcase:  # noqa: D101
 
     async def test_error_traceback(self, queue: str, mock: Mock, event, raw_broker):
         class Mid(BaseMiddleware):
-            async def after_processed(self, exc_type, exc_val, exec_tb) -> bool:
+            async def after_processed(self, exc_type, exc_val, exc_tb) -> bool:
                 mock(issubclass(exc_type, ValueError))
                 return True
 
@@ -236,9 +236,9 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):  # noqa: D101
                 mock.start(self.msg)
                 return await super().on_receive()
 
-            async def after_processed(self, exc_type, exc_val, exec_tb):
+            async def after_processed(self, exc_type, exc_val, exc_tb):
                 mock.end()
-                return await super().after_processed(exc_type, exc_val, exec_tb)
+                return await super().after_processed(exc_type, exc_val, exc_tb)
 
         broker = self.broker_class(
             middlewares=(mid,),

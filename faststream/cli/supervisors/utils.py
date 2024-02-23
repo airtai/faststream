@@ -1,3 +1,4 @@
+import asyncio
 import multiprocessing
 import os
 import signal
@@ -23,13 +24,18 @@ def set_exit(func: Callable[[int, Optional[FrameType]], Any]) -> None:
 
     Args:
         func: A callable object that takes an integer and an optional frame type as arguments and returns any value.
-
-    Returns:
-        None
-
     """
-    for sig in HANDLED_SIGNALS:
-        signal.signal(sig, func)
+    try:
+        loop = asyncio.get_event_loop()
+
+        for sig in HANDLED_SIGNALS:
+            loop.add_signal_handler(sig, func, sig, None)
+
+    except NotImplementedError:  # pragma: no cover
+        # Windows
+        for sig in HANDLED_SIGNALS:
+            signal.signal(sig, func)
+
 
 
 def get_subprocess(target: DecoratedCallableNone, args: Any) -> SpawnProcess:

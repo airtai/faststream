@@ -1,33 +1,47 @@
-from typing import Any, Callable, Dict, Optional, Sequence
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncContextManager,
+    Callable,
+    Dict,
+    Iterable,
+    Optional,
+    Sequence,
+)
 
 import aio_pika
-from fast_depends.core import CallModel
 from typing_extensions import override
 
-from faststream.broker.handler import AsyncHandler
-from faststream.broker.message import StreamMessage
-from faststream.broker.middlewares import BaseMiddleware
+from faststream._compat import model_to_dict
+from faststream.broker.core.handler import BaseHandler
+from faststream.broker.core.publisher import FakePublisher
 from faststream.broker.parsers import resolve_custom_func
-from faststream.broker.types import (
-    CustomDecoder,
-    CustomParser,
-    Filter,
-    P_HandlerParams,
-    T_HandlerReturn,
-)
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.rabbit.helpers import RabbitDeclarer
-from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.parser import AioPikaParser
-from faststream.rabbit.shared.schemas import (
+from faststream.rabbit.schemas.schemas import (
     BaseRMQInformation,
     RabbitExchange,
     RabbitQueue,
+    ReplyConfig,
 )
 from faststream.types import AnyDict
 
+if TYPE_CHECKING:
+    from fast_depends.dependencies import Depends
 
-class LogicHandler(AsyncHandler[aio_pika.IncomingMessage], BaseRMQInformation):
+    from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.types import (
+        BrokerMiddleware,
+        CustomDecoder,
+        CustomParser,
+        Filter,
+        PublisherProtocol,
+        SubscriberMiddleware,
+    )
+
+
+class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
     """A class to handle logic for RabbitMQ message consumption.
 
     Attributes:
@@ -45,104 +59,80 @@ class LogicHandler(AsyncHandler[aio_pika.IncomingMessage], BaseRMQInformation):
 
     """
 
-    queue: RabbitQueue
-    exchange: Optional[RabbitExchange]
-    consume_args: AnyDict
-
     _consumer_tag: Optional[str]
     _queue_obj: Optional[aio_pika.RobustQueue]
 
     def __init__(
         self,
+        *,
         queue: RabbitQueue,
-        log_context_builder: Callable[[StreamMessage[Any]], Dict[str, str]],
-        graceful_timeout: Optional[float] = None,
+        watcher: Callable[..., AsyncContextManager[None]],
+        graceful_timeout: Optional[float],
+        middlewares: Iterable["BrokerMiddleware[aio_pika.IncomingMessage]"],
+        extra_context: Optional[AnyDict] = None,
         # RMQ information
         exchange: Optional[RabbitExchange] = None,
         consume_args: Optional[AnyDict] = None,
+        reply_config: Optional[ReplyConfig] = None,
         # AsyncAPI information
-        description: Optional[str] = None,
-        title: Optional[str] = None,
+        title_: Optional[str] = None,
+        description_: Optional[str] = None,
         include_in_schema: bool = True,
         virtual_host: str = "/",
     ) -> None:
-        """Initialize a RabbitMQ consumer.
-
-        Args:
-            queue: RabbitQueue object representing the queue to consume from
-            log_context_builder: Callable that returns a dictionary with log context information
-            graceful_timeout: Optional float representing the graceful timeout
-            exchange: RabbitExchange object representing the exchange to bind the queue to (optional)
-            consume_args: Additional arguments for consuming from the queue (optional)
-            description: Description of the consumer (optional)
-            title: Title of the consumer (optional)
-            include_in_schema: Whether to include the consumer in the API specification (optional)
-            virtual_host: Virtual host to connect to (optional)
-
-        """
-        super().__init__(
-            log_context_builder=log_context_builder,
-            description=description,
-            title=title,
-            include_in_schema=include_in_schema,
-            graceful_timeout=graceful_timeout,
-        )
-
+        """Initialize a RabbitMQ consumer."""
         self.queue = queue
         self.exchange = exchange
+
+        super().__init__(
+            middlewares=middlewares,
+            graceful_timeout=graceful_timeout,
+            watcher=watcher,
+            extra_context=extra_context,
+            # AsyncAPI
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
         self.virtual_host = virtual_host
+
         self.consume_args = consume_args or {}
+        self.reply_config = model_to_dict(reply_config) if reply_config else {}
 
         self._consumer_tag = None
         self._queue_obj = None
+        self.producer = None
 
-    def add_call(
+    @override
+    def add_call(  # type: ignore[override]
         self,
         *,
-        handler: HandlerCallWrapper[
-            aio_pika.IncomingMessage, P_HandlerParams, T_HandlerReturn
-        ],
-        dependant: CallModel[P_HandlerParams, T_HandlerReturn],
-        parser: Optional[CustomParser[aio_pika.IncomingMessage, RabbitMessage]],
-        decoder: Optional[CustomDecoder[RabbitMessage]],
-        filter: Filter[RabbitMessage],
-        middlewares: Optional[
-            Sequence[Callable[[aio_pika.IncomingMessage], BaseMiddleware]]
-        ],
-    ) -> None:
-        """Add a call to the handler.
-
-        Args:
-            handler: The handler for the call.
-            dependant: The dependant for the call.
-            parser: Optional custom parser for the call.
-            decoder: Optional custom decoder for the call.
-            filter: The filter for the call.
-            middlewares: Optional sequence of middlewares for the call.
-
-        Returns:
-            None
-
-        """
-        super().add_call(
-            handler=handler,
-            parser=resolve_custom_func(parser, AioPikaParser.parse_message),
-            decoder=resolve_custom_func(decoder, AioPikaParser.decode_message),
-            filter=filter,  # type: ignore[arg-type]
-            dependant=dependant,
-            middlewares=middlewares,
+        filter: "Filter[StreamMessage[aio_pika.IncomingMessage]]",
+        parser: Optional["CustomParser[aio_pika.IncomingMessage]"],
+        decoder: Optional["CustomDecoder[StreamMessage[aio_pika.IncomingMessage]]"],
+        middlewares: Iterable["SubscriberMiddleware"],
+        dependencies: Sequence["Depends"],
+        **wrap_kwargs: Any,
+    ) -> "WrapperProtocol[aio_pika.IncomingMessage]":
+        return super().add_call(
+            parser_=resolve_custom_func(parser, AioPikaParser.parse_message),
+            decoder_=resolve_custom_func(decoder, AioPikaParser.decode_message),
+            filter_=filter,
+            middlewares_=middlewares,
+            dependencies_=dependencies,
+            **wrap_kwargs,
         )
 
     @override
-    async def start(self, declarer: RabbitDeclarer) -> None:  # type: ignore[override]
+    async def start(  # type: ignore[override]
+        self,
+        declarer: RabbitDeclarer,
+        producer: Optional["PublisherProtocol"],
+    ) -> None:
         """Starts the consumer for the RabbitMQ queue.
 
         Args:
             declarer: RabbitDeclarer object used to declare the queue and exchange
-
-        Returns:
-            None
-
         """
         self._queue_obj = queue = await declarer.declare_queue(self.queue)
 
@@ -152,6 +142,8 @@ class LogicHandler(AsyncHandler[aio_pika.IncomingMessage], BaseRMQInformation):
                 exchange,
                 routing_key=self.queue.routing,
                 arguments=self.queue.bind_arguments,
+                timeout=self.queue.timeout,
+                robust=self.queue.robust,
             )
 
         self._consumer_tag = await queue.consume(
@@ -160,7 +152,7 @@ class LogicHandler(AsyncHandler[aio_pika.IncomingMessage], BaseRMQInformation):
             arguments=self.consume_args,
         )
 
-        await super().start()
+        await super().start(producer=producer)
 
     async def close(self) -> None:
         await super().close()
@@ -169,5 +161,60 @@ class LogicHandler(AsyncHandler[aio_pika.IncomingMessage], BaseRMQInformation):
             if self._consumer_tag is not None:  # pragma: no branch
                 if not self._queue_obj.channel.is_closed:
                     await self._queue_obj.cancel(self._consumer_tag)
+
                 self._consumer_tag = None
+
             self._queue_obj = None
+
+    def make_response_publisher(
+        self, message: "StreamMessage[Any]"
+    ) -> Sequence[FakePublisher]:
+        if not message.reply_to or self.producer is None:
+            return ()
+
+        return (
+            FakePublisher(
+                self.producer.publish, routing_key=message.reply_to, **self.reply_config
+            ),
+        )
+
+    @staticmethod
+    def get_routing_hash(
+        queue: RabbitQueue,
+        exchange: Optional[RabbitExchange] = None,
+    ) -> int:
+        """Calculate the routing hash for a RabbitMQ queue and exchange.
+
+        Args:
+            queue: The RabbitMQ queue.
+            exchange: The RabbitMQ exchange (optional).
+
+        Returns:
+            The routing hash as an integer.
+        """
+        return hash(queue) + hash(exchange or "")
+
+    def __hash__(self) -> int:
+        return self.get_routing_hash(self.queue, self.exchange)
+
+    @staticmethod
+    def build_log_context(
+        message: Optional["StreamMessage[Any]"],
+        queue: RabbitQueue,
+        exchange: Optional[RabbitExchange] = None,
+    ) -> Dict[str, str]:
+        return {
+            "queue": queue.name,
+            "exchange": getattr(exchange, "name", ""),
+            "message_id": getattr(message, "message_id", ""),
+        }
+
+    def get_log_context(
+        self,
+        message: Optional["StreamMessage[Any]"],
+    ) -> Dict[str, str]:
+        return self.build_log_context(
+            message=message,
+            queue=self.queue,
+            exchange=self.exchange,
+        )

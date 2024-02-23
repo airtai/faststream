@@ -1,4 +1,5 @@
 import warnings
+from functools import cached_property
 from typing import Optional, Pattern
 
 from pydantic import Field, PositiveFloat, PositiveInt
@@ -85,7 +86,7 @@ class ListSub(NameRequired):
             polling_interval=polling_interval,
         )
 
-    @property
+    @cached_property
     def records(self) -> Optional[PositiveInt]:
         return self.max_records if self.batch else None
 
@@ -131,20 +132,18 @@ class StreamSub(NameRequired):
             raise ValueError("You should specify `group` and `consumer` both")
 
         if group and consumer:
-            msg: Optional[str] = None
-
-            if last_id:
-                msg = "`last_id` has no effect with consumer group"
+            if last_id is None:
+                last_id = ">"
 
             if no_ack:
-                msg = "`no_ack` has no effect with consumer group"
-
-            if msg:
                 warnings.warn(
-                    message=msg,
+                    message="`no_ack` has no effect with consumer group",
                     category=RuntimeWarning,
                     stacklevel=1,
                 )
+
+        if last_id is None:
+            last_id = "$"
 
         super().__init__(
             name=stream,
@@ -153,7 +152,7 @@ class StreamSub(NameRequired):
             polling_interval=polling_interval,
             batch=batch,
             no_ack=no_ack,
-            last_id=last_id or "$",
+            last_id=last_id,
             maxlen=maxlen,
         )
 

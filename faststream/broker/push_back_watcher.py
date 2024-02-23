@@ -2,11 +2,9 @@ from abc import ABC, abstractmethod
 from collections import Counter
 from logging import Logger
 from types import TracebackType
-from typing import Any, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, Optional, Type
 from typing import Counter as CounterType
 
-from faststream.broker.message import StreamMessage, SyncStreamMessage
-from faststream.broker.types import MsgType
 from faststream.exceptions import (
     AckMessage,
     HandlerException,
@@ -14,7 +12,10 @@ from faststream.exceptions import (
     RejectMessage,
     SkipMessage,
 )
-from faststream.utils.functions import call_or_await
+
+if TYPE_CHECKING:
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.types import MsgType
 
 
 class BaseWatcher(ABC):
@@ -31,7 +32,6 @@ class BaseWatcher(ABC):
         add : add a message to the watcher
         is_max : check if the maximum number of tries has been reached for a message
         remove : remove a message from the watcher
-
     """
 
     max_tries: int
@@ -46,10 +46,6 @@ class BaseWatcher(ABC):
         Args:
             max_tries: Maximum number of tries allowed
             logger: Optional logger object
-
-        Raises:
-            NotImplementedError: If the method is not implemented in the subclass.
-
         """
         self.logger = logger
         self.max_tries = max_tries
@@ -66,7 +62,6 @@ class BaseWatcher(ABC):
 
         Raises:
             NotImplementedError: If the method is not implemented
-
         """
         raise NotImplementedError()
 
@@ -82,7 +77,6 @@ class BaseWatcher(ABC):
 
         Raises:
             NotImplementedError: This method is meant to be overridden by subclasses.
-
         """
         raise NotImplementedError()
 
@@ -98,7 +92,6 @@ class BaseWatcher(ABC):
 
         Raises:
             NotImplementedError: If the method is not implemented
-
         """
         raise NotImplementedError()
 
@@ -114,7 +107,6 @@ class EndlessWatcher(BaseWatcher):
 
         Returns:
             None
-
         """
         pass
 
@@ -125,8 +117,7 @@ class EndlessWatcher(BaseWatcher):
             message_id: ID of the message to check
 
         Returns:
-            True if the message is the maximum, False otherwise
-
+            Always False
         """
         return False
 
@@ -138,7 +129,6 @@ class EndlessWatcher(BaseWatcher):
 
         Returns:
             None
-
         """
         pass
 
@@ -154,7 +144,6 @@ class OneTryWatcher(BaseWatcher):
 
         Returns:
             None
-
         """
         pass
 
@@ -165,8 +154,7 @@ class OneTryWatcher(BaseWatcher):
             message_id: The ID of the message to check.
 
         Returns:
-            True if the given message ID is the maximum, False otherwise.
-
+            Always True
         """
         return True
 
@@ -178,7 +166,6 @@ class OneTryWatcher(BaseWatcher):
 
         Returns:
             None
-
         """
         pass
 
@@ -198,7 +185,6 @@ class CounterWatcher(BaseWatcher):
         add(self, message_id: str) -> None - adds a message to the counter
         is_max(self, message_id: str) -> bool - checks if the count of a message has reached the maximum tries
         remove(self, message: str) -> None - removes a message from the counter
-
     """
 
     memory: CounterType[str]
@@ -213,7 +199,6 @@ class CounterWatcher(BaseWatcher):
         Args:
             max_tries (int): maximum number of tries
             logger (Optional[Logger]): logger object (default: None)
-
         """
         super().__init__(logger=logger, max_tries=max_tries)
         self.memory = Counter()
@@ -226,7 +211,6 @@ class CounterWatcher(BaseWatcher):
 
         Returns:
             None
-
         """
         self.memory[message_id] += 1
 
@@ -238,7 +222,6 @@ class CounterWatcher(BaseWatcher):
 
         Returns:
             True if the number of tries has exceeded the maximum allowed tries, False otherwise
-
         """
         is_max = self.memory[message_id] > self.max_tries
         if self.logger is not None:
@@ -256,7 +239,6 @@ class CounterWatcher(BaseWatcher):
 
         Returns:
             None
-
         """
         self.memory[message] = 0
         self.memory += Counter()
@@ -276,31 +258,29 @@ class WatcherContext:
         __ack : acknowledges the message
         __nack : negatively acknowledges the message
         __reject : rejects the message
-
     """
 
     def __init__(
         self,
-        message: Union[SyncStreamMessage[MsgType], StreamMessage[MsgType]],
+        message: "StreamMessage[MsgType]",
         watcher: BaseWatcher,
-        **extra_ack_args: Any,
+        **extra_options: Any,
     ) -> None:
         """Initialize a new instance of the class.
 
         Args:
             watcher: An instance of BaseWatcher.
-            message: An instance of SyncStreamMessage or StreamMessage.
-            **extra_ack_args: Additional arguments for acknowledgement.
+            message: An instance of StreamMessage.
+            **extra_options: Additional arguments for acknowledgement.
 
         Attributes:
             watcher: An instance of BaseWatcher.
-            message: An instance of SyncStreamMessage or StreamMessage.
-            extra_ack_args: Additional arguments for acknowledgement.
-
+            message: An instance of StreamMessage.
+            extra_options: Additional arguments for acknowledgement.
         """
         self.watcher = watcher
         self.message = message
-        self.extra_ack_args = extra_ack_args or {}
+        self.extra_options = extra_options
 
     async def __aenter__(self) -> None:
         self.watcher.add(self.message.message_id)
@@ -320,7 +300,6 @@ class WatcherContext:
 
         Returns:
             A boolean indicating whether the exit was successful or not.
-
         """
         if not exc_type:
             await self.__ack()
@@ -349,12 +328,12 @@ class WatcherContext:
         return False
 
     async def __ack(self) -> None:
-        await call_or_await(self.message.ack, **self.extra_ack_args)
+        await self.message.ack(**self.extra_options)
         self.watcher.remove(self.message.message_id)
 
     async def __nack(self) -> None:
-        await call_or_await(self.message.nack, **self.extra_ack_args)
+        await self.message.nack(**self.extra_options)
 
     async def __reject(self) -> None:
-        await call_or_await(self.message.reject, **self.extra_ack_args)
+        await self.message.reject(**self.extra_options)
         self.watcher.remove(self.message.message_id)

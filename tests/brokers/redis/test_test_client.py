@@ -153,7 +153,7 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
         await test_broker.start()
         await test_broker.publish("hello", queue)
         m.mock.assert_called_once_with("hello")
-        publisher.mock.assert_called_once_with([1, 2, 3])
+        publisher.mock.assert_called_once_with(["1", "2", "3"])
 
     async def test_stream(
         self,

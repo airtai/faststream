@@ -1,18 +1,18 @@
 from dataclasses import dataclass, field
+from functools import cached_property
 from typing import Optional, Sequence, Union, cast
 
 from typing_extensions import override
 
-from faststream.broker.publisher import BasePublisher
+from faststream.broker.core.publisher import BasePublisher
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.redis.message import AnyRedisDict
 from faststream.redis.producer import RedisFastProducer
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
 
 @dataclass
-class LogicPublisher(BasePublisher[AnyRedisDict]):
+class LogicPublisher(BasePublisher["AnyRedisDict"]):
     """A class to represent a Redis publisher."""
 
     channel: Optional[PubSub] = field(default=None)
@@ -24,7 +24,7 @@ class LogicPublisher(BasePublisher[AnyRedisDict]):
     _producer: Optional[RedisFastProducer] = field(default=None, init=False)
 
     @override
-    async def publish(  # type: ignore[override]
+    async def _publish(  # type: ignore[override]
         self,
         message: SendableMessage,
         channel: Union[str, PubSub, None] = None,
@@ -40,40 +40,51 @@ class LogicPublisher(BasePublisher[AnyRedisDict]):
     ) -> Optional[DecodedMessage]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
-        channel = PubSub.validate(channel or self.channel)
-        list = ListSub.validate(list or self.list)
-        stream = StreamSub.validate(stream or self.stream)
+        if (list := ListSub.validate(list)) is not None:
+            if list.batch:
+                await self._producer.publish_batch(
+                    *cast(Sequence[SendableMessage], message),
+                    list=list.name,  # type: ignore[union-attr]
+                )
+                return None
+            else:
+                kwargs = {"list": list.name}
 
-        assert any((channel, list, stream)), "You have to specify outgoing channel"  # nosec B101
+        elif channel := PubSub.validate(channel):
+            kwargs = {"channel": channel.name}
 
-        headers_to_send = (self.headers or {}).copy()
-        if headers is not None:
-            headers_to_send.update(headers)
-
-        if getattr(list, "batch", False):
-            await self._producer.publish_batch(
-                *cast(Sequence[SendableMessage], message),
-                list=list.name,  # type: ignore[union-attr]
-            )
-            return None
+        elif stream := StreamSub.validate(stream):
+            kwargs = {
+                "stream": stream.name,
+                "maxlen": stream.maxlen,
+            }
 
         else:
-            return await self._producer.publish(
-                message=message,
-                channel=getattr(channel, "name", None),
-                list=getattr(list, "name", None),
-                stream=getattr(stream, "name", None),
-                maxlen=getattr(stream, "maxlen", None),
-                reply_to=reply_to or self.reply_to,
-                correlation_id=correlation_id,
-                headers=headers_to_send,
-                rpc=rpc,
-                rpc_timeout=rpc_timeout,
-                raise_timeout=raise_timeout,
-            )
+            raise ValueError(INCORRECT_SETUP_MSG)
 
-    @property
+        return await self._producer.publish(
+            message=message,
+            **kwargs,
+            reply_to=reply_to,
+            correlation_id=correlation_id,
+            headers=headers,
+            rpc=rpc,
+            rpc_timeout=rpc_timeout,
+            raise_timeout=raise_timeout,
+        )
+
+    @cached_property
     def channel_name(self) -> str:
         any_of = self.channel or self.list or self.stream
         assert any_of, INCORRECT_SETUP_MSG  # nosec B101
         return any_of.name
+
+    @cached_property
+    def publish_kwargs(self) -> AnyDict:
+        return {
+            "channel": self.channel,
+            "list": self.list,
+            "stream": self.stream,
+            "headers": self.headers,
+            "reply_to": self.reply_to,
+        }

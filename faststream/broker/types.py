@@ -1,11 +1,21 @@
-from typing import Any, Awaitable, Callable, Optional, Protocol, Tuple, TypeVar, Union
+from typing import (
+    Any,
+    AsyncContextManager,
+    Awaitable,
+    Callable,
+    Iterable,
+    Optional,
+    Protocol,
+    TypeVar,
+    Union,
+)
 
 from typing_extensions import ParamSpec, TypeAlias
 
 from faststream.broker.message import StreamMessage
+from faststream.broker.middlewares import BaseMiddleware
 from faststream.types import DecodedMessage, SendableMessage
 
-Decoded = TypeVar("Decoded", bound=DecodedMessage)
 MsgType = TypeVar("MsgType")
 StreamMsg = TypeVar("StreamMsg", bound=StreamMessage[Any])
 ConnectionType = TypeVar("ConnectionType")
@@ -20,26 +30,26 @@ Filter: TypeAlias = Union[
 
 SyncParser: TypeAlias = Callable[
     [MsgType],
-    StreamMsg,
+    StreamMessage[MsgType],
 ]
 AsyncParser: TypeAlias = Callable[
     [MsgType],
-    Awaitable[StreamMsg],
+    Awaitable[StreamMessage[MsgType]],
 ]
 AsyncCustomParser: TypeAlias = Union[
-    AsyncParser[MsgType, StreamMsg],
+    AsyncParser[MsgType],
     Callable[
-        [MsgType, AsyncParser[MsgType, StreamMsg]],
-        Awaitable[StreamMsg],
+        [MsgType, AsyncParser[MsgType]],
+        Awaitable[StreamMessage[MsgType]],
     ],
 ]
 Parser: TypeAlias = Union[
-    AsyncParser[MsgType, StreamMsg],
-    SyncParser[MsgType, StreamMsg],
+    AsyncParser[MsgType],
+    SyncParser[MsgType],
 ]
 CustomParser: TypeAlias = Union[
-    AsyncCustomParser[MsgType, StreamMsg],
-    SyncParser[MsgType, StreamMsg],
+    AsyncCustomParser[MsgType],
+    SyncParser[MsgType],
 ]
 
 SyncDecoder: TypeAlias = Callable[
@@ -74,40 +84,57 @@ T_HandlerReturn = TypeVar(
 )
 
 
-class AsyncPublisherProtocol(Protocol):
-    """A protocol for an asynchronous publisher."""
-
-    async def publish(
-        self,
-        message: SendableMessage,
-        correlation_id: Optional[str] = None,
-        **kwargs: Any,
-    ) -> Optional[SendableMessage]:
-        """Publishes a message asynchronously.
-
-        Args:
-            message: The message to be published.
-            correlation_id: Optional correlation ID for the message.
-            **kwargs: Additional keyword arguments.
-
-        Returns:
-            The published message, or None if the message was not published.
-
-        """
-        ...
-
-
-WrappedReturn: TypeAlias = Tuple[T_HandlerReturn, Optional[AsyncPublisherProtocol]]
-
 AsyncWrappedHandlerCall: TypeAlias = Callable[
     [StreamMessage[MsgType]],
-    Awaitable[Optional[WrappedReturn[T_HandlerReturn]]],
+    Awaitable[Optional[T_HandlerReturn]],
 ]
 SyncWrappedHandlerCall: TypeAlias = Callable[
     [StreamMessage[MsgType]],
-    Optional[WrappedReturn[T_HandlerReturn]],
+    Optional[T_HandlerReturn],
 ]
 WrappedHandlerCall: TypeAlias = Union[
     AsyncWrappedHandlerCall[MsgType, T_HandlerReturn],
     SyncWrappedHandlerCall[MsgType, T_HandlerReturn],
 ]
+
+
+BrokerMiddleware: TypeAlias = Callable[[MsgType], BaseMiddleware]
+SubscriberMiddleware: TypeAlias = Callable[
+    [Optional[DecodedMessage]],
+    AsyncContextManager[Optional[DecodedMessage]],
+]
+
+
+class PublisherMiddleware(Protocol):
+    """Publisher middleware interface."""
+
+    def __call__(
+        self, __msg: Any, *__args: Any, **__kwargs: Any
+    ) -> AsyncContextManager[SendableMessage]:
+        ...
+
+
+class PublisherProtocol(Protocol):
+    """A protocol for an asynchronous publisher."""
+
+    async def publish(
+        self,
+        message: Any,
+        *__args: Any,
+        correlation_id: Optional[str] = None,
+        extra_middlewares: Iterable[PublisherMiddleware] = (),
+        **__kwargs: Any,
+    ) -> Any:
+        """Publishes a message asynchronously.
+
+        Args:
+            message: The message to be published.
+            *args: Additional positional arguments.
+            correlation_id: Optional correlation ID for the message.
+            extra_middlewares: Top-level middlewares.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            The response message or None.
+        """
+        ...

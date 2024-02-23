@@ -9,16 +9,14 @@ from unittest.mock import AsyncMock, MagicMock
 from anyio.from_thread import start_blocking_portal
 
 from faststream.app import FastStream
-from faststream.broker.core.abc import BrokerUsecase
-from faststream.broker.core.asynchronous import BrokerAsyncUsecase
-from faststream.broker.handler import AsyncHandler
-from faststream.broker.middlewares import CriticalLogMiddleware
-from faststream.broker.wrapper import HandlerCallWrapper
-from faststream.types import SendableMessage, SettingField
+from faststream.broker.core.broker import BrokerUsecase
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
+from faststream.broker.core.handler import BaseHandler
+from faststream.types import SettingField
 from faststream.utils.ast import is_contains_context_name
 from faststream.utils.functions import timeout_scope
 
-Broker = TypeVar("Broker", bound=BrokerAsyncUsecase[Any, Any])
+Broker = TypeVar("Broker", bound=BrokerUsecase[Any, Any])
 
 
 class TestApp:
@@ -34,7 +32,6 @@ class TestApp:
         __init__ : initializes the TestApp object
         __aenter__ : enters the asynchronous context and starts the FastStream application
         __aexit__ : exits the asynchronous context and stops the FastStream application
-
     """
 
     __test__ = False
@@ -55,7 +52,6 @@ class TestApp:
 
         Returns:
             None
-
         """
         self.app = app
         self._extra_options = run_extra_options or {}
@@ -80,7 +76,7 @@ class TestApp:
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
+        exc_tb: Optional[TracebackType] = None,
     ) -> None:
         self.exit_stack.close()
 
@@ -94,20 +90,20 @@ class TestApp:
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
+        exc_tb: Optional[TracebackType] = None,
     ) -> None:
         """Exit the asynchronous context manager.
 
         Args:
             exc_type: The type of the exception raised, if any.
             exc_val: The exception instance raised, if any.
-            exec_tb: The traceback for the exception raised, if any.
+            exc_tb: The traceback for the exception raised, if any.
 
         Returns:
             None
         """
         await self.app._shutdown()
-        await self.lifespan_scope.__aexit__(exc_type, exc_val, exec_tb)
+        await self.lifespan_scope.__aexit__(exc_type, exc_val, exc_tb)
 
 
 class TestBroker(Generic[Broker]):
@@ -128,7 +124,6 @@ class TestBroker(Generic[Broker]):
             broker: An instance of the Broker class.
             with_real: Whether to use a real broker.
             connect_only: Whether to only connect to the broker.
-
         """
         self.with_real = with_real
         self.broker = broker
@@ -165,10 +160,10 @@ class TestBroker(Generic[Broker]):
 
     @asynccontextmanager
     async def _create_ctx(self) -> AsyncGenerator[Broker, None]:
-        if not self.with_real:
-            self._patch_test_broker(self.broker)
-        else:
+        if self.with_real:
             self._fake_start(self.broker)
+        else:
+            self._patch_test_broker(self.broker)
 
         async with self.broker:
             try:
@@ -197,10 +192,10 @@ class TestBroker(Generic[Broker]):
             if handler is not None:
                 mock = MagicMock()
                 p.set_test(mock=mock, with_fake=False)
-                for f, _, _, _, _, _ in handler.calls:
-                    f.set_test()
-                    assert f.mock  # nosec B101
-                    f.mock.side_effect = mock
+                for h in handler.calls:
+                    h.handler.set_test()
+                    assert h.handler.mock  # nosec B101
+                    h.handler.mock.side_effect = mock
 
             else:
                 f = cls.create_publisher_fake_subscriber(broker, p)
@@ -219,13 +214,8 @@ class TestBroker(Generic[Broker]):
         broker: Broker,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
+        exc_tb: Optional[TracebackType] = None,
     ) -> None:
-        broker.middlewares = [
-            CriticalLogMiddleware(broker.logger, broker.log_level),
-            *broker.middlewares,
-        ]
-
         for p in broker._publishers.values():
             if p._fake_handler:
                 p.reset_test()
@@ -233,8 +223,8 @@ class TestBroker(Generic[Broker]):
 
         for h in broker.handlers.values():
             h.running = False
-            for f, _, _, _, _, _ in h.calls:
-                f.reset_test()
+            for call in h.calls:
+                call.handler.reset_test()
 
     @staticmethod
     @abstractmethod
@@ -267,28 +257,21 @@ def patch_broker_calls(broker: BrokerUsecase[Any, Any]) -> None:
 
     Returns:
         None.
-
     """
-    broker.middlewares = tuple(
-        filter(  # type: ignore[assignment]
-            lambda x: not isinstance(x, CriticalLogMiddleware),
-            broker.middlewares,
-        )
-    )
     broker._abc_start()
 
     for handler in broker.handlers.values():
-        for f, _, _, _, _, _ in handler.calls:
-            f.set_test()
+        for h in handler.calls:
+            h.handler.set_test()
 
 
 async def call_handler(
-    handler: AsyncHandler[Any],
+    handler: BaseHandler[Any],
     message: Any,
     rpc: bool = False,
     rpc_timeout: Optional[float] = 30.0,
     raise_timeout: bool = False,
-) -> Optional[SendableMessage]:
+) -> Any:
     """Asynchronously call a handler function.
 
     Args:
@@ -303,7 +286,6 @@ async def call_handler(
 
     Raises:
         TimeoutError: If the RPC times out and `raise_timeout` is True.
-
     """
     with timeout_scope(rpc_timeout, raise_timeout):
         result = await handler.consume(message)

@@ -35,7 +35,6 @@ def decode_message(message: StreamMessage[Any]) -> DecodedMessage:
 
     Raises:
         JSONDecodeError: If the message body cannot be decoded as JSON.
-
     """
     body: Any = getattr(message, "body", message)
     m: DecodedMessage = body
@@ -45,7 +44,9 @@ def decode_message(message: StreamMessage[Any]) -> DecodedMessage:
             m = body.decode()
         elif ContentTypes.json.value in content_type:  # pragma: no branch
             m = json_loads(body)
-
+        else:
+            with suppress(json.JSONDecodeError):
+                m = json_loads(body)
     else:
         with suppress(json.JSONDecodeError):
             m = json_loads(body)
@@ -63,7 +64,6 @@ def encode_message(
 
     Returns:
         A tuple containing the encoded message as bytes and the content type of the message.
-
     """
     if msg is None:
         return b"", None
@@ -93,16 +93,15 @@ def resolve_custom_func(
 
     Returns:
         A resolved function of type SyncDecoder
-
     """
     ...
 
 
 @overload
 def resolve_custom_func(
-    custom_func: Optional[SyncParser[MsgType, StreamMsg]],
-    default_func: SyncParser[MsgType, StreamMsg],
-) -> SyncParser[MsgType, StreamMsg]:
+    custom_func: Optional[SyncParser[MsgType]],
+    default_func: SyncParser[MsgType],
+) -> SyncParser[MsgType]:
     """Resolve a custom function.
 
     Args:
@@ -111,7 +110,6 @@ def resolve_custom_func(
 
     Returns:
         A resolved function of type SyncParser[MsgType].
-
     """
     ...
 
@@ -129,16 +127,15 @@ def resolve_custom_func(
 
     Returns:
         Resolved function.
-
     """
     ...
 
 
 @overload
 def resolve_custom_func(
-    custom_func: Optional[AsyncCustomParser[MsgType, StreamMsg]],
-    default_func: AsyncParser[MsgType, StreamMsg],
-) -> AsyncParser[MsgType, StreamMsg]:
+    custom_func: Optional[AsyncCustomParser[MsgType]],
+    default_func: AsyncParser[MsgType],
+) -> AsyncParser[MsgType]:
     """Resolve a custom function.
 
     Args:
@@ -147,7 +144,6 @@ def resolve_custom_func(
 
     Returns:
         Resolved function.
-
     """
     ...
 
@@ -165,16 +161,15 @@ def resolve_custom_func(
 
     Returns:
         A decoder function.
-
     """
     ...
 
 
 @overload
 def resolve_custom_func(
-    custom_func: Optional[CustomParser[MsgType, StreamMsg]],
-    default_func: Parser[MsgType, StreamMsg],
-) -> Parser[MsgType, StreamMsg]:
+    custom_func: Optional[CustomParser[MsgType]],
+    default_func: Parser[MsgType],
+) -> Parser[MsgType]:
     """Resolve a custom function.
 
     Args:
@@ -183,17 +178,25 @@ def resolve_custom_func(
 
     Returns:
         Resolved function.
-
     """
     ...
 
 
 def resolve_custom_func(  # type: ignore[misc]
     custom_func: Optional[
-        Union[CustomDecoder[StreamMsg], CustomParser[MsgType, StreamMsg]]
+        Union[
+            CustomDecoder[StreamMsg],
+            CustomParser[MsgType],
+        ]
     ],
-    default_func: Union[Decoder[StreamMsg], Parser[MsgType, StreamMsg]],
-) -> Union[Decoder[StreamMsg], Parser[MsgType, StreamMsg]]:
+    default_func: Union[
+        Decoder[StreamMsg],
+        Parser[MsgType],
+    ],
+) -> Union[
+    Decoder[StreamMsg],
+    Parser[MsgType],
+]:
     """Resolve a custom function.
 
     Args:
@@ -202,14 +205,13 @@ def resolve_custom_func(  # type: ignore[misc]
 
     Returns:
         The resolved function of type Decoder or Parser.
-
     """
     if custom_func is None:
         return default_func
 
     original_params = inspect.signature(custom_func).parameters
     if len(original_params) == 1:
-        return cast(Union[Decoder[StreamMsg], Parser[MsgType, StreamMsg]], custom_func)
+        return cast(Union[Decoder[StreamMsg], Parser[MsgType]], custom_func)
 
     else:
         name = tuple(original_params.items())[1][0]

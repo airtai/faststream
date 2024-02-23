@@ -1,13 +1,14 @@
 from dataclasses import dataclass, field
+from functools import cached_property
 from typing import Any, Dict, Optional, Union
 
 from nats.aio.msg import Msg
 from typing_extensions import override
 
-from faststream.broker.publisher import BasePublisher
+from faststream.broker.core.publisher import BasePublisher
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.nats.js_stream import JStream
 from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
+from faststream.nats.schemas import JStream
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
 
@@ -26,33 +27,30 @@ class LogicPublisher(BasePublisher[Msg]):
     )
 
     @override
-    async def publish(  # type: ignore[override]
+    async def _publish(  # type: ignore[override]
         self,
         message: SendableMessage = "",
-        reply_to: str = "",
-        correlation_id: Optional[str] = None,
-        headers: Optional[Dict[str, str]] = None,
         **producer_kwargs: Any,
     ) -> Optional[DecodedMessage]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
         assert self.subject, "You have to specify outgoing subject"  # nosec B101
 
-        extra: AnyDict = {
-            "reply_to": reply_to or self.reply_to,
-        }
-        if self.stream is not None:
-            extra.update(
-                {
-                    "stream": self.stream.name,
-                    "timeout": self.timeout,
-                }
-            )
-
         return await self._producer.publish(
             message=message,
-            subject=self.subject,
-            headers=headers or self.headers,
-            correlation_id=correlation_id,
-            **extra,
             **producer_kwargs,
+        )
+
+    @cached_property
+    def publish_kwargs(self) -> AnyDict:
+        return {
+            "subject": self.subject,
+            "reply_to": self.reply_to,
+            "headers": self.headers,
+        } | (
+            {
+                "stream": self.stream.name,
+                "timeout": self.timeout,
+            }
+            if self.stream is not None
+            else {}
         )

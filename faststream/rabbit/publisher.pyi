@@ -6,8 +6,8 @@ import aiormq
 from typing_extensions import override
 
 from faststream.rabbit.producer import AioPikaFastProducer
-from faststream.rabbit.shared.publisher import ABCPublisher
-from faststream.rabbit.shared.types import TimeoutType
+from faststream.rabbit.schemas.publisher import ABCPublisher
+from faststream.rabbit.schemas.types import TimeoutType
 from faststream.rabbit.types import AioPikaSendableMessage
 from faststream.types import SendableMessage
 

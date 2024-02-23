@@ -1,4 +1,4 @@
-from inspect import _empty
+from inspect import Parameter
 from typing import Any, Callable, Optional
 
 from faststream.utils.context.types import Context as Context_
@@ -8,7 +8,7 @@ def Context(  # noqa: N802
     real_name: str = "",
     *,
     cast: bool = False,
-    default: Any = _empty,
+    default: Any = Parameter.empty,
     initial: Optional[Callable[..., Any]] = None,
 ) -> Any:
     return Context_(
@@ -23,7 +23,7 @@ def Header(  # noqa: N802
     real_name: str = "",
     *,
     cast: bool = True,
-    default: Any = _empty,
+    default: Any = Parameter.empty,
 ) -> Any:
     return Context_(
         real_name=real_name,
@@ -37,7 +37,7 @@ def Path(  # noqa: N802
     real_name: str = "",
     *,
     cast: bool = True,
-    default: Any = _empty,
+    default: Any = Parameter.empty,
 ) -> Any:
     return Context_(
         real_name=real_name,

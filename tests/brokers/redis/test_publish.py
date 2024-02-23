@@ -94,7 +94,7 @@ class TestPublish(BrokerPublishTestcase):  # noqa: D101
             )
 
         assert event.is_set()
-        mock.assert_called_once_with([1, 2, 3])
+        mock.assert_called_once_with(["1", "2", "3"])
 
     async def test_publisher_with_maxlen(
         self,

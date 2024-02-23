@@ -5,12 +5,13 @@ from uuid import uuid4
 from aiokafka import ConsumerRecord
 from typing_extensions import override
 
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.parsers import encode_message
 from faststream.broker.test import TestBroker, call_handler
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.kafka.asyncapi import Publisher
 from faststream.kafka.broker import KafkaBroker
 from faststream.kafka.producer import AioKafkaFastProducer
+from faststream.kafka.publisher import BatchPublisher
 from faststream.types import SendableMessage
 
 __all__ = ("TestKafkaBroker",)
@@ -23,6 +24,13 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     async def _fake_connect(broker: KafkaBroker, *args: Any, **kwargs: Any) -> None:
         broker._producer = FakeProducer(broker)
 
+    @classmethod
+    def _fake_start(cls, broker: KafkaBroker, *args: Any, **kwargs: Any) -> None:
+        super()._fake_start(broker, *args, **kwargs)
+
+        for h in broker.handlers.values():
+            h.producer = FakeProducer(broker)  # type: ignore[assignment]
+
     @staticmethod
     def patch_publisher(broker: KafkaBroker, publisher: Any) -> None:
         publisher._producer = broker._producer
@@ -34,8 +42,7 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     ) -> HandlerCallWrapper[Any, Any, Any]:
         @broker.subscriber(  # type: ignore[call-overload,misc]
             publisher.topic,
-            batch=publisher.batch,
-            _raw=True,
+            batch=isinstance(publisher, BatchPublisher),
         )
         def f(msg: Any) -> None:
             pass
@@ -127,6 +134,8 @@ class FakeProducer(AioKafkaFastProducer):
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
         headers: Optional[Dict[str, str]] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
     ) -> None:
         """Publish a batch of messages to the Kafka broker.
 
@@ -142,20 +151,31 @@ class FakeProducer(AioKafkaFastProducer):
         """
         for handler in self.broker.handlers.values():  # pragma: no branch
             if topic in handler.topics:
-                await call_handler(
-                    handler=handler,
-                    message=[
-                        build_message(
-                            message=message,
-                            topic=topic,
-                            partition=partition,
-                            timestamp_ms=timestamp_ms,
-                            headers=headers,
-                        )
-                        for message in msgs
-                    ],
+                messages = (
+                    build_message(
+                        message=message,
+                        topic=topic,
+                        partition=partition,
+                        timestamp_ms=timestamp_ms,
+                        headers=headers,
+                        correlation_id=correlation_id,
+                        reply_to=reply_to,
+                    )
+                    for message in msgs
                 )
 
+                if handler.batch:
+                    await call_handler(
+                        handler=handler,
+                        message=list(messages),
+                    )
+
+                else:
+                    for m in messages:
+                        await call_handler(
+                            handler=handler,
+                            message=m,
+                        )
         return None
 
 

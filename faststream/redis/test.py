@@ -1,12 +1,18 @@
 import re
 from typing import Any, Optional, Sequence, Union
 
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.test import TestBroker, call_handler
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.redis.asyncapi import Handler, Publisher
 from faststream.redis.broker import RedisBroker
-from faststream.redis.message import AnyRedisDict
-from faststream.redis.parser import RawMessage
+from faststream.redis.message import (
+    BatchListMessage,
+    BatchStreamMessage,
+    ListMessage,
+    PubSubMessage,
+    StreamMessage,
+)
+from faststream.redis.parser import RawMessage, bDATA_KEY
 from faststream.redis.producer import RedisFastProducer
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
 from faststream.types import AnyDict, SendableMessage
@@ -33,7 +39,6 @@ class TestRedisBroker(TestBroker[RedisBroker]):
             channel=publisher.channel,
             list=publisher.list,
             stream=publisher.stream,
-            _raw=True,
         )
         def f(msg: Any) -> None:
             pass
@@ -47,6 +52,18 @@ class TestRedisBroker(TestBroker[RedisBroker]):
         **kwargs: Any,
     ) -> None:
         broker._producer = FakeProducer(broker)  # type: ignore[assignment]
+
+    @classmethod
+    def _fake_start(
+        cls,
+        broker: RedisBroker,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
+        super()._fake_start(broker, *args, **kwargs)
+
+        for h in broker.handlers.values():
+            h.producer = FakeProducer(broker)  # type: ignore[assignment]
 
     @staticmethod
     def remove_publisher_fake_subscriber(
@@ -77,13 +94,14 @@ class FakeProducer(RedisFastProducer):
         raise_timeout: bool = False,
         maxlen: Optional[int] = None,
     ) -> Optional[Any]:
+        body = build_message(message=message, reply_to=reply_to, correlation_id=correlation_id, headers=headers,)
+
         any_of = channel or list or stream
         if any_of is None:
             raise ValueError(INCORRECT_SETUP_MSG)
 
         for handler in self.broker.handlers.values():  # pragma: no branch
             call = False
-            batch = False
 
             if channel and (ch := handler.channel) is not None:
                 call = bool(
@@ -97,24 +115,52 @@ class FakeProducer(RedisFastProducer):
                     )
                 )
 
+                message = PubSubMessage(
+                    type="message",
+                    data=body,
+                    channel=channel,
+                    pattern=ch.pattern,
+                )
+
             if list and (ls := handler.list_sub) is not None:
-                batch = ls.batch
+                if ls.batch:
+                    message = BatchListMessage(
+                        type="list",
+                        channel=list,
+                        data=[body],
+                    )
+
+                else:
+                    message = ListMessage(
+                        type="list",
+                        channel=list,
+                        data=body,
+                    )
+
                 call = list == ls.name
 
             if stream and (st := handler.stream_sub) is not None:
-                batch = st.batch
+                if st.batch:
+                    message = BatchStreamMessage(
+                        type="stream",
+                        channel=stream,
+                        data=[{bDATA_KEY: body}],
+                        message_ids=[]
+                    )
+                else:
+                    message = StreamMessage(
+                        type="stream",
+                        channel=stream,
+                        data={bDATA_KEY: body},
+                        message_ids=[]
+                    )
+
                 call = stream == st.name
 
             if call:
                 r = await call_handler(
                     handler=handler,
-                    message=build_message(
-                        message=[message] if batch else message,
-                        channel=any_of,
-                        headers=headers,
-                        correlation_id=correlation_id,
-                        reply_to=reply_to,
-                    ),
+                    message=message,
                     rpc=rpc,
                     rpc_timeout=rpc_timeout,
                     raise_timeout=raise_timeout,
@@ -134,10 +180,11 @@ class FakeProducer(RedisFastProducer):
             if handler.list_sub and handler.list_sub.name == list:
                 await call_handler(
                     handler=handler,
-                    message=build_message(
-                        message=msgs,
+                    message=ListMessage(
+                        type="list",
                         channel=list,
-                    ),
+                        data=[build_message(m) for m in msgs],
+                    )
                 )
 
         return None
@@ -145,20 +192,15 @@ class FakeProducer(RedisFastProducer):
 
 def build_message(
     message: Union[Sequence[SendableMessage], SendableMessage],
-    channel: str,
     *,
     reply_to: str = "",
     correlation_id: Optional[str] = None,
     headers: Optional[AnyDict] = None,
-) -> AnyRedisDict:
+) -> bytes:
     data = RawMessage.encode(
         message=message,
         reply_to=reply_to,
         headers=headers,
         correlation_id=correlation_id,
     )
-    return AnyRedisDict(
-        channel=channel.encode(),
-        data=data.encode(),
-        type="message",
-    )
+    return data

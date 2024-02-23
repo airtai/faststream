@@ -23,15 +23,16 @@ from fastapi.dependencies.utils import (
     solve_dependencies,
 )
 from fastapi.routing import run_endpoint_function
+from pydantic import create_model
 from starlette.requests import Request
 from starlette.routing import BaseRoute
 
-from faststream._compat import FASTAPI_V106, raise_fastapi_validation_error
-from faststream.broker.core.asynchronous import BrokerAsyncUsecase
+from faststream._compat import FASTAPI_V106, PYDANTIC_V2, raise_fastapi_validation_error
+from faststream.broker.core.broker import BrokerUsecase
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.message import StreamMessage as NativeMessage
 from faststream.broker.schemas import NameRequired
 from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.types import AnyDict, SendableMessage
 
 
@@ -41,8 +42,8 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
     Attributes:
         handler : HandlerCallWrapper object representing the handler for the route
         path : path of the route
-        broker : BrokerAsyncUsecase object representing the broker for the route
-        dependant : Dependable object representing the dependencies for the route
+        broker : BrokerUsecase object representing the broker for the route
+        dependent : Dependable object representing the dependencies for the route
     """
 
     handler: HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]
@@ -51,13 +52,13 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
         self,
         path: Union[NameRequired, str, None],
         *extra: Union[NameRequired, str],
+        provider_factory: Callable[[], Any],
         endpoint: Union[
             Callable[P_HandlerParams, T_HandlerReturn],
             HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
         ],
-        broker: BrokerAsyncUsecase[MsgType, Any],
+        broker: BrokerUsecase[MsgType, Any],
         dependencies: Sequence[params.Depends],
-        provider_factory: Callable[[], Any],
         **handle_kwargs: Any,
     ) -> None:
         """Initialize a class instance.
@@ -84,20 +85,22 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
         else:
             orig_call = endpoint
 
-        dependant = get_dependant(
+        dependent = get_dependant(
             path=path_name,
             call=orig_call,
         )
         for depends in dependencies[::-1]:
-            dependant.dependencies.insert(
+            dependent.dependencies.insert(
                 0,
                 get_parameterless_sub_dependant(depends=depends, path=path_name),
             )
-        self.dependant = dependant
+        dependent = _patch_fastapi_dependent(dependent)
+
+        self.dependent = dependent
 
         call = wraps(orig_call)(
             StreamMessage.get_session(
-                dependant,
+                dependent,
                 provider_factory,
             )
         )
@@ -111,8 +114,7 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
 
         self.handler = broker.subscriber(
             *extra,
-            _raw=True,
-            _get_dependant=lambda call: dependant,
+            get_dependent=lambda *_: dependent,
             **handle_kwargs,
         )(
             handler  # type: ignore[arg-type]
@@ -160,7 +162,6 @@ class StreamMessage(Request):
             _headers: A dictionary to store the headers of the request.
             _body: A dictionary to store the body of the request.
             _query_params: A dictionary to store the query parameters of the request.
-
         """
         self._headers = headers
         self._body = body
@@ -171,33 +172,29 @@ class StreamMessage(Request):
 
     @classmethod
     def get_session(
-        cls, dependant: Dependant, provider_factory: Callable[[], Any]
+        cls,
+        dependent: Dependant,
+        provider_factory: Callable[[], Any],
     ) -> Callable[[NativeMessage[Any]], Awaitable[SendableMessage]]:
         """Creates a session for handling requests.
 
         Args:
-            dependant: The dependant object representing the session.
+            dependent: The dependent object representing the session.
             provider_factory: Provider factory for dependency overrides.
 
         Returns:
             A callable that takes a native message and returns an awaitable sendable message.
-
-        Raises:
-            AssertionError: If the dependant call is not defined.
-
-        Note:
-            This function is used to create a session for handling requests. It takes a dependant object, which represents the session, and a dependency overrides provider, which allows for overriding dependencies. It returns a callable that takes a native message and returns an awaitable sendable message. The session is created based on the dependant object and the message passed to the callable. The session is then used to call the function obtained from the dependant object, and the result is returned.
         """
-        assert dependant.call  # nosec B101
+        assert dependent.call  # nosec B101
 
-        func = get_app(dependant, provider_factory)
+        consume = make_fastapi_consumer(dependent, provider_factory)
 
-        dependencies_names = tuple(i.name for i in dependant.dependencies)
+        dependencies_names = tuple(i.name for i in dependent.dependencies)
 
         first_arg = next(
             dropwhile(
                 lambda i: i in dependencies_names,
-                inspect.signature(dependant.call).parameters,
+                inspect.signature(dependent.call).parameters,
             ),
             None,
         )
@@ -210,12 +207,6 @@ class StreamMessage(Request):
 
             Returns:
                 The sendable message
-
-            Raises:
-                TypeError: If the body of the message is not a dictionary
-            !!! note
-
-                The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)
             """
             body = message.decoded_body
 
@@ -241,13 +232,13 @@ class StreamMessage(Request):
                     path={},
                 )
 
-            return await func(session)
+            return await consume(session)
 
         return app
 
 
-def get_app(
-    dependant: Dependant,
+def make_fastapi_consumer(
+    dependent: Dependant,
     provider_factory: Callable[[], Any],
 ) -> Callable[
     [StreamMessage],
@@ -256,7 +247,7 @@ def get_app(
     """Creates a FastAPI application.
 
     Args:
-        dependant: The dependant object that defines the endpoint function and its dependencies.
+        dependent: The dependent object that defines the endpoint function and its dependencies.
         provider_factory: Provider factory for dependency overrides.
 
     Returns:
@@ -267,17 +258,7 @@ def get_app(
     """
 
     async def app(request: StreamMessage) -> SendableMessage:
-        """Handle an HTTP request and return a response.
-
-        Args:
-            request: The incoming HTTP request.
-
-        Returns:
-            The response to be sent back to the client.
-
-        Raises:
-            AssertionError: If the code reaches an unreachable point.
-        """
+        """Consume StreamMessage and return user function result."""
         async with AsyncExitStack() as stack:
             if FASTAPI_V106:
                 kwargs = {"async_exit_stack": stack}
@@ -288,7 +269,7 @@ def get_app(
             solved_result = await solve_dependencies(
                 request=request,
                 body=request._body,  # type: ignore[arg-type]
-                dependant=dependant,
+                dependant=dependent,
                 dependency_overrides_provider=provider_factory(),
                 **kwargs,  # type: ignore[arg-type]
             )
@@ -300,12 +281,37 @@ def get_app(
             return cast(
                 SendableMessage,
                 await run_endpoint_function(
-                    dependant=dependant,
+                    dependant=dependent,
                     values=values,
-                    is_coroutine=asyncio.iscoroutinefunction(dependant.call),
+                    is_coroutine=asyncio.iscoroutinefunction(dependent.call),
                 ),
             )
 
         raise AssertionError("unreachable")
 
     return app
+
+
+def _patch_fastapi_dependent(dependent: Dependant) -> Dependant:
+    """Patch FastAPI by adding fields for AsyncAPI schema generation."""
+    params = dependent.query_params + dependent.body_params  # type: ignore[attr-defined]
+
+    for d in dependent.dependencies:
+        params.extend(d.query_params + d.body_params)  # type: ignore[attr-defined]
+
+    params_unique = {}
+    params_names = set()
+    for p in params:
+        if p.name not in params_names:
+            params_names.add(p.name)
+            info = p.field_info if PYDANTIC_V2 else p
+            params_unique[p.name] = (info.annotation, info.default)
+
+    dependent.model = create_model(  # type: ignore[call-overload]
+        getattr(dependent.call, "__name__", type(dependent.call).__name__),
+        **params_unique,
+    )
+    dependent.custom_fields = {}
+    dependent.flat_params = params_unique  # type: ignore[assignment,misc]
+
+    return dependent

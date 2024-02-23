@@ -146,21 +146,23 @@ Start with the **Structlog** [guide](https://www.structlog.org/en/stable/logging
 import sys
 import structlog
 
-shared_processors = [
+shared_processors = (
     structlog.processors.add_log_level,
     structlog.processors.StackInfoRenderer(),
     structlog.dev.set_exc_info,
     structlog.processors.TimeStamper(fmt="iso"),
-]
+)
 
 if sys.stderr.isatty():
     # terminal session
-    processors = shared_processors + [
-        structlog.dev.ConsoleRenderer()
+    processors = [
+        *shared_processors,
+        structlog.dev.ConsoleRenderer(),
     ]
 else:
     # Docker container session
-    processors = shared_processors + [
+    processors = [
+        *shared_processors,
         structlog.processors.dict_tracebacks,
         structlog.processors.JSONRenderer(),
     ]
@@ -193,7 +195,7 @@ def merge_contextvars(
 ) -> structlog.types.EventDict:
     event_dict["extra"] = event_dict.get(
         "extra",
-        context.get("log_context", {}),
+        context.get_local("log_context") or {},
     )
     return event_dict
 

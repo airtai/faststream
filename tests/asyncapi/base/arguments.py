@@ -9,7 +9,7 @@ from fastapi import Depends as APIDepends
 from faststream import Context, FastStream
 from faststream._compat import PYDANTIC_V2
 from faststream.asyncapi.generate import get_app_schema
-from faststream.broker.core.abc import BrokerUsecase
+from faststream.broker.core.broker import BrokerUsecase
 
 
 class FastAPICompatible:  # noqa: D101
@@ -47,6 +47,24 @@ class FastAPICompatible:  # noqa: D101
         assert schema["channels"][key]["description"] == "Test description", schema[
             "channels"
         ][key]["description"]
+
+    def test_empty(self):
+        broker = self.broker_class()
+
+        @broker.subscriber("test")
+        async def handle():
+            ...
+
+        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+
+        payload = schema["components"]["schemas"]
+
+        for key, v in payload.items():
+            assert key == "EmptyPayload"
+            assert v == {
+                "title": key,
+                "type": "null",
+            }
 
     def test_no_type(self):
         broker = self.broker_class()

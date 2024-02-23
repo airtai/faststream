@@ -12,8 +12,8 @@ from faststream.asyncapi.schema.bindings import amqp
 from faststream.asyncapi.utils import resolve_payloads
 from faststream.rabbit.handler import LogicHandler
 from faststream.rabbit.publisher import LogicPublisher
-from faststream.rabbit.shared.constants import ExchangeType
-from faststream.rabbit.shared.schemas import RabbitExchange
+from faststream.rabbit.schemas.constants import ExchangeType
+from faststream.rabbit.schemas.schemas import RabbitExchange
 
 
 class Publisher(LogicPublisher):
@@ -24,24 +24,17 @@ class Publisher(LogicPublisher):
 
     Methods:
         get_payloads : Get the payloads for the publisher
-
     """
 
-    @property
-    def name(self) -> str:
+    def get_name(self) -> str:
         routing = (
             self.routing_key
             or (self.queue.routing if _is_exchange(self.exchange) else None)
             or "_"
         )
-        return (
-            self.title or f"{routing}:{getattr(self.exchange, 'name', '_')}:Publisher"
-        )
+        return f"{routing}:{getattr(self.exchange, 'name', '_')}:Publisher"
 
-    def schema(self) -> Dict[str, Channel]:
-        if not self.include_in_schema:
-            return {}
-
+    def get_schema(self) -> Dict[str, Channel]:
         payloads = self.get_payloads()
 
         return {
@@ -64,7 +57,7 @@ class Publisher(LogicPublisher):
                         payload=resolve_payloads(
                             payloads,
                             "Publisher",
-                            served_words=2 if self.title is None else 1,
+                            served_words=2 if self.title_ is None else 1,
                         ),
                         correlationId=CorrelationId(
                             location="$message.header#/correlation_id"
@@ -108,22 +101,18 @@ class Handler(LogicHandler):
     Methods:
         - name(): Returns the name of the handler.
         - get_payloads(): Returns a list of payloads.
-
     """
 
-    def schema(self) -> Dict[str, Channel]:
-        if not self.include_in_schema:
-            return {}
-
-        payloads = self.get_payloads()
-
-        handler_name = (
-            self._title
-            or f"{self.queue.name}:{getattr(self.exchange, 'name', '_')}:{self.call_name}"
+    def get_name(self) -> str:
+        return (
+            f"{self.queue.name}:{getattr(self.exchange, 'name', '_')}:{self.call_name}"
         )
 
+    def get_schema(self) -> Dict[str, Channel]:
+        payloads = self.get_payloads()
+
         return {
-            handler_name: Channel(
+            self.name: Channel(
                 description=self.description,  # type: ignore[attr-defined]
                 subscribe=Operation(
                     bindings=OperationBinding(
@@ -134,7 +123,7 @@ class Handler(LogicHandler):
                     if _is_exchange(self.exchange)
                     else None,
                     message=Message(
-                        title=f"{handler_name}:Message",
+                        title=f"{self.name}:Message",
                         payload=resolve_payloads(payloads),
                         correlationId=CorrelationId(
                             location="$message.header#/correlation_id"
@@ -180,7 +169,6 @@ def _is_exchange(exchange: Optional[RabbitExchange]) -> bool:
 
     Returns:
         True if the exchange is a valid exchange type, False otherwise
-
     """
     if exchange and exchange.type in (
         ExchangeType.FANOUT.value,

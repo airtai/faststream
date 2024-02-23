@@ -3,7 +3,7 @@ from typing_extensions import Annotated
 
 from faststream.annotations import ContextRepo, Logger, NoCast
 from faststream.redis.broker import RedisBroker as RB
-from faststream.redis.message import RedisMessage as RM
+from faststream.redis.message import BaseMessage as RM
 from faststream.utils.context import Context
 
 __all__ = (

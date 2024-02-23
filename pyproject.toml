@@ -99,6 +99,12 @@ devdocs = [
 ]
 
 lint = [
+    "mypy==1.8.0",
+    "ruff==0.2.1",
+    "bandit==1.7.6",
+    "semgrep==1.61.1",
+    "codespell==2.2.6",
+    # mypy extensions
     "types-PyYAML",
     "types-setuptools",
     "types-ujson",
@@ -106,10 +112,6 @@ lint = [
     "types-Pygments",
     "types-docutils",
     "confluent-kafka-stubs; python_version >= '3.11'",
-    "mypy==1.8.0",
-    "ruff==0.2.1",
-    "bandit==1.7.6",
-    "semgrep==1.61.1",
 ]
 
 test-core = [
@@ -328,5 +330,5 @@ omit = [
 [tool.bandit]
 
 [tool.codespell]
-
+skip = "./venv,./docs/site/*"
 ignore-words = ".codespell-whitelist.txt"

@@ -17,6 +17,8 @@ def get_asyncapi_html(
     errors: bool = True,
     expand_message_examples: bool = True,
     title: str = "FastStream",
+    asyncapi_js_url: str = "https://unpkg.com/@asyncapi/react-component@1.0.0-next.47/browser/standalone/index.js",
+    asyncapi_css_url: str = "https://unpkg.com/@asyncapi/react-component@1.0.0-next.46/styles/default.min.css",
 ) -> str:
     """Generate HTML for displaying an AsyncAPI document.
 
@@ -77,7 +79,11 @@ def get_asyncapi_html(
         <link rel="icon" type="image/png" sizes="16x16" href="https://www.asyncapi.com/favicon-16x16.png">
         <link rel="icon" type="image/png" sizes="32x32" href="https://www.asyncapi.com/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="194x194" href="https://www.asyncapi.com/favicon-194x194.png">
-        <link rel="stylesheet" href="https://unpkg.com/@asyncapi/react-component@1.0.0-next.46/styles/default.min.css">
+    """
+        f"""
+        <link rel="stylesheet" href="{asyncapi_css_url}">
+    """
+        """
         </head>
 
         <style>
@@ -89,8 +95,9 @@ def get_asyncapi_html(
 
         <body>
         <div id="asyncapi"></div>
-
-        <script src="https://unpkg.com/@asyncapi/react-component@1.0.0-next.47/browser/standalone/index.js"></script>
+    """
+        f"""
+        <script src="{asyncapi_js_url}"></script>
         <script>
     """
         f"""

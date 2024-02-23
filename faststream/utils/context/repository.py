@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
-from inspect import _empty
-from typing import Any, Dict, Iterator, Mapping, cast
+from inspect import Parameter
+from typing import Any, Dict, Iterator, Mapping
 
 from faststream.types import AnyDict
 from faststream.utils.classes import Singleton
@@ -24,6 +24,13 @@ class ContextRepo(Singleton):
         """
         self._global_context = {"context": self}
         self._scope_context = {}
+
+    @property
+    def context(self) -> AnyDict:
+        return {
+            **self._global_context,
+            **{i: j.get() for i, j in self._scope_context.items()},
+        }
 
     def set_global(self, key: str, v: Any) -> None:
         """Sets a value in the global context.
@@ -86,66 +93,10 @@ class ContextRepo(Singleton):
         Returns:
             The value of the local variable.
         """
-        context_var = self._scope_context.get(key)
-        if context_var is not None:  # pragma: no branch
+        if (context_var := self._scope_context.get(key)) is not None:
             return context_var.get()
         else:
             return default
-
-    def clear(self) -> None:
-        self._global_context = {"context": self}
-        self._scope_context.clear()
-
-    def get(self, key: str, default: Any = None) -> Any:
-        """Get the value associated with a key.
-
-        Args:
-            key: The key to retrieve the value for.
-            default: The default value to return if the key is not found.
-
-        Returns:
-            The value associated with the key.
-        """
-        return self._global_context.get(key, self.get_local(key, default))
-
-    def resolve(self, argument: str) -> Any:
-        """Resolve the context of an argument.
-
-        Args:
-            argument: A string representing the argument.
-
-        Returns:
-            The resolved context of the argument.
-
-        Raises:
-            AttributeError: If the attribute does not exist in the context.
-        """
-        first, *keys = argument.split(".")
-
-        if (v := self.get(first, _empty)) is _empty:
-            raise KeyError(f"`{self.context}` does not contains `{first}` key")
-
-        for i in keys:
-            v = v[i] if isinstance(v, Mapping) else getattr(v, i)
-        return v
-
-    def __getattr__(self, __name: str) -> Any:
-        """This is a function that is part of a class. It is used to get an attribute value using the `__getattr__` method.
-
-        Args:
-            __name: The name of the attribute to get.
-
-        Returns:
-            The value of the attribute.
-        """
-        return self.get(__name)
-
-    @property
-    def context(self) -> AnyDict:
-        return {
-            **self._global_context,
-            **{i: j.get() for i, j in self._scope_context.items()},
-        }
 
     @contextmanager
     def scope(self, key: str, value: Any) -> Iterator[None]:
@@ -167,5 +118,57 @@ class ContextRepo(Singleton):
         finally:
             self.reset_local(key, token)
 
+    def get(self, key: str, default: Any = None) -> Any:
+        """Get the value associated with a key.
 
-context: ContextRepo = cast(ContextRepo, ContextRepo())  # type: ignore[redundant-cast]
+        Args:
+            key: The key to retrieve the value for.
+            default: The default value to return if the key is not found.
+
+        Returns:
+            The value associated with the key.
+        """
+        if (glob := self._global_context.get(key, Parameter.empty)) is Parameter.empty:
+            return self.get_local(key, default)
+        else:
+            return glob
+
+    def __getattr__(self, __name: str) -> Any:
+        """This is a function that is part of a class. It is used to get an attribute value using the `__getattr__` method.
+
+        Args:
+            __name: The name of the attribute to get.
+
+        Returns:
+            The value of the attribute.
+        """
+        return self.get(__name)
+
+    def resolve(self, argument: str) -> Any:
+        """Resolve the context of an argument.
+
+        Args:
+            argument: A string representing the argument.
+
+        Returns:
+            The resolved context of the argument.
+
+        Raises:
+            AttributeError, KeyError: If the argument does not exist in the context.
+        """
+        first, *keys = argument.split(".")
+
+        if (v := self.get(first, Parameter.empty)) is Parameter.empty:
+            raise KeyError(f"`{self.context}` does not contains `{first}` key")
+
+        for i in keys:
+            v = v[i] if isinstance(v, Mapping) else getattr(v, i)
+
+        return v
+
+    def clear(self) -> None:
+        self._global_context = {"context": self}
+        self._scope_context.clear()
+
+
+context = ContextRepo()

@@ -1,4 +1,5 @@
-from typing import Dict
+from abc import abstractproperty
+from typing import Dict, Hashable, Optional
 
 from faststream.asyncapi.schema import (
     Channel,
@@ -9,35 +10,34 @@ from faststream.asyncapi.schema import (
 )
 from faststream.asyncapi.schema.bindings import redis
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.redis.handler import LogicRedisHandler
+from faststream.redis.handler import (
+    BaseRedisHandler,
+    BatchListHandler,
+    BatchStreamHandler,
+    ChannelHandler,
+    ListHandler,
+    StreamHandler,
+)
 from faststream.redis.publisher import LogicPublisher
+from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 
 
-class Handler(LogicRedisHandler):
+class Handler:
     """A class to represent a Redis handler."""
 
-    @property
-    def name(self) -> str:
-        return self._title or f"{self.channel_name}:{self.call_name}"
+    @staticmethod
+    def get_routing_hash(channel: Hashable) -> int:
+        return hash(channel)
 
-    def schema(self) -> Dict[str, Channel]:
-        if not self.include_in_schema:
-            return {}
+    @abstractproperty
+    def binding(self) -> redis.ChannelBinding:
+        raise NotImplementedError()
 
+    def get_name(self) -> str:
+        return f"{self.channel_name}:{self.call_name}"
+
+    def get_schema(self) -> Dict[str, Channel]:
         payloads = self.get_payloads()
-
-        method = None
-        if self.list_sub is not None:
-            method = "lpop"
-
-        elif (ch := self.channel) is not None:
-            method = "psubscribe" if ch.pattern else "subscribe"
-
-        elif (stream := self.stream_sub) is not None:
-            method = "xreadgroup" if stream.group else "xread"
-
-        else:
-            raise AssertionError("unreachable")
 
         return {
             self.name: Channel(
@@ -52,24 +52,92 @@ class Handler(LogicRedisHandler):
                     ),
                 ),
                 bindings=ChannelBinding(
-                    redis=redis.ChannelBinding(
-                        channel=self.channel_name,
-                        group_name=getattr(self.stream_sub, "group", None),
-                        consumer_name=getattr(self.stream_sub, "consumer", None),
-                        method=method,
-                    )
+                    redis=self.binding,
                 ),
             )
         }
+
+    @staticmethod
+    def create(
+        *,
+        channel: Optional[PubSub],
+        list: Optional[ListSub],
+        stream: Optional[StreamSub],
+        **kwargs,
+    ) -> BaseRedisHandler:
+        if channel is not None:
+            return ChannelAsyncAPIHandler(channel=channel, **kwargs)
+
+        elif stream is not None:
+            if stream.batch:
+                return BatchStreamAsyncAPIHandler(stream=stream, **kwargs)
+            else:
+                return StreamAsyncAPIHandler(stream=stream, **kwargs)
+
+        elif list is not None:
+            if list.batch:
+                return BatchListHandler(list=list, **kwargs)
+            else:
+                return ListAsyncAPIHandler(list=list, **kwargs)
+
+        else:
+            raise ValueError(INCORRECT_SETUP_MSG)
+
+
+class ChannelAsyncAPIHandler(Handler, ChannelHandler):
+    @property
+    def binding(self) -> redis.ChannelBinding:
+        return redis.ChannelBinding(
+            channel=self.channel_name,
+            method="psubscribe" if self.channel.pattern else "subscribe",
+        )
+
+
+class _StreamHandlerMixin(Handler):
+    stream_sub: StreamSub
+
+    @property
+    def binding(self) -> redis.ChannelBinding:
+        return redis.ChannelBinding(
+            channel=self.channel_name,
+            group_name=self.stream_sub.group,
+            consumer_name=self.stream_sub.consumer,
+            method="xreadgroup" if self.stream_sub.group else "xread",
+        )
+
+
+class StreamAsyncAPIHandler(_StreamHandlerMixin, StreamHandler):
+    pass
+
+
+class BatchStreamAsyncAPIHandler(_StreamHandlerMixin, BatchStreamHandler):
+    pass
+
+
+class _ListHandlerMixin(Handler):
+    @property
+    def binding(self) -> redis.ChannelBinding:
+        return redis.ChannelBinding(
+            channel=self.channel_name,
+            method="lpop",
+        )
+
+
+class ListAsyncAPIHandler(_ListHandlerMixin, ListHandler):
+    pass
+
+
+class BatchListAsyncAPIHandler(_ListHandlerMixin, BatchListHandler):
+    pass
 
 
 class Publisher(LogicPublisher):
     """A class to represent a Redis publisher."""
 
-    def schema(self) -> Dict[str, Channel]:
-        if not self.include_in_schema:
-            return {}
+    def get_name(self) -> str:
+        return f"{self.channel_name}:Publisher"
 
+    def get_schema(self) -> Dict[str, Channel]:
         payloads = self.get_payloads()
 
         method = None
@@ -102,7 +170,3 @@ class Publisher(LogicPublisher):
                 ),
             )
         }
-
-    @property
-    def name(self) -> str:
-        return self.title or f"{self.channel_name}:Publisher"

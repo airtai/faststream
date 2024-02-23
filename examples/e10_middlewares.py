@@ -15,10 +15,10 @@ class TopLevelMiddleware(BaseMiddleware):
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
+        exc_tb: Optional[TracebackType] = None,
     ) -> bool:
         print("highlevel middleware out")
-        return await super().after_processed(exc_type, exc_val, exec_tb)
+        return await super().after_processed(exc_type, exc_val, exc_tb)
 
 
 class HandlerMiddleware(BaseMiddleware):

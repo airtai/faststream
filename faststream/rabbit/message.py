@@ -20,7 +20,6 @@ class RabbitMessage(StreamMessage[aio_pika.IncomingMessage]):
 
         reject(**kwargs) -> None:
             Reject the RabbitMQ message.
-
     """
 
     async def ack(self, **kwargs: Any) -> None:
@@ -30,7 +29,6 @@ class RabbitMessage(StreamMessage[aio_pika.IncomingMessage]):
 
         Args:
             **kwargs (Any): Additional keyword arguments (not used).
-
         """
         pika_message = self.raw_message
         await super().ack()
@@ -48,7 +46,6 @@ class RabbitMessage(StreamMessage[aio_pika.IncomingMessage]):
 
         Args:
             **kwargs (Any): Additional keyword arguments (not used).
-
         """
         pika_message = self.raw_message
         await super().nack()
@@ -66,7 +63,6 @@ class RabbitMessage(StreamMessage[aio_pika.IncomingMessage]):
 
         Args:
             **kwargs (Any): Additional keyword arguments (not used).
-
         """
         pika_message = self.raw_message
         await super().reject()

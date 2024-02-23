@@ -35,8 +35,8 @@ class MyMiddleware(BaseMiddleware):
         print(f"Received: {self.message}")
         return await super().on_receive()
 
-    async def after_processed(self, exc_type, exc_val, exec_tb):
-        return await super().after_processed(exc_type, exc_val, exec_tb)
+    async def after_processed(self, exc_type, exc_val, exc_tb):
+        return await super().after_processed(exc_type, exc_val, exc_tb)
 ```
 
 These methods should be overwritten only in a broker-level middlewares.

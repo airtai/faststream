@@ -1,17 +1,20 @@
 from itertools import zip_longest
-from typing import Any, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 from uuid import uuid4
 
 from nats.aio.msg import Msg
 from typing_extensions import override
 
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.parsers import encode_message
 from faststream.broker.test import TestBroker, call_handler
-from faststream.broker.wrapper import HandlerCallWrapper
-from faststream.nats.asyncapi import Handler, Publisher
 from faststream.nats.broker import NatsBroker
+from faststream.nats.handler import BaseNatsHandler
 from faststream.nats.producer import NatsFastProducer
 from faststream.types import AnyDict, SendableMessage
+
+if TYPE_CHECKING:
+    from faststream.nats.asyncapi import Publisher
 
 __all__ = ("TestNatsBroker",)
 
@@ -26,9 +29,9 @@ class TestNatsBroker(TestBroker[NatsBroker]):
     @staticmethod
     def create_publisher_fake_subscriber(
         broker: NatsBroker,
-        publisher: Publisher,
+        publisher: "Publisher",
     ) -> HandlerCallWrapper[Any, Any, Any]:
-        @broker.subscriber(publisher.subject, _raw=True)
+        @broker.subscriber(publisher.subject)
         def f(msg: Any) -> None:
             pass
 
@@ -38,11 +41,18 @@ class TestNatsBroker(TestBroker[NatsBroker]):
     async def _fake_connect(broker: NatsBroker, *args: Any, **kwargs: Any) -> None:
         broker._js_producer = broker._producer = FakeProducer(broker)  # type: ignore[assignment]
 
+    @classmethod
+    def _fake_start(cls, broker: NatsBroker, *args: Any, **kwargs: Any) -> None:
+        super()._fake_start(broker, *args, **kwargs)
+
+        for h in broker.handlers.values():
+            h.producer = FakeProducer(broker)  # type: ignore[assignment]
+
     @staticmethod
     def remove_publisher_fake_subscriber(
-        broker: NatsBroker, publisher: Publisher
+        broker: NatsBroker, publisher: "Publisher"
     ) -> None:
-        broker.handlers.pop(Handler.get_routing_hash(publisher.subject), None)
+        broker.handlers.pop(BaseNatsHandler.get_routing_hash(publisher.subject), None)
 
 
 class FakeProducer(NatsFastProducer):
@@ -64,7 +74,7 @@ class FakeProducer(NatsFastProducer):
         rpc: bool = False,
         rpc_timeout: Optional[float] = None,
         raise_timeout: bool = False,
-    ) -> Optional[SendableMessage]:
+    ) -> Any:
         incoming = build_message(
             message=message,
             subject=subject,
