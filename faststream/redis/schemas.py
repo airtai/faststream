@@ -98,11 +98,15 @@ class StreamSub(NameRequired):
     """A class to represent a Redis Stream subscriber."""
 
     polling_interval: Optional[PositiveInt] = Field(default=100, description="ms")
+    last_id: str = Field(...)
+
     group: Optional[str] = None
     consumer: Optional[str] = None
-    batch: bool = False
     no_ack: bool = False
-    last_id: str = "$"
+
+    batch: bool = False
+    max_records: Optional[PositiveInt] = None
+
     maxlen: Optional[PositiveInt] = None
 
     def __init__(
@@ -115,6 +119,7 @@ class StreamSub(NameRequired):
         no_ack: bool = False,
         last_id: Optional[str] = None,
         maxlen: Optional[PositiveInt] = None,
+        max_records: Optional[PositiveInt] = None,
     ) -> None:
         """Redis Stream subscriber parameters.
 
@@ -131,16 +136,12 @@ class StreamSub(NameRequired):
         if (group and not consumer) or (not group and consumer):
             raise ValueError("You should specify `group` and `consumer` both")
 
-        if group and consumer:
-            if last_id is None:
-                last_id = ">"
-
-            if no_ack:
-                warnings.warn(
-                    message="`no_ack` has no effect with consumer group",
-                    category=RuntimeWarning,
-                    stacklevel=1,
-                )
+        if group and consumer and no_ack:
+            warnings.warn(
+                message="`no_ack` has no effect with consumer group",
+                category=RuntimeWarning,
+                stacklevel=1,
+            )
 
         if last_id is None:
             last_id = "$"
@@ -154,6 +155,7 @@ class StreamSub(NameRequired):
             no_ack=no_ack,
             last_id=last_id,
             maxlen=maxlen,
+            max_records=max_records,
         )
 
     def __hash__(self) -> int:

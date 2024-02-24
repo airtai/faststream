@@ -468,7 +468,9 @@ class BatchListHandler(_ListHandlerMixin[BatchListMessage]):
 
         if raw_msgs:
             msg = BatchListMessage(
-                type="batch", channel=self.channel_name, data=raw_msgs
+                type="batch",
+                channel=self.channel_name,
+                data=raw_msgs,
             )
 
             await self.consume(msg)
@@ -553,6 +555,7 @@ class _StreamHandlerMixin(BaseRedisHandler[MsgType]):
             try:
                 await client.xgroup_create(
                     name=stream.name,
+                    id=self.last_id,
                     groupname=stream.group,
                     mkstream=True,
                 )
@@ -560,10 +563,11 @@ class _StreamHandlerMixin(BaseRedisHandler[MsgType]):
                 if "already exists" not in str(e):
                     raise e
 
-            read = lambda last_id: client.xreadgroup(  # noqa: E731
+            read = lambda _: client.xreadgroup(  # noqa: E731
                 groupname=stream.group,
                 consumername=stream.consumer,
-                streams={stream.name: last_id},
+                streams={stream.name: ">"},
+                count=stream.max_records,
                 block=stream.polling_interval,
                 noack=stream.no_ack,
             )
@@ -572,6 +576,7 @@ class _StreamHandlerMixin(BaseRedisHandler[MsgType]):
             read = lambda last_id: client.xread(  # noqa: E731
                 {stream.name: last_id},
                 block=stream.polling_interval,
+                count=stream.max_records,
             )
 
         await super().start(read, producer=producer)
