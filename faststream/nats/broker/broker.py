@@ -84,6 +84,7 @@ if TYPE_CHECKING:
     from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
     class NatsInitKwargs(TypedDict, total=False):
+        """NatsBroker.connect() method type hints."""
         servers: Union[str, Iterable[str]]
         error_cb: Optional["ErrorCallback"]
         disconnected_cb: Optional["Callback"]
@@ -187,15 +188,7 @@ class NatsBroker(
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = None,
     ) -> None:
-        """Initialize the NatsBroker object.
-
-        Args:
-            servers (Union[str, Sequence[str]]): The NATS server(s) to connect to.
-            security (Optional[BaseSecurity]): The security options.
-            protocol (str): The protocol to use.
-            protocol_version (Optional[str]): The protocol version to use.
-            **kwargs (Any): Additional keyword arguments.
-        """
+        """Initialize the NatsBroker object."""
         if tls:  # pragma: no cover
             warnings.warn(
                 (
@@ -564,10 +557,28 @@ class NatsBroker(
     async def publish(  # type: ignore[override]
         self,
         message: "SendableMessage",
-        *args: Any,
+        subject: str,
+        headers: Optional[Dict[str, str]] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
         stream: Optional[str] = None,
-        **kwargs: Any,
+        timeout: Optional[float] = None,
+        *,
+        rpc: bool = False,
+        rpc_timeout: Optional[float] = 30.0,
+        raise_timeout: bool = False,
     ) -> Optional["DecodedMessage"]:
+        kwargs = {
+            "subject": subject,
+            "headers": headers,
+            "reply_to": reply_to,
+            "correlation_id": correlation_id,
+            "timeout": timeout,
+            "rpc": rpc,
+            "rpc_timeout": rpc_timeout,
+            "raise_timeout": raise_timeout,
+        }
+
         if stream is None:
             assert self._producer, NOT_CONNECTED_YET  # nosec B101
             publisher = self._producer
@@ -579,10 +590,10 @@ class NatsBroker(
         async with AsyncExitStack() as stack:
             for m in self.middlewares:
                 message = await stack.enter_async_context(
-                    m().publish_scope(message, *args, **kwargs)
+                    m().publish_scope(message, **kwargs)
                 )
 
-            return await publisher.publish(message, *args, **kwargs)
+            return await publisher.publish(message, **kwargs)
 
     def __set_publisher_producer(self, publisher: "Publisher") -> None:
         if publisher.stream is not None:

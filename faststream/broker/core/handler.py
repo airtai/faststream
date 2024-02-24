@@ -227,6 +227,8 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         dependencies_: Sequence["Depends"],
         **wrapper_kwargs: "Unpack[WrapExtraKwargs]",
     ) -> "WrapperProtocol[MsgType]":
+        # TODO: should return self
+
         @overload
         def outer_wrapper(
             func: None = None,
