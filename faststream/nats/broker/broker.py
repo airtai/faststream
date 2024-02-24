@@ -573,7 +573,6 @@ class NatsBroker(
             "headers": headers,
             "reply_to": reply_to,
             "correlation_id": correlation_id,
-            "timeout": timeout,
             "rpc": rpc,
             "rpc_timeout": rpc_timeout,
             "raise_timeout": raise_timeout,
@@ -585,7 +584,10 @@ class NatsBroker(
         else:
             assert self._js_producer, NOT_CONNECTED_YET  # nosec B101
             publisher = self._js_producer
-            kwargs["stream"] = stream
+            kwargs.update({
+                "stream": stream,
+                "timeout": timeout,
+            })
 
         async with AsyncExitStack() as stack:
             for m in self.middlewares:
