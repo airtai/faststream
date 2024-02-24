@@ -231,12 +231,14 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
                 streams={stream.name: ">"},
                 block=stream.polling_interval,
                 noack=stream.no_ack,
+                count=stream.max_records,
             )
 
         else:
             read = client.xread(
                 {stream.name: self.last_id},
                 block=stream.polling_interval,
+                count=stream.max_records,
             )
 
         self.started.set()
