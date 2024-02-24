@@ -235,7 +235,7 @@ class TestConsumeStream:  # noqa: D101
         async def handler(msg: RedisMessage):
             ...
 
-        assert next(iter(full_broker.handlers.values())).last_id == ">"
+        assert next(iter(full_broker.handlers.values())).last_id == "$"
 
     @pytest.mark.asyncio()
     async def test_consume_group_with_last_id(
@@ -243,11 +243,11 @@ class TestConsumeStream:  # noqa: D101
         queue: str,
         full_broker: RedisBroker,
     ):
-        @full_broker.subscriber(stream=StreamSub(queue, group="group", consumer=queue, last_id="1"))
+        @full_broker.subscriber(stream=StreamSub(queue, group="group", consumer=queue, last_id="0"))
         async def handler(msg: RedisMessage):
             ...
 
-        assert next(iter(full_broker.handlers.values())).last_id == "1"
+        assert next(iter(full_broker.handlers.values())).last_id == "0"
 
     async def test_consume_stream_native(
         self,

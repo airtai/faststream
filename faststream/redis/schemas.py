@@ -130,16 +130,12 @@ class StreamSub(NameRequired):
         if (group and not consumer) or (not group and consumer):
             raise ValueError("You should specify `group` and `consumer` both")
 
-        if group and consumer:
-            if last_id is None:
-                last_id = ">"
-
-            if no_ack:
-                warnings.warn(
-                    message="`no_ack` has no effect with consumer group",
-                    category=RuntimeWarning,
-                    stacklevel=1,
-                )
+        if group and consumer and no_ack:
+            warnings.warn(
+                message="`no_ack` has no effect with consumer group",
+                category=RuntimeWarning,
+                stacklevel=1,
+            )
 
         super().__init__(
             name=stream,
