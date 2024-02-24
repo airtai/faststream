@@ -2,7 +2,6 @@ import warnings
 from typing import Optional, Pattern
 
 from pydantic import Field, PositiveFloat, PositiveInt
-from pytest import OptionGroup
 
 from faststream._compat import PYDANTIC_V2
 from faststream.broker.schemas import NameRequired
