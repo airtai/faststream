@@ -12,6 +12,27 @@ hide:
 ---
 
 # Release Notes
+## 0.4.4
+
+### What's Changed
+
+Add RedisStream batch size option
+
+```python
+@broker.subscriber(stream=StreamSub("input", batch=True, max_records=3))
+async def on_input_data(msgs: list[str]):
+    assert len(msgs) <= 3
+```
+
+* Update Release Notes for 0.4.3 by @faststream-release-notes-updater in [#1247](https://github.com/airtai/faststream/pull/1247){.external-link target="_blank"}
+* docs: add manual run section by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1249](https://github.com/airtai/faststream/pull/1249){.external-link target="_blank"}
+* feat (#1252): respect Redis StreamSub last_id with consumer group by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1256](https://github.com/airtai/faststream/pull/1256){.external-link target="_blank"}
+* fix: correct Redis consumer group behavior by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1258](https://github.com/airtai/faststream/pull/1258){.external-link target="_blank"}
+* feat: add Redis Stream max_records option by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1259](https://github.com/airtai/faststream/pull/1259){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.4.3...0.4.4](https://github.com/airtai/faststream/compare/0.4.3...0.4.4){.external-link target="_blank"}
+
 ## 0.4.3
 
 ### What's Changed
