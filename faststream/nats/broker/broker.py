@@ -1,6 +1,7 @@
 import logging
 import warnings
 from contextlib import AsyncExitStack
+from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -66,10 +67,11 @@ if TYPE_CHECKING:
     )
     from nats.aio.msg import Msg
     from nats.js.client import JetStreamContext
-    from typing_extensions import TypeAlias
+    from typing_extensions import TypeAlias, TypedDict, Unpack
 
     from faststream.asyncapi import schema as asyncapi
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
+    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
         Filter,
@@ -80,6 +82,39 @@ if TYPE_CHECKING:
     from faststream.nats.schemas import JStream, PullSub
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, DecodedMessage, SendableMessage
+
+    class NatsInitKwargs(TypedDict, total=False):
+        servers: Union[str, Iterable[str]]
+        error_cb: Optional["ErrorCallback"]
+        disconnected_cb: Optional["Callback"]
+        closed_cb: Optional["Callback"]
+        discovered_server_cb: Optional["Callback"]
+        reconnected_cb: Optional["Callback"]
+        name: Optional[str]
+        pedantic: bool
+        verbose: bool
+        allow_reconnect: bool
+        connect_timeout: int
+        reconnect_time_wait: int
+        max_reconnect_attempts: int
+        ping_interval: int
+        max_outstanding_pings: int
+        dont_randomize: bool
+        flusher_queue_size: int
+        no_echo: bool
+        tls: Optional["ssl.SSLContext"]
+        tls_hostname: Optional[str]
+        user: Optional[str]
+        password: Optional[str]
+        token: Optional[str]
+        drain_timeout: int
+        signature_cb: Optional["SignatureCallback"]
+        user_jwt_cb: Optional["JWTCallback"]
+        user_credentials: Optional["Credentials"]
+        nkeys_seed: Optional[str]
+        inbox_prefix: Union[str, bytes]
+        pending_size: int
+        flush_timeout: Optional[float]
 
     Subject: TypeAlias = str
 
@@ -137,7 +172,7 @@ class NatsBroker(
         apply_types: bool = True,
         validate: bool = True,
         dependencies: Iterable["Depends"] = (),
-        decoder: Optional[CustomDecoder["NatsMessage"]] = None,
+        decoder: Optional[CustomDecoder["StreamMessage[Msg]"]] = None,
         parser: Optional[CustomParser["Msg"]] = None,
         middlewares: Iterable["BrokerMiddleware[Msg]"] = (),
         # AsyncAPI args
@@ -148,7 +183,7 @@ class NatsBroker(
         description: Optional[str] = None,
         tags: Optional[Iterable["asyncapi.Tag"]] = None,
         # logging args
-        logger: Optional[logging.Logger] = None,
+        logger: Union[logging.Logger, None, object] = Parameter.empty,
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = None,
     ) -> None:
@@ -161,8 +196,6 @@ class NatsBroker(
             protocol_version (Optional[str]): The protocol version to use.
             **kwargs (Any): Additional keyword arguments.
         """
-        kwargs = {} | parse_security(security)
-
         if tls:  # pragma: no cover
             warnings.warn(
                 (
@@ -173,21 +206,65 @@ class NatsBroker(
                 stacklevel=2,
             )
 
+        if user or password:
+            warnings.warn(
+                (
+                    "\nNATS `user` and `password` options were deprecated and will be removed in 0.6.0"
+                    "\nPlease, use `security` with `SASLPlaintext` instead"
+                ),
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
+        secure_kwargs = {
+            "tls": tls,
+            "user": user,
+            "password": password,
+        } | parse_security(security)
+
+        servers = [servers] if isinstance(servers, str) else list(servers)
+
         if asyncapi_url is not None:
             if isinstance(asyncapi_url, str):
                 asyncapi_url = [asyncapi_url]
             else:
                 asyncapi_url = list(asyncapi_url)
+        else:
+            asyncapi_url = servers
 
         super().__init__(
-            url=([servers] if isinstance(servers, str) else list(servers)),
+            # NATS options
+            servers=servers,
             name=name,
-            # callbacks
+            verbose=verbose,
+            allow_reconnect=allow_reconnect,
+            reconnect_time_wait=reconnect_time_wait,
+            max_reconnect_attempts=max_reconnect_attempts,
+            no_echo=no_echo,
+            pedantic=pedantic,
+            inbox_prefix=inbox_prefix,
+            pending_size=pending_size,
+            connect_timeout=connect_timeout,
+            drain_timeout=drain_timeout,
+            flush_timeout=flush_timeout,
+            ping_interval=ping_interval,
+            max_outstanding_pings=max_outstanding_pings,
+            dont_randomize=dont_randomize,
+            flusher_queue_size=flusher_queue_size,
+            ## security
+            tls_hostname=tls_hostname,
+            token=token,
+            user_credentials=user_credentials,
+            nkeys_seed=nkeys_seed,
+            **secure_kwargs,
+            ## callbacks
             error_cb=self._log_connection_broken(error_cb),
             reconnected_cb=self._log_reconnected(reconnected_cb),
             disconnected_cb=disconnected_cb,
             closed_cb=closed_cb,
             discovered_server_cb=discovered_server_cb,
+            signature_cb=signature_cb,
+            user_jwt_cb=user_jwt_cb,
             # Basic args
             ## broker base
             graceful_timeout=graceful_timeout,
@@ -217,19 +294,14 @@ class NatsBroker(
         self.stream = None
         self._js_producer = None
 
-    async def connect(
-        self,
-        *args: Any,
-        **kwargs: Any,
-    ) -> "Client":
-        connection = await super().connect(*args, **kwargs)
+    async def connect(self, **kwargs: "Unpack[NatsInitKwargs]") -> "Client":
+        connection = await super().connect(**kwargs)
         for p in self._publishers.values():
             self.__set_publisher_producer(p)
         return connection
 
     async def _connect(self, **kwargs: Any) -> "Client":
         self.__is_connected = True
-
         connection = await nats.connect(**kwargs)
 
         self._producer = NatsFastProducer(

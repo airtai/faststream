@@ -1,7 +1,6 @@
 import logging
 import warnings
 from abc import ABC, abstractmethod
-from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -27,7 +26,7 @@ from faststream.broker.types import (
 )
 from faststream.log.logging import set_logger_fmt
 from faststream.utils.context.repository import context
-from faststream.utils.functions import get_function_positional_arguments, to_async
+from faststream.utils.functions import to_async
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -51,7 +50,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict, SendableMessage
+    from faststream.types import SendableMessage
 
 
 async def default_filter(msg: "StreamMessage[Any]") -> bool:
@@ -87,83 +86,79 @@ class BrokerUsecase(
 
     def __init__(
         self,
-        url: Annotated[
-            Union[str, List[str], None],
-            Doc("Broker address to connect"),
-        ],
-        *args: Any,
+        *,
         default_logger: Annotated[
             logging.Logger,
             Doc("Default logger object"),
         ],
         logger: Annotated[
-            Union[logging.Logger, object],
+            Union[logging.Logger, None, object],
             Doc("User specified logger"),
-        ] = Parameter.empty,
+        ],
         log_level: Annotated[
             int,
             Doc("Log level for logging"),
-        ] = logging.INFO,
+        ],
         log_fmt: Annotated[
             Optional[str],
             Doc("Log format for logging"),
-        ] = "%(asctime)s %(levelname)s - %(message)s",
+        ],
         apply_types: Annotated[
             bool,
             Doc("Whether to use FastDepends or not"),
-        ] = True,
+        ],
         validate: Annotated[
             bool,
             Doc("Whether to cast types using Pydantic validation"),
-        ] = True,
+        ],
         decoder: Annotated[
             Optional["CustomDecoder[StreamMessage[MsgType]]"],
             Doc("Custom decoder object"),
-        ] = None,
+        ],
         parser: Annotated[
             Optional["CustomParser[MsgType]"],
             Doc("Custom parser object"),
-        ] = None,
+        ],
         dependencies: Annotated[
             Iterable["Depends"],
             Doc("Dependencies to apply to all broker subscribers"),
-        ] = (),
+        ],
         middlewares: Annotated[
             Iterable["BrokerMiddleware[MsgType]"],
             Doc("Middlewares to apply to all broker publishers/subscribers"),
-        ] = (),
+        ],
         graceful_timeout: Annotated[
             Optional[float],
             Doc("Graceful shutdown timeout"),
-        ] = None,
+        ],
         # AsyncAPI kwargs
         protocol: Annotated[
             Optional[str],
             Doc("AsyncAPI server protocol"),
-        ] = None,
+        ],
         protocol_version: Annotated[
             Optional[str],
             Doc("AsyncAPI server protocol version"),
-        ] = None,
+        ],
         description: Annotated[
             Optional[str],
             Doc("AsyncAPI server description"),
-        ] = None,
+        ],
         tags: Annotated[
-            Optional[Sequence[Union["Tag", "TagDict"]]],
+            Optional[Iterable[Union["Tag", "TagDict"]]],
             Doc("AsyncAPI server tags"),
-        ] = None,
+        ],
         asyncapi_url: Annotated[
             Union[str, List[str], None],
             Doc("AsyncAPI hardcoded server addresses"),
-        ] = None,
+        ],
         security: Annotated[
             Optional["BaseSecurity"],
             Doc(
                 "Security options to connect broker and generate AsyncAPI server security"
             ),
-        ] = None,
-        **kwargs: Any,
+        ],
+        **connection_kwargs: Any,
     ) -> None:
         """Initialize the class."""
         super().__init__(
@@ -177,8 +172,7 @@ class BrokerUsecase(
         context.set_global("logger", self.logger)
         context.set_global("broker", self)
 
-        self._connection_args = (url, *args)
-        self._connection_kwargs = kwargs
+        self._connection_kwargs = connection_kwargs
 
         self.running = False
         self.graceful_timeout = graceful_timeout
@@ -209,7 +203,7 @@ class BrokerUsecase(
         )
 
         # AsyncAPI information
-        self.url = asyncapi_url or url
+        self.url = asyncapi_url
         self.protocol = protocol
         self.protocol_version = protocol_version
         self.description = description
@@ -285,44 +279,18 @@ class BrokerUsecase(
             if not self.use_custom and self.logger is not None:
                 set_logger_fmt(self.logger, self.fmt)
 
-    async def connect(self, *args: Any, **kwargs: Any) -> ConnectionType:
+    async def connect(self, **kwargs: Any) -> ConnectionType:
         """Connect to a remote server.
 
         Args:
-            *args: Variable length argument list.
             **kwargs: Arbitrary keyword arguments.
 
         Returns:
             The connection object.
         """
         if self._connection is None:
-            _kwargs = self._resolve_connection_kwargs(*args, **kwargs)
-            self._connection = await self._connect(**_kwargs)
+            self._connection = await self._connect(**(self._connection_kwargs | kwargs))
         return self._connection
-
-    def _resolve_connection_kwargs(self, *args: Any, **kwargs: Any) -> "AnyDict":
-        """Resolve connection keyword arguments.
-
-        Args:
-            *args: Positional arguments passed to the function.
-            **kwargs: Keyword arguments passed to the function.
-
-        Returns:
-            A dictionary containing the resolved connection keyword arguments.
-        """
-        arguments = tuple(get_function_positional_arguments(self.__init__))  # type: ignore[misc]
-
-        init_kwargs = {
-            **self._connection_kwargs,
-            **dict(zip(arguments, self._connection_args)),
-        }
-
-        connect_kwargs = {
-            **kwargs,
-            **dict(zip(arguments, args)),
-        }
-
-        return {**init_kwargs, **connect_kwargs}
 
     @abstractmethod
     async def _connect(self, **kwargs: Any) -> ConnectionType:

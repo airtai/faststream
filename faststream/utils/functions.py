@@ -1,4 +1,3 @@
-import inspect
 from contextlib import asynccontextmanager
 from functools import wraps
 from typing import (
@@ -7,7 +6,6 @@ from typing import (
     Awaitable,
     Callable,
     ContextManager,
-    Iterable,
     Optional,
     Union,
     overload,
@@ -17,13 +15,7 @@ import anyio
 from fast_depends.core import CallModel
 from fast_depends.utils import run_async as call_or_await
 
-from faststream.types import AnyCallable, F_Return, F_Spec
-
-__all__ = (
-    "call_or_await",
-    "get_function_positional_arguments",
-    "to_async",
-)
+from faststream.types import F_Return, F_Spec
 
 
 @overload
@@ -90,27 +82,6 @@ def to_async(
         return await call_or_await(func, *args, **kwargs)
 
     return to_async_wrapper
-
-
-def get_function_positional_arguments(func: AnyCallable) -> Iterable[str]:
-    """Get the positional arguments of a function.
-
-    Args:
-        func: The function to get the positional arguments from.
-
-    Returns:
-        A list of strings representing the names of the positional arguments.
-    """
-    signature = inspect.signature(func)
-
-    arg_kinds = (
-        inspect.Parameter.POSITIONAL_ONLY,
-        inspect.Parameter.POSITIONAL_OR_KEYWORD,
-    )
-
-    return (
-        param.name for param in signature.parameters.values() if param.kind in arg_kinds
-    )
 
 
 def timeout_scope(
