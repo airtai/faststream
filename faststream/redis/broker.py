@@ -152,6 +152,7 @@ class RedisBroker(
                     await self._connection.xgroup_create(
                         name=stream.name,
                         groupname=stream.group,
+                        id=stream.last_id,
                         mkstream=True,
                     )
                 except ResponseError as e:

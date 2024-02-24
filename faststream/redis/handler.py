@@ -228,7 +228,7 @@ class LogicRedisHandler(AsyncHandler[AnyRedisDict]):
             read = client.xreadgroup(
                 groupname=stream.group,
                 consumername=stream.consumer,
-                streams={stream.name: self.last_id},
+                streams={stream.name: ">"},
                 block=stream.polling_interval,
                 noack=stream.no_ack,
             )
