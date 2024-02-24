@@ -2,6 +2,7 @@ import warnings
 from typing import Optional, Pattern
 
 from pydantic import Field, PositiveFloat, PositiveInt
+from pytest import OptionGroup
 
 from faststream._compat import PYDANTIC_V2
 from faststream.broker.schemas import NameRequired
@@ -103,6 +104,7 @@ class StreamSub(NameRequired):
     no_ack: bool = False
     last_id: str = "$"
     maxlen: Optional[PositiveInt] = None
+    max_records: Optional[PositiveInt] = None
 
     def __init__(
         self,
@@ -114,6 +116,7 @@ class StreamSub(NameRequired):
         no_ack: bool = False,
         last_id: Optional[str] = None,
         maxlen: Optional[PositiveInt] = None,
+        max_records: Optional[PositiveInt] = None,
     ) -> None:
         """Redis Stream subscriber parameters.
 
@@ -123,6 +126,7 @@ class StreamSub(NameRequired):
             group: (str | None): consumer group name.
             consumer: (str | None): consumer name.
             batch: (bool): consume messages in batches.
+            max_records: (int | None): consuming batch size.
             no_ack: (bool): do not add message to PEL.
             last_id: (str | None): start reading from this ID.
             maxlen: (int | None): truncate old stream members beyond this size.
@@ -150,6 +154,7 @@ class StreamSub(NameRequired):
             no_ack=no_ack,
             last_id=last_id or "$",
             maxlen=maxlen,
+            max_records=max_records,
         )
 
     def __hash__(self) -> int:
