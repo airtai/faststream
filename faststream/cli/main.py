@@ -88,9 +88,9 @@ def run(
     watch_extensions: List[str] = typer.Option(
         (),
         "--extension",
+        "--ext",
         "--reload-extension",
         "--reload-ext",
-        "--ext",
         help="List of file extensions to watch by",
     ),
     app_dir: str = typer.Option(
@@ -130,10 +130,15 @@ def run(
         else:
             module_path, _ = import_from_string(app)
 
+            if app_dir != ".":
+                reload_dirs = [str(module_path), app_dir]
+            else:
+                reload_dirs = [str(module_path)]
+
             WatchReloader(
                 target=_run,
                 args=args,
-                reload_dirs=[str(module_path)] + ([app_dir] if app_dir else []),
+                reload_dirs=reload_dirs,
             ).run()
 
     elif workers > 1:

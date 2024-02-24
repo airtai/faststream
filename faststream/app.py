@@ -221,7 +221,7 @@ class FastStream:
         """
         assert self.broker, "You should setup a broker"  # nosec B101
 
-        set_exit(lambda *_: self.exit())
+        set_exit(lambda *_: self.exit(), sync=False)
 
         async with self.lifespan_context(**(run_extra_options or {})):
             await self._startup(log_level, run_extra_options)

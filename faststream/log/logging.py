@@ -7,6 +7,7 @@ from faststream.log.formatter import ColourizedFormatter
 from faststream.utils.context.repository import context
 
 logger = logging.getLogger("faststream")
+logger.setLevel(logging.INFO)
 logger.propagate = False
 main_handler = logging.StreamHandler(stream=sys.stderr)
 main_handler.setFormatter(

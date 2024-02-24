@@ -1,6 +1,9 @@
 from ssl import SSLContext
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
+from pydantic import BaseModel, SecretStr
+
+from faststream._compat import PYDANTIC_V2
 from faststream.types import AnyDict
 
 ssl_not_set_error_msg = """
@@ -9,7 +12,7 @@ Warning: This will send your data to the broker unencrypted!
 """
 
 
-class BaseSecurity:
+class BaseSecurity(BaseModel):
     """Base class for defining security configurations.
 
     This class provides a base for defining security configurations for communication with a broker. It allows setting
@@ -32,22 +35,37 @@ class BaseSecurity:
 
     """
 
+    ssl_context: Optional[SSLContext]
+    use_ssl: bool
+
+    if PYDANTIC_V2:
+        model_config = {"arbitrary_types_allowed": True}
+
+    else:
+        class Config:
+            arbitrary_types_allowed = True
+
     def __init__(
         self,
         ssl_context: Optional[SSLContext] = None,
         use_ssl: Optional[bool] = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize the security configuration.
 
         Args:
             ssl_context (Optional[SSLContext]): An SSLContext object for SSL encryption. If None, SSL encryption is disabled.
             use_ssl (Optional[bool]): A boolean indicating whether to use SSL encryption. Defaults to True.
+            **kwargs (Any): inheritance options.
         """
         if ssl_context is not None:
             use_ssl = True
 
-        self.use_ssl = use_ssl
-        self.ssl_context = ssl_context
+        super().__init__(
+            use_ssl=use_ssl or False,
+            ssl_context=ssl_context,
+            **kwargs,
+        )
 
     def get_requirement(self) -> List[AnyDict]:
         """Get the security requirements.
@@ -86,6 +104,10 @@ class SASLPlaintext(BaseSecurity):
 
     """
 
+    # TODO: mv to SecretStr
+    username: str
+    password: str
+
     def __init__(
         self,
         username: str,
@@ -101,9 +123,12 @@ class SASLPlaintext(BaseSecurity):
             ssl_context (Optional[SSLContext]): An SSLContext object for SSL encryption. If None, SSL encryption is disabled.
             use_ssl (Optional[bool]): A boolean indicating whether to use SSL encryption. Defaults to True.
         """
-        super().__init__(ssl_context, use_ssl)
-        self.username = username
-        self.password = password
+        super().__init__(
+            ssl_context=ssl_context,
+            use_ssl=use_ssl,
+            username=username,
+            password=password,
+        )
 
     def get_requirement(self) -> List[AnyDict]:
         """Get the security requirements for SASL/PLAINTEXT authentication.
@@ -142,6 +167,10 @@ class SASLScram256(BaseSecurity):
 
     """
 
+    # TODO: mv to SecretStr
+    username: str
+    password: str
+
     def __init__(
         self,
         username: str,
@@ -157,9 +186,12 @@ class SASLScram256(BaseSecurity):
             ssl_context (Optional[SSLContext]): An SSLContext object for SSL encryption. If None, SSL encryption is disabled.
             use_ssl (Optional[bool]): A boolean indicating whether to use SSL encryption. Defaults to True.
         """
-        super().__init__(ssl_context, use_ssl)
-        self.username = username
-        self.password = password
+        super().__init__(
+            ssl_context=ssl_context,
+            use_ssl=use_ssl,
+            username=username,
+            password=password,
+        )
 
     def get_requirement(self) -> List[AnyDict]:
         """Get the security requirements for SASL/SCRAM-SHA-256 authentication.
@@ -195,8 +227,11 @@ class SASLScram512(BaseSecurity):
 
         get_schema(self) -> Dict[str, Dict[str, str]]:
             Get the security schema for SASL/SCRAM-SHA-512 authentication.
-
     """
+
+    # TODO: mv to SecretStr
+    username: str
+    password: str
 
     def __init__(
         self,
@@ -213,9 +248,12 @@ class SASLScram512(BaseSecurity):
             ssl_context (Optional[SSLContext]): An SSLContext object for SSL encryption. If None, SSL encryption is disabled.
             use_ssl (Optional[bool]): A boolean indicating whether to use SSL encryption. Defaults to True.
         """
-        super().__init__(ssl_context, use_ssl)
-        self.username = username
-        self.password = password
+        super().__init__(
+            ssl_context=ssl_context,
+            use_ssl=use_ssl,
+            username=username,
+            password=password,
+        )
 
     def get_requirement(self) -> List[AnyDict]:
         """Get the security requirements for SASL/SCRAM-SHA-512 authentication.

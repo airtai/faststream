@@ -36,6 +36,7 @@ from nats.js.client import (
 from nats.js.errors import BadRequestError
 from typing_extensions import override
 
+from faststream.__about__ import __version__
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.types import (
     CustomDecoder,
@@ -106,7 +107,7 @@ class NatsBroker(
         closed_cb: Optional["Callback"] = None,
         discovered_server_cb: Optional["Callback"] = None,
         reconnected_cb: Optional["Callback"] = None,
-        name: Optional[str] = None,
+        name: Optional[str] = f"faststream-{__version__}",
         pedantic: bool = False,
         verbose: bool = False,
         allow_reconnect: bool = True,
@@ -172,12 +173,41 @@ class NatsBroker(
                 stacklevel=2,
             )
 
+        if asyncapi_url is not None:
+            if isinstance(asyncapi_url, str):
+                asyncapi_url = [asyncapi_url]
+            else:
+                asyncapi_url = list(asyncapi_url)
+
         super().__init__(
             url=([servers] if isinstance(servers, str) else list(servers)),
+            name=name,
+            # callbacks
+            error_cb=self._log_connection_broken(error_cb),
+            reconnected_cb=self._log_reconnected(reconnected_cb),
+            disconnected_cb=disconnected_cb,
+            closed_cb=closed_cb,
+            discovered_server_cb=discovered_server_cb,
+            # Basic args
+            ## broker base
+            graceful_timeout=graceful_timeout,
+            apply_types=apply_types,
+            validate=validate,
+            dependencies=dependencies,
+            decoder=decoder,
+            parser=parser,
+            middlewares=middlewares,
+            ## AsyncAPI
+            description=description,
+            asyncapi_url=asyncapi_url,
             protocol=protocol,
             protocol_version=protocol_version,
             security=security,
-            **kwargs,
+            tags=tags,
+            ## logging
+            logger=logger,
+            log_level=log_level,
+            log_fmt=log_fmt,
         )
 
         self.__is_connected = False
@@ -197,19 +227,10 @@ class NatsBroker(
             self.__set_publisher_producer(p)
         return connection
 
-    async def _connect(
-        self,
-        error_cb: Optional["ErrorCallback"] = None,
-        reconnected_cb: Optional["Callback"] = None,
-        **kwargs: Any,
-    ) -> "Client":
+    async def _connect(self, **kwargs: Any) -> "Client":
         self.__is_connected = True
 
-        connection = await nats.connect(
-            error_cb=self._log_connection_broken(error_cb),
-            reconnected_cb=self._log_reconnected(reconnected_cb),
-            **kwargs,
-        )
+        connection = await nats.connect(**kwargs)
 
         self._producer = NatsFastProducer(
             connection=connection,

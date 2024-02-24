@@ -71,7 +71,6 @@ class BaseReload:
 
         Returns:
             None
-
         """
         self._target = target
         self._args = args
@@ -80,7 +79,7 @@ class BaseReload:
         self.pid = os.getpid()
         self.reload_delay = reload_delay
 
-        set_exit(lambda *_: self.should_exit.set())
+        set_exit(lambda *_: self.should_exit.set(), sync=True)
 
     def run(self) -> None:
         self.startup()
