@@ -17,9 +17,9 @@ class AsyncAPIOperation:
 
     """
 
-    title_: Optional[str] = None
-    description_: Optional[str] = None
-    include_in_schema: bool = True
+    title_: Optional[str]
+    description_: Optional[str]
+    include_in_schema: bool
 
     @property
     def name(self) -> str:

@@ -35,14 +35,10 @@ from nats.js.client import (
     DEFAULT_JS_SUB_PENDING_MSGS_LIMIT,
 )
 from nats.js.errors import BadRequestError
-from typing_extensions import override
+from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import __version__
 from faststream.broker.core.broker import BrokerUsecase, default_filter
-from faststream.broker.types import (
-    CustomDecoder,
-    CustomParser,
-)
 from faststream.broker.utils import get_watcher_context
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.nats.asyncapi import AsyncAPIHandler, Publisher
@@ -74,6 +70,8 @@ if TYPE_CHECKING:
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
+        CustomDecoder,
+        CustomParser,
         Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
@@ -85,6 +83,7 @@ if TYPE_CHECKING:
 
     class NatsInitKwargs(TypedDict, total=False):
         """NatsBroker.connect() method type hints."""
+
         servers: Union[str, Iterable[str]]
         error_cb: Optional["ErrorCallback"]
         disconnected_cb: Optional["Callback"]
@@ -169,24 +168,76 @@ class NatsBroker(
         pending_size: int = DEFAULT_PENDING_SIZE,
         flush_timeout: Optional[float] = None,
         # broker args
-        graceful_timeout: Optional[float] = None,
-        apply_types: bool = True,
-        validate: bool = True,
-        dependencies: Iterable["Depends"] = (),
-        decoder: Optional[CustomDecoder["StreamMessage[Msg]"]] = None,
-        parser: Optional[CustomParser["Msg"]] = None,
-        middlewares: Iterable["BrokerMiddleware[Msg]"] = (),
+        graceful_timeout: Annotated[
+            Optional[float],
+            Doc(
+                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down."
+            ),
+        ] = None,
+        apply_types: Annotated[
+            bool,
+            Doc("Whether to use FastDepends or not."),
+        ] = True,
+        validate: Annotated[
+            bool,
+            Doc("Whether to cast types using Pydantic validation."),
+        ] = True,
+        decoder: Annotated[
+            Optional["CustomDecoder[StreamMessage[Msg]]"],
+            Doc("Custom decoder object."),
+        ] = None,
+        parser: Annotated[
+            Optional["CustomParser[Msg]"],
+            Doc("Custom parser object."),
+        ] = None,
+        dependencies: Annotated[
+            Iterable["Depends"],
+            Doc("Dependencies to apply to all broker subscribers."),
+        ] = (),
+        middlewares: Annotated[
+            Iterable["BrokerMiddleware[Msg]"],
+            Doc("Middlewares to apply to all broker publishers/subscribers."),
+        ] = (),
         # AsyncAPI args
-        security: Optional["BaseSecurity"] = None,
-        asyncapi_url: Union[str, Iterable[str], None] = None,
-        protocol: str = "nats",
-        protocol_version: Optional[str] = "custom",
-        description: Optional[str] = None,
-        tags: Optional[Iterable["asyncapi.Tag"]] = None,
+        security: Annotated[
+            Optional["BaseSecurity"],
+            Doc(
+                "Security options to connect broker and generate AsyncAPI server security information."
+            ),
+        ] = None,
+        asyncapi_url: Annotated[
+            Union[str, Iterable[str], None],
+            Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
+        ] = None,
+        protocol: Annotated[
+            Optional[str],
+            Doc("AsyncAPI server protocol."),
+        ] = "nats",
+        protocol_version: Annotated[
+            Optional[str],
+            Doc("AsyncAPI server protocol version."),
+        ] = "custom",
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI server description."),
+        ] = None,
+        tags: Annotated[
+            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+            Doc("AsyncAPI server tags."),
+        ] = None,
         # logging args
-        logger: Union[logging.Logger, None, object] = Parameter.empty,
-        log_level: int = logging.INFO,
-        log_fmt: Optional[str] = None,
+        logger: Annotated[
+            Union[logging.Logger, None, object],
+            Doc("User specified logger to pass into Context and log service messages."),
+        ] = Parameter.empty,
+        log_level: Annotated[
+            int,
+            Doc("Service messages log level."),
+        ] = logging.INFO,
+        log_fmt: Annotated[
+            Optional[str],
+            Doc("Default logger log format."),
+        ] = None,
     ) -> None:
         """Initialize the NatsBroker object."""
         if tls:  # pragma: no cover
@@ -287,7 +338,12 @@ class NatsBroker(
         self.stream = None
         self._js_producer = None
 
-    async def connect(self, **kwargs: "Unpack[NatsInitKwargs]") -> "Client":
+    @override
+    async def connect(  # type: ignore[override]
+        self,
+        **kwargs: "Unpack[NatsInitKwargs]",
+    ) -> "Client":
+        """Connect broker object to NATS cluster."""
         connection = await super().connect(**kwargs)
         for p in self._publishers.values():
             self.__set_publisher_producer(p)
@@ -584,10 +640,12 @@ class NatsBroker(
         else:
             assert self._js_producer, NOT_CONNECTED_YET  # nosec B101
             publisher = self._js_producer
-            kwargs.update({
-                "stream": stream,
-                "timeout": timeout,
-            })
+            kwargs.update(
+                {
+                    "stream": stream,
+                    "timeout": timeout,
+                }
+            )
 
         async with AsyncExitStack() as stack:
             for m in self.middlewares:

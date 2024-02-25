@@ -89,73 +89,73 @@ class BrokerUsecase(
         *,
         default_logger: Annotated[
             logging.Logger,
-            Doc("Default logger object"),
+            Doc("Logger object to use if `logger` is not setted."),
         ],
         logger: Annotated[
             Union[logging.Logger, None, object],
-            Doc("User specified logger"),
+            Doc("User specified logger to pass into Context and log service messages."),
         ],
         log_level: Annotated[
             int,
-            Doc("Log level for logging"),
+            Doc("Service messages log level."),
         ],
         log_fmt: Annotated[
             Optional[str],
-            Doc("Log format for logging"),
+            Doc("Default logger log format."),
         ],
         apply_types: Annotated[
             bool,
-            Doc("Whether to use FastDepends or not"),
+            Doc("Whether to use FastDepends or not."),
         ],
         validate: Annotated[
             bool,
-            Doc("Whether to cast types using Pydantic validation"),
+            Doc("Whether to cast types using Pydantic validation."),
         ],
         decoder: Annotated[
             Optional["CustomDecoder[StreamMessage[MsgType]]"],
-            Doc("Custom decoder object"),
+            Doc("Custom decoder object."),
         ],
         parser: Annotated[
             Optional["CustomParser[MsgType]"],
-            Doc("Custom parser object"),
+            Doc("Custom parser object."),
         ],
         dependencies: Annotated[
             Iterable["Depends"],
-            Doc("Dependencies to apply to all broker subscribers"),
+            Doc("Dependencies to apply to all broker subscribers."),
         ],
         middlewares: Annotated[
             Iterable["BrokerMiddleware[MsgType]"],
-            Doc("Middlewares to apply to all broker publishers/subscribers"),
+            Doc("Middlewares to apply to all broker publishers/subscribers."),
         ],
         graceful_timeout: Annotated[
             Optional[float],
-            Doc("Graceful shutdown timeout"),
+            Doc("Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down."),
         ],
         # AsyncAPI kwargs
         protocol: Annotated[
             Optional[str],
-            Doc("AsyncAPI server protocol"),
+            Doc("AsyncAPI server protocol."),
         ],
         protocol_version: Annotated[
             Optional[str],
-            Doc("AsyncAPI server protocol version"),
+            Doc("AsyncAPI server protocol version."),
         ],
         description: Annotated[
             Optional[str],
-            Doc("AsyncAPI server description"),
+            Doc("AsyncAPI server description."),
         ],
         tags: Annotated[
             Optional[Iterable[Union["Tag", "TagDict"]]],
-            Doc("AsyncAPI server tags"),
+            Doc("AsyncAPI server tags."),
         ],
         asyncapi_url: Annotated[
             Union[str, List[str], None],
-            Doc("AsyncAPI hardcoded server addresses"),
+            Doc("AsyncAPI hardcoded server addresses."),
         ],
         security: Annotated[
             Optional["BaseSecurity"],
             Doc(
-                "Security options to connect broker and generate AsyncAPI server security"
+                "Security options to connect broker and generate AsyncAPI server security."
             ),
         ],
         **connection_kwargs: Any,

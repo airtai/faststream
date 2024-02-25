@@ -209,6 +209,7 @@ class FastStream:
         self,
         log_level: int = logging.INFO,
         run_extra_options: Optional[Dict[str, SettingField]] = None,
+        sleep_time: float = 0.1,
     ) -> None:
         """Run FastStream Application.
 
@@ -227,7 +228,7 @@ class FastStream:
             await self._startup(log_level, run_extra_options)
 
             while not self.should_exit:
-                await anyio.sleep(0.1)
+                await anyio.sleep(sleep_time)
 
             await self._shutdown(log_level)
 

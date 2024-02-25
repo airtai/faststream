@@ -1,13 +1,14 @@
 import logging
-from inspect import Parameter
 from typing import Any, ClassVar, Optional, Union
+
+from typing_extensions import Annotated, Doc
 
 from faststream.broker.core.logging_mixin import LoggingMixin
 from faststream.log.logging import get_broker_logger
 
 
 class NatsLoggingMixin(LoggingMixin):
-    """A class to represent a NATS logging mixin."""
+    """NATS-specific logging mixin."""
 
     _max_queue_len: int
     _max_subject_len: int
@@ -16,20 +17,21 @@ class NatsLoggingMixin(LoggingMixin):
     def __init__(
         self,
         *args: Any,
-        logger: Union[logging.Logger, object, None] = Parameter.empty,
-        log_level: int = logging.INFO,
-        log_fmt: Optional[str] = None,
+        logger: Annotated[
+            Union[logging.Logger, None, object],
+            Doc("User specified logger to pass into Context and log service messages."),
+        ],
+        log_level: Annotated[
+            int,
+            Doc("Service messages log level."),
+        ],
+        log_fmt: Annotated[
+            Optional[str],
+            Doc("Default logger log format."),
+        ],
         **kwargs: Any,
     ) -> None:
-        """Initialize the NATS logging mixin.
-
-        Args:
-            *args: The arguments.
-            logger: The logger.
-            log_level: The log level.
-            log_fmt: The log format.
-            **kwargs: The keyword arguments.
-        """
+        """Initialize the NATS logging mixin."""
         super().__init__(
             *args,
             logger=logger,
@@ -52,6 +54,7 @@ class NatsLoggingMixin(LoggingMixin):
         self._max_subject_len = 4
 
     def get_fmt(self) -> str:
+        """Fallback method to get log format if `log_fmt` if not specified."""
         return (
             "%(asctime)s %(levelname)-8s - "
             + (f"%(stream)-{self._max_stream_len}s | " if self._max_stream_len else "")
@@ -63,10 +66,21 @@ class NatsLoggingMixin(LoggingMixin):
 
     def _setup_log_context(
         self,
-        queue: Optional[str] = None,
-        subject: Optional[str] = None,
-        stream: Optional[str] = None,
+        *,
+        queue: Annotated[
+            Optional[str],
+            Doc("Using NATS queue group."),
+        ] = None,
+        subject: Annotated[
+            Optional[str],
+            Doc("NATS subject to subscribe."),
+        ] = None,
+        stream: Annotated[
+            Optional[str],
+            Doc("NATS stream to subscribe."),
+        ] = None,
     ) -> None:
+        """Setup subscriber's information to generate default log format."""
         self._max_subject_len = max((self._max_subject_len, len(subject or "")))
         self._max_queue_len = max((self._max_queue_len, len(queue or "")))
         self._max_stream_len = max((self._max_stream_len, len(stream or "")))
