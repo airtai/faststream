@@ -15,9 +15,6 @@ class StreamBuilder:
     def stream(
         self,
         name: Union[str, JStream, None],
-        *args: Any,
-        declare: bool = True,
-        **kwargs: Any,
     ) -> Optional[JStream]:
         """Get a stream.
 

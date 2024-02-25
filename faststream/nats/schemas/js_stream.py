@@ -61,3 +61,7 @@ class JStream(NameRequired):
                 **kwargs,  # type: ignore[misc]
             ),
         )
+
+    def add_subject(self, subject: str) -> None:
+        if subject not in self.subjects:
+            self.subjects.append(subject)

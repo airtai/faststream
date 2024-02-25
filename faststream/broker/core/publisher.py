@@ -18,6 +18,7 @@ from unittest.mock import MagicMock
 
 from fast_depends._compat import create_model, get_config_base
 from fast_depends.core import CallModel, build_call_model
+from typing_extensions import Annotated, Doc
 
 from faststream.asyncapi.base import AsyncAPIOperation
 from faststream.asyncapi.message import get_response_schema
@@ -31,14 +32,7 @@ if TYPE_CHECKING:
 
 
 class FakePublisher:
-    """A class to represent a fake publisher.
-
-    Attributes:
-        method : a callable method that takes arguments and returns an awaitable sendable message
-
-    Methods:
-        publish : asynchronously publishes a message with optional correlation ID and additional keyword arguments
-    """
+    """A class to represent a fake publisher."""
 
     def __init__(
         self,
@@ -46,11 +40,7 @@ class FakePublisher:
         middlewares: Iterable["PublisherMiddleware"] = (),
         **publish_kwargs: Any,
     ) -> None:
-        """Initialize an object.
-
-        Args:
-            method: A callable that takes any number of arguments and returns an awaitable sendable message.
-        """
+        """Initialize an object."""
         self.method = method
         self.publish_kwargs = publish_kwargs
         self.middlewares = middlewares
@@ -92,42 +82,72 @@ class FakePublisher:
 
 @dataclass
 class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
-    """A base class for publishers in an asynchronous API.
+    """A base class for publishers in an asynchronous API."""
 
-    Attributes:
-        title : optional title of the publisher
-        _description : optional description of the publisher
-        _fake_handler : boolean indicating if a fake handler is used
-        calls : list of callable objects to generate AsyncAPI
-        mock : MagicMock object for mocking purposes
+    schema_: Optional[Any] = field(repr=False)
 
-    Methods:
-        description() : returns the description of the publisher
-        __call__(func) : decorator to register a function as a handler for the publisher
-        publish(message, correlation_id, **kwargs) : publishes a message with optional correlation ID
-    """
+    calls: List[Callable[..., Any]] = field(repr=False)
+    middlewares: Iterable["PublisherMiddleware"] = field(repr=False)
 
-    schema_: Optional[Any] = field(default=None)
+    _fake_handler: bool = field(repr=False)
+    mock: Optional[MagicMock] = field(repr=False)
 
-    calls: List[Callable[..., Any]] = field(
-        init=False, default_factory=list, repr=False
-    )
-    middlewares: Iterable["PublisherMiddleware"] = field(
-        default_factory=tuple, repr=False
-    )
+    def __init__(
+        self,
+        *,
+        middlewares: Annotated[
+            Iterable["PublisherMiddleware"],
+            Doc("Publisher middlewares."),
+        ],
+        # AsyncAPI options
+        schema_: Annotated[
+            Optional[Any],
+            Doc(
+                "AsyncAPI publishing message type"
+                "Should be any python-native object annotation or `pydantic.BaseModel`."
+            ),
+        ],
+        title_: Annotated[
+            Optional[str],
+            Doc("AsyncAPI object title."),
+        ],
+        description_: Annotated[
+            Optional[str],
+            Doc("AsyncAPI object description."),
+        ],
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ],
+    ) -> None:
+        """Initialize Publisher object."""
+        super().__init__(
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
 
-    _fake_handler: bool = field(default=False, repr=False)
-    mock: Optional[MagicMock] = field(init=False, default=None, repr=False)
+        self.schema_ = schema_
+        self.middlewares = middlewares
+
+        self.calls = []
+        self._fake_handler = False
+        self.mock = None
 
     def set_test(
         self,
-        mock: MagicMock,
-        with_fake: bool,
+        *,
+        mock: Annotated[MagicMock, Doc("Mock object to check in tests.")],
+        with_fake: Annotated[
+            bool, Doc("Whetevet publisher's fake subscriber created or not.")
+        ],
     ) -> None:
+        """Turn publisher to testing mode."""
         self.mock = mock
         self._fake_handler = with_fake
 
     def reset_test(self) -> None:
+        """Turn off publisher's testing mode."""
         self._fake_handler = False
         self.mock = None
 
@@ -135,17 +155,7 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
         self,
         func: Callable[P_HandlerParams, T_HandlerReturn],
     ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
-        """This is a Python function.
-
-        Args:
-            func: A callable object that takes `P_HandlerParams` as input and returns `T_HandlerReturn`.
-
-        Returns:
-            An instance of `HandlerCallWrapper` class.
-
-        Raises:
-            TypeError: If `func` is not callable.
-        """
+        """Decorate user's function by current publisher."""
         handler_call: HandlerCallWrapper[
             MsgType, P_HandlerParams, T_HandlerReturn
         ] = HandlerCallWrapper(func)

@@ -554,7 +554,7 @@ class NatsBroker(
         )
 
         if stream:
-            stream.subjects.append(handler.subject)
+            stream.add_subject(handler.subject)
 
         return handler.add_call(
             filter=filter,
@@ -587,7 +587,7 @@ class NatsBroker(
         include_in_schema: bool = True,
     ) -> "Publisher":
         if (stream := stream_builder.stream(stream)) is not None:
-            stream.subjects.append(subject)
+            stream.add_subject(subject)
 
         publisher = self._publishers.get(subject) or Publisher(
             subject=subject,

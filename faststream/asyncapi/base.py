@@ -2,24 +2,38 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Dict, Optional
 
+from typing_extensions import Annotated, Doc
+
 from faststream.asyncapi.schema.channels import Channel
 
 
 @dataclass
 class AsyncAPIOperation:
-    """A class representing an asynchronous API operation.
-
-    Attributes:
-        name : name of the API operation
-
-    Methods:
-        schema() : returns the schema of the API operation as a dictionary of channel names and channel objects
-
-    """
-
+    """A class representing an asynchronous API operation."""
     title_: Optional[str]
     description_: Optional[str]
     include_in_schema: bool
+
+    def __init__(
+        self,
+        *,
+        title_: Annotated[
+            Optional[str],
+            Doc("AsyncAPI object title."),
+        ],
+        description_: Annotated[
+            Optional[str],
+            Doc("AsyncAPI object description."),
+        ],
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ],
+    ) -> None:
+        """Initialize AsyncAPI operation object."""
+        self.title_ = title_
+        self.description_ = description_
+        self.include_in_schema = include_in_schema
 
     @property
     def name(self) -> str:
@@ -28,6 +42,7 @@ class AsyncAPIOperation:
 
     @abstractmethod
     def get_name(self) -> str:
+        """Name property fallback."""
         raise NotImplementedError()
 
     @property
@@ -36,6 +51,7 @@ class AsyncAPIOperation:
         return self.description_ or self.get_description()
 
     def get_description(self) -> Optional[str]:
+        """Description property fallback."""
         return None
 
     def schema(self) -> Dict[str, Channel]:
@@ -47,4 +63,5 @@ class AsyncAPIOperation:
 
     @abstractmethod
     def get_schema(self) -> Dict[str, Channel]:
+        """Generate AsyncAPI schema."""
         raise NotImplementedError()

@@ -1,4 +1,13 @@
-from typing import Any, Callable, Dict, Iterable, Optional, Sequence
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Optional,
+    Sequence,
+    Union,
+)
 
 from nats.aio.msg import Msg
 from typing_extensions import override
@@ -12,7 +21,11 @@ from faststream.broker.types import (
     T_HandlerReturn,
 )
 from faststream.nats.asyncapi import Publisher
+from faststream.nats.helpers import stream_builder
 from faststream.types import SendableMessage
+
+if TYPE_CHECKING:
+    from faststream.nats.schemas import JStream
 
 
 class NatsRouter(BrokerRouter[str, Msg]):
@@ -74,6 +87,8 @@ class NatsRouter(BrokerRouter[str, Msg]):
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
         middlewares: Iterable["PublisherMiddleware"] = (),
+        stream: Union[str, "JStream", None] = None,
+        timeout: Optional[float] = None,
         # AsyncAPI information
         title: Optional[str] = None,
         description: Optional[str] = None,
@@ -85,8 +100,10 @@ class NatsRouter(BrokerRouter[str, Msg]):
             Publisher(
                 subject=subject,
                 reply_to=reply_to,
+                stream=stream_builder.stream(stream),
                 headers=headers,
                 middlewares=middlewares,
+                timeout=timeout,
                 # AsyncAPI information
                 title_=title,
                 description_=description,
@@ -102,4 +119,8 @@ class NatsRouter(BrokerRouter[str, Msg]):
         publisher = self._publishers[publisher_key] = self._publishers.get(
             publisher_key, new_publisher
         )
+
+        if publisher.stream is not None:
+            publisher.stream.add_subject(publisher.subject)
+
         return publisher
