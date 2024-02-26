@@ -87,7 +87,7 @@ devdocs = [
     "mdx-include==1.4.2",
     "mkdocstrings[python]==0.24.0",
     "mkdocs-literate-nav==0.6.1",
-    "mkdocs-git-revision-date-localized-plugin==1.2.2",
+    "mkdocs-git-revision-date-localized-plugin==1.2.4",
     "mike==2.0.0",  # versioning
     "mkdocs-minify-plugin==0.7.2",
     "mkdocs-macros-plugin==1.0.5",  # includes with variables
