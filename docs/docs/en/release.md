@@ -12,6 +12,19 @@ hide:
 ---
 
 # Release Notes
+## 0.4.5
+
+### What's Changed
+* Update Release Notes for 0.4.4 by @faststream-release-notes-updater in [#1260](https://github.com/airtai/faststream/pull/1260){.external-link target="_blank"}
+* Removed unused pytest dependecy from redis/schemas.py by [@ashambalev](https://github.com/ashambalev){.external-link target="_blank"} in [#1261](https://github.com/airtai/faststream/pull/1261){.external-link target="_blank"}
+* chore: bumped package versions by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1270](https://github.com/airtai/faststream/pull/1270){.external-link target="_blank"}
+* fix (#1263): correct AsyncAPI schema in descriminator case by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1272](https://github.com/airtai/faststream/pull/1272){.external-link target="_blank"}
+
+### New Contributors
+* [@ashambalev](https://github.com/ashambalev){.external-link target="_blank"} made their first contribution in [#1261](https://github.com/airtai/faststream/pull/1261){.external-link target="_blank"}
+
+**Full Changelog**: [#0.4.4...0.4.5](https://github.com/airtai/faststream/compare/0.4.4...0.4.5){.external-link target="_blank"}
+
 ## 0.4.4
 
 ### What's Changed
