@@ -585,11 +585,11 @@ def _patch_fastapi_dependant(
                         lambda x: isinstance(x, FieldInfo),
                         p.field_info.metadata or (),
                     ),
-                    Field(**field_data),
+                    Field(**field_data),  # type: ignore[pydantic-field]
                 )
 
             else:
-                from pydantic.fields import ModelField
+                from pydantic.fields import ModelField  # type: ignore[attr-defined]
 
                 info = cast(ModelField, info)
 
@@ -605,7 +605,7 @@ def _patch_fastapi_dependant(
                         "le": info.field_info.le,
                     }
                 )
-                f = Field(**field_data)
+                f = Field(**field_data)  # type: ignore[pydantic-field]
 
             params_unique[p.name] = (
                 info.annotation,
