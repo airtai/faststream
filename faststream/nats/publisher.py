@@ -111,7 +111,7 @@ class LogicPublisher(BasePublisher[Msg]):
         )
 
     @cached_property
-    def publish_kwargs(self) -> AnyDict:
+    def publish_kwargs(self) -> AnyDict:  # type: ignore[overide]
         kwargs = {
             "subject": self.subject,
             "reply_to": self.reply_to,
