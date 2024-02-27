@@ -49,8 +49,7 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
         [Callable[P_HandlerParams, T_HandlerReturn]],
         HandlerCallWrapper[ConsumerRecord, P_HandlerParams, T_HandlerReturn],
     ]:
-        return super().subscriber(
-            topics[0], *topics, **broker_kwargs)
+        return super().subscriber(topics[0], *topics, **broker_kwargs)
 
     @staticmethod
     def _setup_log_context(

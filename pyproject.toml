@@ -82,12 +82,12 @@ docs = [
 
 # dev dependencies
 devdocs = [
-    "mkdocs-material==9.5.10",
+    "mkdocs-material==9.5.11",
     "mkdocs-static-i18n==1.2.0",
     "mdx-include==1.4.2",
     "mkdocstrings[python]==0.24.0",
     "mkdocs-literate-nav==0.6.1",
-    "mkdocs-git-revision-date-localized-plugin==1.2.2",
+    "mkdocs-git-revision-date-localized-plugin==1.2.4",
     "mike==2.0.0",  # versioning
     "mkdocs-minify-plugin==0.7.2",
     "mkdocs-macros-plugin==1.0.5",  # includes with variables
@@ -108,8 +108,8 @@ lint = [
     "confluent-kafka-stubs; python_version >= '3.11'",
     "mypy==1.8.0",
     "ruff==0.2.1",
-    "bandit==1.7.6",
-    "semgrep==1.61.1",
+    "bandit==1.7.7",
+    "semgrep==1.62.0",
 ]
 
 test-core = [
@@ -125,7 +125,7 @@ testing = [
     "faststream[test-core]",
     "fastapi==0.109.2",
     "pydantic-settings>=2.0.0,<3.0.0",
-    "httpx==0.26.0",
+    "httpx==0.27.0",
     "PyYAML==6.0.1",
     "watchfiles==0.21.0",
     "email-validator==2.1.0.post1",
