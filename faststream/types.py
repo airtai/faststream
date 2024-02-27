@@ -38,11 +38,11 @@ DecodedMessage: TypeAlias = Union[
     Sequence[JsonDecodable],
     JsonDecodable,
 ]
+JsonCompatible: TypeAlias = Union[JsonDecodable, datetime]
 SendableMessage: TypeAlias = Union[
-    Dict[str, Union[JsonDecodable, datetime]],
-    Sequence[Union[JsonDecodable, datetime]],
-    Union[JsonDecodable, datetime],
-    datetime,
+    Dict[str, Union[JsonCompatible, Sequence[JsonCompatible]]],
+    Sequence[JsonCompatible],
+    JsonCompatible,
     BaseModel,
     None,
 ]
