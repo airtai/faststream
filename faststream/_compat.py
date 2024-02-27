@@ -135,7 +135,7 @@ else:
     SCHEMA_FIELD = "schema_extra"
     DEF_KEY = "definitions"
 
-    PydanticUndefined = Ellipsis
+    PydanticUndefined = Ellipsis  # type: ignore[assignment]
 
     def dump_json(data: Any) -> bytes:
         return json_dumps(data, default=pydantic_encoder)

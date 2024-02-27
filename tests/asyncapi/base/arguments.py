@@ -438,12 +438,14 @@ class FastAPICompatible:  # noqa: D101
         class Sub(pydantic.BaseModel):
             type: Literal["sub"]
 
-        MyTypeUnion = Annotated[Union[Sub2, Sub], pydantic.Field(..., discriminator="type")]
+        descriminator = Annotated[
+            Union[Sub2, Sub], pydantic.Field(..., discriminator="type")
+        ]
 
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(user: MyTypeUnion):
+        async def handle(user: descriminator):
             ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
