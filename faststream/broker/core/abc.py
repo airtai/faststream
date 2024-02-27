@@ -24,9 +24,9 @@ from typing import (
 from fast_depends._compat import PYDANTIC_V2
 from fast_depends.core import CallModel, build_call_model
 from fast_depends.dependencies import Depends
-from pydantic import create_model
+from pydantic import Field, create_model
 
-from faststream._compat import is_test_env
+from faststream._compat import PydanticUndefined, is_test_env
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.mixins import LoggingMixin
 from faststream.broker.handler import BaseHandler
@@ -551,17 +551,71 @@ def _patch_fastapi_dependant(
         params.extend(d.query_params + d.body_params)  # type: ignore[attr-defined]
 
     params_unique = {}
-    params_names = set()
     for p in params:
-        if p.name not in params_names:
-            params_names.add(p.name)
+        if p.name not in params_unique:
             info = p.field_info if PYDANTIC_V2 else p
-            params_unique[p.name] = (info.annotation, info.default)
 
-    dependant.model = create_model(  # type: ignore[call-overload]
-        getattr(dependant.call, "__name__", type(dependant.call).__name__),
-        **params_unique,
+            field_data = {
+                "default": ... if info.default is PydanticUndefined else info.default,
+                "default_factory": info.default_factory,
+                "alias": info.alias,
+            }
+
+            if PYDANTIC_V2:
+                from pydantic.fields import FieldInfo
+
+                info = cast(FieldInfo, info)
+
+                field_data.update(
+                    {
+                        "title": info.title,
+                        "alias_priority": info.alias_priority,
+                        "validation_alias": info.validation_alias,
+                        "serialization_alias": info.serialization_alias,
+                        "description": info.description,
+                        "discriminator": info.discriminator,
+                        "examples": info.examples,
+                        "exclude": info.exclude,
+                        "json_schema_extra": info.json_schema_extra,
+                    }
+                )
+
+                f = next(
+                    filter(
+                        lambda x: isinstance(x, FieldInfo),
+                        p.field_info.metadata or (),
+                    ),
+                    Field(**field_data),
+                )
+
+            else:
+                from pydantic.fields import ModelField
+
+                info = cast(ModelField, info)
+
+                field_data.update(
+                    {
+                        "title": info.field_info.title,
+                        "description": info.field_info.description,
+                        "discriminator": info.field_info.discriminator,
+                        "exclude": info.field_info.exclude,
+                        "gt": info.field_info.gt,
+                        "ge": info.field_info.ge,
+                        "lt": info.field_info.lt,
+                        "le": info.field_info.le,
+                    }
+                )
+                f = Field(**field_data)
+
+            params_unique[p.name] = (
+                info.annotation,
+                f,
+            )
+
+    dependant.model = create_model(
+        getattr(dependant.call, "__name__", type(dependant.call).__name__)
     )
+
     dependant.custom_fields = {}
     dependant.flat_params = params_unique  # type: ignore[assignment,misc]
 

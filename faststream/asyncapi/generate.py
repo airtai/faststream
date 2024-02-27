@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Union
 
-from faststream._compat import HAS_FASTAPI, PYDANTIC_V2
+from faststream._compat import DEF_KEY, HAS_FASTAPI
 from faststream.app import FastStream
 from faststream.asyncapi.schema import (
     Channel,
@@ -181,19 +181,32 @@ def _resolve_msg_payloads(
 ) -> Reference:
     one_of_list: List[Reference] = []
 
-    pydantic_key = "$defs" if PYDANTIC_V2 else "definitions"
+    m.payload = _move_pydantic_refs(m.payload, DEF_KEY)
+    if DEF_KEY in m.payload:
+        payloads.update(m.payload.pop(DEF_KEY))
+    if "discriminator" in m.payload:
+        m.payload["discriminator"] = m.payload["discriminator"]["propertyName"]
 
-    for p_title, p in m.payload.get("oneOf", {}).items():
-        p = _move_pydantic_refs(p, pydantic_key)
-        payloads.update(p.pop(pydantic_key, {}))
-        payloads[p_title] = p
-        one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{p_title}"}))
+    one_of = m.payload.get("oneOf")
+    if isinstance(one_of, dict):
+        for p_title, p in one_of.items():
+            payloads.update(p.pop(DEF_KEY, {}))
+            if p_title not in payloads:
+                payloads[p_title] = p
+            one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{p_title}"}))
+
+    elif one_of is not None:
+        for p in one_of:
+            p_title = next(iter(p.values())).split("/")[-1]
+            if p_title not in payloads:
+                payloads[p_title] = p
+            one_of_list.append(Reference(**{"$ref": f"#/components/schemas/{p_title}"}))
 
     if not one_of_list:
-        p = _move_pydantic_refs(m.payload, pydantic_key)
-        payloads.update(p.pop(pydantic_key, {}))
-        p_title = p.get("title", f"{channel_name}Payload")
-        payloads[p_title] = p
+        payloads.update(m.payload.pop(DEF_KEY, {}))
+        p_title = m.payload.get("title", f"{channel_name}Payload")
+        if p_title not in payloads:
+            payloads[p_title] = m.payload
         m.payload = {"$ref": f"#/components/schemas/{p_title}"}
 
     else:
@@ -214,14 +227,17 @@ def _move_pydantic_refs(
     data = original.copy()
 
     for k in data:
-        if k == "$ref":
-            data[k] = data[k].replace(key, "components/schemas")
+        item = data[k]
 
-        elif isinstance(data[k], dict):
+        if isinstance(item, str):
+            if key in item:
+                data[k] = data[k].replace(key, "components/schemas")
+
+        elif isinstance(item, dict):
             data[k] = _move_pydantic_refs(data[k], key)
 
-        elif isinstance(data[k], List):
+        elif isinstance(item, List):
             for i in range(len(data[k])):
-                data[k][i] = _move_pydantic_refs(data[k][i], key)
+                data[k][i] = _move_pydantic_refs(item[i], key)
 
     return data

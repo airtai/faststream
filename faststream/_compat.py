@@ -91,9 +91,11 @@ if PYDANTIC_V2:
         )
 
     from pydantic_core import CoreSchema as CoreSchema
+    from pydantic_core import PydanticUndefined as PydanticUndefined
     from pydantic_core import to_jsonable_python
 
     SCHEMA_FIELD = "json_schema_extra"
+    DEF_KEY = "$defs"
 
     def model_to_jsonable(
         model: BaseModel,
@@ -131,6 +133,9 @@ else:
     CoreSchema = Any  # type: ignore[assignment,misc]
 
     SCHEMA_FIELD = "schema_extra"
+    DEF_KEY = "definitions"
+
+    PydanticUndefined = Ellipsis
 
     def dump_json(data: Any) -> bytes:
         return json_dumps(data, default=pydantic_encoder)
