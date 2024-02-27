@@ -243,7 +243,9 @@ class TestConsumeStream:  # noqa: D101
         queue: str,
         full_broker: RedisBroker,
     ):
-        @full_broker.subscriber(stream=StreamSub(queue, group="group", consumer=queue, last_id="0"))
+        @full_broker.subscriber(
+            stream=StreamSub(queue, group="group", consumer=queue, last_id="0")
+        )
         async def handler(msg: RedisMessage):
             ...
 
