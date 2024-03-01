@@ -244,6 +244,7 @@ class AsyncConfluentProducer:
             # on_delivery=ack,
             **kwargs,
         )
+        self.producer.poll(0)
         # return result
 
     def create_batch(self) -> BatchBuilder:
