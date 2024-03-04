@@ -12,6 +12,16 @@ hide:
 ---
 
 # Release Notes
+## 0.4.6
+
+### What's Changed
+* Add poll in confluent producer to fix BufferError by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1277](https://github.com/airtai/faststream/pull/1277){.external-link target="_blank"}
+* Cover confluent asyncapi tests by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1279](https://github.com/airtai/faststream/pull/1279){.external-link target="_blank"}
+* chore: bump package versions by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1285](https://github.com/airtai/faststream/pull/1285){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.4.5...0.4.6](https://github.com/airtai/faststream/compare/0.4.5...0.4.6){.external-link target="_blank"}
+
 ## 0.4.5
 
 ### What's Changed
