@@ -85,7 +85,7 @@ devdocs = [
     "mkdocs-material==9.5.11",
     "mkdocs-static-i18n==1.2.0",
     "mdx-include==1.4.2",
-    "mkdocstrings[python]==0.24.0",
+    "mkdocstrings[python]==0.24.1",
     "mkdocs-literate-nav==0.6.1",
     "mkdocs-git-revision-date-localized-plugin==1.2.4",
     "mike==2.0.0",  # versioning
