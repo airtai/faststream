@@ -62,16 +62,14 @@ broker = Broker()
     "test",
     filter=sync_filter,
 )
-async def handle() -> None:
-    ...
+async def handle() -> None: ...
 
 
 @broker.subscriber(
     "test",
     filter=async_filter,
 )
-async def handle2() -> None:
-    ...
+async def handle2() -> None: ...
 
 
 @broker.subscriber(
@@ -79,8 +77,7 @@ async def handle2() -> None:
     parser=sync_parser,
     decoder=sync_decoder,
 )
-async def handle3() -> None:
-    ...
+async def handle3() -> None: ...
 
 
 @broker.subscriber(
@@ -88,8 +85,7 @@ async def handle3() -> None:
     parser=async_parser,
     decoder=async_decoder,
 )
-async def handle4() -> None:
-    ...
+async def handle4() -> None: ...
 
 
 @broker.subscriber(
@@ -97,20 +93,17 @@ async def handle4() -> None:
     parser=custom_parser,
     decoder=custom_decoder,
 )
-async def handle5() -> None:
-    ...
+async def handle5() -> None: ...
 
 
 @broker.subscriber("test")
 @broker.publisher("test2")
-def handle6() -> None:
-    ...
+def handle6() -> None: ...
 
 
 @broker.subscriber("test")
 @broker.publisher("test2")
-async def handle7() -> None:
-    ...
+async def handle7() -> None: ...
 
 
 StreamRouter(
@@ -134,16 +127,14 @@ router = StreamRouter()
     "test",
     filter=sync_filter,
 )
-async def handle8() -> None:
-    ...
+async def handle8() -> None: ...
 
 
 @router.subscriber(
     "test",
     filter=async_filter,
 )
-async def handle9() -> None:
-    ...
+async def handle9() -> None: ...
 
 
 @router.subscriber(
@@ -151,8 +142,7 @@ async def handle9() -> None:
     parser=sync_parser,
     decoder=sync_decoder,
 )
-async def handle10() -> None:
-    ...
+async def handle10() -> None: ...
 
 
 @router.subscriber(
@@ -160,8 +150,7 @@ async def handle10() -> None:
     parser=async_parser,
     decoder=async_decoder,
 )
-async def handle11() -> None:
-    ...
+async def handle11() -> None: ...
 
 
 @router.subscriber(
@@ -169,28 +158,23 @@ async def handle11() -> None:
     parser=custom_parser,
     decoder=custom_decoder,
 )
-async def handle12() -> None:
-    ...
+async def handle12() -> None: ...
 
 
 @router.subscriber("test")
 @router.publisher("test2")
-def handle13() -> None:
-    ...
+def handle13() -> None: ...
 
 
 @router.subscriber("test")
 @router.publisher("test2")
-async def handle14() -> None:
-    ...
+async def handle14() -> None: ...
 
 
-def sync_handler() -> None:
-    ...
+def sync_handler() -> None: ...
 
 
-def async_handler() -> None:
-    ...
+def async_handler() -> None: ...
 
 
 StreamRouter(
@@ -239,16 +223,14 @@ fastapi_router = FastAPIRouter()
     "test",
     filter=sync_filter,
 )
-async def handle15() -> None:
-    ...
+async def handle15() -> None: ...
 
 
 @fastapi_router.subscriber(
     "test",
     filter=async_filter,
 )
-async def handle16() -> None:
-    ...
+async def handle16() -> None: ...
 
 
 @fastapi_router.subscriber(
@@ -256,8 +238,7 @@ async def handle16() -> None:
     parser=sync_parser,
     decoder=sync_decoder,
 )
-async def handle17() -> None:
-    ...
+async def handle17() -> None: ...
 
 
 @fastapi_router.subscriber(
@@ -265,8 +246,7 @@ async def handle17() -> None:
     parser=async_parser,
     decoder=async_decoder,
 )
-async def handle18() -> None:
-    ...
+async def handle18() -> None: ...
 
 
 @fastapi_router.subscriber(
@@ -274,17 +254,14 @@ async def handle18() -> None:
     parser=custom_parser,
     decoder=custom_decoder,
 )
-async def handle19() -> None:
-    ...
+async def handle19() -> None: ...
 
 
 @fastapi_router.subscriber("test")
 @fastapi_router.publisher("test2")
-def handle20() -> None:
-    ...
+def handle20() -> None: ...
 
 
 @fastapi_router.subscriber("test")
 @fastapi_router.publisher("test2")
-async def handle21() -> None:
-    ...
+async def handle21() -> None: ...

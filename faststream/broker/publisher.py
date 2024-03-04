@@ -78,9 +78,9 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
             TypeError: If `func` is not callable.
 
         """
-        handler_call: HandlerCallWrapper[
-            MsgType, P_HandlerParams, T_HandlerReturn
-        ] = HandlerCallWrapper(func)
+        handler_call: HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn] = (
+            HandlerCallWrapper(func)
+        )
         handler_call._publishers.append(self)
         self.calls.append(handler_call._original_call)
         return handler_call

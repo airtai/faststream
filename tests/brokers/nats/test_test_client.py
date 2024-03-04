@@ -43,12 +43,10 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
         broker.middlewares = (Middleware,)
 
         @broker.subscriber(queue)
-        async def h1():
-            ...
+        async def h1(): ...
 
         @broker.subscriber(queue + "1")
-        async def h2():
-            ...
+        async def h2(): ...
 
         async with TestNatsBroker(broker) as br:
             await br.publish("", queue)
@@ -69,12 +67,10 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
         broker.middlewares = (Middleware,)
 
         @broker.subscriber(queue)
-        async def h1():
-            ...
+        async def h1(): ...
 
         @broker.subscriber(queue + "1")
-        async def h2():
-            ...
+        async def h2(): ...
 
         async with TestNatsBroker(broker, with_real=True) as br:
             await br.publish("", queue)
@@ -111,8 +107,7 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
 
     async def test_any_subject_routing(self, test_broker: NatsBroker):
         @test_broker.subscriber("test.*.subj.*")
-        def subscriber():
-            ...
+        def subscriber(): ...
 
         await test_broker.start()
         await test_broker.publish("hello", "test.a.subj.b")
@@ -120,8 +115,7 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
 
     async def test_ending_subject_routing(self, test_broker: NatsBroker):
         @test_broker.subscriber("test.>")
-        def subscriber():
-            ...
+        def subscriber(): ...
 
         await test_broker.start()
         await test_broker.publish("hello", "test.a.subj.b")
@@ -129,8 +123,7 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
 
     async def test_mixed_subject_routing(self, test_broker: NatsBroker):
         @test_broker.subscriber("*.*.subj.>")
-        def subscriber():
-            ...
+        def subscriber(): ...
 
         await test_broker.start()
         await test_broker.publish("hello", "test.a.subj.b.c")
@@ -143,8 +136,7 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
         stream: JStream,
     ):
         @test_broker.subscriber(queue, stream=stream, pull_sub=PullSub(1))
-        def subscriber(m):
-            ...
+        def subscriber(m): ...
 
         await test_broker.start()
         await test_broker.publish("hello", queue)

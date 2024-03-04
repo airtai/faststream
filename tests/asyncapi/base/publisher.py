@@ -18,8 +18,7 @@ class PublisherTestcase:  # noqa: D101
         broker = self.broker_class()
 
         @broker.publisher("test", description="test description")
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -30,8 +29,7 @@ class PublisherTestcase:  # noqa: D101
         broker = self.broker_class()
 
         @broker.publisher("test")
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -47,8 +45,7 @@ class PublisherTestcase:  # noqa: D101
         broker = self.broker_class()
 
         @broker.publisher("test")
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -60,8 +57,7 @@ class PublisherTestcase:  # noqa: D101
         broker = self.broker_class()
 
         @broker.publisher("test")
-        async def handle(msg) -> int:
-            ...
+        async def handle(msg) -> int: ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -77,8 +73,7 @@ class PublisherTestcase:  # noqa: D101
         broker = self.broker_class()
 
         @broker.publisher("test")
-        async def handle(msg) -> User:
-            ...
+        async def handle(msg) -> User: ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -101,8 +96,7 @@ class PublisherTestcase:  # noqa: D101
         pub = broker.publisher("test")
 
         @pub
-        async def handle(msg) -> int:
-            ...
+        async def handle(msg) -> int: ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 

@@ -14,8 +14,7 @@ class TestPublish(BrokerPublishTestcase):
         test_broker,
     ):
         @test_broker.subscriber(queue, stream="test")
-        async def m():
-            ...
+        async def m(): ...
 
         await test_broker.start()
         await test_broker.publish("Hi!", queue, stream="test")
@@ -28,8 +27,7 @@ class TestPublish(BrokerPublishTestcase):
         test_broker,
     ):
         @test_broker.subscriber(queue)
-        async def m():
-            ...
+        async def m(): ...
 
         await test_broker.start()
         await test_broker.publish("Hi!", queue, stream="test")

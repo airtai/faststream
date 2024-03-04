@@ -7,12 +7,10 @@ class BaseCase:  # noqa: D101
         app, core_router, nested_router = data
 
         @core_router.subscriber("test1")
-        async def handler():
-            ...
+        async def handler(): ...
 
         @nested_router.subscriber("test2")
-        async def handler2():
-            ...
+        async def handler2(): ...
 
         handlers1 = core_router.broker.handlers.values()
         handlers2 = nested_router.broker.handlers.values()
