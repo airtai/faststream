@@ -14,8 +14,7 @@ class RouterTestcase:  # noqa: D101
     def test_delay(self):
         broker = self.broker_class()
 
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         router = self.router_class(
             handlers=(self.route_class(handle, "test"),),
@@ -35,8 +34,7 @@ class RouterTestcase:  # noqa: D101
 
         @router.subscriber("test")
         @router.publisher("test")
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         broker.include_router(router)
 

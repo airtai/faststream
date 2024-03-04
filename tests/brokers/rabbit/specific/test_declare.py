@@ -57,8 +57,7 @@ async def test_publisher_declare(
     broker.declarer = declarer
 
     @broker.publisher(queue, queue)
-    async def f():
-        ...
+    async def f(): ...
 
     await broker.start()
 

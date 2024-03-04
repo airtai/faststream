@@ -203,8 +203,7 @@ class FastAPILocalTestcase:  # noqa: D101
         app = FastAPI(lifespan=router.lifespan_context)
 
         @router.subscriber(queue, auto_offset_reset="earliest")
-        async def hello(msg: int):
-            ...
+        async def hello(msg: int): ...
 
         app.include_router(router)
 
@@ -300,7 +299,11 @@ class FastAPILocalTestcase:  # noqa: D101
 
         router = self.router_class()
 
-        @router.subscriber(queue, auto_offset_reset="earliest", dependencies=(Depends(mock_dep, use_cache=False),))
+        @router.subscriber(
+            queue,
+            auto_offset_reset="earliest",
+            dependencies=(Depends(mock_dep, use_cache=False),),
+        )
         async def hello(a):
             return a
 

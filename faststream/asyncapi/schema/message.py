@@ -66,12 +66,12 @@ class Message(BaseModel):
     # examples
     # traits
 
-    tags: Optional[
-        List[Union[Tag, Dict[str, Any]]]
-    ] = None  # TODO: weird TagDict behavior
-    externalDocs: Optional[
-        Union[ExternalDocs, Dict[str, Any]]
-    ] = None  # TODO: weird ExternalDocsDict behavior
+    tags: Optional[List[Union[Tag, Dict[str, Any]]]] = (
+        None  # TODO: weird TagDict behavior
+    )
+    externalDocs: Optional[Union[ExternalDocs, Dict[str, Any]]] = (
+        None  # TODO: weird ExternalDocsDict behavior
+    )
 
     if PYDANTIC_V2:
         model_config = {"extra": "allow"}

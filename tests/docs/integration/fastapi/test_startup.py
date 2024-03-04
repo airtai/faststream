@@ -13,8 +13,7 @@ async def test_fastapi_kafka_startup():
     from docs.docs_src.integrations.fastapi.kafka.startup import app, hello, router
 
     @router.subscriber("test")
-    async def handler():
-        ...
+    async def handler(): ...
 
     async with TestKafkaBroker(router.broker):
         with TestClient(app):
@@ -26,8 +25,7 @@ async def test_fastapi_confluent_startup():
     from docs.docs_src.integrations.fastapi.confluent.startup import app, hello, router
 
     @router.subscriber("test")
-    async def handler():
-        ...
+    async def handler(): ...
 
     async with TestConfluentKafkaBroker(router.broker):
         with TestClient(app):
@@ -39,8 +37,7 @@ async def test_fastapi_rabbit_startup():
     from docs.docs_src.integrations.fastapi.rabbit.startup import app, hello, router
 
     @router.subscriber("test")
-    async def handler():
-        ...
+    async def handler(): ...
 
     async with TestRabbitBroker(router.broker):
         with TestClient(app):
@@ -52,8 +49,7 @@ async def test_fastapi_nats_startup():
     from docs.docs_src.integrations.fastapi.nats.startup import app, hello, router
 
     @router.subscriber("test")
-    async def handler():
-        ...
+    async def handler(): ...
 
     async with TestNatsBroker(router.broker):
         with TestClient(app):
@@ -65,8 +61,7 @@ async def test_fastapi_redis_startup():
     from docs.docs_src.integrations.fastapi.redis.startup import app, hello, router
 
     @router.subscriber("test")
-    async def handler():
-        ...
+    async def handler(): ...
 
     async with TestRedisBroker(router.broker):
         with TestClient(app):

@@ -73,8 +73,7 @@ class FastAPITestCase:  # noqa: D101
         broker = self.broker_class(schema_url="/asyncapi_schema")
 
         @broker.subscriber("test")
-        async def handler():
-            ...
+        async def handler(): ...
 
         app = FastAPI(lifespan=broker.lifespan_context)
         app.include_router(broker)

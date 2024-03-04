@@ -27,14 +27,12 @@ class NatsParser:
     @overload
     async def parse_message(
         self, message: List[Msg], *, path: Optional[AnyDict] = None
-    ) -> StreamMessage[List[Msg]]:
-        ...
+    ) -> StreamMessage[List[Msg]]: ...
 
     @overload
     async def parse_message(
         self, message: Msg, *, path: Optional[AnyDict] = None
-    ) -> StreamMessage[Msg]:
-        ...
+    ) -> StreamMessage[Msg]: ...
 
     async def parse_message(
         self, message: Union[Msg, List[Msg]], *, path: Optional[AnyDict] = None

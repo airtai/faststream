@@ -10,8 +10,7 @@ class TestArguments(ArgumentsTestcase):  # noqa: D101
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
@@ -28,8 +27,7 @@ class TestArguments(ArgumentsTestcase):  # noqa: D101
         broker = self.broker_class()
 
         @broker.subscriber("test.{path}")
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
@@ -46,8 +44,7 @@ class TestArguments(ArgumentsTestcase):  # noqa: D101
         broker = self.broker_class()
 
         @broker.subscriber(list="test")
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
@@ -60,8 +57,7 @@ class TestArguments(ArgumentsTestcase):  # noqa: D101
         broker = self.broker_class()
 
         @broker.subscriber(stream="test")
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
@@ -74,8 +70,7 @@ class TestArguments(ArgumentsTestcase):  # noqa: D101
         broker = self.broker_class()
 
         @broker.subscriber(stream=StreamSub("test", group="group", consumer="consumer"))
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015

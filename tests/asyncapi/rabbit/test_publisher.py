@@ -10,8 +10,7 @@ class TestArguments(PublisherTestcase):  # noqa: D101
         broker = self.broker_class("amqp://guest:guest@localhost:5672/vhost")
 
         @broker.publisher(exchange="test-ex")
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -54,8 +53,7 @@ class TestArguments(PublisherTestcase):  # noqa: D101
             RabbitQueue("test", auto_delete=True),
             RabbitExchange("test-ex", type=ExchangeType.TOPIC),
         )
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
@@ -88,8 +86,7 @@ class TestArguments(PublisherTestcase):  # noqa: D101
             RabbitQueue("test", auto_delete=True),
             RabbitExchange("test-ex", type=ExchangeType.FANOUT),
         )
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -122,8 +119,7 @@ class TestArguments(PublisherTestcase):  # noqa: D101
 
         @broker.publisher(exchange="test-ex", routing_key="key1")
         @broker.publisher(exchange="test-ex", routing_key="key2", priority=10)
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 

@@ -17,8 +17,7 @@ class TestRouter(RouterTestcase):  # noqa: D101
         router = self.router_class(prefix="test_")
 
         @router.subscriber("test")
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         broker.include_router(router)
 
