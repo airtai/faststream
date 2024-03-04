@@ -434,7 +434,7 @@ class FastAPICompatible:  # noqa: D101
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
-        key = next(schema["components"]["messages"].keys())
+        key = next(iter(schema["components"]["messages"].keys()))
         assert key == IsStr(regex=r"test[\w:]*:Handle:Message")
         assert schema["components"] == {
             "messages": {
