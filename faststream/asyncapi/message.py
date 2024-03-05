@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional, Sequence, Type, overload
 from fast_depends.core import CallModel
 from pydantic import BaseModel, create_model
 
-from faststream._compat import PYDANTIC_V2, get_model_fields, model_schema
+from faststream._compat import DEF_KEY, PYDANTIC_V2, get_model_fields, model_schema
 
 
 def parse_handler_params(call: CallModel[Any, Any], prefix: str = "") -> Dict[str, Any]:
@@ -183,6 +183,9 @@ def get_model_schema(
     if params_number == 1 and not use_original_model:
         param_body: Dict[str, Any] = body.get("properties", {})
         param_body = param_body[name]
+
+        if defs := body.get(DEF_KEY):
+            param_body[DEF_KEY] = defs
 
         original_title = param.title if PYDANTIC_V2 else param.field_info.title  # type: ignore[attr-defined]
 

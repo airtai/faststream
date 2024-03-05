@@ -14,8 +14,7 @@ async def test_existed_context_kafka():
     )
 
     @broker_object.subscriber("response")
-    async def resp():
-        ...
+    async def resp(): ...
 
     async with TestKafkaBroker(broker_object) as br:
         await br.publish("Hi!", "test-topic")
@@ -31,8 +30,7 @@ async def test_existed_context_confluent():
     )
 
     @broker_object.subscriber("response")
-    async def resp():
-        ...
+    async def resp(): ...
 
     async with TestConfluentKafkaBroker(broker_object) as br:
         await br.publish("Hi!", "test-topic")
@@ -48,8 +46,7 @@ async def test_existed_context_rabbit():
     )
 
     @broker_object.subscriber("response")
-    async def resp():
-        ...
+    async def resp(): ...
 
     async with TestRabbitBroker(broker_object) as br:
         await br.publish("Hi!", "test-queue")
@@ -65,8 +62,7 @@ async def test_existed_context_nats():
     )
 
     @broker_object.subscriber("response")
-    async def resp():
-        ...
+    async def resp(): ...
 
     async with TestNatsBroker(broker_object) as br:
         await br.publish("Hi!", "test-subject")
@@ -82,8 +78,7 @@ async def test_existed_context_redis():
     )
 
     @broker_object.subscriber("response")
-    async def resp():
-        ...
+    async def resp(): ...
 
     async with TestRedisBroker(broker_object) as br:
         await br.publish("Hi!", "test-channel")

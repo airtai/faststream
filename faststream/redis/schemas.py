@@ -102,6 +102,8 @@ class StreamSub(NameRequired):
     batch: bool = False
     no_ack: bool = False
     last_id: str = "$"
+    maxlen: Optional[PositiveInt] = None
+    max_records: Optional[PositiveInt] = None
 
     def __init__(
         self,
@@ -112,6 +114,8 @@ class StreamSub(NameRequired):
         batch: bool = False,
         no_ack: bool = False,
         last_id: Optional[str] = None,
+        maxlen: Optional[PositiveInt] = None,
+        max_records: Optional[PositiveInt] = None,
     ) -> None:
         """Redis Stream subscriber parameters.
 
@@ -121,27 +125,20 @@ class StreamSub(NameRequired):
             group: (str | None): consumer group name.
             consumer: (str | None): consumer name.
             batch: (bool): consume messages in batches.
+            max_records: (int | None): consuming batch size.
             no_ack: (bool): do not add message to PEL.
             last_id: (str | None): start reading from this ID.
+            maxlen: (int | None): truncate old stream members beyond this size.
         """
         if (group and not consumer) or (not group and consumer):
             raise ValueError("You should specify `group` and `consumer` both")
 
-        if group and consumer:
-            msg: Optional[str] = None
-
-            if last_id:
-                msg = "`last_id` has no effect with consumer group"
-
-            if no_ack:
-                msg = "`no_ack` has no effect with consumer group"
-
-            if msg:
-                warnings.warn(
-                    message=msg,
-                    category=RuntimeWarning,
-                    stacklevel=1,
-                )
+        if group and consumer and no_ack:
+            warnings.warn(
+                message="`no_ack` has no effect with consumer group",
+                category=RuntimeWarning,
+                stacklevel=1,
+            )
 
         super().__init__(
             name=stream,
@@ -151,6 +148,8 @@ class StreamSub(NameRequired):
             batch=batch,
             no_ack=no_ack,
             last_id=last_id or "$",
+            maxlen=maxlen,
+            max_records=max_records,
         )
 
     def __hash__(self) -> int:

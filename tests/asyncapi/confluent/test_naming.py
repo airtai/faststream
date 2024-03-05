@@ -1,11 +1,11 @@
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
-from faststream.nats import NatsBroker
+from faststream.confluent import KafkaBroker
 from tests.asyncapi.base.naming import NamingTestCase
 
 
 class TestNaming(NamingTestCase):  # noqa: D101
-    broker_class = NatsBroker
+    broker_class = KafkaBroker
 
     def test_base(self):
         broker = self.broker_class()
@@ -21,17 +21,15 @@ class TestNaming(NamingTestCase):  # noqa: D101
             "info": {"title": "FastStream", "version": "0.1.0", "description": ""},
             "servers": {
                 "development": {
-                    "url": "nats://localhost:4222",
-                    "protocol": "nats",
-                    "protocolVersion": "custom",
+                    "url": "localhost",
+                    "protocol": "kafka",
+                    "protocolVersion": "auto",
                 }
             },
             "channels": {
                 "test:Handle": {
                     "servers": ["development"],
-                    "bindings": {
-                        "nats": {"subject": "test", "bindingVersion": "custom"}
-                    },
+                    "bindings": {"kafka": {"topic": "test", "bindingVersion": "0.4.0"}},
                     "subscribe": {
                         "message": {"$ref": "#/components/messages/test:Handle:Message"}
                     },

@@ -35,8 +35,7 @@ async def test_base_security():
         from docs.docs_src.confluent.security.basic import broker as basic_broker
 
         @basic_broker.subscriber("test")
-        async def handler():
-            ...
+        async def handler(): ...
 
         async with basic_broker:
             await basic_broker.start()
@@ -72,8 +71,7 @@ async def test_scram256():
         )
 
         @scram256_broker.subscriber("test")
-        async def handler():
-            ...
+        async def handler(): ...
 
         async with scram256_broker:
             await scram256_broker.start()
@@ -112,8 +110,7 @@ async def test_scram512():
         )
 
         @scram512_broker.subscriber("test")
-        async def handler():
-            ...
+        async def handler(): ...
 
         async with scram512_broker:
             await scram512_broker.start()
@@ -152,8 +149,7 @@ async def test_plaintext():
         )
 
         @plaintext_broker.subscriber("test")
-        async def handler():
-            ...
+        async def handler(): ...
 
         async with plaintext_broker:
             await plaintext_broker.start()

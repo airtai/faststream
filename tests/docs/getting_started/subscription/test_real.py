@@ -1,5 +1,11 @@
 import pytest
 
+from docs.docs_src.getting_started.subscription.confluent.real_testing import (
+    test_handle as test_handle_confluent,
+)
+from docs.docs_src.getting_started.subscription.confluent.real_testing import (
+    test_validation_error as test_validation_error_confluent,
+)
 from docs.docs_src.getting_started.subscription.kafka.real_testing import (
     test_handle as test_handle_k,
 )
@@ -27,6 +33,9 @@ from docs.docs_src.getting_started.subscription.redis.real_testing import (
 
 pytest.mark.kafka(test_handle_k)
 pytest.mark.kafka(test_validation_error_k)
+
+pytest.mark.kafka(test_handle_confluent)
+pytest.mark.kafka(test_validation_error_confluent)
 
 pytest.mark.rabbit(test_handle_r)
 pytest.mark.rabbit(test_validation_error_r)

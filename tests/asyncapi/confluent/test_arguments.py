@@ -1,10 +1,10 @@
 from faststream.asyncapi.generate import get_app_schema
-from faststream.nats import NatsBroker
+from faststream.confluent import KafkaBroker
 from tests.asyncapi.base.arguments import ArgumentsTestcase
 
 
 class TestArguments(ArgumentsTestcase):  # noqa: D101
-    broker_class = NatsBroker
+    broker_class = KafkaBroker
 
     def test_subscriber_bindings(self):
         broker = self.broker_class()
@@ -16,5 +16,5 @@ class TestArguments(ArgumentsTestcase):  # noqa: D101
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert schema["channels"][key]["bindings"] == {
-            "nats": {"bindingVersion": "custom", "subject": "test"}
+            "kafka": {"bindingVersion": "0.4.0", "topic": "test"}
         }

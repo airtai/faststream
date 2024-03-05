@@ -12,6 +12,80 @@ hide:
 ---
 
 # Release Notes
+## 0.4.6
+
+### What's Changed
+* Add poll in confluent producer to fix BufferError by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1277](https://github.com/airtai/faststream/pull/1277){.external-link target="_blank"}
+* Cover confluent asyncapi tests by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1279](https://github.com/airtai/faststream/pull/1279){.external-link target="_blank"}
+* chore: bump package versions by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1285](https://github.com/airtai/faststream/pull/1285){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.4.5...0.4.6](https://github.com/airtai/faststream/compare/0.4.5...0.4.6){.external-link target="_blank"}
+
+## 0.4.5
+
+### What's Changed
+* Update Release Notes for 0.4.4 by @faststream-release-notes-updater in [#1260](https://github.com/airtai/faststream/pull/1260){.external-link target="_blank"}
+* Removed unused pytest dependency from redis/schemas.py by [@ashambalev](https://github.com/ashambalev){.external-link target="_blank"} in [#1261](https://github.com/airtai/faststream/pull/1261){.external-link target="_blank"}
+* chore: bumped package versions by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1270](https://github.com/airtai/faststream/pull/1270){.external-link target="_blank"}
+* fix (#1263): correct AsyncAPI schema in descriminator case by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1272](https://github.com/airtai/faststream/pull/1272){.external-link target="_blank"}
+
+### New Contributors
+* [@ashambalev](https://github.com/ashambalev){.external-link target="_blank"} made their first contribution in [#1261](https://github.com/airtai/faststream/pull/1261){.external-link target="_blank"}
+
+**Full Changelog**: [#0.4.4...0.4.5](https://github.com/airtai/faststream/compare/0.4.4...0.4.5){.external-link target="_blank"}
+
+## 0.4.4
+
+### What's Changed
+
+Add RedisStream batch size option
+
+```python
+@broker.subscriber(stream=StreamSub("input", batch=True, max_records=3))
+async def on_input_data(msgs: list[str]):
+    assert len(msgs) <= 3
+```
+
+* Update Release Notes for 0.4.3 by @faststream-release-notes-updater in [#1247](https://github.com/airtai/faststream/pull/1247){.external-link target="_blank"}
+* docs: add manual run section by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1249](https://github.com/airtai/faststream/pull/1249){.external-link target="_blank"}
+* feat (#1252): respect Redis StreamSub last_id with consumer group by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1256](https://github.com/airtai/faststream/pull/1256){.external-link target="_blank"}
+* fix: correct Redis consumer group behavior by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1258](https://github.com/airtai/faststream/pull/1258){.external-link target="_blank"}
+* feat: add Redis Stream max_records option by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1259](https://github.com/airtai/faststream/pull/1259){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.4.3...0.4.4](https://github.com/airtai/faststream/compare/0.4.3...0.4.4){.external-link target="_blank"}
+
+## 0.4.3
+
+### What's Changed
+
+Allow to specify **Redis Stream** maxlen option in publisher:
+
+```python
+@broker.publisher(stream=StreamSub("Output", max_len=10))
+async def on_input_data():
+    ....
+```
+
+* chore: bump version by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1198](https://github.com/airtai/faststream/pull/1198){.external-link target="_blank"}
+* Update Release Notes for 0.4.2 by @faststream-release-notes-updater in [#1199](https://github.com/airtai/faststream/pull/1199){.external-link target="_blank"}
+* Add missing API documentation for apply_pattern by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1201](https://github.com/airtai/faststream/pull/1201){.external-link target="_blank"}
+* chore: polishing by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1203](https://github.com/airtai/faststream/pull/1203){.external-link target="_blank"}
+* Comment out retry and timeout in a confluent test by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1207](https://github.com/airtai/faststream/pull/1207){.external-link target="_blank"}
+* Commit offsets only if auto_commit is True by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1208](https://github.com/airtai/faststream/pull/1208){.external-link target="_blank"}
+* Add a CI job to check for missed docs changes by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1217](https://github.com/airtai/faststream/pull/1217){.external-link target="_blank"}
+* fix: inconsistent NATS publisher signature by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1218](https://github.com/airtai/faststream/pull/1218){.external-link target="_blank"}
+* Upgrade packages by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1226](https://github.com/airtai/faststream/pull/1226){.external-link target="_blank"}
+* chore: bump dawidd6/action-download-artifact from 3.0.0 to 3.1.1 by [@dependabot](https://github.com/dependabot){.external-link target="_blank"} in [#1239](https://github.com/airtai/faststream/pull/1239){.external-link target="_blank"}
+* chore: bump dependencies by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1246](https://github.com/airtai/faststream/pull/1246){.external-link target="_blank"}
+* feat (#1235): StreamSub maxlen parameter by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1245](https://github.com/airtai/faststream/pull/1245){.external-link target="_blank"}
+* fix (#1234): correct FastAPI path passing, fix typehints by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1236](https://github.com/airtai/faststream/pull/1236){.external-link target="_blank"}
+* fix (#1231): close RMQ while reconnecting by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1238](https://github.com/airtai/faststream/pull/1238){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.4.2...0.4.3](https://github.com/airtai/faststream/compare/0.4.2...0.4.3){.external-link target="_blank"}
+
 ## 0.4.2
 
 ### What's Changed

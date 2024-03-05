@@ -91,6 +91,7 @@ class RedisFastProducer:
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
+        maxlen: Optional[int] = None,
     ) -> Optional[Any]:
         if not any((channel, list, stream)):
             raise ValueError(INCORRECT_SETUP_MSG)
@@ -116,7 +117,11 @@ class RedisFastProducer:
         elif list is not None:
             await self._connection.rpush(list, msg)
         elif stream is not None:
-            await self._connection.xadd(stream, {DATA_KEY: msg})
+            await self._connection.xadd(
+                name=stream,
+                fields={DATA_KEY: msg},
+                maxlen=maxlen,
+            )
         else:
             raise AssertionError("unreachable")
 
