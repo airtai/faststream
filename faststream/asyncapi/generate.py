@@ -184,8 +184,6 @@ def _resolve_msg_payloads(
     m.payload = _move_pydantic_refs(m.payload, DEF_KEY)
     if DEF_KEY in m.payload:
         payloads.update(m.payload.pop(DEF_KEY))
-    if "discriminator" in m.payload:
-        m.payload["discriminator"] = m.payload["discriminator"]["propertyName"]
 
     one_of = m.payload.get("oneOf")
     if isinstance(one_of, dict):
@@ -239,5 +237,8 @@ def _move_pydantic_refs(
         elif isinstance(item, List):
             for i in range(len(data[k])):
                 data[k][i] = _move_pydantic_refs(item[i], key)
+
+    if isinstance(desciminator := data.get("discriminator"), dict):
+        data["discriminator"] = desciminator["propertyName"]
 
     return data
