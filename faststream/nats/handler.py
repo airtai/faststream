@@ -96,28 +96,31 @@ class BaseNatsHandler(BaseHandler[MsgType]):
         ],
         queue: Annotated[
             str,
-            Doc("NATS queue name"),
+            Doc("Subscribers' NATS queue name"),
         ],
         stream: Annotated[
             Optional["JStream"],
-            Doc("NATS Stream object"),
+            Doc("Subscribe to NATS Stream with `subject` filter."),
         ],
         pull_sub: Annotated[
             Optional["PullSub"],
-            Doc("NATS Pull consumer parameters container"),
+            Doc(
+                "NATS Pull consumer parameters container."
+                "Should be used with `stream` only."
+            ),
         ],
         # AsyncAPI information
         title_: Annotated[
             Optional[str],
-            Doc("AsyncAPI subscriber title"),
+            Doc("AsyncAPI subscriber title."),
         ],
         description_: Annotated[
             Optional[str],
-            Doc("AsyncAPI subscriber description"),
+            Doc("AsyncAPI subscriber description."),
         ],
         include_in_schema: Annotated[
             bool,
-            Doc("Whether to include the handler in AsyncAPI schema"),
+            Doc("Whether to include the handler in AsyncAPI schema."),
         ],
     ) -> None:
         """Initialize the NATS handler."""

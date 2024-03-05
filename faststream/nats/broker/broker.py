@@ -35,7 +35,7 @@ from nats.js.client import (
     DEFAULT_JS_SUB_PENDING_MSGS_LIMIT,
 )
 from nats.js.errors import BadRequestError
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import __version__
 from faststream.broker.core.broker import BrokerUsecase, default_filter
@@ -84,7 +84,6 @@ if TYPE_CHECKING:
     class NatsInitKwargs(TypedDict, total=False):
         """NatsBroker.connect() method type hints."""
 
-        servers: Union[str, Iterable[str]]
         error_cb: Optional["ErrorCallback"]
         disconnected_cb: Optional["Callback"]
         closed_cb: Optional["Callback"]
@@ -135,7 +134,10 @@ class NatsBroker(
 
     def __init__(
         self,
-        servers: Union[str, Iterable[str]] = ("nats://localhost:4222",),
+        servers: Annotated[
+            Union[str, Iterable[str]],
+            Doc("NATS cluster addresses to connect."),
+        ] = ("nats://localhost:4222",),
         *,
         error_cb: Optional["ErrorCallback"] = None,
         disconnected_cb: Optional["Callback"] = None,
@@ -341,10 +343,22 @@ class NatsBroker(
     @override
     async def connect(  # type: ignore[override]
         self,
+        servers: Annotated[
+            Union[str, Iterable[str], object],
+            Doc("NATS cluster addresses to connect."),
+        ] = Parameter.empty,
         **kwargs: "Unpack[NatsInitKwargs]",
     ) -> "Client":
         """Connect broker object to NATS cluster."""
-        connection = await super().connect(**kwargs)
+        if servers is not Parameter.empty:
+            connect_kwargs = {
+                "servers": servers,
+                **kwargs,
+            }
+        else:
+            connect_kwargs = kwargs
+
+        connection = await super().connect(**connect_kwargs)
         for p in self._publishers.values():
             self.__set_publisher_producer(p)
         return connection
@@ -436,8 +450,14 @@ class NatsBroker(
     @override
     def subscriber(  # type: ignore[override]
         self,
-        subject: str,
-        queue: str = "",
+        subject: Annotated[
+            str,
+            Doc("NATS subject to subscribe"),
+        ],
+        queue: Annotated[
+            str,
+            Doc("Subscribers' NATS queue name"),
+        ] = "",
         pending_msgs_limit: Optional[int] = None,
         pending_bytes_limit: Optional[int] = None,
         # Core arguments
@@ -451,26 +471,70 @@ class NatsBroker(
         deliver_policy: Optional["api.DeliverPolicy"] = None,
         headers_only: Optional[bool] = None,
         # pull arguments
-        pull_sub: Optional["PullSub"] = None,
+        pull_sub: Annotated[
+            Optional["PullSub"],
+            Doc(
+                "NATS Pull consumer parameters container."
+                "Should be used with `stream` only."
+            ),
+        ] = None,
         inbox_prefix: bytes = api.INBOX_PREFIX,
         # custom
-        ack_first: bool = False,
-        stream: Union[str, "JStream", None] = None,
+        ack_first: Annotated[
+            bool, Doc("Whether to `ack` message at start of consuming or not.")
+        ] = False,
+        stream: Annotated[
+            Union[str, "JStream", None],
+            Doc("Subscribe to NATS Stream with `subject` filter."),
+        ] = None,
         # broker arguments
-        dependencies: Iterable["Depends"] = (),
+        dependencies: Annotated[
+            Iterable["Depends"],
+            Doc("A list of dependencies (using `Depends()`) to be applied to the subscriber.")
+        ] = (),
         parser: Optional["CustomParser[Msg]"] = None,
         decoder: Optional["CustomDecoder[NatsMessage]"] = None,
         middlewares: Iterable["SubscriberMiddleware"] = (),
-        filter: "Filter[NatsMessage]" = default_filter,
-        max_workers: int = 1,
-        retry: bool = False,
-        no_ack: bool = False,
+        filter: Annotated[
+            "Filter[NatsMessage]",
+            Doc(
+                "Overload subscriber to consume various messages from the same source."
+            ),
+            deprecated(
+                "Deprecated in **FastStream 0.5.0**. "
+                "Please, create `subscriber` object and use it explicitly instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
+        ] = default_filter,
+        max_workers: Annotated[
+            int,
+            Doc("Number of workers to process messages concurrently."),
+        ] = 1,
+        retry: Annotated[
+            bool, Doc("Whether to `nack` message at processing exception.")
+        ] = False,
+        no_ack: Annotated[
+            bool,
+            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
+        ] = False,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        include_in_schema: bool = True,
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI subscriber title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI subscriber description."),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whether to include the handler in AsyncAPI schema."),
+        ] = True,
         # Extra kwargs
-        get_dependent: Optional[Any] = None,
+        get_dependent: Annotated[
+            Optional[Any],
+            Doc("Service option to pass FastAPI-compatible callback.")
+        ] = None,
     ) -> "WrapperProtocol[Msg]":
         super().subscriber()
 
