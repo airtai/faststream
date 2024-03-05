@@ -232,9 +232,6 @@ def _move_pydantic_refs(
                 data[k] = data[k].replace(key, "components/schemas")
 
         elif isinstance(item, dict):
-            if "discriminator" in item:
-                item["discriminator"] = item["discriminator"]["propertyName"]
-
             data[k] = _move_pydantic_refs(data[k], key)
 
         elif isinstance(item, List):
