@@ -3,7 +3,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 
 from nats.aio.msg import Msg
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import override
 
 from faststream.broker.core.publisher import BasePublisher
 from faststream.exceptions import NOT_CONNECTED_YET
@@ -30,54 +30,18 @@ class LogicPublisher(BasePublisher[Msg]):
     def __init__(
         self,
         *,
-        subject: Annotated[
-            str,
-            Doc("NATS subject to publish messages."),
-        ],
-        reply_to: Annotated[
-            str,
-            Doc("NATS subject to send publishing message response."),
-        ],
-        headers: Annotated[
-            Optional[Dict[str, str]],
-            Doc(
-                "Publishing message default headers."
-                "Can be overrided by `publish.headers` if specified"
-            ),
-        ],
-        stream: Annotated[
-            Optional[JStream],
-            Doc("Validate `subject` is in specified stream or not."),
-        ],
-        timeout: Annotated[
-            Optional[float],
-            Doc("Message publish timeout."),
-        ],
+        subject: str,
+        reply_to: str,
+        headers: Optional[Dict[str, str]],
+        stream: Optional[JStream],
+        timeout: Optional[float],
         # Regular publisher options
-        middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Publisher middlewares."),
-        ],
+        middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI options
-        schema_: Annotated[
-            Optional[Any],
-            Doc(
-                "AsyncAPI publishing message type"
-                "Should be any python-native object annotation or `pydantic.BaseModel`."
-            ),
-        ],
-        title_: Annotated[
-            Optional[str],
-            Doc("AsyncAPI object title."),
-        ],
-        description_: Annotated[
-            Optional[str],
-            Doc("AsyncAPI object description."),
-        ],
-        include_in_schema: Annotated[
-            bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
-        ],
+        schema_: Optional[Any],
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
     ) -> None:
         """Initialize NATS publisher object."""
         super().__init__(

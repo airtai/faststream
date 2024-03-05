@@ -349,7 +349,10 @@ class NatsBroker(
         ] = Parameter.empty,
         **kwargs: "Unpack[NatsInitKwargs]",
     ) -> "Client":
-        """Connect broker object to NATS cluster."""
+        """Connect broker object to NATS cluster.
+
+        To statup subscribers too you should use `broker.start()` after/instead this method.
+        """
         if servers is not Parameter.empty:
             connect_kwargs = {
                 "servers": servers,
@@ -400,6 +403,7 @@ class NatsBroker(
         self.__is_connected = False
 
     async def start(self) -> None:
+        """Connect broker to NATS cluster and startup all subscribers."""
         await super().start()
 
         assert self._connection  # nosec B101
@@ -490,7 +494,9 @@ class NatsBroker(
         # broker arguments
         dependencies: Annotated[
             Iterable["Depends"],
-            Doc("A list of dependencies (using `Depends()`) to be applied to the subscriber.")
+            Doc(
+                "A list of dependencies (using `Depends()`) to be applied to the subscriber."
+            ),
         ] = (),
         parser: Optional["CustomParser[Msg]"] = None,
         decoder: Optional["CustomDecoder[NatsMessage]"] = None,
@@ -532,10 +538,13 @@ class NatsBroker(
         ] = True,
         # Extra kwargs
         get_dependent: Annotated[
-            Optional[Any],
-            Doc("Service option to pass FastAPI-compatible callback.")
+            Optional[Any], Doc("Service option to pass FastAPI-compatible callback.")
         ] = None,
     ) -> "WrapperProtocol[Msg]":
+        """Creates NATS subscriber object.
+
+        You can use it as a handler decorator `@broker.subscriber(...)`.
+        """
         super().subscriber()
 
         stream = stream_builder.stream(stream)
@@ -635,21 +644,67 @@ class NatsBroker(
     @override
     def publisher(  # type: ignore[override]
         self,
-        subject: str,
-        headers: Optional[Dict[str, str]] = None,
-        # Core
-        reply_to: str = "",
+        subject: Annotated[
+            str,
+            Doc("NATS subject to send message."),
+        ],
+        headers: Annotated[
+            Optional[Dict[str, str]],
+            Doc(
+                "Message headers to store metainformation. "
+                "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
+                "Can be overrided by `publish.headers` if specified."
+            ),
+        ] = None,
+        reply_to: Annotated[
+            str,
+            Doc("NATS subject name to send response."),
+        ] = "",
         # JS
-        stream: Union[str, "JStream", None] = None,
-        timeout: Optional[float] = None,
+        stream: Annotated[
+            Union[str, "JStream", None],
+            Doc(
+                "This option validates that the target `subject` is in presented stream. "
+                "Can be ommited without any effect."
+            ),
+        ] = None,
+        timeout: Annotated[
+            Optional[float],
+            Doc("Timeout to send message to NATS."),
+        ] = None,
         # specific
-        middlewares: Iterable["PublisherMiddleware"] = (),
+        middlewares: Annotated[
+            Iterable["PublisherMiddleware"],
+            Doc("Publisher middlewares to wrap outgoing messages."),
+        ] = (),
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        schema: Optional[Any] = None,
-        include_in_schema: bool = True,
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object description."),
+        ] = None,
+        schema: Annotated[
+            Optional[Any],
+            Doc(
+                "AsyncAPI publishing message type. "
+                "Should be any python-native object annotation or `pydantic.BaseModel`."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
     ) -> "Publisher":
+        """Creates long-living and AsyncAPI-documented publisher object.
+
+        You can use it as a handler decorator (handler should be decorated by `@broker.subscriber(...)` too) - `@broker.publisher(...)`.
+        In such case publisher will publish your handler return value.
+
+        Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
+        """
         if (stream := stream_builder.stream(stream)) is not None:
             stream.add_subject(subject)
 
@@ -676,18 +731,70 @@ class NatsBroker(
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: "SendableMessage",
-        subject: str,
-        headers: Optional[Dict[str, str]] = None,
-        reply_to: str = "",
-        correlation_id: Optional[str] = None,
-        stream: Optional[str] = None,
-        timeout: Optional[float] = None,
+        message: Annotated[
+            "SendableMessage",
+            Doc(
+                "Message body to send. "
+                "Can be any encodable object (native python types or `pydantic.BaseModel`)."
+            ),
+        ],
+        subject: Annotated[
+            str,
+            Doc("NATS subject to send message."),
+        ],
+        headers: Annotated[
+            Optional[Dict[str, str]],
+            Doc(
+                "Message headers to store metainformation. "
+                "**content-type** and **correlation_id** will be setted automatically by framework anyway."
+            ),
+        ] = None,
+        reply_to: Annotated[
+            str,
+            Doc("NATS subject name to send response."),
+        ] = "",
+        correlation_id: Annotated[
+            Optional[str],
+            Doc(
+                "Manual message **correlation_id** setter. "
+                "**correlation_id** is a useful option to trace messages."
+            ),
+        ] = None,
+        stream: Annotated[
+            Optional[str],
+            Doc(
+                "This option validates that the target subject is in presented stream. "
+                "Can be ommited without any effect."
+            ),
+        ] = None,
+        timeout: Annotated[
+            Optional[float],
+            Doc("Timeout to send message to NATS."),
+        ] = None,
         *,
-        rpc: bool = False,
-        rpc_timeout: Optional[float] = 30.0,
-        raise_timeout: bool = False,
+        rpc: Annotated[
+            bool,
+            Doc("Whether to wait for reply in blocking mode."),
+        ] = False,
+        rpc_timeout: Annotated[
+            Optional[float],
+            Doc("RPC reply waiting time."),
+        ] = 30.0,
+        raise_timeout: Annotated[
+            bool,
+            Doc(
+                "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
+                "RPC request returns `None` at timeout by default."
+            ),
+        ] = False,
     ) -> Optional["DecodedMessage"]:
+        """Publish message directly.
+
+        This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
+        applications or to publish messages from time to time.
+
+        Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
+        """
         kwargs = {
             "subject": subject,
             "headers": headers,
@@ -719,7 +826,10 @@ class NatsBroker(
 
             return await publisher.publish(message, **kwargs)
 
-    def __set_publisher_producer(self, publisher: "Publisher") -> None:
+    def __set_publisher_producer(
+        self,
+        publisher: "Publisher",
+    ) -> None:
         if publisher.stream is not None:
             if self._js_producer is not None:
                 publisher._producer = self._js_producer
