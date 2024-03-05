@@ -139,15 +139,35 @@ class NatsBroker(
             Doc("NATS cluster addresses to connect."),
         ] = ("nats://localhost:4222",),
         *,
-        error_cb: Optional["ErrorCallback"] = None,
-        disconnected_cb: Optional["Callback"] = None,
-        closed_cb: Optional["Callback"] = None,
-        discovered_server_cb: Optional["Callback"] = None,
-        reconnected_cb: Optional["Callback"] = None,
-        name: Optional[str] = f"faststream-{__version__}",
+        error_cb: Annotated[
+            Optional["ErrorCallback"],
+            Doc("Callback to report errors."),
+        ] = None,
+        disconnected_cb: Annotated[
+            Optional["Callback"],
+            Doc("Callback to report disconnection from NATS."),
+        ] = None,
+        closed_cb: Annotated[
+            Optional["Callback"],
+            Doc("Callback to report when client stops reconnection to NATS."),
+        ] = None,
+        discovered_server_cb: Annotated[
+            Optional["Callback"],
+            Doc("Callback to report when a new server joins the cluster."),
+        ] = None,
+        reconnected_cb: Annotated[
+            Optional["Callback"], Doc("Callback to report success reconnection.")
+        ] = None,
+        name: Annotated[
+            Optional[str],
+            Doc("Label the connection with name (shown in NATS monitoring)."),
+        ] = f"faststream-{__version__}",
         pedantic: bool = False,
         verbose: bool = False,
-        allow_reconnect: bool = True,
+        allow_reconnect: Annotated[
+            bool,
+            Doc("Whether recover connection automatically or not."),
+        ] = True,
         connect_timeout: int = DEFAULT_CONNECT_TIMEOUT,
         reconnect_time_wait: int = DEFAULT_RECONNECT_TIME_WAIT,
         max_reconnect_attempts: int = DEFAULT_MAX_RECONNECT_ATTEMPTS,
@@ -167,8 +187,14 @@ class NatsBroker(
         user_credentials: Optional["Credentials"] = None,
         nkeys_seed: Optional[str] = None,
         inbox_prefix: Union[str, bytes] = DEFAULT_INBOX_PREFIX,
-        pending_size: int = DEFAULT_PENDING_SIZE,
-        flush_timeout: Optional[float] = None,
+        pending_size: Annotated[
+            int,
+            Doc("Max size of the pending buffer for publishing commands."),
+        ] = DEFAULT_PENDING_SIZE,
+        flush_timeout: Annotated[
+            Optional[float],
+            Doc("Max duration to wait for a forced flush to occur."),
+        ] = None,
         # broker args
         graceful_timeout: Annotated[
             Optional[float],
@@ -456,22 +482,39 @@ class NatsBroker(
         self,
         subject: Annotated[
             str,
-            Doc("NATS subject to subscribe"),
+            Doc("NATS subject to subscribe."),
         ],
         queue: Annotated[
             str,
-            Doc("Subscribers' NATS queue name"),
+            Doc("Subscribers' NATS queue name."),
         ] = "",
         pending_msgs_limit: Optional[int] = None,
         pending_bytes_limit: Optional[int] = None,
         # Core arguments
-        max_msgs: int = 0,
+        max_msgs: Annotated[
+            int,
+            Doc("Consuming messages limiter. Automatically disconnect if reached."),
+        ] = 0,
         # JS arguments
-        durable: Optional[str] = None,
+        durable: Annotated[
+            Optional[str],
+            Doc(
+                "Name of the durable consumer to which the the subscription should be bound."
+            ),
+        ] = None,
         config: Optional["api.ConsumerConfig"] = None,
-        ordered_consumer: bool = False,
-        idle_heartbeat: Optional[float] = None,
-        flow_control: bool = False,
+        ordered_consumer: Annotated[
+            bool,
+            Doc("Enable ordered consumer mode."),
+        ] = False,
+        idle_heartbeat: Annotated[
+            Optional[float],
+            Doc("Enable Heartbeats for a consumer to detect failures."),
+        ] = None,
+        flow_control: Annotated[
+            bool,
+            Doc("Enable Flow Control for a consumer."),
+        ] = False,
         deliver_policy: Optional["api.DeliverPolicy"] = None,
         headers_only: Optional[bool] = None,
         # pull arguments
@@ -485,7 +528,8 @@ class NatsBroker(
         inbox_prefix: bytes = api.INBOX_PREFIX,
         # custom
         ack_first: Annotated[
-            bool, Doc("Whether to `ack` message at start of consuming or not.")
+            bool,
+            Doc("Whether to `ack` message at start of consuming or not."),
         ] = False,
         stream: Annotated[
             Union[str, "JStream", None],
@@ -494,13 +538,20 @@ class NatsBroker(
         # broker arguments
         dependencies: Annotated[
             Iterable["Depends"],
-            Doc(
-                "A list of dependencies (using `Depends()`) to be applied to the subscriber."
-            ),
+            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
-        parser: Optional["CustomParser[Msg]"] = None,
-        decoder: Optional["CustomDecoder[NatsMessage]"] = None,
-        middlewares: Iterable["SubscriberMiddleware"] = (),
+        parser: Annotated[
+            Optional["CustomParser[Msg]"],
+            Doc("Parser to map original **nats-py** Msg to FastStream one"),
+        ] = None,
+        decoder: Annotated[
+            Optional["CustomDecoder[StreamMessage[Msg]]"],
+            Doc("Function to decode FastStream msg bytes body to python objects"),
+        ] = None,
+        middlewares: Annotated[
+            Iterable["SubscriberMiddleware"],
+            Doc("Subscriber middlewares to wrap incoming message processing."),
+        ] = (),
         filter: Annotated[
             "Filter[NatsMessage]",
             Doc(
@@ -517,7 +568,8 @@ class NatsBroker(
             Doc("Number of workers to process messages concurrently."),
         ] = 1,
         retry: Annotated[
-            bool, Doc("Whether to `nack` message at processing exception.")
+            bool,
+            Doc("Whether to `nack` message at processing exception."),
         ] = False,
         no_ack: Annotated[
             bool,
@@ -526,19 +578,20 @@ class NatsBroker(
         # AsyncAPI information
         title: Annotated[
             Optional[str],
-            Doc("AsyncAPI subscriber title."),
+            Doc("AsyncAPI subscriber object title."),
         ] = None,
         description: Annotated[
             Optional[str],
-            Doc("AsyncAPI subscriber description."),
+            Doc("AsyncAPI subscriber object description."),
         ] = None,
         include_in_schema: Annotated[
             bool,
-            Doc("Whether to include the handler in AsyncAPI schema."),
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
         # Extra kwargs
         get_dependent: Annotated[
-            Optional[Any], Doc("Service option to pass FastAPI-compatible callback.")
+            Optional[Any],
+            Doc("Service option to pass FastAPI-compatible callback."),
         ] = None,
     ) -> "WrapperProtocol[Msg]":
         """Creates NATS subscriber object.
