@@ -1,7 +1,8 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
 
+from aio_pika import IncomingMessage
 from typing_extensions import override
 
 from faststream.broker.core.publisher import BasePublisher
@@ -12,32 +13,78 @@ from faststream.rabbit.schemas.schemas import BaseRMQInformation
 if TYPE_CHECKING:
     import aiormq
 
+    from faststream.broker.types import PublisherMiddleware
     from faststream.rabbit.producer import AioPikaFastProducer
+    from faststream.rabbit.schemas.schemas import RabbitExchange, RabbitQueue
     from faststream.rabbit.types import AioPikaSendableMessage, TimeoutType
     from faststream.types import AnyDict, SendableMessage
 
 
 @dataclass
-class LogicPublisher(BasePublisher["IncomingMessage"], BaseRMQInformation):
-    """A class to publish messages for logic processing.
+class LogicPublisher(
+    BasePublisher[IncomingMessage],
+    BaseRMQInformation,
+):
+    """A class to represent a RabbitMQ publisher."""
 
-    Attributes:
-        _producer : An optional AioPikaFastProducer object.
+    routing_key: str
+    mandatory: bool
+    immediate: bool
+    persist: bool
+    timeout: "TimeoutType"
+    reply_to: Optional[str]
 
-    Methods:
-        publish : Publishes a message for logic processing.
-    """
+    priority: Optional[int]
+    message_kwargs: "AnyDict"
 
-    routing_key: str = ""
-    mandatory: bool = True
-    immediate: bool = False
-    persist: bool = False
-    timeout: "TimeoutType" = None
-    reply_to: Optional[str] = None
+    _producer: Optional["AioPikaFastProducer"]
 
-    priority: Optional[int] = None
-    message_kwargs: "AnyDict" = field(default_factory=dict)
-    _producer: Optional["AioPikaFastProducer"] = field(default=None, init=False)
+    def __init__(
+        self,
+        *,
+        routing_key: str,
+        mandatory: bool,
+        immediate: bool,
+        persist: bool,
+        virtual_host: str,
+        queue: "RabbitQueue",
+        exchange: Optional["RabbitExchange"],
+        timeout: "TimeoutType",
+        reply_to: Optional[str],
+        priority: Optional[int],
+        message_kwargs: "AnyDict",
+        # Regular publisher options
+        middlewares: Iterable["PublisherMiddleware"],
+        # AsyncAPI options
+        schema_: Optional[Any],
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> None:
+        """Initialize NATS publisher object."""
+        super().__init__(
+            middlewares=middlewares,
+            schema_=schema_,
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+        self.routing_key = routing_key
+        self.mandatory = mandatory
+        self.immediate = immediate
+        self.timeout = timeout
+        self.reply_to = reply_to
+        self.priority = priority
+        self.message_kwargs = message_kwargs
+        self.persist = persist
+
+        self._producer = None
+
+        # BaseRMQInformation
+        self.queue = queue
+        self.exchange = exchange
+        self.virtual_host = virtual_host
 
     @property
     def routing(self) -> Optional[str]:
@@ -71,7 +118,7 @@ class LogicPublisher(BasePublisher["IncomingMessage"], BaseRMQInformation):
         )
 
     @cached_property
-    def publish_kwargs(self) -> "AnyDict":
+    def publish_kwargs(self) -> "AnyDict":  # type: ignore[overide]
         return {
             "exchange": self.exchange,
             "routing_key": self.routing,

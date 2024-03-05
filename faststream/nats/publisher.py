@@ -7,12 +7,12 @@ from typing_extensions import override
 
 from faststream.broker.core.publisher import BasePublisher
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
-from faststream.nats.schemas import JStream
-from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
 if TYPE_CHECKING:
     from faststream.broker.types import PublisherMiddleware
+    from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
+    from faststream.nats.schemas import JStream
+    from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
 
 @dataclass
@@ -22,10 +22,10 @@ class LogicPublisher(BasePublisher[Msg]):
     subject: str
     reply_to: str
     headers: Optional[Dict[str, str]]
-    stream: Optional[JStream]
+    stream: Optional["JStream"]
     timeout: Optional[float]
 
-    _producer: Union[NatsFastProducer, NatsJSFastProducer, None]
+    _producer: Union["NatsFastProducer", "NatsJSFastProducer", None]
 
     def __init__(
         self,
@@ -33,7 +33,7 @@ class LogicPublisher(BasePublisher[Msg]):
         subject: str,
         reply_to: str,
         headers: Optional[Dict[str, str]],
-        stream: Optional[JStream],
+        stream: Optional["JStream"],
         timeout: Optional[float],
         # Regular publisher options
         middlewares: Iterable["PublisherMiddleware"],
@@ -63,9 +63,9 @@ class LogicPublisher(BasePublisher[Msg]):
     @override
     async def _publish(  # type: ignore[override]
         self,
-        message: SendableMessage = "",
+        message: "SendableMessage" = "",
         **producer_kwargs: Any,
-    ) -> Optional[DecodedMessage]:
+    ) -> Optional["DecodedMessage"]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
         assert self.subject, "You have to specify outgoing subject"  # nosec B101
 
@@ -75,7 +75,7 @@ class LogicPublisher(BasePublisher[Msg]):
         )
 
     @cached_property
-    def publish_kwargs(self) -> AnyDict:  # type: ignore[overide]
+    def publish_kwargs(self) -> "AnyDict":  # type: ignore[overide]
         kwargs = {
             "subject": self.subject,
             "reply_to": self.reply_to,

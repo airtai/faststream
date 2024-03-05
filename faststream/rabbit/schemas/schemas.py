@@ -1,5 +1,5 @@
 import warnings
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional, Pattern
 
 from pydantic import BaseModel
@@ -236,6 +236,17 @@ class BaseRMQInformation:
         virtual_host : Virtual host to connect
     """
 
-    queue: RabbitQueue = field(default=RabbitQueue(""))
-    exchange: Optional[RabbitExchange] = field(default=None)
-    virtual_host: str = "/"
+    queue: RabbitQueue
+    exchange: Optional[RabbitExchange]
+    virtual_host: str
+
+    def __init__(
+        self,
+        *,
+        virtual_host: str,
+        queue: RabbitQueue,
+        exchange: Optional[RabbitExchange],
+    ) -> None:
+        self.virtual_host = virtual_host
+        self.exchange = exchange
+        self.queue = queue

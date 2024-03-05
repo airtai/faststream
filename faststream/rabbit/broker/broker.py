@@ -1,4 +1,6 @@
+import logging
 from contextlib import AsyncExitStack
+from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -11,7 +13,7 @@ from typing import (
 )
 
 import aio_pika
-from typing_extensions import override
+from typing_extensions import Annotated, Doc, override
 
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.utils import get_watcher_context
@@ -31,13 +33,17 @@ if TYPE_CHECKING:
     from types import TracebackType
 
     import aiormq
+    from aio_pika import IncomingMessage
     from aio_pika.abc import SSLOptions
     from fast_depends.dependencies import Depends
     from pamqp.common import FieldTable
     from yarl import URL
 
+    from faststream.asyncapi import schema as asyncapi
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
+    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
+        BrokerMiddleware,
         CustomDecoder,
         CustomParser,
         Filter,
@@ -53,7 +59,7 @@ if TYPE_CHECKING:
 
 class RabbitBroker(
     RabbitLoggingMixin,
-    BrokerUsecase["aio_pika.IncomingMessage", "aio_pika.RobustConnection"],
+    BrokerUsecase["IncomingMessage", "aio_pika.RobustConnection"],
 ):
     url: str
     handlers: Dict[int, Handler]
@@ -77,9 +83,77 @@ class RabbitBroker(
         client_properties: Optional["FieldTable"] = None,
         # broker args
         max_consumers: Optional[int] = None,
-        protocol: Optional[str] = None,
-        protocol_version: Optional[str] = "0.9.1",
-        security: Optional["BaseSecurity"] = None,
+        # broker args
+        graceful_timeout: Annotated[
+            Optional[float],
+            Doc(
+                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down."
+            ),
+        ] = None,
+        apply_types: Annotated[
+            bool,
+            Doc("Whether to use FastDepends or not."),
+        ] = True,
+        validate: Annotated[
+            bool,
+            Doc("Whether to cast types using Pydantic validation."),
+        ] = True,
+        decoder: Annotated[
+            Optional["CustomDecoder[StreamMessage[IncomingMessag]]"],
+            Doc("Custom decoder object."),
+        ] = None,
+        parser: Annotated[
+            Optional["CustomParser[IncomingMessag]"],
+            Doc("Custom parser object."),
+        ] = None,
+        dependencies: Annotated[
+            Iterable["Depends"],
+            Doc("Dependencies to apply to all broker subscribers."),
+        ] = (),
+        middlewares: Annotated[
+            Iterable["BrokerMiddleware[IncomingMessag]"],
+            Doc("Middlewares to apply to all broker publishers/subscribers."),
+        ] = (),
+        # AsyncAPI args
+        security: Annotated[
+            Optional["BaseSecurity"],
+            Doc(
+                "Security options to connect broker and generate AsyncAPI server security information."
+            ),
+        ] = None,
+        asyncapi_url: Annotated[
+            Union[str, Iterable[str], None],
+            Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
+        ] = None,
+        protocol: Annotated[
+            Optional[str],
+            Doc("AsyncAPI server protocol."),
+        ] = None,
+        protocol_version: Annotated[
+            Optional[str],
+            Doc("AsyncAPI server protocol version."),
+        ] = "0.9.1",
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI server description."),
+        ] = None,
+        tags: Annotated[
+            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+            Doc("AsyncAPI server tags."),
+        ] = None,
+        # logging args
+        logger: Annotated[
+            Union[logging.Logger, None, object],
+            Doc("User specified logger to pass into Context and log service messages."),
+        ] = Parameter.empty,
+        log_level: Annotated[
+            int,
+            Doc("Service messages log level."),
+        ] = logging.INFO,
+        log_fmt: Annotated[
+            Optional[str],
+            Doc("Default logger log format."),
+        ] = None,
         **kwargs: Any,
     ) -> None:
         security_args = parse_security(security)
@@ -98,16 +172,33 @@ class RabbitBroker(
 
         super().__init__(
             url=str(amqp_url),
+            ssl_context=security_args.get("ssl_context", None),
+            # Basic args
+            ## broker base
+            graceful_timeout=graceful_timeout,
+            apply_types=apply_types,
+            validate=validate,
+            dependencies=dependencies,
+            decoder=decoder,
+            parser=parser,
+            middlewares=middlewares,
+            ## AsyncAPI
+            description=description,
+            asyncapi_url=asyncapi_url,
+            protocol=protocol,
             protocol_version=protocol_version,
             security=security,
-            ssl_context=security_args.get("ssl_context", None),
-            **kwargs,
+            tags=tags,
+            ## logging
+            logger=logger,
+            log_level=log_level,
+            log_fmt=log_fmt,
         )
 
         # respect ascynapi_url argument scheme
-        asyncapi_url = build_url(self.url)
-        self.protocol = protocol or asyncapi_url.scheme
-        self.virtual_host = asyncapi_url.path
+        builded_asyncapi_url = build_url(self.url)
+        self.protocol = protocol or builded_asyncapi_url.scheme
+        self.virtual_host = builded_asyncapi_url.path
 
         self._max_consumers = max_consumers
 
