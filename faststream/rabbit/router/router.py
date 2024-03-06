@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Union
 
-from aio_pika.message import IncomingMessage
 from typing_extensions import override
 
 from faststream._compat import model_copy
@@ -14,9 +13,11 @@ from faststream.rabbit.schemas.schemas import (
 )
 
 if TYPE_CHECKING:
+    from aio_pika.abc import TimeoutType
+    from aio_pika.message import IncomingMessage
+
     from faststream.broker.core.call_wrapper import HandlerCallWrapper
     from faststream.broker.types import PublisherMiddleware
-    from faststream.rabbit.types import TimeoutType
     from faststream.types import SendableMessage
 
 

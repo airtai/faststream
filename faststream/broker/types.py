@@ -79,7 +79,8 @@ CustomDecoder: TypeAlias = Union[
 P_HandlerParams = ParamSpec("P_HandlerParams")
 T_HandlerReturn = TypeVar(
     "T_HandlerReturn",
-    bound=Union[SendableMessage, Awaitable[SendableMessage]],
+    SendableMessage,
+    Awaitable[SendableMessage],
     covariant=True,
 )
 

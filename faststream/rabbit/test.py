@@ -1,4 +1,4 @@
-from typing import Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -18,8 +18,11 @@ from faststream.rabbit.schemas.schemas import (
     RabbitExchange,
     RabbitQueue,
 )
-from faststream.rabbit.types import AioPikaSendableMessage, TimeoutType
+from faststream.rabbit.types import AioPikaSendableMessage
 from faststream.types import SendableMessage
+
+if TYPE_CHECKING:
+    from aio_pika.abc import DateType, HeadersType, TimeoutType
 
 __all__ = ("TestRabbitBroker",)
 
@@ -117,35 +120,45 @@ class PatchedMessage(IncomingMessage):
 def build_message(
     message: AioPikaSendableMessage = "",
     queue: Union[RabbitQueue, str] = "",
-    exchange: Union[RabbitExchange, str, None] = None,
+    exchange: Union["RabbitExchange", str, None] = None,
     *,
     routing_key: str = "",
+    persist: bool = False,
     reply_to: Optional[str] = None,
-    **message_kwargs: Any,
+    headers: Optional["HeadersType"] = None,
+    content_type: Optional[str] = None,
+    content_encoding: Optional[str] = None,
+    priority: Optional[int] = None,
+    correlation_id: Optional[str] = None,
+    expiration: Optional["DateType"] = None,
+    message_id: Optional[str] = None,
+    timestamp: Optional["DateType"] = None,
+    type: Optional[str] = None,
+    user_id: Optional[str] = None,
+    app_id: Optional[str] = None,
 ) -> PatchedMessage:
-    """Build a patched RabbitMQ message for testing.
-
-    Args:
-        message (AioPikaSendableMessage): The message content.
-        queue (Union[RabbitQueue, str]): The message queue.
-        exchange (Union[RabbitExchange, str, None]): The message exchange.
-        routing_key (str): The message routing key.
-        reply_to (Optional[str]): The reply-to queue.
-        **message_kwargs (Any): Additional message arguments.
-
-    Returns:
-        PatchedMessage: A patched RabbitMQ message.
-    """
+    """Build a patched RabbitMQ message for testing."""
     que = RabbitQueue.validate(queue)
     exch = RabbitExchange.validate(exchange)
+
+    routing = routing_key or que.routing
+
     msg = AioPikaParser.encode_message(
         message=message,
-        persist=False,
+        persist=persist,
         reply_to=reply_to,
-        **message_kwargs,
+        headers=headers,
+        content_type=content_type,
+        content_encoding=content_encoding,
+        priority=priority,
+        correlation_id=correlation_id,
+        expiration=expiration,
+        message_id=message_id,
+        timestamp=timestamp,
+        type=type,
+        user_id=user_id,
+        app_id=app_id,
     )
-
-    routing = routing_key or (getattr(que, "name", ""))
 
     return PatchedMessage(
         aiormq.abc.DeliveredMessage(
@@ -188,15 +201,26 @@ class FakeProducer(AioPikaFastProducer):
         exchange: Union[RabbitExchange, str, None] = None,
         *,
         routing_key: str = "",
-        mandatory: bool = True,
-        immediate: bool = False,
-        timeout: TimeoutType = None,
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
         persist: bool = False,
         reply_to: Optional[str] = None,
-        **message_kwargs: Any,
+        headers: Optional["HeadersType"] = None,
+        content_type: Optional[str] = None,
+        content_encoding: Optional[str] = None,
+        priority: Optional[int] = None,
+        correlation_id: Optional[str] = None,
+        expiration: Optional["DateType"] = None,
+        message_id: Optional[str] = None,
+        timestamp: Optional["DateType"] = None,
+        type: Optional[str] = None,
+        user_id: Optional[str] = None,
+        app_id: Optional[str] = None,
+        # useless args to be compatible with RabbitBroker.publish()
+        mandatory: bool = True,
+        immediate: bool = False,
+        timeout: "TimeoutType" = None,
     ) -> Optional[SendableMessage]:
         """Publish a message to a RabbitMQ queue or exchange.
 
@@ -226,7 +250,18 @@ class FakeProducer(AioPikaFastProducer):
             exchange=exch,
             routing_key=routing_key,
             reply_to=reply_to,
-            **message_kwargs,
+            app_id=app_id,
+            user_id=user_id,
+            type=type,
+            headers=headers,
+            persist=persist,
+            message_id=message_id,
+            priority=priority,
+            content_encoding=content_encoding,
+            content_type=content_type,
+            correlation_id=correlation_id,
+            expiration=expiration,
+            timestamp=timestamp,
         )
 
         for handler in self.broker.handlers.values():  # pragma: no branch

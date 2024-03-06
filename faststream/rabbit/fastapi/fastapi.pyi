@@ -1,12 +1,15 @@
 from enum import Enum
 from typing import (
+    TYPE_CHECKING,
     Any,
     Awaitable,
     Callable,
+    Optional,
     Sequence,
 )
 
 import aio_pika
+from aio_pika.abc import SSLOptions, TimeoutType
 from aio_pika.message import IncomingMessage
 from fastapi import params
 from fastapi.datastructures import Default
@@ -35,7 +38,6 @@ from faststream.rabbit.asyncapi import Publisher
 from faststream.rabbit.broker import RabbitBroker
 from faststream.rabbit.message import RabbitMessage
 from faststream.rabbit.schemas.schemas import RabbitExchange, RabbitQueue, ReplyConfig
-from faststream.rabbit.types import TimeoutType
 from faststream.security import BaseSecurity
 from faststream.types import AnyDict
 
@@ -56,8 +58,8 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         login: str = "guest",
         password: str = "guest",
         virtualhost: str = "/",
-        ssl_options: aio_pika.abc.SSLOptions | None = None,
-        timeout: aio_pika.abc.TimeoutType = None,
+        ssl_options: "SSLOptions" | None = None,
+        timeout: "TimeoutType" = None,
         client_properties: FieldTable | None = None,
         security: BaseSecurity | None = None,
         # specific args

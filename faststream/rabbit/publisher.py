@@ -12,11 +12,12 @@ from faststream.rabbit.schemas.schemas import BaseRMQInformation
 
 if TYPE_CHECKING:
     import aiormq
+    from aio_pika.abc import TimeoutType
 
     from faststream.broker.types import PublisherMiddleware
     from faststream.rabbit.producer import AioPikaFastProducer
     from faststream.rabbit.schemas.schemas import RabbitExchange, RabbitQueue
-    from faststream.rabbit.types import AioPikaSendableMessage, TimeoutType
+    from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.types import AnyDict, SendableMessage
 
 

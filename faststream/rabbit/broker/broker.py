@@ -14,8 +14,9 @@ from typing import (
 from urllib.parse import urlparse
 
 import aio_pika
-from typing_extensions import Annotated, Doc, override, deprecated
+from typing_extensions import Annotated, Doc, deprecated, override
 
+from faststream.__about__ import __version__
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.utils import get_watcher_context
 from faststream.exceptions import NOT_CONNECTED_YET
@@ -29,20 +30,17 @@ from faststream.rabbit.schemas.schemas import (
     RabbitQueue,
 )
 from faststream.rabbit.security import parse_security
-from faststream.__about__ import __version__
-
 
 if TYPE_CHECKING:
-    from types import TracebackType
     from ssl import SSLContext
+    from types import TracebackType
 
     import aiormq
-    from aio_pika.abc import SSLOptions
+    from aio_pika.abc import SSLOptions, TimeoutType
     from fast_depends.dependencies import Depends
     from pamqp.common import FieldTable
     from yarl import URL
 
-    from faststream.rabbit.router import RabbitRouter
     from faststream.asyncapi import schema as asyncapi
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
     from faststream.broker.message import StreamMessage
@@ -55,8 +53,9 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.rabbit.message import RabbitMessage
+    from faststream.rabbit.router import RabbitRouter
     from faststream.rabbit.schemas.schemas import ReplyConfig
-    from faststream.rabbit.types import TimeoutType, AioPikaSendableMessage
+    from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, DecodedMessage
 
@@ -671,12 +670,20 @@ class RabbitBroker(
             Doc("Publisher connection User ID, validated if set."),
         ] = None,
     ) -> Publisher:
-        """Creates long-living and AsyncAPI-documented publisher object.
+        """Creates long-living and **AsyncAPI**-documented publisher object.
 
-        You can use it as a handler decorator (handler should be decorated by `@broker.subscriber(...)` too) - `@broker.publisher(...)`.
-        In such case publisher will publish your handler return value.
+        Usage::
+          @broker.subscriber("in")  # should be decorated by subscriber too
+          @broker.publisher("out1")
+          @broker.publisher("out2")
+          async def handler() -> str:
+              '''You can use it as a handler decorator.'''
+              return "Hi!"  # publishes result to "out1" and "out2"
 
-        Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
+          # or you can create publisher object and use it lately
+          publisher = broker.publisher("out")
+          ...
+          await publisher.publish("Some message")
 
         References:
         You can find detail information about message properties here: https://www.rabbitmq.com/docs/publishers#message-properties

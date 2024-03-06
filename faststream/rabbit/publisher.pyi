@@ -7,7 +7,6 @@ from typing_extensions import override
 
 from faststream.rabbit.producer import AioPikaFastProducer
 from faststream.rabbit.schemas.publisher import ABCPublisher
-from faststream.rabbit.schemas.types import TimeoutType
 from faststream.rabbit.types import AioPikaSendableMessage
 from faststream.types import SendableMessage
 
@@ -29,7 +28,7 @@ class LogicPublisher(ABCPublisher[aio_pika.IncomingMessage]):
         routing_key: str = "",
         mandatory: bool = True,
         immediate: bool = False,
-        timeout: TimeoutType = None,
+        timeout: "TimeoutType" = None,
         persist: bool = False,
         reply_to: str | None = None,
         # rpc args

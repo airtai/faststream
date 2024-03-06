@@ -2,10 +2,11 @@ import warnings
 from dataclasses import dataclass
 from typing import Optional, Pattern
 
+from aio_pika.abc import TimeoutType
+
 from faststream._compat import PYDANTIC_V2
 from faststream.broker.schemas import NameRequired
 from faststream.rabbit.schemas.constants import ExchangeType
-from faststream.rabbit.types import TimeoutType
 from faststream.types import AnyDict
 from faststream.utils.path import compile_path
 
@@ -66,7 +67,7 @@ class RabbitQueue(NameRequired):
         passive: bool = False,
         auto_delete: bool = False,
         arguments: Optional[AnyDict] = None,
-        timeout: TimeoutType = None,
+        timeout: "TimeoutType" = None,
         robust: bool = True,
         bind_arguments: Optional[AnyDict] = None,
         routing_key: str = "",
@@ -168,7 +169,7 @@ class RabbitExchange(NameRequired):
         internal: bool = False,
         passive: bool = False,
         arguments: Optional[AnyDict] = None,
-        timeout: TimeoutType = None,
+        timeout: "TimeoutType" = None,
         robust: bool = True,
         bind_to: Optional["RabbitExchange"] = None,
         bind_arguments: Optional[AnyDict] = None,
