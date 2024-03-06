@@ -2,8 +2,6 @@ import warnings
 from dataclasses import dataclass
 from typing import Optional, Pattern
 
-from pydantic import BaseModel
-
 from faststream._compat import PYDANTIC_V2
 from faststream.broker.schemas import NameRequired
 from faststream.rabbit.schemas.constants import ExchangeType
@@ -218,7 +216,8 @@ class RabbitExchange(NameRequired):
         )
 
 
-class ReplyConfig(BaseModel):
+@dataclass(slots=True)
+class ReplyConfig:
     """A class to represent a reply configuration."""
 
     mandatory: bool = True
@@ -239,6 +238,7 @@ class BaseRMQInformation:
     queue: RabbitQueue
     exchange: Optional[RabbitExchange]
     virtual_host: str
+    app_id: Optional[str]
 
     def __init__(
         self,
@@ -246,7 +246,9 @@ class BaseRMQInformation:
         virtual_host: str,
         queue: RabbitQueue,
         exchange: Optional[RabbitExchange],
+        app_id: Optional[str]
     ) -> None:
         self.virtual_host = virtual_host
         self.exchange = exchange
         self.queue = queue
+        self.app_id = app_id

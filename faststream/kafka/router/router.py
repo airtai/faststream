@@ -151,6 +151,8 @@ class KafkaRouter(BrokerRouter[str, ConsumerRecord]):
                     if self.include_in_schema is None
                     else self.include_in_schema
                 ),
+                # delay
+                client_id="",
             ),
         )
         publisher_key = self._get_publisher_key(new_publisher)

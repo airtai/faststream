@@ -15,12 +15,14 @@ from typing import (
     Type,
     Union,
 )
+import logging
+from inspect import Parameter
 
 import aiokafka
 from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
 from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
 from fast_depends.dependencies import Depends
-from typing_extensions import override
+from typing_extensions import override, Annotated, Doc
 
 from faststream.__about__ import __version__
 from faststream.broker.core.broker import BrokerUsecase, default_filter
@@ -46,7 +48,7 @@ from faststream.kafka.shared.schemas import ConsumerConnectionParams
 from faststream.security import BaseSecurity
 from faststream.types import SendableMessage
 from faststream.utils.data import filter_by_dict
-
+from faststream.asyncapi import schema as asyncapi
 
 class KafkaBroker(
     KafkaLoggingMixin,
@@ -61,10 +63,78 @@ class KafkaBroker(
         self,
         bootstrap_servers: Union[str, Iterable[str]] = "localhost",
         *,
-        protocol: Optional[str] = None,
-        protocol_version: str = "auto",
         client_id: str = "faststream-" + __version__,
-        security: Optional[BaseSecurity] = None,
+        # broker base args
+        graceful_timeout: Annotated[
+            Optional[float],
+            Doc(
+                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down."
+            ),
+        ] = None,
+        apply_types: Annotated[
+            bool,
+            Doc("Whether to use FastDepends or not."),
+        ] = True,
+        validate: Annotated[
+            bool,
+            Doc("Whether to cast types using Pydantic validation."),
+        ] = True,
+        decoder: Annotated[
+            Optional["CustomDecoder[StreamMessage[aiokafka.ConsumerRecord]]"],
+            Doc("Custom decoder object."),
+        ] = None,
+        parser: Annotated[
+            Optional["CustomParser[aiokafka.ConsumerRecord]"],
+            Doc("Custom parser object."),
+        ] = None,
+        dependencies: Annotated[
+            Iterable["Depends"],
+            Doc("Dependencies to apply to all broker subscribers."),
+        ] = (),
+        middlewares: Annotated[
+            Iterable["BrokerMiddleware[aiokafka.ConsumerRecord]"],
+            Doc("Middlewares to apply to all broker publishers/subscribers."),
+        ] = (),
+        # AsyncAPI args
+        security: Annotated[
+            Optional["BaseSecurity"],
+            Doc(
+                "Security options to connect broker and generate AsyncAPI server security information."
+            ),
+        ] = None,
+        asyncapi_url: Annotated[
+            Union[str, Iterable[str], None],
+            Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
+        ] = None,
+        protocol: Annotated[
+            Optional[str],
+            Doc("AsyncAPI server protocol."),
+        ] = None,
+        protocol_version: Annotated[
+            Optional[str],
+            Doc("AsyncAPI server protocol version."),
+        ] = "auto",
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI server description."),
+        ] = None,
+        tags: Annotated[
+            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+            Doc("AsyncAPI server tags."),
+        ] = None,
+        # logging args
+        logger: Annotated[
+            Union[logging.Logger, None, object],
+            Doc("User specified logger to pass into Context and log service messages."),
+        ] = Parameter.empty,
+        log_level: Annotated[
+            int,
+            Doc("Service messages log level."),
+        ] = logging.INFO,
+        log_fmt: Annotated[
+            Optional[str],
+            Doc("Default logger log format."),
+        ] = None,
         **kwargs: Any,
     ) -> None:
         if protocol is None:
@@ -73,16 +143,40 @@ class KafkaBroker(
             else:
                 protocol = "kafka"
 
+        servers = [bootstrap_servers] if isinstance(bootstrap_servers, str) else list(bootstrap_servers)
+
+        if asyncapi_url is not None:
+            if isinstance(asyncapi_url, str):
+                asyncapi_url = [asyncapi_url]
+            else:
+                asyncapi_url = list(asyncapi_url)
+        else:
+            asyncapi_url = servers
+
         super().__init__(
-            url=[bootstrap_servers]
-            if isinstance(bootstrap_servers, str)
-            else list(bootstrap_servers),
+            bootstrap_servers=servers,
+            client_id=client_id,
+            **kwargs,
+            # Basic args
+            ## broker base
+            graceful_timeout=graceful_timeout,
+            apply_types=apply_types,
+            validate=validate,
+            dependencies=dependencies,
+            decoder=decoder,
+            parser=parser,
+            middlewares=middlewares,
+            ## AsyncAPI
+            description=description,
+            asyncapi_url=asyncapi_url,
             protocol=protocol,
             protocol_version=protocol_version,
             security=security,
-            **kwargs,
-            client_id=client_id,
-            bootstrap_servers=bootstrap_servers,
+            tags=tags,
+            ## logging
+            logger=logger,
+            log_level=log_level,
+            log_fmt=log_fmt,
         )
         self.client_id = client_id
         self._producer = None
@@ -101,12 +195,21 @@ class KafkaBroker(
 
     async def connect(
         self,
-        *args: Any,
+        bootstrap_servers: Annotated[
+            Union[str, Iterable[str], object],
+            Doc("Kafka addresses to connect."),
+        ] = Parameter.empty,
         **kwargs: Any,
     ) -> ConsumerConnectionParams:
-        connection = await super().connect(*args, **kwargs)
+        if bootstrap_servers is not Parameter.empty:
+            kwargs["servers"] = bootstrap_servers
+
+        connection = await super().connect(**kwargs)
+
         for p in self._publishers.values():
             p._producer = self._producer
+            p.client_id = self.client_id
+
         return connection
 
     @override

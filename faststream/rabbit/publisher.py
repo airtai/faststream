@@ -33,6 +33,7 @@ class LogicPublisher(
     persist: bool
     timeout: "TimeoutType"
     reply_to: Optional[str]
+    app_id: Optional[str]
 
     priority: Optional[int]
     message_kwargs: "AnyDict"
@@ -42,6 +43,7 @@ class LogicPublisher(
     def __init__(
         self,
         *,
+        app_id: str,
         routing_key: str,
         mandatory: bool,
         immediate: bool,
@@ -82,6 +84,7 @@ class LogicPublisher(
         self._producer = None
 
         # BaseRMQInformation
+        self.app_id = app_id
         self.queue = queue
         self.exchange = exchange
         self.virtual_host = virtual_host
@@ -128,4 +131,5 @@ class LogicPublisher(
             "persist": self.persist,
             "priority": self.priority,
             "timeout": self.timeout,
+            "app_id": self.app_id,
         }

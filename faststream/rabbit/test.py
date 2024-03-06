@@ -1,4 +1,4 @@
-from typing import Any, Optional, Union, assert_never
+from typing import Any, Optional, Union
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -142,7 +142,6 @@ def build_message(
         message=message,
         persist=False,
         reply_to=reply_to,
-        callback_queue=None,
         **message_kwargs,
     )
 

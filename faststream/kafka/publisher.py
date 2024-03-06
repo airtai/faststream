@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from functools import cached_property
-from typing import Any, Dict, Iterable, Optional, Union, cast
+from typing import Any, Dict, Iterable, Optional, Union, cast, TYPE_CHECKING
 
 from aiokafka import ConsumerRecord
 from typing_extensions import override
@@ -11,6 +11,8 @@ from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.kafka.producer import AioKafkaFastProducer
 from faststream.types import AnyDict, SendableMessage
 
+if TYPE_CHECKING:
+    from faststream.broker.types import PublisherMiddleware
 
 @dataclass
 class LogicPublisher(BasePublisher[ConsumerRecord]):
@@ -26,21 +28,50 @@ class LogicPublisher(BasePublisher[ConsumerRecord]):
 
     Raises:
         AssertionError: If `_producer` is not set up or if multiple messages are sent without the `batch` flag
-
     """
 
-    topic: str = ""
-    partition: Optional[int] = None
-    timestamp_ms: Optional[int] = None
-    headers: Optional[Dict[str, str]] = None
-    reply_to: Optional[str] = ""
-    client_id: str = field(default="faststream-" + __version__)
+    topic: str
+    partition: Optional[int]
+    timestamp_ms: Optional[int]
+    headers: Optional[Dict[str, str]]
+    reply_to: Optional[str]
+    client_id: str
 
-    _producer: Optional[AioKafkaFastProducer] = field(
-        default=None,
-        init=False,
-        repr=False,
-    )
+    _producer: Optional[AioKafkaFastProducer]
+
+    def __init__(
+        self,
+        *,
+        topic: str,
+        partition: Optional[int],
+        timestamp_ms: Optional[int],
+        headers: Optional[Dict[str, str]],
+        reply_to: Optional[str],
+        client_id: str,
+        # Regular publisher options
+        middlewares: Iterable["PublisherMiddleware"],
+        # AsyncAPI options
+        schema_: Optional[Any],
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> None:
+        super().__init__(
+            middlewares=middlewares,
+            schema_=schema_,
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+        self.topic = topic
+        self.partition = partition
+        self.timestamp_ms = timestamp_ms
+        self.client_id = client_id
+        self.reply_to = reply_to
+        self.headers = headers
+
+        self._producer = None
 
     @cached_property
     def publish_kwargs(self) -> AnyDict:
@@ -55,7 +86,42 @@ class LogicPublisher(BasePublisher[ConsumerRecord]):
 
 @dataclass
 class DefaultPublisher(LogicPublisher):
-    key: Optional[bytes] = None
+    key: Optional[bytes]
+
+    def __init__(
+        self,
+        *,
+        key: Optional[bytes],
+        topic: str,
+        partition: Optional[int],
+        timestamp_ms: Optional[int],
+        headers: Optional[Dict[str, str]],
+        reply_to: Optional[str],
+        client_id: str,
+        # Regular publisher options
+        middlewares: Iterable["PublisherMiddleware"],
+        # AsyncAPI options
+        schema_: Optional[Any],
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> None:
+        super().__init__(
+            topic=topic,
+            partition=partition,
+            timestamp_ms=timestamp_ms,
+            client_id=client_id,
+            reply_to=reply_to,
+            headers=headers,
+            # base publisher args
+            middlewares=middlewares,
+            schema_=schema_,
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+        self.key = key
 
     @override
     async def _publish(  # type: ignore[override]

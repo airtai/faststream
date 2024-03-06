@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 from uuid import uuid4
 
 import aio_pika
@@ -10,6 +10,8 @@ from faststream.rabbit.message import RabbitMessage
 from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
+    from aio_pika.abc import DateType, HeadersType
+
     from faststream.rabbit.asyncapi import Handler
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.types import DecodedMessage
@@ -79,10 +81,20 @@ class AioPikaParser:
     @staticmethod
     def encode_message(
         message: "AioPikaSendableMessage",
+        *,
         persist: bool = False,
-        callback_queue: Optional[aio_pika.abc.AbstractRobustQueue] = None,
         reply_to: Optional[str] = None,
-        **message_kwargs: Any,
+        headers: Optional["HeadersType"] = None,
+        content_type: Optional[str] = None,
+        content_encoding: Optional[str] = None,
+        priority: Optional[int] = None,
+        correlation_id: Optional[str] = None,
+        expiration: Optional["DateType"] = None,
+        message_id: Optional[str] = None,
+        timestamp: Optional["DateType"] = None,
+        type: Optional[str] = None,
+        user_id: Optional[str] = None,
+        app_id: Optional[str] = None,
     ) -> "aio_pika.Message":
         """Encodes a message for sending using AioPika.
 
@@ -95,29 +107,30 @@ class AioPikaParser:
 
         Returns:
             aio_pika.Message: The encoded message.
-
-        Raises:
-            NotImplementedError: If the message is not an instance of aio_pika.Message.
         """
         if isinstance(message, aio_pika.Message):
             return message
 
         else:
-            message, content_type = encode_message(message)
+            message_body, generated_content_type = encode_message(message)
 
             delivery_mode = (
                 DeliveryMode.PERSISTENT if persist else DeliveryMode.NOT_PERSISTENT
             )
 
             return aio_pika.Message(
-                message,
-                **(
-                    {
-                        "delivery_mode": delivery_mode,
-                        "content_type": content_type,
-                        "reply_to": callback_queue or reply_to,
-                        "correlation_id": str(uuid4()),
-                    }
-                    | message_kwargs
-                ),
+                message_body,
+                content_type=content_type or generated_content_type,
+                delivery_mode=delivery_mode,
+                reply_to=reply_to,
+                correlation_id=correlation_id or str(uuid4()),
+                headers=headers,
+                content_encoding=content_encoding,
+                priority=priority,
+                expiration=expiration,
+                message_id=message_id,
+                timestamp=timestamp,
+                type=type,
+                user_id=user_id,
+                app_id=app_id,
             )

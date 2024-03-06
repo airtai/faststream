@@ -96,6 +96,9 @@ class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
                     if self.include_in_schema is None
                     else self.include_in_schema
                 ),
+                # delay setup
+                virtual_host="",
+                app_id="",
             ),
         )
         key = self._get_publisher_key(new_publisher)

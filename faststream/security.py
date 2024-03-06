@@ -1,7 +1,7 @@
 from ssl import SSLContext
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, SecretStr
+from pydantic import BaseModel
 
 from faststream._compat import PYDANTIC_V2
 from faststream.types import AnyDict

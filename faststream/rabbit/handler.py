@@ -8,11 +8,11 @@ from typing import (
     Optional,
     Sequence,
 )
+from dataclasses import asdict
 
 import aio_pika
 from typing_extensions import override
 
-from faststream._compat import model_to_dict
 from faststream.broker.core.handler import BaseHandler
 from faststream.broker.core.publisher import FakePublisher
 from faststream.broker.parsers import resolve_custom_func
@@ -69,6 +69,7 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
         watcher: Callable[..., AsyncContextManager[None]],
         graceful_timeout: Optional[float],
         middlewares: Iterable["BrokerMiddleware[aio_pika.IncomingMessage]"],
+        app_id: Optional[str],
         extra_context: Optional[AnyDict] = None,
         # RMQ information
         exchange: Optional[RabbitExchange] = None,
@@ -81,9 +82,6 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
         virtual_host: str = "/",
     ) -> None:
         """Initialize a RabbitMQ consumer."""
-        self.queue = queue
-        self.exchange = exchange
-
         super().__init__(
             middlewares=middlewares,
             graceful_timeout=graceful_timeout,
@@ -94,14 +92,20 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
             description_=description_,
             include_in_schema=include_in_schema,
         )
-        self.virtual_host = virtual_host
 
         self.consume_args = consume_args or {}
-        self.reply_config = model_to_dict(reply_config) if reply_config else {}
+        self.reply_config = asdict(reply_config) if reply_config else {}
 
         self._consumer_tag = None
         self._queue_obj = None
+
         self.producer = None
+
+        # BaseRMQInformation
+        self.app_id = app_id
+        self.queue = queue
+        self.exchange = exchange
+        self.virtual_host = virtual_host
 
     @override
     def add_call(  # type: ignore[override]
@@ -138,13 +142,14 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
 
         if self.exchange is not None:
             exchange = await declarer.declare_exchange(self.exchange)
-            await queue.bind(
-                exchange,
-                routing_key=self.queue.routing,
-                arguments=self.queue.bind_arguments,
-                timeout=self.queue.timeout,
-                robust=self.queue.robust,
-            )
+            if not queue.passive:
+                await queue.bind(
+                    exchange,
+                    routing_key=self.queue.routing,
+                    arguments=self.queue.bind_arguments,
+                    timeout=self.queue.timeout,
+                    robust=self.queue.robust,
+                )
 
         self._consumer_tag = await queue.consume(
             # NOTE: aio-pika expects AbstractIncomingMessage, not IncomingMessage
@@ -174,7 +179,10 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
 
         return (
             FakePublisher(
-                self.producer.publish, routing_key=message.reply_to, **self.reply_config
+                self.producer.publish,
+                routing_key=message.reply_to,
+                app_id=self.app_id,
+                **self.reply_config,
             ),
         )
 

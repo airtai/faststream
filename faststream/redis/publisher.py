@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from functools import cached_property
-from typing import Optional, Sequence, Union, cast
+from typing import Optional, Sequence, Union, cast, Any, Iterable, TYPE_CHECKING
 
 from typing_extensions import override
 
@@ -10,18 +10,53 @@ from faststream.redis.producer import RedisFastProducer
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
+if TYPE_CHECKING:
+    from faststream.broker.types import PublisherMiddleware
 
 @dataclass
 class LogicPublisher(BasePublisher["AnyRedisDict"]):
     """A class to represent a Redis publisher."""
 
-    channel: Optional[PubSub] = field(default=None)
-    list: Optional[ListSub] = field(default=None)
-    stream: Optional[StreamSub] = field(default=None)
-    reply_to: str = field(default="")
-    headers: Optional[AnyDict] = field(default=None)
+    channel: Optional[PubSub]
+    list: Optional[ListSub]
+    stream: Optional[StreamSub]
+    reply_to: str
+    headers: Optional[AnyDict]
 
-    _producer: Optional[RedisFastProducer] = field(default=None, init=False)
+    _producer: Optional[RedisFastProducer]
+
+    def __init__(
+        self,
+        *,
+        channel: Optional[PubSub],
+        list: Optional[ListSub],
+        stream: Optional[StreamSub],
+        reply_to: str,
+        headers: Optional[AnyDict],
+        # Regular publisher options
+        middlewares: Iterable["PublisherMiddleware"],
+        # AsyncAPI options
+        schema_: Optional[Any],
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> None:
+        """Initialize NATS publisher object."""
+        super().__init__(
+            middlewares=middlewares,
+            schema_=schema_,
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+        self.channel = channel
+        self.list = list
+        self.stream = stream
+        self.reply_to = reply_to
+        self.headers = headers
+
+        self._producer = None
 
     @override
     async def _publish(  # type: ignore[override]

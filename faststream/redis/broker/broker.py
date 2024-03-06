@@ -11,12 +11,14 @@ from typing import (
     Type,
     Union,
 )
+import logging
+from inspect import Parameter
 from urllib.parse import urlparse
 
 from fast_depends.dependencies import Depends
 from redis.asyncio.client import Redis
 from redis.asyncio.connection import ConnectionPool, parse_url
-from typing_extensions import TypeAlias, override
+from typing_extensions import TypeAlias, override, Annotated, Doc
 
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
@@ -39,6 +41,25 @@ from faststream.redis.security import parse_security
 from faststream.security import BaseSecurity
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
+if TYPE_CHECKING:
+    from types import TracebackType
+
+    from fast_depends.dependencies import Depends
+
+    from faststream.asyncapi import schema as asyncapi
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.types import (
+        BrokerMiddleware,
+        CustomDecoder,
+        CustomParser,
+        Filter,
+        PublisherMiddleware,
+        SubscriberMiddleware,
+    )
+    from faststream.security import BaseSecurity
+    from faststream.types import AnyDict, DecodedMessage, SendableMessage
+
+
 Channel: TypeAlias = str
 
 
@@ -59,9 +80,77 @@ class RedisBroker(
         url: str = "redis://localhost:6379",
         polling_interval: Optional[float] = None,
         *,
-        security: Optional[BaseSecurity] = None,
-        protocol: Optional[str] = None,
-        protocol_version: Optional[str] = "custom",
+        # broker args
+        graceful_timeout: Annotated[
+            Optional[float],
+            Doc(
+                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down."
+            ),
+        ] = None,
+        apply_types: Annotated[
+            bool,
+            Doc("Whether to use FastDepends or not."),
+        ] = True,
+        validate: Annotated[
+            bool,
+            Doc("Whether to cast types using Pydantic validation."),
+        ] = True,
+        decoder: Annotated[
+            Optional["CustomDecoder[StreamMessage[AnyRedisDict]]"],
+            Doc("Custom decoder object."),
+        ] = None,
+        parser: Annotated[
+            Optional["CustomParser[AnyRedisDict]"],
+            Doc("Custom parser object."),
+        ] = None,
+        dependencies: Annotated[
+            Iterable["Depends"],
+            Doc("Dependencies to apply to all broker subscribers."),
+        ] = (),
+        middlewares: Annotated[
+            Iterable["BrokerMiddleware[AnyRedisDict]"],
+            Doc("Middlewares to apply to all broker publishers/subscribers."),
+        ] = (),
+        # AsyncAPI args
+        security: Annotated[
+            Optional["BaseSecurity"],
+            Doc(
+                "Security options to connect broker and generate AsyncAPI server security information."
+            ),
+        ] = None,
+        asyncapi_url: Annotated[
+            Optional[str],
+            Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
+        ] = None,
+        protocol: Annotated[
+            Optional[str],
+            Doc("AsyncAPI server protocol."),
+        ] = None,
+        protocol_version: Annotated[
+            Optional[str],
+            Doc("AsyncAPI server protocol version."),
+        ] = "custom",
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI server description."),
+        ] = None,
+        tags: Annotated[
+            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+            Doc("AsyncAPI server tags."),
+        ] = None,
+        # logging args
+        logger: Annotated[
+            Union[logging.Logger, None, object],
+            Doc("User specified logger to pass into Context and log service messages."),
+        ] = Parameter.empty,
+        log_level: Annotated[
+            int,
+            Doc("Service messages log level."),
+        ] = logging.INFO,
+        log_fmt: Annotated[
+            Optional[str],
+            Doc("Default logger log format."),
+        ] = None,
         **kwargs: Any,
     ) -> None:
         """Redis broker.
@@ -77,30 +166,52 @@ class RedisBroker(
         self.global_polling_interval = polling_interval
         self._producer = None
 
+        if asyncapi_url is None:
+            asyncapi_url = url
+
+        if protocol is None:
+            url_kwargs = urlparse(asyncapi_url)
+            protocol = url_kwargs.scheme
+
         super().__init__(
             url=url,
+            **kwargs,
+            # Basic args
+            ## broker base
+            graceful_timeout=graceful_timeout,
+            apply_types=apply_types,
+            validate=validate,
+            dependencies=dependencies,
+            decoder=decoder,
+            parser=parser,
+            middlewares=middlewares,
+            ## AsyncAPI
+            description=description,
+            asyncapi_url=asyncapi_url,
+            protocol=protocol,
             protocol_version=protocol_version,
             security=security,
-            **kwargs,
+            tags=tags,
+            ## logging
+            logger=logger,
+            log_level=log_level,
+            log_fmt=log_fmt,
         )
-
-        url_kwargs = urlparse(self.url)
-        self.protocol = protocol or url_kwargs.scheme
 
     async def connect(
         self,
-        *args: Any,
+        url: Union[str, object] = Parameter.empty,
         **kwargs: Any,
     ) -> "Redis[bytes]":
-        """Connect to the Redis server.
+        """Connect to the Redis server."""
+        if url is not Parameter.empty:
+            kwargs["url"] = url
 
-        Args:
-            args : additional positional arguments
-            kwargs : additional keyword arguments
-        """
-        connection = await super().connect(*args, **kwargs)
+        connection = await super().connect(**kwargs)
+
         for p in self._publishers.values():
             p._producer = self._producer
+
         return connection
 
     @override

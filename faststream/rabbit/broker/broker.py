@@ -11,9 +11,10 @@ from typing import (
     Union,
     cast,
 )
+from urllib.parse import urlparse
 
 import aio_pika
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Annotated, Doc, override, deprecated
 
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.utils import get_watcher_context
@@ -28,17 +29,20 @@ from faststream.rabbit.schemas.schemas import (
     RabbitQueue,
 )
 from faststream.rabbit.security import parse_security
+from faststream.__about__ import __version__
+
 
 if TYPE_CHECKING:
     from types import TracebackType
+    from ssl import SSLContext
 
     import aiormq
-    from aio_pika import IncomingMessage
     from aio_pika.abc import SSLOptions
     from fast_depends.dependencies import Depends
     from pamqp.common import FieldTable
     from yarl import URL
 
+    from faststream.rabbit.router import RabbitRouter
     from faststream.asyncapi import schema as asyncapi
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
     from faststream.broker.message import StreamMessage
@@ -52,15 +56,17 @@ if TYPE_CHECKING:
     )
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.schemas.schemas import ReplyConfig
-    from faststream.rabbit.types import TimeoutType
+    from faststream.rabbit.types import TimeoutType, AioPikaSendableMessage
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict, DecodedMessage, SendableMessage
+    from faststream.types import AnyDict, DecodedMessage
 
 
 class RabbitBroker(
     RabbitLoggingMixin,
-    BrokerUsecase["IncomingMessage", "aio_pika.RobustConnection"],
+    BrokerUsecase[aio_pika.IncomingMessage, aio_pika.RobustConnection],
 ):
+    """A class to represent a RabbitMQ broker."""
+
     url: str
     handlers: Dict[int, Handler]
     _publishers: Dict[int, Publisher]
@@ -71,19 +77,48 @@ class RabbitBroker(
 
     def __init__(
         self,
-        url: Union[str, "URL", None] = "amqp://guest:guest@localhost:5672/",
+        url: Annotated[
+            Union[str, "URL", None], Doc("RabbitMQ destination location to connect.")
+        ] = "amqp://guest:guest@localhost:5672/",
         *,
         # connection args
-        host: Optional[str] = None,
-        port: Optional[int] = None,
-        login: Optional[str] = None,
-        password: Optional[str] = None,
-        virtualhost: Optional[str] = None,
-        ssl_options: Optional["SSLOptions"] = None,
-        client_properties: Optional["FieldTable"] = None,
+        host: Annotated[
+            Optional[str],
+            Doc("Destination host. This option overrides `url` option host."),
+        ] = None,
+        port: Annotated[
+            Optional[int],
+            Doc("Destination port. This option overrides `url` option port."),
+        ] = None,
+        virtualhost: Annotated[
+            Optional[str],
+            Doc("RabbitMQ virtual host to use in the current broker connection."),
+        ] = None,
+        ssl_options: Annotated[
+            Optional["SSLOptions"],
+            Doc("Extra ssl options to establish connection."),
+        ] = None,
+        client_properties: Annotated[
+            Optional["FieldTable"],
+            Doc("Add custom client capability."),
+        ] = None,
+        timeout: Annotated[
+            aio_pika.abc.TimeoutType,
+            Doc("Connection establishement timeout."),
+        ] = None,
         # broker args
-        max_consumers: Optional[int] = None,
-        # broker args
+        max_consumers: Annotated[
+            Optional[int],
+            Doc(
+                "RabbitMQ channel `qos` option. "
+                "It limits max messages processing in the same time count."
+            ),
+        ] = None,
+        app_id: Annotated[
+            Optional[str],
+            Doc("Application name to mark outgoing messages by."),
+        ] = f"faststream-{__version__}",
+        # broker base args
         graceful_timeout: Annotated[
             Optional[float],
             Doc(
@@ -99,11 +134,11 @@ class RabbitBroker(
             Doc("Whether to cast types using Pydantic validation."),
         ] = True,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[IncomingMessag]]"],
+            Optional["CustomDecoder[StreamMessage[aio_pika.IncomingMessag]]"],
             Doc("Custom decoder object."),
         ] = None,
         parser: Annotated[
-            Optional["CustomParser[IncomingMessag]"],
+            Optional["CustomParser[aio_pika.IncomingMessag]"],
             Doc("Custom parser object."),
         ] = None,
         dependencies: Annotated[
@@ -111,7 +146,7 @@ class RabbitBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[IncomingMessag]"],
+            Iterable["BrokerMiddleware[aio_pika.IncomingMessag]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args
@@ -122,7 +157,7 @@ class RabbitBroker(
             ),
         ] = None,
         asyncapi_url: Annotated[
-            Union[str, Iterable[str], None],
+            Optional[str],
             Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
         ] = None,
         protocol: Annotated[
@@ -154,8 +189,8 @@ class RabbitBroker(
             Optional[str],
             Doc("Default logger log format."),
         ] = None,
-        **kwargs: Any,
     ) -> None:
+        """Initialize the RabbitBroker object."""
         security_args = parse_security(security)
 
         amqp_url = build_url(
@@ -165,16 +200,26 @@ class RabbitBroker(
             virtualhost=virtualhost,
             ssl_options=ssl_options,
             client_properties=client_properties,
-            login=security_args.get("login", login),
-            password=security_args.get("password", password),
-            ssl=security_args.get("ssl", kwargs.pop("ssl", False)),
+            login=security_args.get("login"),
+            password=security_args.get("password"),
+            ssl=security_args.get("ssl"),
         )
+
+        if asyncapi_url is None:
+            asyncapi_url = str(amqp_url)
+
+        # respect ascynapi_url argument scheme
+        builded_asyncapi_url = urlparse(asyncapi_url)
+        self.virtual_host = builded_asyncapi_url.path
+        if protocol is None:
+            protocol = builded_asyncapi_url.scheme
 
         super().__init__(
             url=str(amqp_url),
-            ssl_context=security_args.get("ssl_context", None),
+            ssl_context=security_args.get("ssl_context"),
+            timeout=timeout,
             # Basic args
-            ## broker base
+            # broker base
             graceful_timeout=graceful_timeout,
             apply_types=apply_types,
             validate=validate,
@@ -182,25 +227,22 @@ class RabbitBroker(
             decoder=decoder,
             parser=parser,
             middlewares=middlewares,
-            ## AsyncAPI
+            # AsyncAPI
             description=description,
             asyncapi_url=asyncapi_url,
-            protocol=protocol,
+            protocol=protocol or builded_asyncapi_url.scheme,
             protocol_version=protocol_version,
             security=security,
             tags=tags,
-            ## logging
+            # logging
             logger=logger,
             log_level=log_level,
             log_fmt=log_fmt,
         )
 
-        # respect ascynapi_url argument scheme
-        builded_asyncapi_url = build_url(self.url)
-        self.protocol = protocol or builded_asyncapi_url.scheme
-        self.virtual_host = builded_asyncapi_url.path
-
         self._max_consumers = max_consumers
+
+        self.app_id = app_id
 
         self._channel = None
         self.declarer = None
@@ -208,12 +250,75 @@ class RabbitBroker(
 
     async def connect(
         self,
-        *args: Any,
-        **kwargs: Any,
+        url: Annotated[
+            Union[str, "URL", object], Doc("RabbitMQ destination location to connect.")
+        ] = Parameter.empty,
+        *,
+        host: Annotated[
+            Optional[str],
+            Doc("Destination host. This option overrides `url` option host."),
+        ] = None,
+        port: Annotated[
+            Optional[int],
+            Doc("Destination port. This option overrides `url` option port."),
+        ] = None,
+        virtualhost: Annotated[
+            Optional[str],
+            Doc("RabbitMQ virtual host to use in the current broker connection."),
+        ] = None,
+        ssl_options: Annotated[
+            Optional["SSLOptions"],
+            Doc("Extra ssl options to establish connection."),
+        ] = None,
+        client_properties: Annotated[
+            Optional["FieldTable"],
+            Doc("Add custom client capability."),
+        ] = None,
+        security: Annotated[
+            Optional["BaseSecurity"],
+            Doc(
+                "Security options to connect broker and generate AsyncAPI server security information."
+            ),
+        ] = None,
+        timeout: Annotated[
+            aio_pika.abc.TimeoutType,
+            Doc("Connection establishement timeout."),
+        ] = None,
     ) -> "aio_pika.RobustConnection":
-        connection = await super().connect(*args, **kwargs)
+        """Connect broker object to RabbitMQ.
+
+        To startup subscribers too you should use `broker.start()` after/instead this method.
+        """
+        kwargs: AnyDict = {}
+
+        if timeout:
+            kwargs["timeout"] = timeout
+
+        if url is not Parameter.empty or any(
+            (host, port, virtualhost, ssl_options, client_properties, security)
+        ):
+            security_args = parse_security(security)
+
+            kwargs["url"] = build_url(
+                None if url is Parameter.empty else url,
+                host=host,
+                port=port,
+                virtualhost=virtualhost,
+                ssl_options=ssl_options,
+                client_properties=client_properties,
+                login=security_args.get("login"),
+                password=security_args.get("password"),
+                ssl=security_args.get("ssl"),
+            )
+
+            if ssl_context := security_args.get("ssl_context"):
+                kwargs["ssl_context"] = ssl_context
+
+        connection = await super().connect(**kwargs)
+
         for p in self._publishers.values():
             p._producer = self._producer
+
         return connection
 
     async def _connect(
@@ -227,7 +332,8 @@ class RabbitBroker(
         virtualhost: Optional[str] = None,
         ssl_options: Optional["SSLOptions"] = None,
         client_properties: Optional["FieldTable"] = None,
-        **kwargs: Any,
+        timeout: aio_pika.abc.TimeoutType = None,
+        ssl_context: Optional["SSLContext"] = None,
     ) -> "aio_pika.RobustConnection":
         connection = cast(
             "aio_pika.RobustConnection",
@@ -242,7 +348,8 @@ class RabbitBroker(
                     ssl_options=ssl_options,
                     client_properties=client_properties,
                 ),
-                **kwargs,
+                timeout=timeout,
+                ssl_context=ssl_context,
             ),
         )
 
@@ -293,7 +400,23 @@ class RabbitBroker(
 
         await super()._close(exc_type, exc_val, exc_tb)
 
+    def include_router(
+        self,
+        router: Annotated[
+            "RabbitRouter",
+            Doc(
+                "`faststream.rabbit.RabbitRouter` object to copy publishers and subscribers from."
+            ),
+        ],
+    ) -> None:
+        for p in router._publishers.values():
+            p.virtual_host = self.virtual_host
+            p.app_id = self.app_id
+
+        return super().include_router(router)
+
     async def start(self) -> None:
+        """Connect broker to RabbitMQ cluster and startup all subscribers."""
         await super().start()
 
         assert self.declarer, NOT_CONNECTED_YET  # nosec B101
@@ -310,24 +433,89 @@ class RabbitBroker(
     @override
     def subscriber(  # type: ignore[override]
         self,
-        queue: Union[str, RabbitQueue],
-        exchange: Union[str, RabbitExchange, None] = None,
+        queue: Annotated[
+            Union[str, RabbitQueue],
+            Doc(
+                "RabbitMQ queue to listen. "
+                "**FastStream** declares and binds queue object to `exchange` automatically if it is not passive (by default)."
+            ),
+        ],
+        exchange: Annotated[
+            Union[str, RabbitExchange, None],
+            Doc(
+                "RabbitMQ exchange to bind queue to. "
+                "Uses default exchange if not presented. "
+                "**FastStream** declares exchange object automatically if it is not passive (by default)."
+            ),
+        ] = None,
         *,
-        consume_args: Optional["AnyDict"] = None,
-        reply_config: Optional["ReplyConfig"] = None,
+        consume_args: Annotated[
+            Optional["AnyDict"],
+            Doc("Extra consumer arguments to use in `queue.consume(...)` method."),
+        ] = None,
+        reply_config: Annotated[
+            Optional["ReplyConfig"],
+            Doc("Extra options to use at replies publishing."),
+        ] = None,
         # broker arguments
-        dependencies: Iterable["Depends"] = (),
-        parser: Optional["CustomParser[aio_pika.IncomingMessage]"] = None,
-        decoder: Optional["CustomDecoder[RabbitMessage]"] = None,
-        middlewares: Iterable["SubscriberMiddleware"] = (),
-        filter: "Filter[RabbitMessage]" = default_filter,
-        retry: bool = False,
-        no_ack: bool = False,
+        dependencies: Annotated[
+            Iterable["Depends"],
+            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+        ] = (),
+        parser: Annotated[
+            Optional["CustomParser[aio_pika.IncomingMessage]"],
+            Doc(
+                "Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one."
+            ),
+        ] = None,
+        decoder: Annotated[
+            Optional["CustomDecoder[RabbitMessage]"],
+            Doc("Function to decode FastStream msg bytes body to python objects."),
+        ] = None,
+        middlewares: Annotated[
+            Iterable["SubscriberMiddleware"],
+            Doc("Subscriber middlewares to wrap incoming message processing."),
+        ] = (),
+        filter: Annotated[
+            "Filter[RabbitMessage]",
+            Doc(
+                "Overload subscriber to consume various messages from the same source."
+            ),
+            deprecated(
+                "Deprecated in **FastStream 0.5.0**. "
+                "Please, create `subscriber` object and use it explicitly instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
+        ] = default_filter,
+        retry: Annotated[
+            bool,
+            Doc("Whether to `nack` message at processing exception."),
+        ] = False,
+        no_ack: Annotated[
+            bool,
+            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
+        ] = False,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        include_in_schema: bool = True,
-        get_dependent: Optional[Any] = None,
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI subscriber object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc(
+                "AsyncAPI subscriber object description. "
+                "Uses decorated docstring as default."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+        # Extra kwargs
+        get_dependent: Annotated[
+            Optional[Any],
+            Doc("Service option to pass FastAPI-compatible callback."),
+        ] = None,
     ) -> "WrapperProtocol[aio_pika.IncomingMessage]":
         super().subscriber()
 
@@ -348,6 +536,7 @@ class RabbitBroker(
             graceful_timeout=self.graceful_timeout,
             extra_context={},
             # AsyncAPI
+            app_id=self.app_id,
             title_=title,
             description_=description,
             virtual_host=self.virtual_host,
@@ -369,26 +558,142 @@ class RabbitBroker(
     @override
     def publisher(  # type: ignore[override]
         self,
-        queue: Union[RabbitQueue, str] = "",
-        exchange: Union[RabbitExchange, str, None] = None,
+        queue: Annotated[
+            Union[RabbitQueue, str],
+            Doc("Default message routing key to publish with."),
+        ] = "",
+        exchange: Annotated[
+            Union[RabbitExchange, str, None],
+            Doc("Target exchange to publish message to."),
+        ] = None,
         *,
-        routing_key: str = "",
-        mandatory: bool = True,
-        immediate: bool = False,
-        timeout: "TimeoutType" = None,
-        persist: bool = False,
-        reply_to: Optional[str] = None,
+        routing_key: Annotated[
+            str,
+            Doc(
+                "Default message routing key to publish with. "
+                "Overrides `queue` option if presented."
+            ),
+        ] = "",
+        mandatory: Annotated[
+            bool,
+            Doc(
+                "Client waits for confimation that the message is placed to some queue. "
+                "RabbitMQ returns message to client if there is no suitable queue."
+            ),
+        ] = True,
+        immediate: Annotated[
+            bool,
+            Doc(
+                "Client expects that there is consumer ready to take the message to work. "
+                "RabbitMQ returns message to client if there is no suitable consumer."
+            ),
+        ] = False,
+        timeout: Annotated[
+            "TimeoutType",
+            Doc("Send confirmation time from RabbitMQ."),
+        ] = None,
+        persist: Annotated[
+            bool, Doc("Restore the message on RabbitMQ reboot.")
+        ] = False,
+        reply_to: Annotated[
+            Optional[str],
+            Doc(
+                "Reply message routing key to send with (always sending to default exchange)."
+            ),
+        ] = None,
+        priority: Annotated[
+            Optional[int],
+            Doc("The message priority (0 by default)."),
+        ] = None,
         # specific
-        middlewares: Iterable["PublisherMiddleware"] = (),
+        middlewares: Annotated[
+            Iterable["PublisherMiddleware"],
+            Doc("Publisher middlewares to wrap outgoing messages."),
+        ] = (),
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        schema: Optional[Any] = None,
-        include_in_schema: bool = True,
-        priority: Optional[int] = None,
-        **message_kwargs: Any,
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object description."),
+        ] = None,
+        schema: Annotated[
+            Optional[Any],
+            Doc(
+                "AsyncAPI publishing message type. "
+                "Should be any python-native object annotation or `pydantic.BaseModel`."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+        # message args
+        headers: Annotated[
+            Optional[aio_pika.abc.HeadersType],
+            Doc(
+                "Message headers to store metainformation. "
+                "Can be overrided by `publish.headers` if specified."
+            ),
+        ] = None,
+        content_type: Annotated[
+            Optional[str],
+            Doc(
+                "Message **content-type** header. "
+                "Used by application, not core RabbitMQ. "
+                "Will be setted automatically if not specified."
+            ),
+        ] = None,
+        content_encoding: Annotated[
+            Optional[str],
+            Doc("Message body content encoding, e.g. **gzip**."),
+        ] = None,
+        expiration: Annotated[
+            Optional[aio_pika.abc.DateType],
+            Doc("Message expiration (lifetime) in seconds (or datetime or timedelta)."),
+        ] = None,
+        message_id: Annotated[
+            Optional[str],
+            Doc("Arbitrary message id. Generated automatically if not presented."),
+        ] = None,
+        timestamp: Annotated[
+            Optional[aio_pika.abc.DateType],
+            Doc("Message publish timestamp. Generated automatically if not presented."),
+        ] = None,
+        type: Annotated[
+            Optional[str],
+            Doc("Application-specific message type, e.g. **orders.created**."),
+        ] = None,
+        user_id: Annotated[
+            Optional[str],
+            Doc("Publisher connection User ID, validated if set."),
+        ] = None,
     ) -> Publisher:
+        """Creates long-living and AsyncAPI-documented publisher object.
+
+        You can use it as a handler decorator (handler should be decorated by `@broker.subscriber(...)` too) - `@broker.publisher(...)`.
+        In such case publisher will publish your handler return value.
+
+        Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
+
+        References:
+        You can find detail information about message properties here: https://www.rabbitmq.com/docs/publishers#message-properties
+        """
         q, ex = RabbitQueue.validate(queue), RabbitExchange.validate(exchange)
+
+        message_kwargs = {
+            "headers": headers,
+            "content_encoding": content_encoding,
+            "expiration": expiration,
+            "message_id": message_id,
+            "timestamp": timestamp,
+            "type": type,
+            "user_id": user_id,
+        }
+        if content_type:
+            message_kwargs["content_type"] = content_type
 
         publisher = Publisher(
             queue=q,
@@ -404,6 +709,7 @@ class RabbitBroker(
             # Specific
             middlewares=middlewares,
             # AsyncAPI
+            app_id=self.app_id,
             title_=title,
             description_=description,
             schema_=schema,
@@ -421,30 +727,126 @@ class RabbitBroker(
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: "SendableMessage" = None,
-        *args: Any,
-        **kwargs: Any,
+        message: "AioPikaSendableMessage" = None,
+        queue: Union["RabbitQueue", str] = "",
+        exchange: Union["RabbitExchange", str, None] = None,
+        *,
+        routing_key: str = "",
+        mandatory: bool = True,
+        immediate: bool = False,
+        timeout: "TimeoutType" = None,
+        rpc: bool = False,
+        rpc_timeout: Optional[float] = 30.0,
+        raise_timeout: bool = False,
+        persist: bool = False,
+        reply_to: Optional[str] = None,
+        # message args
+        correlation_id: Annotated[
+            Optional[str],
+            Doc(
+                "Manual message **correlation_id** setter. "
+                "**correlation_id** is a useful option to trace messages."
+            ),
+        ] = None,
+        headers: Annotated[
+            Optional[aio_pika.abc.HeadersType],
+            Doc(
+                "Message headers to store metainformation. "
+                "Can be overrided by `publish.headers` if specified."
+            ),
+        ] = None,
+        content_type: Annotated[
+            Optional[str],
+            Doc(
+                "Message **content-type** header. "
+                "Used by application, not core RabbitMQ. "
+                "Will be setted automatically if not specified."
+            ),
+        ] = None,
+        content_encoding: Annotated[
+            Optional[str],
+            Doc("Message body content encoding, e.g. **gzip**."),
+        ] = None,
+        expiration: Annotated[
+            Optional[aio_pika.abc.DateType],
+            Doc("Message expiration (lifetime) in seconds (or datetime or timedelta)."),
+        ] = None,
+        message_id: Annotated[
+            Optional[str],
+            Doc("Arbitrary message id. Generated automatically if not presented."),
+        ] = None,
+        timestamp: Annotated[
+            Optional[aio_pika.abc.DateType],
+            Doc("Message publish timestamp. Generated automatically if not presented."),
+        ] = None,
+        type: Annotated[
+            Optional[str],
+            Doc("Application-specific message type, e.g. **orders.created**."),
+        ] = None,
+        user_id: Annotated[
+            Optional[str],
+            Doc("Publisher connection User ID, validated if set."),
+        ] = None,
     ) -> Union["aiormq.abc.ConfirmationFrameType", "DecodedMessage"]:
+        """Publish message directly.
+
+        This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
+        applications or to publish messages from time to time.
+
+        Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
+        """
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
+
+        kwargs = {
+            "routing_key": routing_key or RabbitQueue.validate(queue).routing,
+            "exchange": exchange,
+            "mandatory": mandatory,
+            "immediate": immediate,
+            "timeout": timeout,
+            "persist": persist,
+            "reply_to": reply_to,
+            "headers": headers,
+            "correlation_id": correlation_id,
+            # "content_type": content_type,
+            "content_encoding": content_encoding,
+            "expiration": expiration,
+            "message_id": message_id,
+            "timestamp": timestamp,
+            "type": type,
+            "user_id": user_id,
+            "app_id": self.app_id,
+            # specific args
+            "rpc": rpc,
+            "rpc_timeout": rpc_timeout,
+            "raise_timeout": raise_timeout,
+        }
 
         async with AsyncExitStack() as stack:
             for m in self.middlewares:
                 message = await stack.enter_async_context(
-                    m().publish_scope(message, *args, **kwargs)
+                    m().publish_scope(message, **kwargs)
                 )
 
-            return await self._producer.publish(message, *args, **kwargs)
+            return await self._producer.publish(message, **kwargs)
 
     async def declare_queue(
         self,
-        queue: RabbitQueue,
+        queue: Annotated[
+            RabbitQueue,
+            Doc("Queue object to create."),
+        ],
     ) -> "aio_pika.RobustQueue":
+        """Declares queue object in RabbitMQ."""
         assert self.declarer, NOT_CONNECTED_YET  # nosec B101
         return await self.declarer.declare_queue(queue)
 
     async def declare_exchange(
         self,
-        exchange: RabbitExchange,
+        exchange: Annotated[
+            RabbitExchange,
+            Doc("Exchange object to create."),
+        ],
     ) -> "aio_pika.RobustExchange":
+        """Declares exchange object in RabbitMQ."""
         assert self.declarer, NOT_CONNECTED_YET  # nosec B101
         return await self.declarer.declare_exchange(exchange)

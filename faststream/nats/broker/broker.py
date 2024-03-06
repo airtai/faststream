@@ -377,19 +377,16 @@ class NatsBroker(
     ) -> "Client":
         """Connect broker object to NATS cluster.
 
-        To statup subscribers too you should use `broker.start()` after/instead this method.
+        To startup subscribers too you should use `broker.start()` after/instead this method.
         """
         if servers is not Parameter.empty:
-            connect_kwargs = {
-                "servers": servers,
-                **kwargs,
-            }
-        else:
-            connect_kwargs = kwargs
+            kwargs["servers"] = servers
 
-        connection = await super().connect(**connect_kwargs)
+        connection = await super().connect(**kwargs)
+
         for p in self._publishers.values():
             self.__set_publisher_producer(p)
+
         return connection
 
     async def _connect(self, **kwargs: Any) -> "Client":
@@ -542,11 +539,11 @@ class NatsBroker(
         ] = (),
         parser: Annotated[
             Optional["CustomParser[Msg]"],
-            Doc("Parser to map original **nats-py** Msg to FastStream one"),
+            Doc("Parser to map original **nats-py** Msg to FastStream one."),
         ] = None,
         decoder: Annotated[
             Optional["CustomDecoder[StreamMessage[Msg]]"],
-            Doc("Function to decode FastStream msg bytes body to python objects"),
+            Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
             Iterable["SubscriberMiddleware"],
@@ -582,7 +579,7 @@ class NatsBroker(
         ] = None,
         description: Annotated[
             Optional[str],
-            Doc("AsyncAPI subscriber object description."),
+            Doc("AsyncAPI subscriber object description. " "Uses decorated docstring as default."),
         ] = None,
         include_in_schema: Annotated[
             bool,

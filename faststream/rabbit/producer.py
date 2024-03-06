@@ -85,7 +85,6 @@ class AioPikaFastProducer:
     async def publish(
         self,
         message: "AioPikaSendableMessage" = "",
-        queue: Union["RabbitQueue", str] = "",
         exchange: Union["RabbitExchange", str, None] = None,
         *,
         routing_key: str = "",
@@ -123,8 +122,6 @@ class AioPikaFastProducer:
             WRONG_PUBLISH_ARGS: If reply_to is not None when rpc is True.
 
         """
-        p_queue = RabbitQueue.validate(queue)
-
         context: AsyncContextManager[
             Optional["MemoryObjectReceiveStream[aio_pika.IncomingMessage]"]
         ]
@@ -143,7 +140,7 @@ class AioPikaFastProducer:
             r = await self._publish(
                 message=message,
                 exchange=exchange,
-                routing_key=routing_key or p_queue.routing or "",
+                routing_key=routing_key,
                 mandatory=mandatory,
                 immediate=immediate,
                 timeout=timeout,
