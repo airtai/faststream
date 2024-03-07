@@ -1,11 +1,19 @@
+from typing import Any, Callable, Union
+
 from aio_pika import IncomingMessage
 from typing_extensions import Annotated
 
 from faststream.broker.fastapi.context import Context, ContextRepo, Logger
 from faststream.broker.fastapi.router import StreamRouter
+from faststream.broker.types import (
+    P_HandlerParams,
+    T_HandlerReturn,
+)
+from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.rabbit.broker import RabbitBroker as RB
 from faststream.rabbit.message import RabbitMessage as RM
 from faststream.rabbit.producer import AioPikaFastProducer
+from faststream.rabbit.shared.schemas import RabbitQueue
 
 __all__ = (
     "Context",
@@ -33,6 +41,23 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
     """
 
     broker_class = RB
+
+    def subscriber(  # type: ignore[override]
+        self,
+        queue: Union[str, RabbitQueue],
+        *args: Any,
+        **__service_kwargs: Any,
+    ) -> Callable[
+        [Callable[P_HandlerParams, T_HandlerReturn]],
+        HandlerCallWrapper[IncomingMessage, P_HandlerParams, T_HandlerReturn],
+    ]:
+        queue = RabbitQueue.validate(queue)
+        return super().subscriber(
+            queue.name,
+            queue,
+            *args,
+            **__service_kwargs,
+        )
 
     @staticmethod
     def _setup_log_context(

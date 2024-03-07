@@ -101,8 +101,7 @@ async def test_reset_global(context: ContextRepo):
     context.reset_global("key")
 
     @apply_types
-    async def use(key=Context()):
-        ...
+    async def use(key=Context()): ...
 
     with pytest.raises(ValidationError):
         await use()

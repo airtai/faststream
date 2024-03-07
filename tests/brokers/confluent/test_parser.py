@@ -9,7 +9,7 @@ from faststream.confluent import KafkaBroker
 
 
 @pytest.mark.asyncio()
-@pytest.mark.flaky(retries=3, delay=1)
+# @pytest.mark.flaky(reruns=3, reruns_delay=1)
 class LocalCustomParserTestcase:  # noqa: D101
     broker_class: Type[BrokerAsyncUsecase]
 
@@ -119,7 +119,7 @@ class LocalCustomParserTestcase:  # noqa: D101
             assert event.is_set()
             mock.assert_called_once_with(b"hello")
 
-    @pytest.mark.timeout(20)
+    # @pytest.mark.timeout(20)
     async def test_local_parser_no_share_between_subscribers(
         self,
         event: asyncio.Event,

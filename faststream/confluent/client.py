@@ -244,6 +244,7 @@ class AsyncConfluentProducer:
             # on_delivery=ack,
             **kwargs,
         )
+        self.producer.poll(0)
         # return result
 
     def create_batch(self) -> BatchBuilder:
@@ -483,7 +484,17 @@ class AsyncConfluentConsumer:
 
     async def stop(self) -> None:
         """Stops the Kafka consumer and releases all resources."""
-        await call_or_await(self.consumer.commit, asynchronous=True)
+        enable_auto_commit = self.config["enable.auto.commit"]
+        try:
+            if enable_auto_commit:
+                await call_or_await(self.consumer.commit, asynchronous=False)
+        except Exception as e:
+            # No offset stored issue is not a problem - https://github.com/confluentinc/confluent-kafka-python/issues/295#issuecomment-355907183
+            if "No offset stored" in str(e):
+                pass
+            else:
+                raise e
+
         await call_or_await(self.consumer.close)
 
     async def getone(self, timeout_ms: int = 1000) -> Message:

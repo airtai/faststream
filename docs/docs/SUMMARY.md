@@ -297,6 +297,8 @@ search:
                     - [serve](api/faststream/cli/docs/app/serve.md)
             - main
                 - [main](api/faststream/cli/main/main.md)
+                - [publish](api/faststream/cli/main/publish.md)
+                - [publish_message](api/faststream/cli/main/publish_message.md)
                 - [run](api/faststream/cli/main/run.md)
                 - [version_callback](api/faststream/cli/main/version_callback.md)
             - supervisors
@@ -563,6 +565,7 @@ search:
                 - [FakeProducer](api/faststream/rabbit/test/FakeProducer.md)
                 - [PatchedMessage](api/faststream/rabbit/test/PatchedMessage.md)
                 - [TestRabbitBroker](api/faststream/rabbit/test/TestRabbitBroker.md)
+                - [apply_pattern](api/faststream/rabbit/test/apply_pattern.md)
                 - [build_message](api/faststream/rabbit/test/build_message.md)
         - redis
             - [ListSub](api/faststream/redis/ListSub.md)

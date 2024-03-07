@@ -17,7 +17,6 @@ from tests.tools import spy_decorator
 
 @pytest.mark.asyncio()
 @pytest.mark.confluent()
-@pytest.mark.flaky(retries=3, delay=1)
 class BrokerConsumeTestcase:  # noqa: D101
     @pytest.fixture()
     def consume_broker(self, broker: BrokerUsecase):
@@ -45,7 +44,6 @@ class BrokerConsumeTestcase:  # noqa: D101
 
         assert event.is_set()
 
-    # @pytest.mark.timeout(20)
     async def test_consume_from_multi(
         self,
         queue: str,
@@ -113,7 +111,6 @@ class BrokerConsumeTestcase:  # noqa: D101
         assert consume.is_set()
         assert mock.call_count == 2
 
-    # @pytest.mark.timeout(20)
     async def test_different_consume(
         self,
         queue: str,
@@ -503,3 +500,47 @@ class TestConsume(BrokerRealConsumeTestcase):
             m.mock.assert_not_called()
 
         assert event.is_set()
+
+    @pytest.mark.asyncio()
+    @pytest.mark.slow()
+    async def test_consume_with_no_auto_commit(
+        self,
+        queue: str,
+        full_broker: KafkaBroker,
+        event: asyncio.Event,
+    ):
+        @full_broker.subscriber(
+            queue, auto_commit=False, group_id="test", auto_offset_reset="earliest"
+        )
+        async def subscriber_no_auto_commit(msg: KafkaMessage):
+            await msg.nack()
+            event.set()
+
+        broker2 = KafkaBroker()
+        event2 = asyncio.Event()
+
+        @broker2.subscriber(
+            queue, auto_commit=True, group_id="test", auto_offset_reset="earliest"
+        )
+        async def subscriber_with_auto_commit(m):
+            event2.set()
+
+        async with full_broker:
+            await full_broker.start()
+            await asyncio.wait(
+                (
+                    asyncio.create_task(full_broker.publish("hello", queue)),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=10,
+            )
+
+        async with broker2:
+            await broker2.start()
+            await asyncio.wait(
+                (asyncio.create_task(event2.wait()),),
+                timeout=10,
+            )
+
+        assert event.is_set()
+        assert event2.is_set()

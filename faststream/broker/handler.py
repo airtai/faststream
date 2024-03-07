@@ -162,9 +162,15 @@ class BaseHandler(AsyncAPIOperation, Generic[MsgType]):
 
         for h, _, _, _, _, dep in self.calls:
             body = parse_handler_params(
-                dep, prefix=f"{self._title or self.call_name}:Message"
+                dep,
+                prefix=f"{self._title or self.call_name}:Message",
             )
-            payloads.append((body, to_camelcase(unwrap(h._original_call).__name__)))
+            payloads.append(
+                (
+                    body,
+                    to_camelcase(unwrap(h._original_call).__name__),
+                ),
+            )
 
         return payloads
 

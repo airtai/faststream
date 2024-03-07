@@ -63,6 +63,7 @@ class LogicPublisher(BasePublisher[AnyRedisDict]):
                 channel=getattr(channel, "name", None),
                 list=getattr(list, "name", None),
                 stream=getattr(stream, "name", None),
+                maxlen=getattr(stream, "maxlen", None),
                 reply_to=reply_to or self.reply_to,
                 correlation_id=correlation_id,
                 headers=headers_to_send,

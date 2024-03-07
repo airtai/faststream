@@ -40,6 +40,26 @@ jobs:
         shell: bash
         run: semgrep scan --config auto --error
 
+  check-docs-changes:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install -e ".[dev]"
+      - name: Run build docs
+        run: bash scripts/build-docs.sh
+      - name: Check for changes
+        id: git-diff
+        run: git diff --exit-code
+
   test:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
@@ -242,7 +262,7 @@ jobs:
           COVERAGE_FILE: coverage/.coverage.confluent-py
           CONTEXT: confluent-py
       - name: Store coverage files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: .coverage.confluent-py
           path: coverage
@@ -458,6 +478,7 @@ jobs:
 
     needs:
       - static_analysis
+      - check-docs-changes
       - coverage-combine
       - test-macos-latest
       - test-windows-latest

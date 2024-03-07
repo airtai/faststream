@@ -10,7 +10,6 @@ from typing import (
     Coroutine,
     Generic,
     List,
-    Optional,
     Sequence,
     Union,
     cast,
@@ -57,8 +56,8 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
             HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
         ],
         broker: BrokerAsyncUsecase[MsgType, Any],
-        dependencies: Sequence[params.Depends] = (),
-        dependency_overrides_provider: Optional[Any] = None,
+        dependencies: Sequence[params.Depends],
+        provider_factory: Callable[[], Any],
         **handle_kwargs: Any,
     ) -> None:
         """Initialize a class instance.
@@ -69,7 +68,7 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
             endpoint: The endpoint of the instance.
             broker: The broker of the instance.
             dependencies: The dependencies of the instance.
-            dependency_overrides_provider: The provider for dependency overrides.
+            provider_factory: Provider factory for dependency overrides.
             **handle_kwargs: Additional keyword arguments.
 
         Returns:
@@ -99,7 +98,7 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
         call = wraps(orig_call)(
             StreamMessage.get_session(
                 dependant,
-                dependency_overrides_provider,
+                provider_factory,
             )
         )
 
@@ -111,7 +110,6 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
             handler = call
 
         self.handler = broker.subscriber(
-            path,
             *extra,
             _raw=True,
             _get_dependant=lambda call: dependant,
@@ -173,15 +171,13 @@ class StreamMessage(Request):
 
     @classmethod
     def get_session(
-        cls,
-        dependant: Dependant,
-        dependency_overrides_provider: Optional[Any] = None,
+        cls, dependant: Dependant, provider_factory: Callable[[], Any]
     ) -> Callable[[NativeMessage[Any]], Awaitable[SendableMessage]]:
         """Creates a session for handling requests.
 
         Args:
             dependant: The dependant object representing the session.
-            dependency_overrides_provider: Optional provider for dependency overrides.
+            provider_factory: Provider factory for dependency overrides.
 
         Returns:
             A callable that takes a native message and returns an awaitable sendable message.
@@ -194,7 +190,7 @@ class StreamMessage(Request):
         """
         assert dependant.call  # nosec B101
 
-        func = get_app(dependant, dependency_overrides_provider)
+        func = get_app(dependant, provider_factory)
 
         dependencies_names = tuple(i.name for i in dependant.dependencies)
 
@@ -252,7 +248,7 @@ class StreamMessage(Request):
 
 def get_app(
     dependant: Dependant,
-    dependency_overrides_provider: Optional[Any] = None,
+    provider_factory: Callable[[], Any],
 ) -> Callable[
     [StreamMessage],
     Coroutine[Any, Any, SendableMessage],
@@ -261,7 +257,7 @@ def get_app(
 
     Args:
         dependant: The dependant object that defines the endpoint function and its dependencies.
-        dependency_overrides_provider: Optional provider for dependency overrides.
+        provider_factory: Provider factory for dependency overrides.
 
     Returns:
         The FastAPI application as a callable that takes a StreamMessage object as input and returns a SendableMessage coroutine.
@@ -293,7 +289,7 @@ def get_app(
                 request=request,
                 body=request._body,  # type: ignore[arg-type]
                 dependant=dependant,
-                dependency_overrides_provider=dependency_overrides_provider,
+                dependency_overrides_provider=provider_factory(),
                 **kwargs,  # type: ignore[arg-type]
             )
 

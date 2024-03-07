@@ -2,9 +2,9 @@ from inspect import isclass
 from typing import Any, Dict, Optional, Sequence, Type, overload
 
 from fast_depends.core import CallModel
-from pydantic import BaseModel
+from pydantic import BaseModel, create_model
 
-from faststream._compat import PYDANTIC_V2, get_model_fields, model_schema
+from faststream._compat import DEF_KEY, PYDANTIC_V2, get_model_fields, model_schema
 
 
 def parse_handler_params(call: CallModel[Any, Any], prefix: str = "") -> Dict[str, Any]:
@@ -18,8 +18,13 @@ def parse_handler_params(call: CallModel[Any, Any], prefix: str = "") -> Dict[st
         A dictionary containing the parsed parameters.
 
     """
+    model = call.model
+    assert model  # nosec B101
     body = get_model_schema(
-        call.model,
+        create_model(  # type: ignore[call-overload]
+            model.__name__,
+            **call.flat_params,  # type: ignore[arg-type]
+        ),
         prefix=prefix,
         exclude=tuple(call.custom_fields.keys()),
     )
@@ -178,6 +183,9 @@ def get_model_schema(
     if params_number == 1 and not use_original_model:
         param_body: Dict[str, Any] = body.get("properties", {})
         param_body = param_body[name]
+
+        if defs := body.get(DEF_KEY):
+            param_body[DEF_KEY] = defs
 
         original_title = param.title if PYDANTIC_V2 else param.field_info.title  # type: ignore[attr-defined]
 

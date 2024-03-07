@@ -185,7 +185,7 @@ class RabbitBroker(
             exc_val (Optional[BaseException], optional): The exception instance. Defaults to None.
             exec_tb (Optional[TracebackType], optional): The traceback. Defaults to None.
         """
-        if self._channel is not None:
+        if self._channel is not None and not self._channel.is_closed:
             await self._channel.close()
             self._channel = None
 

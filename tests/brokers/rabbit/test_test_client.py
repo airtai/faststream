@@ -12,6 +12,7 @@ from faststream.rabbit import (
     TestRabbitBroker,
 )
 from faststream.rabbit.annotations import RabbitMessage
+from faststream.rabbit.test import apply_pattern
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
@@ -85,8 +86,7 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
             RabbitQueue("test", routing_key="test.*.subj.*"),
             exchange=exch,
         )
-        def subscriber():
-            ...
+        def subscriber(): ...
 
         await test_broker.start()
         await test_broker.publish("hello", "test.a.subj.b", exchange=exch)
@@ -99,8 +99,7 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
             RabbitQueue("test", routing_key="test.#"),
             exchange=exch,
         )
-        def subscriber():
-            ...
+        def subscriber(): ...
 
         await test_broker.start()
         await test_broker.publish("hello", "test.a.subj.b", exchange=exch)
@@ -113,8 +112,7 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
             RabbitQueue("test", routing_key="*.*.subj.#"),
             exchange=exch,
         )
-        def subscriber():
-            ...
+        def subscriber(): ...
 
         await test_broker.start()
         await test_broker.publish("hello", "test.a.subj.b.c", exchange=exch)
@@ -230,12 +228,10 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
         broker.middlewares = (Middleware,)
 
         @broker.subscriber(queue)
-        async def h1():
-            ...
+        async def h1(): ...
 
         @broker.subscriber(queue + "1")
-        async def h2():
-            ...
+        async def h2(): ...
 
         async with TestRabbitBroker(broker) as br:
             await br.publish("", queue)
@@ -256,12 +252,10 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
         broker.middlewares = (Middleware,)
 
         @broker.subscriber(queue)
-        async def h1():
-            ...
+        async def h1(): ...
 
         @broker.subscriber(queue + "1")
-        async def h2():
-            ...
+        async def h2(): ...
 
         async with TestRabbitBroker(broker, with_real=True) as br:
             await br.publish("", queue)
@@ -270,3 +264,29 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
             await h2.wait_call(3)
 
         assert len(routes) == 2
+
+
+@pytest.mark.parametrize(
+    ("pattern", "current", "result"),
+    [
+        pytest.param("#", "1.2.3", True, id="#"),
+        pytest.param("*", "1", True, id="*"),
+        pytest.param("*", "1.2", False, id="* - broken"),
+        pytest.param("test.*", "test.1", True, id="test.*"),
+        pytest.param("test.#", "test.1", True, id="test.#"),
+        pytest.param("#.test.#", "1.2.test.1.2", True, id="#.test.#"),
+        pytest.param("#.test.*", "1.2.test.1", True, id="#.test.*"),
+        pytest.param("#.test.*.*", "1.2.test.1.2", True, id="#.test.*."),
+        pytest.param("#.test.*.*.*", "1.2.test.1.2", False, id="#.test.*.*.* - broken"),
+        pytest.param(
+            "#.test.*.test.#", "1.2.test.1.test.1.2", True, id="#.test.*.test.#"
+        ),
+        pytest.param("#.*.test", "1.2.2.test", True, id="#.*.test"),
+        pytest.param("#.2.*.test", "1.2.2.test", True, id="#.2.*.test"),
+        pytest.param("#.*.*.test", "1.2.2.test", True, id="#.*.*.test"),
+        pytest.param("*.*.*.test", "1.2.test", False, id="*.*.*.test - broken"),
+        pytest.param("#.*.*.test", "1.2.test", False, id="#.*.*.test - broken"),
+    ],
+)
+def test(pattern: str, current: str, result: bool):
+    assert apply_pattern(pattern, current) == result

@@ -2,7 +2,7 @@ import logging
 import sys
 import warnings
 from contextlib import suppress
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import anyio
 import typer
@@ -10,6 +10,7 @@ from click.exceptions import MissingParameter
 from pydantic import ValidationError
 from typer.core import TyperOption
 
+from faststream import FastStream
 from faststream.__about__ import INSTALL_WATCHFILES, __version__
 from faststream.cli.docs.app import docs_app
 from faststream.cli.utils.imports import import_from_string
@@ -202,22 +203,15 @@ def _run(
         sys.exit(1)
 
 
-@cli.command(context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
+@cli.command(
+    context_settings={"allow_extra_args": True, "ignore_unknown_options": True}
+)
 def publish(
     ctx: typer.Context,
-    app: str = typer.Argument(
-        ...,
-        help="FastStream app instance, e.g., main:app"
-    ),
-    message: str = typer.Argument(
-        ...,
-        help="Message to be published"
-    ),
-    rpc: bool = typer.Option(
-        False,
-        help="Enable RPC mode and system output"
-    ),
-):
+    app: str = typer.Argument(..., help="FastStream app instance, e.g., main:app"),
+    message: str = typer.Argument(..., help="Message to be published"),
+    rpc: bool = typer.Option(False, help="Enable RPC mode and system output"),
+) -> None:
     """Publish a message using the specified broker in a FastStream application.
 
     This command publishes a message to a broker configured in a FastStream app instance.
@@ -256,10 +250,10 @@ def publish(
         sys.exit(1)
 
 
-async def publish_message(app_obj, extra):
+async def publish_message(app_obj: FastStream, extra: Any) -> Any:
     try:
-        if await app_obj.broker.connect():
-            result = await app_obj.broker.publish(**extra)
+        if await app_obj.broker.connect():  # type: ignore[union-attr]
+            result = await app_obj.broker.publish(**extra)  # type: ignore[union-attr]
             return result
         else:
             raise ValueError("Failed to connect to the broker.")

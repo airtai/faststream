@@ -1,17 +1,22 @@
 from enum import Enum
-from typing import Optional, Type
+from typing import Optional, Type, Union
 
 import pydantic
-from dirty_equals import IsDict, IsPartialDict
+from dirty_equals import IsDict, IsPartialDict, IsStr
+from fast_depends import Depends
+from fastapi import Depends as APIDepends
+from typing_extensions import Annotated, Literal
 
 from faststream import Context, FastStream
 from faststream._compat import PYDANTIC_V2
 from faststream.asyncapi.generate import get_app_schema
 from faststream.broker.core.abc import BrokerUsecase
+from tests.marks import pydanticV2
 
 
 class FastAPICompatible:  # noqa: D101
     broker_class: Type[BrokerUsecase]
+    dependency_builder = staticmethod(APIDepends)
 
     def build_app(self, broker):
         """Patch it to test FastAPI scheme generation too"""  # noqa: D415
@@ -392,8 +397,156 @@ class FastAPICompatible:  # noqa: D101
         assert "Handle:Message:Payload" in list(payload.keys())
         assert "HandleDefault:Message:Payload" in list(payload.keys())
 
+    def test_ignores_depends(self):
+        broker = self.broker_class()
+
+        def dep(name: str = ""):
+            return name
+
+        def dep2(name2: str):
+            return name2
+
+        dependencies = (self.dependency_builder(dep2),)
+        message = self.dependency_builder(dep)
+
+        @broker.subscriber("test", dependencies=dependencies)
+        async def handle(id: int, message=message):
+            ...
+
+        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+
+        payload = schema["components"]["schemas"]
+
+        for key, v in payload.items():
+            assert key == "Handle:Message:Payload"
+            assert v == {
+                "properties": {
+                    "id": {"title": "Id", "type": "integer"},
+                    "name": {"default": "", "title": "Name", "type": "string"},
+                    "name2": {"title": "Name2", "type": "string"},
+                },
+                "required": ["id", "name2"],
+                "title": key,
+                "type": "object",
+            }
+
+    @pydanticV2
+    def test_descriminator(self):
+        class Sub2(pydantic.BaseModel):
+            type: Literal["sub2"]
+
+        class Sub(pydantic.BaseModel):
+            type: Literal["sub"]
+
+        descriminator = Annotated[
+            Union[Sub2, Sub], pydantic.Field(discriminator="type")
+        ]
+
+        broker = self.broker_class()
+
+        @broker.subscriber("test")
+        async def handle(user: descriminator):
+            ...
+
+        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+
+        key = next(iter(schema["components"]["messages"].keys()))
+        assert key == IsStr(regex=r"test[\w:]*:Handle:Message")
+        assert schema["components"] == {
+            "messages": {
+                key: {
+                    "title": key,
+                    "correlationId": {"location": "$message.header#/correlation_id"},
+                    "payload": {
+                        "discriminator": "type",
+                        "oneOf": [
+                            {"$ref": "#/components/schemas/Sub2"},
+                            {"$ref": "#/components/schemas/Sub"},
+                        ],
+                        "title": "Handle:Message:Payload",
+                    },
+                }
+            },
+            "schemas": {
+                "Sub": {
+                    "properties": {"type": {"const": "sub", "title": "Type"}},
+                    "required": ["type"],
+                    "title": "Sub",
+                    "type": "object",
+                },
+                "Sub2": {
+                    "properties": {"type": {"const": "sub2", "title": "Type"}},
+                    "required": ["type"],
+                    "title": "Sub2",
+                    "type": "object",
+                },
+            },
+        }, schema["components"]
+
+    @pydanticV2
+    def test_nested_descriminator(self):
+        class Sub2(pydantic.BaseModel):
+            type: Literal["sub2"]
+
+        class Sub(pydantic.BaseModel):
+            type: Literal["sub"]
+
+        class Model(pydantic.BaseModel):
+            msg: Union[Sub2, Sub] = pydantic.Field(..., discriminator="type")
+
+        broker = self.broker_class()
+
+        @broker.subscriber("test")
+        async def handle(user: Model):
+            ...
+
+        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+
+        key = next(iter(schema["components"]["messages"].keys()))
+        assert key == IsStr(regex=r"test[\w:]*:Handle:Message")
+        assert schema["components"] == {
+            "messages": {
+                key: {
+                    "title": key,
+                    "correlationId": {"location": "$message.header#/correlation_id"},
+                    "payload": {"$ref": "#/components/schemas/Model"},
+                }
+            },
+            "schemas": {
+                "Sub": {
+                    "properties": {"type": {"const": "sub", "title": "Type"}},
+                    "required": ["type"],
+                    "title": "Sub",
+                    "type": "object",
+                },
+                "Sub2": {
+                    "properties": {"type": {"const": "sub2", "title": "Type"}},
+                    "required": ["type"],
+                    "title": "Sub2",
+                    "type": "object",
+                },
+                "Model": {
+                    "properties": {
+                        "msg": {
+                            "discriminator": "type",
+                            "oneOf": [
+                                {"$ref": "#/components/schemas/Sub2"},
+                                {"$ref": "#/components/schemas/Sub"},
+                            ],
+                            "title": "Msg",
+                        }
+                    },
+                    "required": ["msg"],
+                    "title": "Model",
+                    "type": "object",
+                },
+            },
+        }, schema["components"]
+
 
 class ArgumentsTestcase(FastAPICompatible):  # noqa: D101
+    dependency_builder = staticmethod(Depends)
+
     def test_pydantic_field(self):
         broker = self.broker_class()
 
