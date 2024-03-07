@@ -37,11 +37,10 @@ def mock_app(request):
     return app
 
 
+@pytest.mark.asyncio
 @pytest.mark.parametrize("mock_app", [{"broker_type": RedisBroker, "producer_type": RedisFastProducer}], indirect=True)
 def test_publish_command_with_redis_options(mock_app):
     with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
-        mock_app.broker.connect()
-
         result = runner.invoke(faststream_app, [
             "publish",
             "fastream:app",
@@ -64,11 +63,10 @@ def test_publish_command_with_redis_options(mock_app):
             rpc=False,
         )
 
-
 @pytest.mark.parametrize("mock_app", [{"broker_type": ConfluentBroker, "producer_type": AsyncConfluentFastProducer}], indirect=True)
+@pytest.mark.asyncio
 def test_publish_command_with_confluent_options(mock_app):
     with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
-        mock_app.broker.connect()
         result = runner.invoke(faststream_app, [
             "publish",
             "fastream:app",
@@ -85,11 +83,10 @@ def test_publish_command_with_confluent_options(mock_app):
             rpc=False,
         )
 
-
 @pytest.mark.parametrize("mock_app", [{"broker_type": KafkaBroker, "producer_type": AioKafkaFastProducer}], indirect=True)
+@pytest.mark.asyncio
 def test_publish_command_with_kafka_options(mock_app):
     with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
-        mock_app.broker.connect()
         result = runner.invoke(faststream_app, [
             "publish",
             "fastream:app",
@@ -106,11 +103,10 @@ def test_publish_command_with_kafka_options(mock_app):
             rpc=False,
         )
 
-
 @pytest.mark.parametrize("mock_app", [{"broker_type": NatsBroker, "producer_type": NatsFastProducer}], indirect=True)
+@pytest.mark.asyncio
 def test_publish_command_with_nats_options(mock_app):
     with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
-        mock_app.broker.connect()
         result = runner.invoke(faststream_app, [
             "publish",
             "fastream:app",
@@ -131,9 +127,9 @@ def test_publish_command_with_nats_options(mock_app):
 
 
 @pytest.mark.parametrize("mock_app", [{"broker_type": RabbitBroker, "producer_type": AioPikaFastProducer}], indirect=True)
+@pytest.mark.asyncio
 def test_publish_command_with_rabbit_options(mock_app):
     with patch("faststream.cli.main.import_from_string", return_value=(None, mock_app)):
-        mock_app.broker.connect()
         result = runner.invoke(faststream_app, [
             "publish",
             "fastream:app",
