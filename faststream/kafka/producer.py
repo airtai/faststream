@@ -150,5 +150,5 @@ class AioKafkaFastProducer:
             AssertionError: If the broker is not connected.
 
         """
-        assert self._producer, NOT_CONNECTED_YET    # nosec B101
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
         return self._producer.transaction()
