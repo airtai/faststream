@@ -44,10 +44,10 @@ class Publisher(LogicPublisher):
                     bindings=OperationBinding(
                         amqp=amqp.OperationBinding(
                             cc=self.routing or None,
-                            deliveryMode=2 if self.persist else 1,
-                            mandatory=self.mandatory,
-                            replyTo=self.reply_to,
-                            priority=self.priority,
+                            deliveryMode=2 if self.message_kwargs.get("persist") else 1,
+                            mandatory=self.message_kwargs.get("mandatory"),
+                            replyTo=self.message_kwargs.get("reply_to"),
+                            priority=self.message_kwargs.get("priority"),
                         ),
                     )
                     if _is_exchange(self.exchange)

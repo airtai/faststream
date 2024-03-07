@@ -105,7 +105,7 @@ class AioPikaFastProducer:
         expiration: Optional["DateType"] = None,
         message_id: Optional[str] = None,
         timestamp: Optional["DateType"] = None,
-        type: Optional[str] = None,
+        message_type: Optional[str] = None,
         user_id: Optional[str] = None,
         app_id: Optional[str] = None,
     ) -> Union["aiormq.abc.ConfirmationFrameType", Any]:
@@ -142,7 +142,7 @@ class AioPikaFastProducer:
                 expiration=expiration,
                 message_id=message_id,
                 timestamp=timestamp,
-                type=type,
+                message_type=message_type,
                 user_id=user_id,
                 app_id=app_id,
             )
@@ -179,26 +179,11 @@ class AioPikaFastProducer:
         expiration: Optional["DateType"],
         message_id: Optional[str],
         timestamp: Optional["DateType"],
-        type: Optional[str] = None,
+        message_type: Optional[str],
         user_id: Optional[str],
         app_id: Optional[str],
     ) -> Union["aiormq.abc.ConfirmationFrameType", "SendableMessage"]:
-        """Publish a message to a RabbitMQ exchange.
-
-        Args:
-            message (AioPikaSendableMessage): The message to be published.
-            exchange (Union[RabbitExchange, str, None]): The exchange to publish the message to.
-            routing_key (str): The routing key for the message.
-            mandatory (bool): Whether the message is mandatory.
-            immediate (bool): Whether the message should be delivered immediately.
-            timeout (TimeoutType): The timeout for the operation.
-            persist (bool): Whether the message should be persisted.
-            reply_to (Optional[str]): The reply-to address for the message.
-            **message_kwargs (Any): Additional keyword arguments for the message.
-
-        Returns:
-            Union[aiormq.abc.ConfirmationFrameType, SendableMessage]: The result of the publish operation.
-        """
+        """Publish a message to a RabbitMQ exchange."""
         p_exchange = RabbitExchange.validate(exchange)
 
         if p_exchange is None:
@@ -219,7 +204,7 @@ class AioPikaFastProducer:
             expiration=expiration,
             message_id=message_id,
             timestamp=timestamp,
-            type=type,
+            message_type=message_type,
             user_id=user_id,
             app_id=app_id,
         )

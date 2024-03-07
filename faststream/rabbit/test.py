@@ -133,7 +133,7 @@ def build_message(
     expiration: Optional["DateType"] = None,
     message_id: Optional[str] = None,
     timestamp: Optional["DateType"] = None,
-    type: Optional[str] = None,
+    message_type: Optional[str] = None,
     user_id: Optional[str] = None,
     app_id: Optional[str] = None,
 ) -> PatchedMessage:
@@ -155,7 +155,7 @@ def build_message(
         expiration=expiration,
         message_id=message_id,
         timestamp=timestamp,
-        type=type,
+        message_type=message_type,
         user_id=user_id,
         app_id=app_id,
     )
@@ -214,7 +214,7 @@ class FakeProducer(AioPikaFastProducer):
         expiration: Optional["DateType"] = None,
         message_id: Optional[str] = None,
         timestamp: Optional["DateType"] = None,
-        type: Optional[str] = None,
+        message_type: Optional[str] = None,
         user_id: Optional[str] = None,
         app_id: Optional[str] = None,
         # useless args to be compatible with RabbitBroker.publish()
@@ -252,7 +252,7 @@ class FakeProducer(AioPikaFastProducer):
             reply_to=reply_to,
             app_id=app_id,
             user_id=user_id,
-            type=type,
+            message_type=message_type,
             headers=headers,
             persist=persist,
             message_id=message_id,

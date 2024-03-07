@@ -24,6 +24,7 @@ from faststream.rabbit.asyncapi import Handler, Publisher
 from faststream.rabbit.broker.logging import RabbitLoggingMixin
 from faststream.rabbit.helpers import RabbitDeclarer, build_url
 from faststream.rabbit.producer import AioPikaFastProducer
+from faststream.rabbit.publisher import PublishKwargs
 from faststream.rabbit.schemas.constants import RABBIT_REPLY
 from faststream.rabbit.schemas.schemas import (
     RabbitExchange,
@@ -592,7 +593,7 @@ class RabbitBroker(
             Doc("Send confirmation time from RabbitMQ."),
         ] = None,
         persist: Annotated[
-            bool, Doc("Restore the message on RabbitMQ reboot.")
+            bool, Doc("Restore the message on RabbitMQ reboot."),
         ] = False,
         reply_to: Annotated[
             Optional[str],
@@ -653,15 +654,7 @@ class RabbitBroker(
             Optional[aio_pika.abc.DateType],
             Doc("Message expiration (lifetime) in seconds (or datetime or timedelta)."),
         ] = None,
-        message_id: Annotated[
-            Optional[str],
-            Doc("Arbitrary message id. Generated automatically if not presented."),
-        ] = None,
-        timestamp: Annotated[
-            Optional[aio_pika.abc.DateType],
-            Doc("Message publish timestamp. Generated automatically if not presented."),
-        ] = None,
-        type: Annotated[
+        message_type: Annotated[
             Optional[str],
             Doc("Application-specific message type, e.g. **orders.created**."),
         ] = None,
@@ -690,33 +683,30 @@ class RabbitBroker(
         """
         q, ex = RabbitQueue.validate(queue), RabbitExchange.validate(exchange)
 
-        message_kwargs = {
-            "headers": headers,
-            "content_encoding": content_encoding,
-            "expiration": expiration,
-            "message_id": message_id,
-            "timestamp": timestamp,
-            "type": type,
-            "user_id": user_id,
-        }
-        if content_type:
-            message_kwargs["content_type"] = content_type
-
-        publisher = Publisher(
-            queue=q,
-            exchange=ex,
-            routing_key=routing_key,
+        message_kwargs = PublishKwargs(
             mandatory=mandatory,
             immediate=immediate,
             timeout=timeout,
             persist=persist,
             reply_to=reply_to,
+            headers=headers,
             priority=priority,
+            content_type=content_type,
+            content_encoding=content_encoding,
+            message_type=message_type,
+            user_id=user_id,
+            expiration=expiration,
+        )
+
+        publisher = Publisher(
+            queue=q,
+            exchange=ex,
+            routing_key=routing_key,
             message_kwargs=message_kwargs,
+            app_id=self.app_id,
             # Specific
             middlewares=middlewares,
             # AsyncAPI
-            app_id=self.app_id,
             title_=title,
             description_=description,
             schema_=schema,
@@ -735,18 +725,64 @@ class RabbitBroker(
     async def publish(  # type: ignore[override]
         self,
         message: "AioPikaSendableMessage" = None,
-        queue: Union["RabbitQueue", str] = "",
-        exchange: Union["RabbitExchange", str, None] = None,
+        queue: Annotated[
+            Union[RabbitQueue, str],
+            Doc("Message routing key to publish with."),
+        ] = "",
+        exchange: Annotated[
+            Union[RabbitExchange, str, None],
+            Doc("Target exchange to publish message to."),
+        ] = None,
         *,
-        routing_key: str = "",
-        mandatory: bool = True,
-        immediate: bool = False,
-        timeout: "TimeoutType" = None,
-        rpc: bool = False,
-        rpc_timeout: Optional[float] = 30.0,
-        raise_timeout: bool = False,
-        persist: bool = False,
-        reply_to: Optional[str] = None,
+        routing_key: Annotated[
+            str,
+            Doc(
+                "Message routing key to publish with. "
+                "Overrides `queue` option if presented."
+            ),
+        ] = "",
+        mandatory: Annotated[
+            bool,
+            Doc(
+                "Client waits for confimation that the message is placed to some queue. "
+                "RabbitMQ returns message to client if there is no suitable queue."
+            ),
+        ] = True,
+        immediate: Annotated[
+            bool,
+            Doc(
+                "Client expects that there is consumer ready to take the message to work. "
+                "RabbitMQ returns message to client if there is no suitable consumer."
+            ),
+        ] = False,
+        timeout: Annotated[
+            "TimeoutType",
+            Doc("Send confirmation time from RabbitMQ."),
+        ] = None,
+        persist: Annotated[
+            bool, Doc("Restore the message on RabbitMQ reboot."),
+        ] = False,
+        reply_to: Annotated[
+            Optional[str],
+            Doc(
+                "Reply message routing key to send with (always sending to default exchange)."
+            ),
+        ] = None,
+        rpc: Annotated[
+            bool,
+            Doc("Whether to wait for reply in blocking mode."),
+        ] = False,
+        rpc_timeout: Annotated[
+            Optional[float],
+            Doc("RPC reply waiting time."),
+        ] = 30.0,
+        raise_timeout: Annotated[
+            bool,
+            Doc(
+                "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
+                "RPC request returns `None` at timeout by default."
+            ),
+        ] = False,
         # message args
         correlation_id: Annotated[
             Optional[str],
@@ -786,13 +822,17 @@ class RabbitBroker(
             Optional[aio_pika.abc.DateType],
             Doc("Message publish timestamp. Generated automatically if not presented."),
         ] = None,
-        type: Annotated[
+        message_type: Annotated[
             Optional[str],
             Doc("Application-specific message type, e.g. **orders.created**."),
         ] = None,
         user_id: Annotated[
             Optional[str],
             Doc("Publisher connection User ID, validated if set."),
+        ] = None,
+        priority: Annotated[
+            Optional[int],
+            Doc("The message priority (0 by default)."),
         ] = None,
     ) -> Union["aiormq.abc.ConfirmationFrameType", "DecodedMessage"]:
         """Publish message directly.
@@ -814,13 +854,14 @@ class RabbitBroker(
             "reply_to": reply_to,
             "headers": headers,
             "correlation_id": correlation_id,
-            # "content_type": content_type,
+            "content_type": content_type,
             "content_encoding": content_encoding,
             "expiration": expiration,
             "message_id": message_id,
             "timestamp": timestamp,
-            "type": type,
+            "message_type": message_type,
             "user_id": user_id,
+            "priority": priority,
             "app_id": self.app_id,
             # specific args
             "rpc": rpc,

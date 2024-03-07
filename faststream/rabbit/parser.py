@@ -92,7 +92,7 @@ class AioPikaParser:
         expiration: Optional["DateType"],
         message_id: Optional[str],
         timestamp: Optional["DateType"],
-        type: Optional[str] = None,
+        message_type: Optional[str],
         user_id: Optional[str],
         app_id: Optional[str],
     ) -> "aio_pika.Message":
@@ -130,7 +130,7 @@ class AioPikaParser:
                 expiration=expiration,
                 message_id=message_id,
                 timestamp=timestamp,
-                type=type,
+                type=message_type,
                 user_id=user_id,
                 app_id=app_id,
             )

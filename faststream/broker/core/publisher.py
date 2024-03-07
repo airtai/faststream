@@ -1,4 +1,4 @@
-from abc import abstractmethod, abstractproperty
+from abc import abstractmethod
 from contextlib import AsyncExitStack
 from dataclasses import dataclass, field
 from inspect import unwrap
@@ -252,6 +252,6 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
 
         return payloads
 
-    @abstractproperty
+    @property
     def publish_kwargs(self) -> AnyDict:
-        raise NotImplementedError()
+        raise {}
