@@ -2,6 +2,7 @@ from typing import Dict, Optional
 from uuid import uuid4
 
 from aiokafka import AIOKafkaProducer
+from aiokafka.producer.producer import TransactionContext
 
 from faststream.broker.parsers import encode_message
 from faststream.exceptions import NOT_CONNECTED_YET
@@ -138,3 +139,16 @@ class AioKafkaFastProducer:
             )
 
         await self._producer.send_batch(batch, topic, partition=partition)
+
+    async def transaction(self) -> TransactionContext:
+        """Publish messages to a topic or topics within a transaction.
+
+        Returns:
+            TransactionContext
+
+        Raises:
+            AssertionError: If the broker is not connected.
+
+        """
+        assert self._producer, NOT_CONNECTED_YET    # nosec B101
+        return self._producer.transaction()
