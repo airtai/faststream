@@ -33,11 +33,15 @@ Generally, **FastStream** uses your function type annotation to serialize incomi
 
 You can also access some extra features through the function arguments, such as [Depends](../dependencies/index.md){.internal-link} and [Context](../context/existed.md){.internal-link} if required.
 
-However, you can easily disable Pydantic validation by creating a broker with the following option `#!python Broker(apply_types=False)` (this also disables Context and Depends features).
+However, you can easily disable **Pydantic** validation by creating a broker with the following option `#!python Broker(apply_types=False)`
 
 This way **FastStream** still consumes `#!python json.loads` result, but without pydantic validation and casting.
 
 {! includes/getting_started/subscription/index/3.md !}
+
+!!! warning
+    Setting the `apply_types=False` flag not only disables type casting but also `Depends` and `Context`.
+    If you want to disable only type casting, use `validate=False` instead.
 
 ## Multiple Subscriptions
 
