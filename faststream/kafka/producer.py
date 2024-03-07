@@ -140,7 +140,7 @@ class AioKafkaFastProducer:
 
         await self._producer.send_batch(batch, topic, partition=partition)
 
-    async def transaction(self) -> TransactionContext:
+    def transaction(self) -> TransactionContext:
         """Publish messages to a topic or topics within a transaction.
 
         Returns:
