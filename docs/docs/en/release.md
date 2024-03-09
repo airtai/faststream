@@ -12,6 +12,17 @@ hide:
 ---
 
 # Release Notes
+## 0.4.7
+
+### What's Changed
+
+* Update Release Notes for 0.4.6 by @faststream-release-notes-updater in [#1286](https://github.com/airtai/faststream/pull/1286){.external-link target="_blank"}
+* fix (#1263): correct nested descriminator msg type AsyncAPI schema by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1288](https://github.com/airtai/faststream/pull/1288){.external-link target="_blank"}
+* docs: add `apply_types` warning notice to subscription/index.md by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1291](https://github.com/airtai/faststream/pull/1291){.external-link target="_blank"}
+* chore: fixed nats-py version by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1294](https://github.com/airtai/faststream/pull/1294){.external-link target="_blank"}
+
+**Full Changelog**: [#0.4.6...0.4.7](https://github.com/airtai/faststream/compare/0.4.6...0.4.7){.external-link target="_blank"}
+
 ## 0.4.6
 
 ### What's Changed
