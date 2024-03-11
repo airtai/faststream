@@ -68,7 +68,7 @@ confluent = [
 ]
 
 nats = [
-    "nats-py>=2.3.1,<=2.7.0"
+    "nats-py>=2.3.1,<=2.7.2"
 ]
 
 redis = [
