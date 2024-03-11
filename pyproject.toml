@@ -106,7 +106,7 @@ lint = [
     "types-Pygments",
     "types-docutils",
     "confluent-kafka-stubs; python_version >= '3.11'",
-    "mypy==1.8.0",
+    "mypy==1.9.0",
     "ruff==0.3.0",
     "bandit==1.7.7",
     "semgrep==1.62.0",
