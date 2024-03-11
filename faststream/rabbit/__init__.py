@@ -6,6 +6,7 @@ from faststream.rabbit.schemas.constants import ExchangeType
 from faststream.rabbit.schemas.schemas import RabbitExchange, RabbitQueue, ReplyConfig
 from faststream.rabbit.test import TestRabbitBroker
 
+
 __all__ = (
     "RabbitBroker",
     "TestRabbitBroker",

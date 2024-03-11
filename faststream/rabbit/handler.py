@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -8,7 +9,6 @@ from typing import (
     Optional,
     Sequence,
 )
-from dataclasses import asdict
 
 import aio_pika
 from typing_extensions import override
@@ -56,7 +56,6 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
         add_call : Adds a call to be handled by the LogicHandler
         start : Starts consuming messages from the queue
         close : Closes the consumer and cancels message consumption
-
     """
 
     _consumer_tag: Optional[str]

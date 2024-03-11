@@ -1,11 +1,10 @@
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Union
 
-from typing_extensions import Annotated, Doc, override
+from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream._compat import model_copy
-from faststream.broker.router import BrokerRoute as RabbitRoute
-from faststream.broker.router import BrokerRouter
-from faststream.broker.types import P_HandlerParams, T_HandlerReturn
+from faststream.broker.core.broker import default_filter
+from faststream.broker.router import BrokerRoute, BrokerRouter
 from faststream.rabbit.asyncapi import Publisher
 from faststream.rabbit.publisher import PublishKwargs
 from faststream.rabbit.schemas.schemas import (
@@ -16,10 +15,132 @@ from faststream.rabbit.schemas.schemas import (
 if TYPE_CHECKING:
     from aio_pika.abc import DateType, HeadersType, TimeoutType
     from aio_pika.message import IncomingMessage
+    from fast_depends.dependencies import Depends
 
-    from faststream.broker.core.call_wrapper import HandlerCallWrapper
-    from faststream.broker.types import PublisherMiddleware
-    from faststream.types import SendableMessage
+    from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
+    from faststream.broker.types import (
+        BaseMiddleware,
+        CustomDecoder,
+        CustomParser,
+        Filter,
+        PublisherMiddleware,
+        SubscriberMiddleware,
+    )
+    from faststream.rabbit.message import RabbitMessage
+    from faststream.rabbit.schemas.schemas import ReplyConfig
+    from faststream.rabbit.types import AioPikaSendableMessage
+    from faststream.types import AnyDict
+
+
+class RabbitRoute(BrokerRoute["IncomingMessage", "AioPikaSendableMessage"]):
+    def __init__(
+        self,
+        call: Annotated[
+            Callable[..., "AioPikaSendableMessage"],
+            Doc("Message handler function."),
+        ],
+        queue: Annotated[
+            Union[str, RabbitQueue],
+            Doc(
+                "RabbitMQ queue to listen. "
+                "**FastStream** declares and binds queue object to `exchange` automatically if it is not passive (by default)."
+            ),
+        ],
+        exchange: Annotated[
+            Union[str, RabbitExchange, None],
+            Doc(
+                "RabbitMQ exchange to bind queue to. "
+                "Uses default exchange if not presented. "
+                "**FastStream** declares exchange object automatically if it is not passive (by default)."
+            ),
+        ] = None,
+        *,
+        consume_args: Annotated[
+            Optional["AnyDict"],
+            Doc("Extra consumer arguments to use in `queue.consume(...)` method."),
+        ] = None,
+        reply_config: Annotated[
+            Optional["ReplyConfig"],
+            Doc("Extra options to use at replies publishing."),
+        ] = None,
+        # broker arguments
+        dependencies: Annotated[
+            Iterable["Depends"],
+            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+        ] = (),
+        parser: Annotated[
+            Optional["CustomParser[IncomingMessage]"],
+            Doc(
+                "Parser to map original **IncomingMessage** Msg to FastStream one."
+            ),
+        ] = None,
+        decoder: Annotated[
+            Optional["CustomDecoder[RabbitMessage]"],
+            Doc("Function to decode FastStream msg bytes body to python objects."),
+        ] = None,
+        middlewares: Annotated[
+            Iterable["SubscriberMiddleware"],
+            Doc("Subscriber middlewares to wrap incoming message processing."),
+        ] = (),
+        filter: Annotated[
+            "Filter[RabbitMessage]",
+            Doc(
+                "Overload subscriber to consume various messages from the same source."
+            ),
+            deprecated(
+                "Deprecated in **FastStream 0.5.0**. "
+                "Please, create `subscriber` object and use it explicitly instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
+        ] = default_filter,
+        retry: Annotated[
+            Union[bool, int],
+            Doc("Whether to `nack` message at processing exception."),
+        ] = False,
+        no_ack: Annotated[
+            bool,
+            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
+        ] = False,
+        # AsyncAPI information
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI subscriber object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc(
+                "AsyncAPI subscriber object description. "
+                "Uses decorated docstring as default."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+        # Extra kwargs
+        get_dependent: Annotated[
+            Optional[Any],
+            Doc("Service option to pass FastAPI-compatible callback."),
+        ] = None,
+    ) -> None:
+        super().__init__(
+            call,
+            queue=queue,
+            exchange=exchange,
+            consume_args=consume_args,
+            reply_config=reply_config,
+            dependencies=dependencies,
+            parser=parser,
+            decoder=decoder,
+            middlewares=middlewares,
+            filter=filter,
+            retry=retry,
+            no_ack=no_ack,
+            title=title,
+            description=description,
+            include_in_schema=include_in_schema,
+            get_dependent=get_dependent,
+        )
 
 
 class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
@@ -28,8 +149,30 @@ class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
     def __init__(
         self,
         prefix: str = "",
-        handlers: Iterable[RabbitRoute["IncomingMessage", "SendableMessage"]] = (),
-        **kwargs: Any,
+        handlers: Iterable[RabbitRoute] = (),
+        *,
+        dependencies: Annotated[
+            Iterable["Depends"],
+            Doc("Dependencies list (`[Depends(),]`) to apply to all routers' publishers/subscribers."),
+        ] = (),
+        middlewares: Annotated[
+            Iterable[Callable[[Optional["IncomingMessage"]], "BaseMiddleware"]],
+            Doc("Router middlewares to apply to all routers' publishers/subscribers."),
+        ] = (),
+        parser: Annotated[
+            Optional["CustomParser[IncomingMessage]"],
+            Doc(
+                "Parser to map original **IncomingMessage** Msg to FastStream one."
+            ),
+        ] = None,
+        decoder: Annotated[
+            Optional["CustomDecoder[RabbitMessage]"],
+            Doc("Function to decode FastStream msg bytes body to python objects."),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
     ) -> None:
         for h in handlers:
             if (q := h.kwargs.pop("queue", None)) is None:
@@ -38,21 +181,124 @@ class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
             new_q = model_copy(queue, update={"name": prefix + queue.name})
             h.args = (new_q, *h.args)
 
-        super().__init__(prefix, handlers, **kwargs)
+        super().__init__(
+            prefix,
+            handlers,
+            dependencies=dependencies,
+            middlewares=middlewares,
+            parser=parser,
+            decoder=decoder,
+            include_in_schema=include_in_schema,
+        )
+
 
     @override
     def subscriber(  # type: ignore[override]
         self,
-        queue: Union[str, RabbitQueue],
-        *broker_args: Any,
-        **broker_kwargs: Any,
-    ) -> Callable[
-        [Callable[P_HandlerParams, T_HandlerReturn]],
-        "HandlerCallWrapper[IncomingMessage, P_HandlerParams, T_HandlerReturn]",
-    ]:
+        queue: Annotated[
+            Union[str, RabbitQueue],
+            Doc(
+                "RabbitMQ queue to listen. "
+                "**FastStream** declares and binds queue object to `exchange` automatically if it is not passive (by default)."
+            ),
+        ],
+        exchange: Annotated[
+            Union[str, RabbitExchange, None],
+            Doc(
+                "RabbitMQ exchange to bind queue to. "
+                "Uses default exchange if not presented. "
+                "**FastStream** declares exchange object automatically if it is not passive (by default)."
+            ),
+        ] = None,
+        *,
+        consume_args: Annotated[
+            Optional["AnyDict"],
+            Doc("Extra consumer arguments to use in `queue.consume(...)` method."),
+        ] = None,
+        reply_config: Annotated[
+            Optional["ReplyConfig"],
+            Doc("Extra options to use at replies publishing."),
+        ] = None,
+        # broker arguments
+        dependencies: Annotated[
+            Iterable["Depends"],
+            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+        ] = (),
+        parser: Annotated[
+            Optional["CustomParser[IncomingMessage]"],
+            Doc(
+                "Parser to map original **IncomingMessage** Msg to FastStream one."
+            ),
+        ] = None,
+        decoder: Annotated[
+            Optional["CustomDecoder[RabbitMessage]"],
+            Doc("Function to decode FastStream msg bytes body to python objects."),
+        ] = None,
+        middlewares: Annotated[
+            Iterable["SubscriberMiddleware"],
+            Doc("Subscriber middlewares to wrap incoming message processing."),
+        ] = (),
+        filter: Annotated[
+            "Filter[RabbitMessage]",
+            Doc(
+                "Overload subscriber to consume various messages from the same source."
+            ),
+            deprecated(
+                "Deprecated in **FastStream 0.5.0**. "
+                "Please, create `subscriber` object and use it explicitly instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
+        ] = default_filter,
+        retry: Annotated[
+            Union[bool, int],
+            Doc("Whether to `nack` message at processing exception."),
+        ] = False,
+        no_ack: Annotated[
+            bool,
+            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
+        ] = False,
+        # AsyncAPI information
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI subscriber object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc(
+                "AsyncAPI subscriber object description. "
+                "Uses decorated docstring as default."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+        # Extra kwargs
+        get_dependent: Annotated[
+            Optional[Any],
+            Doc("Service option to pass FastAPI-compatible callback."),
+        ] = None,
+    ) -> "WrapperProtocol[IncomingMessage]":
         q = RabbitQueue.validate(queue)
         new_q = model_copy(q, update={"name": self.prefix + q.name})
-        return self._wrap_subscriber(new_q, *broker_args, **broker_kwargs)
+        return self._wrap_subscriber(
+            new_q,
+            exchange=exchange,
+            consume_args=consume_args,
+            reply_config=reply_config,
+            # broker args
+            dependencies=dependencies,
+            parser=parser,
+            decoder=decoder,
+            middlewares=middlewares,
+            filter=filter,
+            retry=retry,
+            no_ack=no_ack,
+            title=title,
+            description=description,
+            include_in_schema=include_in_schema,
+            get_dependent=get_dependent,
+        )
 
     @override
     def publisher(  # type: ignore[override]
@@ -184,7 +430,10 @@ class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
                 exchange=RabbitExchange.validate(exchange),
                 routing_key=routing_key,
                 message_kwargs=message_kwargs,
-                middlewares=middlewares,
+                middlewares=(
+                    *(m(None).publish_scope for m in self._middlewares),
+                    *middlewares
+                ),
                 # AsyncAPI
                 title_=title,
                 description_=description,
@@ -210,6 +459,7 @@ class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
     @staticmethod
     def _update_publisher_prefix(prefix: str, publisher: Publisher) -> Publisher:
         publisher.queue = model_copy(
-            publisher.queue, update={"name": prefix + publisher.queue.name}
+            publisher.queue,
+            update={"name": prefix + publisher.queue.name},
         )
         return publisher

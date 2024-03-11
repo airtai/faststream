@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from faststream import Depends
+from faststream import BaseMiddleware, Depends
 from faststream.broker.core.broker import BrokerUsecase
 from faststream.broker.router import BrokerRoute, BrokerRouter
 from faststream.types import AnyCallable
@@ -319,17 +319,19 @@ class RouterTestcase(  # noqa: D101
         event: asyncio.Event,
         mock: Mock,
     ):
-        router = type(router)(middlewares=(1,))
-        router2 = type(router)(middlewares=(2,))
+        router = type(router)(middlewares=(BaseMiddleware,))
+        router2 = type(router)(middlewares=(BaseMiddleware,))
 
         @router2.subscriber(queue, middlewares=(3,))
+        @router2.publisher(queue, middlewares=(3,))
         def subscriber():
             ...
 
         router.include_router(router2)
         pub_broker.include_routers(router)
 
-        assert list(pub_broker.handlers.values())[0].calls[0].middlewares == (1, 2, 3)
+        assert len(list(pub_broker.handlers.values())[0].calls[0].middlewares) == 3
+        assert len(list(pub_broker._publishers.values())[0].middlewares) == 3
 
     async def test_router_parser(
         self,

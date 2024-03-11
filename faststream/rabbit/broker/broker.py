@@ -488,7 +488,7 @@ class RabbitBroker(
             ),
         ] = default_filter,
         retry: Annotated[
-            bool,
+            Union[bool, int],
             Doc("Whether to `nack` message at processing exception."),
         ] = False,
         no_ack: Annotated[
@@ -872,7 +872,7 @@ class RabbitBroker(
         async with AsyncExitStack() as stack:
             for m in self.middlewares:
                 message = await stack.enter_async_context(
-                    m().publish_scope(message, **kwargs)
+                    m(None).publish_scope(message, **kwargs)
                 )
 
             return await self._producer.publish(message, **kwargs)

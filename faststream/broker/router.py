@@ -10,6 +10,7 @@ from typing import (
     Optional,
     Tuple,
     TypeVar,
+    TYPE_CHECKING,
 )
 
 from fast_depends.dependencies import Depends
@@ -27,6 +28,9 @@ from faststream.broker.types import (
 from faststream.types import AnyDict, SendableMessage
 
 PublisherKeyType = TypeVar("PublisherKeyType")
+
+if TYPE_CHECKING:
+    from faststream.broker.types import BaseMiddleware
 
 
 class BrokerRoute(Generic[MsgType, T_HandlerReturn]):
@@ -123,7 +127,6 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
 
         Raises:
             NotImplementedError: If the function is not implemented.
-
         """
         raise NotImplementedError()
 
@@ -134,8 +137,8 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
         dependencies: Iterable[Depends] = (),
         middlewares: Iterable[
             Callable[
-                [StreamMessage[MsgType]],
-                AsyncContextManager[None],
+                [Optional[StreamMessage[MsgType]]],
+                "BaseMiddleware",
             ]
         ] = (),
         parser: Optional[CustomParser[MsgType]] = None,
@@ -242,7 +245,7 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
                 wrapped_func,
                 *args,
                 dependencies=(*self._dependencies, *dependencies),
-                middlewares=(*(self._middlewares or ()), *(middlewares or ())),
+                middlewares=(*self._middlewares, *middlewares),
                 parser=parser or self._parser,
                 decoder=decoder or self._decoder,
                 include_in_schema=self.solve_include_in_schema(include_in_schema),
@@ -297,6 +300,10 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
             p = self._update_publisher_prefix(self.prefix, p)
             key = self._get_publisher_key(p)
             p.include_in_schema = self.solve_include_in_schema(p.include_in_schema)
+            p.middlewares = (
+                *(m(None).publish_scope for m in self._middlewares),
+                *p.middlewares,
+            )
             self._publishers[key] = self._publishers.get(key, p)
 
     def include_routers(
