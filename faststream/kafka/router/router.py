@@ -141,7 +141,10 @@ class KafkaRouter(BrokerRouter[str, ConsumerRecord]):
                 reply_to=reply_to,
                 batch=batch,
                 # publisher-specific
-                middlewares=middlewares,
+                middlewares=(
+                    *(m(None).publish_scope for m in self._middlewares),
+                    *middlewares
+                ),
                 # AsyncAPI
                 title_=title,
                 schema_=schema,

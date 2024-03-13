@@ -137,7 +137,10 @@ class RedisRouter(BrokerRouter[int, "AnyRedisDict"]):
                 stream=StreamSub.validate(stream),
                 reply_to=reply_to,
                 headers=headers,
-                middlewares=middlewares,
+                middlewares=(
+                    *(m(None).publish_scope for m in self._middlewares),
+                    *middlewares
+                ),
                 # AsyncAPI options
                 title_=title,
                 description_=description,
