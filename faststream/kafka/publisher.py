@@ -1,11 +1,10 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import cached_property
-from typing import Any, Dict, Iterable, Optional, Union, cast, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union, cast
 
 from aiokafka import ConsumerRecord
 from typing_extensions import override
 
-from faststream.__about__ import __version__
 from faststream.broker.core.publisher import BasePublisher
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.kafka.producer import AioKafkaFastProducer

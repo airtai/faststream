@@ -1,8 +1,9 @@
+import logging
 from contextlib import AsyncExitStack
 from functools import partial
+from inspect import Parameter
 from types import TracebackType
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -15,16 +16,15 @@ from typing import (
     Type,
     Union,
 )
-import logging
-from inspect import Parameter
 
 import aiokafka
 from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
 from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
 from fast_depends.dependencies import Depends
-from typing_extensions import override, Annotated, Doc
+from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import __version__
+from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.message import StreamMessage
@@ -48,7 +48,7 @@ from faststream.kafka.shared.schemas import ConsumerConnectionParams
 from faststream.security import BaseSecurity
 from faststream.types import SendableMessage
 from faststream.utils.data import filter_by_dict
-from faststream.asyncapi import schema as asyncapi
+
 
 class KafkaBroker(
     KafkaLoggingMixin,

@@ -1,7 +1,5 @@
 from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 
-from typing_extensions import overload
-
 from faststream.asyncapi.schema import (
     Channel,
     ChannelBinding,

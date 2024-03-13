@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Union
+from typing import Dict, Optional, Union
 
 from faststream.nats.schemas.js_stream import JStream
 

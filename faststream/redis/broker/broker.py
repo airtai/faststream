@@ -1,4 +1,6 @@
+import logging
 from contextlib import AsyncExitStack
+from inspect import Parameter
 from types import TracebackType
 from typing import (
     TYPE_CHECKING,
@@ -11,14 +13,12 @@ from typing import (
     Type,
     Union,
 )
-import logging
-from inspect import Parameter
 from urllib.parse import urlparse
 
 from fast_depends.dependencies import Depends
 from redis.asyncio.client import Redis
 from redis.asyncio.connection import ConnectionPool, parse_url
-from typing_extensions import TypeAlias, override, Annotated, Doc
+from typing_extensions import Annotated, Doc, TypeAlias, override
 
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.core.call_wrapper import HandlerCallWrapper

@@ -1,10 +1,8 @@
 from enum import Enum
 from typing import (
-    TYPE_CHECKING,
     Any,
     Awaitable,
     Callable,
-    Optional,
     Sequence,
 )
 
@@ -58,8 +56,8 @@ class RabbitRouter(StreamRouter[IncomingMessage]):
         login: str = "guest",
         password: str = "guest",
         virtualhost: str = "/",
-        ssl_options: "SSLOptions" | None = None,
-        timeout: "TimeoutType" = None,
+        ssl_options: SSLOptions | None = None,
+        timeout: TimeoutType = None,
         client_properties: FieldTable | None = None,
         security: BaseSecurity | None = None,
         # specific args

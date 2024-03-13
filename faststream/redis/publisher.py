@@ -1,6 +1,6 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import cached_property
-from typing import Optional, Sequence, Union, cast, Any, Iterable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Iterable, Optional, Sequence, Union, cast
 
 from typing_extensions import override
 

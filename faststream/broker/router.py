@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from typing import (
+    TYPE_CHECKING,
     Any,
     AsyncContextManager,
     Callable,
@@ -10,7 +11,6 @@ from typing import (
     Optional,
     Tuple,
     TypeVar,
-    TYPE_CHECKING,
 )
 
 from fast_depends.dependencies import Depends

@@ -1,10 +1,7 @@
 import warnings
 from functools import cached_property
-from typing import Optional, Pattern
+from typing import Optional
 
-from pydantic import Field, PositiveFloat, PositiveInt
-
-from faststream._compat import PYDANTIC_V2
 from faststream.broker.schemas import NameRequired
 from faststream.utils.path import compile_path
 
@@ -12,16 +9,18 @@ from faststream.utils.path import compile_path
 class PubSub(NameRequired):
     """A class to represent a Redis PubSub channel."""
 
-    polling_interval: PositiveFloat = 1.0
-    path_regex: Optional[Pattern[str]] = None
-    pattern: bool = False
-    last_id: str = "$"
+    __slots__ = (
+        "name",
+        "polling_interval",
+        "pattern",
+        "path_regex",
+    )
 
     def __init__(
         self,
         channel: str,
         pattern: bool = False,
-        polling_interval: PositiveFloat = 1.0,
+        polling_interval: float = 1.0,
     ) -> None:
         """Redis PubSub channel parameters.
 
@@ -39,19 +38,11 @@ class PubSub(NameRequired):
         if reg is not None:
             pattern = True
 
-        super().__init__(
-            name=path,
-            path_regex=reg,
-            pattern=pattern,
-            polling_interval=polling_interval,
-        )
+        super().__init__(path)
 
-    if PYDANTIC_V2:
-        model_config = {"arbitrary_types_allowed": True}
-    else:
-
-        class Config:
-            arbitrary_types_allowed = True
+        self.path_regex = reg
+        self.pattern = pattern
+        self.polling_interval = polling_interval
 
     def __hash__(self) -> int:
         return hash("pubsub" + self.name)
@@ -60,34 +51,29 @@ class PubSub(NameRequired):
 class ListSub(NameRequired):
     """A class to represent a Redis List subscriber."""
 
-    polling_interval: PositiveFloat = 0.1
-    batch: bool = False
-    max_records: PositiveInt = 10
+    __slots__ = (
+        "name",
+        "batch",
+        "max_records",
+        "polling_interval",
+    )
 
     def __init__(
         self,
-        channel: str,
+        list_name: str,
         batch: bool = False,
-        max_records: PositiveInt = 10,
-        polling_interval: PositiveFloat = 0.1,
+        max_records: int = 10,
+        polling_interval: float = 0.1,
     ) -> None:
-        """Redis List subscriber parameters.
+        """Redis List subscriber parameters."""
+        super().__init__(list_name)
 
-        Args:
-            channel: (str): Redis List name.
-            batch: (bool): consume messages in batches.
-            max_records: (int): max records per batch.
-            polling_interval: (float): wait message block.
-        """
-        super().__init__(
-            name=channel,
-            batch=batch,
-            max_records=max_records,
-            polling_interval=polling_interval,
-        )
+        self.batch = batch
+        self.max_records = max_records
+        self.polling_interval = polling_interval
 
     @cached_property
-    def records(self) -> Optional[PositiveInt]:
+    def records(self) -> Optional[int]:
         return self.max_records if self.batch else None
 
     def __hash__(self) -> int:
@@ -97,42 +83,31 @@ class ListSub(NameRequired):
 class StreamSub(NameRequired):
     """A class to represent a Redis Stream subscriber."""
 
-    polling_interval: Optional[PositiveInt] = Field(default=100, description="ms")
-    last_id: str = Field(...)
-
-    group: Optional[str] = None
-    consumer: Optional[str] = None
-    no_ack: bool = False
-
-    batch: bool = False
-    max_records: Optional[PositiveInt] = None
-
-    maxlen: Optional[PositiveInt] = None
+    __slots__ = (
+        "name",
+        "polling_interval",
+        "last_id",
+        "group",
+        "consumer",
+        "no_ack",
+        "batch",
+        "max_records",
+        "maxlen",
+    )
 
     def __init__(
         self,
         stream: str,
-        polling_interval: Optional[PositiveInt] = 100,
+        polling_interval: Optional[int] = 100,
         group: Optional[str] = None,
         consumer: Optional[str] = None,
         batch: bool = False,
         no_ack: bool = False,
         last_id: Optional[str] = None,
-        maxlen: Optional[PositiveInt] = None,
-        max_records: Optional[PositiveInt] = None,
+        maxlen: Optional[int] = None,
+        max_records: Optional[int] = None,
     ) -> None:
-        """Redis Stream subscriber parameters.
-
-        Args:
-            stream: (str): Redis Stream name.
-            polling_interval: (int:ms | None): wait message block.
-            group: (str | None): consumer group name.
-            consumer: (str | None): consumer name.
-            batch: (bool): consume messages in batches.
-            no_ack: (bool): do not add message to PEL.
-            last_id: (str | None): start reading from this ID.
-            maxlen: (int | None): truncate old stream members beyond this size.
-        """
+        """Redis Stream subscriber parameters."""
         if (group and not consumer) or (not group and consumer):
             raise ValueError("You should specify `group` and `consumer` both")
 
@@ -146,17 +121,16 @@ class StreamSub(NameRequired):
         if last_id is None:
             last_id = "$"
 
-        super().__init__(
-            name=stream,
-            group=group,
-            consumer=consumer,
-            polling_interval=polling_interval,
-            batch=batch,
-            no_ack=no_ack,
-            last_id=last_id,
-            maxlen=maxlen,
-            max_records=max_records,
-        )
+        super().__init__(stream)
+
+        self.group = group
+        self.consumer = consumer
+        self.polling_interval = polling_interval
+        self.batch = batch
+        self.no_ack = no_ack
+        self.last_id = last_id
+        self.maxlen = maxlen
+        self.max_records = max_records
 
     def __hash__(self) -> int:
         return hash("stream" + self.name)

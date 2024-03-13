@@ -152,7 +152,7 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
 
         await super().start(producer=producer)
         self.task = asyncio.create_task(self._consume())
-        
+
 
     async def close(self) -> None:
         await super().close()

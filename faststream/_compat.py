@@ -121,9 +121,6 @@ if PYDANTIC_V2:
     def model_schema(model: Type[BaseModel], **kwargs: Any) -> AnyDict:
         return model.model_json_schema(**kwargs)
 
-    def model_copy(model: ModelVar, **kwargs: Any) -> ModelVar:
-        return model.model_copy(**kwargs)
-
 else:
     from pydantic.json import pydantic_encoder
 
@@ -157,9 +154,6 @@ else:
         **kwargs: Any,
     ) -> Any:
         return json_loads(model.json(**kwargs))
-
-    def model_copy(model: ModelVar, **kwargs: Any) -> ModelVar:
-        return model.copy(**kwargs)
 
     # TODO: pydantic types misc
     def with_info_plain_validator_function(  # type: ignore[misc]

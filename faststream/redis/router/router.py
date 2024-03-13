@@ -1,8 +1,8 @@
+from copy import deepcopy
 from typing import Any, Callable, Dict, Iterable, Optional, Sequence, Union
 
 from typing_extensions import TypeAlias, override
 
-from faststream._compat import model_copy
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.router import BrokerRoute as RedisRoute
 from faststream.broker.router import BrokerRouter
@@ -62,20 +62,22 @@ class RedisRouter(BrokerRouter[int, "AnyRedisDict"]):
         [Callable[P_HandlerParams, T_HandlerReturn]],
         HandlerCallWrapper["AnyRedisDict", P_HandlerParams, T_HandlerReturn],
     ]:
-        channel = PubSub.validate(channel)
-        list = ListSub.validate(list)
-        stream = StreamSub.validate(stream)
+        if (channel := PubSub.validate(channel)):
+            channel = deepcopy(channel)
+            channel.name = self.prefix + channel.name
+
+        if (list_sub := ListSub.validate(list)):
+            list_sub = deepcopy(list_sub)
+            list_sub.name = self.prefix + list_sub.name
+
+        if (stream := StreamSub.validate(stream)):
+            stream = deepcopy(stream)
+            stream.name = self.prefix + stream.name
 
         return self._wrap_subscriber(
-            channel=model_copy(channel, update={"name": self.prefix + channel.name})
-            if channel
-            else None,
-            list=model_copy(list, update={"name": self.prefix + list.name})
-            if list
-            else None,
-            stream=model_copy(stream, update={"name": self.prefix + stream.name})
-            if stream
-            else None,
+            channel=channel,
+            list=list_sub,
+            stream=stream,
             **broker_kwargs,
         )
 
@@ -95,18 +97,18 @@ class RedisRouter(BrokerRouter[int, "AnyRedisDict"]):
         prefix: str,
         publisher: Publisher,
     ) -> Publisher:
-        if publisher.channel is not None:
-            publisher.channel = model_copy(
-                publisher.channel, update={"name": prefix + publisher.channel.name}
-            )
-        elif publisher.list is not None:
-            publisher.list = model_copy(
-                publisher.list, update={"name": prefix + publisher.list.name}
-            )
-        elif publisher.stream is not None:
-            publisher.stream = model_copy(
-                publisher.stream, update={"name": prefix + publisher.stream.name}
-            )
+        if (ch := publisher.channel) is not None:
+            ch = deepcopy(ch)
+            ch.name = prefix + ch.name
+            publisher.channel = ch
+        elif (l_sub := publisher.list) is not None:
+            l_sub = deepcopy(l_sub)
+            l_sub.name = prefix + l_sub.name
+            publisher.list = l_sub
+        elif (st := publisher.stream) is not None:
+            st = deepcopy(st)
+            st.name = prefix + st.name
+            publisher.stream = st
         else:
             raise AssertionError("unreachable")
         return publisher
