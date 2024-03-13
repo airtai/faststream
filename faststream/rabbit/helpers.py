@@ -99,14 +99,14 @@ class RabbitDeclarer(Singleton):
                 "aio_pika.RobustExchange",
                 await self.channel.declare_exchange(
                     name=exchange.name,
-                    type=exchange.type,
+                    type=exchange.type.value,
                     durable=exchange.durable,
                     auto_delete=exchange.auto_delete,
-                    internal=exchange.internal,
                     passive=exchange.passive,
                     arguments=exchange.arguments,
                     timeout=exchange.timeout,
                     robust=exchange.robust,
+                    internal=False,  # deprecated RMQ option
                 ),
             )
 

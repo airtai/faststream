@@ -1,49 +1,35 @@
 import warnings
 from dataclasses import dataclass
-from typing import Optional, Pattern
+from typing import TYPE_CHECKING, Optional
 
-from aio_pika.abc import TimeoutType
+from typing_extensions import Annotated, Doc
 
-from faststream._compat import PYDANTIC_V2
 from faststream.broker.schemas import NameRequired
 from faststream.rabbit.schemas.constants import ExchangeType
-from faststream.types import AnyDict
 from faststream.utils.path import compile_path
+
+if TYPE_CHECKING:
+    from aio_pika.abc import TimeoutType
+
+    from faststream.types import AnyDict
 
 
 class RabbitQueue(NameRequired):
-    """A class to represent a RabbitMQ queue.
+    """A class to represent a RabbitMQ queue."""
 
-    Attributes:
-        name : name of the queue
-        durable : whether the queue is durable or not
-        exclusive : whether the queue is exclusive or not
-        passive : whether the queue is passive or not
-        auto_delete : whether the queue is auto delete or not
-        arguments : additional arguments for the queue
-        timeout : timeout for the queue
-        robust : whether the queue is robust or not
-        routing_key : routing key for the queue
-        bind_arguments : additional arguments for binding the queue
-
-    Methods:
-        __hash__ : returns the hash value of the queue
-        routing : returns the routing key of the queue
-        __init__ : initializes the RabbitQueue object with the given parameters
-    """
-
-    name: str = ""
-    durable: bool = False
-    exclusive: bool = False
-    passive: bool = False
-    auto_delete: bool = False
-    arguments: Optional[AnyDict] = None
-    timeout: TimeoutType = None
-    robust: bool = True
-
-    routing_key: str = ""
-    path_regex: Optional[Pattern[str]] = None
-    bind_arguments: Optional[AnyDict] = None
+    __slots__ = (
+        "name",
+        "durable",
+        "exclusive",
+        "passive",
+        "auto_delete",
+        "arguments",
+        "timeout",
+        "robust",
+        "routing_key",
+        "path_regex",
+        "bind_arguments",
+    )
 
     def __hash__(self) -> int:
         return sum(
@@ -61,30 +47,57 @@ class RabbitQueue(NameRequired):
 
     def __init__(
         self,
-        name: str,
-        durable: bool = False,
-        exclusive: bool = False,
-        passive: bool = False,
-        auto_delete: bool = False,
-        arguments: Optional[AnyDict] = None,
-        timeout: "TimeoutType" = None,
-        robust: bool = True,
-        bind_arguments: Optional[AnyDict] = None,
-        routing_key: str = "",
+        name: Annotated[
+            str,
+            Doc("RabbitMQ queue name."),
+        ],
+        durable: Annotated[
+            bool,
+            Doc("Whether the object is durable."),
+        ] = False,
+        exclusive: Annotated[
+            bool,
+            Doc(
+                "The queue can be used only in the current connection "
+                "and will be deleted after connection closed."
+            ),
+        ] = False,
+        passive: Annotated[
+            bool,
+            Doc("Do not create queue automatically."),
+        ] = False,
+        auto_delete: Annotated[
+            bool,
+            Doc("The queue will be deleted after connection closed."),
+        ] = False,
+        arguments: Annotated[
+            Optional["AnyDict"],
+            Doc(
+                "Queue declarationg arguments. "
+                "You can find infomration about them in the official RabbitMQ documentation: https://www.rabbitmq.com/docs/queues#optional-arguments"
+            ),
+        ] = None,
+        timeout: Annotated[
+            "TimeoutType",
+            Doc("Send confirmation time from RabbitMQ."),
+        ] = None,
+        robust: Annotated[
+            bool,
+            Doc("Whether to declare queue object as restoreable."),
+        ] = True,
+        bind_arguments: Annotated[
+            Optional["AnyDict"],
+            Doc("Queue-exchange binding options."),
+        ] = None,
+        routing_key: Annotated[
+            str,
+            Doc("Explicit binding routing key. Uses `name` if not presented."),
+        ] = "",
     ) -> None:
         """Initialize a class object.
 
-        Args:
-            name (str): The name of the object.
-            durable (bool, optional): Whether the object is durable. Defaults to False.
-            exclusive (bool, optional): Whether the object is exclusive. Defaults to False.
-            passive (bool, optional): Whether the object is passive. Defaults to False.
-            auto_delete (bool, optional): Whether the object is auto delete. Defaults to False.
-            arguments (dict, optional): Additional arguments for the object. Defaults to None.
-            timeout (TimeoutType, optional): Timeout for the object. Defaults to None.
-            robust (bool, optional): Whether the object is robust. Defaults to True.
-            bind_arguments (dict, optional): Bind arguments for the object. Defaults to None.
-            routing_key (str, optional): Routing key for the object. Defaults to "".
+        You can find information about all options in the official RabbitMQ documentation:
+        https://www.rabbitmq.com/docs/queues
         """
         re, routing_key = compile_path(
             routing_key,
@@ -92,62 +105,36 @@ class RabbitQueue(NameRequired):
             patch_regex=lambda x: x.replace(r"\#", ".+"),
         )
 
-        super().__init__(
-            name=name,
-            path_regex=re,
-            durable=durable,
-            exclusive=exclusive,
-            bind_arguments=bind_arguments,
-            routing_key=routing_key,
-            robust=robust,
-            passive=passive,
-            auto_delete=auto_delete,
-            arguments=arguments,
-            timeout=timeout,
-        )
+        super().__init__(name)
 
-    if PYDANTIC_V2:
-        model_config = {"arbitrary_types_allowed": True}
-    else:
-
-        class Config:
-            arbitrary_types_allowed = True
+        self.path_regex = re
+        self.durable = durable
+        self.exclusive = exclusive
+        self.bind_arguments = bind_arguments
+        self.routing_key = routing_key
+        self.robust = robust
+        self.passive = passive
+        self.auto_delete = auto_delete
+        self.arguments = arguments
+        self.timeout = timeout
 
 
 class RabbitExchange(NameRequired):
-    """A class to represent a RabbitMQ exchange.
+    """A class to represent a RabbitMQ exchange."""
 
-    Attributes:
-        name : name of the exchange
-        type : type of the exchange
-        durable : whether the exchange is durable or not
-        auto_delete : whether the exchange is auto-deleted or not
-        internal : whether the exchange is internal or not
-        passive : whether the exchange is passive or not
-        arguments : additional arguments for the exchange
-        timeout : timeout for the exchange
-        robust : whether the exchange is robust or not
-        bind_to : exchange to bind to
-        bind_arguments : additional arguments for the binding
-        routing_key : routing key for the exchange
-
-    Methods:
-        __hash__ : returns the hash value of the exchange
-        __init__ : initializes the RabbitExchange object
-    """
-
-    type: str = ExchangeType.DIRECT.value
-    durable: bool = False
-    auto_delete: bool = False
-    internal: bool = False
-    passive: bool = False
-    arguments: Optional[AnyDict] = None
-    timeout: TimeoutType = None
-    robust: bool = True
-
-    bind_to: Optional["RabbitExchange"] = None
-    bind_arguments: Optional[AnyDict] = None
-    routing_key: str = ""
+    __slots__ = (
+        "name",
+        "type",
+        "durable",
+        "auto_delete",
+        "passive",
+        "arguments",
+        "timeout",
+        "robust",
+        "bind_to",
+        "bind_arguments",
+        "routing_key",
+    )
 
     def __hash__(self) -> int:
         return sum(
@@ -162,79 +149,119 @@ class RabbitExchange(NameRequired):
 
     def __init__(
         self,
-        name: str,
-        type: ExchangeType = ExchangeType.DIRECT,
-        durable: bool = False,
-        auto_delete: bool = False,
-        internal: bool = False,
-        passive: bool = False,
-        arguments: Optional[AnyDict] = None,
-        timeout: "TimeoutType" = None,
-        robust: bool = True,
-        bind_to: Optional["RabbitExchange"] = None,
-        bind_arguments: Optional[AnyDict] = None,
-        routing_key: str = "",
+        name: Annotated[
+            str,
+            Doc("RabbitMQ exchange name."),
+        ],
+        type: Annotated[
+            ExchangeType,
+            Doc(
+                "RabbitMQ exchange type. "
+                "You can find detail information in the official RabbitMQ documentation: "
+                "https://www.rabbitmq.com/tutorials/amqp-concepts#exchanges"
+                "\n"
+                "Or in the FastStream one: "
+                "https://faststream.airt.ai/latest/rabbit/examples/"
+            ),
+        ] = ExchangeType.DIRECT,
+        durable: Annotated[
+            bool,
+            Doc("Whether the object is durable."),
+        ] = False,
+        auto_delete: Annotated[
+            bool,
+            Doc("The exchange will be deleted after connection closed."),
+        ] = False,
+        passive: Annotated[
+            bool,
+            Doc("Do not create exchange automatically."),
+        ] = False,
+        arguments: Annotated[
+            Optional["AnyDict"],
+            Doc(
+                "Exchange declarationg arguments. "
+                "You can find usage example in the official RabbitMQ documentation: "
+                "https://www.rabbitmq.com/docs/ae"
+            ),
+        ] = None,
+        timeout: Annotated[
+            "TimeoutType",
+            Doc("Send confirmation time from RabbitMQ."),
+        ] = None,
+        robust: Annotated[
+            bool,
+            Doc("Whether to declare exchange object as restoreable."),
+        ] = True,
+        bind_to: Annotated[
+            Optional["RabbitExchange"],
+            Doc(
+                "Another `RabbitExchange` object to bind the current one to. "
+                "You can find more information in the official RabbitMQ blog post: "
+                "https://www.rabbitmq.com/blog/2010/10/19/exchange-to-exchange-bindings"
+            ),
+        ] = None,
+        bind_arguments: Annotated[
+            Optional["AnyDict"],
+            Doc("Exchange-exchange binding options."),
+        ] = None,
+        routing_key: Annotated[
+            str,
+            Doc("Explicit binding routing key."),
+        ] = "",
     ) -> None:
-        """Initialize a RabbitExchange object.
-
-        Args:
-            name (str): Name of the exchange.
-            type (ExchangeType, optional): Type of the exchange. Defaults to ExchangeType.DIRECT.
-            durable (bool, optional): Whether the exchange should survive broker restarts. Defaults to False.
-            auto_delete (bool, optional): Whether the exchange should be deleted when no longer in use. Defaults to False.
-            internal (bool, optional): Whether the exchange is used for internal purposes and should not be published to directly. Defaults to False.
-            passive (bool, optional): Whether to check if the exchange exists before creating it. Defaults to False.
-            arguments (Optional[AnyDict], optional): Additional arguments for the exchange. Defaults to None.
-            timeout (TimeoutType, optional): Timeout for the operation. Defaults to None.
-            robust (bool, optional): Whether to use robust mode for the exchange. Defaults to True.
-            bind_to (Optional["RabbitExchange"], optional): Exchange to bind to. Defaults to None.
-            bind_arguments (Optional[AnyDict], optional): Arguments for the binding. Defaults to None.
-            routing_key (str, optional): Routing key for the exchange. Defaults to "".
-        """
+        """Initialize a RabbitExchange object."""
         if routing_key and bind_to is None:  # pragma: no cover
             warnings.warn(
                 (
-                    "\nRabbitExchange `routing_key` is using to bind exchange to another one"
-                    "\nIt can be used only with the `bind_to` argument, please setup it too"
+                    "\nRabbitExchange `routing_key` is using to bind exchange to another one."
+                    "\nIt can be used only with the `bind_to` argument, please setup it too."
                 ),
                 category=RuntimeWarning,
                 stacklevel=1,
             )
 
-        super().__init__(
-            name=name,
-            type=type.value,
-            durable=durable,
-            auto_delete=auto_delete,
-            routing_key=routing_key,
-            bind_to=bind_to,
-            bind_arguments=bind_arguments,
-            robust=robust,
-            internal=internal,
-            passive=passive,
-            timeout=timeout,
-            arguments=arguments,
-        )
+        super().__init__(name)
+
+        self.type = type
+        self.durable = durable
+        self.auto_delete = auto_delete
+        self.robust = robust
+        self.passive = passive
+        self.timeout = timeout
+        self.arguments = arguments
+
+        self.bind_to = bind_to
+        self.bind_arguments = bind_arguments
+        self.routing_key = routing_key
 
 
 @dataclass(slots=True)
 class ReplyConfig:
-    """A class to represent a reply configuration."""
+    """Class to store a config for subscribers' replies."""
 
-    mandatory: bool = True
-    immediate: bool = False
-    persist: bool = False
+    mandatory: Annotated[
+        bool,
+        Doc(
+            "Client waits for confimation that the message is placed to some queue. "
+            "RabbitMQ returns message to client if there is no suitable queue."
+        ),
+    ] = True
+    immediate: Annotated[
+        bool,
+        Doc(
+            "Client expects that there is consumer ready to take the message to work. "
+            "RabbitMQ returns message to client if there is no suitable consumer."
+        ),
+    ] = False
+    persist: Annotated[
+        bool,
+        Doc("Restore the message on RabbitMQ reboot."),
+    ] = False
 
 
 @dataclass
 class BaseRMQInformation:
-    """BaseRMQInformation.
-
-    Attributes:
-        queue : RabbitQueue object representing the queue
-        exchange : Optional RabbitExchange object representing the exchange
-        virtual_host : Virtual host to connect
-    """
+    """Base class to store AsyncAPI RMQ bindings."""
 
     queue: RabbitQueue
     exchange: Optional[RabbitExchange]
@@ -247,7 +274,7 @@ class BaseRMQInformation:
         virtual_host: str,
         queue: RabbitQueue,
         exchange: Optional[RabbitExchange],
-        app_id: Optional[str]
+        app_id: Optional[str],
     ) -> None:
         self.virtual_host = virtual_host
         self.exchange = exchange

@@ -1,12 +1,9 @@
 from typing import Any, Optional, Type, TypeVar, Union, overload
 
-from pydantic import BaseModel, Field
-
-Cls = TypeVar("Cls")
 NameRequiredCls = TypeVar("NameRequiredCls", bound="NameRequired")
 
 
-class NameRequired(BaseModel):
+class NameRequired:
     """A class to represent a required name.
 
     Attributes:
@@ -20,8 +17,6 @@ class NameRequired(BaseModel):
         validate(cls: Type[NameRequiredCls], value: Union[str, NameRequiredCls, None]) -> Optional[NameRequiredCls]: Validate the given value and return an optional NameRequiredCls instance.
     """
 
-    name: str = Field(...)
-
     def __eq__(self, __value: object) -> bool:
         """Compares the current object with another object for equality.
 
@@ -29,23 +24,19 @@ class NameRequired(BaseModel):
             __value: The object to compare with.
 
         Returns:
-            True if the objects are equal, False otherwise.
-
+            True if the objects are equal by name, False otherwise.
         """
         if __value is None:
             return False
 
         if not isinstance(__value, NameRequired):
-            raise NotImplementedError(f"We can't compare {type(self).__name__} with {type(__value).__name__} object")
+            return NotImplemented
 
         return self.name == __value.name
 
-    def __init__(self, name: str, **kwargs: Any) -> None:
-        """Initial function.
-
-        Maps positional name to pydantic `name` named argument.
-        """
-        super().__init__(name=name, **kwargs)
+    def __init__(self, name: str) -> None:
+        """Initial function."""
+        self.name = name
 
     @overload
     @classmethod
@@ -54,19 +45,6 @@ class NameRequired(BaseModel):
         value: Union[str, NameRequiredCls],
         **kwargs: Any,
     ) -> NameRequiredCls:
-        """Validates a value.
-
-        Args:
-            value: The value to validate.
-            **kwargs: Additional keyword arguments.
-
-        Returns:
-            The validated value.
-
-        Raises:
-            TypeError: If the value is not of the expected type.
-
-        """
         ...
 
     @overload
@@ -76,16 +54,6 @@ class NameRequired(BaseModel):
         value: None,
         **kwargs: Any,
     ) -> None:
-        """Validate a value.
-
-        Args:
-            value: The value to be validated
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            None
-
-        """
         ...
 
     @classmethod
@@ -102,7 +70,6 @@ class NameRequired(BaseModel):
 
         Returns:
             The validated value.
-
         """
         if value is not None and isinstance(value, str):
             value = cls(value, **kwargs)

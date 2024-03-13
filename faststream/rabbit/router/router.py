@@ -1,8 +1,8 @@
+from copy import deepcopy
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Union
 
 from typing_extensions import Annotated, Doc, deprecated, override
 
-from faststream._compat import model_copy
 from faststream.broker.core.broker import default_filter
 from faststream.broker.router import BrokerRoute, BrokerRouter
 from faststream.rabbit.asyncapi import Publisher
@@ -177,8 +177,8 @@ class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
         for h in handlers:
             if (q := h.kwargs.pop("queue", None)) is None:
                 q, h.args = h.args[0], h.args[1:]
-            queue = RabbitQueue.validate(q)
-            new_q = model_copy(queue, update={"name": prefix + queue.name})
+            new_q = deepcopy(RabbitQueue.validate(q))
+            new_q.name = prefix + new_q.name
             h.args = (new_q, *h.args)
 
         super().__init__(
@@ -279,8 +279,8 @@ class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
             Doc("Service option to pass FastAPI-compatible callback."),
         ] = None,
     ) -> "WrapperProtocol[IncomingMessage]":
-        q = RabbitQueue.validate(queue)
-        new_q = model_copy(q, update={"name": self.prefix + q.name})
+        new_q = deepcopy(RabbitQueue.validate(queue))
+        new_q.name = self.prefix + new_q.name
         return self._wrap_subscriber(
             new_q,
             exchange=exchange,
@@ -458,8 +458,7 @@ class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
 
     @staticmethod
     def _update_publisher_prefix(prefix: str, publisher: Publisher) -> Publisher:
-        publisher.queue = model_copy(
-            publisher.queue,
-            update={"name": prefix + publisher.queue.name},
-        )
+        new_q = deepcopy(publisher.queue)
+        new_q.name = prefix + new_q.name
+        publisher.queue = new_q
         return publisher

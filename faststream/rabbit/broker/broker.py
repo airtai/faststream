@@ -78,7 +78,8 @@ class RabbitBroker(
     def __init__(
         self,
         url: Annotated[
-            Union[str, "URL", None], Doc("RabbitMQ destination location to connect.")
+            Union[str, "URL", None],
+            Doc("RabbitMQ destination location to connect."),
         ] = "amqp://guest:guest@localhost:5672/",
         *,
         # connection args
@@ -593,7 +594,8 @@ class RabbitBroker(
             Doc("Send confirmation time from RabbitMQ."),
         ] = None,
         persist: Annotated[
-            bool, Doc("Restore the message on RabbitMQ reboot."),
+            bool,
+            Doc("Restore the message on RabbitMQ reboot."),
         ] = False,
         reply_to: Annotated[
             Optional[str],
@@ -672,6 +674,7 @@ class RabbitBroker(
           async def handler() -> str:
               '''You can use it as a handler decorator.'''
               return "Hi!"  # publishes result to "out1" and "out2"
+
 
           # or you can create publisher object and use it lately
           publisher = broker.publisher("out")
@@ -760,7 +763,8 @@ class RabbitBroker(
             Doc("Send confirmation time from RabbitMQ."),
         ] = None,
         persist: Annotated[
-            bool, Doc("Restore the message on RabbitMQ reboot."),
+            bool,
+            Doc("Restore the message on RabbitMQ reboot."),
         ] = False,
         reply_to: Annotated[
             Optional[str],
