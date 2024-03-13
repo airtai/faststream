@@ -102,7 +102,10 @@ class NatsRouter(BrokerRouter[str, Msg]):
                 reply_to=reply_to,
                 stream=stream_builder.stream(stream),
                 headers=headers,
-                middlewares=middlewares,
+                middlewares=(
+                    *(m(None).publish_scope for m in self._middlewares),
+                    *middlewares
+                ),
                 timeout=timeout,
                 # AsyncAPI information
                 title_=title,
