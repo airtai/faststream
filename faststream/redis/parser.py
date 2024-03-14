@@ -1,3 +1,4 @@
+from dataclasses import asdict, dataclass, field
 from typing import (
     TYPE_CHECKING,
     ClassVar,
@@ -10,7 +11,6 @@ from typing import (
     Union,
 )
 from uuid import uuid4
-from dataclasses import dataclass, field, asdict
 
 from faststream._compat import dump_json, json_loads
 from faststream.broker.message import StreamMessage
@@ -82,14 +82,16 @@ class RawMessage:
         headers: Optional[AnyDict] = None,
         correlation_id: Optional[str] = None,
     ) -> bytes:
-        return dump_json(asdict(
-            cls.build(
-                message=message,
-                reply_to=reply_to,
-                headers=headers,
-                correlation_id=correlation_id,
+        return dump_json(
+            asdict(
+                cls.build(
+                    message=message,
+                    reply_to=reply_to,
+                    headers=headers,
+                    correlation_id=correlation_id,
+                )
             )
-        ))
+        )
 
     @staticmethod
     def parse(data: bytes) -> Tuple[bytes, AnyDict]:
@@ -178,9 +180,7 @@ class RedisStreamParser(SimpleParser[RStreamMessage]):
     @classmethod
     def _parse_data(cls, message: RStreamMessage) -> Tuple[bytes, AnyDict]:
         data = message["data"]
-        return RawMessage.parse(
-            data.get(bDATA_KEY) or dump_json(data)
-        )
+        return RawMessage.parse(data.get(bDATA_KEY) or dump_json(data))
 
 
 class RedisBatchStreamParser(SimpleParser[BatchStreamMessage]):
@@ -190,12 +190,7 @@ class RedisBatchStreamParser(SimpleParser[BatchStreamMessage]):
     def _parse_data(message: BatchStreamMessage) -> Tuple[bytes, AnyDict]:
         return (
             dump_json(
-                [
-                    RawMessage.parse(
-                        x.get(bDATA_KEY, x)
-                    )[0]
-                    for x in message["data"]
-                ]
+                [RawMessage.parse(x.get(bDATA_KEY, x))[0] for x in message["data"]]
             ),
             {"content-type": ContentTypes.json},
         )

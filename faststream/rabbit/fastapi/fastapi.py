@@ -1,14 +1,27 @@
+import logging
+from inspect import Parameter
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Type,
+    Union,
+)
 
-from typing import Any, Callable, Dict, List, Optional, Sequence, Type, Union, TYPE_CHECKING, Iterable
 from fastapi import params
 from fastapi.datastructures import Default
 from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
-import logging
-from inspect import Parameter
+from starlette.responses import JSONResponse
+from starlette.routing import BaseRoute
+from typing_extensions import Annotated, Doc, deprecated
 
 from faststream.__about__ import SERVICE_NAME
-from typing_extensions import Annotated, Doc, deprecated
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.types import (
@@ -17,29 +30,25 @@ from faststream.broker.types import (
 )
 from faststream.rabbit.broker import RabbitBroker as RB
 from faststream.rabbit.schemas.schemas import RabbitQueue
-from starlette.routing import BaseRoute
-from starlette.responses import JSONResponse
-
-from faststream.asyncapi import schema as asyncapi
-
 
 if TYPE_CHECKING:
     from enum import Enum
 
-    from starlette.responses import Response
-    from starlette.types import ASGIApp, Lifespan
-    from yarl import URL
     import aio_pika
     from aio_pika.abc import SSLOptions, TimeoutType
     from pamqp.common import FieldTable
-    
-    from faststream.security import BaseSecurity
+    from starlette.responses import Response
+    from starlette.types import ASGIApp, Lifespan
+    from yarl import URL
+
+    from faststream.asyncapi import schema as asyncapi
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
         CustomDecoder,
         CustomParser,
     )
+    from faststream.security import BaseSecurity
     from faststream.types import AnyDict
 
 
@@ -168,7 +177,9 @@ class RabbitRouter(StreamRouter["aio_pika.IncomingMessage"]):
         ] = True,
         schema_url: Annotated[
             Optional[str],
-            Doc("AsyncAPI schema url. You should set this option to `None` to disable AsyncAPI routes at all."),
+            Doc(
+                "AsyncAPI schema url. You should set this option to `None` to disable AsyncAPI routes at all."
+            ),
         ] = "/asyncapi",
         # FastAPI args
         prefix: Annotated[
@@ -436,7 +447,9 @@ class RabbitRouter(StreamRouter["aio_pika.IncomingMessage"]):
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
-        HandlerCallWrapper["aio_pika.IncomingMessage", P_HandlerParams, T_HandlerReturn],
+        HandlerCallWrapper[
+            "aio_pika.IncomingMessage", P_HandlerParams, T_HandlerReturn
+        ],
     ]:
         queue = RabbitQueue.validate(queue)
         return super().subscriber(

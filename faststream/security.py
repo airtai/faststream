@@ -1,5 +1,5 @@
 from ssl import SSLContext
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 from faststream.types import AnyDict
 

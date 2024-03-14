@@ -17,8 +17,8 @@ from typing_extensions import ParamSpec
 
 from faststream._compat import PValidationError
 from faststream.cli.supervisors.utils import set_exit
-from faststream.log.logging import logger
 from faststream.exceptions import ValidationError
+from faststream.log.logging import logger
 from faststream.types import AnyDict, AsyncFunc, Lifespan, SettingField
 from faststream.utils import apply_types, context
 from faststream.utils.functions import drop_response_type, fake_context, to_async
@@ -28,7 +28,6 @@ T_HookReturn = TypeVar("T_HookReturn")
 
 
 if TYPE_CHECKING:
-    from faststream.types import AnyHttpUrl
     from faststream.asyncapi.schema import (
         Contact,
         ContactDict,
@@ -40,6 +39,7 @@ if TYPE_CHECKING:
         TagDict,
     )
     from faststream.broker.core.broker import BrokerUsecase
+    from faststream.types import AnyHttpUrl
 
 
 class FastStream:
@@ -257,7 +257,7 @@ class FastStream:
                     await call
                 except PValidationError as e:
                     raise ValidationError(
-                        fields=[x['loc'][0] for x in e.errors()]
+                        fields=[x["loc"][0] for x in e.errors()]
                     )
 
             else:

@@ -1,17 +1,18 @@
 from typing import Iterable
 
+
 class FastStreamException(Exception):  # noqa: N818
     """Basic FastStream exception class."""
 
-class SkipMessage(FastStreamException):  # noqa: N818
+class SkipMessage(FastStreamException):
     """Watcher Instruction to skip message."""
 
 
-class StopConsume(FastStreamException):  # noqa: N818
+class StopConsume(FastStreamException):
     """Raise it to stop Handler consuming."""
 
 
-class HandlerException(FastStreamException):  # noqa: N818
+class HandlerException(FastStreamException):
     """Base Handler Exception."""
 
 
