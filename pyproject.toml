@@ -75,11 +75,6 @@ redis = [
     "redis>=5.0.0,<6.0.0"
 ]
 
-docs = [
-    "fastapi>=0.100.0,<1.0.0",
-    "uvicorn>=0.17.0,<1.0.0",
-]
-
 # dev dependencies
 devdocs = [
     "mkdocs-material==9.5.10",

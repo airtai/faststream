@@ -17,7 +17,7 @@ from aiokafka import AIOKafkaConsumer, ConsumerRecord
 from aiokafka.errors import ConsumerStoppedError, KafkaError
 from typing_extensions import Unpack, override
 
-from faststream.__about__ import __version__
+from faststream.__about__ import SERVICE_NAME
 from faststream.broker.core.handler import BaseHandler
 from faststream.broker.core.publisher import FakePublisher
 from faststream.broker.parsers import resolve_custom_func
@@ -74,7 +74,7 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
         middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"] = (),
         # Kafka information
         group_id: Optional[str] = None,
-        client_id: str = "faststream-" + __version__,
+        client_id: str = SERVICE_NAME,
         builder: Callable[..., AIOKafkaConsumer],
         is_manual: bool = False,
         batch: bool = False,

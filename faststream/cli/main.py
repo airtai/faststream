@@ -7,10 +7,11 @@ from typing import Dict, List, Optional
 import anyio
 import typer
 from click.exceptions import MissingParameter
-from pydantic import ValidationError
 from typer.core import TyperOption
 
 from faststream.__about__ import INSTALL_WATCHFILES, __version__
+from faststream.exceptions import ValidationError
+from faststream.app import FastStream
 from faststream.cli.docs.app import docs_app
 from faststream.cli.utils.imports import import_from_string
 from faststream.cli.utils.logs import LogLevels, get_log_level, set_log_level
@@ -177,6 +178,11 @@ def _run(
     """
     _, app_obj = import_from_string(app)
 
+    if not isinstance(app_obj, FastStream):
+        raise typer.BadParameter(
+            f'Imported object "{app_obj}" must be "FastStream" type.',
+        )
+
     set_log_level(log_level, app_obj)
 
     if sys.platform not in ("win32", "cygwin", "cli"):  # pragma: no cover
@@ -194,7 +200,7 @@ def _run(
 
     except ValidationError as e:
         ex = MissingParameter(
-            param=TyperOption(param_decls=[f"--{x['loc'][0]}" for x in e.errors()])
+            param=TyperOption(param_decls=[f"--{x}" for x in e.fields])
         )
 
         try:

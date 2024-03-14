@@ -16,7 +16,7 @@ from urllib.parse import urlparse
 import aio_pika
 from typing_extensions import Annotated, Doc, deprecated, override
 
-from faststream.__about__ import __version__
+from faststream.__about__ import SERVICE_NAME
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.utils import get_watcher_context
 from faststream.exceptions import NOT_CONNECTED_YET
@@ -104,7 +104,7 @@ class RabbitBroker(
             Doc("Add custom client capability."),
         ] = None,
         timeout: Annotated[
-            aio_pika.abc.TimeoutType,
+            "TimeoutType",
             Doc("Connection establishement timeout."),
         ] = None,
         # broker args
@@ -118,7 +118,7 @@ class RabbitBroker(
         app_id: Annotated[
             Optional[str],
             Doc("Application name to mark outgoing messages by."),
-        ] = f"faststream-{__version__}",
+        ] = SERVICE_NAME,
         # broker base args
         graceful_timeout: Annotated[
             Optional[float],
@@ -333,7 +333,7 @@ class RabbitBroker(
         virtualhost: Optional[str] = None,
         ssl_options: Optional["SSLOptions"] = None,
         client_properties: Optional["FieldTable"] = None,
-        timeout: aio_pika.abc.TimeoutType = None,
+        timeout: "TimeoutType" = None,
         ssl_context: Optional["SSLContext"] = None,
     ) -> "aio_pika.RobustConnection":
         connection = cast(

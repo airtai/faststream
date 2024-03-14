@@ -20,7 +20,7 @@ import confluent_kafka
 from fast_depends.dependencies import Depends
 from typing_extensions import override
 
-from faststream.__about__ import __version__
+from faststream.__about__ import SERVICE_NAME
 from faststream.broker.core.asynchronous import BrokerAsyncUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
@@ -84,7 +84,7 @@ class KafkaBroker(
         *,
         protocol: Optional[str] = None,
         protocol_version: str = "auto",
-        client_id: str = "faststream-" + __version__,
+        client_id: str = SERVICE_NAME,
         security: Optional[BaseSecurity] = None,
         **kwargs: Any,
     ) -> None:

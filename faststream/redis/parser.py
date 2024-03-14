@@ -10,10 +10,9 @@ from typing import (
     Union,
 )
 from uuid import uuid4
+from dataclasses import dataclass, field, asdict
 
-from pydantic import BaseModel, Field
-
-from faststream._compat import dump_json, model_parse, model_to_json
+from faststream._compat import dump_json, json_loads
 from faststream.broker.message import StreamMessage
 from faststream.broker.parsers import decode_message, encode_message
 from faststream.constants import ContentTypes
@@ -40,11 +39,12 @@ bDATA_KEY = DATA_KEY.encode()  # noqa: N816
 MsgType = TypeVar("MsgType", bound=BaseMessage)
 
 
-class RawMessage(BaseModel):
+@dataclass(slots=True)
+class RawMessage:
     """A class to represent a raw Redis message."""
 
     data: bytes
-    headers: AnyDict = Field(default_factory=dict)
+    headers: AnyDict = field(default_factory=dict)
 
     @classmethod
     def build(
@@ -81,28 +81,30 @@ class RawMessage(BaseModel):
         reply_to: str = "",
         headers: Optional[AnyDict] = None,
         correlation_id: Optional[str] = None,
-    ) -> str:
-        return model_to_json(
+    ) -> bytes:
+        return dump_json(asdict(
             cls.build(
                 message=message,
                 reply_to=reply_to,
                 headers=headers,
                 correlation_id=correlation_id,
             )
-        )
+        ))
 
-    @classmethod
-    def parse(cls, data: bytes) -> Tuple[bytes, AnyDict]:
+    @staticmethod
+    def parse(data: bytes) -> Tuple[bytes, AnyDict]:
+        headers: AnyDict
+
         try:
-            obj = model_parse(cls, data)
+            # FastStream message format
+            parsed_data = json_loads(data)
+            data = parsed_data["data"].encode()
+            headers = parsed_data["headers"]
+
         except Exception:
             # Raw Redis message format
             data = data
-            headers: AnyDict = {}
-        else:
-            # FastStream message format
-            data = obj.data
-            headers = obj.headers
+            headers = {}
 
         return data, headers
 

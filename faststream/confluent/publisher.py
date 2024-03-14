@@ -4,7 +4,7 @@ from typing import Dict, Optional, Sequence
 from confluent_kafka import Message
 from typing_extensions import override
 
-from faststream.__about__ import __version__
+from faststream.__about__ import SERVICE_NAME
 from faststream.confluent.producer import AsyncConfluentFastProducer
 from faststream.confluent.shared.publisher import ABCPublisher
 from faststream.exceptions import NOT_CONNECTED_YET
@@ -30,7 +30,7 @@ class LogicPublisher(ABCPublisher[Message]):
 
     _producer: Optional[AsyncConfluentFastProducer] = field(default=None, init=False)
     batch: bool = field(default=False)
-    client_id: str = field(default="faststream-" + __version__)
+    client_id: str = field(default=SERVICE_NAME)
 
     @override
     async def publish(  # type: ignore[override]

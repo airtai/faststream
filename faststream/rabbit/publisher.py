@@ -1,5 +1,4 @@
 from contextlib import AsyncExitStack
-from dataclasses import dataclass
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
 
@@ -88,7 +87,7 @@ class PublishKwargs(TypedDict, total=False):
         Doc("Message body content encoding, e.g. **gzip**."),
     ]
 
-@dataclass
+
 class LogicPublisher(
     BasePublisher[IncomingMessage],
     BaseRMQInformation,

@@ -23,7 +23,6 @@ from fastapi.dependencies.utils import (
     solve_dependencies,
 )
 from fastapi.routing import run_endpoint_function
-from pydantic import create_model
 from starlette.requests import Request
 from starlette.routing import BaseRoute
 
@@ -294,6 +293,8 @@ def make_fastapi_consumer(
 
 def _patch_fastapi_dependent(dependent: Dependant) -> Dependant:
     """Patch FastAPI by adding fields for AsyncAPI schema generation."""
+    from pydantic import create_model  # FastAPI always has pydantic
+
     params = dependent.query_params + dependent.body_params  # type: ignore[attr-defined]
 
     for d in dependent.dependencies:

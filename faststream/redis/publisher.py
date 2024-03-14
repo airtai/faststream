@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Iterable, Optional, Sequence, Union, cast
 
@@ -13,15 +12,9 @@ from faststream.types import AnyDict, DecodedMessage, SendableMessage
 if TYPE_CHECKING:
     from faststream.broker.types import PublisherMiddleware
 
-@dataclass
+
 class LogicPublisher(BasePublisher["AnyRedisDict"]):
     """A class to represent a Redis publisher."""
-
-    channel: Optional[PubSub]
-    list: Optional[ListSub]
-    stream: Optional[StreamSub]
-    reply_to: str
-    headers: Optional[AnyDict]
 
     _producer: Optional[RedisFastProducer]
 

@@ -259,14 +259,8 @@ class ReplyConfig:
     ] = False
 
 
-@dataclass
 class BaseRMQInformation:
     """Base class to store AsyncAPI RMQ bindings."""
-
-    queue: RabbitQueue
-    exchange: Optional[RabbitExchange]
-    virtual_host: str
-    app_id: Optional[str]
 
     def __init__(
         self,

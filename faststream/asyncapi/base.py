@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from dataclasses import dataclass
 from typing import Dict, Optional
 
 from typing_extensions import Annotated, Doc
@@ -7,12 +6,8 @@ from typing_extensions import Annotated, Doc
 from faststream.asyncapi.schema.channels import Channel
 
 
-@dataclass
 class AsyncAPIOperation:
     """A class representing an asynchronous API operation."""
-    title_: Optional[str]
-    description_: Optional[str]
-    include_in_schema: bool
 
     def __init__(
         self,

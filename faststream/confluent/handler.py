@@ -7,7 +7,7 @@ from confluent_kafka import KafkaException, Message
 from fast_depends.core import CallModel
 from typing_extensions import Unpack, override
 
-from faststream.__about__ import __version__
+from faststream.__about__ import SERVICE_NAME
 from faststream.broker.handler import AsyncHandler
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
@@ -60,7 +60,7 @@ class LogicHandler(AsyncHandler[Message]):
         graceful_timeout: Optional[float] = None,
         # Kafka information
         group_id: Optional[str] = None,
-        client_id: str = "faststream-" + __version__,
+        client_id: str = SERVICE_NAME,
         builder: Callable[..., AsyncConfluentConsumer],
         is_manual: bool = False,
         batch: bool = False,

@@ -2,6 +2,8 @@
 __version__ = "0.5.0"
 
 
+SERVICE_NAME = f"faststream-{__version__}"
+
 INSTALL_YAML = """
 To generate YAML documentation, please install dependencies:\n
 pip install PyYAML

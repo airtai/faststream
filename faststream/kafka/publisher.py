@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union, cast
 
@@ -13,7 +12,7 @@ from faststream.types import AnyDict, SendableMessage
 if TYPE_CHECKING:
     from faststream.broker.types import PublisherMiddleware
 
-@dataclass
+
 class LogicPublisher(BasePublisher[ConsumerRecord]):
     """A class to publish messages to a Kafka topic.
 
@@ -24,17 +23,7 @@ class LogicPublisher(BasePublisher[ConsumerRecord]):
 
     Methods:
         publish : Publishes messages to the Kafka topic
-
-    Raises:
-        AssertionError: If `_producer` is not set up or if multiple messages are sent without the `batch` flag
     """
-
-    topic: str
-    partition: Optional[int]
-    timestamp_ms: Optional[int]
-    headers: Optional[Dict[str, str]]
-    reply_to: Optional[str]
-    client_id: str
 
     _producer: Optional[AioKafkaFastProducer]
 
@@ -83,10 +72,7 @@ class LogicPublisher(BasePublisher[ConsumerRecord]):
         }
 
 
-@dataclass
 class DefaultPublisher(LogicPublisher):
-    key: Optional[bytes]
-
     def __init__(
         self,
         *,

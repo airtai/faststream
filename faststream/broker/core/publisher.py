@@ -1,6 +1,5 @@
 from abc import abstractmethod
 from contextlib import AsyncExitStack
-from dataclasses import dataclass, field
 from inspect import unwrap
 from itertools import chain
 from typing import (
@@ -80,17 +79,11 @@ class FakePublisher:
             )
 
 
-@dataclass
 class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
     """A base class for publishers in an asynchronous API."""
 
-    schema_: Optional[Any] = field(repr=False)
-
-    calls: List[Callable[..., Any]] = field(repr=False)
-    middlewares: Iterable["PublisherMiddleware"] = field(repr=False)
-
-    _fake_handler: bool = field(repr=False)
-    mock: Optional[MagicMock] = field(repr=False)
+    calls: List[Callable[..., Any]]
+    mock: Optional[MagicMock]
 
     def __init__(
         self,

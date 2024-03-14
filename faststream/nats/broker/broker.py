@@ -37,7 +37,7 @@ from nats.js.client import (
 from nats.js.errors import BadRequestError
 from typing_extensions import Annotated, Doc, deprecated, override
 
-from faststream.__about__ import __version__
+from faststream.__about__ import SERVICE_NAME
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.utils import get_watcher_context
 from faststream.exceptions import NOT_CONNECTED_YET
@@ -161,7 +161,7 @@ class NatsBroker(
         name: Annotated[
             Optional[str],
             Doc("Label the connection with name (shown in NATS monitoring)."),
-        ] = f"faststream-{__version__}",
+        ] = SERVICE_NAME,
         pedantic: bool = False,
         verbose: bool = False,
         allow_reconnect: Annotated[

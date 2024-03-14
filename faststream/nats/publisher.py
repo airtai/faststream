@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 
@@ -15,15 +14,8 @@ if TYPE_CHECKING:
     from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
 
-@dataclass
 class LogicPublisher(BasePublisher[Msg]):
     """A class to represent a NATS publisher."""
-
-    subject: str
-    reply_to: str
-    headers: Optional[Dict[str, str]]
-    stream: Optional["JStream"]
-    timeout: Optional[float]
 
     _producer: Union["NatsFastProducer", "NatsJSFastProducer", None]
 

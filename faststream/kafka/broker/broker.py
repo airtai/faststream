@@ -23,7 +23,7 @@ from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssigno
 from fast_depends.dependencies import Depends
 from typing_extensions import Annotated, Doc, override
 
-from faststream.__about__ import __version__
+from faststream.__about__ import SERVICE_NAME
 from faststream.asyncapi import schema as asyncapi
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
@@ -63,7 +63,7 @@ class KafkaBroker(
         self,
         bootstrap_servers: Union[str, Iterable[str]] = "localhost",
         *,
-        client_id: str = "faststream-" + __version__,
+        client_id: str = SERVICE_NAME,
         # broker base args
         graceful_timeout: Annotated[
             Optional[float],

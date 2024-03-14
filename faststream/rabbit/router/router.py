@@ -33,6 +33,8 @@ if TYPE_CHECKING:
 
 
 class RabbitRoute(BrokerRoute["IncomingMessage", "AioPikaSendableMessage"]):
+    """Class to store delaied RabbitBroker subscriber registration."""
+
     def __init__(
         self,
         call: Annotated[
@@ -144,6 +146,8 @@ class RabbitRoute(BrokerRoute["IncomingMessage", "AioPikaSendableMessage"]):
 
 
 class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
+    """Includable to RabbitBroker router."""
+
     _publishers: Dict[int, Publisher]
 
     def __init__(

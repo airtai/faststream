@@ -1,12 +1,17 @@
-class SkipMessage(Exception):  # noqa: N818
+from typing import Iterable
+
+class FastStreamException(Exception):  # noqa: N818
+    """Basic FastStream exception class."""
+
+class SkipMessage(FastStreamException):  # noqa: N818
     """Watcher Instruction to skip message."""
 
 
-class StopConsume(Exception):  # noqa: N818
+class StopConsume(FastStreamException):  # noqa: N818
     """Raise it to stop Handler consuming."""
 
 
-class HandlerException(Exception):  # noqa: N818
+class HandlerException(FastStreamException):  # noqa: N818
     """Base Handler Exception."""
 
 
@@ -22,7 +27,18 @@ class RejectMessage(HandlerException):
     """Raise it to `reject` a message immediately."""
 
 
-WRONG_PUBLISH_ARGS = ValueError(
+class SetupException(FastStreamException, ValueError):
+    """Exception to raise at wrong method usage."""
+
+
+class ValidationError(FastStreamException, ValueError):
+    """Exception to raise at startup hook validation error."""
+
+    def __init__(self, fields: Iterable[str] = ()) -> None:
+        self.fields = fields
+
+
+WRONG_PUBLISH_ARGS = SetupException(
     "You should use `reply_to` to send response to long-living queue "
     "and `rpc` to get response in sync mode."
 )

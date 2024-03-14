@@ -14,10 +14,10 @@ from typing import (
     Union,
 )
 
-from pydantic import BaseModel
 from typing_extensions import ParamSpec, TypeAlias
 
 AnyDict: TypeAlias = Dict[str, Any]
+AnyHttpUrl: TypeAlias = str
 
 F_Return = TypeVar("F_Return")
 F_Spec = ParamSpec("F_Spec")
@@ -63,16 +63,27 @@ class StandardDataclass(Protocol):
         """Interface method."""
         ...
 
-SendableMessage: TypeAlias = Union[
+
+BaseSendableMessage: TypeAlias = Union[
     JsonDecodable,
     Decimal,
     datetime,
-    BaseModel,
     None,
     StandardDataclass,
     SendableTable,
     SendableArray,
 ]
+
+try:
+    from faststream._compat import BaseModel
+
+    SendableMessage: TypeAlias = Union[
+        BaseModel,
+        BaseSendableMessage,
+    ]
+
+except ImportError:
+    SendableMessage: TypeAlias = BaseSendableMessage
 
 SettingField: TypeAlias = Union[
     bool, str,

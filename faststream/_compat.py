@@ -74,6 +74,13 @@ except ImportError:
 
 JsonSchemaValue = Mapping[str, Any]
 
+PValidationError: Optional[Type[Exception]]
+try:
+    from pydantic import ValidationError
+    PValidationError = ValidationError
+except ImportError:
+    PValidationError = None
+
 if PYDANTIC_V2:
     if PYDANTIC_VERSION >= "2.4.0":
         from pydantic.annotated_handlers import (
@@ -110,9 +117,6 @@ if PYDANTIC_V2:
     def model_to_json(model: BaseModel, **kwargs: Any) -> str:
         return model.model_dump_json(**kwargs)
 
-    def model_to_dict(model: BaseModel, **kwargs: Any) -> AnyDict:
-        return model.model_dump(**kwargs)
-
     def model_parse(
         model: Type[ModelVar], data: Union[str, bytes], **kwargs: Any
     ) -> ModelVar:
@@ -137,9 +141,6 @@ else:
 
     def model_to_json(model: BaseModel, **kwargs: Any) -> str:
         return model.json(**kwargs)
-
-    def model_to_dict(model: BaseModel, **kwargs: Any) -> AnyDict:
-        return model.dict(**kwargs)
 
     def model_parse(
         model: Type[ModelVar], data: Union[str, bytes], **kwargs: Any
