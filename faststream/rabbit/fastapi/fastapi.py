@@ -19,35 +19,41 @@ from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
 from starlette.responses import JSONResponse
 from starlette.routing import BaseRoute
-from typing_extensions import Annotated, Doc, deprecated
+from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.broker.core.call_wrapper import HandlerCallWrapper
+from faststream.broker.core.broker import default_filter
 from faststream.broker.fastapi.router import StreamRouter
-from faststream.broker.types import (
-    P_HandlerParams,
-    T_HandlerReturn,
-)
+from faststream.rabbit.asyncapi import Publisher
 from faststream.rabbit.broker import RabbitBroker as RB
-from faststream.rabbit.schemas.schemas import RabbitQueue
+from faststream.rabbit.schemas.schemas import (
+    RabbitExchange,
+    RabbitQueue,
+)
 
 if TYPE_CHECKING:
     from enum import Enum
 
     import aio_pika
-    from aio_pika.abc import SSLOptions, TimeoutType
+    from aio_pika.abc import DateType, HeadersType, SSLOptions, TimeoutType
     from pamqp.common import FieldTable
     from starlette.responses import Response
     from starlette.types import ASGIApp, Lifespan
     from yarl import URL
 
     from faststream.asyncapi import schema as asyncapi
+    from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
         CustomDecoder,
         CustomParser,
+        Filter,
+        PublisherMiddleware,
+        SubscriberMiddleware,
     )
+    from faststream.rabbit.message import RabbitMessage
+    from faststream.rabbit.schemas.schemas import ReplyConfig
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict
 
@@ -440,23 +446,237 @@ class RabbitRouter(StreamRouter["aio_pika.IncomingMessage"]):
             generate_unique_id_function=generate_unique_id_function,
         )
 
+    @override
     def subscriber(  # type: ignore[override]
         self,
-        queue: Union[str, RabbitQueue],
-        *args: Any,
-        **__service_kwargs: Any,
-    ) -> Callable[
-        [Callable[P_HandlerParams, T_HandlerReturn]],
-        HandlerCallWrapper[
-            "aio_pika.IncomingMessage", P_HandlerParams, T_HandlerReturn
+        queue: Annotated[
+            Union[str, RabbitQueue],
+            Doc(
+                "RabbitMQ queue to listen. "
+                "**FastStream** declares and binds queue object to `exchange` automatically if it is not passive (by default)."
+            ),
         ],
-    ]:
+        exchange: Annotated[
+            Union[str, RabbitExchange, None],
+            Doc(
+                "RabbitMQ exchange to bind queue to. "
+                "Uses default exchange if not presented. "
+                "**FastStream** declares exchange object automatically if it is not passive (by default)."
+            ),
+        ] = None,
+        *,
+        consume_args: Annotated[
+            Optional["AnyDict"],
+            Doc("Extra consumer arguments to use in `queue.consume(...)` method."),
+        ] = None,
+        reply_config: Annotated[
+            Optional["ReplyConfig"],
+            Doc("Extra options to use at replies publishing."),
+        ] = None,
+        # broker arguments
+        dependencies: Annotated[
+            Iterable["params.Depends"],
+            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+        ] = (),
+        parser: Annotated[
+            Optional["CustomParser[aio_pika.IncomingMessage]"],
+            Doc(
+                "Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one."
+            ),
+        ] = None,
+        decoder: Annotated[
+            Optional["CustomDecoder[RabbitMessage]"],
+            Doc("Function to decode FastStream msg bytes body to python objects."),
+        ] = None,
+        middlewares: Annotated[
+            Iterable["SubscriberMiddleware"],
+            Doc("Subscriber middlewares to wrap incoming message processing."),
+        ] = (),
+        filter: Annotated[
+            "Filter[RabbitMessage]",
+            Doc(
+                "Overload subscriber to consume various messages from the same source."
+            ),
+            deprecated(
+                "Deprecated in **FastStream 0.5.0**. "
+                "Please, create `subscriber` object and use it explicitly instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
+        ] = default_filter,
+        retry: Annotated[
+            Union[bool, int],
+            Doc("Whether to `nack` message at processing exception."),
+        ] = False,
+        no_ack: Annotated[
+            bool,
+            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
+        ] = False,
+        # AsyncAPI information
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI subscriber object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc(
+                "AsyncAPI subscriber object description. "
+                "Uses decorated docstring as default."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+    ) -> "WrapperProtocol[aio_pika.IncomingMessage]":
         queue = RabbitQueue.validate(queue)
         return super().subscriber(
-            queue.name,
-            queue,
-            *args,
-            **__service_kwargs,
+            path=queue.name,
+            queue=queue,
+            exchange=exchange,
+            consume_args=consume_args,
+            reply_config=reply_config,
+            dependencies=dependencies,
+            parser=parser,
+            decoder=decoder,
+            middlewares=middlewares,
+            filter=filter,
+            retry=retry,
+            no_ack=no_ack,
+            title=title,
+            description=description,
+            include_in_schema=include_in_schema,
+        )
+
+    @override
+    def publisher(  # type: ignore[override]
+        self,
+        queue: Annotated[
+            Union[RabbitQueue, str],
+            Doc("Default message routing key to publish with."),
+        ] = "",
+        exchange: Annotated[
+            Union[RabbitExchange, str, None],
+            Doc("Target exchange to publish message to."),
+        ] = None,
+        *,
+        routing_key: Annotated[
+            str,
+            Doc(
+                "Default message routing key to publish with. "
+                "Overrides `queue` option if presented."
+            ),
+        ] = "",
+        mandatory: Annotated[
+            bool,
+            Doc(
+                "Client waits for confimation that the message is placed to some queue. "
+                "RabbitMQ returns message to client if there is no suitable queue."
+            ),
+        ] = True,
+        immediate: Annotated[
+            bool,
+            Doc(
+                "Client expects that there is consumer ready to take the message to work. "
+                "RabbitMQ returns message to client if there is no suitable consumer."
+            ),
+        ] = False,
+        timeout: Annotated[
+            "TimeoutType",
+            Doc("Send confirmation time from RabbitMQ."),
+        ] = None,
+        persist: Annotated[
+            bool,
+            Doc("Restore the message on RabbitMQ reboot."),
+        ] = False,
+        reply_to: Annotated[
+            Optional[str],
+            Doc(
+                "Reply message routing key to send with (always sending to default exchange)."
+            ),
+        ] = None,
+        priority: Annotated[
+            Optional[int],
+            Doc("The message priority (0 by default)."),
+        ] = None,
+        # specific
+        middlewares: Annotated[
+            Iterable["PublisherMiddleware"],
+            Doc("Publisher middlewares to wrap outgoing messages."),
+        ] = (),
+        # AsyncAPI information
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object description."),
+        ] = None,
+        schema: Annotated[
+            Optional[Any],
+            Doc(
+                "AsyncAPI publishing message type. "
+                "Should be any python-native object annotation or `pydantic.BaseModel`."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+        # message args
+        headers: Annotated[
+            Optional["HeadersType"],
+            Doc(
+                "Message headers to store metainformation. "
+                "Can be overrided by `publish.headers` if specified."
+            ),
+        ] = None,
+        content_type: Annotated[
+            Optional[str],
+            Doc(
+                "Message **content-type** header. "
+                "Used by application, not core RabbitMQ. "
+                "Will be setted automatically if not specified."
+            ),
+        ] = None,
+        content_encoding: Annotated[
+            Optional[str],
+            Doc("Message body content encoding, e.g. **gzip**."),
+        ] = None,
+        expiration: Annotated[
+            Optional["DateType"],
+            Doc("Message expiration (lifetime) in seconds (or datetime or timedelta)."),
+        ] = None,
+        message_type: Annotated[
+            Optional[str],
+            Doc("Application-specific message type, e.g. **orders.created**."),
+        ] = None,
+        user_id: Annotated[
+            Optional[str],
+            Doc("Publisher connection User ID, validated if set."),
+        ] = None,
+    ) -> Publisher:
+        return super().publisher(
+            queue=queue,
+            exchange=exchange,
+            routing_key=routing_key,
+            mandatory=mandatory,
+            immediate=immediate,
+            timeout=timeout,
+            persist=persist,
+            reply_to=reply_to,
+            priority=priority,
+            middlewares=middlewares,
+            title=title,
+            description=description,
+            schema=schema,
+            include_in_schema=include_in_schema,
+            headers=headers,
+            content_type=content_type,
+            content_encoding=content_encoding,
+            expiration=expiration,
+            message_type=message_type,
+            user_id=user_id,
         )
 
     @staticmethod

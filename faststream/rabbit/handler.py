@@ -69,16 +69,16 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
         graceful_timeout: Optional[float],
         middlewares: Iterable["BrokerMiddleware[aio_pika.IncomingMessage]"],
         app_id: Optional[str],
-        extra_context: Optional[AnyDict] = None,
+        extra_context: Optional[AnyDict],
         # RMQ information
-        exchange: Optional[RabbitExchange] = None,
-        consume_args: Optional[AnyDict] = None,
-        reply_config: Optional[ReplyConfig] = None,
+        exchange: Optional[RabbitExchange],
+        consume_args: Optional[AnyDict],
+        reply_config: Optional[ReplyConfig],
         # AsyncAPI information
-        title_: Optional[str] = None,
-        description_: Optional[str] = None,
-        include_in_schema: bool = True,
-        virtual_host: str = "/",
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+        virtual_host: str,
     ) -> None:
         """Initialize a RabbitMQ consumer."""
         super().__init__(

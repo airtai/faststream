@@ -17,19 +17,12 @@ from faststream.rabbit.schemas.schemas import RabbitExchange
 
 
 class Publisher(LogicPublisher):
-    """A class representing a publisher.
-
-    Attributes:
-        name : name of the publisher
-
-    Methods:
-        get_payloads : Get the payloads for the publisher
-    """
+    """AsyncAPI-compatible Rabbit Publisher class"""
 
     def get_name(self) -> str:
         routing = (
             self.routing_key
-            or (self.queue.routing if _is_exchange(self.exchange) else None)
+            or (self.queue.routing if _is_routing_exchange(self.exchange) else None)
             or "_"
         )
         return f"{routing}:{getattr(self.exchange, 'name', '_')}:Publisher"
@@ -50,7 +43,7 @@ class Publisher(LogicPublisher):
                             priority=self.message_kwargs.get("priority"),
                         ),
                     )
-                    if _is_exchange(self.exchange)
+                    if _is_routing_exchange(self.exchange)
                     else None,
                     message=Message(
                         title=f"{self.name}:Message",
@@ -75,7 +68,7 @@ class Publisher(LogicPublisher):
                                 autoDelete=self.queue.auto_delete,
                                 vhost=self.virtual_host,
                             )
-                            if _is_exchange(self.exchange) and self.queue.name
+                            if _is_routing_exchange(self.exchange)
                             else None,
                             "exchange": (
                                 amqp.Exchange(type="default", vhost=self.virtual_host)
@@ -96,12 +89,7 @@ class Publisher(LogicPublisher):
 
 
 class Handler(LogicHandler):
-    """A class that serves as a handler for RMQAsyncAPIChannel and LogicHandler.
-
-    Methods:
-        - name(): Returns the name of the handler.
-        - get_payloads(): Returns a list of payloads.
-    """
+    """AsyncAPI-compatible Rabbit Handler class"""
 
     def get_name(self) -> str:
         return (
@@ -120,7 +108,7 @@ class Handler(LogicHandler):
                             cc=self.queue.routing,
                         ),
                     )
-                    if _is_exchange(self.exchange)
+                    if _is_routing_exchange(self.exchange)
                     else None,
                     message=Message(
                         title=f"{self.name}:Message",
@@ -141,7 +129,7 @@ class Handler(LogicHandler):
                                 autoDelete=self.queue.auto_delete,
                                 vhost=self.virtual_host,
                             )
-                            if _is_exchange(self.exchange)
+                            if _is_routing_exchange(self.exchange)
                             else None,
                             "exchange": (
                                 amqp.Exchange(type="default", vhost=self.virtual_host)
@@ -161,18 +149,9 @@ class Handler(LogicHandler):
         }
 
 
-def _is_exchange(exchange: Optional[RabbitExchange]) -> bool:
-    """Check if an exchange is a valid exchange type.
-
-    Args:
-        exchange: The exchange to check
-
-    Returns:
-        True if the exchange is a valid exchange type, False otherwise
-    """
-    if exchange and exchange.type in (
-        ExchangeType.FANOUT.value,
-        ExchangeType.HEADERS.value,
-    ):
-        return False
-    return True
+def _is_routing_exchange(exchange: Optional[RabbitExchange]) -> bool:
+    """Check if an exchange requires routing_key to deliver message."""
+    return not exchange or exchange.type in (
+        ExchangeType.DIRECT.value,
+        ExchangeType.TOPIC.value,
+    )

@@ -9,8 +9,8 @@ from typing import (
     Callable,
     Coroutine,
     Generic,
+    Iterable,
     List,
-    Sequence,
     Union,
     cast,
 )
@@ -57,7 +57,7 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
             HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
         ],
         broker: BrokerUsecase[MsgType, Any],
-        dependencies: Sequence[params.Depends],
+        dependencies: Iterable[params.Depends],
         **handle_kwargs: Any,
     ) -> None:
         """Initialize a class instance.

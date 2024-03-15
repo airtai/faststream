@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from types import TracebackType
 
     import aiormq
-    from aio_pika.abc import SSLOptions, TimeoutType
+    from aio_pika.abc import DateType, HeadersType, SSLOptions, TimeoutType
     from fast_depends.dependencies import Depends
     from pamqp.common import FieldTable
     from yarl import URL
@@ -282,7 +282,7 @@ class RabbitBroker(
             ),
         ] = None,
         timeout: Annotated[
-            aio_pika.abc.TimeoutType,
+            "TimeoutType",
             Doc("Connection establishement timeout."),
         ] = None,
     ) -> "aio_pika.RobustConnection":
@@ -634,7 +634,7 @@ class RabbitBroker(
         ] = True,
         # message args
         headers: Annotated[
-            Optional[aio_pika.abc.HeadersType],
+            Optional["HeadersType"],
             Doc(
                 "Message headers to store metainformation. "
                 "Can be overrided by `publish.headers` if specified."
@@ -653,7 +653,7 @@ class RabbitBroker(
             Doc("Message body content encoding, e.g. **gzip**."),
         ] = None,
         expiration: Annotated[
-            Optional[aio_pika.abc.DateType],
+            Optional["DateType"],
             Doc("Message expiration (lifetime) in seconds (or datetime or timedelta)."),
         ] = None,
         message_type: Annotated[
@@ -796,7 +796,7 @@ class RabbitBroker(
             ),
         ] = None,
         headers: Annotated[
-            Optional[aio_pika.abc.HeadersType],
+            Optional["HeadersType"],
             Doc(
                 "Message headers to store metainformation. "
                 "Can be overrided by `publish.headers` if specified."
@@ -815,7 +815,7 @@ class RabbitBroker(
             Doc("Message body content encoding, e.g. **gzip**."),
         ] = None,
         expiration: Annotated[
-            Optional[aio_pika.abc.DateType],
+            Optional["DateType"],
             Doc("Message expiration (lifetime) in seconds (or datetime or timedelta)."),
         ] = None,
         message_id: Annotated[
@@ -823,7 +823,7 @@ class RabbitBroker(
             Doc("Arbitrary message id. Generated automatically if not presented."),
         ] = None,
         timestamp: Annotated[
-            Optional[aio_pika.abc.DateType],
+            Optional["DateType"],
             Doc("Message publish timestamp. Generated automatically if not presented."),
         ] = None,
         message_type: Annotated[

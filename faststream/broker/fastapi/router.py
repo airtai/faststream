@@ -9,6 +9,7 @@ from typing import (
     Callable,
     Dict,
     Generic,
+    Iterable,
     List,
     Mapping,
     Optional,
@@ -208,7 +209,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         path: Union[NameRequired, str],
         *extra: Union[NameRequired, str],
         endpoint: Callable[P_HandlerParams, T_HandlerReturn],
-        dependencies: Sequence[params.Depends],
+        dependencies: Iterable[params.Depends],
         **broker_kwargs: Any,
     ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
         """Add an API message queue route.
@@ -239,7 +240,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         self,
         path: Union[str, NameRequired],
         *extra: Union[NameRequired, str],
-        dependencies: Optional[Sequence[params.Depends]] = None,
+        dependencies: Iterable[params.Depends],
         **broker_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -272,7 +273,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
                 path,
                 *extra,
                 endpoint=func,
-                dependencies=(*self.dependencies, *(dependencies or ())),
+                dependencies=(*self.dependencies, *dependencies),
                 **broker_kwargs,
             )
 
