@@ -24,7 +24,7 @@ from redis.asyncio.connection import (
 )
 from typing_extensions import Annotated, Doc, TypeAlias, deprecated, override
 
-from faststream.__about__ import SERVICE_NAME
+from faststream.__about__ import SERVICE_NAME, __version__
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.utils import get_watcher_context
 from faststream.exceptions import NOT_CONNECTED_YET
@@ -277,11 +277,7 @@ class RedisBroker(
             "encoder_class": encoder_class,
         }
 
-        kwargs = {
-            i: j
-            for i, j in kwargs.items()
-            if j is not None
-        }
+        kwargs = {i: j for i, j in kwargs.items() if j is not None}
 
         connection = await super().connect(**kwargs)
 
@@ -316,29 +312,35 @@ class RedisBroker(
         encoder_class: Type["Encoder"],
     ) -> "Redis[bytes]":
         url_options: "AnyDict" = parse_url(url)
-        url_options.update({
-            "host": host,
-            "port": port,
-            "db": db,
-            "client_name": client_name,
-            "health_check_interval": health_check_interval,
-            "max_connections": max_connections,
-            "socket_timeout": socket_timeout,
-            "socket_connect_timeout": socket_connect_timeout,
-            "socket_read_size": socket_read_size,
-            "socket_keepalive": socket_keepalive,
-            "socket_keepalive_options": socket_keepalive_options,
-            "socket_type": socket_type,
-            "retry_on_timeout": retry_on_timeout,
-            "encoding": encoding,
-            "encoding_errors": encoding_errors,
-            "decode_responses": decode_responses,
-            "parser_class": parser_class,
-            "connection_class": connection_class,
-            "encoder_class": encoder_class,
-        })
+        url_options.update(
+            {
+                "host": host,
+                "port": port,
+                "db": db,
+                "client_name": client_name,
+                "health_check_interval": health_check_interval,
+                "max_connections": max_connections,
+                "socket_timeout": socket_timeout,
+                "socket_connect_timeout": socket_connect_timeout,
+                "socket_read_size": socket_read_size,
+                "socket_keepalive": socket_keepalive,
+                "socket_keepalive_options": socket_keepalive_options,
+                "socket_type": socket_type,
+                "retry_on_timeout": retry_on_timeout,
+                "encoding": encoding,
+                "encoding_errors": encoding_errors,
+                "decode_responses": decode_responses,
+                "parser_class": parser_class,
+                "connection_class": connection_class,
+                "encoder_class": encoder_class,
+            }
+        )
         url_options.update(parse_security(self.security))
-        pool = ConnectionPool(**url_options)
+        pool = ConnectionPool(
+            **url_options,
+            lib_name="faststream",
+            lib_version=__version__,
+        )
 
         client = Redis.from_pool(pool)
         self._producer = RedisFastProducer(

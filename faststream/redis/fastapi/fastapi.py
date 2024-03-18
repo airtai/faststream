@@ -1,3 +1,5 @@
+import logging
+from inspect import Parameter
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -5,6 +7,7 @@ from typing import (
     Dict,
     Iterable,
     List,
+    Mapping,
     Optional,
     Sequence,
     Type,
@@ -14,12 +17,19 @@ from typing import (
 from fastapi.datastructures import Default
 from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
+from redis.asyncio.connection import (
+    Connection,
+    DefaultParser,
+    Encoder,
+)
 from starlette.responses import JSONResponse
 from starlette.routing import BaseRoute
 from typing_extensions import Annotated, Doc, deprecated, override
 
+from faststream.__about__ import SERVICE_NAME
+from faststream.broker.core.broker import default_filter
 from faststream.broker.fastapi.router import StreamRouter
-from faststream.broker.types import P_HandlerParams, T_HandlerReturn
+from faststream.redis.asyncapi import Publisher
 from faststream.redis.broker import RedisBroker as RB
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 
@@ -27,10 +37,22 @@ if TYPE_CHECKING:
     from enum import Enum
 
     from fastapi import params
+    from redis.asyncio.connection import BaseParser
     from starlette.responses import Response
     from starlette.types import ASGIApp, Lifespan
 
-    from faststream.broker.core.call_wrapper import HandlerCallWrapper
+    from faststream.asyncapi import schema as asyncapi
+    from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.types import (
+        BrokerMiddleware,
+        CustomDecoder,
+        CustomParser,
+        Filter,
+        PublisherMiddleware,
+        SubscriberMiddleware,
+    )
+    from faststream.security import BaseSecurity
     from faststream.types import AnyDict
 
 
@@ -41,6 +63,87 @@ class RedisRouter(StreamRouter["AnyDict"]):
 
     def __init__(
         self,
+        url: str = "redis://localhost:6379",
+        polling_interval: Optional[float] = None,
+        *,
+        host: str = "localhost",
+        port: Union[str, int] = 6379,
+        db: Union[str, int] = 0,
+        client_name: Optional[str] = SERVICE_NAME,
+        health_check_interval: float = 0,
+        max_connections: Optional[int] = None,
+        socket_timeout: Optional[float] = None,
+        socket_connect_timeout: Optional[float] = None,
+        socket_read_size: int = 65536,
+        socket_keepalive: bool = False,
+        socket_keepalive_options: Optional[Mapping[int, Union[int, bytes]]] = None,
+        socket_type: int = 0,
+        retry_on_timeout: bool = False,
+        encoding: str = "utf-8",
+        encoding_errors: str = "strict",
+        decode_responses: bool = False,
+        parser_class: Type["BaseParser"] = DefaultParser,
+        connection_class: Type["Connection"] = Connection,
+        encoder_class: Type["Encoder"] = Encoder,
+        # broker base args
+        graceful_timeout: Annotated[
+            Optional[float],
+            Doc(
+                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down."
+            ),
+        ] = None,
+        decoder: Annotated[
+            Optional["CustomDecoder[StreamMessage[AnyDict]]"],
+            Doc("Custom decoder object."),
+        ] = None,
+        parser: Annotated[
+            Optional["CustomParser[AnyDict]"],
+            Doc("Custom parser object."),
+        ] = None,
+        middlewares: Annotated[
+            Iterable["BrokerMiddleware[AnyDict]"],
+            Doc("Middlewares to apply to all broker publishers/subscribers."),
+        ] = (),
+        # AsyncAPI args
+        security: Annotated[
+            Optional["BaseSecurity"],
+            Doc(
+                "Security options to connect broker and generate AsyncAPI server security information."
+            ),
+        ] = None,
+        asyncapi_url: Annotated[
+            Optional[str],
+            Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
+        ] = None,
+        protocol: Annotated[
+            Optional[str],
+            Doc("AsyncAPI server protocol."),
+        ] = None,
+        protocol_version: Annotated[
+            Optional[str],
+            Doc("AsyncAPI server protocol version."),
+        ] = "custom",
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI server description."),
+        ] = None,
+        asyncapi_tags: Annotated[
+            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+            Doc("AsyncAPI server tags."),
+        ] = None,
+        # logging args
+        logger: Annotated[
+            Union[logging.Logger, None, object],
+            Doc("User specified logger to pass into Context and log service messages."),
+        ] = Parameter.empty,
+        log_level: Annotated[
+            int,
+            Doc("Service messages log level."),
+        ] = logging.INFO,
+        log_fmt: Annotated[
+            Optional[str],
+            Doc("Default logger log format."),
+        ] = None,
         # StreamRouter options
         setup_state: Annotated[
             bool,
@@ -270,8 +373,44 @@ class RedisRouter(StreamRouter["AnyDict"]):
         ] = Default(generate_unique_id),
     ) -> None:
         super().__init__(
+            url=url,
+            polling_interval=polling_interval,
+            host=host,
+            port=port,
+            db=db,
+            health_check_interval=health_check_interval,
+            max_connections=max_connections,
+            socket_timeout=socket_timeout,
+            socket_connect_timeout=socket_connect_timeout,
+            socket_read_size=socket_read_size,
+            socket_keepalive=socket_keepalive,
+            socket_keepalive_options=socket_keepalive_options,
+            retry_on_timeout=retry_on_timeout,
+            encoding=encoding,
+            encoding_errors=encoding_errors,
+            decode_responses=decode_responses,
+            parser_class=parser_class,
+            connection_class=connection_class,
+            encoder_class=encoder_class,
+            graceful_timeout=graceful_timeout,
+            decoder=decoder,
+            parser=parser,
+            middlewares=middlewares,
+            socket_type=socket_type,
+            client_name=client_name,
             schema_url=schema_url,
             setup_state=setup_state,
+            # logger options
+            logger=logger,
+            log_level=log_level,
+            log_fmt=log_fmt,
+            # AsyncAPI options
+            security=security,
+            protocol=protocol,
+            description=description,
+            protocol_version=protocol_version,
+            asyncapi_tags=asyncapi_tags,
+            asyncapi_url=asyncapi_url,
             # FastAPI kwargs
             prefix=prefix,
             tags=tags,
@@ -292,18 +431,77 @@ class RedisRouter(StreamRouter["AnyDict"]):
             generate_unique_id_function=generate_unique_id_function,
         )
 
-    def subscriber(
+    @override
+    def subscriber(  # type: ignore[override]
         self,
-        channel: Union[str, PubSub, None] = None,
+        channel: Annotated[
+            Union[str, PubSub, None],
+            Doc("Redis PubSub object name to send message."),
+        ] = None,
         *,
-        list: Union[str, ListSub, None] = None,
-        stream: Union[str, StreamSub, None] = None,
-        dependencies: Iterable["params.Depends"] = (),
-        **broker_kwargs: Any,
-    ) -> Callable[
-        [Callable[P_HandlerParams, T_HandlerReturn]],
-        "HandlerCallWrapper[AnyDict, P_HandlerParams, T_HandlerReturn]",
-    ]:
+        list: Annotated[
+            Union[str, ListSub, None],
+            Doc("Redis List object name to send message."),
+        ] = None,
+        stream: Annotated[
+            Union[str, StreamSub, None],
+            Doc("Redis Stream object name to send message."),
+        ] = None,
+        # broker arguments
+        dependencies: Annotated[
+            Iterable["params.Depends"],
+            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+        ] = (),
+        parser: Annotated[
+            Optional["CustomParser[AnyDict]"],
+            Doc(
+                "Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one."
+            ),
+        ] = None,
+        decoder: Annotated[
+            Optional["CustomDecoder[StreamMessage[Any]]"],
+            Doc("Function to decode FastStream msg bytes body to python objects."),
+        ] = None,
+        middlewares: Annotated[
+            Iterable["SubscriberMiddleware"],
+            Doc("Subscriber middlewares to wrap incoming message processing."),
+        ] = (),
+        filter: Annotated[
+            "Filter[StreamMessage[Any]]",
+            Doc(
+                "Overload subscriber to consume various messages from the same source."
+            ),
+            deprecated(
+                "Deprecated in **FastStream 0.5.0**. "
+                "Please, create `subscriber` object and use it explicitly instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
+        ] = default_filter,
+        retry: Annotated[
+            bool,
+            Doc("Whether to `nack` message at processing exception."),
+        ] = False,
+        no_ack: Annotated[
+            bool,
+            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
+        ] = False,
+        # AsyncAPI information
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI subscriber object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc(
+                "AsyncAPI subscriber object description. "
+                "Uses decorated docstring as default."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+    ) -> "WrapperProtocol[AnyDict]":
         channel = PubSub.validate(channel)
         list = ListSub.validate(list)
         stream = StreamSub.validate(stream)
@@ -317,7 +515,81 @@ class RedisRouter(StreamRouter["AnyDict"]):
             stream=stream,
             list=list,
             dependencies=dependencies,
-            **broker_kwargs,
+            parser=parser,
+            decoder=decoder,
+            middlewares=middlewares,
+            filter=filter,
+            retry=retry,
+            no_ack=no_ack,
+            title=title,
+            description=description,
+            include_in_schema=include_in_schema,
+        )
+
+    @override
+    def publisher(  # type: ignore[override]
+        self,
+        channel: Annotated[
+            Union[str, PubSub, None],
+            Doc("Redis PubSub object name to send message."),
+        ] = None,
+        list: Annotated[
+            Union[str, ListSub, None],
+            Doc("Redis List object name to send message."),
+        ] = None,
+        stream: Annotated[
+            Union[str, StreamSub, None],
+            Doc("Redis Stream object name to send message."),
+        ] = None,
+        headers: Annotated[
+            Optional["AnyDict"],
+            Doc(
+                "Message headers to store metainformation. "
+                "Can be overrided by `publish.headers` if specified."
+            ),
+        ] = None,
+        reply_to: Annotated[
+            Optional[str],
+            Doc("Reply message destination PubSub object name."),
+        ] = None,
+        middlewares: Annotated[
+            Iterable["PublisherMiddleware"],
+            Doc("Publisher middlewares to wrap outgoing messages."),
+        ] = (),
+        # AsyncAPI information
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object description."),
+        ] = None,
+        schema: Annotated[
+            Optional[Any],
+            Doc(
+                "AsyncAPI publishing message type. "
+                "Should be any python-native object annotation or `pydantic.BaseModel`."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+    ) -> Publisher:
+        return super().publisher(
+            channel,
+            list=list,
+            stream=stream,
+            headers=headers,
+            reply_to=reply_to,
+            # broker options
+            middlewares=middlewares,
+            # AsyncAPI options
+            title=title,
+            description=description,
+            schema=schema,
+            include_in_schema=include_in_schema,
         )
 
     @override
