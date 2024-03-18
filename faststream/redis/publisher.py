@@ -1,7 +1,9 @@
+from contextlib import AsyncExitStack
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Iterable, Optional, Sequence, Union, cast
+from itertools import chain
+from typing import TYPE_CHECKING, Any, Iterable, Optional, Sequence, cast
 
-from typing_extensions import override
+from typing_extensions import Annotated, Doc, override
 
 from faststream.broker.core.publisher import BasePublisher
 from faststream.exceptions import NOT_CONNECTED_YET
@@ -13,7 +15,7 @@ if TYPE_CHECKING:
     from faststream.broker.types import PublisherMiddleware
 
 
-class LogicPublisher(BasePublisher["AnyRedisDict"]):
+class LogicPublisher(BasePublisher["AnyDict"]):
     """A class to represent a Redis publisher."""
 
     _producer: Optional[RedisFastProducer]
@@ -52,67 +54,126 @@ class LogicPublisher(BasePublisher["AnyRedisDict"]):
         self._producer = None
 
     @override
-    async def _publish(  # type: ignore[override]
+    async def publish(  # type: ignore[override]
         self,
-        message: SendableMessage,
-        channel: Union[str, PubSub, None] = None,
-        reply_to: str = "",
-        headers: Optional[AnyDict] = None,
-        correlation_id: Optional[str] = None,
+        message: Annotated[
+            "SendableMessage",
+            Doc("Message body to send."),
+        ] = None,
+        channel: Annotated[
+            Optional[str],
+            Doc("Redis PubSub object name to send message."),
+        ] = None,
+        reply_to: Annotated[
+            Optional[str],
+            Doc("Reply message destination PubSub object name."),
+        ] = None,
+        headers: Annotated[
+            Optional["AnyDict"],
+            Doc("Message headers to store metainformation."),
+        ] = None,
+        correlation_id: Annotated[
+            Optional[str],
+            Doc(
+                "Manual message **correlation_id** setter. "
+                "**correlation_id** is a useful option to trace messages."
+            ),
+        ] = None,
         *,
-        list: Union[str, ListSub, None] = None,
-        stream: Union[str, StreamSub, None] = None,
-        rpc: bool = False,
-        rpc_timeout: Optional[float] = 30.0,
-        raise_timeout: bool = False,
+        list: Annotated[
+            Optional[str],
+            Doc("Redis List object name to send message."),
+        ] = None,
+        stream: Annotated[
+            Optional[str],
+            Doc("Redis Stream object name to send message."),
+        ] = None,
+        maxlen: Annotated[
+            Optional[int],
+            Doc(
+                "Redis Stream maxlen publish option. "
+                "Remove eldest message if maxlen exceeded."
+            ),
+        ] = None,
+        # rpc args
+        rpc: Annotated[
+            bool,
+            Doc("Whether to wait for reply in blocking mode."),
+        ] = False,
+        rpc_timeout: Annotated[
+            Optional[float],
+            Doc("RPC reply waiting time."),
+        ] = 30.0,
+        raise_timeout: Annotated[
+            bool,
+            Doc(
+                "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
+                "RPC request returns `None` at timeout by default."
+            ),
+        ] = False,
+        # publisher specific
+        extra_middlewares: Annotated[
+            Iterable["PublisherMiddleware"],
+            Doc("Extra middlewares to wrap publishing process."),
+        ] = (),
     ) -> Optional[DecodedMessage]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
-        if (list := ListSub.validate(list)) is not None:
-            if list.batch:
+        if (list_sub := ListSub.validate(list or self.list)) is not None:
+            if list_sub.batch:
                 await self._producer.publish_batch(
                     *cast(Sequence[SendableMessage], message),
-                    list=list.name,  # type: ignore[union-attr]
+                    list=list_sub.name,  # type: ignore[union-attr]
                 )
                 return None
+
             else:
-                kwargs = {"list": list.name}
+                kwargs = {
+                    "channel": None,
+                    "list": list_sub.name,
+                    "stream": None,
+                    "maxlen": None,
+                }
 
-        elif channel := PubSub.validate(channel):
-            kwargs = {"channel": channel.name}
-
-        elif stream := StreamSub.validate(stream):
+        elif (channel_sub := PubSub.validate(channel or self.channel)) is not None:
             kwargs = {
-                "stream": stream.name,
-                "maxlen": stream.maxlen,
+                "channel": channel_sub.name,
+                "list": None,
+                "stream": None,
+                "maxlen": None,
+            }
+
+        elif (stream_sub := StreamSub.validate(stream or self.stream)) is not None:
+            kwargs = {
+                "channel": None,
+                "list": None,
+                "stream": stream_sub.name,
+                "maxlen": maxlen or stream_sub.maxlen,
             }
 
         else:
             raise ValueError(INCORRECT_SETUP_MSG)
 
-        return await self._producer.publish(
-            message=message,
-            **kwargs,
-            reply_to=reply_to,
-            correlation_id=correlation_id,
-            headers=headers,
-            rpc=rpc,
-            rpc_timeout=rpc_timeout,
-            raise_timeout=raise_timeout,
-        )
+        kwargs.update({
+            "reply_to": reply_to or self.reply_to,
+            "headers": headers or self.headers,
+            "correlation_id": correlation_id,
+            # specific args
+            "rpc": rpc,
+            "rpc_timeout": rpc_timeout,
+            "raise_timeout": raise_timeout,
+        })
+
+        async with AsyncExitStack() as stack:
+            for m in chain(extra_middlewares, self.middlewares):
+                message = await stack.enter_async_context(
+                    m(message, **kwargs)
+                )
+
+            return await self._producer.publish(message=message, **kwargs)
 
     @cached_property
     def channel_name(self) -> str:
         any_of = self.channel or self.list or self.stream
         assert any_of, INCORRECT_SETUP_MSG  # nosec B101
         return any_of.name
-
-    @cached_property
-    def publish_kwargs(self) -> AnyDict:
-        return {
-            "channel": self.channel,
-            "list": self.list,
-            "stream": self.stream,
-            "headers": self.headers,
-            "reply_to": self.reply_to,
-        }

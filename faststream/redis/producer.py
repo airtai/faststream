@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional, Union, overload
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import uuid4
 
 from faststream.broker.parsers import encode_message, resolve_custom_func
@@ -17,45 +17,21 @@ from faststream.utils.functions import timeout_scope
 if TYPE_CHECKING:
     from redis.asyncio.client import PubSub, Redis
 
+    from faststream.broker.message import StreamMessage
+
 
 class RedisFastProducer:
     """A class to represent a Redis producer."""
 
     _connection: "Redis[bytes]"
     _decoder: AsyncDecoder[Any]
-    _parser: AsyncParser["AnyRedisDict"]
-
-    @overload
-    def __init__(
-        self,
-        connection: "Redis[bytes]",
-        parser: Optional["AsyncCustomParser"],
-        decoder: Optional["AsyncCustomDecoder[OneRedisMessage]"],
-    ) -> None:
-        pass
-
-    @overload
-    def __init__(
-        self,
-        connection: "Redis[bytes]",
-        parser: Optional["AsyncCustomParser[BatchMessage]"],
-        decoder: Optional["AsyncCustomDecoder[BatchRedisMessage]"],
-    ) -> None:
-        pass
+    _parser: AsyncParser["AnyDict"]
 
     def __init__(
         self,
         connection: "Redis[bytes]",
-        parser: Union[
-            None,
-            "AsyncCustomParser",
-            "AsyncCustomParser[BatchMessage]",
-        ],
-        decoder: Union[
-            None,
-            "AsyncCustomDecoder[OneRedisMessage]",
-            "AsyncCustomDecoder[BatchRedisMessage]",
-        ],
+        parser: Optional["AsyncCustomParser[AnyDict]"],
+        decoder: Optional["AsyncCustomDecoder[StreamMessage[AnyDict]]"],
     ) -> None:
         """Initialize the Redis producer.
 
@@ -74,17 +50,17 @@ class RedisFastProducer:
     async def publish(
         self,
         message: SendableMessage,
-        channel: Optional[str] = None,
-        reply_to: str = "",
-        headers: Optional[AnyDict] = None,
-        correlation_id: Optional[str] = None,
         *,
+        channel: Optional[str] = None,
         list: Optional[str] = None,
         stream: Optional[str] = None,
+        maxlen: Optional[int] = None,
+        headers: Optional[AnyDict] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
-        maxlen: Optional[int] = None,
     ) -> Optional[Any]:
         if not any((channel, list, stream)):
             raise ValueError(INCORRECT_SETUP_MSG)

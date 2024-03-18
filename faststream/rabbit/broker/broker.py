@@ -295,13 +295,15 @@ class RabbitBroker(
         if timeout:
             kwargs["timeout"] = timeout
 
-        if url is not Parameter.empty or any(
+        url = None if url is Parameter.empty else cast(Union[str, "URL"], url)
+
+        if url or any(
             (host, port, virtualhost, ssl_options, client_properties, security)
         ):
             security_args = parse_security(security)
 
             kwargs["url"] = build_url(
-                None if url is Parameter.empty else url,
+                url,
                 host=host,
                 port=port,
                 virtualhost=virtualhost,
@@ -326,29 +328,13 @@ class RabbitBroker(
         self,
         url: str,
         *,
-        host: Optional[str] = None,
-        port: Optional[int] = None,
-        login: Optional[str] = None,
-        password: Optional[str] = None,
-        virtualhost: Optional[str] = None,
-        ssl_options: Optional["SSLOptions"] = None,
-        client_properties: Optional["FieldTable"] = None,
-        timeout: "TimeoutType" = None,
-        ssl_context: Optional["SSLContext"] = None,
+        timeout: "TimeoutType",
+        ssl_context: Optional["SSLContext"],
     ) -> "aio_pika.RobustConnection":
         connection = cast(
             "aio_pika.RobustConnection",
             await aio_pika.connect_robust(
-                build_url(
-                    url,
-                    host=host,
-                    port=port,
-                    login=login,
-                    password=password,
-                    virtualhost=virtualhost,
-                    ssl_options=ssl_options,
-                    client_properties=client_properties,
-                ),
+                url,
                 timeout=timeout,
                 ssl_context=ssl_context,
             ),
@@ -727,7 +713,10 @@ class RabbitBroker(
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: "AioPikaSendableMessage" = None,
+        message: Annotated[
+            "AioPikaSendableMessage",
+            Doc("Message body to send."),
+        ] = None,
         queue: Annotated[
             Union[RabbitQueue, str],
             Doc("Message routing key to publish with."),
@@ -797,10 +786,7 @@ class RabbitBroker(
         ] = None,
         headers: Annotated[
             Optional["HeadersType"],
-            Doc(
-                "Message headers to store metainformation. "
-                "Can be overrided by `publish.headers` if specified."
-            ),
+            Doc("Message headers to store metainformation."),
         ] = None,
         content_type: Annotated[
             Optional[str],

@@ -108,7 +108,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             generate_unique_id
         ),
         # AsyncAPI information
-        asyncapi_tags: Optional[Sequence[Union[asyncapi.Tag, asyncapi.TagDict]]] = None,
+        asyncapi_tags: Optional[Iterable[Union[asyncapi.Tag, asyncapi.TagDict]]] = None,
         schema_url: Optional[str] = "/asyncapi",
         **connection_kwars: Any,
     ) -> None:

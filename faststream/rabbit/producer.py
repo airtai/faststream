@@ -162,7 +162,7 @@ class AioPikaFastProducer:
 
     async def _publish(
         self,
-        message: "AioPikaSendableMessage" = "",
+        message: "AioPikaSendableMessage",
         *,
         exchange: Union["RabbitExchange", str, None],
         routing_key: str,

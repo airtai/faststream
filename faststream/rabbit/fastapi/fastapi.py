@@ -13,7 +13,6 @@ from typing import (
     Union,
 )
 
-from fastapi import params
 from fastapi.datastructures import Default
 from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
@@ -36,6 +35,7 @@ if TYPE_CHECKING:
 
     import aio_pika
     from aio_pika.abc import DateType, HeadersType, SSLOptions, TimeoutType
+    from fastapi import params
     from pamqp.common import FieldTable
     from starlette.responses import Response
     from starlette.types import ASGIApp, Lifespan
@@ -207,7 +207,7 @@ class RabbitRouter(StreamRouter["aio_pika.IncomingMessage"]):
             ),
         ] = None,
         dependencies: Annotated[
-            Optional[Sequence[params.Depends]],
+            Optional[Sequence["params.Depends"]],
             Doc(
                 """
                 A list of dependencies (using `Depends()`) to be applied to all the
