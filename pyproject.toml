@@ -118,7 +118,7 @@ test-core = [
     "pytest-asyncio==0.23.5.post1",
     "dirty-equals==0.7.1.post0",
     "pytest-timeout==2.2.0",
-    "pytest-rerunfailures==13.0",
+    "pytest-rerunfailures==14.0",
 ]
 
 testing = [
