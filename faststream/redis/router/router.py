@@ -7,7 +7,6 @@ from faststream.broker.core.broker import default_filter
 from faststream.broker.router import BrokerRoute, BrokerRouter
 from faststream.redis.asyncapi import Handler, Publisher
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
-from faststream.types import AnyDict, SendableMessage
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -22,6 +21,7 @@ if TYPE_CHECKING:
         PublisherMiddleware,
         SubscriberMiddleware,
     )
+    from faststream.types import AnyDict, SendableMessage
 
 
 Channel: TypeAlias = str

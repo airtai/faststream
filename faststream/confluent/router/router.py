@@ -1,11 +1,11 @@
-from typing import Any, Dict, Optional, Iterable, Callable
+from typing import Any, Callable, Dict, Iterable, Optional
 
 from typing_extensions import override
 
-from faststream.broker.router import BrokerRoute, BrokerRouter
-from faststream.confluent.asyncapi import Publisher
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
+from faststream.broker.router import BrokerRoute, BrokerRouter
 from faststream.broker.types import P_HandlerParams, T_HandlerReturn
+from faststream.confluent.asyncapi import Publisher
 from faststream.types import SendableMessage
 
 

@@ -1,6 +1,5 @@
-from typing import Dict, Optional, Sequence, TYPE_CHECKING, Iterable, Any
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Sequence
 
-from confluent_kafka import Message
 from typing_extensions import override
 
 from faststream.broker.core.publisher import BasePublisher

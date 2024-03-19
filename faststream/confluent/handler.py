@@ -1,6 +1,18 @@
 import asyncio
 from itertools import chain
-from typing import (TYPE_CHECKING, Any, Dict, Callable, Iterable, Optional, Sequence, Tuple, Union, AsyncContextManager, )
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncContextManager,
+    Callable,
+    Dict,
+    Iterable,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
+
 import anyio
 from confluent_kafka import KafkaException, Message
 from typing_extensions import Unpack, override
@@ -15,7 +27,6 @@ from faststream.confluent.shared.schemas import ConsumerConnectionParams
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
-    from faststream.types import AnyDict
 
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
     from faststream.broker.message import StreamMessage
@@ -27,6 +38,7 @@ if TYPE_CHECKING:
         PublisherProtocol,
         SubscriberMiddleware,
     )
+    from faststream.types import AnyDict
 
 
 class LogicHandler(BaseHandler[Message]):

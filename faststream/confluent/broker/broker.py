@@ -1,6 +1,10 @@
-from functools import partial, wraps
+import logging
+from contextlib import AsyncExitStack
+from functools import partial
+from inspect import Parameter
 from types import TracebackType
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -9,31 +13,26 @@ from typing import (
     Literal,
     Optional,
     Sequence,
-    Tuple,
     Type,
     Union,
-    TYPE_CHECKING,
 )
-from contextlib import AsyncExitStack
-from inspect import Parameter
-import logging
 
 import confluent_kafka
 from fast_depends.dependencies import Depends
-from typing_extensions import override, Annotated, Doc
+from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.message import StreamMessage
 from faststream.broker.middlewares import BaseMiddleware
+from faststream.broker.utils import get_watcher_context
+
 # from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
 from faststream.confluent.asyncapi import Handler, Publisher
+from faststream.confluent.broker.logging import KafkaLoggingMixin
 from faststream.confluent.client import AsyncConfluentConsumer, AsyncConfluentProducer
-from faststream.confluent.message import KafkaMessage
 from faststream.confluent.producer import AsyncConfluentFastProducer
 from faststream.confluent.security import parse_security
-from faststream.broker.utils import get_watcher_context
-from faststream.confluent.broker.logging import KafkaLoggingMixin
 from faststream.confluent.shared.schemas import ConsumerConnectionParams
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.security import BaseSecurity
@@ -45,7 +44,6 @@ if TYPE_CHECKING:
         BrokerMiddleware,
         CustomDecoder,
         CustomParser,
-        Filter,
         PublisherMiddleware,
     )
     from faststream.types import SendableMessage

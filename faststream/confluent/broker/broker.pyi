@@ -34,10 +34,10 @@ from faststream.broker.types import (
 )
 from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.confluent.asyncapi import Handler, Publisher
+from faststream.confluent.broker.logging import KafkaLoggingMixin
 from faststream.confluent.client import _missing
 from faststream.confluent.message import KafkaMessage
 from faststream.confluent.producer import AsyncConfluentFastProducer
-from faststream.confluent.broker.logging import KafkaLoggingMixin
 from faststream.confluent.shared.schemas import ConsumerConnectionParams
 from faststream.log import access_logger
 from faststream.types import SendableMessage

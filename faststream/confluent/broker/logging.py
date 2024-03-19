@@ -1,9 +1,9 @@
 import logging
-from typing import Any, Iterable, Optional, ClassVar, Union
 from inspect import Parameter
+from typing import Any, ClassVar, Iterable, Optional, Union
 
-from faststream.log.logging import get_broker_logger
 from faststream.broker.core.logging_mixin import LoggingMixin
+from faststream.log.logging import get_broker_logger
 
 
 class KafkaLoggingMixin(LoggingMixin):
