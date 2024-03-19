@@ -61,6 +61,7 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
     group_id: Optional[str]
 
     consumer: Optional[AIOKafkaConsumer]
+    task: Optional["asyncio.Task[None]"]
     batch: bool
 
     @override
@@ -129,7 +130,7 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
         self.builder = builder
         self.consumer = None
         self.producer = None
-        self.task: Optional["asyncio.Task[None]"] = None
+        self.task = None
 
     @override
     async def start(  # type: ignore[override]
@@ -266,7 +267,7 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
 
     @staticmethod
     def build_log_context(
-        message: Optional["StreamMessage[ConsumerRecord]"],
+        message: Optional["StreamMessage[Any]"],
         topic: str,
         group_id: Optional[str] = None,
     ) -> Dict[str, str]:

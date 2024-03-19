@@ -1,4 +1,3 @@
-from dataclasses import asdict
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -93,7 +92,7 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
         )
 
         self.consume_args = consume_args or {}
-        self.reply_config = asdict(reply_config) if reply_config else {}
+        self.reply_config = reply_config.to_dict() if reply_config else {}
 
         self._consumer_tag = None
         self._queue_obj = None

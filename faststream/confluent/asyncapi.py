@@ -15,17 +15,12 @@ from faststream.confluent.publisher import LogicPublisher
 
 
 class Handler(LogicHandler, AsyncAPIOperation):
-    """A class to handle logic and async API operations.
+    """A class to handle logic and async API operations."""
 
-    Methods:
-        schema() -> Dict[str, Channel]: Returns a dictionary of channels.
+    def get_name(self) -> str:
+        return f'{",".join(self.topics)}:{self.call_name}'
 
-    """
-
-    def schema(self) -> Dict[str, Channel]:
-        if not self.include_in_schema:
-            return {}
-
+    def get_schema(self) -> Dict[str, Channel]:
         channels = {}
 
         payloads = self.get_payloads()
@@ -50,23 +45,12 @@ class Handler(LogicHandler, AsyncAPIOperation):
 
 
 class Publisher(LogicPublisher, AsyncAPIOperation):
-    """A class representing a publisher.
+    """A class representing a publisher."""
 
-    Attributes:
-        name : name of the publisher
+    def get_name(self) -> str:
+        return f"{self.topic}:Publisher"
 
-    Methods:
-        schema() : returns the schema for the publisher
-
-    Raises:
-        NotImplementedError: If silent animals are not supported
-
-    """
-
-    def schema(self) -> Dict[str, Channel]:
-        if not self.include_in_schema:
-            return {}
-
+    def get_schema(self) -> Dict[str, Channel]:
         payloads = self.get_payloads()
 
         return {
@@ -84,7 +68,3 @@ class Publisher(LogicPublisher, AsyncAPIOperation):
                 bindings=ChannelBinding(kafka=kafka.ChannelBinding(topic=self.topic)),
             )
         }
-
-    @property
-    def name(self) -> str:
-        return self.title or f"{self.topic}:Publisher"

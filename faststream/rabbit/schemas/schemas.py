@@ -1,6 +1,5 @@
 import warnings
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Dict, Optional
 
 from typing_extensions import Annotated, Doc
 
@@ -235,28 +234,46 @@ class RabbitExchange(NameRequired):
         self.routing_key = routing_key
 
 
-@dataclass(slots=True)
 class ReplyConfig:
     """Class to store a config for subscribers' replies."""
 
-    mandatory: Annotated[
-        bool,
-        Doc(
-            "Client waits for confimation that the message is placed to some queue. "
-            "RabbitMQ returns message to client if there is no suitable queue."
-        ),
-    ] = True
-    immediate: Annotated[
-        bool,
-        Doc(
-            "Client expects that there is consumer ready to take the message to work. "
-            "RabbitMQ returns message to client if there is no suitable consumer."
-        ),
-    ] = False
-    persist: Annotated[
-        bool,
-        Doc("Restore the message on RabbitMQ reboot."),
-    ] = False
+    __slots__ = (
+        "mandatory",
+        "immediate",
+        "persist",
+    )
+
+    def __init__(
+        self,
+        mandatory: Annotated[
+            bool,
+            Doc(
+                "Client waits for confimation that the message is placed to some queue. "
+                "RabbitMQ returns message to client if there is no suitable queue."
+            ),
+        ] = True,
+        immediate: Annotated[
+            bool,
+            Doc(
+                "Client expects that there is consumer ready to take the message to work. "
+                "RabbitMQ returns message to client if there is no suitable consumer."
+            ),
+        ] = False,
+        persist: Annotated[
+            bool,
+            Doc("Restore the message on RabbitMQ reboot."),
+        ] = False,
+    ) -> None:
+        self.mandatory = mandatory
+        self.immediate = immediate
+        self.persist = persist
+
+    def to_dict(self) -> Dict[str, bool]:
+        return {
+            "mandatory": self.mandatory,
+            "immediate": self.immediate,
+            "persist": self.persist,
+        }
 
 
 class BaseRMQInformation:

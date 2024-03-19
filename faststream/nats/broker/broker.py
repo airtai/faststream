@@ -29,6 +29,7 @@ from nats.aio.subscription import (
     DEFAULT_SUB_PENDING_BYTES_LIMIT,
     DEFAULT_SUB_PENDING_MSGS_LIMIT,
 )
+from nats.errors import Error
 from nats.js import api
 from nats.js.client import (
     DEFAULT_JS_SUB_PENDING_BYTES_LIMIT,
@@ -896,8 +897,8 @@ class NatsBroker(
             if error_cb is not None:
                 await error_cb(err)
 
-            if self.__is_connected is True:
-                self._log(str(err), logging.WARNING, c, exc_info=err)
+            if isinstance(err, Error) and self.__is_connected is True:
+                self._log(f"Connection broken with {err!r}", logging.WARNING, c, exc_info=err)
                 self.__is_connected = False
 
         return wrapper

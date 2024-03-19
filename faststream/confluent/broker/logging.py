@@ -1,23 +1,16 @@
 import logging
+from typing import Any, Iterable, Optional, ClassVar, Union
 from inspect import Parameter
-from typing import Any, ClassVar, Iterable, Optional, Union
 
-from faststream.broker.core.logging_mixin import LoggingMixin
 from faststream.log.logging import get_broker_logger
+from faststream.broker.core.logging_mixin import LoggingMixin
 
 
 class KafkaLoggingMixin(LoggingMixin):
-    """A class that provides logging functionality for Kafka.
+    """Confluent-specific logging mixin."""
 
-    Attributes:
-        _max_topic_len : maximum length of the topic name
-
-    Methods:
-        __init__ : initializes the KafkaLoggingMixin object
-        fmt : returns the log format string
-        _setup_log_context : sets up the log context for a given list of topics
-    """
-
+    _max_topic_len: int
+    _max_group_len:  int
     __max_msg_id_ln: ClassVar[int] = 10
 
     def __init__(

@@ -1,18 +1,18 @@
-from dataclasses import dataclass, field
-from typing import Dict, Optional, Sequence
+from typing import Dict, Optional, Sequence, TYPE_CHECKING, Iterable, Any
 
 from confluent_kafka import Message
 from typing_extensions import override
 
-from faststream.__about__ import SERVICE_NAME
+from faststream.broker.core.publisher import BasePublisher
 from faststream.confluent.producer import AsyncConfluentFastProducer
-from faststream.confluent.shared.publisher import ABCPublisher
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.types import SendableMessage
 
+if TYPE_CHECKING:
+    from faststream.broker.types import PublisherMiddleware
 
-@dataclass
-class LogicPublisher(ABCPublisher[Message]):
+
+class LogicPublisher(BasePublisher["Message"]):
     """A class to publish messages to a Kafka topic.
 
     Attributes:
@@ -28,9 +28,41 @@ class LogicPublisher(ABCPublisher[Message]):
 
     """
 
-    _producer: Optional[AsyncConfluentFastProducer] = field(default=None, init=False)
-    batch: bool = field(default=False)
-    client_id: str = field(default=SERVICE_NAME)
+    _producer: Optional[AsyncConfluentFastProducer]
+
+    def __init__(
+        self,
+        *,
+        topic: str,
+        partition: Optional[int],
+        timestamp_ms: Optional[int],
+        headers: Optional[Dict[str, str]],
+        reply_to: Optional[str],
+        client_id: str,
+        # Regular publisher options
+        middlewares: Iterable["PublisherMiddleware"],
+        # AsyncAPI options
+        schema_: Optional[Any],
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> None:
+        super().__init__(
+            middlewares=middlewares,
+            schema_=schema_,
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema,
+        )
+
+        self.topic = topic
+        self.partition = partition
+        self.timestamp_ms = timestamp_ms
+        self.client_id = client_id
+        self.reply_to = reply_to
+        self.headers = headers
+
+        self._producer = None
 
     @override
     async def publish(  # type: ignore[override]
@@ -42,6 +74,13 @@ class LogicPublisher(ABCPublisher[Message]):
         timestamp_ms: Optional[int] = None,
         headers: Optional[Dict[str, str]] = None,
         correlation_id: Optional[str] = None,
+        # Regular publisher options
+        middlewares: Iterable["PublisherMiddleware"],
+        # AsyncAPI options
+        schema_: Optional[Any],
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
     ) -> None:
         """Publish messages to a topic.
 
@@ -73,7 +112,7 @@ class LogicPublisher(ABCPublisher[Message]):
             return await self._producer.publish(
                 message=next(iter(messages), message),
                 topic=self.topic,
-                key=key or self.key,
+                key=key,
                 partition=partition or self.partition,
                 timestamp_ms=timestamp_ms or self.timestamp_ms,
                 correlation_id=correlation_id,

@@ -6,7 +6,6 @@ from typing_extensions import override
 
 from faststream.broker.parsers import encode_message
 from faststream.broker.test import TestBroker, call_handler
-from faststream.broker.wrapper import HandlerCallWrapper
 from faststream.confluent.asyncapi import Publisher
 from faststream.confluent.broker import KafkaBroker
 from faststream.confluent.producer import AsyncConfluentFastProducer
@@ -30,7 +29,7 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     def create_publisher_fake_subscriber(
         broker: KafkaBroker,
         publisher: Publisher,
-    ) -> HandlerCallWrapper[Any, Any, Any]:
+    ):
         @broker.subscriber(  # type: ignore[call-overload,misc]
             publisher.topic,
             batch=publisher.batch,

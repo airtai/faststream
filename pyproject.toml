@@ -8,7 +8,7 @@ description = "FastStream: the simplest way to work with a messaging queues"
 readme = "README.md"
 authors = [
     { name = "airt", email = "info@airt.ai" },
-    { name = "lancetnik", email = "diementros@gmail.com" },
+    { name = "Nikita Pastukhov", email = "nikita@pastukhov-dev.com" },
 ]
 
 keywords = ["rabbitmq", "kafka", "framework", "nats", "redis", "message brokers"]
