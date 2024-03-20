@@ -167,12 +167,12 @@ class BaseRedisHandler(ABC, BaseHandler[MsgType]):
                     await self._get_msgs(*args)
 
                 except Exception:
-                    if connected is True:
+                    if connected:
                         connected = False
                     await anyio.sleep(5)
 
                 else:
-                    if connected is False:
+                    if not connected:
                         connected = True
 
                 finally:

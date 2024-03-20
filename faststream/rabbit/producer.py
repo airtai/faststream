@@ -113,7 +113,7 @@ class AioPikaFastProducer:
         context: AsyncContextManager[
             Optional["MemoryObjectReceiveStream[aio_pika.IncomingMessage]"]
         ]
-        if rpc is True:
+        if rpc:
             if reply_to is not None:
                 raise WRONG_PUBLISH_ARGS
             else:

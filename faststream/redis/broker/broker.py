@@ -683,6 +683,7 @@ class RedisBroker(
             Doc("Redis List object name to send messages."),
         ],
     ) -> None:
+        """Publish multiple messages to Redis List by one request."""
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         async with AsyncExitStack() as stack:

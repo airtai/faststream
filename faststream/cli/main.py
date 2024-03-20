@@ -31,7 +31,7 @@ def version_callback(version: bool) -> None:
     Returns:
         None
     """
-    if version is True:
+    if version:
         import platform
 
         typer.echo(
@@ -121,7 +121,7 @@ def run(
     if reload and workers > 1:
         raise ValueError("You can't use reload option with multiprocessing")
 
-    if reload is True:
+    if reload:
         try:
             from faststream.cli.supervisors.watchfiles import WatchReloader
         except ImportError:

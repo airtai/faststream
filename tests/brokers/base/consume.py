@@ -11,6 +11,8 @@ from faststream.exceptions import StopConsume
 
 @pytest.mark.asyncio()
 class BrokerConsumeTestcase:  # noqa: D101
+    timeout: int = 3
+
     @pytest.fixture()
     def consume_broker(self, broker: BrokerUsecase):
         return broker
@@ -23,6 +25,7 @@ class BrokerConsumeTestcase:  # noqa: D101
     ):
         @consume_broker.subscriber(queue)
         def subscriber(m):
+
             event.set()
 
         async with consume_broker:
@@ -32,7 +35,7 @@ class BrokerConsumeTestcase:  # noqa: D101
                     asyncio.create_task(consume_broker.publish("hello", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert event.is_set()
@@ -64,7 +67,7 @@ class BrokerConsumeTestcase:  # noqa: D101
                     asyncio.create_task(consume.wait()),
                     asyncio.create_task(consume2.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert consume2.is_set()
@@ -97,7 +100,7 @@ class BrokerConsumeTestcase:  # noqa: D101
                     asyncio.create_task(consume.wait()),
                     asyncio.create_task(consume2.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert consume2.is_set()
@@ -134,7 +137,7 @@ class BrokerConsumeTestcase:  # noqa: D101
                     asyncio.create_task(consume.wait()),
                     asyncio.create_task(consume2.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert consume.is_set()
@@ -174,7 +177,7 @@ class BrokerConsumeTestcase:  # noqa: D101
                     asyncio.create_task(consume.wait()),
                     asyncio.create_task(consume2.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert consume.is_set()
@@ -209,7 +212,7 @@ class BrokerConsumeTestcase:  # noqa: D101
                 asyncio.create_task(consume_broker.publish({"x": 1}, queue)),
                 asyncio.create_task(event.wait()),
             ),
-            timeout=3,
+            timeout=self.timeout,
         )
 
         assert event.is_set()
@@ -239,7 +242,7 @@ class BrokerRealConsumeTestcase(BrokerConsumeTestcase):  # noqa: D101
                     asyncio.create_task(consume_broker.publish("hello", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
             await asyncio.sleep(0.5)
             await consume_broker.publish("hello", queue)

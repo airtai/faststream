@@ -290,7 +290,7 @@ async def call_handler(
     with timeout_scope(rpc_timeout, raise_timeout):
         result = await handler.consume(message)
 
-        if rpc is True:
+        if rpc:
             return result
 
     return None

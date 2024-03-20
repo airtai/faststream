@@ -1,4 +1,3 @@
-from itertools import zip_longest
 from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 from uuid import uuid4
 
@@ -9,6 +8,7 @@ from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.parsers import encode_message
 from faststream.broker.test import TestBroker, call_handler
 from faststream.nats.broker import NatsBroker
+from faststream.nats.schemas.js_stream import is_subject_match_wildcard
 from faststream.nats.handler import BaseNatsHandler
 from faststream.nats.producer import NatsFastProducer
 from faststream.types import AnyDict, SendableMessage
@@ -84,35 +84,18 @@ class FakeProducer(NatsFastProducer):
         )
 
         for handler in self.broker.handlers.values():  # pragma: no branch
-            call = False
-
             if stream and getattr(handler.stream, "name", None) != stream:
                 continue
 
-            if subject == handler.subject:
-                call = True
+            if is_subject_match_wildcard(subject, handler.subject):
+                if getattr(handler.pull_sub, "batch", False):
+                    message = [incoming]
+                else:
+                    message = incoming
 
-            else:
-                call = True
-
-                for current, base in zip_longest(
-                    subject.split("."),
-                    handler.subject.split("."),
-                    fillvalue=None,
-                ):
-                    if base == ">":
-                        break
-
-                    if base != "*" and current != base:
-                        call = False
-                        break
-
-            if call:
                 r = await call_handler(
                     handler=handler,
-                    message=[incoming]
-                    if getattr(handler.pull_sub, "batch", False)
-                    else incoming,
+                    message=message,
                     rpc=rpc,
                     rpc_timeout=rpc_timeout,
                     raise_timeout=raise_timeout,
@@ -163,3 +146,4 @@ class PatchedMessage(Msg):
 
     async def in_progress(self) -> None:
         pass
+

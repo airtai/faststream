@@ -1,32 +1,19 @@
-from typing import Any, Callable
+from typing import Any, Callable, Iterable, TYPE_CHECKING
 
 from confluent_kafka import Message
-from typing_extensions import Annotated
+from typing_extensions import Annotated, Doc
 
-from faststream.broker.fastapi.context import Context, ContextRepo, Logger
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
-from faststream.broker.wrapper import HandlerCallWrapper
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.confluent.broker import KafkaBroker as KB
-from faststream.confluent.message import KafkaMessage as KM
-from faststream.confluent.producer import AsyncConfluentFastProducer
 
-__all__ = (
-    "Context",
-    "Logger",
-    "ContextRepo",
-    "KafkaRouter",
-    "KafkaMessage",
-    "KafkaBroker",
-    "KafkaProducer",
-)
 
-KafkaMessage = Annotated[KM, Context("message")]
-KafkaBroker = Annotated[KB, Context("broker")]
-KafkaProducer = Annotated[AsyncConfluentFastProducer, Context("broker._producer")]
+if TYPE_CHECKING:
+    from fastapi import params
 
 
 class KafkaRouter(StreamRouter[Message]):
@@ -44,12 +31,16 @@ class KafkaRouter(StreamRouter[Message]):
     def subscriber(
         self,
         *topics: str,
+        dependencies: Annotated[
+            Iterable["params.Depends"],
+            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+        ] = (),
         **broker_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
         HandlerCallWrapper[Any, P_HandlerParams, T_HandlerReturn],
     ]:
-        return super().subscriber(topics[0], *topics, **broker_kwargs)
+        return super().subscriber(topics[0], *topics, dependencies=dependencies, **broker_kwargs,)
 
     @staticmethod
     def _setup_log_context(

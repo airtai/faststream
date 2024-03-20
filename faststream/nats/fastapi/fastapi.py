@@ -1,12 +1,15 @@
-from typing import Any, Callable
+from typing import Any, Callable, Iterable, TYPE_CHECKING
 
 from nats.aio.msg import Msg
-from typing_extensions import override
+from typing_extensions import override, Annotated, Doc
 
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.types import P_HandlerParams, T_HandlerReturn
 from faststream.nats.broker import NatsBroker
+
+if TYPE_CHECKING:
+    from fastapi import params
 
 
 class NatsRouter(StreamRouter[Msg]):
@@ -18,6 +21,10 @@ class NatsRouter(StreamRouter[Msg]):
         self,
         subject: str,
         *args: Any,
+        dependencies: Annotated[
+            Iterable["params.Depends"],
+            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+        ] = (),
         **__service_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
@@ -27,6 +34,7 @@ class NatsRouter(StreamRouter[Msg]):
             subject,
             subject,
             *args,
+            dependencies=dependencies,
             **__service_kwargs,
         )
 

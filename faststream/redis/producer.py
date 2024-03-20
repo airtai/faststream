@@ -66,7 +66,7 @@ class RedisFastProducer:
             raise ValueError(INCORRECT_SETUP_MSG)
 
         psub: Optional["PubSub"] = None
-        if rpc is True:
+        if rpc:
             if reply_to:
                 raise WRONG_PUBLISH_ARGS
 

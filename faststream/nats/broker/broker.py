@@ -897,7 +897,7 @@ class NatsBroker(
             if error_cb is not None:
                 await error_cb(err)
 
-            if isinstance(err, Error) and self.__is_connected is True:
+            if isinstance(err, Error) and self.__is_connected:
                 self._log(f"Connection broken with {err!r}", logging.WARNING, c, exc_info=err)
                 self.__is_connected = False
 
@@ -913,7 +913,7 @@ class NatsBroker(
             if cb is not None:
                 await cb()
 
-            if self.__is_connected is False:
+            if not self.__is_connected:
                 self._log("Connection established", logging.INFO, c)
                 self.__is_connected = True
 

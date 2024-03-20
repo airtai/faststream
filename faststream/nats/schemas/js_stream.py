@@ -1,3 +1,4 @@
+from itertools import zip_longest
 from typing import TYPE_CHECKING, List, Optional
 
 from nats.js.api import DiscardPolicy, StreamConfig
@@ -91,5 +92,29 @@ class JStream(NameRequired):
         )
 
     def add_subject(self, subject: str) -> None:
-        if subject not in self.subjects:
-            self.subjects.append(subject)
+        if not any(map(
+            lambda x: is_subject_match_wildcard(subject, x),
+            self.subjects,
+        )):
+            self.subjects.append( subject)
+
+
+def is_subject_match_wildcard(subject: str, wildcard: str) -> bool:
+    if subject == wildcard:
+        return True
+
+    call = True
+
+    for current, base in zip_longest(
+        subject.split("."),
+        wildcard.split("."),
+        fillvalue=None,
+    ):
+        if base == ">":
+            break
+
+        if base != "*" and current != base:
+            call = False
+            break
+    
+    return call

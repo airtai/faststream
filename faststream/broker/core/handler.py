@@ -374,6 +374,16 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
 
                     return result_msg
 
+            # Suitable handler is not founded
+            @stack.push_async_exit
+            async def close_middlewares(
+                exc_type: Optional[Type[BaseException]] = None,
+                exc_val: Optional[BaseException] = None,
+                exc_tb: Optional["TracebackType"] = None,
+            ) -> None:
+                for m in middlewares:
+                    await m.__aexit__(exc_type, exc_val, exc_tb)
+
             raise AssertionError(f"There is no suitable handler for {msg=}")
 
         return None

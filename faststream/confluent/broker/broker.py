@@ -48,6 +48,7 @@ if TYPE_CHECKING:
     )
     from faststream.types import SendableMessage
 
+
 class KafkaBroker(
     KafkaLoggingMixin,
     BrokerUsecase[confluent_kafka.Message, ConsumerConnectionParams],
@@ -173,7 +174,8 @@ class KafkaBroker(
             else:
                 protocol = "kafka"
 
-        servers = [bootstrap_servers] if isinstance(bootstrap_servers, str) else list(bootstrap_servers)
+        servers = [bootstrap_servers] if isinstance(
+            bootstrap_servers, str) else list(bootstrap_servers)
 
         if asyncapi_url is not None:
             if isinstance(asyncapi_url, str):
@@ -188,7 +190,7 @@ class KafkaBroker(
             client_id=client_id,
             **kwargs,
             # Basic args
-            ## broker base
+            # broker base
             graceful_timeout=graceful_timeout,
             apply_types=apply_types,
             validate=validate,
@@ -196,14 +198,14 @@ class KafkaBroker(
             decoder=decoder,
             parser=parser,
             middlewares=middlewares,
-            ## AsyncAPI
+            # AsyncAPI
             description=description,
             asyncapi_url=asyncapi_url,
             protocol=protocol,
             protocol_version=protocol_version,
             security=security,
             tags=tags,
-            ## logging
+            # logging
             logger=logger,
             log_level=log_level,
             log_fmt=log_fmt,
@@ -319,18 +321,16 @@ class KafkaBroker(
             "read_committed",
         ] = "read_uncommitted",
         # broker arguments
-        dependencies: Sequence[Depends] = (),
-        parser = None,
-        decoder = None,
-        middlewares: Optional[
-            Sequence[
-                Callable[
-                    [confluent_kafka.Message],
-                    BaseMiddleware,
-                ]
+        dependencies: Iterable[Depends] = (),
+        parser=None,
+        decoder=None,
+        middlewares: Iterable[
+            Callable[
+                [confluent_kafka.Message],
+                BaseMiddleware,
             ]
-        ] = None,
-        filter = default_filter,
+        ] = (),
+        filter=default_filter,
         batch: bool = False,
         max_records: Optional[int] = None,
         batch_timeout_ms: int = 200,
@@ -348,7 +348,8 @@ class KafkaBroker(
         self._setup_log_context(topics, group_id)
 
         if not auto_commit and not group_id:
-            raise ValueError("You should install `group_id` with manual commit mode")
+            raise ValueError(
+                "You should install `group_id` with manual commit mode")
 
         key = Handler.get_routing_hash(topics, group_id)
         builder = partial(
@@ -377,11 +378,6 @@ class KafkaBroker(
             key,
             Handler(
                 *topics,
-                log_context_builder=partial(
-                    self._get_log_context,
-                    topics=topics,
-                    group_id=group_id,
-                ),
                 is_manual=not auto_commit,
                 group_id=group_id,
                 client_id=self.client_id,
@@ -472,7 +468,7 @@ class KafkaBroker(
         async with AsyncExitStack() as stack:
             for m in self.middlewares:
                 message = await stack.enter_async_context(
-                    m().publish_scope(message, *args, **kwargs)
+                    m(None).publish_scope(message, *args, **kwargs)
                 )
 
             assert self._producer, NOT_CONNECTED_YET  # nosec B101
@@ -481,16 +477,16 @@ class KafkaBroker(
     async def publish_batch(
         self,
         *messages: "SendableMessage",
-        **kwargs: Any,
+        topic: str
     ) -> None:
         async with AsyncExitStack() as stack:
             wrapped_messages = [
                 await stack.enter_async_context(
-                    middleware().publish_scope(msg, **kwargs)
+                    middleware(None).publish_scope(msg, topic=topic)
                 )
                 for msg in messages
                 for middleware in self.middlewares
             ] or messages
 
             assert self._producer, NOT_CONNECTED_YET  # nosec B101
-            await self._producer.publish_batch(*wrapped_messages, **kwargs)
+            await self._producer.publish_batch(*wrapped_messages, topic=topic)

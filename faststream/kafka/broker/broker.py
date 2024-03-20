@@ -428,7 +428,7 @@ class KafkaBroker(
         async with AsyncExitStack() as stack:
             for m in self.middlewares:
                 message = await stack.enter_async_context(
-                    m().publish_scope(message, *args, **kwargs)
+                    m(None).publish_scope(message, *args, **kwargs)
                 )
 
             assert self._producer, NOT_CONNECTED_YET  # nosec B101
@@ -442,7 +442,7 @@ class KafkaBroker(
         async with AsyncExitStack() as stack:
             wrapped_messages = [
                 await stack.enter_async_context(
-                    middleware().publish_scope(msg, **kwargs)
+                    middleware(None).publish_scope(msg, **kwargs)
                 )
                 for msg in messages
                 for middleware in self.middlewares

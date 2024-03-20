@@ -185,6 +185,8 @@ class LogicHandler(BaseHandler[Message]):
         connected = True
         while self.running:
             try:
+                msg: Union[Message, Tuple[Message, ...], None] = None
+
                 if self.batch:
                     messages = await self.consumer.getmany(
                         timeout_ms=self.batch_timeout_ms,
@@ -195,22 +197,23 @@ class LogicHandler(BaseHandler[Message]):
                         await anyio.sleep(self.batch_timeout_ms / 1000)
                         continue
 
-                    msg: Union[Message, Tuple[Message, ...]] = tuple(
-                        chain(*messages.values())
-                    )
+                    else:
+                        msg = messages
                 else:
                     msg = await self.consumer.getone()
 
-            except KafkaException:  # pragma: no cover
-                if connected is True:
+            except KafkaException as e:  # pragma: no cover
+                print(e)
+                if connected:
                     connected = False
                 await anyio.sleep(5)
 
             else:
-                if connected is False:  # pragma: no cover
+                if not connected:  # pragma: no cover
                     connected = True
 
-                await self.consume(msg)  # type: ignore[arg-type]
+                if msg:
+                    await self.consume(msg)  # type: ignore[arg-type]
 
     @staticmethod
     def get_routing_hash(topics: Sequence[str], group_id: Optional[str] = None) -> str:

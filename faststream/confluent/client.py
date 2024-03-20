@@ -69,12 +69,15 @@ class BatchBuilder:
         """
         if timestamp is None:
             timestamp = round(time() * 1000)
+
         if key is None and value is None:
             raise KafkaException(
                 KafkaError(40, reason="Both key and value can't be None")
             )
+
         if headers is None:
             headers = []
+
         self._builder.append(
             MsgToSend(timestamp=timestamp, key=key, value=value, headers=headers)
         )
@@ -221,30 +224,24 @@ class AsyncConfluentProducer:
             timestamp_ms (Optional[int]): The timestamp of the message in milliseconds.
             headers (Optional[List[Tuple[str, Union[str, bytes]]]]): A list of headers for the message.
         """
-        d = locals()
-        d.pop("topic")
-        d.pop("timestamp_ms")
-        d.pop("self")
-        kwargs = {k: v for k, v in d.items() if v is not None}
-        if timestamp_ms is not None:
-            kwargs["timestamp"] = timestamp_ms
 
-        # result = self.loop.create_future()
-        # def ack(err, msg):
-        #     print("At msg on_delivery callback")
-        #     if err:
-        #         print("Error at ack")
-        #         self.loop.call_soon_threadsafe(result.set_exception, KafkaException(err))
-        #     else:
-        #         print("All good at ack")
-        #         self.loop.call_soon_threadsafe(result.set_result, msg)
+        kwargs = {
+            k: v
+            for k, v in {
+                "value": value,
+                "key": key,
+                "partition": partition,
+                "headers": headers,
+                "timestamp_ms": timestamp_ms,
+            }.items()
+            if v is not None
+        }
 
         self.producer.produce(
             topic,
-            # on_delivery=ack,
             **kwargs,
         )
-        # return result
+        self.producer.poll(0)
 
     def create_batch(self) -> BatchBuilder:
         """Creates a batch for sending multiple messages.
@@ -291,7 +288,8 @@ class TopicPartition(NamedTuple):
 
 
 def create_topics(
-    topics: List[str], config: Dict[str, Optional[Union[str, int, float, bool, Any]]]
+    topics: List[str],
+    config: Dict[str, Optional[Union[str, int, float, bool, Any]]],
 ) -> None:
     """Creates Kafka topics using the provided configuration.
 
@@ -299,7 +297,7 @@ def create_topics(
         topics (List[str]): A list of topic names to create.
         config (Dict[str, Optional[Union[str, int, float, bool, Any]]]): A dictionary of configuration options for the AdminClient.
     """
-    needed_config_params = [
+    required_config_params = (
         "allow.auto.create.topics",
         "bootstrap.servers",
         "client.id",
@@ -311,20 +309,28 @@ def create_topics(
         "sasl.username",
         "sasl.password",
         "sasl.kerberos.service.name",
-    ]
-
-    admin_client_config = {x: config[x] for x in needed_config_params if x in config}
-    admin_client = AdminClient(admin_client_config)
-    fs = admin_client.create_topics(
-        [NewTopic(topic, num_partitions=1, replication_factor=1) for topic in topics]
     )
+
+
+    admin_client = AdminClient({
+        x: config[x]
+        for x in required_config_params
+        if x in config
+    })
+
+    fs = admin_client.create_topics([
+        NewTopic(topic, num_partitions=1, replication_factor=1)
+        for topic in topics
+    ])
 
     for topic, f in fs.items():
         try:
             f.result()  # The result itself is None
-            logger.info(f"Topic {topic} created at create_topics")
         except Exception as e:  # noqa: PERF203
-            logger.warning(f"Failed to create topic {topic}: {e}")
+            if not "TOPIC_ALREADY_EXISTS" in str(e):
+                logger.warning(f"Failed to create topic {topic}: {e}")
+        else:
+            logger.info(f"Topic `{topic}` created.")
 
 
 class AsyncConfluentConsumer:
@@ -418,11 +424,14 @@ class AsyncConfluentConsumer:
         """
         if group_id is None:
             group_id = "confluent-kafka-consumer-group"
+
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
             bootstrap_servers, str
         ):
             bootstrap_servers = ",".join(bootstrap_servers)
+
         self.topics = list(topics)
+    
         if not isinstance(partition_assignment_strategy, str):
             partition_assignment_strategy = ",".join(
                 [
@@ -473,46 +482,45 @@ class AsyncConfluentConsumer:
 
     async def start(self) -> None:
         """Starts the Kafka consumer and subscribes to the specified topics."""
-        # create_topics(topics=self.topics, config=self.config)
-        # await call_or_await(create_topics)(topics=self.topics, config=self.config)
-        await call_or_await(self.consumer.subscribe, self.topics)
+        self.consumer.subscribe(self.topics)
 
-    async def commit(self) -> None:
+    async def commit(self, asynchronous: bool = True) -> None:
         """Commits the offsets of all messages returned by the last poll operation."""
-        await call_or_await(self.consumer.commit)
+        await call_or_await(self.consumer.commit, asynchronous=asynchronous)
 
     async def stop(self) -> None:
         """Stops the Kafka consumer and releases all resources."""
-        enable_auto_commit = self.config["enable.auto.commit"]
-        try:
-            if enable_auto_commit:
-                await call_or_await(self.consumer.commit, asynchronous=False)
-        except Exception as e:
-            # No offset stored issue is not a problem - https://github.com/confluentinc/confluent-kafka-python/issues/295#issuecomment-355907183
-            if "No offset stored" in str(e):
-                pass
-            else:
-                raise e
+        # NOTE: what we are doing here?
+        # enable_auto_commit = self.config["enable.auto.commit"]
+        # try:
+        #     if enable_auto_commit:
+        #         await self.commit(asynchronous=False)
 
+        # except Exception as e:
+        #     # No offset stored issue is not a problem - https://github.com/confluentinc/confluent-kafka-python/issues/295#issuecomment-355907183
+        #     if "No offset stored" in str(e):
+        #         pass
+        #     else:
+        #         raise e
+
+        # Wrap calls to async to make method cancelable by timeout
+        await call_or_await(self.consumer.unsubscribe)
         await call_or_await(self.consumer.close)
 
-    async def getone(self, timeout_ms: int = 1000) -> Message:
+    async def getone(self, timeout_ms: int = 1000) -> Optional[Message]:
         """Consumes a single message from Kafka.
 
         Returns:
             Message: The consumed message.
         """
-        while True:
-            timeout = timeout_ms / 1000
-            msg = await call_or_await(self.consumer.poll, timeout)
-            if (record := check_msg_error(msg)) is not None:
-                return record
+        msg = await call_or_await(self.consumer.poll, timeout_ms / 1000)
+        return check_msg_error(msg)
 
     async def getmany(
         self,
         timeout_ms: int = 0,
         max_records: Optional[int] = 10,
-    ) -> Dict[TopicPartition, List[Message]]:
+    ) -> Tuple[Message]:
         """Consumes a batch of messages from Kafka and groups them by topic and partition.
 
         Args:
@@ -528,17 +536,10 @@ class AsyncConfluentConsumer:
             timeout=timeout_ms / 1000,
         )
 
-        validated_messages: Iterable[Message] = filter(
+        return tuple(filter(
             lambda x: x is not None,
             map(check_msg_error, raw_messages),
-        )
-
-        messages: DefaultDict[TopicPartition, List[Message]] = defaultdict(list)
-        for record in validated_messages:
-            tp = TopicPartition(topic=record.topic(), partition=record.partition())  # type: ignore[arg-type]
-            messages[tp].append(record)
-
-        return messages
+        ))
 
 
 def check_msg_error(msg: Optional[Message]) -> Optional[Message]:
@@ -550,8 +551,7 @@ def check_msg_error(msg: Optional[Message]) -> Optional[Message]:
     Returns:
         Message: The original message if no error is found, otherwise None.
     """
-    if msg is None:
-        return msg
-    if msg.error():
+    if msg is None or msg.error():
         return None
+
     return msg

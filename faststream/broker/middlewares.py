@@ -277,4 +277,5 @@ class CriticalLogMiddleware(BaseMiddleware):
 
             self.logger.log(self.log_level, "Processed", extra=c)
 
+        await super().after_processed(exc_type, exc_val, exc_tb)
         return True

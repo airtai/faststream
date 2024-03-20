@@ -64,7 +64,7 @@ def serve(
         schema_filepath = module_parent / app
         extra_extensions = (schema_filepath.suffix,)
 
-    if reload is True:
+    if reload:
         try:
             from faststream.cli.supervisors.watchfiles import WatchReloader
 
