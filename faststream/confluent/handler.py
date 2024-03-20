@@ -1,5 +1,4 @@
 import asyncio
-from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,

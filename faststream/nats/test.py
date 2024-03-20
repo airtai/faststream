@@ -8,9 +8,9 @@ from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.parsers import encode_message
 from faststream.broker.test import TestBroker, call_handler
 from faststream.nats.broker import NatsBroker
-from faststream.nats.schemas.js_stream import is_subject_match_wildcard
 from faststream.nats.handler import BaseNatsHandler
 from faststream.nats.producer import NatsFastProducer
+from faststream.nats.schemas.js_stream import is_subject_match_wildcard
 from faststream.types import AnyDict, SendableMessage
 
 if TYPE_CHECKING:

@@ -1,16 +1,15 @@
-from typing import Any, Callable, Iterable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, Iterable
 
 from confluent_kafka import Message
 from typing_extensions import Annotated, Doc
 
+from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.types import (
     P_HandlerParams,
     T_HandlerReturn,
 )
-from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.confluent.broker import KafkaBroker as KB
-
 
 if TYPE_CHECKING:
     from fastapi import params

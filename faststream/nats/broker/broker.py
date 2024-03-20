@@ -163,31 +163,107 @@ class NatsBroker(
             Optional[str],
             Doc("Label the connection with name (shown in NATS monitoring)."),
         ] = SERVICE_NAME,
-        pedantic: bool = False,
-        verbose: bool = False,
+        pedantic: Annotated[
+            bool,
+            Doc(
+                "Turn on NATS server pedantic mode that performs extra checks on the protocol. "
+                "https://docs.nats.io/using-nats/developer/connecting/misc#turn-on-pedantic-mode"
+            ),
+        ] = False,
+        verbose: Annotated[
+            bool,
+            Doc("Verbose mode produce more feedback about code execution."),
+        ] = False,
         allow_reconnect: Annotated[
             bool,
             Doc("Whether recover connection automatically or not."),
         ] = True,
-        connect_timeout: int = DEFAULT_CONNECT_TIMEOUT,
-        reconnect_time_wait: int = DEFAULT_RECONNECT_TIME_WAIT,
-        max_reconnect_attempts: int = DEFAULT_MAX_RECONNECT_ATTEMPTS,
-        ping_interval: int = DEFAULT_PING_INTERVAL,
-        max_outstanding_pings: int = DEFAULT_MAX_OUTSTANDING_PINGS,
-        dont_randomize: bool = False,
-        flusher_queue_size: int = DEFAULT_MAX_FLUSHER_QUEUE_SIZE,
-        no_echo: bool = False,
-        tls: Optional["ssl.SSLContext"] = None,
-        tls_hostname: Optional[str] = None,
-        user: Optional[str] = None,
-        password: Optional[str] = None,
-        token: Optional[str] = None,
-        drain_timeout: int = DEFAULT_DRAIN_TIMEOUT,
-        signature_cb: Optional["SignatureCallback"] = None,
-        user_jwt_cb: Optional["JWTCallback"] = None,
-        user_credentials: Optional["Credentials"] = None,
-        nkeys_seed: Optional[str] = None,
-        inbox_prefix: Union[str, bytes] = DEFAULT_INBOX_PREFIX,
+        connect_timeout: Annotated[
+            int,
+            Doc("Timeout in seconds to establish connection with NATS server."),
+        ] = DEFAULT_CONNECT_TIMEOUT,
+        reconnect_time_wait: Annotated[
+            int,
+            Doc("Time in seconds to wait for reestablish connection to NATS server"),
+        ] = DEFAULT_RECONNECT_TIME_WAIT,
+        max_reconnect_attempts: Annotated[
+            int,
+            Doc("Maximum attemps number to reconnect to NATS server."),
+        ] = DEFAULT_MAX_RECONNECT_ATTEMPTS,
+        ping_interval: Annotated[
+            int,
+            Doc("Interval in seconds to ping."),
+        ] = DEFAULT_PING_INTERVAL,
+        max_outstanding_pings: Annotated[
+            int,
+            Doc("Maximum number of failed pings"),
+        ] = DEFAULT_MAX_OUTSTANDING_PINGS,
+        dont_randomize: Annotated[
+            bool,
+            Doc(
+                "Boolean indicating should client randomly shuffle servers list for reconnection randomness."
+            ),
+        ] = False,
+        flusher_queue_size: Annotated[
+            int, Doc("Max count of commands awaiting to be flushed to the socket")
+        ] = DEFAULT_MAX_FLUSHER_QUEUE_SIZE,
+        no_echo: Annotated[
+            bool,
+            Doc("Boolean indicating should commands be echoed."),
+        ] = False,
+        tls: Annotated[
+            Optional["ssl.SSLContext"],
+            Doc("Some SSL context to make NATS connections secure."),
+        ] = None,
+        tls_hostname: Annotated[
+            Optional[str],
+            Doc("Hostname for TLS."),
+        ] = None,
+        user: Annotated[
+            Optional[str],
+            Doc("Username for NATS auth."),
+        ] = None,
+        password: Annotated[
+            Optional[str],
+            Doc("Username password for NATS auth."),
+        ] = None,
+        token: Annotated[
+            Optional[str],
+            Doc("Auth token for NATS auth."),
+        ] = None,
+        drain_timeout: Annotated[
+            int,
+            Doc("Timeout in seconds to drain subscriptions."),
+        ] = DEFAULT_DRAIN_TIMEOUT,
+        signature_cb: Annotated[
+            Optional["SignatureCallback"],
+            Doc(
+                "A callback used to sign a nonce from the server while "
+                "authenticating with nkeys. The user should sign the nonce and "
+                "return the base64 encoded signature."
+            ),
+        ] = None,
+        user_jwt_cb: Annotated[
+            Optional["JWTCallback"],
+            Doc(
+                "A callback used to fetch and return the account "
+                "signed JWT for this user."
+            ),
+        ] = None,
+        user_credentials: Annotated[
+            Optional["Credentials"],
+            Doc("A user credentials file or tuple of files."),
+        ] = None,
+        nkeys_seed: Annotated[
+            Optional[str],
+            Doc("Nkeys seed to be used."),
+        ] = None,
+        inbox_prefix: Annotated[
+            Union[str, bytes],
+            Doc(
+                "Prefix for generating unique inboxes, subjects with that prefix and NUID.ß"
+            ),
+        ] = DEFAULT_INBOX_PREFIX,
         pending_size: Annotated[
             int,
             Doc("Max size of the pending buffer for publishing commands."),
@@ -484,10 +560,31 @@ class NatsBroker(
         ],
         queue: Annotated[
             str,
-            Doc("Subscribers' NATS queue name."),
+            Doc(
+                "Subscribers' NATS queue name. Subscribers with same queue name will be load balanced by the NATS "
+                "server."
+            ),
         ] = "",
-        pending_msgs_limit: Optional[int] = None,
-        pending_bytes_limit: Optional[int] = None,
+        pending_msgs_limit: Annotated[
+            Optional[int],
+            Doc(
+                "Limit of messages, considered by NATS server as possible to be delivered to the client without "
+                "been answered. In case of NATS Core, if that limits exceeds, you will receive NATS 'Slow Consumer' "
+                "error. "
+                "That's literally means that your worker can't handle the whole load. In case of NATS JetStream, "
+                "you will no longer receive messages until some of delivered messages will be acked in any way."
+            ),
+        ] = None,
+        pending_bytes_limit: Annotated[
+            Optional[int],
+            Doc(
+                "The number of bytes, considered by NATS server as possible to be delivered to the client without "
+                "been answered. In case of NATS Core, if that limit exceeds, you will receive NATS 'Slow Consumer' "
+                "error."
+                "That's literally means that your worker can't handle the whole load. In case of NATS JetStream, "
+                "you will no longer receive messages until some of delivered messages will be acked in any way."
+            ),
+        ] = None,
         # Core arguments
         max_msgs: Annotated[
             int,
@@ -500,7 +597,10 @@ class NatsBroker(
                 "Name of the durable consumer to which the the subscription should be bound."
             ),
         ] = None,
-        config: Optional["api.ConsumerConfig"] = None,
+        config: Annotated[
+            Optional["api.ConsumerConfig"],
+            Doc("Configuration of JetStream consumer to be subscribed with."),
+        ] = None,
         ordered_consumer: Annotated[
             bool,
             Doc("Enable ordered consumer mode."),
@@ -513,17 +613,30 @@ class NatsBroker(
             bool,
             Doc("Enable Flow Control for a consumer."),
         ] = False,
-        deliver_policy: Optional["api.DeliverPolicy"] = None,
-        headers_only: Optional[bool] = None,
+        deliver_policy: Annotated[
+            Optional["api.DeliverPolicy"],
+            Doc("Deliver Policy to be used for subscription."),
+        ] = None,
+        headers_only: Annotated[
+            Optional[bool],
+            Doc(
+                "Should be message delivered without payload, only headers and metadata."
+            ),
+        ] = None,
         # pull arguments
         pull_sub: Annotated[
             Optional["PullSub"],
             Doc(
-                "NATS Pull consumer parameters container."
+                "NATS Pull consumer parameters container. "
                 "Should be used with `stream` only."
             ),
         ] = None,
-        inbox_prefix: bytes = api.INBOX_PREFIX,
+        inbox_prefix: Annotated[
+            bytes,
+            Doc(
+                "Prefix for generating unique inboxes, subjects with that prefix and NUID."
+            ),
+        ] = api.INBOX_PREFIX,
         # custom
         ack_first: Annotated[
             bool,
@@ -580,7 +693,10 @@ class NatsBroker(
         ] = None,
         description: Annotated[
             Optional[str],
-            Doc("AsyncAPI subscriber object description. " "Uses decorated docstring as default."),
+            Doc(
+                "AsyncAPI subscriber object description. "
+                "Uses decorated docstring as default."
+            ),
         ] = None,
         include_in_schema: Annotated[
             bool,
@@ -898,7 +1014,9 @@ class NatsBroker(
                 await error_cb(err)
 
             if isinstance(err, Error) and self.__is_connected:
-                self._log(f"Connection broken with {err!r}", logging.WARNING, c, exc_info=err)
+                self._log(
+                    f"Connection broken with {err!r}", logging.WARNING, c, exc_info=err
+                )
                 self.__is_connected = False
 
         return wrapper

@@ -1,7 +1,7 @@
-from typing import Any, Callable, Iterable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, Iterable
 
 from nats.aio.msg import Msg
-from typing_extensions import override, Annotated, Doc
+from typing_extensions import Annotated, Doc, override
 
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.fastapi.router import StreamRouter

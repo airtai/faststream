@@ -1,11 +1,9 @@
 import asyncio
-from collections import defaultdict
 from ssl import SSLContext
 from time import time
 from typing import (
     Any,
     Callable,
-    DefaultDict,
     Dict,
     Iterable,
     List,
@@ -224,7 +222,6 @@ class AsyncConfluentProducer:
             timestamp_ms (Optional[int]): The timestamp of the message in milliseconds.
             headers (Optional[List[Tuple[str, Union[str, bytes]]]]): A list of headers for the message.
         """
-
         kwargs = {
             k: v
             for k, v in {
@@ -327,7 +324,7 @@ def create_topics(
         try:
             f.result()  # The result itself is None
         except Exception as e:  # noqa: PERF203
-            if not "TOPIC_ALREADY_EXISTS" in str(e):
+            if "TOPIC_ALREADY_EXISTS" not in str(e):
                 logger.warning(f"Failed to create topic {topic}: {e}")
         else:
             logger.info(f"Topic `{topic}` created.")
@@ -431,7 +428,7 @@ class AsyncConfluentConsumer:
             bootstrap_servers = ",".join(bootstrap_servers)
 
         self.topics = list(topics)
-    
+
         if not isinstance(partition_assignment_strategy, str):
             partition_assignment_strategy = ",".join(
                 [
