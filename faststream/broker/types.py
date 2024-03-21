@@ -99,7 +99,7 @@ WrappedHandlerCall: TypeAlias = Union[
 ]
 
 
-BrokerMiddleware: TypeAlias = Callable[[MsgType], BaseMiddleware]
+BrokerMiddleware: TypeAlias = Callable[[Optional[MsgType]], BaseMiddleware]
 SubscriberMiddleware: TypeAlias = Callable[
     [Optional[DecodedMessage]],
     AsyncContextManager[Optional[DecodedMessage]],

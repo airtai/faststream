@@ -77,7 +77,6 @@ if TYPE_CHECKING:
         PublisherMiddleware,
         SubscriberMiddleware,
     )
-    from faststream.nats.message import NatsMessage
     from faststream.nats.schemas import JStream, PullSub
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, DecodedMessage, SendableMessage
@@ -85,36 +84,138 @@ if TYPE_CHECKING:
     class NatsInitKwargs(TypedDict, total=False):
         """NatsBroker.connect() method type hints."""
 
-        error_cb: Optional["ErrorCallback"]
-        disconnected_cb: Optional["Callback"]
-        closed_cb: Optional["Callback"]
-        discovered_server_cb: Optional["Callback"]
-        reconnected_cb: Optional["Callback"]
-        name: Optional[str]
-        pedantic: bool
-        verbose: bool
-        allow_reconnect: bool
-        connect_timeout: int
-        reconnect_time_wait: int
-        max_reconnect_attempts: int
-        ping_interval: int
-        max_outstanding_pings: int
-        dont_randomize: bool
-        flusher_queue_size: int
-        no_echo: bool
-        tls: Optional["ssl.SSLContext"]
-        tls_hostname: Optional[str]
-        user: Optional[str]
-        password: Optional[str]
-        token: Optional[str]
-        drain_timeout: int
-        signature_cb: Optional["SignatureCallback"]
-        user_jwt_cb: Optional["JWTCallback"]
-        user_credentials: Optional["Credentials"]
-        nkeys_seed: Optional[str]
-        inbox_prefix: Union[str, bytes]
-        pending_size: int
-        flush_timeout: Optional[float]
+        error_cb: Annotated[
+            Optional["ErrorCallback"],
+            Doc("Callback to report errors."),
+        ]
+        disconnected_cb: Annotated[
+            Optional["Callback"],
+            Doc("Callback to report disconnection from NATS."),
+        ]
+        closed_cb: Annotated[
+            Optional["Callback"],
+            Doc("Callback to report when client stops reconnection to NATS."),
+        ]
+        discovered_server_cb: Annotated[
+            Optional["Callback"],
+            Doc("Callback to report when a new server joins the cluster."),
+        ]
+        reconnected_cb: Annotated[
+            Optional["Callback"], Doc("Callback to report success reconnection.")
+        ]
+        name: Annotated[
+            Optional[str],
+            Doc("Label the connection with name (shown in NATS monitoring)."),
+        ]
+        pedantic: Annotated[
+            bool,
+            Doc(
+                "Turn on NATS server pedantic mode that performs extra checks on the protocol. "
+                "https://docs.nats.io/using-nats/developer/connecting/misc#turn-on-pedantic-mode"
+            ),
+        ]
+        verbose: Annotated[
+            bool,
+            Doc("Verbose mode produce more feedback about code execution."),
+        ]
+        allow_reconnect: Annotated[
+            bool,
+            Doc("Whether recover connection automatically or not."),
+        ]
+        connect_timeout: Annotated[
+            int,
+            Doc("Timeout in seconds to establish connection with NATS server."),
+        ]
+        reconnect_time_wait: Annotated[
+            int,
+            Doc("Time in seconds to wait for reestablish connection to NATS server"),
+        ]
+        max_reconnect_attempts: Annotated[
+            int,
+            Doc("Maximum attemps number to reconnect to NATS server."),
+        ]
+        ping_interval: Annotated[
+            int,
+            Doc("Interval in seconds to ping."),
+        ]
+        max_outstanding_pings: Annotated[
+            int,
+            Doc("Maximum number of failed pings"),
+        ]
+        dont_randomize: Annotated[
+            bool,
+            Doc(
+                "Boolean indicating should client randomly shuffle servers list for reconnection randomness."
+            ),
+        ]
+        flusher_queue_size: Annotated[
+            int, Doc("Max count of commands awaiting to be flushed to the socket")
+        ]
+        no_echo: Annotated[
+            bool,
+            Doc("Boolean indicating should commands be echoed."),
+        ]
+        tls: Annotated[
+            Optional["ssl.SSLContext"],
+            Doc("Some SSL context to make NATS connections secure."),
+        ]
+        tls_hostname: Annotated[
+            Optional[str],
+            Doc("Hostname for TLS."),
+        ]
+        user: Annotated[
+            Optional[str],
+            Doc("Username for NATS auth."),
+        ]
+        password: Annotated[
+            Optional[str],
+            Doc("Username password for NATS auth."),
+        ]
+        token: Annotated[
+            Optional[str],
+            Doc("Auth token for NATS auth."),
+        ]
+        drain_timeout: Annotated[
+            int,
+            Doc("Timeout in seconds to drain subscriptions."),
+        ]
+        signature_cb: Annotated[
+            Optional["SignatureCallback"],
+            Doc(
+                "A callback used to sign a nonce from the server while "
+                "authenticating with nkeys. The user should sign the nonce and "
+                "return the base64 encoded signature."
+            ),
+        ]
+        user_jwt_cb: Annotated[
+            Optional["JWTCallback"],
+            Doc(
+                "A callback used to fetch and return the account "
+                "signed JWT for this user."
+            ),
+        ]
+        user_credentials: Annotated[
+            Optional["Credentials"],
+            Doc("A user credentials file or tuple of files."),
+        ]
+        nkeys_seed: Annotated[
+            Optional[str],
+            Doc("Nkeys seed to be used."),
+        ]
+        inbox_prefix: Annotated[
+            Union[str, bytes],
+            Doc(
+                "Prefix for generating unique inboxes, subjects with that prefix and NUID.ß"
+            ),
+        ]
+        pending_size: Annotated[
+            int,
+            Doc("Max size of the pending buffer for publishing commands."),
+        ]
+        flush_timeout: Annotated[
+            Optional[float],
+            Doc("Max duration to wait for a forced flush to occur."),
+        ]
 
     Subject: TypeAlias = str
 
@@ -664,7 +765,7 @@ class NatsBroker(
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            "Filter[NatsMessage]",
+            "Filter[StreamMessage[Msg]]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),

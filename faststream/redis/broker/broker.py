@@ -39,6 +39,7 @@ if TYPE_CHECKING:
 
     from fast_depends.dependencies import Depends
     from redis.asyncio.connection import BaseParser
+    from typing_extensions import TypedDict, Unpack
 
     from faststream.asyncapi import schema as asyncapi
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
@@ -53,6 +54,27 @@ if TYPE_CHECKING:
     )
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, DecodedMessage, SendableMessage
+
+    class RedisInitKwargs(TypedDict, total=False):
+        host: Optional[str]
+        port: Union[str, int, None]
+        db: Union[str, int, None]
+        client_name: Optional[str]
+        health_check_interval: Optional[float]
+        max_connections: Optional[int]
+        socket_timeout: Optional[float]
+        socket_connect_timeout: Optional[float]
+        socket_read_size: Optional[int]
+        socket_keepalive: Optional[bool]
+        socket_keepalive_options: Optional[Mapping[int, Union[int, bytes]]]
+        socket_type: Optional[int]
+        retry_on_timeout: Optional[bool]
+        encoding: Optional[str]
+        encoding_errors: Optional[str]
+        decode_responses: Optional[bool]
+        parser_class: Optional[Type["BaseParser"]]
+        connection_class: Optional[Type["Connection"]]
+        encoder_class: Optional[Type["Encoder"]]
 
 
 Channel: TypeAlias = str
@@ -232,52 +254,11 @@ class RedisBroker(
     async def connect(
         self,
         url: Optional[str] = None,
-        *,
-        host: Optional[str] = None,
-        port: Union[str, int, None] = None,
-        db: Union[str, int, None] = None,
-        client_name: Optional[str] = None,
-        health_check_interval: Optional[float] = None,
-        max_connections: Optional[int] = None,
-        socket_timeout: Optional[float] = None,
-        socket_connect_timeout: Optional[float] = None,
-        socket_read_size: Optional[int] = None,
-        socket_keepalive: Optional[bool] = None,
-        socket_keepalive_options: Optional[Mapping[int, Union[int, bytes]]] = None,
-        socket_type: Optional[int] = None,
-        retry_on_timeout: Optional[bool] = None,
-        encoding: Optional[str] = None,
-        encoding_errors: Optional[str] = None,
-        decode_responses: Optional[bool] = None,
-        parser_class: Optional[Type["BaseParser"]] = None,
-        connection_class: Optional[Type["Connection"]] = None,
-        encoder_class: Optional[Type["Encoder"]] = None,
+        **kwargs: "Unpack[RedisInitKwargs]",
     ) -> "Redis[bytes]":
         """Connect to the Redis server."""
-        kwargs = {
-            "url": url,
-            "host": host,
-            "port": port,
-            "db": db,
-            "client_name": client_name,
-            "health_check_interval": health_check_interval,
-            "max_connections": max_connections,
-            "socket_timeout": socket_timeout,
-            "socket_connect_timeout": socket_connect_timeout,
-            "socket_read_size": socket_read_size,
-            "socket_keepalive": socket_keepalive,
-            "socket_keepalive_options": socket_keepalive_options,
-            "socket_type": socket_type,
-            "retry_on_timeout": retry_on_timeout,
-            "encoding": encoding,
-            "encoding_errors": encoding_errors,
-            "decode_responses": decode_responses,
-            "parser_class": parser_class,
-            "connection_class": connection_class,
-            "encoder_class": encoder_class,
-        }
-
-        kwargs = {i: j for i, j in kwargs.items() if j is not None}
+        if url:
+            kwargs["url"] = url
 
         connection = await super().connect(**kwargs)
 

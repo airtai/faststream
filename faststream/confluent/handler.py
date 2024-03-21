@@ -201,8 +201,7 @@ class LogicHandler(BaseHandler[Message]):
                 else:
                     msg = await self.consumer.getone()
 
-            except KafkaException as e:  # pragma: no cover
-                print(e)
+            except KafkaException:  # pragma: no cover
                 if connected:
                     connected = False
                 await anyio.sleep(5)
