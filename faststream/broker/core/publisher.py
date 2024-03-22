@@ -114,18 +114,17 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
         ],
     ) -> None:
         """Initialize Publisher object."""
-        super().__init__(
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
-        )
-
         self.schema_ = schema_
         self.middlewares = middlewares
 
         self.calls = []
         self._fake_handler = False
         self.mock = None
+
+        # AsyncAPI
+        self.title_=title_
+        self.description_=description_
+        self.include_in_schema=include_in_schema
 
     def set_test(
         self,
@@ -149,9 +148,11 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
         func: Callable[P_HandlerParams, T_HandlerReturn],
     ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
         """Decorate user's function by current publisher."""
-        handler_call: HandlerCallWrapper[
-            MsgType, P_HandlerParams, T_HandlerReturn
-        ] = HandlerCallWrapper(func)
+        handler_call = HandlerCallWrapper[
+            MsgType,
+            P_HandlerParams,
+            T_HandlerReturn,
+        ](func)
         handler_call._publishers.append(self)
         self.calls.append(handler_call._original_call)
         return handler_call
@@ -159,54 +160,12 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
     @abstractmethod
     async def publish(
         self,
-        message: SendableMessage,
+        message: Any,
         *args: Any,
         correlation_id: Optional[str] = None,
         extra_middlewares: Iterable["PublisherMiddleware"] = (),
         **kwargs: Any,
     ) -> Any:
-        publish_kwargs = self.publish_kwargs | kwargs
-
-        async with AsyncExitStack() as stack:
-            for m in chain(extra_middlewares, self.middlewares):
-                message = await stack.enter_async_context(
-                    m(
-                        message,
-                        *args,
-                        correlation_id=correlation_id,
-                        **publish_kwargs,
-                    )
-                )
-
-            return await self._publish(
-                message,
-                *args,
-                correlation_id=correlation_id,
-                **publish_kwargs,
-            )
-
-    @abstractmethod
-    async def _publish(
-        self,
-        message: SendableMessage,
-        *args: Any,
-        correlation_id: Optional[str] = None,
-        **kwargs: Any,
-    ) -> Any:
-        """Publish a message.
-
-        Args:
-            message: The message to be published.
-            *args: Additional positional arguments.
-            correlation_id: Optional correlation ID for the message.
-            **kwargs: Additional keyword arguments.
-
-        Returns:
-            The published message.
-
-        Raises:
-            NotImplementedError: If the method is not implemented.
-        """
         raise NotImplementedError()
 
     def get_payloads(self) -> List[Tuple[AnyDict, str]]:
@@ -244,7 +203,3 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
                     payloads.append((body, to_camelcase(unwrap(call).__name__)))
 
         return payloads
-
-    @property
-    def publish_kwargs(self) -> AnyDict:
-        raise {}

@@ -93,3 +93,11 @@ SettingField: TypeAlias = Union[
 ]
 
 Lifespan: TypeAlias = Callable[..., AsyncContextManager[None]]
+
+class LoggerProtocol(Protocol):
+    def log(
+        self,
+        *args: Any,
+        **__kwargs: Any,
+    ) -> None:
+        ...

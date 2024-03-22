@@ -1,5 +1,5 @@
 import warnings
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Dict, Optional, Protocol
 
 from typing_extensions import Annotated, Doc
 
@@ -276,18 +276,9 @@ class ReplyConfig:
         }
 
 
-class BaseRMQInformation:
+class BaseRMQInformation(Protocol):
     """Base class to store AsyncAPI RMQ bindings."""
-
-    def __init__(
-        self,
-        *,
-        virtual_host: str,
-        queue: RabbitQueue,
-        exchange: Optional[RabbitExchange],
-        app_id: Optional[str],
-    ) -> None:
-        self.virtual_host = virtual_host
-        self.exchange = exchange
-        self.queue = queue
-        self.app_id = app_id
+    virtual_host: str
+    queue: RabbitQueue
+    exchange: Optional[RabbitExchange]
+    app_id: Optional[str]

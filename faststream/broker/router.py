@@ -2,12 +2,11 @@ from abc import abstractmethod
 from typing import (
     TYPE_CHECKING,
     Any,
-    AsyncContextManager,
     Callable,
-    Dict,
     Generic,
     Iterable,
     List,
+    Mapping,
     Optional,
     Tuple,
     TypeVar,
@@ -17,23 +16,27 @@ from fast_depends.dependencies import Depends
 
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.core.publisher import BasePublisher
-from faststream.broker.message import StreamMessage
 from faststream.broker.types import (
-    CustomDecoder,
-    CustomParser,
     MsgType,
     P_HandlerParams,
     T_HandlerReturn,
 )
-from faststream.types import AnyDict, SendableMessage
+from faststream.types import AnyDict
 
 PublisherKeyType = TypeVar("PublisherKeyType")
 
 if TYPE_CHECKING:
-    from faststream.broker.types import BaseMiddleware
+    from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.types import (
+        BrokerMiddleware,
+        CustomDecoder,
+        CustomParser,
+        SubscriberMiddleware,
+    )
 
 
-class BrokerRoute(Generic[MsgType, T_HandlerReturn]):
+class BrokerRoute:
     """A generic class to represent a broker route.
 
     Attributes:
@@ -47,13 +50,13 @@ class BrokerRoute(Generic[MsgType, T_HandlerReturn]):
         **kwargs : variable length keyword arguments for the route
     """
 
-    call: Callable[..., T_HandlerReturn]
+    call: Callable[..., Any]
     args: Tuple[Any, ...]
     kwargs: AnyDict
 
     def __init__(
         self,
-        call: Callable[..., T_HandlerReturn],
+        call: Callable[..., Any],
         *args: Any,
         **kwargs: Any,
     ) -> None:
@@ -89,8 +92,8 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
     """
 
     prefix: str
-    _handlers: List[BrokerRoute[MsgType, Any]]
-    _publishers: Dict[PublisherKeyType, BasePublisher[MsgType]]
+    _handlers: List[BrokerRoute]
+    _publishers: Mapping[PublisherKeyType, BasePublisher[MsgType]]
 
     @staticmethod
     @abstractmethod
@@ -133,16 +136,11 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
     def __init__(
         self,
         prefix: str = "",
-        handlers: Iterable[BrokerRoute[MsgType, SendableMessage]] = (),
+        handlers: Iterable[BrokerRoute] = (),
         dependencies: Iterable[Depends] = (),
-        middlewares: Iterable[
-            Callable[
-                [Optional[StreamMessage[MsgType]]],
-                "BaseMiddleware",
-            ]
-        ] = (),
-        parser: Optional[CustomParser[MsgType]] = None,
-        decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
+        middlewares: Iterable["BrokerMiddleware[MsgType]"] = (),
+        parser: Optional["CustomParser[MsgType]"] = None,
+        decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
         include_in_schema: Optional[bool] = None,
     ) -> None:
         self.prefix = prefix
@@ -160,20 +158,12 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
         subj: str,
         *args: Any,
         dependencies: Iterable[Depends] = (),
-        middlewares: Iterable[
-            Callable[
-                [StreamMessage[MsgType]],
-                AsyncContextManager[None],
-            ]
-        ] = (),
-        parser: Optional[CustomParser[MsgType]] = None,
-        decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
+        middlewares: Iterable["SubscriberMiddleware"] = (),
+        parser: Optional["CustomParser[MsgType]"] = None,
+        decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
         include_in_schema: Optional[bool] = None,
         **kwargs: Any,
-    ) -> Callable[
-        [Callable[P_HandlerParams, T_HandlerReturn]],
-        HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
-    ]:
+    ) -> "WrapperProtocol[MsgType]":
         """A function to subscribe to a subject.
 
         Args:
@@ -198,20 +188,12 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
         self,
         *args: Any,
         dependencies: Iterable[Depends] = (),
-        middlewares: Iterable[
-            Callable[
-                [StreamMessage[MsgType]],
-                AsyncContextManager[None],
-            ]
-        ] = (),
-        parser: Optional[CustomParser[MsgType]] = None,
-        decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
+        middlewares: Iterable["SubscriberMiddleware"] = (),
+        parser: Optional["CustomParser[MsgType]"] = None,
+        decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
         include_in_schema: bool = True,
         **kwargs: Any,
-    ) -> Callable[
-        [Callable[P_HandlerParams, T_HandlerReturn]],
-        HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
-    ]:
+    ) -> "WrapperProtocol[MsgType]":
         """This is a function named `_wrap_subscriber` that returns a callable object. It is used as a decorator for another function.
 
         Args:
@@ -241,7 +223,7 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
             wrapped_func = HandlerCallWrapper[
                 MsgType, P_HandlerParams, T_HandlerReturn
             ](func)
-            route = BrokerRoute[MsgType, T_HandlerReturn](
+            route = BrokerRoute(
                 wrapped_func,
                 *args,
                 dependencies=(*self._dependencies, *dependencies),
@@ -307,7 +289,8 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
             self._publishers[key] = self._publishers.get(key, p)
 
     def include_routers(
-        self, *routers: "BrokerRouter[PublisherKeyType, MsgType]"
+        self,
+        *routers: "BrokerRouter[PublisherKeyType, MsgType]",
     ) -> None:
         """Includes routers in the object.
 

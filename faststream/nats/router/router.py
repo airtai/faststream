@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from faststream.types import SendableMessage
 
 
-class NatsRoute(BrokerRoute["Msg", "SendableMessage"]):
+class NatsRoute(BrokerRoute):
     """Class to store delaied NatsBroker subscriber registration."""
 
     def __init__(

@@ -149,14 +149,7 @@ class HandlerItem(Generic[MsgType]):
 
 
 class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
-    """A class representing an asynchronous handler.
-
-    Methods:
-        add_call : adds a new call to the list of calls
-        consume : consumes a message and returns a sendable message
-        start : starts the handler
-        close : closes the handler
-    """
+    """A class representing an asynchronous handler."""
 
     calls: List[HandlerItem[MsgType]]
 
@@ -185,12 +178,10 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         self.graceful_timeout = graceful_timeout
         self.extra_watcher_options = {}
 
-        # AsyncAPI information
-        super().__init__(
-            title_=title_,
-            description_=description_,
-            include_in_schema=include_in_schema,
-        )
+        # AsyncAPI
+        self.title_ = title_
+        self.description_ = description_
+        self.include_in_schema = include_in_schema
 
     @abstractmethod
     async def start(

@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 Channel: TypeAlias = str
 
 
-class RedisRoute(BrokerRoute["AnyDict", "SendableMessage"]):
+class RedisRoute(BrokerRoute):
     """Class to store delaied RabbitBroker subscriber registration."""
 
     def __init__(

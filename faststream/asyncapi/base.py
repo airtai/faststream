@@ -1,34 +1,26 @@
 from abc import abstractmethod
-from typing import Dict, Optional
+from typing import Dict, Optional, Protocol
 
 from typing_extensions import Annotated, Doc
 
 from faststream.asyncapi.schema.channels import Channel
 
 
-class AsyncAPIOperation:
+class AsyncAPIOperation(Protocol):
     """A class representing an asynchronous API operation."""
 
-    def __init__(
-        self,
-        *,
-        title_: Annotated[
-            Optional[str],
-            Doc("AsyncAPI object title."),
-        ],
-        description_: Annotated[
-            Optional[str],
-            Doc("AsyncAPI object description."),
-        ],
-        include_in_schema: Annotated[
-            bool,
-            Doc("Whetever to include operation in AsyncAPI schema or not."),
-        ],
-    ) -> None:
-        """Initialize AsyncAPI operation object."""
-        self.title_ = title_
-        self.description_ = description_
-        self.include_in_schema = include_in_schema
+    title_: Annotated[
+        Optional[str],
+        Doc("AsyncAPI object title."),
+    ]
+    description_: Annotated[
+        Optional[str],
+        Doc("AsyncAPI object description."),
+    ]
+    include_in_schema: Annotated[
+        bool,
+        Doc("Whetever to include operation in AsyncAPI schema or not."),
+    ]
 
     @property
     def name(self) -> str:

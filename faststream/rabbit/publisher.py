@@ -3,7 +3,7 @@ from itertools import chain
 from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
 
 from aio_pika import IncomingMessage
-from typing_extensions import Annotated, Doc, TypedDict, Unpack
+from typing_extensions import Annotated, Doc, TypedDict, Unpack, override
 
 from faststream.broker.core.publisher import BasePublisher
 from faststream.exceptions import NOT_CONNECTED_YET
@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from faststream.types import AnyDict, SendableMessage
 
 
+# should be public to use in imports
 class PublishKwargs(TypedDict, total=False):
     """Typed dict to annotate RabbitMQ publishers."""
     headers: Annotated[
@@ -142,7 +143,8 @@ class LogicPublisher(
             self.routing_key
         )
 
-    async def publish(
+    @override
+    async def publish(  # type: ignore[override]
         self,
         message: "AioPikaSendableMessage",
         queue: Annotated[
@@ -213,7 +215,9 @@ class LogicPublisher(
             "rpc": rpc,
             "rpc_timeout": rpc_timeout,
             "raise_timeout": raise_timeout,
-        } | self.message_kwargs | publish_kwargs
+            **self.message_kwargs,
+            **publish_kwargs,
+        }
 
         async with AsyncExitStack() as stack:
             for m in chain(extra_middlewares, self.middlewares):
@@ -222,4 +226,6 @@ class LogicPublisher(
                 )
 
             return await self._producer.publish(message=message, **kwargs)
+
+        raise AssertionError("unreachable")
 

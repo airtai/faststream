@@ -6,6 +6,7 @@ from typing import (
     Optional,
     Type,
     Union,
+    cast,
 )
 
 import anyio
@@ -13,16 +14,16 @@ import anyio
 from faststream.broker.parsers import resolve_custom_func
 from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.rabbit.parser import AioPikaParser
-from faststream.rabbit.schemas.constants import RABBIT_REPLY
-from faststream.rabbit.schemas.schemas import RabbitExchange
+from faststream.rabbit.schemas import RABBIT_REPLY, RabbitExchange
 from faststream.utils.functions import fake_context, timeout_scope
 
 if TYPE_CHECKING:
-    import aio_pika
     import aiormq
+    from aio_pika import IncomingMessage, RobustChannel, RobustQueue
     from aio_pika.abc import DateType, HeadersType, TimeoutType
-    from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
+    from anyio.streams.memory import MemoryObjectReceiveStream
 
+    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         AsyncCustomDecoder,
         AsyncCustomParser,
@@ -30,44 +31,23 @@ if TYPE_CHECKING:
         AsyncParser,
     )
     from faststream.rabbit.helpers import RabbitDeclarer
-    from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.types import SendableMessage
 
 
 class AioPikaFastProducer:
-    """A class for fast producing messages using aio-pika.
+    """A class for fast producing messages using aio-pika."""
 
-    Attributes:
-        _channel : aio_pika.RobustChannel
-            The channel used for publishing messages.
-        _rpc_lock : anyio.Lock
-            Lock used for RPC calls.
-        _decoder : AsyncDecoder
-            Decoder used for decoding incoming messages.
-        _parser : AsyncParser[aio_pika.IncomingMessage]
-            Parser used for parsing incoming messages.
-        declarer : RabbitDeclarer
-            The declarer object used for declaring exchanges and queues.
-
-    Methods:
-        __init__(channel, declarer, parser, decoder): Initializes the AioPikaFastProducer object.
-        publish(message, queue, exchange, routing_key, mandatory, immediate, timeout, rpc, rpc_timeout, raise_timeout, persist, reply_to, **message_kwargs): Publishes a message to a queue or exchange.
-        _publish(message, exchange, routing_key, mandatory, immediate, timeout, persist, reply_to, **message_kwargs): Publishes a message to an exchange.
-    """
-
-    _channel: "aio_pika.RobustChannel"
-    _rpc_lock: anyio.Lock
-    _decoder: "AsyncDecoder[RabbitMessage]"
-    _parser: "AsyncParser[aio_pika.IncomingMessage]"
-    declarer: "RabbitDeclarer"
+    _decoder: "AsyncDecoder[StreamMessage[IncomingMessage]]"
+    _parser: "AsyncParser[IncomingMessage]"
 
     def __init__(
         self,
-        channel: "aio_pika.RobustChannel",
+        *,
+        channel: "RobustChannel",
         declarer: "RabbitDeclarer",
-        parser: Optional["AsyncCustomParser[aio_pika.IncomingMessage]"],
-        decoder: Optional["AsyncCustomDecoder[RabbitMessage]"],
+        parser: Optional["AsyncCustomParser[IncomingMessage]"],
+        decoder: Optional["AsyncCustomDecoder[StreamMessage[IncomingMessage]]"],
     ) -> None:
         """Initialize a class instance.
 
@@ -111,16 +91,16 @@ class AioPikaFastProducer:
     ) -> Union["aiormq.abc.ConfirmationFrameType", Any]:
         """Publish a message to a RabbitMQ queue."""
         context: AsyncContextManager[
-            Optional["MemoryObjectReceiveStream[aio_pika.IncomingMessage]"]
+            Optional["MemoryObjectReceiveStream[IncomingMessage]"]
         ]
         if rpc:
             if reply_to is not None:
                 raise WRONG_PUBLISH_ARGS
-            else:
-                context = _RPCCallback(
-                    self._rpc_lock,
-                    self.declarer.queues[RABBIT_REPLY],
-                )
+
+            context = _RPCCallback(
+                self._rpc_lock,
+                await self.declarer.declare_queue(RABBIT_REPLY),
+            )
         else:
             context = fake_context()
 
@@ -133,7 +113,7 @@ class AioPikaFastProducer:
                 immediate=immediate,
                 timeout=timeout,
                 persist=persist,
-                reply_to=reply_to if response_queue is None else RABBIT_REPLY,
+                reply_to=reply_to if response_queue is None else RABBIT_REPLY.name,
                 headers=headers,
                 content_type=content_type,
                 content_encoding=content_encoding,
@@ -151,7 +131,7 @@ class AioPikaFastProducer:
                 return r
 
             else:
-                msg: Optional["aio_pika.IncomingMessage"] = None
+                msg: Optional["IncomingMessage"] = None
                 with timeout_scope(rpc_timeout, raise_timeout):
                     msg = await response_queue.receive()
 
@@ -231,7 +211,7 @@ class _RPCCallback:
     """
 
     def __init__(
-        self, lock: "anyio.Lock", callback_queue: "aio_pika.RobustQueue"
+        self, lock: "anyio.Lock", callback_queue: "RobustQueue"
     ) -> None:
         """Initialize an object of a class.
 
@@ -242,13 +222,11 @@ class _RPCCallback:
         self.lock = lock
         self.queue = callback_queue
 
-    async def __aenter__(self) -> "MemoryObjectReceiveStream[aio_pika.IncomingMessage]":
-        send_response_stream: "MemoryObjectSendStream[aio_pika.abc.AbstractIncomingMessage]"
-        receive_response_stream: "MemoryObjectReceiveStream[aio_pika.IncomingMessage]"
+    async def __aenter__(self) -> "MemoryObjectReceiveStream[IncomingMessage]":
         (
             send_response_stream,
             receive_response_stream,
-        ) = anyio.create_memory_object_stream(max_buffer_size=1)
+        ) = anyio.create_memory_object_stream["AbstractIncomingMessage"](max_buffer_size=1)
         await self.lock.acquire()
 
         self.consumer_tag = await self.queue.consume(
@@ -256,7 +234,10 @@ class _RPCCallback:
             no_ack=True,
         )
 
-        return receive_response_stream
+        return cast(
+            "MemoryObjectReceiveStream[IncomingMessage]",
+            receive_response_stream,
+        )
 
     async def __aexit__(
         self,

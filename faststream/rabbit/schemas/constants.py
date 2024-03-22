@@ -1,7 +1,5 @@
 from enum import Enum, unique
 
-RABBIT_REPLY = "amq.rabbitmq.reply-to"
-
 
 @unique
 class ExchangeType(str, Enum):

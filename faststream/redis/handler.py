@@ -183,7 +183,8 @@ class BaseRedisHandler(ABC, BaseHandler[MsgType]):
     async def _get_msgs(self, *args: Any) -> None:
         raise NotImplementedError()
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def channel_name(self) -> str:
         raise NotImplementedError()
 

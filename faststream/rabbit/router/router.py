@@ -18,21 +18,21 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
+    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
-        BaseMiddleware,
+        BrokerMiddleware,
         CustomDecoder,
         CustomParser,
         Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
     )
-    from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.schemas.schemas import ReplyConfig
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.types import AnyDict
 
 
-class RabbitRoute(BrokerRoute["IncomingMessage", "AioPikaSendableMessage"]):
+class RabbitRoute(BrokerRoute):
     """Class to store delaied RabbitBroker subscriber registration."""
 
     def __init__(
@@ -77,7 +77,7 @@ class RabbitRoute(BrokerRoute["IncomingMessage", "AioPikaSendableMessage"]):
             ),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[RabbitMessage]"],
+            Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -85,7 +85,7 @@ class RabbitRoute(BrokerRoute["IncomingMessage", "AioPikaSendableMessage"]):
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            "Filter[RabbitMessage]",
+            "Filter[StreamMessage[IncomingMessage]]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
@@ -160,7 +160,7 @@ class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
             Doc("Dependencies list (`[Depends(),]`) to apply to all routers' publishers/subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable[Callable[[Optional["IncomingMessage"]], "BaseMiddleware"]],
+            Iterable["BrokerMiddleware[IncomingMessage]"],
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
         parser: Annotated[
@@ -170,7 +170,7 @@ class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
             ),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[RabbitMessage]"],
+            Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         include_in_schema: Annotated[
@@ -235,7 +235,7 @@ class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
             ),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[RabbitMessage]"],
+            Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -243,7 +243,7 @@ class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            "Filter[RabbitMessage]",
+            "Filter[StreamMessage[IncomingMessage]]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),

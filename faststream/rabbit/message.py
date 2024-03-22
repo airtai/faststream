@@ -1,11 +1,9 @@
 from typing import Any
 
-import aio_pika
-
 from faststream.broker.message import StreamMessage
 
 
-class RabbitMessage(StreamMessage[aio_pika.IncomingMessage]):
+class RabbitMessage(StreamMessage["IncomingMessage"]):
     """A message class for working with RabbitMQ messages.
 
     This class extends `StreamMessage` to provide additional functionality for acknowledging, rejecting,

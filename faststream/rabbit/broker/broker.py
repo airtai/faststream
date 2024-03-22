@@ -13,7 +13,7 @@ from typing import (
 )
 from urllib.parse import urlparse
 
-import aio_pika
+from aio_pika import connect_robust
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
@@ -25,8 +25,8 @@ from faststream.rabbit.broker.logging import RabbitLoggingMixin
 from faststream.rabbit.helpers import RabbitDeclarer, build_url
 from faststream.rabbit.producer import AioPikaFastProducer
 from faststream.rabbit.publisher import PublishKwargs
-from faststream.rabbit.schemas.constants import RABBIT_REPLY
-from faststream.rabbit.schemas.schemas import (
+from faststream.rabbit.schemas import (
+    RABBIT_REPLY,
     RabbitExchange,
     RabbitQueue,
 )
@@ -37,6 +37,13 @@ if TYPE_CHECKING:
     from types import TracebackType
 
     import aiormq
+    from aio_pika import (
+        IncomingMessage,
+        RobustChannel,
+        RobustConnection,
+        RobustExchange,
+        RobustQueue,
+    )
     from aio_pika.abc import DateType, HeadersType, SSLOptions, TimeoutType
     from fast_depends.dependencies import Depends
     from pamqp.common import FieldTable
@@ -53,7 +60,6 @@ if TYPE_CHECKING:
         PublisherMiddleware,
         SubscriberMiddleware,
     )
-    from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.router import RabbitRouter
     from faststream.rabbit.schemas.schemas import ReplyConfig
     from faststream.rabbit.types import AioPikaSendableMessage
@@ -63,7 +69,7 @@ if TYPE_CHECKING:
 
 class RabbitBroker(
     RabbitLoggingMixin,
-    BrokerUsecase[aio_pika.IncomingMessage, aio_pika.RobustConnection],
+    BrokerUsecase["IncomingMessage", "RobustConnection"],
 ):
     """A class to represent a RabbitMQ broker."""
 
@@ -73,7 +79,7 @@ class RabbitBroker(
 
     declarer: Optional[RabbitDeclarer]
     _producer: Optional[AioPikaFastProducer]
-    _channel: Optional["aio_pika.RobustChannel"]
+    _channel: Optional["RobustChannel"]
 
     def __init__(
         self,
@@ -135,11 +141,11 @@ class RabbitBroker(
             Doc("Whether to cast types using Pydantic validation."),
         ] = True,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[aio_pika.IncomingMessag]]"],
+            Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
             Doc("Custom decoder object."),
         ] = None,
         parser: Annotated[
-            Optional["CustomParser[aio_pika.IncomingMessag]"],
+            Optional["CustomParser[IncomingMessage]"],
             Doc("Custom parser object."),
         ] = None,
         dependencies: Annotated[
@@ -147,7 +153,7 @@ class RabbitBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[aio_pika.IncomingMessag]"],
+            Iterable["BrokerMiddleware[IncomingMessage]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args
@@ -285,7 +291,7 @@ class RabbitBroker(
             "TimeoutType",
             Doc("Connection establishement timeout."),
         ] = None,
-    ) -> "aio_pika.RobustConnection":
+    ) -> "RobustConnection":
         """Connect broker object to RabbitMQ.
 
         To startup subscribers too you should use `broker.start()` after/instead this method.
@@ -330,10 +336,10 @@ class RabbitBroker(
         *,
         timeout: "TimeoutType",
         ssl_context: Optional["SSLContext"],
-    ) -> "aio_pika.RobustConnection":
+    ) -> "RobustConnection":
         connection = cast(
-            "aio_pika.RobustConnection",
-            await aio_pika.connect_robust(
+            "RobustConnection",
+            await connect_robust(
                 url,
                 timeout=timeout,
                 ssl_context=ssl_context,
@@ -343,19 +349,16 @@ class RabbitBroker(
         if self._channel is None:  # pragma: no branch
             max_consumers = self._max_consumers
             channel = self._channel = cast(
-                "aio_pika.RobustChannel",
+                "RobustChannel",
                 await connection.channel(),
             )
 
             declarer = self.declarer = RabbitDeclarer(channel)
-            self.declarer.queues[RABBIT_REPLY] = cast(
-                "aio_pika.RobustQueue",
-                await channel.get_queue(RABBIT_REPLY, ensure=False),
-            )
+            await declarer.declare_queue(RABBIT_REPLY)
 
             self._producer = AioPikaFastProducer(
-                channel,
-                declarer,
+                channel=channel,
+                declarer=declarer,
                 decoder=self._global_decoder,
                 parser=self._global_parser,
             )
@@ -450,13 +453,13 @@ class RabbitBroker(
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[aio_pika.IncomingMessage]"],
+            Optional["CustomParser[IncomingMessage]"],
             Doc(
                 "Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one."
             ),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[RabbitMessage]"],
+            Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -464,7 +467,7 @@ class RabbitBroker(
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            "Filter[RabbitMessage]",
+            "Filter[StreamMessage[IncomingMessage]]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
@@ -503,7 +506,7 @@ class RabbitBroker(
             Optional[Any],
             Doc("Service option to pass FastAPI-compatible callback."),
         ] = None,
-    ) -> "WrapperProtocol[aio_pika.IncomingMessage]":
+    ) -> "WrapperProtocol[IncomingMessage]":
         super().subscriber()
 
         r_queue = RabbitQueue.validate(queue)
@@ -834,38 +837,59 @@ class RabbitBroker(
         """
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
-        kwargs = {
-            "routing_key": routing_key or RabbitQueue.validate(queue).routing,
-            "exchange": exchange,
-            "mandatory": mandatory,
-            "immediate": immediate,
-            "timeout": timeout,
-            "persist": persist,
-            "reply_to": reply_to,
-            "headers": headers,
-            "correlation_id": correlation_id,
-            "content_type": content_type,
-            "content_encoding": content_encoding,
-            "expiration": expiration,
-            "message_id": message_id,
-            "timestamp": timestamp,
-            "message_type": message_type,
-            "user_id": user_id,
-            "priority": priority,
-            "app_id": self.app_id,
-            # specific args
-            "rpc": rpc,
-            "rpc_timeout": rpc_timeout,
-            "raise_timeout": raise_timeout,
-        }
+        routing = routing_key or RabbitQueue.validate(queue).routing
 
         async with AsyncExitStack() as stack:
             for m in self.middlewares:
                 message = await stack.enter_async_context(
-                    m(None).publish_scope(message, **kwargs)
+                    m(None).publish_scope(
+                        message,
+                        routing_key=routing,
+                        app_id=self.app_id,
+                        exchange=exchange,
+                        mandatory=mandatory,
+                        immediate=immediate,
+                        persist=persist,
+                        reply_to=reply_to,
+                        headers=headers,
+                        correlation_id=correlation_id,
+                        content_type=content_type,
+                        content_encoding=content_encoding,
+                        expiration=expiration,
+                        message_id=message_id,
+                        timestamp=timestamp,
+                        message_type=message_type,
+                        user_id=user_id,
+                        priority=priority,
+                        rpc=rpc,
+                        rpc_timeout=rpc_timeout,
+                        raise_timeout=raise_timeout,
+                    )
                 )
 
-            return await self._producer.publish(message, **kwargs)
+            return await self._producer.publish(
+                message,
+                routing_key=routing,
+                app_id=self.app_id,
+                exchange=exchange,
+                mandatory=mandatory,
+                immediate=immediate,
+                persist=persist,
+                reply_to=reply_to,
+                headers=headers,
+                correlation_id=correlation_id,
+                content_type=content_type,
+                content_encoding=content_encoding,
+                expiration=expiration,
+                message_id=message_id,
+                timestamp=timestamp,
+                message_type=message_type,
+                user_id=user_id,
+                priority=priority,
+                rpc=rpc,
+                rpc_timeout=rpc_timeout,
+                raise_timeout=raise_timeout,
+            )
 
     async def declare_queue(
         self,
@@ -873,7 +897,7 @@ class RabbitBroker(
             RabbitQueue,
             Doc("Queue object to create."),
         ],
-    ) -> "aio_pika.RobustQueue":
+    ) -> "RobustQueue":
         """Declares queue object in RabbitMQ."""
         assert self.declarer, NOT_CONNECTED_YET  # nosec B101
         return await self.declarer.declare_queue(queue)
@@ -884,7 +908,7 @@ class RabbitBroker(
             RabbitExchange,
             Doc("Exchange object to create."),
         ],
-    ) -> "aio_pika.RobustExchange":
+    ) -> "RobustExchange":
         """Declares exchange object in RabbitMQ."""
         assert self.declarer, NOT_CONNECTED_YET  # nosec B101
         return await self.declarer.declare_exchange(exchange)

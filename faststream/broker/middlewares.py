@@ -1,11 +1,10 @@
-import logging
 from contextlib import asynccontextmanager
 from types import TracebackType
 from typing import Any, AsyncIterator, Optional, Type, cast
 
 from typing_extensions import Self
 
-from faststream.types import DecodedMessage, SendableMessage
+from faststream.types import DecodedMessage, LoggerProtocol, SendableMessage
 from faststream.utils.context.repository import context
 
 
@@ -217,7 +216,7 @@ class CriticalLogMiddleware(BaseMiddleware):
 
     def __init__(
         self,
-        logger: Optional[logging.Logger],
+        logger: Optional[LoggerProtocol],
         log_level: int,
     ) -> None:
         """Initialize the class.

@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from collections import Counter
-from logging import Logger
 from types import TracebackType
 from typing import TYPE_CHECKING, Any, Optional, Type
 from typing import Counter as CounterType
@@ -16,6 +15,7 @@ from faststream.exceptions import (
 if TYPE_CHECKING:
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import MsgType
+    from faststream.types import LoggerProtocol
 
 
 class BaseWatcher(ABC):
@@ -39,7 +39,7 @@ class BaseWatcher(ABC):
     def __init__(
         self,
         max_tries: int = 0,
-        logger: Optional[Logger] = None,
+        logger: Optional["LoggerProtocol"] = None,
     ) -> None:
         """Initialize the class.
 
@@ -178,10 +178,10 @@ class CounterWatcher(BaseWatcher):
 
     Args:
         max_tries : int - maximum number of tries allowed
-        logger : Optional[Logger] - logger object for logging messages
+        logger : Optional[LoggerProtocol] - logger object for logging messages
 
     Methods:
-        __init__(self, max_tries: int = 3, logger: Optional[Logger] = None) - initializes the CounterWatcher object
+        __init__(self, max_tries: int = 3, logger: Optional[LoggerProtocol] = None) - initializes the CounterWatcher object
         add(self, message_id: str) -> None - adds a message to the counter
         is_max(self, message_id: str) -> bool - checks if the count of a message has reached the maximum tries
         remove(self, message: str) -> None - removes a message from the counter
@@ -192,13 +192,13 @@ class CounterWatcher(BaseWatcher):
     def __init__(
         self,
         max_tries: int = 3,
-        logger: Optional[Logger] = None,
+        logger: Optional["LoggerProtocol"] = None,
     ) -> None:
         """Initialize the class.
 
         Args:
             max_tries (int): maximum number of tries
-            logger (Optional[Logger]): logger object (default: None)
+            logger (Optional[LoggerProtocol]): logger object (default: None)
         """
         super().__init__(logger=logger, max_tries=max_tries)
         self.memory = Counter()

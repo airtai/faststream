@@ -9,7 +9,6 @@ from typing import (
     Sequence,
 )
 
-import aio_pika
 from typing_extensions import override
 
 from faststream.broker.core.handler import BaseHandler
@@ -26,6 +25,7 @@ from faststream.rabbit.schemas.schemas import (
 from faststream.types import AnyDict
 
 if TYPE_CHECKING:
+    from aio_pika import IncomingMessage, RobustQueue
     from fast_depends.dependencies import Depends
 
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     )
 
 
-class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
+class LogicHandler(BaseHandler["IncomingMessage"], BaseRMQInformation):
     """A class to handle logic for RabbitMQ message consumption.
 
     Attributes:
@@ -58,7 +58,7 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
     """
 
     _consumer_tag: Optional[str]
-    _queue_obj: Optional[aio_pika.RobustQueue]
+    _queue_obj: Optional["RobustQueue"]
 
     def __init__(
         self,
@@ -66,7 +66,7 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
         queue: RabbitQueue,
         watcher: Callable[..., AsyncContextManager[None]],
         graceful_timeout: Optional[float],
-        middlewares: Iterable["BrokerMiddleware[aio_pika.IncomingMessage]"],
+        middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
         app_id: Optional[str],
         extra_context: Optional[AnyDict],
         # RMQ information
@@ -109,13 +109,13 @@ class LogicHandler(BaseHandler[aio_pika.IncomingMessage], BaseRMQInformation):
     def add_call(  # type: ignore[override]
         self,
         *,
-        filter: "Filter[StreamMessage[aio_pika.IncomingMessage]]",
-        parser: Optional["CustomParser[aio_pika.IncomingMessage]"],
-        decoder: Optional["CustomDecoder[StreamMessage[aio_pika.IncomingMessage]]"],
+        filter: "Filter[StreamMessage[IncomingMessage]]",
+        parser: Optional["CustomParser[IncomingMessage]"],
+        decoder: Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
         middlewares: Iterable["SubscriberMiddleware"],
         dependencies: Sequence["Depends"],
         **wrap_kwargs: Any,
-    ) -> "WrapperProtocol[aio_pika.IncomingMessage]":
+    ) -> "WrapperProtocol[IncomingMessage]":
         return super().add_call(
             parser_=resolve_custom_func(parser, AioPikaParser.parse_message),
             decoder_=resolve_custom_func(decoder, AioPikaParser.decode_message),

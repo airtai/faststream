@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 from uuid import uuid4
 
-import aio_pika
+from aio_pika import Message
 from aio_pika.abc import DeliveryMode
 
 from faststream.broker.message import StreamMessage
@@ -10,6 +10,7 @@ from faststream.rabbit.message import RabbitMessage
 from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
+    from aio_pika import IncomingMessage
     from aio_pika.abc import DateType, HeadersType
 
     from faststream.rabbit.asyncapi import Handler
@@ -33,8 +34,8 @@ class AioPikaParser:
 
     @staticmethod
     async def parse_message(
-        message: aio_pika.IncomingMessage,
-    ) -> StreamMessage[aio_pika.IncomingMessage]:
+        message: "IncomingMessage",
+    ) -> StreamMessage["IncomingMessage"]:
         """Parses an incoming message and returns a RabbitMessage object.
 
         Args:
@@ -66,7 +67,7 @@ class AioPikaParser:
 
     @staticmethod
     async def decode_message(
-        msg: StreamMessage[aio_pika.IncomingMessage],
+        msg: StreamMessage["IncomingMessage"],
     ) -> "DecodedMessage":
         """Decode a message.
 
@@ -95,7 +96,7 @@ class AioPikaParser:
         message_type: Optional[str],
         user_id: Optional[str],
         app_id: Optional[str],
-    ) -> "aio_pika.Message":
+    ) -> Message:
         """Encodes a message for sending using AioPika.
 
         Args:
@@ -108,7 +109,7 @@ class AioPikaParser:
         Returns:
             aio_pika.Message: The encoded message.
         """
-        if isinstance(message, aio_pika.Message):
+        if isinstance(message, Message):
             return message
 
         else:
@@ -118,7 +119,7 @@ class AioPikaParser:
                 DeliveryMode.PERSISTENT if persist else DeliveryMode.NOT_PERSISTENT
             )
 
-            return aio_pika.Message(
+            return Message(
                 message_body,
                 content_type=content_type or generated_content_type,
                 delivery_mode=delivery_mode,

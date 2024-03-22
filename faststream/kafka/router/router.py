@@ -7,7 +7,6 @@ from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.router import BrokerRoute, BrokerRouter
 from faststream.broker.types import P_HandlerParams, T_HandlerReturn
 from faststream.kafka.asyncapi import Publisher
-from faststream.types import SendableMessage
 
 
 class KafkaRouter(BrokerRouter[str, ConsumerRecord]):
@@ -27,7 +26,7 @@ class KafkaRouter(BrokerRouter[str, ConsumerRecord]):
     def __init__(
         self,
         prefix: str = "",
-        handlers: Iterable[BrokerRoute[ConsumerRecord, SendableMessage]] = (),
+        handlers: Iterable[BrokerRoute] = (),
         **kwargs: Any,
     ) -> None:
         """Initialize the class.

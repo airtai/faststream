@@ -33,7 +33,7 @@ from faststream.rabbit.schemas.schemas import (
 if TYPE_CHECKING:
     from enum import Enum
 
-    import aio_pika
+    from aio_pika import IncomingMessage
     from aio_pika.abc import DateType, HeadersType, SSLOptions, TimeoutType
     from fastapi import params
     from pamqp.common import FieldTable
@@ -52,13 +52,12 @@ if TYPE_CHECKING:
         PublisherMiddleware,
         SubscriberMiddleware,
     )
-    from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.schemas.schemas import ReplyConfig
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict
 
 
-class RabbitRouter(StreamRouter["aio_pika.IncomingMessage"]):
+class RabbitRouter(StreamRouter["IncomingMessage"]):
     """A class to represent a RabbitMQ router for incoming messages.
 
     Attributes:
@@ -122,15 +121,15 @@ class RabbitRouter(StreamRouter["aio_pika.IncomingMessage"]):
             ),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[aio_pika.IncomingMessag]]"],
+            Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
             Doc("Custom decoder object."),
         ] = None,
         parser: Annotated[
-            Optional["CustomParser[aio_pika.IncomingMessag]"],
+            Optional["CustomParser[IncomingMessage]"],
             Doc("Custom parser object."),
         ] = None,
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[aio_pika.IncomingMessag]"],
+            Iterable["BrokerMiddleware[IncomingMessage]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args
@@ -479,13 +478,13 @@ class RabbitRouter(StreamRouter["aio_pika.IncomingMessage"]):
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[aio_pika.IncomingMessage]"],
+            Optional["CustomParser[IncomingMessage]"],
             Doc(
                 "Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one."
             ),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[RabbitMessage]"],
+            Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -493,7 +492,7 @@ class RabbitRouter(StreamRouter["aio_pika.IncomingMessage"]):
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            "Filter[RabbitMessage]",
+            "Filter[StreamMessage[IncomingMessage]]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
@@ -527,7 +526,7 @@ class RabbitRouter(StreamRouter["aio_pika.IncomingMessage"]):
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> "WrapperProtocol[aio_pika.IncomingMessage]":
+    ) -> "WrapperProtocol[IncomingMessage]":
         queue = RabbitQueue.validate(queue)
         return super().subscriber(
             path=queue.name,

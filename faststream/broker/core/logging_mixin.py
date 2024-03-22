@@ -1,11 +1,12 @@
 import logging
 from abc import abstractmethod
 from inspect import Parameter
-from typing import Any, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Optional, Union, cast
 
 from typing_extensions import Annotated, Doc
 
-from faststream.types import AnyDict
+if TYPE_CHECKING:
+    from faststream.types import AnyDict, LoggerProtocol
 
 
 class LoggingMixin:
@@ -22,7 +23,7 @@ class LoggingMixin:
         _log : Dogs a message if logger is not None
     """
 
-    logger: Optional[logging.Logger]
+    logger: Optional["LoggerProtocol"]
 
     def __init__(
         self,
@@ -32,7 +33,7 @@ class LoggingMixin:
             Doc("Logger object to use if `logger` is not setted."),
         ],
         logger: Annotated[
-            Union[logging.Logger, None, object],
+            Union["LoggerProtocol", None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ],
         log_level: Annotated[
@@ -47,7 +48,7 @@ class LoggingMixin:
     ) -> None:
         """Initialize the class."""
         if logger is not Parameter.empty:
-            self.logger = cast(Optional[logging.Logger], logger)
+            self.logger = cast(Optional["LoggerProtocol"], logger)
             self.use_custom = True
         else:
             self.logger = default_logger
@@ -77,7 +78,7 @@ class LoggingMixin:
             Doc("Log record level. Use `__init__: log_level` option if not specified."),
         ] = None,
         extra: Annotated[
-            Optional[AnyDict],
+            Optional["AnyDict"],
             Doc("Log record extra information."),
         ] = None,
         exc_info: Annotated[

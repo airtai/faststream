@@ -1,4 +1,4 @@
-from abc import abstractproperty
+from abc import abstractmethod
 from typing import Dict, Hashable, Optional
 
 from faststream.asyncapi.schema import (
@@ -29,7 +29,8 @@ class Handler:
     def get_routing_hash(channel: Hashable) -> int:
         return hash(channel)
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def binding(self) -> redis.ChannelBinding:
         raise NotImplementedError()
 
@@ -76,7 +77,7 @@ class Handler:
 
         elif list is not None:
             if list.batch:
-                return BatchListHandler(list=list, **kwargs)
+                return BatchListAsyncAPIHandler(list=list, **kwargs)
             else:
                 return ListAsyncAPIHandler(list=list, **kwargs)
 
