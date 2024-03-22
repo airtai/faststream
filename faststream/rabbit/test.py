@@ -71,7 +71,7 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
         publisher: Publisher,
     ) -> None:
         broker.handlers.pop(
-            publisher._get_routing_hash(),
+            hash(publisher),
             None,
         )
 

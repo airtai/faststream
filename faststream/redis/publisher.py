@@ -177,3 +177,6 @@ class LogicPublisher(BasePublisher["AnyDict"]):
         any_of = self.channel or self.list or self.stream
         assert any_of, INCORRECT_SETUP_MSG  # nosec B101
         return any_of.name
+
+    def __hash__(self) -> int:
+        return hash(self.channel_name)

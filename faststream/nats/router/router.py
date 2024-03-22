@@ -546,7 +546,7 @@ class NatsRouter(BrokerRouter[str, "Msg"]):
                 ),
             ),
         )
-        publisher_key = self._get_publisher_key(new_publisher)
+        publisher_key = hash(new_publisher)
         publisher = self._publishers[publisher_key] = self._publishers.get(
             publisher_key, new_publisher
         )
@@ -555,12 +555,6 @@ class NatsRouter(BrokerRouter[str, "Msg"]):
             publisher.stream.add_subject(publisher.subject)
 
         return publisher
-
-    @override
-    @staticmethod
-    # type: ignore[override]
-    def _get_publisher_key(publisher: Publisher) -> str:
-        return publisher.subject
 
     @override
     @staticmethod

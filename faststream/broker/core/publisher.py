@@ -168,6 +168,10 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
     ) -> Any:
         raise NotImplementedError()
 
+    @abstractmethod
+    def __hash__(self) -> int:
+        raise NotImplementedError()
+
     def get_payloads(self) -> List[Tuple[AnyDict, str]]:
         payloads: List[Tuple[AnyDict, str]] = []
 

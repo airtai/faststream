@@ -1,5 +1,5 @@
 import asyncio
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 from contextlib import suppress
 from functools import cached_property
 from typing import (

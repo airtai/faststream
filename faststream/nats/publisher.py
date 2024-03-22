@@ -53,6 +53,9 @@ class LogicPublisher(BasePublisher[Msg]):
 
         self._producer = None
 
+    def __hash__(self) -> int:
+        return hash(self.subject)
+
     @override
     async def publish(  # type: ignore[override]
         self,

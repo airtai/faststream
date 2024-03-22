@@ -16,7 +16,6 @@ class KafkaRouter(BrokerRouter[str, ConsumerRecord]):
         _publishers : Dictionary of publishers
 
     Methods:
-        _get_publisher_key : Get the key for a publisher
         _update_publisher_prefix : Update the prefix of a publisher
         publisher : Create a new publisher
     """
@@ -61,19 +60,6 @@ class KafkaRouter(BrokerRouter[str, ConsumerRecord]):
             *(self.prefix + x for x in topics),
             **broker_kwargs,
         )
-
-    @override
-    @staticmethod
-    def _get_publisher_key(publisher: Publisher) -> str:  # type: ignore[override]
-        """Get the publisher key.
-
-        Args:
-            publisher: The publisher object.
-
-        Returns:
-            The publisher key.
-        """
-        return publisher.topic
 
     @override
     @staticmethod
@@ -157,7 +143,7 @@ class KafkaRouter(BrokerRouter[str, ConsumerRecord]):
                 client_id="",
             ),
         )
-        publisher_key = self._get_publisher_key(new_publisher)
+        publisher_key = hash(new_publisher)
         publisher = self._publishers[publisher_key] = self._publishers.get(
             publisher_key, new_publisher
         )

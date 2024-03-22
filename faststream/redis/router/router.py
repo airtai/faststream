@@ -5,7 +5,7 @@ from typing_extensions import Annotated, Doc, TypeAlias, deprecated, override
 
 from faststream.broker.core.broker import default_filter
 from faststream.broker.router import BrokerRoute, BrokerRouter
-from faststream.redis.asyncapi import Handler, Publisher
+from faststream.redis.asyncapi import Publisher
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 
 if TYPE_CHECKING:
@@ -374,19 +374,11 @@ class RedisRouter(BrokerRouter[int, "AnyDict"]):
                 ),
             ),
         )
-        publisher_key = self._get_publisher_key(new_publisher)
+        publisher_key = hash(new_publisher)
         publisher = self._publishers[publisher_key] = self._publishers.get(
             publisher_key, new_publisher
         )
         return publisher
-
-    @override
-    @staticmethod
-    def _get_publisher_key(publisher: Publisher) -> int:  # type: ignore[override]
-        any_of = publisher.channel or publisher.list or publisher.stream
-        if any_of is None:
-            raise ValueError(INCORRECT_SETUP_MSG)
-        return Handler.get_routing_hash(any_of)
 
     @override
     @staticmethod

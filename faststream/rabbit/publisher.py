@@ -138,7 +138,7 @@ class LogicPublisher(
     def routing(self) -> str:
         return self.routing_key or self.queue.routing
 
-    def _get_routing_hash(self) -> int:
+    def __hash__(self) -> int:
         return LogicHandler.get_routing_hash(self.queue, self.exchange) + hash(
             self.routing_key
         )

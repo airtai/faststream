@@ -706,7 +706,7 @@ class RabbitBroker(
             virtual_host=self.virtual_host,
         )
 
-        key = publisher._get_routing_hash()
+        key = hash(publisher)
         publisher = self._publishers.get(key, publisher)
         super().publisher(key, publisher)
         if self._producer is not None:

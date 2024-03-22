@@ -452,13 +452,9 @@ class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
                 app_id="",
             ),
         )
-        key = self._get_publisher_key(new_publisher)
+        key = hash(new_publisher)
         publisher = self._publishers[key] = self._publishers.get(key, new_publisher)
         return publisher
-
-    @staticmethod
-    def _get_publisher_key(publisher: Publisher) -> int:
-        return publisher._get_routing_hash()
 
     @staticmethod
     def _update_publisher_prefix(prefix: str, publisher: Publisher) -> Publisher:

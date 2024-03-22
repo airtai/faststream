@@ -81,7 +81,6 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
         _publishers : dictionary of publishers
 
     Methods:
-        _get_publisher_key : abstract method to get the publisher key
         _update_publisher_prefix : abstract method to update the publisher prefix
         __init__ : constructor method
         subscriber : abstract method to define a subscriber
@@ -94,24 +93,6 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
     prefix: str
     _handlers: List[BrokerRoute]
     _publishers: Mapping[PublisherKeyType, BasePublisher[MsgType]]
-
-    @staticmethod
-    @abstractmethod
-    def _get_publisher_key(publisher: BasePublisher[MsgType]) -> PublisherKeyType:
-        """This is a Python function.
-
-        _get_publisher_key function:
-
-        Args:
-            publisher: An instance of BasePublisher class.
-
-        Returns:
-            The publisher key.
-
-        Raises:
-            NotImplementedError: This function is not implemented.
-        """
-        raise NotImplementedError()
 
     @staticmethod
     @abstractmethod
@@ -266,7 +247,7 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
         """
         raise NotImplementedError()
 
-    def include_router(self, router: "BrokerRouter[PublisherKeyType, MsgType]") -> None:
+    def include_router(self, router: "BrokerRouter[PublisherKeyType, Any]") -> None:
         """Includes a router in the current object.
 
         Args:
@@ -280,13 +261,18 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
 
         for p in router._publishers.values():
             p = self._update_publisher_prefix(self.prefix, p)
-            key = self._get_publisher_key(p)
-            p.include_in_schema = self.solve_include_in_schema(p.include_in_schema)
-            p.middlewares = (
-                *(m(None).publish_scope for m in self._middlewares),
-                *p.middlewares,
-            )
-            self._publishers[key] = self._publishers.get(key, p)
+
+            if (key := hash(p)) not in self._publishers:
+                p.include_in_schema = self.solve_include_in_schema(p.include_in_schema)
+                p.middlewares = (
+                    *(m(None).publish_scope for m in self._middlewares),
+                    *p.middlewares,
+                )
+
+                self._publishers = {
+                    **self._publishers,
+                    key: p
+                }
 
     def include_routers(
         self,
