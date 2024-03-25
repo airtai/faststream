@@ -4,6 +4,7 @@ from aiokafka import ConsumerRecord
 from typing_extensions import Annotated, Doc
 
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
+from faststream.broker.core.publisher import BasePublisher
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.types import (
     P_HandlerParams,
@@ -27,6 +28,9 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
 
     broker_class = KB
 
+    def publisher(self, *args: Any, **kwargs: Any) -> BasePublisher[ConsumerRecord]:
+        return self.broker.publisher(*args, **kwargs)
+
     def subscriber(
         self,
         *topics: str,
@@ -45,20 +49,3 @@ class KafkaRouter(StreamRouter[ConsumerRecord]):
             dependencies=dependencies,
             **broker_kwargs,
         )
-
-    @staticmethod
-    def _setup_log_context(
-        main_broker: KB,
-        including_broker: KB,
-    ) -> None:
-        """Set up log context for a Kafka broker.
-
-        Args:
-            main_broker: The main Kafka broker.
-            including_broker: The Kafka broker to include in the log context.
-
-        Returns:
-            None
-        """
-        for h in including_broker.handlers.values():
-            main_broker._setup_log_context(h.topics)

@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 from collections import Counter
 from types import TracebackType
@@ -226,9 +227,9 @@ class CounterWatcher(BaseWatcher):
         is_max = self.memory[message_id] > self.max_tries
         if self.logger is not None:
             if is_max:
-                self.logger.error(f"Already retried {self.max_tries} times. Skipped.")
+                self.logger.log(logging.ERROR, f"Already retried {self.max_tries} times. Skipped.")
             else:
-                self.logger.error("Error is occurred. Pushing back to queue.")
+                self.logger.log(logging.ERROR, "Error is occurred. Pushing back to queue.")
         return is_max
 
     def remove(self, message: str) -> None:
@@ -322,7 +323,6 @@ class WatcherContext:
         elif self.watcher.is_max(self.message.message_id):
             await self.__reject()
 
-        else:
             await self.__nack()
 
         return False

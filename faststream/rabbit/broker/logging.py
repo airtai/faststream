@@ -1,12 +1,10 @@
 import logging
 from inspect import Parameter
-from typing import TYPE_CHECKING, Any, ClassVar, Optional, Union
+from typing import Any, ClassVar, Optional, Union
 
 from faststream.broker.core.logging_mixin import LoggingMixin
 from faststream.log.logging import get_broker_logger
-
-if TYPE_CHECKING:
-    from faststream.rabbit.schemas.schemas import RabbitExchange, RabbitQueue
+from faststream.rabbit.schemas.schemas import RabbitExchange, RabbitQueue
 
 
 class RabbitLoggingMixin(LoggingMixin):
@@ -78,8 +76,8 @@ class RabbitLoggingMixin(LoggingMixin):
 
     def _setup_log_context(
         self,
-        queue: Optional["RabbitQueue"] = None,
-        exchange: Optional["RabbitExchange"] = None,
+        queue: Union["RabbitQueue", str, None] = None,
+        exchange: Union["RabbitExchange", str, None] = None,
     ) -> None:
         """Set up log context.
 
@@ -89,10 +87,10 @@ class RabbitLoggingMixin(LoggingMixin):
         """
         self._max_exchange_len = max(
             self._max_exchange_len,
-            len(getattr(exchange, "name", "")),
+            len(getattr(RabbitExchange.validate(exchange), "name", "")),
         )
 
         self._max_queue_len = max(
             self._max_queue_len,
-            len(getattr(queue, "name", "")),
+            len(getattr(RabbitQueue.validate(queue), "name", "")),
         )

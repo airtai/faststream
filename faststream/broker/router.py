@@ -9,11 +9,12 @@ from typing import (
     Mapping,
     Optional,
     Tuple,
-    TypeVar,
+    Union,
 )
 
 from fast_depends.dependencies import Depends
 
+from faststream.broker.core.broker import default_filter
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.core.publisher import BasePublisher
 from faststream.broker.types import (
@@ -23,15 +24,19 @@ from faststream.broker.types import (
 )
 from faststream.types import AnyDict
 
-PublisherKeyType = TypeVar("PublisherKeyType")
-
 if TYPE_CHECKING:
-    from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
+    from typing_extensions import Unpack
+
+    from faststream.broker.core.handler_wrapper_mixin import (
+        WrapExtraKwargs,
+        WrapperProtocol,
+    )
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
         CustomDecoder,
         CustomParser,
+        Filter,
         SubscriberMiddleware,
     )
 
@@ -72,7 +77,7 @@ class BrokerRoute:
         self.kwargs = kwargs
 
 
-class BrokerRouter(Generic[PublisherKeyType, MsgType]):
+class BrokerRouter(Generic[MsgType]):
     """A generic class representing a broker router.
 
     Attributes:
@@ -92,7 +97,7 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
 
     prefix: str
     _handlers: List[BrokerRoute]
-    _publishers: Mapping[PublisherKeyType, BasePublisher[MsgType]]
+    _publishers: Mapping[int, BasePublisher[MsgType]]
 
     @staticmethod
     @abstractmethod
@@ -137,13 +142,16 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
     def subscriber(
         self,
         subj: str,
-        *args: Any,
-        dependencies: Iterable[Depends] = (),
-        middlewares: Iterable["SubscriberMiddleware"] = (),
-        parser: Optional["CustomParser[MsgType]"] = None,
+        *,
+        filter: "Filter[StreamMessage[MsgType]]" = default_filter,
         decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
-        include_in_schema: Optional[bool] = None,
-        **kwargs: Any,
+        parser: Optional["CustomParser[MsgType]"] = None,
+        dependencies: Iterable["Depends"] = (),
+        middlewares: Iterable["SubscriberMiddleware"] = (),
+        raw: bool = False,
+        no_ack: bool = False,
+        retry: Union[bool, int] = False,
+        **kwargs: "Unpack[WrapExtraKwargs]"
     ) -> "WrapperProtocol[MsgType]":
         """A function to subscribe to a subject.
 
@@ -220,42 +228,17 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
         return router_subscriber_wrapper
 
     def solve_include_in_schema(self, include_in_schema: bool) -> bool:
-        if self.include_in_schema is None:
+        if self.include_in_schema is None or self.include_in_schema:
             return include_in_schema
         else:
             return self.include_in_schema
 
     @abstractmethod
-    def publisher(
-        self,
-        subj: str,
-        *args: Any,
-        **kwargs: Any,
-    ) -> BasePublisher[MsgType]:
-        """Publishes a message.
-
-        Args:
-            subj: Subject of the message
-            *args: Additional arguments
-            **kwargs: Additional keyword arguments
-
-        Returns:
-            The published message
-
-        Raises:
-            NotImplementedError: If the method is not implemented
-        """
+    def publisher(self) -> BasePublisher[MsgType]:
         raise NotImplementedError()
 
-    def include_router(self, router: "BrokerRouter[PublisherKeyType, Any]") -> None:
-        """Includes a router in the current object.
-
-        Args:
-            router: The router to be included.
-
-        Returns:
-            None
-        """
+    def include_router(self, router: "BrokerRouter[Any]") -> None:
+        """Includes a router in the current object."""
         for h in router._handlers:
             self.subscriber(*h.args, **h.kwargs)(h.call)
 
@@ -276,7 +259,7 @@ class BrokerRouter(Generic[PublisherKeyType, MsgType]):
 
     def include_routers(
         self,
-        *routers: "BrokerRouter[PublisherKeyType, MsgType]",
+        *routers: "BrokerRouter[MsgType]",
     ) -> None:
         """Includes routers in the object.
 

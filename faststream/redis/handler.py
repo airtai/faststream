@@ -142,7 +142,9 @@ class BaseRedisHandler(ABC, BaseHandler[MsgType]):
         return (
             FakePublisher(
                 self.producer.publish,
-                channel=message.reply_to,
+                publish_kwargs={
+                    "channel": message.reply_to,
+                },
             ),
         )
 
@@ -152,7 +154,7 @@ class BaseRedisHandler(ABC, BaseHandler[MsgType]):
         *args: Any,
         producer: Optional["PublisherProtocol"],
     ) -> None:
-        await super().start(producer)
+        await super().start(producer=producer)
 
         start_signal = anyio.Event()
         self.task = asyncio.create_task(self._consume(*args, start_signal=start_signal))

@@ -15,6 +15,7 @@ from typing import (
     Tuple,
     Type,
     Union,
+    cast,
 )
 
 import aiokafka
@@ -55,8 +56,8 @@ class KafkaBroker(
     BrokerUsecase[aiokafka.ConsumerRecord, ConsumerConnectionParams],
 ):
     url: List[str]
-    handlers: Dict[str, Handler]
-    _publishers: Dict[str, Publisher]
+    handlers: Dict[int, Handler]
+    _publishers: Dict[int, Publisher]
     _producer: Optional[AioKafkaFastProducer]
 
     def __init__(
@@ -143,7 +144,8 @@ class KafkaBroker(
             else:
                 protocol = "kafka"
 
-        servers = [bootstrap_servers] if isinstance(bootstrap_servers, str) else list(bootstrap_servers)
+        servers = [bootstrap_servers] if isinstance(
+            bootstrap_servers, str) else list(bootstrap_servers)
 
         if asyncapi_url is not None:
             if isinstance(asyncapi_url, str):
@@ -158,7 +160,7 @@ class KafkaBroker(
             client_id=client_id,
             **kwargs,
             # Basic args
-            ## broker base
+            # broker base
             graceful_timeout=graceful_timeout,
             apply_types=apply_types,
             validate=validate,
@@ -166,14 +168,14 @@ class KafkaBroker(
             decoder=decoder,
             parser=parser,
             middlewares=middlewares,
-            ## AsyncAPI
+            # AsyncAPI
             description=description,
             asyncapi_url=asyncapi_url,
             protocol=protocol,
             protocol_version=protocol_version,
             security=security,
             tags=tags,
-            ## logging
+            # logging
             logger=logger,
             log_level=log_level,
             log_fmt=log_fmt,
@@ -237,7 +239,7 @@ class KafkaBroker(
                 f"`{handler.call_name}` waiting for messages",
                 extra=handler.get_log_context(None),
             )
-            await handler.start(self._producer, **(self._connection or {}))
+            await handler.start(producer=self._producer, **(self._connection or {}))
 
     @override
     def subscriber(  # type: ignore[override]
@@ -281,7 +283,8 @@ class KafkaBroker(
             ]
         ] = None,
         decoder: Optional[CustomDecoder] = None,
-        middlewares: Iterable["BrokerMiddleware[aiokafka.ConsumerRecord]"] = (),
+        middlewares: Iterable["BrokerMiddleware[aiokafka.ConsumerRecord]"] = (
+        ),
         filter: Union[
             Filter[KafkaMessage],
             Filter[StreamMessage[Tuple[aiokafka.ConsumerRecord, ...]]],
@@ -309,10 +312,12 @@ class KafkaBroker(
     ]:
         super().subscriber()
 
-        self._setup_log_context(topics, group_id)
+        for t in topics:
+            self._setup_log_context(t, group_id)
 
         if not auto_commit and not group_id:
-            raise ValueError("You should install `group_id` with manual commit mode")
+            raise ValueError(
+                "You should install `group_id` with manual commit mode")
 
         key = Handler.get_routing_hash(topics, group_id)
         builder = partial(
@@ -391,28 +396,29 @@ class KafkaBroker(
         if batch and key:
             raise ValueError("You can't setup `key` with batch publisher")
 
-        publisher = self._publishers.get(topic) or Publisher.create(
-            # batch flag
-            batch=batch,
-            # default args
-            key=key,
-            # both args
-            topic=topic,
-            client_id=self.client_id,
-            partition=partition,
-            timestamp_ms=timestamp_ms,
-            headers=headers,
-            reply_to=reply_to,
-            # publisher-specific
-            middlewares=middlewares,
-            # AsyncAPI
-            title_=title,
-            description_=description,
-            schema_=schema,
-            include_in_schema=include_in_schema,
-        )
+        publisher = cast(
+            Publisher,
+            self.add_publisher(publisher=Publisher.create(
+                # batch flag
+                batch=batch,
+                # default args
+                key=key,
+                # both args
+                topic=topic,
+                client_id=self.client_id,
+                partition=partition,
+                timestamp_ms=timestamp_ms,
+                headers=headers,
+                reply_to=reply_to,
+                # publisher-specific
+                middlewares=middlewares,
+                # AsyncAPI
+                title_=title,
+                description_=description,
+                schema_=schema,
+                include_in_schema=include_in_schema,
+            ),),)
 
-        super().publisher(topic, publisher)
         if self._producer is not None:
             publisher._producer = self._producer
 

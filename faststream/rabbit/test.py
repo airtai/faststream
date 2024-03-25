@@ -18,11 +18,12 @@ from faststream.rabbit.schemas.schemas import (
     RabbitExchange,
     RabbitQueue,
 )
-from faststream.rabbit.types import AioPikaSendableMessage
-from faststream.types import SendableMessage
 
 if TYPE_CHECKING:
     from aio_pika.abc import DateType, HeadersType, TimeoutType
+
+    from faststream.rabbit.types import AioPikaSendableMessage
+
 
 __all__ = ("TestRabbitBroker",)
 
@@ -118,7 +119,7 @@ class PatchedMessage(IncomingMessage):
 
 
 def build_message(
-    message: AioPikaSendableMessage = "",
+    message: "AioPikaSendableMessage" = "",
     queue: Union[RabbitQueue, str] = "",
     exchange: Union["RabbitExchange", str, None] = None,
     *,
@@ -196,9 +197,8 @@ class FakeProducer(AioPikaFastProducer):
 
     async def publish(
         self,
-        message: AioPikaSendableMessage = "",
-        queue: Union[RabbitQueue, str] = "",
-        exchange: Union[RabbitExchange, str, None] = None,
+        message: "AioPikaSendableMessage" = "",
+        exchange: Union["RabbitExchange", str, None] = None,
         *,
         routing_key: str = "",
         rpc: bool = False,
@@ -217,11 +217,11 @@ class FakeProducer(AioPikaFastProducer):
         message_type: Optional[str] = None,
         user_id: Optional[str] = None,
         app_id: Optional[str] = None,
-        # useless args to be compatible with RabbitBroker.publish()
+        # useless args to be compatible with parent
         mandatory: bool = True,
         immediate: bool = False,
         timeout: "TimeoutType" = None,
-    ) -> Optional[SendableMessage]:
+    ) -> Optional[Any]:
         """Publish a message to a RabbitMQ queue or exchange.
 
         Args:
@@ -246,7 +246,6 @@ class FakeProducer(AioPikaFastProducer):
 
         incoming = build_message(
             message=message,
-            queue=queue,
             exchange=exch,
             routing_key=routing_key,
             reply_to=reply_to,

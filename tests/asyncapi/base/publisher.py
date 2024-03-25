@@ -131,4 +131,4 @@ class PublisherTestcase:  # noqa: D101
 
         schema = get_app_schema(self.build_app(broker))
 
-        assert schema.channels == {}
+        assert schema.channels == {}, schema.channels

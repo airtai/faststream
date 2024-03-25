@@ -9,17 +9,15 @@ from faststream.broker.core.publisher import BasePublisher
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.rabbit.handler import LogicHandler
 from faststream.rabbit.schemas.schemas import BaseRMQInformation, RabbitQueue
-from faststream.types import SendableMessage
 
 if TYPE_CHECKING:
-    import aiormq
     from aio_pika.abc import DateType, HeadersType, TimeoutType
 
     from faststream.broker.types import PublisherMiddleware
     from faststream.rabbit.producer import AioPikaFastProducer
     from faststream.rabbit.schemas.schemas import RabbitExchange
     from faststream.rabbit.types import AioPikaSendableMessage
-    from faststream.types import AnyDict, SendableMessage
+    from faststream.types import AnyDict
 
 
 # should be public to use in imports
@@ -100,7 +98,7 @@ class LogicPublisher(
     def __init__(
         self,
         *,
-        app_id: str,
+        app_id: Optional[str],
         routing_key: str,
         virtual_host: str,
         queue: "RabbitQueue",
@@ -179,7 +177,7 @@ class LogicPublisher(
             Optional["DateType"],
             Doc("Message publish timestamp. Generated automatically if not presented."),
         ] = None,
-        # rps args
+        # rpc args
         rpc: Annotated[
             bool,
             Doc("Whether to wait for reply in blocking mode."),
@@ -201,7 +199,7 @@ class LogicPublisher(
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
         **publish_kwargs: "Unpack[PublishKwargs]"
-    ) -> Union["aiormq.abc.ConfirmationFrameType", "SendableMessage"]:
+    ) -> Optional[Any]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         kwargs: "AnyDict" = {
@@ -225,7 +223,7 @@ class LogicPublisher(
                     m(message, **kwargs)
                 )
 
-            return await self._producer.publish(message=message, **kwargs)
+            return await self._producer.publish(message, **kwargs)
 
-        raise AssertionError("unreachable")
+        return None
 

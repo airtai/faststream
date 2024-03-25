@@ -1,15 +1,25 @@
-from typing import Any, Callable, Dict, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional
 
-from aiokafka import ConsumerRecord
-from typing_extensions import override
+from typing_extensions import Annotated, Doc, override
 
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.router import BrokerRoute, BrokerRouter
 from faststream.broker.types import P_HandlerParams, T_HandlerReturn
 from faststream.kafka.asyncapi import Publisher
 
+if TYPE_CHECKING:
+    from aiokafka import ConsumerRecord
+    from fast_depends.dependencies import Depends
 
-class KafkaRouter(BrokerRouter[str, ConsumerRecord]):
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.types import (
+        BrokerMiddleware,
+        CustomDecoder,
+        CustomParser,
+    )
+
+
+class KafkaRouter(BrokerRouter["ConsumerRecord"]):
     """A class to represent a Kafka router.
 
     Attributes:
@@ -20,24 +30,40 @@ class KafkaRouter(BrokerRouter[str, ConsumerRecord]):
         publisher : Create a new publisher
     """
 
-    _publishers: Dict[str, Publisher]  # type: ignore[assignment]
+    _publishers: Dict[int, Publisher]  # type: ignore[assignment]
 
     def __init__(
         self,
         prefix: str = "",
         handlers: Iterable[BrokerRoute] = (),
-        **kwargs: Any,
+        *,
+        dependencies: Annotated[
+            Iterable["Depends"],
+            Doc("Dependencies list (`[Depends(),]`) to apply to all routers' publishers/subscribers."),
+        ] = (),
+        middlewares: Annotated[
+            Iterable["BrokerMiddleware[ConsumerRecord]"],
+            Doc("Router middlewares to apply to all routers' publishers/subscribers."),
+        ] = (),
+        parser: Annotated[
+            Optional["CustomParser[ConsumerRecord]"],
+            Doc(
+                "Parser to map original nats-py **Msg** to FastStream one."
+            ),
+        ] = None,
+        decoder: Annotated[
+            Optional["CustomDecoder[StreamMessage[ConsumerRecord]]"],
+            Doc("Function to decode FastStream msg bytes body to python objects."),
+        ] = None,
+        include_in_schema: Annotated[
+            Optional[bool],
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = None,
     ) -> None:
-        """Initialize the class.
-
-        Args:
-            prefix (str): Prefix string.
-            handlers (Sequence[KafkaRoute[ConsumerRecord, SendableMessage]]): Sequence of KafkaRoute objects.
-            **kwargs (Any): Additional keyword arguments.
-        """
         for h in handlers:
             h.args = tuple(prefix + x for x in h.args)
-        super().__init__(prefix, handlers, **kwargs)
+        super().__init__(prefix, handlers, dependencies=dependencies, middlewares=middlewares,
+                         parser=parser, decoder=decoder, include_in_schema=include_in_schema,)
 
     def subscriber(
         self,
@@ -45,7 +71,7 @@ class KafkaRouter(BrokerRouter[str, ConsumerRecord]):
         **broker_kwargs: Any,
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
-        HandlerCallWrapper[ConsumerRecord, P_HandlerParams, T_HandlerReturn],
+        HandlerCallWrapper["ConsumerRecord", P_HandlerParams, T_HandlerReturn],
     ]:
         """A function to subscribe to topics.
 

@@ -9,13 +9,12 @@ from typing import (
     List,
     Mapping,
     Optional,
-    Sequence,
     Type,
     Union,
     cast,
 )
 
-from typing_extensions import Annotated, Doc
+from typing_extensions import Annotated, Doc, Unpack
 
 from faststream._compat import is_test_env
 from faststream.broker.core.logging_mixin import LoggingMixin
@@ -36,7 +35,10 @@ if TYPE_CHECKING:
 
     from faststream.asyncapi.schema import Tag, TagDict
     from faststream.broker.core.handler import BaseHandler
-    from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
+    from faststream.broker.core.handler_wrapper_mixin import (
+        WrapExtraKwargs,
+        WrapperProtocol,
+    )
     from faststream.broker.core.publisher import BasePublisher
     from faststream.broker.message import StreamMessage
     from faststream.broker.router import BrokerRouter
@@ -50,7 +52,6 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.security import BaseSecurity
-    from faststream.types import SendableMessage
 
 
 async def default_filter(msg: "StreamMessage[Any]") -> bool:
@@ -210,29 +211,15 @@ class BrokerUsecase(
         self.tags = tags
         self.security = security
 
-    def include_router(self, router: "BrokerRouter[Any, MsgType]") -> None:
-        """Includes a router in the current object.
-
-        Args:
-            router: The router to be included.
-
-        Returns:
-            None
-        """
+    def include_router(self, router: "BrokerRouter[MsgType]") -> None:
+        """Includes a router in the current object."""
         for r in router._handlers:
             self.subscriber(*r.args, **r.kwargs)(r.call)
 
         self._publishers = {**self._publishers, **router._publishers}
 
-    def include_routers(self, *routers: "BrokerRouter[Any, MsgType]") -> None:
-        """Includes routers in the current object.
-
-        Args:
-            *routers: Variable length argument list of routers to include.
-
-        Returns:
-            None
-        """
+    def include_routers(self, *routers: "BrokerRouter[MsgType]") -> None:
+        """Includes routers in the current object."""
         for r in routers:
             self.include_router(r)
 
@@ -277,7 +264,10 @@ class BrokerUsecase(
             self.running = True
 
             if not self.use_custom and self.logger is not None:
-                set_logger_fmt(self.logger, self.fmt)
+                set_logger_fmt(
+                    cast(logging.Logger, self.logger),
+                    self.fmt,
+                )
 
     async def connect(self, **kwargs: Any) -> ConnectionType:
         """Connect to a remote server.
@@ -289,11 +279,13 @@ class BrokerUsecase(
             The connection object.
         """
         if self._connection is None:
-            self._connection = await self._connect(**(self._connection_kwargs | kwargs))
+            connection_kwargs = self._connection_kwargs.copy()
+            connection_kwargs.update(kwargs)
+            self._connection = await self._connect(**connection_kwargs)
         return self._connection
 
     @abstractmethod
-    async def _connect(self, **kwargs: Any) -> ConnectionType:
+    async def _connect(self) -> ConnectionType:
         """Connect to a resource.
 
         Args:
@@ -350,13 +342,12 @@ class BrokerUsecase(
     @abstractmethod
     async def publish(
         self,
-        message: "SendableMessage",
-        *args: Any,
+        message: Any,
+        *,
         reply_to: str = "",
         rpc: bool = False,
         rpc_timeout: Optional[float] = None,
         raise_timeout: bool = False,
-        **kwargs: Any,
     ) -> Any:
         """Publish a message.
 
@@ -380,16 +371,16 @@ class BrokerUsecase(
     @abstractmethod
     def subscriber(  # type: ignore[return]
         self,
-        *broker_args: Any,
+        *,
         filter: "Filter[StreamMessage[MsgType]]" = default_filter,
         decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
         parser: Optional["CustomParser[MsgType]"] = None,
-        dependencies: Sequence["Depends"] = (),
+        dependencies: Iterable["Depends"] = (),
         middlewares: Iterable["SubscriberMiddleware"] = (),
         raw: bool = False,
         no_ack: bool = False,
         retry: Union[bool, int] = False,
-        **broker_kwargs: Any,
+        **kwargs: Unpack["WrapExtraKwargs"]
     ) -> "WrapperProtocol[MsgType]":
         """A function decorator for subscribing to a message broker.
 
@@ -418,19 +409,17 @@ class BrokerUsecase(
             )
 
     @abstractmethod
-    def publisher(
+    def publisher(self) -> "BasePublisher[MsgType]":
+        raise NotImplementedError()
+
+    def add_publisher(
         self,
-        key: Any,
+        *,
         publisher: "BasePublisher[MsgType]",
     ) -> "BasePublisher[MsgType]":
-        """Publishes a publisher.
-
-        Args:
-            key: The key associated with the publisher.
-            publisher: The publisher to be published.
-
-        Returns:
-            The published publisher.
-        """
-        self._publishers = {**self._publishers, key: publisher}
-        return publisher
+        key = hash(publisher)
+        self._publishers = {
+            key: publisher,
+            **self._publishers,
+        }
+        return self._publishers[key]

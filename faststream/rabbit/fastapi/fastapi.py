@@ -68,6 +68,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
     """
 
     broker_class = RB
+    broker: RB
 
     def __init__(
         self,
@@ -547,7 +548,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
         )
 
     @override
-    def publisher(  # type: ignore[override]
+    def publisher(
         self,
         queue: Annotated[
             Union[RabbitQueue, str],
@@ -655,7 +656,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Doc("Publisher connection User ID, validated if set."),
         ] = None,
     ) -> Publisher:
-        return super().publisher(
+        return self.broker.publisher(
             queue=queue,
             exchange=exchange,
             routing_key=routing_key,
@@ -677,12 +678,3 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             message_type=message_type,
             user_id=user_id,
         )
-
-    @staticmethod
-    def _setup_log_context(
-        main_broker: RB,
-        including_broker: RB,
-    ) -> None:
-        """Sets up the log context for a main broker and an including broker."""
-        for h in including_broker.handlers.values():
-            main_broker._setup_log_context(h.queue, h.exchange)

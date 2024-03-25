@@ -53,7 +53,7 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     def remove_publisher_fake_subscriber(
         broker: KafkaBroker, publisher: Publisher
     ) -> None:
-        broker.handlers.pop(publisher.topic, None)
+        broker.handlers.pop(hash(publisher), None)
 
 
 class FakeProducer(AioKafkaFastProducer):

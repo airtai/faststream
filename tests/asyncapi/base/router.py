@@ -41,8 +41,7 @@ class RouterTestcase:  # noqa: D101
         broker.include_router(router)
 
         schema = get_app_schema(FastStream(broker))
-
-        assert schema.channels == {}
+        assert schema.channels == {}, schema.channels
 
     def test_respect_subrouter(self):
         broker = self.broker_class()
@@ -59,7 +58,7 @@ class RouterTestcase:  # noqa: D101
 
         schema = get_app_schema(FastStream(broker))
 
-        assert schema.channels == {}
+        assert schema.channels == {}, schema.channels
 
     def test_not_include_subrouter(self):
         broker = self.broker_class()

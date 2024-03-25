@@ -106,6 +106,8 @@ class FastStream:
             tags: application tags - for AsyncAPI docs
             external_docs: application external docs - for AsyncAPI docs
         """
+        context.set_global("app", self)
+
         self.broker = broker
         self.logger = logger
         self.context = context

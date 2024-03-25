@@ -1,7 +1,7 @@
 import logging
 from abc import abstractmethod
 from inspect import Parameter
-from typing import TYPE_CHECKING, Any, Optional, Union, cast
+from typing import TYPE_CHECKING, Optional, Union, cast
 
 from typing_extensions import Annotated, Doc
 
@@ -27,7 +27,7 @@ class LoggingMixin:
 
     def __init__(
         self,
-        *args: Any,
+        *,
         default_logger: Annotated[
             logging.Logger,
             Doc("Logger object to use if `logger` is not setted."),
@@ -44,7 +44,6 @@ class LoggingMixin:
             Optional[str],
             Doc("Default logger log format."),
         ],
-        **kwargs: Any,
     ) -> None:
         """Initialize the class."""
         if logger is not Parameter.empty:
@@ -94,3 +93,7 @@ class LoggingMixin:
                 extra=extra,
                 exc_info=exc_info,
             )
+
+    @abstractmethod
+    def _setup_log_context(self) -> None:
+        raise NotImplementedError()

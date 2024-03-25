@@ -10,6 +10,7 @@ from typing import (
 )
 
 import anyio
+from aio_pika.abc import AbstractIncomingMessage
 
 from faststream.broker.parsers import resolve_custom_func
 from faststream.exceptions import WRONG_PUBLISH_ARGS
@@ -88,7 +89,7 @@ class AioPikaFastProducer:
         message_type: Optional[str] = None,
         user_id: Optional[str] = None,
         app_id: Optional[str] = None,
-    ) -> Union["aiormq.abc.ConfirmationFrameType", Any]:
+    ) -> Optional[Any]:
         """Publish a message to a RabbitMQ queue."""
         context: AsyncContextManager[
             Optional["MemoryObjectReceiveStream[IncomingMessage]"]
@@ -226,7 +227,7 @@ class _RPCCallback:
         (
             send_response_stream,
             receive_response_stream,
-        ) = anyio.create_memory_object_stream["AbstractIncomingMessage"](max_buffer_size=1)
+        ) = anyio.create_memory_object_stream[AbstractIncomingMessage](max_buffer_size=1)
         await self.lock.acquire()
 
         self.consumer_tag = await self.queue.consume(

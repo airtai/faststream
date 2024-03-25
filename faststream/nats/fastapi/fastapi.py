@@ -74,6 +74,7 @@ class NatsRouter(StreamRouter["Msg"]):
     """A class to represent a NATS router."""
 
     broker_class = NatsBroker
+    broker: NatsBroker
 
     def __init__(
         self,
@@ -809,7 +810,7 @@ class NatsRouter(StreamRouter["Msg"]):
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
     ) -> Publisher:
-        return super().publisher(
+        return self.broker.publisher(
             subject,
             headers=headers,
             reply_to=reply_to,
@@ -821,16 +822,3 @@ class NatsRouter(StreamRouter["Msg"]):
             schema=schema,
             include_in_schema=include_in_schema,
         )
-
-    @override
-    @staticmethod
-    def _setup_log_context(  # type: ignore[override]
-        main_broker: NatsBroker,
-        including_broker: NatsBroker,
-    ) -> None:
-        for h in including_broker.handlers.values():
-            main_broker._setup_log_context(
-                queue=h.queue,
-                subject=h.subject,
-                stream=h.stream.name if h.stream else None,
-            )

@@ -577,7 +577,7 @@ class RedisRouter(StreamRouter["AnyDict"]):
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
     ) -> Publisher:
-        return super().publisher(
+        return self.broker.publisher(
             channel,
             list=list,
             stream=stream,
@@ -591,12 +591,3 @@ class RedisRouter(StreamRouter["AnyDict"]):
             schema=schema,
             include_in_schema=include_in_schema,
         )
-
-    @override
-    @staticmethod
-    def _setup_log_context(  # type: ignore[override]
-        main_broker: RB,
-        including_broker: RB,
-    ) -> None:
-        for h in including_broker.handlers.values():
-            main_broker._setup_log_context(h.channel_name)

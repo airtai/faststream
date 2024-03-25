@@ -23,14 +23,15 @@ from faststream.broker.push_back_watcher import (
 from faststream.utils.functions import fake_context
 
 if TYPE_CHECKING:
-    from logging import Logger
     from types import TracebackType
 
     from typing_extensions import Self
 
+    from faststream.types import LoggerProtocol
+
 
 def get_watcher(
-    logger: Optional["Logger"],
+    logger: Optional["LoggerProtocol"],
     try_number: Union[bool, int],
 ) -> BaseWatcher:
     """Get a watcher object based on the provided parameters.
@@ -57,7 +58,7 @@ def get_watcher(
 
 
 def get_watcher_context(
-    logger: Optional["Logger"],
+    logger: Optional["LoggerProtocol"],
     no_ack: bool,
     retry: Union[bool, int],
     **extra_options: Any,

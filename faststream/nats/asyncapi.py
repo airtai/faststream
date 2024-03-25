@@ -51,7 +51,7 @@ class AsyncAPIHandler(BaseNatsHandler[Any]):
         *,
         pull_sub: Optional["PullSub"],
         max_workers: int,
-        **kwargs,
+        **kwargs: Any,
     ) -> Union[
         "DefaultAsyncAPIHandler",
         "BatchAsyncAPIHandler",

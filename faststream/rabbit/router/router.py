@@ -145,7 +145,7 @@ class RabbitRoute(BrokerRoute):
         )
 
 
-class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
+class RabbitRouter(BrokerRouter["IncomingMessage"]):
     """Includable to RabbitBroker router."""
 
     _publishers: Dict[int, Publisher]
@@ -174,9 +174,9 @@ class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         include_in_schema: Annotated[
-            bool,
+            Optional[bool],
             Doc("Whetever to include operation in AsyncAPI schema or not."),
-        ] = True,
+        ] = None,
     ) -> None:
         for h in handlers:
             if (q := h.kwargs.pop("queue", None)) is None:
@@ -305,7 +305,7 @@ class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
         )
 
     @override
-    def publisher(  # type: ignore[override]
+    def publisher(
         self,
         queue: Annotated[
             Union[RabbitQueue, str],
@@ -457,7 +457,11 @@ class RabbitRouter(BrokerRouter[int, "IncomingMessage"]):
         return publisher
 
     @staticmethod
-    def _update_publisher_prefix(prefix: str, publisher: Publisher) -> Publisher:
+    @override
+    def _update_publisher_prefix(  # type: ignore[override]
+        prefix: str,
+        publisher: Publisher,
+    ) -> Publisher:
         new_q = deepcopy(publisher.queue)
         new_q.name = prefix + new_q.name
         publisher.queue = new_q

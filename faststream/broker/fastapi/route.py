@@ -88,7 +88,7 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
             path=path_name,
             call=orig_call,
         )
-        for depends in dependencies[::-1]:
+        for depends in list(dependencies)[::-1]:
             dependent.dependencies.insert(
                 0,
                 get_parameterless_sub_dependant(depends=depends, path=path_name),
@@ -306,13 +306,13 @@ def _patch_fastapi_dependent(dependent: Dependant) -> Dependant:
         if p.name not in params_names:
             params_names.add(p.name)
             info = p.field_info if PYDANTIC_V2 else p
-            params_unique[p.name] = (info.annotation, info.default)
+            params_unique[p.name] = (info.annotation, info.default)   # type: ignore[attr-defined]
 
-    dependent.model = create_model(  # type: ignore[call-overload]
+    dependent.model = create_model(  # type: ignore[attr-defined,call-overload]
         getattr(dependent.call, "__name__", type(dependent.call).__name__),
         **params_unique,
     )
-    dependent.custom_fields = {}
-    dependent.flat_params = params_unique  # type: ignore[assignment,misc]
+    dependent.custom_fields = {}  # type: ignore[attr-defined]
+    dependent.flat_params = params_unique  # type: ignore[attr-defined,assignment,misc]
 
     return dependent

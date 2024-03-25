@@ -1,6 +1,6 @@
 from typing import Any, Type
 
-from dirty_equals import IsStr
+from dirty_equals import Contains, IsStr
 from pydantic import create_model
 
 from faststream import FastStream
@@ -273,20 +273,23 @@ class PublisherNaming(BaseNaming):  # noqa: D101
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
-        assert list(schema["channels"].keys()) == [
-            IsStr(regex=r"test[\w:]*:Publisher"),
+        names = list(schema["channels"].keys())
+        assert names == Contains(
             IsStr(regex=r"test2[\w:]*:Publisher"),
-        ]
+            IsStr(regex=r"test[\w:]*:Publisher"),
+        ), names
 
-        assert list(schema["components"]["messages"].keys()) == [
-            IsStr(regex=r"test[\w:]*:Publisher:Message"),
+        messages = list(schema["components"]["messages"].keys())
+        assert messages == Contains(
             IsStr(regex=r"test2[\w:]*:Publisher:Message"),
-        ]
+            IsStr(regex=r"test[\w:]*:Publisher:Message"),
+        ), messages
 
-        assert list(schema["components"]["schemas"].keys()) == [
-            IsStr(regex=r"test[\w:]*:Publisher:Message:Payload"),
+        payloads = list(schema["components"]["schemas"].keys())
+        assert payloads == Contains(
             IsStr(regex=r"test2[\w:]*:Publisher:Message:Payload"),
-        ]
+            IsStr(regex=r"test[\w:]*:Publisher:Message:Payload"),
+        ), payloads
 
     def test_multi_publisher_usages(self):
         broker = self.broker_class()

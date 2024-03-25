@@ -74,7 +74,10 @@ class AioKafkaFastProducer:
         }
 
         if reply_to:
-            headers_to_send.update({"reply_to": reply_to})
+            headers_to_send["reply_to"] = headers_to_send.get(
+                "reply_to",
+                reply_to,
+            )
 
         await self._producer.send(
             topic=topic,
@@ -82,7 +85,8 @@ class AioKafkaFastProducer:
             key=key,
             partition=partition,
             timestamp_ms=timestamp_ms,
-            headers=[(i, (j or "").encode()) for i, j in headers_to_send.items()],
+            headers=[(i, (j or "").encode())
+                     for i, j in headers_to_send.items()],
         )
 
     async def stop(self) -> None:
@@ -99,36 +103,32 @@ class AioKafkaFastProducer:
         reply_to: str = "",
         correlation_id: Optional[str] = None,
     ) -> None:
-        """Publish a batch of messages to a topic.
-
-        Args:
-            *msgs: Variable length argument list of messages to be sent.
-            topic: The topic to which the messages should be published.
-            partition: The partition to which the messages should be sent. Defaults to None.
-            timestamp_ms: The timestamp to be associated with the messages. Defaults to None.
-            headers: Additional headers to be included with the messages. Defaults to None.
-
-        Returns:
-            None
-        """
+        """Publish a batch of messages to a topic."""
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         batch = self._producer.create_batch()
 
         headers_to_send = {
             "correlation_id": correlation_id or str(uuid4()),
-            **(headers or {}),
+            **(headers or {})
         }
 
         if reply_to:
-            headers_to_send.update({"reply_to": reply_to})
+            headers_to_send["reply_to"] = headers_to_send.get(
+                "reply_to",
+                reply_to,
+            )
 
         for msg in msgs:
             message, content_type = encode_message(msg)
 
-            final_headers = headers_to_send.copy()
             if content_type:
-                final_headers.update({"content-type": content_type})
+                final_headers = {
+                    "content-type": content_type,
+                    **headers_to_send,
+                }
+            else:
+                final_headers = headers_to_send.copy()
 
             batch.append(
                 key=None,

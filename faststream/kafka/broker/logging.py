@@ -1,6 +1,6 @@
 import logging
 from inspect import Parameter
-from typing import Any, ClassVar, Iterable, Optional, Union
+from typing import Any, ClassVar, Optional, Union
 
 from faststream.broker.core.logging_mixin import LoggingMixin
 from faststream.log.logging import get_broker_logger
@@ -58,11 +58,8 @@ class KafkaLoggingMixin(LoggingMixin):
         )
 
     def _setup_log_context(
-        self, topics: Iterable[str], group_id: Optional[str] = None
+        self, topic: str, group_id: Optional[str] = None
     ) -> None:
         """Set up log context."""
-        for t in topics:
-            self._max_topic_len = max((self._max_topic_len, len(t)))
-
-        if group_id:
-            self._max_group_len = max((self._max_group_len, len(group_id)))
+        self._max_topic_len = max((self._max_topic_len, len(topic)))
+        self._max_group_len = max((self._max_group_len, len(group_id or "")))

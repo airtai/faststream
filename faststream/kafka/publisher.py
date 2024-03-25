@@ -1,8 +1,9 @@
-from functools import cached_property
+from contextlib import AsyncExitStack
+from itertools import chain
 from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union, cast
 
 from aiokafka import ConsumerRecord
-from typing_extensions import override
+from typing_extensions import Annotated, Doc, override
 
 from faststream.broker.core.publisher import BasePublisher
 from faststream.exceptions import NOT_CONNECTED_YET
@@ -14,16 +15,7 @@ if TYPE_CHECKING:
 
 
 class LogicPublisher(BasePublisher[ConsumerRecord]):
-    """A class to publish messages to a Kafka topic.
-
-    Attributes:
-        _producer : An optional instance of AioKafkaFastProducer
-        batch : A boolean indicating whether to send messages in batch
-        client_id : A string representing the client ID
-
-    Methods:
-        publish : Publishes messages to the Kafka topic
-    """
+    """A class to publish messages to a Kafka topic."""
 
     _producer: Optional[AioKafkaFastProducer]
 
@@ -61,15 +53,8 @@ class LogicPublisher(BasePublisher[ConsumerRecord]):
 
         self._producer = None
 
-    @cached_property
-    def publish_kwargs(self) -> AnyDict:
-        return {
-            "topic": self.topic,
-            "partition": self.partition,
-            "timestamp_ms": self.timestamp_ms,
-            "headers": self.headers,
-            "reply_to": self.reply_to,
-        }
+    def __hash__(self) -> int:
+        return hash(self.topic)
 
 
 class DefaultPublisher(LogicPublisher):
@@ -109,35 +94,90 @@ class DefaultPublisher(LogicPublisher):
         self.key = key
 
     @override
-    async def _publish(  # type: ignore[override]
+    async def publish(  # type: ignore[override]
         self,
         message: SendableMessage = "",
-        **kwargs: Any,
+        topic: str = "",
+        key: Optional[bytes] = None,
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[Dict[str, str]] = None,
+        correlation_id: Optional[str] = None,
+        *,
+        reply_to: str = "",
+        # publisher specific
+        extra_middlewares: Annotated[
+            Iterable["PublisherMiddleware"],
+            Doc("Extra middlewares to wrap publishing process."),
+        ] = (),
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
-        return await self._producer.publish(
-            message=message,
-            **kwargs,
-        )
 
-    @cached_property
-    def publish_kwargs(self) -> AnyDict:
-        return super().publish_kwargs | {"key": self.key}
+        kwargs: "AnyDict" = {
+            "key": key or self.key,
+            # basic args
+            "topic": topic or self.topic,
+            "partition": partition or self.partition,
+            "timestamp_ms": timestamp_ms or self.timestamp_ms,
+            "headers": headers or self.headers,
+            "reply_to": reply_to or self.reply_to,
+            "correlation_id": correlation_id,
+        }
+
+        async with AsyncExitStack() as stack:
+            for m in chain(extra_middlewares, self.middlewares):
+                message = await stack.enter_async_context(
+                    m(message, **kwargs)
+                )
+
+            return await self._producer.publish(message=message, **kwargs)
+
+        return None
 
 
 class BatchPublisher(LogicPublisher):
     @override
-    async def _publish(  # type: ignore[override]
+    async def publish(  # type: ignore[override]
         self,
-        messages: Union[SendableMessage, Iterable[SendableMessage]],
+        message: Union[SendableMessage, Iterable[SendableMessage]],
         *extra_messages: SendableMessage,
-        **kwargs: Any,
+        topic: str = "",
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        headers: Optional[Dict[str, str]] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
+        # publisher specific
+        extra_middlewares: Annotated[
+            Iterable["PublisherMiddleware"],
+            Doc("Extra middlewares to wrap publishing process."),
+        ] = (),
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         if extra_messages:
-            msgs = (cast(SendableMessage, messages), *extra_messages)
+            msgs = (cast(SendableMessage, message), *extra_messages)
         else:
-            msgs = cast(Iterable[SendableMessage], messages)
+            msgs = cast(Iterable[SendableMessage], message)
 
-        await self._producer.publish_batch(*msgs, **kwargs)
+        kwargs: "AnyDict" = {
+            "topic": topic or self.topic,
+            "partition": partition or self.partition,
+            "timestamp_ms": timestamp_ms or self.timestamp_ms,
+            "headers": headers or self.headers,
+            "reply_to": reply_to or self.reply_to,
+            "correlation_id": correlation_id,
+        }
+
+        async with AsyncExitStack() as stack:
+            wrapped_messages = [
+                await stack.enter_async_context(
+                    middleware(None).publish_scope(msg, **kwargs)
+                )
+                for msg in msgs
+                for middleware in chain(extra_middlewares, self.middlewares)
+            ] or msgs
+
+            return await self._producer.publish_batch(*wrapped_messages, **kwargs)
+
+        return None

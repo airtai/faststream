@@ -150,3 +150,5 @@ class LogicPublisher(BasePublisher[Msg]):
                 message,
                 **kwargs
             )
+
+        return None

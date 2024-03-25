@@ -23,7 +23,7 @@ from faststream.kafka.shared.router import KafkaRoute
 
 Partition = TypeVar("Partition")
 
-class KafkaRouter(BrokerRouter[str, aiokafka.ConsumerRecord]):
+class KafkaRouter(BrokerRouter[aiokafka.ConsumerRecord]):
     _publishers: dict[str, Publisher]  # type: ignore[assignment]
 
     def __init__(

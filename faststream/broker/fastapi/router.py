@@ -3,6 +3,7 @@ from abc import abstractmethod
 from contextlib import asynccontextmanager
 from enum import Enum
 from typing import (
+    TYPE_CHECKING,
     Any,
     AsyncIterator,
     Awaitable,
@@ -41,6 +42,9 @@ from faststream.broker.schemas import NameRequired
 from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
 from faststream.types import AnyDict
 from faststream.utils.functions import to_async
+
+if TYPE_CHECKING:
+    from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
 
 
 class StreamRouter(APIRouter, Generic[MsgType]):
@@ -228,7 +232,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             path,
             *extra,
             endpoint=endpoint,
-            dependencies=dependencies,
+            dependencies=(*self.dependencies, *dependencies),
             provider_factory=self.get_dependencies_overides_provider,
             broker=self.broker,
             **broker_kwargs,
@@ -242,10 +246,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         *extra: Union[NameRequired, str],
         dependencies: Iterable[params.Depends],
         **broker_kwargs: Any,
-    ) -> Callable[
-        [Callable[P_HandlerParams, T_HandlerReturn]],
-        HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
-    ]:
+    ) -> "WrapperProtocol[MsgType]":
         """A function decorator for subscribing to a message queue.
 
         Args:
@@ -273,7 +274,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
                 path,
                 *extra,
                 endpoint=func,
-                dependencies=(*self.dependencies, *dependencies),
+                dependencies=dependencies,
                 **broker_kwargs,
             )
 
@@ -437,27 +438,9 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         self._on_shutdown_hooks.append(to_async(func))  # type: ignore
         return func
 
-    def publisher(
-        self,
-        queue: Union[NameRequired, str],
-        *publisher_args: Any,
-        **publisher_kwargs: Any,
-    ) -> BasePublisher[MsgType]:
-        """Publishes messages to a queue.
-
-        Args:
-            queue: The queue to publish the messages to. Can be either a `NameRequired` object or a string.
-            *publisher_args: Additional arguments to be passed to the publisher.
-            **publisher_kwargs: Additional keyword arguments to be passed to the publisher.
-
-        Returns:
-            An instance of `BasePublisher` that can be used to publish messages to the specified queue.
-        """
-        return self.broker.publisher(
-            queue,
-            *publisher_args,
-            **publisher_kwargs,
-        )
+    @abstractmethod
+    def publisher(self) -> BasePublisher[MsgType]:
+        raise NotImplementedError()
 
     def asyncapi_router(self, schema_url: Optional[str]) -> Optional[APIRouter]:
         """Creates an API router for serving AsyncAPI documentation.
@@ -616,21 +599,12 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         )
 
     @staticmethod
-    @abstractmethod
     def _setup_log_context(
         main_broker: BrokerUsecase[MsgType, Any],
         including_broker: BrokerUsecase[MsgType, Any],
     ) -> None:
-        """Set up log context.
-
-        Args:
-            main_broker: The main broker.
-            including_broker: The including broker.
-
-        Returns:
-            None
-
-        Raises:
-            NotImplementedError: If the function is not implemented.
-        """
-        raise NotImplementedError()
+        """Set up log context."""
+        for h in including_broker.handlers.values():
+            context = h.get_log_context(None)
+            context.pop("message_id", None)
+            main_broker._setup_log_context(**context)

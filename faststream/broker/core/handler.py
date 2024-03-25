@@ -1,4 +1,3 @@
-import dataclasses
 from abc import abstractmethod
 from contextlib import AsyncExitStack, asynccontextmanager
 from inspect import unwrap
@@ -14,7 +13,6 @@ from typing import (
     Iterable,
     List,
     Optional,
-    Sequence,
     Tuple,
     Type,
     cast,
@@ -31,8 +29,7 @@ from faststream.broker.types import (
     T_HandlerReturn,
 )
 from faststream.broker.utils import MultiLock
-from faststream.exceptions import HandlerException, StopConsume
-from faststream.types import AnyDict
+from faststream.exceptions import HandlerException, IgnoredException, StopConsume
 from faststream.utils.context.repository import context
 from faststream.utils.functions import to_async
 
@@ -61,18 +58,37 @@ if TYPE_CHECKING:
         PublisherProtocol,
         SubscriberMiddleware,
     )
+    from faststream.types import AnyDict
 
 
-@dataclasses.dataclass(slots=True)
 class HandlerItem(Generic[MsgType]):
     """A class representing handler overloaded item."""
 
-    handler: "HandlerCallWrapper[MsgType, ..., Any]"
-    filter: "AsyncFilter[StreamMessage[MsgType]]"
-    parser: "AsyncParser[MsgType]"
-    decoder: "AsyncDecoder[StreamMessage[MsgType]]"
-    middlewares: Iterable["SubscriberMiddleware"]
-    dependent: "CallModel[..., Any]"
+    __slots__ = (
+        "handler",
+        "filter",
+        "parser",
+        "decoder",
+        "middlewares",
+        "dependent",
+    )
+
+    def __init__(
+        self,
+        *,
+        handler: "HandlerCallWrapper[MsgType, ..., Any]",
+        filter: "AsyncFilter[StreamMessage[MsgType]]",
+        parser: "AsyncParser[MsgType]",
+        decoder: "AsyncDecoder[StreamMessage[MsgType]]",
+        middlewares: Iterable["SubscriberMiddleware"],
+        dependent: "CallModel[..., Any]",
+    ) -> None:
+        self.handler = handler
+        self.filter = filter
+        self.parser = parser
+        self.decoder = decoder
+        self.middlewares = middlewares
+        self.dependent = dependent
 
     @property
     def call_name(self) -> str:
@@ -131,7 +147,7 @@ class HandlerItem(Generic[MsgType]):
             try:
                 result = await self.handler.call_wrapped(message)
 
-            except StopConsume:
+            except (IgnoredException, SystemExit):
                 self.handler.trigger()
                 raise
 
@@ -152,6 +168,8 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
     """A class representing an asynchronous handler."""
 
     calls: List[HandlerItem[MsgType]]
+    producer: Optional[Any]
+    extra_watcher_options: "AnyDict"
 
     def __init__(
         self,
@@ -159,7 +177,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         middlewares: Iterable["BrokerMiddleware[MsgType]"],
         graceful_timeout: Optional[float],
         watcher: Callable[..., AsyncContextManager[None]],
-        extra_context: Optional[AnyDict],
+        extra_context: Optional["AnyDict"],
         # AsyncAPI information
         title_: Optional[str],
         description_: Optional[str],
@@ -186,7 +204,8 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
     @abstractmethod
     async def start(
         self,
-        producer: Optional["PublisherProtocol"],
+        *,
+        producer: Optional[Any],
     ) -> None:
         """Start the handler."""
         self.running = True
@@ -207,6 +226,9 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
             yield
         except StopConsume:
             await self.close()
+        except SystemExit:
+            await self.close()
+            context.get("app").exit()
 
     def add_call(
         self,
@@ -215,7 +237,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         parser_: "CustomParser[MsgType]",
         decoder_: "CustomDecoder[StreamMessage[MsgType]]",
         middlewares_: Iterable["SubscriberMiddleware"],
-        dependencies_: Sequence["Depends"],
+        dependencies_: Iterable["Depends"],
         **wrapper_kwargs: "Unpack[WrapExtraKwargs]",
     ) -> "WrapperProtocol[MsgType]":
         # TODO: should return self
@@ -228,7 +250,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
             parser: Optional["CustomParser[MsgType]"] = None,
             decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
             middlewares: Iterable["SubscriberMiddleware"] = (),
-            dependencies: Sequence["Depends"] = (),
+            dependencies: Iterable["Depends"] = (),
         ) -> Callable[
             [Callable[P_HandlerParams, T_HandlerReturn]],
             "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
@@ -243,7 +265,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
             parser: Optional["CustomParser[MsgType]"] = None,
             decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
             middlewares: Iterable["SubscriberMiddleware"] = (),
-            dependencies: Sequence["Depends"] = (),
+            dependencies: Iterable["Depends"] = (),
         ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
             ...
 
@@ -254,7 +276,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
             parser: Optional["CustomParser[MsgType]"] = None,
             decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
             middlewares: Iterable["SubscriberMiddleware"] = (),
-            dependencies: Sequence["Depends"] = (),
+            dependencies: Iterable["Depends"] = (),
         ) -> Any:
             total_deps = (*dependencies_, *dependencies)
             total_middlewares = (*middlewares_, *middlewares)
@@ -342,9 +364,13 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                         exc_type: Optional[Type[BaseException]] = None,
                         exc_val: Optional[BaseException] = None,
                         exc_tb: Optional["TracebackType"] = None,
-                    ) -> None:
-                        for m in middlewares:
+                    ) -> Optional[bool]:
+                        values = [
                             await m.__aexit__(exc_type, exc_val, exc_tb)
+                            for m in middlewares
+                        ]
+                        # return result of the latest middleware
+                        return next(iter(values[::-1]), None)
 
                     result_msg = await h.call(
                         message=message,
@@ -357,7 +383,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                         h.handler._publishers,
                     ):
                         await p.publish(
-                            message=result_msg,
+                            result_msg,
                             correlation_id=message.correlation_id,
                             # publisher middlewares
                             extra_middlewares=(m.publish_scope for m in middlewares),
@@ -371,9 +397,13 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                 exc_type: Optional[Type[BaseException]] = None,
                 exc_val: Optional[BaseException] = None,
                 exc_tb: Optional["TracebackType"] = None,
-            ) -> None:
-                for m in middlewares:
+            ) -> Optional[bool]:
+                values = [
                     await m.__aexit__(exc_type, exc_val, exc_tb)
+                    for m in middlewares
+                ]
+                # return result of the latest middleware
+                return next(iter(values[::-1]), None)
 
             raise AssertionError(f"There is no suitable handler for {msg=}")
 
@@ -381,7 +411,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
 
     def make_response_publisher(
         self, message: "StreamMessage[MsgType]"
-    ) -> Sequence["PublisherProtocol"]:
+    ) -> Iterable["PublisherProtocol"]:
         raise NotImplementedError()
 
     def get_log_context(
@@ -389,7 +419,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         message: Optional["StreamMessage[MsgType]"],
     ) -> Dict[str, str]:
         return {
-            "message_id": message.message_id if message else "",
+            "message_id": getattr(message, "message_id", ""),
         }
 
     # AsyncAPI methods
@@ -407,9 +437,9 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         else:
             return self.calls[0].description
 
-    def get_payloads(self) -> List[Tuple[AnyDict, str]]:
+    def get_payloads(self) -> List[Tuple["AnyDict", str]]:
         """Get the payloads of the handler."""
-        payloads: List[Tuple[AnyDict, str]] = []
+        payloads: List[Tuple["AnyDict", str]] = []
 
         for h in self.calls:
             body = parse_handler_params(

@@ -45,7 +45,7 @@ class TestArguments(PublisherTestcase):  # noqa: D101
                 },
                 "servers": ["development"],
             }
-        }
+        }, schema["channels"]
 
     def test_publisher_bindings(self):
         broker = self.broker_class()

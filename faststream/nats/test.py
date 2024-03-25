@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from uuid import uuid4
 
 from nats.aio.msg import Msg
@@ -88,14 +88,15 @@ class FakeProducer(NatsFastProducer):
                 continue
 
             if is_subject_match_wildcard(subject, handler.subject):
+                msg: Union[List[PatchedMessage], PatchedMessage]
                 if getattr(handler.pull_sub, "batch", False):
-                    message = [incoming]
+                    msg = [incoming]
                 else:
-                    message = incoming
+                    msg = incoming
 
                 r = await call_handler(
                     handler=handler,
-                    message=message,
+                    message=msg,
                     rpc=rpc,
                     rpc_timeout=rpc_timeout,
                     raise_timeout=raise_timeout,

@@ -36,7 +36,7 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
 
-    class WrapExtraKwargs(TypedDict):
+    class WrapExtraKwargs(TypedDict, total=False):
         """Class to annotate `wrap_handler` method extra options using `typing_extensions.Unpack`."""
 
         apply_types: Annotated[
@@ -67,7 +67,7 @@ if TYPE_CHECKING:
             parser: Optional["CustomParser[MsgType]"] = None,
             decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
             middlewares: Iterable["SubscriberMiddleware"] = (),
-            dependencies: Sequence["Depends"] = (),
+            dependencies: Iterable["Depends"] = (),
         ) -> Callable[
             [Callable[P_HandlerParams, T_HandlerReturn]],
             HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
@@ -83,7 +83,7 @@ if TYPE_CHECKING:
             parser: Optional[CustomParser[MsgType]] = None,
             decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
             middlewares: Iterable[SubscriberMiddleware] = (),
-            dependencies: Sequence[Depends] = (),
+            dependencies: Iterable[Depends] = (),
         ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
             ...
 
@@ -95,7 +95,7 @@ if TYPE_CHECKING:
             parser: Optional[CustomParser[MsgType]] = None,
             decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
             middlewares: Iterable[SubscriberMiddleware] = (),
-            dependencies: Sequence[Depends] = (),
+            dependencies: Iterable[Depends] = (),
         ) -> Union[
             HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
             Callable[
@@ -116,7 +116,7 @@ class WrapHandlerMixin(Generic[MsgType]):
             Callable[P_HandlerParams, T_HandlerReturn],
             HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
         ],
-        dependencies: Sequence["Depends"],
+        dependencies: Iterable["Depends"],
         apply_types: Annotated[
             bool,
             Doc("Flag to wrap original function to FastDepends"),
@@ -150,8 +150,8 @@ class WrapHandlerMixin(Generic[MsgType]):
         )
 
         if isinstance(func, HandlerCallWrapper):
-            handler_call = cast(HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn], func)
-            func = handler_call._original_call
+            handler_call = func
+            func = func._original_call
 
             if handler_call._wrapped_call is not None:
                 return handler_call, build_dep(func)

@@ -1,8 +1,8 @@
 from itertools import zip_longest
-from typing import TYPE_CHECKING, Annotated, List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from nats.js.api import DiscardPolicy, StreamConfig
-from typing_extensions import Doc
+from typing_extensions import Annotated, Doc
 
 from faststream.broker.schemas import NameRequired
 

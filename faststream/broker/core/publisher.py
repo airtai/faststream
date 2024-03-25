@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from contextlib import AsyncExitStack
 from inspect import unwrap
 from itertools import chain
@@ -36,8 +36,9 @@ class FakePublisher:
     def __init__(
         self,
         method: Callable[..., Awaitable[SendableMessage]],
+        *,
+        publish_kwargs: AnyDict,
         middlewares: Iterable["PublisherMiddleware"] = (),
-        **publish_kwargs: Any,
     ) -> None:
         """Initialize an object."""
         self.method = method
@@ -47,7 +48,7 @@ class FakePublisher:
     async def publish(
         self,
         message: SendableMessage,
-        *args: Any,
+        /,
         correlation_id: Optional[str] = None,
         extra_middlewares: Iterable["PublisherMiddleware"] = (),
         **kwargs: Any,
@@ -63,23 +64,22 @@ class FakePublisher:
         Returns:
             The published message.
         """
-        publish_kwargs = self.publish_kwargs | kwargs
+        publish_kwargs = {
+            "correlation_id": correlation_id,
+            **self.publish_kwargs,
+            **kwargs,
+        }
 
         async with AsyncExitStack() as stack:
             for m in chain(extra_middlewares, self.middlewares):
                 message = await stack.enter_async_context(
-                    m(message, *args, correlation_id=correlation_id, **publish_kwargs)
+                    m(message, **publish_kwargs)
                 )
 
-            return await self.method(
-                message,
-                *args,
-                correlation_id=correlation_id,
-                **publish_kwargs,
-            )
+            return await self.method(message, **publish_kwargs)
 
 
-class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
+class BasePublisher(ABC, AsyncAPIOperation, Generic[MsgType]):
     """A base class for publishers in an asynchronous API."""
 
     calls: List[Callable[..., Any]]
@@ -161,11 +161,19 @@ class BasePublisher(AsyncAPIOperation, Generic[MsgType]):
     async def publish(
         self,
         message: Any,
-        *args: Any,
-        correlation_id: Optional[str] = None,
-        extra_middlewares: Iterable["PublisherMiddleware"] = (),
-        **kwargs: Any,
-    ) -> Any:
+        /,
+        correlation_id: Annotated[
+            Optional[str],
+            Doc(
+                "Manual message **correlation_id** setter. "
+                "**correlation_id** is a useful option to trace messages."
+            ),
+        ] = None,
+        extra_middlewares: Annotated[
+            Iterable["PublisherMiddleware"],
+            Doc("Extra middlewares to wrap publishing process."),
+        ] = (),
+    ) -> Optional[Any]:
         raise NotImplementedError()
 
     @abstractmethod

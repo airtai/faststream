@@ -255,10 +255,12 @@ class RabbitBroker(
         self.declarer = None
         self._producer = None
 
-    async def connect(
+    @override
+    async def connect(  # type: ignore[override]
         self,
         url: Annotated[
-            Union[str, "URL", object], Doc("RabbitMQ destination location to connect.")
+            Union[str, "URL", object], Doc(
+                "RabbitMQ destination location to connect.")
         ] = Parameter.empty,
         *,
         host: Annotated[
@@ -330,7 +332,8 @@ class RabbitBroker(
 
         return connection
 
-    async def _connect(
+    @override
+    async def _connect(  # type: ignore[override]
         self,
         url: str,
         *,
@@ -364,7 +367,8 @@ class RabbitBroker(
             )
 
             if max_consumers:
-                c = Handler.build_log_context(None, RabbitQueue(""), RabbitExchange(""))
+                c = Handler.build_log_context(
+                    None, RabbitQueue(""), RabbitExchange(""))
                 self._log(f"Set max consumers to {max_consumers}", extra=c)
                 await channel.set_qos(prefetch_count=int(max_consumers))
 
@@ -390,7 +394,8 @@ class RabbitBroker(
 
         await super()._close(exc_type, exc_val, exc_tb)
 
-    def include_router(
+    @override
+    def include_router(  # type: ignore[override]
         self,
         router: Annotated[
             "RabbitRouter",
@@ -418,7 +423,7 @@ class RabbitBroker(
         for handler in self.handlers.values():
             c = handler.get_log_context(None)
             self._log(f"`{handler.call_name}` waiting for messages", extra=c)
-            await handler.start(self.declarer, self._producer)
+            await handler.start(declarer=self.declarer, producer=self._producer)
 
     @override
     def subscriber(  # type: ignore[override]
@@ -546,7 +551,7 @@ class RabbitBroker(
         )
 
     @override
-    def publisher(  # type: ignore[override]
+    def publisher(
         self,
         queue: Annotated[
             Union[RabbitQueue, str],
@@ -690,31 +695,33 @@ class RabbitBroker(
             expiration=expiration,
         )
 
-        publisher = Publisher(
-            queue=q,
-            exchange=ex,
-            routing_key=routing_key,
-            message_kwargs=message_kwargs,
-            app_id=self.app_id,
-            # Specific
-            middlewares=middlewares,
-            # AsyncAPI
-            title_=title,
-            description_=description,
-            schema_=schema,
-            include_in_schema=include_in_schema,
-            virtual_host=self.virtual_host,
+        publisher = cast(
+            Publisher,
+            super().add_publisher(
+                publisher=Publisher(
+                    queue=q,
+                    exchange=ex,
+                    routing_key=routing_key,
+                    message_kwargs=message_kwargs,
+                    app_id=self.app_id,
+                    # Specific
+                    middlewares=middlewares,
+                    # AsyncAPI
+                    title_=title,
+                    description_=description,
+                    schema_=schema,
+                    include_in_schema=include_in_schema,
+                    virtual_host=self.virtual_host,
+                )
+            )
         )
 
-        key = hash(publisher)
-        publisher = self._publishers.get(key, publisher)
-        super().publisher(key, publisher)
         if self._producer is not None:
             publisher._producer = self._producer
         return publisher
 
     @override
-    async def publish(  # type: ignore[override]
+    async def publish(
         self,
         message: Annotated[
             "AioPikaSendableMessage",
@@ -890,6 +897,8 @@ class RabbitBroker(
                 rpc_timeout=rpc_timeout,
                 raise_timeout=raise_timeout,
             )
+
+        return None
 
     async def declare_queue(
         self,

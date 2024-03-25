@@ -8,6 +8,8 @@ from typing import (
     ClassVar,
     Dict,
     List,
+    Mapping,
+    Optional,
     Protocol,
     Sequence,
     TypeVar,
@@ -97,7 +99,11 @@ Lifespan: TypeAlias = Callable[..., AsyncContextManager[None]]
 class LoggerProtocol(Protocol):
     def log(
         self,
-        *args: Any,
-        **__kwargs: Any,
+        level: int,
+        msg: Any,
+        /,
+        *,
+        exc_info: Any = None,
+        extra: Optional[Mapping[str, Any]] = None,
     ) -> None:
         ...

@@ -231,10 +231,10 @@ class NatsRoute(BrokerRoute):
             include_in_schema=include_in_schema,
         )
 
-class NatsRouter(BrokerRouter[str, "Msg"]):
+class NatsRouter(BrokerRouter["Msg"]):
     """A class to represent a NATS router."""
 
-    _publishers: Dict[str, Publisher]
+    _publishers: Dict[int, Publisher]
 
     def __init__(
         self,
@@ -260,17 +260,10 @@ class NatsRouter(BrokerRouter[str, "Msg"]):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         include_in_schema: Annotated[
-            bool,
+        Optional[bool],
             Doc("Whetever to include operation in AsyncAPI schema or not."),
-        ] = True,
+        ] = None,
     ) -> None:
-        """Initialize the NATS router.
-
-        Args:
-            prefix: The prefix.
-            handlers: The handlers.
-            **kwargs: The keyword arguments.
-        """
         for h in handlers:
             if not (subj := h.kwargs.pop("subject", None)):
                 subj, h.args = h.args[0], h.args[1:]

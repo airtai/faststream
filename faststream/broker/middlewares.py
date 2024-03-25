@@ -1,9 +1,11 @@
+import logging
 from contextlib import asynccontextmanager
 from types import TracebackType
 from typing import Any, AsyncIterator, Optional, Type, cast
 
 from typing_extensions import Self
 
+from faststream.exceptions import IgnoredException
 from faststream.types import DecodedMessage, LoggerProtocol, SendableMessage
 from faststream.utils.context.repository import context
 
@@ -176,7 +178,7 @@ class BaseMiddleware:
 
     @asynccontextmanager
     async def publish_scope(
-        self, msg: Any, *args: Any, **kwargs: Any
+        self, msg: Any, /, *args: Any, **kwargs: Any
     ) -> AsyncIterator[SendableMessage]:
         """Publish a message and return an async iterator.
 
@@ -268,7 +270,8 @@ class CriticalLogMiddleware(BaseMiddleware):
             c = context.get_local("log_context") or {}
 
             if exc_type and exc_val:
-                self.logger.error(
+                self.logger.log(
+                    logging.ERROR,
                     f"{exc_type.__name__}: {exc_val}",
                     exc_info=exc_val,
                     extra=c,
@@ -277,4 +280,8 @@ class CriticalLogMiddleware(BaseMiddleware):
             self.logger.log(self.log_level, "Processed", extra=c)
 
         await super().after_processed(exc_type, exc_val, exc_tb)
-        return True
+
+        if exc_type:
+            return not issubclass(exc_type, (IgnoredException, SystemExit))
+
+        return False

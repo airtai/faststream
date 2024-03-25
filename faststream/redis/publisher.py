@@ -119,13 +119,25 @@ class LogicPublisher(BasePublisher["AnyDict"]):
     ) -> Optional[DecodedMessage]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
+        middlewares = chain(extra_middlewares, self.middlewares)
+
         if (list_sub := ListSub.validate(list or self.list)) is not None:
             if list_sub.batch:
-                await self._producer.publish_batch(
-                    *cast(Sequence[SendableMessage], message),
-                    list=list_sub.name,  # type: ignore[union-attr]
-                )
-                return None
+                msgs = cast(Sequence[SendableMessage], message)
+
+                async with AsyncExitStack() as stack:
+                    wrapped_messages = [
+                        await stack.enter_async_context(
+                            middleware(None).publish_scope(msg, list=list_sub)
+                        )
+                        for msg in msgs
+                        for middleware in middlewares
+                    ] or msgs
+
+                    return await self._producer.publish_batch(
+                        *wrapped_messages,
+                        list=list_sub.name,  # type: ignore[union-attr]
+                    )
 
             else:
                 kwargs = {
@@ -165,7 +177,7 @@ class LogicPublisher(BasePublisher["AnyDict"]):
         })
 
         async with AsyncExitStack() as stack:
-            for m in chain(extra_middlewares, self.middlewares):
+            for m in middlewares:
                 message = await stack.enter_async_context(
                     m(message, **kwargs)
                 )

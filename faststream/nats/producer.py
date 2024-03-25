@@ -1,39 +1,41 @@
 import asyncio
 from secrets import token_hex
-from typing import Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
 from uuid import uuid4
 
 import nats
-from nats.aio.client import Client
-from nats.aio.msg import Msg
-from nats.js import JetStreamContext
 
 from faststream.broker.parsers import encode_message, resolve_custom_func
-from faststream.broker.types import (
-    AsyncCustomDecoder,
-    AsyncCustomParser,
-    AsyncDecoder,
-    AsyncParser,
-)
 from faststream.exceptions import WRONG_PUBLISH_ARGS
-from faststream.nats.message import NatsMessage
 from faststream.nats.parser import NatsParser
-from faststream.types import SendableMessage
 from faststream.utils.functions import timeout_scope
+
+if TYPE_CHECKING:
+    from nats.aio.client import Client
+    from nats.aio.msg import Msg
+    from nats.js import JetStreamContext
+
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.types import (
+        AsyncCustomDecoder,
+        AsyncCustomParser,
+        AsyncDecoder,
+        AsyncParser,
+    )
+    from faststream.types import SendableMessage
 
 
 class NatsFastProducer:
     """A class to represent a NATS producer."""
 
-    _connection: Client
-    _decoder: AsyncDecoder[Any]
-    _parser: AsyncParser[Msg]
+    _decoder: "AsyncDecoder[StreamMessage[Msg]]"
+    _parser: "AsyncParser[Msg]"
 
     def __init__(
         self,
-        connection: Client,
-        parser: Optional[AsyncCustomParser[Msg]],
-        decoder: Optional[AsyncCustomDecoder[NatsMessage]],
+        connection: "Client",
+        parser: Optional["AsyncCustomParser[Msg]"],
+        decoder: Optional["AsyncCustomDecoder[StreamMessage[Msg]]"],
     ) -> None:
         """Initialize the NATS producer.
 
@@ -48,7 +50,7 @@ class NatsFastProducer:
 
     async def publish(
         self,
-        message: SendableMessage,
+        message: "SendableMessage",
         subject: str,
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
@@ -107,15 +109,15 @@ class NatsFastProducer:
 class NatsJSFastProducer:
     """A class to represent a NATS JetStream producer."""
 
-    _connection: JetStreamContext
-    _decoder: AsyncDecoder[Any]
-    _parser: AsyncParser[Msg]
+    _decoder: "AsyncDecoder[StreamMessage[Msg]]"
+    _parser: "AsyncParser[Msg]"
 
     def __init__(
         self,
-        connection: JetStreamContext,
-        parser: Optional[AsyncCustomParser[Msg]],
-        decoder: Optional[AsyncCustomDecoder[NatsMessage]],
+        *,
+        connection: "JetStreamContext",
+        parser: Optional["AsyncCustomParser[Msg]"],
+        decoder: Optional["AsyncCustomDecoder[StreamMessage[Msg]]"],
     ) -> None:
         """Initialize the NATS JetStream producer.
 
@@ -130,7 +132,7 @@ class NatsJSFastProducer:
 
     async def publish(
         self,
-        message: SendableMessage,
+        message: "SendableMessage",
         subject: str,
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",

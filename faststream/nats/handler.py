@@ -12,6 +12,7 @@ from typing import (
     List,
     Optional,
     Sequence,
+    Type,
     Union,
     cast,
 )
@@ -50,6 +51,7 @@ if TYPE_CHECKING:
         PublisherProtocol,
         SubscriberMiddleware,
     )
+    from faststream.nats.producer import NatsFastProducer
     from faststream.nats.schemas import JStream, PullSub
 
 
@@ -155,12 +157,13 @@ class BaseNatsHandler(BaseHandler[MsgType]):
     @override
     async def start(  # type: ignore[override]
         self,
+        *,
         connection: Annotated[
             Union["Client", "JetStreamContext"],
             Doc("NATS client or JS Context object using to create subscription"),
         ],
         producer: Annotated[
-            Optional["PublisherProtocol"],
+            Optional["NatsFastProducer"],
             Doc("Publisher to response RPC"),
         ],
     ) -> None:
@@ -207,7 +210,9 @@ class BaseNatsHandler(BaseHandler[MsgType]):
         return (
             FakePublisher(
                 self.producer.publish,
-                subject=message.reply_to,
+                publish_kwargs={
+                    "subject": message.reply_to,
+                },
             ),
         )
 
@@ -217,12 +222,12 @@ class BaseNatsHandler(BaseHandler[MsgType]):
             str,
             Doc("NATS subject to consume messages"),
         ],
-    ) -> str:
+    ) -> int:
         """Get handler hash by outer data.
 
         Using to find handler in `broker.handlers` dictionary.
         """
-        return subject
+        return hash(subject)
 
     @staticmethod
     def build_log_context(
@@ -387,7 +392,7 @@ class DefaultHandler(BaseNatsHandler["Msg"]):
         **wrapper_kwargs: "Unpack[WrapExtraKwargs]",
     ) -> "WrapperProtocol[Msg]":
         """Decorator to register user function as handler call."""
-        parser_ = NatsParser if self.stream is None else JsParser
+        parser_: Union[Type[NatsParser], Type[JsParser]] = NatsParser if self.stream is None else JsParser
         return super().add_call(
             parser_=resolve_custom_func(parser, parser_.parse_message),
             decoder_=resolve_custom_func(decoder, parser_.decode_message),

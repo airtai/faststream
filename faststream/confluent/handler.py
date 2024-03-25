@@ -174,7 +174,9 @@ class LogicHandler(BaseHandler[Message]):
         return (
             FakePublisher(
                 self.producer.publish,
-                topic=message.reply_to,
+                publish_kwargs={
+                    "topic": message.reply_to,
+                },
             ),
         )
 

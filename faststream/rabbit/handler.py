@@ -9,7 +9,7 @@ from typing import (
     Sequence,
 )
 
-from typing_extensions import override
+from typing_extensions import Unpack, override
 
 from faststream.broker.core.handler import BaseHandler
 from faststream.broker.core.publisher import FakePublisher
@@ -28,16 +28,19 @@ if TYPE_CHECKING:
     from aio_pika import IncomingMessage, RobustQueue
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
+    from faststream.broker.core.handler_wrapper_mixin import (
+        WrapExtraKwargs,
+        WrapperProtocol,
+    )
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
         CustomDecoder,
         CustomParser,
         Filter,
-        PublisherProtocol,
         SubscriberMiddleware,
     )
+    from faststream.rabbit.producer import AioPikaFastProducer
 
 
 class LogicHandler(BaseHandler["IncomingMessage"], BaseRMQInformation):
@@ -59,6 +62,7 @@ class LogicHandler(BaseHandler["IncomingMessage"], BaseRMQInformation):
 
     _consumer_tag: Optional[str]
     _queue_obj: Optional["RobustQueue"]
+    producer: Optional["AioPikaFastProducer"]
 
     def __init__(
         self,
@@ -113,8 +117,8 @@ class LogicHandler(BaseHandler["IncomingMessage"], BaseRMQInformation):
         parser: Optional["CustomParser[IncomingMessage]"],
         decoder: Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
         middlewares: Iterable["SubscriberMiddleware"],
-        dependencies: Sequence["Depends"],
-        **wrap_kwargs: Any,
+        dependencies: Iterable["Depends"],
+        **wrapper_kwargs: Unpack["WrapExtraKwargs"],
     ) -> "WrapperProtocol[IncomingMessage]":
         return super().add_call(
             parser_=resolve_custom_func(parser, AioPikaParser.parse_message),
@@ -122,14 +126,15 @@ class LogicHandler(BaseHandler["IncomingMessage"], BaseRMQInformation):
             filter_=filter,
             middlewares_=middlewares,
             dependencies_=dependencies,
-            **wrap_kwargs,
+            **wrapper_kwargs,
         )
 
     @override
     async def start(  # type: ignore[override]
         self,
+        *,
+        producer: Optional["AioPikaFastProducer"],
         declarer: RabbitDeclarer,
-        producer: Optional["PublisherProtocol"],
     ) -> None:
         """Starts the consumer for the RabbitMQ queue.
 
@@ -178,9 +183,11 @@ class LogicHandler(BaseHandler["IncomingMessage"], BaseRMQInformation):
         return (
             FakePublisher(
                 self.producer.publish,
-                routing_key=message.reply_to,
-                app_id=self.app_id,
-                **self.reply_config,
+                publish_kwargs={
+                    **self.reply_config,
+                    "routing_key": message.reply_to,
+                    "app_id": self.app_id,
+                }
             ),
         )
 

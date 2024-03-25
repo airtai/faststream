@@ -128,7 +128,7 @@ class RedisRoute(BrokerRoute):
             get_dependent=get_dependent,
         )
 
-class RedisRouter(BrokerRouter[int, "AnyDict"]):
+class RedisRouter(BrokerRouter["AnyDict"]):
     """A class to represent a Redis router."""
     _publishers: Dict[int, Publisher]  # type: ignore[assignment]
 
@@ -156,9 +156,9 @@ class RedisRouter(BrokerRouter[int, "AnyDict"]):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         include_in_schema: Annotated[
-            bool,
+            Optional[bool],
             Doc("Whetever to include operation in AsyncAPI schema or not."),
-        ] = True,
+        ] = None,
     ) -> None:
         """Initialize the Redis router.
 

@@ -10,6 +10,7 @@ from typing import (
     Optional,
     Type,
     Union,
+    cast,
 )
 from urllib.parse import urlparse
 
@@ -107,7 +108,8 @@ class RedisBroker(
         socket_connect_timeout: Optional[float] = None,
         socket_read_size: int = 65536,
         socket_keepalive: bool = False,
-        socket_keepalive_options: Optional[Mapping[int, Union[int, bytes]]] = None,
+        socket_keepalive_options: Optional[Mapping[int,
+                                                   Union[int, bytes]]] = None,
         socket_type: int = 0,
         retry_on_timeout: bool = False,
         encoding: str = "utf-8",
@@ -230,7 +232,7 @@ class RedisBroker(
             connection_class=connection_class,
             encoder_class=encoder_class,
             # Basic args
-            ## broker base
+            # broker base
             graceful_timeout=graceful_timeout,
             apply_types=apply_types,
             validate=validate,
@@ -238,14 +240,14 @@ class RedisBroker(
             decoder=decoder,
             parser=parser,
             middlewares=middlewares,
-            ## AsyncAPI
+            # AsyncAPI
             description=description,
             asyncapi_url=asyncapi_url,
             protocol=protocol,
             protocol_version=protocol_version,
             security=security,
             tags=tags,
-            ## logging
+            # logging
             logger=logger,
             log_level=log_level,
             log_fmt=log_fmt,
@@ -553,21 +555,24 @@ class RedisBroker(
         if any_of is None:
             raise ValueError(INCORRECT_SETUP_MSG)
 
-        key = Handler.get_routing_hash(any_of)
-        publisher = self._publishers.get(key) or Publisher(
-            channel=channel,
-            list=list,
-            stream=stream,
-            headers=headers,
-            reply_to=reply_to,
-            middlewares=middlewares,
-            # AsyncAPI
-            title_=title,
-            description_=description,
-            schema_=schema,
-            include_in_schema=include_in_schema,
+        publisher = cast(
+            Publisher,
+            self.add_publisher(
+                publisher=Publisher(
+                    channel=channel,
+                    list=list,
+                    stream=stream,
+                    headers=headers,
+                    reply_to=reply_to,
+                    middlewares=middlewares,
+                    # AsyncAPI
+                    title_=title,
+                    description_=description,
+                    schema_=schema,
+                    include_in_schema=include_in_schema,
+                ),
+            ),
         )
-        super().publisher(key, publisher)
         if self._producer is not None:
             publisher._producer = self._producer
         return publisher

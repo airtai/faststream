@@ -135,6 +135,7 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
     @override
     async def start(  # type: ignore[override]
         self,
+        *,
         producer: Optional["PublisherProtocol"],
         **consumer_kwargs: Unpack[ConsumerConnectionParams],
     ) -> None:
@@ -221,7 +222,9 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
         return (
             FakePublisher(
                 self.producer.publish,
-                topic=message.reply_to,
+                publish_kwargs={
+                    "topic": message.reply_to,
+                },
             ),
         )
 
@@ -262,8 +265,8 @@ class LogicHandler(BaseHandler[ConsumerRecord]):
                 await self.consume(msg)
 
     @staticmethod
-    def get_routing_hash(topics: Iterable[str], group_id: Optional[str] = None) -> str:
-        return "".join((*topics, group_id or ""))
+    def get_routing_hash(topics: Iterable[str], group_id: Optional[str] = None) -> int:
+        return hash("".join((*topics, group_id or "")))
 
     @staticmethod
     def build_log_context(
