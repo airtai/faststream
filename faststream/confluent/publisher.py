@@ -122,7 +122,7 @@ class LogicPublisher(BasePublisher["Message"]):
                 reply_to=self.reply_to or "",
             )
         else:
-            to_send: Sequence[SendableMessage]
+            to_send: Iterable[SendableMessage]
             if not messages:
                 if not isinstance(message, Sequence):
                     raise ValueError(

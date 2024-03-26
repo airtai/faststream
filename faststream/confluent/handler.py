@@ -43,7 +43,7 @@ if TYPE_CHECKING:
 class LogicHandler(BaseHandler[Message]):
     """A class to handle logic for consuming messages from Kafka."""
 
-    topics: Sequence[str]
+    topics: Iterable[str]
     group_id: Optional[str]
 
     consumer: Optional[AsyncConfluentConsumer]
@@ -136,7 +136,7 @@ class LogicHandler(BaseHandler[Message]):
         parser: Optional["CustomParser[Message]"],
         decoder: Optional["CustomDecoder[StreamMessage[Message]]"],
         middlewares: Iterable["SubscriberMiddleware"],
-        dependencies: Sequence["Depends"],
+        dependencies: Iterable["Depends"],
         **wrap_kwargs: Any,
     ) -> "WrapperProtocol[Message]":
         """Adds a call to the handler."""
@@ -167,7 +167,7 @@ class LogicHandler(BaseHandler[Message]):
 
     def make_response_publisher(
         self, message: "StreamMessage[Any]"
-    ) -> Sequence[FakePublisher]:
+    ) -> Iterable[FakePublisher]:
         if not message.reply_to or self.producer is None:
             return ()
 
@@ -216,7 +216,7 @@ class LogicHandler(BaseHandler[Message]):
                     await self.consume(msg)  # type: ignore[arg-type]
 
     @staticmethod
-    def get_routing_hash(topics: Sequence[str], group_id: Optional[str] = None) -> str:
+    def get_routing_hash(topics: Iterable[str], group_id: Optional[str] = None) -> str:
         return "".join((*topics, group_id or ""))
 
     @staticmethod
