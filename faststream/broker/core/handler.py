@@ -90,6 +90,11 @@ class HandlerItem(Generic[MsgType]):
         self.middlewares = middlewares
         self.dependent = dependent
 
+    def __repr__(self) -> str:
+        filter_call = unwrap(self.filter)
+        filter_name = getattr(filter_call, "__name__", str(filter_call))
+        return f"<'{self.call_name}': filter='{filter_name}'>"
+
     @property
     def call_name(self) -> str:
         """Returns the name of the original call."""
@@ -240,82 +245,89 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
         dependencies_: Iterable["Depends"],
         **wrapper_kwargs: "Unpack[WrapExtraKwargs]",
     ) -> "WrapperProtocol[MsgType]":
-        # TODO: should return self
+        self.call_options = _CallOptions[MsgType](
+            filter=filter_,
+            parser=parser_,
+            decoder=decoder_,
+            middlewares=middlewares_,
+            dependencies=dependencies_,
+            wrapper_kwargs=wrapper_kwargs,
+        )
+        return self
 
-        @overload
-        def outer_wrapper(
-            func: None = None,
-            *,
-            filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
-            parser: Optional["CustomParser[MsgType]"] = None,
-            decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
-            middlewares: Iterable["SubscriberMiddleware"] = (),
-            dependencies: Iterable["Depends"] = (),
-        ) -> Callable[
-            [Callable[P_HandlerParams, T_HandlerReturn]],
-            "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
-        ]:
-            ...
+    @overload
+    def __call__(
+        self,
+        func: None = None,
+        *,
+        filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
+        parser: Optional["CustomParser[MsgType]"] = None,
+        decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
+        middlewares: Iterable["SubscriberMiddleware"] = (),
+        dependencies: Iterable["Depends"] = (),
+    ) -> Callable[
+        [Callable[P_HandlerParams, T_HandlerReturn]],
+        "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
+    ]: ...
 
-        @overload
-        def outer_wrapper(
+    @overload
+    def __call__(
+        self,
+        func: Callable[P_HandlerParams, T_HandlerReturn],
+        *,
+        filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
+        parser: Optional["CustomParser[MsgType]"] = None,
+        decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
+        middlewares: Iterable["SubscriberMiddleware"] = (),
+        dependencies: Iterable["Depends"] = (),
+    ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]": ...
+
+    def __call__(
+        self,
+        func: Optional[Callable[P_HandlerParams, T_HandlerReturn]] = None,
+        *,
+        filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
+        parser: Optional["CustomParser[MsgType]"] = None,
+        decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
+        middlewares: Iterable["SubscriberMiddleware"] = (),
+        dependencies: Iterable["Depends"] = (),
+    ) -> Any:
+        total_deps = (*self.call_options.dependencies, *dependencies)
+        total_middlewares = (*self.call_options.middlewares, *middlewares)
+
+        def real_wrapper(
             func: Callable[P_HandlerParams, T_HandlerReturn],
-            *,
-            filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
-            parser: Optional["CustomParser[MsgType]"] = None,
-            decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
-            middlewares: Iterable["SubscriberMiddleware"] = (),
-            dependencies: Iterable["Depends"] = (),
         ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
-            ...
+            handler, dependent = self.wrap_handler(
+                func=func,
+                dependencies=total_deps,
+                **self.call_options.wrapper_extra,
+            )
 
-        def outer_wrapper(
-            func: Optional[Callable[P_HandlerParams, T_HandlerReturn]] = None,
-            *,
-            filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
-            parser: Optional["CustomParser[MsgType]"] = None,
-            decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
-            middlewares: Iterable["SubscriberMiddleware"] = (),
-            dependencies: Iterable["Depends"] = (),
-        ) -> Any:
-            total_deps = (*dependencies_, *dependencies)
-            total_middlewares = (*middlewares_, *middlewares)
-
-            def real_wrapper(
-                func: Callable[P_HandlerParams, T_HandlerReturn],
-            ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
-                handler, dependent = self.wrap_handler(
-                    func=func,
-                    dependencies=total_deps,
-                    **wrapper_kwargs,
+            self.calls.append(
+                HandlerItem[MsgType](
+                    handler=handler,
+                    dependent=dependent,
+                    filter=to_async(filter or self.call_options.filter),
+                    parser=cast(
+                        "AsyncParser[MsgType]",
+                        to_async(parser or self.call_options.parser),
+                    ),
+                    decoder=cast(
+                        "AsyncDecoder[StreamMessage[MsgType]]",
+                        to_async(decoder or self.call_options.decoder),
+                    ),
+                    middlewares=total_middlewares,
                 )
+            )
 
-                self.calls.append(
-                    HandlerItem[MsgType](
-                        handler=handler,
-                        dependent=dependent,
-                        filter=to_async(filter or filter_),
-                        parser=cast(
-                            "AsyncParser[MsgType]",
-                            to_async(parser or parser_),
-                        ),
-                        decoder=cast(
-                            "AsyncDecoder[StreamMessage[MsgType]]",
-                            to_async(decoder or decoder_),
-                        ),
-                        middlewares=total_middlewares,
-                    )
-                )
+            return handler
 
-                return handler
+        if func is None:
+            return real_wrapper
 
-            if func is None:
-                return real_wrapper
-
-            else:
-                return real_wrapper(func)
-
-        return outer_wrapper
+        else:
+            return real_wrapper(func)
 
     async def consume(self, msg: MsgType) -> Any:
         """Consume a message asynchronously.
@@ -399,8 +411,7 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
                 exc_tb: Optional["TracebackType"] = None,
             ) -> Optional[bool]:
                 values = [
-                    await m.__aexit__(exc_type, exc_val, exc_tb)
-                    for m in middlewares
+                    await m.__aexit__(exc_type, exc_val, exc_tb) for m in middlewares
                 ]
                 # return result of the latest middleware
                 return next(iter(values[::-1]), None)
@@ -450,3 +461,31 @@ class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
             payloads.append((body, to_camelcase(h.call_name)))
 
         return payloads
+
+
+class _CallOptions(Generic[MsgType]):
+    __slots__ = (
+        "filter",
+        "parser",
+        "decoder",
+        "middlewares",
+        "dependencies",
+        "wrapper_extra",
+    )
+
+    def __init__(
+        self,
+        *,
+        filter: "Filter[StreamMessage[MsgType]]",
+        parser: "CustomParser[MsgType]",
+        decoder: "CustomDecoder[StreamMessage[MsgType]]",
+        middlewares: Iterable["SubscriberMiddleware"],
+        dependencies: Iterable["Depends"],
+        wrapper_kwargs: "WrapExtraKwargs",
+    ) -> None:
+        self.filter = filter
+        self.parser = parser
+        self.decoder = decoder
+        self.middlewares = middlewares
+        self.dependencies = dependencies
+        self.wrapper_extra = wrapper_kwargs
