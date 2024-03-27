@@ -39,7 +39,7 @@ from faststream.broker.types import (
     T_HandlerReturn,
 )
 from faststream.broker.utils import get_watcher_context
-from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.exceptions import NOT_CONNECTED_YET, SetupError
 from faststream.kafka.asyncapi import Handler, Publisher
 from faststream.kafka.broker.logging import KafkaLoggingMixin
 from faststream.kafka.message import KafkaMessage
@@ -316,7 +316,7 @@ class KafkaBroker(
             self._setup_log_context(t, group_id)
 
         if not auto_commit and not group_id:
-            raise ValueError(
+            raise SetupError(
                 "You should install `group_id` with manual commit mode")
 
         key = Handler.get_routing_hash(topics, group_id)
@@ -394,7 +394,7 @@ class KafkaBroker(
         include_in_schema: bool = True,
     ) -> Publisher:
         if batch and key:
-            raise ValueError("You can't setup `key` with batch publisher")
+            raise SetupError("You can't setup `key` with batch publisher")
 
         publisher = cast(
             Publisher,

@@ -5,5 +5,5 @@ from tests.brokers.base.parser import CustomParserTestcase
 
 
 @pytest.mark.redis()
-class TestCustomParser(CustomParserTestcase):  # noqa: D101
+class TestCustomParser(CustomParserTestcase):
     broker_class = RedisBroker

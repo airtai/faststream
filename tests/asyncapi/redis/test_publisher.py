@@ -3,7 +3,7 @@ from faststream.redis import RedisBroker
 from tests.asyncapi.base.publisher import PublisherTestcase
 
 
-class TestArguments(PublisherTestcase):  # noqa: D101
+class TestArguments(PublisherTestcase):
     broker_class = RedisBroker
 
     def test_channel_publisher(self):

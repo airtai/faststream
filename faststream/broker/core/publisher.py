@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from contextlib import AsyncExitStack
 from inspect import unwrap
 from itertools import chain
@@ -8,6 +8,7 @@ from typing import (
     Awaitable,
     Callable,
     Generic,
+    Hashable,
     Iterable,
     List,
     Optional,
@@ -23,15 +24,19 @@ from faststream.asyncapi.base import AsyncAPIOperation
 from faststream.asyncapi.message import get_response_schema
 from faststream.asyncapi.utils import to_camelcase
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
-from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
+from faststream.broker.types import (
+    MsgType,
+    P_HandlerParams,
+    PublisherProtocol,
+    T_HandlerReturn,
+)
 from faststream.types import AnyDict, SendableMessage
 
 if TYPE_CHECKING:
     from faststream.broker.types import PublisherMiddleware
 
-
 class FakePublisher:
-    """A class to represent a fake publisher."""
+    """Publisher Interface implementation to use as RPC or REPLY TO publisher."""
 
     def __init__(
         self,
@@ -53,17 +58,7 @@ class FakePublisher:
         extra_middlewares: Iterable["PublisherMiddleware"] = (),
         **kwargs: Any,
     ) -> Any:
-        """Publish a message.
-
-        Args:
-            message: The message to be published.
-            *args: Additional positional arguments.
-            correlation_id: Optional correlation ID for the message.
-            **kwargs: Additional keyword arguments.
-
-        Returns:
-            The published message.
-        """
+        """Publish a message."""
         publish_kwargs = {
             "correlation_id": correlation_id,
             **self.publish_kwargs,
@@ -79,9 +74,24 @@ class FakePublisher:
             return await self.method(message, **publish_kwargs)
 
 
-class BasePublisher(ABC, AsyncAPIOperation, Generic[MsgType]):
-    """A base class for publishers in an asynchronous API."""
+class ExtendedPublisherProtocol(
+    Hashable,
+    PublisherProtocol,
+):
+    """Publisher Protocol to impement by the real logic one."""
+    _producer: Optional[Any]
 
+    @abstractmethod
+    def add_prefix(self, prefix: str) -> None:
+        ...
+
+
+class BasePublisher(
+    AsyncAPIOperation,
+    ExtendedPublisherProtocol,
+    Generic[MsgType],
+):
+    """A base class for publishers in an asynchronous API."""
     calls: List[Callable[..., Any]]
     mock: Optional[MagicMock]
 
@@ -156,29 +166,6 @@ class BasePublisher(ABC, AsyncAPIOperation, Generic[MsgType]):
         handler_call._publishers.append(self)
         self.calls.append(handler_call._original_call)
         return handler_call
-
-    @abstractmethod
-    async def publish(
-        self,
-        message: Any,
-        /,
-        correlation_id: Annotated[
-            Optional[str],
-            Doc(
-                "Manual message **correlation_id** setter. "
-                "**correlation_id** is a useful option to trace messages."
-            ),
-        ] = None,
-        extra_middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
-            Doc("Extra middlewares to wrap publishing process."),
-        ] = (),
-    ) -> Optional[Any]:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def __hash__(self) -> int:
-        raise NotImplementedError()
 
     def get_payloads(self) -> List[Tuple[AnyDict, str]]:
         payloads: List[Tuple[AnyDict, str]] = []

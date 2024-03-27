@@ -10,7 +10,7 @@ from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
 @pytest.mark.kafka()
-class TestRabbitRouter(FastAPITestcase):  # noqa: D101
+class TestRabbitRouter(FastAPITestcase):
     router_class = KafkaRouter
 
     async def test_batch_real(
@@ -40,7 +40,7 @@ class TestRabbitRouter(FastAPITestcase):  # noqa: D101
         mock.assert_called_with(["hi"])
 
 
-class TestRouterLocal(FastAPILocalTestcase):  # noqa: D101
+class TestRouterLocal(FastAPILocalTestcase):
     router_class = KafkaRouter
     broker_test = staticmethod(TestKafkaBroker)
     build_message = staticmethod(build_message)

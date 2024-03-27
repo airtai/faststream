@@ -24,7 +24,6 @@ from typing_extensions import Annotated, Doc, override
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.message import StreamMessage
-from faststream.broker.middlewares import BaseMiddleware
 from faststream.broker.utils import get_watcher_context
 
 # from faststream.broker.wrapper import FakePublisher, HandlerCallWrapper
@@ -34,7 +33,7 @@ from faststream.confluent.client import AsyncConfluentConsumer, AsyncConfluentPr
 from faststream.confluent.producer import AsyncConfluentFastProducer
 from faststream.confluent.security import parse_security
 from faststream.confluent.shared.schemas import ConsumerConnectionParams
-from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.exceptions import NOT_CONNECTED_YET, SetupError
 from faststream.security import BaseSecurity
 from faststream.utils.data import filter_by_dict
 
@@ -324,12 +323,7 @@ class KafkaBroker(
         dependencies: Iterable[Depends] = (),
         parser=None,
         decoder=None,
-        middlewares: Iterable[
-            Callable[
-                [confluent_kafka.Message],
-                BaseMiddleware,
-            ]
-        ] = (),
+        middlewares: Iterable["BrokerMiddleware[confluent_kafka.Message]"] = (),
         filter=default_filter,
         batch: bool = False,
         max_records: Optional[int] = None,
@@ -348,7 +342,7 @@ class KafkaBroker(
         self._setup_log_context(topics, group_id)
 
         if not auto_commit and not group_id:
-            raise ValueError(
+            raise SetupError(
                 "You should install `group_id` with manual commit mode")
 
         key = Handler.get_routing_hash(topics, group_id)
@@ -429,7 +423,7 @@ class KafkaBroker(
     ) -> Publisher:
         """Create a message publisher for the specified topic."""
         if batch and key:
-            raise ValueError("You can't setup `key` with batch publisher")
+            raise SetupError("You can't setup `key` with batch publisher")
 
         publisher = self._publishers.get(topic) or Publisher.create(
             # batch flag

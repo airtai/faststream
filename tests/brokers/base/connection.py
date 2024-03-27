@@ -6,7 +6,7 @@ import pytest
 from faststream.broker.core.broker import BrokerUsecase
 
 
-class BrokerConnectionTestcase:  # noqa: D101
+class BrokerConnectionTestcase:
     broker: Type[BrokerUsecase]
 
     def get_broker_args(self, settings):

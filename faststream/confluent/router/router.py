@@ -65,25 +65,6 @@ class KafkaRouter(BrokerRouter[str, "ConsumerRecord"]):
         )
 
     @override
-    @staticmethod
-    def _update_publisher_prefix(  # type: ignore[override]
-        prefix: str,
-        publisher: Publisher,
-    ) -> Publisher:
-        """Updates the prefix of a publisher.
-
-        Args:
-            prefix: The prefix to be added to the publisher's topic.
-            publisher: The publisher object to be updated.
-
-        Returns:
-            The updated publisher object.
-
-        """
-        publisher.topic = prefix + publisher.topic
-        return publisher
-
-    @override
     def publisher(  # type: ignore[override]
         self,
         topic: str,

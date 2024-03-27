@@ -27,12 +27,11 @@ from typing_extensions import Annotated, Doc, TypeAlias, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME, __version__
 from faststream.broker.core.broker import BrokerUsecase, default_filter
-from faststream.broker.utils import get_watcher_context
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.redis.asyncapi import Handler, Publisher
+from faststream.redis.asyncapi import Handler, HandlerType, Publisher, PublisherType
 from faststream.redis.broker.logging import RedisLoggingMixin
 from faststream.redis.producer import RedisFastProducer
-from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
+from faststream.redis.schemas import ListSub, PubSub, StreamSub
 from faststream.redis.security import parse_security
 
 if TYPE_CHECKING:
@@ -88,8 +87,8 @@ class RedisBroker(
     """Redis broker."""
 
     url: str
-    handlers: Dict[int, Handler]
-    _publishers: Dict[int, Publisher]
+    handlers: Dict[int, HandlerType]
+    _publishers: Dict[int, PublisherType]
 
     _producer: Optional[RedisFastProducer]
 
@@ -253,16 +252,22 @@ class RedisBroker(
             log_fmt=log_fmt,
         )
 
-    async def connect(
+    @override
+    async def connect(  # type: ignore[override]
         self,
-        url: Optional[str] = None,
+        url: Union[str, None, object] =  Parameter.empty,
         **kwargs: "Unpack[RedisInitKwargs]",
     ) -> "Redis[bytes]":
         """Connect to the Redis server."""
-        if url:
-            kwargs["url"] = url
+        if url is not Parameter.empty:
+            connect_kwargs: "AnyDict" = {
+                "url": url,
+                **kwargs,
+            }
+        else:
+            connect_kwargs = {**kwargs}
 
-        connection = await super().connect(**kwargs)
+        connection = await super().connect(**connect_kwargs)
 
         for p in self._publishers.values():
             p._producer = self._producer
@@ -325,7 +330,7 @@ class RedisBroker(
             lib_version=__version__,
         )
 
-        client = Redis.from_pool(pool)
+        client: Redis[bytes] = Redis.from_pool(pool)  # type: ignore[attr-defined]
         self._producer = RedisFastProducer(
             connection=client,
             parser=self._global_parser,  # type: ignore[arg-type]
@@ -348,6 +353,12 @@ class RedisBroker(
         await super().start()
 
         assert self._producer and self._connection, NOT_CONNECTED_YET  # nosec B101
+
+        # Setup log context before starting handlers
+        for handler in self.handlers.values():
+            self._setup_log_context(
+                channel=handler.get_log_context(None).get("channel")
+            )
 
         for handler in self.handlers.values():
             self._log(
@@ -435,38 +446,27 @@ class RedisBroker(
             Doc("Service option to pass FastAPI-compatible callback."),
         ] = None,
     ) -> "WrapperProtocol[AnyDict]":
-        channel = PubSub.validate(channel)
-        list = ListSub.validate(list)
-        stream = StreamSub.validate(stream)
-
-        if (any_of := channel or list or stream) is None:
-            raise ValueError(INCORRECT_SETUP_MSG)
-
-        if all((channel, list)):
-            raise ValueError("You can't use `PubSub` and `ListSub` both")
-        elif all((channel, stream)):
-            raise ValueError("You can't use `PubSub` and `StreamSub` both")
-        elif all((list, stream)):
-            raise ValueError("You can't use `ListSub` and `StreamSub` both")
-
-        self._setup_log_context(channel=any_of.name)
         super().subscriber()
 
-        key = Handler.get_routing_hash(any_of)
-        handler = self.handlers[key] = self.handlers.get(key) or Handler.create(  # type: ignore[abstract]
-            channel=channel,
-            list=list,
-            stream=stream,
+        handler = Handler.create(  # type: ignore[abstract]
+            channel=PubSub.validate(channel),
+            list=ListSub.validate(list),
+            stream=StreamSub.validate(stream),
             # base options
             extra_context={},
             graceful_timeout=self.graceful_timeout,
             middlewares=self.middlewares,
-            watcher=get_watcher_context(self.logger, no_ack, retry),
+            logger=self.logger,
+            no_ack=no_ack,
+            retry=retry,
             # AsyncAPI
             title_=title,
             description_=description,
             include_in_schema=include_in_schema,
         )
+
+        key = hash(handler)
+        handler = self.handlers[key] = self.handlers.get(key, handler)
 
         return handler.add_call(
             filter=filter,
@@ -503,9 +503,9 @@ class RedisBroker(
             ),
         ] = None,
         reply_to: Annotated[
-            Optional[str],
+            str,
             Doc("Reply message destination PubSub object name."),
-        ] = None,
+        ] = "",
         middlewares: Annotated[
             Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
@@ -547,21 +547,13 @@ class RedisBroker(
           ...
           await publisher.publish("Some message")
         """
-        channel = PubSub.validate(channel)
-        list = ListSub.validate(list)
-        stream = StreamSub.validate(stream)
-
-        any_of = channel or list or stream
-        if any_of is None:
-            raise ValueError(INCORRECT_SETUP_MSG)
-
         publisher = cast(
             Publisher,
             self.add_publisher(
-                publisher=Publisher(
-                    channel=channel,
-                    list=list,
-                    stream=stream,
+                publisher=Publisher.create(
+                    channel=PubSub.validate(channel),
+                    list=ListSub.validate(list),
+                    stream=StreamSub.validate(stream),
                     headers=headers,
                     reply_to=reply_to,
                     middlewares=middlewares,
@@ -573,8 +565,10 @@ class RedisBroker(
                 ),
             ),
         )
+
         if self._producer is not None:
             publisher._producer = self._producer
+
         return publisher
 
     @override
@@ -585,13 +579,13 @@ class RedisBroker(
             Doc("Message body to send."),
         ] = None,
         channel: Annotated[
-            str,
+            Optional[str],
             Doc("Redis PubSub object name to send message."),
         ] = None,
         reply_to: Annotated[
-            Optional[str],
+            str,
             Doc("Reply message destination PubSub object name."),
-        ] = None,
+        ] = "",
         headers: Annotated[
             Optional["AnyDict"],
             Doc("Message headers to store metainformation."),
@@ -637,26 +631,39 @@ class RedisBroker(
     ) -> Optional["DecodedMessage"]:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
-        kwargs = {
-            "channel": channel,
-            "list": list,
-            "stream": stream,
-            "maxlen": maxlen,
-            "reply_to": reply_to,
-            "headers": headers,
-            "correlation_id": correlation_id,
-            "rpc": rpc,
-            "rpc_timeout": rpc_timeout,
-            "raise_timeout": raise_timeout,
-        }
-
         async with AsyncExitStack() as stack:
             for m in self.middlewares:
                 message = await stack.enter_async_context(
-                    m(None).publish_scope(message, **kwargs)
+                    m(None).publish_scope(
+                        message,
+                        channel=channel,
+                        list=list,
+                        stream=stream,
+                        maxlen=maxlen,
+                        reply_to=reply_to,
+                        headers=headers,
+                        correlation_id=correlation_id,
+                        rpc=rpc,
+                        rpc_timeout=rpc_timeout,
+                        raise_timeout=raise_timeout,
+                    )
                 )
 
-            return await self._producer.publish(message, **kwargs)
+            return await self._producer.publish(
+                message,
+                channel=channel,
+                list=list,
+                stream=stream,
+                maxlen=maxlen,
+                reply_to=reply_to,
+                headers=headers,
+                correlation_id=correlation_id,
+                rpc=rpc,
+                rpc_timeout=rpc_timeout,
+                raise_timeout=raise_timeout,
+            )
+
+        return None
 
     async def publish_batch(
         self,
@@ -682,3 +689,5 @@ class RedisBroker(
             ] or messages
 
             return await self._producer.publish_batch(*wrapped_messages, list=list)
+
+        return None

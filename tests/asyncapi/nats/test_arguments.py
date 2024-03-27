@@ -3,7 +3,7 @@ from faststream.nats import NatsBroker
 from tests.asyncapi.base.arguments import ArgumentsTestcase
 
 
-class TestArguments(ArgumentsTestcase):  # noqa: D101
+class TestArguments(ArgumentsTestcase):
     broker_class = NatsBroker
 
     def test_subscriber_bindings(self):

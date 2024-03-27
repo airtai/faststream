@@ -11,7 +11,7 @@ from tests.tools import spy_decorator
 
 @pytest.mark.redis()
 @pytest.mark.asyncio()
-class TestConsume(BrokerRealConsumeTestcase):  # noqa: D101
+class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_native(
         self,
         consume_broker: RedisBroker,
@@ -87,7 +87,7 @@ class TestConsume(BrokerRealConsumeTestcase):  # noqa: D101
 
 @pytest.mark.redis()
 @pytest.mark.asyncio()
-class TestConsumeList:  # noqa: D101
+class TestConsumeList:
     async def test_consume_list(
         self,
         broker: RedisBroker,
@@ -199,7 +199,8 @@ class TestConsumeList:  # noqa: D101
 
 @pytest.mark.redis()
 @pytest.mark.asyncio()
-class TestConsumeStream:  # noqa: D101
+class TestConsumeStream:
+    @pytest.mark.slow()
     async def test_consume_stream(
         self,
         broker: RedisBroker,
@@ -225,28 +226,7 @@ class TestConsumeStream:  # noqa: D101
 
         mock.assert_called_once_with("hello")
 
-    async def test_consume_group(
-        self,
-        queue: str,
-        full_broker: RedisBroker,
-    ):
-        @full_broker.subscriber(stream=StreamSub(queue, group="group", consumer=queue))
-        async def handler(msg: RedisMessage):
-            ...
-
-        assert next(iter(full_broker.handlers.values())).last_id == "$"
-
-    async def test_consume_group_with_last_id(
-        self,
-        queue: str,
-        full_broker: RedisBroker,
-    ):
-        @full_broker.subscriber(stream=StreamSub(queue, group="group", consumer=queue, last_id="0"))
-        async def handler(msg: RedisMessage):
-            ...
-
-        assert next(iter(full_broker.handlers.values())).last_id == "0"
-
+    @pytest.mark.slow()
     async def test_consume_stream_native(
         self,
         broker: RedisBroker,
@@ -274,6 +254,7 @@ class TestConsumeStream:  # noqa: D101
 
         mock.assert_called_once_with({"message": "hello"})
 
+    @pytest.mark.slow()
     async def test_consume_stream_batch(
         self,
         broker: RedisBroker,
@@ -299,6 +280,7 @@ class TestConsumeStream:  # noqa: D101
 
         mock.assert_called_once_with(["hello"])
 
+    @pytest.mark.slow()
     async def test_consume_stream_batch_native(
         self,
         broker: RedisBroker,
@@ -326,7 +308,28 @@ class TestConsumeStream:  # noqa: D101
 
         mock.assert_called_once_with([{"message": "hello"}])
 
-    @pytest.mark.asyncio()
+    async def test_consume_group(
+        self,
+        queue: str,
+        full_broker: RedisBroker,
+    ):
+        @full_broker.subscriber(stream=StreamSub(queue, group="group", consumer=queue))
+        async def handler(msg: RedisMessage):
+            ...
+
+        assert next(iter(full_broker.handlers.values())).last_id == "$"
+
+    async def test_consume_group_with_last_id(
+        self,
+        queue: str,
+        full_broker: RedisBroker,
+    ):
+        @full_broker.subscriber(stream=StreamSub(queue, group="group", consumer=queue, last_id="0"))
+        async def handler(msg: RedisMessage):
+            ...
+
+        assert next(iter(full_broker.handlers.values())).last_id == "0"
+
     async def test_consume_nack(
         self,
         queue: str,
@@ -354,7 +357,6 @@ class TestConsumeStream:  # noqa: D101
 
         assert event.is_set()
 
-    @pytest.mark.asyncio()
     async def test_consume_ack(
         self,
         queue: str,

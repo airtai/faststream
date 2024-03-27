@@ -66,9 +66,9 @@ async def test_annotated_alias(context: ContextRepo):
     assert await func(model=model)
 
 
-class SomeModel:  # noqa: D101
+class SomeModel:
     field: Any = ""
     another_field: Any = None
 
-    def __init__(self, field):  # noqa: D107
+    def __init__(self, field):
         self.field = field

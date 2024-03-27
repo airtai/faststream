@@ -10,7 +10,7 @@ from tests.tools import spy_decorator
 
 
 @pytest.mark.rabbit()
-class TestPublish(BrokerPublishTestcase):  # noqa: D101
+class TestPublish(BrokerPublishTestcase):
     @pytest.mark.asyncio()
     async def test_reply_config(
         self,

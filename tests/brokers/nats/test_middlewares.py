@@ -5,5 +5,5 @@ from tests.brokers.base.middlewares import MiddlewareTestcase
 
 
 @pytest.mark.nats()
-class TestMiddlewares(MiddlewareTestcase):  # noqa: D101
+class TestMiddlewares(MiddlewareTestcase):
     broker_class = NatsBroker

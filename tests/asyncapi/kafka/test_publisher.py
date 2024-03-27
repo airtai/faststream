@@ -3,7 +3,7 @@ from faststream.kafka import KafkaBroker
 from tests.asyncapi.base.publisher import PublisherTestcase
 
 
-class TestArguments(PublisherTestcase):  # noqa: D101
+class TestArguments(PublisherTestcase):
     broker_class = KafkaBroker
 
     def test_publisher_bindings(self):

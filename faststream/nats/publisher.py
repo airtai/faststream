@@ -152,3 +152,6 @@ class LogicPublisher(BasePublisher[Msg]):
             )
 
         return None
+
+    def add_prefix(self, prefix: str) -> None:
+        self.subject = prefix + self.subject

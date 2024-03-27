@@ -3,17 +3,20 @@ from typing import Any, Optional, Sequence, Union
 
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
 from faststream.broker.test import TestBroker, call_handler
-from faststream.redis.asyncapi import Handler, Publisher
+from faststream.exceptions import SetupError
+from faststream.redis.asyncapi import Handler
 from faststream.redis.broker import RedisBroker
 from faststream.redis.message import (
     BatchListMessage,
     BatchStreamMessage,
-    ListMessage,
+    DefaultListMessage,
+    DefaultStreamMessage,
     PubSubMessage,
-    StreamMessage,
+    bDATA_KEY,
 )
-from faststream.redis.parser import RawMessage, bDATA_KEY
+from faststream.redis.parser import RawMessage
 from faststream.redis.producer import RedisFastProducer
+from faststream.redis.publisher import LogicPublisher
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
 from faststream.types import AnyDict, SendableMessage
 
@@ -33,13 +36,9 @@ class TestRedisBroker(TestBroker[RedisBroker]):
     @staticmethod
     def create_publisher_fake_subscriber(
         broker: RedisBroker,
-        publisher: Publisher,
+        publisher: LogicPublisher,
     ) -> HandlerCallWrapper[Any, Any, Any]:
-        @broker.subscriber(
-            channel=publisher.channel,
-            list=publisher.list,
-            stream=publisher.stream,
-        )
+        @broker.subscriber(**publisher.subscriber_property)
         def f(msg: Any) -> None:
             pass
 
@@ -68,11 +67,12 @@ class TestRedisBroker(TestBroker[RedisBroker]):
     @staticmethod
     def remove_publisher_fake_subscriber(
         broker: RedisBroker,
-        publisher: Publisher,
+        publisher: LogicPublisher,
     ) -> None:
-        any_of = publisher.channel or publisher.list or publisher.stream
-        assert any_of  # nosec B101
-        broker.handlers.pop(Handler.get_routing_hash(any_of), None)
+        broker.handlers.pop(
+            hash(Handler.create(**publisher.subscriber_property)),
+            None,
+        )
 
 
 class FakeProducer(RedisFastProducer):
@@ -98,12 +98,13 @@ class FakeProducer(RedisFastProducer):
 
         any_of = channel or list or stream
         if any_of is None:
-            raise ValueError(INCORRECT_SETUP_MSG)
+            raise SetupError(INCORRECT_SETUP_MSG)
 
+        msg: Any = None
         for handler in self.broker.handlers.values():  # pragma: no branch
             call = False
 
-            if channel and (ch := handler.channel) is not None:
+            if channel and (ch := getattr(handler, "channel", None)) is not None:
                 call = bool(
                     (not ch.pattern and ch.name == channel)
                     or (
@@ -115,23 +116,23 @@ class FakeProducer(RedisFastProducer):
                     )
                 )
 
-                message = PubSubMessage(
+                msg = PubSubMessage(
                     type="message",
                     data=body,
                     channel=channel,
                     pattern=ch.pattern,
                 )
 
-            if list and (ls := handler.list_sub) is not None:
+            elif list and (ls := getattr(handler, "list_sub", None)) is not None:
                 if ls.batch:
-                    message = BatchListMessage(
-                        type="list",
+                    msg = BatchListMessage(
+                        type="blist",
                         channel=list,
                         data=[body],
                     )
 
                 else:
-                    message = ListMessage(
+                    msg = DefaultListMessage(
                         type="list",
                         channel=list,
                         data=body,
@@ -139,16 +140,16 @@ class FakeProducer(RedisFastProducer):
 
                 call = list == ls.name
 
-            if stream and (st := handler.stream_sub) is not None:
+            elif stream and (st := getattr(handler, "stream_sub", None)) is not None:
                 if st.batch:
-                    message = BatchStreamMessage(
-                        type="stream",
+                    msg = BatchStreamMessage(
+                        type="bstream",
                         channel=stream,
                         data=[{bDATA_KEY: body}],
                         message_ids=[]
                     )
                 else:
-                    message = StreamMessage(
+                    msg = DefaultStreamMessage(
                         type="stream",
                         channel=stream,
                         data={bDATA_KEY: body},
@@ -160,7 +161,7 @@ class FakeProducer(RedisFastProducer):
             if call:
                 r = await call_handler(
                     handler=handler,
-                    message=message,
+                    message=msg,
                     rpc=rpc,
                     rpc_timeout=rpc_timeout,
                     raise_timeout=raise_timeout,
@@ -177,11 +178,11 @@ class FakeProducer(RedisFastProducer):
         list: str,
     ) -> None:
         for handler in self.broker.handlers.values():  # pragma: no branch
-            if handler.list_sub and handler.list_sub.name == list:
+            if (list_sub := getattr(handler, "list_sub", None)) and list_sub.name == list:
                 await call_handler(
                     handler=handler,
-                    message=ListMessage(
-                        type="list",
+                    message=BatchListMessage(
+                        type="blist",
                         channel=list,
                         data=[build_message(m) for m in msgs],
                     )

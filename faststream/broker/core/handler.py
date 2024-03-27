@@ -13,6 +13,7 @@ from typing import (
     Iterable,
     List,
     Optional,
+    Protocol,
     Tuple,
     Type,
     cast,
@@ -83,6 +84,7 @@ class HandlerItem(Generic[MsgType]):
         middlewares: Iterable["SubscriberMiddleware"],
         dependent: "CallModel[..., Any]",
     ) -> None:
+        """Construct HandlerItem."""
         self.handler = handler
         self.filter = filter
         self.parser = parser
@@ -169,12 +171,43 @@ class HandlerItem(Generic[MsgType]):
                 return result
 
 
-class BaseHandler(AsyncAPIOperation, WrapHandlerMixin[MsgType]):
+class HandlerProtocol(Protocol[MsgType]):
+    """Basic Handler protocol."""
+    producer: Optional[Any]
+
+    def __hash__(self) -> int: ...
+
+    @property
+    @abstractmethod
+    def call_name(self) -> str: ...
+
+    @abstractmethod
+    def get_log_context(
+        self,
+        message: Optional["StreamMessage[MsgType]"],
+    ) -> Dict[str, str]: ...
+
+    @abstractmethod
+    async def start(
+        self,
+        *,
+        producer: Optional[Any],
+    ) -> None: ...
+
+    @abstractmethod
+    async def consume(self, msg: MsgType) -> Any: ...
+
+
+class BaseHandler(
+    AsyncAPIOperation,
+    HandlerProtocol[MsgType],
+    WrapHandlerMixin[MsgType],
+):
     """A class representing an asynchronous handler."""
 
     calls: List[HandlerItem[MsgType]]
-    producer: Optional[Any]
     extra_watcher_options: "AnyDict"
+    producer: Optional[Any]
 
     def __init__(
         self,

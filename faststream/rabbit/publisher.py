@@ -1,4 +1,5 @@
 from contextlib import AsyncExitStack
+from copy import deepcopy
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
 
@@ -227,3 +228,7 @@ class LogicPublisher(
 
         return None
 
+    def add_prefix(self, prefix: str) -> None:
+        new_q = deepcopy(self.queue)
+        new_q.name = prefix + new_q.name
+        self.queue = new_q

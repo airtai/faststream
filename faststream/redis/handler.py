@@ -1,7 +1,6 @@
 import asyncio
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from contextlib import suppress
-from functools import cached_property
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -10,9 +9,12 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    List,
+    Mapping,
     Optional,
     Sequence,
     Tuple,
+    TypeVar,
 )
 
 import anyio
@@ -24,12 +26,16 @@ from typing_extensions import Annotated, Doc, override
 from faststream.broker.core.handler import BaseHandler
 from faststream.broker.core.publisher import FakePublisher
 from faststream.broker.parsers import resolve_custom_func
-from faststream.broker.types import MsgType
 from faststream.redis.message import (
     BatchListMessage,
     BatchStreamMessage,
+    DefaultListMessage,
+    DefaultStreamMessage,
+    # list
     ListMessage,
+    # pubsub
     PubSubMessage,
+    # stream
     StreamMessage,
 )
 from faststream.redis.parser import (
@@ -51,13 +57,16 @@ if TYPE_CHECKING:
         CustomDecoder,
         CustomParser,
         Filter,
-        PublisherProtocol,
         SubscriberMiddleware,
     )
+    from faststream.redis.producer import RedisFastProducer
     from faststream.types import AnyDict
 
 
-class BaseRedisHandler(ABC, BaseHandler[MsgType]):
+MsgType = TypeVar("MsgType", bound=Mapping[str, Any])
+
+
+class LogicHandler(BaseHandler[MsgType]):
     """A class to represent a Redis handler."""
 
     def __init__(
@@ -96,10 +105,6 @@ class BaseRedisHandler(ABC, BaseHandler[MsgType]):
             Doc("Whether to include the handler in AsyncAPI schema"),
         ],
     ) -> None:
-        self.channel = None
-        self.list_sub = None
-        self.stream_sub = None
-
         super().__init__(
             middlewares=middlewares,
             graceful_timeout=graceful_timeout,
@@ -118,8 +123,8 @@ class BaseRedisHandler(ABC, BaseHandler[MsgType]):
         self,
         *,
         filter: "Filter[BrokerStreamMessage[MsgType]]",
-        parser: Optional["CustomParser[MsgType]"],
-        decoder: Optional["CustomDecoder[BrokerStreamMessage[MsgType]]"],
+        parser: "CustomParser[MsgType]",
+        decoder: "CustomDecoder[BrokerStreamMessage[MsgType]]",
         middlewares: Iterable["SubscriberMiddleware"],
         dependencies: Sequence["Depends"],
         **wrap_kwargs: Any,
@@ -152,7 +157,7 @@ class BaseRedisHandler(ABC, BaseHandler[MsgType]):
     async def start(  # type: ignore[override]
         self,
         *args: Any,
-        producer: Optional["PublisherProtocol"],
+        producer: Optional["RedisFastProducer"],
     ) -> None:
         await super().start(producer=producer)
 
@@ -185,11 +190,6 @@ class BaseRedisHandler(ABC, BaseHandler[MsgType]):
     async def _get_msgs(self, *args: Any) -> None:
         raise NotImplementedError()
 
-    @property
-    @abstractmethod
-    def channel_name(self) -> str:
-        raise NotImplementedError()
-
     async def close(self) -> None:
         await super().close()
 
@@ -207,17 +207,8 @@ class BaseRedisHandler(ABC, BaseHandler[MsgType]):
             "message_id": getattr(message, "message_id", ""),
         }
 
-    def get_log_context(
-        self,
-        message: Optional["BrokerStreamMessage[Any]"],
-    ) -> Dict[str, str]:
-        return self.build_log_context(
-            message=message,
-            channel=self.channel_name,
-        )
 
-
-class ChannelHandler(BaseRedisHandler[PubSubMessage]):
+class ChannelHandler(LogicHandler[PubSubMessage]):
     subscription: Optional[RPubSub]
 
     def __init__(
@@ -272,11 +263,21 @@ class ChannelHandler(BaseRedisHandler[PubSubMessage]):
         self.channel = channel
         self.subscription = None
 
-    @cached_property
-    def channel_name(self) -> str:
-        return self.channel.name
 
-    def add_call(
+    def __hash__(self) -> int:
+        return hash(self.channel)
+
+    def get_log_context(
+        self,
+        message: Optional["BrokerStreamMessage[Any]"],
+    ) -> Dict[str, str]:
+        return self.build_log_context(
+            message=message,
+            channel=self.channel.name,
+        )
+
+    @override
+    def add_call(  # type: ignore[override]
         self,
         *,
         filter: "Filter[BrokerStreamMessage[PubSubMessage]]",
@@ -286,7 +287,7 @@ class ChannelHandler(BaseRedisHandler[PubSubMessage]):
         dependencies: Sequence["Depends"],
         **wrap_kwargs: Any,
     ) -> "WrapperProtocol[PubSubMessage]":
-        return super(BaseRedisHandler, self).add_call(
+        return super(LogicHandler, self).add_call(
             parser_=resolve_custom_func(parser, RedisPubSubParser.parse_message),
             decoder_=resolve_custom_func(decoder, RedisPubSubParser.decode_message),
             filter_=filter,
@@ -300,7 +301,7 @@ class ChannelHandler(BaseRedisHandler[PubSubMessage]):
         self,
         client: "Redis[bytes]",
         *,
-        producer: Optional["PublisherProtocol"],
+        producer: Optional["RedisFastProducer"],
     ) -> None:
         self.subscription = psub = client.pubsub()
 
@@ -335,7 +336,10 @@ class ChannelHandler(BaseRedisHandler[PubSubMessage]):
             await self.consume(msg)
 
 
-class _ListHandlerMixin(BaseRedisHandler[MsgType]):
+ListMsgType = TypeVar("ListMsgType", bound=ListMessage)
+
+
+class _ListHandlerMixin(LogicHandler[ListMsgType]):
     def __init__(
         self,
         *,
@@ -357,7 +361,7 @@ class _ListHandlerMixin(BaseRedisHandler[MsgType]):
             ),
         ],
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[MsgType]"],
+            Iterable["BrokerMiddleware[ListMsgType]"],
             Doc("Global middleware to use `on_receive`, `after_processed`"),
         ],
         # AsyncAPI information
@@ -387,12 +391,24 @@ class _ListHandlerMixin(BaseRedisHandler[MsgType]):
 
         self.list_sub = list
 
-    @cached_property
-    def channel_name(self) -> str:
-        return self.list_sub.name
+    def __hash__(self) -> int:
+        return hash(self.list_sub)
 
-    async def _consume(
-        self, client: "Redis[bytes]", *, start_signal: anyio.Event
+    def get_log_context(
+        self,
+        message: Optional["BrokerStreamMessage[Any]"],
+    ) -> Dict[str, str]:
+        return self.build_log_context(
+            message=message,
+            channel=self.list_sub.name,
+        )
+
+    @override
+    async def _consume(  # type: ignore[override]
+        self,
+        client: "Redis[bytes]",
+        *,
+        start_signal: anyio.Event,
     ) -> None:
         start_signal.set()
         await super()._consume(client, start_signal=start_signal)
@@ -402,23 +418,24 @@ class _ListHandlerMixin(BaseRedisHandler[MsgType]):
         self,
         client: "Redis[bytes]",
         *,
-        producer: Optional["PublisherProtocol"],
+        producer: Optional["RedisFastProducer"],
     ) -> None:
         await super().start(client, producer=producer)
 
 
-class ListHandler(_ListHandlerMixin[bytes]):
-    def add_call(
+class ListHandler(_ListHandlerMixin[DefaultListMessage]):
+    @override
+    def add_call(  # type: ignore[override]
         self,
         *,
-        filter: "Filter[BrokerStreamMessage[ListMessage]]",
-        parser: Optional["CustomParser[ListMessage]"],
-        decoder: Optional["CustomDecoder[BrokerStreamMessage[ListMessage]]"],
+        filter: "Filter[BrokerStreamMessage[DefaultListMessage]]",
+        parser: Optional["CustomParser[DefaultListMessage]"],
+        decoder: Optional["CustomDecoder[BrokerStreamMessage[DefaultListMessage]]"],
         middlewares: Iterable["SubscriberMiddleware"],
         dependencies: Sequence["Depends"],
         **wrap_kwargs: Any,
-    ) -> "WrapperProtocol[ListMessage]":
-        return super(BaseRedisHandler, self).add_call(
+    ) -> "WrapperProtocol[DefaultListMessage]":
+        return super(LogicHandler, self).add_call(
             parser_=resolve_custom_func(parser, RedisListParser.parse_message),
             decoder_=resolve_custom_func(decoder, RedisListParser.decode_message),
             filter_=filter,
@@ -428,13 +445,13 @@ class ListHandler(_ListHandlerMixin[bytes]):
         )
 
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
-        raw_msg = await client.lpop(name=self.channel_name)
+        raw_msg = await client.lpop(name=self.list_sub.name)
 
         if raw_msg:
-            message = ListMessage(
+            message = DefaultListMessage(
                 type="list",
                 data=raw_msg,
-                channel=self.channel_name,
+                channel=self.list_sub.name,
             )
 
             await self.consume(message)
@@ -444,7 +461,8 @@ class ListHandler(_ListHandlerMixin[bytes]):
 
 
 class BatchListHandler(_ListHandlerMixin[BatchListMessage]):
-    def add_call(
+    @override
+    def add_call(  # type: ignore[override]
         self,
         *,
         filter: "Filter[BrokerStreamMessage[BatchListMessage]]",
@@ -454,7 +472,7 @@ class BatchListHandler(_ListHandlerMixin[BatchListMessage]):
         dependencies: Sequence["Depends"],
         **wrap_kwargs: Any,
     ) -> "WrapperProtocol[BatchListMessage]":
-        return super(BaseRedisHandler, self).add_call(
+        return super(LogicHandler, self).add_call(
             parser_=resolve_custom_func(parser, RedisBatchListParser.parse_message),
             decoder_=resolve_custom_func(decoder, RedisBatchListParser.decode_message),
             filter_=filter,
@@ -465,14 +483,14 @@ class BatchListHandler(_ListHandlerMixin[BatchListMessage]):
 
     async def _get_msgs(self, client: "Redis[bytes]") -> None:
         raw_msgs = await client.lpop(
-            name=self.channel_name,
+            name=self.list_sub.name,
             count=self.list_sub.max_records,
         )
 
         if raw_msgs:
             msg = BatchListMessage(
-                type="batch",
-                channel=self.channel_name,
+                type="blist",
+                channel=self.list_sub.name,
                 data=raw_msgs,
             )
 
@@ -481,12 +499,11 @@ class BatchListHandler(_ListHandlerMixin[BatchListMessage]):
         else:
             await anyio.sleep(self.list_sub.polling_interval)
 
-    async def _consume(self, psub: RPubSub, *, start_signal: anyio.Event) -> None:
-        start_signal.set()
-        await super()._consume(psub, start_signal=start_signal)
+
+StreamMsgType = TypeVar("StreamMsgType", bound=StreamMessage)
 
 
-class _StreamHandlerMixin(BaseRedisHandler[MsgType]):
+class _StreamHandlerMixin(LogicHandler[StreamMsgType]):
     def __init__(
         self,
         *,
@@ -508,7 +525,7 @@ class _StreamHandlerMixin(BaseRedisHandler[MsgType]):
             ),
         ],
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[MsgType]"],
+            Iterable["BrokerMiddleware[StreamMsgType]"],
             Doc("Global middleware to use `on_receive`, `after_processed`"),
         ],
         # AsyncAPI information
@@ -537,18 +554,26 @@ class _StreamHandlerMixin(BaseRedisHandler[MsgType]):
         )
 
         self.stream_sub = stream
-        self.last_id = getattr(stream, "last_id", "$")
+        self.last_id = stream.last_id
 
-    @cached_property
-    def channel_name(self) -> str:
-        return self.stream_sub.name
+    def __hash__(self) -> int:
+        return hash(self.stream_sub)
+
+    def get_log_context(
+        self,
+        message: Optional["BrokerStreamMessage[Any]"],
+    ) -> Dict[str, str]:
+        return self.build_log_context(
+            message=message,
+            channel=self.stream_sub.name,
+        )
 
     @override
     async def start(  # type: ignore[override]
         self,
         client: "Redis[bytes]",
         *,
-        producer: Optional["PublisherProtocol"],
+        producer: Optional["RedisFastProducer"],
     ) -> None:
         self.extra_watcher_options.update(redis=client, group=self.stream_sub.group)
 
@@ -585,18 +610,19 @@ class _StreamHandlerMixin(BaseRedisHandler[MsgType]):
         await super().start(read, producer=producer)
 
 
-class StreamHandler(_StreamHandlerMixin[StreamMessage]):
-    def add_call(
+class StreamHandler(_StreamHandlerMixin[DefaultStreamMessage]):
+    @override
+    def add_call(  # type: ignore[override]
         self,
         *,
-        filter: "Filter[BrokerStreamMessage[StreamMessage]]",
-        parser: Optional["CustomParser[StreamMessage]"],
-        decoder: Optional["CustomDecoder[BrokerStreamMessage[StreamMessage]]"],
+        filter: "Filter[BrokerStreamMessage[DefaultStreamMessage]]",
+        parser: Optional["CustomParser[DefaultStreamMessage]"],
+        decoder: Optional["CustomDecoder[BrokerStreamMessage[DefaultStreamMessage]]"],
         middlewares: Iterable["SubscriberMiddleware"],
         dependencies: Sequence["Depends"],
         **wrap_kwargs: Any,
-    ) -> "WrapperProtocol[StreamMessage]":
-        return super(BaseRedisHandler, self).add_call(
+    ) -> "WrapperProtocol[DefaultStreamMessage]":
+        return super(LogicHandler, self).add_call(
             parser_=resolve_custom_func(parser, RedisStreamParser.parse_message),
             decoder_=resolve_custom_func(decoder, RedisStreamParser.decode_message),
             filter_=filter,
@@ -610,7 +636,7 @@ class StreamHandler(_StreamHandlerMixin[StreamMessage]):
         read: Callable[
             [str],
             Awaitable[
-                Tuple[Tuple[bytes, Tuple[Tuple[bytes, Dict[Any, Any]], ...]], ...],
+                Tuple[Tuple[bytes, Tuple[Tuple[bytes, Dict[bytes, bytes]], ...]], ...],
             ],
         ],
     ) -> None:
@@ -619,7 +645,7 @@ class StreamHandler(_StreamHandlerMixin[StreamMessage]):
                 self.last_id = msgs[-1][0].decode()
 
                 for message_id, raw_msg in msgs:
-                    msg = StreamMessage(
+                    msg = DefaultStreamMessage(
                         type="stream",
                         channel=stream_name.decode(),
                         message_ids=[message_id],
@@ -630,7 +656,8 @@ class StreamHandler(_StreamHandlerMixin[StreamMessage]):
 
 
 class BatchStreamHandler(_StreamHandlerMixin[BatchStreamMessage]):
-    def add_call(
+    @override
+    def add_call(  # type: ignore[override]
         self,
         *,
         filter: "Filter[BrokerStreamMessage[BatchStreamMessage]]",
@@ -640,7 +667,7 @@ class BatchStreamHandler(_StreamHandlerMixin[BatchStreamMessage]):
         dependencies: Sequence["Depends"],
         **wrap_kwargs: Any,
     ) -> "WrapperProtocol[BatchStreamMessage]":
-        return super(BaseRedisHandler, self).add_call(
+        return super(LogicHandler, self).add_call(
             parser_=resolve_custom_func(parser, RedisBatchStreamParser.parse_message),
             decoder_=resolve_custom_func(
                 decoder, RedisBatchStreamParser.decode_message
@@ -656,7 +683,7 @@ class BatchStreamHandler(_StreamHandlerMixin[BatchStreamMessage]):
         read: Callable[
             [str],
             Awaitable[
-                Tuple[Tuple[bytes, Tuple[Tuple[bytes, Dict[Any, Any]], ...]], ...],
+                Tuple[Tuple[bytes, Tuple[Tuple[bytes, Dict[bytes, bytes]], ...]], ...],
             ],
         ],
     ) -> None:
@@ -664,13 +691,14 @@ class BatchStreamHandler(_StreamHandlerMixin[BatchStreamMessage]):
             if msgs:
                 self.last_id = msgs[-1][0].decode()
 
-                data, ids = [], []
-                for message_id, msg in msgs:
-                    data.append(msg)
+                data: List[Dict[bytes, bytes]] = []
+                ids: List[bytes] = []
+                for message_id, i in msgs:
+                    data.append(i)
                     ids.append(message_id)
 
                 msg = BatchStreamMessage(
-                    type="stream",
+                    type="bstream",
                     channel=stream_name.decode(),
                     data=data,
                     message_ids=ids,

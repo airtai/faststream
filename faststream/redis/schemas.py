@@ -3,6 +3,7 @@ from functools import cached_property
 from typing import Optional
 
 from faststream.broker.schemas import NameRequired
+from faststream.exceptions import SetupError
 from faststream.utils.path import compile_path
 
 
@@ -45,7 +46,7 @@ class PubSub(NameRequired):
         self.polling_interval = polling_interval
 
     def __hash__(self) -> int:
-        return hash("pubsub" + self.name)
+        return hash(f"pubsub:{self.name}")
 
 
 class ListSub(NameRequired):
@@ -77,7 +78,7 @@ class ListSub(NameRequired):
         return self.max_records if self.batch else None
 
     def __hash__(self) -> int:
-        return hash("list" + self.name)
+        return hash(f"list:{self.name}")
 
 
 class StreamSub(NameRequired):
@@ -109,7 +110,7 @@ class StreamSub(NameRequired):
     ) -> None:
         """Redis Stream subscriber parameters."""
         if (group and not consumer) or (not group and consumer):
-            raise ValueError("You should specify `group` and `consumer` both")
+            raise SetupError("You should specify `group` and `consumer` both")
 
         if group and consumer and no_ack:
             warnings.warn(
@@ -133,7 +134,7 @@ class StreamSub(NameRequired):
         self.max_records = max_records
 
     def __hash__(self) -> int:
-        return hash("stream" + self.name)
+        return hash(f"stream:{self.name}")
 
 
 INCORRECT_SETUP_MSG = "You have to specify `channel`, `list` or `stream`"

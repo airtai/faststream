@@ -11,7 +11,7 @@ from anyio.from_thread import start_blocking_portal
 from faststream.app import FastStream
 from faststream.broker.core.broker import BrokerUsecase
 from faststream.broker.core.call_wrapper import HandlerCallWrapper
-from faststream.broker.core.handler import BaseHandler
+from faststream.broker.core.handler import HandlerProtocol
 from faststream.types import SettingField
 from faststream.utils.ast import is_contains_context_name
 from faststream.utils.functions import timeout_scope
@@ -266,7 +266,7 @@ def patch_broker_calls(broker: BrokerUsecase[Any, Any]) -> None:
 
 
 async def call_handler(
-    handler: BaseHandler[Any],
+    handler: HandlerProtocol[Any],
     message: Any,
     rpc: bool = False,
     rpc_timeout: Optional[float] = 30.0,

@@ -25,6 +25,7 @@ from faststream.broker.core.handler import BaseHandler
 from faststream.broker.core.publisher import FakePublisher
 from faststream.broker.parsers import resolve_custom_func
 from faststream.broker.types import MsgType
+from faststream.exceptions import SetupError
 from faststream.nats.parser import BatchParser, JsParser, NatsParser
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils.path import compile_path
@@ -215,6 +216,9 @@ class BaseNatsHandler(BaseHandler[MsgType]):
                 },
             ),
         )
+
+    def __hash__(self) -> int:
+        return self.get_routing_hash(self.subject)
 
     @staticmethod
     def get_routing_hash(
@@ -422,7 +426,7 @@ class DefaultHandler(BaseNatsHandler["Msg"]):
             connection = cast("JetStreamContext", connection)
 
             if self.stream is None:
-                raise ValueError("Pull subscriber can be used only with a stream")
+                raise SetupError("Pull subscriber can be used only with a stream")
 
             self.subscription = await connection.pull_subscribe(
                 subject=self.subject,

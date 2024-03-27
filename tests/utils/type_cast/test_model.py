@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from faststream.utils import apply_types
 
 
-class Base(BaseModel):  # noqa: D101
+class Base(BaseModel):
     field: int
 
 

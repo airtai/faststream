@@ -14,35 +14,7 @@ class BaseMiddleware:
     """A base middleware class.
 
     Attributes:
-        msg: Any - a message
-
-    Methods:
-        on_receive() -> None:
-            Called when a message is received.
-
-        after_processed(exc_type: Optional[Type[BaseException]] = None, exc_val: Optional[BaseException] = None, exc_tb: Optional[TracebackType] = None) -> Optional[bool]:
-            Called after processing a message.
-
-        __aenter__() -> Self:
-            Called when entering a context.
-
-        __aexit__(exc_type: Optional[Type[BaseException]] = None, exc_val: Optional[BaseException] = None, exc_tb: Optional[TracebackType] = None) -> Optional[bool]:
-            Called when exiting a context.
-
-        on_consume(msg: DecodedMessage) -> DecodedMessage:
-            Called before consuming a message.
-
-        after_consume(err: Optional[Exception]) -> None:
-            Called after consuming a message.
-
-        consume_scope(msg: DecodedMessage) -> AsyncIterator[DecodedMessage]:
-            Context manager for consuming a message.
-
-        on_publish(msg: SendableMessage) -> SendableMessage:
-            Called before publishing a message.
-
-        after_publish(err: Optional[Exception]) -> None:
-            Asynchronous function to handle the after publish event.
+        msg: Any - a raw message object.
     """
 
     def __init__(self, msg: Optional[Any] = None) -> None:
@@ -180,21 +152,7 @@ class BaseMiddleware:
     async def publish_scope(
         self, msg: Any, /, *args: Any, **kwargs: Any
     ) -> AsyncIterator[SendableMessage]:
-        """Publish a message and return an async iterator.
-
-        Args:
-            msg: The message to be published.
-
-        Yields:
-            A sendable message.
-
-        Returns:
-            An async iterator of sendable messages.
-
-        Raises:
-            Exception: If an error occurs during publishing.
-
-        """
+        """Publish a message and return an async iterator."""
         err: Optional[Exception]
         try:
             yield cast(SendableMessage, await self.on_publish(msg, *args, **kwargs))
@@ -206,30 +164,14 @@ class BaseMiddleware:
 
 
 class CriticalLogMiddleware(BaseMiddleware):
-    """A middleware class for logging critical errors.
-
-    Args:
-        logger: The logger object to use for logging
-
-    Methods:
-        __call__(msg: Any) -> Self: Returns the middleware instance
-        after_processed(exc_type: Optional[Type[BaseException]] = None, exc_val: Optional[BaseException] = None, exc_tb: Optional[TracebackType] = None) -> bool: Logs critical errors if they occur and returns True
-    """
+    """A middleware class for logging critical errors."""
 
     def __init__(
         self,
         logger: Optional[LoggerProtocol],
         log_level: int,
     ) -> None:
-        """Initialize the class.
-
-        Args:
-            logger: an instance of the logging.Logger class
-            log_level: the log level to use for logging
-
-        Returns:
-            None
-        """
+        """Initialize the class."""
         self.logger = logger
         self.log_level = log_level
 
@@ -256,16 +198,7 @@ class CriticalLogMiddleware(BaseMiddleware):
         exc_val: Optional[BaseException] = None,
         exc_tb: Optional[TracebackType] = None,
     ) -> bool:
-        """Asynchronously called after processing.
-
-        Args:
-            exc_type (Optional[Type[BaseException]]): Type of the exception raised during processing.
-            exc_val (Optional[BaseException]): Value of the exception raised during processing.
-            exc_tb (Optional[TracebackType]): Traceback of the exception raised during processing.
-
-        Returns:
-            bool: True if the method is successfully executed.
-        """
+        """Asynchronously called after processing."""
         if self.logger is not None:
             c = context.get_local("log_context") or {}
 

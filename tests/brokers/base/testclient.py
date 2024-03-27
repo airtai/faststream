@@ -7,7 +7,7 @@ from tests.brokers.base.publish import BrokerPublishTestcase
 from tests.brokers.base.rpc import BrokerRPCTestcase
 
 
-class BrokerTestclientTestcase(  # noqa: D101
+class BrokerTestclientTestcase(
     BrokerPublishTestcase, BrokerConsumeTestcase, BrokerRPCTestcase
 ):
     build_message: AnyCallable

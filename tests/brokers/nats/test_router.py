@@ -7,7 +7,7 @@ from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 
 @pytest.mark.nats()
-class TestRouter(RouterTestcase):  # noqa: D101
+class TestRouter(RouterTestcase):
     broker_class = NatsRouter
     route_class = NatsRoute
 
@@ -40,6 +40,6 @@ class TestRouter(RouterTestcase):  # noqa: D101
         assert event.is_set()
 
 
-class TestRouterLocal(RouterLocalTestcase):  # noqa: D101
+class TestRouterLocal(RouterLocalTestcase):
     broker_class = NatsRouter
     route_class = NatsRoute

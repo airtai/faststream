@@ -3,7 +3,7 @@ from faststream.rabbit import ExchangeType, RabbitBroker, RabbitExchange, Rabbit
 from tests.asyncapi.base.arguments import ArgumentsTestcase
 
 
-class TestArguments(ArgumentsTestcase):  # noqa: D101
+class TestArguments(ArgumentsTestcase):
     broker_class = RabbitBroker
 
     def test_subscriber_bindings(self):

@@ -6,7 +6,7 @@ from faststream.broker.core.broker import BrokerUsecase
 from faststream.broker.router import BrokerRoute, BrokerRouter
 
 
-class RouterTestcase:  # noqa: D101
+class RouterTestcase:
     broker_class: Type[BrokerUsecase]
     router_class: Type[BrokerRouter]
     route_class: Type[BrokerRoute]

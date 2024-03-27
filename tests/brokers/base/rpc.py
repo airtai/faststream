@@ -8,7 +8,7 @@ from faststream.broker.core.broker import BrokerUsecase
 from faststream.utils.functions import timeout_scope
 
 
-class BrokerRPCTestcase:  # noqa: D101
+class BrokerRPCTestcase:
     @pytest.fixture()
     def rpc_broker(self, broker):
         return broker
@@ -91,7 +91,7 @@ class BrokerRPCTestcase:  # noqa: D101
         mock.assert_called_with("1")
 
 
-class ReplyAndConsumeForbidden:  # noqa: D101
+class ReplyAndConsumeForbidden:
     @pytest.mark.asyncio()
     async def test_rpc_with_reply_and_callback(self, full_broker: BrokerUsecase):
         with pytest.raises(ValueError):  # noqa: PT011

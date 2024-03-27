@@ -12,7 +12,7 @@ from faststream.rabbit import (
 
 
 @dataclass
-class Settings:  # noqa: D101
+class Settings:
     url = "amqp://guest:guest@localhost:5672/"  # pragma: allowlist secret
 
     host = "localhost"

@@ -6,6 +6,7 @@ from typing import Tuple
 import typer
 
 from faststream.app import FastStream
+from faststream.exceptions import SetupError
 
 
 def try_import_app(module: Path, app: str) -> FastStream:
@@ -65,7 +66,7 @@ def import_object(module: Path, app: str) -> object:
     loader = spec.loader
 
     if loader is None:  # pragma: no cover
-        raise ValueError(f"{spec} has no loader")
+        raise SetupError(f"{spec} has no loader")
 
     loader.exec_module(mod)
 
@@ -91,7 +92,7 @@ def get_app_path(app: str) -> Tuple[Path, str]:
 
     """
     if ":" not in app:
-        raise ValueError(f"`{app}` is not a FastStream")
+        raise SetupError(f"`{app}` is not a FastStream")
 
     module, app_name = app.split(":", 2)
 

@@ -7,7 +7,7 @@ from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 
 @pytest.mark.rabbit()
-class TestRouter(RouterTestcase):  # noqa: D101
+class TestRouter(RouterTestcase):
     broker_class = RabbitRouter
     route_class = RabbitRoute
 
@@ -77,6 +77,6 @@ class TestRouter(RouterTestcase):  # noqa: D101
             assert event.is_set()
 
 
-class TestRouterLocal(RouterLocalTestcase):  # noqa: D101
+class TestRouterLocal(RouterLocalTestcase):
     broker_class = RabbitRouter
     route_class = RabbitRoute

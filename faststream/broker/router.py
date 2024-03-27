@@ -100,24 +100,13 @@ class BrokerRouter(Generic[MsgType]):
     _publishers: Mapping[int, BasePublisher[MsgType]]
 
     @staticmethod
-    @abstractmethod
     def _update_publisher_prefix(
         prefix: str,
         publisher: BasePublisher[MsgType],
     ) -> BasePublisher[MsgType]:
-        """Updates the publisher prefix.
-
-        Args:
-            prefix: The new prefix to be set.
-            publisher: The publisher to update.
-
-        Returns:
-            The updated publisher.
-
-        Raises:
-            NotImplementedError: If the function is not implemented.
-        """
-        raise NotImplementedError()
+        """Updates the publisher prefix."""
+        publisher.add_prefix(prefix)
+        return publisher
 
     def __init__(
         self,

@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Union, cast
 
 from typing_extensions import Annotated, Doc, deprecated, override
 
@@ -152,8 +152,14 @@ class RabbitRouter(BrokerRouter["IncomingMessage"]):
 
     def __init__(
         self,
-        prefix: str = "",
-        handlers: Iterable[RabbitRoute] = (),
+        prefix: Annotated[
+            str,
+            Doc("String prefix to add to all subscribers queues."),
+        ] = "",
+        handlers: Annotated[
+            Iterable[RabbitRoute],
+            Doc("Route object to include."),
+        ] = (),
         *,
         dependencies: Annotated[
             Iterable["Depends"],
@@ -194,7 +200,6 @@ class RabbitRouter(BrokerRouter["IncomingMessage"]):
             decoder=decoder,
             include_in_schema=include_in_schema,
         )
-
 
     @override
     def subscriber(  # type: ignore[override]
@@ -427,42 +432,37 @@ class RabbitRouter(BrokerRouter["IncomingMessage"]):
             expiration=expiration,
         )
 
-        new_publisher = self._update_publisher_prefix(
-            self.prefix,
-            Publisher(
-                queue=RabbitQueue.validate(queue),
-                exchange=RabbitExchange.validate(exchange),
-                routing_key=routing_key,
-                message_kwargs=message_kwargs,
-                middlewares=(
-                    *(m(None).publish_scope for m in self._middlewares),
-                    *middlewares
+        new_publisher = cast(
+            Publisher,
+            self._update_publisher_prefix(
+                self.prefix,
+                Publisher(
+                    queue=RabbitQueue.validate(queue),
+                    exchange=RabbitExchange.validate(exchange),
+                    routing_key=routing_key,
+                    message_kwargs=message_kwargs,
+                    middlewares=(
+                        *(m(None).publish_scope for m in self._middlewares),
+                        *middlewares
+                    ),
+                    # AsyncAPI
+                    title_=title,
+                    description_=description,
+                    schema_=schema,
+                    include_in_schema=(
+                        include_in_schema
+                        if self.include_in_schema is None
+                        else self.include_in_schema
+                    ),
+                    # delay setup
+                    virtual_host="",
+                    app_id="",
                 ),
-                # AsyncAPI
-                title_=title,
-                description_=description,
-                schema_=schema,
-                include_in_schema=(
-                    include_in_schema
-                    if self.include_in_schema is None
-                    else self.include_in_schema
-                ),
-                # delay setup
-                virtual_host="",
-                app_id="",
             ),
         )
         key = hash(new_publisher)
-        publisher = self._publishers[key] = self._publishers.get(key, new_publisher)
-        return publisher
-
-    @staticmethod
-    @override
-    def _update_publisher_prefix(  # type: ignore[override]
-        prefix: str,
-        publisher: Publisher,
-    ) -> Publisher:
-        new_q = deepcopy(publisher.queue)
-        new_q.name = prefix + new_q.name
-        publisher.queue = new_q
+        publisher = self._publishers[key] = self._publishers.get(
+            key,
+            new_publisher,
+        )
         return publisher

@@ -4,22 +4,22 @@ from unittest.mock import Mock
 
 import pytest
 
-from faststream.broker.core.asynchronous import BrokerAsyncUsecase
+from faststream.broker.core.broker import BrokerUsecase
 from faststream.confluent import KafkaBroker
 
 
 @pytest.mark.asyncio()
 # @pytest.mark.flaky(reruns=3, reruns_delay=1)
-class LocalCustomParserTestcase:  # noqa: D101
-    broker_class: Type[BrokerAsyncUsecase]
+class LocalCustomParserTestcase:
+    broker_class: Type[BrokerUsecase]
 
     @pytest.fixture()
     def raw_broker(self):
         return None
 
     def patch_broker(
-        self, raw_broker: BrokerAsyncUsecase, broker: BrokerAsyncUsecase
-    ) -> BrokerAsyncUsecase:
+        self, raw_broker: BrokerUsecase, broker: BrokerUsecase
+    ) -> BrokerUsecase:
         return broker
 
     async def test_local_parser(
@@ -206,7 +206,7 @@ class LocalCustomParserTestcase:  # noqa: D101
             assert mock.call_count == 2  # instead 4
 
 
-class CustomParserTestcase(LocalCustomParserTestcase):  # noqa: D101
+class CustomParserTestcase(LocalCustomParserTestcase):
     async def test_global_parser(
         self,
         mock: Mock,

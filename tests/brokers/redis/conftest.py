@@ -11,7 +11,7 @@ from faststream.redis import (
 
 
 @dataclass
-class Settings:  # noqa: D101
+class Settings:
     url = "redis://localhost:6379"  # pragma: allowlist secret
     host = "localhost"
     port = 6379

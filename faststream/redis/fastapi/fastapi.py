@@ -29,6 +29,7 @@ from typing_extensions import Annotated, Doc, deprecated, override
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.core.broker import default_filter
 from faststream.broker.fastapi.router import StreamRouter
+from faststream.exceptions import SetupError
 from faststream.redis.asyncapi import Publisher
 from faststream.redis.broker import RedisBroker as RB
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
@@ -60,6 +61,7 @@ class RedisRouter(StreamRouter["AnyDict"]):
     """A class to represent a Redis router."""
 
     broker_class = RB
+    broker: RB
 
     def __init__(
         self,
@@ -507,7 +509,7 @@ class RedisRouter(StreamRouter["AnyDict"]):
         stream = StreamSub.validate(stream)
 
         if (any_of := channel or list or stream) is None:
-            raise ValueError(INCORRECT_SETUP_MSG)
+            raise SetupError(INCORRECT_SETUP_MSG)
 
         return super().subscriber(
             path=any_of.name,
@@ -549,9 +551,9 @@ class RedisRouter(StreamRouter["AnyDict"]):
             ),
         ] = None,
         reply_to: Annotated[
-            Optional[str],
+            str,
             Doc("Reply message destination PubSub object name."),
-        ] = None,
+        ] = "",
         middlewares: Annotated[
             Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),

@@ -13,7 +13,7 @@ from tests.brokers.base.parser import LocalCustomParserTestcase
 
 
 @pytest.mark.asyncio()
-class RouterTestcase(  # noqa: D101
+class RouterTestcase(
     LocalMiddlewareTestcase,
     LocalCustomParserTestcase,
 ):
@@ -428,7 +428,7 @@ class RouterTestcase(  # noqa: D101
 
 
 @pytest.mark.asyncio()
-class RouterLocalTestcase(RouterTestcase):  # noqa: D101
+class RouterLocalTestcase(RouterTestcase):
     @pytest.fixture()
     def pub_broker(self, test_broker):
         return test_broker

@@ -13,8 +13,8 @@ def spy_decorator(method):
     return wrapper
 
 
-class AsyncIterator:  # noqa: D101
-    def __init__(self, iterable: Iterable[Any]) -> None:  # noqa: D107
+class AsyncIterator:
+    def __init__(self, iterable: Iterable[Any]) -> None:
         self.iter = iter(iterable)
 
     def __aiter__(self):

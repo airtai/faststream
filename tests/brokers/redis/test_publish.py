@@ -11,7 +11,7 @@ from tests.tools import spy_decorator
 
 @pytest.mark.redis()
 @pytest.mark.asyncio()
-class TestPublish(BrokerPublishTestcase):  # noqa: D101
+class TestPublish(BrokerPublishTestcase):
     async def test_list_publisher(
         self,
         queue: str,

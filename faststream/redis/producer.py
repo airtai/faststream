@@ -8,8 +8,9 @@ from faststream.broker.types import (
     AsyncDecoder,
     AsyncParser,
 )
-from faststream.exceptions import WRONG_PUBLISH_ARGS
-from faststream.redis.parser import DATA_KEY, RawMessage, RedisPubSubParser
+from faststream.exceptions import WRONG_PUBLISH_ARGS, SetupError
+from faststream.redis.message import DATA_KEY
+from faststream.redis.parser import RawMessage, RedisPubSubParser
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils.functions import timeout_scope
@@ -63,7 +64,7 @@ class RedisFastProducer:
         raise_timeout: bool = False,
     ) -> Optional[Any]:
         if not any((channel, list, stream)):
-            raise ValueError(INCORRECT_SETUP_MSG)
+            raise SetupError(INCORRECT_SETUP_MSG)
 
         psub: Optional["PubSub"] = None
         if rpc:

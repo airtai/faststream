@@ -12,14 +12,14 @@ from faststream.annotations import Logger
 from faststream.broker.core.broker import BrokerUsecase
 
 
-class SimpleModel(BaseModel):  # noqa: D101
+class SimpleModel(BaseModel):
     r: str
 
 
 now = datetime.now()
 
 
-class BrokerPublishTestcase:  # noqa: D101
+class BrokerPublishTestcase:
     @pytest.fixture()
     def pub_broker(self, full_broker):
         return full_broker

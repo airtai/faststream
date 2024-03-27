@@ -11,6 +11,7 @@ from faststream.broker.types import (
     PublisherProtocol,
     T_HandlerReturn,
 )
+from faststream.exceptions import SetupError
 
 
 class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
@@ -178,7 +179,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
             return
 
         if self.future is None:
-            raise ValueError("You can use this method only with TestClient")
+            raise SetupError("You can use this method only with TestClient")
 
         if self.future.done():
             self.future = asyncio.Future()

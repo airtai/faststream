@@ -42,7 +42,7 @@ from typing_extensions import Annotated, Doc, deprecated, override
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.core.broker import BrokerUsecase, default_filter
 from faststream.broker.utils import get_watcher_context
-from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.exceptions import NOT_CONNECTED_YET, SetupError
 from faststream.nats.asyncapi import AsyncAPIHandler, Publisher
 from faststream.nats.broker.logging import NatsLoggingMixin
 from faststream.nats.handler import BaseNatsHandler
@@ -829,7 +829,7 @@ class NatsBroker(
         stream = stream_builder.stream(stream)
 
         if pull_sub is not None and stream is None:
-            raise ValueError("Pull subscriber can be used only with a stream")
+            raise SetupError("Pull subscriber can be used only with a stream")
 
         self._setup_log_context(
             queue=queue,

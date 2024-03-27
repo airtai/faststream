@@ -15,7 +15,7 @@ from faststream.cli.docs.app import docs_app
 from faststream.cli.utils.imports import import_from_string
 from faststream.cli.utils.logs import LogLevels, get_log_level, set_log_level
 from faststream.cli.utils.parser import parse_cli_args
-from faststream.exceptions import ValidationError
+from faststream.exceptions import SetupError, ValidationError
 from faststream.types import SettingField
 
 cli = typer.Typer(pretty_exceptions_short=True)
@@ -119,7 +119,7 @@ def run(
     args = (app, extra, casted_log_level)
 
     if reload and workers > 1:
-        raise ValueError("You can't use reload option with multiprocessing")
+        raise SetupError("You can't use reload option with multiprocessing")
 
     if reload:
         try:

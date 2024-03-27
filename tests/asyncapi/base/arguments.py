@@ -12,12 +12,12 @@ from faststream.asyncapi.generate import get_app_schema
 from faststream.broker.core.broker import BrokerUsecase
 
 
-class FastAPICompatible:  # noqa: D101
+class FastAPICompatible:
     broker_class: Type[BrokerUsecase]
     dependency_builder = staticmethod(APIDepends)
 
     def build_app(self, broker):
-        """Patch it to test FastAPI scheme generation too"""  # noqa: D415
+        """Patch it to test FastAPI scheme generation too"""
         return FastStream(broker)
 
     def test_custom_naming(self):
@@ -38,7 +38,7 @@ class FastAPICompatible:  # noqa: D101
 
         @broker.subscriber("test", title="custom_name")
         async def handle(msg):
-            """Test description"""  # noqa: D415
+            """Test description"""
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
@@ -447,7 +447,7 @@ class FastAPICompatible:  # noqa: D101
             }
 
 
-class ArgumentsTestcase(FastAPICompatible):  # noqa: D101
+class ArgumentsTestcase(FastAPICompatible):
     dependency_builder = staticmethod(Depends)
 
     def test_pydantic_field(self):

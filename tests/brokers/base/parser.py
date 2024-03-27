@@ -8,7 +8,7 @@ from faststream.broker.core.broker import BrokerUsecase
 
 
 @pytest.mark.asyncio()
-class LocalCustomParserTestcase:  # noqa: D101
+class LocalCustomParserTestcase:
     broker_class: Type[BrokerUsecase]
 
     @pytest.fixture()
@@ -200,7 +200,7 @@ class LocalCustomParserTestcase:  # noqa: D101
             assert mock.call_count == 1
 
 
-class CustomParserTestcase(LocalCustomParserTestcase):  # noqa: D101
+class CustomParserTestcase(LocalCustomParserTestcase):
     async def test_global_parser(
         self,
         mock: Mock,

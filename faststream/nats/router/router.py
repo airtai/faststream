@@ -6,6 +6,7 @@ from typing import (
     Iterable,
     Optional,
     Union,
+    cast,
 )
 
 from nats.js import api
@@ -231,6 +232,7 @@ class NatsRoute(BrokerRoute):
             include_in_schema=include_in_schema,
         )
 
+
 class NatsRouter(BrokerRouter["Msg"]):
     """A class to represent a NATS router."""
 
@@ -238,8 +240,14 @@ class NatsRouter(BrokerRouter["Msg"]):
 
     def __init__(
         self,
-        prefix: str = "",
-        handlers: Iterable[NatsRoute] = (),
+        prefix: Annotated[
+            str,
+            Doc("String prefix to add to all subscribers subjects."),
+        ] = "",
+        handlers: Annotated[
+            Iterable[NatsRoute],
+            Doc("Route object to include."),
+        ] = (),
         *,
         dependencies: Annotated[
             Iterable["Depends"],
@@ -260,7 +268,7 @@ class NatsRouter(BrokerRouter["Msg"]):
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         include_in_schema: Annotated[
-        Optional[bool],
+            Optional[bool],
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = None,
     ) -> None:
@@ -516,26 +524,29 @@ class NatsRouter(BrokerRouter["Msg"]):
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
     ) -> Publisher:
-        new_publisher = self._update_publisher_prefix(
-            self.prefix,
-            Publisher(
-                subject=subject,
-                reply_to=reply_to,
-                stream=stream_builder.stream(stream),
-                headers=headers,
-                middlewares=(
-                    *(m(None).publish_scope for m in self._middlewares),
-                    *middlewares
-                ),
-                timeout=timeout,
-                # AsyncAPI information
-                title_=title,
-                description_=description,
-                schema_=schema,
-                include_in_schema=(
-                    include_in_schema
-                    if self.include_in_schema is None
-                    else self.include_in_schema
+        new_publisher = cast(
+            Publisher,
+            self._update_publisher_prefix(
+                self.prefix,
+                Publisher(
+                    subject=subject,
+                    reply_to=reply_to,
+                    stream=stream_builder.stream(stream),
+                    headers=headers,
+                    middlewares=(
+                        *(m(None).publish_scope for m in self._middlewares),
+                        *middlewares
+                    ),
+                    timeout=timeout,
+                    # AsyncAPI information
+                    title_=title,
+                    description_=description,
+                    schema_=schema,
+                    include_in_schema=(
+                        include_in_schema
+                        if self.include_in_schema is None
+                        else self.include_in_schema
+                    ),
                 ),
             ),
         )
@@ -547,13 +558,4 @@ class NatsRouter(BrokerRouter["Msg"]):
         if publisher.stream is not None:
             publisher.stream.add_subject(publisher.subject)
 
-        return publisher
-
-    @override
-    @staticmethod
-    def _update_publisher_prefix(  # type: ignore[override]
-        prefix: str,
-        publisher: Publisher,
-    ) -> Publisher:
-        publisher.subject = prefix + publisher.subject
         return publisher

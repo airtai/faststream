@@ -7,7 +7,7 @@ from faststream.kafka import KafkaBroker, KafkaRouter, TestKafkaBroker
 
 
 @dataclass
-class Settings:  # noqa: D101
+class Settings:
     url = "localhost:9092"
 
 

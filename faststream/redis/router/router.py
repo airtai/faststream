@@ -1,12 +1,21 @@
 from copy import deepcopy
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Optional,
+    Union,
+    cast,
+)
 
 from typing_extensions import Annotated, Doc, TypeAlias, deprecated, override
 
 from faststream.broker.core.broker import default_filter
 from faststream.broker.router import BrokerRoute, BrokerRouter
 from faststream.redis.asyncapi import Publisher
-from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
+from faststream.redis.schemas import ListSub, PubSub, StreamSub
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -14,7 +23,7 @@ if TYPE_CHECKING:
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
-        BaseMiddleware,
+        BrokerMiddleware,
         CustomDecoder,
         CustomParser,
         Filter,
@@ -128,28 +137,36 @@ class RedisRoute(BrokerRoute):
             get_dependent=get_dependent,
         )
 
+
 class RedisRouter(BrokerRouter["AnyDict"]):
     """A class to represent a Redis router."""
-    _publishers: Dict[int, Publisher]  # type: ignore[assignment]
+
+    _publishers: Dict[int, Publisher]
 
     def __init__(
         self,
-        prefix: str = "",
-        handlers: Iterable[RedisRoute] = (),
+        prefix: Annotated[
+            str,
+            Doc("String prefix to add to all subscribers targets (channel/list/stream)."),
+        ] = "",
+        handlers: Annotated[
+            Iterable[RedisRoute],
+            Doc("Route object to include."),
+        ] = (),
         *,
         dependencies: Annotated[
             Iterable["Depends"],
-            Doc("Dependencies list (`[Depends(),]`) to apply to all routers' publishers/subscribers."),
+            Doc(
+                "Dependencies list (`[Depends(),]`) to apply to all routers' publishers/subscribers."
+            ),
         ] = (),
         middlewares: Annotated[
-            Iterable[Callable[[Optional["AnyDict"]], "BaseMiddleware"]],
+            Iterable["BrokerMiddleware[AnyDict]"],
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
         parser: Annotated[
             Optional["CustomParser[AnyDict]"],
-            Doc(
-                "Parser to map original **IncomingMessage** Msg to FastStream one."
-            ),
+            Doc("Parser to map original **IncomingMessage** Msg to FastStream one."),
         ] = None,
         decoder: Annotated[
             Optional["CustomDecoder[StreamMessage[AnyDict]]"],
@@ -160,13 +177,6 @@ class RedisRouter(BrokerRouter["AnyDict"]):
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = None,
     ) -> None:
-        """Initialize the Redis router.
-
-        Args:
-            prefix: The prefix.
-            handlers: The handlers.
-            **kwargs: The keyword arguments.
-        """
         for h in handlers:
             if not (channel := h.kwargs.pop("channel", None)):
                 if list := h.kwargs.pop("list", None):
@@ -267,15 +277,15 @@ class RedisRouter(BrokerRouter["AnyDict"]):
             Doc("Service option to pass FastAPI-compatible callback."),
         ] = None,
     ) -> "WrapperProtocol[AnyDict]":
-        if (channel := PubSub.validate(channel)):
+        if channel := PubSub.validate(channel):
             channel = deepcopy(channel)
             channel.name = self.prefix + channel.name
 
-        if (list_sub := ListSub.validate(list)):
+        if list_sub := ListSub.validate(list):
             list_sub = deepcopy(list_sub)
             list_sub.name = self.prefix + list_sub.name
 
-        if (stream := StreamSub.validate(stream)):
+        if stream := StreamSub.validate(stream):
             stream = deepcopy(stream)
             stream.name = self.prefix + stream.name
 
@@ -320,9 +330,9 @@ class RedisRouter(BrokerRouter["AnyDict"]):
             ),
         ] = None,
         reply_to: Annotated[
-            Optional[str],
+            str,
             Doc("Reply message destination PubSub object name."),
-        ] = None,
+        ] = "",
         middlewares: Annotated[
             Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
@@ -348,29 +358,29 @@ class RedisRouter(BrokerRouter["AnyDict"]):
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
     ) -> Publisher:
-        if not any((stream, list, channel)):
-            raise ValueError(INCORRECT_SETUP_MSG)
-
-        new_publisher = self._update_publisher_prefix(
-            self.prefix,
-            Publisher(
-                channel=PubSub.validate(channel),
-                list=ListSub.validate(list),
-                stream=StreamSub.validate(stream),
-                reply_to=reply_to,
-                headers=headers,
-                middlewares=(
-                    *(m(None).publish_scope for m in self._middlewares),
-                    *middlewares
-                ),
-                # AsyncAPI options
-                title_=title,
-                description_=description,
-                schema_=schema,
-                include_in_schema=(
-                    include_in_schema
-                    if self.include_in_schema is None
-                    else self.include_in_schema
+        new_publisher = cast(
+            Publisher,
+            self._update_publisher_prefix(
+                self.prefix,
+                Publisher.create(
+                    channel=PubSub.validate(channel),
+                    list=ListSub.validate(list),
+                    stream=StreamSub.validate(stream),
+                    reply_to=reply_to,
+                    headers=headers,
+                    middlewares=(
+                        *(m(None).publish_scope for m in self._middlewares),
+                        *middlewares,
+                    ),
+                    # AsyncAPI options
+                    title_=title,
+                    description_=description,
+                    schema_=schema,
+                    include_in_schema=(
+                        include_in_schema
+                        if self.include_in_schema is None
+                        else self.include_in_schema
+                    ),
                 ),
             ),
         )
@@ -378,30 +388,4 @@ class RedisRouter(BrokerRouter["AnyDict"]):
         publisher = self._publishers[publisher_key] = self._publishers.get(
             publisher_key, new_publisher
         )
-        return publisher
-
-    @override
-    @staticmethod
-    def _update_publisher_prefix(  # type: ignore[override]
-        prefix: str,
-        publisher: Publisher,
-    ) -> Publisher:
-        if (ch := publisher.channel) is not None:
-            ch = deepcopy(ch)
-            ch.name = prefix + ch.name
-            publisher.channel = ch
-
-        elif (l_sub := publisher.list) is not None:
-            l_sub = deepcopy(l_sub)
-            l_sub.name = prefix + l_sub.name
-            publisher.list = l_sub
-
-        elif (st := publisher.stream) is not None:
-            st = deepcopy(st)
-            st.name = prefix + st.name
-            publisher.stream = st
-
-        else:
-            raise AssertionError("unreachable")
-
         return publisher

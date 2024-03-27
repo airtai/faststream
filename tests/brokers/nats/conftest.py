@@ -12,7 +12,7 @@ from faststream.nats import (
 
 
 @dataclass
-class Settings:  # noqa: D101
+class Settings:
     url = "nats://localhost:4222"  # pragma: allowlist secret
 
 

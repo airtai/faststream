@@ -4,13 +4,13 @@ from unittest.mock import Mock
 
 import pytest
 
-from faststream.broker.core.abc import BrokerUsecase
+from faststream.broker.core.broker import BrokerUsecase
 from faststream.broker.middlewares import BaseMiddleware
 from faststream.confluent import KafkaBroker
 
 
 @pytest.mark.asyncio()
-class LocalMiddlewareTestcase:  # noqa: D101
+class LocalMiddlewareTestcase:
     broker_class: Type[BrokerUsecase]
 
     @pytest.fixture()
@@ -227,7 +227,7 @@ class LocalMiddlewareTestcase:  # noqa: D101
 
 
 @pytest.mark.asyncio()
-class MiddlewareTestcase(LocalMiddlewareTestcase):  # noqa: D101
+class MiddlewareTestcase(LocalMiddlewareTestcase):
     async def test_global_middleware(
         self, event: asyncio.Event, queue: str, mock: Mock, raw_broker
     ):

@@ -30,9 +30,10 @@ def _parse_base_security(security: BaseSecurity) -> AnyDict:
                 super().__init__(**kwargs)
 
             def _connection_arguments(self) -> Any:
-                kwargs = super()._connection_arguments()  # type: ignore
-                kwargs["ssl"] = self._security.ssl_context
-                return kwargs
+                return {
+                    **super()._connection_arguments(),  # type: ignore[misc]
+                    "ssl": self._security.ssl_context
+                }
 
         return {"connection_class": SSLConnection}
     else:

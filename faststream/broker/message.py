@@ -9,19 +9,7 @@ MsgType = TypeVar("MsgType")
 
 @dataclass
 class StreamMessage(Generic[MsgType]):
-    """Generic class to represent a stream message.
-
-    Attributes:
-        raw_message : the raw message
-        body : the body of the message, can be bytes or any other type
-        decoded_body : the decoded message body, if applicable
-        content_type : the content type of the message
-        reply_to : the reply-to address of the message
-        headers : additional headers of the message
-        message_id : the unique identifier of the message
-        correlation_id : the correlation identifier of the message
-        processed : a flag indicating whether the message has been processed or not
-    """
+    """Generic class to represent a stream message."""
 
     raw_message: "MsgType"
 
@@ -40,11 +28,11 @@ class StreamMessage(Generic[MsgType]):
     processed: bool = field(default=False, init=False)
     committed: bool = field(default=False, init=False)
 
-    async def ack(self, **kwargs: Any) -> None:
+    async def ack(self) -> None:
         self.committed = True
 
-    async def nack(self, **kwargs: Any) -> None:
+    async def nack(self) -> None:
         self.committed = True
 
-    async def reject(self, **kwargs: Any) -> None:
+    async def reject(self) -> None:
         self.committed = True

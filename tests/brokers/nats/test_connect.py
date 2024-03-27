@@ -5,7 +5,7 @@ from tests.brokers.base.connection import BrokerConnectionTestcase
 
 
 @pytest.mark.nats()
-class TestConnection(BrokerConnectionTestcase):  # noqa: D101
+class TestConnection(BrokerConnectionTestcase):
     broker = NatsBroker
 
     def get_broker_args(self, settings):

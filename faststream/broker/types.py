@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import (
     Any,
     AsyncContextManager,
@@ -117,6 +118,7 @@ class PublisherMiddleware(Protocol):
 class PublisherProtocol(Protocol):
     """A protocol for an asynchronous publisher."""
 
+    @abstractmethod
     async def publish(
         self,
         message: Any,

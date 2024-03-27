@@ -20,22 +20,20 @@ if TYPE_CHECKING:
 
 
 class KafkaRouter(BrokerRouter["ConsumerRecord"]):
-    """A class to represent a Kafka router.
-
-    Attributes:
-        _publishers : Dictionary of publishers
-
-    Methods:
-        _update_publisher_prefix : Update the prefix of a publisher
-        publisher : Create a new publisher
-    """
+    """A class to represent a Kafka router."""
 
     _publishers: Dict[int, Publisher]  # type: ignore[assignment]
 
     def __init__(
         self,
-        prefix: str = "",
-        handlers: Iterable[BrokerRoute] = (),
+        prefix: Annotated[
+            str,
+            Doc("String prefix to add to all subscribers topics."),
+        ] = "",
+        handlers: Annotated[
+            Iterable[BrokerRoute],
+            Doc("Route object to include."),
+        ] = (),
         *,
         dependencies: Annotated[
             Iterable["Depends"],
@@ -86,24 +84,6 @@ class KafkaRouter(BrokerRouter["ConsumerRecord"]):
             *(self.prefix + x for x in topics),
             **broker_kwargs,
         )
-
-    @override
-    @staticmethod
-    def _update_publisher_prefix(  # type: ignore[override]
-        prefix: str,
-        publisher: Publisher,
-    ) -> Publisher:
-        """Updates the prefix of a publisher.
-
-        Args:
-            prefix: The prefix to be added to the publisher's topic.
-            publisher: The publisher object to be updated.
-
-        Returns:
-            The updated publisher object.
-        """
-        publisher.topic = prefix + publisher.topic
-        return publisher
 
     @override
     def publisher(  # type: ignore[override]

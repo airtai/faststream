@@ -4,7 +4,7 @@ from typing_extensions import override
 
 from faststream.broker.core.publisher import BasePublisher
 from faststream.confluent.producer import AsyncConfluentFastProducer
-from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.exceptions import NOT_CONNECTED_YET, SetupError
 from faststream.types import SendableMessage
 
 if TYPE_CHECKING:
@@ -125,7 +125,7 @@ class LogicPublisher(BasePublisher["Message"]):
             to_send: Iterable[SendableMessage]
             if not messages:
                 if not isinstance(message, Sequence):
-                    raise ValueError(
+                    raise SetupError(
                         f"Message: {message} should be Sequence type to send in batch"
                     )
                 else:

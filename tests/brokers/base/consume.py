@@ -10,7 +10,7 @@ from faststream.exceptions import StopConsume
 
 
 @pytest.mark.asyncio()
-class BrokerConsumeTestcase:  # noqa: D101
+class BrokerConsumeTestcase:
     timeout: int = 3
 
     @pytest.fixture()
@@ -220,7 +220,7 @@ class BrokerConsumeTestcase:  # noqa: D101
 
 
 @pytest.mark.asyncio()
-class BrokerRealConsumeTestcase(BrokerConsumeTestcase):  # noqa: D101
+class BrokerRealConsumeTestcase(BrokerConsumeTestcase):
     @pytest.mark.slow()
     async def test_stop_consume_exc(
         self,

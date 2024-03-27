@@ -56,6 +56,9 @@ class LogicPublisher(BasePublisher[ConsumerRecord]):
     def __hash__(self) -> int:
         return hash(self.topic)
 
+    def add_prefix(self, prefix: str) -> None:
+        self.topic = prefix + self.topic
+
 
 class DefaultPublisher(LogicPublisher):
     def __init__(

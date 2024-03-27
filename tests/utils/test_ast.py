@@ -3,7 +3,7 @@ import pytest
 from faststream.utils.ast import is_contains_context_name
 
 
-class Context:  # noqa: D101
+class Context:
     def __enter__(self) -> "Context":
         return self
 
@@ -17,13 +17,13 @@ class Context:  # noqa: D101
         pass
 
 
-class A(Context):  # noqa: D101
-    def __init__(self):  # noqa: D107
+class A(Context):
+    def __init__(self):
         self.contains = is_contains_context_name(self.__class__.__name__, B.__name__)
 
 
-class B(Context):  # noqa: D101
-    def __init__(self):  # noqa: D107
+class B(Context):
+    def __init__(self):
         pass
 
 
