@@ -44,36 +44,13 @@ from faststream.types import AnyDict
 from faststream.utils.functions import to_async
 
 if TYPE_CHECKING:
+    from fastapi.types import IncEx
+
     from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
 
 
 class StreamRouter(APIRouter, Generic[MsgType]):
-    """A class to route streams.
-
-    Attributes:
-        broker_class : type of the broker
-        broker : instance of the broker
-        docs_router : optional APIRouter for documentation
-        _after_startup_hooks : list of functions to be executed after startup
-        schema : optional schema
-
-        title : title of the router
-        description : description of the router
-        version : version of the router
-        license : optional license information
-        contact : optional contact information
-
-    Methods:
-        __init__ : initialize the StreamRouter
-        add_api_mq_route : add a route for API and message queue
-        subscriber : decorator to define a subscriber
-        wrap_lifespan : wrap the lifespan of the router
-        after_startup : decorator to define a function to be executed after startup
-        publisher : create a publisher for the broker
-        asyncapi_router : create an APIRouter for AsyncAPI documentation
-        include_router : include another router in the StreamRouter
-        _setup_log_context : setup log context for the broker
-    """
+    """A class to route streams."""
 
     broker_class: Type[BrokerUsecase[MsgType, Any]]
     broker: BrokerUsecase[MsgType, Any]
@@ -214,6 +191,13 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         *extra: Union[NameRequired, str],
         endpoint: Callable[P_HandlerParams, T_HandlerReturn],
         dependencies: Iterable[params.Depends],
+        response_model: Any,
+        response_model_include: Optional["IncEx"],
+        response_model_exclude: Optional["IncEx"],
+        response_model_by_alias: bool,
+        response_model_exclude_unset: bool,
+        response_model_exclude_defaults: bool,
+        response_model_exclude_none: bool,
         **broker_kwargs: Any,
     ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
         """Add an API message queue route.
@@ -235,6 +219,13 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             dependencies=(*self.dependencies, *dependencies),
             provider_factory=self.get_dependencies_overides_provider,
             broker=self.broker,
+            response_model=response_model,
+            response_model_include=response_model_include,
+            response_model_exclude=response_model_exclude,
+            response_model_by_alias=response_model_by_alias,
+            response_model_exclude_unset=response_model_exclude_unset,
+            response_model_exclude_defaults=response_model_exclude_defaults,
+            response_model_exclude_none=response_model_exclude_none,
             **broker_kwargs,
         )
         self.routes.append(route)
@@ -245,19 +236,16 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         path: Union[str, NameRequired],
         *extra: Union[NameRequired, str],
         dependencies: Iterable[params.Depends],
+        response_model: Any,
+        response_model_include: Optional["IncEx"],
+        response_model_exclude: Optional["IncEx"],
+        response_model_by_alias: bool,
+        response_model_exclude_unset: bool,
+        response_model_exclude_defaults: bool,
+        response_model_exclude_none: bool,
         **broker_kwargs: Any,
     ) -> "WrapperProtocol[MsgType]":
-        """A function decorator for subscribing to a message queue.
-
-        Args:
-            path : The path to subscribe to. Can be a string or a `NameRequired` object.
-            *extra : Additional path segments. Can be a `NameRequired` object or a string.
-            dependencies : Optional sequence of dependencies.
-            **broker_kwargs : Additional keyword arguments for the broker.
-
-        Returns:
-            A callable decorator that adds the decorated function as an endpoint for the specified path.
-        """
+        """A function decorator for subscribing to a message queue."""
 
         def decorator(
             func: Callable[P_HandlerParams, T_HandlerReturn],
@@ -275,6 +263,13 @@ class StreamRouter(APIRouter, Generic[MsgType]):
                 *extra,
                 endpoint=func,
                 dependencies=dependencies,
+                response_model=response_model,
+                response_model_include=response_model_include,
+                response_model_exclude=response_model_exclude,
+                response_model_by_alias=response_model_by_alias,
+                response_model_exclude_unset=response_model_exclude_unset,
+                response_model_exclude_defaults=response_model_exclude_defaults,
+                response_model_exclude_none=response_model_exclude_none,
                 **broker_kwargs,
             )
 
@@ -354,29 +349,25 @@ class StreamRouter(APIRouter, Generic[MsgType]):
     def after_startup(
         self,
         func: Callable[[AppType], Mapping[str, Any]],
-    ) -> Callable[[AppType], Mapping[str, Any]]:
-        ...
+    ) -> Callable[[AppType], Mapping[str, Any]]: ...
 
     @overload
     def after_startup(
         self,
         func: Callable[[AppType], Awaitable[Mapping[str, Any]]],
-    ) -> Callable[[AppType], Awaitable[Mapping[str, Any]]]:
-        ...
+    ) -> Callable[[AppType], Awaitable[Mapping[str, Any]]]: ...
 
     @overload
     def after_startup(
         self,
         func: Callable[[AppType], None],
-    ) -> Callable[[AppType], None]:
-        ...
+    ) -> Callable[[AppType], None]: ...
 
     @overload
     def after_startup(
         self,
         func: Callable[[AppType], Awaitable[None]],
-    ) -> Callable[[AppType], Awaitable[None]]:
-        ...
+    ) -> Callable[[AppType], Awaitable[None]]: ...
 
     def after_startup(
         self,
@@ -407,15 +398,13 @@ class StreamRouter(APIRouter, Generic[MsgType]):
     def on_broker_shutdown(
         self,
         func: Callable[[AppType], None],
-    ) -> Callable[[AppType], None]:
-        ...
+    ) -> Callable[[AppType], None]: ...
 
     @overload
     def on_broker_shutdown(
         self,
         func: Callable[[AppType], Awaitable[None]],
-    ) -> Callable[[AppType], Awaitable[None]]:
-        ...
+    ) -> Callable[[AppType], Awaitable[None]]: ...
 
     def on_broker_shutdown(
         self,

@@ -4,6 +4,7 @@ from contextlib import AsyncExitStack
 from functools import wraps
 from itertools import dropwhile
 from typing import (
+    TYPE_CHECKING,
     Any,
     Awaitable,
     Callable,
@@ -11,8 +12,8 @@ from typing import (
     Generic,
     Iterable,
     List,
+    Optional,
     Union,
-    cast,
 )
 
 from fastapi import params
@@ -22,7 +23,8 @@ from fastapi.dependencies.utils import (
     get_parameterless_sub_dependant,
     solve_dependencies,
 )
-from fastapi.routing import run_endpoint_function
+from fastapi.routing import run_endpoint_function, serialize_response
+from fastapi.utils import create_response_field
 from starlette.requests import Request
 from starlette.routing import BaseRoute
 
@@ -33,6 +35,10 @@ from faststream.broker.message import StreamMessage as NativeMessage
 from faststream.broker.schemas import NameRequired
 from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
 from faststream.types import AnyDict, SendableMessage
+
+if TYPE_CHECKING:
+    from fastapi._compat import ModelField
+    from fastapi.types import IncEx
 
 
 class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
@@ -58,22 +64,15 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
         ],
         broker: BrokerUsecase[MsgType, Any],
         dependencies: Iterable[params.Depends],
+        response_model: Any,
+        response_model_include: Optional["IncEx"],
+        response_model_exclude: Optional["IncEx"],
+        response_model_by_alias: bool,
+        response_model_exclude_unset: bool,
+        response_model_exclude_defaults: bool,
+        response_model_exclude_none: bool,
         **handle_kwargs: Any,
     ) -> None:
-        """Initialize a class instance.
-
-        Args:
-            path: The path of the instance.
-            *extra: Additional arguments.
-            endpoint: The endpoint of the instance.
-            broker: The broker of the instance.
-            dependencies: The dependencies of the instance.
-            provider_factory: Provider factory for dependency overrides.
-            **handle_kwargs: Additional keyword arguments.
-
-        Returns:
-            None.
-        """
         self.path = path or ""
         self.broker = broker
 
@@ -97,10 +96,26 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
 
         self.dependent = dependent
 
+        if response_model:
+            response_field = create_response_field(
+                name="ResponseModel",
+                type_=response_model,
+                mode="serialization",
+            )
+        else:
+            response_field = None
+
         call = wraps(orig_call)(
             StreamMessage.get_session(
-                dependent,
-                provider_factory,
+                dependent=dependent,
+                provider_factory=provider_factory,
+                response_field=response_field,
+                response_model_include=response_model_include,
+                response_model_exclude=response_model_exclude,
+                response_model_by_alias=response_model_by_alias,
+                response_model_exclude_unset=response_model_exclude_unset,
+                response_model_exclude_defaults=response_model_exclude_defaults,
+                response_model_exclude_none=response_model_exclude_none,
             )
         )
 
@@ -121,19 +136,7 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
 
 
 class StreamMessage(Request):
-    """A class to represent a stream message.
-
-    Attributes:
-        scope : dictionary representing the scope of the message
-        _cookies : dictionary representing the cookies of the message
-        _headers : dictionary representing the headers of the message
-        _body : dictionary representing the body of the message
-        _query_params : dictionary representing the query parameters of the message
-
-    Methods:
-        __init__ : initializes the StreamMessage object
-        get_session : returns a callable function that handles the session of the message
-    """
+    """A class to represent a stream message."""
 
     scope: AnyDict
     _cookies: AnyDict
@@ -148,20 +151,7 @@ class StreamMessage(Request):
         headers: AnyDict,
         path: AnyDict,
     ) -> None:
-        """Initialize a class instance.
-
-        Args:
-            body: The body of the request as a dictionary.
-            headers: The headers of the request as a dictionary.
-            path: The path of the request as a dictionary.
-
-        Attributes:
-            scope: A dictionary to store the scope of the request.
-            _cookies: A dictionary to store the cookies of the request.
-            _headers: A dictionary to store the headers of the request.
-            _body: A dictionary to store the body of the request.
-            _query_params: A dictionary to store the query parameters of the request.
-        """
+        """Initialize a class instance."""
         self._headers = headers
         self._body = body
         self._query_params = path
@@ -172,21 +162,31 @@ class StreamMessage(Request):
     @classmethod
     def get_session(
         cls,
+        *,
         dependent: Dependant,
         provider_factory: Callable[[], Any],
+        response_field: Optional["ModelField"],
+        response_model_include: Optional["IncEx"],
+        response_model_exclude: Optional["IncEx"],
+        response_model_by_alias: bool,
+        response_model_exclude_unset: bool,
+        response_model_exclude_defaults: bool,
+        response_model_exclude_none: bool,
     ) -> Callable[[NativeMessage[Any]], Awaitable[SendableMessage]]:
-        """Creates a session for handling requests.
-
-        Args:
-            dependent: The dependent object representing the session.
-            provider_factory: Provider factory for dependency overrides.
-
-        Returns:
-            A callable that takes a native message and returns an awaitable sendable message.
-        """
+        """Creates a session for handling requests."""
         assert dependent.call  # nosec B101
 
-        consume = make_fastapi_consumer(dependent, provider_factory)
+        consume = make_fastapi_consumer(
+            dependent=dependent,
+            provider_factory=provider_factory,
+            response_field=response_field,
+            response_model_include=response_model_include,
+            response_model_exclude=response_model_exclude,
+            response_model_by_alias=response_model_by_alias,
+            response_model_exclude_unset=response_model_exclude_unset,
+            response_model_exclude_defaults=response_model_exclude_defaults,
+            response_model_exclude_none=response_model_exclude_none,
+        )
 
         dependencies_names = tuple(i.name for i in dependent.dependencies)
 
@@ -199,14 +199,7 @@ class StreamMessage(Request):
         )
 
         async def app(message: NativeMessage[Any]) -> SendableMessage:
-            """An asynchronous function that processes an incoming message and returns a sendable message.
-
-            Args:
-                message : The incoming message to be processed
-
-            Returns:
-                The sendable message
-            """
+            """An asynchronous function that processes an incoming message and returns a sendable message."""
             body = message.decoded_body
 
             fastapi_body: Union[AnyDict, List[Any]]
@@ -237,24 +230,22 @@ class StreamMessage(Request):
 
 
 def make_fastapi_consumer(
+    *,
     dependent: Dependant,
     provider_factory: Callable[[], Any],
+    response_field: Optional["ModelField"],
+    response_model_include: Optional["IncEx"],
+    response_model_exclude: Optional["IncEx"],
+    response_model_by_alias: bool,
+    response_model_exclude_unset: bool,
+    response_model_exclude_defaults: bool,
+    response_model_exclude_none: bool,
 ) -> Callable[
     [StreamMessage],
     Coroutine[Any, Any, SendableMessage],
 ]:
-    """Creates a FastAPI application.
-
-    Args:
-        dependent: The dependent object that defines the endpoint function and its dependencies.
-        provider_factory: Provider factory for dependency overrides.
-
-    Returns:
-        The FastAPI application as a callable that takes a StreamMessage object as input and returns a SendableMessage coroutine.
-
-    Raises:
-        AssertionError: If the code reaches an unreachable state.
-    """
+    """Creates a FastAPI application."""
+    is_coroutine = asyncio.iscoroutinefunction(dependent.call)
 
     async def app(request: StreamMessage) -> SendableMessage:
         """Consume StreamMessage and return user function result."""
@@ -273,20 +264,36 @@ def make_fastapi_consumer(
                 **kwargs,  # type: ignore[arg-type]
             )
 
-            values, errors, _, _2, _3 = solved_result
+            values, errors, background_tasks, _, _2 = solved_result
+
             if errors:
                 raise_fastapi_validation_error(errors, request._body)  # type: ignore[arg-type]
 
-            return cast(
-                SendableMessage,
-                await run_endpoint_function(
-                    dependant=dependent,
-                    values=values,
-                    is_coroutine=asyncio.iscoroutinefunction(dependent.call),
-                ),
+            raw_reponse = await run_endpoint_function(
+                dependant=dependent,
+                values=values,
+                is_coroutine=is_coroutine,
             )
 
-        raise AssertionError("unreachable")
+            content = await serialize_response(
+                response_content=raw_reponse,
+                field=response_field,
+                include=response_model_include,
+                exclude=response_model_exclude,
+                by_alias=response_model_by_alias,
+                exclude_unset=response_model_exclude_unset,
+                exclude_defaults=response_model_exclude_defaults,
+                exclude_none=response_model_exclude_none,
+                is_coroutine=is_coroutine,
+            )
+
+            # TODO: run backgrounds somewhere
+            # if background_tasks:
+            #     await background_tasks()
+
+            return content
+
+        return None
 
     return app
 
@@ -306,7 +313,7 @@ def _patch_fastapi_dependent(dependent: Dependant) -> Dependant:
         if p.name not in params_names:
             params_names.add(p.name)
             info = p.field_info if PYDANTIC_V2 else p
-            params_unique[p.name] = (info.annotation, info.default)   # type: ignore[attr-defined]
+            params_unique[p.name] = (info.annotation, info.default)  # type: ignore[attr-defined]
 
     dependent.model = create_model(  # type: ignore[attr-defined,call-overload]
         getattr(dependent.call, "__name__", type(dependent.call).__name__),
