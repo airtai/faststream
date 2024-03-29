@@ -5,8 +5,8 @@ from unittest.mock import Mock
 import pytest
 
 from faststream import BaseMiddleware, Depends
-from faststream.broker.core.broker import BrokerUsecase
-from faststream.broker.router import BrokerRoute, BrokerRouter
+from faststream.broker.core.usecase import BrokerUsecase
+from faststream.broker.router import BrokerRouter, SubscriberRoute
 from faststream.types import AnyCallable
 from tests.brokers.base.middlewares import LocalMiddlewareTestcase
 from tests.brokers.base.parser import LocalCustomParserTestcase
@@ -18,7 +18,7 @@ class RouterTestcase(
     LocalCustomParserTestcase,
 ):
     build_message: AnyCallable
-    route_class: Type[BrokerRoute]
+    route_class: Type[SubscriberRoute]
 
     def patch_broker(self, br: BrokerUsecase, router: BrokerRouter) -> BrokerUsecase:
         br.include_router(router)
@@ -302,12 +302,9 @@ class RouterTestcase(
         router.include_router(router2)
         pub_broker.include_routers(router)
 
+        sub = next(iter(pub_broker._subscribers.values()))
         assert (
-            len(
-                list(pub_broker.handlers.values())[0]
-                .calls[0]
-                .dependent.extra_dependencies
-            )
+            len((*sub._broker_dependecies, *sub.calls[0].dependencies))
             == 3
         )
 
@@ -330,8 +327,11 @@ class RouterTestcase(
         router.include_router(router2)
         pub_broker.include_routers(router)
 
-        assert len(list(pub_broker.handlers.values())[0].calls[0].middlewares) == 3
-        assert len(list(pub_broker._publishers.values())[0].middlewares) == 3
+        sub = next(iter(pub_broker._subscribers.values()))
+        publisher = next(iter(pub_broker._publishers.values()))
+
+        assert len((*sub._broker_middlewares, *sub.calls[0].item_middlewares)) == 3
+        assert len((*publisher._broker_middlewares, *publisher._middlewares)) == 3
 
     async def test_router_parser(
         self,

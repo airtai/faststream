@@ -2,7 +2,7 @@ from typing import Type
 
 from faststream.asyncapi.generate import get_app_schema
 from faststream.rabbit.fastapi import RabbitRouter
-from faststream.rabbit.test import TestRabbitBroker
+from faststream.rabbit.testing import TestRabbitBroker
 from faststream.security import SASLPlaintext
 from tests.asyncapi.base.arguments import FastAPICompatible
 from tests.asyncapi.base.fastapi import FastAPITestCase

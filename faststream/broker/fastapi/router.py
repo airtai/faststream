@@ -2,8 +2,8 @@ import json
 from abc import abstractmethod
 from contextlib import asynccontextmanager
 from enum import Enum
+from types import TracebackType
 from typing import (
-    TYPE_CHECKING,
     Any,
     AsyncIterator,
     Awaitable,
@@ -17,14 +17,17 @@ from typing import (
     Sequence,
     Type,
     Union,
+    cast,
     overload,
 )
 from weakref import WeakSet
 
 from fastapi import APIRouter, FastAPI, params
+from fastapi.background import BackgroundTasks
 from fastapi.datastructures import Default
 from fastapi.responses import HTMLResponse
 from fastapi.routing import APIRoute
+from fastapi.types import IncEx
 from fastapi.utils import generate_unique_id
 from starlette import routing
 from starlette.responses import JSONResponse, Response
@@ -34,19 +37,41 @@ from starlette.types import ASGIApp, AppType, Lifespan
 from faststream.asyncapi import schema as asyncapi
 from faststream.asyncapi.schema import Schema
 from faststream.asyncapi.site import get_asyncapi_html
-from faststream.broker.core.broker import BrokerUsecase
-from faststream.broker.core.call_wrapper import HandlerCallWrapper
-from faststream.broker.core.publisher import BasePublisher
+from faststream.broker.core.usecase import BrokerUsecase
+from faststream.broker.fastapi.get_dependant import get_fastapi_dependant
 from faststream.broker.fastapi.route import StreamRoute
+from faststream.broker.middlewares import BaseMiddleware
+from faststream.broker.publisher.proto import PublisherProto
 from faststream.broker.schemas import NameRequired
-from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
+from faststream.broker.types import (
+    BrokerMiddleware,
+    MsgType,
+    P_HandlerParams,
+    T_HandlerReturn,
+)
+from faststream.broker.wrapper.call import HandlerCallWrapper
+from faststream.broker.wrapper.proto import WrapperProto
 from faststream.types import AnyDict
+from faststream.utils.context.repository import context
 from faststream.utils.functions import to_async
 
-if TYPE_CHECKING:
-    from fastapi.types import IncEx
 
-    from faststream.broker.core.handler_wrapper_mixin import WrapperProtocol
+class _BackgroundMiddleware(BaseMiddleware):
+    async def after_processed(
+        self,
+        exc_type: Optional[Type[BaseException]] = None,
+        exc_val: Optional[BaseException] = None,
+        exc_tb: Optional[TracebackType] = None,
+    ) -> Optional[bool]:
+        if not exc_type and (
+            background := cast(
+                Optional[BackgroundTasks],
+                getattr(context.get_local("message"), "background", None),
+            )
+        ):
+            await background()
+
+        return await super().after_processed(exc_type, exc_val, exc_tb)
 
 
 class StreamRouter(APIRouter, Generic[MsgType]):
@@ -68,6 +93,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
     def __init__(
         self,
         *connection_args: Any,
+        middlewares: Iterable[BrokerMiddleware[MsgType]] = (),
         prefix: str = "",
         tags: Optional[List[Union[str, Enum]]] = None,
         dependencies: Optional[Sequence[params.Depends]] = None,
@@ -93,39 +119,18 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         schema_url: Optional[str] = "/asyncapi",
         **connection_kwars: Any,
     ) -> None:
-        """Initialize an instance of a class.
-
-        Args:
-            *connection_args: Variable length arguments for the connection
-            prefix: Prefix for the class
-            tags: Optional list of tags for the class
-            dependencies: Optional sequence of dependencies for the class
-            default_response_class: Default response class for the class
-            responses: Optional dictionary of responses for the class
-            callbacks: Optional list of callbacks for the class
-            routes: Optional list of routes for the class
-            redirect_slashes: Boolean value indicating whether to redirect slashes
-            default: Optional default value for the class
-            dependency_overrides_provider: Optional provider for dependency overrides
-            route_class: Route class for the class
-            on_startup: Optional sequence of functions to run on startup
-            on_shutdown: Optional sequence of functions to run on shutdown
-            deprecated: Optional boolean value indicating whether the class is deprecated
-            include_in_schema: Boolean value indicating whether to include the class in the schema
-            setup_state: Boolean value indicating whether to setup state
-            lifespan: Optional lifespan for the class
-            generate_unique_id_function: Function to generate unique ID for the class
-            asyncapi_tags: Optional sequence of asyncapi tags for the class schema
-            schema_url: Optional URL for the class schema
-            **connection_kwars: Additional keyword arguments for the connection
-        """
         assert (  # nosec B101
             self.broker_class
         ), "You should specify `broker_class` at your implementation"
 
         self.broker = self.broker_class(
             *connection_args,
-            apply_types=False,
+            middlewares=(
+                *middlewares,
+                # allow to catch background exceptions in user middlewares
+                _BackgroundMiddleware,
+            ),
+            _get_dependant=get_fastapi_dependant,
             tags=asyncapi_tags,
             **connection_kwars,
         )
@@ -180,6 +185,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         self._on_shutdown_hooks = []
 
     def get_dependencies_overides_provider(self) -> Optional[Any]:
+        """Dependency provider WeakRef resolver."""
         if self.dependency_overrides_provider is not None:
             return self.dependency_overrides_provider
         else:
@@ -192,27 +198,16 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         endpoint: Callable[P_HandlerParams, T_HandlerReturn],
         dependencies: Iterable[params.Depends],
         response_model: Any,
-        response_model_include: Optional["IncEx"],
-        response_model_exclude: Optional["IncEx"],
+        response_model_include: Optional[IncEx],
+        response_model_exclude: Optional[IncEx],
         response_model_by_alias: bool,
         response_model_exclude_unset: bool,
         response_model_exclude_defaults: bool,
         response_model_exclude_none: bool,
         **broker_kwargs: Any,
     ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
-        """Add an API message queue route.
-
-        Args:
-            path: The path of the route.
-            *extra: Additional path segments.
-            endpoint: The endpoint function to be called for this route.
-            dependencies: The dependencies required by the endpoint function.
-            **broker_kwargs: Additional keyword arguments to be passed to the broker.
-
-        Returns:
-            The handler call wrapper for the route.
-        """
-        route: StreamRoute[MsgType, P_HandlerParams, T_HandlerReturn] = StreamRoute(
+        """Add an API message queue route."""
+        route = StreamRoute[MsgType, P_HandlerParams, T_HandlerReturn](
             path,
             *extra,
             endpoint=endpoint,
@@ -237,27 +232,20 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         *extra: Union[NameRequired, str],
         dependencies: Iterable[params.Depends],
         response_model: Any,
-        response_model_include: Optional["IncEx"],
-        response_model_exclude: Optional["IncEx"],
+        response_model_include: Optional[IncEx],
+        response_model_exclude: Optional[IncEx],
         response_model_by_alias: bool,
         response_model_exclude_unset: bool,
         response_model_exclude_defaults: bool,
         response_model_exclude_none: bool,
         **broker_kwargs: Any,
-    ) -> "WrapperProtocol[MsgType]":
+    ) -> WrapperProto[MsgType]:
         """A function decorator for subscribing to a message queue."""
 
         def decorator(
             func: Callable[P_HandlerParams, T_HandlerReturn],
         ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
-            """A decorator function.
-
-            Args:
-                func: The function to be decorated.
-
-            Returns:
-                The decorated function.
-            """
+            """A decorator function."""
             return self.add_api_mq_route(
                 path,
                 *extra,
@@ -276,41 +264,27 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         return decorator
 
     def wrap_lifespan(self, lifespan: Optional[Lifespan[Any]] = None) -> Lifespan[Any]:
-        """Wrap the lifespan of the application.
-
-        Args:
-            lifespan: Optional lifespan object.
-
-        Returns:
-            The wrapped lifespan object.
-        """
+        """Wrap the lifespan of the application."""
         lifespan_context = lifespan if lifespan is not None else _DefaultLifespan(self)
 
         @asynccontextmanager
         async def start_broker_lifespan(
             app: FastAPI,
         ) -> AsyncIterator[Mapping[str, Any]]:
-            """Starts the lifespan of a broker.
-
-            Args:
-                app (FastAPI): The FastAPI application.
-
-            Yields:
-                AsyncIterator[Mapping[str, Any]]: A mapping of context information during the lifespan of the broker.
-            """
+            """Starts the lifespan of a broker."""
             if not len(self.weak_dependencies_provider):
                 self.weak_dependencies_provider.add(app)
 
             if self.docs_router:
-                from faststream.asyncapi.generate import get_app_schema
-
                 self.title = app.title
                 self.description = app.description
                 self.version = app.version
                 self.contact = app.contact
                 self.license = app.license_info
 
+                from faststream.asyncapi.generate import get_app_schema
                 self.schema = get_app_schema(self)
+
                 app.include_router(self.docs_router)
 
             if not len(self.weak_dependencies_provider):
@@ -349,25 +323,29 @@ class StreamRouter(APIRouter, Generic[MsgType]):
     def after_startup(
         self,
         func: Callable[[AppType], Mapping[str, Any]],
-    ) -> Callable[[AppType], Mapping[str, Any]]: ...
+    ) -> Callable[[AppType], Mapping[str, Any]]:
+        ...
 
     @overload
     def after_startup(
         self,
         func: Callable[[AppType], Awaitable[Mapping[str, Any]]],
-    ) -> Callable[[AppType], Awaitable[Mapping[str, Any]]]: ...
+    ) -> Callable[[AppType], Awaitable[Mapping[str, Any]]]:
+        ...
 
     @overload
     def after_startup(
         self,
         func: Callable[[AppType], None],
-    ) -> Callable[[AppType], None]: ...
+    ) -> Callable[[AppType], None]:
+        ...
 
     @overload
     def after_startup(
         self,
         func: Callable[[AppType], Awaitable[None]],
-    ) -> Callable[[AppType], Awaitable[None]]: ...
+    ) -> Callable[[AppType], Awaitable[None]]:
+        ...
 
     def after_startup(
         self,
@@ -383,14 +361,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         Callable[[AppType], None],
         Callable[[AppType], Awaitable[None]],
     ]:
-        """Register a function to be executed after startup.
-
-        Args:
-            func: A function to be executed after startup. It can take an `AppType` argument and return a mapping of strings to any values, or it can take an `AppType` argument and return an awaitable that resolves to a mapping of strings to any values, or it can take an `AppType` argument and return nothing, or it can take an `AppType` argument and return an awaitable that resolves to nothing.
-
-        Returns:
-            The registered function.
-        """
+        """Register a function to be executed after startup."""
         self._after_startup_hooks.append(to_async(func))  # type: ignore
         return func
 
@@ -398,13 +369,15 @@ class StreamRouter(APIRouter, Generic[MsgType]):
     def on_broker_shutdown(
         self,
         func: Callable[[AppType], None],
-    ) -> Callable[[AppType], None]: ...
+    ) -> Callable[[AppType], None]:
+        ...
 
     @overload
     def on_broker_shutdown(
         self,
         func: Callable[[AppType], Awaitable[None]],
-    ) -> Callable[[AppType], Awaitable[None]]: ...
+    ) -> Callable[[AppType], Awaitable[None]]:
+        ...
 
     def on_broker_shutdown(
         self,
@@ -416,36 +389,17 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         Callable[[AppType], None],
         Callable[[AppType], Awaitable[None]],
     ]:
-        """Register a function to be executed before broker stop.
-
-        Args:
-            func: A function to be executed before shutdown. It should take an `AppType` argument and return nothing.
-
-        Returns:
-            The registered function.
-        """
+        """Register a function to be executed before broker stop."""
         self._on_shutdown_hooks.append(to_async(func))  # type: ignore
         return func
 
     @abstractmethod
-    def publisher(self) -> BasePublisher[MsgType]:
+    def publisher(self) -> PublisherProto[MsgType]:
+        """Create Publisher object."""
         raise NotImplementedError()
 
     def asyncapi_router(self, schema_url: Optional[str]) -> Optional[APIRouter]:
-        """Creates an API router for serving AsyncAPI documentation.
-
-        Args:
-            schema_url: The URL where the AsyncAPI schema will be served.
-
-        Returns:
-            An instance of APIRouter if include_in_schema and schema_url are both True, otherwise returns None.
-
-        Raises:
-            AssertionError: If self.schema is not set.
-
-        Notes:
-            This function defines three nested functions: download_app_json_schema, download_app_yaml_schema, and serve_asyncapi_schema. These functions are used to handle different routes for serving the AsyncAPI schema and documentation.
-        """
+        """Creates an API router for serving AsyncAPI documentation."""
         if not self.include_in_schema or not schema_url:
             return None
 
@@ -481,24 +435,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             errors: bool = True,
             expandMessageExamples: bool = True,
         ) -> HTMLResponse:
-            """Serve the AsyncAPI schema as an HTML response.
-
-            Args:
-                sidebar (bool, optional): Whether to include the sidebar in the HTML. Defaults to True.
-                info (bool, optional): Whether to include the info section in the HTML. Defaults to True.
-                servers (bool, optional): Whether to include the servers section in the HTML. Defaults to True.
-                operations (bool, optional): Whether to include the operations section in the HTML. Defaults to True.
-                messages (bool, optional): Whether to include the messages section in the HTML. Defaults to True.
-                schemas (bool, optional): Whether to include the schemas section in the HTML. Defaults to True.
-                errors (bool, optional): Whether to include the errors section in the HTML. Defaults to True.
-                expandMessageExamples (bool, optional): Whether to expand message examples in the HTML. Defaults to True.
-
-            Returns:
-                HTMLResponse: The HTML response containing the AsyncAPI schema.
-
-            Raises:
-                AssertionError: If the schema is not available.
-            """
+            """Serve the AsyncAPI schema as an HTML response."""
             assert (  # nosec B101
                 self.schema
             ), "You need to run application lifespan at first"
@@ -546,32 +483,17 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             generate_unique_id
         ),
     ) -> None:
-        """Includes a router in the API.
-
-        Args:
-            router (APIRouter): The router to include.
-            prefix (str, optional): The prefix to prepend to all paths defined in the router. Defaults to "".
-            tags (List[Union[str, Enum]], optional): The tags to assign to all paths defined in the router. Defaults to None.
-            dependencies (Sequence[params.Depends], optional): The dependencies to apply to all paths defined in the router. Defaults to None.
-            default_response_class (Type[Response], optional): The default response class to use for all paths defined in the router. Defaults to Default(JSONResponse).
-            responses (Dict[Union[int, str], AnyDict], optional): The responses to define for all paths defined in the router. Defaults to None.
-            callbacks (List[BaseRoute], optional): The callbacks to apply to all paths defined in the router. Defaults to None.
-            deprecated (bool, optional): Whether the router is deprecated. Defaults to None.
-            include_in_schema (bool, optional): Whether to include the router in the API schema. Defaults to True.
-            generate_unique_id_function (Callable[[APIRoute], str], optional): The function to generate unique IDs for
-        """
+        """Includes a router in the API."""
         if isinstance(router, StreamRouter):  # pragma: no branch
-            self._setup_log_context(self.broker, router.broker)
-            self.broker.handlers = {
-                **self.broker.handlers,
-                **router.broker.handlers,
+            self.broker._subscribers = {
+                **self.broker._subscribers,
+                **router.broker._subscribers,
             }
             self.broker._publishers = {
                 **self.broker._publishers,
                 **router.broker._publishers,
             }
             router.weak_dependencies_provider = self.weak_dependencies_provider
-
             router.weak_dependencies_provider = self.weak_dependencies_provider
 
         super().include_router(
@@ -586,14 +508,3 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             include_in_schema=include_in_schema,
             generate_unique_id_function=generate_unique_id_function,
         )
-
-    @staticmethod
-    def _setup_log_context(
-        main_broker: BrokerUsecase[MsgType, Any],
-        including_broker: BrokerUsecase[MsgType, Any],
-    ) -> None:
-        """Set up log context."""
-        for h in including_broker.handlers.values():
-            context = h.get_log_context(None)
-            context.pop("message_id", None)
-            main_broker._setup_log_context(**context)

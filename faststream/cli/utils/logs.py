@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, DefaultDict, Optional, Union
 from faststream.app import FastStream
 
 if TYPE_CHECKING:
-    from faststream.types import LoggerProtocol
+    from faststream.types import LoggerProto
 
 
 class LogLevels(str, Enum):
@@ -72,6 +72,6 @@ def set_log_level(level: int, app: FastStream) -> None:
     if app.logger and isinstance(app.logger, logging.Logger):
         app.logger.setLevel(level)
 
-    broker_logger: Optional["LoggerProtocol"] = getattr(app.broker, "logger", None)
+    broker_logger: Optional["LoggerProto"] = getattr(app.broker, "logger", None)
     if broker_logger is not None and isinstance(broker_logger, logging.Logger):
         broker_logger.setLevel(level)

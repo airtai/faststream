@@ -4,28 +4,10 @@ NameRequiredCls = TypeVar("NameRequiredCls", bound="NameRequired")
 
 
 class NameRequired:
-    """A class to represent a required name.
-
-    Attributes:
-        name : optional name
-
-    Methods:
-        __eq__(self, __value: object) -> bool: Check if the given value is equal to the current instance.
-        __init__(self, name: str, **kwargs: Any): Initialize the NameRequired instance.
-        validate(cls: Type[NameRequiredCls], value: Union[str, NameRequiredCls]) -> NameRequiredCls: Validate the given value and return a NameRequiredCls instance.
-        validate(cls: Type[NameRequiredCls], value: None) -> None: Validate the given value and return None.
-        validate(cls: Type[NameRequiredCls], value: Union[str, NameRequiredCls, None]) -> Optional[NameRequiredCls]: Validate the given value and return an optional NameRequiredCls instance.
-    """
+    """Required name option object."""
 
     def __eq__(self, __value: object) -> bool:
-        """Compares the current object with another object for equality.
-
-        Args:
-            __value: The object to compare with.
-
-        Returns:
-            True if the objects are equal by name, False otherwise.
-        """
+        """Compares the current object with another object for equality."""
         if __value is None:
             return False
 
@@ -35,7 +17,6 @@ class NameRequired:
         return self.name == __value.name
 
     def __init__(self, name: str) -> None:
-        """Initial function."""
         self.name = name
 
     @overload
@@ -62,15 +43,7 @@ class NameRequired:
         value: Union[str, NameRequiredCls, None],
         **kwargs: Any,
     ) -> Optional[NameRequiredCls]:
-        """Validates a value.
-
-        Args:
-            value: The value to be validated.
-            **kwargs: Additional keyword arguments.
-
-        Returns:
-            The validated value.
-        """
+        """Factory to create object."""
         if value is not None and isinstance(value, str):
             value = cls(value, **kwargs)
         return value

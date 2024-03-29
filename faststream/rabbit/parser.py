@@ -4,8 +4,7 @@ from uuid import uuid4
 from aio_pika import Message
 from aio_pika.abc import DeliveryMode
 
-from faststream.broker.message import StreamMessage
-from faststream.broker.parsers import decode_message, encode_message
+from faststream.broker.message import StreamMessage, decode_message, encode_message
 from faststream.rabbit.message import RabbitMessage
 from faststream.utils.context.repository import context
 
@@ -13,42 +12,24 @@ if TYPE_CHECKING:
     from aio_pika import IncomingMessage
     from aio_pika.abc import DateType, HeadersType
 
-    from faststream.rabbit.asyncapi import Handler
+    from faststream.rabbit.subscriber.usecase import LogicSubscriber
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.types import DecodedMessage
 
 
 class AioPikaParser:
-    """A class for parsing, encoding, and decoding messages using aio-pika.
-
-    Methods:
-        parse_message(message: aio_pika.IncomingMessage) -> StreamMessage[aio_pika.IncomingMessage]:
-            Parses an incoming message and returns a StreamMessage object.
-
-        decode_message(msg: StreamMessage[aio_pika.IncomingMessage]) -> DecodedMessage:
-            Decodes a StreamMessage object and returns a DecodedMessage object.
-
-        encode_message(message: AioPikaSendableMessage, persist: bool = False, callback_queue: Optional[aio_pika.abc.AbstractRobustQueue] = None, reply_to: Optional[str] = None, **message_kwargs: Any) -> aio_pika.Message:
-            Encodes a message into an aio_pika.Message object.
-    """
+    """A class for parsing, encoding, and decoding messages using aio-pika."""
 
     @staticmethod
     async def parse_message(
         message: "IncomingMessage",
     ) -> StreamMessage["IncomingMessage"]:
-        """Parses an incoming message and returns a RabbitMessage object.
-
-        Args:
-            message: The incoming message to parse.
-
-        Returns:
-            A StreamMessage object representing the parsed message.
-        """
-        handler: Optional["Handler"] = context.get_local("handler_")
+        """Parses an incoming message and returns a RabbitMessage object."""
+        handler: Optional["LogicSubscriber"] = context.get_local("handler_")
         if (
             handler is not None
-            and (path_re := handler.queue.path_regex) is not None
-            and (match := path_re.match(message.routing_key or "")) is not None
+            and (path_re := handler.queue.path_regex)
+            and (match := path_re.match(message.routing_key or ""))
         ):
             path = match.groupdict()
         else:
@@ -69,14 +50,7 @@ class AioPikaParser:
     async def decode_message(
         msg: StreamMessage["IncomingMessage"],
     ) -> "DecodedMessage":
-        """Decode a message.
-
-        Args:
-            msg: The message to decode.
-
-        Returns:
-            The decoded message.
-        """
+        """Decode a message."""
         return decode_message(msg)
 
     @staticmethod
@@ -97,18 +71,7 @@ class AioPikaParser:
         user_id: Optional[str],
         app_id: Optional[str],
     ) -> Message:
-        """Encodes a message for sending using AioPika.
-
-        Args:
-            message (AioPikaSendableMessage): The message to encode.
-            persist (bool, optional): Whether to persist the message. Defaults to False.
-            callback_queue (aio_pika.abc.AbstractRobustQueue, optional): The callback queue to use for replies. Defaults to None.
-            reply_to (str, optional): The reply-to queue to use for replies. Defaults to None.
-            **message_kwargs (Any): Additional keyword arguments to include in the encoded message.
-
-        Returns:
-            aio_pika.Message: The encoded message.
-        """
+        """Encodes a message for sending using AioPika."""
         if isinstance(message, Message):
             return message
 

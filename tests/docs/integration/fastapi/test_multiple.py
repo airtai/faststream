@@ -6,7 +6,7 @@ class BaseCase:
     def test_running(self, data):
         app, broker = data
 
-        handlers = broker.handlers.values()
+        handlers = broker._subscribers.values()
 
         assert len(handlers) == 2
         for h in handlers:

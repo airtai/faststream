@@ -2,14 +2,14 @@ from typing import Type
 
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
-from faststream.broker.core.broker import BrokerUsecase
-from faststream.broker.router import BrokerRoute, BrokerRouter
+from faststream.broker.core.usecase import BrokerUsecase
+from faststream.broker.router import BrokerRouter, SubscriberRoute
 
 
 class RouterTestcase:
     broker_class: Type[BrokerUsecase]
     router_class: Type[BrokerRouter]
-    route_class: Type[BrokerRoute]
+    route_class: Type[SubscriberRoute]
 
     def test_delay(self):
         broker = self.broker_class()

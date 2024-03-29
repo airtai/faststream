@@ -1,73 +1,57 @@
 import asyncio
+import inspect
 from contextlib import suppress
 from functools import partial
+from types import TracebackType
 from typing import (
-    TYPE_CHECKING,
     Any,
     AsyncContextManager,
     Callable,
     Optional,
     Type,
     Union,
+    cast,
+    overload,
 )
 
 import anyio
+from typing_extensions import Self
 
-from faststream.broker.push_back_watcher import (
-    BaseWatcher,
-    CounterWatcher,
-    EndlessWatcher,
-    OneTryWatcher,
-    WatcherContext,
+from faststream.broker.acknowledgement_watcher import WatcherContext, get_watcher
+from faststream.broker.message import StreamMessage
+from faststream.broker.types import (
+    AsyncCustomDecoder,
+    AsyncCustomParser,
+    AsyncDecoder,
+    AsyncParser,
+    CustomDecoder,
+    CustomParser,
+    MsgType,
 )
+from faststream.types import LoggerProto
 from faststream.utils.functions import fake_context
 
-if TYPE_CHECKING:
-    from types import TracebackType
 
-    from typing_extensions import Self
-
-    from faststream.types import LoggerProtocol
-
-
-def get_watcher(
-    logger: Optional["LoggerProtocol"],
-    try_number: Union[bool, int],
-) -> BaseWatcher:
-    """Get a watcher object based on the provided parameters.
-
-    Args:
-        logger: Optional logger object for logging messages.
-        try_number: Optional parameter to specify the type of watcher.
-            - If set to True, an EndlessWatcher object will be returned.
-            - If set to False, a OneTryWatcher object will be returned.
-            - If set to an integer, a CounterWatcher object with the specified maximum number of tries will be returned.
-
-    Returns:
-        A watcher object based on the provided parameters.
-
-    """
-    watcher: Optional[BaseWatcher]
-    if try_number is True:
-        watcher = EndlessWatcher()
-    elif try_number is False:
-        watcher = OneTryWatcher()
-    else:
-        watcher = CounterWatcher(logger=logger, max_tries=try_number)
-    return watcher
+async def default_filter(msg: StreamMessage[Any]) -> bool:
+    """A function to filter stream messages."""
+    return not msg.processed
 
 
 def get_watcher_context(
-    logger: Optional["LoggerProtocol"],
+    logger: Optional[LoggerProto],
     no_ack: bool,
     retry: Union[bool, int],
     **extra_options: Any,
 ) -> Callable[..., AsyncContextManager[None]]:
+    """Create Acknowledgement scope."""
     if no_ack:
         return fake_context
+
     else:
         return partial(
-            WatcherContext, watcher=get_watcher(logger, retry), **extra_options
+            WatcherContext,
+            watcher=get_watcher(logger, retry),
+            **extra_options,
         )
 
 
@@ -78,18 +62,26 @@ class MultiLock:
         """Initialize a new instance of the class."""
         self.queue: "asyncio.Queue[None]" = asyncio.Queue()
 
-    def __enter__(self) -> "Self":
+    def __enter__(self) -> Self:
         """Enter the context."""
-        self.queue.put_nowait(None)
+        self.acquire()
         return self
 
     def __exit__(
         self,
         exc_type: Optional[Type[BaseException]],
         exc_val: Optional[BaseException],
-        exc_tb: Optional["TracebackType"],
+        exc_tb: Optional[TracebackType],
     ) -> None:
         """Exit the context."""
+        self.release()
+
+    def acquire(self) -> None:
+        """Acquire lock."""
+        self.queue.put_nowait(None)
+
+    def release(self) -> None:
+        """Release lock."""
         with suppress(asyncio.QueueEmpty, ValueError):
             self.queue.get_nowait()
             self.queue.task_done()
@@ -112,3 +104,51 @@ class MultiLock:
         if timeout:
             with anyio.move_on_after(timeout):
                 await self.queue.join()
+
+
+@overload
+def resolve_custom_func(
+    custom_func: AsyncCustomDecoder[CustomDecoder[StreamMessage[MsgType]]],
+    default_func: AsyncDecoder[StreamMessage[MsgType]],
+) -> AsyncDecoder[StreamMessage[MsgType]]:
+    ...
+
+
+@overload
+def resolve_custom_func(
+    custom_func: AsyncCustomParser[CustomParser[MsgType]],
+    default_func: AsyncParser[MsgType],
+) -> AsyncParser[MsgType]:
+    ...
+
+
+def resolve_custom_func(
+    custom_func: Union[
+        AsyncCustomDecoder[StreamMessage[MsgType]],
+        AsyncCustomParser[MsgType],
+    ],
+    default_func: Union[
+        AsyncDecoder[StreamMessage[MsgType]],
+        AsyncParser[MsgType],
+    ],
+) -> Union[
+    AsyncDecoder[StreamMessage[MsgType]],
+    AsyncParser[MsgType],
+]:
+    """Resolve a custom parser/decoder with default one."""
+    if custom_func is None:
+        return default_func
+
+    original_params = inspect.signature(custom_func).parameters
+    if len(original_params) == 1:
+        return cast(
+            Union[
+                AsyncDecoder[StreamMessage[MsgType]],
+                AsyncParser[MsgType],
+            ],
+            custom_func,
+        )
+
+    else:
+        name = tuple(original_params.items())[1][0]
+        return partial(custom_func, **{name: default_func})  # type: ignore

@@ -19,7 +19,7 @@ from faststream._compat import PValidationError
 from faststream.cli.supervisors.utils import set_exit
 from faststream.exceptions import ValidationError
 from faststream.log.logging import logger
-from faststream.types import AnyDict, AsyncFunc, Lifespan, LoggerProtocol, SettingField
+from faststream.types import AnyDict, AsyncFunc, Lifespan, LoggerProto, SettingField
 from faststream.utils import apply_types, context
 from faststream.utils.functions import drop_response_type, fake_context, to_async
 
@@ -38,7 +38,7 @@ if TYPE_CHECKING:
         Tag,
         TagDict,
     )
-    from faststream.broker.core.broker import BrokerUsecase
+    from faststream.broker.core.usecase import BrokerUsecase
     from faststream.types import AnyHttpUrl
 
 
@@ -73,7 +73,7 @@ class FastStream:
     def __init__(
         self,
         broker: Optional["BrokerUsecase[Any, Any]"] = None,
-        logger: Optional[LoggerProtocol] = logger,
+        logger: Optional[LoggerProto] = logger,
         lifespan: Optional[Lifespan] = None,
         # AsyncAPI args,
         title: str = "FastStream",

@@ -12,7 +12,7 @@ from faststream.rabbit import (
     TestRabbitBroker,
 )
 from faststream.rabbit.annotations import RabbitMessage
-from faststream.rabbit.test import apply_pattern
+from faststream.rabbit.testing import apply_pattern
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
@@ -227,8 +227,7 @@ class TestTestclient(BrokerTestclientTestcase):
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = RabbitBroker()
-        broker.middlewares = (Middleware,)
+        broker = RabbitBroker(middlewares = (Middleware,))
 
         @broker.subscriber(queue)
         async def h1():
@@ -253,8 +252,7 @@ class TestTestclient(BrokerTestclientTestcase):
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = RabbitBroker()
-        broker.middlewares = (Middleware,)
+        broker = RabbitBroker(middlewares=(Middleware,))
 
         @broker.subscriber(queue)
         async def h1():

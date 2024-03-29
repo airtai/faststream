@@ -78,12 +78,7 @@ CustomDecoder: TypeAlias = Union[
 ]
 
 P_HandlerParams = ParamSpec("P_HandlerParams")
-T_HandlerReturn = TypeVar(
-    "T_HandlerReturn",
-    SendableMessage,
-    Awaitable[SendableMessage],
-    covariant=True,
-)
+T_HandlerReturn = TypeVar("T_HandlerReturn")
 
 
 AsyncWrappedHandlerCall: TypeAlias = Callable[
@@ -114,6 +109,7 @@ class PublisherMiddleware(Protocol):
         self, __msg: Any, /, **__kwargs: Any
     ) -> AsyncContextManager[SendableMessage]:
         ...
+
 
 class PublisherProtocol(Protocol):
     """A protocol for an asynchronous publisher."""

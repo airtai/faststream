@@ -1,5 +1,3 @@
-from typing import Any
-
 from aio_pika import IncomingMessage
 
 from faststream.broker.message import StreamMessage
@@ -10,26 +8,13 @@ class RabbitMessage(StreamMessage[IncomingMessage]):
 
     This class extends `StreamMessage` to provide additional functionality for acknowledging, rejecting,
     or nack-ing RabbitMQ messages.
-
-    Methods:
-        ack(**kwargs) -> None:
-            Acknowledge the RabbitMQ message.
-
-        nack(**kwargs) -> None:
-            Negative Acknowledgment of the RabbitMQ message.
-
-        reject(**kwargs) -> None:
-            Reject the RabbitMQ message.
     """
 
-    async def ack(self, **kwargs: Any) -> None:
-        """Acknowledge the RabbitMQ message.
-
-        Acknowledgment indicates that the message has been successfully processed.
-
-        Args:
-            **kwargs (Any): Additional keyword arguments (not used).
-        """
+    async def ack(
+        self,
+        multiple: bool = False,
+    ) -> None:
+        """Acknowledge the RabbitMQ message."""
         pika_message = self.raw_message
         await super().ack()
         if (
@@ -37,16 +22,14 @@ class RabbitMessage(StreamMessage[IncomingMessage]):
             or pika_message._IncomingMessage__no_ack  # type: ignore[attr-defined]
         ):
             return
-        await pika_message.ack()
+        await pika_message.ack(multiple=multiple)
 
-    async def nack(self, **kwargs: Any) -> None:
-        """Negative Acknowledgment of the RabbitMQ message.
-
-        Nack-ing a message indicates that the message processing has failed and should be requeued.
-
-        Args:
-            **kwargs (Any): Additional keyword arguments (not used).
-        """
+    async def nack(
+        self,
+        multiple: bool = False,
+        requeue: bool = True,
+    ) -> None:
+        """Negative Acknowledgment of the RabbitMQ message."""
         pika_message = self.raw_message
         await super().nack()
         if (
@@ -54,16 +37,13 @@ class RabbitMessage(StreamMessage[IncomingMessage]):
             or pika_message._IncomingMessage__no_ack  # type: ignore[attr-defined]
         ):
             return
-        await pika_message.nack()
+        await pika_message.nack(multiple=multiple, requeue=requeue)
 
-    async def reject(self, **kwargs: Any) -> None:
-        """Reject the RabbitMQ message.
-
-        Rejecting a message indicates that the message processing has failed, and it should not be requeued.
-
-        Args:
-            **kwargs (Any): Additional keyword arguments (not used).
-        """
+    async def reject(
+        self,
+        requeue: bool = False,
+    ) -> None:
+        """Reject the RabbitMQ message."""
         pika_message = self.raw_message
         await super().reject()
         if (
@@ -71,4 +51,4 @@ class RabbitMessage(StreamMessage[IncomingMessage]):
             or pika_message._IncomingMessage__no_ack  # type: ignore[attr-defined]
         ):
             return
-        await pika_message.reject()
+        await pika_message.reject(requeue=requeue)

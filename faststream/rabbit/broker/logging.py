@@ -2,24 +2,14 @@ import logging
 from inspect import Parameter
 from typing import Any, ClassVar, Optional, Union
 
-from faststream.broker.core.logging_mixin import LoggingMixin
+from aio_pika import IncomingMessage, RobustConnection
+
+from faststream.broker.core.usecase import BrokerUsecase
 from faststream.log.logging import get_broker_logger
-from faststream.rabbit.schemas.schemas import RabbitExchange, RabbitQueue
 
 
-class RabbitLoggingMixin(LoggingMixin):
-    """A class that extends the LoggingMixin class and adds additional functionality for logging RabbitMQ related information.
-
-    Attributes:
-        _max_queue_len : maximum length of the queue name
-        _max_exchange_len : maximum length of the exchange name
-
-    Methods:
-        __init__ : Initializes the RabbitLoggingMixin object.
-        _get_log_context : Overrides the _get_log_context method of the LoggingMixin class to include RabbitMQ related context information.
-        fmt : Returns the log format string.
-        _setup_log_context : Sets up the log context by updating the maximum lengths of the queue and exchange names.
-    """
+class RabbitLoggingBroker(BrokerUsecase[IncomingMessage, RobustConnection]):
+    """A class that extends the LoggingMixin class and adds additional functionality for logging RabbitMQ related information."""
 
     _max_queue_len: int
     _max_exchange_len: int
@@ -33,18 +23,6 @@ class RabbitLoggingMixin(LoggingMixin):
         log_fmt: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
-        """Initialize the class.
-
-        Args:
-            *args: Variable length argument list
-            logger: Optional logger object
-            log_level: Logging level
-            log_fmt: Optional log format
-            **kwargs: Arbitrary keyword arguments
-
-        Returns:
-            None
-        """
         super().__init__(
             *args,
             logger=logger,
@@ -76,21 +54,9 @@ class RabbitLoggingMixin(LoggingMixin):
 
     def _setup_log_context(
         self,
-        queue: Union["RabbitQueue", str, None] = None,
-        exchange: Union["RabbitExchange", str, None] = None,
+        queue: Optional[str] = None,
+        exchange: Optional[str] = None,
     ) -> None:
-        """Set up log context.
-
-        Args:
-            queue: Optional RabbitQueue object representing the queue.
-            exchange: Optional RabbitExchange object representing the exchange.
-        """
-        self._max_exchange_len = max(
-            self._max_exchange_len,
-            len(getattr(RabbitExchange.validate(exchange), "name", "")),
-        )
-
-        self._max_queue_len = max(
-            self._max_queue_len,
-            len(getattr(RabbitQueue.validate(queue), "name", "")),
-        )
+        """Set up log context."""
+        self._max_exchange_len = max(self._max_exchange_len, len(exchange or ""))
+        self._max_queue_len = max(self._max_queue_len, len(queue or ""))

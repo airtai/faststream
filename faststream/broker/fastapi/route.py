@@ -8,7 +8,6 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    Coroutine,
     Generic,
     Iterable,
     List,
@@ -17,24 +16,22 @@ from typing import (
 )
 
 from fastapi import params
+from fastapi.background import BackgroundTasks
 from fastapi.dependencies.models import Dependant
-from fastapi.dependencies.utils import (
-    get_dependant,
-    get_parameterless_sub_dependant,
-    solve_dependencies,
-)
+from fastapi.dependencies.utils import solve_dependencies
 from fastapi.routing import run_endpoint_function, serialize_response
 from fastapi.utils import create_response_field
 from starlette.requests import Request
 from starlette.routing import BaseRoute
 
-from faststream._compat import FASTAPI_V106, PYDANTIC_V2, raise_fastapi_validation_error
-from faststream.broker.core.broker import BrokerUsecase
-from faststream.broker.core.call_wrapper import HandlerCallWrapper
+from faststream._compat import FASTAPI_V106, raise_fastapi_validation_error
+from faststream.broker.core.usecase import BrokerUsecase
+from faststream.broker.fastapi.get_dependant import get_fastapi_native_dependant
 from faststream.broker.message import StreamMessage as NativeMessage
 from faststream.broker.schemas import NameRequired
 from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
-from faststream.types import AnyDict, SendableMessage
+from faststream.broker.wrapper.call import HandlerCallWrapper
+from faststream.types import AnyDict
 
 if TYPE_CHECKING:
     from fastapi._compat import ModelField
@@ -42,21 +39,14 @@ if TYPE_CHECKING:
 
 
 class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
-    """A class representing a stream route.
-
-    Attributes:
-        handler : HandlerCallWrapper object representing the handler for the route
-        path : path of the route
-        broker : BrokerUsecase object representing the broker for the route
-        dependent : Dependable object representing the dependencies for the route
-    """
+    """A class representing a stream route."""
 
     handler: HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]
 
     def __init__(
         self,
         path: Union[NameRequired, str, None],
-        *extra: Union[NameRequired, str],
+        *extra: Any,
         provider_factory: Callable[[], Any],
         endpoint: Union[
             Callable[P_HandlerParams, T_HandlerReturn],
@@ -73,28 +63,22 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
         response_model_exclude_none: bool,
         **handle_kwargs: Any,
     ) -> None:
-        self.path = path or ""
+        self.path, path_name = path or "", getattr(path, "name", "")
         self.broker = broker
-
-        path_name = self.path if isinstance(self.path, str) else self.path.name
 
         if isinstance(endpoint, HandlerCallWrapper):
             orig_call = endpoint._original_call
+            while hasattr(orig_call, "__consumer__"):
+                orig_call = orig_call.__wrapped__  # type: ignore[attr-defined]
+
         else:
             orig_call = endpoint
 
-        dependent = get_dependant(
-            path=path_name,
-            call=orig_call,
+        dependent = get_fastapi_native_dependant(
+            orig_call,
+            list(dependencies),
+            path_name=path_name,
         )
-        for depends in list(dependencies)[::-1]:
-            dependent.dependencies.insert(
-                0,
-                get_parameterless_sub_dependant(depends=depends, path=path_name),
-            )
-        dependent = _patch_fastapi_dependent(dependent)
-
-        self.dependent = dependent
 
         if response_model:
             response_field = create_response_field(
@@ -106,7 +90,7 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
             response_field = None
 
         call = wraps(orig_call)(
-            StreamMessage.get_session(
+            StreamMessage.get_consumer(
                 dependent=dependent,
                 provider_factory=provider_factory,
                 response_field=response_field,
@@ -126,13 +110,11 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
         else:
             handler = call
 
-        self.handler = broker.subscriber(
+        self.handler = broker.subscriber(  # type: ignore[assignment,call-arg]
             *extra,
-            get_dependent=lambda *_: dependent,
+            dependencies=list(dependencies),
             **handle_kwargs,
-        )(
-            handler  # type: ignore[arg-type]
-        )
+        )(handler)
 
 
 class StreamMessage(Request):
@@ -143,6 +125,7 @@ class StreamMessage(Request):
     _headers: AnyDict  # type: ignore
     _body: Union[AnyDict, List[Any]]  # type: ignore
     _query_params: AnyDict  # type: ignore
+    _background: Optional[BackgroundTasks]
 
     def __init__(
         self,
@@ -160,7 +143,7 @@ class StreamMessage(Request):
         self._cookies = {}
 
     @classmethod
-    def get_session(
+    def get_consumer(
         cls,
         *,
         dependent: Dependant,
@@ -172,11 +155,11 @@ class StreamMessage(Request):
         response_model_exclude_unset: bool,
         response_model_exclude_defaults: bool,
         response_model_exclude_none: bool,
-    ) -> Callable[[NativeMessage[Any]], Awaitable[SendableMessage]]:
+    ) -> Callable[[NativeMessage[Any]], Awaitable[Any]]:
         """Creates a session for handling requests."""
         assert dependent.call  # nosec B101
 
-        consume = make_fastapi_consumer(
+        consume = make_fastapi_execution(
             dependent=dependent,
             provider_factory=provider_factory,
             response_field=response_field,
@@ -198,7 +181,7 @@ class StreamMessage(Request):
             None,
         )
 
-        async def app(message: NativeMessage[Any]) -> SendableMessage:
+        async def real_consumer(message: NativeMessage[Any]) -> Any:
             """An asynchronous function that processes an incoming message and returns a sendable message."""
             body = message.decoded_body
 
@@ -211,25 +194,26 @@ class StreamMessage(Request):
                 else:
                     path = fastapi_body = {first_arg: body}
 
-                session = cls(
+                stream_message = cls(
                     body=fastapi_body,
                     headers=message.headers,
                     path={**path, **message.path},
                 )
 
             else:
-                session = cls(
+                stream_message = cls(
                     body={},
                     headers={},
                     path={},
                 )
 
-            return await consume(session)
+            return await consume(stream_message, message)
 
-        return app
+        real_consumer.__consumer__ = True  # type: ignore[attr-defined]
+        return real_consumer
 
 
-def make_fastapi_consumer(
+def make_fastapi_execution(
     *,
     dependent: Dependant,
     provider_factory: Callable[[], Any],
@@ -241,13 +225,16 @@ def make_fastapi_consumer(
     response_model_exclude_defaults: bool,
     response_model_exclude_none: bool,
 ) -> Callable[
-    [StreamMessage],
-    Coroutine[Any, Any, SendableMessage],
+    [StreamMessage, NativeMessage[Any]],
+    Awaitable[Any],
 ]:
     """Creates a FastAPI application."""
     is_coroutine = asyncio.iscoroutinefunction(dependent.call)
 
-    async def app(request: StreamMessage) -> SendableMessage:
+    async def app(
+        request: StreamMessage,
+        raw_message: NativeMessage[Any],
+    ) -> Any:
         """Consume StreamMessage and return user function result."""
         async with AsyncExitStack() as stack:
             if FASTAPI_V106:
@@ -264,7 +251,7 @@ def make_fastapi_consumer(
                 **kwargs,  # type: ignore[arg-type]
             )
 
-            values, errors, background_tasks, _, _2 = solved_result
+            values, errors, raw_message.background, _, _2 = solved_result  # type: ignore[attr-defined]
 
             if errors:
                 raise_fastapi_validation_error(errors, request._body)  # type: ignore[arg-type]
@@ -287,39 +274,8 @@ def make_fastapi_consumer(
                 is_coroutine=is_coroutine,
             )
 
-            # TODO: run backgrounds somewhere
-            # if background_tasks:
-            #     await background_tasks()
-
             return content
 
         return None
 
     return app
-
-
-def _patch_fastapi_dependent(dependent: Dependant) -> Dependant:
-    """Patch FastAPI by adding fields for AsyncAPI schema generation."""
-    from pydantic import create_model  # FastAPI always has pydantic
-
-    params = dependent.query_params + dependent.body_params  # type: ignore[attr-defined]
-
-    for d in dependent.dependencies:
-        params.extend(d.query_params + d.body_params)  # type: ignore[attr-defined]
-
-    params_unique = {}
-    params_names = set()
-    for p in params:
-        if p.name not in params_names:
-            params_names.add(p.name)
-            info = p.field_info if PYDANTIC_V2 else p
-            params_unique[p.name] = (info.annotation, info.default)  # type: ignore[attr-defined]
-
-    dependent.model = create_model(  # type: ignore[attr-defined,call-overload]
-        getattr(dependent.call, "__name__", type(dependent.call).__name__),
-        **params_unique,
-    )
-    dependent.custom_fields = {}  # type: ignore[attr-defined]
-    dependent.flat_params = params_unique  # type: ignore[attr-defined,assignment,misc]
-
-    return dependent

@@ -55,9 +55,11 @@ SendableArray: TypeAlias = Sequence["SendableMessage"]
 
 SendableTable: TypeAlias = Dict[str, "SendableMessage"]
 
+
 class StandardDataclass(Protocol):
     """Protocol to check type is dataclass."""
-    __dataclass_fields__: ClassVar[dict[str, Any]]
+
+    __dataclass_fields__: ClassVar[Dict[str, Any]]
     __dataclass_params__: ClassVar[Any]
     __post_init__: ClassVar[Callable[..., None]]
 
@@ -85,10 +87,11 @@ try:
     ]
 
 except ImportError:
-    SendableMessage: TypeAlias = BaseSendableMessage
+    SendableMessage: TypeAlias = BaseSendableMessage  # type: ignore[no-redef]
 
 SettingField: TypeAlias = Union[
-    bool, str,
+    bool,
+    str,
     List[Union[bool, str]],
     List[str],
     List[bool],
@@ -96,7 +99,8 @@ SettingField: TypeAlias = Union[
 
 Lifespan: TypeAlias = Callable[..., AsyncContextManager[None]]
 
-class LoggerProtocol(Protocol):
+
+class LoggerProto(Protocol):
     def log(
         self,
         level: int,
@@ -105,5 +109,4 @@ class LoggerProtocol(Protocol):
         *,
         exc_info: Any = None,
         extra: Optional[Mapping[str, Any]] = None,
-    ) -> None:
-        ...
+    ) -> None: ...

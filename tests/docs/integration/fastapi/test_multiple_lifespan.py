@@ -14,8 +14,8 @@ class BaseCase:
         async def handler2():
             ...
 
-        handlers1 = core_router.broker.handlers.values()
-        handlers2 = nested_router.broker.handlers.values()
+        handlers1 = core_router.broker._subscribers.values()
+        handlers2 = nested_router.broker._subscribers.values()
 
         assert len(handlers1) == 1
         assert len(handlers2) == 1

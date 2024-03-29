@@ -5,7 +5,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from faststream.broker.core.broker import BrokerUsecase
+from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.middlewares import BaseMiddleware
 
 

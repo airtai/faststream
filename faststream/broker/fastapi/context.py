@@ -15,6 +15,7 @@ def Context(  # noqa: N802
     default: Any = Parameter.empty,
     initial: Optional[Callable[..., Any]] = None,
 ) -> Any:
+    """Get access to objects of the Context."""
     return params.Depends(
         lambda: resolve_context_by_name(
             name=name,

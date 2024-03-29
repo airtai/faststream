@@ -9,7 +9,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
 
 from faststream import context
-from faststream.broker.core.broker import BrokerUsecase
+from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.fastapi.context import Context
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.types import AnyCallable
@@ -95,7 +95,7 @@ class FastAPITestcase:
 
         @router.subscriber(queue)
         @router.subscriber(queue + "2")
-        async def hello(msg):
+        async def hello(msg: str):
             if event.is_set():
                 event2.set()
             else:
@@ -119,7 +119,10 @@ class FastAPITestcase:
         assert mock.call_count == 2
 
     async def test_base_publisher_real(
-        self, mock: Mock, queue: str, event: asyncio.Event
+        self,
+        mock: Mock,
+        queue: str,
+        event: asyncio.Event,
     ):
         router = self.router_class()
 
@@ -135,6 +138,7 @@ class FastAPITestcase:
 
         async with router.broker:
             await router.broker.start()
+
             await asyncio.wait(
                 (
                     asyncio.create_task(router.broker.publish("", queue)),

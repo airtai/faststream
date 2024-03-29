@@ -19,17 +19,14 @@ if TYPE_CHECKING:
 
 
 def get_app_schema(app: Union[FastStream, "StreamRouter[Any]"]) -> Schema:
-    """Get the application schema.
+    """Get the application schema."""
+    broker = app.broker
+    if broker is None:  # pragma: no cover
+        raise RuntimeError()
+    broker.setup()
 
-    Args:
-        app: An instance of FastStream or StreamRouter.
-
-    Returns:
-        The schema object.
-
-    """
-    servers = get_app_broker_server(app)
-    channels = get_app_broker_channels(app)
+    servers = get_broker_server(broker)
+    channels = get_broker_channels(broker)
 
     messages: Dict[str, Message] = {}
     payloads: Dict[str, Dict[str, Any]] = {}
@@ -58,10 +55,6 @@ def get_app_schema(app: Union[FastStream, "StreamRouter[Any]"]) -> Schema:
                     messages,
                 )
 
-    broker = app.broker
-    if broker is None:  # pragma: no cover
-        raise RuntimeError()
-
     schema = Schema(
         info=Info(
             title=app.title,
@@ -88,28 +81,9 @@ def get_app_schema(app: Union[FastStream, "StreamRouter[Any]"]) -> Schema:
     return schema
 
 
-def get_app_broker_server(
-    app: Union[FastStream, "StreamRouter[Any]"],
-) -> Dict[str, Server]:
-    """Get the broker server for an application.
-
-    Args:
-        app: An instance of `FastStream` or `StreamRouter` representing the application.
-
-    Returns:
-        A dictionary containing the broker servers. The keys are the server names and the values are instances of `Server` class.
-
-    Raises:
-        AssertionError: If the `broker` attribute of the app is not present.
-
-    Note:
-        This function is currently incomplete and the following fields in the `broker_meta` dictionary are not populated: "security", "variables", "bindings".
-
-    """
+def get_broker_server(broker) -> Dict[str, Server]:
+    """Get the broker server for an application."""
     servers = {}
-
-    broker = app.broker
-    assert broker  # nosec B101
 
     broker_meta: Dict[str, Any] = {
         "protocol": broker.protocol,
@@ -146,27 +120,14 @@ def get_app_broker_server(
     return servers
 
 
-def get_app_broker_channels(
-    app: Union[FastStream, "StreamRouter[Any]"],
-) -> Dict[str, Channel]:
-    """Get the broker channels for an application.
-
-    Args:
-        app: An instance of FastStream or StreamRouter.
-
-    Returns:
-        A dictionary of channel names and their corresponding Channel objects.
-
-    Raises:
-        AssertionError: If the app does not have a broker.
-    """
+def get_broker_channels(broker) -> Dict[str, Channel]:
+    """Get the broker channels for an application."""
     channels = {}
-    assert app.broker  # nosec B101
 
-    for h in app.broker.handlers.values():
+    for h in broker._subscribers.values():
         channels.update(h.schema())
 
-    for p in app.broker._publishers.values():
+    for p in broker._publishers.values():
         channels.update(p.schema())
 
     return channels

@@ -2,7 +2,7 @@ import pytest
 
 from faststream.rabbit import ExchangeType, RabbitExchange, RabbitQueue
 from faststream.rabbit.fastapi import RabbitRouter
-from faststream.rabbit.test import TestRabbitBroker, build_message
+from faststream.rabbit.testing import TestRabbitBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 

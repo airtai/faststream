@@ -6,7 +6,7 @@ import pytest
 
 from faststream import BaseMiddleware, Depends
 from faststream.broker.core.asynchronous import BrokerAsyncUsecase
-from faststream.broker.router import BrokerRoute, BrokerRouter
+from faststream.broker.router import BrokerRouter, SubscriberRoute
 from faststream.kafka import KafkaRoute, KafkaRouter
 from faststream.types import AnyCallable
 
@@ -14,7 +14,7 @@ from faststream.types import AnyCallable
 @pytest.mark.asyncio()
 class RouterTestcase:
     build_message: AnyCallable
-    route_class: Type[BrokerRoute]
+    route_class: Type[SubscriberRoute]
 
     def patch_broker(
         self, br: BrokerAsyncUsecase, router: BrokerRouter

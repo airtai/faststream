@@ -9,7 +9,7 @@ from fastapi import Depends as APIDepends
 from faststream import Context, FastStream
 from faststream._compat import PYDANTIC_V2
 from faststream.asyncapi.generate import get_app_schema
-from faststream.broker.core.broker import BrokerUsecase
+from faststream.broker.core.usecase import BrokerUsecase
 
 
 class FastAPICompatible:
@@ -444,7 +444,7 @@ class FastAPICompatible:
                 "required": ["id", "name2"],
                 "title": key,
                 "type": "object",
-            }
+            }, v
 
 
 class ArgumentsTestcase(FastAPICompatible):

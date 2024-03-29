@@ -8,7 +8,7 @@ from fast_depends._compat import PYDANTIC_V2 as PYDANTIC_V2
 from fast_depends._compat import (  # type: ignore[attr-defined]
     PYDANTIC_VERSION as PYDANTIC_VERSION,
 )
-from pydantic import BaseModel
+from pydantic import BaseModel as BaseModel
 from typing_extensions import Never
 
 from faststream.types import AnyDict

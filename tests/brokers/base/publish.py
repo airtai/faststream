@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from faststream._compat import model_to_json
 from faststream.annotations import Logger
-from faststream.broker.core.broker import BrokerUsecase
+from faststream.broker.core.usecase import BrokerUsecase
 
 
 class SimpleModel(BaseModel):

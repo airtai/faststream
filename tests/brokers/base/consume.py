@@ -5,7 +5,7 @@ import pytest
 from pydantic import BaseModel
 
 from faststream import Context, Depends
-from faststream.broker.core.broker import BrokerUsecase
+from faststream.broker.core.usecase import BrokerUsecase
 from faststream.exceptions import StopConsume
 
 
