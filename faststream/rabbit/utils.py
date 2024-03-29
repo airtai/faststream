@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Any, Dict, Optional, Union, cast
 
 from aio_pika.connection import make_url
+
 from faststream.rabbit.schemas.constants import ExchangeType
 
 if TYPE_CHECKING:

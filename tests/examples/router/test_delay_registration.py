@@ -1,6 +1,6 @@
 import pytest
-from examples.router.delay_registration import app, broker
 
+from examples.router.delay_registration import app, broker
 from faststream.kafka import TestApp, TestKafkaBroker
 
 

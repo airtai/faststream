@@ -12,6 +12,7 @@ class SkipMessage(FastStreamException):
 class IgnoredException(FastStreamException):
     """Basic Exception class ignoring by watcher context and log middleware."""
 
+
 class StopConsume(IgnoredException):
     """Raise it to stop Handler consuming."""
 

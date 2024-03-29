@@ -1,6 +1,5 @@
 from inspect import unwrap
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     Iterable,
