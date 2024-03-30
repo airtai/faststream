@@ -29,7 +29,7 @@ from faststream.broker.types import (
     MsgType,
 )
 from faststream.types import LoggerProto
-from faststream.utils.functions import fake_context
+from faststream.utils.functions import fake_context, to_async
 
 
 async def default_filter(msg: StreamMessage[Any]) -> bool:
@@ -108,7 +108,7 @@ class MultiLock:
 
 @overload
 def resolve_custom_func(
-    custom_func: AsyncCustomDecoder[CustomDecoder[StreamMessage[MsgType]]],
+    custom_func: CustomDecoder[StreamMessage[MsgType]],
     default_func: AsyncDecoder[StreamMessage[MsgType]],
 ) -> AsyncDecoder[StreamMessage[MsgType]]:
     ...
@@ -116,7 +116,7 @@ def resolve_custom_func(
 
 @overload
 def resolve_custom_func(
-    custom_func: AsyncCustomParser[CustomParser[MsgType]],
+    custom_func: CustomParser[MsgType],
     default_func: AsyncParser[MsgType],
 ) -> AsyncParser[MsgType]:
     ...
@@ -124,8 +124,8 @@ def resolve_custom_func(
 
 def resolve_custom_func(
     custom_func: Union[
-        AsyncCustomDecoder[StreamMessage[MsgType]],
-        AsyncCustomParser[MsgType],
+        CustomDecoder[StreamMessage[MsgType]],
+        CustomParser[MsgType],
     ],
     default_func: Union[
         AsyncDecoder[StreamMessage[MsgType]],
@@ -146,9 +146,9 @@ def resolve_custom_func(
                 AsyncDecoder[StreamMessage[MsgType]],
                 AsyncParser[MsgType],
             ],
-            custom_func,
+            to_async(custom_func),
         )
 
     else:
         name = tuple(original_params.items())[1][0]
-        return partial(custom_func, **{name: default_func})  # type: ignore
+        return partial(to_async(custom_func), **{name: default_func})  # type: ignore
