@@ -2,17 +2,15 @@ import logging
 from inspect import Parameter
 from typing import Any, ClassVar, Optional, Union
 
-from aio_pika import IncomingMessage, RobustConnection
-
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.log.logging import get_broker_logger
+from faststream.redis.message import BaseMessage
 
 
-class RabbitLoggingBroker(BrokerUsecase[IncomingMessage, RobustConnection]):
-    """A class that extends the LoggingMixin class and adds additional functionality for logging RabbitMQ related information."""
+class RedisLoggingBroker(BrokerUsecase[BaseMessage, "Redis[bytes]"]):
+    """A class that extends the LoggingMixin class and adds additional functionality for logging Redis related information."""
 
-    _max_queue_len: int
-    _max_exchange_len: int
+    _max_channel_name: int
     __max_msg_id_ln: ClassVar[int] = 10
 
     def __init__(
@@ -28,10 +26,9 @@ class RabbitLoggingBroker(BrokerUsecase[IncomingMessage, RobustConnection]):
             logger=logger,
             # TODO: generate unique logger names to not share between brokers
             default_logger=get_broker_logger(
-                name="rabbit",
+                name="redis",
                 default_context={
-                    "queue": "",
-                    "exchange": "",
+                    "channel": "",
                 },
                 message_id_ln=self.__max_msg_id_ln,
             ),
@@ -39,15 +36,12 @@ class RabbitLoggingBroker(BrokerUsecase[IncomingMessage, RobustConnection]):
             log_fmt=log_fmt,
             **kwargs,
         )
-
-        self._max_queue_len = 4
-        self._max_exchange_len = 4
+        self._max_channel_name = 4
 
     def get_fmt(self) -> str:
         return (
             "%(asctime)s %(levelname)-8s - "
-            f"%(exchange)-{self._max_exchange_len}s | "
-            f"%(queue)-{self._max_queue_len}s | "
+            f"%(channel)-{self._max_channel_name}s | "
             f"%(message_id)-{self.__max_msg_id_ln}s "
             "- %(message)s"
         )
@@ -55,9 +49,6 @@ class RabbitLoggingBroker(BrokerUsecase[IncomingMessage, RobustConnection]):
     def _setup_log_context(
         self,
         *,
-        queue: Optional[str] = None,
-        exchange: Optional[str] = None,
+        channel: Optional[str] = None,
     ) -> None:
-        """Set up log context."""
-        self._max_exchange_len = max(self._max_exchange_len, len(exchange or ""))
-        self._max_queue_len = max(self._max_queue_len, len(queue or ""))
+        self._max_channel_name = max((self._max_channel_name, len(channel or "")))

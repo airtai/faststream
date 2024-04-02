@@ -6,7 +6,7 @@ import pytest
 
 from faststream.redis import ListSub, StreamSub
 from faststream.redis.fastapi import RedisRouter
-from faststream.redis.test import TestRedisBroker, build_message
+from faststream.redis.testing import TestRedisBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 

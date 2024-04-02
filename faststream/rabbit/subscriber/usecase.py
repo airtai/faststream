@@ -62,12 +62,12 @@ class LogicSubscriber(
         super().__init__(
             default_parser=AioPikaParser.parse_message,
             default_decoder=AioPikaParser.decode_message,
-            # Propagated options
+            # Propagated args
             no_ack=no_ack,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI
+            # AsyncAPI args
             title_=title_,
             description_=description_,
             include_in_schema=include_in_schema,

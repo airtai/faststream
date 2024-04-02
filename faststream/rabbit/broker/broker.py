@@ -540,6 +540,7 @@ class RabbitBroker(
 
         return await super().publish(
             message,
+            producer=self._producer,
             routing_key=routing,
             app_id=self.app_id,
             exchange=exchange,
@@ -556,6 +557,7 @@ class RabbitBroker(
             timestamp=timestamp,
             message_type=message_type,
             user_id=user_id,
+            timeout=timeout,
             priority=priority,
             rpc=rpc,
             rpc_timeout=rpc_timeout,

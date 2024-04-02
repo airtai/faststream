@@ -220,7 +220,11 @@ class BrokerUsecase(
         for p in self._publishers.values():
             self.setup_publisher(p)
 
-    def setup_subscriber(self, subscriber: SubscriberProto[MsgType]) -> None:
+    def setup_subscriber(
+        self,
+        subscriber: SubscriberProto[MsgType],
+        **kwargs: Any,
+    ) -> None:
         """Setup the Subscriber to prepare it to starting."""
         subscriber.setup(
             logger=self.logger,
@@ -235,13 +239,19 @@ class BrokerUsecase(
             is_validate=self._is_validate,
             _get_dependant=self._get_dependant,
             **self._subscriber_setup_extra,
+            **kwargs,
         )
 
-    def setup_publisher(self, publisher: PublisherProto[MsgType]) -> None:
+    def setup_publisher(
+        self,
+        publisher: PublisherProto[MsgType],
+        **kwargs: Any,
+    ) -> None:
         """Setup the Publisher to prepare it to starting."""
         publisher.setup(
             producer=self._producer,
             **self._publisher_setup_extra,
+            **kwargs,
         )
 
     @property
@@ -314,10 +324,12 @@ class BrokerUsecase(
     async def publish(
         self,
         msg: Any,
+        *,
+        producer: Optional[ProducerProto],
         **kwargs: Any,
     ) -> Optional[Any]:
         """Publish message directly."""
-        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+        assert producer, NOT_CONNECTED_YET  # nosec B101
 
         async with AsyncExitStack() as stack:
             for m in self._middlewares:
@@ -325,6 +337,6 @@ class BrokerUsecase(
                     m(None).publish_scope(msg, **kwargs)
                 )
 
-            return await self._producer.publish(msg, **kwargs)
+            return await producer.publish(msg, **kwargs)
 
         return None

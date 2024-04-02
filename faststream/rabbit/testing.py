@@ -64,9 +64,6 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
     def _fake_start(cls, broker: RabbitBroker, *args: Any, **kwargs: Any) -> None:
         super()._fake_start(broker, *args, **kwargs)
 
-        for h in broker._subscribers.values():
-            h._producer = FakeProducer(broker)  # type: ignore[assignment]
-
     @staticmethod
     def remove_publisher_fake_subscriber(
         broker: RabbitBroker,

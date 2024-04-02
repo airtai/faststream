@@ -86,10 +86,10 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         is_validate: bool,
         _get_dependant: Optional[Callable[..., Any]],
     ) -> None:
-        self.item_parser = parser
-        self.item_decoder = decoder
-
         if self.dependant is None:
+            self.item_parser = parser
+            self.item_decoder = decoder
+
             dependencies = (*broker_dependencies, *self.dependencies)
 
             dependant = self.handler.set_wrapped(
