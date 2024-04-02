@@ -29,17 +29,20 @@ class SubscriberRoute:
     call: Callable[..., Any]
     args: Iterable[Any]
     kwargs: AnyDict
+    publishers: Iterable[Any]
 
     def __init__(
         self,
         call: Callable[..., Any],
         *args: Any,
+        publishers: Optional[Iterable[Any]] = (),
         **kwargs: Any,
     ) -> None:
         """Initialize a callable object with arguments and keyword arguments."""
         self.call = call
         self.args = args
         self.kwargs = kwargs
+        self.publishers = publishers
 
 
 class BrokerRouter(ABCBroker[MsgType]):
@@ -67,4 +70,8 @@ class BrokerRouter(ABCBroker[MsgType]):
         )
 
         for h in handlers:
-            self.subscriber(*h.args, **h.kwargs)(h.call)
+            call = h.call
+            for p in h.publishers:
+                call = self.publisher(*p.args, **p.kwargs)(call)
+            self.subscriber(*h.args, **h.kwargs)(call)
+

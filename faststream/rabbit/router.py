@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Callable, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Union
 
 from typing_extensions import Annotated, Doc, deprecated
 
@@ -12,7 +12,9 @@ from faststream.rabbit.schemas import (
 
 if TYPE_CHECKING:
     from aio_pika.message import IncomingMessage
+    from broker.types import PublisherMiddleware
     from fast_depends.dependencies import Depends
+    from rabbit.publisher.usecase import PublishKwargs
 
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
@@ -25,6 +27,39 @@ if TYPE_CHECKING:
     from faststream.rabbit.schemas.reply import ReplyConfig
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.types import AnyDict
+
+
+class RabbitPublisher:
+    kwargs: dict[str, Any]
+
+    def __init__(
+            self,
+            routing_key: str,
+            queue: "RabbitQueue",
+            exchange: Optional["RabbitExchange"],
+            message_kwargs: "PublishKwargs",
+            # Publisher args
+            broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
+            middlewares: Iterable["PublisherMiddleware"],
+            # AsyncAPI args
+            schema_: Optional[Any],
+            title_: Optional[str],
+            description_: Optional[str],
+            include_in_schema: bool,
+    ) -> None:
+        self.args = ()
+        self.kwargs = dict(
+            routing_key=routing_key,
+            queue=queue,
+            exchange=exchange,
+            message_kwargs=message_kwargs,
+            broker_middlewares=broker_middlewares,
+            middlewares=middlewares,
+            schema_=schema_,
+            title_=title_,
+            description_=description_,
+            include_in_schema=include_in_schema
+        )
 
 
 class RabbitRoute(SubscriberRoute):
@@ -52,6 +87,12 @@ class RabbitRoute(SubscriberRoute):
             ),
         ] = None,
         *,
+        publishers: Annotated[
+            Optional[Iterable[RabbitPublisher]],
+            Doc(
+                "RabbitMQ producers to publish returned handlers results "
+            )
+        ] = (),
         consume_args: Annotated[
             Optional["AnyDict"],
             Doc("Extra consumer arguments to use in `queue.consume(...)` method."),
@@ -115,6 +156,7 @@ class RabbitRoute(SubscriberRoute):
     ) -> None:
         super().__init__(
             call,
+            publishers=publishers,
             queue=queue,
             exchange=exchange,
             consume_args=consume_args,
