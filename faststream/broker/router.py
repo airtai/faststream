@@ -23,26 +23,39 @@ if TYPE_CHECKING:
     )
 
 
-class SubscriberRoute:
+class ArgsContainer:
+    """Class to store any arguments."""
+
+    args: Iterable[Any]
+    kwargs: AnyDict
+
+    def __init__(
+        self,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
+        self.args = args
+        self.kwargs = kwargs
+
+
+class SubscriberRoute(ArgsContainer):
     """A generic class to represent a broker route."""
 
     call: Callable[..., Any]
-    args: Iterable[Any]
-    kwargs: AnyDict
     publishers: Iterable[Any]
 
     def __init__(
         self,
         call: Callable[..., Any],
         *args: Any,
-        publishers: Optional[Iterable[Any]] = (),
+        publishers: Iterable[ArgsContainer] = (),
         **kwargs: Any,
     ) -> None:
         """Initialize a callable object with arguments and keyword arguments."""
         self.call = call
-        self.args = args
-        self.kwargs = kwargs
         self.publishers = publishers
+
+        super().__init__(*args, **kwargs)
 
 
 class BrokerRouter(ABCBroker[MsgType]):
@@ -71,7 +84,8 @@ class BrokerRouter(ABCBroker[MsgType]):
 
         for h in handlers:
             call = h.call
+
             for p in h.publishers:
                 call = self.publisher(*p.args, **p.kwargs)(call)
-            self.subscriber(*h.args, **h.kwargs)(call)
 
+            self.subscriber(*h.args, **h.kwargs)(call)

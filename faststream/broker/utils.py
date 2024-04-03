@@ -20,8 +20,6 @@ from typing_extensions import Self
 from faststream.broker.acknowledgement_watcher import WatcherContext, get_watcher
 from faststream.broker.message import StreamMessage
 from faststream.broker.types import (
-    AsyncCustomDecoder,
-    AsyncCustomParser,
     AsyncDecoder,
     AsyncParser,
     CustomDecoder,

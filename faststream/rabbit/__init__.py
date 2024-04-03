@@ -1,5 +1,5 @@
 from faststream.rabbit.broker import RabbitBroker
-from faststream.rabbit.router import RabbitRoute, RabbitRouter
+from faststream.rabbit.router import RabbitPublisher, RabbitRoute, RabbitRouter
 from faststream.rabbit.schemas import (
     ExchangeType,
     RabbitExchange,
@@ -15,6 +15,7 @@ __all__ = (
     "TestRabbitBroker",
     "RabbitRouter",
     "RabbitRoute",
+    "RabbitPublisher",
     "ExchangeType",
     "ReplyConfig",
     "RabbitExchange",
