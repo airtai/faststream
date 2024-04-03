@@ -1,7 +1,7 @@
 from typing import Type
 
+from faststream.nats import TestNatsBroker
 from faststream.nats.fastapi import NatsRouter
-from faststream.nats.test import TestNatsBroker
 from tests.asyncapi.base.arguments import FastAPICompatible
 from tests.asyncapi.base.fastapi import FastAPITestCase
 from tests.asyncapi.base.publisher import PublisherTestcase

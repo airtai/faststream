@@ -58,7 +58,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
         return hash(self.subject)
 
     @override
-    async def publish(  # type: ignore[override]
+    async def publish(
         self,
         message: Annotated[
             "SendableMessage",
@@ -71,6 +71,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
             str,
             Doc("NATS subject to send message."),
         ] = "",
+        *,
         headers: Annotated[
             Optional[Dict[str, str]],
             Doc(
@@ -100,7 +101,6 @@ class LogicPublisher(PublisherUsecase[Msg]):
             Optional[float],
             Doc("Timeout to send message to NATS."),
         ] = None,
-        *,
         rpc: Annotated[
             bool,
             Doc("Whether to wait for reply in blocking mode."),

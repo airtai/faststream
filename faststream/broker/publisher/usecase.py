@@ -1,3 +1,4 @@
+from abc import ABC
 from inspect import unwrap
 from typing import (
     Any,
@@ -29,6 +30,7 @@ from faststream.types import AnyDict
 
 
 class PublisherUsecase(
+    ABC,
     AsyncAPIOperation,
     PublisherProto[MsgType],
 ):

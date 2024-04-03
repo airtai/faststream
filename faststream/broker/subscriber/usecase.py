@@ -155,21 +155,19 @@ class SubscriberUsecase(
         self.watcher = get_watcher_context(logger, self._no_ack, self._retry)
 
         for call in self.calls:
-            parser: "AsyncParser[MsgType]"
             if parser := call.item_parser or broker_parser:
-                parser = resolve_custom_func(to_async(parser), self._default_parser)
+                async_parser = resolve_custom_func(to_async(parser), self._default_parser)
             else:
-                parser = self._default_parser
+                async_parser = self._default_parser
 
-            decoder: "AsyncDecoder[StreamMessage[MsgType]]"
             if decoder := call.item_decoder or broker_decoder:
-                decoder = resolve_custom_func(to_async(decoder), self._default_decoder)
+                async_decoder = resolve_custom_func(to_async(decoder), self._default_decoder)
             else:
-                decoder = self._default_decoder
+                async_decoder = self._default_decoder
 
             call.setup(
-                parser=parser,
-                decoder=decoder,
+                parser=async_parser,
+                decoder=async_decoder,
                 apply_types=apply_types,
                 is_validate=is_validate,
                 _get_dependant=_get_dependant,

@@ -159,7 +159,7 @@ class LogicPublisher(
         )
 
     @override
-    async def publish(  # type: ignore[override]
+    async def publish(
         self,
         message: "AioPikaSendableMessage",
         queue: Annotated[

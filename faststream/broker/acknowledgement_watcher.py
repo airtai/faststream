@@ -139,19 +139,22 @@ class WatcherContext:
         if not exc_type:
             await self.__ack()
 
-        elif isinstance(exc_val, SkipMessage):
-            self.watcher.remove(self.message.message_id)
-
         elif isinstance(exc_val, HandlerException):
-            if isinstance(exc_val, AckMessage):
+            if isinstance(exc_val, SkipMessage):
+                self.watcher.remove(self.message.message_id)
+
+            elif isinstance(exc_val, AckMessage):
                 await self.__ack()
+
             elif isinstance(exc_val, NackMessage):
                 if self.watcher.is_max(self.message.message_id):
                     await self.__reject()
                 else:
                     await self.__nack()
+
             elif isinstance(exc_val, RejectMessage):  # pragma: no branch
                 await self.__reject()
+
             return True
 
         elif self.watcher.is_max(self.message.message_id):

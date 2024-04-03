@@ -20,10 +20,10 @@ from fast_depends.core import CallModel, build_call_model
 from fast_depends.use import _InjectWrapper, inject
 
 from faststream.broker.message import StreamMessage
+from faststream.broker.publisher.proto import PublisherProto
 from faststream.broker.types import (
     MsgType,
     P_HandlerParams,
-    PublisherProtocol,
     T_HandlerReturn,
 )
 from faststream.exceptions import SetupError
@@ -42,7 +42,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
 
     _wrapped_call: Optional[Callable[..., Awaitable[Any]]]
     _original_call: Callable[P_HandlerParams, T_HandlerReturn]
-    _publishers: List[PublisherProtocol]
+    _publishers: List[PublisherProto[MsgType]]
 
     __slots__ = (
         "mock",
@@ -138,7 +138,9 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
             self.future.set_result(result)
 
     def refresh(self, with_mock: bool = False) -> None:
-        self.future = asyncio.Future()
+        if asyncio.events._get_running_loop() is not None:
+            self.future = asyncio.Future()
+
         if with_mock and self.mock is not None:
             self.mock.reset_mock()
 

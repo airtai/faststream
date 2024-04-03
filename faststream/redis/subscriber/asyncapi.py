@@ -12,7 +12,6 @@ from faststream.asyncapi.schema import (
 )
 from faststream.asyncapi.schema.bindings import redis
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.broker.subscriber.proto import SubscriberProto
 from faststream.broker.types import (
     BrokerMiddleware,
 )
@@ -25,6 +24,7 @@ from faststream.redis.subscriber.usecase import (
     BatchStreamSubscriber,
     ChannelSubscriber,
     ListSubscriber,
+    LogicSubscriber,
     StreamSubscriber,
 )
 
@@ -37,7 +37,7 @@ HandlerType: TypeAlias = Union[
 ]
 
 
-class AsyncAPISubscriber(RedisAsyncAPIProtocol, SubscriberProto[BaseMessage]):
+class AsyncAPISubscriber(LogicSubscriber[BaseMessage], RedisAsyncAPIProtocol):
     """A class to represent a Redis handler."""
 
     def get_schema(self) -> Dict[str, Channel]:
@@ -70,7 +70,7 @@ class AsyncAPISubscriber(RedisAsyncAPIProtocol, SubscriberProto[BaseMessage]):
         stream: Union[StreamSub, str, None],
         # Subscriber args
         no_ack: bool = False,
-        retry: Union[bool, int] = False,
+        retry: bool = False,
         broker_dependencies: Iterable[Depends] = (),
         broker_middlewares: Iterable[BrokerMiddleware[BaseMessage]] = (),
         # AsyncAPI args

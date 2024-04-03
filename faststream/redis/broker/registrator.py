@@ -27,7 +27,7 @@ class RedisRegistrator(ABCBroker["BaseMessage"]):
     """Includable to RabbitBroker router."""
 
     _subscribers: Dict[int, AsyncAPISubscriber]
-    # _publishers: Dict[int, AsyncAPIPublisher]
+    _publishers: Dict[int, AsyncAPIPublisher]
 
     @override
     def subscriber(  # type: ignore[override]
@@ -129,12 +129,13 @@ class RedisRegistrator(ABCBroker["BaseMessage"]):
         )
 
     @override
-    def publisher(
+    def publisher(  # type: ignore[override]
         self,
         channel: Annotated[
             Union[PubSub, str, None],
             Doc("Redis PubSub object name to send message."),
         ] = None,
+        *,
         list: Annotated[
             Union[ListSub, str, None],
             Doc("Redis List object name to send message."),
@@ -179,6 +180,13 @@ class RedisRegistrator(ABCBroker["BaseMessage"]):
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
     ) -> AsyncAPIPublisher:
+        """Creates long-living and AsyncAPI-documented publisher object.
+
+        You can use it as a handler decorator (handler should be decorated by `@broker.subscriber(...)` too) - `@broker.publisher(...)`.
+        In such case publisher will publish your handler return value.
+
+        Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
+        """
         return cast(
             AsyncAPIPublisher,
             super().publisher(AsyncAPIPublisher.create(

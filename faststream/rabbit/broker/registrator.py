@@ -253,6 +253,13 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Doc("Publisher connection User ID, validated if set."),
         ] = None,
     ) -> AsyncAPIPublisher:
+        """Creates long-living and AsyncAPI-documented publisher object.
+
+        You can use it as a handler decorator (handler should be decorated by `@broker.subscriber(...)` too) - `@broker.publisher(...)`.
+        In such case publisher will publish your handler return value.
+
+        Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
+        """
         message_kwargs = PublishKwargs(
             mandatory=mandatory,
             immediate=immediate,

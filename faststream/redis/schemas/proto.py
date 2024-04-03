@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Union
 
 from faststream.asyncapi.abc import AsyncAPIOperation
 from faststream.exceptions import SetupError
@@ -27,9 +27,9 @@ class RedisAsyncAPIProtocol(AsyncAPIOperation):
 
 def validate_options(
     *,
-    channel: Optional["PubSub"],
-    list: Optional["ListSub"],
-    stream: Optional["StreamSub"],
+    channel: Union["PubSub", str, None],
+    list: Union["ListSub", str, None],
+    stream: Union["StreamSub", str, None],
 ) -> None:
     if all((channel, list)):
         raise SetupError("You can't use `PubSub` and `ListSub` both")

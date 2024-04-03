@@ -62,12 +62,12 @@ class LogicSubscriber(
         super().__init__(
             default_parser=AioPikaParser.parse_message,
             default_decoder=AioPikaParser.decode_message,
-            # Propagated args
+            # Propagated options
             no_ack=no_ack,
             retry=retry,
             broker_middlewares=broker_middlewares,
             broker_dependencies=broker_dependencies,
-            # AsyncAPI args
+            # AsyncAPI
             title_=title_,
             description_=description_,
             include_in_schema=include_in_schema,
@@ -127,7 +127,7 @@ class LogicSubscriber(
     async def start(self) -> None:
         """Starts the consumer for the RabbitMQ queue."""
         if self.declarer is None:
-            raise SetupError("You should setup subscriber at first")
+            raise SetupError("You should setup subscriber at first.")
 
         self._queue_obj = queue = await self.declarer.declare_queue(self.queue)
 

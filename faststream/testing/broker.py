@@ -92,8 +92,6 @@ class TestBroker(Generic[Broker]):
                 assert f.mock  # nosec B101
                 p.set_test(mock=f.mock, with_fake=True)
 
-            cls.patch_publisher(broker, p)
-
         for handler in broker._subscribers.values():
             handler.running = True
 
@@ -130,11 +128,6 @@ class TestBroker(Generic[Broker]):
     @staticmethod
     @abstractmethod
     async def _fake_connect(broker: Broker, *args: Any, **kwargs: Any) -> None:
-        raise NotImplementedError()
-
-    @staticmethod
-    @abstractmethod
-    def patch_publisher(broker: Broker, publisher: Any) -> None:
         raise NotImplementedError()
 
 

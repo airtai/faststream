@@ -23,10 +23,6 @@ class TestNatsBroker(TestBroker[NatsBroker]):
     """A class to test NATS brokers."""
 
     @staticmethod
-    def patch_publisher(broker: NatsBroker, publisher: Any) -> None:
-        publisher._producer = broker._producer
-
-    @staticmethod
     def create_publisher_fake_subscriber(
         broker: NatsBroker,
         publisher: "AsyncAPIPublisher",
@@ -44,9 +40,6 @@ class TestNatsBroker(TestBroker[NatsBroker]):
     async def _fake_connect(broker: NatsBroker, *args: Any, **kwargs: Any) -> None:
         broker._js_producer = broker._producer = FakeProducer(broker)  # type: ignore[assignment]
 
-    @classmethod
-    def _fake_start(cls, broker: NatsBroker, *args: Any, **kwargs: Any) -> None:
-        super()._fake_start(broker, *args, **kwargs)
 
     @staticmethod
     def remove_publisher_fake_subscriber(

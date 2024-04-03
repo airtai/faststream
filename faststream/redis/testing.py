@@ -1,6 +1,9 @@
 import re
 from typing import Any, Optional, Sequence, Union
 
+from typing_extensions import override
+
+from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.exceptions import SetupError
 from faststream.redis.broker.broker import RedisBroker
 from faststream.redis.message import (
@@ -26,17 +29,10 @@ class TestRedisBroker(TestBroker[RedisBroker]):
     """A class to test Redis brokers."""
 
     @staticmethod
-    def patch_publisher(
-        broker: RedisBroker,
-        publisher: Any,
-    ) -> None:
-        publisher._producer = broker._producer
-
-    @staticmethod
     def create_publisher_fake_subscriber(
         broker: RedisBroker,
         publisher: AsyncAPIPublisher,
-    ) -> AsyncAPISubscriber:
+    ) ->  HandlerCallWrapper[Any, Any, Any]:
         sub = broker.subscriber(**publisher.subscriber_property)
 
         @sub
@@ -54,15 +50,6 @@ class TestRedisBroker(TestBroker[RedisBroker]):
     ) -> None:
         broker._producer = FakeProducer(broker)  # type: ignore[assignment]
 
-    @classmethod
-    def _fake_start(
-        cls,
-        broker: RedisBroker,
-        *args: Any,
-        **kwargs: Any,
-    ) -> None:
-        super()._fake_start(broker, *args, **kwargs)
-
     @staticmethod
     def remove_publisher_fake_subscriber(
         broker: RedisBroker,
@@ -78,20 +65,21 @@ class FakeProducer(RedisFastProducer):
     def __init__(self, broker: RedisBroker) -> None:
         self.broker = broker
 
-    async def publish(
+    @override
+    async def publish(  # type: ignore[override]
         self,
         message: SendableMessage,
-        channel: Optional[str] = None,
-        reply_to: str = "",
-        headers: Optional[AnyDict] = None,
-        correlation_id: Optional[str] = None,
         *,
+        channel: Optional[str] = None,
         list: Optional[str] = None,
         stream: Optional[str] = None,
+        maxlen: Optional[int] = None,
+        headers: Optional[AnyDict] = None,
+        reply_to: str = "",
+        correlation_id: Optional[str] = None,
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
-        maxlen: Optional[int] = None,
     ) -> Optional[Any]:
         body = build_message(message=message, reply_to=reply_to, correlation_id=correlation_id, headers=headers,)
 

@@ -1,5 +1,5 @@
 import asyncio
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from contextlib import suppress
 from copy import deepcopy
 from typing import (
@@ -25,11 +25,14 @@ from redis.exceptions import ResponseError
 from typing_extensions import override
 
 from faststream.broker.publisher.fake import FakePublisher
+from faststream.broker.publisher.proto import ProducerProto
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import (
     AsyncDecoder,
     AsyncParser,
     BrokerMiddleware,
+    CustomDecoder,
+    CustomParser,
 )
 from faststream.redis.message import (
     BatchListMessage,
@@ -48,6 +51,7 @@ from faststream.redis.parser import (
     RedisStreamParser,
 )
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
+from faststream.types import AnyDict, LoggerProto
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -58,8 +62,10 @@ if TYPE_CHECKING:
 MsgType = TypeVar("MsgType", bound=Mapping[str, Any])
 
 
-class LogicSubscriber(SubscriberUsecase[MsgType]):
+class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     """A class to represent a Redis handler."""
+
+    _client: Optional["Redis[bytes]"]
 
     def __init__(
         self,
@@ -90,7 +96,40 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
             include_in_schema=include_in_schema,
         )
 
+        self._client = None
         self.task: Optional["asyncio.Task[None]"] = None
+
+    @override
+    def setup(  # type: ignore[override]
+        self,
+        *,
+        connection: Optional["Redis[bytes]"],
+        # basic args
+        logger: Optional["LoggerProto"],
+        producer: Optional["ProducerProto"],
+        graceful_timeout: Optional[float],
+        extra_context: Optional["AnyDict"],
+        # broker options
+        broker_parser: Optional["CustomParser[MsgType]"],
+        broker_decoder: Optional["CustomDecoder[BrokerStreamMessage[MsgType]]"],
+        # dependant args
+        apply_types: bool,
+        is_validate: bool,
+        _get_dependant: Optional[Callable[..., Any]],
+    ) -> None:
+        self._client = connection
+
+        super().setup(
+            logger=logger,
+            producer=producer,
+            graceful_timeout=graceful_timeout,
+            extra_context=extra_context,
+            broker_parser=broker_parser,
+            broker_decoder=broker_decoder,
+            apply_types=apply_types,
+            is_validate=is_validate,
+            _get_dependant=_get_dependant,
+        )
 
     def make_response_publisher(
         self, message: "BrokerStreamMessage[MsgType]"
@@ -115,8 +154,8 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         await super().start()
 
         start_signal = anyio.Event()
-        self.task = asyncio.create_task(
-            self._consume(*args, start_signal=start_signal))
+        self.task = asyncio.create_task(self._consume(*args, start_signal=start_signal))
+
         await start_signal.wait()
 
     async def _consume(self, *args: Any, start_signal: anyio.Event) -> None:
@@ -173,7 +212,7 @@ class ChannelSubscriber(LogicSubscriber[PubSubMessage]):
         no_ack: bool,
         retry: bool,
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[MsgType]],
+        broker_middlewares: Iterable[BrokerMiddleware[PubSubMessage]],
         # AsyncAPI MsgType
         title_: Optional[str],
         description_: Optional[str],
@@ -209,11 +248,10 @@ class ChannelSubscriber(LogicSubscriber[PubSubMessage]):
         )
 
     @override
-    async def start(  # type: ignore[override]
-        self,
-        client: "Redis[bytes]",
-    ) -> None:
-        self.subscription = psub = client.pubsub()
+    async def start(self) -> None:
+        assert self._client, "You should setup subscriber at first."  # nosec B101
+
+        self.subscription = psub = self._client.pubsub()
 
         if self.channel.pattern:
             await psub.psubscribe(self.channel.name)
@@ -265,7 +303,7 @@ class _ListHandlerMixin(LogicSubscriber[ListMsgType]):
         no_ack: bool,
         retry: bool,
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[MsgType]],
+        broker_middlewares: Iterable[BrokerMiddleware[ListMsgType]],
         # AsyncAPI MsgType
         title_: Optional[str],
         description_: Optional[str],
@@ -310,13 +348,9 @@ class _ListHandlerMixin(LogicSubscriber[ListMsgType]):
         await super()._consume(client, start_signal=start_signal)
 
     @override
-    async def start(  # type: ignore[override]
-        self,
-        client: "Redis[bytes]",
-    ) -> None:
-        await super().start(
-            client
-        )
+    async def start(self) -> None:
+        assert self._client, "You should setup subscriber at first."  # nosec B101
+        await super().start(self._client)
 
     def add_prefix(self, prefix: str) -> None:
         new_list = deepcopy(self.list_sub)
@@ -333,7 +367,7 @@ class ListSubscriber(_ListHandlerMixin[DefaultListMessage]):
         no_ack: bool,
         retry: bool,
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[MsgType]],
+        broker_middlewares: Iterable[BrokerMiddleware[DefaultListMessage]],
         # AsyncAPI MsgType
         title_: Optional[str],
         description_: Optional[str],
@@ -379,7 +413,7 @@ class BatchListSubscriber(_ListHandlerMixin[BatchListMessage]):
         no_ack: bool,
         retry: bool,
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[MsgType]],
+        broker_middlewares: Iterable[BrokerMiddleware[BatchListMessage]],
         # AsyncAPI MsgType
         title_: Optional[str],
         description_: Optional[str],
@@ -427,13 +461,13 @@ class _StreamHandlerMixin(LogicSubscriber[StreamMsgType]):
         self,
         *,
         stream: StreamSub,
-        default_parser: "AsyncParser[MsgType]",
-        default_decoder: "AsyncDecoder[BrokerStreamMessage[MsgType]]",
+        default_parser: "AsyncParser[StreamMsgType]",
+        default_decoder: "AsyncDecoder[BrokerStreamMessage[StreamMsgType]]",
         # Subscriber args
         no_ack: bool,
         retry: bool,
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[MsgType]],
+        broker_middlewares: Iterable[BrokerMiddleware[StreamMsgType]],
         # AsyncAPI MsgType
         title_: Optional[str],
         description_: Optional[str],
@@ -469,10 +503,10 @@ class _StreamHandlerMixin(LogicSubscriber[StreamMsgType]):
         )
 
     @override
-    async def start(  # type: ignore[override]
-        self,
-        client: "Redis[bytes]",
-    ) -> None:
+    async def start(self) -> None:
+        assert self._client, "You should setup subscriber at first."  # nosec B101
+        client = self._client
+
         self.extra_watcher_options.update(
             redis=client,
             group=self.stream_sub.group,
@@ -492,7 +526,7 @@ class _StreamHandlerMixin(LogicSubscriber[StreamMsgType]):
                 if "already exists" not in str(e):
                     raise e
 
-            def read(_): return client.xreadgroup(
+            read = lambda _: client.xreadgroup(
                 groupname=stream.group,
                 consumername=stream.consumer,
                 streams={stream.name: ">"},
@@ -502,7 +536,7 @@ class _StreamHandlerMixin(LogicSubscriber[StreamMsgType]):
             )
 
         else:
-            def read(last_id): return client.xread(
+            read = lambda last_id: client.xread(
                 {stream.name: last_id},
                 block=stream.polling_interval,
                 count=stream.max_records,
@@ -525,7 +559,7 @@ class StreamSubscriber(_StreamHandlerMixin[DefaultStreamMessage]):
         no_ack: bool,
         retry: bool,
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[MsgType]],
+        broker_middlewares: Iterable[BrokerMiddleware[DefaultStreamMessage]],
         # AsyncAPI MsgType
         title_: Optional[str],
         description_: Optional[str],
@@ -579,7 +613,7 @@ class BatchStreamSubscriber(_StreamHandlerMixin[BatchStreamMessage]):
         no_ack: bool,
         retry: bool,
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[MsgType]],
+        broker_middlewares: Iterable[BrokerMiddleware[BatchStreamMessage]],
         # AsyncAPI MsgType
         title_: Optional[str],
         description_: Optional[str],

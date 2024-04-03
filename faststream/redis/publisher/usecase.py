@@ -362,7 +362,7 @@ class ListBatchPublisher(ListPublisher):
         async with AsyncExitStack() as stack:
             wrapped_messages = [
                 await stack.enter_async_context(
-                    middleware(msg, list=list_sub)
+                    middleware(msg, list=list_sub, correlation_id=correlation_id,)
                 )
                 for msg in message
                 for middleware in chain(

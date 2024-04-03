@@ -1,26 +1,23 @@
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union, cast
+from typing import Any, Dict, Iterable, Optional, Union, cast
 
+from fast_depends.dependencies import Depends
 from nats.aio.msg import Msg
 from nats.js import api
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.broker.core.abc import ABCBroker
+from faststream.broker.message import StreamMessage
+from faststream.broker.types import (
+    CustomDecoder,
+    CustomParser,
+    Filter,
+    PublisherMiddleware,
+    SubscriberMiddleware,
+)
 from faststream.broker.utils import default_filter
 from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
+from faststream.nats.schemas import JStream, PullSub
 from faststream.nats.subscriber.asyncapi import AsyncAPISubscriber
-
-if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
-
-    from faststream.broker.message import StreamMessage
-    from faststream.broker.types import (
-        CustomDecoder,
-        CustomParser,
-        Filter,
-        PublisherMiddleware,
-        SubscriberMiddleware,
-    )
-    from faststream.nats.schemas import JStream, PullSub
 
 
 class NatsRegistrator(ABCBroker["Msg"]):
@@ -126,7 +123,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
         ] = None,
         # broker arguments
         dependencies: Annotated[
-            Iterable["Depends"],
+            Iterable[Depends],
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
@@ -234,6 +231,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
             str,
             Doc("NATS subject to send message."),
         ],
+        *,
         headers: Annotated[
             Optional[Dict[str, str]],
             Doc(
@@ -258,9 +256,9 @@ class NatsRegistrator(ABCBroker["Msg"]):
             Optional[float],
             Doc("Timeout to send message to NATS."),
         ] = None,
-        # specific
+        # basic args
         middlewares: Annotated[
-            Iterable["PublisherMiddleware"],
+            Iterable[PublisherMiddleware],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information

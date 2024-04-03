@@ -1,9 +1,10 @@
-from typing import TYPE_CHECKING, Any, Optional
+from typing import Any, Optional
 from uuid import uuid4
 
+from redis.asyncio.client import PubSub, Redis
 from typing_extensions import override
 
-from faststream.broker.message import encode_message
+from faststream.broker.message import StreamMessage, encode_message
 from faststream.broker.publisher.proto import ProducerProto
 from faststream.broker.types import (
     AsyncDecoder,
@@ -13,44 +14,33 @@ from faststream.broker.types import (
 )
 from faststream.broker.utils import resolve_custom_func
 from faststream.exceptions import WRONG_PUBLISH_ARGS, SetupError
-from faststream.redis.message import DATA_KEY, BaseMessage
+from faststream.redis.message import DATA_KEY, PubSubMessage
 from faststream.redis.parser import RawMessage, RedisPubSubParser
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils.functions import timeout_scope
-
-if TYPE_CHECKING:
-    from redis.asyncio.client import PubSub, Redis
-
-    from faststream.broker.message import StreamMessage
 
 
 class RedisFastProducer(ProducerProto):
     """A class to represent a Redis producer."""
 
     _connection: "Redis[bytes]"
-    _decoder: AsyncDecoder[Any]
-    _parser: AsyncParser["BaseMessage"]
+    _decoder: AsyncDecoder[StreamMessage[PubSubMessage]]
+    _parser: AsyncParser[PubSubMessage]
 
     def __init__(
         self,
         connection: "Redis[bytes]",
-        parser: Optional["CustomParser[BaseMessage]"],
-        decoder: Optional["CustomDecoder[StreamMessage[BaseMessage]]"],
+        parser: Optional[CustomParser[PubSubMessage]],
+        decoder: Optional[CustomDecoder[StreamMessage[PubSubMessage]]],
     ) -> None:
-        """Initialize the Redis producer.
-
-        Args:
-            connection: The Redis connection.
-            parser: The parser.
-            decoder: The decoder.
-        """
         self._connection = connection
         self._parser = resolve_custom_func(
             parser,  # type: ignore[arg-type,assignment]
             RedisPubSubParser.parse_message,
         )
-        self._decoder = resolve_custom_func(decoder, RedisPubSubParser.decode_message)
+        self._decoder = resolve_custom_func(
+            decoder, RedisPubSubParser.decode_message)
 
     @override
     async def publish(  # type: ignore[override]
@@ -71,7 +61,7 @@ class RedisFastProducer(ProducerProto):
         if not any((channel, list, stream)):
             raise SetupError(INCORRECT_SETUP_MSG)
 
-        psub: Optional["PubSub"] = None
+        psub: Optional[PubSub] = None
         if rpc:
             if reply_to:
                 raise WRONG_PUBLISH_ARGS

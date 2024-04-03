@@ -74,7 +74,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
-        # AsyncAPI information
+        # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,

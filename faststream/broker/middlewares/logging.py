@@ -46,13 +46,20 @@ class CriticalLogMiddleware(BaseMiddleware):
         if self.logger is not None:
             c = context.get_local("log_context") or {}
 
-            if exc_type and exc_val:
-                self.logger.log(
-                    logging.ERROR,
-                    f"{exc_type.__name__}: {exc_val}",
-                    exc_info=exc_val,
-                    extra=c,
-                )
+            if exc_type:
+                if issubclass(exc_type, IgnoredException):
+                    self.logger.log(
+                        logging.INFO,
+                        exc_val,
+                        extra=c,
+                    )
+                else:
+                    self.logger.log(
+                        logging.ERROR,
+                        f"{exc_type.__name__}: {exc_val}",
+                        exc_info=exc_val,
+                        extra=c,
+                    )
 
             self.logger.log(self.log_level, "Processed", extra=c)
 

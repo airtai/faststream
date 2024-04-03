@@ -31,6 +31,7 @@ from faststream.redis.broker.registrator import RedisRegistrator
 from faststream.redis.message import BaseMessage
 from faststream.redis.publisher.producer import RedisFastProducer
 from faststream.redis.security import parse_security
+from faststream.types import AnyDict
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -282,7 +283,7 @@ class RedisBroker(
         connection_class: Type["Connection"],
         encoder_class: Type["Encoder"],
     ) -> "Redis[bytes]":
-        url_options: "AnyDict" = parse_url(url)
+        url_options: "AnyDict" = dict(parse_url(url))
         url_options.update(
             {
                 "host": host,
@@ -336,15 +337,18 @@ class RedisBroker(
     async def start(self) -> None:
         await super().start()
 
-        assert self._producer and self._connection, NOT_CONNECTED_YET  # nosec B101
-
         for handler in self._subscribers.values():
             self._log(
                 f"`{handler.call_name}` waiting for messages",
                 extra=handler.get_log_context(None),
             )
+            await handler.start()
 
-            await handler.start(self._connection)
+    @property
+    def _subscriber_setup_extra(self) -> AnyDict:
+        return {
+            "connection": self._connection,
+        }
 
     @override
     async def publish(  # type: ignore[override]

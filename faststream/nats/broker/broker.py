@@ -640,7 +640,9 @@ class NatsBroker(
                     stream.declare = False
 
             self._log(
-                f"`{handler.call_name}` waiting for messages", extra=log_context)
+                f"`{handler.call_name}` waiting for messages",
+                extra=log_context,
+            )
             await handler.start()
 
     @override

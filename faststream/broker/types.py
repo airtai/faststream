@@ -1,10 +1,8 @@
-from abc import abstractmethod
 from typing import (
     Any,
     AsyncContextManager,
     Awaitable,
     Callable,
-    Iterable,
     Optional,
     Protocol,
     TypeVar,
@@ -108,19 +106,4 @@ class PublisherMiddleware(Protocol):
     def __call__(
         self, __msg: Any, /, **__kwargs: Any
     ) -> AsyncContextManager[SendableMessage]:
-        ...
-
-
-class PublisherProtocol(Protocol):
-    """A protocol for an asynchronous publisher."""
-
-    @abstractmethod
-    async def publish(
-        self,
-        message: Any,
-        /,
-        correlation_id: Optional[str] = None,
-        extra_middlewares: Iterable[PublisherMiddleware] = (),
-    ) -> Optional[Any]:
-        """Publishes a message asynchronously."""
         ...

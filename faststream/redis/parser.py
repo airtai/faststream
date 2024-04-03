@@ -33,8 +33,8 @@ from faststream.types import AnyDict, DecodedMessage, SendableMessage
 from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
-    # from faststream.redis.handler import ChannelHandler
     from faststream.redis.schemas import PubSub
+    from faststream.redis.subscriber.usecase import ChannelSubscriber
 
 
 MsgType = TypeVar("MsgType", bound=Mapping[str, Any])
@@ -162,7 +162,7 @@ class RedisPubSubParser(SimpleParser[PubSubMessage]):
     def get_path(message: PubSubMessage) -> AnyDict:
         if (
             message.get("pattern")
-            and (handler := cast("ChannelHandler", context.get_local("handler_")))
+            and (handler := cast("ChannelSubscriber", context.get_local("handler_")))
             and (channel := cast(Optional["PubSub"], getattr(handler, "channel", None)))
             and (path_re := channel.path_regex)
             and (match := path_re.match(message["channel"]))
