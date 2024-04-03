@@ -24,27 +24,7 @@ def get_asyncapi_html(
     asyncapi_js_url: str = "https://unpkg.com/@asyncapi/react-component@1.0.0-next.47/browser/standalone/index.js",
     asyncapi_css_url: str = "https://unpkg.com/@asyncapi/react-component@1.0.0-next.46/styles/default.min.css",
 ) -> str:
-    """Generate HTML for displaying an AsyncAPI document.
-
-    Args:
-        schema (Schema): The AsyncAPI schema object.
-        sidebar (bool, optional): Whether to show the sidebar. Defaults to True.
-        info (bool, optional): Whether to show the info section. Defaults to True.
-        servers (bool, optional): Whether to show the servers section. Defaults to True.
-        operations (bool, optional): Whether to show the operations section. Defaults to True.
-        messages (bool, optional): Whether to show the messages section. Defaults to True.
-        schemas (bool, optional): Whether to show the schemas section. Defaults to True.
-        errors (bool, optional): Whether to show the errors section. Defaults to True.
-        expand_message_examples (bool, optional): Whether to expand message examples. Defaults to True.
-        title (str, optional): The title of the HTML document. Defaults to "FastStream".
-
-    Returns:
-        str: The generated HTML document.
-
-    Raises:
-        NotImplementedError: If silent animals are not supported.
-
-    """
+    """Generate HTML for displaying an AsyncAPI document."""
     schema_json = schema.to_json()
 
     config = {
@@ -123,7 +103,8 @@ def serve_app(
 ) -> None:
     """Serve the HTTPServer with AsyncAPI schema."""
     if logger:
-        logger.info(f"HTTPServer running on http://{host}:{port} (Press CTRL+C to quit")
+        logger.info(f"HTTPServer running on http://{host}:{port} (Press CTRL+C to quit)")
+        logger.warn("Please, do not use it in production.")
 
     server.HTTPServer(
         (host, port),
