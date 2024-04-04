@@ -1,4 +1,5 @@
 import logging
+from asyncio import AbstractEventLoop
 from enum import Enum
 from inspect import Parameter
 from typing import (
@@ -12,13 +13,17 @@ from typing import (
     Sequence,
     Tuple,
     Type,
+    TypeVar,
     Union,
     cast,
 )
 
 from aiokafka import ConsumerRecord
+from aiokafka.abc import AbstractTokenProvider
 from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
 from aiokafka.coordinator.assignors.roundrobin import RoundRobinPartitionAssignor
+from aiokafka.partitioner import DefaultPartitioner
+from aiokafka.producer.producer import _missing
 from fastapi import params
 from fastapi.datastructures import Default
 from fastapi.routing import APIRoute
@@ -48,6 +53,7 @@ from faststream.kafka.subscriber.asyncapi import AsyncAPISubscriber
 from faststream.security import BaseSecurity
 from faststream.types import AnyDict
 
+Partition = TypeVar("Partition")
 
 class KafkaRouter(StreamRouter[Union[
     ConsumerRecord,
@@ -60,12 +66,168 @@ class KafkaRouter(StreamRouter[Union[
 
     def __init__(
         self,
-        bootstrap_servers: Union[str, Iterable[str]] = "localhost",
+        bootstrap_servers: Annotated[
+            Union[str, Iterable[str]],
+            Doc("""
+            A `host[:port]` string (or list of `host[:port]` strings) that the consumer should contact to bootstrap
+            initial cluster metadata.
+
+            This does not have to be the full node list.
+            It just needs to have at least one broker that will respond to a
+            Metadata API Request. Default port is 9092.
+            """),
+        ] = "localhost",
         *,
+        # both
+        request_timeout_ms: Annotated[
+            int,
+            Doc("Client request timeout in milliseconds."),
+        ] = 40 * 1000,
+        retry_backoff_ms: Annotated[
+            int,
+            Doc(" Milliseconds to backoff when retrying on errors."),
+        ] = 100,
+        metadata_max_age_ms: Annotated[
+            int,
+            Doc("""
+            The period of time in milliseconds after
+            which we force a refresh of metadata even if we haven't seen any
+            partition leadership changes to proactively discover any new
+            brokers or partitions.
+            """),
+        ] = 5 * 60 * 1000,
+        connections_max_idle_ms: Annotated[
+            int,
+            Doc("""
+             Close idle connections after the number
+            of milliseconds specified by this config. Specifying `None` will
+            disable idle checks.
+            """),
+        ] = 9 * 60 * 1000,
+        sasl_kerberos_service_name: str = "kafka",
+        sasl_kerberos_domain_name: Optional[str] = None,
+        sasl_oauth_token_provider: Annotated[
+            Optional[AbstractTokenProvider],
+            Doc("OAuthBearer token provider instance.")
+        ] = None,
+        loop: Optional[AbstractEventLoop] = None,
         client_id: Annotated[
             Optional[str],
-            Doc("Application name to mark connections by."),
+            Doc("""
+            A name for this client. This string is passed in
+            each request to servers and can be used to identify specific
+            server-side log entries that correspond to this client. Also
+            submitted to :class:`~.consumer.group_coordinator.GroupCoordinator`
+            for logging with respect to consumer group administration.
+            """),
         ] = SERVICE_NAME,
+        # publisher args
+        acks: Annotated[
+            Union[Literal[0, 1, -1, "all"], object],
+            Doc("""
+            One of ``0``, ``1``, ``all``. The number of acknowledgments
+            the producer requires the leader to have received before considering a
+            request complete. This controls the durability of records that are
+            sent. The following settings are common:
+
+            * ``0``: Producer will not wait for any acknowledgment from the server
+              at all. The message will immediately be added to the socket
+              buffer and considered sent. No guarantee can be made that the
+              server has received the record in this case, and the retries
+              configuration will not take effect (as the client won't
+              generally know of any failures). The offset given back for each
+              record will always be set to -1.
+            * ``1``: The broker leader will write the record to its local log but
+              will respond without awaiting full acknowledgement from all
+              followers. In this case should the leader fail immediately
+              after acknowledging the record but before the followers have
+              replicated it then the record will be lost.
+            * ``all``: The broker leader will wait for the full set of in-sync
+              replicas to acknowledge the record. This guarantees that the
+              record will not be lost as long as at least one in-sync replica
+              remains alive. This is the strongest available guarantee.
+
+            If unset, defaults to ``acks=1``. If `enable_idempotence` is
+            :data:`True` defaults to ``acks=all``.
+            """),
+        ] = _missing,
+        key_serializer: Annotated[
+            Optional[Callable[[Any], bytes]],
+            Doc("Used to convert user-supplied keys to bytes.")
+        ] = None,
+        value_serializer: Annotated[
+            Optional[Callable[[Any], bytes]],
+            Doc("used to convert user-supplied message values to bytes."),
+        ] = None,
+        compression_type: Annotated[
+            Optional[Literal["gzip", "snappy", "lz4", "zstd"]],
+            Doc("""
+            The compression type for all data generated bythe producer.
+            Compression is of full batches of data, so the efficacy of batching
+            will also impact the compression ratio (more batching means better
+            compression).
+            """),
+        ] = None,
+        max_batch_size: Annotated[
+            int,
+            Doc("""
+            Maximum size of buffered data per partition.
+            After this amount `send` coroutine will block until batch is drained.
+            """),
+        ] = 16 * 1024,
+        partitioner: Annotated[
+            Callable[
+                [bytes, List[Partition], List[Partition]],
+                Partition,
+            ],
+            Doc("""
+            Callable used to determine which partition
+            each message is assigned to. Called (after key serialization):
+            ``partitioner(key_bytes, all_partitions, available_partitions)``.
+            The default partitioner implementation hashes each non-None key
+            using the same murmur2 algorithm as the Java client so that
+            messages with the same key are assigned to the same partition.
+            When a key is :data:`None`, the message is delivered to a random partition
+            (filtered to partitions with available leaders only, if possible).
+            """),
+        ] = DefaultPartitioner(),
+        max_request_size: Annotated[
+            int,
+            Doc("""
+            The maximum size of a request. This is also
+            effectively a cap on the maximum record size. Note that the server
+            has its own cap on record size which may be different from this.
+            This setting will limit the number of record batches the producer
+            will send in a single request to avoid sending huge requests.
+            """)
+        ] = 1024 * 1024,
+        linger_ms: Annotated[
+            int,
+            Doc("""
+            The producer groups together any records that arrive
+            in between request transmissions into a single batched request.
+            Normally this occurs only under load when records arrive faster
+            than they can be sent out. However in some circumstances the client
+            may want to reduce the number of requests even under moderate load.
+            This setting accomplishes this by adding a small amount of
+            artificial delay; that is, if first request is processed faster,
+            than `linger_ms`, producer will wait ``linger_ms - process_time``.
+            """),
+        ] = 0,
+        send_backoff_ms: int = 100,
+        enable_idempotence: Annotated[
+            bool,
+            Doc("""
+            When set to `True`, the producer will
+            ensure that exactly one copy of each message is written in the
+            stream. If `False`, producer retries due to broker failures,
+            etc., may write duplicates of the retried message in the stream.
+            Note that enabling idempotence acks to set to ``all``. If it is not
+            explicitly set by the user it will be chosen.
+            """),
+        ] = False,
+        transactional_id: Optional[str] = None,
+        transaction_timeout_ms: int = 60 * 1000,
         # broker base args
         graceful_timeout: Annotated[
             Optional[float],
@@ -364,7 +526,29 @@ class KafkaRouter(StreamRouter[Union[
     ) -> None:
         super().__init__(
             bootstrap_servers=bootstrap_servers,
+            # both args
             client_id=client_id,
+            request_timeout_ms=request_timeout_ms,
+            retry_backoff_ms=retry_backoff_ms,
+            metadata_max_age_ms=metadata_max_age_ms,
+            connections_max_idle_ms=connections_max_idle_ms,
+            sasl_kerberos_service_name=sasl_kerberos_service_name,
+            sasl_kerberos_domain_name=sasl_kerberos_domain_name,
+            sasl_oauth_token_provider=sasl_oauth_token_provider,
+            loop=loop,
+            # publisher args
+            acks=acks,
+            key_serializer=key_serializer,
+            value_serializer=value_serializer,
+            compression_type=compression_type,
+            max_batch_size=max_batch_size,
+            partitioner=partitioner,
+            max_request_size=max_request_size,
+            linger_ms=linger_ms,
+            send_backoff_ms=send_backoff_ms,
+            enable_idempotence=enable_idempotence,
+            transactional_id=transactional_id,
+            transaction_timeout_ms=transaction_timeout_ms,
             # broker args
             graceful_timeout=graceful_timeout,
             decoder=decoder,
@@ -372,18 +556,18 @@ class KafkaRouter(StreamRouter[Union[
             middlewares=middlewares,
             schema_url=schema_url,
             setup_state=setup_state,
-            # logger options
+            # Logging args
             logger=logger,
             log_level=log_level,
             log_fmt=log_fmt,
-            # AsyncAPI options
+            # AsyncAPI args
             security=security,
             protocol=protocol,
             description=description,
             protocol_version=protocol_version,
             asyncapi_tags=asyncapi_tags,
             asyncapi_url=asyncapi_url,
-            # FastAPI kwargs
+            # FastAPI args
             prefix=prefix,
             tags=tags,
             dependencies=dependencies,
@@ -406,64 +590,302 @@ class KafkaRouter(StreamRouter[Union[
     @override
     def subscriber(  # type: ignore[override]
         self,
-        *topics: str,
-        group_id: Optional[str] = None,
-        key_deserializer: Optional[Callable[[bytes], Any]] = None,
-        value_deserializer: Optional[Callable[[bytes], Any]] = None,
-        fetch_max_wait_ms: int = 500,
-        fetch_max_bytes: int = 52428800,
-        fetch_min_bytes: int = 1,
-        max_partition_fetch_bytes: int = 1 * 1024 * 1024,
-        auto_offset_reset: Literal[
-            "latest",
-            "earliest",
-            "none",
+        *topics: Annotated[
+            str,
+            Doc("Kafka topics to consume messages from.")
+        ],
+        group_id: Annotated[
+            Optional[str],
+            Doc("""
+            Name of the consumer group to join for dynamic
+            partition assignment (if enabled), and to use for fetching and
+            committing offsets. If `None`, auto-partition assignment (via
+            group coordinator) and offset commits are disabled.
+            """),
+        ] = None,
+        key_deserializer: Annotated[
+            Optional[Callable[[bytes], Any]],
+            Doc("Any callable that takes a raw message `bytes` "
+                "key and returns a deserialized one."),
+        ] = None,
+        value_deserializer: Annotated[
+            Optional[Callable[[bytes], Any]],
+            Doc("Any callable that takes a raw message `bytes` "
+                "value and returns a deserialized value."),
+        ] = None,
+        fetch_max_bytes: Annotated[
+            int,
+            Doc("""
+            The maximum amount of data the server should
+            return for a fetch request. This is not an absolute maximum, if
+            the first message in the first non-empty partition of the fetch
+            is larger than this value, the message will still be returned
+            to ensure that the consumer can make progress. NOTE: consumer
+            performs fetches to multiple brokers in parallel so memory
+            usage will depend on the number of brokers containing
+            partitions for the topic.
+            """),
+        ] = 50 * 1024 * 1024,
+        fetch_min_bytes: Annotated[
+            int,
+            Doc("""
+            Minimum amount of data the server should
+            return for a fetch request, otherwise wait up to
+            `fetch_max_wait_ms` for more data to accumulate.
+            """)
+        ] = 1,
+        fetch_max_wait_ms: Annotated[
+            int,
+            Doc("""
+            The maximum amount of time in milliseconds
+            the server will block before answering the fetch request if
+            there isn't sufficient data to immediately satisfy the
+            requirement given by `fetch_min_bytes`.
+            """),
+        ] = 500,
+        max_partition_fetch_bytes: Annotated[
+            int,
+            Doc("""
+            The maximum amount of data
+            per-partition the server will return. The maximum total memory
+            used for a request ``= #partitions * max_partition_fetch_bytes``.
+            This size must be at least as large as the maximum message size
+            the server allows or else it is possible for the producer to
+            send messages larger than the consumer can fetch. If that
+            happens, the consumer can get stuck trying to fetch a large
+            message on a certain partition.
+            """),
+        ] = 1 * 1024 * 1024,
+        auto_offset_reset: Annotated[
+            Literal["latest", "earliest", "none"],
+            Doc("""
+            A policy for resetting offsets on `OffsetOutOfRangeError` errors:
+
+            * `earliest` will move to the oldest available message
+            * `latest` will move to the most recent
+            * `none` will raise an exception so you can handle this case
+            """)
         ] = "latest",
-        auto_commit: bool = True,
-        auto_commit_interval_ms: int = 5000,
-        check_crcs: bool = True,
-        partition_assignment_strategy: Sequence[AbstractPartitionAssignor] = (
-            RoundRobinPartitionAssignor,
-        ),
-        max_poll_interval_ms: int = 300000,
-        rebalance_timeout_ms: Optional[int] = None,
-        session_timeout_ms: int = 10000,
-        heartbeat_interval_ms: int = 3000,
-        consumer_timeout_ms: int = 200,
-        max_poll_records: Optional[int] = None,
-        exclude_internal_topics: bool = True,
-        isolation_level: Literal[
-            "read_uncommitted",
-            "read_committed",
-        ] = "read_uncommitted",
-        # broker arguments
-        dependencies: Iterable[params.Depends] = (),
-        parser: Optional[
-            Union[
-                CustomParser[ConsumerRecord],
-                CustomParser[Tuple[ConsumerRecord, ...]],
-            ]
+        auto_commit: Annotated[
+            bool,
+            Doc("""
+            If `True` the consumer's offset will be
+            periodically committed in the background.
+            """),
+        ] = True,
+        auto_commit_interval_ms: Annotated[
+            int,
+            Doc("""
+            Milliseconds between automatic
+            offset commits, if `auto_commit` is `True`."""),
+        ] = 5 * 1000,
+        check_crcs: Annotated[
+            bool,
+            Doc("""
+            Automatically check the CRC32 of the records
+            consumed. This ensures no on-the-wire or on-disk corruption to
+            the messages occurred. This check adds some overhead, so it may
+            be disabled in cases seeking extreme performance.
+            """),
+        ] = True,
+        partition_assignment_strategy: Annotated[
+            Sequence[AbstractPartitionAssignor],
+            Doc("""
+            List of objects to use to
+            distribute partition ownership amongst consumer instances when
+            group management is used. This preference is implicit in the order
+            of the strategies in the list. When assignment strategy changes:
+            to support a change to the assignment strategy, new versions must
+            enable support both for the old assignment strategy and the new
+            one. The coordinator will choose the old assignment strategy until
+            all members have been updated. Then it will choose the new
+            strategy.
+            """),
+        ] = (RoundRobinPartitionAssignor,),
+        max_poll_interval_ms: Annotated[
+            int,
+            Doc("""
+            Maximum allowed time between calls to
+            consume messages in batches. If this interval
+            is exceeded the consumer is considered failed and the group will
+            rebalance in order to reassign the partitions to another consumer
+            group member. If API methods block waiting for messages, that time
+            does not count against this timeout.
+            """)
+        ] = 5 * 60 * 1000,
+        rebalance_timeout_ms: Annotated[
+            Optional[int],
+            Doc("""
+            The maximum time server will wait for this
+            consumer to rejoin the group in a case of rebalance. In Java client
+            this behaviour is bound to `max.poll.interval.ms` configuration,
+            but as ``aiokafka`` will rejoin the group in the background, we
+            decouple this setting to allow finer tuning by users that use
+            `ConsumerRebalanceListener` to delay rebalacing. Defaults
+            to ``session_timeout_ms``
+            """)
         ] = None,
-        decoder: Optional[
-            Union[
-                CustomDecoder[StreamMessage[ConsumerRecord]],
-                CustomDecoder[StreamMessage[Tuple[ConsumerRecord, ...]]],
-            ]
+        session_timeout_ms: Annotated[
+            int,
+            Doc("""
+            Client group session and failure detection
+            timeout. The consumer sends periodic heartbeats
+            (`heartbeat.interval.ms`) to indicate its liveness to the broker.
+            If no hearts are received by the broker for a group member within
+            the session timeout, the broker will remove the consumer from the
+            group and trigger a rebalance. The allowed range is configured with
+            the **broker** configuration properties
+            `group.min.session.timeout.ms` and `group.max.session.timeout.ms`.
+            """),
+        ] = 10 * 1000,
+        heartbeat_interval_ms: Annotated[
+            int,
+            Doc("""
+            The expected time in milliseconds
+            between heartbeats to the consumer coordinator when using
+            Kafka's group management feature. Heartbeats are used to ensure
+            that the consumer's session stays active and to facilitate
+            rebalancing when new consumers join or leave the group. The
+            value must be set lower than `session_timeout_ms`, but typically
+            should be set no higher than 1/3 of that value. It can be
+            adjusted even lower to control the expected time for normal
+            rebalances.
+            """),
+        ] = 3 * 1000,
+        consumer_timeout_ms: Annotated[
+            int,
+            Doc("""
+            Maximum wait timeout for background fetching
+            routine. Mostly defines how fast the system will see rebalance and
+            request new data for new partitions.
+            """),
+        ] = 200,
+        max_poll_records: Annotated[
+            Optional[int],
+            Doc("""
+            The maximum number of records returned in a
+            single call by batch consumer. Has no limit by default.
+            """),
         ] = None,
-        middlewares: Iterable[SubscriberMiddleware] = (),
-        filter: Union[
-            Filter[StreamMessage[ConsumerRecord]],
-            Filter[StreamMessage[Tuple[ConsumerRecord, ...]]],
+        exclude_internal_topics: Annotated[
+            bool,
+            Doc("""
+            Whether records from internal topics
+            (such as offsets) should be exposed to the consumer. If set to True
+            the only way to receive records from an internal topic is
+            subscribing to it.
+            """),
+        ] = True,
+        isolation_level: Annotated[
+            Literal["read_uncommitted", "read_committed"],
+            Doc("""
+            Controls how to read messages written
+            transactionally.
+
+            * `read_committed`, batch consumer will only return
+            transactional messages which have been committed.
+        
+            * `read_uncommitted` (the default), batch consumer will
+            return all messages, even transactional messages which have been
+            aborted.
+
+            Non-transactional messages will be returned unconditionally in
+            either mode.
+
+            Messages will always be returned in offset order. Hence, in
+            `read_committed` mode, batch consumer will only return
+            messages up to the last stable offset (LSO), which is the one less
+            than the offset of the first open transaction. In particular any
+            messages appearing after messages belonging to ongoing transactions
+            will be withheld until the relevant transaction has been completed.
+            As a result, `read_committed` consumers will not be able to read up
+            to the high watermark when there are in flight transactions.
+            Further, when in `read_committed` the seek_to_end method will
+            return the LSO. See method docs below.
+            """),
+         ] = "read_uncommitted",
+        batch_timeout_ms: Annotated[
+            int,
+            Doc("""
+            Milliseconds spent waiting if
+            data is not available in the buffer. If 0, returns immediately
+            with any records that are available currently in the buffer,
+            else returns empty.
+            """),
+        ] = 200,
+        max_records: Annotated[
+            Optional[int],
+            Doc("Number of messages to consume as one batch."),
+        ] = None,
+        batch: Annotated[
+            bool,
+            Doc("Whether to consume messages in batches or not."),
+        ] = False,
+        # broker args
+        dependencies: Annotated[
+            Iterable[params.Depends],
+            Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
+        ] = (),
+        parser: Annotated[
+            Optional[
+                Union[
+                    CustomParser[ConsumerRecord],
+                    CustomParser[Tuple[ConsumerRecord, ...]],
+                ]
+            ],
+            Doc("Parser to map original **ConsumerRecord** object to FastStream one."),
+        ] = None,
+        decoder: Annotated[
+            Optional[
+                Union[
+                    CustomDecoder[StreamMessage[ConsumerRecord]],
+                    CustomDecoder[StreamMessage[Tuple[ConsumerRecord, ...]]],
+                ]
+            ],
+            Doc("Function to decode FastStream msg bytes body to python objects."),
+        ] = None,
+        middlewares: Annotated[
+            Iterable[SubscriberMiddleware],
+            Doc("Subscriber middlewares to wrap incoming message processing."),
+        ] = (),
+        filter: Annotated[
+            Union[
+                Filter[StreamMessage[ConsumerRecord]],
+                Filter[StreamMessage[Tuple[ConsumerRecord, ...]]],
+            ],
+            Doc(
+                "Overload subscriber to consume various messages from the same source."
+            ),
+            deprecated(
+                "Deprecated in **FastStream 0.5.0**. "
+                "Please, create `subscriber` object and use it explicitly instead. "
+                "Argument will be removed in **FastStream 0.6.0**."
+            ),
         ] = default_filter,
-        batch: bool = False,
-        max_records: Optional[int] = None,
-        batch_timeout_ms: int = 200,
-        no_ack: bool = False,
-        retry: bool = False,
+        retry: Annotated[
+            bool,
+            Doc("Whether to `nack` message at processing exception."),
+        ] = False,
+        no_ack: Annotated[
+            bool,
+            Doc("Whether to disable **FastStream** autoacknowledgement logic or not."),
+        ] = False,
         # AsyncAPI information
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        include_in_schema: bool = True,
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI subscriber object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc(
+                "AsyncAPI subscriber object description. "
+                "Uses decorated docstring as default."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
         # FastAPI args
         response_model: Annotated[
             Any,
@@ -647,19 +1069,52 @@ class KafkaRouter(StreamRouter[Union[
     @override
     def publisher(  # type: ignore[override]
         self,
-        topic: str,
-        key: Optional[bytes] = None,
-        partition: Optional[int] = None,
-        timestamp_ms: Optional[int] = None,
-        headers: Optional[Dict[str, str]] = None,
-        reply_to: str = "",
-        batch: bool = False,
+        topic: Annotated[
+            str,
+            Doc("Topic where the message will be published."),
+        ],
+        *,
+        key: Annotated[
+            Union[bytes, Any, None],
+            Doc("""
+            A key to associate with the message. Can be used to
+            determine which partition to send the message to. If partition
+            is `None` (and producer's partitioner config is left as default),
+            then messages with the same key will be delivered to the same
+            partition (but if key is `None`, partition is chosen randomly).
+            Must be type `bytes`, or be serializable to bytes via configured
+            `key_serializer`.
+            """)
+        ] = None,
+        partition: Annotated[
+            Optional[int],
+            Doc("""
+            Specify a partition. If not set, the partition will be
+            selected using the configured `partitioner`.
+            """),
+        ] = None,
+        headers: Annotated[
+            Optional[Dict[str, str]],
+            Doc(
+                "Message headers to store metainformation. "
+                "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
+                "Can be overrided by `publish.headers` if specified."
+            ),
+        ] = None,
+        reply_to: Annotated[
+            str,
+            Doc("Topic name to send response."),
+        ] = "",
+        batch: Annotated[
+            bool,
+            Doc("Whether to send messages in batches or not."),
+        ] = False,
         # basic args
         middlewares: Annotated[
             Iterable[PublisherMiddleware],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
-        # AsyncAPI information
+        # AsyncAPI args
         title: Annotated[
             Optional[str],
             Doc("AsyncAPI publisher object title."),
@@ -684,7 +1139,6 @@ class KafkaRouter(StreamRouter[Union[
             topic=topic,
             key=key,
             partition=partition,
-            timestamp_ms=timestamp_ms,
             headers=headers,
             batch=batch,
             reply_to=reply_to,

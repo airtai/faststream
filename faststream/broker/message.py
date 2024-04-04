@@ -12,6 +12,11 @@ from faststream.types import AnyDict, DecodedMessage, SendableMessage
 MsgType = TypeVar("MsgType")
 
 
+def gen_cor_id() -> str:
+    """Generate random string to use as ID."""
+    return str(uuid4())
+
+
 @dataclass
 class StreamMessage(Generic[MsgType]):
     """Generic class to represent a stream message."""
@@ -25,9 +30,9 @@ class StreamMessage(Generic[MsgType]):
 
     content_type: Optional[str] = None
     reply_to: str = ""
-    message_id: str = field(default_factory=lambda: str(uuid4()))  # pragma: no cover
+    message_id: str = field(default_factory=gen_cor_id)  # pragma: no cover
     correlation_id: str = field(
-        default_factory=lambda: str(uuid4())  # pragma: no cover
+        default_factory=gen_cor_id  # pragma: no cover
     )
 
     processed: bool = field(default=False, init=False)

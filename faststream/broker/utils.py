@@ -10,7 +10,6 @@ from typing import (
     Optional,
     Type,
     Union,
-    cast,
     overload,
 )
 
@@ -106,25 +105,24 @@ class MultiLock:
 
 @overload
 def resolve_custom_func(
-    custom_func: Optional[CustomDecoder[StreamMessage[MsgType]]],
-    default_func: AsyncDecoder[StreamMessage[MsgType]],
-) -> AsyncDecoder[StreamMessage[MsgType]]:
-    ...
-
-
-@overload
-def resolve_custom_func(
     custom_func: Optional[CustomParser[MsgType]],
     default_func: AsyncParser[MsgType],
 ) -> AsyncParser[MsgType]:
     ...
 
 
+@overload
+def resolve_custom_func(
+    custom_func: Optional[CustomDecoder[StreamMessage[MsgType]]],
+    default_func: AsyncDecoder[StreamMessage[MsgType]],
+) -> AsyncDecoder[StreamMessage[MsgType]]:
+    ...
+
+
 def resolve_custom_func(
     custom_func: Union[
-        None,
-        CustomDecoder[StreamMessage[MsgType]],
-        CustomParser[MsgType],
+        Optional[CustomDecoder[StreamMessage[MsgType]]],
+        Optional[CustomParser[MsgType]],
     ],
     default_func: Union[
         AsyncDecoder[StreamMessage[MsgType]],
@@ -139,14 +137,9 @@ def resolve_custom_func(
         return default_func
 
     original_params = inspect.signature(custom_func).parameters
+
     if len(original_params) == 1:
-        return cast(
-            Union[
-                AsyncDecoder[StreamMessage[MsgType]],
-                AsyncParser[MsgType],
-            ],
-            to_async(custom_func),
-        )
+        return to_async(custom_func)
 
     else:
         name = tuple(original_params.items())[1][0]

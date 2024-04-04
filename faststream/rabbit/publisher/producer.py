@@ -59,11 +59,12 @@ class AioPikaFastProducer(ProducerProto):
         self._rpc_lock = anyio.Lock()
 
     @override
-    async def publish(
+    async def publish(  # type: ignore[override]
         self,
-        message: "AioPikaSendableMessage" = "",
+        message: "AioPikaSendableMessage",
         exchange: Union["RabbitExchange", str, None] = None,
         *,
+        correlation_id: str = "",
         routing_key: str = "",
         mandatory: bool = True,
         immediate: bool = False,
@@ -77,7 +78,6 @@ class AioPikaFastProducer(ProducerProto):
         content_type: Optional[str] = None,
         content_encoding: Optional[str] = None,
         priority: Optional[int] = None,
-        correlation_id: Optional[str] = None,
         expiration: Optional["DateType"] = None,
         message_id: Optional[str] = None,
         timestamp: Optional["DateType"] = None,
@@ -140,6 +140,7 @@ class AioPikaFastProducer(ProducerProto):
         self,
         message: "AioPikaSendableMessage",
         *,
+        correlation_id: str,
         exchange: Union["RabbitExchange", str, None],
         routing_key: str,
         mandatory: bool,
@@ -151,7 +152,6 @@ class AioPikaFastProducer(ProducerProto):
         content_type: Optional[str],
         content_encoding: Optional[str],
         priority: Optional[int],
-        correlation_id: Optional[str],
         expiration: Optional["DateType"],
         message_id: Optional[str],
         timestamp: Optional["DateType"],

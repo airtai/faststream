@@ -29,11 +29,11 @@ from faststream.redis.subscriber.usecase import (
 )
 
 HandlerType: TypeAlias = Union[
-    "ChannelAsyncAPIHandler",
-    "BatchStreamAsyncAPIHandler",
-    "StreamAsyncAPIHandler",
-    "BatchListAsyncAPIHandler",
-    "ListAsyncAPIHandler",
+    "AsyncAPIChannelSubscriber",
+    "AsyncAPIStreamBatchSubscriber",
+    "AsyncAPIStreamSubscriber",
+    "AsyncAPIListBatchSubscriber",
+    "AsyncAPIListSubscriber",
 ]
 
 
@@ -81,7 +81,7 @@ class AsyncAPISubscriber(LogicSubscriber[BaseMessage], RedisAsyncAPIProtocol):
         validate_options(channel=channel, list=list, stream=stream)
 
         if (channel_sub := PubSub.validate(channel)) is not None:
-            return ChannelAsyncAPIHandler(
+            return AsyncAPIChannelSubscriber(
                 channel=channel_sub,
                 # basic args
                 no_ack=no_ack,
@@ -96,7 +96,7 @@ class AsyncAPISubscriber(LogicSubscriber[BaseMessage], RedisAsyncAPIProtocol):
 
         elif (stream_sub := StreamSub.validate(stream)) is not None:
             if stream_sub.batch:
-                return BatchStreamAsyncAPIHandler(
+                return AsyncAPIStreamBatchSubscriber(
                     stream=stream_sub,
                     # basic args
                     no_ack=no_ack,
@@ -109,7 +109,7 @@ class AsyncAPISubscriber(LogicSubscriber[BaseMessage], RedisAsyncAPIProtocol):
                     include_in_schema=include_in_schema,
                 )
             else:
-                return StreamAsyncAPIHandler(
+                return AsyncAPIStreamSubscriber(
                     stream=stream_sub,
                     # basic args
                     no_ack=no_ack,
@@ -124,7 +124,7 @@ class AsyncAPISubscriber(LogicSubscriber[BaseMessage], RedisAsyncAPIProtocol):
 
         elif (list_sub := ListSub.validate(list)) is not None:
             if list_sub.batch:
-                return BatchListAsyncAPIHandler(
+                return AsyncAPIListBatchSubscriber(
                     list=list_sub,
                     # basic args
                     no_ack=no_ack,
@@ -137,7 +137,7 @@ class AsyncAPISubscriber(LogicSubscriber[BaseMessage], RedisAsyncAPIProtocol):
                     include_in_schema=include_in_schema,
                 )
             else:
-                return ListAsyncAPIHandler(
+                return AsyncAPIListSubscriber(
                     list=list_sub,
                     # basic args
                     no_ack=no_ack,
@@ -154,7 +154,7 @@ class AsyncAPISubscriber(LogicSubscriber[BaseMessage], RedisAsyncAPIProtocol):
             raise SetupError(INCORRECT_SETUP_MSG)
 
 
-class ChannelAsyncAPIHandler(ChannelSubscriber, AsyncAPISubscriber):
+class AsyncAPIChannelSubscriber(ChannelSubscriber, AsyncAPISubscriber):
     def get_name(self) -> str:
         return f"{self.channel.name}:{self.call_name}"
 
@@ -166,7 +166,7 @@ class ChannelAsyncAPIHandler(ChannelSubscriber, AsyncAPISubscriber):
         )
 
 
-class _StreamHandlerMixin(AsyncAPISubscriber):
+class _StreamSubscriberMixin(AsyncAPISubscriber):
     stream_sub: StreamSub
 
     def get_name(self) -> str:
@@ -182,15 +182,15 @@ class _StreamHandlerMixin(AsyncAPISubscriber):
         )
 
 
-class StreamAsyncAPIHandler(StreamSubscriber, _StreamHandlerMixin):
+class AsyncAPIStreamSubscriber(StreamSubscriber, _StreamSubscriberMixin):
     pass
 
 
-class BatchStreamAsyncAPIHandler(BatchStreamSubscriber, _StreamHandlerMixin):
+class AsyncAPIStreamBatchSubscriber(BatchStreamSubscriber, _StreamSubscriberMixin):
     pass
 
 
-class _ListHandlerMixin(AsyncAPISubscriber):
+class _ListSubscriberMixin(AsyncAPISubscriber):
     list_sub: ListSub
 
     def get_name(self) -> str:
@@ -204,9 +204,9 @@ class _ListHandlerMixin(AsyncAPISubscriber):
         )
 
 
-class ListAsyncAPIHandler(ListSubscriber, _ListHandlerMixin):
+class AsyncAPIListSubscriber(ListSubscriber, _ListSubscriberMixin):
     pass
 
 
-class BatchListAsyncAPIHandler(BatchListSubscriber, _ListHandlerMixin):
+class AsyncAPIListBatchSubscriber(BatchListSubscriber, _ListSubscriberMixin):
     pass

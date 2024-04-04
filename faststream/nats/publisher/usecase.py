@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 from nats.aio.msg import Msg
 from typing_extensions import Annotated, Doc, override
 
+from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
 from faststream.exceptions import NOT_CONNECTED_YET
 
@@ -117,7 +118,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
             ),
         ] = False,
         # publisher specific
-        extra_middlewares: Annotated[
+        _extra_middlewares: Annotated[
             Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
@@ -128,7 +129,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
             "subject": subject or self.subject,
             "headers": headers or self.headers,
             "reply_to": reply_to or self.reply_to,
-            "correlation_id": correlation_id,
+            "correlation_id": correlation_id or gen_cor_id(),
             # specific args
             "rpc": rpc,
             "rpc_timeout": rpc_timeout,
@@ -143,7 +144,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
 
         async with AsyncExitStack() as stack:
             for m in chain(
-                extra_middlewares
+                _extra_middlewares
                 or (m(None).publish_scope for m in self._broker_middlewares),
                 self._middlewares,
             ):

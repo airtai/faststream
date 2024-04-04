@@ -11,7 +11,12 @@ if TYPE_CHECKING:
 
 
 class RabbitQueue(NameRequired):
-    """A class to represent a RabbitMQ queue."""
+    """A class to represent a RabbitMQ queue.
+    
+    You can find information about all options in the official RabbitMQ documentation:
+
+    https://www.rabbitmq.com/docs/queues
+    """
 
     __slots__ = (
         "name",
@@ -91,11 +96,6 @@ class RabbitQueue(NameRequired):
             Doc("Explicit binding routing key. Uses `name` if not presented."),
         ] = "",
     ) -> None:
-        """Initialize a class object.
-
-        You can find information about all options in the official RabbitMQ documentation:
-        https://www.rabbitmq.com/docs/queues
-        """
         re, routing_key = compile_path(
             routing_key,
             replace_symbol="*",

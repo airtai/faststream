@@ -161,7 +161,7 @@ class LogicSubscriber(
 
             self._queue_obj = None
 
-    def make_response_publisher(
+    def _make_response_publisher(
         self,
         message: StreamMessage[Any],
     ) -> Sequence[FakePublisher]:

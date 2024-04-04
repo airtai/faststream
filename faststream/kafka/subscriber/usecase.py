@@ -15,7 +15,7 @@ import anyio
 from aiokafka import AIOKafkaConsumer, ConsumerRecord
 from aiokafka.errors import ConsumerStoppedError, KafkaError
 from fast_depends.dependencies import Depends
-from typing_extensions import Unpack, override
+from typing_extensions import override
 
 from faststream.broker.message import StreamMessage
 from faststream.broker.publisher.fake import FakePublisher
@@ -87,12 +87,14 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         # Setup it later
         self.client_id = ""
+        self.__connection_args: ConsumerConnectionParams = {}
 
     @override
     def setup(  # type: ignore[override]
         self,
         *,
         client_id: Optional[str],
+        connection_args: ConsumerConnectionParams,
         # basic args
         logger: Optional[LoggerProto],
         producer: Optional[ProducerProto],
@@ -107,6 +109,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         _get_dependant: Optional[Callable[..., Any]],
     ) -> None:
         self.client_id = client_id
+        self.__connection_args = connection_args
 
         super().setup(
             logger=logger,
@@ -120,17 +123,13 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             _get_dependant=_get_dependant,
         )
 
-    @override
-    async def start(  # type: ignore[override]
-        self,
-        **consumer_kwargs: Unpack[ConsumerConnectionParams],
-    ) -> None:
+    async def start(self) -> None:
         """Start the consumer."""
         self.consumer = consumer = self.builder(
             *self.topics,
             group_id=self.group_id,
             client_id=self.client_id,
-            **consumer_kwargs,
+            **self.__connection_args,
         )
         await consumer.start()
 
@@ -150,7 +149,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         self.task = None
 
-    def make_response_publisher(
+    def _make_response_publisher(
         self, message: "StreamMessage[Any]"
     ) -> Sequence[FakePublisher]:
         if not message.reply_to or self._producer is None:

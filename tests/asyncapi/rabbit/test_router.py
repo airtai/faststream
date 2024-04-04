@@ -1,6 +1,12 @@
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
-from faststream.rabbit import RabbitBroker, RabbitQueue, RabbitRoute, RabbitRouter
+from faststream.rabbit import (
+    RabbitBroker,
+    RabbitPublisher,
+    RabbitQueue,
+    RabbitRoute,
+    RabbitRouter,
+)
 from tests.asyncapi.base.arguments import ArgumentsTestcase
 from tests.asyncapi.base.publisher import PublisherTestcase
 from tests.asyncapi.base.router import RouterTestcase
@@ -10,6 +16,7 @@ class TestRouter(RouterTestcase):
     broker_class = RabbitBroker
     router_class = RabbitRouter
     route_class = RabbitRoute
+    publisher_class = RabbitPublisher
 
     def test_prefix(self):
         broker = self.broker_class()

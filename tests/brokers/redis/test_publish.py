@@ -62,7 +62,7 @@ class TestPublish(BrokerPublishTestcase):
                 timeout=3,
             )
 
-        assert {1, b"hi"} == {r.result() for r in result}
+        assert {1, "hi"} == {r.result() for r in result}
 
     async def test_batch_list_publisher(
         self,

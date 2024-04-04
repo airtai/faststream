@@ -3,6 +3,7 @@ from typing import Any, Optional, Sequence, Union
 
 from typing_extensions import override
 
+from faststream.broker.message import gen_cor_id
 from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.exceptions import SetupError
 from faststream.redis.broker.broker import RedisBroker
@@ -32,7 +33,7 @@ class TestRedisBroker(TestBroker[RedisBroker]):
     def create_publisher_fake_subscriber(
         broker: RedisBroker,
         publisher: AsyncAPIPublisher,
-    ) ->  HandlerCallWrapper[Any, Any, Any]:
+    ) -> HandlerCallWrapper[Any, Any, Any]:
         sub = broker.subscriber(**publisher.subscriber_property)
 
         @sub
@@ -81,7 +82,10 @@ class FakeProducer(RedisFastProducer):
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
     ) -> Optional[Any]:
-        body = build_message(message=message, reply_to=reply_to, correlation_id=correlation_id, headers=headers,)
+        correlation_id = correlation_id or gen_cor_id()
+
+        body = build_message(message=message, reply_to=reply_to,
+                             correlation_id=correlation_id, headers=headers,)
 
         any_of = channel or list or stream
         if any_of is None:
@@ -163,7 +167,10 @@ class FakeProducer(RedisFastProducer):
         self,
         *msgs: SendableMessage,
         list: str,
+        correlation_id: Optional[str] = None,
     ) -> None:
+        correlation_id = correlation_id or gen_cor_id()
+
         for handler in self.broker._subscribers.values():  # pragma: no branch
             if (list_sub := getattr(handler, "list_sub", None)) and list_sub.name == list:
                 await call_handler(
@@ -171,7 +178,8 @@ class FakeProducer(RedisFastProducer):
                     message=BatchListMessage(
                         type="blist",
                         channel=list,
-                        data=[build_message(m) for m in msgs],
+                        data=[build_message(
+                            m, correlation_id=correlation_id,) for m in msgs],
                     )
                 )
 
@@ -181,8 +189,8 @@ class FakeProducer(RedisFastProducer):
 def build_message(
     message: Union[Sequence[SendableMessage], SendableMessage],
     *,
+    correlation_id: str,
     reply_to: str = "",
-    correlation_id: Optional[str] = None,
     headers: Optional[AnyDict] = None,
 ) -> bytes:
     data = RawMessage.encode(

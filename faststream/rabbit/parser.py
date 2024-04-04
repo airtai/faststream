@@ -1,10 +1,14 @@
 from typing import TYPE_CHECKING, Optional
-from uuid import uuid4
 
 from aio_pika import Message
 from aio_pika.abc import DeliveryMode
 
-from faststream.broker.message import StreamMessage, decode_message, encode_message
+from faststream.broker.message import (
+    StreamMessage,
+    decode_message,
+    encode_message,
+    gen_cor_id,
+)
 from faststream.rabbit.message import RabbitMessage
 from faststream.utils.context.repository import context
 
@@ -40,8 +44,8 @@ class AioPikaParser:
             headers=message.headers,
             reply_to=message.reply_to or "",
             content_type=message.content_type,
-            message_id=message.message_id or str(uuid4()),
-            correlation_id=message.correlation_id or str(uuid4()),
+            message_id=message.message_id or gen_cor_id(),
+            correlation_id=message.correlation_id or gen_cor_id(),
             path=path,
             raw_message=message,
         )
@@ -87,7 +91,7 @@ class AioPikaParser:
                 content_type=content_type or generated_content_type,
                 delivery_mode=delivery_mode,
                 reply_to=reply_to,
-                correlation_id=correlation_id or str(uuid4()),
+                correlation_id=correlation_id or gen_cor_id(),
                 headers=headers,
                 content_encoding=content_encoding,
                 priority=priority,

@@ -4,7 +4,7 @@ from uuid import uuid4
 from redis.asyncio.client import PubSub, Redis
 from typing_extensions import override
 
-from faststream.broker.message import StreamMessage, encode_message
+from faststream.broker.message import StreamMessage
 from faststream.broker.publisher.proto import ProducerProto
 from faststream.broker.types import (
     AsyncDecoder,
@@ -47,13 +47,13 @@ class RedisFastProducer(ProducerProto):
         self,
         message: SendableMessage,
         *,
+        correlation_id: str,
         channel: Optional[str] = None,
         list: Optional[str] = None,
         stream: Optional[str] = None,
         maxlen: Optional[int] = None,
         headers: Optional[AnyDict] = None,
         reply_to: str = "",
-        correlation_id: Optional[str] = None,
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
@@ -123,6 +123,8 @@ class RedisFastProducer(ProducerProto):
         self,
         *msgs: SendableMessage,
         list: str,
+        correlation_id: str,
     ) -> None:
-        batch = (encode_message(msg)[0] for msg in msgs)
+        batch = (RawMessage.encode(message=msg, correlation_id=correlation_id,
+                 reply_to=None, headers=None,) for msg in msgs)
         await self._connection.rpush(list, *batch)
