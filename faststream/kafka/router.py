@@ -1,4 +1,14 @@
-from typing import Any, Callable, Iterable, Literal, Optional, Sequence, Tuple, Union, Dict, TYPE_CHECKING
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Literal,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 from aiokafka import ConsumerRecord
 from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
@@ -13,8 +23,8 @@ from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
     Filter,
+    PublisherMiddleware,
     SubscriberMiddleware,
-    PublisherMiddleware
 )
 from faststream.broker.utils import default_filter
 from faststream.kafka.broker.registrator import KafkaRegistrator

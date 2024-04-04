@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
 
 class RabbitPublisher(ArgsContainer):
-    """Delaied RabbitPublisher registration object.
+    """Delayed RabbitPublisher registration object.
 
     Just a copy of RabbitRegistrator.publisher(...) arguments.
     """

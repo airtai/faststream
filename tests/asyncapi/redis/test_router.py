@@ -1,6 +1,6 @@
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
-from faststream.redis import RedisBroker, RedisRoute, RedisRouter
+from faststream.redis import RedisBroker, RedisPublisher, RedisRoute, RedisRouter
 from tests.asyncapi.base.arguments import ArgumentsTestcase
 from tests.asyncapi.base.publisher import PublisherTestcase
 from tests.asyncapi.base.router import RouterTestcase
@@ -10,6 +10,7 @@ class TestRouter(RouterTestcase):
     broker_class = RedisBroker
     router_class = RedisRouter
     route_class = RedisRoute
+    publisher_class = RedisPublisher
 
     def test_prefix(self):
         broker = self.broker_class()

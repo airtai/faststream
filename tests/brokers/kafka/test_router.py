@@ -1,6 +1,6 @@
 import pytest
 
-from faststream.kafka import KafkaRoute, KafkaRouter, KafkaPublisher
+from faststream.kafka import KafkaPublisher, KafkaRoute, KafkaRouter
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 
