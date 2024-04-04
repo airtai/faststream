@@ -1,6 +1,6 @@
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
-from faststream.kafka import KafkaBroker, KafkaRoute, KafkaRouter
+from faststream.kafka import KafkaBroker, KafkaRoute, KafkaRouter, KafkaPublisher
 from tests.asyncapi.base.arguments import ArgumentsTestcase
 from tests.asyncapi.base.publisher import PublisherTestcase
 from tests.asyncapi.base.router import RouterTestcase
@@ -10,6 +10,7 @@ class TestRouter(RouterTestcase):
     broker_class = KafkaBroker
     router_class = KafkaRouter
     route_class = KafkaRoute
+    publisher_class = KafkaPublisher
 
     def test_prefix(self):
         broker = self.broker_class()
