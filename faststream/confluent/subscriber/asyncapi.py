@@ -8,18 +8,17 @@ from faststream.asyncapi.schema import (
     Channel,
     ChannelBinding,
     CorrelationId,
-    Message,
     Operation,
 )
 from faststream.asyncapi.schema.bindings import kafka
 from faststream.asyncapi.utils import resolve_payloads
 from faststream.broker.types import BrokerMiddleware, MsgType
+from faststream.confluent.client import AsyncConfluentConsumer
 from faststream.confluent.subscriber.usecase import (
     BatchSubscriber,
     DefaultSubscriber,
     LogicSubscriber,
 )
-from faststream.confluent.client import AsyncConfluentConsumer
 
 
 class AsyncAPISubscriber(LogicSubscriber[MsgType]):

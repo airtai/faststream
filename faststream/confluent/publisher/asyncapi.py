@@ -7,18 +7,17 @@ from faststream.asyncapi.schema import (
     Channel,
     ChannelBinding,
     CorrelationId,
-    Message,
     Operation,
 )
 from faststream.asyncapi.schema.bindings import kafka
 from faststream.asyncapi.utils import resolve_payloads
 from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
-from faststream.exceptions import SetupError
 from faststream.confluent.publisher.usecase import (
     BatchPublisher,
     DefaultPublisher,
     LogicPublisher,
 )
+from faststream.exceptions import SetupError
 
 
 class AsyncAPIPublisher(LogicPublisher):

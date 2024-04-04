@@ -7,8 +7,8 @@ from typing_extensions import override
 
 from faststream.broker.publisher.usecase import PublisherUsecase
 from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
-from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
+from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.types import AnyDict, SendableMessage
 
 

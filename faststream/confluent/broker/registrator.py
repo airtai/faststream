@@ -26,10 +26,10 @@ from faststream.broker.types import (
     SubscriberMiddleware,
 )
 from faststream.broker.utils import default_filter
-from faststream.exceptions import SetupError
+from faststream.confluent.client import AsyncConfluentConsumer
 from faststream.confluent.publisher.asyncapi import AsyncAPIPublisher
 from faststream.confluent.subscriber.asyncapi import AsyncAPISubscriber
-from faststream.confluent.client import AsyncConfluentConsumer
+from faststream.exceptions import SetupError
 
 
 class KafkaRegistrator(ABCBroker[Union[

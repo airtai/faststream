@@ -29,16 +29,16 @@ from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
 )
-from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.confluent.broker.logging import KafkaLoggingBroker
 from faststream.confluent.broker.registrator import KafkaRegistrator
+from faststream.confluent.client import AsyncConfluentProducer, _missing
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
+from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.security import BaseSecurity
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils.data import filter_by_dict
-from faststream.confluent.client import AsyncConfluentProducer, _missing
 
 Partition = TypeVar("Partition")
 

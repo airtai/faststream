@@ -5,9 +5,9 @@ from typing_extensions import override
 
 from faststream.broker.message import encode_message
 from faststream.broker.publisher.proto import ProducerProto
+from faststream.confluent.client import AsyncConfluentProducer
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.types import SendableMessage
-from faststream.confluent.client import AsyncConfluentProducer
 
 
 class AsyncConfluentFastProducer(ProducerProto):

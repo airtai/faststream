@@ -1,19 +1,9 @@
 import asyncio
 from abc import ABC, abstractmethod
-from itertools import chain
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    Optional,
-    Sequence,
-    Tuple,
-    Union
-)
+from typing import Any, Callable, Dict, Iterable, Optional, Sequence, Tuple
 
 import anyio
-from confluent_kafka import Message, KafkaException
+from confluent_kafka import KafkaException, Message
 from fast_depends.dependencies import Depends
 from typing_extensions import Unpack, override
 
@@ -29,10 +19,10 @@ from faststream.broker.types import (
     CustomParser,
     MsgType,
 )
+from faststream.confluent.client import AsyncConfluentConsumer
 from faststream.confluent.parser import AsyncConfluentParser
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.types import AnyDict, LoggerProto
-from faststream.confluent.client import AsyncConfluentConsumer
 
 
 class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
