@@ -97,7 +97,7 @@ class RedisPublisher(ArgsContainer):
 
 
 class RedisRoute(SubscriberRoute):
-    """Class to store delaied RabbitBroker subscriber registration."""
+    """Class to store delayed RedisBroker subscriber registration."""
 
     def __init__(
         self,
