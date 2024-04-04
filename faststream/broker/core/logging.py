@@ -59,8 +59,7 @@ class LoggingBroker(ABCBroker[MsgType]):
 
         super().__init__(*args, **kwargs)
 
-    @property
-    def fmt(self) -> str:
+    def _get_fmt(self) -> str:
         """Get default logger format at broker startup."""
         return self._fmt or self.get_fmt()
 

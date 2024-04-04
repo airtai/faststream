@@ -1,11 +1,10 @@
 from datetime import datetime
 from typing import Any, Dict, Optional
-from uuid import uuid4
 
 from aiokafka import ConsumerRecord
 from typing_extensions import override
 
-from faststream.broker.message import encode_message
+from faststream.broker.message import encode_message, gen_cor_id
 from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.kafka.broker import KafkaBroker
 from faststream.kafka.publisher.asyncapi import (
@@ -13,7 +12,7 @@ from faststream.kafka.publisher.asyncapi import (
     AsyncAPIPublisher,
 )
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
-from faststream.kafka.subscriber.asyncapi import BatchAsyncAPISubscriber
+from faststream.kafka.subscriber.asyncapi import AsyncAPIBatchSubscriber
 from faststream.testing.broker import TestBroker, call_handler
 from faststream.types import SendableMessage
 
@@ -32,17 +31,17 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
         broker: KafkaBroker,
         publisher: AsyncAPIPublisher,
     ) -> HandlerCallWrapper[Any, Any, Any]:
-        sub = broker.subscriber(  # type: ignore[call-overload,misc]
+        sub = broker.subscriber(
             publisher.topic,
             batch=isinstance(publisher, AsyncAPIBatchPublisher),
         )
 
-        @sub
+        @sub  # type: ignore[misc]
         def f(msg: Any) -> None:
             pass
 
         broker.setup_subscriber(sub)
-        return f  # type: ignore[no-any-return]
+        return f
 
     @staticmethod
     def remove_publisher_fake_subscriber(
@@ -92,7 +91,8 @@ class FakeProducer(AioKafkaFastProducer):
             if topic in handler.topics:
                 return await call_handler(
                     handler=handler,
-                    message=[incoming] if isinstance(handler, BatchAsyncAPISubscriber) else incoming,
+                    message=[incoming] if isinstance(
+                        handler, AsyncAPIBatchSubscriber) else incoming,
                     rpc=rpc,
                     rpc_timeout=rpc_timeout,
                     raise_timeout=raise_timeout,
@@ -126,7 +126,7 @@ class FakeProducer(AioKafkaFastProducer):
                     for message in msgs
                 )
 
-                if isinstance(handler, BatchAsyncAPISubscriber):
+                if isinstance(handler, AsyncAPIBatchSubscriber):
                     await call_handler(
                         handler=handler,
                         message=list(messages),
@@ -159,10 +159,15 @@ def build_message(
 
     headers = {
         "content-type": content_type or "",
-        "correlation_id": correlation_id or str(uuid4()),
-        "reply_to": reply_to,
+        "correlation_id": correlation_id or gen_cor_id(),
         **(headers or {}),
     }
+
+    if reply_to:
+        headers["reply_to"] = headers.get(
+            "reply_to",
+            reply_to
+        )
 
     return ConsumerRecord(
         value=msg,

@@ -1,9 +1,8 @@
 from typing import TYPE_CHECKING, Any, List, Optional
-from uuid import uuid4
 
 from nats.aio.msg import Msg
 
-from faststream.broker.message import StreamMessage, decode_message
+from faststream.broker.message import StreamMessage, decode_message, gen_cor_id
 from faststream.nats.message import NatsBatchMessage, NatsMessage
 from faststream.types import AnyDict, DecodedMessage
 from faststream.utils.context.repository import context
@@ -60,8 +59,8 @@ class NatsParser(NatsBaseParser):
             reply_to=message.reply,
             headers=headers,
             content_type=headers.get("content-type", ""),
-            message_id=headers.get("message_id", str(uuid4())),
-            correlation_id=headers.get("correlation_id", str(uuid4())),
+            message_id=headers.get("message_id", gen_cor_id()),
+            correlation_id=headers.get("correlation_id", gen_cor_id()),
         )
 
 
@@ -87,8 +86,8 @@ class JsParser(NatsBaseParser):
             reply_to=headers.get("reply_to", ""),  # differ from core
             headers=headers,
             content_type=headers.get("content-type", ""),
-            message_id=headers.get("message_id", str(uuid4())),
-            correlation_id=headers.get("correlation_id", str(uuid4())),
+            message_id=headers.get("message_id", gen_cor_id()),
+            correlation_id=headers.get("correlation_id", gen_cor_id()),
         )
 
 

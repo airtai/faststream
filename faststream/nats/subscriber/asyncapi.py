@@ -98,8 +98,8 @@ class AsyncAPISubscriber(LogicSubscriber[Any]):
         description_: Optional[str],
         include_in_schema: bool,
     ) -> Union[
-        "DefaultAsyncAPIHandler",
-        "BatchAsyncAPIHandler",
+        "AsyncAPIDefaultSubscriber",
+        "AsyncAPIBatchSubscriber",
     ]:
         if (stream := stream_builder.stream(stream)):
             stream.add_subject(subject)
@@ -143,7 +143,7 @@ class AsyncAPISubscriber(LogicSubscriber[Any]):
             }
 
         if getattr(pull_sub, "batch", False):
-            return BatchAsyncAPIHandler(
+            return AsyncAPIBatchSubscriber(
                 extra_options=extra_options,
                 # basic args
                 pull_sub=pull_sub,
@@ -162,7 +162,7 @@ class AsyncAPISubscriber(LogicSubscriber[Any]):
             )
 
         else:
-            return DefaultAsyncAPIHandler(
+            return AsyncAPIDefaultSubscriber(
                 max_workers=max_workers,
                 extra_options=extra_options,
                 # basic args
@@ -182,9 +182,9 @@ class AsyncAPISubscriber(LogicSubscriber[Any]):
             )
 
 
-class DefaultAsyncAPIHandler(AsyncAPISubscriber, DefaultHandler):
+class AsyncAPIDefaultSubscriber(AsyncAPISubscriber, DefaultHandler):
     """One-message consumer with AsyncAPI methods."""
 
 
-class BatchAsyncAPIHandler(AsyncAPISubscriber, BatchHandler):
+class AsyncAPIBatchSubscriber(AsyncAPISubscriber, BatchHandler):
     """Batch-message consumer with AsyncAPI methods."""

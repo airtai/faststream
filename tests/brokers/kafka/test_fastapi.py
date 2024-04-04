@@ -10,7 +10,7 @@ from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
 @pytest.mark.kafka()
-class TestRabbitRouter(FastAPITestcase):
+class TestKafkaRouter(FastAPITestcase):
     router_class = KafkaRouter
 
     async def test_batch_real(

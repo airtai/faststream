@@ -174,7 +174,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         """Create NATS subscription object to consume messages."""
         raise NotImplementedError()
 
-    def make_response_publisher(
+    def _make_response_publisher(
         self,
         message: Annotated[
             "StreamMessage[Any]",

@@ -30,7 +30,8 @@ class RedisRoute(SubscriberRoute):
         self,
         call: Annotated[
             Callable[..., SendableMessage],
-            Doc("Message handler function."),
+            Doc("Message handler function "
+                "to wrap the same with `@broker.subscriber(...)` way."),
         ],
         channel: Annotated[
             Union[PubSub, str, None],

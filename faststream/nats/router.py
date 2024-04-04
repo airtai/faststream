@@ -31,7 +31,8 @@ class NatsRoute(SubscriberRoute):
         self,
         call: Annotated[
             Callable[..., "SendableMessage"],
-            Doc("Message handler function."),
+            Doc("Message handler function "
+                "to wrap the same with `@broker.subscriber(...)` way."),
         ],
         subject: Annotated[
             str,

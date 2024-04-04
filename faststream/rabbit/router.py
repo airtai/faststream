@@ -34,7 +34,8 @@ class RabbitRoute(SubscriberRoute):
         self,
         call: Annotated[
             Callable[..., "AioPikaSendableMessage"],
-            Doc("Message handler function."),
+            Doc("Message handler function "
+                "to wrap the same with `@broker.subscriber(...)` way."),
         ],
         queue: Annotated[
             Union[str, RabbitQueue],

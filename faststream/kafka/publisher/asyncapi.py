@@ -54,9 +54,8 @@ class AsyncAPIPublisher(LogicPublisher):
         key: Optional[bytes],
         topic: str,
         partition: Optional[int],
-        timestamp_ms: Optional[int],
         headers: Optional[Dict[str, str]],
-        reply_to: Optional[str],
+        reply_to: str,
         # Publisher args
         broker_middlewares: Iterable[BrokerMiddleware[ConsumerRecord]],
         middlewares: Iterable[PublisherMiddleware],
@@ -76,9 +75,8 @@ class AsyncAPIPublisher(LogicPublisher):
         key: Optional[bytes],
         topic: str,
         partition: Optional[int],
-        timestamp_ms: Optional[int],
         headers: Optional[Dict[str, str]],
-        reply_to: Optional[str],
+        reply_to: str,
         # Publisher args
         broker_middlewares: Iterable[BrokerMiddleware[ConsumerRecord]],
         middlewares: Iterable[PublisherMiddleware],
@@ -90,6 +88,30 @@ class AsyncAPIPublisher(LogicPublisher):
     ) -> "AsyncAPIDefaultPublisher":
         ...
 
+    @overload
+    @staticmethod
+    def create(
+        *,
+        batch: bool,
+        key: Optional[bytes],
+        topic: str,
+        partition: Optional[int],
+        headers: Optional[Dict[str, str]],
+        reply_to: str,
+        # Publisher args
+        broker_middlewares: Iterable[BrokerMiddleware[ConsumerRecord]],
+        middlewares: Iterable[PublisherMiddleware],
+        # AsyncAPI args
+        schema_: Optional[Any],
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> Union[
+        "AsyncAPIBatchPublisher",
+        "AsyncAPIDefaultPublisher",
+    ]:
+        ...
+
     @override
     @staticmethod
     def create(
@@ -98,9 +120,8 @@ class AsyncAPIPublisher(LogicPublisher):
         key: Optional[bytes],
         topic: str,
         partition: Optional[int],
-        timestamp_ms: Optional[int],
         headers: Optional[Dict[str, str]],
-        reply_to: Optional[str],
+        reply_to: str,
         # Publisher args
         broker_middlewares: Iterable[BrokerMiddleware[ConsumerRecord]],
         middlewares: Iterable[PublisherMiddleware],
@@ -120,7 +141,6 @@ class AsyncAPIPublisher(LogicPublisher):
             return AsyncAPIBatchPublisher(
                 topic=topic,
                 partition=partition,
-                timestamp_ms=timestamp_ms,
                 headers=headers,
                 reply_to=reply_to,
                 broker_middlewares=broker_middlewares,
@@ -136,7 +156,6 @@ class AsyncAPIPublisher(LogicPublisher):
                 # basic args
                 topic=topic,
                 partition=partition,
-                timestamp_ms=timestamp_ms,
                 headers=headers,
                 reply_to=reply_to,
                 broker_middlewares=broker_middlewares,

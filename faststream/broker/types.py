@@ -42,10 +42,6 @@ AsyncCustomParser: TypeAlias = Union[
         Awaitable[StreamMessage[MsgType]],
     ],
 ]
-Parser: TypeAlias = Union[
-    AsyncParser[MsgType],
-    SyncParser[MsgType],
-]
 CustomParser: TypeAlias = Union[
     AsyncCustomParser[MsgType],
     SyncParser[MsgType],
@@ -65,10 +61,6 @@ AsyncCustomDecoder: TypeAlias = Union[
         [StreamMsg, AsyncDecoder[StreamMsg]],
         Awaitable[Any],
     ],
-]
-Decoder: TypeAlias = Union[
-    AsyncDecoder[StreamMsg],
-    SyncDecoder[StreamMsg],
 ]
 CustomDecoder: TypeAlias = Union[
     AsyncCustomDecoder[StreamMsg],

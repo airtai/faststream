@@ -1,10 +1,9 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
-from uuid import uuid4
 
 from nats.aio.msg import Msg
 from typing_extensions import override
 
-from faststream.broker.message import encode_message
+from faststream.broker.message import encode_message, gen_cor_id
 from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.nats.broker import NatsBroker
 from faststream.nats.publisher.producer import NatsFastProducer
@@ -118,7 +117,7 @@ def build_message(
         data=msg,
         headers={
             "content-type": content_type or "",
-            "correlation_id": correlation_id or str(uuid4()),
+            "correlation_id": correlation_id or gen_cor_id(),
             **(headers or {}),
         },
     )

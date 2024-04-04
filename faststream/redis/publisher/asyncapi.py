@@ -26,10 +26,10 @@ from faststream.redis.schemas.proto import RedisAsyncAPIProtocol, validate_optio
 from faststream.types import AnyDict
 
 PublisherType: TypeAlias = Union[
-    "ChannelAsyncAPIPublisher",
-    "StreamAsyncAPIPublisher",
-    "ListAsyncAPIPublisher",
-    "BatchListAsyncAPIPublisher",
+    "AsyncAPIChannelPublisher",
+    "AsyncAPIStreamPublisher",
+    "AsyncAPIListPublisher",
+    "AsyncAPIListBatchPublisher",
 ]
 
 class AsyncAPIPublisher(LogicPublisher, RedisAsyncAPIProtocol):
@@ -76,7 +76,7 @@ class AsyncAPIPublisher(LogicPublisher, RedisAsyncAPIProtocol):
         validate_options(channel=channel, list=list, stream=stream)
 
         if (channel := PubSub.validate(channel)) is not None:
-            return ChannelAsyncAPIPublisher(
+            return AsyncAPIChannelPublisher(
                 channel=channel,
                 # basic args
                 headers=headers,
@@ -91,7 +91,7 @@ class AsyncAPIPublisher(LogicPublisher, RedisAsyncAPIProtocol):
             )
 
         elif (stream := StreamSub.validate(stream)) is not None:
-            return StreamAsyncAPIPublisher(
+            return AsyncAPIStreamPublisher(
                 stream=stream,
                 # basic args
                 headers=headers,
@@ -107,7 +107,7 @@ class AsyncAPIPublisher(LogicPublisher, RedisAsyncAPIProtocol):
 
         elif (list := ListSub.validate(list)) is not None:
             if list.batch:
-                return BatchListAsyncAPIPublisher(
+                return AsyncAPIListBatchPublisher(
                     list=list,
                     # basic args
                     headers=headers,
@@ -121,7 +121,7 @@ class AsyncAPIPublisher(LogicPublisher, RedisAsyncAPIProtocol):
                     include_in_schema=include_in_schema,
                 )
             else:
-                return ListAsyncAPIPublisher(
+                return AsyncAPIListPublisher(
                     list=list,
                     # basic args
                     headers=headers,
@@ -139,7 +139,7 @@ class AsyncAPIPublisher(LogicPublisher, RedisAsyncAPIProtocol):
             raise SetupError(INCORRECT_SETUP_MSG)
 
 
-class ChannelAsyncAPIPublisher(ChannelPublisher, AsyncAPIPublisher):
+class AsyncAPIChannelPublisher(ChannelPublisher, AsyncAPIPublisher):
     def get_name(self) -> str:
         return f"{self.channel.name}:Publisher"
 
@@ -165,15 +165,15 @@ class _ListPublisherMixin(AsyncAPIPublisher):
         )
 
 
-class ListAsyncAPIPublisher(ListPublisher, _ListPublisherMixin):
+class AsyncAPIListPublisher(ListPublisher, _ListPublisherMixin):
     pass
 
 
-class BatchListAsyncAPIPublisher(ListBatchPublisher, _ListPublisherMixin):
+class AsyncAPIListBatchPublisher(ListBatchPublisher, _ListPublisherMixin):
     pass
 
 
-class StreamAsyncAPIPublisher(StreamPublisher, AsyncAPIPublisher):
+class AsyncAPIStreamPublisher(StreamPublisher, AsyncAPIPublisher):
     def get_name(self) -> str:
         return f"{self.stream.name}:Publisher"
 

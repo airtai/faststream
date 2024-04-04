@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Iterable, Optional
 
 from typing_extensions import Annotated, Doc, override
 
+from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.redis.message import BaseMessage
@@ -145,7 +146,7 @@ class ChannelPublisher(LogicPublisher):
             ),
         ] = False,
         # publisher specific
-        extra_middlewares: Annotated[
+        _extra_middlewares: Annotated[
             Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
@@ -155,10 +156,11 @@ class ChannelPublisher(LogicPublisher):
         channel_sub = PubSub.validate(channel or self.channel)
         reply_to = reply_to or self.reply_to
         headers = headers or self.headers
+        correlation_id = correlation_id or gen_cor_id()
 
         async with AsyncExitStack() as stack:
             for m in chain(
-                extra_middlewares
+                _extra_middlewares
                 or (m(None).publish_scope for m in self._broker_middlewares),
                 self._middlewares,
             ):
@@ -282,7 +284,7 @@ class ListPublisher(LogicPublisher):
             ),
         ] = False,
         # publisher specific
-        extra_middlewares: Annotated[
+        _extra_middlewares: Annotated[
             Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
@@ -292,10 +294,11 @@ class ListPublisher(LogicPublisher):
         list_sub = ListSub.validate(list or self.list)
         reply_to = reply_to or self.reply_to
         headers = headers or self.headers
+        correlation_id = correlation_id or gen_cor_id()
 
         async with AsyncExitStack() as stack:
             for m in chain(
-                extra_middlewares
+                _extra_middlewares
                 or (m(None).publish_scope for m in self._broker_middlewares),
                 self._middlewares,
             ):
@@ -350,7 +353,7 @@ class ListBatchPublisher(ListPublisher):
             ),
         ] = None,
         # publisher specific
-        extra_middlewares: Annotated[
+        _extra_middlewares: Annotated[
             Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
@@ -358,6 +361,7 @@ class ListBatchPublisher(ListPublisher):
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
         list_sub = ListSub.validate(list or self.list)
+        correlation_id = correlation_id or gen_cor_id()
 
         async with AsyncExitStack() as stack:
             wrapped_messages = [
@@ -366,7 +370,7 @@ class ListBatchPublisher(ListPublisher):
                 )
                 for msg in message
                 for middleware in chain(
-                    extra_middlewares
+                    _extra_middlewares
                     or (m(None).publish_scope for m in self._broker_middlewares),
                     self._middlewares,
                 )
@@ -375,6 +379,7 @@ class ListBatchPublisher(ListPublisher):
             return await self._producer.publish_batch(
                 *wrapped_messages,
                 list=list_sub.name,
+                correlation_id=correlation_id,
             )
 
         return None
@@ -476,7 +481,7 @@ class StreamPublisher(LogicPublisher):
             ),
         ] = False,
         # publisher specific
-        extra_middlewares: Annotated[
+        _extra_middlewares: Annotated[
             Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
@@ -487,10 +492,11 @@ class StreamPublisher(LogicPublisher):
         maxlen = maxlen or stream_sub.maxlen
         reply_to = reply_to or self.reply_to
         headers = headers or self.headers
+        correlation_id = correlation_id or gen_cor_id()
 
         async with AsyncExitStack() as stack:
             for m in chain(
-                extra_middlewares
+                _extra_middlewares
                 or (m(None).publish_scope for m in self._broker_middlewares),
                 self._middlewares,
             ):

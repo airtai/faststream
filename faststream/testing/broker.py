@@ -1,3 +1,4 @@
+import warnings
 from abc import abstractmethod
 from contextlib import asynccontextmanager
 from functools import partial
@@ -31,10 +32,22 @@ class TestBroker(Generic[Broker]):
         self.broker = broker
 
         if connect_only is None:
-            connect_only = is_contains_context_name(
-                self.__class__.__name__,
-                TestApp.__name__,
-            )
+            try:
+                connect_only = is_contains_context_name(
+                    self.__class__.__name__,
+                    TestApp.__name__,
+                )
+            except Exception:  # pragma: no cover
+                warnings.warn(
+                    (
+                        "\nError `{e!r}` occured at `{self.__class__.__name__}` AST parsing."
+                        "\n`connect_only` is setted to `False` by default."
+                    ),
+                    category=RuntimeWarning,
+                    stacklevel=1,
+                )
+
+                connect_only = False
 
         self.connect_only = connect_only
 

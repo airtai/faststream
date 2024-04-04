@@ -1,6 +1,5 @@
 from typing import Any, Optional, Union
 from unittest.mock import AsyncMock
-from uuid import uuid4
 
 import aiormq
 from aio_pika.abc import DateType, HeadersType, TimeoutType
@@ -9,6 +8,7 @@ from pamqp import commands as spec
 from pamqp.header import ContentHeader
 from typing_extensions import override
 
+from faststream.broker.message import gen_cor_id
 from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.rabbit.broker.broker import RabbitBroker
 from faststream.rabbit.parser import AioPikaParser
@@ -141,7 +141,7 @@ def build_message(
             header=ContentHeader(
                 properties=spec.Basic.Properties(
                     content_type=msg.content_type,
-                    message_id=str(uuid4()),
+                    message_id=gen_cor_id(),
                     headers=msg.headers,
                     reply_to=reply_to,
                 )

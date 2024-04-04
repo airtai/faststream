@@ -25,6 +25,7 @@ from redis.asyncio.connection import (
 from typing_extensions import Annotated, Doc, TypeAlias, override
 
 from faststream.__about__ import SERVICE_NAME, __version__
+from faststream.broker.message import gen_cor_id
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.redis.broker.logging import RedisLoggingBroker
 from faststream.redis.broker.registrator import RedisRegistrator
@@ -361,6 +362,7 @@ class RedisBroker(
             Optional[str],
             Doc("Redis PubSub object name to send message."),
         ] = None,
+        *,
         reply_to: Annotated[
             str,
             Doc("Reply message destination PubSub object name."),
@@ -376,7 +378,6 @@ class RedisBroker(
                 "**correlation_id** is a useful option to trace messages."
             ),
         ] = None,
-        *,
         list: Annotated[
             Optional[str],
             Doc("Redis List object name to send message."),
@@ -408,6 +409,15 @@ class RedisBroker(
             ),
         ] = False,
     ) -> Optional["DecodedMessage"]:
+        """Publish message directly.
+
+        This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
+        applications or to publish messages from time to time.
+
+        Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
+        """
+        correlation_id = correlation_id or gen_cor_id()
+
         return await super().publish(
             message,
             producer=self._producer,
@@ -433,19 +443,29 @@ class RedisBroker(
             str,
             Doc("Redis List object name to send messages."),
         ],
+        correlation_id: Annotated[
+            Optional[str],
+            Doc(
+                "Manual message **correlation_id** setter. "
+                "**correlation_id** is a useful option to trace messages."
+            ),
+        ] = None,
     ) -> None:
         """Publish multiple messages to Redis List by one request."""
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
+        correlation_id = correlation_id or gen_cor_id()
+
         async with AsyncExitStack() as stack:
             wrapped_messages = [
                 await stack.enter_async_context(
-                    middleware(None).publish_scope(msg, list=list)
+                    middleware(None).publish_scope(
+                        msg, list=list, correlation_id=correlation_id,)
                 )
                 for msg in messages
                 for middleware in self._middlewares
             ] or messages
 
-            return await self._producer.publish_batch(*wrapped_messages, list=list)
+            return await self._producer.publish_batch(*wrapped_messages, list=list, correlation_id=correlation_id,)
 
         return None
