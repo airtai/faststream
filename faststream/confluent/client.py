@@ -503,7 +503,6 @@ class AsyncConfluentConsumer:
                 raise e
 
         # Wrap calls to async to make method cancelable by timeout
-        await call_or_await(self.consumer.unsubscribe)
         await call_or_await(self.consumer.close)
 
     async def getone(self, timeout_ms: int = 1000) -> Optional[Message]:
