@@ -11,10 +11,14 @@ from typing import (
     Union,
     cast,
 )
-from uuid import uuid4
 
 from faststream._compat import dump_json, json_loads
-from faststream.broker.message import StreamMessage, decode_message, encode_message
+from faststream.broker.message import (
+    StreamMessage,
+    decode_message,
+    encode_message,
+    gen_cor_id,
+)
 from faststream.constants import ContentTypes
 from faststream.redis.message import (
     BatchListMessage,
@@ -59,15 +63,16 @@ class RawMessage:
     @classmethod
     def build(
         cls,
+        *,
         message: Union[Sequence[SendableMessage], SendableMessage],
-        reply_to: str = "",
-        headers: Optional[AnyDict] = None,
-        correlation_id: Optional[str] = None,
+        reply_to: Optional[str],
+        headers: Optional[AnyDict],
+        correlation_id: str,
     ) -> "RawMessage":
         payload, content_type = encode_message(message)
 
         headers_to_send = {
-            "correlation_id": correlation_id or str(uuid4()),
+            "correlation_id": correlation_id,
         }
 
         if content_type:
@@ -87,10 +92,11 @@ class RawMessage:
     @classmethod
     def encode(
         cls,
+        *,
         message: Union[Sequence[SendableMessage], SendableMessage],
-        reply_to: str = "",
-        headers: Optional[AnyDict] = None,
-        correlation_id: Optional[str] = None,
+        reply_to: Optional[str],
+        headers: Optional[AnyDict],
+        correlation_id: str,
     ) -> bytes:
         msg = cls.build(
             message=message,
@@ -128,7 +134,7 @@ class SimpleParser(Generic[MsgType]):
     @classmethod
     async def parse_message(cls, message: MsgType) -> StreamMessage[MsgType]:
         data, headers = cls._parse_data(message)
-        id_ = str(uuid4())
+        id_ = gen_cor_id()
         return cls.msg_class(
             raw_message=message,
             body=data,

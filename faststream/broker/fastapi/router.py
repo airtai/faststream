@@ -167,7 +167,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             deprecated=deprecated,
             include_in_schema=include_in_schema,
             generate_unique_id_function=generate_unique_id_function,
-            lifespan=self.wrap_lifespan(lifespan),
+            lifespan=self._wrap_lifespan(lifespan),
             on_startup=on_startup,
             on_shutdown=on_shutdown,
         )
@@ -177,21 +177,21 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             self.weak_dependencies_provider.add(dependency_overrides_provider)
 
         if self.include_in_schema:
-            self.docs_router = self.asyncapi_router(schema_url)
+            self.docs_router = self._asyncapi_router(schema_url)
         else:
             self.docs_router = None
 
         self._after_startup_hooks = []
         self._on_shutdown_hooks = []
 
-    def get_dependencies_overides_provider(self) -> Optional[Any]:
+    def _get_dependencies_overides_provider(self) -> Optional[Any]:
         """Dependency provider WeakRef resolver."""
         if self.dependency_overrides_provider is not None:
             return self.dependency_overrides_provider
         else:
             return next(iter(self.weak_dependencies_provider), None)
 
-    def add_api_mq_route(
+    def _add_api_mq_route(
         self,
         path: Union[NameRequired, str],
         *extra: Union[NameRequired, str],
@@ -212,7 +212,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             *extra,
             endpoint=endpoint,
             dependencies=(*self.dependencies, *dependencies),
-            provider_factory=self.get_dependencies_overides_provider,
+            provider_factory=self._get_dependencies_overides_provider,
             broker=self.broker,
             response_model=response_model,
             response_model_include=response_model_include,
@@ -246,7 +246,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
             func: Callable[P_HandlerParams, T_HandlerReturn],
         ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
             """A decorator function."""
-            return self.add_api_mq_route(
+            return self._add_api_mq_route(
                 path,
                 *extra,
                 endpoint=func,
@@ -263,8 +263,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
 
         return decorator
 
-    def wrap_lifespan(self, lifespan: Optional[Lifespan[Any]] = None) -> Lifespan[Any]:
-        """Wrap the lifespan of the application."""
+    def _wrap_lifespan(self, lifespan: Optional[Lifespan[Any]] = None) -> Lifespan[Any]:
         lifespan_context = lifespan if lifespan is not None else _DefaultLifespan(self)
 
         @asynccontextmanager
@@ -398,7 +397,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         """Create Publisher object."""
         raise NotImplementedError()
 
-    def asyncapi_router(self, schema_url: Optional[str]) -> Optional[APIRouter]:
+    def _asyncapi_router(self, schema_url: Optional[str]) -> Optional[APIRouter]:
         """Creates an API router for serving AsyncAPI documentation."""
         if not self.include_in_schema or not schema_url:
             return None
@@ -485,15 +484,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
     ) -> None:
         """Includes a router in the API."""
         if isinstance(router, StreamRouter):  # pragma: no branch
-            self.broker._subscribers = {
-                **self.broker._subscribers,
-                **router.broker._subscribers,
-            }
-            self.broker._publishers = {
-                **self.broker._publishers,
-                **router.broker._publishers,
-            }
-            router.weak_dependencies_provider = self.weak_dependencies_provider
+            self.broker.include_router(router.broker)
             router.weak_dependencies_provider = self.weak_dependencies_provider
 
         super().include_router(

@@ -20,7 +20,17 @@ from faststream.rabbit.utils import is_routing_exchange
 
 
 class AsyncAPIPublisher(LogicPublisher):
-    """AsyncAPI-compatible Rabbit Publisher class."""
+    """AsyncAPI-compatible Rabbit Publisher class.
+    
+    Creting by
+    
+    ```python
+    publisher: AsyncAPIPublisher = broker.publisher(...)
+    # or
+    publisher: AsyncAPIPublisher = router.publisher(...)
+    ```
+
+    """
 
     def get_name(self) -> str:
         routing = (

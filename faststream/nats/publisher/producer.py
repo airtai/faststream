@@ -51,9 +51,9 @@ class NatsFastProducer(ProducerProto):
         message: SendableMessage,
         subject: str,
         *,
+        correlation_id: str,
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
-        correlation_id: Optional[str] = None,
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
@@ -62,7 +62,7 @@ class NatsFastProducer(ProducerProto):
 
         headers_to_send = {
             "content-type": content_type or "",
-            "correlation_id": correlation_id or str(uuid4()),
+            "correlation_id": correlation_id,
             **(headers or {}),
         }
 
@@ -126,12 +126,12 @@ class NatsJSFastProducer(ProducerProto):
         self,
         message: "SendableMessage",
         subject: str,
+        *,
+        correlation_id: str,
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
-        correlation_id: Optional[str] = None,
         stream: Optional[str] = None,
         timeout: Optional[float] = None,
-        *,
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
         raise_timeout: bool = False,
@@ -140,7 +140,7 @@ class NatsJSFastProducer(ProducerProto):
 
         headers_to_send = {
             "content-type": content_type or "",
-            "correlation_id": correlation_id or str(uuid4()),
+            "correlation_id": correlation_id,
             **(headers or {}),
         }
 

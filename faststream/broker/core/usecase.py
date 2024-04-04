@@ -280,7 +280,7 @@ class BrokerUsecase(
             if not self.use_custom and self.logger is not None:
                 set_logger_fmt(
                     cast(logging.Logger, self.logger),
-                    self.fmt,
+                    self._get_fmt(),
                 )
 
     async def connect(self, **kwargs: Any) -> ConnectionType:

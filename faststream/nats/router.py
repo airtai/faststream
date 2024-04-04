@@ -28,6 +28,11 @@ class NatsPublisher(ArgsContainer):
 
     def __init__(
         self,
+        call: Annotated[
+            Callable[..., "SendableMessage"],
+            Doc("Message handler function "
+                "to wrap the same with `@broker.subscriber(...)` way."),
+        ],
         subject: Annotated[
             str,
             Doc("NATS subject to send message."),

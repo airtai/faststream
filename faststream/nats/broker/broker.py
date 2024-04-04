@@ -30,6 +30,7 @@ from nats.js.errors import BadRequestError
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
+from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.proto import ProducerProto
 from faststream.nats.broker.logging import NatsLoggingBroker
 from faststream.nats.broker.registrator import NatsRegistrator
@@ -550,8 +551,8 @@ class NatsBroker(
         """
         if servers is not Parameter.empty:
             connect_kwargs: "AnyDict" = {
-                "servers": servers,
                 **kwargs,
+                "servers": servers,
             }
         else:
             connect_kwargs = {**kwargs}
@@ -646,20 +647,6 @@ class NatsBroker(
             await handler.start()
 
     @override
-    def setup_subscriber(  # type: ignore[override]
-        self,
-        subscriber: AsyncAPISubscriber,
-    ) -> None:
-        connection: Union["Client", "JetStreamContext", None] = None
-
-        if subscriber.stream is None:
-            connection = self._connection
-        else:
-            connection = self.stream
-
-        return super().setup_subscriber(subscriber, connection=connection)
-
-    @override
     async def publish(  # type: ignore[override]
         self,
         message: Annotated[
@@ -730,7 +717,7 @@ class NatsBroker(
             subject=subject,
             headers=headers,
             reply_to=reply_to,
-            correlation_id=correlation_id,
+            correlation_id=correlation_id or gen_cor_id(),
             rpc=rpc,
             rpc_timeout=rpc_timeout,
             raise_timeout=raise_timeout,
@@ -751,6 +738,20 @@ class NatsBroker(
             producer=producer,
             **publihs_kwargs,
         )
+
+    @override
+    def setup_subscriber(  # type: ignore[override]
+        self,
+        subscriber: AsyncAPISubscriber,
+    ) -> None:
+        connection: Union["Client", "JetStreamContext", None] = None
+
+        if subscriber.stream is None:
+            connection = self._connection
+        else:
+            connection = self.stream
+
+        return super().setup_subscriber(subscriber, connection=connection)
 
     @override
     def setup_publisher(  # type: ignore[override]

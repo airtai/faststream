@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Iterable, Optional, Union
 from aio_pika import IncomingMessage
 from typing_extensions import Annotated, Doc, TypedDict, Unpack, override
 
+from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.rabbit.schemas import BaseRMQInformation, RabbitQueue
@@ -211,7 +212,7 @@ class LogicPublisher(
             ),
         ] = False,
         # publisher specific
-        extra_middlewares: Annotated[
+        _extra_middlewares: Annotated[
             Iterable["PublisherMiddleware"],
             Doc("Extra middlewares to wrap publishing process."),
         ] = (),
@@ -225,7 +226,7 @@ class LogicPublisher(
             or RabbitQueue.validate(queue or self.queue).routing,
             "exchange": exchange or self.exchange,
             "app_id": self.app_id,
-            "correlation_id": correlation_id,
+            "correlation_id": correlation_id or gen_cor_id(),
             "message_id": message_id,
             "timestamp": timestamp,
             # specific args
@@ -238,7 +239,7 @@ class LogicPublisher(
 
         async with AsyncExitStack() as stack:
             for m in chain(
-                extra_middlewares
+                _extra_middlewares
                 or (m(None).publish_scope for m in self._broker_middlewares),
                 self._middlewares,
             ):

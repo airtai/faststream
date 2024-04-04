@@ -325,18 +325,18 @@ class SubscriberUsecase(
                     result_msg = await h.call(
                         message=message,
                         # consumer middlewares
-                        extra_middlewares=(m.consume_scope for m in middlewares),
+                        _extra_middlewares=(m.consume_scope for m in middlewares),
                     )
 
                     for p in chain(
-                        self.make_response_publisher(message),
+                        self._make_response_publisher(message),
                         h.handler._publishers,
                     ):
                         await p.publish(
                             result_msg,
                             correlation_id=message.correlation_id,
                             # publisher middlewares
-                            extra_middlewares=(m.publish_scope for m in middlewares),
+                            _extra_middlewares=(m.publish_scope for m in middlewares),
                         )
 
                     return result_msg
