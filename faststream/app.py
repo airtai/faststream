@@ -43,27 +43,7 @@ if TYPE_CHECKING:
 
 
 class FastStream:
-    """A class representing a FastStream application.
-
-    Attributes:
-        _on_startup_calling : list of async functions to be called on startup
-        _after_startup_calling : list of async functions to be called after startup
-        _on_shutdown_calling : list of async functions to be called on shutdown
-        _after_shutdown_calling : list of async functions to be called after shutdown
-
-    Methods:
-        __init__ : initializes the FastStream application
-        on_startup : adds a hook to run before the broker is connected
-        on_shutdown : adds a hook to run before the broker is disconnected
-        after_startup : adds a hook to run after the broker is connected
-        after_shutdown : adds a hook to run after the broker is disconnected
-        run : runs the FastStream application
-        _start : starts the FastStream application
-        _stop : stops the FastStream application
-        _startup : runs the startup hooks
-        _shutdown : runs the shutdown hooks
-        __exit : exits the FastStream application
-    """
+    """A class representing a FastStream application."""
 
     _on_startup_calling: List[AsyncFunc]
     _after_startup_calling: List[AsyncFunc]
@@ -88,24 +68,6 @@ class FastStream:
             Union["ExternalDocs", "ExternalDocsDict", AnyDict]
         ] = None,
     ) -> None:
-        """Asynchronous FastStream Application class.
-
-        stores and run broker, control hooks
-
-        Args:
-            broker: async broker to run (may be `None`, then specify by `set_broker`)
-            logger: logger object to log startup/shutdown messages (`None` to disable)
-            lifespan: lifespan context to run application
-            title: application title - for AsyncAPI docs
-            version: application version - for AsyncAPI docs
-            description: application description - for AsyncAPI docs
-            terms_of_service: application terms of service - for AsyncAPI docs
-            license: application license - for AsyncAPI docs
-            contact: application contact - for AsyncAPI docs
-            identifier: application identifier - for AsyncAPI docs
-            tags: application tags - for AsyncAPI docs
-            external_docs: application external docs - for AsyncAPI docs
-        """
         context.set_global("app", self)
 
         self.broker = broker
@@ -152,13 +114,7 @@ class FastStream:
     ) -> Callable[P_HookParams, T_HookReturn]:
         """Add hook running BEFORE broker connected.
 
-        This hook also takes an extra CLI options as a kwargs
-
-        Args:
-            func: async or sync func to call as a hook
-
-        Returns:
-            Async version of the func argument
+        This hook also takes an extra CLI options as a kwargs.
         """
         self._on_startup_calling.append(apply_types(to_async(func)))
         return func
@@ -167,14 +123,7 @@ class FastStream:
         self,
         func: Callable[P_HookParams, T_HookReturn],
     ) -> Callable[P_HookParams, T_HookReturn]:
-        """Add hook running BEFORE broker disconnected.
-
-        Args:
-            func: async or sync func to call as a hook
-
-        Returns:
-            Async version of the func argument
-        """
+        """Add hook running BEFORE broker disconnected."""
         self._on_shutdown_calling.append(apply_types(to_async(func)))
         return func
 
@@ -182,14 +131,7 @@ class FastStream:
         self,
         func: Callable[P_HookParams, T_HookReturn],
     ) -> Callable[P_HookParams, T_HookReturn]:
-        """Add hook running AFTER broker connected.
-
-        Args:
-            func: async or sync func to call as a hook
-
-        Returns:
-            Async version of the func argument
-        """
+        """Add hook running AFTER broker connected."""
         self._after_startup_calling.append(apply_types(to_async(func)))
         return func
 
@@ -197,14 +139,7 @@ class FastStream:
         self,
         func: Callable[P_HookParams, T_HookReturn],
     ) -> Callable[P_HookParams, T_HookReturn]:
-        """Add hook running AFTER broker disconnected.
-
-        Args:
-            func: async or sync func to call as a hook
-
-        Returns:
-            Async version of the func argument
-        """
+        """Add hook running AFTER broker disconnected."""
         self._after_shutdown_calling.append(apply_types(to_async(func)))
         return func
 
@@ -214,15 +149,7 @@ class FastStream:
         run_extra_options: Optional[Dict[str, SettingField]] = None,
         sleep_time: float = 0.1,
     ) -> None:
-        """Run FastStream Application.
-
-        Args:
-            log_level: force application log level
-            run_extra_options: extra options for running the app
-
-        Returns:
-            Block an event loop until stopped
-        """
+        """Run FastStream Application."""
         assert self.broker, "You should setup a broker"  # nosec B101
 
         set_exit(lambda *_: self.exit(), sync=False)
@@ -243,14 +170,7 @@ class FastStream:
         self,
         **run_extra_options: SettingField,
     ) -> None:
-        """Executes startup tasks.
-
-        Args:
-            run_extra_options: Additional options to be passed to the startup tasks.
-
-        Returns:
-            None
-        """
+        """Executes startup hooks and start broker."""
         for func in self._on_startup_calling:
             call = func(**run_extra_options)
 
@@ -272,11 +192,7 @@ class FastStream:
             await func()
 
     async def stop(self) -> None:
-        """Executes shutdown tasks.
-
-        Returns:
-            None
-        """
+        """Executes shutdown hooks and stop broker."""
         for func in self._on_shutdown_calling:
             await func()
 
@@ -291,15 +207,6 @@ class FastStream:
         log_level: int = logging.INFO,
         run_extra_options: Optional[Dict[str, SettingField]] = None,
     ) -> None:
-        """Start the FastStream app.
-
-        Args:
-            log_level (int): log level (default: logging.INFO)
-            run_extra_options (Optional[Dict[str, SettingField]]): extra options for running the app (default: None)
-
-        Returns:
-            None
-        """
         self._log(log_level, "FastStream app starting...")
         await self.start(**(run_extra_options or {}))
         self._log(
@@ -307,27 +214,10 @@ class FastStream:
         )
 
     async def _shutdown(self, log_level: int = logging.INFO) -> None:
-        """Stop the application gracefully.
-
-        Args:
-            log_level (int): log level for logging messages (default: logging.INFO)
-
-        Returns:
-            None
-        """
         self._log(log_level, "FastStream app shutting down...")
         await self.stop()
         self._log(log_level, "FastStream app shut down gracefully.")
 
     def _log(self, level: int, message: str) -> None:
-        """Logs a message with the specified log level.
-
-        Args:
-            level (int): The log level.
-            message (str): The message to be logged.
-
-        Returns:
-            None
-        """
         if self.logger is not None:
             self.logger.log(level, message)

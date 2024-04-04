@@ -16,6 +16,7 @@ from aio_pika import connect_robust
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
+from faststream.broker.message import gen_cor_id
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.rabbit.broker.logging import RabbitLoggingBroker
 from faststream.rabbit.broker.registrator import RabbitRegistrator
@@ -400,7 +401,7 @@ class RabbitBroker(
         await super()._close(exc_type, exc_val, exc_tb)
 
     async def start(self) -> None:
-        """Connect broker to RabbitMQ cluster and startup all subscribers."""
+        """Connect broker to RabbitMQ and startup all subscribers."""
         await super().start()
 
         assert self.declarer, NOT_CONNECTED_YET  # nosec B101
@@ -539,6 +540,7 @@ class RabbitBroker(
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
         """
         routing = routing_key or RabbitQueue.validate(queue).routing
+        correlation_id = correlation_id or gen_cor_id()
 
         return await super().publish(
             message,
@@ -573,7 +575,7 @@ class RabbitBroker(
             Doc("Queue object to create."),
         ],
     ) -> "RobustQueue":
-        """Declares queue object in RabbitMQ."""
+        """Declares queue object in **RabbitMQ**."""
         assert self.declarer, NOT_CONNECTED_YET  # nosec B101
         return await self.declarer.declare_queue(queue)
 
@@ -584,6 +586,6 @@ class RabbitBroker(
             Doc("Exchange object to create."),
         ],
     ) -> "RobustExchange":
-        """Declares exchange object in RabbitMQ."""
+        """Declares exchange object in **RabbitMQ**."""
         assert self.declarer, NOT_CONNECTED_YET  # nosec B101
         return await self.declarer.declare_exchange(exchange)

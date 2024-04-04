@@ -27,7 +27,7 @@ class FakePublisher(BasePublisherProto):
         message: SendableMessage,
         *,
         correlation_id: Optional[str] = None,
-        extra_middlewares: Iterable[PublisherMiddleware] = (),
+        _extra_middlewares: Iterable[PublisherMiddleware] = (),
         **kwargs: Any,
     ) -> Any:
         """Publish a message."""
@@ -38,7 +38,7 @@ class FakePublisher(BasePublisherProto):
         }
 
         async with AsyncExitStack() as stack:
-            for m in chain(extra_middlewares, self.middlewares):
+            for m in chain(_extra_middlewares, self.middlewares):
                 message = await stack.enter_async_context(
                     m(message, **publish_kwargs)
                 )

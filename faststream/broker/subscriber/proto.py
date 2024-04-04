@@ -66,7 +66,7 @@ class SubscriberProto(
         ...
 
     @abstractmethod
-    def make_response_publisher(
+    def _make_response_publisher(
         self,
         message: StreamMessage[MsgType],
     ) -> Iterable[BasePublisherProto]:

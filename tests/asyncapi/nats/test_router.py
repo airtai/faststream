@@ -1,6 +1,6 @@
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
-from faststream.nats import NatsBroker, NatsRoute, NatsRouter
+from faststream.nats import NatsBroker, NatsPublisher, NatsRoute, NatsRouter
 from tests.asyncapi.base.arguments import ArgumentsTestcase
 from tests.asyncapi.base.publisher import PublisherTestcase
 from tests.asyncapi.base.router import RouterTestcase
@@ -10,6 +10,7 @@ class TestRouter(RouterTestcase):
     broker_class = NatsBroker
     router_class = NatsRouter
     route_class = NatsRoute
+    publisher_class = NatsPublisher
 
     def test_prefix(self):
         broker = self.broker_class()

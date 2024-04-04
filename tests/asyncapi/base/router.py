@@ -1,17 +1,20 @@
 from typing import Type
 
+from dirty_equals import IsStr
+
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
 from faststream.broker.core.usecase import BrokerUsecase
-from faststream.broker.router import BrokerRouter, SubscriberRoute
+from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRoute
 
 
 class RouterTestcase:
     broker_class: Type[BrokerUsecase]
     router_class: Type[BrokerRouter]
+    publisher_class: Type[ArgsContainer]
     route_class: Type[SubscriberRoute]
 
-    def test_delay(self):
+    def test_delay_subscriber(self):
         broker = self.broker_class()
 
         async def handle(msg):
@@ -28,6 +31,32 @@ class RouterTestcase:
         payload = schema["components"]["schemas"]
         key = list(payload.keys())[0]  # noqa: RUF015
         assert payload[key]["title"] == key == "Handle:Message:Payload"
+
+    def test_delay_publisher(self):
+        broker = self.broker_class()
+
+        async def handle(msg):
+            ...
+
+        router = self.router_class(
+            handlers=(
+                self.route_class(
+                    handle,
+                    "test",
+                    publishers=(self.publisher_class("test2", schema=int),),
+                ),
+            ),
+        )
+
+        broker.include_router(router)
+
+        schema = get_app_schema(FastStream(broker))
+        schemas = schema.components.schemas
+        del schemas["Handle:Message:Payload"]
+
+        for i, j in schemas.items():
+            assert i == j["title"] == IsStr(regex=r"test2[\w:]*:Publisher:Message:Payload")
+            assert j["type"] == "integer"
 
     def test_not_include(self):
         broker = self.broker_class()

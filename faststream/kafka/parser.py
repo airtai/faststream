@@ -1,9 +1,8 @@
 from typing import TYPE_CHECKING, Any, Optional, Tuple
-from uuid import uuid4
 
 from aiokafka import ConsumerRecord
 
-from faststream.broker.message import StreamMessage, decode_message
+from faststream.broker.message import StreamMessage, decode_message, gen_cor_id
 from faststream.kafka.message import FAKE_CONSUMER, KafkaMessage
 from faststream.types import DecodedMessage
 from faststream.utils.context.repository import context
@@ -28,7 +27,7 @@ class AioKafkaParser:
             reply_to=headers.get("reply_to", ""),
             content_type=headers.get("content-type"),
             message_id=f"{message.offset}-{message.timestamp}",
-            correlation_id=headers.get("correlation_id", str(uuid4())),
+            correlation_id=headers.get("correlation_id", gen_cor_id()),
             raw_message=message,
             consumer=getattr(handler, "consumer", None) or FAKE_CONSUMER,
             is_manual=getattr(handler, "is_manual", True),
@@ -49,7 +48,7 @@ class AioKafkaParser:
             reply_to=headers.get("reply_to", ""),
             content_type=headers.get("content-type"),
             message_id=f"{first.offset}-{last.offset}-{first.timestamp}",
-            correlation_id=headers.get("correlation_id", str(uuid4())),
+            correlation_id=headers.get("correlation_id", gen_cor_id()),
             raw_message=message,
             consumer=getattr(handler, "consumer", None) or FAKE_CONSUMER,
             is_manual=getattr(handler, "is_manual", True),

@@ -1,5 +1,4 @@
-from typing import Dict, Optional
-from uuid import uuid4
+from typing import Any, Dict, Optional, Union
 
 from aiokafka import AIOKafkaProducer
 from typing_extensions import override
@@ -22,16 +21,16 @@ class AioKafkaFastProducer(ProducerProto):
         self._producer = producer
 
     @override
-    async def publish(
+    async def publish(  # type: ignore[override]
         self,
         message: SendableMessage,
         topic: str,
         *,
-        key: Optional[bytes] = None,
+        correlation_id: str,
+        key: Union[bytes, Any, None] = None,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
         headers: Optional[Dict[str, str]] = None,
-        correlation_id: Optional[str] = None,
         reply_to: str = "",
     ) -> None:
         """Publish a message to a topic."""
@@ -41,7 +40,7 @@ class AioKafkaFastProducer(ProducerProto):
 
         headers_to_send = {
             "content-type": content_type or "",
-            "correlation_id": correlation_id or str(uuid4()),
+            "correlation_id": correlation_id,
             **(headers or {}),
         }
 
@@ -68,12 +67,12 @@ class AioKafkaFastProducer(ProducerProto):
     async def publish_batch(
         self,
         *msgs: SendableMessage,
+        correlation_id: str,
         topic: str,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
-        correlation_id: Optional[str] = None,
     ) -> None:
         """Publish a batch of messages to a topic."""
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
@@ -81,7 +80,7 @@ class AioKafkaFastProducer(ProducerProto):
         batch = self._producer.create_batch()
 
         headers_to_send = {
-            "correlation_id": correlation_id or str(uuid4()),
+            "correlation_id": correlation_id,
             **(headers or {})
         }
 

@@ -30,7 +30,7 @@ class BasePublisherProto(Protocol):
         /,
         *,
         correlation_id: Optional[str] = None,
-        extra_middlewares: Iterable[PublisherMiddleware] = (),
+        _extra_middlewares: Iterable[PublisherMiddleware] = (),
     ) -> Optional[Any]:
         """Publishes a message asynchronously."""
         ...

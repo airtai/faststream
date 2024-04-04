@@ -152,11 +152,11 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         self,
         /,
         message: "StreamMessage[MsgType]",
-        extra_middlewares: Iterable["SubscriberMiddleware"],
+        _extra_middlewares: Iterable["SubscriberMiddleware"],
     ) -> Any:
         """Execute wrapped handler with consume middlewares."""
         async with AsyncExitStack() as consume_stack:
-            for middleware in chain(self.item_middlewares, extra_middlewares):
+            for middleware in chain(self.item_middlewares, _extra_middlewares):
                 message.decoded_body = await consume_stack.enter_async_context(
                     middleware(message.decoded_body)
                 )

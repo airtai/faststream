@@ -6,7 +6,7 @@ import pytest
 
 from faststream import BaseMiddleware, Depends
 from faststream.broker.core.usecase import BrokerUsecase
-from faststream.broker.router import BrokerRouter, SubscriberRoute
+from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRoute
 from faststream.types import AnyCallable
 from tests.brokers.base.middlewares import LocalMiddlewareTestcase
 from tests.brokers.base.parser import LocalCustomParserTestcase
@@ -21,6 +21,7 @@ class RouterTestcase(
     route_class: Type[SubscriberRoute]
     timeout: int = 3
     subscriber_kwargs: dict[str, Any] = {}
+    publisher_class: Type[ArgsContainer]
 
     def patch_broker(self, br: BrokerUsecase, router: BrokerRouter) -> BrokerUsecase:
         br.include_router(router)
@@ -213,6 +214,50 @@ class RouterTestcase(
 
             assert event.is_set()
 
+    async def test_delayed_publishers(
+        self,
+        event: asyncio.Event,
+        router: BrokerRouter,
+        queue: str,
+        pub_broker: BrokerUsecase,
+        mock: Mock,
+    ):
+        def response(m):
+            return m
+
+        r = type(router)(
+            prefix="test_",
+            handlers=(
+                self.route_class(
+                    response,
+                    queue,
+                    publishers=(self.publisher_class(queue + "1"),),
+                ),
+            ),
+        )
+
+        pub_broker.include_router(r)
+
+        @pub_broker.subscriber(f"test_{queue}1")
+        async def handler(msg):
+            mock(msg)
+            event.set()
+
+        async with pub_broker:
+            await pub_broker.start()
+
+            await asyncio.wait(
+                (
+                    asyncio.create_task(pub_broker.publish("hello", f"test_{queue}")),
+                    asyncio.create_task(event.wait()),
+                ),
+                timeout=3,
+            )
+
+            assert event.is_set()
+
+            mock.assert_called_once_with("hello")
+
     async def test_nested_routers_sub(
         self,
         router: BrokerRouter,
@@ -305,10 +350,7 @@ class RouterTestcase(
         pub_broker.include_routers(router)
 
         sub = next(iter(pub_broker._subscribers.values()))
-        assert (
-            len((*sub._broker_dependecies, *sub.calls[0].dependencies))
-            == 3
-        )
+        assert len((*sub._broker_dependecies, *sub.calls[0].dependencies)) == 3
 
     async def test_router_middlewares(
         self,

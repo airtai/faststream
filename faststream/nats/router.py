@@ -1,9 +1,10 @@
-from typing import TYPE_CHECKING, Callable, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Optional, Union
 
 from nats.js import api
 from typing_extensions import Annotated, Doc, deprecated
 
-from faststream.broker.router import BrokerRouter, SubscriberRoute
+from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRoute
+from faststream.broker.types import PublisherMiddleware
 from faststream.broker.utils import default_filter
 from faststream.nats.broker.registrator import NatsRegistrator
 
@@ -23,20 +24,103 @@ if TYPE_CHECKING:
     from faststream.types import SendableMessage
 
 
+class NatsPublisher(ArgsContainer):
+    """Delayed NatsPublisher registration object.
+
+    Just a copy of `KafkaRegistrator.publisher(...)` arguments.
+    """
+
+    def __init__(
+        self,
+        subject: Annotated[
+            str,
+            Doc("NATS subject to send message."),
+        ],
+        *,
+        headers: Annotated[
+            Optional[Dict[str, str]],
+            Doc(
+                "Message headers to store metainformation. "
+                "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
+                "Can be overrided by `publish.headers` if specified."
+            ),
+        ] = None,
+        reply_to: Annotated[
+            str,
+            Doc("NATS subject name to send response."),
+        ] = "",
+        # JS
+        stream: Annotated[
+            Union[str, "JStream", None],
+            Doc(
+                "This option validates that the target `subject` is in presented stream. "
+                "Can be ommited without any effect."
+            ),
+        ] = None,
+        timeout: Annotated[
+            Optional[float],
+            Doc("Timeout to send message to NATS."),
+        ] = None,
+        # basic args
+        middlewares: Annotated[
+            Iterable[PublisherMiddleware],
+            Doc("Publisher middlewares to wrap outgoing messages."),
+        ] = (),
+        # AsyncAPI information
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object description."),
+        ] = None,
+        schema: Annotated[
+            Optional[Any],
+            Doc(
+                "AsyncAPI publishing message type. "
+                "Should be any python-native object annotation or `pydantic.BaseModel`."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+    ) -> None:
+        super().__init__(
+            subject=subject,
+            headers=headers,
+            reply_to=reply_to,
+            stream=stream,
+            timeout=timeout,
+            middlewares=middlewares,
+            title=title,
+            description=description,
+            schema=schema,
+            include_in_schema=include_in_schema,
+        )
+
 
 class NatsRoute(SubscriberRoute):
-    """Class to store delaied RabbitBroker subscriber registration."""
+    """Class to store delayed NatsBroker subscriber registration."""
 
     def __init__(
         self,
         call: Annotated[
             Callable[..., "SendableMessage"],
-            Doc("Message handler function."),
+            Doc(
+                "Message handler function "
+                "to wrap the same with `@broker.subscriber(...)` way."
+            ),
         ],
         subject: Annotated[
             str,
             Doc("NATS subject to subscribe."),
         ],
+        publishers: Annotated[
+            Iterable[NatsPublisher],
+            Doc("Nats publishers to broadcast the handler result."),
+        ] = (),
         queue: Annotated[
             str,
             Doc(
@@ -185,6 +269,7 @@ class NatsRoute(SubscriberRoute):
         super().__init__(
             call,
             subject=subject,
+            publishers=publishers,
             pending_msgs_limit=pending_msgs_limit,
             pending_bytes_limit=pending_bytes_limit,
             max_msgs=max_msgs,

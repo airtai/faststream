@@ -131,7 +131,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             _get_dependant=_get_dependant,
         )
 
-    def make_response_publisher(
+    def _make_response_publisher(
         self, message: "BrokerStreamMessage[MsgType]"
     ) -> Sequence[FakePublisher]:
         if not message.reply_to or self._producer is None:
