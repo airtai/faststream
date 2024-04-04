@@ -210,7 +210,6 @@ class KafkaRegistrator(ABCBroker[Union[
         *,
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
-        timestamp_ms: Optional[int] = None,
         batch: bool = False,
         headers: Annotated[
             Optional[Dict[str, str]],
@@ -268,7 +267,6 @@ class KafkaRegistrator(ABCBroker[Union[
                     # both args
                     topic=topic,
                     partition=partition,
-                    timestamp_ms=timestamp_ms,
                     headers=headers,
                     reply_to=reply_to,
                     # publisher-specific

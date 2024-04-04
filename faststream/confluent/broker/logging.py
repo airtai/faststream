@@ -36,7 +36,7 @@ class KafkaLoggingBroker(BrokerUsecase[
             logger=logger,
             # TODO: generate unique logger names to not share between brokers
             default_logger=get_broker_logger(
-                name="kafka",
+                name="confluent",
                 default_context={
                     "topic": "",
                     "group_id": "",

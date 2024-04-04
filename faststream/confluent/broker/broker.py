@@ -389,7 +389,7 @@ class KafkaBroker(
         **kwargs: Any,
     ) -> ConsumerConnectionParams:
         if bootstrap_servers is not Parameter.empty:
-            kwargs["servers"] = bootstrap_servers
+            kwargs["bootstrap_servers"] = bootstrap_servers
 
         return await super().connect(**kwargs)
 
@@ -406,7 +406,6 @@ class KafkaBroker(
             **security_params,
             client_id=client_id,
         )
-        await producer.start()
         self._producer = AsyncConfluentFastProducer(
             producer=producer,
         )
@@ -420,12 +419,13 @@ class KafkaBroker(
                 f"`{handler.call_name}` waiting for messages",
                 extra=handler.get_log_context(None),
             )
-            await handler.start(**(self._connection or {}))
+            await handler.start()
 
     @property
     def _subscriber_setup_extra(self) -> AnyDict:
         return {
-            "client_id": self.client_id
+            "client_id": self.client_id,
+            "connection_data": self._connection or {}
         }
 
     @override

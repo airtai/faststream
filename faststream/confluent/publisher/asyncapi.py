@@ -64,8 +64,7 @@ class AsyncAPIPublisher(LogicPublisher):
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
-    ) -> "AsyncAPIBatchPublisher":
-        ...
+    ) -> "AsyncAPIBatchPublisher": ...
 
     @overload
     @staticmethod
@@ -86,10 +85,9 @@ class AsyncAPIPublisher(LogicPublisher):
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
-    ) -> "AsyncAPIDefaultPublisher":
-        ...
+    ) -> "AsyncAPIDefaultPublisher": ...
 
-    @override
+    @overload
     @staticmethod
     def create(
         *,
@@ -111,6 +109,29 @@ class AsyncAPIPublisher(LogicPublisher):
     ) -> Union[
         "AsyncAPIBatchPublisher",
         "AsyncAPIDefaultPublisher",
+    ]: ...
+
+    @override
+    @staticmethod
+    def create(
+        *,
+        batch: bool,
+        key: Optional[bytes],
+        topic: str,
+        partition: Optional[int],
+        headers: Optional[Dict[str, str]],
+        reply_to: Optional[str],
+        # Publisher args
+        broker_middlewares: Iterable[BrokerMiddleware[Message]],
+        middlewares: Iterable[PublisherMiddleware],
+        # AsyncAPI args
+        schema_: Optional[Any],
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> Union[
+        "AsyncAPIBatchPublisher",
+        "AsyncAPIDefaultPublisher",
     ]:
         if batch:
             if key:
@@ -119,7 +140,6 @@ class AsyncAPIPublisher(LogicPublisher):
             return AsyncAPIBatchPublisher(
                 topic=topic,
                 partition=partition,
-                timestamp_ms=timestamp_ms,
                 headers=headers,
                 reply_to=reply_to,
                 broker_middlewares=broker_middlewares,
@@ -135,7 +155,6 @@ class AsyncAPIPublisher(LogicPublisher):
                 # basic args
                 topic=topic,
                 partition=partition,
-                timestamp_ms=timestamp_ms,
                 headers=headers,
                 reply_to=reply_to,
                 broker_middlewares=broker_middlewares,

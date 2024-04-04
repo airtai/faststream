@@ -45,7 +45,8 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
 
     @staticmethod
     def remove_publisher_fake_subscriber(
-        broker: KafkaBroker, publisher: AsyncAPIPublisher,
+        broker: KafkaBroker,
+        publisher: AsyncAPIPublisher,
     ) -> None:
         broker._subscribers.pop(hash(publisher), None)
 
@@ -91,7 +92,9 @@ class FakeProducer(AsyncConfluentFastProducer):
             if topic in handler.topics:
                 return await call_handler(
                     handler=handler,
-                    message=[incoming] if isinstance(handler, BatchAsyncAPISubscriber) else incoming,
+                    message=[incoming]
+                    if isinstance(handler, BatchAsyncAPISubscriber)
+                    else incoming,
                     rpc=rpc,
                     rpc_timeout=rpc_timeout,
                     raise_timeout=raise_timeout,

@@ -78,12 +78,14 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         # Setup it later
         self.client_id = ""
+        self.__connection_data = ConsumerConnectionParams()
 
     @override
     def setup(  # type: ignore[override]
         self,
         *,
         client_id: Optional[str],
+        connection_data: ConsumerConnectionParams,
         # basic args
         logger: Optional[LoggerProto],
         producer: Optional[ProducerProto],
@@ -98,6 +100,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         _get_dependant: Optional[Callable[..., Any]],
     ) -> None:
         self.client_id = client_id
+        self.__connection_data = connection_data
 
         super().setup(
             logger=logger,
@@ -112,16 +115,13 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         )
 
     @override
-    async def start(  # type: ignore[override]
-        self,
-        **consumer_kwargs: Unpack[ConsumerConnectionParams],
-    ) -> None:
+    async def start(self) -> None:
         """Start the consumer."""
         self.consumer = consumer = self.builder(
             *self.topics,
             group_id=self.group_id,
             client_id=self.client_id,
-            **consumer_kwargs,
+            **self.__connection_data,
         )
         await consumer.start()
 
@@ -167,7 +167,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         while self.running:
             try:
                 msg = await self.get_msg()
-            except KafkaException:  # pragma: no cover
+            except KafkaException:  # pragma: no cover  # noqa: PERF203
                 if connected:
                     connected = False
                 await anyio.sleep(5)
@@ -178,7 +178,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
                 if msg:
                     await self.consume(msg)  # type: ignore[arg-type]
-
 
     @staticmethod
     def get_routing_hash(topics: Iterable[str], group_id: Optional[str] = None) -> int:
@@ -206,9 +205,9 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         if message is None:
             topic = ",".join(self.topics)
         elif isinstance(message.raw_message, Sequence):
-            topic = message.raw_message[0].topic
+            topic = message.raw_message[0].topic()
         else:
-            topic = message.raw_message.topic
+            topic = message.raw_message.topic()
 
         return self.build_log_context(
             message=message,
@@ -217,10 +216,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         )
 
     def add_prefix(self, prefix: str) -> None:
-        self.topics = tuple(
-            "".join((prefix, t))
-            for t in self.topics
-        )
+        self.topics = tuple("".join((prefix, t)) for t in self.topics)
+
 
 class DefaultSubscriber(LogicSubscriber[Message]):
     def __init__(

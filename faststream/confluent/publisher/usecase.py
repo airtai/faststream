@@ -22,7 +22,6 @@ class LogicPublisher(PublisherUsecase[Message]):
         *,
         topic: str,
         partition: Optional[int],
-        timestamp_ms: Optional[int],
         headers: Optional[Dict[str, str]],
         reply_to: Optional[str],
         # Publisher args
@@ -46,7 +45,6 @@ class LogicPublisher(PublisherUsecase[Message]):
 
         self.topic = topic
         self.partition = partition
-        self.timestamp_ms = timestamp_ms
         self.reply_to = reply_to
         self.headers = headers
 
@@ -66,7 +64,6 @@ class DefaultPublisher(LogicPublisher):
         key: Optional[bytes],
         topic: str,
         partition: Optional[int],
-        timestamp_ms: Optional[int],
         headers: Optional[Dict[str, str]],
         reply_to: Optional[str],
         # Publisher args
@@ -82,7 +79,6 @@ class DefaultPublisher(LogicPublisher):
             topic=topic,
             partition=partition,
             timestamp_ms=timestamp_ms,
-            reply_to=reply_to,
             headers=headers,
             # publisher args
             broker_middlewares=broker_middlewares,
@@ -118,7 +114,7 @@ class DefaultPublisher(LogicPublisher):
             # basic args
             "topic": topic or self.topic,
             "partition": partition or self.partition,
-            "timestamp_ms": timestamp_ms or self.timestamp_ms,
+            "timestamp_ms": timestamp_ms,
             "headers": headers or self.headers,
             "reply_to": reply_to or self.reply_to,
             "correlation_id": correlation_id,

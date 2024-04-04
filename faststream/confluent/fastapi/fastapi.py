@@ -47,10 +47,7 @@ from faststream.security import BaseSecurity
 from faststream.types import AnyDict
 
 
-class KafkaRouter(StreamRouter[Union[
-    Message,
-    Tuple[Message, ...]
-]]):
+class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
     """A class to represent a Kafka router."""
 
     broker_class = KB
@@ -72,24 +69,25 @@ class KafkaRouter(StreamRouter[Union[
             ),
         ] = 15.0,
         decoder: Annotated[
-            Optional[Union[
-                CustomDecoder[StreamMessage[Message]],
-                CustomDecoder[StreamMessage[Tuple[Message, ...]]],
-            ]],
+            Optional[
+                Union[
+                    CustomDecoder[StreamMessage[Message]],
+                    CustomDecoder[StreamMessage[Tuple[Message, ...]]],
+                ]
+            ],
             Doc("Custom decoder object."),
         ] = None,
         parser: Annotated[
-            Optional[Union[
-                CustomParser[Message],
-                CustomParser[Tuple[Message, ...]]
-            ]],
+            Optional[Union[CustomParser[Message], CustomParser[Tuple[Message, ...]]]],
             Doc("Custom parser object."),
         ] = None,
         middlewares: Annotated[
-            Iterable[Union[
-                BrokerMiddleware[Message],
-                BrokerMiddleware[Tuple[Message, ...]],
-            ]],
+            Iterable[
+                Union[
+                    BrokerMiddleware[Message],
+                    BrokerMiddleware[Tuple[Message, ...]],
+                ]
+            ],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args
@@ -420,9 +418,7 @@ class KafkaRouter(StreamRouter[Union[
         auto_commit: bool = True,
         auto_commit_interval_ms: int = 5000,
         check_crcs: bool = True,
-        partition_assignment_strategy: Sequence[str] = (
-            "roundrobin",
-        ),
+        partition_assignment_strategy: Sequence[str] = ("roundrobin",),
         max_poll_interval_ms: int = 300000,
         rebalance_timeout_ms: Optional[int] = None,
         session_timeout_ms: int = 10000,
@@ -585,15 +581,9 @@ class KafkaRouter(StreamRouter[Union[
                 """
             ),
         ] = False,
-    ) -> AsyncAPISubscriber[Union[
-        Message,
-        Tuple[Message, ...]
-    ]]:
+    ) -> AsyncAPISubscriber[Union[Message, Tuple[Message, ...]]]:
         return cast(
-            AsyncAPISubscriber[Union[
-                Message,
-                Tuple[Message, ...]
-            ]],
+            AsyncAPISubscriber[Union[Message, Tuple[Message, ...]]],
             super().subscriber(
                 topics[0],  # path
                 *topics,
