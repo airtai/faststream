@@ -2,7 +2,7 @@ from typing import Type
 
 from faststream.asyncapi.generate import get_app_schema
 from faststream.kafka.fastapi import KafkaRouter
-from faststream.kafka.test import TestKafkaBroker
+from faststream.kafka.testing import TestKafkaBroker
 from faststream.security import SASLPlaintext
 from tests.asyncapi.base.arguments import FastAPICompatible
 from tests.asyncapi.base.fastapi import FastAPITestCase

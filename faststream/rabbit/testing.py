@@ -40,10 +40,6 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
         broker._producer = FakeProducer(broker)
 
     @staticmethod
-    def patch_publisher(broker: RabbitBroker, publisher: AsyncAPIPublisher) -> None:
-        publisher._producer = broker._producer
-
-    @staticmethod
     def create_publisher_fake_subscriber(
         broker: RabbitBroker,
         publisher: AsyncAPIPublisher,
@@ -59,13 +55,6 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
 
         broker.setup_subscriber(sub)
         return f
-
-    @classmethod
-    def _fake_start(cls, broker: RabbitBroker, *args: Any, **kwargs: Any) -> None:
-        super()._fake_start(broker, *args, **kwargs)
-
-        for h in broker._subscribers.values():
-            h._producer = FakeProducer(broker)  # type: ignore[assignment]
 
     @staticmethod
     def remove_publisher_fake_subscriber(

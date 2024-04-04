@@ -5,10 +5,6 @@ class FastStreamException(Exception):  # noqa: N818
     """Basic FastStream exception class."""
 
 
-class SkipMessage(FastStreamException):
-    """Watcher Instruction to skip message."""
-
-
 class IgnoredException(FastStreamException):
     """Basic Exception class ignoring by watcher context and log middleware."""
 
@@ -16,25 +12,47 @@ class IgnoredException(FastStreamException):
 class StopConsume(IgnoredException):
     """Raise it to stop Handler consuming."""
 
+    def __str__(self) -> str:
+        return "Consumer was stopped"
+
 
 class StopApplication(IgnoredException, SystemExit):
     """Raise it to stop FastStream application."""
 
+    def __str__(self) -> str:
+        return "Application was stopped"
 
-class HandlerException(FastStreamException):
+
+class HandlerException(IgnoredException):
     """Base Handler Exception."""
+
+
+class SkipMessage(HandlerException):
+    """Watcher Instruction to skip message."""
+
+    def __str__(self) -> str:
+        return "Message was skipped"
 
 
 class AckMessage(HandlerException):
     """Raise it to `ack` a message immediately."""
 
+    def __str__(self) -> str:
+        return "Message was acked"
+
 
 class NackMessage(HandlerException):
     """Raise it to `nack` a message immediately."""
 
+    def __str__(self) -> str:
+        return "Message was nacked"
+
 
 class RejectMessage(HandlerException):
     """Raise it to `reject` a message immediately."""
+
+    def __str__(self) -> str:
+        return "Message was rejected"
 
 
 class SetupError(FastStreamException, ValueError):

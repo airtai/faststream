@@ -39,8 +39,7 @@ class TestTestclient(BrokerTestclientTestcase):
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = RedisBroker()
-        broker.middlewares = (Middleware,)
+        broker = RedisBroker(middlewares = (Middleware,))
 
         @broker.subscriber(queue)
         async def h1():
@@ -65,8 +64,7 @@ class TestTestclient(BrokerTestclientTestcase):
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = RedisBroker()
-        broker.middlewares = (Middleware,)
+        broker = RedisBroker(middlewares = (Middleware,))
 
         @broker.subscriber(queue)
         async def h1():

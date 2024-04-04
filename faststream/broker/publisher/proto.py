@@ -6,14 +6,16 @@ from typing_extensions import override
 from faststream.asyncapi.proto import AsyncAPIProto
 from faststream.broker.proto import EndpointProto
 from faststream.broker.types import BrokerMiddleware, MsgType, PublisherMiddleware
+from faststream.types import SendableMessage
 
 
 class ProducerProto(Protocol):
     @abstractmethod
     async def publish(
         self,
-        message: Any,
+        message: SendableMessage,
         /,
+        *,
         correlation_id: Optional[str] = None,
     ) -> Optional[Any]:
         """Publishes a message asynchronously."""
@@ -24,8 +26,9 @@ class BasePublisherProto(Protocol):
     @abstractmethod
     async def publish(
         self,
-        message: Any,
+        message: SendableMessage,
         /,
+        *,
         correlation_id: Optional[str] = None,
         extra_middlewares: Iterable[PublisherMiddleware] = (),
     ) -> Optional[Any]:

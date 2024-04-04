@@ -176,7 +176,7 @@ class FastAPILocalTestcase:
                     rpc=True,
                     rpc_timeout=0.5,
                 )
-                assert r == "hi"
+                assert r == "hi", r
 
     async def test_base_without_state(self, queue: str):
         router = self.router_class(setup_state=False)

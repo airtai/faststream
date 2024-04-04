@@ -218,20 +218,19 @@ class RabbitBroker(
             ssl_context=security_args.get("ssl_context"),
             timeout=timeout,
             # Basic args
-            # broker base
             graceful_timeout=graceful_timeout,
             dependencies=dependencies,
             decoder=decoder,
             parser=parser,
             middlewares=middlewares,
-            # AsyncAPI
+            # AsyncAPI args
             description=description,
             asyncapi_url=asyncapi_url,
             protocol=protocol or builded_asyncapi_url.scheme,
             protocol_version=protocol_version,
             security=security,
             tags=tags,
-            # logging
+            # Logging args
             logger=logger,
             log_level=log_level,
             log_fmt=log_fmt,
@@ -267,7 +266,8 @@ class RabbitBroker(
     async def connect(  # type: ignore[override]
         self,
         url: Annotated[
-            Union[str, "URL", object], Doc("RabbitMQ destination location to connect.")
+            Union[str, "URL", object], Doc(
+                "RabbitMQ destination location to connect.")
         ] = Parameter.empty,
         *,
         host: Annotated[
@@ -410,8 +410,10 @@ class RabbitBroker(
                 await self.declare_exchange(publisher.exchange)
 
         for subscriber in self._subscribers.values():
-            c = subscriber.get_log_context(None)
-            self._log(f"`{subscriber.call_name}` waiting for messages", extra=c)
+            self._log(
+                f"`{subscriber.call_name}` waiting for messages",
+                extra=subscriber.get_log_context(None),
+            )
             await subscriber.start()
 
     @override
@@ -540,6 +542,7 @@ class RabbitBroker(
 
         return await super().publish(
             message,
+            producer=self._producer,
             routing_key=routing,
             app_id=self.app_id,
             exchange=exchange,
@@ -556,6 +559,7 @@ class RabbitBroker(
             timestamp=timestamp,
             message_type=message_type,
             user_id=user_id,
+            timeout=timeout,
             priority=priority,
             rpc=rpc,
             rpc_timeout=rpc_timeout,

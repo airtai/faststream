@@ -25,7 +25,7 @@ class FakePublisher(BasePublisherProto):
     async def publish(
         self,
         message: SendableMessage,
-        /,
+        *,
         correlation_id: Optional[str] = None,
         extra_middlewares: Iterable[PublisherMiddleware] = (),
         **kwargs: Any,

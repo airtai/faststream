@@ -16,11 +16,7 @@ from typing_extensions import override
 
 from faststream.broker.proto import SetupAble
 from faststream.broker.types import MsgType
-from faststream.exceptions import (
-    HandlerException,
-    IgnoredException,
-    SetupError,
-)
+from faststream.exceptions import IgnoredException, SetupError
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -86,10 +82,10 @@ class HandlerItem(SetupAble, Generic[MsgType]):
         is_validate: bool,
         _get_dependant: Optional[Callable[..., Any]],
     ) -> None:
-        self.item_parser = parser
-        self.item_decoder = decoder
-
         if self.dependant is None:
+            self.item_parser = parser
+            self.item_decoder = decoder
+
             dependencies = (*broker_dependencies, *self.dependencies)
 
             dependant = self.handler.set_wrapped(
@@ -169,10 +165,6 @@ class HandlerItem(SetupAble, Generic[MsgType]):
                 result = await self.handler.call_wrapped(message)
 
             except (IgnoredException, SystemExit):
-                self.handler.trigger()
-                raise
-
-            except HandlerException:
                 self.handler.trigger()
                 raise
 

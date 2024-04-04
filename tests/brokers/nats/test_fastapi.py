@@ -6,7 +6,7 @@ import pytest
 
 from faststream.nats import JStream, PullSub
 from faststream.nats.fastapi import NatsRouter
-from faststream.nats.test import TestNatsBroker, build_message
+from faststream.nats.testing import TestNatsBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 

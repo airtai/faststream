@@ -106,7 +106,7 @@ class MultiLock:
 
 @overload
 def resolve_custom_func(
-    custom_func: CustomDecoder[StreamMessage[MsgType]],
+    custom_func: Optional[CustomDecoder[StreamMessage[MsgType]]],
     default_func: AsyncDecoder[StreamMessage[MsgType]],
 ) -> AsyncDecoder[StreamMessage[MsgType]]:
     ...
@@ -114,7 +114,7 @@ def resolve_custom_func(
 
 @overload
 def resolve_custom_func(
-    custom_func: CustomParser[MsgType],
+    custom_func: Optional[CustomParser[MsgType]],
     default_func: AsyncParser[MsgType],
 ) -> AsyncParser[MsgType]:
     ...
@@ -122,6 +122,7 @@ def resolve_custom_func(
 
 def resolve_custom_func(
     custom_func: Union[
+        None,
         CustomDecoder[StreamMessage[MsgType]],
         CustomParser[MsgType],
     ],

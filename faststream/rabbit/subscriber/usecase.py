@@ -127,7 +127,7 @@ class LogicSubscriber(
     async def start(self) -> None:
         """Starts the consumer for the RabbitMQ queue."""
         if self.declarer is None:
-            raise SetupError("You should setup subscriber at first")
+            raise SetupError("You should setup subscriber at first.")
 
         self._queue_obj = queue = await self.declarer.declare_queue(self.queue)
 

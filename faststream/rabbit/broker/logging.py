@@ -54,6 +54,7 @@ class RabbitLoggingBroker(BrokerUsecase[IncomingMessage, RobustConnection]):
 
     def _setup_log_context(
         self,
+        *,
         queue: Optional[str] = None,
         exchange: Optional[str] = None,
     ) -> None:
