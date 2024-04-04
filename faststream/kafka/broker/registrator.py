@@ -42,10 +42,14 @@ from faststream.kafka.subscriber.asyncapi import (
 )
 
 
-class KafkaRegistrator(ABCBroker[Union[
-    ConsumerRecord,
-    Tuple[ConsumerRecord, ...],
-]]):
+class KafkaRegistrator(
+    ABCBroker[
+        Union[
+            ConsumerRecord,
+            Tuple[ConsumerRecord, ...],
+        ]
+    ]
+):
     """Includable to KafkaBroker router."""
 
     _subscribers: Dict[int, Union[AsyncAPIBatchSubscriber, AsyncAPIDefaultSubscriber]]
@@ -56,7 +60,7 @@ class KafkaRegistrator(ABCBroker[Union[
         self,
         *topics: Annotated[
             str,
-            Doc("Kafka topics to consume messages from.")
+            Doc("Kafka topics to consume messages from."),
         ],
         batch: Annotated[
             Literal[False],
@@ -73,13 +77,17 @@ class KafkaRegistrator(ABCBroker[Union[
         ] = None,
         key_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
-            Doc("Any callable that takes a raw message `bytes` "
-                "key and returns a deserialized one."),
+            Doc(
+                "Any callable that takes a raw message `bytes` "
+                "key and returns a deserialized one."
+            ),
         ] = None,
         value_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
-            Doc("Any callable that takes a raw message `bytes` "
-                "value and returns a deserialized value."),
+            Doc(
+                "Any callable that takes a raw message `bytes` "
+                "value and returns a deserialized value."
+            ),
         ] = None,
         fetch_max_bytes: Annotated[
             int,
@@ -100,7 +108,7 @@ class KafkaRegistrator(ABCBroker[Union[
             Minimum amount of data the server should
             return for a fetch request, otherwise wait up to
             `fetch_max_wait_ms` for more data to accumulate.
-            """)
+            """),
         ] = 1,
         fetch_max_wait_ms: Annotated[
             int,
@@ -132,7 +140,7 @@ class KafkaRegistrator(ABCBroker[Union[
             * `earliest` will move to the oldest available message
             * `latest` will move to the most recent
             * `none` will raise an exception so you can handle this case
-            """)
+            """),
         ] = "latest",
         auto_commit: Annotated[
             bool,
@@ -179,7 +187,7 @@ class KafkaRegistrator(ABCBroker[Union[
             rebalance in order to reassign the partitions to another consumer
             group member. If API methods block waiting for messages, that time
             does not count against this timeout.
-            """)
+            """),
         ] = 5 * 60 * 1000,
         rebalance_timeout_ms: Annotated[
             Optional[int],
@@ -191,7 +199,7 @@ class KafkaRegistrator(ABCBroker[Union[
             decouple this setting to allow finer tuning by users that use
             `ConsumerRebalanceListener` to delay rebalacing. Defaults
             to ``session_timeout_ms``
-            """)
+            """),
         ] = None,
         session_timeout_ms: Annotated[
             int,
@@ -271,7 +279,7 @@ class KafkaRegistrator(ABCBroker[Union[
             Further, when in `read_committed` the seek_to_end method will
             return the LSO. See method docs below.
             """),
-         ] = "read_uncommitted",
+        ] = "read_uncommitted",
         batch_timeout_ms: Annotated[
             int,
             Doc("""
@@ -337,15 +345,14 @@ class KafkaRegistrator(ABCBroker[Union[
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPIDefaultSubscriber:
-        ...
+    ) -> AsyncAPIDefaultSubscriber: ...
 
     @overload
     def subscriber(
         self,
         *topics: Annotated[
             str,
-            Doc("Kafka topics to consume messages from.")
+            Doc("Kafka topics to consume messages from."),
         ],
         batch: Annotated[
             Literal[True],
@@ -362,13 +369,17 @@ class KafkaRegistrator(ABCBroker[Union[
         ] = None,
         key_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
-            Doc("Any callable that takes a raw message `bytes` "
-                "key and returns a deserialized one."),
+            Doc(
+                "Any callable that takes a raw message `bytes` "
+                "key and returns a deserialized one."
+            ),
         ] = None,
         value_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
-            Doc("Any callable that takes a raw message `bytes` "
-                "value and returns a deserialized value."),
+            Doc(
+                "Any callable that takes a raw message `bytes` "
+                "value and returns a deserialized value."
+            ),
         ] = None,
         fetch_max_bytes: Annotated[
             int,
@@ -389,7 +400,7 @@ class KafkaRegistrator(ABCBroker[Union[
             Minimum amount of data the server should
             return for a fetch request, otherwise wait up to
             `fetch_max_wait_ms` for more data to accumulate.
-            """)
+            """),
         ] = 1,
         fetch_max_wait_ms: Annotated[
             int,
@@ -421,7 +432,7 @@ class KafkaRegistrator(ABCBroker[Union[
             * `earliest` will move to the oldest available message
             * `latest` will move to the most recent
             * `none` will raise an exception so you can handle this case
-            """)
+            """),
         ] = "latest",
         auto_commit: Annotated[
             bool,
@@ -468,7 +479,7 @@ class KafkaRegistrator(ABCBroker[Union[
             rebalance in order to reassign the partitions to another consumer
             group member. If API methods block waiting for messages, that time
             does not count against this timeout.
-            """)
+            """),
         ] = 5 * 60 * 1000,
         rebalance_timeout_ms: Annotated[
             Optional[int],
@@ -480,7 +491,7 @@ class KafkaRegistrator(ABCBroker[Union[
             decouple this setting to allow finer tuning by users that use
             `ConsumerRebalanceListener` to delay rebalacing. Defaults
             to ``session_timeout_ms``
-            """)
+            """),
         ] = None,
         session_timeout_ms: Annotated[
             int,
@@ -560,7 +571,7 @@ class KafkaRegistrator(ABCBroker[Union[
             Further, when in `read_committed` the seek_to_end method will
             return the LSO. See method docs below.
             """),
-         ] = "read_uncommitted",
+        ] = "read_uncommitted",
         batch_timeout_ms: Annotated[
             int,
             Doc("""
@@ -626,15 +637,14 @@ class KafkaRegistrator(ABCBroker[Union[
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPIBatchSubscriber:
-        ...
+    ) -> AsyncAPIBatchSubscriber: ...
 
     @overload
     def subscriber(
         self,
         *topics: Annotated[
             str,
-            Doc("Kafka topics to consume messages from.")
+            Doc("Kafka topics to consume messages from."),
         ],
         batch: Annotated[
             bool,
@@ -651,13 +661,17 @@ class KafkaRegistrator(ABCBroker[Union[
         ] = None,
         key_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
-            Doc("Any callable that takes a raw message `bytes` "
-                "key and returns a deserialized one."),
+            Doc(
+                "Any callable that takes a raw message `bytes` "
+                "key and returns a deserialized one."
+            ),
         ] = None,
         value_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
-            Doc("Any callable that takes a raw message `bytes` "
-                "value and returns a deserialized value."),
+            Doc(
+                "Any callable that takes a raw message `bytes` "
+                "value and returns a deserialized value."
+            ),
         ] = None,
         fetch_max_bytes: Annotated[
             int,
@@ -678,7 +692,7 @@ class KafkaRegistrator(ABCBroker[Union[
             Minimum amount of data the server should
             return for a fetch request, otherwise wait up to
             `fetch_max_wait_ms` for more data to accumulate.
-            """)
+            """),
         ] = 1,
         fetch_max_wait_ms: Annotated[
             int,
@@ -710,7 +724,7 @@ class KafkaRegistrator(ABCBroker[Union[
             * `earliest` will move to the oldest available message
             * `latest` will move to the most recent
             * `none` will raise an exception so you can handle this case
-            """)
+            """),
         ] = "latest",
         auto_commit: Annotated[
             bool,
@@ -757,7 +771,7 @@ class KafkaRegistrator(ABCBroker[Union[
             rebalance in order to reassign the partitions to another consumer
             group member. If API methods block waiting for messages, that time
             does not count against this timeout.
-            """)
+            """),
         ] = 5 * 60 * 1000,
         rebalance_timeout_ms: Annotated[
             Optional[int],
@@ -769,7 +783,7 @@ class KafkaRegistrator(ABCBroker[Union[
             decouple this setting to allow finer tuning by users that use
             `ConsumerRebalanceListener` to delay rebalacing. Defaults
             to ``session_timeout_ms``
-            """)
+            """),
         ] = None,
         session_timeout_ms: Annotated[
             int,
@@ -830,7 +844,7 @@ class KafkaRegistrator(ABCBroker[Union[
 
             * `read_committed`, batch consumer will only return
             transactional messages which have been committed.
-        
+
             * `read_uncommitted` (the default), batch consumer will
             return all messages, even transactional messages which have been
             aborted.
@@ -849,7 +863,7 @@ class KafkaRegistrator(ABCBroker[Union[
             Further, when in `read_committed` the seek_to_end method will
             return the LSO. See method docs below.
             """),
-         ] = "read_uncommitted",
+        ] = "read_uncommitted",
         batch_timeout_ms: Annotated[
             int,
             Doc("""
@@ -931,15 +945,14 @@ class KafkaRegistrator(ABCBroker[Union[
     ) -> Union[
         AsyncAPIDefaultSubscriber,
         AsyncAPIBatchSubscriber,
-    ]:
-        ...
+    ]: ...
 
     @override
     def subscriber(
         self,
         *topics: Annotated[
             str,
-            Doc("Kafka topics to consume messages from.")
+            Doc("Kafka topics to consume messages from."),
         ],
         batch: Annotated[
             bool,
@@ -956,13 +969,17 @@ class KafkaRegistrator(ABCBroker[Union[
         ] = None,
         key_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
-            Doc("Any callable that takes a raw message `bytes` "
-                "key and returns a deserialized one."),
+            Doc(
+                "Any callable that takes a raw message `bytes` "
+                "key and returns a deserialized one."
+            ),
         ] = None,
         value_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
-            Doc("Any callable that takes a raw message `bytes` "
-                "value and returns a deserialized value."),
+            Doc(
+                "Any callable that takes a raw message `bytes` "
+                "value and returns a deserialized value."
+            ),
         ] = None,
         fetch_max_bytes: Annotated[
             int,
@@ -983,7 +1000,7 @@ class KafkaRegistrator(ABCBroker[Union[
             Minimum amount of data the server should
             return for a fetch request, otherwise wait up to
             `fetch_max_wait_ms` for more data to accumulate.
-            """)
+            """),
         ] = 1,
         fetch_max_wait_ms: Annotated[
             int,
@@ -1015,7 +1032,7 @@ class KafkaRegistrator(ABCBroker[Union[
             * `earliest` will move to the oldest available message
             * `latest` will move to the most recent
             * `none` will raise an exception so you can handle this case
-            """)
+            """),
         ] = "latest",
         auto_commit: Annotated[
             bool,
@@ -1062,7 +1079,7 @@ class KafkaRegistrator(ABCBroker[Union[
             rebalance in order to reassign the partitions to another consumer
             group member. If API methods block waiting for messages, that time
             does not count against this timeout.
-            """)
+            """),
         ] = 5 * 60 * 1000,
         rebalance_timeout_ms: Annotated[
             Optional[int],
@@ -1074,7 +1091,7 @@ class KafkaRegistrator(ABCBroker[Union[
             decouple this setting to allow finer tuning by users that use
             `ConsumerRebalanceListener` to delay rebalacing. Defaults
             to ``session_timeout_ms``
-            """)
+            """),
         ] = None,
         session_timeout_ms: Annotated[
             int,
@@ -1135,7 +1152,7 @@ class KafkaRegistrator(ABCBroker[Union[
 
             * `read_committed`, batch consumer will only return
             transactional messages which have been committed.
-        
+
             * `read_uncommitted` (the default), batch consumer will
             return all messages, even transactional messages which have been
             aborted.
@@ -1154,7 +1171,7 @@ class KafkaRegistrator(ABCBroker[Union[
             Further, when in `read_committed` the seek_to_end method will
             return the LSO. See method docs below.
             """),
-         ] = "read_uncommitted",
+        ] = "read_uncommitted",
         batch_timeout_ms: Annotated[
             int,
             Doc("""
@@ -1238,8 +1255,7 @@ class KafkaRegistrator(ABCBroker[Union[
         AsyncAPIBatchSubscriber,
     ]:
         if not auto_commit and not group_id:
-            raise SetupError(
-                "You should install `group_id` with manual commit mode")
+            raise SetupError("You should install `group_id` with manual commit mode")
 
         builder = partial(
             AIOKafkaConsumer,
@@ -1264,25 +1280,26 @@ class KafkaRegistrator(ABCBroker[Union[
             isolation_level=isolation_level,
         )
 
-        subcriber = super().subscriber(AsyncAPISubscriber.create(
-            *topics,
-            batch=batch,
-            batch_timeout_ms=batch_timeout_ms,
-            max_records=max_records,
-            group_id=group_id,
-            builder=builder,
-            is_manual=not auto_commit,
-            # subscriber args
-            no_ack=no_ack,
-            retry=retry,
-            broker_middlewares=self._middlewares,
-            broker_dependencies=self._dependencies,
-            # AsyncAPI
-            title_=title,
-            description_=description,
-            include_in_schema=self._solve_include_in_schema(
-                include_in_schema),
-        ))
+        subcriber = super().subscriber(
+            AsyncAPISubscriber.create(
+                *topics,
+                batch=batch,
+                batch_timeout_ms=batch_timeout_ms,
+                max_records=max_records,
+                group_id=group_id,
+                builder=builder,
+                is_manual=not auto_commit,
+                # subscriber args
+                no_ack=no_ack,
+                retry=retry,
+                broker_middlewares=self._middlewares,
+                broker_dependencies=self._dependencies,
+                # AsyncAPI
+                title_=title,
+                description_=description,
+                include_in_schema=self._solve_include_in_schema(include_in_schema),
+            )
+        )
 
         if batch:
             return cast(AsyncAPIBatchSubscriber, subcriber).add_call(
@@ -1320,7 +1337,7 @@ class KafkaRegistrator(ABCBroker[Union[
             partition (but if key is `None`, partition is chosen randomly).
             Must be type `bytes`, or be serializable to bytes via configured
             `key_serializer`.
-            """)
+            """),
         ] = None,
         partition: Annotated[
             Optional[int],
@@ -1370,8 +1387,7 @@ class KafkaRegistrator(ABCBroker[Union[
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPIDefaultPublisher:
-        ...
+    ) -> AsyncAPIDefaultPublisher: ...
 
     @overload
     def publisher(
@@ -1391,7 +1407,7 @@ class KafkaRegistrator(ABCBroker[Union[
             partition (but if key is `None`, partition is chosen randomly).
             Must be type `bytes`, or be serializable to bytes via configured
             `key_serializer`.
-            """)
+            """),
         ] = None,
         partition: Annotated[
             Optional[int],
@@ -1441,8 +1457,7 @@ class KafkaRegistrator(ABCBroker[Union[
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPIBatchPublisher:
-        ...
+    ) -> AsyncAPIBatchPublisher: ...
 
     @overload
     def publisher(
@@ -1462,7 +1477,7 @@ class KafkaRegistrator(ABCBroker[Union[
             partition (but if key is `None`, partition is chosen randomly).
             Must be type `bytes`, or be serializable to bytes via configured
             `key_serializer`.
-            """)
+            """),
         ] = None,
         partition: Annotated[
             Optional[int],
@@ -1515,8 +1530,7 @@ class KafkaRegistrator(ABCBroker[Union[
     ) -> Union[
         AsyncAPIBatchPublisher,
         AsyncAPIDefaultPublisher,
-    ]:
-        ...
+    ]: ...
 
     @override
     def publisher(
@@ -1536,7 +1550,7 @@ class KafkaRegistrator(ABCBroker[Union[
             partition (but if key is `None`, partition is chosen randomly).
             Must be type `bytes`, or be serializable to bytes via configured
             `key_serializer`.
-            """)
+            """),
         ] = None,
         partition: Annotated[
             Optional[int],
@@ -1598,25 +1612,24 @@ class KafkaRegistrator(ABCBroker[Union[
         Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
         """
         publisher = AsyncAPIPublisher.create(
-                # batch flag
-                batch=batch,
-                # default args
-                key=key,
-                # both args
-                topic=topic,
-                partition=partition,
-                headers=headers,
-                reply_to=reply_to,
-                # publisher-specific
-                broker_middlewares=self._middlewares,
-                middlewares=middlewares,
-                # AsyncAPI
-                title_=title,
-                description_=description,
-                schema_=schema,
-                include_in_schema=self._solve_include_in_schema(
-                    include_in_schema),
-            )
+            # batch flag
+            batch=batch,
+            # default args
+            key=key,
+            # both args
+            topic=topic,
+            partition=partition,
+            headers=headers,
+            reply_to=reply_to,
+            # publisher-specific
+            broker_middlewares=self._middlewares,
+            middlewares=middlewares,
+            # AsyncAPI
+            title_=title,
+            description_=description,
+            schema_=schema,
+            include_in_schema=self._solve_include_in_schema(include_in_schema),
+        )
 
         if batch:
             return cast(AsyncAPIBatchPublisher, super().publisher(publisher))

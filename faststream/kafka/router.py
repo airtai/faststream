@@ -34,17 +34,35 @@ from faststream.types import SendableMessage
 class KafkaPublisher(ArgsContainer):
     """Delayed KafkaPublisher registration object.
 
-    Just a copy of KafkaRegistrator.publisher(...) arguments.
+    Just a copy of `KafkaRegistrator.publisher(...)` arguments.
     """
 
     def __init__(
         self,
-        topic: str,
+        topic: Annotated[
+            str,
+            Doc("Topic where the message will be published."),
+        ],
         *,
-        key: Optional[bytes] = None,
-        partition: Optional[int] = None,
-        timestamp_ms: Optional[int] = None,
-        batch: bool = False,
+        key: Annotated[
+            Union[bytes, Any, None],
+            Doc("""
+            A key to associate with the message. Can be used to
+            determine which partition to send the message to. If partition
+            is `None` (and producer's partitioner config is left as default),
+            then messages with the same key will be delivered to the same
+            partition (but if key is `None`, partition is chosen randomly).
+            Must be type `bytes`, or be serializable to bytes via configured
+            `key_serializer`.
+            """),
+        ] = None,
+        partition: Annotated[
+            Optional[int],
+            Doc("""
+            Specify a partition. If not set, the partition will be
+            selected using the configured `partitioner`.
+            """),
+        ] = None,
         headers: Annotated[
             Optional[Dict[str, str]],
             Doc(
@@ -57,6 +75,10 @@ class KafkaPublisher(ArgsContainer):
             str,
             Doc("Topic name to send response."),
         ] = "",
+        batch: Annotated[
+            bool,
+            Doc("Whether to send messages in batches or not."),
+        ] = False,
         # basic args
         middlewares: Annotated[
             Iterable[PublisherMiddleware],
@@ -87,7 +109,6 @@ class KafkaPublisher(ArgsContainer):
             topic=topic,
             key=key,
             partition=partition,
-            timestamp_ms=timestamp_ms,
             batch=batch,
             headers=headers,
             reply_to=reply_to,
@@ -97,7 +118,7 @@ class KafkaPublisher(ArgsContainer):
             title=title,
             description=description,
             schema=schema,
-            include_in_schema=include_in_schema
+            include_in_schema=include_in_schema,
         )
 
 
@@ -108,13 +129,23 @@ class KafkaRoute(SubscriberRoute):
         self,
         call: Annotated[
             Callable[..., SendableMessage],
-            Doc("Message handler function "
-                "to wrap the same with `@broker.subscriber(...)` way."),
+            Doc(
+                "Message handler function "
+                "to wrap the same with `@broker.subscriber(...)` way."
+            ),
         ],
         *topics: Annotated[
             str,
-            Doc("Kafka topics to consume messages from.")
+            Doc("Kafka topics to consume messages from."),
         ],
+        publishers: Annotated[
+            Iterable[KafkaPublisher],
+            Doc("Kafka publishers to broadcast the handler result."),
+        ] = (),
+        batch: Annotated[
+            bool,
+            Doc("Whether to consume messages in batches or not."),
+        ] = False,
         group_id: Annotated[
             Optional[str],
             Doc("""
@@ -126,13 +157,17 @@ class KafkaRoute(SubscriberRoute):
         ] = None,
         key_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
-            Doc("Any callable that takes a raw message `bytes` "
-                "key and returns a deserialized one."),
+            Doc(
+                "Any callable that takes a raw message `bytes` "
+                "key and returns a deserialized one."
+            ),
         ] = None,
         value_deserializer: Annotated[
             Optional[Callable[[bytes], Any]],
-            Doc("Any callable that takes a raw message `bytes` "
-                "value and returns a deserialized value."),
+            Doc(
+                "Any callable that takes a raw message `bytes` "
+                "value and returns a deserialized value."
+            ),
         ] = None,
         fetch_max_bytes: Annotated[
             int,
@@ -153,7 +188,7 @@ class KafkaRoute(SubscriberRoute):
             Minimum amount of data the server should
             return for a fetch request, otherwise wait up to
             `fetch_max_wait_ms` for more data to accumulate.
-            """)
+            """),
         ] = 1,
         fetch_max_wait_ms: Annotated[
             int,
@@ -185,7 +220,7 @@ class KafkaRoute(SubscriberRoute):
             * `earliest` will move to the oldest available message
             * `latest` will move to the most recent
             * `none` will raise an exception so you can handle this case
-            """)
+            """),
         ] = "latest",
         auto_commit: Annotated[
             bool,
@@ -232,7 +267,7 @@ class KafkaRoute(SubscriberRoute):
             rebalance in order to reassign the partitions to another consumer
             group member. If API methods block waiting for messages, that time
             does not count against this timeout.
-            """)
+            """),
         ] = 5 * 60 * 1000,
         rebalance_timeout_ms: Annotated[
             Optional[int],
@@ -244,7 +279,7 @@ class KafkaRoute(SubscriberRoute):
             decouple this setting to allow finer tuning by users that use
             `ConsumerRebalanceListener` to delay rebalacing. Defaults
             to ``session_timeout_ms``
-            """)
+            """),
         ] = None,
         session_timeout_ms: Annotated[
             int,
@@ -305,7 +340,7 @@ class KafkaRoute(SubscriberRoute):
 
             * `read_committed`, batch consumer will only return
             transactional messages which have been committed.
-        
+
             * `read_uncommitted` (the default), batch consumer will
             return all messages, even transactional messages which have been
             aborted.
@@ -338,10 +373,6 @@ class KafkaRoute(SubscriberRoute):
             Optional[int],
             Doc("Number of messages to consume as one batch."),
         ] = None,
-        batch: Annotated[
-            bool,
-            Doc("Whether to consume messages in batches or not."),
-        ] = False,
         # broker args
         dependencies: Annotated[
             Iterable[Depends],
@@ -452,10 +483,12 @@ class KafkaRoute(SubscriberRoute):
 
 
 class KafkaRouter(
-    BrokerRouter[Union[
-        ConsumerRecord,
-        Tuple[ConsumerRecord, ...],
-    ]],
+    BrokerRouter[
+        Union[
+            ConsumerRecord,
+            Tuple[ConsumerRecord, ...],
+        ]
+    ],
     KafkaRegistrator,
 ):
     """Includable to KafkaBroker router."""
@@ -478,24 +511,30 @@ class KafkaRouter(
             ),
         ] = (),
         middlewares: Annotated[
-            Iterable[Union[
-                BrokerMiddleware[ConsumerRecord],
-                BrokerMiddleware[Tuple[ConsumerRecord, ...]],
-            ]],
+            Iterable[
+                Union[
+                    BrokerMiddleware[ConsumerRecord],
+                    BrokerMiddleware[Tuple[ConsumerRecord, ...]],
+                ]
+            ],
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
         parser: Annotated[
-            Optional[Union[
-                CustomParser[ConsumerRecord],
-                CustomParser[Tuple[ConsumerRecord, ...]],
-            ]],
+            Optional[
+                Union[
+                    CustomParser[ConsumerRecord],
+                    CustomParser[Tuple[ConsumerRecord, ...]],
+                ]
+            ],
             Doc("Parser to map original **ConsumerRecord** object to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional[Union[
-                CustomDecoder[StreamMessage[ConsumerRecord]],
-                CustomDecoder[StreamMessage[Tuple[ConsumerRecord, ...]]],
-            ]],
+            Optional[
+                Union[
+                    CustomDecoder[StreamMessage[ConsumerRecord]],
+                    CustomDecoder[StreamMessage[Tuple[ConsumerRecord, ...]]],
+                ]
+            ],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         include_in_schema: Annotated[

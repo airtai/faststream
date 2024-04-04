@@ -92,7 +92,7 @@ class RedisPublisher(ArgsContainer):
             title=title,
             description=description,
             schema=schema,
-            include_in_schema=include_in_schema
+            include_in_schema=include_in_schema,
         )
 
 
@@ -103,8 +103,10 @@ class RedisRoute(SubscriberRoute):
         self,
         call: Annotated[
             Callable[..., SendableMessage],
-            Doc("Message handler function "
-                "to wrap the same with `@broker.subscriber(...)` way."),
+            Doc(
+                "Message handler function "
+                "to wrap the same with `@broker.subscriber(...)` way."
+            ),
         ],
         channel: Annotated[
             Union[PubSub, str, None],
@@ -113,7 +115,7 @@ class RedisRoute(SubscriberRoute):
         *,
         publishers: Annotated[
             Iterable[RedisPublisher],
-            Doc("Redis publishers to broadcast the handler result.")
+            Doc("Redis publishers to broadcast the handler result."),
         ] = (),
         list: Annotated[
             Union[ListSub, str, None],

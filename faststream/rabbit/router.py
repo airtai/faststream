@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 class RabbitPublisher(ArgsContainer):
     """Delayed RabbitPublisher registration object.
 
-    Just a copy of RabbitRegistrator.publisher(...) arguments.
+    Just a copy of `RabbitRegistrator.publisher(...)` arguments.
     """
 
     def __init__(
@@ -172,15 +172,17 @@ class RabbitPublisher(ArgsContainer):
 class RabbitRoute(SubscriberRoute):
     """Class to store delayed RabbitBroker subscriber registration.
 
-    Just a copy of RabbitRegistrator.subscriber(...) arguments.
+    Just a copy of `RabbitRegistrator.subscriber(...)` arguments.
     """
 
     def __init__(
         self,
         call: Annotated[
             Callable[..., "AioPikaSendableMessage"],
-            Doc("Message handler function "
-                "to wrap the same with `@broker.subscriber(...)` way."),
+            Doc(
+                "Message handler function "
+                "to wrap the same with `@broker.subscriber(...)` way."
+            ),
         ],
         queue: Annotated[
             Union[str, RabbitQueue],
