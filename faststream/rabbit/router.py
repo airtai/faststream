@@ -170,7 +170,7 @@ class RabbitPublisher(ArgsContainer):
 
 
 class RabbitRoute(SubscriberRoute):
-    """Class to store delaied RabbitBroker subscriber registration.
+    """Class to store delayed RabbitBroker subscriber registration.
 
     Just a copy of RabbitRegistrator.subscriber(...) arguments.
     """
