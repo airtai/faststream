@@ -1,8 +1,8 @@
-from typing import TYPE_CHECKING, Callable, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Optional, Union
 
 from typing_extensions import Annotated, Doc, deprecated
 
-from faststream.broker.router import BrokerRouter, SubscriberRoute
+from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRoute
 from faststream.broker.utils import default_filter
 from faststream.redis.broker.registrator import RedisRegistrator
 from faststream.redis.message import BaseMessage
@@ -19,12 +19,85 @@ if TYPE_CHECKING:
         CustomDecoder,
         CustomParser,
         Filter,
+        PublisherMiddleware,
         SubscriberMiddleware,
     )
+    from faststream.types import AnyDict
+
+
+class RedisPublisher(ArgsContainer):
+    """Delayed RedisPublisher registration object.
+
+    Just a copy of RedisRegistrator.publisher(...) arguments.
+    """
+
+    def __init__(
+        self,
+        channel: Annotated[
+            Union[PubSub, str, None],
+            Doc("Redis PubSub object name to send message."),
+        ] = None,
+        *,
+        list: Annotated[
+            Union[ListSub, str, None],
+            Doc("Redis List object name to send message."),
+        ] = None,
+        stream: Annotated[
+            Union[StreamSub, str, None],
+            Doc("Redis Stream object name to send message."),
+        ] = None,
+        headers: Annotated[
+            Optional["AnyDict"],
+            Doc(
+                "Message headers to store metainformation. "
+                "Can be overrided by `publish.headers` if specified."
+            ),
+        ] = None,
+        reply_to: Annotated[
+            str,
+            Doc("Reply message destination PubSub object name."),
+        ] = "",
+        middlewares: Annotated[
+            Iterable["PublisherMiddleware"],
+            Doc("Publisher middlewares to wrap outgoing messages."),
+        ] = (),
+        # AsyncAPI information
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object description."),
+        ] = None,
+        schema: Annotated[
+            Optional[Any],
+            Doc(
+                "AsyncAPI publishing message type. "
+                "Should be any python-native object annotation or `pydantic.BaseModel`."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+    ) -> None:
+        super().__init__(
+            channel=channel,
+            list=list,
+            stream=stream,
+            headers=headers,
+            reply_to=reply_to,
+            middlewares=middlewares,
+            title=title,
+            description=description,
+            schema=schema,
+            include_in_schema=include_in_schema
+        )
 
 
 class RedisRoute(SubscriberRoute):
-    """Class to store delaied RabbitBroker subscriber registration."""
+    """Class to store delayed RedisBroker subscriber registration."""
 
     def __init__(
         self,
@@ -38,6 +111,10 @@ class RedisRoute(SubscriberRoute):
             Doc("Redis PubSub object name to send message."),
         ] = None,
         *,
+        publishers: Annotated[
+            Iterable[RedisPublisher],
+            Doc("Redis publishers to broadcast the handler result.")
+        ] = (),
         list: Annotated[
             Union[ListSub, str, None],
             Doc("Redis List object name to send message."),
@@ -104,6 +181,7 @@ class RedisRoute(SubscriberRoute):
         super().__init__(
             call,
             channel=channel,
+            publishers=publishers,
             list=list,
             stream=stream,
             dependencies=dependencies,

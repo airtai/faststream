@@ -2,7 +2,13 @@ import asyncio
 
 import pytest
 
-from faststream.rabbit import RabbitBroker, RabbitQueue, RabbitRoute, RabbitRouter
+from faststream.rabbit import (
+    RabbitBroker,
+    RabbitPublisher,
+    RabbitQueue,
+    RabbitRoute,
+    RabbitRouter,
+)
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 
@@ -10,6 +16,7 @@ from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 class TestRouter(RouterTestcase):
     broker_class = RabbitRouter
     route_class = RabbitRoute
+    publisher_class = RabbitPublisher
 
     async def test_queue_obj(
         self,
@@ -80,3 +87,4 @@ class TestRouter(RouterTestcase):
 class TestRouterLocal(RouterLocalTestcase):
     broker_class = RabbitRouter
     route_class = RabbitRoute
+    publisher_class = RabbitPublisher

@@ -14,7 +14,7 @@ from nats.js.api import (
 )
 
 from faststream.nats.broker.broker import NatsBroker
-from faststream.nats.router import NatsRoute, NatsRouter
+from faststream.nats.router import NatsPublisher, NatsRoute, NatsRouter
 from faststream.nats.schemas import JStream, PullSub
 from faststream.nats.testing import TestNatsBroker
 from faststream.testing.app import TestApp
@@ -26,6 +26,7 @@ __all__ = (
     "PullSub",
     "NatsRoute",
     "NatsRouter",
+    "NatsPublisher",
     "TestNatsBroker",
     # Nats imports
     "ConsumerConfig",

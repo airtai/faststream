@@ -1,4 +1,14 @@
-from typing import Any, Callable, Iterable, Literal, Optional, Sequence, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Literal,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 from aiokafka import ConsumerRecord
 from aiokafka.coordinator.assignors.abstract import AbstractPartitionAssignor
@@ -7,12 +17,13 @@ from fast_depends.dependencies import Depends
 from typing_extensions import Annotated, Doc, deprecated
 
 from faststream.broker.message import StreamMessage
-from faststream.broker.router import BrokerRouter, SubscriberRoute
+from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRoute
 from faststream.broker.types import (
     BrokerMiddleware,
     CustomDecoder,
     CustomParser,
     Filter,
+    PublisherMiddleware,
     SubscriberMiddleware,
 )
 from faststream.broker.utils import default_filter
@@ -20,8 +31,78 @@ from faststream.kafka.broker.registrator import KafkaRegistrator
 from faststream.types import SendableMessage
 
 
+class KafkaPublisher(ArgsContainer):
+    """Delayed KafkaPublisher registration object.
+
+    Just a copy of KafkaRegistrator.publisher(...) arguments.
+    """
+
+    def __init__(
+        self,
+        topic: str,
+        *,
+        key: Optional[bytes] = None,
+        partition: Optional[int] = None,
+        timestamp_ms: Optional[int] = None,
+        batch: bool = False,
+        headers: Annotated[
+            Optional[Dict[str, str]],
+            Doc(
+                "Message headers to store metainformation. "
+                "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
+                "Can be overrided by `publish.headers` if specified."
+            ),
+        ] = None,
+        reply_to: Annotated[
+            str,
+            Doc("Topic name to send response."),
+        ] = "",
+        # basic args
+        middlewares: Annotated[
+            Iterable[PublisherMiddleware],
+            Doc("Publisher middlewares to wrap outgoing messages."),
+        ] = (),
+        # AsyncAPI args
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object description."),
+        ] = None,
+        schema: Annotated[
+            Optional[Any],
+            Doc(
+                "AsyncAPI publishing message type. "
+                "Should be any python-native object annotation or `pydantic.BaseModel`."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+    ) -> None:
+        super().__init__(
+            topic=topic,
+            key=key,
+            partition=partition,
+            timestamp_ms=timestamp_ms,
+            batch=batch,
+            headers=headers,
+            reply_to=reply_to,
+            # basic args
+            middlewares=middlewares,
+            # AsyncAPI args
+            title=title,
+            description=description,
+            schema=schema,
+            include_in_schema=include_in_schema
+        )
+
+
 class KafkaRoute(SubscriberRoute):
-    """Class to store delaied KafkaBroker subscriber registration."""
+    """Class to store delayed KafkaBroker subscriber registration."""
 
     def __init__(
         self,
@@ -330,6 +411,7 @@ class KafkaRoute(SubscriberRoute):
         super().__init__(
             call,
             *topics,
+            publishers=publishers,
             group_id=group_id,
             key_deserializer=key_deserializer,
             value_deserializer=value_deserializer,
