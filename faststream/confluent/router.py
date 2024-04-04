@@ -1,21 +1,123 @@
-from typing import Any, Callable, Iterable, Literal, Optional, Sequence, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Literal,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 from confluent_kafka import Message
 from fast_depends.dependencies import Depends
 from typing_extensions import Annotated, Doc, deprecated
 
 from faststream.broker.message import StreamMessage
-from faststream.broker.router import BrokerRouter, SubscriberRoute
+from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRoute
 from faststream.broker.types import (
     BrokerMiddleware,
     CustomDecoder,
     CustomParser,
     Filter,
+    PublisherMiddleware,
     SubscriberMiddleware,
 )
 from faststream.broker.utils import default_filter
 from faststream.confluent.broker.registrator import KafkaRegistrator
 from faststream.types import SendableMessage
+
+
+class KafkaPublisher(ArgsContainer):
+    """Delayed KafkaPublisher registration object.
+
+    Just a copy of `KafkaRegistrator.publisher(...)` arguments.
+    """
+
+    def __init__(
+        self,
+        topic: Annotated[
+            str,
+            Doc("Topic where the message will be published."),
+        ],
+        *,
+        key: Annotated[
+            Union[bytes, Any, None],
+            Doc("""
+            A key to associate with the message. Can be used to
+            determine which partition to send the message to. If partition
+            is `None` (and producer's partitioner config is left as default),
+            then messages with the same key will be delivered to the same
+            partition (but if key is `None`, partition is chosen randomly).
+            Must be type `bytes`, or be serializable to bytes via configured
+            `key_serializer`.
+            """),
+        ] = None,
+        partition: Annotated[
+            Optional[int],
+            Doc("""
+            Specify a partition. If not set, the partition will be
+            selected using the configured `partitioner`.
+            """),
+        ] = None,
+        headers: Annotated[
+            Optional[Dict[str, str]],
+            Doc(
+                "Message headers to store metainformation. "
+                "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
+                "Can be overrided by `publish.headers` if specified."
+            ),
+        ] = None,
+        reply_to: Annotated[
+            str,
+            Doc("Topic name to send response."),
+        ] = "",
+        batch: Annotated[
+            bool,
+            Doc("Whether to send messages in batches or not."),
+        ] = False,
+        # basic args
+        middlewares: Annotated[
+            Iterable[PublisherMiddleware],
+            Doc("Publisher middlewares to wrap outgoing messages."),
+        ] = (),
+        # AsyncAPI args
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object description."),
+        ] = None,
+        schema: Annotated[
+            Optional[Any],
+            Doc(
+                "AsyncAPI publishing message type. "
+                "Should be any python-native object annotation or `pydantic.BaseModel`."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+    ) -> None:
+        super().__init__(
+            topic=topic,
+            key=key,
+            partition=partition,
+            batch=batch,
+            headers=headers,
+            reply_to=reply_to,
+            # basic args
+            middlewares=middlewares,
+            # AsyncAPI args
+            title=title,
+            description=description,
+            schema=schema,
+            include_in_schema=include_in_schema,
+        )
 
 
 class KafkaRoute(SubscriberRoute):
@@ -28,6 +130,10 @@ class KafkaRoute(SubscriberRoute):
             Doc("Message handler function."),
         ],
         *topics: str,
+        publishers: Annotated[
+            Iterable[KafkaPublisher],
+            Doc("Kafka publishers to broadcast the handler result."),
+        ] = (),
         group_id: Optional[str] = None,
         key_deserializer: Optional[Callable[[bytes], Any]] = None,
         value_deserializer: Optional[Callable[[bytes], Any]] = None,
@@ -129,6 +235,7 @@ class KafkaRoute(SubscriberRoute):
         super().__init__(
             call,
             *topics,
+            publishers=publishers,
             group_id=group_id,
             key_deserializer=key_deserializer,
             value_deserializer=value_deserializer,

@@ -141,7 +141,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
 
         self.task = None
 
-    def make_response_publisher(
+    def _make_response_publisher(
         self, message: "StreamMessage[Any]"
     ) -> Sequence[FakePublisher]:
         if not message.reply_to or self._producer is None:

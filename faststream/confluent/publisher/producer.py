@@ -1,5 +1,4 @@
 from typing import Dict, Optional
-from uuid import uuid4
 
 from typing_extensions import override
 
@@ -31,7 +30,7 @@ class AsyncConfluentFastProducer(ProducerProto):
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
         headers: Optional[Dict[str, str]] = None,
-        correlation_id: Optional[str] = None,
+        correlation_id: str = "",
         reply_to: str = "",
     ) -> None:
         """Publish a message to a topic."""
@@ -41,7 +40,7 @@ class AsyncConfluentFastProducer(ProducerProto):
 
         headers_to_send = {
             "content-type": content_type or "",
-            "correlation_id": correlation_id or str(uuid4()),
+            "correlation_id": correlation_id,
             **(headers or {}),
         }
 
@@ -73,7 +72,7 @@ class AsyncConfluentFastProducer(ProducerProto):
         timestamp_ms: Optional[int] = None,
         headers: Optional[Dict[str, str]] = None,
         reply_to: str = "",
-        correlation_id: Optional[str] = None,
+        correlation_id: str = "",
     ) -> None:
         """Publish a batch of messages to a topic."""
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
@@ -81,7 +80,7 @@ class AsyncConfluentFastProducer(ProducerProto):
         batch = self._producer.create_batch()
 
         headers_to_send = {
-            "correlation_id": correlation_id or str(uuid4()),
+            "correlation_id": correlation_id,
             **(headers or {})
         }
 

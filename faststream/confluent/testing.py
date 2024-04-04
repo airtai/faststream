@@ -1,10 +1,9 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
-from uuid import uuid4
 
 from typing_extensions import override
 
-from faststream.broker.message import encode_message
+from faststream.broker.message import encode_message, gen_cor_id
 from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.confluent.broker import KafkaBroker
 from faststream.confluent.publisher.asyncapi import (
@@ -77,6 +76,8 @@ class FakeProducer(AsyncConfluentFastProducer):
         raise_timeout: bool = False,
     ) -> Optional[Any]:
         """Publish a message to the Kafka broker."""
+        correlation_id = correlation_id or gen_cor_id()
+
         incoming = build_message(
             message=message,
             topic=topic,
@@ -113,6 +114,8 @@ class FakeProducer(AsyncConfluentFastProducer):
         correlation_id: Optional[str] = None,
     ) -> None:
         """Publish a batch of messages to the Kafka broker."""
+        correlation_id = correlation_id or gen_cor_id()
+
         for handler in self.broker._subscribers.values():  # pragma: no branch
             if topic in handler.topics:
                 messages = (
@@ -196,12 +199,12 @@ class MockConfluentMessage:
 def build_message(
     message: SendableMessage,
     topic: str,
+    *,
+    correlation_id: str,
     partition: Optional[int] = None,
     timestamp_ms: Optional[int] = None,
     key: Optional[bytes] = None,
     headers: Optional[Dict[str, str]] = None,
-    correlation_id: Optional[str] = None,
-    *,
     reply_to: str = "",
 ) -> MockConfluentMessage:
     """Build a mock confluent_kafka.Message for a sendable message.
@@ -223,7 +226,7 @@ def build_message(
     k = key or b""
     headers = {
         "content-type": content_type or "",
-        "correlation_id": correlation_id or str(uuid4()),
+        "correlation_id": correlation_id,
         "reply_to": reply_to,
         **(headers or {}),
     }

@@ -23,7 +23,7 @@ from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream.asyncapi import schema as asyncapi
-from faststream.broker.message import StreamMessage
+from faststream.broker.message import StreamMessage, gen_cor_id
 from faststream.broker.types import (
     BrokerMiddleware,
     CustomDecoder,
@@ -443,6 +443,8 @@ class KafkaBroker(
         # extra options to be compatible with test client
         **kwargs: Any,
     ) -> Optional[Any]:
+        correlation_id = correlation_id or gen_cor_id()
+
         return await super().publish(
             message,
             producer=self._producer,
@@ -467,6 +469,8 @@ class KafkaBroker(
         correlation_id: Optional[str] = None,
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
+
+        correlation_id = correlation_id or gen_cor_id()
 
         async with AsyncExitStack() as stack:
             wrapped_messages = [

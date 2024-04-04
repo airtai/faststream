@@ -5,6 +5,7 @@ from typing import Any, Dict, Iterable, Optional, Union, cast
 from confluent_kafka import Message
 from typing_extensions import override
 
+from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
 from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
@@ -78,7 +79,6 @@ class DefaultPublisher(LogicPublisher):
         super().__init__(
             topic=topic,
             partition=partition,
-            timestamp_ms=timestamp_ms,
             headers=headers,
             # publisher args
             broker_middlewares=broker_middlewares,
@@ -105,7 +105,7 @@ class DefaultPublisher(LogicPublisher):
         correlation_id: Optional[str] = None,
         reply_to: str = "",
         # publisher specific
-        extra_middlewares: Iterable[PublisherMiddleware] = (),
+        _extra_middlewares: Iterable[PublisherMiddleware] = (),
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
@@ -117,12 +117,12 @@ class DefaultPublisher(LogicPublisher):
             "timestamp_ms": timestamp_ms,
             "headers": headers or self.headers,
             "reply_to": reply_to or self.reply_to,
-            "correlation_id": correlation_id,
+            "correlation_id": correlation_id or gen_cor_id(),
         }
 
         async with AsyncExitStack() as stack:
             for m in chain(
-                extra_middlewares
+                _extra_middlewares
                 or (m(None).publish_scope for m in self._broker_middlewares),
                 self._middlewares,
             ):
@@ -148,7 +148,7 @@ class BatchPublisher(LogicPublisher):
         reply_to: str = "",
         correlation_id: Optional[str] = None,
         # publisher specific
-        extra_middlewares: Iterable[PublisherMiddleware] = (),
+        _extra_middlewares: Iterable[PublisherMiddleware] = (),
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
@@ -164,7 +164,7 @@ class BatchPublisher(LogicPublisher):
             "timestamp_ms": timestamp_ms or self.timestamp_ms,
             "headers": headers or self.headers,
             "reply_to": reply_to or self.reply_to,
-            "correlation_id": correlation_id,
+            "correlation_id": correlation_id or gen_cor_id(),
         }
 
         async with AsyncExitStack() as stack:
@@ -174,7 +174,7 @@ class BatchPublisher(LogicPublisher):
                 )
                 for msg in msgs
                 for middleware in chain(
-                    extra_middlewares
+                    _extra_middlewares
                     or (m(None).publish_scope for m in self._broker_middlewares),
                     self._middlewares,
                 )
