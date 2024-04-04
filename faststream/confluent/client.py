@@ -229,10 +229,11 @@ class AsyncConfluentProducer:
                 "key": key,
                 "partition": partition,
                 "headers": headers,
-                "timestamp_ms": timestamp_ms,
             }.items()
             if v is not None
         }
+        if timestamp_ms is not None:
+            kwargs["timestamp"] = timestamp_ms
 
         self.producer.produce(
             topic,

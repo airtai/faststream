@@ -328,4 +328,4 @@ class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
             await anyio.sleep(self.batch_timeout_ms / 1000)
             return ()
 
-        return tuple(chain(*messages.values()))
+        return messages
