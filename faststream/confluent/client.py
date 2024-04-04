@@ -488,18 +488,19 @@ class AsyncConfluentConsumer:
 
     async def stop(self) -> None:
         """Stops the Kafka consumer and releases all resources."""
-        # NOTE: what we are doing here?
-        # enable_auto_commit = self.config["enable.auto.commit"]
-        # try:
-        #     if enable_auto_commit:
-        #         await self.commit(asynchronous=False)
+        # NOTE: If we don't explicitly call commit and then close the consumer, the confluent consumer gets stuck.
+        # We are doing this to avoid the issue.
+        enable_auto_commit = self.config["enable.auto.commit"]
+        try:
+            if enable_auto_commit:
+                await self.commit(asynchronous=False)
 
-        # except Exception as e:
-        #     # No offset stored issue is not a problem - https://github.com/confluentinc/confluent-kafka-python/issues/295#issuecomment-355907183
-        #     if "No offset stored" in str(e):
-        #         pass
-        #     else:
-        #         raise e
+        except Exception as e:
+            # No offset stored issue is not a problem - https://github.com/confluentinc/confluent-kafka-python/issues/295#issuecomment-355907183
+            if "No offset stored" in str(e):
+                pass
+            else:
+                raise e
 
         # Wrap calls to async to make method cancelable by timeout
         await call_or_await(self.consumer.unsubscribe)
