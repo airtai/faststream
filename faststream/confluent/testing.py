@@ -1,8 +1,7 @@
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from uuid import uuid4
 
-from confluent_kafka import Message
 from typing_extensions import override
 
 from faststream.broker.message import encode_message
@@ -141,6 +140,56 @@ class FakeProducer(AsyncConfluentFastProducer):
         return None
 
 
+class MockConfluentMessage:
+    def __init__(
+        self,
+        raw_msg: bytes,
+        topic: str,
+        key: bytes,
+        headers: List[Tuple[str, bytes]],
+        offset: int,
+        partition: int,
+        timestamp_type: int,
+        timestamp_ms: int,
+        error: Optional[str] = None,
+    ):
+        self._raw_msg = raw_msg
+        self._topic = topic
+        self._key = key
+        self._headers = headers
+        self._error = error
+        self._offset = offset
+        self._partition = partition
+        self._timestamp = (timestamp_type, timestamp_ms)
+
+    def len(self) -> int:
+        return len(self._raw_msg)
+
+    def error(self) -> Optional[str]:
+        return self._error
+
+    def headers(self) -> List[Tuple[str, bytes]]:
+        return self._headers
+
+    def key(self) -> bytes:
+        return self._key
+
+    def offset(self) -> int:
+        return self._offset
+
+    def partition(self) -> int:
+        return self._partition
+
+    def timestamp(self) -> Tuple[int, int]:
+        return self._timestamp
+
+    def topic(self) -> str:
+        return self._topic
+
+    def value(self) -> bytes:
+        return self._raw_msg
+
+
 def build_message(
     message: SendableMessage,
     topic: str,
@@ -151,12 +200,24 @@ def build_message(
     correlation_id: Optional[str] = None,
     *,
     reply_to: str = "",
-) -> Message:
-    """Build a confluent_kafka.Message for a sendable message."""
+) -> MockConfluentMessage:
+    """Build a mock confluent_kafka.Message for a sendable message.
+
+    Args:
+        message (SendableMessage): The sendable message to be encoded.
+        topic (str): The Kafka topic for the message.
+        partition (Optional[int], optional): The Kafka partition for the message. Defaults to None.
+        timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.
+        key (Optional[bytes], optional): The message key. Defaults to None.
+        headers (Optional[Dict[str, str]], optional): Additional headers for the message. Defaults to None.
+        correlation_id (Optional[str], optional): The correlation ID for the message. Defaults to None.
+        reply_to (str, optional): The topic to which responses should be sent. Defaults to "".
+
+    Returns:
+        MockConfluentMessage: A mock confluent_kafka.Message object.
+    """
     msg, content_type = encode_message(message)
-
     k = key or b""
-
     headers = {
         "content-type": content_type or "",
         "correlation_id": correlation_id or str(uuid4()),
@@ -164,16 +225,14 @@ def build_message(
         **(headers or {}),
     }
 
-    return Message(
-        value=msg,
+    # https://docs.confluent.io/platform/current/clients/confluent-kafka-python/html/index.html#confluent_kafka.Message.timestamp
+    return MockConfluentMessage(
+        raw_msg=msg,
         topic=topic,
-        partition=partition or 0,
-        timestamp=timestamp_ms or int(datetime.now().timestamp()),
-        timestamp_type=0,
         key=k,
-        serialized_key_size=len(k),
-        serialized_value_size=len(msg),
-        checksum=sum(msg),
-        offset=0,
         headers=[(i, j.encode()) for i, j in headers.items()],
+        offset=0,
+        partition=partition or 0,
+        timestamp_type=0 + 1,
+        timestamp_ms=timestamp_ms or int(datetime.now().timestamp()),
     )
