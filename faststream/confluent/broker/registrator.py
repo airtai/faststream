@@ -10,6 +10,7 @@ from typing import (
     Tuple,
     Union,
     cast,
+    overload,
 )
 
 from confluent_kafka import Message
@@ -27,8 +28,16 @@ from faststream.broker.types import (
 )
 from faststream.broker.utils import default_filter
 from faststream.confluent.client import AsyncConfluentConsumer
-from faststream.confluent.publisher.asyncapi import AsyncAPIPublisher
-from faststream.confluent.subscriber.asyncapi import AsyncAPISubscriber
+from faststream.confluent.publisher.asyncapi import (
+    AsyncAPIBatchPublisher,
+    AsyncAPIDefaultPublisher,
+    AsyncAPIPublisher,
+)
+from faststream.confluent.subscriber.asyncapi import (
+    AsyncAPIBatchSubscriber,
+    AsyncAPIDefaultSubscriber,
+    AsyncAPISubscriber,
+)
 from faststream.exceptions import SetupError
 
 
@@ -38,8 +47,8 @@ class KafkaRegistrator(ABCBroker[Union[
 ]]):
     """Includable to KafkaBroker router."""
 
-    _subscribers: Dict[int, AsyncAPISubscriber]
-    _publishers: Dict[int, AsyncAPIPublisher]
+    _subscribers: Dict[int, Union[AsyncAPIBatchSubscriber, AsyncAPIDefaultSubscriber]]
+    _publishers: Dict[int, Union[AsyncAPIBatchPublisher, AsyncAPIDefaultPublisher]]
 
     @override
     def subscriber(  # type: ignore[override]
@@ -203,14 +212,33 @@ class KafkaRegistrator(ABCBroker[Union[
             middlewares_=middlewares,
         )
 
-    @override
-    def publisher(  # type: ignore[override]
+    @overload  # type: ignore[override]
+    def publisher(
         self,
-        topic: str,
+        topic: Annotated[
+            str,
+            Doc("Topic where the message will be published."),
+        ],
         *,
-        key: Optional[bytes] = None,
-        partition: Optional[int] = None,
-        batch: bool = False,
+        key: Annotated[
+            Union[bytes, Any, None],
+            Doc("""
+            A key to associate with the message. Can be used to
+            determine which partition to send the message to. If partition
+            is `None` (and producer's partitioner config is left as default),
+            then messages with the same key will be delivered to the same
+            partition (but if key is `None`, partition is chosen randomly).
+            Must be type `bytes`, or be serializable to bytes via configured
+            `key_serializer`.
+            """),
+        ] = None,
+        partition: Annotated[
+            Optional[int],
+            Doc("""
+            Specify a partition. If not set, the partition will be
+            selected using the configured `partitioner`.
+            """),
+        ] = None,
         headers: Annotated[
             Optional[Dict[str, str]],
             Doc(
@@ -223,6 +251,10 @@ class KafkaRegistrator(ABCBroker[Union[
             str,
             Doc("Topic name to send response."),
         ] = "",
+        batch: Annotated[
+            Literal[False],
+            Doc("Whether to send messages in batches or not."),
+        ] = False,
         # basic args
         middlewares: Annotated[
             Iterable[PublisherMiddleware],
@@ -248,7 +280,223 @@ class KafkaRegistrator(ABCBroker[Union[
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPIPublisher:
+    ) -> AsyncAPIDefaultPublisher: ...
+
+    @overload
+    def publisher(
+        self,
+        topic: Annotated[
+            str,
+            Doc("Topic where the message will be published."),
+        ],
+        *,
+        key: Annotated[
+            Union[bytes, Any, None],
+            Doc("""
+            A key to associate with the message. Can be used to
+            determine which partition to send the message to. If partition
+            is `None` (and producer's partitioner config is left as default),
+            then messages with the same key will be delivered to the same
+            partition (but if key is `None`, partition is chosen randomly).
+            Must be type `bytes`, or be serializable to bytes via configured
+            `key_serializer`.
+            """),
+        ] = None,
+        partition: Annotated[
+            Optional[int],
+            Doc("""
+            Specify a partition. If not set, the partition will be
+            selected using the configured `partitioner`.
+            """),
+        ] = None,
+        headers: Annotated[
+            Optional[Dict[str, str]],
+            Doc(
+                "Message headers to store metainformation. "
+                "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
+                "Can be overrided by `publish.headers` if specified."
+            ),
+        ] = None,
+        reply_to: Annotated[
+            str,
+            Doc("Topic name to send response."),
+        ] = "",
+        batch: Annotated[
+            Literal[True],
+            Doc("Whether to send messages in batches or not."),
+        ],
+        # basic args
+        middlewares: Annotated[
+            Iterable[PublisherMiddleware],
+            Doc("Publisher middlewares to wrap outgoing messages."),
+        ] = (),
+        # AsyncAPI args
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object description."),
+        ] = None,
+        schema: Annotated[
+            Optional[Any],
+            Doc(
+                "AsyncAPI publishing message type. "
+                "Should be any python-native object annotation or `pydantic.BaseModel`."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+    ) -> AsyncAPIBatchPublisher: ...
+
+    @overload
+    def publisher(
+        self,
+        topic: Annotated[
+            str,
+            Doc("Topic where the message will be published."),
+        ],
+        *,
+        key: Annotated[
+            Union[bytes, Any, None],
+            Doc("""
+            A key to associate with the message. Can be used to
+            determine which partition to send the message to. If partition
+            is `None` (and producer's partitioner config is left as default),
+            then messages with the same key will be delivered to the same
+            partition (but if key is `None`, partition is chosen randomly).
+            Must be type `bytes`, or be serializable to bytes via configured
+            `key_serializer`.
+            """),
+        ] = None,
+        partition: Annotated[
+            Optional[int],
+            Doc("""
+            Specify a partition. If not set, the partition will be
+            selected using the configured `partitioner`.
+            """),
+        ] = None,
+        headers: Annotated[
+            Optional[Dict[str, str]],
+            Doc(
+                "Message headers to store metainformation. "
+                "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
+                "Can be overrided by `publish.headers` if specified."
+            ),
+        ] = None,
+        reply_to: Annotated[
+            str,
+            Doc("Topic name to send response."),
+        ] = "",
+        batch: Annotated[
+            bool,
+            Doc("Whether to send messages in batches or not."),
+        ] = False,
+        # basic args
+        middlewares: Annotated[
+            Iterable[PublisherMiddleware],
+            Doc("Publisher middlewares to wrap outgoing messages."),
+        ] = (),
+        # AsyncAPI args
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object description."),
+        ] = None,
+        schema: Annotated[
+            Optional[Any],
+            Doc(
+                "AsyncAPI publishing message type. "
+                "Should be any python-native object annotation or `pydantic.BaseModel`."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+    ) -> Union[
+        AsyncAPIBatchPublisher,
+        AsyncAPIDefaultPublisher,
+    ]: ...
+
+    @override
+    def publisher(
+        self,
+        topic: Annotated[
+            str,
+            Doc("Topic where the message will be published."),
+        ],
+        *,
+        key: Annotated[
+            Union[bytes, Any, None],
+            Doc("""
+            A key to associate with the message. Can be used to
+            determine which partition to send the message to. If partition
+            is `None` (and producer's partitioner config is left as default),
+            then messages with the same key will be delivered to the same
+            partition (but if key is `None`, partition is chosen randomly).
+            Must be type `bytes`, or be serializable to bytes via configured
+            `key_serializer`.
+            """),
+        ] = None,
+        partition: Annotated[
+            Optional[int],
+            Doc("""
+            Specify a partition. If not set, the partition will be
+            selected using the configured `partitioner`.
+            """),
+        ] = None,
+        headers: Annotated[
+            Optional[Dict[str, str]],
+            Doc(
+                "Message headers to store metainformation. "
+                "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
+                "Can be overrided by `publish.headers` if specified."
+            ),
+        ] = None,
+        reply_to: Annotated[
+            str,
+            Doc("Topic name to send response."),
+        ] = "",
+        batch: Annotated[
+            bool,
+            Doc("Whether to send messages in batches or not."),
+        ] = False,
+        # basic args
+        middlewares: Annotated[
+            Iterable[PublisherMiddleware],
+            Doc("Publisher middlewares to wrap outgoing messages."),
+        ] = (),
+        # AsyncAPI args
+        title: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object title."),
+        ] = None,
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI publisher object description."),
+        ] = None,
+        schema: Annotated[
+            Optional[Any],
+            Doc(
+                "AsyncAPI publishing message type. "
+                "Should be any python-native object annotation or `pydantic.BaseModel`."
+            ),
+        ] = None,
+        include_in_schema: Annotated[
+            bool,
+            Doc("Whetever to include operation in AsyncAPI schema or not."),
+        ] = True,
+    ) -> Union[
+        AsyncAPIBatchPublisher,
+        AsyncAPIDefaultPublisher,
+    ]:
         """Creates long-living and AsyncAPI-documented publisher object.
 
         You can use it as a handler decorator (handler should be decorated by `@broker.subscriber(...)` too) - `@broker.publisher(...)`.
@@ -256,28 +504,27 @@ class KafkaRegistrator(ABCBroker[Union[
 
         Or you can create a publisher object to call it lately - `broker.publisher(...).publish(...)`.
         """
-        return cast(
-            AsyncAPIPublisher,
-            super().publisher(
-                AsyncAPIPublisher.create(
-                    # batch flag
-                    batch=batch,
-                    # default args
-                    key=key,
-                    # both args
-                    topic=topic,
-                    partition=partition,
-                    headers=headers,
-                    reply_to=reply_to,
-                    # publisher-specific
-                    broker_middlewares=self._middlewares,
-                    middlewares=middlewares,
-                    # AsyncAPI
-                    title_=title,
-                    description_=description,
-                    schema_=schema,
-                    include_in_schema=self._solve_include_in_schema(
-                        include_in_schema),
-                ),
-            ),
+        publisher = AsyncAPIPublisher.create(
+            # batch flag
+            batch=batch,
+            # default args
+            key=key,
+            # both args
+            topic=topic,
+            partition=partition,
+            headers=headers,
+            reply_to=reply_to,
+            # publisher-specific
+            broker_middlewares=self._middlewares,
+            middlewares=middlewares,
+            # AsyncAPI
+            title_=title,
+            description_=description,
+            schema_=schema,
+            include_in_schema=self._solve_include_in_schema(include_in_schema),
         )
+
+        if batch:
+            return cast(AsyncAPIBatchPublisher, super().publisher(publisher))
+        else:
+            return cast(AsyncAPIDefaultPublisher, super().publisher(publisher))

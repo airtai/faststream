@@ -29,7 +29,7 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     @staticmethod
     def create_publisher_fake_subscriber(
         broker: KafkaBroker,
-        publisher: AsyncAPIPublisher,
+        publisher: AsyncAPIPublisher[Any],
     ) -> HandlerCallWrapper[Any, Any, Any]:
         sub = broker.subscriber(
             publisher.topic,
@@ -45,7 +45,7 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
 
     @staticmethod
     def remove_publisher_fake_subscriber(
-        broker: KafkaBroker, publisher: AsyncAPIPublisher,
+        broker: KafkaBroker, publisher: AsyncAPIPublisher[Any],
     ) -> None:
         broker._subscribers.pop(hash(publisher), None)
 

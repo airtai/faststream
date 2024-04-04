@@ -1,12 +1,13 @@
-from typing import Any, Dict, Iterable, Literal, Optional, Union, overload
+from typing import Any, Dict, Iterable, Literal, Optional, Tuple, Union, overload
 
-from confluent_kafka import Message
+from confluent_kafka import Message as ConfluentMsg
 from typing_extensions import override
 
 from faststream.asyncapi.schema import (
     Channel,
     ChannelBinding,
     CorrelationId,
+    Message,
     Operation,
 )
 from faststream.asyncapi.schema.bindings import kafka
@@ -53,18 +54,18 @@ class AsyncAPIPublisher(LogicPublisher):
         key: Optional[bytes],
         topic: str,
         partition: Optional[int],
-        timestamp_ms: Optional[int],
         headers: Optional[Dict[str, str]],
-        reply_to: Optional[str],
+        reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable[BrokerMiddleware[Message]],
+        broker_middlewares: Iterable[BrokerMiddleware[Tuple[ConfluentMsg, ...]]],
         middlewares: Iterable[PublisherMiddleware],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
-    ) -> "AsyncAPIBatchPublisher": ...
+    ) -> "AsyncAPIBatchPublisher":
+        ...
 
     @overload
     @staticmethod
@@ -74,18 +75,18 @@ class AsyncAPIPublisher(LogicPublisher):
         key: Optional[bytes],
         topic: str,
         partition: Optional[int],
-        timestamp_ms: Optional[int],
         headers: Optional[Dict[str, str]],
-        reply_to: Optional[str],
+        reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable[BrokerMiddleware[Message]],
+        broker_middlewares: Iterable[BrokerMiddleware[ConfluentMsg]],
         middlewares: Iterable[PublisherMiddleware],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
-    ) -> "AsyncAPIDefaultPublisher": ...
+    ) -> "AsyncAPIDefaultPublisher":
+        ...
 
     @overload
     @staticmethod
@@ -95,11 +96,13 @@ class AsyncAPIPublisher(LogicPublisher):
         key: Optional[bytes],
         topic: str,
         partition: Optional[int],
-        timestamp_ms: Optional[int],
         headers: Optional[Dict[str, str]],
-        reply_to: Optional[str],
+        reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable[BrokerMiddleware[Message]],
+        broker_middlewares: Iterable[BrokerMiddleware[Union[
+            Tuple[ConfluentMsg, ...],
+            ConfluentMsg
+        ]]],
         middlewares: Iterable[PublisherMiddleware],
         # AsyncAPI args
         schema_: Optional[Any],
@@ -109,7 +112,8 @@ class AsyncAPIPublisher(LogicPublisher):
     ) -> Union[
         "AsyncAPIBatchPublisher",
         "AsyncAPIDefaultPublisher",
-    ]: ...
+    ]:
+        ...
 
     @override
     @staticmethod
@@ -120,9 +124,12 @@ class AsyncAPIPublisher(LogicPublisher):
         topic: str,
         partition: Optional[int],
         headers: Optional[Dict[str, str]],
-        reply_to: Optional[str],
+        reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable[BrokerMiddleware[Message]],
+        broker_middlewares: Iterable[BrokerMiddleware[Union[
+            Tuple[ConfluentMsg, ...],
+            ConfluentMsg
+        ]]],
         middlewares: Iterable[PublisherMiddleware],
         # AsyncAPI args
         schema_: Optional[Any],

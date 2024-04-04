@@ -2,8 +2,6 @@ from typing import Any
 
 import pytest
 
-from unittest.mock import Mock
-
 from faststream.confluent import KafkaBroker
 from tests.brokers.base.middlewares import MiddlewareTestcase
 

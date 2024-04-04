@@ -163,32 +163,14 @@ class AsyncConfluentProducer:
         timestamp_ms: Optional[int] = None,
         headers: Optional[List[Tuple[str, Union[str, bytes]]]] = None,
     ) -> None:
-        """Sends a single message to a Kafka topic.
-
-        Args:
-            topic (str): The topic to send the message to.
-            value (Optional[Union[str, bytes]]): The message value.
-            key (Optional[Union[str, bytes]]): The message key.
-            partition (Optional[int]): The partition to send the message to.
-            timestamp_ms (Optional[int]): The timestamp of the message in milliseconds.
-            headers (Optional[List[Tuple[str, Union[str, bytes]]]]): A list of headers for the message.
-        """
-        kwargs = {
-            k: v
-            for k, v in {
-                "value": value,
-                "key": key,
-                "partition": partition,
-                "headers": headers,
-            }.items()
-            if v is not None
-        }
-        if timestamp_ms is not None:
-            kwargs["timestamp"] = timestamp_ms
-
+        """Sends a single message to a Kafka topic."""
         self.producer.produce(
             topic,
-            **kwargs,
+            value=value,
+            key=key,
+            partition=partition,
+            headers=headers,
+            timestamp=timestamp_ms or 0,
         )
         self.producer.poll(0)
 
@@ -244,17 +226,13 @@ def create_topics(
         "sasl.kerberos.service.name",
     )
 
+    admin_client = AdminClient(
+        {x: config[x] for x in required_config_params if x in config}
+    )
 
-    admin_client = AdminClient({
-        x: config[x]
-        for x in required_config_params
-        if x in config
-    })
-
-    fs = admin_client.create_topics([
-        NewTopic(topic, num_partitions=1, replication_factor=1)
-        for topic in topics
-    ])
+    fs = admin_client.create_topics(
+        [NewTopic(topic, num_partitions=1, replication_factor=1) for topic in topics]
+    )
 
     for topic, f in fs.items():
         try:
@@ -404,7 +382,7 @@ class AsyncConfluentConsumer:
         self,
         timeout_ms: int = 0,
         max_records: Optional[int] = 10,
-    ) -> Tuple[Message]:
+    ) -> Tuple[Message, ...]:
         """Consumes a batch of messages from Kafka and groups them by topic and partition."""
         raw_messages: List[Optional[Message]] = await call_or_await(
             self.consumer.consume,
@@ -412,10 +390,7 @@ class AsyncConfluentConsumer:
             timeout=timeout_ms / 1000,
         )
 
-        return tuple(filter(
-            lambda x: x is not None,
-            map(check_msg_error, raw_messages),
-        ))
+        return tuple(x for x in map(check_msg_error, raw_messages) if x is not None)
 
 
 def check_msg_error(msg: Optional[Message]) -> Optional[Message]:

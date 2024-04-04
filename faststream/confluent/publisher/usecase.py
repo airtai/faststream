@@ -1,19 +1,19 @@
 from contextlib import AsyncExitStack
 from itertools import chain
-from typing import Any, Dict, Iterable, Optional, Union, cast
+from typing import Any, Dict, Iterable, Optional, Tuple, Union, cast
 
 from confluent_kafka import Message
 from typing_extensions import override
 
 from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
-from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+from faststream.broker.types import BrokerMiddleware, MsgType, PublisherMiddleware
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.types import AnyDict, SendableMessage
 
 
-class LogicPublisher(PublisherUsecase[Message]):
+class LogicPublisher(PublisherUsecase[MsgType]):
     """A class to publish messages to a Kafka topic."""
 
     _producer: Optional[AsyncConfluentFastProducer]
@@ -26,7 +26,7 @@ class LogicPublisher(PublisherUsecase[Message]):
         headers: Optional[Dict[str, str]],
         reply_to: Optional[str],
         # Publisher args
-        broker_middlewares: Iterable[BrokerMiddleware[Message]],
+        broker_middlewares: Iterable[BrokerMiddleware[MsgType]],
         middlewares: Iterable[PublisherMiddleware],
         # AsyncAPI args
         schema_: Optional[Any],
@@ -58,7 +58,7 @@ class LogicPublisher(PublisherUsecase[Message]):
         self.topic = "".join((prefix, self.topic))
 
 
-class DefaultPublisher(LogicPublisher):
+class DefaultPublisher(LogicPublisher[Message]):
     def __init__(
         self,
         *,
@@ -80,6 +80,7 @@ class DefaultPublisher(LogicPublisher):
             topic=topic,
             partition=partition,
             headers=headers,
+            reply_to=reply_to,
             # publisher args
             broker_middlewares=broker_middlewares,
             middlewares=middlewares,
@@ -135,7 +136,7 @@ class DefaultPublisher(LogicPublisher):
         return None
 
 
-class BatchPublisher(LogicPublisher):
+class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
     @override
     async def publish(  # type: ignore[override]
         self,
@@ -161,7 +162,7 @@ class BatchPublisher(LogicPublisher):
         kwargs: "AnyDict" = {
             "topic": topic or self.topic,
             "partition": partition or self.partition,
-            "timestamp_ms": timestamp_ms or self.timestamp_ms,
+            "timestamp_ms": timestamp_ms,
             "headers": headers or self.headers,
             "reply_to": reply_to or self.reply_to,
             "correlation_id": correlation_id or gen_cor_id(),

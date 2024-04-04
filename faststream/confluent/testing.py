@@ -11,7 +11,7 @@ from faststream.confluent.publisher.asyncapi import (
     AsyncAPIPublisher,
 )
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
-from faststream.confluent.subscriber.asyncapi import BatchAsyncAPISubscriber
+from faststream.confluent.subscriber.asyncapi import AsyncAPIBatchSubscriber
 from faststream.testing.broker import TestBroker, call_handler
 from faststream.types import SendableMessage
 
@@ -94,7 +94,7 @@ class FakeProducer(AsyncConfluentFastProducer):
                 return await call_handler(
                     handler=handler,
                     message=[incoming]
-                    if isinstance(handler, BatchAsyncAPISubscriber)
+                    if isinstance(handler, AsyncAPIBatchSubscriber)
                     else incoming,
                     rpc=rpc,
                     rpc_timeout=rpc_timeout,
@@ -131,7 +131,7 @@ class FakeProducer(AsyncConfluentFastProducer):
                     for message in msgs
                 )
 
-                if isinstance(handler, BatchAsyncAPISubscriber):
+                if isinstance(handler, AsyncAPIBatchSubscriber):
                     await call_handler(
                         handler=handler,
                         message=list(messages),

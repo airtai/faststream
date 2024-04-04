@@ -21,7 +21,7 @@ class AsyncConfluentFastProducer(ProducerProto):
         self._producer = producer
 
     @override
-    async def publish(
+    async def publish(  # type: ignore[override]
         self,
         message: SendableMessage,
         topic: str,

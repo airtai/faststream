@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, Iterable, Optional, Sequence, Tuple
 import anyio
 from confluent_kafka import KafkaException, Message
 from fast_depends.dependencies import Depends
-from typing_extensions import Unpack, override
+from typing_extensions import override
 
 from faststream.broker.message import StreamMessage
 from faststream.broker.publisher.fake import FakePublisher
@@ -157,7 +157,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         )
 
     @abstractmethod
-    async def get_msg(self) -> MsgType:
+    async def get_msg(self) -> Optional[MsgType]:
         raise NotImplementedError()
 
     async def _consume(self) -> None:
@@ -197,23 +197,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             "group_id": group_id or "",
             "message_id": getattr(message, "message_id", ""),
         }
-
-    def get_log_context(
-        self,
-        message: Optional["StreamMessage[Message]"],
-    ) -> Dict[str, str]:
-        if message is None:
-            topic = ",".join(self.topics)
-        elif isinstance(message.raw_message, Sequence):
-            topic = message.raw_message[0].topic()
-        else:
-            topic = message.raw_message.topic()
-
-        return self.build_log_context(
-            message=message,
-            topic=topic,
-            group_id=self.group_id,
-        )
 
     def add_prefix(self, prefix: str) -> None:
         self.topics = tuple("".join((prefix, t)) for t in self.topics)
@@ -256,10 +239,24 @@ class DefaultSubscriber(LogicSubscriber[Message]):
             include_in_schema=include_in_schema,
         )
 
-    async def get_msg(self) -> Message:
+    async def get_msg(self) -> Optional[Message]:
         assert self.consumer, "You should setup subscriber at first."  # nosec B101
         return await self.consumer.getone()
 
+    def get_log_context(
+        self,
+        message: Optional["StreamMessage[Message]"],
+    ) -> Dict[str, str]:
+        if message is None:
+            topic = ",".join(self.topics)
+        else:
+            topic = message.raw_message.topic() or ",".join(self.topics)
+
+        return self.build_log_context(
+            message=message,
+            topic=topic,
+            group_id=self.group_id,
+        )
 
 class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
     def __init__(
@@ -275,7 +272,7 @@ class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
         no_ack: bool,
         retry: bool,
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[Sequence[Tuple[Message, ...]]]],
+        broker_middlewares: Iterable[BrokerMiddleware[Tuple[Message, ...]]],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -303,7 +300,7 @@ class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
             include_in_schema=include_in_schema,
         )
 
-    async def get_msg(self) -> Tuple[Message, ...]:
+    async def get_msg(self) -> Optional[Tuple[Message, ...]]:
         assert self.consumer, "You should setup subscriber at first."  # nosec B101
 
         messages = await self.consumer.getmany(
@@ -313,6 +310,21 @@ class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
 
         if not messages:  # pragma: no cover
             await anyio.sleep(self.batch_timeout_ms / 1000)
-            return ()
+            return None
 
         return messages
+
+    def get_log_context(
+        self,
+        message: Optional["StreamMessage[Tuple[Message, ...]]"],
+    ) -> Dict[str, str]:
+        if message is None:
+            topic = ",".join(self.topics)
+        else:
+            topic = message.raw_message[0].topic() or ",".join(self.topics)
+
+        return self.build_log_context(
+            message=message,
+            topic=topic,
+            group_id=self.group_id,
+        )

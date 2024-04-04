@@ -1,5 +1,5 @@
 import asyncio
-from typing import Type,Any
+from typing import Any, Type
 from unittest.mock import Mock
 
 import pytest

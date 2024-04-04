@@ -1,6 +1,6 @@
 from typing import Callable, Dict, Iterable, Literal, Optional, Tuple, Union, overload
 
-from confluent_kafka import Message
+from confluent_kafka import Message as ConfluentMsg
 from fast_depends.dependencies import Depends
 from typing_extensions import override
 
@@ -8,6 +8,7 @@ from faststream.asyncapi.schema import (
     Channel,
     ChannelBinding,
     CorrelationId,
+    Message,
     Operation,
 )
 from faststream.asyncapi.schema.bindings import kafka
@@ -68,12 +69,12 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         no_ack: bool,
         retry: bool,
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[Message]],
+        broker_middlewares: Iterable[BrokerMiddleware[Tuple[ConfluentMsg, ...]]],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
-    ) -> "BatchAsyncAPISubscriber":
+    ) -> "AsyncAPIBatchSubscriber":
         ...
 
     @overload
@@ -91,12 +92,41 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         no_ack: bool,
         retry: bool,
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[Message]],
+        broker_middlewares: Iterable[BrokerMiddleware[ConfluentMsg]],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
-    ) -> "DefaultAsyncAPISubscriber":
+    ) -> "AsyncAPIDefaultSubscriber":
+        ...
+
+    @overload
+    @staticmethod
+    def create(
+        *topics: str,
+        batch: bool,
+        batch_timeout_ms: int,
+        max_records: Optional[int],
+        # Kafka information
+        group_id: Optional[str],
+        builder: Callable[..., AsyncConfluentConsumer],
+        is_manual: bool,
+        # Subscriber args
+        no_ack: bool,
+        retry: bool,
+        broker_dependencies: Iterable[Depends],
+        broker_middlewares: Iterable[BrokerMiddleware[Union[
+            ConfluentMsg,
+            Tuple[ConfluentMsg, ...]],
+        ]],
+        # AsyncAPI args
+        title_: Optional[str],
+        description_: Optional[str],
+        include_in_schema: bool,
+    ) -> Union[
+        "AsyncAPIDefaultSubscriber",
+        "AsyncAPIBatchSubscriber",
+    ]:
         ...
 
     @override
@@ -114,17 +144,20 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         no_ack: bool,
         retry: bool,
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[Message]],
+        broker_middlewares: Iterable[BrokerMiddleware[Union[
+            ConfluentMsg,
+            Tuple[ConfluentMsg, ...]],
+        ]],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
     ) -> Union[
-        "DefaultAsyncAPISubscriber",
-        "BatchAsyncAPISubscriber",
+        "AsyncAPIDefaultSubscriber",
+        "AsyncAPIBatchSubscriber",
     ]:
         if batch:
-            return BatchAsyncAPISubscriber(
+            return AsyncAPIBatchSubscriber(
                 *topics,
                 batch_timeout_ms=batch_timeout_ms,
                 max_records=max_records,
@@ -140,7 +173,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
                 include_in_schema=include_in_schema,
             )
         else:
-            return DefaultAsyncAPISubscriber(
+            return AsyncAPIDefaultSubscriber(
                 *topics,
                 group_id=group_id,
                 builder=builder,
@@ -155,10 +188,15 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
             )
 
 
-
-class DefaultAsyncAPISubscriber(DefaultSubscriber, AsyncAPISubscriber[Message],):
+class AsyncAPIDefaultSubscriber(
+    DefaultSubscriber,
+    AsyncAPISubscriber[ConfluentMsg],
+):
     pass
 
 
-class BatchAsyncAPISubscriber(BatchSubscriber, AsyncAPISubscriber[Tuple[Message, ...]],):
+class AsyncAPIBatchSubscriber(
+    BatchSubscriber,
+    AsyncAPISubscriber[Tuple[ConfluentMsg, ...]],
+):
     pass
