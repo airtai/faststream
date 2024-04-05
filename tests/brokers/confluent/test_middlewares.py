@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Dict
 
 import pytest
 
@@ -10,4 +10,4 @@ from tests.brokers.base.middlewares import MiddlewareTestcase
 class TestMiddlewares(MiddlewareTestcase):
     broker_class = KafkaBroker
     timeout: int = 10
-    subscriber_kwargs: dict[str, Any] = {"auto_offset_reset": "earliest"}
+    subscriber_kwargs: Dict[str, Any] = {"auto_offset_reset": "earliest"}

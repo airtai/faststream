@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Type
+from typing import Any, Dict, Type
 from unittest.mock import Mock
 
 import pytest
@@ -20,7 +20,7 @@ class RouterTestcase(
     build_message: AnyCallable
     route_class: Type[SubscriberRoute]
     timeout: int = 3
-    subscriber_kwargs: dict[str, Any] = {}
+    subscriber_kwargs: Dict[str, Any] = {}
     publisher_class: Type[ArgsContainer]
 
     def patch_broker(self, br: BrokerUsecase, router: BrokerRouter) -> BrokerUsecase:

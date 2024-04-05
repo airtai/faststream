@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Dict
 
 import pytest
 
@@ -12,7 +12,7 @@ class TestRouter(RouterTestcase):
     route_class = KafkaRoute
     timeout: int = 10
     publisher_class = KafkaPublisher
-    subscriber_kwargs: dict[str, Any] = {"auto_offset_reset": "earliest"}
+    subscriber_kwargs: Dict[str, Any] = {"auto_offset_reset": "earliest"}
 
 
 class TestRouterLocal(RouterLocalTestcase):
@@ -20,4 +20,4 @@ class TestRouterLocal(RouterLocalTestcase):
     route_class = KafkaRoute
     timeout: int = 10
     publisher_class = KafkaPublisher
-    subscriber_kwargs: dict[str, Any] = {"auto_offset_reset": "earliest"}
+    subscriber_kwargs: Dict[str, Any] = {"auto_offset_reset": "earliest"}

@@ -21,7 +21,7 @@ now = datetime.now()
 
 class BrokerPublishTestcase:
     timeout: int = 3
-    subscriber_kwargs: dict[str, Any] = {}
+    subscriber_kwargs: Dict[str, Any] = {}
 
     @pytest.fixture()
     def pub_broker(self, full_broker):

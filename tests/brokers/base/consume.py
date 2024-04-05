@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any
+from typing import Any, Dict
 from unittest.mock import MagicMock
 
 import pytest
@@ -13,7 +13,7 @@ from faststream.exceptions import StopConsume
 @pytest.mark.asyncio()
 class BrokerConsumeTestcase:
     timeout: int = 3
-    subscriber_kwargs: dict[str, Any] = {}
+    subscriber_kwargs: Dict[str, Any] = {}
 
     @pytest.fixture()
     def consume_broker(self, broker: BrokerUsecase):

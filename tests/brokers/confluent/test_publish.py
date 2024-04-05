@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any
+from typing import Any, Dict
 
 import pytest
 
@@ -10,7 +10,7 @@ from tests.brokers.base.publish import BrokerPublishTestcase
 @pytest.mark.confluent()
 class TestPublish(BrokerPublishTestcase):
     timeout: int = 10
-    subscriber_kwargs: dict[str, Any] = {"auto_offset_reset": "earliest"}
+    subscriber_kwargs: Dict[str, Any] = {"auto_offset_reset": "earliest"}
 
     @pytest.mark.asyncio()
     async def test_publish_batch(self, queue: str, broker: KafkaBroker):
