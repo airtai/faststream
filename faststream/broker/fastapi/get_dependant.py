@@ -1,4 +1,4 @@
-from typing import Any, Callable, Iterable
+from typing import Any, Callable, Iterable, cast
 
 from fastapi import params
 from fastapi.dependencies.models import Dependant
@@ -10,7 +10,7 @@ from faststream._compat import PYDANTIC_V2
 def get_fastapi_dependant(
     orig_call: Callable[..., Any],
     dependencies: Iterable[params.Depends],
-    path_name: str = ""
+    path_name: str = "",
 ) -> Any:
     """Generate FastStream-Compatible FastAPI Dependant object."""
     dependent = get_fastapi_native_dependant(
@@ -27,7 +27,7 @@ def get_fastapi_dependant(
 def get_fastapi_native_dependant(
     orig_call: Callable[..., Any],
     dependencies: Iterable[params.Depends],
-    path_name: str = ""
+    path_name: str = "",
 ) -> Any:
     """Generate native FastAPI Dependant."""
     dependent = get_dependant(
@@ -44,28 +44,84 @@ def get_fastapi_native_dependant(
     return dependent
 
 
-def _patch_fastapi_dependent(dependent: Dependant) -> Dependant:
+def _patch_fastapi_dependent(dependant: Dependant) -> Dependant:
     """Patch FastAPI by adding fields for AsyncAPI schema generation."""
-    from pydantic import create_model  # FastAPI always has pydantic
+    from pydantic import Field, create_model  # FastAPI always has pydantic
 
-    params = dependent.query_params + dependent.body_params  # type: ignore[attr-defined]
+    from faststream._compat import PydanticUndefined
 
-    for d in dependent.dependencies:
+    params = dependant.query_params + dependant.body_params  # type: ignore[attr-defined]
+
+    for d in dependant.dependencies:
         params.extend(d.query_params + d.body_params)  # type: ignore[attr-defined]
 
     params_unique = {}
-    params_names = set()
     for p in params:
-        if p.name not in params_names:
-            params_names.add(p.name)
+        if p.name not in params_unique:
             info = p.field_info if PYDANTIC_V2 else p
-            params_unique[p.name] = (info.annotation, info.default)  # type: ignore[attr-defined]
 
-    dependent.model = create_model(  # type: ignore[attr-defined,call-overload]
-        getattr(dependent.call, "__name__", type(dependent.call).__name__),
-        **params_unique,
+            field_data = {
+                "default": ... if info.default is PydanticUndefined else info.default,
+                "default_factory": info.default_factory,
+                "alias": info.alias,
+            }
+
+            if PYDANTIC_V2:
+                from pydantic.fields import FieldInfo
+
+                info = cast(FieldInfo, info)
+
+                field_data.update(
+                    {
+                        "title": info.title,
+                        "alias_priority": info.alias_priority,
+                        "validation_alias": info.validation_alias,
+                        "serialization_alias": info.serialization_alias,
+                        "description": info.description,
+                        "discriminator": info.discriminator,
+                        "examples": info.examples,
+                        "exclude": info.exclude,
+                        "json_schema_extra": info.json_schema_extra,
+                    }
+                )
+
+                f = next(
+                    filter(
+                        lambda x: isinstance(x, FieldInfo),
+                        p.field_info.metadata or (),
+                    ),
+                    Field(**field_data),  # type: ignore[pydantic-field]
+                )
+
+            else:
+                from pydantic.fields import ModelField  # type: ignore[attr-defined]
+
+                info = cast(ModelField, info)
+
+                field_data.update(
+                    {
+                        "title": info.field_info.title,
+                        "description": info.field_info.description,
+                        "discriminator": info.field_info.discriminator,
+                        "exclude": info.field_info.exclude,
+                        "gt": info.field_info.gt,
+                        "ge": info.field_info.ge,
+                        "lt": info.field_info.lt,
+                        "le": info.field_info.le,
+                    }
+                )
+                f = Field(**field_data)  # type: ignore[pydantic-field]
+
+            params_unique[p.name] = (
+                info.annotation,
+                f,
+            )
+
+    dependant.model = create_model(
+        getattr(dependant.call, "__name__", type(dependant.call).__name__)
     )
-    dependent.custom_fields = {}  # type: ignore[attr-defined]
-    dependent.flat_params = params_unique  # type: ignore[attr-defined,assignment,misc]
 
-    return dependent
+    dependant.custom_fields = {}
+    dependant.flat_params = params_unique  # type: ignore[assignment,misc]
+
+    return dependant
