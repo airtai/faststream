@@ -17,8 +17,8 @@ def test_run_cmd(
     kafka_basic_project,
 ):
     async def patched_run(self: FastStream, *args, **kwargs):
-        await self._start()
-        await self._shutdown()
+        await self.start()
+        await self.stop()
         mock()
 
     with monkeypatch.context() as m:
