@@ -24,7 +24,7 @@ from redis.asyncio.connection import (
 )
 from typing_extensions import Annotated, Doc, TypeAlias, override
 
-from faststream.__about__ import SERVICE_NAME, __version__
+from faststream.__about__ import __version__
 from faststream.broker.message import gen_cor_id
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.redis.broker.logging import RedisLoggingBroker
@@ -93,7 +93,7 @@ class RedisBroker(
         host: str = "localhost",
         port: Union[str, int] = 6379,
         db: Union[str, int] = 0,
-        client_name: Optional[str] = SERVICE_NAME,
+        client_name: Optional[str] = None,
         health_check_interval: float = 0,
         max_connections: Optional[int] = None,
         socket_timeout: Optional[float] = None,
