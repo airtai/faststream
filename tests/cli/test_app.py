@@ -135,7 +135,9 @@ async def test_running(async_mock, app: FastStream):
 async def test_exception_group(async_mock: AsyncMock, app: FastStream):
     async_mock.side_effect = ValueError("Ooops!")
 
-    app.on_startup(async_mock)
+    @app.on_startup
+    async def f():
+        await async_mock()
 
     with pytest.raises(ValueError, match="Ooops!"):
         await app.run()
