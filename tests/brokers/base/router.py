@@ -232,6 +232,7 @@ class RouterTestcase(
                     response,
                     queue,
                     publishers=(self.publisher_class(queue + "1"),),
+                    **self.subscriber_kwargs,
                 ),
             ),
         )
