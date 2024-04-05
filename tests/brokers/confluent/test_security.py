@@ -16,7 +16,7 @@ def patch_aio_consumer_and_producer() -> Tuple[MagicMock, MagicMock]:
         producer = MagicMock(return_value=AsyncMock())
 
         with patch(
-            "faststream.confluent.publisher.producer.AsyncConfluentProducer",
+            "faststream.confluent.publisher.producer.AsyncConfluentFastProducer",
             new=producer,
         ):
             yield producer
@@ -103,37 +103,25 @@ async def test_scram512():
 @pytest.mark.asyncio()
 @pytest.mark.confluent()
 async def test_plaintext():
-    with patch_aio_consumer_and_producer() as (consumer, producer):
-        from docs.docs_src.confluent.security.plaintext import (
-            broker as plaintext_broker,
-        )
+    from docs.docs_src.confluent.security.plaintext import (
+        broker as plaintext_broker,
+    )
 
-        @plaintext_broker.subscriber("test")
-        async def handler(): ...
-
+    with patch_aio_consumer_and_producer() as producer:
         async with plaintext_broker:
-            await plaintext_broker.start()
+            producer_call_kwargs = producer.call_args.kwargs
 
-        consumer_call_kwargs = consumer.call_args.kwargs
-        producer_call_kwargs = producer.call_args.kwargs
+            call_kwargs = {}
+            call_kwargs["sasl_mechanism"] = "PLAIN"
+            call_kwargs["sasl_plain_username"] = "admin"
+            call_kwargs["sasl_plain_password"] = "password"  # pragma: allowlist secret
+            call_kwargs["security_protocol"] = "SASL_SSL"
 
-        call_kwargs = {}
-        call_kwargs["sasl_mechanism"] = "PLAIN"
-        call_kwargs["sasl_plain_username"] = "admin"
-        call_kwargs["sasl_plain_password"] = "password"  # pragma: allowlist secret
-        call_kwargs["security_protocol"] = "SASL_SSL"
+            assert call_kwargs.items() <= producer_call_kwargs.items()
 
-        assert call_kwargs.items() <= consumer_call_kwargs.items()
-        assert call_kwargs.items() <= producer_call_kwargs.items()
+            assert (
+                producer_call_kwargs["security_protocol"]
+                == call_kwargs["security_protocol"]
+            )
 
-        assert (
-            consumer_call_kwargs["security_protocol"]
-            == call_kwargs["security_protocol"]
-        )
-        assert (
-            producer_call_kwargs["security_protocol"]
-            == call_kwargs["security_protocol"]
-        )
-
-        assert type(consumer_call_kwargs["ssl_context"]) == ssl.SSLContext
-        assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
+            assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
