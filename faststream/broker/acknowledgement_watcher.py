@@ -160,6 +160,7 @@ class WatcherContext:
         elif self.watcher.is_max(self.message.message_id):
             await self.__reject()
 
+        else:
             await self.__nack()
 
         return False

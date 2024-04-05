@@ -36,12 +36,14 @@ class TestRedisBroker(TestBroker[RedisBroker]):
     ) -> HandlerCallWrapper[Any, Any, Any]:
         sub = broker.subscriber(**publisher.subscriber_property)
 
-        @sub
-        def f(msg: Any) -> None:
-            pass
+        if not sub.calls:
+            @sub
+            def f(msg: Any) -> None:
+                pass
 
-        broker.setup_subscriber(sub)
-        return f
+            broker.setup_subscriber(sub)
+
+        return sub.calls[0].handler
 
     @staticmethod
     async def _fake_connect(

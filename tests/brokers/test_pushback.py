@@ -119,11 +119,8 @@ async def test_ignore_skip(async_mock: AsyncMock, message):
         watcher=watcher,
     )
 
-    async_mock.side_effect = SkipMessage()
-
-    with pytest.raises(SkipMessage):
-        async with context:
-            await async_mock()
+    async with context:
+        raise SkipMessage()
 
     assert not message.nack.called
     assert not message.reject.called

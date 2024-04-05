@@ -4,7 +4,7 @@ import anyio
 import pytest
 from anyio.abc import TaskStatus
 
-from faststream.broker.core.handler import MultiLock
+from faststream.broker.utils import MultiLock
 from tests.marks import python310
 
 

@@ -49,12 +49,15 @@ class TestRabbitBroker(TestBroker[RabbitBroker]):
             exchange=publisher.exchange,
         )
 
-        @sub
-        def f(msg: Any) -> None:
-            pass
+        if not sub.calls:
 
-        broker.setup_subscriber(sub)
-        return f
+            @sub
+            def f(msg: Any) -> None:
+                pass
+
+            broker.setup_subscriber(sub)
+
+        return sub.calls[0].handler
 
     @staticmethod
     def remove_publisher_fake_subscriber(

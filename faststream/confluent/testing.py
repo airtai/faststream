@@ -35,12 +35,15 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
             batch=isinstance(publisher, AsyncAPIBatchPublisher),
         )
 
-        @sub
-        def f(msg: Any) -> None:
-            pass
+        if not sub.calls:
 
-        broker.setup_subscriber(sub)
-        return f  # type: ignore[no-any-return]
+            @sub
+            def f(msg: Any) -> None:
+                pass
+
+            broker.setup_subscriber(sub)
+
+        return sub.calls[0].handler
 
     @staticmethod
     def remove_publisher_fake_subscriber(

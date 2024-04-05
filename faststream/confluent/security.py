@@ -34,7 +34,7 @@ def _parse_base_security(security: BaseSecurity) -> AnyDict:
 
 
 def _parse_sasl_plaintext(security: SASLPlaintext) -> AnyDict:
-    if security.use_ssl is None:
+    if not security.use_ssl:
         warnings.warn(
             message=ssl_not_set_error_msg,
             category=RuntimeWarning,

@@ -28,24 +28,27 @@ class TestNatsBroker(TestBroker[NatsBroker]):
     ) -> HandlerCallWrapper[Any, Any, Any]:
         sub = broker.subscriber(publisher.subject)
 
-        @sub
-        def f(msg: Any) -> None:
-            pass
+        if not sub.calls:
 
-        broker.setup_subscriber(sub)
-        return f
+            @sub
+            def f(msg: Any) -> None:
+                pass
+
+            broker.setup_subscriber(sub)
+
+        return sub.calls[0].handler
 
     @staticmethod
     async def _fake_connect(broker: NatsBroker, *args: Any, **kwargs: Any) -> None:
         broker._js_producer = broker._producer = FakeProducer(broker)  # type: ignore[assignment]
-
 
     @staticmethod
     def remove_publisher_fake_subscriber(
         broker: NatsBroker, publisher: "AsyncAPIPublisher"
     ) -> None:
         broker._subscribers.pop(
-            AsyncAPISubscriber.get_routing_hash(publisher.subject), None)
+            AsyncAPISubscriber.get_routing_hash(publisher.subject), None
+        )
 
 
 class FakeProducer(NatsFastProducer):

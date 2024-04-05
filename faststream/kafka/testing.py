@@ -36,16 +36,20 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
             batch=isinstance(publisher, AsyncAPIBatchPublisher),
         )
 
-        @sub  # type: ignore[misc]
-        def f(msg: Any) -> None:
-            pass
+        if not sub.calls:
 
-        broker.setup_subscriber(sub)
-        return f
+            @sub
+            def f(msg: Any) -> None:
+                pass
+
+            broker.setup_subscriber(sub)
+
+        return sub.calls[0].handler
 
     @staticmethod
     def remove_publisher_fake_subscriber(
-        broker: KafkaBroker, publisher: AsyncAPIPublisher[Any],
+        broker: KafkaBroker,
+        publisher: AsyncAPIPublisher[Any],
     ) -> None:
         broker._subscribers.pop(hash(publisher), None)
 
@@ -91,8 +95,9 @@ class FakeProducer(AioKafkaFastProducer):
             if topic in handler.topics:
                 return await call_handler(
                     handler=handler,
-                    message=[incoming] if isinstance(
-                        handler, AsyncAPIBatchSubscriber) else incoming,
+                    message=[incoming]
+                    if isinstance(handler, AsyncAPIBatchSubscriber)
+                    else incoming,
                     rpc=rpc,
                     rpc_timeout=rpc_timeout,
                     raise_timeout=raise_timeout,
@@ -164,10 +169,7 @@ def build_message(
     }
 
     if reply_to:
-        headers["reply_to"] = headers.get(
-            "reply_to",
-            reply_to
-        )
+        headers["reply_to"] = headers.get("reply_to", reply_to)
 
     return ConsumerRecord(
         value=msg,

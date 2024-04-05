@@ -11,12 +11,13 @@ from typer.core import TyperOption
 
 from faststream import FastStream
 from faststream.__about__ import INSTALL_WATCHFILES, __version__
+from faststream.broker.core.usecase import BrokerUsecase
 from faststream.cli.docs.app import docs_app
 from faststream.cli.utils.imports import import_from_string
 from faststream.cli.utils.logs import LogLevels, get_log_level, set_log_level
 from faststream.cli.utils.parser import parse_cli_args
 from faststream.exceptions import SetupError, ValidationError
-from faststream.types import SettingField
+from faststream.types import AnyDict, SettingField
 
 cli = typer.Typer(pretty_exceptions_short=True)
 cli.add_typer(docs_app, name="docs", help="AsyncAPI schema commands")
@@ -155,20 +156,7 @@ def _run(
     log_level: int = logging.INFO,
     app_level: int = logging.INFO,
 ) -> None:
-    """Runs the specified application.
-
-    Args:
-        app: path to FastStream application.
-        extra_options: Additional options for the application.
-        log_level: Log level for the application (default: logging.INFO).
-        app_level: Log level for the application (default: logging.INFO).
-
-    Returns:
-        None
-
-    Note:
-        This function uses the `anyio.run()` function to run the application.
-    """
+    """Runs the specified application."""
     _, app_obj = import_from_string(app)
 
     if not isinstance(app_obj, FastStream):
@@ -219,14 +207,6 @@ def publish(
 
     This command publishes a message to a broker configured in a FastStream app instance.
     It supports various brokers and can handle extra arguments specific to each broker type.
-
-    Args:
-        ctx (typer.Context): The Typer context for the command.
-        app (str): The FastStream application instance path, in the format 'module:instance'.
-        message (str): The message to be published.
-        rpc (bool): If True, enables RPC mode and displays system output.
-
-    The command allows extra CLI arguments to be passed, which are broker-specific.
     These are parsed and passed to the broker's publish method.
     """
     app, extra = parse_cli_args(app, *ctx.args)
@@ -243,7 +223,7 @@ def publish(
         if not app_obj.broker:
             raise ValueError("Broker instance not found in the app.")
 
-        result = anyio.run(publish_message, app_obj, extra)
+        result = anyio.run(publish_message, app_obj.broker, extra)
 
         if rpc:
             typer.echo(result)
@@ -253,13 +233,10 @@ def publish(
         sys.exit(1)
 
 
-async def publish_message(app_obj: FastStream, extra: Any) -> Any:
+async def publish_message(broker: BrokerUsecase[Any, Any], extra: AnyDict) -> Any:
     try:
-        if await app_obj.broker.connect():  # type: ignore[union-attr]
-            result = await app_obj.broker.publish(**extra)  # type: ignore[union-attr]
-            return result
-        else:
-            raise ValueError("Failed to connect to the broker.")
+        async with broker:
+            return await broker.publish(**extra)  # type: ignore[union-attr]
     except Exception as e:
         typer.echo(f"Error when broker was publishing: {e}")
         sys.exit(1)

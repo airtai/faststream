@@ -16,10 +16,6 @@ def patch_aio_consumer_and_producer() -> Tuple[MagicMock, MagicMock]:
         consumer = MagicMock(return_value=AsyncMock())
         producer = MagicMock(return_value=AsyncMock())
 
-        # with patch("faststream.confluent.client.Consumer", new=consumer), patch(
-        #     "faststream.confluent.client.Producer", new=producer
-        # ):
-        #     yield consumer, producer
         with patch(
             "faststream.confluent.broker.AsyncConfluentConsumer", new=consumer
         ), patch("faststream.confluent.broker.AsyncConfluentProducer", new=producer):
