@@ -29,7 +29,7 @@ async def test_delay_router_confluent():
     )
 
     async with TestConfluentKafkaBroker(broker) as br, TestApp(app):
-        next(iter(br._subscribers.values())).calls[0][0].mock.assert_called_once_with(
+        next(iter(br._subscribers.values())).calls[0].handler.mock.assert_called_once_with(
             {"name": "John", "user_id": 1}
         )
 
