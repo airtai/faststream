@@ -12,6 +12,61 @@ hide:
 ---
 
 # Release Notes
+## 0.4.7
+
+### What's Changed
+
+* Update Release Notes for 0.4.6 by @faststream-release-notes-updater in [#1286](https://github.com/airtai/faststream/pull/1286){.external-link target="_blank"}
+* fix (#1263): correct nested descriminator msg type AsyncAPI schema by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1288](https://github.com/airtai/faststream/pull/1288){.external-link target="_blank"}
+* docs: add `apply_types` warning notice to subscription/index.md by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1291](https://github.com/airtai/faststream/pull/1291){.external-link target="_blank"}
+* chore: fixed nats-py version by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1294](https://github.com/airtai/faststream/pull/1294){.external-link target="_blank"}
+
+**Full Changelog**: [#0.4.6...0.4.7](https://github.com/airtai/faststream/compare/0.4.6...0.4.7){.external-link target="_blank"}
+
+## 0.4.6
+
+### What's Changed
+* Add poll in confluent producer to fix BufferError by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1277](https://github.com/airtai/faststream/pull/1277){.external-link target="_blank"}
+* Cover confluent asyncapi tests by [@kumaranvpl](https://github.com/kumaranvpl){.external-link target="_blank"} in [#1279](https://github.com/airtai/faststream/pull/1279){.external-link target="_blank"}
+* chore: bump package versions by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1285](https://github.com/airtai/faststream/pull/1285){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.4.5...0.4.6](https://github.com/airtai/faststream/compare/0.4.5...0.4.6){.external-link target="_blank"}
+
+## 0.4.5
+
+### What's Changed
+* Update Release Notes for 0.4.4 by @faststream-release-notes-updater in [#1260](https://github.com/airtai/faststream/pull/1260){.external-link target="_blank"}
+* Removed unused pytest dependency from redis/schemas.py by [@ashambalev](https://github.com/ashambalev){.external-link target="_blank"} in [#1261](https://github.com/airtai/faststream/pull/1261){.external-link target="_blank"}
+* chore: bumped package versions by [@davorrunje](https://github.com/davorrunje){.external-link target="_blank"} in [#1270](https://github.com/airtai/faststream/pull/1270){.external-link target="_blank"}
+* fix (#1263): correct AsyncAPI schema in descriminator case by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1272](https://github.com/airtai/faststream/pull/1272){.external-link target="_blank"}
+
+### New Contributors
+* [@ashambalev](https://github.com/ashambalev){.external-link target="_blank"} made their first contribution in [#1261](https://github.com/airtai/faststream/pull/1261){.external-link target="_blank"}
+
+**Full Changelog**: [#0.4.4...0.4.5](https://github.com/airtai/faststream/compare/0.4.4...0.4.5){.external-link target="_blank"}
+
+## 0.4.4
+
+### What's Changed
+
+Add RedisStream batch size option
+
+```python
+@broker.subscriber(stream=StreamSub("input", batch=True, max_records=3))
+async def on_input_data(msgs: list[str]):
+    assert len(msgs) <= 3
+```
+
+* Update Release Notes for 0.4.3 by @faststream-release-notes-updater in [#1247](https://github.com/airtai/faststream/pull/1247){.external-link target="_blank"}
+* docs: add manual run section by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1249](https://github.com/airtai/faststream/pull/1249){.external-link target="_blank"}
+* feat (#1252): respect Redis StreamSub last_id with consumer group by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1256](https://github.com/airtai/faststream/pull/1256){.external-link target="_blank"}
+* fix: correct Redis consumer group behavior by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1258](https://github.com/airtai/faststream/pull/1258){.external-link target="_blank"}
+* feat: add Redis Stream max_records option by [@Lancetnik](https://github.com/Lancetnik){.external-link target="_blank"} in [#1259](https://github.com/airtai/faststream/pull/1259){.external-link target="_blank"}
+
+
+**Full Changelog**: [#0.4.3...0.4.4](https://github.com/airtai/faststream/compare/0.4.3...0.4.4){.external-link target="_blank"}
+
 ## 0.4.3
 
 ### What's Changed

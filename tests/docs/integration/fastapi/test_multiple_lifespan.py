@@ -7,12 +7,10 @@ class BaseCase:
         app, core_router, nested_router = data
 
         @core_router.subscriber("test1")
-        async def handler():
-            ...
+        async def handler(): ...
 
         @nested_router.subscriber("test2")
-        async def handler2():
-            ...
+        async def handler2(): ...
 
         handlers1 = core_router.broker._subscribers.values()
         handlers2 = nested_router.broker._subscribers.values()
@@ -33,6 +31,19 @@ class TestKafka(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.kafka.multiple_lifespan import (
+            app,
+            core_router,
+            nested_router,
+        )
+
+        return (app, core_router, nested_router)
+
+
+@pytest.mark.confluent()
+class TestConfluent(BaseCase):  # noqa: D101
+    @pytest.fixture(scope="class")
+    def data(self):
+        from docs.docs_src.integrations.fastapi.confluent.multiple_lifespan import (
             app,
             core_router,
             nested_router,

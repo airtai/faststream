@@ -322,29 +322,25 @@ class StreamRouter(APIRouter, Generic[MsgType]):
     def after_startup(
         self,
         func: Callable[[AppType], Mapping[str, Any]],
-    ) -> Callable[[AppType], Mapping[str, Any]]:
-        ...
+    ) -> Callable[[AppType], Mapping[str, Any]]: ...
 
     @overload
     def after_startup(
         self,
         func: Callable[[AppType], Awaitable[Mapping[str, Any]]],
-    ) -> Callable[[AppType], Awaitable[Mapping[str, Any]]]:
-        ...
+    ) -> Callable[[AppType], Awaitable[Mapping[str, Any]]]: ...
 
     @overload
     def after_startup(
         self,
         func: Callable[[AppType], None],
-    ) -> Callable[[AppType], None]:
-        ...
+    ) -> Callable[[AppType], None]: ...
 
     @overload
     def after_startup(
         self,
         func: Callable[[AppType], Awaitable[None]],
-    ) -> Callable[[AppType], Awaitable[None]]:
-        ...
+    ) -> Callable[[AppType], Awaitable[None]]: ...
 
     def after_startup(
         self,
@@ -368,15 +364,13 @@ class StreamRouter(APIRouter, Generic[MsgType]):
     def on_broker_shutdown(
         self,
         func: Callable[[AppType], None],
-    ) -> Callable[[AppType], None]:
-        ...
+    ) -> Callable[[AppType], None]: ...
 
     @overload
     def on_broker_shutdown(
         self,
         func: Callable[[AppType], Awaitable[None]],
-    ) -> Callable[[AppType], Awaitable[None]]:
-        ...
+    ) -> Callable[[AppType], Awaitable[None]]: ...
 
     def on_broker_shutdown(
         self,

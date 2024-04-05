@@ -10,8 +10,7 @@ class TestArguments(ArgumentsTestcase):
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015

@@ -24,8 +24,7 @@ class TestRouter(RouterTestcase):
         router = self.router_class(prefix="test_")
 
         @router.subscriber(RabbitQueue("test", routing_key="key"))
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         broker.include_router(router)
 

@@ -51,9 +51,9 @@ DecodedMessage: TypeAlias = Union[
     JsonTable,
 ]
 
-SendableArray: TypeAlias = Sequence["SendableMessage"]
+SendableArray: TypeAlias = Sequence["BaseSendableMessage"]
 
-SendableTable: TypeAlias = Dict[str, "SendableMessage"]
+SendableTable: TypeAlias = Dict[str, "BaseSendableMessage"]
 
 
 class StandardDataclass(Protocol):

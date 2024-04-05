@@ -218,5 +218,4 @@ TIMESPAMP [debug    ] `Handler` waiting for messages extra={'topic': 'topic', 'g
 TIMESPAMP [debug    ] `Handler` waiting for messages extra={'topic': 'topic', 'group_id': 'group2', 'message_id': ''}
 TIMESPAMP [info     ] FastStream app started successfully! To exit, press CTRL+C extra={'topic': '', 'group_id': '', 'message_id': ''}
 ```
-
 { data-search-exclude }

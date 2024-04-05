@@ -17,8 +17,7 @@ class SubscriberNaming(BaseNaming):
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle_user_created(msg: str):
-            ...
+        async def handle_user_created(msg: str): ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
@@ -38,8 +37,7 @@ class SubscriberNaming(BaseNaming):
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle_user_created(msg: create_model("SimpleModel")):
-            ...
+        async def handle_user_created(msg: create_model("SimpleModel")): ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
@@ -58,8 +56,7 @@ class SubscriberNaming(BaseNaming):
 
         @broker.subscriber("test")
         @broker.subscriber("test2")
-        async def handle_user_created(msg: str):
-            ...
+        async def handle_user_created(msg: str): ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
@@ -81,8 +78,7 @@ class SubscriberNaming(BaseNaming):
         broker = self.broker_class()
 
         @broker.subscriber("test", title="custom")
-        async def handle_user_created(msg: str):
-            ...
+        async def handle_user_created(msg: str): ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
@@ -100,12 +96,10 @@ class FilterNaming(BaseNaming):
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle_user_created(msg: str):
-            ...
+        async def handle_user_created(msg: str): ...
 
         @broker.subscriber("test")
-        async def handle_user_id(msg: int):
-            ...
+        async def handle_user_id(msg: int): ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
@@ -126,12 +120,10 @@ class FilterNaming(BaseNaming):
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle_user_created(msg: create_model("SimpleModel")):
-            ...
+        async def handle_user_created(msg: create_model("SimpleModel")): ...
 
         @broker.subscriber("test")
-        async def handle_user_id(msg: int):
-            ...
+        async def handle_user_id(msg: int): ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
@@ -152,12 +144,10 @@ class FilterNaming(BaseNaming):
         broker = self.broker_class()
 
         @broker.subscriber("test", title="custom")
-        async def handle_user_created(msg: str):
-            ...
+        async def handle_user_created(msg: str): ...
 
         @broker.subscriber("test", title="custom")
-        async def handle_user_id(msg: int):
-            ...
+        async def handle_user_id(msg: int): ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
@@ -176,8 +166,7 @@ class PublisherNaming(BaseNaming):
         broker = self.broker_class()
 
         @broker.publisher("test")
-        async def handle_user_created() -> str:
-            ...
+        async def handle_user_created() -> str: ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
@@ -195,8 +184,7 @@ class PublisherNaming(BaseNaming):
         broker = self.broker_class()
 
         @broker.publisher("test")
-        async def handle_user_created() -> create_model("SimpleModel"):
-            ...
+        async def handle_user_created() -> create_model("SimpleModel"): ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
@@ -214,8 +202,7 @@ class PublisherNaming(BaseNaming):
         broker = self.broker_class()
 
         @broker.publisher("test", title="custom")
-        async def handle_user_created() -> str:
-            ...
+        async def handle_user_created() -> str: ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
@@ -231,8 +218,7 @@ class PublisherNaming(BaseNaming):
         broker = self.broker_class()
 
         @broker.publisher("test", schema=str)
-        async def handle_user_created():
-            ...
+        async def handle_user_created(): ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
@@ -250,8 +236,7 @@ class PublisherNaming(BaseNaming):
         broker = self.broker_class()
 
         @broker.publisher("test", title="custom", schema=str)
-        async def handle_user_created():
-            ...
+        async def handle_user_created(): ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
@@ -268,8 +253,7 @@ class PublisherNaming(BaseNaming):
 
         @broker.publisher("test")
         @broker.publisher("test2")
-        async def handle_user_created() -> str:
-            ...
+        async def handle_user_created() -> str: ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
@@ -297,12 +281,10 @@ class PublisherNaming(BaseNaming):
         pub = broker.publisher("test")
 
         @pub
-        async def handle_user_created() -> str:
-            ...
+        async def handle_user_created() -> str: ...
 
         @pub
-        async def handle() -> int:
-            ...
+        async def handle() -> int: ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
@@ -325,12 +307,10 @@ class PublisherNaming(BaseNaming):
         pub = broker.publisher("test", title="custom")
 
         @pub
-        async def handle_user_created() -> str:
-            ...
+        async def handle_user_created() -> str: ...
 
         @pub
-        async def handle() -> int:
-            ...
+        async def handle() -> int: ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 

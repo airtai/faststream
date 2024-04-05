@@ -12,7 +12,7 @@ search:
 
 **FastStream** is a framework for asynchronous service development. It allows you to build disturbed event-based systems in an easy way. Tasks scheduling is a pretty often use case in such systems.
 
-Unfortunately, this functional conflicts with the original **FastStream** ideology and can't be implemented as a part of the framework. But, you can integrate scheduling in your **FastStream** application by using some extra dependencies. And we have some receipts how to make it.
+Unfortunately, this functional conflicts with the original **FastStream** ideology and can't be implemented as a part of the framework. But, you can integrate scheduling in your **FastStream** application by using some extra dependencies. And we have some receipts on how to make it.
 
 ## Taskiq-FastStream
 
@@ -30,7 +30,7 @@ We have a helpful project to provide you with this feature - [**Taskiq-FastStrea
     pip install taskiq-faststream
     ```
 
-It has two hepfull classes `BrokerWrapper` and `AppWrapper` to make your **FastStream** App and Broker objects *taskiq-compatible*.
+It has two hepful classes `BrokerWrapper` and `AppWrapper` to make your **FastStream** App and Broker objects *taskiq-compatible*.
 
 Let's take a look at the code example.
 
@@ -76,11 +76,11 @@ taskiq_broker = AppWrapper(app)
 It allows you to use `taskiq_broker` the same way with the previous example, but saves all original **FastStream** features.
 
 !!! tip
-    Creating a separated *Scheduler* service is a best way to make really disturbed and susteinable system. In this case, you can just create an empty **FastStream** broker and use **Taskiq-FastStream** integration to publish your messages (consuming by another services).
+    Creating a separated *Scheduler* service is a best way to make really disturbed and sustainable system. In this case, you can just create an empty **FastStream** broker and use **Taskiq-FastStream** integration to publish your messages (consuming by another services).
 
 ### Generate message payload
 
-Also, you able to determine message payload right before sending and do not use the final one. To make it, just replace `message` option from the final value to function (sync or async), that returns data to send:
+Also, you are able to determine message payload right before sending and do not use the final one. To make it, just replace `message` option from the final value to function (sync or async), that returns data to send:
 
 ```python
 async def collect_information_to_send():
@@ -94,7 +94,7 @@ taskiq_broker.task(
 
 It allows you to collect some data from database, request an outer API, or use another ways to generate data to send right before sending.
 
-More than, you can send not one, but multiple messages per one task using this feature. Just turn your message callback function to generator (sync or async) - and **Taskiq-FastStream** will iterates over your payload and publishes all of your messages!
+More than, you can send not one, but multiple messages per one task using this feature. Just turn your message callback function to generator (sync or async) - and **Taskiq-FastStream** will iterate over your payload and publish all of your messages!
 
 ```python
 async def collect_information_to_send():

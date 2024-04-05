@@ -13,8 +13,7 @@ class TestArguments(ArgumentsTestcase):
             RabbitQueue("test", auto_delete=True),
             RabbitExchange("test-ex", type=ExchangeType.TOPIC),
         )
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
@@ -47,8 +46,7 @@ class TestArguments(ArgumentsTestcase):
             RabbitQueue("test", auto_delete=True),
             RabbitExchange("test-ex", type=ExchangeType.FANOUT),
         )
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015

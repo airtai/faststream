@@ -85,12 +85,10 @@ class TestTestclient(BrokerTestclientTestcase):
         broker = KafkaBroker(middlewares = (Middleware,))
 
         @broker.subscriber(queue)
-        async def h1():
-            ...
+        async def h1(): ...
 
         @broker.subscriber(queue + "1")
-        async def h2():
-            ...
+        async def h2(): ...
 
         async with TestKafkaBroker(broker) as br:
             await br.publish("", queue)
@@ -110,12 +108,10 @@ class TestTestclient(BrokerTestclientTestcase):
         broker = KafkaBroker(middlewares = (Middleware,))
 
         @broker.subscriber(queue)
-        async def h1():
-            ...
+        async def h1(): ...
 
         @broker.subscriber(queue + "1")
-        async def h2():
-            ...
+        async def h2(): ...
 
         async with TestKafkaBroker(broker, with_real=True) as br:
             await br.publish("", queue)

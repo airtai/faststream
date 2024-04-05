@@ -11,8 +11,7 @@ class TestNaming(NamingTestCase):
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle():
-            ...
+        async def handle(): ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 

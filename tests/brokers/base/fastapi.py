@@ -205,8 +205,7 @@ class FastAPILocalTestcase:
         app = FastAPI(lifespan=router.lifespan_context)
 
         @router.subscriber(queue)
-        async def hello(msg: int):
-            ...
+        async def hello(msg: int): ...
 
         app.include_router(router)
 

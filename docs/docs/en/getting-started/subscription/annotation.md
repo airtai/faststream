@@ -40,4 +40,4 @@ For this reason, **FastStream** supports per-argument message serialization: you
 {! includes/getting_started/subscription/annotation/3.md !}
 
 !!! tip
-  By default **FastStream** uses `json.loads` to decode and `json.dumps` to encode your messages. But if you prefer [**orjson**](https://github.com/ijl/orjson){.external-link target="_blank"}, just install it and framework will use it automatically.
+    By default **FastStream** uses `json.loads` to decode and `json.dumps` to encode your messages. But if you prefer [**orjson**](https://github.com/ijl/orjson){.external-link target="_blank"}, just install it and framework will use it automatically.

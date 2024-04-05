@@ -22,10 +22,14 @@ class FakeConsumer:
 FAKE_CONSUMER = FakeConsumer()
 
 
-class KafkaMessage(StreamMessage[Union[
-    Message,
-    Tuple[Message, ...],
-]]):
+class KafkaMessage(
+    StreamMessage[
+        Union[
+            Message,
+            Tuple[Message, ...],
+        ]
+    ]
+):
     """Represents a Kafka message in the FastStream framework.
 
     This class extends `StreamMessage` and is specialized for handling confluent_kafka.Message objects.

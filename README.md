@@ -59,7 +59,7 @@ Making streaming microservices has never been easier. Designed with junior devel
 
 - **Multiple Brokers**: **FastStream** provides a unified API to work across multiple message brokers ([**Kafka**](https://kafka.apache.org/), [**RabbitMQ**](https://www.rabbitmq.com/), [**NATS**](https://nats.io/), [**Redis**](https://redis.io/) support)
 
-- [**Pydantic Validation**](#writing-app-code): Leverage [**Pydantic's**](https://docs.pydantic.dev/) validation capabilities to serialize and validates incoming messages
+- [**Pydantic Validation**](#writing-app-code): Leverage [**Pydantic's**](https://docs.pydantic.dev/) validation capabilities to serialize and validate incoming messages
 
 - [**Automatic Docs**](#project-documentation): Stay ahead with automatic [**AsyncAPI**](https://www.asyncapi.com/) documentation
 
@@ -353,7 +353,7 @@ faststream_gen -i description.txt
 ``` shell
 ✨  Generating a new FastStream application!
  ✔ Application description validated.
- ✔ FastStream app skeleton code generated. akes around 15 to 45 seconds)...
+ ✔ FastStream app skeleton code generated. Takes around 15 to 45 seconds)...
  ✔ The app and the tests are generated.  around 30 to 90 seconds)...
  ✔ New FastStream project created.
  ✔ Integration tests were successfully completed.

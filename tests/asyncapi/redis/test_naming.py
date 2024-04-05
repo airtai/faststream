@@ -13,8 +13,7 @@ class TestNaming(NamingTestCase):
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle():
-            ...
+        async def handle(): ...
 
         schema = get_app_schema(FastStream(broker)).to_jsonable()
 
@@ -70,8 +69,7 @@ class TestNaming(NamingTestCase):
         broker = self.broker_class()
 
         @broker.subscriber(**args)
-        async def handle():
-            ...
+        async def handle(): ...
 
         schema = get_app_schema(FastStream(broker))
         assert list(schema.channels.keys()) == ["test:Handle"]
@@ -88,8 +86,7 @@ class TestNaming(NamingTestCase):
         broker = self.broker_class()
 
         @broker.publisher(**args)
-        async def handle():
-            ...
+        async def handle(): ...
 
         schema = get_app_schema(FastStream(broker))
         assert list(schema.channels.keys()) == ["test:Publisher"]

@@ -1,15 +1,17 @@
 from enum import Enum
-from typing import Optional, Type
+from typing import Optional, Type, Union
 
 import pydantic
-from dirty_equals import IsDict, IsPartialDict
+from dirty_equals import IsDict, IsPartialDict, IsStr
 from fast_depends import Depends
 from fastapi import Depends as APIDepends
+from typing_extensions import Annotated, Literal
 
 from faststream import Context, FastStream
 from faststream._compat import PYDANTIC_V2
 from faststream.asyncapi.generate import get_app_schema
 from faststream.broker.core.usecase import BrokerUsecase
+from tests.marks import pydantic_v2
 
 
 class FastAPICompatible:
@@ -445,6 +447,119 @@ class FastAPICompatible:
                 "title": key,
                 "type": "object",
             }, v
+
+    @pydantic_v2
+    def test_descriminator(self):
+        class Sub2(pydantic.BaseModel):
+            type: Literal["sub2"]
+
+        class Sub(pydantic.BaseModel):
+            type: Literal["sub"]
+
+        descriminator = Annotated[
+            Union[Sub2, Sub], pydantic.Field(discriminator="type")
+        ]
+
+        broker = self.broker_class()
+
+        @broker.subscriber("test")
+        async def handle(user: descriminator):
+            ...
+
+        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+
+        key = next(iter(schema["components"]["messages"].keys()))
+        assert key == IsStr(regex=r"test[\w:]*:Handle:Message")
+        assert schema["components"] == {
+            "messages": {
+                key: {
+                    "title": key,
+                    "correlationId": {"location": "$message.header#/correlation_id"},
+                    "payload": {
+                        "discriminator": "type",
+                        "oneOf": [
+                            {"$ref": "#/components/schemas/Sub2"},
+                            {"$ref": "#/components/schemas/Sub"},
+                        ],
+                        "title": "Handle:Message:Payload",
+                    },
+                }
+            },
+            "schemas": {
+                "Sub": {
+                    "properties": {"type": {"const": "sub", "title": "Type"}},
+                    "required": ["type"],
+                    "title": "Sub",
+                    "type": "object",
+                },
+                "Sub2": {
+                    "properties": {"type": {"const": "sub2", "title": "Type"}},
+                    "required": ["type"],
+                    "title": "Sub2",
+                    "type": "object",
+                },
+            },
+        }, schema["components"]
+
+    @pydantic_v2
+    def test_nested_descriminator(self):
+        class Sub2(pydantic.BaseModel):
+            type: Literal["sub2"]
+
+        class Sub(pydantic.BaseModel):
+            type: Literal["sub"]
+
+        class Model(pydantic.BaseModel):
+            msg: Union[Sub2, Sub] = pydantic.Field(..., discriminator="type")
+
+        broker = self.broker_class()
+
+        @broker.subscriber("test")
+        async def handle(user: Model):
+            ...
+
+        schema = get_app_schema(self.build_app(broker)).to_jsonable()
+
+        key = next(iter(schema["components"]["messages"].keys()))
+        assert key == IsStr(regex=r"test[\w:]*:Handle:Message")
+        assert schema["components"] == {
+            "messages": {
+                key: {
+                    "title": key,
+                    "correlationId": {"location": "$message.header#/correlation_id"},
+                    "payload": {"$ref": "#/components/schemas/Model"},
+                }
+            },
+            "schemas": {
+                "Sub": {
+                    "properties": {"type": {"const": "sub", "title": "Type"}},
+                    "required": ["type"],
+                    "title": "Sub",
+                    "type": "object",
+                },
+                "Sub2": {
+                    "properties": {"type": {"const": "sub2", "title": "Type"}},
+                    "required": ["type"],
+                    "title": "Sub2",
+                    "type": "object",
+                },
+                "Model": {
+                    "properties": {
+                        "msg": {
+                            "discriminator": "type",
+                            "oneOf": [
+                                {"$ref": "#/components/schemas/Sub2"},
+                                {"$ref": "#/components/schemas/Sub"},
+                            ],
+                            "title": "Msg",
+                        }
+                    },
+                    "required": ["msg"],
+                    "title": "Model",
+                    "type": "object",
+                },
+            },
+        }, schema["components"]
 
 
 class ArgumentsTestcase(FastAPICompatible):
