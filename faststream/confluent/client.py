@@ -164,13 +164,21 @@ class AsyncConfluentProducer:
         headers: Optional[List[Tuple[str, Union[str, bytes]]]] = None,
     ) -> None:
         """Sends a single message to a Kafka topic."""
+        kwargs = {
+            k: v
+            for k, v in {
+                "value": value,
+                "key": key,
+                "partition": partition,
+                "headers": headers,
+            }.items()
+            if v is not None
+        }
+        if timestamp_ms is not None:
+            kwargs["timestamp"] = timestamp_ms
         self.producer.produce(
             topic,
-            value=value,
-            key=key,
-            partition=partition,
-            headers=headers,
-            timestamp=timestamp_ms or 0,
+            **kwargs,
         )
         self.producer.poll(0)
 
