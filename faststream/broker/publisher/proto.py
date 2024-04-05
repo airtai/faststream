@@ -12,7 +12,6 @@ from faststream.broker.types import (
     PublisherMiddleware,
     T_HandlerReturn,
 )
-from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.types import SendableMessage
 
 
@@ -74,5 +73,5 @@ class PublisherProto(
     def __call__(
         self,
         func: Callable[P_HandlerParams, T_HandlerReturn],
-    ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
+    ) -> Callable[P_HandlerParams, T_HandlerReturn]:
         ...
