@@ -197,7 +197,7 @@ class RouterTestcase(
         def response(m):
             event.set()
 
-        r = type(router)(prefix="test_", handlers=(self.route_class(response, queue),))
+        r = type(router)(prefix="test_", handlers=(self.route_class(response, queue, **self.subscriber_kwargs),))
 
         pub_broker.include_router(r)
 
@@ -238,7 +238,7 @@ class RouterTestcase(
 
         pub_broker.include_router(r)
 
-        @pub_broker.subscriber(f"test_{queue}1")
+        @pub_broker.subscriber(f"test_{queue}1", **self.subscriber_kwargs)
         async def handler(msg):
             mock(msg)
             event.set()
@@ -251,7 +251,7 @@ class RouterTestcase(
                     asyncio.create_task(pub_broker.publish("hello", f"test_{queue}")),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
             assert event.is_set()
