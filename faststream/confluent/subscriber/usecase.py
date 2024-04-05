@@ -176,7 +176,7 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
                 if not connected:  # pragma: no cover
                     connected = True
 
-                if msg:
+                if msg is not None:
                     await self.consume(msg)  # type: ignore[arg-type]
 
     @staticmethod
