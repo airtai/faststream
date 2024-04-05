@@ -487,13 +487,13 @@ class FastAPICompatible:
             },
             "schemas": {
                 "Sub": {
-                    "properties": {"type": {"const": "sub", "title": "Type"}},
+                    "properties": {"type": IsPartialDict({"const": "sub", "title": "Type"})},
                     "required": ["type"],
                     "title": "Sub",
                     "type": "object",
                 },
                 "Sub2": {
-                    "properties": {"type": {"const": "sub2", "title": "Type"}},
+                    "properties": {"type": IsPartialDict({"const": "sub2", "title": "Type"})},
                     "required": ["type"],
                     "title": "Sub2",
                     "type": "object",
@@ -532,13 +532,13 @@ class FastAPICompatible:
             },
             "schemas": {
                 "Sub": {
-                    "properties": {"type": {"const": "sub", "title": "Type"}},
+                    "properties": {"type": IsPartialDict({"const": "sub", "title": "Type"})},
                     "required": ["type"],
                     "title": "Sub",
                     "type": "object",
                 },
                 "Sub2": {
-                    "properties": {"type": {"const": "sub2", "title": "Type"}},
+                    "properties": {"type": IsPartialDict({"const": "sub2", "title": "Type"})},
                     "required": ["type"],
                     "title": "Sub2",
                     "type": "object",
