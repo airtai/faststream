@@ -95,7 +95,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
             Optional[str],
             Doc(
                 "This option validates that the target subject is in presented stream. "
-                "Can be ommited without any effect."
+                "Can be omitted without any effect."
             ),
         ] = None,
         timeout: Annotated[

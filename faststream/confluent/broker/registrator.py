@@ -179,7 +179,7 @@ class KafkaRegistrator(ABCBroker[Union[
             isolation_level=isolation_level,
         )
 
-        subcriber = cast(
+        subscriber = cast(
             AsyncAPISubscriber,
             super().subscriber(
                 AsyncAPISubscriber.create(
@@ -204,7 +204,7 @@ class KafkaRegistrator(ABCBroker[Union[
             ),
         )
 
-        return subcriber.add_call(
+        return subscriber.add_call(
             filter_=filter,
             parser_=parser or self._parser,
             decoder_=decoder or self._decoder,
@@ -244,7 +244,7 @@ class KafkaRegistrator(ABCBroker[Union[
             Doc(
                 "Message headers to store metainformation. "
                 "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
-                "Can be overrided by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
         reply_to: Annotated[
@@ -314,7 +314,7 @@ class KafkaRegistrator(ABCBroker[Union[
             Doc(
                 "Message headers to store metainformation. "
                 "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
-                "Can be overrided by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
         reply_to: Annotated[
@@ -384,7 +384,7 @@ class KafkaRegistrator(ABCBroker[Union[
             Doc(
                 "Message headers to store metainformation. "
                 "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
-                "Can be overrided by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
         reply_to: Annotated[
@@ -457,7 +457,7 @@ class KafkaRegistrator(ABCBroker[Union[
             Doc(
                 "Message headers to store metainformation. "
                 "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
-                "Can be overrided by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
         reply_to: Annotated[

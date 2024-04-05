@@ -1,11 +1,18 @@
 from abc import abstractmethod
-from typing import Any, Generic, Iterable, Optional, Protocol
+from typing import Any, Callable, Generic, Iterable, Optional, Protocol
 
 from typing_extensions import override
 
 from faststream.asyncapi.proto import AsyncAPIProto
 from faststream.broker.proto import EndpointProto
-from faststream.broker.types import BrokerMiddleware, MsgType, PublisherMiddleware
+from faststream.broker.types import (
+    BrokerMiddleware,
+    MsgType,
+    P_HandlerParams,
+    PublisherMiddleware,
+    T_HandlerReturn,
+)
+from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.types import SendableMessage
 
 
@@ -51,7 +58,7 @@ class PublisherProto(
     @staticmethod
     @abstractmethod
     def create() -> "PublisherProto[MsgType]":
-        """Abstact factory to create a real Publisher."""
+        """Abstract factory to create a real Publisher."""
         ...
 
     @override
@@ -61,4 +68,11 @@ class PublisherProto(
         *,
         producer: Optional[ProducerProto],
     ) -> None:
+        ...
+
+    @abstractmethod
+    def __call__(
+        self,
+        func: Callable[P_HandlerParams, T_HandlerReturn],
+    ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
         ...

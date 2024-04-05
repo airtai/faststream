@@ -39,7 +39,7 @@ class BaseWatcher(ABC):
 
     @abstractmethod
     def is_max(self, message_id: str) -> bool:
-        """Check if the given message ID is the maximum attemt."""
+        """Check if the given message ID is the maximum attempt."""
         raise NotImplementedError()
 
     @abstractmethod
@@ -56,7 +56,7 @@ class EndlessWatcher(BaseWatcher):
         pass
 
     def is_max(self, message_id: str) -> bool:
-        """Check if the given message ID is the maximum attemt."""
+        """Check if the given message ID is the maximum attempt."""
         return False
 
     def remove(self, message_id: str) -> None:
@@ -72,7 +72,7 @@ class OneTryWatcher(BaseWatcher):
         pass
 
     def is_max(self, message_id: str) -> bool:
-        """Check if the given message ID is the maximum attemt."""
+        """Check if the given message ID is the maximum attempt."""
         return True
 
     def remove(self, message_id: str) -> None:
@@ -94,7 +94,7 @@ class CounterWatcher(BaseWatcher):
         self.memory = Counter()
 
     def add(self, message_id: str) -> None:
-        """Check if the given message ID is the maximum attemt."""
+        """Check if the given message ID is the maximum attempt."""
         self.memory[message_id] += 1
 
     def is_max(self, message_id: str) -> bool:

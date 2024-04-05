@@ -135,7 +135,7 @@ class NatsRouter(StreamRouter["Msg"]):
         ] = DEFAULT_RECONNECT_TIME_WAIT,
         max_reconnect_attempts: Annotated[
             int,
-            Doc("Maximum attemps number to reconnect to NATS server."),
+            Doc("Maximum attempts number to reconnect to NATS server."),
         ] = DEFAULT_MAX_RECONNECT_ATTEMPTS,
         ping_interval: Annotated[
             int,
@@ -902,7 +902,7 @@ class NatsRouter(StreamRouter["Msg"]):
             Doc(
                 "Message headers to store metainformation. "
                 "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
-                "Can be overrided by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
         reply_to: Annotated[
@@ -914,7 +914,7 @@ class NatsRouter(StreamRouter["Msg"]):
             Union[str, "JStream", None],
             Doc(
                 "This option validates that the target `subject` is in presented stream. "
-                "Can be ommited without any effect."
+                "Can be omitted without any effect."
             ),
         ] = None,
         timeout: Annotated[

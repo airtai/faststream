@@ -76,7 +76,7 @@ class RabbitQueue(NameRequired):
             Optional[AnyDict],
             Doc(
                 "Queue declarationg arguments. "
-                "You can find infomration about them in the official RabbitMQ documentation: https://www.rabbitmq.com/docs/queues#optional-arguments"
+                "You can find information about them in the official RabbitMQ documentation: https://www.rabbitmq.com/docs/queues#optional-arguments"
             ),
         ] = None,
         timeout: Annotated[
@@ -85,7 +85,7 @@ class RabbitQueue(NameRequired):
         ] = None,
         robust: Annotated[
             bool,
-            Doc("Whether to declare queue object as restoreable."),
+            Doc("Whether to declare queue object as restorable."),
         ] = True,
         bind_arguments: Annotated[
             Optional[AnyDict],

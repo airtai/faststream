@@ -50,7 +50,7 @@ class RedisPublisher(ArgsContainer):
             Optional["AnyDict"],
             Doc(
                 "Message headers to store metainformation. "
-                "Can be overrided by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
         reply_to: Annotated[

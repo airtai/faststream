@@ -182,7 +182,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
 
         You can use it as a handler decorator `@broker.subscriber(...)`.
         """
-        subcriber = cast(
+        subscriber = cast(
             AsyncAPISubscriber,
             super().subscriber(AsyncAPISubscriber.create(
                 subject=subject,
@@ -216,7 +216,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
             ))
         )
 
-        return subcriber.add_call(
+        return subscriber.add_call(
             filter_=filter,
             parser_=parser or self._parser,
             decoder_=decoder or self._decoder,
@@ -237,7 +237,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
             Doc(
                 "Message headers to store metainformation. "
                 "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
-                "Can be overrided by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
         reply_to: Annotated[
@@ -249,7 +249,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
             Union[str, "JStream", None],
             Doc(
                 "This option validates that the target `subject` is in presented stream. "
-                "Can be ommited without any effect."
+                "Can be omitted without any effect."
             ),
         ] = None,
         timeout: Annotated[

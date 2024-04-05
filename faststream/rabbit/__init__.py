@@ -1,3 +1,4 @@
+from faststream.rabbit.annotations import RabbitMessage
 from faststream.rabbit.broker import RabbitBroker
 from faststream.rabbit.router import RabbitPublisher, RabbitRoute, RabbitRouter
 from faststream.rabbit.schemas import (
@@ -20,4 +21,5 @@ __all__ = (
     "ReplyConfig",
     "RabbitExchange",
     "RabbitQueue",
+    "RabbitMessage",
 )

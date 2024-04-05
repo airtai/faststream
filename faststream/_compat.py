@@ -97,6 +97,7 @@ if PYDANTIC_V2:
             general_plain_validator_function as with_info_plain_validator_function,
         )
 
+    from pydantic.fields import FieldInfo as FieldInfo
     from pydantic_core import CoreSchema as CoreSchema
     from pydantic_core import PydanticUndefined as PydanticUndefined
     from pydantic_core import to_jsonable_python
@@ -128,6 +129,7 @@ if PYDANTIC_V2:
         return model.model_json_schema(**kwargs)
 
 else:
+    from pydantic.fields import FieldInfo as FieldInfo
     from pydantic.json import pydantic_encoder
 
     GetJsonSchemaHandler = Any  # type: ignore[assignment,misc]

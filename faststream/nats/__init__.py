@@ -13,6 +13,7 @@ from nats.js.api import (
     StreamSource,
 )
 
+from faststream.nats.annotations import NatsMessage
 from faststream.nats.broker.broker import NatsBroker
 from faststream.nats.router import NatsPublisher, NatsRoute, NatsRouter
 from faststream.nats.schemas import JStream, PullSub
@@ -28,6 +29,7 @@ __all__ = (
     "NatsRouter",
     "NatsPublisher",
     "TestNatsBroker",
+    "NatsMessage",
     # Nats imports
     "ConsumerConfig",
     "DeliverPolicy",

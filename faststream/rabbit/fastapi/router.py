@@ -698,7 +698,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
         mandatory: Annotated[
             bool,
             Doc(
-                "Client waits for confimation that the message is placed to some queue. "
+                "Client waits for confirmation that the message is placed to some queue. "
                 "RabbitMQ returns message to client if there is no suitable queue."
             ),
         ] = True,
@@ -757,7 +757,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Optional["HeadersType"],
             Doc(
                 "Message headers to store metainformation. "
-                "Can be overrided by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
         content_type: Annotated[

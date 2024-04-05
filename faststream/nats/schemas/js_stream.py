@@ -120,7 +120,7 @@ class JStream(NameRequired):
             bool,
             Doc(
                 "Should stream acknowledge writes or not. Without acks publisher can't determine, does message "
-                "recieved by stream or not."
+                "received by stream or not."
             ),
         ] = False,
         template_owner: Optional[str] = None,

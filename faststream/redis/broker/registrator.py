@@ -100,7 +100,7 @@ class RedisRegistrator(ABCBroker["BaseMessage"]):
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
     ) -> AsyncAPISubscriber:
-        subcriber = cast(
+        subscriber = cast(
             AsyncAPISubscriber,
             super().subscriber(
                 AsyncAPISubscriber.create(
@@ -120,7 +120,7 @@ class RedisRegistrator(ABCBroker["BaseMessage"]):
             ),
         )
 
-        return subcriber.add_call(
+        return subscriber.add_call(
             filter_=filter,
             parser_=parser or self._parser,
             decoder_=decoder or self._decoder,
@@ -148,7 +148,7 @@ class RedisRegistrator(ABCBroker["BaseMessage"]):
             Optional["AnyDict"],
             Doc(
                 "Message headers to store metainformation. "
-                "Can be overrided by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
         reply_to: Annotated[

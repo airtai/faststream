@@ -42,7 +42,7 @@ class NatsPublisher(ArgsContainer):
             Doc(
                 "Message headers to store metainformation. "
                 "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
-                "Can be overrided by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
         reply_to: Annotated[
@@ -54,7 +54,7 @@ class NatsPublisher(ArgsContainer):
             Union[str, "JStream", None],
             Doc(
                 "This option validates that the target `subject` is in presented stream. "
-                "Can be ommited without any effect."
+                "Can be omitted without any effect."
             ),
         ] = None,
         timeout: Annotated[

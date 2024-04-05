@@ -1280,7 +1280,7 @@ class KafkaRegistrator(
             isolation_level=isolation_level,
         )
 
-        subcriber = super().subscriber(
+        subscriber = super().subscriber(
             AsyncAPISubscriber.create(
                 *topics,
                 batch=batch,
@@ -1302,7 +1302,7 @@ class KafkaRegistrator(
         )
 
         if batch:
-            return cast(AsyncAPIBatchSubscriber, subcriber).add_call(
+            return cast(AsyncAPIBatchSubscriber, subscriber).add_call(
                 filter_=filter,
                 parser_=parser or self._parser,
                 decoder_=decoder or self._decoder,
@@ -1311,7 +1311,7 @@ class KafkaRegistrator(
             )
 
         else:
-            return cast(AsyncAPIDefaultSubscriber, subcriber).add_call(
+            return cast(AsyncAPIDefaultSubscriber, subscriber).add_call(
                 filter_=filter,
                 parser_=parser or self._parser,
                 decoder_=decoder or self._decoder,
@@ -1351,7 +1351,7 @@ class KafkaRegistrator(
             Doc(
                 "Message headers to store metainformation. "
                 "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
-                "Can be overrided by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
         reply_to: Annotated[
@@ -1421,7 +1421,7 @@ class KafkaRegistrator(
             Doc(
                 "Message headers to store metainformation. "
                 "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
-                "Can be overrided by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
         reply_to: Annotated[
@@ -1491,7 +1491,7 @@ class KafkaRegistrator(
             Doc(
                 "Message headers to store metainformation. "
                 "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
-                "Can be overrided by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
         reply_to: Annotated[
@@ -1564,7 +1564,7 @@ class KafkaRegistrator(
             Doc(
                 "Message headers to store metainformation. "
                 "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
-                "Can be overrided by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
         reply_to: Annotated[

@@ -82,7 +82,7 @@ class RabbitExchange(NameRequired):
         ] = None,
         robust: Annotated[
             bool,
-            Doc("Whether to declare exchange object as restoreable."),
+            Doc("Whether to declare exchange object as restorable."),
         ] = True,
         bind_to: Annotated[
             Optional["RabbitExchange"],

@@ -58,7 +58,7 @@ def _patch_fastapi_dependent(dependant: Dependant) -> Dependant:
     params_unique = {}
     for p in params:
         if p.name not in params_unique:
-            info = p.field_info if PYDANTIC_V2 else p
+            info: Any = p.field_info if PYDANTIC_V2 else p
 
             field_data = {
                 "default": ... if info.default is PydanticUndefined else info.default,
@@ -117,11 +117,11 @@ def _patch_fastapi_dependent(dependant: Dependant) -> Dependant:
                 f,
             )
 
-    dependant.model = create_model(
+    dependant.model = create_model(  # type: ignore[attr-defined]
         getattr(dependant.call, "__name__", type(dependant.call).__name__)
     )
 
-    dependant.custom_fields = {}
-    dependant.flat_params = params_unique  # type: ignore[assignment,misc]
+    dependant.custom_fields = {}  # type: ignore[attr-defined]
+    dependant.flat_params = params_unique  # type: ignore[attr-defined]
 
     return dependant

@@ -40,7 +40,7 @@ class TestRabbitRouter(FastAPITestcase):
         mock.assert_called_with(["hi"])
 
 
-class TestRouterLocal(FastAPILocalTestcase):  # noqa: D101
+class TestRouterLocal(FastAPILocalTestcase):
     router_class = KafkaRouter
     broker_test = staticmethod(TestKafkaBroker)
     build_message = staticmethod(build_message)

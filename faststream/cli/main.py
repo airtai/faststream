@@ -11,7 +11,6 @@ from typer.core import TyperOption
 
 from faststream import FastStream
 from faststream.__about__ import INSTALL_WATCHFILES, __version__
-from faststream.app import FastStream
 from faststream.cli.docs.app import docs_app
 from faststream.cli.utils.imports import import_from_string
 from faststream.cli.utils.logs import LogLevels, get_log_level, set_log_level

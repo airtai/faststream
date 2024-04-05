@@ -443,7 +443,7 @@ class RabbitBroker(
         mandatory: Annotated[
             bool,
             Doc(
-                "Client waits for confimation that the message is placed to some queue. "
+                "Client waits for confirmation that the message is placed to some queue. "
                 "RabbitMQ returns message to client if there is no suitable queue."
             ),
         ] = True,

@@ -36,7 +36,7 @@ class SubscriberProto(
     @staticmethod
     @abstractmethod
     def create() -> "SubscriberProto[MsgType]":
-        """Abstact factory to create a real Subscriber."""
+        """Abstract factory to create a real Subscriber."""
         ...
 
     @abstractmethod

@@ -93,7 +93,7 @@ def build_url(
     client_properties: Optional["FieldTable"] = None,
     **kwargs: Any,
 ) -> "URL":
-    """Constuct URL object from attributes."""
+    """Construct URL object from attributes."""
     original_url = make_url(url)
 
     use_ssl = ssl or original_url.scheme == "amqps"

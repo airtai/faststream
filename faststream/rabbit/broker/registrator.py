@@ -115,7 +115,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
     ) -> AsyncAPISubscriber:
-        subcriber = cast(
+        subscriber = cast(
             AsyncAPISubscriber,
             super().subscriber(
                 AsyncAPISubscriber.create(
@@ -136,7 +136,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             ),
         )
 
-        return subcriber.add_call(
+        return subscriber.add_call(
             filter_=filter,
             parser_=parser or self._parser,
             decoder_=decoder or self._decoder,
@@ -166,7 +166,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
         mandatory: Annotated[
             bool,
             Doc(
-                "Client waits for confimation that the message is placed to some queue. "
+                "Client waits for confirmation that the message is placed to some queue. "
                 "RabbitMQ returns message to client if there is no suitable queue."
             ),
         ] = True,
@@ -225,7 +225,7 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
             Optional["HeadersType"],
             Doc(
                 "Message headers to store metainformation. "
-                "Can be overrided by `publish.headers` if specified."
+                "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
         content_type: Annotated[

@@ -40,7 +40,7 @@ class TestKafka(BaseCase):
 
 
 @pytest.mark.confluent()
-class TestConfluent(BaseCase):  # noqa: D101
+class TestConfluent(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.confluent.multiple_lifespan import (

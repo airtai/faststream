@@ -24,7 +24,7 @@ class PullSub:
         ] = 5.0,
         batch: Annotated[
             bool,
-            Doc("Whether to propogate consuming batch as iterable object to your handler."),
+            Doc("Whether to propagate consuming batch as iterable object to your handler."),
         ] = False,
     ) -> None:
         self.batch_size = batch_size

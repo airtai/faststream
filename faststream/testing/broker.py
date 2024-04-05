@@ -40,7 +40,7 @@ class TestBroker(Generic[Broker]):
             except Exception:  # pragma: no cover
                 warnings.warn(
                     (
-                        "\nError `{e!r}` occured at `{self.__class__.__name__}` AST parsing."
+                        "\nError `{e!r}` occurred at `{self.__class__.__name__}` AST parsing."
                         "\n`connect_only` is setted to `False` by default."
                     ),
                     category=RuntimeWarning,
