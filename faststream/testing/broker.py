@@ -7,6 +7,7 @@ from typing import Any, AsyncGenerator, Generic, Optional, Type, TypeVar
 from unittest.mock import AsyncMock, MagicMock
 
 from faststream.broker.core.usecase import BrokerUsecase
+from faststream.broker.middlewares.logging import CriticalLogMiddleware
 from faststream.broker.subscriber.proto import SubscriberProto
 from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.testing.app import TestApp
@@ -52,11 +53,42 @@ class TestBroker(Generic[Broker]):
         self.connect_only = connect_only
 
     async def __aenter__(self) -> Broker:
+        middlewares = tuple(
+            filter(
+                lambda x: not isinstance(x, CriticalLogMiddleware),
+                self.broker._middlewares,
+            )
+        )
+
+        self.broker._middlewares = middlewares
+
+        for sub in self.broker._subscribers.values():
+            sub._broker_middlewares = middlewares
+
+        for pub in self.broker._publishers.values():
+            pub._broker_middlewares = middlewares
+
         self._ctx = self._create_ctx()
         return await self._ctx.__aenter__()
 
     async def __aexit__(self, *args: Any) -> None:
         await self._ctx.__aexit__(*args)
+
+        middlewares = (
+            CriticalLogMiddleware(
+                logger=self.broker.logger,
+                log_level=self.broker._msg_log_level,
+            ),
+            *self.broker._middlewares,
+        )
+
+        self.broker._middlewares = middlewares
+
+        for sub in self.broker._subscribers.values():
+            sub._broker_middlewares = middlewares
+
+        for pub in self.broker._publishers.values():
+            pub._broker_middlewares = middlewares
 
     @asynccontextmanager
     async def _create_ctx(self) -> AsyncGenerator[Broker, None]:
