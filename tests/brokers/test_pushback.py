@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from faststream.broker.push_back_watcher import (
+from faststream.broker.acknowledgement_watcher import (
     CounterWatcher,
     EndlessWatcher,
     WatcherContext,
