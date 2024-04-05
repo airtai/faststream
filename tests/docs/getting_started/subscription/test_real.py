@@ -34,8 +34,8 @@ from docs.docs_src.getting_started.subscription.redis.real_testing import (
 pytest.mark.kafka(test_handle_k)
 pytest.mark.kafka(test_validation_error_k)
 
-pytest.mark.kafka(test_handle_confluent)
-pytest.mark.kafka(test_validation_error_confluent)
+pytest.mark.confluent(test_handle_confluent)
+pytest.mark.confluent(test_validation_error_confluent)
 
 pytest.mark.rabbit(test_handle_r)
 pytest.mark.rabbit(test_validation_error_r)
