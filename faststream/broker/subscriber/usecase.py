@@ -6,6 +6,7 @@ from typing import (
     Any,
     AsyncIterator,
     Callable,
+    ContextManager,
     Dict,
     Generic,
     Iterable,
@@ -33,7 +34,7 @@ from faststream.broker.utils import MultiLock, get_watcher_context, resolve_cust
 from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.exceptions import SetupError, StopConsume
 from faststream.utils.context.repository import context
-from faststream.utils.functions import to_async
+from faststream.utils.functions import sync_fake_context, to_async
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
@@ -83,6 +84,7 @@ class SubscriberUsecase(
 ):
     """A class representing an asynchronous handler."""
 
+    lock: ContextManager[Any]
     extra_watcher_options: "AnyDict"
     extra_context: "AnyDict"
     graceful_timeout: Optional[float]
@@ -115,7 +117,7 @@ class SubscriberUsecase(
 
         self._call_options = None
         self.running = False
-        self.lock = MultiLock()
+        self.lock = sync_fake_context()
 
         # Setup in include
         self._broker_dependecies = broker_dependencies
@@ -148,6 +150,8 @@ class SubscriberUsecase(
         is_validate: bool,
         _get_dependant: Optional[Callable[..., Any]],
     ) -> None:
+        self.lock = MultiLock()
+
         self._producer = producer
         self.graceful_timeout = graceful_timeout
         self.extra_context = extra_context or {}
@@ -188,7 +192,8 @@ class SubscriberUsecase(
         Blocks event loop up to graceful_timeout seconds.
         """
         self.running = False
-        await self.lock.wait_release(self.graceful_timeout)
+        if isinstance(self.lock, MultiLock):
+            await self.lock.wait_release(self.graceful_timeout)
 
     def add_call(
         self,

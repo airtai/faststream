@@ -1,4 +1,4 @@
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, contextmanager
 from functools import wraps
 from typing import (
     Any,
@@ -6,6 +6,7 @@ from typing import (
     Awaitable,
     Callable,
     ContextManager,
+    Iterator,
     Optional,
     Union,
     overload,
@@ -30,30 +31,11 @@ __all__ = (
 def to_async(
     func: Callable[F_Spec, Awaitable[F_Return]],
 ) -> Callable[F_Spec, Awaitable[F_Return]]:
-    """Convert a synchronous function to an asynchronous function.
-
-    Args:
-        func: The synchronous function to be converted.
-
-    Returns:
-        The converted asynchronous function.
-
-    Note:
-        This function is used as a decorator to convert a synchronous function to an asynchronous function.
-    """
     ...
 
 
 @overload
 def to_async(func: Callable[F_Spec, F_Return]) -> Callable[F_Spec, Awaitable[F_Return]]:
-    """Convert a synchronous function to an asynchronous function.
-
-    Args:
-        func: The synchronous function to be converted.
-
-    Returns:
-        The asynchronous version of the function.
-    """
     ...
 
 
@@ -63,14 +45,7 @@ def to_async(
         Callable[F_Spec, Awaitable[F_Return]],
     ],
 ) -> Callable[F_Spec, Awaitable[F_Return]]:
-    """Converts a synchronous function to an asynchronous function.
-
-    Args:
-        func: The synchronous function to be converted.
-
-    Returns:
-        The asynchronous version of the input function.
-    """
+    """Converts a synchronous function to an asynchronous function."""
 
     @wraps(func)
     async def to_async_wrapper(*args: F_Spec.args, **kwargs: F_Spec.kwargs) -> F_Return:
@@ -92,6 +67,11 @@ def timeout_scope(
 
 @asynccontextmanager
 async def fake_context(*args: Any, **kwargs: Any) -> AsyncIterator[None]:
+    yield None
+
+
+@contextmanager
+def sync_fake_context(*args: Any, **kwargs: Any) -> Iterator[None]:
     yield None
 
 
