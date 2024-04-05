@@ -40,7 +40,7 @@ async def test_confluent_basic_lifespan():
             assert context.get("settings").host == "localhost"
 
 
-@pydanticV2
+@pydantic_v2
 @pytest.mark.asyncio()
 async def test_nats_basic_lifespan():
     with mock_pydantic_settings_env({"host": "localhost"}):

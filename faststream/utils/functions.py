@@ -17,6 +17,14 @@ from fast_depends.utils import run_async as call_or_await
 
 from faststream.types import F_Return, F_Spec
 
+__all__ = (
+    "call_or_await",
+    "to_async",
+    "timeout_scope",
+    "fake_context",
+    "drop_response_type",
+)
+
 
 @overload
 def to_async(
@@ -66,19 +74,7 @@ def to_async(
 
     @wraps(func)
     async def to_async_wrapper(*args: F_Spec.args, **kwargs: F_Spec.kwargs) -> F_Return:
-        """Wraps a function to make it asynchronous.
-
-        Args:
-            func: The function to be wrapped
-            args: Positional arguments to be passed to the function
-            kwargs: Keyword arguments to be passed to the function
-
-        Returns:
-            The result of the wrapped function
-
-        Raises:
-            Any exceptions raised by the wrapped function
-        """
+        """Wraps a function to make it asynchronous."""
         return await call_or_await(func, *args, **kwargs)
 
     return to_async_wrapper

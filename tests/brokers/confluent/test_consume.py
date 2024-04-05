@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -15,13 +16,14 @@ from tests.tools import spy_decorator
 class TestConsume(BrokerRealConsumeTestcase):
     """A class to represent a test Kafka broker."""
     timeout: int = 10
+    subscriber_kwargs: dict[str, Any] = {"auto_offset_reset": "earliest"}
 
     @pytest.mark.asyncio()
     async def test_consume_batch(self, confluent_kafka_topic: str, broker: KafkaBroker):
         msgs_queue = asyncio.Queue(maxsize=1)
 
         @broker.subscriber(
-            confluent_kafka_topic, batch=True, auto_offset_reset="earliest"
+            confluent_kafka_topic, batch=True, **self.subscriber_kwargs
         )
         async def handler(msg):
             await msgs_queue.put(msg)
@@ -47,7 +49,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         event: asyncio.Event,
     ):
         @full_broker.subscriber(
-            queue, group_id="test", auto_commit=False, auto_offset_reset="earliest"
+            queue, group_id="test", auto_commit=False, **self.subscriber_kwargs
         )
         async def handler(msg: KafkaMessage):
             event.set()
@@ -85,7 +87,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         event: asyncio.Event,
     ):
         @full_broker.subscriber(
-            queue, group_id="test", auto_commit=False, auto_offset_reset="earliest"
+            queue, group_id="test", auto_commit=False, **self.subscriber_kwargs
         )
         async def handler(msg: KafkaMessage):
             await msg.ack()
@@ -124,7 +126,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         event: asyncio.Event,
     ):
         @full_broker.subscriber(
-            queue, group_id="test", auto_commit=False, auto_offset_reset="earliest"
+            queue, group_id="test", auto_commit=False, **self.subscriber_kwargs
         )
         async def handler(msg: KafkaMessage):
             event.set()
@@ -163,7 +165,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         event: asyncio.Event,
     ):
         @full_broker.subscriber(
-            queue, group_id="test", auto_commit=False, auto_offset_reset="earliest"
+            queue, group_id="test", auto_commit=False, **self.subscriber_kwargs
         )
         async def handler(msg: KafkaMessage):
             await msg.nack()
@@ -202,7 +204,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         event: asyncio.Event,
     ):
         @full_broker.subscriber(
-            queue, group_id="test", no_ack=True, auto_offset_reset="earliest"
+            queue, group_id="test", no_ack=True, **self.subscriber_kwargs
         )
         async def handler(msg: KafkaMessage):
             event.set()
@@ -238,7 +240,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         event: asyncio.Event,
     ):
         @full_broker.subscriber(
-            queue, auto_commit=False, group_id="test", auto_offset_reset="earliest"
+            queue, auto_commit=False, group_id="test", **self.subscriber_kwargs
         )
         async def subscriber_no_auto_commit(msg: KafkaMessage):
             await msg.nack()
@@ -248,7 +250,7 @@ class TestConsume(BrokerRealConsumeTestcase):
         event2 = asyncio.Event()
 
         @broker2.subscriber(
-            queue, auto_commit=True, group_id="test", auto_offset_reset="earliest"
+            queue, auto_commit=True, group_id="test", **self.subscriber_kwargs
         )
         async def subscriber_with_auto_commit(m):
             event2.set()

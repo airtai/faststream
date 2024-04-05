@@ -1,5 +1,5 @@
 import asyncio
-from typing import Type
+from typing import Any, Type
 from unittest.mock import Mock
 
 import pytest
@@ -19,6 +19,8 @@ class RouterTestcase(
 ):
     build_message: AnyCallable
     route_class: Type[SubscriberRoute]
+    timeout: int = 3
+    subscriber_kwargs: dict[str, Any] = {}
     publisher_class: Type[ArgsContainer]
 
     def patch_broker(self, br: BrokerUsecase, router: BrokerRouter) -> BrokerUsecase:
@@ -40,7 +42,7 @@ class RouterTestcase(
         queue: str,
         event: asyncio.Event,
     ):
-        @router.subscriber(queue)
+        @router.subscriber(queue, **self.subscriber_kwargs)
         def subscriber(m):
             event.set()
 
@@ -54,7 +56,7 @@ class RouterTestcase(
                     asyncio.create_task(pub_broker.publish("hello", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
             assert event.is_set()
@@ -68,7 +70,7 @@ class RouterTestcase(
     ):
         router.prefix = "test_"
 
-        @router.subscriber(queue)
+        @router.subscriber(queue, **self.subscriber_kwargs)
         def subscriber(m):
             event.set()
 
@@ -82,7 +84,7 @@ class RouterTestcase(
                     asyncio.create_task(pub_broker.publish("hello", f"test_{queue}")),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
             assert event.is_set()
@@ -94,12 +96,12 @@ class RouterTestcase(
         queue: str,
         event: asyncio.Event,
     ):
-        @router.subscriber(queue)
+        @router.subscriber(queue, **self.subscriber_kwargs)
         @router.publisher(queue + "resp")
         def subscriber(m):
             return "hi"
 
-        @router.subscriber(queue + "resp")
+        @router.subscriber(queue + "resp", **self.subscriber_kwargs)
         def response(m):
             event.set()
 
@@ -113,7 +115,7 @@ class RouterTestcase(
                     asyncio.create_task(pub_broker.publish("hello", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
             assert event.is_set()
@@ -127,12 +129,12 @@ class RouterTestcase(
     ):
         router.prefix = "test_"
 
-        @router.subscriber(queue)
+        @router.subscriber(queue, **self.subscriber_kwargs)
         @router.publisher(queue + "resp")
         def subscriber(m):
             return "hi"
 
-        @router.subscriber(queue + "resp")
+        @router.subscriber(queue + "resp", **self.subscriber_kwargs)
         def response(m):
             event.set()
 
@@ -146,7 +148,7 @@ class RouterTestcase(
                     asyncio.create_task(pub_broker.publish("hello", f"test_{queue}")),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
             assert event.is_set()
@@ -162,11 +164,11 @@ class RouterTestcase(
 
         p = router.publisher(queue + "resp")
 
-        @router.subscriber(queue)
+        @router.subscriber(queue, **self.subscriber_kwargs)
         async def subscriber(m):
             await p.publish("resp")
 
-        @router.subscriber(queue + "resp")
+        @router.subscriber(queue + "resp", **self.subscriber_kwargs)
         def response(m):
             event.set()
 
@@ -180,7 +182,7 @@ class RouterTestcase(
                     asyncio.create_task(pub_broker.publish("hello", f"test_{queue}")),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
             assert event.is_set()
@@ -195,7 +197,7 @@ class RouterTestcase(
         def response(m):
             event.set()
 
-        r = type(router)(prefix="test_", handlers=(self.route_class(response, queue),))
+        r = type(router)(prefix="test_", handlers=(self.route_class(response, queue, **self.subscriber_kwargs),))
 
         pub_broker.include_router(r)
 
@@ -207,7 +209,7 @@ class RouterTestcase(
                     asyncio.create_task(pub_broker.publish("hello", f"test_{queue}")),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
             assert event.is_set()
@@ -230,13 +232,14 @@ class RouterTestcase(
                     response,
                     queue,
                     publishers=(self.publisher_class(queue + "1"),),
+                    **self.subscriber_kwargs,
                 ),
             ),
         )
 
         pub_broker.include_router(r)
 
-        @pub_broker.subscriber(f"test_{queue}1")
+        @pub_broker.subscriber(f"test_{queue}1", **self.subscriber_kwargs)
         async def handler(msg):
             mock(msg)
             event.set()
@@ -249,7 +252,7 @@ class RouterTestcase(
                     asyncio.create_task(pub_broker.publish("hello", f"test_{queue}")),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
             assert event.is_set()
@@ -267,7 +270,7 @@ class RouterTestcase(
         core_router = type(router)(prefix="test1_")
         router.prefix = "test2_"
 
-        @router.subscriber(queue)
+        @router.subscriber(queue, **self.subscriber_kwargs)
         def subscriber(m):
             event.set()
             mock(m)
@@ -286,7 +289,7 @@ class RouterTestcase(
                     ),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
             assert event.is_set()
@@ -302,12 +305,12 @@ class RouterTestcase(
         core_router = type(router)(prefix="test1_")
         router.prefix = "test2_"
 
-        @router.subscriber(queue)
+        @router.subscriber(queue, **self.subscriber_kwargs)
         @router.publisher(queue + "resp")
         def subscriber(m):
             return "hi"
 
-        @pub_broker.subscriber("test1_" + "test2_" + queue + "resp")
+        @pub_broker.subscriber("test1_" + "test2_" + queue + "resp", **self.subscriber_kwargs)
         def response(m):
             event.set()
 
@@ -324,7 +327,7 @@ class RouterTestcase(
                     ),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
             assert event.is_set()
@@ -340,7 +343,7 @@ class RouterTestcase(
         router = type(router)(dependencies=(Depends(lambda: 1),))
         router2 = type(router)(dependencies=(Depends(lambda: 2),))
 
-        @router2.subscriber(queue, dependencies=(Depends(lambda: 3),))
+        @router2.subscriber(queue, dependencies=(Depends(lambda: 3),), **self.subscriber_kwargs)
         def subscriber():
             ...
 
@@ -361,7 +364,7 @@ class RouterTestcase(
         router = type(router)(middlewares=(BaseMiddleware,))
         router2 = type(router)(middlewares=(BaseMiddleware,))
 
-        @router2.subscriber(queue, middlewares=(3,))
+        @router2.subscriber(queue, middlewares=(3,), **self.subscriber_kwargs)
         @router2.publisher(queue, middlewares=(3,))
         def subscriber():
             ...
@@ -396,7 +399,7 @@ class RouterTestcase(
             decoder=decoder,
         )
 
-        @router.subscriber(queue)
+        @router.subscriber(queue, **self.subscriber_kwargs)
         def subscriber(s):
             event.set()
 
@@ -410,7 +413,7 @@ class RouterTestcase(
                     asyncio.create_task(pub_broker.publish("hello", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
             assert event.is_set()
@@ -446,7 +449,7 @@ class RouterTestcase(
             decoder=global_decoder,
         )
 
-        @router.subscriber(queue, parser=parser, decoder=decoder)
+        @router.subscriber(queue, parser=parser, decoder=decoder, **self.subscriber_kwargs)
         def subscriber(s):
             event.set()
 
@@ -460,7 +463,7 @@ class RouterTestcase(
                     asyncio.create_task(pub_broker.publish("hello", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
             assert event.is_set()
@@ -484,7 +487,7 @@ class RouterLocalTestcase(RouterTestcase):
     ):
         pub = router.publisher(queue + "resp")
 
-        @router.subscriber(queue)
+        @router.subscriber(queue, **self.subscriber_kwargs)
         @pub
         def subscriber(m):
             event.set()
@@ -500,7 +503,7 @@ class RouterLocalTestcase(RouterTestcase):
                     asyncio.create_task(pub_broker.publish("hello", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
             assert event.is_set()
@@ -513,7 +516,7 @@ class RouterLocalTestcase(RouterTestcase):
         queue: str,
         event: asyncio.Event,
     ):
-        @router.subscriber(queue)
+        @router.subscriber(queue, **self.subscriber_kwargs)
         def subscriber(m):
             event.set()
             return "hi"
@@ -528,7 +531,7 @@ class RouterLocalTestcase(RouterTestcase):
                     asyncio.create_task(pub_broker.publish("hello", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
             assert event.is_set()
@@ -539,7 +542,7 @@ class RouterLocalTestcase(RouterTestcase):
     ):
         publisher = router.publisher(queue + "resp")
 
-        @pub_broker.subscriber(queue)
+        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
         async def m(m):
             await publisher.publish("response")
 

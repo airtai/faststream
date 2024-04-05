@@ -1,19 +1,19 @@
 from contextlib import AsyncExitStack
 from itertools import chain
-from typing import Any, Dict, Iterable, Optional, Union, cast
+from typing import Any, Dict, Iterable, Optional, Tuple, Union, cast
 
 from aiokafka import ConsumerRecord
 from typing_extensions import Annotated, Doc, override
 
 from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
-from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+from faststream.broker.types import BrokerMiddleware, MsgType, PublisherMiddleware
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
 from faststream.types import SendableMessage
 
 
-class LogicPublisher(PublisherUsecase[ConsumerRecord]):
+class LogicPublisher(PublisherUsecase[MsgType]):
     """A class to publish messages to a Kafka topic."""
 
     _producer: Optional[AioKafkaFastProducer]
@@ -26,7 +26,7 @@ class LogicPublisher(PublisherUsecase[ConsumerRecord]):
         headers: Optional[Dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable[BrokerMiddleware[ConsumerRecord]],
+        broker_middlewares: Iterable[BrokerMiddleware[MsgType]],
         middlewares: Iterable[PublisherMiddleware],
         # AsyncAPI args
         schema_: Optional[Any],
@@ -58,7 +58,7 @@ class LogicPublisher(PublisherUsecase[ConsumerRecord]):
         self.topic = "".join((prefix, self.topic))
 
 
-class DefaultPublisher(LogicPublisher):
+class DefaultPublisher(LogicPublisher[ConsumerRecord]):
     def __init__(
         self,
         *,
@@ -196,7 +196,7 @@ class DefaultPublisher(LogicPublisher):
         return None
 
 
-class BatchPublisher(LogicPublisher):
+class BatchPublisher(LogicPublisher[Tuple[ConsumerRecord, ...]]):
     @override
     async def publish(  # type: ignore[override]
         self,

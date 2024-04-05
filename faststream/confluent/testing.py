@@ -1,18 +1,17 @@
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
-from aiokafka import ConsumerRecord
 from typing_extensions import override
 
 from faststream.broker.message import encode_message, gen_cor_id
 from faststream.broker.wrapper.call import HandlerCallWrapper
-from faststream.kafka.broker import KafkaBroker
-from faststream.kafka.publisher.asyncapi import (
+from faststream.confluent.broker import KafkaBroker
+from faststream.confluent.publisher.asyncapi import (
     AsyncAPIBatchPublisher,
     AsyncAPIPublisher,
 )
-from faststream.kafka.publisher.producer import AioKafkaFastProducer
-from faststream.kafka.subscriber.asyncapi import AsyncAPIBatchSubscriber
+from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
+from faststream.confluent.subscriber.asyncapi import AsyncAPIBatchSubscriber
 from faststream.testing.broker import TestBroker, call_handler
 from faststream.types import SendableMessage
 
@@ -29,31 +28,32 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     @staticmethod
     def create_publisher_fake_subscriber(
         broker: KafkaBroker,
-        publisher: AsyncAPIPublisher[Any],
+        publisher: AsyncAPIPublisher,
     ) -> HandlerCallWrapper[Any, Any, Any]:
-        sub = broker.subscriber(
+        sub = broker.subscriber(  # type: ignore[call-overload,misc]
             publisher.topic,
             batch=isinstance(publisher, AsyncAPIBatchPublisher),
         )
 
-        @sub  # type: ignore[misc]
+        @sub
         def f(msg: Any) -> None:
             pass
 
         broker.setup_subscriber(sub)
-        return f
+        return f  # type: ignore[no-any-return]
 
     @staticmethod
     def remove_publisher_fake_subscriber(
-        broker: KafkaBroker, publisher: AsyncAPIPublisher[Any],
+        broker: KafkaBroker,
+        publisher: AsyncAPIPublisher,
     ) -> None:
         broker._subscribers.pop(hash(publisher), None)
 
 
-class FakeProducer(AioKafkaFastProducer):
+class FakeProducer(AsyncConfluentFastProducer):
     """A fake Kafka producer for testing purposes.
 
-    This class extends AioKafkaFastProducer and is used to simulate Kafka message publishing during tests.
+    This class extends AsyncConfluentFastProducer and is used to simulate Kafka message publishing during tests.
     """
 
     def __init__(self, broker: KafkaBroker) -> None:
@@ -76,6 +76,8 @@ class FakeProducer(AioKafkaFastProducer):
         raise_timeout: bool = False,
     ) -> Optional[Any]:
         """Publish a message to the Kafka broker."""
+        correlation_id = correlation_id or gen_cor_id()
+
         incoming = build_message(
             message=message,
             topic=topic,
@@ -91,8 +93,9 @@ class FakeProducer(AioKafkaFastProducer):
             if topic in handler.topics:
                 return await call_handler(
                     handler=handler,
-                    message=[incoming] if isinstance(
-                        handler, AsyncAPIBatchSubscriber) else incoming,
+                    message=[incoming]
+                    if isinstance(handler, AsyncAPIBatchSubscriber)
+                    else incoming,
                     rpc=rpc,
                     rpc_timeout=rpc_timeout,
                     raise_timeout=raise_timeout,
@@ -111,6 +114,8 @@ class FakeProducer(AioKafkaFastProducer):
         correlation_id: Optional[str] = None,
     ) -> None:
         """Publish a batch of messages to the Kafka broker."""
+        correlation_id = correlation_id or gen_cor_id()
+
         for handler in self.broker._subscribers.values():  # pragma: no branch
             if topic in handler.topics:
                 messages = (
@@ -141,44 +146,99 @@ class FakeProducer(AioKafkaFastProducer):
         return None
 
 
+class MockConfluentMessage:
+    def __init__(
+        self,
+        raw_msg: bytes,
+        topic: str,
+        key: bytes,
+        headers: List[Tuple[str, bytes]],
+        offset: int,
+        partition: int,
+        timestamp_type: int,
+        timestamp_ms: int,
+        error: Optional[str] = None,
+    ):
+        self._raw_msg = raw_msg
+        self._topic = topic
+        self._key = key
+        self._headers = headers
+        self._error = error
+        self._offset = offset
+        self._partition = partition
+        self._timestamp = (timestamp_type, timestamp_ms)
+
+    def len(self) -> int:
+        return len(self._raw_msg)
+
+    def error(self) -> Optional[str]:
+        return self._error
+
+    def headers(self) -> List[Tuple[str, bytes]]:
+        return self._headers
+
+    def key(self) -> bytes:
+        return self._key
+
+    def offset(self) -> int:
+        return self._offset
+
+    def partition(self) -> int:
+        return self._partition
+
+    def timestamp(self) -> Tuple[int, int]:
+        return self._timestamp
+
+    def topic(self) -> str:
+        return self._topic
+
+    def value(self) -> bytes:
+        return self._raw_msg
+
+
 def build_message(
     message: SendableMessage,
     topic: str,
+    *,
+    correlation_id: str,
     partition: Optional[int] = None,
     timestamp_ms: Optional[int] = None,
     key: Optional[bytes] = None,
     headers: Optional[Dict[str, str]] = None,
-    correlation_id: Optional[str] = None,
-    *,
     reply_to: str = "",
-) -> ConsumerRecord:
-    """Build a Kafka ConsumerRecord for a sendable message."""
+) -> MockConfluentMessage:
+    """Build a mock confluent_kafka.Message for a sendable message.
+
+    Args:
+        message (SendableMessage): The sendable message to be encoded.
+        topic (str): The Kafka topic for the message.
+        partition (Optional[int], optional): The Kafka partition for the message. Defaults to None.
+        timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.
+        key (Optional[bytes], optional): The message key. Defaults to None.
+        headers (Optional[Dict[str, str]], optional): Additional headers for the message. Defaults to None.
+        correlation_id (Optional[str], optional): The correlation ID for the message. Defaults to None.
+        reply_to (str, optional): The topic to which responses should be sent. Defaults to "".
+
+    Returns:
+        MockConfluentMessage: A mock confluent_kafka.Message object.
+    """
     msg, content_type = encode_message(message)
-
     k = key or b""
-
     headers = {
         "content-type": content_type or "",
-        "correlation_id": correlation_id or gen_cor_id(),
+        "correlation_id": correlation_id,
+        "reply_to": reply_to,
         **(headers or {}),
     }
 
-    if reply_to:
-        headers["reply_to"] = headers.get(
-            "reply_to",
-            reply_to
-        )
-
-    return ConsumerRecord(
-        value=msg,
+    # https://docs.confluent.io/platform/current/clients/confluent-kafka-python/html/index.html#confluent_kafka.Message.timestamp
+    return MockConfluentMessage(
+        raw_msg=msg,
         topic=topic,
-        partition=partition or 0,
-        timestamp=timestamp_ms or int(datetime.now().timestamp()),
-        timestamp_type=0,
         key=k,
-        serialized_key_size=len(k),
-        serialized_value_size=len(msg),
-        checksum=sum(msg),
-        offset=0,
         headers=[(i, j.encode()) for i, j in headers.items()],
+        offset=0,
+        partition=partition or 0,
+        timestamp_type=0 + 1,
+        timestamp_ms=timestamp_ms or int(datetime.now().timestamp()),
     )

@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class RabbitQueue(NameRequired):
     """A class to represent a RabbitMQ queue.
-    
+
     You can find information about all options in the official RabbitMQ documentation:
 
     https://www.rabbitmq.com/docs/queues

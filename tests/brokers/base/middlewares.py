@@ -1,6 +1,6 @@
 import asyncio
 from contextlib import asynccontextmanager
-from typing import Type
+from typing import Any, Type
 from unittest.mock import Mock
 
 import pytest
@@ -12,6 +12,8 @@ from faststream.broker.middlewares import BaseMiddleware
 @pytest.mark.asyncio()
 class LocalMiddlewareTestcase:
     broker_class: Type[BrokerUsecase]
+    timeout: int = 3
+    subscriber_kwargs: dict[str, Any] = {}
 
     @pytest.fixture()
     def raw_broker(self):
@@ -38,7 +40,7 @@ class LocalMiddlewareTestcase:
 
         broker = self.broker_class()
 
-        @broker.subscriber(queue, middlewares=(mid,))
+        @broker.subscriber(queue, middlewares=(mid,), **self.subscriber_kwargs)
         async def handler(m):
             mock.inner(m)
             return "end"
@@ -52,7 +54,7 @@ class LocalMiddlewareTestcase:
                     asyncio.create_task(broker.publish("start", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         mock.start.assert_called_once_with("start")
@@ -78,7 +80,7 @@ class LocalMiddlewareTestcase:
 
         broker = self.broker_class()
 
-        @broker.subscriber(queue)
+        @broker.subscriber(queue, **self.subscriber_kwargs)
         @broker.publisher(queue + "1", middlewares=(mid,))
         @broker.publisher(queue + "2", middlewares=(mid,))
         async def handler(m):
@@ -94,7 +96,7 @@ class LocalMiddlewareTestcase:
                     asyncio.create_task(broker.publish("start", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert event.is_set()
@@ -116,8 +118,8 @@ class LocalMiddlewareTestcase:
 
         broker = self.broker_class()
 
-        @broker.subscriber(queue)
-        @broker.subscriber(queue + "1", middlewares=(mid,))
+        @broker.subscriber(queue, **self.subscriber_kwargs)
+        @broker.subscriber(queue + "1", middlewares=(mid,), **self.subscriber_kwargs)
         async def handler(m):
             if event1.is_set():
                 event2.set()
@@ -137,7 +139,7 @@ class LocalMiddlewareTestcase:
                     asyncio.create_task(event1.wait()),
                     asyncio.create_task(event2.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert event1.is_set()
@@ -160,13 +162,13 @@ class LocalMiddlewareTestcase:
 
         broker = self.broker_class()
 
-        @broker.subscriber(queue, filter=lambda m: m.content_type == "application/json")
+        @broker.subscriber(queue, filter=lambda m: m.content_type == "application/json", **self.subscriber_kwargs)
         async def handler(m):
             event2.set()
             mock()
             return ""
 
-        @broker.subscriber(queue, middlewares=(mid,))
+        @broker.subscriber(queue, middlewares=(mid,), **self.subscriber_kwargs)
         async def handler2(m):
             event1.set()
             mock()
@@ -183,7 +185,7 @@ class LocalMiddlewareTestcase:
                     asyncio.create_task(event1.wait()),
                     asyncio.create_task(event2.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert event1.is_set()
@@ -202,7 +204,7 @@ class LocalMiddlewareTestcase:
 
         broker = self.broker_class()
 
-        @broker.subscriber(queue, middlewares=(mid,))
+        @broker.subscriber(queue, middlewares=(mid,), **self.subscriber_kwargs)
         async def handler2(m):
             event.set()
             raise ValueError()
@@ -217,7 +219,7 @@ class LocalMiddlewareTestcase:
                     asyncio.create_task(broker.publish("", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert event.is_set()
@@ -242,7 +244,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
             middlewares=(mid,),
         )
 
-        @broker.subscriber(queue)
+        @broker.subscriber(queue, **self.subscriber_kwargs)
         async def handler(m):
             event.set()
             return ""
@@ -256,7 +258,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
                     asyncio.create_task(broker.publish("", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert event.is_set()
@@ -270,11 +272,11 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
 
         broker = self.broker_class(middlewares=(Mid,))
 
-        @broker.subscriber(queue)
+        @broker.subscriber(queue, **self.subscriber_kwargs)
         async def handler(m):
             return m
 
-        @broker.subscriber(queue + "r")
+        @broker.subscriber(queue + "r", **self.subscriber_kwargs)
         async def handler_resp(m):
             mock(m)
             event.set()
@@ -291,7 +293,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
                     ),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert event.is_set()
@@ -318,7 +320,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
 
         broker = self.broker_class(middlewares=(Mid,))
 
-        @broker.subscriber(queue)
+        @broker.subscriber(queue, **self.subscriber_kwargs)
         @broker.publisher(queue + "1")
         @broker.publisher(queue + "2")
         async def handler(m):
@@ -334,7 +336,7 @@ class MiddlewareTestcase(LocalMiddlewareTestcase):
                     asyncio.create_task(broker.publish("1", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert event.is_set()

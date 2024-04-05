@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pytest
 
 from faststream.confluent import TestApp, TestKafkaBroker
-from faststream.confluent.broker import AsyncConfluentConsumer
+from faststream.confluent.client import AsyncConfluentConsumer
 from tests.tools import spy_decorator
 
 

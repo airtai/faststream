@@ -260,7 +260,7 @@ class KafkaRegistrator(
 
             * `read_committed`, batch consumer will only return
             transactional messages which have been committed.
-        
+
             * `read_uncommitted` (the default), batch consumer will
             return all messages, even transactional messages which have been
             aborted.
@@ -552,7 +552,7 @@ class KafkaRegistrator(
 
             * `read_committed`, batch consumer will only return
             transactional messages which have been committed.
-        
+
             * `read_uncommitted` (the default), batch consumer will
             return all messages, even transactional messages which have been
             aborted.

@@ -1,6 +1,6 @@
 from typing import Any, Protocol, Tuple, Union
 
-from aiokafka import ConsumerRecord
+from confluent_kafka import Message
 
 from faststream.broker.message import StreamMessage
 
@@ -23,12 +23,12 @@ FAKE_CONSUMER = FakeConsumer()
 
 
 class KafkaMessage(StreamMessage[Union[
-    ConsumerRecord,
-    Tuple[ConsumerRecord, ...],
+    Message,
+    Tuple[Message, ...],
 ]]):
     """Represents a Kafka message in the FastStream framework.
 
-    This class extends `StreamMessage` and is specialized for handling Kafka ConsumerRecord objects.
+    This class extends `StreamMessage` and is specialized for handling confluent_kafka.Message objects.
     """
 
     def __init__(

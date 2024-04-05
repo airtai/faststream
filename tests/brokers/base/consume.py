@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
@@ -12,6 +13,7 @@ from faststream.exceptions import StopConsume
 @pytest.mark.asyncio()
 class BrokerConsumeTestcase:
     timeout: int = 3
+    subscriber_kwargs: dict[str, Any] = {}
 
     @pytest.fixture()
     def consume_broker(self, broker: BrokerUsecase):
@@ -23,7 +25,7 @@ class BrokerConsumeTestcase:
         consume_broker: BrokerUsecase,
         event: asyncio.Event,
     ):
-        @consume_broker.subscriber(queue)
+        @consume_broker.subscriber(queue, **self.subscriber_kwargs)
         def subscriber(m):
 
             event.set()
@@ -49,8 +51,8 @@ class BrokerConsumeTestcase:
         consume = asyncio.Event()
         consume2 = asyncio.Event()
 
-        @consume_broker.subscriber(queue)
-        @consume_broker.subscriber(queue + "1")
+        @consume_broker.subscriber(queue, **self.subscriber_kwargs)
+        @consume_broker.subscriber(queue + "1", **self.subscriber_kwargs)
         def subscriber(m):
             mock()
             if not consume.is_set():
@@ -83,7 +85,7 @@ class BrokerConsumeTestcase:
         consume = asyncio.Event()
         consume2 = asyncio.Event()
 
-        @consume_broker.subscriber(queue)
+        @consume_broker.subscriber(queue, **self.subscriber_kwargs)
         async def handler(m):
             mock()
             if not consume.is_set():
@@ -116,14 +118,14 @@ class BrokerConsumeTestcase:
         consume = asyncio.Event()
         consume2 = asyncio.Event()
 
-        @consume_broker.subscriber(queue)
+        @consume_broker.subscriber(queue, **self.subscriber_kwargs)
         def handler(m):
             mock.handler()
             consume.set()
 
         another_topic = queue + "1"
 
-        @consume_broker.subscriber(another_topic)
+        @consume_broker.subscriber(another_topic, **self.subscriber_kwargs)
         def handler2(m):
             mock.handler2()
             consume2.set()
@@ -155,13 +157,13 @@ class BrokerConsumeTestcase:
         consume2 = asyncio.Event()
 
         @consume_broker.subscriber(
-            queue, filter=lambda m: m.content_type == "application/json"
+            queue, filter=lambda m: m.content_type == "application/json", **self.subscriber_kwargs
         )
         async def handler(m):
             mock.handler(m)
             consume.set()
 
-        @consume_broker.subscriber(queue)
+        @consume_broker.subscriber(queue, **self.subscriber_kwargs)
         async def handler2(m):
             mock.handler2(m)
             consume2.set()
@@ -201,7 +203,7 @@ class BrokerConsumeTestcase:
         def dependency() -> str:
             return "100"
 
-        @consume_broker.subscriber(queue)
+        @consume_broker.subscriber(queue, **self.subscriber_kwargs)
         async def handler(m: Foo, dep: int = Depends(dependency), broker=Context()):
             mock(m, dep, broker)
             event.set()
@@ -229,7 +231,7 @@ class BrokerRealConsumeTestcase(BrokerConsumeTestcase):
         event: asyncio.Event,
         mock: MagicMock,
     ):
-        @consume_broker.subscriber(queue)
+        @consume_broker.subscriber(queue, **self.subscriber_kwargs)
         def subscriber(m):
             mock()
             event.set()
