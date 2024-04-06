@@ -12,6 +12,123 @@ hide:
 ---
 
 # Release Notes
+## 0.5.0rc0
+
+### What's Changed
+
+This is a biggest change since **FastStream** creation. We are totally refactor whole package, change objects registration mechanism, message processing pipeline and application lifecycle. But you won't even notice it - we save all public API from breaking changes. The only one feature doesn't compatible with previous code - new middlewares.
+
+New features:
+
+1. add `await FastStream.stop()` method and `StopApplication` Exception to stop **FastStream** worker
+
+2. `broker.subscriber()` and `router.subscriber()` now returns `Subscriber` object you can use lately
+
+```python
+subscriber = broker.subscriber("test")
+
+@subscriber(filter = lambda msg: msg.content_type == "application/json")
+async def handler(msg: dict[str, Any]):
+    ...
+ 
+@subscriber()
+async def handler(msg: dict[str, Any]):
+    ...
+ ```
+ 
+ This is a preffered syntax for [filtering](https://faststream.airt.ai/latest/getting-started/subscription/filtering/) now (the old one will be removed in `0.6.0`)
+ 
+ 3. `router.publisher()` now returns correct `Publisher` object u can use lately (after broker startup)
+ 
+ ```python
+ publisher = router.publisher("test")
+ 
+ @router.subscriber("in")
+ async def handler():
+     await publisher.publish("msg")
+ ```
+ 
+ (Until `0.5.0` you could use in this way only `broker.publisher()`)
+ 
+ 4. Now you can pass `middlewares` to publisher too
+ 
+ ```python
+ broker = Broker(..., middlewares=())
+ 
+ @broker.subscriber(..., middlewares=())
+ @broker.publisher(..., middlewares=())  # new feature
+ async def handler():
+     ...
+ ```
+ 
+5. Broker-level middlewares now affects at all ways to publish message, so you can encode application outgoing messages here.
+
+6. ⚠️ BREAKING CHANGE ⚠️ : `subscriber` and `publisher` middlewares now should be async context manager type
+
+```python
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def subscriber_middleware(msg_body):
+    yield msg_body
+
+@asynccontextmanager
+async def publisher_middleware(
+    msg_to_publish,
+    **publish_arguments,
+):
+    yield msg_to_publish
+
+@broker.subscriber("in", middlewares=(subscriber_middleware,))
+@broker.publisher("out", middlewares=(publisher_middleware,))
+async def handler():
+    ...
+```
+
+7. Better **FastAPI** compatibility: `fastapi.BackgroundTasks` support, `response_class` subscriber option
+
+8. All `.pyi` files were removed, added explicit docstrings and methods options
+
+9. Now you can register new subscribers in runtime (with already started broker):
+
+```python
+subscriber = broker.subscriber("dynamic")
+subscriber(handler_method)
+...
+broker.setup_subscriber(subscriber)
+await subscriber.start()
+...
+await subscriber.close()
+```
+
+10. `faststream[docs]` distribution was removed
+
+* Update Release Notes for 0.4.7 by @faststream-release-notes-updater in https://github.com/airtai/faststream/pull/1295
+* 1129 - Create a publish command for the CLI by @MRLab12 in https://github.com/airtai/faststream/pull/1151
+* Chore: packages upgraded by @davorrunje in https://github.com/airtai/faststream/pull/1306
+* docs: fix typos by @omahs in https://github.com/airtai/faststream/pull/1309
+* chore: update dependencies by @Lancetnik in https://github.com/airtai/faststream/pull/1323
+* docs: fix misc by @Lancetnik in https://github.com/airtai/faststream/pull/1324
+* docs (#1327): correct RMQ exhcanges behavior by @Lancetnik in https://github.com/airtai/faststream/pull/1328
+* fix: typer 0.12 exclude by @Lancetnik in https://github.com/airtai/faststream/pull/1341
+* 0.5.0 by @Lancetnik in https://github.com/airtai/faststream/pull/1326
+* close #1103
+* close #840
+* fix #690
+* fix #1206
+* fix #1227
+* close #568
+* close #1303
+* close #1287
+* feat #607 
+
+### New Contributors
+
+* @MRLab12 made their first contribution in https://github.com/airtai/faststream/pull/1151
+* @omahs made their first contribution in https://github.com/airtai/faststream/pull/1309
+
+**Full Changelog**: https://github.com/airtai/faststream/compare/0.4.7...0.5.0rc0
+
 ## 0.4.7
 
 ### What's Changed
