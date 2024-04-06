@@ -10,7 +10,7 @@ publisher = router.publisher("response-q")
 
 @publisher
 @router.subscriber("test-q")
-async def handler(user_id: int, logger: Logger):
+async def handler(user_id: int, logger: Logger) -> str:
     logger.info(user_id)
     return f"{user_id} created"
 

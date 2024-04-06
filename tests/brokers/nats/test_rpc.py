@@ -5,7 +5,7 @@ from tests.brokers.base.rpc import BrokerRPCTestcase, ReplyAndConsumeForbidden
 
 
 @pytest.mark.nats()
-class TestRPC(BrokerRPCTestcase, ReplyAndConsumeForbidden):  # noqa: D101
+class TestRPC(BrokerRPCTestcase, ReplyAndConsumeForbidden):
     @pytest.mark.asyncio()
     async def test_rpc_js(self, queue: str, rpc_broker: NatsBroker, stream: JStream):
         @rpc_broker.subscriber(queue, stream=stream)

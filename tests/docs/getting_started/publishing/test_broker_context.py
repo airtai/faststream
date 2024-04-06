@@ -23,7 +23,7 @@ async def test_broker_context_kafka():
 
 
 @pytest.mark.asyncio()
-@pytest.mark.kafka()
+@pytest.mark.confluent()
 async def test_broker_context_confluent():
     from docs.docs_src.getting_started.publishing.confluent.broker_context import (
         app,

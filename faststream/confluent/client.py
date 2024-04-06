@@ -1,11 +1,9 @@
 import asyncio
-from collections import defaultdict
 from ssl import SSLContext
 from time import time
 from typing import (
     Any,
     Callable,
-    DefaultDict,
     Dict,
     Iterable,
     List,
@@ -56,25 +54,18 @@ class BatchBuilder:
         value: Optional[Union[str, bytes]] = None,
         headers: Optional[List[Tuple[str, bytes]]] = None,
     ) -> None:
-        """Appends a message to the batch with optional timestamp, key, value, and headers.
-
-        Args:
-            timestamp (Optional[int]): The timestamp of the message. If None, current time is used.
-            key (Optional[Union[str, bytes]]): The key of the message.
-            value (Optional[Union[str, bytes]]): The value of the message.
-            headers (Optional[List[Tuple[str, bytes]]]): A list of headers for the message.
-
-        Raises:
-            KafkaException: If both key and value are None.
-        """
+        """Appends a message to the batch with optional timestamp, key, value, and headers."""
         if timestamp is None:
             timestamp = round(time() * 1000)
+
         if key is None and value is None:
             raise KafkaException(
                 KafkaError(40, reason="Both key and value can't be None")
             )
+
         if headers is None:
             headers = []
+
         self._builder.append(
             MsgToSend(timestamp=timestamp, key=key, value=value, headers=headers)
         )
@@ -115,41 +106,6 @@ class AsyncConfluentProducer:
         sasl_kerberos_domain_name: Optional[str] = None,
         sasl_oauth_token_provider: Optional[str] = None,
     ) -> None:
-        """Initializes the AsyncConfluentProducer with the given configuration.
-
-        Args:
-            loop (Optional[asyncio.AbstractEventLoop]): The event loop to use for asynchronous operations.
-            bootstrap_servers (Union[str, List[str]]): A list of bootstrap servers for Kafka.
-            client_id (Optional[str]): A unique identifier for the client.
-            metadata_max_age_ms (int): The maximum age of metadata before a refresh is forced.
-            request_timeout_ms (int): The maximum time to wait for a request to complete.
-            api_version (str): The Kafka API version to use.
-            acks (Any): The number of acknowledgments the producer requires before considering a request complete.
-            key_serializer (Optional[Callable[[bytes], bytes]]): A callable to serialize the key.
-            value_serializer (Optional[Callable[[bytes], bytes]]): A callable to serialize the value.
-            compression_type (Optional[str]): The compression type for message batches.
-            max_batch_size (int): The maximum size of a message batch.
-            partitioner (str): The partitioning strategy to use when sending messages.
-            max_request_size (int): The maximum size of a request in bytes.
-            linger_ms (int): The time to wait before sending a batch in milliseconds.
-            send_backoff_ms (int): The time to back off when sending fails.
-            retry_backoff_ms (int): The time to back off when a retry is needed.
-            security_protocol (str): The security protocol to use.
-            ssl_context (Optional[SSLContext]): The SSL context for secure connections.
-            connections_max_idle_ms (int): The maximum time a connection can be idle.
-            enable_idempotence (bool): Whether to enable idempotent producer capabilities.
-            transactional_id (Optional[Union[str, int]]): The transactional ID for transactional delivery.
-            transaction_timeout_ms (int): The maximum time allowed for transactions.
-            sasl_mechanism (str): The SASL mechanism to use for authentication.
-            sasl_plain_password (Optional[str]): The password for SASL/PLAIN authentication.
-            sasl_plain_username (Optional[str]): The username for SASL/PLAIN authentication.
-            sasl_kerberos_service_name (str): The Kerberos service name for SASL/GSSAPI.
-            sasl_kerberos_domain_name (Optional[str]): The Kerberos domain name for SASL/GSSAPI.
-            sasl_oauth_token_provider (Optional[str]): The OAuth token provider for SASL/OAUTHBEARER.
-
-        Raises:
-            ValueError: If the provided bootstrap_servers is not a string or list of strings.
-        """
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
             bootstrap_servers, str
         ):
@@ -194,10 +150,6 @@ class AsyncConfluentProducer:
         self.producer.list_topics()
         self.loop = loop or asyncio.get_event_loop()
 
-    async def start(self) -> None:
-        """Start the Kafka producer."""
-        pass
-
     async def stop(self) -> None:
         """Stop the Kafka producer and flush remaining messages."""
         self.producer.flush()
@@ -211,41 +163,24 @@ class AsyncConfluentProducer:
         timestamp_ms: Optional[int] = None,
         headers: Optional[List[Tuple[str, Union[str, bytes]]]] = None,
     ) -> None:
-        """Sends a single message to a Kafka topic.
-
-        Args:
-            topic (str): The topic to send the message to.
-            value (Optional[Union[str, bytes]]): The message value.
-            key (Optional[Union[str, bytes]]): The message key.
-            partition (Optional[int]): The partition to send the message to.
-            timestamp_ms (Optional[int]): The timestamp of the message in milliseconds.
-            headers (Optional[List[Tuple[str, Union[str, bytes]]]]): A list of headers for the message.
-        """
-        d = locals()
-        d.pop("topic")
-        d.pop("timestamp_ms")
-        d.pop("self")
-        kwargs = {k: v for k, v in d.items() if v is not None}
+        """Sends a single message to a Kafka topic."""
+        kwargs = {
+            k: v
+            for k, v in {
+                "value": value,
+                "key": key,
+                "partition": partition,
+                "headers": headers,
+            }.items()
+            if v is not None
+        }
         if timestamp_ms is not None:
             kwargs["timestamp"] = timestamp_ms
-
-        # result = self.loop.create_future()
-        # def ack(err, msg):
-        #     print("At msg on_delivery callback")
-        #     if err:
-        #         print("Error at ack")
-        #         self.loop.call_soon_threadsafe(result.set_exception, KafkaException(err))
-        #     else:
-        #         print("All good at ack")
-        #         self.loop.call_soon_threadsafe(result.set_result, msg)
-
         self.producer.produce(
             topic,
-            # on_delivery=ack,
             **kwargs,
         )
         self.producer.poll(0)
-        # return result
 
     def create_batch(self) -> BatchBuilder:
         """Creates a batch for sending multiple messages.
@@ -258,13 +193,7 @@ class AsyncConfluentProducer:
     async def send_batch(
         self, batch: BatchBuilder, topic: str, *, partition: Optional[int]
     ) -> None:
-        """Sends a batch of messages to a Kafka topic.
-
-        Args:
-            batch (BatchBuilder): The batch of messages to send.
-            topic (str): The topic to send the messages to.
-            partition (Optional[int]): The partition to send the messages to.
-        """
+        """Sends a batch of messages to a Kafka topic."""
         tasks = [
             self.send(
                 topic=topic,
@@ -280,27 +209,18 @@ class AsyncConfluentProducer:
 
 
 class TopicPartition(NamedTuple):
-    """A named tuple representing a Kafka topic and partition.
-
-    Attributes:
-        topic (str): The name of the Kafka topic.
-        partition (int): The partition number within the topic.
-    """
+    """A named tuple representing a Kafka topic and partition."""
 
     topic: str
     partition: int
 
 
 def create_topics(
-    topics: List[str], config: Dict[str, Optional[Union[str, int, float, bool, Any]]]
+    topics: List[str],
+    config: Dict[str, Optional[Union[str, int, float, bool, Any]]],
 ) -> None:
-    """Creates Kafka topics using the provided configuration.
-
-    Args:
-        topics (List[str]): A list of topic names to create.
-        config (Dict[str, Optional[Union[str, int, float, bool, Any]]]): A dictionary of configuration options for the AdminClient.
-    """
-    needed_config_params = [
+    """Creates Kafka topics using the provided configuration."""
+    required_config_params = (
         "allow.auto.create.topics",
         "bootstrap.servers",
         "client.id",
@@ -312,10 +232,12 @@ def create_topics(
         "sasl.username",
         "sasl.password",
         "sasl.kerberos.service.name",
-    ]
+    )
 
-    admin_client_config = {x: config[x] for x in needed_config_params if x in config}
-    admin_client = AdminClient(admin_client_config)
+    admin_client = AdminClient(
+        {x: config[x] for x in required_config_params if x in config}
+    )
+
     fs = admin_client.create_topics(
         [NewTopic(topic, num_partitions=1, replication_factor=1) for topic in topics]
     )
@@ -323,9 +245,11 @@ def create_topics(
     for topic, f in fs.items():
         try:
             f.result()  # The result itself is None
-            logger.info(f"Topic {topic} created at create_topics")
         except Exception as e:  # noqa: PERF203
-            logger.warning(f"Failed to create topic {topic}: {e}")
+            if "TOPIC_ALREADY_EXISTS" not in str(e):
+                logger.warning(f"Failed to create topic {topic}: {e}")
+        else:
+            logger.info(f"Topic `{topic}` created.")
 
 
 class AsyncConfluentConsumer:
@@ -372,58 +296,16 @@ class AsyncConfluentConsumer:
         sasl_kerberos_domain_name: Optional[str] = None,
         sasl_oauth_token_provider: Optional[str] = None,
     ) -> None:
-        """Initializes the AsyncConfluentConsumer with the given configuration and subscribes to the specified topics.
-
-        Args:
-            topics (str): One or more topic names to subscribe to.
-            loop (Optional[asyncio.AbstractEventLoop]): The event loop to use for asynchronous operations.
-            bootstrap_servers (Union[str, List[str]]): A list of bootstrap servers for Kafka.
-            client_id (Optional[str]): A unique identifier for the client.
-            group_id (Optional[str]): The consumer group ID.
-            group_instance_id (Optional[str]): A unique identifier for the consumer instance within a group.
-            key_deserializer (Optional[Callable[[bytes], bytes]]): A callable to deserialize the key.
-            value_deserializer (Optional[Callable[[bytes], bytes]]): A callable to deserialize the value.
-            fetch_max_wait_ms (int): The maximum time to block waiting for min.bytes data.
-            fetch_max_bytes (int): The maximum amount of data the server should return for a fetch request.
-            fetch_min_bytes (int): The minimum amount of data the server should return for a fetch request.
-            max_partition_fetch_bytes (int): The maximum amount of data per-partition the server will return.
-            request_timeout_ms (int): The maximum time to wait for a request to complete.
-            retry_backoff_ms (int): The time to back off when a retry is needed.
-            auto_offset_reset (str): What to do when there is no initial offset in Kafka or if the current offset does not exist.
-            enable_auto_commit (bool): If true, the consumer's offset will be periodically committed in the background.
-            auto_commit_interval_ms (int): The frequency in milliseconds that the consumer offsets are auto-committed to Kafka.
-            check_crcs (bool): Automatically check the CRC32 of the records consumed.
-            metadata_max_age_ms (int): The maximum age of metadata before a refresh is forced.
-            partition_assignment_strategy (Union[str, List[Any]]): The name of the partition assignment strategy to use.
-            max_poll_interval_ms (int): The maximum delay between invocations of poll() when using consumer group management.
-            rebalance_timeout_ms (Optional[int]): The maximum time that the group coordinator will wait for each member to rejoin when rebalancing.
-            session_timeout_ms (int): The timeout used to detect consumer failures when using Kafka's group management facility.
-            heartbeat_interval_ms (int): The expected time between heartbeats to the group coordinator when using Kafka's group management facilities.
-            consumer_timeout_ms (int): The maximum time to block in the consumer waiting for a message.
-            max_poll_records (Optional[int]): The maximum number of records returned in a single call to poll().
-            ssl_context (Optional[SSLContext]): The SSL context for secure connections.
-            security_protocol (str): The security protocol to use.
-            api_version (str): The Kafka API version to use.
-            exclude_internal_topics (bool): Whether internal topics (such as offsets) should be excluded from the subscription.
-            connections_max_idle_ms (int): The maximum time a connection can be idle.
-            isolation_level (str): The isolation level for reading data.
-            sasl_mechanism (str): The SASL mechanism to use for authentication.
-            sasl_plain_password (Optional[str]): The password for SASL/PLAIN authentication.
-            sasl_plain_username (Optional[str]): The username for SASL/PLAIN authentication.
-            sasl_kerberos_service_name (str): The Kerberos service name for SASL/GSSAPI.
-            sasl_kerberos_domain_name (Optional[str]): The Kerberos domain name for SASL/GSSAPI.
-            sasl_oauth_token_provider (Optional[str]): The OAuth token provider for SASL/OAUTHBEARER.
-
-        Raises:
-            ValueError: If the provided bootstrap_servers is not a string or list of strings.
-        """
         if group_id is None:
             group_id = "confluent-kafka-consumer-group"
+
         if isinstance(bootstrap_servers, Iterable) and not isinstance(
             bootstrap_servers, str
         ):
             bootstrap_servers = ",".join(bootstrap_servers)
+
         self.topics = list(topics)
+
         if not isinstance(partition_assignment_strategy, str):
             partition_assignment_strategy = ",".join(
                 [
@@ -474,20 +356,21 @@ class AsyncConfluentConsumer:
 
     async def start(self) -> None:
         """Starts the Kafka consumer and subscribes to the specified topics."""
-        # create_topics(topics=self.topics, config=self.config)
-        # await call_or_await(create_topics)(topics=self.topics, config=self.config)
-        await call_or_await(self.consumer.subscribe, self.topics)
+        self.consumer.subscribe(self.topics)
 
-    async def commit(self) -> None:
+    async def commit(self, asynchronous: bool = True) -> None:
         """Commits the offsets of all messages returned by the last poll operation."""
-        await call_or_await(self.consumer.commit)
+        await call_or_await(self.consumer.commit, asynchronous=asynchronous)
 
     async def stop(self) -> None:
         """Stops the Kafka consumer and releases all resources."""
+        # NOTE: If we don't explicitly call commit and then close the consumer, the confluent consumer gets stuck.
+        # We are doing this to avoid the issue.
         enable_auto_commit = self.config["enable.auto.commit"]
         try:
             if enable_auto_commit:
-                await call_or_await(self.consumer.commit, asynchronous=False)
+                await self.commit(asynchronous=False)
+
         except Exception as e:
             # No offset stored issue is not a problem - https://github.com/confluentinc/confluent-kafka-python/issues/295#issuecomment-355907183
             if "No offset stored" in str(e):
@@ -495,64 +378,32 @@ class AsyncConfluentConsumer:
             else:
                 raise e
 
+        # Wrap calls to async to make method cancelable by timeout
         await call_or_await(self.consumer.close)
 
-    async def getone(self, timeout_ms: int = 1000) -> Message:
-        """Consumes a single message from Kafka.
-
-        Returns:
-            Message: The consumed message.
-        """
-        while True:
-            timeout = timeout_ms / 1000
-            msg = await call_or_await(self.consumer.poll, timeout)
-            if (record := check_msg_error(msg)) is not None:
-                return record
+    async def getone(self, timeout_ms: int = 1000) -> Optional[Message]:
+        """Consumes a single message from Kafka."""
+        msg = await call_or_await(self.consumer.poll, timeout_ms / 1000)
+        return check_msg_error(msg)
 
     async def getmany(
         self,
         timeout_ms: int = 0,
         max_records: Optional[int] = 10,
-    ) -> Dict[TopicPartition, List[Message]]:
-        """Consumes a batch of messages from Kafka and groups them by topic and partition.
-
-        Args:
-            timeout_ms (int): The timeout in milliseconds to wait for messages.
-            max_records (Optional[int]): The maximum number of messages to return.
-
-        Returns:
-            Dict[TopicPartition, List[Message]]: A dictionary where keys are TopicPartition named tuples and values are lists of messages.
-        """
+    ) -> Tuple[Message, ...]:
+        """Consumes a batch of messages from Kafka and groups them by topic and partition."""
         raw_messages: List[Optional[Message]] = await call_or_await(
             self.consumer.consume,
             num_messages=max_records or 10,
             timeout=timeout_ms / 1000,
         )
 
-        validated_messages: Iterable[Message] = filter(
-            lambda x: x is not None,
-            map(check_msg_error, raw_messages),
-        )
-
-        messages: DefaultDict[TopicPartition, List[Message]] = defaultdict(list)
-        for record in validated_messages:
-            tp = TopicPartition(topic=record.topic(), partition=record.partition())  # type: ignore[arg-type]
-            messages[tp].append(record)
-
-        return messages
+        return tuple(x for x in map(check_msg_error, raw_messages) if x is not None)
 
 
 def check_msg_error(msg: Optional[Message]) -> Optional[Message]:
-    """Checks for errors in the consumed message.
-
-    Args:
-        msg (Message): The message to check for errors.
-
-    Returns:
-        Message: The original message if no error is found, otherwise None.
-    """
-    if msg is None:
-        return msg
-    if msg.error():
+    """Checks for errors in the consumed message."""
+    if msg is None or msg.error():
         return None
+
     return msg

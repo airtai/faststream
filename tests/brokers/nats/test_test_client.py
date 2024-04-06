@@ -8,7 +8,7 @@ from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
 @pytest.mark.asyncio()
-class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
+class TestTestclient(BrokerTestclientTestcase):
     @pytest.mark.nats()
     async def test_with_real_testclient(
         self,
@@ -39,8 +39,7 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = NatsBroker()
-        broker.middlewares = (Middleware,)
+        broker = NatsBroker(middlewares=(Middleware,))
 
         @broker.subscriber(queue)
         async def h1(): ...
@@ -63,8 +62,7 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = NatsBroker()
-        broker.middlewares = (Middleware,)
+        broker = NatsBroker(middlewares=(Middleware,))
 
         @broker.subscriber(queue)
         async def h1(): ...

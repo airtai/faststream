@@ -1,6 +1,6 @@
-from typing import Any, Dict, Optional, Union
+from typing import Dict, Optional, Union
 
-from faststream.nats.js_stream import JStream
+from faststream.nats.schemas.js_stream import JStream
 
 
 class StreamBuilder:
@@ -15,9 +15,6 @@ class StreamBuilder:
     def stream(
         self,
         name: Union[str, JStream, None],
-        *args: Any,
-        declare: bool = True,
-        **kwargs: Any,
     ) -> Optional[JStream]:
         """Get a stream.
 

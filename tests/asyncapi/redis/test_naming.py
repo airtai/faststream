@@ -6,7 +6,7 @@ from faststream.redis import RedisBroker
 from tests.asyncapi.base.naming import NamingTestCase
 
 
-class TestNaming(NamingTestCase):  # noqa: D101
+class TestNaming(NamingTestCase):
     broker_class = RedisBroker
 
     def test_base(self):

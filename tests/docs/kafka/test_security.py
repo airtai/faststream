@@ -13,13 +13,10 @@ __all__ = ["test_without_ssl_warning"]
 @contextmanager
 def patch_aio_consumer_and_producer() -> Tuple[MagicMock, MagicMock]:
     try:
-        consumer = MagicMock(return_value=AsyncMock())
         producer = MagicMock(return_value=AsyncMock())
 
-        with patch("aiokafka.AIOKafkaConsumer", new=consumer), patch(
-            "aiokafka.AIOKafkaProducer", new=producer
-        ):
-            yield consumer, producer
+        with patch("aiokafka.AIOKafkaProducer", new=producer):
+            yield producer
     finally:
         pass
 
@@ -27,113 +24,81 @@ def patch_aio_consumer_and_producer() -> Tuple[MagicMock, MagicMock]:
 @pytest.mark.asyncio()
 @pytest.mark.kafka()
 async def test_base_security():
-    with patch_aio_consumer_and_producer() as (consumer, producer):
-        from docs.docs_src.kafka.security.basic import broker as basic_broker
+    from docs.docs_src.kafka.security.basic import broker as basic_broker
 
-        @basic_broker.subscriber("test")
-        async def handler(): ...
-
+    with patch_aio_consumer_and_producer() as producer:
         async with basic_broker:
-            await basic_broker.start()
+            producer_call_kwargs = producer.call_args.kwargs
 
-        consumer_call_kwargs = consumer.call_args.kwargs
-        producer_call_kwargs = producer.call_args.kwargs
+            call_kwargs = {}
+            call_kwargs["security_protocol"] = "SSL"
 
-        call_kwargs = {}
-        call_kwargs["security_protocol"] = "SSL"
+            assert call_kwargs.items() <= producer_call_kwargs.items()
 
-        assert call_kwargs.items() <= consumer_call_kwargs.items()
-        assert call_kwargs.items() <= producer_call_kwargs.items()
-
-        assert type(consumer_call_kwargs["ssl_context"]) == ssl.SSLContext
-        assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
+            assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
 
 
 @pytest.mark.asyncio()
 @pytest.mark.kafka()
 async def test_scram256():
-    with patch_aio_consumer_and_producer() as (consumer, producer):
-        from docs.docs_src.kafka.security.sasl_scram256 import (
-            broker as scram256_broker,
-        )
+    from docs.docs_src.kafka.security.sasl_scram256 import (
+        broker as scram256_broker,
+    )
 
-        @scram256_broker.subscriber("test")
-        async def handler(): ...
-
+    with patch_aio_consumer_and_producer() as producer:
         async with scram256_broker:
-            await scram256_broker.start()
+            producer_call_kwargs = producer.call_args.kwargs
 
-        consumer_call_kwargs = consumer.call_args.kwargs
-        producer_call_kwargs = producer.call_args.kwargs
+            call_kwargs = {}
+            call_kwargs["sasl_mechanism"] = "SCRAM-SHA-256"
+            call_kwargs["sasl_plain_username"] = "admin"
+            call_kwargs["sasl_plain_password"] = "password"  # pragma: allowlist secret
+            call_kwargs["security_protocol"] = "SASL_SSL"
 
-        call_kwargs = {}
-        call_kwargs["sasl_mechanism"] = "SCRAM-SHA-256"
-        call_kwargs["sasl_plain_username"] = "admin"
-        call_kwargs["sasl_plain_password"] = "password"  # pragma: allowlist secret
-        call_kwargs["security_protocol"] = "SASL_SSL"
+            assert call_kwargs.items() <= producer_call_kwargs.items()
 
-        assert call_kwargs.items() <= consumer_call_kwargs.items()
-        assert call_kwargs.items() <= producer_call_kwargs.items()
-
-        assert type(consumer_call_kwargs["ssl_context"]) == ssl.SSLContext
-        assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
+            assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
 
 
 @pytest.mark.asyncio()
 @pytest.mark.kafka()
 async def test_scram512():
-    with patch_aio_consumer_and_producer() as (consumer, producer):
-        from docs.docs_src.kafka.security.sasl_scram512 import (
-            broker as scram512_broker,
-        )
+    from docs.docs_src.kafka.security.sasl_scram512 import (
+        broker as scram512_broker,
+    )
 
-        @scram512_broker.subscriber("test")
-        async def handler(): ...
-
+    with patch_aio_consumer_and_producer() as producer:
         async with scram512_broker:
-            await scram512_broker.start()
+            producer_call_kwargs = producer.call_args.kwargs
 
-        consumer_call_kwargs = consumer.call_args.kwargs
-        producer_call_kwargs = producer.call_args.kwargs
+            call_kwargs = {}
+            call_kwargs["sasl_mechanism"] = "SCRAM-SHA-512"
+            call_kwargs["sasl_plain_username"] = "admin"
+            call_kwargs["sasl_plain_password"] = "password"  # pragma: allowlist secret
+            call_kwargs["security_protocol"] = "SASL_SSL"
 
-        call_kwargs = {}
-        call_kwargs["sasl_mechanism"] = "SCRAM-SHA-512"
-        call_kwargs["sasl_plain_username"] = "admin"
-        call_kwargs["sasl_plain_password"] = "password"  # pragma: allowlist secret
-        call_kwargs["security_protocol"] = "SASL_SSL"
+            assert call_kwargs.items() <= producer_call_kwargs.items()
 
-        assert call_kwargs.items() <= consumer_call_kwargs.items()
-        assert call_kwargs.items() <= producer_call_kwargs.items()
-
-        assert type(consumer_call_kwargs["ssl_context"]) == ssl.SSLContext
-        assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
+            assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
 
 
 @pytest.mark.asyncio()
 @pytest.mark.kafka()
 async def test_plaintext():
-    with patch_aio_consumer_and_producer() as (consumer, producer):
-        from docs.docs_src.kafka.security.plaintext import (
-            broker as plaintext_broker,
-        )
+    from docs.docs_src.kafka.security.plaintext import (
+        broker as plaintext_broker,
+    )
 
-        @plaintext_broker.subscriber("test")
-        async def handler(): ...
-
+    with patch_aio_consumer_and_producer() as producer:
         async with plaintext_broker:
-            await plaintext_broker.start()
+            producer_call_kwargs = producer.call_args.kwargs
 
-        consumer_call_kwargs = consumer.call_args.kwargs
-        producer_call_kwargs = producer.call_args.kwargs
+            call_kwargs = {}
+            call_kwargs["sasl_mechanism"] = "PLAIN"
+            call_kwargs["sasl_plain_username"] = "admin"
+            call_kwargs["sasl_plain_password"] = "password"  # pragma: allowlist secret
+            call_kwargs["security_protocol"] = "SASL_SSL"
 
-        call_kwargs = {}
-        call_kwargs["sasl_mechanism"] = "PLAIN"
-        call_kwargs["sasl_plain_username"] = "admin"
-        call_kwargs["sasl_plain_password"] = "password"  # pragma: allowlist secret
-        call_kwargs["security_protocol"] = "SASL_SSL"
+            assert call_kwargs.items() <= producer_call_kwargs.items()
 
-        assert call_kwargs.items() <= consumer_call_kwargs.items()
-        assert call_kwargs.items() <= producer_call_kwargs.items()
-
-        assert type(consumer_call_kwargs["ssl_context"]) == ssl.SSLContext
-        assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext
+            assert type(producer_call_kwargs["ssl_context"]) == ssl.SSLContext

@@ -3,7 +3,7 @@ from typing_extensions import Annotated
 from faststream.annotations import ContextRepo, Logger, NoCast
 from faststream.rabbit.broker import RabbitBroker as RB
 from faststream.rabbit.message import RabbitMessage as RM
-from faststream.rabbit.producer import AioPikaFastProducer
+from faststream.rabbit.publisher.producer import AioPikaFastProducer
 from faststream.utils.context import Context
 
 __all__ = (

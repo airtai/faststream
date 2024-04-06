@@ -7,7 +7,7 @@ from tests.brokers.base.publish import BrokerPublishTestcase
 
 
 @pytest.mark.kafka()
-class TestPublish(BrokerPublishTestcase):  # noqa: D101
+class TestPublish(BrokerPublishTestcase):
     @pytest.mark.asyncio()
     async def test_publish_batch(self, queue: str, broker: KafkaBroker):
         msgs_queue = asyncio.Queue(maxsize=2)

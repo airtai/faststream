@@ -1,14 +1,16 @@
 import pytest
 
-from faststream.broker.core.abc import BrokerUsecase
+from faststream.broker.core.usecase import BrokerUsecase
 from faststream.types import AnyCallable
 from tests.brokers.base.consume import BrokerConsumeTestcase
 from tests.brokers.base.publish import BrokerPublishTestcase
 from tests.brokers.base.rpc import BrokerRPCTestcase
 
 
-class BrokerTestclientTestcase(  # noqa: D101
-    BrokerPublishTestcase, BrokerConsumeTestcase, BrokerRPCTestcase
+class BrokerTestclientTestcase(
+    BrokerPublishTestcase,
+    BrokerConsumeTestcase,
+    BrokerRPCTestcase,
 ):
     build_message: AnyCallable
 

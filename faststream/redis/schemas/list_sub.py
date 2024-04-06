@@ -1,0 +1,35 @@
+from functools import cached_property
+from typing import Optional
+
+from faststream.broker.schemas import NameRequired
+
+
+class ListSub(NameRequired):
+    """A class to represent a Redis List subscriber."""
+
+    __slots__ = (
+        "name",
+        "batch",
+        "max_records",
+        "polling_interval",
+    )
+
+    def __init__(
+        self,
+        list_name: str,
+        batch: bool = False,
+        max_records: int = 10,
+        polling_interval: float = 0.1,
+    ) -> None:
+        super().__init__(list_name)
+
+        self.batch = batch
+        self.max_records = max_records
+        self.polling_interval = polling_interval
+
+    @cached_property
+    def records(self) -> Optional[int]:
+        return self.max_records if self.batch else None
+
+    def __hash__(self) -> int:
+        return hash(f"list:{self.name}")

@@ -1,3 +1,8 @@
+"""AsyncAPI AMQP bindings.
+
+References: https://github.com/asyncapi/bindings/tree/master/amqp
+"""
+
 from typing import Literal, Optional
 
 from pydantic import BaseModel, Field, PositiveInt
@@ -12,7 +17,6 @@ class Queue(BaseModel):
         exclusive : indicates if the queue is exclusive
         autoDelete : indicates if the queue should be automatically deleted
         vhost : virtual host of the queue (default is "/")
-
     """
 
     name: str
@@ -31,7 +35,6 @@ class Exchange(BaseModel):
         durable : whether the exchange is durable (optional)
         autoDelete : whether the exchange is automatically deleted (optional)
         vhost : virtual host of the exchange, default is "/"
-
     """
 
     name: Optional[str] = None
@@ -46,7 +49,6 @@ class ServerBinding(BaseModel):
 
     Attributes:
         bindingVersion : version of the binding (default: "0.2.0")
-
     """
 
     bindingVersion: str = "0.2.0"
@@ -60,7 +62,6 @@ class ChannelBinding(BaseModel):
         bindingVersion : Version of the binding
         queue : Optional queue object
         exchange : Optional exchange object
-
     """
 
     is_: Literal["queue", "routingKey"] = Field(..., alias="is")
@@ -77,7 +78,6 @@ class OperationBinding(BaseModel):
         ack : boolean indicating if the operation is acknowledged
         replyTo : optional dictionary representing the replyTo
         bindingVersion : string representing the binding version
-
     """
 
     cc: Optional[str] = None

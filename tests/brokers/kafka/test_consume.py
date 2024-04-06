@@ -12,7 +12,7 @@ from tests.tools import spy_decorator
 
 
 @pytest.mark.kafka()
-class TestConsume(BrokerRealConsumeTestcase):  # noqa: D101
+class TestConsume(BrokerRealConsumeTestcase):
     @pytest.mark.asyncio()
     async def test_consume_batch(self, queue: str, broker: KafkaBroker):
         msgs_queue = asyncio.Queue(maxsize=1)

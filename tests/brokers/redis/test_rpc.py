@@ -5,7 +5,7 @@ from tests.brokers.base.rpc import BrokerRPCTestcase, ReplyAndConsumeForbidden
 
 
 @pytest.mark.redis()
-class TestRPC(BrokerRPCTestcase, ReplyAndConsumeForbidden):  # noqa: D101
+class TestRPC(BrokerRPCTestcase, ReplyAndConsumeForbidden):
     @pytest.mark.asyncio()
     async def test_list_rpc(self, queue: str, rpc_broker: RedisBroker):
         @rpc_broker.subscriber(list=queue)

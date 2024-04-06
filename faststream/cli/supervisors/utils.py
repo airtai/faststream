@@ -1,7 +1,9 @@
+import asyncio
 import multiprocessing
 import os
 import signal
 import sys
+from contextlib import suppress
 from multiprocessing.context import SpawnProcess
 from types import FrameType
 from typing import Any, Callable, Optional
@@ -18,16 +20,27 @@ HANDLED_SIGNALS = (
 )
 
 
-def set_exit(func: Callable[[int, Optional[FrameType]], Any]) -> None:
+def set_exit(
+    func: Callable[[int, Optional[FrameType]], Any],
+    *,
+    sync: bool = False,
+) -> None:
     """Set exit handler for signals.
 
     Args:
         func: A callable object that takes an integer and an optional frame type as arguments and returns any value.
-
-    Returns:
-        None
-
+        sync: set sync or async signal callback.
     """
+    if not sync:
+        with suppress(NotImplementedError):
+            loop = asyncio.get_event_loop()
+
+            for sig in HANDLED_SIGNALS:
+                loop.add_signal_handler(sig, func, sig, None)
+
+            return
+
+    # Windows or sync mode
     for sig in HANDLED_SIGNALS:
         signal.signal(sig, func)
 
@@ -44,7 +57,6 @@ def get_subprocess(target: DecoratedCallableNone, args: Any) -> SpawnProcess:
 
     Raises:
         OSError: If there is an error getting the file descriptor of sys.stdin.
-
     """
     stdin_fileno: Optional[int]
     try:

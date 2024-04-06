@@ -12,12 +12,12 @@ from faststream.rabbit import (
     TestRabbitBroker,
 )
 from faststream.rabbit.annotations import RabbitMessage
-from faststream.rabbit.test import apply_pattern
+from faststream.rabbit.testing import apply_pattern
 from tests.brokers.base.testclient import BrokerTestclientTestcase
 
 
 @pytest.mark.asyncio()
-class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
+class TestTestclient(BrokerTestclientTestcase):
     @pytest.mark.rabbit()
     async def test_with_real_testclient(
         self,
@@ -224,8 +224,7 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = RabbitBroker()
-        broker.middlewares = (Middleware,)
+        broker = RabbitBroker(middlewares = (Middleware,))
 
         @broker.subscriber(queue)
         async def h1(): ...
@@ -248,8 +247,7 @@ class TestTestclient(BrokerTestclientTestcase):  # noqa: D101
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = RabbitBroker()
-        broker.middlewares = (Middleware,)
+        broker = RabbitBroker(middlewares=(Middleware,))
 
         @broker.subscriber(queue)
         async def h1(): ...

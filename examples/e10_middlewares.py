@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from types import TracebackType
 from typing import Optional, Type
 
@@ -15,20 +16,17 @@ class TopLevelMiddleware(BaseMiddleware):
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exec_tb: Optional[TracebackType] = None,
+        exc_tb: Optional[TracebackType] = None,
     ) -> bool:
         print("highlevel middleware out")
-        return await super().after_processed(exc_type, exc_val, exec_tb)
+        return await super().after_processed(exc_type, exc_val, exc_tb)
 
 
-class HandlerMiddleware(BaseMiddleware):
-    async def on_consume(self, msg: DecodedMessage) -> DecodedMessage:
-        print(f"call handler middleware with body: {msg}")
-        return "fake message"
-
-    async def after_consume(self, err: Optional[Exception]) -> None:
-        print("handler middleware out")
-        return await super().after_consume(err)
+@asynccontextmanager
+async def HandlerMiddleware(msg: DecodedMessage) -> DecodedMessage:
+    print(f"call handler middleware with body: {msg}")
+    yield "fake message"
+    print("handler middleware out")
 
 
 broker = RabbitBroker(

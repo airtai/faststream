@@ -13,24 +13,23 @@ from nats.js.api import (
     StreamSource,
 )
 
-from faststream.broker.test import TestApp
 from faststream.nats.annotations import NatsMessage
-from faststream.nats.broker import NatsBroker
-from faststream.nats.js_stream import JStream
-from faststream.nats.pull_sub import PullSub
-from faststream.nats.router import NatsRouter
-from faststream.nats.shared.router import NatsRoute
-from faststream.nats.test import TestNatsBroker
+from faststream.nats.broker.broker import NatsBroker
+from faststream.nats.router import NatsPublisher, NatsRoute, NatsRouter
+from faststream.nats.schemas import JStream, PullSub
+from faststream.nats.testing import TestNatsBroker
+from faststream.testing.app import TestApp
 
 __all__ = (
     "TestApp",
-    "TestNatsBroker",
-    "NatsMessage",
     "NatsBroker",
-    "NatsRouter",
-    "NatsRoute",
     "JStream",
     "PullSub",
+    "NatsRoute",
+    "NatsRouter",
+    "NatsPublisher",
+    "TestNatsBroker",
+    "NatsMessage",
     # Nats imports
     "ConsumerConfig",
     "DeliverPolicy",

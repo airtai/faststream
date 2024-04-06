@@ -2,19 +2,21 @@ import asyncio
 
 import pytest
 
-from faststream.redis import RedisBroker, RedisRoute, RedisRouter
+from faststream.redis import RedisBroker, RedisPublisher, RedisRoute, RedisRouter
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 
 @pytest.mark.redis()
-class TestRouter(RouterTestcase):  # noqa: D101
+class TestRouter(RouterTestcase):
     broker_class = RedisRouter
     route_class = RedisRoute
+    publisher_class = RedisPublisher
 
 
-class TestRouterLocal(RouterLocalTestcase):  # noqa: D101
+class TestRouterLocal(RouterLocalTestcase):
     broker_class = RedisRouter
     route_class = RedisRoute
+    publisher_class = RedisPublisher
 
     async def test_delayed_channel_handlers(
         self,

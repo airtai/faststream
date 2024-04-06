@@ -13,5 +13,5 @@ async def test_index():
     )
 
     async with TestRabbitBroker(broker), TestApp(app):
-        base_handler1.mock.assert_called_with("")
-        base_handler3.mock.assert_called_once_with("")
+        base_handler1.mock.assert_called_with(b"")
+        base_handler3.mock.assert_called_once_with(b"")

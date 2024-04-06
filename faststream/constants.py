@@ -4,12 +4,7 @@ ContentType = str
 
 
 class ContentTypes(str, Enum):
-    """A class to represent content types.
-
-    Attributes:
-        text : content type for plain text
-        json : content type for JSON data
-    """
+    """A class to represent content types."""
 
     text = "text/plain"
     json = "application/json"

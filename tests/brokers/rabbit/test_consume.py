@@ -12,7 +12,7 @@ from tests.tools import spy_decorator
 
 
 @pytest.mark.rabbit()
-class TestConsume(BrokerRealConsumeTestcase):  # noqa: D101
+class TestConsume(BrokerRealConsumeTestcase):
     @pytest.mark.asyncio()
     async def test_consume_from_exchange(
         self,

@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 from unittest.mock import Mock
 
 import anyio
@@ -9,17 +9,20 @@ from pydantic import BaseModel
 
 from faststream._compat import model_to_json
 from faststream.annotations import Logger
-from faststream.broker.core.abc import BrokerUsecase
+from faststream.broker.core.usecase import BrokerUsecase
 
 
-class SimpleModel(BaseModel):  # noqa: D101
+class SimpleModel(BaseModel):
     r: str
 
 
 now = datetime.now()
 
 
-class BrokerPublishTestcase:  # noqa: D101
+class BrokerPublishTestcase:
+    timeout: int = 3
+    subscriber_kwargs: Dict[str, Any] = {}
+
     @pytest.fixture()
     def pub_broker(self, full_broker):
         return full_broker
@@ -112,7 +115,7 @@ class BrokerPublishTestcase:  # noqa: D101
         expected_message,
         event,
     ):
-        @pub_broker.subscriber(queue)
+        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
         async def handler(m: message_type, logger: Logger):
             event.set()
             mock(m)
@@ -125,7 +128,7 @@ class BrokerPublishTestcase:  # noqa: D101
                     asyncio.create_task(pub_broker.publish(message, queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert event.is_set()
@@ -135,7 +138,7 @@ class BrokerPublishTestcase:  # noqa: D101
     async def test_unwrap_dict(
         self, mock: Mock, queue: str, pub_broker: BrokerUsecase, event
     ):
-        @pub_broker.subscriber(queue)
+        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
         async def m(a: int, b: int, logger: Logger):
             event.set()
             mock({"a": a, "b": b})
@@ -147,7 +150,7 @@ class BrokerPublishTestcase:  # noqa: D101
                     asyncio.create_task(pub_broker.publish({"a": 1, "b": 1.0}, queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert event.is_set()
@@ -162,7 +165,7 @@ class BrokerPublishTestcase:  # noqa: D101
     async def test_unwrap_list(
         self, mock: Mock, queue: str, pub_broker: BrokerUsecase, event: asyncio.Event
     ):
-        @pub_broker.subscriber(queue)
+        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
         async def m(a: int, b: int, *args: Tuple[int, ...], logger: Logger):
             event.set()
             mock({"a": a, "b": b, "args": args})
@@ -174,7 +177,7 @@ class BrokerPublishTestcase:  # noqa: D101
                     asyncio.create_task(pub_broker.publish([1, 1.0, 2.0, 3.0], queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert event.is_set()
@@ -188,12 +191,12 @@ class BrokerPublishTestcase:  # noqa: D101
         event,
         mock,
     ):
-        @pub_broker.subscriber(queue)
+        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
         @pub_broker.publisher(queue + "resp")
         async def m():
             return ""
 
-        @pub_broker.subscriber(queue + "resp")
+        @pub_broker.subscriber(queue + "resp", **self.subscriber_kwargs)
         async def resp(msg):
             event.set()
             mock(msg)
@@ -205,7 +208,7 @@ class BrokerPublishTestcase:  # noqa: D101
                     asyncio.create_task(pub_broker.publish("", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert event.is_set()
@@ -222,11 +225,11 @@ class BrokerPublishTestcase:  # noqa: D101
         publisher = pub_broker.publisher(queue + "resp")
 
         @publisher
-        @pub_broker.subscriber(queue)
+        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
         async def m():
             return ""
 
-        @pub_broker.subscriber(queue + "resp")
+        @pub_broker.subscriber(queue + "resp", **self.subscriber_kwargs)
         async def resp(msg):
             event.set()
             mock(msg)
@@ -238,7 +241,7 @@ class BrokerPublishTestcase:  # noqa: D101
                     asyncio.create_task(pub_broker.publish("", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert event.is_set()
@@ -254,11 +257,11 @@ class BrokerPublishTestcase:  # noqa: D101
     ):
         publisher = pub_broker.publisher(queue + "resp")
 
-        @pub_broker.subscriber(queue)
+        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
         async def m():
             await publisher.publish("")
 
-        @pub_broker.subscriber(queue + "resp")
+        @pub_broker.subscriber(queue + "resp", **self.subscriber_kwargs)
         async def resp(msg):
             event.set()
             mock(msg)
@@ -270,7 +273,7 @@ class BrokerPublishTestcase:  # noqa: D101
                     asyncio.create_task(pub_broker.publish("", queue)),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert event.is_set()
@@ -284,17 +287,17 @@ class BrokerPublishTestcase:  # noqa: D101
         event2 = anyio.Event()
 
         @pub_broker.publisher(queue + "resp2")
-        @pub_broker.subscriber(queue)
+        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
         @pub_broker.publisher(queue + "resp")
         async def m():
             return ""
 
-        @pub_broker.subscriber(queue + "resp")
+        @pub_broker.subscriber(queue + "resp", **self.subscriber_kwargs)
         async def resp(msg):
             event.set()
             mock.resp1(msg)
 
-        @pub_broker.subscriber(queue + "resp2")
+        @pub_broker.subscriber(queue + "resp2", **self.subscriber_kwargs)
         async def resp2(msg):
             event2.set()
             mock.resp2(msg)
@@ -307,7 +310,7 @@ class BrokerPublishTestcase:  # noqa: D101
                     asyncio.create_task(event.wait()),
                     asyncio.create_task(event2.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert event.is_set()
@@ -325,16 +328,16 @@ class BrokerPublishTestcase:  # noqa: D101
         pub = pub_broker.publisher(queue + "resp")
 
         @pub
-        @pub_broker.subscriber(queue)
+        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
         async def m():
             return ""
 
         @pub
-        @pub_broker.subscriber(queue + "2")
+        @pub_broker.subscriber(queue + "2", **self.subscriber_kwargs)
         async def m2():
             return ""
 
-        @pub_broker.subscriber(queue + "resp")
+        @pub_broker.subscriber(queue + "resp", **self.subscriber_kwargs)
         async def resp():
             if not consume.is_set():
                 consume.set()
@@ -351,7 +354,7 @@ class BrokerPublishTestcase:  # noqa: D101
                     asyncio.create_task(consume.wait()),
                     asyncio.create_task(consume2.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert consume2.is_set()
@@ -366,12 +369,12 @@ class BrokerPublishTestcase:  # noqa: D101
         event,
         mock,
     ):
-        @pub_broker.subscriber(queue + "reply")
+        @pub_broker.subscriber(queue + "reply", **self.subscriber_kwargs)
         async def reply_handler(m):
             event.set()
             mock(m)
 
-        @pub_broker.subscriber(queue)
+        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
         async def handler(m):
             return m
 
@@ -385,7 +388,7 @@ class BrokerPublishTestcase:  # noqa: D101
                     ),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert event.is_set()
@@ -399,7 +402,7 @@ class BrokerPublishTestcase:  # noqa: D101
         event,
         mock,
     ):
-        @pub_broker.subscriber(queue)
+        @pub_broker.subscriber(queue, **self.subscriber_kwargs)
         async def handler(m):
             event.set()
             mock(m)
@@ -414,7 +417,7 @@ class BrokerPublishTestcase:  # noqa: D101
                     asyncio.create_task(pub.publish("Hello!")),
                     asyncio.create_task(event.wait()),
                 ),
-                timeout=3,
+                timeout=self.timeout,
             )
 
         assert event.is_set()

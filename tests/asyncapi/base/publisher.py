@@ -4,14 +4,14 @@ import pydantic
 
 from faststream import FastStream
 from faststream.asyncapi.generate import get_app_schema
-from faststream.broker.core.abc import BrokerUsecase
+from faststream.broker.core.usecase import BrokerUsecase
 
 
-class PublisherTestcase:  # noqa: D101
+class PublisherTestcase:
     broker_class: Type[BrokerUsecase]
 
     def build_app(self, broker):
-        """Patch it to test FastAPI scheme generation too"""  # noqa: D415
+        """Patch it to test FastAPI scheme generation too"""
         return FastStream(broker)
 
     def test_publisher_with_description(self):
@@ -125,4 +125,4 @@ class PublisherTestcase:  # noqa: D101
 
         schema = get_app_schema(self.build_app(broker))
 
-        assert schema.channels == {}
+        assert schema.channels == {}, schema.channels

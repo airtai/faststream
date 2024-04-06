@@ -11,8 +11,6 @@ from faststream.types import DecoratedCallable
 class ExtendedFilter(watchfiles.PythonFilter):  # type: ignore[misc]
     """A class that extends the `watchfiles.PythonFilter` class."""
 
-    ignore_dirs: Tuple[str, ...]
-
     def __init__(
         self,
         *,
@@ -30,7 +28,7 @@ class ExtendedFilter(watchfiles.PythonFilter):  # type: ignore[misc]
 
         """
         super().__init__(ignore_paths=ignore_paths, extra_extensions=extra_extensions)
-        self.ignore_dirs = (
+        self.ignore_dirs: Sequence[str] = (
             *self.ignore_dirs,
             "venv",
             "env",

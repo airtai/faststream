@@ -1,97 +1,146 @@
-import logging
-from functools import wraps
-from typing import Awaitable, Callable, Optional, Union
-
-from faststream.broker.message import StreamMessage
-from faststream.broker.push_back_watcher import (
-    BaseWatcher,
-    CounterWatcher,
-    EndlessWatcher,
-    OneTryWatcher,
+import asyncio
+import inspect
+from contextlib import suppress
+from functools import partial
+from types import TracebackType
+from typing import (
+    Any,
+    AsyncContextManager,
+    Callable,
+    Optional,
+    Type,
+    Union,
+    overload,
 )
-from faststream.broker.types import MsgType, T_HandlerReturn, WrappedReturn
-from faststream.utils import context
+
+import anyio
+from typing_extensions import Self
+
+from faststream.broker.acknowledgement_watcher import WatcherContext, get_watcher
+from faststream.broker.message import StreamMessage
+from faststream.broker.types import (
+    AsyncDecoder,
+    AsyncParser,
+    CustomDecoder,
+    CustomParser,
+    MsgType,
+)
+from faststream.types import LoggerProto
+from faststream.utils.functions import fake_context, to_async
 
 
-def change_logger_handlers(logger: logging.Logger, fmt: str) -> None:
-    """Change the formatter of the logger handlers.
-
-    Args:
-        logger (logging.Logger): The logger object.
-        fmt (str): The format string for the formatter.
-
-    Returns:
-        None
-
-    """
-    for handler in getattr(logger, "handlers", ()):
-        formatter = handler.formatter
-        if formatter is not None:  # pragma: no branch
-            use_colors = getattr(formatter, "use_colors", None)
-            kwargs = (
-                {"use_colors": use_colors} if use_colors is not None else {}
-            )  # pragma: no branch
-
-            handler.setFormatter(type(formatter)(fmt, **kwargs))
+async def default_filter(msg: StreamMessage[Any]) -> bool:
+    """A function to filter stream messages."""
+    return not msg.processed
 
 
-def get_watcher(
-    logger: Optional[logging.Logger],
-    try_number: Union[bool, int] = True,
-) -> BaseWatcher:
-    """Get a watcher object based on the provided parameters.
+def get_watcher_context(
+    logger: Optional[LoggerProto],
+    no_ack: bool,
+    retry: Union[bool, int],
+    **extra_options: Any,
+) -> Callable[..., AsyncContextManager[None]]:
+    """Create Acknowledgement scope."""
+    if no_ack:
+        return fake_context
 
-    Args:
-        logger: Optional logger object for logging messages.
-        try_number: Optional parameter to specify the type of watcher.
-            - If set to True, an EndlessWatcher object will be returned.
-            - If set to False, a OneTryWatcher object will be returned.
-            - If set to an integer, a CounterWatcher object with the specified maximum number of tries will be returned.
-
-    Returns:
-        A watcher object based on the provided parameters.
-
-    """
-    watcher: Optional[BaseWatcher]
-    if try_number is True:
-        watcher = EndlessWatcher()
-    elif try_number is False:
-        watcher = OneTryWatcher()
     else:
-        watcher = CounterWatcher(logger=logger, max_tries=try_number)
-    return watcher
+        return partial(
+            WatcherContext,
+            watcher=get_watcher(logger, retry),
+            **extra_options,
+        )
 
 
-def set_message_context(
-    func: Callable[
-        [StreamMessage[MsgType]],
-        Awaitable[WrappedReturn[T_HandlerReturn]],
-    ],
-) -> Callable[[StreamMessage[MsgType]], Awaitable[WrappedReturn[T_HandlerReturn]]]:
-    """Sets the message context for a function.
+class MultiLock:
+    """A class representing a multi lock."""
 
-    Args:
-        func: The function to set the message context for.
+    def __init__(self) -> None:
+        """Initialize a new instance of the class."""
+        self.queue: "asyncio.Queue[None]" = asyncio.Queue()
 
-    Returns:
-        The function with the message context set.
+    def __enter__(self) -> Self:
+        """Enter the context."""
+        self.acquire()
+        return self
 
-    """
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
+        """Exit the context."""
+        self.release()
 
-    @wraps(func)
-    async def set_message_wrapper(
-        message: StreamMessage[MsgType],
-    ) -> WrappedReturn[T_HandlerReturn]:
-        """Wraps a function that handles a stream message.
+    def acquire(self) -> None:
+        """Acquire lock."""
+        self.queue.put_nowait(None)
 
-        Args:
-            message: The stream message to be handled.
+    def release(self) -> None:
+        """Release lock."""
+        with suppress(asyncio.QueueEmpty, ValueError):
+            self.queue.get_nowait()
+            self.queue.task_done()
 
-        Returns:
-            The wrapped return value of the handler function.
+    @property
+    def qsize(self) -> int:
+        """Return the size of the queue."""
+        return self.queue.qsize()
 
+    @property
+    def empty(self) -> bool:
+        """Return whether the queue is empty."""
+        return self.queue.empty()
+
+    async def wait_release(self, timeout: Optional[float] = None) -> None:
+        """Wait for the queue to be released.
+
+        Using for graceful shutdown.
         """
-        with context.scope("message", message):
-            return await func(message)
+        if timeout:
+            with anyio.move_on_after(timeout):
+                await self.queue.join()
 
-    return set_message_wrapper
+
+@overload
+def resolve_custom_func(
+    custom_func: Optional[CustomParser[MsgType]],
+    default_func: AsyncParser[MsgType],
+) -> AsyncParser[MsgType]:
+    ...
+
+
+@overload
+def resolve_custom_func(
+    custom_func: Optional[CustomDecoder[StreamMessage[MsgType]]],
+    default_func: AsyncDecoder[StreamMessage[MsgType]],
+) -> AsyncDecoder[StreamMessage[MsgType]]:
+    ...
+
+
+def resolve_custom_func(
+    custom_func: Union[
+        Optional[CustomDecoder[StreamMessage[MsgType]]],
+        Optional[CustomParser[MsgType]],
+    ],
+    default_func: Union[
+        AsyncDecoder[StreamMessage[MsgType]],
+        AsyncParser[MsgType],
+    ],
+) -> Union[
+    AsyncDecoder[StreamMessage[MsgType]],
+    AsyncParser[MsgType],
+]:
+    """Resolve a custom parser/decoder with default one."""
+    if custom_func is None:
+        return default_func
+
+    original_params = inspect.signature(custom_func).parameters
+
+    if len(original_params) == 1:
+        return to_async(custom_func)
+
+    else:
+        name = tuple(original_params.items())[1][0]
+        return partial(to_async(custom_func), **{name: default_func})  # type: ignore

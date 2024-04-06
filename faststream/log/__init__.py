@@ -1,6 +1,3 @@
-from faststream.log.logging import access_logger, logger
+from faststream.log.logging import logger
 
-__all__ = (
-    "logger",
-    "access_logger",
-)
+__all__ = ("logger",)

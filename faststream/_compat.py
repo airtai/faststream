@@ -8,7 +8,7 @@ from fast_depends._compat import PYDANTIC_V2 as PYDANTIC_V2
 from fast_depends._compat import (  # type: ignore[attr-defined]
     PYDANTIC_VERSION as PYDANTIC_VERSION,
 )
-from pydantic import BaseModel
+from pydantic import BaseModel as BaseModel
 from typing_extensions import Never
 
 from faststream.types import AnyDict
@@ -74,6 +74,13 @@ except ImportError:
 
 JsonSchemaValue = Mapping[str, Any]
 
+PValidationError: Optional[Type[Exception]]
+try:
+    from pydantic import ValidationError
+    PValidationError = ValidationError
+except ImportError:
+    PValidationError = None
+
 if PYDANTIC_V2:
     if PYDANTIC_VERSION >= "2.4.0":
         from pydantic.annotated_handlers import (
@@ -90,6 +97,7 @@ if PYDANTIC_V2:
             general_plain_validator_function as with_info_plain_validator_function,
         )
 
+    from pydantic.fields import FieldInfo as FieldInfo
     from pydantic_core import CoreSchema as CoreSchema
     from pydantic_core import PydanticUndefined as PydanticUndefined
     from pydantic_core import to_jsonable_python
@@ -112,9 +120,6 @@ if PYDANTIC_V2:
     def model_to_json(model: BaseModel, **kwargs: Any) -> str:
         return model.model_dump_json(**kwargs)
 
-    def model_to_dict(model: BaseModel, **kwargs: Any) -> AnyDict:
-        return model.model_dump(**kwargs)
-
     def model_parse(
         model: Type[ModelVar], data: Union[str, bytes], **kwargs: Any
     ) -> ModelVar:
@@ -123,10 +128,8 @@ if PYDANTIC_V2:
     def model_schema(model: Type[BaseModel], **kwargs: Any) -> AnyDict:
         return model.model_json_schema(**kwargs)
 
-    def model_copy(model: ModelVar, **kwargs: Any) -> ModelVar:
-        return model.model_copy(**kwargs)
-
 else:
+    from pydantic.fields import FieldInfo as FieldInfo
     from pydantic.json import pydantic_encoder
 
     GetJsonSchemaHandler = Any  # type: ignore[assignment,misc]
@@ -146,9 +149,6 @@ else:
     def model_to_json(model: BaseModel, **kwargs: Any) -> str:
         return model.json(**kwargs)
 
-    def model_to_dict(model: BaseModel, **kwargs: Any) -> AnyDict:
-        return model.dict(**kwargs)
-
     def model_parse(
         model: Type[ModelVar], data: Union[str, bytes], **kwargs: Any
     ) -> ModelVar:
@@ -162,9 +162,6 @@ else:
         **kwargs: Any,
     ) -> Any:
         return json_loads(model.json(**kwargs))
-
-    def model_copy(model: ModelVar, **kwargs: Any) -> ModelVar:
-        return model.copy(**kwargs)
 
     # TODO: pydantic types misc
     def with_info_plain_validator_function(  # type: ignore[misc]

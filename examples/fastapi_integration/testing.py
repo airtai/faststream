@@ -2,7 +2,7 @@ import pytest
 import pytest_asyncio
 from fastapi.exceptions import RequestValidationError
 
-from faststream.rabbit.test import TestRabbitBroker
+from faststream.rabbit import TestRabbitBroker
 
 from .app import handler, publisher, router
 

@@ -1,5 +1,4 @@
-import inspect
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, contextmanager
 from functools import wraps
 from typing import (
     Any,
@@ -7,7 +6,7 @@ from typing import (
     Awaitable,
     Callable,
     ContextManager,
-    List,
+    Iterator,
     Optional,
     Union,
     overload,
@@ -17,12 +16,14 @@ import anyio
 from fast_depends.core import CallModel
 from fast_depends.utils import run_async as call_or_await
 
-from faststream.types import AnyCallable, F_Return, F_Spec
+from faststream.types import F_Return, F_Spec
 
 __all__ = (
     "call_or_await",
-    "get_function_positional_arguments",
     "to_async",
+    "timeout_scope",
+    "fake_context",
+    "drop_response_type",
 )
 
 
@@ -30,30 +31,11 @@ __all__ = (
 def to_async(
     func: Callable[F_Spec, Awaitable[F_Return]],
 ) -> Callable[F_Spec, Awaitable[F_Return]]:
-    """Convert a synchronous function to an asynchronous function.
-
-    Args:
-        func: The synchronous function to be converted.
-
-    Returns:
-        The converted asynchronous function.
-
-    Note:
-        This function is used as a decorator to convert a synchronous function to an asynchronous function.
-    """
     ...
 
 
 @overload
 def to_async(func: Callable[F_Spec, F_Return]) -> Callable[F_Spec, Awaitable[F_Return]]:
-    """Convert a synchronous function to an asynchronous function.
-
-    Args:
-        func: The synchronous function to be converted.
-
-    Returns:
-        The asynchronous version of the function.
-    """
     ...
 
 
@@ -63,54 +45,14 @@ def to_async(
         Callable[F_Spec, Awaitable[F_Return]],
     ],
 ) -> Callable[F_Spec, Awaitable[F_Return]]:
-    """Converts a synchronous function to an asynchronous function.
-
-    Args:
-        func: The synchronous function to be converted.
-
-    Returns:
-        The asynchronous version of the input function.
-    """
+    """Converts a synchronous function to an asynchronous function."""
 
     @wraps(func)
     async def to_async_wrapper(*args: F_Spec.args, **kwargs: F_Spec.kwargs) -> F_Return:
-        """Wraps a function to make it asynchronous.
-
-        Args:
-            func: The function to be wrapped
-            args: Positional arguments to be passed to the function
-            kwargs: Keyword arguments to be passed to the function
-
-        Returns:
-            The result of the wrapped function
-
-        Raises:
-            Any exceptions raised by the wrapped function
-        """
+        """Wraps a function to make it asynchronous."""
         return await call_or_await(func, *args, **kwargs)
 
     return to_async_wrapper
-
-
-def get_function_positional_arguments(func: AnyCallable) -> List[str]:
-    """Get the positional arguments of a function.
-
-    Args:
-        func: The function to get the positional arguments from.
-
-    Returns:
-        A list of strings representing the names of the positional arguments.
-    """
-    signature = inspect.signature(func)
-
-    arg_kinds = (
-        inspect.Parameter.POSITIONAL_ONLY,
-        inspect.Parameter.POSITIONAL_OR_KEYWORD,
-    )
-
-    return [
-        param.name for param in signature.parameters.values() if param.kind in arg_kinds
-    ]
 
 
 def timeout_scope(
@@ -125,6 +67,11 @@ def timeout_scope(
 
 @asynccontextmanager
 async def fake_context(*args: Any, **kwargs: Any) -> AsyncIterator[None]:
+    yield None
+
+
+@contextmanager
+def sync_fake_context(*args: Any, **kwargs: Any) -> Iterator[None]:
     yield None
 
 

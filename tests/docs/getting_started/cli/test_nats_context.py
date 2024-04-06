@@ -2,11 +2,11 @@ import pytest
 
 from faststream import TestApp, context
 from faststream.nats import TestNatsBroker
-from tests.marks import pydanticV2
+from tests.marks import pydantic_v2
 from tests.mocks import mock_pydantic_settings_env
 
 
-@pydanticV2
+@pydantic_v2
 @pytest.mark.asyncio()
 async def test():
     with mock_pydantic_settings_env({"host": "localhost"}):

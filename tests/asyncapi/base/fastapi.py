@@ -6,12 +6,12 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from faststream.asyncapi.generate import get_app_schema
-from faststream.broker.core.abc import BrokerUsecase
+from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.types import MsgType
 
 
-class FastAPITestCase:  # noqa: D101
+class FastAPITestCase:
     broker_class: Type[StreamRouter[MsgType]]
     broker_wrapper: Callable[[BrokerUsecase[MsgType, Any]], BrokerUsecase[MsgType, Any]]
 

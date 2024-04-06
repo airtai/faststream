@@ -6,12 +6,12 @@ import pytest
 
 from faststream.redis import ListSub, StreamSub
 from faststream.redis.fastapi import RedisRouter
-from faststream.redis.test import TestRedisBroker, build_message
+from faststream.redis.testing import TestRedisBroker, build_message
 from tests.brokers.base.fastapi import FastAPILocalTestcase, FastAPITestcase
 
 
 @pytest.mark.redis()
-class TestRouter(FastAPITestcase):  # noqa: D101
+class TestRouter(FastAPITestcase):
     router_class = RedisRouter
 
     async def test_batch_real(
@@ -97,7 +97,7 @@ class TestRouter(FastAPITestcase):  # noqa: D101
         mock.assert_called_once_with(["hello"])
 
 
-class TestRouterLocal(FastAPILocalTestcase):  # noqa: D101
+class TestRouterLocal(FastAPILocalTestcase):
     router_class = RedisRouter
     broker_test = staticmethod(TestRedisBroker)
     build_message = staticmethod(build_message)

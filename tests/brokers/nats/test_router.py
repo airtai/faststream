@@ -2,14 +2,15 @@ import asyncio
 
 import pytest
 
-from faststream.nats import NatsRoute, NatsRouter
+from faststream.nats import NatsPublisher, NatsRoute, NatsRouter
 from tests.brokers.base.router import RouterLocalTestcase, RouterTestcase
 
 
 @pytest.mark.nats()
-class TestRouter(RouterTestcase):  # noqa: D101
+class TestRouter(RouterTestcase):
     broker_class = NatsRouter
     route_class = NatsRoute
+    publisher_class = NatsPublisher
 
     async def test_delayed_handlers_with_queue(
         self,
@@ -40,6 +41,7 @@ class TestRouter(RouterTestcase):  # noqa: D101
         assert event.is_set()
 
 
-class TestRouterLocal(RouterLocalTestcase):  # noqa: D101
+class TestRouterLocal(RouterLocalTestcase):
     broker_class = NatsRouter
     route_class = NatsRoute
+    publisher_class = NatsPublisher

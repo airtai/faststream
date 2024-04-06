@@ -1,0 +1,471 @@
+import logging
+from contextlib import AsyncExitStack
+from inspect import Parameter
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterable,
+    Mapping,
+    Optional,
+    Type,
+    Union,
+)
+from urllib.parse import urlparse
+
+from fast_depends.dependencies import Depends
+from redis.asyncio.client import Redis
+from redis.asyncio.connection import (
+    Connection,
+    ConnectionPool,
+    DefaultParser,
+    Encoder,
+    parse_url,
+)
+from typing_extensions import Annotated, Doc, TypeAlias, override
+
+from faststream.__about__ import __version__
+from faststream.broker.message import gen_cor_id
+from faststream.exceptions import NOT_CONNECTED_YET
+from faststream.redis.broker.logging import RedisLoggingBroker
+from faststream.redis.broker.registrator import RedisRegistrator
+from faststream.redis.message import BaseMessage
+from faststream.redis.publisher.producer import RedisFastProducer
+from faststream.redis.security import parse_security
+from faststream.types import AnyDict
+
+if TYPE_CHECKING:
+    from types import TracebackType
+
+    from fast_depends.dependencies import Depends
+    from redis.asyncio.connection import BaseParser
+    from typing_extensions import TypedDict, Unpack
+
+    from faststream.asyncapi import schema as asyncapi
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.types import (
+        BrokerMiddleware,
+        CustomDecoder,
+        CustomParser,
+    )
+    from faststream.security import BaseSecurity
+    from faststream.types import AnyDict, DecodedMessage, SendableMessage
+
+    class RedisInitKwargs(TypedDict, total=False):
+        host: Optional[str]
+        port: Union[str, int, None]
+        db: Union[str, int, None]
+        client_name: Optional[str]
+        health_check_interval: Optional[float]
+        max_connections: Optional[int]
+        socket_timeout: Optional[float]
+        socket_connect_timeout: Optional[float]
+        socket_read_size: Optional[int]
+        socket_keepalive: Optional[bool]
+        socket_keepalive_options: Optional[Mapping[int, Union[int, bytes]]]
+        socket_type: Optional[int]
+        retry_on_timeout: Optional[bool]
+        encoding: Optional[str]
+        encoding_errors: Optional[str]
+        decode_responses: Optional[bool]
+        parser_class: Optional[Type["BaseParser"]]
+        connection_class: Optional[Type["Connection"]]
+        encoder_class: Optional[Type["Encoder"]]
+
+
+Channel: TypeAlias = str
+
+
+class RedisBroker(
+    RedisRegistrator,
+    RedisLoggingBroker,
+):
+    """Redis broker."""
+
+    url: str
+    _producer: Optional[RedisFastProducer]
+
+    def __init__(
+        self,
+        url: str = "redis://localhost:6379",
+        polling_interval: Optional[float] = None,
+        *,
+        host: str = "localhost",
+        port: Union[str, int] = 6379,
+        db: Union[str, int] = 0,
+        client_name: Optional[str] = None,
+        health_check_interval: float = 0,
+        max_connections: Optional[int] = None,
+        socket_timeout: Optional[float] = None,
+        socket_connect_timeout: Optional[float] = None,
+        socket_read_size: int = 65536,
+        socket_keepalive: bool = False,
+        socket_keepalive_options: Optional[Mapping[int,
+                                                   Union[int, bytes]]] = None,
+        socket_type: int = 0,
+        retry_on_timeout: bool = False,
+        encoding: str = "utf-8",
+        encoding_errors: str = "strict",
+        decode_responses: bool = False,
+        parser_class: Type["BaseParser"] = DefaultParser,
+        connection_class: Type["Connection"] = Connection,
+        encoder_class: Type["Encoder"] = Encoder,
+        # broker args
+        graceful_timeout: Annotated[
+            Optional[float],
+            Doc(
+                "Graceful shutdown timeout. Broker waits for all running subscribers completion before shut down."
+            ),
+        ] = 15.0,
+        decoder: Annotated[
+            Optional["CustomDecoder[StreamMessage[BaseMessage]]"],
+            Doc("Custom decoder object."),
+        ] = None,
+        parser: Annotated[
+            Optional["CustomParser[BaseMessage]"],
+            Doc("Custom parser object."),
+        ] = None,
+        dependencies: Annotated[
+            Iterable["Depends"],
+            Doc("Dependencies to apply to all broker subscribers."),
+        ] = (),
+        middlewares: Annotated[
+            Iterable["BrokerMiddleware[BaseMessage]"],
+            Doc("Middlewares to apply to all broker publishers/subscribers."),
+        ] = (),
+        # AsyncAPI args
+        security: Annotated[
+            Optional["BaseSecurity"],
+            Doc(
+                "Security options to connect broker and generate AsyncAPI server security information."
+            ),
+        ] = None,
+        asyncapi_url: Annotated[
+            Optional[str],
+            Doc("AsyncAPI hardcoded server addresses. Use `servers` if not specified."),
+        ] = None,
+        protocol: Annotated[
+            Optional[str],
+            Doc("AsyncAPI server protocol."),
+        ] = None,
+        protocol_version: Annotated[
+            Optional[str],
+            Doc("AsyncAPI server protocol version."),
+        ] = "custom",
+        description: Annotated[
+            Optional[str],
+            Doc("AsyncAPI server description."),
+        ] = None,
+        tags: Annotated[
+            Optional[Iterable[Union["asyncapi.Tag", "asyncapi.TagDict"]]],
+            Doc("AsyncAPI server tags."),
+        ] = None,
+        # logging args
+        logger: Annotated[
+            Union[logging.Logger, None, object],
+            Doc("User specified logger to pass into Context and log service messages."),
+        ] = Parameter.empty,
+        log_level: Annotated[
+            int,
+            Doc("Service messages log level."),
+        ] = logging.INFO,
+        log_fmt: Annotated[
+            Optional[str],
+            Doc("Default logger log format."),
+        ] = None,
+        # FastDepends args
+        apply_types: Annotated[
+            bool,
+            Doc("Whether to use FastDepends or not."),
+        ] = True,
+        validate: Annotated[
+            bool,
+            Doc("Whether to cast types using Pydantic validation."),
+        ] = True,
+        _get_dependant: Annotated[
+            Optional[Callable[..., Any]],
+            Doc("Custom library dependant generator callback."),
+        ] = None,
+    ) -> None:
+        self.global_polling_interval = polling_interval
+        self._producer = None
+
+        if asyncapi_url is None:
+            asyncapi_url = url
+
+        if protocol is None:
+            url_kwargs = urlparse(asyncapi_url)
+            protocol = url_kwargs.scheme
+
+        super().__init__(
+            url=url,
+            host=host,
+            port=port,
+            db=db,
+            client_name=client_name,
+            health_check_interval=health_check_interval,
+            max_connections=max_connections,
+            socket_timeout=socket_timeout,
+            socket_connect_timeout=socket_connect_timeout,
+            socket_read_size=socket_read_size,
+            socket_keepalive=socket_keepalive,
+            socket_keepalive_options=socket_keepalive_options,
+            socket_type=socket_type,
+            retry_on_timeout=retry_on_timeout,
+            encoding=encoding,
+            encoding_errors=encoding_errors,
+            decode_responses=decode_responses,
+            parser_class=parser_class,
+            connection_class=connection_class,
+            encoder_class=encoder_class,
+            # Basic args
+            # broker base
+            graceful_timeout=graceful_timeout,
+            dependencies=dependencies,
+            decoder=decoder,
+            parser=parser,
+            middlewares=middlewares,
+            # AsyncAPI
+            description=description,
+            asyncapi_url=asyncapi_url,
+            protocol=protocol,
+            protocol_version=protocol_version,
+            security=security,
+            tags=tags,
+            # logging
+            logger=logger,
+            log_level=log_level,
+            log_fmt=log_fmt,
+            # FastDepends args
+            apply_types=apply_types,
+            validate=validate,
+            _get_dependant=_get_dependant,
+        )
+
+    @override
+    async def connect(  # type: ignore[override]
+        self,
+        url: Union[str, None, object] = Parameter.empty,
+        **kwargs: "Unpack[RedisInitKwargs]",
+    ) -> "Redis[bytes]":
+        """Connect to the Redis server."""
+        if url is not Parameter.empty:
+            connect_kwargs: "AnyDict" = {
+                "url": url,
+                **kwargs,
+            }
+        else:
+            connect_kwargs = {**kwargs}
+
+        return await super().connect(**connect_kwargs)
+
+    @override
+    async def _connect(  # type: ignore[override]
+        self,
+        url: str,
+        *,
+        host: str,
+        port: Union[str, int],
+        db: Union[str, int],
+        client_name: Optional[str],
+        health_check_interval: float,
+        max_connections: Optional[int],
+        socket_timeout: Optional[float],
+        socket_connect_timeout: Optional[float],
+        socket_read_size: int,
+        socket_keepalive: bool,
+        socket_keepalive_options: Optional[Mapping[int, Union[int, bytes]]],
+        socket_type: int,
+        retry_on_timeout: bool,
+        encoding: str,
+        encoding_errors: str,
+        decode_responses: bool,
+        parser_class: Type["BaseParser"],
+        connection_class: Type["Connection"],
+        encoder_class: Type["Encoder"],
+    ) -> "Redis[bytes]":
+        url_options: "AnyDict" = dict(parse_url(url))
+        url_options.update(
+            {
+                "host": host,
+                "port": port,
+                "db": db,
+                "client_name": client_name,
+                "health_check_interval": health_check_interval,
+                "max_connections": max_connections,
+                "socket_timeout": socket_timeout,
+                "socket_connect_timeout": socket_connect_timeout,
+                "socket_read_size": socket_read_size,
+                "socket_keepalive": socket_keepalive,
+                "socket_keepalive_options": socket_keepalive_options,
+                "socket_type": socket_type,
+                "retry_on_timeout": retry_on_timeout,
+                "encoding": encoding,
+                "encoding_errors": encoding_errors,
+                "decode_responses": decode_responses,
+                "parser_class": parser_class,
+                "connection_class": connection_class,
+                "encoder_class": encoder_class,
+            }
+        )
+        url_options.update(parse_security(self.security))
+        pool = ConnectionPool(
+            **url_options,
+            lib_name="faststream",
+            lib_version=__version__,
+        )
+
+        client: Redis[bytes] = Redis.from_pool(
+            pool)  # type: ignore[attr-defined]
+        self._producer = RedisFastProducer(
+            connection=client,
+            parser=self._parser,
+            decoder=self._decoder,
+        )
+        return client
+
+    async def _close(
+        self,
+        exc_type: Optional[Type[BaseException]] = None,
+        exc_val: Optional[BaseException] = None,
+        exc_tb: Optional["TracebackType"] = None,
+    ) -> None:
+        if self._connection is not None:
+            await self._connection.aclose()  # type: ignore[attr-defined]
+
+        await super()._close(exc_type, exc_val, exc_tb)
+
+    async def start(self) -> None:
+        await super().start()
+
+        for handler in self._subscribers.values():
+            self._log(
+                f"`{handler.call_name}` waiting for messages",
+                extra=handler.get_log_context(None),
+            )
+            await handler.start()
+
+    @property
+    def _subscriber_setup_extra(self) -> AnyDict:
+        return {
+            "connection": self._connection,
+        }
+
+    @override
+    async def publish(  # type: ignore[override]
+        self,
+        message: Annotated[
+            "SendableMessage",
+            Doc("Message body to send."),
+        ] = None,
+        channel: Annotated[
+            Optional[str],
+            Doc("Redis PubSub object name to send message."),
+        ] = None,
+        *,
+        reply_to: Annotated[
+            str,
+            Doc("Reply message destination PubSub object name."),
+        ] = "",
+        headers: Annotated[
+            Optional["AnyDict"],
+            Doc("Message headers to store metainformation."),
+        ] = None,
+        correlation_id: Annotated[
+            Optional[str],
+            Doc(
+                "Manual message **correlation_id** setter. "
+                "**correlation_id** is a useful option to trace messages."
+            ),
+        ] = None,
+        list: Annotated[
+            Optional[str],
+            Doc("Redis List object name to send message."),
+        ] = None,
+        stream: Annotated[
+            Optional[str],
+            Doc("Redis Stream object name to send message."),
+        ] = None,
+        maxlen: Annotated[
+            Optional[int],
+            Doc(
+                "Redis Stream maxlen publish option. "
+                "Remove eldest message if maxlen exceeded."
+            ),
+        ] = None,
+        rpc: Annotated[
+            bool,
+            Doc("Whether to wait for reply in blocking mode."),
+        ] = False,
+        rpc_timeout: Annotated[
+            Optional[float],
+            Doc("RPC reply waiting time."),
+        ] = 30.0,
+        raise_timeout: Annotated[
+            bool,
+            Doc(
+                "Whetever to raise `TimeoutError` or return `None` at **rpc_timeout**. "
+                "RPC request returns `None` at timeout by default."
+            ),
+        ] = False,
+    ) -> Optional["DecodedMessage"]:
+        """Publish message directly.
+
+        This method allows you to publish message in not AsyncAPI-documented way. You can use it in another frameworks
+        applications or to publish messages from time to time.
+
+        Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
+        """
+        correlation_id = correlation_id or gen_cor_id()
+
+        return await super().publish(
+            message,
+            producer=self._producer,
+            channel=channel,
+            list=list,
+            stream=stream,
+            maxlen=maxlen,
+            reply_to=reply_to,
+            headers=headers,
+            correlation_id=correlation_id,
+            rpc=rpc,
+            rpc_timeout=rpc_timeout,
+            raise_timeout=raise_timeout,
+        )
+
+    async def publish_batch(
+        self,
+        *messages: Annotated[
+            "SendableMessage",
+            Doc("Messages bodies to send."),
+        ],
+        list: Annotated[
+            str,
+            Doc("Redis List object name to send messages."),
+        ],
+        correlation_id: Annotated[
+            Optional[str],
+            Doc(
+                "Manual message **correlation_id** setter. "
+                "**correlation_id** is a useful option to trace messages."
+            ),
+        ] = None,
+    ) -> None:
+        """Publish multiple messages to Redis List by one request."""
+        assert self._producer, NOT_CONNECTED_YET  # nosec B101
+
+        correlation_id = correlation_id or gen_cor_id()
+
+        async with AsyncExitStack() as stack:
+            wrapped_messages = [
+                await stack.enter_async_context(
+                    middleware(None).publish_scope(
+                        msg, list=list, correlation_id=correlation_id,)
+                )
+                for msg in messages
+                for middleware in self._middlewares
+            ] or messages
+
+            return await self._producer.publish_batch(*wrapped_messages, list=list, correlation_id=correlation_id,)
+
+        return None

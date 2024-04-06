@@ -23,7 +23,7 @@ def parse_security(security: Optional[BaseSecurity]) -> AnyDict:
     elif type(security) == SASLScram512:
         return _parse_sasl_scram512(security)
     else:
-        raise NotImplementedError(f"KafkaBroker does not support {type(security)}")
+        raise NotImplementedError(f"KafkaBroker does not support `{type(security)}`.")
 
 
 def _parse_base_security(security: BaseSecurity) -> AnyDict:
@@ -34,7 +34,7 @@ def _parse_base_security(security: BaseSecurity) -> AnyDict:
 
 
 def _parse_sasl_plaintext(security: SASLPlaintext) -> AnyDict:
-    if security.use_ssl is None:
+    if security.ssl_context is None:
         warnings.warn(
             message=ssl_not_set_error_msg,
             category=RuntimeWarning,

@@ -8,6 +8,7 @@ from faststream.types import AnyDict
 
 
 def parse_security(security: Optional[BaseSecurity]) -> AnyDict:
+    """Convert security object to connection arguments."""
     if security is None:
         return {}
     elif isinstance(security, SASLPlaintext):

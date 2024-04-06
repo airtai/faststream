@@ -5,7 +5,7 @@ import pytest
 from faststream.cli.supervisors.basereload import BaseReload
 
 
-class PatchedBaseReload(BaseReload):  # noqa: D101
+class PatchedBaseReload(BaseReload):
     def restart(self) -> None:
         super().restart()
         self.should_exit.set()
@@ -25,5 +25,5 @@ def test_base():
     processor._args = (processor.pid,)
     processor.run()
 
-    code = abs(processor._process.exitcode)
+    code = abs(processor._process.exitcode or 0)
     assert code == signal.SIGTERM.value or code == 0

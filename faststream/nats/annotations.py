@@ -5,7 +5,7 @@ from typing_extensions import Annotated
 from faststream.annotations import ContextRepo, Logger, NoCast
 from faststream.nats.broker import NatsBroker as NB
 from faststream.nats.message import NatsMessage as NM
-from faststream.nats.producer import NatsFastProducer, NatsJSFastProducer
+from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.utils.context import Context
 
 __all__ = (

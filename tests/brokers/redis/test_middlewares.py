@@ -5,5 +5,5 @@ from tests.brokers.base.middlewares import MiddlewareTestcase
 
 
 @pytest.mark.redis()
-class TestMiddlewares(MiddlewareTestcase):  # noqa: D101
+class TestMiddlewares(MiddlewareTestcase):
     broker_class = RedisBroker

@@ -1,3 +1,8 @@
+"""AsyncAPI Redis bindings.
+
+References: https://github.com/asyncapi/bindings/tree/master/redis
+"""
+
 from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
@@ -8,7 +13,6 @@ class ServerBinding(BaseModel):
 
     Attributes:
         bindingVersion : version of the binding (default: "custom")
-
     """
 
     bindingVersion: str = "custom"
@@ -21,7 +25,6 @@ class ChannelBinding(BaseModel):
         channel : the channel name
         method : the method used for binding (ssubscribe, psubscribe, subscribe)
         bindingVersion : the version of the binding
-
     """
 
     channel: str
@@ -37,7 +40,6 @@ class OperationBinding(BaseModel):
     Attributes:
         replyTo : optional dictionary containing reply information
         bindingVersion : version of the binding (default is "custom")
-
     """
 
     replyTo: Optional[Dict[str, Any]] = None

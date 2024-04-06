@@ -12,7 +12,7 @@ from tests.tools import spy_decorator
 
 
 @pytest.mark.nats()
-class TestConsume(BrokerRealConsumeTestcase):  # noqa: D101
+class TestConsume(BrokerRealConsumeTestcase):
     async def test_consume_js(
         self,
         queue: str,

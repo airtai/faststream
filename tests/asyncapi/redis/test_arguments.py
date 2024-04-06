@@ -3,7 +3,7 @@ from faststream.redis import RedisBroker, StreamSub
 from tests.asyncapi.base.arguments import ArgumentsTestcase
 
 
-class TestArguments(ArgumentsTestcase):  # noqa: D101
+class TestArguments(ArgumentsTestcase):
     broker_class = RedisBroker
 
     def test_channel_subscriber(self):

@@ -9,17 +9,17 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
 
 from faststream import context
-from faststream.broker.core.asynchronous import BrokerAsyncUsecase
+from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.fastapi.context import Context
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.types import AnyCallable
 
-Broker = TypeVar("Broker", bound=BrokerAsyncUsecase)
+Broker = TypeVar("Broker", bound=BrokerUsecase)
 
 
 @pytest.mark.asyncio()
-class FastAPITestcase:  # noqa: D101
-    router_class: Type[StreamRouter[BrokerAsyncUsecase]]
+class FastAPITestcase:
+    router_class: Type[StreamRouter[BrokerUsecase]]
 
     async def test_base_real(self, mock: Mock, queue: str, event: asyncio.Event):
         router = self.router_class()
@@ -95,7 +95,7 @@ class FastAPITestcase:  # noqa: D101
 
         @router.subscriber(queue)
         @router.subscriber(queue + "2")
-        async def hello(msg):
+        async def hello(msg: str):
             if event.is_set():
                 event2.set()
             else:
@@ -119,7 +119,10 @@ class FastAPITestcase:  # noqa: D101
         assert mock.call_count == 2
 
     async def test_base_publisher_real(
-        self, mock: Mock, queue: str, event: asyncio.Event
+        self,
+        mock: Mock,
+        queue: str,
+        event: asyncio.Event,
     ):
         router = self.router_class()
 
@@ -135,6 +138,7 @@ class FastAPITestcase:  # noqa: D101
 
         async with router.broker:
             await router.broker.start()
+
             await asyncio.wait(
                 (
                     asyncio.create_task(router.broker.publish("", queue)),
@@ -148,8 +152,8 @@ class FastAPITestcase:  # noqa: D101
 
 
 @pytest.mark.asyncio()
-class FastAPILocalTestcase:  # noqa: D101
-    router_class: Type[StreamRouter[BrokerAsyncUsecase]]
+class FastAPILocalTestcase:
+    router_class: Type[StreamRouter[BrokerUsecase]]
     broker_test: Callable[[Broker], Broker]
     build_message: AnyCallable
 
@@ -172,7 +176,7 @@ class FastAPILocalTestcase:  # noqa: D101
                     rpc=True,
                     rpc_timeout=0.5,
                 )
-                assert r == "hi"
+                assert r == "hi", r
 
     async def test_base_without_state(self, queue: str):
         router = self.router_class(setup_state=False)

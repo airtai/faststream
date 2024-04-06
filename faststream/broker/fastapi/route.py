@@ -4,101 +4,102 @@ from contextlib import AsyncExitStack
 from functools import wraps
 from itertools import dropwhile
 from typing import (
+    TYPE_CHECKING,
     Any,
     Awaitable,
     Callable,
-    Coroutine,
     Generic,
+    Iterable,
     List,
-    Sequence,
+    Optional,
     Union,
-    cast,
 )
 
 from fastapi import params
+from fastapi.background import BackgroundTasks
 from fastapi.dependencies.models import Dependant
-from fastapi.dependencies.utils import (
-    get_dependant,
-    get_parameterless_sub_dependant,
-    solve_dependencies,
-)
-from fastapi.routing import run_endpoint_function
+from fastapi.dependencies.utils import solve_dependencies
+from fastapi.routing import run_endpoint_function, serialize_response
+from fastapi.utils import create_response_field
 from starlette.requests import Request
 from starlette.routing import BaseRoute
 
 from faststream._compat import FASTAPI_V106, raise_fastapi_validation_error
-from faststream.broker.core.asynchronous import BrokerAsyncUsecase
+from faststream.broker.core.usecase import BrokerUsecase
+from faststream.broker.fastapi.get_dependant import get_fastapi_native_dependant
 from faststream.broker.message import StreamMessage as NativeMessage
 from faststream.broker.schemas import NameRequired
 from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
-from faststream.broker.wrapper import HandlerCallWrapper
-from faststream.types import AnyDict, SendableMessage
+from faststream.broker.wrapper.call import HandlerCallWrapper
+from faststream.types import AnyDict
+
+if TYPE_CHECKING:
+    from fastapi._compat import ModelField
+    from fastapi.types import IncEx
 
 
 class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
-    """A class representing a stream route.
-
-    Attributes:
-        handler : HandlerCallWrapper object representing the handler for the route
-        path : path of the route
-        broker : BrokerAsyncUsecase object representing the broker for the route
-        dependant : Dependable object representing the dependencies for the route
-    """
+    """A class representing a stream route."""
 
     handler: HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]
 
     def __init__(
         self,
         path: Union[NameRequired, str, None],
-        *extra: Union[NameRequired, str],
+        *extra: Any,
+        provider_factory: Callable[[], Any],
         endpoint: Union[
             Callable[P_HandlerParams, T_HandlerReturn],
             HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
         ],
-        broker: BrokerAsyncUsecase[MsgType, Any],
-        dependencies: Sequence[params.Depends],
-        provider_factory: Callable[[], Any],
+        broker: BrokerUsecase[MsgType, Any],
+        dependencies: Iterable[params.Depends],
+        response_model: Any,
+        response_model_include: Optional["IncEx"],
+        response_model_exclude: Optional["IncEx"],
+        response_model_by_alias: bool,
+        response_model_exclude_unset: bool,
+        response_model_exclude_defaults: bool,
+        response_model_exclude_none: bool,
         **handle_kwargs: Any,
     ) -> None:
-        """Initialize a class instance.
-
-        Args:
-            path: The path of the instance.
-            *extra: Additional arguments.
-            endpoint: The endpoint of the instance.
-            broker: The broker of the instance.
-            dependencies: The dependencies of the instance.
-            provider_factory: Provider factory for dependency overrides.
-            **handle_kwargs: Additional keyword arguments.
-
-        Returns:
-            None.
-        """
-        self.path = path or ""
+        self.path, path_name = path or "", getattr(path, "name", "")
         self.broker = broker
-
-        path_name = self.path if isinstance(self.path, str) else self.path.name
 
         if isinstance(endpoint, HandlerCallWrapper):
             orig_call = endpoint._original_call
+            while hasattr(orig_call, "__consumer__"):
+                orig_call = orig_call.__wrapped__  # type: ignore[attr-defined]
+
         else:
             orig_call = endpoint
 
-        dependant = get_dependant(
-            path=path_name,
-            call=orig_call,
+        dependent = get_fastapi_native_dependant(
+            orig_call,
+            list(dependencies),
+            path_name=path_name,
         )
-        for depends in dependencies[::-1]:
-            dependant.dependencies.insert(
-                0,
-                get_parameterless_sub_dependant(depends=depends, path=path_name),
+
+        if response_model:
+            response_field = create_response_field(
+                name="ResponseModel",
+                type_=response_model,
+                mode="serialization",
             )
-        self.dependant = dependant
+        else:
+            response_field = None
 
         call = wraps(orig_call)(
-            StreamMessage.get_session(
-                dependant,
-                provider_factory,
+            StreamMessage.get_consumer(
+                dependent=dependent,
+                provider_factory=provider_factory,
+                response_field=response_field,
+                response_model_include=response_model_include,
+                response_model_exclude=response_model_exclude,
+                response_model_by_alias=response_model_by_alias,
+                response_model_exclude_unset=response_model_exclude_unset,
+                response_model_exclude_defaults=response_model_exclude_defaults,
+                response_model_exclude_none=response_model_exclude_none,
             )
         )
 
@@ -109,36 +110,22 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
         else:
             handler = call
 
-        self.handler = broker.subscriber(
+        self.handler = broker.subscriber(  # type: ignore[assignment,call-arg]
             *extra,
-            _raw=True,
-            _get_dependant=lambda call: dependant,
+            dependencies=list(dependencies),
             **handle_kwargs,
-        )(
-            handler  # type: ignore[arg-type]
-        )
+        )(handler)
 
 
 class StreamMessage(Request):
-    """A class to represent a stream message.
-
-    Attributes:
-        scope : dictionary representing the scope of the message
-        _cookies : dictionary representing the cookies of the message
-        _headers : dictionary representing the headers of the message
-        _body : dictionary representing the body of the message
-        _query_params : dictionary representing the query parameters of the message
-
-    Methods:
-        __init__ : initializes the StreamMessage object
-        get_session : returns a callable function that handles the session of the message
-    """
+    """A class to represent a stream message."""
 
     scope: AnyDict
     _cookies: AnyDict
     _headers: AnyDict  # type: ignore
     _body: Union[AnyDict, List[Any]]  # type: ignore
     _query_params: AnyDict  # type: ignore
+    _background: Optional[BackgroundTasks]
 
     def __init__(
         self,
@@ -147,21 +134,7 @@ class StreamMessage(Request):
         headers: AnyDict,
         path: AnyDict,
     ) -> None:
-        """Initialize a class instance.
-
-        Args:
-            body: The body of the request as a dictionary.
-            headers: The headers of the request as a dictionary.
-            path: The path of the request as a dictionary.
-
-        Attributes:
-            scope: A dictionary to store the scope of the request.
-            _cookies: A dictionary to store the cookies of the request.
-            _headers: A dictionary to store the headers of the request.
-            _body: A dictionary to store the body of the request.
-            _query_params: A dictionary to store the query parameters of the request.
-
-        """
+        """Initialize a class instance."""
         self._headers = headers
         self._body = body
         self._query_params = path
@@ -170,53 +143,46 @@ class StreamMessage(Request):
         self._cookies = {}
 
     @classmethod
-    def get_session(
-        cls, dependant: Dependant, provider_factory: Callable[[], Any]
-    ) -> Callable[[NativeMessage[Any]], Awaitable[SendableMessage]]:
-        """Creates a session for handling requests.
+    def get_consumer(
+        cls,
+        *,
+        dependent: Dependant,
+        provider_factory: Callable[[], Any],
+        response_field: Optional["ModelField"],
+        response_model_include: Optional["IncEx"],
+        response_model_exclude: Optional["IncEx"],
+        response_model_by_alias: bool,
+        response_model_exclude_unset: bool,
+        response_model_exclude_defaults: bool,
+        response_model_exclude_none: bool,
+    ) -> Callable[[NativeMessage[Any]], Awaitable[Any]]:
+        """Creates a session for handling requests."""
+        assert dependent.call  # nosec B101
 
-        Args:
-            dependant: The dependant object representing the session.
-            provider_factory: Provider factory for dependency overrides.
+        consume = make_fastapi_execution(
+            dependent=dependent,
+            provider_factory=provider_factory,
+            response_field=response_field,
+            response_model_include=response_model_include,
+            response_model_exclude=response_model_exclude,
+            response_model_by_alias=response_model_by_alias,
+            response_model_exclude_unset=response_model_exclude_unset,
+            response_model_exclude_defaults=response_model_exclude_defaults,
+            response_model_exclude_none=response_model_exclude_none,
+        )
 
-        Returns:
-            A callable that takes a native message and returns an awaitable sendable message.
-
-        Raises:
-            AssertionError: If the dependant call is not defined.
-
-        Note:
-            This function is used to create a session for handling requests. It takes a dependant object, which represents the session, and a dependency overrides provider, which allows for overriding dependencies. It returns a callable that takes a native message and returns an awaitable sendable message. The session is created based on the dependant object and the message passed to the callable. The session is then used to call the function obtained from the dependant object, and the result is returned.
-        """
-        assert dependant.call  # nosec B101
-
-        func = get_app(dependant, provider_factory)
-
-        dependencies_names = tuple(i.name for i in dependant.dependencies)
+        dependencies_names = tuple(i.name for i in dependent.dependencies)
 
         first_arg = next(
             dropwhile(
                 lambda i: i in dependencies_names,
-                inspect.signature(dependant.call).parameters,
+                inspect.signature(dependent.call).parameters,
             ),
             None,
         )
 
-        async def app(message: NativeMessage[Any]) -> SendableMessage:
-            """An asynchronous function that processes an incoming message and returns a sendable message.
-
-            Args:
-                message : The incoming message to be processed
-
-            Returns:
-                The sendable message
-
-            Raises:
-                TypeError: If the body of the message is not a dictionary
-            !!! note
-
-                The above docstring is autogenerated by docstring-gen library (https://docstring-gen.airt.ai)
-            """
+        async def real_consumer(message: NativeMessage[Any]) -> Any:
+            """An asynchronous function that processes an incoming message and returns a sendable message."""
             body = message.decoded_body
 
             fastapi_body: Union[AnyDict, List[Any]]
@@ -228,56 +194,48 @@ class StreamMessage(Request):
                 else:
                     path = fastapi_body = {first_arg: body}
 
-                session = cls(
+                stream_message = cls(
                     body=fastapi_body,
                     headers=message.headers,
                     path={**path, **message.path},
                 )
 
             else:
-                session = cls(
+                stream_message = cls(
                     body={},
                     headers={},
                     path={},
                 )
 
-            return await func(session)
+            return await consume(stream_message, message)
 
-        return app
+        real_consumer.__consumer__ = True  # type: ignore[attr-defined]
+        return real_consumer
 
 
-def get_app(
-    dependant: Dependant,
+def make_fastapi_execution(
+    *,
+    dependent: Dependant,
     provider_factory: Callable[[], Any],
+    response_field: Optional["ModelField"],
+    response_model_include: Optional["IncEx"],
+    response_model_exclude: Optional["IncEx"],
+    response_model_by_alias: bool,
+    response_model_exclude_unset: bool,
+    response_model_exclude_defaults: bool,
+    response_model_exclude_none: bool,
 ) -> Callable[
-    [StreamMessage],
-    Coroutine[Any, Any, SendableMessage],
+    [StreamMessage, NativeMessage[Any]],
+    Awaitable[Any],
 ]:
-    """Creates a FastAPI application.
+    """Creates a FastAPI application."""
+    is_coroutine = asyncio.iscoroutinefunction(dependent.call)
 
-    Args:
-        dependant: The dependant object that defines the endpoint function and its dependencies.
-        provider_factory: Provider factory for dependency overrides.
-
-    Returns:
-        The FastAPI application as a callable that takes a StreamMessage object as input and returns a SendableMessage coroutine.
-
-    Raises:
-        AssertionError: If the code reaches an unreachable state.
-    """
-
-    async def app(request: StreamMessage) -> SendableMessage:
-        """Handle an HTTP request and return a response.
-
-        Args:
-            request: The incoming HTTP request.
-
-        Returns:
-            The response to be sent back to the client.
-
-        Raises:
-            AssertionError: If the code reaches an unreachable point.
-        """
+    async def app(
+        request: StreamMessage,
+        raw_message: NativeMessage[Any],
+    ) -> Any:
+        """Consume StreamMessage and return user function result."""
         async with AsyncExitStack() as stack:
             if FASTAPI_V106:
                 kwargs = {"async_exit_stack": stack}
@@ -288,24 +246,36 @@ def get_app(
             solved_result = await solve_dependencies(
                 request=request,
                 body=request._body,  # type: ignore[arg-type]
-                dependant=dependant,
+                dependant=dependent,
                 dependency_overrides_provider=provider_factory(),
                 **kwargs,  # type: ignore[arg-type]
             )
 
-            values, errors, _, _2, _3 = solved_result
+            values, errors, raw_message.background, _, _2 = solved_result  # type: ignore[attr-defined]
+
             if errors:
                 raise_fastapi_validation_error(errors, request._body)  # type: ignore[arg-type]
 
-            return cast(
-                SendableMessage,
-                await run_endpoint_function(
-                    dependant=dependant,
-                    values=values,
-                    is_coroutine=asyncio.iscoroutinefunction(dependant.call),
-                ),
+            raw_reponse = await run_endpoint_function(
+                dependant=dependent,
+                values=values,
+                is_coroutine=is_coroutine,
             )
 
-        raise AssertionError("unreachable")
+            content = await serialize_response(
+                response_content=raw_reponse,
+                field=response_field,
+                include=response_model_include,
+                exclude=response_model_exclude,
+                by_alias=response_model_by_alias,
+                exclude_unset=response_model_exclude_unset,
+                exclude_defaults=response_model_exclude_defaults,
+                exclude_none=response_model_exclude_none,
+                is_coroutine=is_coroutine,
+            )
+
+            return content
+
+        return None
 
     return app

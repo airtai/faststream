@@ -1,3 +1,8 @@
+"""AsyncAPI Kafka bindings.
+
+References: https://github.com/asyncapi/bindings/tree/master/kafka
+"""
+
 from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, PositiveInt
@@ -8,7 +13,6 @@ class ServerBinding(BaseModel):
 
     Attributes:
         bindingVersion : version of the binding (default: "0.4.0")
-
     """
 
     bindingVersion: str = "0.4.0"
@@ -22,7 +26,6 @@ class ChannelBinding(BaseModel):
         partitions : optional positive integer representing the number of partitions
         replicas : optional positive integer representing the number of replicas
         bindingVersion : string representing the binding version
-
     """
 
     topic: Optional[str] = None
@@ -41,7 +44,6 @@ class OperationBinding(BaseModel):
         clientId : optional dictionary representing the client ID
         replyTo : optional dictionary representing the reply-to
         bindingVersion : version of the binding (default: "0.4.0")
-
     """
 
     groupId: Optional[Dict[str, Any]] = None

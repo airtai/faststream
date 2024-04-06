@@ -1,4 +1,8 @@
-from typing import TYPE_CHECKING
+from functools import partial
+from http import server
+from logging import Logger
+from typing import TYPE_CHECKING, Any, Dict, Optional
+from urllib.parse import parse_qs, urlparse
 
 from faststream._compat import json_dumps
 
@@ -17,28 +21,10 @@ def get_asyncapi_html(
     errors: bool = True,
     expand_message_examples: bool = True,
     title: str = "FastStream",
+    asyncapi_js_url: str = "https://unpkg.com/@asyncapi/react-component@1.0.0-next.47/browser/standalone/index.js",
+    asyncapi_css_url: str = "https://unpkg.com/@asyncapi/react-component@1.0.0-next.46/styles/default.min.css",
 ) -> str:
-    """Generate HTML for displaying an AsyncAPI document.
-
-    Args:
-        schema (Schema): The AsyncAPI schema object.
-        sidebar (bool, optional): Whether to show the sidebar. Defaults to True.
-        info (bool, optional): Whether to show the info section. Defaults to True.
-        servers (bool, optional): Whether to show the servers section. Defaults to True.
-        operations (bool, optional): Whether to show the operations section. Defaults to True.
-        messages (bool, optional): Whether to show the messages section. Defaults to True.
-        schemas (bool, optional): Whether to show the schemas section. Defaults to True.
-        errors (bool, optional): Whether to show the errors section. Defaults to True.
-        expand_message_examples (bool, optional): Whether to expand message examples. Defaults to True.
-        title (str, optional): The title of the HTML document. Defaults to "FastStream".
-
-    Returns:
-        str: The generated HTML document.
-
-    Raises:
-        NotImplementedError: If silent animals are not supported.
-
-    """
+    """Generate HTML for displaying an AsyncAPI document."""
     schema_json = schema.to_json()
 
     config = {
@@ -77,7 +63,11 @@ def get_asyncapi_html(
         <link rel="icon" type="image/png" sizes="16x16" href="https://www.asyncapi.com/favicon-16x16.png">
         <link rel="icon" type="image/png" sizes="32x32" href="https://www.asyncapi.com/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="194x194" href="https://www.asyncapi.com/favicon-194x194.png">
-        <link rel="stylesheet" href="https://unpkg.com/@asyncapi/react-component@1.0.0-next.46/styles/default.min.css">
+    """
+        f"""
+        <link rel="stylesheet" href="{asyncapi_css_url}">
+    """
+        """
         </head>
 
         <style>
@@ -89,8 +79,9 @@ def get_asyncapi_html(
 
         <body>
         <div id="asyncapi"></div>
-
-        <script src="https://unpkg.com/@asyncapi/react-component@1.0.0-next.47/browser/standalone/index.js"></script>
+    """
+        f"""
+        <script src="{asyncapi_js_url}"></script>
         <script>
     """
         f"""
@@ -108,64 +99,60 @@ def serve_app(
     schema: "Schema",
     host: str,
     port: int,
+    logger: Optional[Logger] = None,
 ) -> None:
-    """Serve the FastAPI application.
+    """Serve the HTTPServer with AsyncAPI schema."""
+    if logger:
+        logger.info(f"HTTPServer running on http://{host}:{port} (Press CTRL+C to quit)")
+        logger.warn("Please, do not use it in production.")
 
-    Args:
-        schema: The schema object representing the API specification.
-        host: The host address to run the application on.
-        port: The port number to run the application on.
+    server.HTTPServer(
+        (host, port),
+        partial(_Handler, schema=schema),
+    ).serve_forever()
 
-    Returns:
-        None
 
-    """
-    import uvicorn
-    from fastapi import FastAPI
-    from fastapi.responses import HTMLResponse
+class _Handler(server.BaseHTTPRequestHandler):
+    def __init__(
+        self,
+        *args: Any,
+        schema: "Schema",
+        **kwargs: Any,
+    ) -> None:
+        self.schema = schema
+        super().__init__(*args, **kwargs)
 
-    app = FastAPI()
+    def get_query_params(self) -> Dict[str, bool]:
+        return {
+            i: _str_to_bool(next(iter(j))) if j else False
+            for i, j in parse_qs(urlparse(self.path).query).items()
+        }
 
-    @app.get("/")
-    def asyncapi(
-        sidebar: bool = True,
-        info: bool = True,
-        servers: bool = True,
-        operations: bool = True,
-        messages: bool = True,
-        schemas: bool = True,
-        errors: bool = True,
-        expandMessageExamples: bool = True,
-    ) -> HTMLResponse:  # pragma: no cover
-        """Generate an AsyncAPI HTML response.
+    def do_GET(self) -> None:  # noqa: N802
+        """Serve a GET request."""
+        query_dict = self.get_query_params()
 
-        Args:
-            sidebar (bool): Whether to include the sidebar. Default is True.
-            info (bool): Whether to include the info section. Default is True.
-            servers (bool): Whether to include the servers section. Default is True.
-            operations (bool): Whether to include the operations section. Default is True.
-            messages (bool): Whether to include the messages section. Default is True.
-            schemas (bool): Whether to include the schemas section. Default is True.
-            errors (bool): Whether to include the errors section. Default is True.
-            expandMessageExamples (bool): Whether to expand message examples. Default is True.
-
-        Returns:
-            HTMLResponse: The generated HTML response.
-
-        """
-        return HTMLResponse(
-            content=get_asyncapi_html(
-                schema,
-                sidebar=sidebar,
-                info=info,
-                servers=servers,
-                operations=operations,
-                messages=messages,
-                schemas=schemas,
-                errors=errors,
-                expand_message_examples=expandMessageExamples,
-                title=schema.info.title,
-            )
+        encoding = "utf-8"
+        html = get_asyncapi_html(
+            self.schema,
+            sidebar=query_dict.get("sidebar", True),
+            info=query_dict.get("info", True),
+            servers=query_dict.get("servers", True),
+            operations=query_dict.get("operations", True),
+            messages=query_dict.get("messages", True),
+            schemas=query_dict.get("schemas", True),
+            errors=query_dict.get("errors", True),
+            expand_message_examples=query_dict.get("expandMessageExamples", True),
+            title=self.schema.info.title,
         )
+        body = html.encode(encoding=encoding)
 
-    uvicorn.run(app, host=host, port=port)
+        self.send_response(200)
+        self.send_header("content-length", str(len(body)))
+        self.send_header("content-type", f"text/html; charset={encoding}")
+        self.end_headers()
+        self.wfile.write(body)
+
+
+def _str_to_bool(v: str) -> bool:
+    return v.lower() in ("1", "t", "true", "y", "yes")

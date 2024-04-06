@@ -3,7 +3,7 @@ from faststream.nats import NatsBroker
 from tests.asyncapi.base.publisher import PublisherTestcase
 
 
-class TestArguments(PublisherTestcase):  # noqa: D101
+class TestArguments(PublisherTestcase):
     broker_class = NatsBroker
 
     def test_publisher_bindings(self):

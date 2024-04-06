@@ -3,7 +3,7 @@ from faststream.rabbit import ExchangeType, RabbitBroker, RabbitExchange, Rabbit
 from tests.asyncapi.base.publisher import PublisherTestcase
 
 
-class TestArguments(PublisherTestcase):  # noqa: D101
+class TestArguments(PublisherTestcase):
     broker_class = RabbitBroker
 
     def test_just_exchange(self):
@@ -44,7 +44,7 @@ class TestArguments(PublisherTestcase):  # noqa: D101
                 },
                 "servers": ["development"],
             }
-        }
+        }, schema["channels"]
 
     def test_publisher_bindings(self):
         broker = self.broker_class()

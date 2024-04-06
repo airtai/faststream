@@ -2,14 +2,14 @@ from typing import Type
 
 from faststream.asyncapi.generate import get_app_schema
 from faststream.rabbit.fastapi import RabbitRouter
-from faststream.rabbit.test import TestRabbitBroker
+from faststream.rabbit.testing import TestRabbitBroker
 from faststream.security import SASLPlaintext
 from tests.asyncapi.base.arguments import FastAPICompatible
 from tests.asyncapi.base.fastapi import FastAPITestCase
 from tests.asyncapi.base.publisher import PublisherTestcase
 
 
-class TestRouterArguments(FastAPITestCase, FastAPICompatible):  # noqa: D101
+class TestRouterArguments(FastAPITestCase, FastAPICompatible):
     broker_class: Type[RabbitRouter] = RabbitRouter
     broker_wrapper = staticmethod(TestRabbitBroker)
 
@@ -17,7 +17,7 @@ class TestRouterArguments(FastAPITestCase, FastAPICompatible):  # noqa: D101
         return router
 
 
-class TestRouterPublisher(PublisherTestcase):  # noqa: D101
+class TestRouterPublisher(PublisherTestcase):
     broker_class = RabbitRouter
 
     def build_app(self, router):

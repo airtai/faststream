@@ -6,7 +6,7 @@ from faststream.rabbit import RabbitBroker
 from tests.asyncapi.base.naming import NamingTestCase
 
 
-class TestNaming(NamingTestCase):  # noqa: D101
+class TestNaming(NamingTestCase):
     broker_class: Type[RabbitBroker] = RabbitBroker
 
     def test_subscriber_with_exchange(self):

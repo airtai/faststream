@@ -11,7 +11,7 @@ from tests.marks import python39
 
 @pytest.mark.asyncio()
 @python39
-class BaseCase:  # noqa: D101
+class BaseCase:
     async def test_handle(self, setup):
         broker, handle = setup
 
@@ -31,7 +31,7 @@ class BaseCase:  # noqa: D101
             handle.mock.assert_called_once_with("wrong message")
 
 
-class TestKafka(BaseCase):  # noqa: D101
+class TestKafka(BaseCase):
     test_class = TestKafkaBroker
 
     @pytest.fixture(scope="class")
@@ -44,7 +44,7 @@ class TestKafka(BaseCase):  # noqa: D101
         return (broker, handle)
 
 
-class TestConfluent(BaseCase):  # noqa: D101
+class TestConfluent(BaseCase):
     test_class = TestConfluentKafkaBroker
 
     @pytest.fixture(scope="class")
@@ -57,7 +57,7 @@ class TestConfluent(BaseCase):  # noqa: D101
         return (broker, handle)
 
 
-class TestRabbit(BaseCase):  # noqa: D101
+class TestRabbit(BaseCase):
     test_class = TestRabbitBroker
 
     @pytest.fixture(scope="class")
@@ -70,7 +70,7 @@ class TestRabbit(BaseCase):  # noqa: D101
         return (broker, handle)
 
 
-class TestNats(BaseCase):  # noqa: D101
+class TestNats(BaseCase):
     test_class = TestNatsBroker
 
     @pytest.fixture(scope="class")
@@ -83,7 +83,7 @@ class TestNats(BaseCase):  # noqa: D101
         return (broker, handle)
 
 
-class TestRedis(BaseCase):  # noqa: D101
+class TestRedis(BaseCase):
     test_class = TestRedisBroker
 
     @pytest.fixture(scope="class")

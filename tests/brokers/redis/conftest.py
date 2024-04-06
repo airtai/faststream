@@ -11,7 +11,7 @@ from faststream.redis import (
 
 
 @dataclass
-class Settings:  # noqa: D101
+class Settings:
     url = "redis://localhost:6379"  # pragma: allowlist secret
     host = "localhost"
     port = 6379
@@ -28,7 +28,6 @@ def router():
 
 
 @pytest_asyncio.fixture()
-@pytest.mark.redis()
 async def broker(settings):
     broker = RedisBroker(settings.url, apply_types=False)
     async with broker:
@@ -36,7 +35,6 @@ async def broker(settings):
 
 
 @pytest_asyncio.fixture()
-@pytest.mark.redis()
 async def full_broker(settings):
     broker = RedisBroker(settings.url)
     async with broker:

@@ -1,30 +1,27 @@
+import json
+from contextlib import suppress
 from dataclasses import dataclass, field
-from typing import Any, Generic, Optional, TypeVar, Union
+from typing import Any, Generic, Optional, Sequence, Tuple, TypeVar, Union
 from uuid import uuid4
 
-from faststream.types import AnyDict, DecodedMessage
+from faststream._compat import dump_json, json_loads
+from faststream.constants import ContentTypes
+from faststream.types import AnyDict, DecodedMessage, SendableMessage
 
-Msg = TypeVar("Msg")
+# prevent circular imports
+MsgType = TypeVar("MsgType")
+
+
+def gen_cor_id() -> str:
+    """Generate random string to use as ID."""
+    return str(uuid4())
 
 
 @dataclass
-class ABCStreamMessage(Generic[Msg]):
-    """A generic class to represent a stream message.
+class StreamMessage(Generic[MsgType]):
+    """Generic class to represent a stream message."""
 
-    Attributes:
-        raw_message : the raw message
-        body : the body of the message, can be bytes or any other type
-        decoded_body : the decoded message body, if applicable
-        content_type : the content type of the message
-        reply_to : the reply-to address of the message
-        headers : additional headers of the message
-        message_id : the unique identifier of the message
-        correlation_id : the correlation identifier of the message
-        processed : a flag indicating whether the message has been processed or not
-
-    """
-
-    raw_message: Msg
+    raw_message: "MsgType"
 
     body: Union[bytes, Any]
     decoded_body: Optional[DecodedMessage] = None
@@ -33,36 +30,67 @@ class ABCStreamMessage(Generic[Msg]):
 
     content_type: Optional[str] = None
     reply_to: str = ""
-    message_id: str = field(default_factory=lambda: str(uuid4()))  # pragma: no cover
+    message_id: str = field(default_factory=gen_cor_id)  # pragma: no cover
     correlation_id: str = field(
-        default_factory=lambda: str(uuid4())  # pragma: no cover
+        default_factory=gen_cor_id  # pragma: no cover
     )
 
     processed: bool = field(default=False, init=False)
     committed: bool = field(default=False, init=False)
 
-
-class SyncStreamMessage(ABCStreamMessage[Msg]):
-    """A generic class to represent a stream message."""
-
-    def ack(self, **kwargs: Any) -> None:
+    async def ack(self) -> None:
         self.committed = True
 
-    def nack(self, **kwargs: Any) -> None:
+    async def nack(self) -> None:
         self.committed = True
 
-    def reject(self, **kwargs: Any) -> None:
+    async def reject(self) -> None:
         self.committed = True
 
 
-class StreamMessage(ABCStreamMessage[Msg]):
-    """A generic class to represent a stream message."""
+def decode_message(message: StreamMessage[Any]) -> DecodedMessage:
+    """Decodes a message."""
+    body: Any = getattr(message, "body", message)
+    m: DecodedMessage = body
 
-    async def ack(self, **kwargs: Any) -> None:
-        self.committed = True
+    if content_type := getattr(message, "content_type", None):
+        if ContentTypes.text.value in content_type:
+            m = body.decode()
+        elif ContentTypes.json.value in content_type:  # pragma: no branch
+            m = json_loads(body)
+        else:
+            with suppress(json.JSONDecodeError):
+                m = json_loads(body)
+    else:
+        with suppress(json.JSONDecodeError):
+            m = json_loads(body)
 
-    async def nack(self, **kwargs: Any) -> None:
-        self.committed = True
+    return m
 
-    async def reject(self, **kwargs: Any) -> None:
-        self.committed = True
+
+def encode_message(
+    msg: Union[Sequence[SendableMessage], SendableMessage],
+) -> Tuple[bytes, Optional[str]]:
+    """Encodes a message."""
+    if msg is None:
+        return (
+            b"",
+            None,
+        )
+
+    if isinstance(msg, bytes):
+        return (
+            msg,
+            None,
+        )
+
+    if isinstance(msg, str):
+        return (
+            msg.encode(),
+            ContentTypes.text.value,
+        )
+
+    return (
+        dump_json(msg),
+        ContentTypes.json.value,
+    )

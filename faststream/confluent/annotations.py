@@ -3,7 +3,7 @@ from typing_extensions import Annotated
 from faststream.annotations import ContextRepo, Logger, NoCast
 from faststream.confluent.broker import KafkaBroker as KB
 from faststream.confluent.message import KafkaMessage as KM
-from faststream.confluent.producer import AsyncConfluentFastProducer
+from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.utils.context import Context
 
 __all__ = (

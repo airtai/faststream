@@ -1,44 +1,78 @@
-from typing import TYPE_CHECKING, Optional, Sequence, Tuple, Union, overload
-from uuid import uuid4
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Generic,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    cast,
+)
 
-from pydantic import BaseModel, Field
-
-from faststream._compat import dump_json, model_parse, model_to_json
-from faststream.broker.parsers import decode_message, encode_message
+from faststream._compat import dump_json, json_loads
+from faststream.broker.message import (
+    StreamMessage,
+    decode_message,
+    encode_message,
+    gen_cor_id,
+)
+from faststream.constants import ContentTypes
 from faststream.redis.message import (
-    BatchMessage,
-    BatchRedisMessage,
-    OneMessage,
-    OneRedisMessage,
+    BatchListMessage,
+    BatchStreamMessage,
+    DefaultListMessage,
+    DefaultStreamMessage,
+    PubSubMessage,
+    RedisBatchListMessage,
+    RedisBatchStreamMessage,
+    RedisListMessage,
+    RedisMessage,
+    RedisStreamMessage,
+    bDATA_KEY,
 )
 from faststream.types import AnyDict, DecodedMessage, SendableMessage
 from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
-    from faststream.redis.asyncapi import Handler
-
-DATA_KEY = "__data__"
-bDATA_KEY = DATA_KEY.encode()  # noqa: N816
+    from faststream.redis.schemas import PubSub
+    from faststream.redis.subscriber.usecase import ChannelSubscriber
 
 
-class RawMessage(BaseModel):
+MsgType = TypeVar("MsgType", bound=Mapping[str, Any])
+
+
+class RawMessage:
     """A class to represent a raw Redis message."""
 
-    data: bytes
-    headers: AnyDict = Field(default_factory=dict)
+    __slots__ = (
+        "data",
+        "headers",
+    )
+
+    def __init__(
+        self,
+        data: bytes,
+        headers: Optional["AnyDict"] = None,
+    ) -> None:
+        self.data = data
+        self.headers = headers or {}
 
     @classmethod
     def build(
         cls,
+        *,
         message: Union[Sequence[SendableMessage], SendableMessage],
-        reply_to: str = "",
-        headers: Optional[AnyDict] = None,
-        correlation_id: Optional[str] = None,
+        reply_to: Optional[str],
+        headers: Optional[AnyDict],
+        correlation_id: str,
     ) -> "RawMessage":
         payload, content_type = encode_message(message)
 
         headers_to_send = {
-            "correlation_id": correlation_id or str(uuid4()),
+            "correlation_id": correlation_id,
         }
 
         if content_type:
@@ -58,102 +92,131 @@ class RawMessage(BaseModel):
     @classmethod
     def encode(
         cls,
+        *,
         message: Union[Sequence[SendableMessage], SendableMessage],
-        reply_to: str = "",
-        headers: Optional[AnyDict] = None,
-        correlation_id: Optional[str] = None,
-    ) -> str:
-        return model_to_json(
-            cls.build(
-                message=message,
-                reply_to=reply_to,
-                headers=headers,
-                correlation_id=correlation_id,
-            )
+        reply_to: Optional[str],
+        headers: Optional[AnyDict],
+        correlation_id: str,
+    ) -> bytes:
+        msg = cls.build(
+            message=message,
+            reply_to=reply_to,
+            headers=headers,
+            correlation_id=correlation_id,
         )
 
-
-class RedisParser:
-    """A class to represent a Redis parser."""
-
-    @classmethod
-    @overload
-    async def parse_message(
-        cls,
-        message: OneMessage,
-    ) -> OneRedisMessage:
-        pass
-
-    @classmethod
-    @overload
-    async def parse_message(
-        cls,
-        message: BatchMessage,
-    ) -> BatchRedisMessage:
-        pass
-
-    @classmethod
-    async def parse_message(
-        cls,
-        message: Union[OneMessage, BatchMessage],
-    ) -> Union[OneRedisMessage, BatchRedisMessage]:
-        id_ = str(uuid4())
-
-        if message["type"] == "batch":
-            data = dump_json([cls.parse_one_msg(x)[0] for x in message["data"]])
-
-            return BatchRedisMessage(
-                raw_message=message,
-                body=data,
-                content_type="application/json",
-                message_id=id_,
-                correlation_id=id_,
-            )
-
-        else:
-            data, headers = cls.parse_one_msg(message["data"])
-
-            channel = message.get("channel", b"").decode()
-
-            handler: Optional["Handler"] = context.get_local("handler_")
-            if (
-                handler is not None
-                and handler.channel is not None
-                and (path_re := handler.channel.path_regex) is not None
-                and (match := path_re.match(channel)) is not None
-            ):
-                path = match.groupdict()
-            else:
-                path = {}
-
-            return OneRedisMessage(
-                raw_message=message,
-                body=data,
-                path=path,
-                headers=headers,
-                reply_to=headers.get("reply_to", ""),
-                content_type=headers.get("content-type", ""),
-                message_id=message.get("message_id", id_),
-                correlation_id=headers.get("correlation_id", id_),
-            )
+        return dump_json({
+            "data": msg.data,
+            "headers": msg.headers,
+        })
 
     @staticmethod
-    def parse_one_msg(raw_data: bytes) -> Tuple[bytes, AnyDict]:
+    def parse(data: bytes) -> Tuple[bytes, AnyDict]:
+        headers: AnyDict
+
         try:
-            obj = model_parse(RawMessage, raw_data)
+            # FastStream message format
+            parsed_data = json_loads(data)
+            data = parsed_data["data"].encode()
+            headers = parsed_data["headers"]
+
         except Exception:
             # Raw Redis message format
-            data = raw_data
-            headers: AnyDict = {}
-        else:
-            # FastStream message format
-            data = obj.data
-            headers = obj.headers
+            data = data
+            headers = {}
 
         return data, headers
 
+
+class SimpleParser(Generic[MsgType]):
+    msg_class: Type[StreamMessage[MsgType]]
+
+    @classmethod
+    async def parse_message(cls, message: MsgType) -> StreamMessage[MsgType]:
+        data, headers = cls._parse_data(message)
+        id_ = gen_cor_id()
+        return cls.msg_class(
+            raw_message=message,
+            body=data,
+            path=cls.get_path(message),
+            headers=headers,
+            reply_to=headers.get("reply_to", ""),
+            content_type=headers.get("content-type"),
+            message_id=headers.get("message_id", id_),
+            correlation_id=headers.get("correlation_id", id_),
+        )
+
+    @staticmethod
+    def _parse_data(message: MsgType) -> Tuple[bytes, AnyDict]:
+        return RawMessage.parse(message["data"])
+
+    @staticmethod
+    def get_path(message: MsgType) -> AnyDict:
+        return {}
+
     @staticmethod
     async def decode_message(
-        msg: OneRedisMessage,
+        msg: StreamMessage[MsgType],
     ) -> DecodedMessage:
         return decode_message(msg)
+
+
+class RedisPubSubParser(SimpleParser[PubSubMessage]):
+    msg_class = RedisMessage
+
+    @staticmethod
+    def get_path(message: PubSubMessage) -> AnyDict:
+        if (
+            message.get("pattern")
+            and (handler := cast("ChannelSubscriber", context.get_local("handler_")))
+            and (channel := cast(Optional["PubSub"], getattr(handler, "channel", None)))
+            and (path_re := channel.path_regex)
+            and (match := path_re.match(message["channel"]))
+        ):
+            return match.groupdict()
+
+        else:
+            return {}
+
+
+class RedisListParser(SimpleParser[DefaultListMessage]):
+    msg_class = RedisListMessage
+
+
+class RedisBatchListParser(SimpleParser[BatchListMessage]):
+    msg_class = RedisBatchListMessage
+
+    @staticmethod
+    def _parse_data(message: BatchListMessage) -> Tuple[bytes, AnyDict]:
+        return (
+            dump_json(
+                RawMessage.parse(x)[0]
+                for x in message["data"]
+            ),
+            {"content-type": ContentTypes.json},
+        )
+
+
+class RedisStreamParser(SimpleParser[DefaultStreamMessage]):
+    msg_class = RedisStreamMessage
+
+    @classmethod
+    def _parse_data(cls, message: DefaultStreamMessage) -> Tuple[bytes, AnyDict]:
+        data = message["data"]
+        return RawMessage.parse(data.get(bDATA_KEY) or dump_json(data))
+
+
+class RedisBatchStreamParser(SimpleParser[BatchStreamMessage]):
+    msg_class = RedisBatchStreamMessage
+
+    @staticmethod
+    def _parse_data(message: BatchStreamMessage) -> Tuple[bytes, AnyDict]:
+        return (
+            dump_json(
+                RawMessage.parse(data)[0]
+                if (data := x.get(bDATA_KEY))
+                else x
+                for x in message["data"]
+            ),
+            {"content-type": ContentTypes.json},
+        )

@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 
-class BaseCase:  # noqa: D101
+class BaseCase:
     def test_running(self, data):
         app, core_router, nested_router = data
 
@@ -12,8 +12,8 @@ class BaseCase:  # noqa: D101
         @nested_router.subscriber("test2")
         async def handler2(): ...
 
-        handlers1 = core_router.broker.handlers.values()
-        handlers2 = nested_router.broker.handlers.values()
+        handlers1 = core_router.broker._subscribers.values()
+        handlers2 = nested_router.broker._subscribers.values()
 
         assert len(handlers1) == 1
         assert len(handlers2) == 1
@@ -27,7 +27,7 @@ class BaseCase:  # noqa: D101
 
 
 @pytest.mark.kafka()
-class TestKafka(BaseCase):  # noqa: D101
+class TestKafka(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.kafka.multiple_lifespan import (
@@ -40,7 +40,7 @@ class TestKafka(BaseCase):  # noqa: D101
 
 
 @pytest.mark.confluent()
-class TestConfluent(BaseCase):  # noqa: D101
+class TestConfluent(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.confluent.multiple_lifespan import (
@@ -53,7 +53,7 @@ class TestConfluent(BaseCase):  # noqa: D101
 
 
 @pytest.mark.nats()
-class TestNats(BaseCase):  # noqa: D101
+class TestNats(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.nats.multiple_lifespan import (
@@ -66,7 +66,7 @@ class TestNats(BaseCase):  # noqa: D101
 
 
 @pytest.mark.rabbit()
-class TestRabbit(BaseCase):  # noqa: D101
+class TestRabbit(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.rabbit.multiple_lifespan import (
@@ -79,7 +79,7 @@ class TestRabbit(BaseCase):  # noqa: D101
 
 
 @pytest.mark.redis()
-class TestRedis(BaseCase):  # noqa: D101
+class TestRedis(BaseCase):
     @pytest.fixture(scope="class")
     def data(self):
         from docs.docs_src.integrations.fastapi.redis.multiple_lifespan import (

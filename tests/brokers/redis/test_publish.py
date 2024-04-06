@@ -11,7 +11,7 @@ from tests.tools import spy_decorator
 
 @pytest.mark.redis()
 @pytest.mark.asyncio()
-class TestPublish(BrokerPublishTestcase):  # noqa: D101
+class TestPublish(BrokerPublishTestcase):
     async def test_list_publisher(
         self,
         queue: str,
@@ -62,7 +62,7 @@ class TestPublish(BrokerPublishTestcase):  # noqa: D101
                 timeout=3,
             )
 
-        assert {1, b"hi"} == {r.result() for r in result}
+        assert {1, "hi"} == {r.result() for r in result}
 
     async def test_batch_list_publisher(
         self,
@@ -94,7 +94,7 @@ class TestPublish(BrokerPublishTestcase):  # noqa: D101
             )
 
         assert event.is_set()
-        mock.assert_called_once_with([1, 2, 3])
+        mock.assert_called_once_with(["1", "2", "3"])
 
     async def test_publisher_with_maxlen(
         self,

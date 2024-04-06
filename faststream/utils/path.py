@@ -1,6 +1,8 @@
 import re
 from typing import Callable, Optional, Pattern, Tuple
 
+from faststream.exceptions import SetupError
+
 PARAM_REGEX = re.compile("{([a-zA-Z0-9_]+)}")
 
 
@@ -34,7 +36,7 @@ def compile_path(
     if duplicated_params:
         names = ", ".join(sorted(duplicated_params))
         ending = "s" if len(duplicated_params) > 1 else ""
-        raise ValueError(f"Duplicated param name{ending} {names} at path {path}")
+        raise SetupError(f"Duplicated param name{ending} {names} at path {path}")
 
     if idx == 0:
         regex = None

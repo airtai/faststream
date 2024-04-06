@@ -1,98 +1,120 @@
-from typing import TYPE_CHECKING, List, Optional, Union, overload
-from uuid import uuid4
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from nats.aio.msg import Msg
 
-from faststream.broker.message import StreamMessage
-from faststream.broker.parsers import decode_message
-from faststream.nats.message import NatsMessage
+from faststream.broker.message import StreamMessage, decode_message, gen_cor_id
+from faststream.nats.message import NatsBatchMessage, NatsMessage
 from faststream.types import AnyDict, DecodedMessage
 from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
-    from faststream.nats.asyncapi import Handler
+    from faststream.nats.subscriber.usecase import LogicSubscriber
 
 
-class NatsParser:
+class NatsBaseParser:
     """A class to parse NATS messages."""
 
-    def __init__(self, is_js: bool) -> None:
-        """Initialize the NATS parser.
+    @staticmethod
+    def get_path(
+        subject: str,
+    ) -> Optional[AnyDict]:
+        path: Optional[AnyDict] = None
 
-        Args:
-            is_js: Whether the parser is for JetStream.
-        """
-        self.is_js = is_js
+        handler: Optional["LogicSubscriber[Any]"]
+        if (
+            (handler := context.get_local("handler_")) is not None
+            and (path_re := handler.path_regex) is not None
+            and (match := path_re.match(subject)) is not None
+        ):
+            path = match.groupdict()
 
-    @overload
-    async def parse_message(
-        self, message: List[Msg], *, path: Optional[AnyDict] = None
-    ) -> StreamMessage[List[Msg]]: ...
+        return path
 
-    @overload
-    async def parse_message(
-        self, message: Msg, *, path: Optional[AnyDict] = None
-    ) -> StreamMessage[Msg]: ...
-
-    async def parse_message(
-        self, message: Union[Msg, List[Msg]], *, path: Optional[AnyDict] = None
-    ) -> Union[
-        StreamMessage[Msg],
-        StreamMessage[List[Msg]],
-    ]:
-        if isinstance(message, list):
-            return NatsMessage(
-                is_js=self.is_js,
-                raw_message=message,  # type: ignore[arg-type]
-                body=[m.data for m in message],
-            )
-
-        else:
-            handler: Optional["Handler"]
-            if (
-                path is None
-                and (handler := context.get_local("handler_")) is not None
-                and (path_re := handler.path_regex) is not None
-                and (match := path_re.match(message.subject)) is not None
-            ):
-                path = match.groupdict()
-
-            headers = message.header or {}
-
-            return NatsMessage(
-                is_js=self.is_js,
-                raw_message=message,
-                body=message.data,
-                path=path or {},
-                reply_to=headers.get("reply_to", "") if self.is_js else message.reply,
-                headers=headers,
-                content_type=headers.get("content-type", ""),
-                message_id=headers.get("message_id", str(uuid4())),
-                correlation_id=headers.get("correlation_id", str(uuid4())),
-            )
-
+    @staticmethod
     async def decode_message(
-        self,
-        msg: Union[
-            StreamMessage[Msg],
-            StreamMessage[List[Msg]],
-        ],
-    ) -> Union[List[DecodedMessage], DecodedMessage]:
-        if isinstance(msg.raw_message, list):
-            data: List[DecodedMessage] = []
-
-            path: Optional[AnyDict] = None
-            for m in msg.raw_message:
-                msg = await self.parse_message(m, path=path)
-                path = msg.path
-
-                data.append(decode_message(msg))
-
-            return data
-
-        else:
-            return decode_message(msg)
+        msg: StreamMessage["Msg"],
+    ) -> DecodedMessage:
+        return decode_message(msg)
 
 
-JsParser = NatsParser(True)
-Parser = NatsParser(False)
+class NatsParser(NatsBaseParser):
+    """A class to parse NATS core messages."""
+
+    @classmethod
+    async def parse_message(
+        cls,
+        message: "Msg",
+        *,
+        path: Optional[AnyDict] = None,
+    ) -> StreamMessage["Msg"]:
+        if path is None:
+            path = cls.get_path(message.subject)
+
+        headers = message.header or {}
+
+        return StreamMessage["Msg"](
+            raw_message=message,
+            body=message.data,
+            path=path or {},
+            reply_to=message.reply,
+            headers=headers,
+            content_type=headers.get("content-type", ""),
+            message_id=headers.get("message_id", gen_cor_id()),
+            correlation_id=headers.get("correlation_id", gen_cor_id()),
+        )
+
+
+class JsParser(NatsBaseParser):
+    """A class to parse NATS JS messages."""
+
+    @classmethod
+    async def parse_message(
+        cls,
+        message: "Msg",
+        *,
+        path: Optional[AnyDict] = None,
+    ) -> StreamMessage["Msg"]:
+        if path is None:
+            path = cls.get_path(message.subject)
+
+        headers = message.header or {}
+
+        return NatsMessage(
+            raw_message=message,
+            body=message.data,
+            path=path or {},
+            reply_to=headers.get("reply_to", ""),  # differ from core
+            headers=headers,
+            content_type=headers.get("content-type", ""),
+            message_id=headers.get("message_id", gen_cor_id()),
+            correlation_id=headers.get("correlation_id", gen_cor_id()),
+        )
+
+
+class BatchParser(JsParser):
+    """A class to parse NATS batch messages."""
+
+    @staticmethod
+    async def parse_batch(
+        message: List["Msg"],
+    ) -> StreamMessage[List["Msg"]]:
+        return NatsBatchMessage(
+            raw_message=message,
+            body=[m.data for m in message],
+        )
+
+    @classmethod
+    async def decode_batch(
+        cls,
+        msg: StreamMessage[List["Msg"]],
+    ) -> List[DecodedMessage]:
+        data: List[DecodedMessage] = []
+
+        path: Optional[AnyDict] = None
+        for m in msg.raw_message:
+            one_msg = await cls.parse_message(m, path=path)
+            path = one_msg.path
+
+            data.append(decode_message(one_msg))
+
+        return data

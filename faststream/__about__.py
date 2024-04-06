@@ -1,7 +1,7 @@
 """Simple and fast framework to create message brokers based microservices."""
+__version__ = "0.5.0rc0"
 
-__version__ = "0.4.8"
-
+SERVICE_NAME = f"faststream-{__version__}"
 
 INSTALL_YAML = """
 To generate YAML documentation, please install dependencies:\n

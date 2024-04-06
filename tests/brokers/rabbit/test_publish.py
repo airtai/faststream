@@ -4,13 +4,13 @@ from unittest.mock import patch
 import pytest
 
 from faststream.rabbit import RabbitBroker, ReplyConfig
-from faststream.rabbit.producer import AioPikaFastProducer
+from faststream.rabbit.publisher.producer import AioPikaFastProducer
 from tests.brokers.base.publish import BrokerPublishTestcase
 from tests.tools import spy_decorator
 
 
 @pytest.mark.rabbit()
-class TestPublish(BrokerPublishTestcase):  # noqa: D101
+class TestPublish(BrokerPublishTestcase):
     @pytest.mark.asyncio()
     async def test_reply_config(
         self,

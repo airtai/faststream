@@ -5,8 +5,15 @@ from tests.brokers.base.connection import BrokerConnectionTestcase
 
 
 @pytest.mark.redis()
-class TestConnection(BrokerConnectionTestcase):  # noqa: D101
+class TestConnection(BrokerConnectionTestcase):
     broker = RedisBroker
+
+    def get_broker_args(self, settings):
+        return {
+            "url": settings.url,
+            "host": settings.host,
+            "port": settings.port,
+        }
 
     async def ping(self, broker: RedisBroker) -> bool:
         await broker._connection.ping()
