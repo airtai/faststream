@@ -1,3 +1,8 @@
+"""AsyncAPI SQS bindings.
+
+References: https://github.com/asyncapi/bindings/tree/master/sqs
+"""
+
 from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
@@ -8,7 +13,6 @@ class ServerBinding(BaseModel):
 
     Attributes:
         bindingVersion : version of the binding (default: "custom")
-
     """
 
     bindingVersion: str = "custom"
@@ -20,7 +24,6 @@ class ChannelBinding(BaseModel):
     Attributes:
         queue : a dictionary representing the queue
         bindingVersion : a string representing the binding version (default: "custom")
-
     """
 
     queue: Dict[str, Any]
@@ -33,7 +36,6 @@ class OperationBinding(BaseModel):
     Attributes:
         replyTo : optional dictionary containing reply information
         bindingVersion : version of the binding, default is "custom"
-
     """
 
     replyTo: Optional[Dict[str, Any]] = None

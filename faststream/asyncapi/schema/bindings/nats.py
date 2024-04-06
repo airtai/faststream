@@ -1,3 +1,8 @@
+"""AsyncAPI NATS bindings.
+
+References: https://github.com/asyncapi/bindings/tree/master/nats
+"""
+
 from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
@@ -8,7 +13,6 @@ class ServerBinding(BaseModel):
 
     Attributes:
         bindingVersion : version of the binding (default: "custom")
-
     """
 
     bindingVersion: str = "custom"
@@ -21,7 +25,6 @@ class ChannelBinding(BaseModel):
         subject : subject of the channel binding
         queue : optional queue for the channel binding
         bindingVersion : version of the channel binding, default is "custom"
-
     """
 
     subject: str
@@ -35,7 +38,6 @@ class OperationBinding(BaseModel):
     Attributes:
         replyTo : optional dictionary containing reply information
         bindingVersion : version of the binding (default is "custom")
-
     """
 
     replyTo: Optional[Dict[str, Any]] = None
