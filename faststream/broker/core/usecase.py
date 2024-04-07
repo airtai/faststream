@@ -20,7 +20,6 @@ from faststream._compat import is_test_env
 from faststream.broker.core.logging import LoggingBroker
 from faststream.broker.middlewares.logging import CriticalLogMiddleware
 from faststream.broker.proto import SetupAble
-from faststream.broker.publisher.proto import ProducerProto, PublisherProto
 from faststream.broker.subscriber.proto import SubscriberProto
 from faststream.broker.types import (
     AsyncCustomDecoder,
@@ -43,6 +42,7 @@ if TYPE_CHECKING:
 
     from faststream.asyncapi.schema import Tag, TagDict
     from faststream.broker.message import StreamMessage
+    from faststream.broker.publisher.proto import ProducerProto, PublisherProto
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, LoggerProto
 
@@ -56,7 +56,7 @@ class BrokerUsecase(
 
     url: Union[str, Iterable[str], None]
     _connection: Optional[ConnectionType]
-    _producer: Optional[ProducerProto]
+    _producer: Optional["ProducerProto"]
 
     def __init__(
         self,
@@ -244,7 +244,7 @@ class BrokerUsecase(
 
     def setup_publisher(
         self,
-        publisher: PublisherProto[MsgType],
+        publisher: "PublisherProto[MsgType]",
         **kwargs: Any,
     ) -> None:
         """Setup the Publisher to prepare it to starting."""
@@ -262,7 +262,7 @@ class BrokerUsecase(
     def _publisher_setup_extra(self) -> "AnyDict":
         return {}
 
-    def publisher(self, *args: Any, **kwargs: Any) -> PublisherProto[MsgType]:
+    def publisher(self, *args: Any, **kwargs: Any) -> "PublisherProto[MsgType]":
         pub = super().publisher(*args, **kwargs)
         if self.running:
             self.setup_publisher(pub)
@@ -325,7 +325,7 @@ class BrokerUsecase(
         self,
         msg: Any,
         *,
-        producer: Optional[ProducerProto],
+        producer: Optional["ProducerProto"],
         **kwargs: Any,
     ) -> Optional[Any]:
         """Publish message directly."""

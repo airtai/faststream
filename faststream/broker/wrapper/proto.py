@@ -1,4 +1,5 @@
 from typing import (
+    TYPE_CHECKING,
     Callable,
     Iterable,
     Optional,
@@ -7,9 +8,6 @@ from typing import (
     overload,
 )
 
-from fast_depends.dependencies import Depends
-
-from faststream.broker.message import StreamMessage
 from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
@@ -19,7 +17,12 @@ from faststream.broker.types import (
     SubscriberMiddleware,
     T_HandlerReturn,
 )
-from faststream.broker.wrapper.call import HandlerCallWrapper
+
+if TYPE_CHECKING:
+    from fast_depends.dependencies import Depends
+
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.wrapper.call import HandlerCallWrapper
 
 
 class WrapperProto(Protocol[MsgType]):
@@ -37,7 +40,7 @@ class WrapperProto(Protocol[MsgType]):
         dependencies: Iterable["Depends"] = (),
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
-        HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
+        "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
     ]: ...
 
     @overload
@@ -45,26 +48,26 @@ class WrapperProto(Protocol[MsgType]):
         self,
         func: Callable[P_HandlerParams, T_HandlerReturn],
         *,
-        filter: Optional[Filter[StreamMessage[MsgType]]] = None,
-        parser: Optional[CustomParser[MsgType]] = None,
-        decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
-        middlewares: Iterable[SubscriberMiddleware] = (),
-        dependencies: Iterable[Depends] = (),
-    ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]: ...
+        filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
+        parser: Optional["CustomParser[MsgType]"] = None,
+        decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
+        middlewares: Iterable["SubscriberMiddleware"] = (),
+        dependencies: Iterable["Depends"] = (),
+    ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]": ...
 
     def __call__(
         self,
         func: Optional[Callable[P_HandlerParams, T_HandlerReturn]] = None,
         *,
-        filter: Optional[Filter[StreamMessage[MsgType]]] = None,
-        parser: Optional[CustomParser[MsgType]] = None,
-        decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
-        middlewares: Iterable[SubscriberMiddleware] = (),
-        dependencies: Iterable[Depends] = (),
+        filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
+        parser: Optional["CustomParser[MsgType]"] = None,
+        decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
+        middlewares: Iterable["SubscriberMiddleware"] = (),
+        dependencies: Iterable["Depends"] = (),
     ) -> Union[
-        HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
+        "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
         Callable[
             [Callable[P_HandlerParams, T_HandlerReturn]],
-            HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
+            "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
         ],
     ]: ...

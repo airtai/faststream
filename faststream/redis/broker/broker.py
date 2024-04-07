@@ -31,7 +31,6 @@ from faststream.redis.broker.logging import RedisLoggingBroker
 from faststream.redis.broker.registrator import RedisRegistrator
 from faststream.redis.publisher.producer import RedisFastProducer
 from faststream.redis.security import parse_security
-from faststream.types import AnyDict
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -49,7 +48,7 @@ if TYPE_CHECKING:
     )
     from faststream.redis.message import BaseMessage
     from faststream.security import BaseSecurity
-    from faststream.types import DecodedMessage, SendableMessage
+    from faststream.types import AnyDict, DecodedMessage, LoggerProto, SendableMessage
 
     class RedisInitKwargs(TypedDict, total=False):
         host: Optional[str]
@@ -161,7 +160,7 @@ class RedisBroker(
         ] = None,
         # logging args
         logger: Annotated[
-            Union[logging.Logger, None, object],
+            Union["LoggerProto", None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = Parameter.empty,
         log_level: Annotated[
@@ -344,7 +343,7 @@ class RedisBroker(
             await handler.start()
 
     @property
-    def _subscriber_setup_extra(self) -> AnyDict:
+    def _subscriber_setup_extra(self) -> "AnyDict":
         return {
             "connection": self._connection,
         }

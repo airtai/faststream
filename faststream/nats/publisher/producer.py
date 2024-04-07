@@ -11,7 +11,6 @@ from faststream.broker.publisher.proto import ProducerProto
 from faststream.broker.utils import resolve_custom_func
 from faststream.exceptions import WRONG_PUBLISH_ARGS
 from faststream.nats.parser import NatsParser
-from faststream.types import SendableMessage
 from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
@@ -26,6 +25,7 @@ if TYPE_CHECKING:
         CustomDecoder,
         CustomParser,
     )
+    from faststream.types import SendableMessage
 
 
 class NatsFastProducer(ProducerProto):
@@ -48,7 +48,7 @@ class NatsFastProducer(ProducerProto):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: SendableMessage,
+        message: "SendableMessage",
         subject: str,
         *,
         correlation_id: str,

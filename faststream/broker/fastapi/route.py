@@ -15,9 +15,6 @@ from typing import (
     Union,
 )
 
-from fastapi import params
-from fastapi.background import BackgroundTasks
-from fastapi.dependencies.models import Dependant
 from fastapi.dependencies.utils import solve_dependencies
 from fastapi.routing import run_endpoint_function, serialize_response
 from fastapi.utils import create_response_field
@@ -25,35 +22,38 @@ from starlette.requests import Request
 from starlette.routing import BaseRoute
 
 from faststream._compat import FASTAPI_V106, raise_fastapi_validation_error
-from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.fastapi.get_dependant import get_fastapi_native_dependant
-from faststream.broker.message import StreamMessage as NativeMessage
-from faststream.broker.schemas import NameRequired
 from faststream.broker.types import MsgType, P_HandlerParams, T_HandlerReturn
 from faststream.broker.wrapper.call import HandlerCallWrapper
-from faststream.types import AnyDict
 
 if TYPE_CHECKING:
+    from fastapi import params
     from fastapi._compat import ModelField
+    from fastapi.dependencies.models import Dependant
     from fastapi.types import IncEx
+
+    from faststream.broker.core.usecase import BrokerUsecase
+    from faststream.broker.message import StreamMessage as NativeMessage
+    from faststream.broker.schemas import NameRequired
+    from faststream.types import AnyDict
 
 
 class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
     """A class representing a stream route."""
 
-    handler: HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]
+    handler: "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]"
 
     def __init__(
         self,
-        path: Union[NameRequired, str, None],
+        path: Union["NameRequired", str, None],
         *extra: Any,
         provider_factory: Callable[[], Any],
         endpoint: Union[
             Callable[P_HandlerParams, T_HandlerReturn],
-            HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
+            "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
         ],
-        broker: BrokerUsecase[MsgType, Any],
-        dependencies: Iterable[params.Depends],
+        broker: "BrokerUsecase[MsgType, Any]",
+        dependencies: Iterable["params.Depends"],
         response_model: Any,
         response_model_include: Optional["IncEx"],
         response_model_exclude: Optional["IncEx"],
@@ -120,19 +120,18 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
 class StreamMessage(Request):
     """A class to represent a stream message."""
 
-    scope: AnyDict
-    _cookies: AnyDict
-    _headers: AnyDict  # type: ignore
-    _body: Union[AnyDict, List[Any]]  # type: ignore
-    _query_params: AnyDict  # type: ignore
-    _background: Optional[BackgroundTasks]
+    scope: "AnyDict"
+    _cookies: "AnyDict"
+    _headers: "AnyDict"  # type: ignore
+    _body: Union["AnyDict", List[Any]]  # type: ignore
+    _query_params: "AnyDict"  # type: ignore
 
     def __init__(
         self,
         *,
-        body: Union[AnyDict, List[Any]],
-        headers: AnyDict,
-        path: AnyDict,
+        body: Union["AnyDict", List[Any]],
+        headers: "AnyDict",
+        path: "AnyDict",
     ) -> None:
         """Initialize a class instance."""
         self._headers = headers
@@ -146,7 +145,7 @@ class StreamMessage(Request):
     def get_consumer(
         cls,
         *,
-        dependent: Dependant,
+        dependent: "Dependant",
         provider_factory: Callable[[], Any],
         response_field: Optional["ModelField"],
         response_model_include: Optional["IncEx"],
@@ -155,7 +154,7 @@ class StreamMessage(Request):
         response_model_exclude_unset: bool,
         response_model_exclude_defaults: bool,
         response_model_exclude_none: bool,
-    ) -> Callable[[NativeMessage[Any]], Awaitable[Any]]:
+    ) -> Callable[["NativeMessage[Any]"], Awaitable[Any]]:
         """Creates a session for handling requests."""
         assert dependent.call  # nosec B101
 
@@ -181,11 +180,11 @@ class StreamMessage(Request):
             None,
         )
 
-        async def real_consumer(message: NativeMessage[Any]) -> Any:
+        async def real_consumer(message: "NativeMessage[Any]") -> Any:
             """An asynchronous function that processes an incoming message and returns a sendable message."""
             body = message.decoded_body
 
-            fastapi_body: Union[AnyDict, List[Any]]
+            fastapi_body: Union["AnyDict", List[Any]]
             if first_arg is not None:
                 if isinstance(body, dict):
                     path = fastapi_body = body or {}
@@ -215,7 +214,7 @@ class StreamMessage(Request):
 
 def make_fastapi_execution(
     *,
-    dependent: Dependant,
+    dependent: "Dependant",
     provider_factory: Callable[[], Any],
     response_field: Optional["ModelField"],
     response_model_include: Optional["IncEx"],
@@ -225,7 +224,7 @@ def make_fastapi_execution(
     response_model_exclude_defaults: bool,
     response_model_exclude_none: bool,
 ) -> Callable[
-    [StreamMessage, NativeMessage[Any]],
+    [StreamMessage, "NativeMessage[Any]"],
     Awaitable[Any],
 ]:
     """Creates a FastAPI application."""
@@ -233,7 +232,7 @@ def make_fastapi_execution(
 
     async def app(
         request: StreamMessage,
-        raw_message: NativeMessage[Any],
+        raw_message: "NativeMessage[Any]",
     ) -> Any:
         """Consume StreamMessage and return user function result."""
         async with AsyncExitStack() as stack:

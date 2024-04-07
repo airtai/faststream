@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 
-from fast_depends.dependencies import Depends
 from nats.aio.subscription import (
     DEFAULT_SUB_PENDING_BYTES_LIMIT,
     DEFAULT_SUB_PENDING_MSGS_LIMIT,
@@ -20,7 +19,6 @@ from faststream.asyncapi.schema import (
 )
 from faststream.asyncapi.schema.bindings import nats
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.broker.types import BrokerMiddleware
 from faststream.exceptions import SetupError
 from faststream.nats.helpers import stream_builder
 from faststream.nats.subscriber.usecase import (
@@ -30,8 +28,10 @@ from faststream.nats.subscriber.usecase import (
 )
 
 if TYPE_CHECKING:
+    from fast_depends.dependencies import Depends
     from nats.js import api
 
+    from faststream.broker.types import BrokerMiddleware
     from faststream.nats.schemas import JStream, PullSub
     from faststream.types import AnyDict
 
@@ -94,8 +94,8 @@ class AsyncAPISubscriber(LogicSubscriber[Any]):
         # Subscriber args
         no_ack: bool,
         retry: Union[bool, int],
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[Any]],
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[Any]"],
         # AsyncAPI information
         title_: Optional[str],
         description_: Optional[str],

@@ -56,7 +56,7 @@ if TYPE_CHECKING:
     )
     from faststream.rabbit.schemas.reply import ReplyConfig
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict
+    from faststream.types import AnyDict, LoggerProto
 
 
 class RabbitRouter(StreamRouter["IncomingMessage"]):
@@ -157,7 +157,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
         ] = None,
         # logging args
         logger: Annotated[
-            Union[logging.Logger, None, object],
+            Union["LoggerProto", None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = Parameter.empty,
         log_level: Annotated[

@@ -1,10 +1,9 @@
 import re
-from typing import Any, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Any, Optional, Sequence, Union
 
 from typing_extensions import override
 
 from faststream.broker.message import gen_cor_id
-from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.exceptions import SetupError
 from faststream.redis.broker.broker import RedisBroker
 from faststream.redis.message import (
@@ -16,12 +15,15 @@ from faststream.redis.message import (
     bDATA_KEY,
 )
 from faststream.redis.parser import RawMessage
-from faststream.redis.publisher.asyncapi import AsyncAPIPublisher
 from faststream.redis.publisher.producer import RedisFastProducer
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
 from faststream.redis.subscriber.asyncapi import AsyncAPISubscriber
 from faststream.testing.broker import TestBroker, call_handler
-from faststream.types import AnyDict, SendableMessage
+
+if TYPE_CHECKING:
+    from faststream.broker.wrapper.call import HandlerCallWrapper
+    from faststream.redis.publisher.asyncapi import AsyncAPIPublisher
+    from faststream.types import AnyDict, SendableMessage
 
 __all__ = ("TestRedisBroker",)
 
@@ -32,8 +34,8 @@ class TestRedisBroker(TestBroker[RedisBroker]):
     @staticmethod
     def create_publisher_fake_subscriber(
         broker: RedisBroker,
-        publisher: AsyncAPIPublisher,
-    ) -> HandlerCallWrapper[Any, Any, Any]:
+        publisher: "AsyncAPIPublisher",
+    ) -> "HandlerCallWrapper[Any, Any, Any]":
         sub = broker.subscriber(**publisher.subscriber_property)
 
         if not sub.calls:
@@ -57,7 +59,7 @@ class TestRedisBroker(TestBroker[RedisBroker]):
     @staticmethod
     def remove_publisher_fake_subscriber(
         broker: RedisBroker,
-        publisher: AsyncAPIPublisher,
+        publisher: "AsyncAPIPublisher",
     ) -> None:
         broker._subscribers.pop(
             hash(AsyncAPISubscriber.create(**publisher.subscriber_property)),
@@ -72,13 +74,13 @@ class FakeProducer(RedisFastProducer):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: SendableMessage,
+        message: "SendableMessage",
         *,
         channel: Optional[str] = None,
         list: Optional[str] = None,
         stream: Optional[str] = None,
         maxlen: Optional[int] = None,
-        headers: Optional[AnyDict] = None,
+        headers: Optional["AnyDict"] = None,
         reply_to: str = "",
         correlation_id: Optional[str] = None,
         rpc: bool = False,
@@ -172,7 +174,7 @@ class FakeProducer(RedisFastProducer):
 
     async def publish_batch(
         self,
-        *msgs: SendableMessage,
+        *msgs: "SendableMessage",
         list: str,
         correlation_id: Optional[str] = None,
     ) -> None:
@@ -201,11 +203,11 @@ class FakeProducer(RedisFastProducer):
 
 
 def build_message(
-    message: Union[Sequence[SendableMessage], SendableMessage],
+    message: Union[Sequence["SendableMessage"], "SendableMessage"],
     *,
     correlation_id: str,
     reply_to: str = "",
-    headers: Optional[AnyDict] = None,
+    headers: Optional["AnyDict"] = None,
 ) -> bytes:
     data = RawMessage.encode(
         message=message,

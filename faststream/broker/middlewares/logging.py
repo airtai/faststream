@@ -1,13 +1,15 @@
 import logging
 from types import TracebackType
-from typing import Any, Optional, Type
+from typing import TYPE_CHECKING, Any, Optional, Type
 
 from typing_extensions import Self
 
 from faststream.broker.middlewares.base import BaseMiddleware
 from faststream.exceptions import IgnoredException
-from faststream.types import DecodedMessage, LoggerProto
 from faststream.utils.context.repository import context
+
+if TYPE_CHECKING:
+    from faststream.types import DecodedMessage, LoggerProto
 
 
 class CriticalLogMiddleware(BaseMiddleware):
@@ -15,7 +17,7 @@ class CriticalLogMiddleware(BaseMiddleware):
 
     def __init__(
         self,
-        logger: Optional[LoggerProto],
+        logger: Optional["LoggerProto"],
         log_level: int,
     ) -> None:
         """Initialize the class."""
@@ -28,8 +30,8 @@ class CriticalLogMiddleware(BaseMiddleware):
 
     async def on_consume(
         self,
-        msg: Optional[DecodedMessage],
-    ) -> Optional[DecodedMessage]:
+        msg: Optional["DecodedMessage"],
+    ) -> Optional["DecodedMessage"]:
         if self.logger is not None:
             c = context.get_local("log_context") or {}
             self.logger.log(self.log_level, "Received", extra=c)

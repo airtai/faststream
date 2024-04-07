@@ -1,6 +1,5 @@
-from typing import Dict, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Dict, Iterable, Optional, Union
 
-from fast_depends.dependencies import Depends
 from typing_extensions import TypeAlias, override
 
 from faststream.asyncapi.schema import (
@@ -12,9 +11,6 @@ from faststream.asyncapi.schema import (
 )
 from faststream.asyncapi.schema.bindings import redis
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.broker.types import (
-    BrokerMiddleware,
-)
 from faststream.exceptions import SetupError
 from faststream.redis.message import BaseMessage
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
@@ -27,6 +23,11 @@ from faststream.redis.subscriber.usecase import (
     LogicSubscriber,
     StreamSubscriber,
 )
+
+if TYPE_CHECKING:
+    from fast_depends.dependencies import Depends
+
+    from faststream.broker.types import BrokerMiddleware
 
 HandlerType: TypeAlias = Union[
     "AsyncAPIChannelSubscriber",
@@ -65,14 +66,14 @@ class AsyncAPISubscriber(LogicSubscriber[BaseMessage], RedisAsyncAPIProtocol):
     @staticmethod
     def create(  # type: ignore[override]
         *,
-        channel: Union[PubSub, str, None],
-        list: Union[ListSub, str, None],
-        stream: Union[StreamSub, str, None],
+        channel: Union["PubSub", str, None],
+        list: Union["ListSub", str, None],
+        stream: Union["StreamSub", str, None],
         # Subscriber args
         no_ack: bool = False,
         retry: bool = False,
-        broker_dependencies: Iterable[Depends] = (),
-        broker_middlewares: Iterable[BrokerMiddleware[BaseMessage]] = (),
+        broker_dependencies: Iterable["Depends"] = (),
+        broker_middlewares: Iterable["BrokerMiddleware[BaseMessage]"] = (),
         # AsyncAPI args
         title_: Optional[str] = None,
         description_: Optional[str] = None,
@@ -159,7 +160,7 @@ class AsyncAPIChannelSubscriber(ChannelSubscriber, AsyncAPISubscriber):
         return f"{self.channel.name}:{self.call_name}"
 
     @property
-    def channel_binding(self) -> redis.ChannelBinding:
+    def channel_binding(self) -> "redis.ChannelBinding":
         return redis.ChannelBinding(
             channel=self.channel.name,
             method="psubscribe" if self.channel.pattern else "subscribe",
@@ -173,7 +174,7 @@ class _StreamSubscriberMixin(AsyncAPISubscriber):
         return f"{self.stream_sub.name}:{self.call_name}"
 
     @property
-    def channel_binding(self) -> redis.ChannelBinding:
+    def channel_binding(self) -> "redis.ChannelBinding":
         return redis.ChannelBinding(
             channel=self.stream_sub.name,
             group_name=self.stream_sub.group,
@@ -197,7 +198,7 @@ class _ListSubscriberMixin(AsyncAPISubscriber):
         return f"{self.list_sub.name}:{self.call_name}"
 
     @property
-    def channel_binding(self) -> redis.ChannelBinding:
+    def channel_binding(self) -> "redis.ChannelBinding":
         return redis.ChannelBinding(
             channel=self.list_sub.name,
             method="lpop",

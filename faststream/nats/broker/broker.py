@@ -33,11 +33,9 @@ from faststream.__about__ import SERVICE_NAME
 from faststream.broker.message import gen_cor_id
 from faststream.nats.broker.logging import NatsLoggingBroker
 from faststream.nats.broker.registrator import NatsRegistrator
-from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
 from faststream.nats.publisher.producer import NatsFastProducer, NatsJSFastProducer
 from faststream.nats.security import parse_security
 from faststream.nats.subscriber.asyncapi import AsyncAPISubscriber
-from faststream.types import AnyDict
 
 if TYPE_CHECKING:
     import ssl
@@ -64,8 +62,9 @@ if TYPE_CHECKING:
         CustomDecoder,
         CustomParser,
     )
+    from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict, DecodedMessage, SendableMessage
+    from faststream.types import AnyDict, DecodedMessage, LoggerProto, SendableMessage
 
     class NatsInitKwargs(TypedDict, total=False):
         """NatsBroker.connect() method type hints."""
@@ -407,7 +406,7 @@ class NatsBroker(
         ] = None,
         # logging args
         logger: Annotated[
-            Union[logging.Logger, None, object],
+            Union["LoggerProto", None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = Parameter.empty,
         log_level: Annotated[
@@ -740,7 +739,7 @@ class NatsBroker(
     @override
     def setup_subscriber(  # type: ignore[override]
         self,
-        subscriber: AsyncAPISubscriber,
+        subscriber: "AsyncAPISubscriber",
     ) -> None:
         connection: Union["Client", "JetStreamContext", None] = None
 
@@ -751,7 +750,7 @@ class NatsBroker(
     @override
     def setup_publisher(  # type: ignore[override]
         self,
-        publisher: AsyncAPIPublisher,
+        publisher: "AsyncAPIPublisher",
     ) -> None:
         producer: Optional[ProducerProto] = None
 

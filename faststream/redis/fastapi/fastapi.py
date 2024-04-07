@@ -56,7 +56,7 @@ if TYPE_CHECKING:
     )
     from faststream.redis.message import BaseMessage
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict
+    from faststream.types import AnyDict, LoggerProto
 
 
 class RedisRouter(StreamRouter["BaseMessage"]):
@@ -137,7 +137,7 @@ class RedisRouter(StreamRouter["BaseMessage"]):
         ] = None,
         # logging args
         logger: Annotated[
-            Union[logging.Logger, None, object],
+            Union["LoggerProto", None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = Parameter.empty,
         log_level: Annotated[

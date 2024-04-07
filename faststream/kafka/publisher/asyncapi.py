@@ -1,6 +1,15 @@
-from typing import Any, Dict, Iterable, Literal, Optional, Tuple, Union, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Iterable,
+    Literal,
+    Optional,
+    Tuple,
+    Union,
+    overload,
+)
 
-from aiokafka import ConsumerRecord
 from typing_extensions import override
 
 from faststream.asyncapi.schema import (
@@ -12,13 +21,18 @@ from faststream.asyncapi.schema import (
 )
 from faststream.asyncapi.schema.bindings import kafka
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.broker.types import BrokerMiddleware, MsgType, PublisherMiddleware
+from faststream.broker.types import MsgType
 from faststream.exceptions import SetupError
 from faststream.kafka.publisher.usecase import (
     BatchPublisher,
     DefaultPublisher,
     LogicPublisher,
 )
+
+if TYPE_CHECKING:
+    from aiokafka import ConsumerRecord
+
+    from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
 
 
 class AsyncAPIPublisher(LogicPublisher[MsgType]):
@@ -57,8 +71,8 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         headers: Optional[Dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable[BrokerMiddleware[Tuple[ConsumerRecord, ...]]],
-        middlewares: Iterable[PublisherMiddleware],
+        broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConsumerRecord, ...]]"],
+        middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -77,8 +91,8 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         headers: Optional[Dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable[BrokerMiddleware[ConsumerRecord]],
-        middlewares: Iterable[PublisherMiddleware],
+        broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
+        middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -98,9 +112,9 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         reply_to: str,
         # Publisher args
         broker_middlewares: Iterable[
-            BrokerMiddleware[Union[Tuple[ConsumerRecord, ...], ConsumerRecord]]
+            "BrokerMiddleware[Union[Tuple[ConsumerRecord, ...], ConsumerRecord]]"
         ],
-        middlewares: Iterable[PublisherMiddleware],
+        middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -123,9 +137,9 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         reply_to: str,
         # Publisher args
         broker_middlewares: Iterable[
-            BrokerMiddleware[Union[Tuple[ConsumerRecord, ...], ConsumerRecord]]
+            "BrokerMiddleware[Union[Tuple[ConsumerRecord, ...], ConsumerRecord]]"
         ],
-        middlewares: Iterable[PublisherMiddleware],
+        middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -170,13 +184,13 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
 
 class AsyncAPIBatchPublisher(
     BatchPublisher,
-    AsyncAPIPublisher[Tuple[ConsumerRecord, ...]],
+    AsyncAPIPublisher[Tuple["ConsumerRecord", ...]],
 ):
     pass
 
 
 class AsyncAPIDefaultPublisher(
     DefaultPublisher,
-    AsyncAPIPublisher[ConsumerRecord],
+    AsyncAPIPublisher["ConsumerRecord"],
 ):
     pass

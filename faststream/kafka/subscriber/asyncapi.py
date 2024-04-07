@@ -1,7 +1,15 @@
-from typing import Callable, Dict, Iterable, Literal, Optional, Tuple, Union, overload
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    Dict,
+    Iterable,
+    Literal,
+    Optional,
+    Tuple,
+    Union,
+    overload,
+)
 
-from aiokafka import AIOKafkaConsumer, ConsumerRecord
-from fast_depends.dependencies import Depends
 from typing_extensions import override
 
 from faststream.asyncapi.schema import (
@@ -13,12 +21,18 @@ from faststream.asyncapi.schema import (
 )
 from faststream.asyncapi.schema.bindings import kafka
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.broker.types import BrokerMiddleware, MsgType
+from faststream.broker.types import MsgType
 from faststream.kafka.subscriber.usecase import (
     BatchSubscriber,
     DefaultSubscriber,
     LogicSubscriber,
 )
+
+if TYPE_CHECKING:
+    from aiokafka import AIOKafkaConsumer, ConsumerRecord
+    from fast_depends.dependencies import Depends
+
+    from faststream.broker.types import BrokerMiddleware
 
 
 class AsyncAPISubscriber(LogicSubscriber[MsgType]):
@@ -62,13 +76,13 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., AIOKafkaConsumer],
+        builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[Tuple[ConsumerRecord, ...]]],
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConsumerRecord, ...]]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -84,13 +98,13 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., AIOKafkaConsumer],
+        builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[ConsumerRecord]],
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[ConsumerRecord]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -106,14 +120,14 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., AIOKafkaConsumer],
+        builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable[
-            BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]],]
+            "BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]]"
         ],
         # AsyncAPI args
         title_: Optional[str],
@@ -133,14 +147,14 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., AIOKafkaConsumer],
+        builder: Callable[..., "AIOKafkaConsumer"],
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable[
-            BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]],]
+            "BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]]"
         ],
         # AsyncAPI args
         title_: Optional[str],
@@ -184,13 +198,13 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
 
 class AsyncAPIDefaultSubscriber(
     DefaultSubscriber,
-    AsyncAPISubscriber[ConsumerRecord],
+    AsyncAPISubscriber["ConsumerRecord"],
 ):
     pass
 
 
 class AsyncAPIBatchSubscriber(
     BatchSubscriber,
-    AsyncAPISubscriber[Tuple[ConsumerRecord, ...]],
+    AsyncAPISubscriber[Tuple["ConsumerRecord", ...]],
 ):
     pass

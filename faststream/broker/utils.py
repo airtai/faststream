@@ -4,6 +4,7 @@ from contextlib import suppress
 from functools import partial
 from types import TracebackType
 from typing import (
+    TYPE_CHECKING,
     Any,
     AsyncContextManager,
     Callable,
@@ -17,25 +18,27 @@ import anyio
 from typing_extensions import Self
 
 from faststream.broker.acknowledgement_watcher import WatcherContext, get_watcher
-from faststream.broker.message import StreamMessage
-from faststream.broker.types import (
-    AsyncDecoder,
-    AsyncParser,
-    CustomDecoder,
-    CustomParser,
-    MsgType,
-)
-from faststream.types import LoggerProto
 from faststream.utils.functions import fake_context, to_async
 
+if TYPE_CHECKING:
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.types import (
+        AsyncDecoder,
+        AsyncParser,
+        CustomDecoder,
+        CustomParser,
+        MsgType,
+    )
+    from faststream.types import LoggerProto
 
-async def default_filter(msg: StreamMessage[Any]) -> bool:
+
+async def default_filter(msg: "StreamMessage[Any]") -> bool:
     """A function to filter stream messages."""
     return not msg.processed
 
 
 def get_watcher_context(
-    logger: Optional[LoggerProto],
+    logger: Optional["LoggerProto"],
     no_ack: bool,
     retry: Union[bool, int],
     **extra_options: Any,
@@ -105,30 +108,30 @@ class MultiLock:
 
 @overload
 def resolve_custom_func(
-    custom_func: Optional[CustomParser[MsgType]],
-    default_func: AsyncParser[MsgType],
-) -> AsyncParser[MsgType]: ...
+    custom_func: Optional["CustomParser[MsgType]"],
+    default_func: "AsyncParser[MsgType]",
+) -> "AsyncParser[MsgType]": ...
 
 
 @overload
 def resolve_custom_func(
-    custom_func: Optional[CustomDecoder[StreamMessage[MsgType]]],
-    default_func: AsyncDecoder[StreamMessage[MsgType]],
-) -> AsyncDecoder[StreamMessage[MsgType]]: ...
+    custom_func: Optional["CustomDecoder[StreamMessage[MsgType]]"],
+    default_func: "AsyncDecoder[StreamMessage[MsgType]]",
+) -> "AsyncDecoder[StreamMessage[MsgType]]": ...
 
 
 def resolve_custom_func(
     custom_func: Union[
-        Optional[CustomDecoder[StreamMessage[MsgType]]],
-        Optional[CustomParser[MsgType]],
+        Optional["CustomDecoder[StreamMessage[MsgType]]"],
+        Optional["CustomParser[MsgType]"],
     ],
     default_func: Union[
-        AsyncDecoder[StreamMessage[MsgType]],
-        AsyncParser[MsgType],
+        "AsyncDecoder[StreamMessage[MsgType]]",
+        "AsyncParser[MsgType]",
     ],
 ) -> Union[
-    AsyncDecoder[StreamMessage[MsgType]],
-    AsyncParser[MsgType],
+    "AsyncDecoder[StreamMessage[MsgType]]",
+    "AsyncParser[MsgType]",
 ]:
     """Resolve a custom parser/decoder with default one."""
     if custom_func is None:

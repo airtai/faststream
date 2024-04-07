@@ -6,28 +6,26 @@ from typing import (
     Optional,
 )
 
-from fast_depends.dependencies import Depends
-
 from faststream.broker.core.abc import ABCBroker
-from faststream.broker.types import (
-    MsgType,
-)
-from faststream.types import AnyDict
+from faststream.broker.types import MsgType
 
 if TYPE_CHECKING:
+    from fast_depends.dependencies import Depends
+
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
         CustomDecoder,
         CustomParser,
     )
+    from faststream.types import AnyDict
 
 
 class ArgsContainer:
     """Class to store any arguments."""
 
     args: Iterable[Any]
-    kwargs: AnyDict
+    kwargs: "AnyDict"
 
     def __init__(
         self,
@@ -67,7 +65,7 @@ class BrokerRouter(ABCBroker[MsgType]):
         handlers: Iterable[SubscriberRoute],
         # base options
         prefix: str,
-        dependencies: Iterable[Depends],
+        dependencies: Iterable["Depends"],
         middlewares: Iterable["BrokerMiddleware[MsgType]"],
         parser: Optional["CustomParser[MsgType]"],
         decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"],

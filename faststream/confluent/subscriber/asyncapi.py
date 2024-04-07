@@ -1,7 +1,16 @@
-from typing import Callable, Dict, Iterable, Literal, Optional, Tuple, Union, overload
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    Dict,
+    Iterable,
+    Literal,
+    Optional,
+    Tuple,
+    Union,
+    overload,
+)
 
 from confluent_kafka import Message as ConfluentMsg
-from fast_depends.dependencies import Depends
 from typing_extensions import override
 
 from faststream.asyncapi.schema import (
@@ -13,13 +22,18 @@ from faststream.asyncapi.schema import (
 )
 from faststream.asyncapi.schema.bindings import kafka
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.broker.types import BrokerMiddleware, MsgType
-from faststream.confluent.client import AsyncConfluentConsumer
+from faststream.broker.types import MsgType
 from faststream.confluent.subscriber.usecase import (
     BatchSubscriber,
     DefaultSubscriber,
     LogicSubscriber,
 )
+
+if TYPE_CHECKING:
+    from fast_depends.dependencies import Depends
+
+    from faststream.broker.types import BrokerMiddleware
+    from faststream.confluent.client import AsyncConfluentConsumer
 
 
 class AsyncAPISubscriber(LogicSubscriber[MsgType]):
@@ -63,13 +77,13 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., AsyncConfluentConsumer],
+        builder: Callable[..., "AsyncConfluentConsumer"],
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[Tuple[ConfluentMsg, ...]]],
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[Tuple[ConfluentMsg, ...]]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -85,13 +99,13 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., AsyncConfluentConsumer],
+        builder: Callable[..., "AsyncConfluentConsumer"],
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[ConfluentMsg]],
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[ConfluentMsg]"],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -107,14 +121,14 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., AsyncConfluentConsumer],
+        builder: Callable[..., "AsyncConfluentConsumer"],
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable[
-            BrokerMiddleware[Union[ConfluentMsg, Tuple[ConfluentMsg, ...]],]
+            "BrokerMiddleware[Union[ConfluentMsg, Tuple[ConfluentMsg, ...]]]"
         ],
         # AsyncAPI args
         title_: Optional[str],
@@ -134,14 +148,14 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         max_records: Optional[int],
         # Kafka information
         group_id: Optional[str],
-        builder: Callable[..., AsyncConfluentConsumer],
+        builder: Callable[..., "AsyncConfluentConsumer"],
         is_manual: bool,
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
+        broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable[
-            BrokerMiddleware[Union[ConfluentMsg, Tuple[ConfluentMsg, ...]],]
+            "BrokerMiddleware[Union[ConfluentMsg, Tuple[ConfluentMsg, ...]]]"
         ],
         # AsyncAPI args
         title_: Optional[str],

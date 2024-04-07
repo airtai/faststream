@@ -4,11 +4,13 @@ import os
 import signal
 import sys
 from contextlib import suppress
-from multiprocessing.context import SpawnProcess
-from types import FrameType
-from typing import Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
-from faststream.types import DecoratedCallableNone
+if TYPE_CHECKING:
+    from multiprocessing.context import SpawnProcess
+    from types import FrameType
+
+    from faststream.types import DecoratedCallableNone
 
 multiprocessing.allow_connection_pickling()
 spawn = multiprocessing.get_context("spawn")
@@ -21,7 +23,7 @@ HANDLED_SIGNALS = (
 
 
 def set_exit(
-    func: Callable[[int, Optional[FrameType]], Any],
+    func: Callable[[int, Optional["FrameType"]], Any],
     *,
     sync: bool = False,
 ) -> None:
@@ -45,19 +47,8 @@ def set_exit(
         signal.signal(sig, func)
 
 
-def get_subprocess(target: DecoratedCallableNone, args: Any) -> SpawnProcess:
-    """Spawn a subprocess.
-
-    Args:
-        target: The target function to be executed in the subprocess.
-        args: The arguments to be passed to the target function.
-
-    Returns:
-        The spawned subprocess.
-
-    Raises:
-        OSError: If there is an error getting the file descriptor of sys.stdin.
-    """
+def get_subprocess(target: "DecoratedCallableNone", args: Any) -> "SpawnProcess":
+    """Spawn a subprocess."""
     stdin_fileno: Optional[int]
     try:
         stdin_fileno = sys.stdin.fileno()
@@ -73,20 +64,10 @@ def get_subprocess(target: DecoratedCallableNone, args: Any) -> SpawnProcess:
 
 def subprocess_started(
     *args: Any,
-    t: DecoratedCallableNone,
+    t: "DecoratedCallableNone",
     stdin_fileno: Optional[int],
 ) -> None:
-    """Start a subprocess.
-
-    Args:
-        *args: Arguments to be passed to the subprocess.
-        t: The decorated callable function.
-        stdin_fileno: File descriptor for the standard input of the subprocess.
-
-    Returns:
-        None
-
-    """
+    """Start a subprocess."""
     if stdin_fileno is not None:  # pragma: no cover
         sys.stdin = os.fdopen(stdin_fileno)
     t(*args)

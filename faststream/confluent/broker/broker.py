@@ -2,7 +2,6 @@ import logging
 from asyncio import AbstractEventLoop
 from contextlib import AsyncExitStack
 from inspect import Parameter
-from types import TracebackType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -18,17 +17,10 @@ from typing import (
     Union,
 )
 
-from confluent_kafka import Message
-from fast_depends.dependencies import Depends
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.message import StreamMessage, gen_cor_id
-from faststream.broker.types import (
-    BrokerMiddleware,
-    CustomDecoder,
-    CustomParser,
-)
 from faststream.confluent.broker.logging import KafkaLoggingBroker
 from faststream.confluent.broker.registrator import KafkaRegistrator
 from faststream.confluent.client import AsyncConfluentProducer, _missing
@@ -36,12 +28,22 @@ from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.types import AnyDict, SendableMessage
 from faststream.utils.data import filter_by_dict
 
 if TYPE_CHECKING:
+    from types import TracebackType
+
+    from confluent_kafka import Message
+    from fast_depends.dependencies import Depends
+
     from faststream.asyncapi import schema as asyncapi
+    from faststream.broker.types import (
+        BrokerMiddleware,
+        CustomDecoder,
+        CustomParser,
+    )
     from faststream.security import BaseSecurity
+    from faststream.types import AnyDict, LoggerProto, SendableMessage
 
 Partition = TypeVar("Partition")
 
@@ -251,25 +253,27 @@ class KafkaBroker(
         decoder: Annotated[
             Optional[
                 Union[
-                    CustomDecoder[StreamMessage[Message]],
-                    CustomDecoder[StreamMessage[Tuple[Message, ...]]],
+                    "CustomDecoder[StreamMessage[Message]]",
+                    "CustomDecoder[StreamMessage[Tuple[Message, ...]]]",
                 ]
             ],
             Doc("Custom decoder object."),
         ] = None,
         parser: Annotated[
-            Optional[Union[CustomParser[Message], CustomParser[Tuple[Message, ...]]]],
+            Optional[
+                Union["CustomParser[Message]", "CustomParser[Tuple[Message, ...]]"]
+            ],
             Doc("Custom parser object."),
         ] = None,
         dependencies: Annotated[
-            Iterable[Depends],
+            Iterable["Depends"],
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
             Iterable[
                 Union[
-                    BrokerMiddleware[Message],
-                    BrokerMiddleware[Tuple[Message, ...]],
+                    "BrokerMiddleware[Message]",
+                    "BrokerMiddleware[Tuple[Message, ...]]",
                 ]
             ],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
@@ -303,7 +307,7 @@ class KafkaBroker(
         ] = None,
         # logging args
         logger: Annotated[
-            Union[logging.Logger, None, object],
+            Union["LoggerProto", None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = Parameter.empty,
         log_level: Annotated[
@@ -403,7 +407,7 @@ class KafkaBroker(
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exc_tb: Optional[TracebackType] = None,
+        exc_tb: Optional["TracebackType"] = None,
     ) -> None:
         if self._producer is not None:  # pragma: no branch
             await self._producer.stop()
@@ -453,13 +457,13 @@ class KafkaBroker(
             await handler.start()
 
     @property
-    def _subscriber_setup_extra(self) -> AnyDict:
+    def _subscriber_setup_extra(self) -> "AnyDict":
         return {"client_id": self.client_id, "connection_data": self._connection or {}}
 
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: SendableMessage,
+        message: "SendableMessage",
         topic: str,
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
@@ -488,7 +492,7 @@ class KafkaBroker(
 
     async def publish_batch(
         self,
-        *msgs: SendableMessage,
+        *msgs: "SendableMessage",
         topic: str,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,

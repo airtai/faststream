@@ -1,19 +1,19 @@
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 from typing_extensions import override
 
 from faststream.broker.message import encode_message, gen_cor_id
 from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.confluent.broker import KafkaBroker
-from faststream.confluent.publisher.asyncapi import (
-    AsyncAPIBatchPublisher,
-    AsyncAPIPublisher,
-)
+from faststream.confluent.publisher.asyncapi import AsyncAPIBatchPublisher
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.subscriber.asyncapi import AsyncAPIBatchSubscriber
 from faststream.testing.broker import TestBroker, call_handler
-from faststream.types import SendableMessage
+
+if TYPE_CHECKING:
+    from faststream.confluent.publisher.asyncapi import AsyncAPIPublisher
+    from faststream.types import SendableMessage
 
 __all__ = ("TestKafkaBroker",)
 
@@ -28,7 +28,7 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     @staticmethod
     def create_publisher_fake_subscriber(
         broker: KafkaBroker,
-        publisher: AsyncAPIPublisher,
+        publisher: "AsyncAPIPublisher",
     ) -> HandlerCallWrapper[Any, Any, Any]:
         sub = broker.subscriber(  # type: ignore[call-overload,misc]
             publisher.topic,
@@ -48,7 +48,7 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     @staticmethod
     def remove_publisher_fake_subscriber(
         broker: KafkaBroker,
-        publisher: AsyncAPIPublisher,
+        publisher: "AsyncAPIPublisher",
     ) -> None:
         broker._subscribers.pop(hash(publisher), None)
 
@@ -65,7 +65,7 @@ class FakeProducer(AsyncConfluentFastProducer):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: SendableMessage,
+        message: "SendableMessage",
         topic: str,
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
@@ -108,7 +108,7 @@ class FakeProducer(AsyncConfluentFastProducer):
 
     async def publish_batch(
         self,
-        *msgs: SendableMessage,
+        *msgs: "SendableMessage",
         topic: str,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
@@ -200,7 +200,7 @@ class MockConfluentMessage:
 
 
 def build_message(
-    message: SendableMessage,
+    message: "SendableMessage",
     topic: str,
     *,
     correlation_id: str,
@@ -210,21 +210,7 @@ def build_message(
     headers: Optional[Dict[str, str]] = None,
     reply_to: str = "",
 ) -> MockConfluentMessage:
-    """Build a mock confluent_kafka.Message for a sendable message.
-
-    Args:
-        message (SendableMessage): The sendable message to be encoded.
-        topic (str): The Kafka topic for the message.
-        partition (Optional[int], optional): The Kafka partition for the message. Defaults to None.
-        timestamp_ms (Optional[int], optional): The message timestamp in milliseconds. Defaults to None.
-        key (Optional[bytes], optional): The message key. Defaults to None.
-        headers (Optional[Dict[str, str]], optional): Additional headers for the message. Defaults to None.
-        correlation_id (Optional[str], optional): The correlation ID for the message. Defaults to None.
-        reply_to (str, optional): The topic to which responses should be sent. Defaults to "".
-
-    Returns:
-        MockConfluentMessage: A mock confluent_kafka.Message object.
-    """
+    """Build a mock confluent_kafka.Message for a sendable message."""
     msg, content_type = encode_message(message)
     k = key or b""
     headers = {

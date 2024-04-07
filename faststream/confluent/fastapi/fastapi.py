@@ -17,7 +17,6 @@ from typing import (
 )
 
 from confluent_kafka import Message
-from fastapi import params
 from fastapi.datastructures import Default
 from fastapi.routing import APIRoute
 from fastapi.utils import generate_unique_id
@@ -27,15 +26,6 @@ from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.fastapi.router import StreamRouter
-from faststream.broker.message import StreamMessage
-from faststream.broker.types import (
-    BrokerMiddleware,
-    CustomDecoder,
-    CustomParser,
-    Filter,
-    PublisherMiddleware,
-    SubscriberMiddleware,
-)
 from faststream.broker.utils import default_filter
 from faststream.confluent.broker.broker import KafkaBroker as KB
 from faststream.confluent.publisher.asyncapi import AsyncAPIPublisher
@@ -44,12 +34,22 @@ from faststream.confluent.subscriber.asyncapi import AsyncAPISubscriber
 if TYPE_CHECKING:
     from enum import Enum
 
+    from fastapi import params
     from fastapi.types import IncEx
     from starlette.types import ASGIApp, Lifespan
 
     from faststream.asyncapi import schema as asyncapi
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.types import (
+        BrokerMiddleware,
+        CustomDecoder,
+        CustomParser,
+        Filter,
+        PublisherMiddleware,
+        SubscriberMiddleware,
+    )
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict
+    from faststream.types import AnyDict, LoggerProto
 
 
 class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
@@ -76,21 +76,23 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         decoder: Annotated[
             Optional[
                 Union[
-                    CustomDecoder[StreamMessage[Message]],
-                    CustomDecoder[StreamMessage[Tuple[Message, ...]]],
+                    "CustomDecoder[StreamMessage[Message]]",
+                    "CustomDecoder[StreamMessage[Tuple[Message, ...]]]",
                 ]
             ],
             Doc("Custom decoder object."),
         ] = None,
         parser: Annotated[
-            Optional[Union[CustomParser[Message], CustomParser[Tuple[Message, ...]]]],
+            Optional[
+                Union["CustomParser[Message]", "CustomParser[Tuple[Message, ...]]"]
+            ],
             Doc("Custom parser object."),
         ] = None,
         middlewares: Annotated[
             Iterable[
                 Union[
-                    BrokerMiddleware[Message],
-                    BrokerMiddleware[Tuple[Message, ...]],
+                    "BrokerMiddleware[Message]",
+                    "BrokerMiddleware[Tuple[Message, ...]]",
                 ]
             ],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
@@ -124,7 +126,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         ] = None,
         # logging args
         logger: Annotated[
-            Union[logging.Logger, None, object],
+            Union["LoggerProto", None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = Parameter.empty,
         log_level: Annotated[
@@ -436,23 +438,23 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             "read_committed",
         ] = "read_uncommitted",
         # broker arguments
-        dependencies: Iterable[params.Depends] = (),
+        dependencies: Iterable["params.Depends"] = (),
         parser: Optional[
             Union[
-                CustomParser[Message],
-                CustomParser[Tuple[Message, ...]],
+                "CustomParser[Message]",
+                "CustomParser[Tuple[Message, ...]]",
             ]
         ] = None,
         decoder: Optional[
             Union[
-                CustomDecoder[StreamMessage[Message]],
-                CustomDecoder[StreamMessage[Tuple[Message, ...]]],
+                "CustomDecoder[StreamMessage[Message]]",
+                "CustomDecoder[StreamMessage[Tuple[Message, ...]]]",
             ]
         ] = None,
-        middlewares: Iterable[SubscriberMiddleware] = (),
+        middlewares: Iterable["SubscriberMiddleware"] = (),
         filter: Union[
-            Filter[StreamMessage[Message]],
-            Filter[StreamMessage[Tuple[Message, ...]]],
+            "Filter[StreamMessage[Message]]",
+            "Filter[StreamMessage[Tuple[Message, ...]]]",
         ] = default_filter,
         batch: bool = False,
         max_records: Optional[int] = None,
@@ -648,7 +650,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
         batch: bool = False,
         # basic args
         middlewares: Annotated[
-            Iterable[PublisherMiddleware],
+            Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information

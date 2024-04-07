@@ -3,38 +3,40 @@ from uuid import uuid4
 
 from typing_extensions import override
 
-from faststream.broker.message import StreamMessage
 from faststream.broker.publisher.proto import ProducerProto
-from faststream.broker.types import (
-    AsyncDecoder,
-    AsyncParser,
-    CustomDecoder,
-    CustomParser,
-)
 from faststream.broker.utils import resolve_custom_func
 from faststream.exceptions import WRONG_PUBLISH_ARGS, SetupError
-from faststream.redis.message import DATA_KEY, PubSubMessage
+from faststream.redis.message import DATA_KEY
 from faststream.redis.parser import RawMessage, RedisPubSubParser
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
-from faststream.types import AnyDict, SendableMessage
 from faststream.utils.functions import timeout_scope
 
 if TYPE_CHECKING:
     from redis.asyncio.client import PubSub, Redis
+
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.types import (
+        AsyncDecoder,
+        AsyncParser,
+        CustomDecoder,
+        CustomParser,
+    )
+    from faststream.redis.message import PubSubMessage
+    from faststream.types import AnyDict, SendableMessage
 
 
 class RedisFastProducer(ProducerProto):
     """A class to represent a Redis producer."""
 
     _connection: "Redis[bytes]"
-    _decoder: AsyncDecoder[StreamMessage[PubSubMessage]]
-    _parser: AsyncParser[PubSubMessage]
+    _decoder: "AsyncDecoder[StreamMessage[PubSubMessage]]"
+    _parser: "AsyncParser[PubSubMessage]"
 
     def __init__(
         self,
         connection: "Redis[bytes]",
-        parser: Optional[CustomParser[PubSubMessage]],
-        decoder: Optional[CustomDecoder[StreamMessage[PubSubMessage]]],
+        parser: Optional["CustomParser[PubSubMessage]"],
+        decoder: Optional["CustomDecoder[StreamMessage[PubSubMessage]]"],
     ) -> None:
         self._connection = connection
         self._parser = resolve_custom_func(
@@ -46,14 +48,14 @@ class RedisFastProducer(ProducerProto):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: SendableMessage,
+        message: "SendableMessage",
         *,
         correlation_id: str,
         channel: Optional[str] = None,
         list: Optional[str] = None,
         stream: Optional[str] = None,
         maxlen: Optional[int] = None,
-        headers: Optional[AnyDict] = None,
+        headers: Optional["AnyDict"] = None,
         reply_to: str = "",
         rpc: bool = False,
         rpc_timeout: Optional[float] = 30.0,
@@ -122,7 +124,7 @@ class RedisFastProducer(ProducerProto):
 
     async def publish_batch(
         self,
-        *msgs: SendableMessage,
+        *msgs: "SendableMessage",
         list: str,
         correlation_id: str,
     ) -> None:

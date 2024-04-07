@@ -4,7 +4,6 @@ from nats.js import api
 from typing_extensions import Annotated, Doc, deprecated
 
 from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRoute
-from faststream.broker.types import PublisherMiddleware
 from faststream.broker.utils import default_filter
 from faststream.nats.broker.registrator import NatsRegistrator
 
@@ -18,6 +17,7 @@ if TYPE_CHECKING:
         CustomDecoder,
         CustomParser,
         Filter,
+        PublisherMiddleware,
         SubscriberMiddleware,
     )
     from faststream.nats.schemas import JStream, PullSub
@@ -63,7 +63,7 @@ class NatsPublisher(ArgsContainer):
         ] = None,
         # basic args
         middlewares: Annotated[
-            Iterable[PublisherMiddleware],
+            Iterable["PublisherMiddleware"],
             Doc("Publisher middlewares to wrap outgoing messages."),
         ] = (),
         # AsyncAPI information

@@ -1,17 +1,20 @@
 import logging
 from inspect import Parameter
-from typing import Any, ClassVar, Optional, Tuple, Union
-
-import aiokafka
+from typing import TYPE_CHECKING, Any, ClassVar, Optional, Tuple, Union
 
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.kafka.schemas.params import ConsumerConnectionParams
 from faststream.log.logging import get_broker_logger
 
+if TYPE_CHECKING:
+    import aiokafka
+
+    from faststream.types import LoggerProto
+
 
 class KafkaLoggingBroker(
     BrokerUsecase[
-        Union[aiokafka.ConsumerRecord, Tuple[aiokafka.ConsumerRecord, ...]],
+        Union["aiokafka.ConsumerRecord", Tuple["aiokafka.ConsumerRecord", ...]],
         ConsumerConnectionParams,
     ]
 ):
@@ -24,7 +27,7 @@ class KafkaLoggingBroker(
     def __init__(
         self,
         *args: Any,
-        logger: Union[logging.Logger, object, None] = Parameter.empty,
+        logger: Union["LoggerProto", object, None] = Parameter.empty,
         log_level: int = logging.INFO,
         log_fmt: Optional[str] = None,
         **kwargs: Any,

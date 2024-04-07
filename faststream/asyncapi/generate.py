@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from faststream._compat import DEF_KEY, HAS_FASTAPI
-from faststream.app import FastStream
 from faststream.asyncapi.schema import (
     Channel,
     Components,
@@ -14,6 +13,7 @@ from faststream.asyncapi.schema import (
 from faststream.constants import ContentTypes
 
 if TYPE_CHECKING:
+    from faststream.app import FastStream
     from faststream.broker.core.usecase import BrokerUsecase
     from faststream.broker.types import ConnectionType, MsgType
 
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
         from faststream.broker.fastapi.router import StreamRouter
 
 
-def get_app_schema(app: Union[FastStream, "StreamRouter[Any]"]) -> Schema:
+def get_app_schema(app: Union["FastStream", "StreamRouter[Any]"]) -> Schema:
     """Get the application schema."""
     broker = app.broker
     if broker is None:  # pragma: no cover
@@ -104,20 +104,19 @@ def get_broker_server(
         broker_meta["security"] = broker.security.get_requirement()
 
     if isinstance(broker.url, str):
-        broker_url: Optional[str] = broker.url
-    elif broker.url is None:
-        broker_url = None
-    else:
-        broker_urls = list(broker.url)
-        broker_url = broker_urls[0] if len(broker_urls) == 1 else None
-
-    if broker_url:
         servers["development"] = Server(
             url=broker.url,
             **broker_meta,
         )
+
+    elif len(broker.url) == 1:
+        servers["development"] = Server(
+            url=broker.url[0],
+            **broker_meta,
+        )
+
     else:
-        for i, url in enumerate(broker_urls, 1):
+        for i, url in enumerate(broker.url, 1):
             servers[f"Server{i}"] = Server(
                 url=url,
                 **broker_meta,

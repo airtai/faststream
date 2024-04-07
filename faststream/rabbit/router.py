@@ -5,10 +5,6 @@ from typing_extensions import Annotated, Doc, deprecated
 from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRoute
 from faststream.broker.utils import default_filter
 from faststream.rabbit.broker.registrator import RabbitRegistrator
-from faststream.rabbit.schemas import (
-    RabbitExchange,
-    RabbitQueue,
-)
 
 if TYPE_CHECKING:
     from aio_pika.abc import DateType, HeadersType, TimeoutType
@@ -24,6 +20,10 @@ if TYPE_CHECKING:
         Filter,
         SubscriberMiddleware,
     )
+    from faststream.rabbit.schemas import (
+        RabbitExchange,
+        RabbitQueue,
+    )
     from faststream.rabbit.schemas.reply import ReplyConfig
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.types import AnyDict
@@ -38,11 +38,11 @@ class RabbitPublisher(ArgsContainer):
     def __init__(
         self,
         queue: Annotated[
-            Union[RabbitQueue, str],
+            Union["RabbitQueue", str],
             Doc("Default message routing key to publish with."),
         ] = "",
         exchange: Annotated[
-            Union[RabbitExchange, str, None],
+            Union["RabbitExchange", str, None],
             Doc("Target exchange to publish message to."),
         ] = None,
         *,
@@ -185,14 +185,14 @@ class RabbitRoute(SubscriberRoute):
             ),
         ],
         queue: Annotated[
-            Union[str, RabbitQueue],
+            Union[str, "RabbitQueue"],
             Doc(
                 "RabbitMQ queue to listen. "
                 "**FastStream** declares and binds queue object to `exchange` automatically if it is not passive (by default)."
             ),
         ],
         exchange: Annotated[
-            Union[str, RabbitExchange, None],
+            Union[str, "RabbitExchange", None],
             Doc(
                 "RabbitMQ exchange to bind queue to. "
                 "Uses default exchange if not presented. "

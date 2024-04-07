@@ -5,7 +5,6 @@ from typing_extensions import Annotated, Doc, deprecated, override
 from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
 from faststream.redis.publisher.asyncapi import AsyncAPIPublisher
-from faststream.redis.schemas import ListSub, PubSub, StreamSub
 from faststream.redis.subscriber.asyncapi import AsyncAPISubscriber
 
 if TYPE_CHECKING:
@@ -20,29 +19,30 @@ if TYPE_CHECKING:
         SubscriberMiddleware,
     )
     from faststream.redis.message import BaseMessage
+    from faststream.redis.schemas import ListSub, PubSub, StreamSub
     from faststream.types import AnyDict
 
 
 class RedisRegistrator(ABCBroker["BaseMessage"]):
     """Includable to RabbitBroker router."""
 
-    _subscribers: Dict[int, AsyncAPISubscriber]
-    _publishers: Dict[int, AsyncAPIPublisher]
+    _subscribers: Dict[int, "AsyncAPISubscriber"]
+    _publishers: Dict[int, "AsyncAPIPublisher"]
 
     @override
     def subscriber(  # type: ignore[override]
         self,
         channel: Annotated[
-            Union[PubSub, str, None],
+            Union["PubSub", str, None],
             Doc("Redis PubSub object name to send message."),
         ] = None,
         *,
         list: Annotated[
-            Union[ListSub, str, None],
+            Union["ListSub", str, None],
             Doc("Redis List object name to send message."),
         ] = None,
         stream: Annotated[
-            Union[StreamSub, str, None],
+            Union["StreamSub", str, None],
             Doc("Redis Stream object name to send message."),
         ] = None,
         # broker arguments
@@ -132,16 +132,16 @@ class RedisRegistrator(ABCBroker["BaseMessage"]):
     def publisher(  # type: ignore[override]
         self,
         channel: Annotated[
-            Union[PubSub, str, None],
+            Union["PubSub", str, None],
             Doc("Redis PubSub object name to send message."),
         ] = None,
         *,
         list: Annotated[
-            Union[ListSub, str, None],
+            Union["ListSub", str, None],
             Doc("Redis List object name to send message."),
         ] = None,
         stream: Annotated[
-            Union[StreamSub, str, None],
+            Union["StreamSub", str, None],
             Doc("Redis Stream object name to send message."),
         ] = None,
         headers: Annotated[

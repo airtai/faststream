@@ -1,8 +1,6 @@
 import logging
-from asyncio import AbstractEventLoop
 from contextlib import AsyncExitStack
 from inspect import Parameter
-from types import TracebackType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -19,20 +17,12 @@ from typing import (
 )
 
 import aiokafka
-from aiokafka import ConsumerRecord
-from aiokafka.abc import AbstractTokenProvider
 from aiokafka.partitioner import DefaultPartitioner
 from aiokafka.producer.producer import _missing
-from fast_depends.dependencies import Depends
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.broker.message import StreamMessage, gen_cor_id
-from faststream.broker.types import (
-    BrokerMiddleware,
-    CustomDecoder,
-    CustomParser,
-)
+from faststream.broker.message import gen_cor_id
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.kafka.broker.logging import KafkaLoggingBroker
 from faststream.kafka.broker.registrator import KafkaRegistrator
@@ -45,10 +35,23 @@ from faststream.utils.data import filter_by_dict
 Partition = TypeVar("Partition")
 
 if TYPE_CHECKING:
+    from asyncio import AbstractEventLoop
+    from types import TracebackType
+
+    from aiokafka import ConsumerRecord
+    from aiokafka.abc import AbstractTokenProvider
+    from fast_depends.dependencies import Depends
     from typing_extensions import TypedDict, Unpack
 
     from faststream.asyncapi import schema as asyncapi
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.types import (
+        BrokerMiddleware,
+        CustomDecoder,
+        CustomParser,
+    )
     from faststream.security import BaseSecurity
+    from faststream.types import LoggerProto
 
     class KafkaInitKwargs(TypedDict, total=False):
         request_timeout_ms: Annotated[
@@ -79,7 +82,8 @@ if TYPE_CHECKING:
         sasl_kerberos_service_name: str
         sasl_kerberos_domain_name: Optional[str]
         sasl_oauth_token_provider: Annotated[
-            Optional[AbstractTokenProvider], Doc("OAuthBearer token provider instance.")
+            Optional[AbstractTokenProvider],
+            Doc("OAuthBearer token provider instance."),
         ]
         loop: Optional[AbstractEventLoop]
         client_id: Annotated[
@@ -206,7 +210,7 @@ class KafkaBroker(
     KafkaLoggingBroker,
 ):
     url: List[str]
-    _producer: Optional[AioKafkaFastProducer]
+    _producer: Optional["AioKafkaFastProducer"]
 
     def __init__(
         self,
@@ -251,9 +255,10 @@ class KafkaBroker(
         sasl_kerberos_service_name: str = "kafka",
         sasl_kerberos_domain_name: Optional[str] = None,
         sasl_oauth_token_provider: Annotated[
-            Optional[AbstractTokenProvider], Doc("OAuthBearer token provider instance.")
+            Optional["AbstractTokenProvider"],
+            Doc("OAuthBearer token provider instance."),
         ] = None,
-        loop: Optional[AbstractEventLoop] = None,
+        loop: Optional["AbstractEventLoop"] = None,
         client_id: Annotated[
             Optional[str],
             Doc("""
@@ -381,8 +386,8 @@ class KafkaBroker(
         decoder: Annotated[
             Optional[
                 Union[
-                    CustomDecoder[StreamMessage[ConsumerRecord]],
-                    CustomDecoder[StreamMessage[Tuple[ConsumerRecord, ...]]],
+                    "CustomDecoder[StreamMessage[ConsumerRecord]]",
+                    "CustomDecoder[StreamMessage[Tuple[ConsumerRecord, ...]]]",
                 ]
             ],
             Doc("Custom decoder object."),
@@ -390,21 +395,21 @@ class KafkaBroker(
         parser: Annotated[
             Optional[
                 Union[
-                    CustomParser[ConsumerRecord],
-                    CustomParser[Tuple[ConsumerRecord, ...]],
+                    "CustomParser[ConsumerRecord]",
+                    "CustomParser[Tuple[ConsumerRecord, ...]]",
                 ]
             ],
             Doc("Custom parser object."),
         ] = None,
         dependencies: Annotated[
-            Iterable[Depends],
+            Iterable["Depends"],
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
             Iterable[
                 Union[
-                    BrokerMiddleware[ConsumerRecord],
-                    BrokerMiddleware[Tuple[ConsumerRecord, ...]],
+                    "BrokerMiddleware[ConsumerRecord]",
+                    "BrokerMiddleware[Tuple[ConsumerRecord, ...]]",
                 ]
             ],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
@@ -438,7 +443,7 @@ class KafkaBroker(
         ] = None,
         # logging args
         logger: Annotated[
-            Union[logging.Logger, None, object],
+            Union["LoggerProto", None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = Parameter.empty,
         log_level: Annotated[
@@ -538,7 +543,7 @@ class KafkaBroker(
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exc_tb: Optional[TracebackType] = None,
+        exc_tb: Optional["TracebackType"] = None,
     ) -> None:
         if self._producer is not None:  # pragma: no branch
             await self._producer.stop()
@@ -608,7 +613,7 @@ class KafkaBroker(
     async def publish(  # type: ignore[override]
         self,
         message: Annotated[
-            SendableMessage,
+            "SendableMessage",
             Doc("Message body to send."),
         ],
         topic: Annotated[
@@ -685,7 +690,7 @@ class KafkaBroker(
     async def publish_batch(
         self,
         *msgs: Annotated[
-            SendableMessage,
+            "SendableMessage",
             Doc("Messages bodies to send."),
         ],
         topic: Annotated[

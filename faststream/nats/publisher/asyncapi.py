@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 
-from nats.aio.msg import Msg
 from typing_extensions import override
 
 from faststream.asyncapi.schema import (
@@ -12,11 +11,13 @@ from faststream.asyncapi.schema import (
 )
 from faststream.asyncapi.schema.bindings import nats
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
 from faststream.nats.helpers import stream_builder
 from faststream.nats.publisher.usecase import LogicPublisher
 
 if TYPE_CHECKING:
+    from nats.aio.msg import Msg
+
+    from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
     from faststream.nats.schemas.js_stream import JStream
 
 
@@ -60,8 +61,8 @@ class AsyncAPIPublisher(LogicPublisher):
         stream: Union[str, "JStream", None],
         timeout: Optional[float],
         # Publisher args
-        broker_middlewares: Iterable[BrokerMiddleware[Msg]],
-        middlewares: Iterable[PublisherMiddleware],
+        broker_middlewares: Iterable["BrokerMiddleware[Msg]"],
+        middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],

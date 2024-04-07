@@ -19,8 +19,6 @@ import anyio
 from fast_depends.core import CallModel, build_call_model
 from fast_depends.use import _InjectWrapper, inject
 
-from faststream.broker.message import StreamMessage
-from faststream.broker.publisher.proto import PublisherProto
 from faststream.broker.types import (
     MsgType,
     P_HandlerParams,
@@ -32,6 +30,9 @@ from faststream.utils.functions import to_async
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
+    from faststream.broker.message import StreamMessage
+    from faststream.broker.publisher.proto import PublisherProto
+
 
 class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
     """A generic class to wrap handler calls."""
@@ -42,7 +43,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
 
     _wrapped_call: Optional[Callable[..., Awaitable[Any]]]
     _original_call: Callable[P_HandlerParams, T_HandlerReturn]
-    _publishers: List[PublisherProto[MsgType]]
+    _publishers: List["PublisherProto[MsgType]"]
 
     __slots__ = (
         "mock",
@@ -90,7 +91,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
 
     def call_wrapped(
         self,
-        message: StreamMessage[MsgType],
+        message: "StreamMessage[MsgType]",
     ) -> Awaitable[Any]:
         """Calls the wrapped function with the given message."""
         assert self._wrapped_call, "You should use `set_wrapped` first"  # nosec B101

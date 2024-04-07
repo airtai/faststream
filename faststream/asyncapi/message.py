@@ -1,13 +1,17 @@
 from inspect import isclass
-from typing import Any, Dict, Optional, Sequence, Type, overload
+from typing import TYPE_CHECKING, Any, Dict, Optional, Sequence, Type, overload
 
-from fast_depends.core import CallModel
 from pydantic import BaseModel, create_model
 
 from faststream._compat import DEF_KEY, PYDANTIC_V2, get_model_fields, model_schema
 
+if TYPE_CHECKING:
+    from fast_depends.core import CallModel
 
-def parse_handler_params(call: CallModel[Any, Any], prefix: str = "") -> Dict[str, Any]:
+
+def parse_handler_params(
+    call: "CallModel[Any, Any]", prefix: str = ""
+) -> Dict[str, Any]:
     """Parses the handler parameters."""
     model = call.model
     assert model  # nosec B101
@@ -33,12 +37,12 @@ def get_response_schema(call: None, prefix: str = "") -> None: ...
 
 @overload
 def get_response_schema(
-    call: CallModel[Any, Any], prefix: str = ""
+    call: "CallModel[Any, Any]", prefix: str = ""
 ) -> Dict[str, Any]: ...
 
 
 def get_response_schema(
-    call: Optional[CallModel[Any, Any]],
+    call: Optional["CallModel[Any, Any]"],
     prefix: str = "",
 ) -> Optional[Dict[str, Any]]:
     """Get the response schema for a given call."""

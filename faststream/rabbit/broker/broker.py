@@ -55,7 +55,7 @@ if TYPE_CHECKING:
     )
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict
+    from faststream.types import AnyDict, LoggerProto
 
 
 class RabbitBroker(
@@ -65,7 +65,7 @@ class RabbitBroker(
     """A class to represent a RabbitMQ broker."""
 
     url: str
-    _producer: Optional[AioPikaFastProducer]
+    _producer: Optional["AioPikaFastProducer"]
 
     declarer: Optional[RabbitDeclarer]
     _channel: Optional["RobustChannel"]
@@ -166,7 +166,7 @@ class RabbitBroker(
         ] = None,
         # logging args
         logger: Annotated[
-            Union[logging.Logger, None, object],
+            Union["LoggerProto", None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = Parameter.empty,
         log_level: Annotated[
@@ -424,11 +424,11 @@ class RabbitBroker(
             Doc("Message body to send."),
         ] = None,
         queue: Annotated[
-            Union[RabbitQueue, str],
+            Union["RabbitQueue", str],
             Doc("Message routing key to publish with."),
         ] = "",
         exchange: Annotated[
-            Union[RabbitExchange, str, None],
+            Union["RabbitExchange", str, None],
             Doc("Target exchange to publish message to."),
         ] = None,
         *,
@@ -570,7 +570,7 @@ class RabbitBroker(
     async def declare_queue(
         self,
         queue: Annotated[
-            RabbitQueue,
+            "RabbitQueue",
             Doc("Queue object to create."),
         ],
     ) -> "RobustQueue":
@@ -581,7 +581,7 @@ class RabbitBroker(
     async def declare_exchange(
         self,
         exchange: Annotated[
-            RabbitExchange,
+            "RabbitExchange",
             Doc("Exchange object to create."),
         ],
     ) -> "RobustExchange":

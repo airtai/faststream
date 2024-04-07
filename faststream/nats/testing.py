@@ -4,16 +4,16 @@ from nats.aio.msg import Msg
 from typing_extensions import override
 
 from faststream.broker.message import encode_message, gen_cor_id
-from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.nats.broker import NatsBroker
 from faststream.nats.publisher.producer import NatsFastProducer
 from faststream.nats.schemas.js_stream import is_subject_match_wildcard
 from faststream.nats.subscriber.asyncapi import AsyncAPISubscriber
 from faststream.testing.broker import TestBroker, call_handler
-from faststream.types import AnyDict, SendableMessage
 
 if TYPE_CHECKING:
+    from faststream.broker.wrapper.call import HandlerCallWrapper
     from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
+    from faststream.types import AnyDict, SendableMessage
 
 __all__ = ("TestNatsBroker",)
 
@@ -25,7 +25,7 @@ class TestNatsBroker(TestBroker[NatsBroker]):
     def create_publisher_fake_subscriber(
         broker: NatsBroker,
         publisher: "AsyncAPIPublisher",
-    ) -> HandlerCallWrapper[Any, Any, Any]:
+    ) -> "HandlerCallWrapper[Any, Any, Any]":
         sub = broker.subscriber(publisher.subject)
 
         if not sub.calls:
@@ -58,7 +58,7 @@ class FakeProducer(NatsFastProducer):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: SendableMessage,
+        message: "SendableMessage",
         subject: str,
         reply_to: str = "",
         headers: Optional[Dict[str, str]] = None,
@@ -105,12 +105,12 @@ class FakeProducer(NatsFastProducer):
 
 
 def build_message(
-    message: SendableMessage,
+    message: "SendableMessage",
     subject: str,
     *,
     reply_to: str = "",
     correlation_id: Optional[str] = None,
-    headers: Optional[AnyDict] = None,
+    headers: Optional["AnyDict"] = None,
 ) -> "PatchedMessage":
     msg, content_type = encode_message(message)
     return PatchedMessage(

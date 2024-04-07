@@ -1,29 +1,18 @@
 import importlib
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from typing import Tuple
+from typing import TYPE_CHECKING, Tuple
 
 import typer
 
-from faststream.app import FastStream
 from faststream.exceptions import SetupError
 
+if TYPE_CHECKING:
+    from faststream.app import FastStream
 
-def try_import_app(module: Path, app: str) -> FastStream:
-    """Tries to import a FastStream app from a module.
 
-    Args:
-        module: Path to the module containing the app.
-        app: Name of the FastStream app.
-
-    Returns:
-        The imported FastStream app object.
-
-    Raises:
-        FileNotFoundError: If the module file is not found.
-        typer.BadParameter: If the module or app name is not provided correctly.
-
-    """
+def try_import_app(module: Path, app: str) -> "FastStream":
+    """Tries to import a FastStream app from a module."""
     try:
         app_object = import_object(module, app)
 
@@ -38,21 +27,7 @@ def try_import_app(module: Path, app: str) -> FastStream:
 
 
 def import_object(module: Path, app: str) -> object:
-    """Import an object from a module.
-
-    Args:
-        module: The path to the module file.
-        app: The name of the object to import.
-
-    Returns:
-        The imported object.
-
-    Raises:
-        FileNotFoundError: If the module file is not found.
-        ValueError: If the module has no loader.
-        AttributeError: If the object is not found in the module.
-
-    """
+    """Import an object from a module."""
     spec = spec_from_file_location(
         "mode",
         f"{module}.py",
@@ -79,18 +54,7 @@ def import_object(module: Path, app: str) -> object:
 
 
 def get_app_path(app: str) -> Tuple[Path, str]:
-    """Get the application path.
-
-    Args:
-        app (str): The name of the application in the format "module:app_name".
-
-    Returns:
-        Tuple[Path, str]: A tuple containing the path to the module and the name of the application.
-
-    Raises:
-        ValueError: If the given app is not in the format "module:app_name".
-
-    """
+    """Get the application path."""
     if ":" not in app:
         raise SetupError(f"`{app}` is not a FastStream")
 
@@ -103,19 +67,8 @@ def get_app_path(app: str) -> Tuple[Path, str]:
     return mod_path, app_name
 
 
-def import_from_string(import_str: str) -> Tuple[Path, FastStream]:
-    """Import FastStream application from module specified by a string.
-
-    Parameters:
-        import_str (str): A string in the format "<module>:<attribute>" specifying the module and faststream application to import.
-
-    Returns:
-        Tuple[ModuleType, FastStream]: A tuple containing the imported module and the faststream application.
-
-    Raises:
-        typer.BadParameter: Raised if the given value is not of type string, if the import string is not in the format
-            "<module>:<attribute>", if the module is not found, or if the faststream application is not found in the module.
-    """
+def import_from_string(import_str: str) -> Tuple[Path, "FastStream"]:
+    """Import FastStream application from module specified by a string."""
     if not isinstance(import_str, str):
         raise typer.BadParameter("Given value is not of type string")
 

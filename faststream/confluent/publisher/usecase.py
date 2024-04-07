@@ -1,22 +1,25 @@
 from contextlib import AsyncExitStack
 from itertools import chain
-from typing import Any, Dict, Iterable, Optional, Tuple, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Tuple, Union, cast
 
 from confluent_kafka import Message
 from typing_extensions import override
 
 from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
-from faststream.broker.types import BrokerMiddleware, MsgType, PublisherMiddleware
-from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
+from faststream.broker.types import MsgType
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.types import AnyDict, SendableMessage
+
+if TYPE_CHECKING:
+    from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+    from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
+    from faststream.types import AnyDict, SendableMessage
 
 
 class LogicPublisher(PublisherUsecase[MsgType]):
     """A class to publish messages to a Kafka topic."""
 
-    _producer: Optional[AsyncConfluentFastProducer]
+    _producer: Optional["AsyncConfluentFastProducer"]
 
     def __init__(
         self,
@@ -26,8 +29,8 @@ class LogicPublisher(PublisherUsecase[MsgType]):
         headers: Optional[Dict[str, str]],
         reply_to: Optional[str],
         # Publisher args
-        broker_middlewares: Iterable[BrokerMiddleware[MsgType]],
-        middlewares: Iterable[PublisherMiddleware],
+        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
+        middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -68,8 +71,8 @@ class DefaultPublisher(LogicPublisher[Message]):
         headers: Optional[Dict[str, str]],
         reply_to: Optional[str],
         # Publisher args
-        broker_middlewares: Iterable[BrokerMiddleware[Message]],
-        middlewares: Iterable[PublisherMiddleware],
+        broker_middlewares: Iterable["BrokerMiddleware[Message]"],
+        middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],
@@ -96,7 +99,7 @@ class DefaultPublisher(LogicPublisher[Message]):
     @override
     async def publish(
         self,
-        message: SendableMessage,
+        message: "SendableMessage",
         topic: str = "",
         *,
         key: Optional[bytes] = None,
@@ -106,7 +109,7 @@ class DefaultPublisher(LogicPublisher[Message]):
         correlation_id: Optional[str] = None,
         reply_to: str = "",
         # publisher specific
-        _extra_middlewares: Iterable[PublisherMiddleware] = (),
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
@@ -138,8 +141,8 @@ class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: Union[SendableMessage, Iterable[SendableMessage]],
-        *extra_messages: SendableMessage,
+        message: Union["SendableMessage", Iterable["SendableMessage"]],
+        *extra_messages: "SendableMessage",
         topic: str = "",
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
@@ -147,15 +150,15 @@ class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
         reply_to: str = "",
         correlation_id: Optional[str] = None,
         # publisher specific
-        _extra_middlewares: Iterable[PublisherMiddleware] = (),
+        _extra_middlewares: Iterable["PublisherMiddleware"] = (),
     ) -> None:
         assert self._producer, NOT_CONNECTED_YET  # nosec B101
 
-        msgs: Iterable[SendableMessage]
+        msgs: Iterable["SendableMessage"]
         if extra_messages:
-            msgs = (cast(SendableMessage, message), *extra_messages)
+            msgs = (cast("SendableMessage", message), *extra_messages)
         else:
-            msgs = cast(Iterable[SendableMessage], message)
+            msgs = cast(Iterable["SendableMessage"], message)
 
         kwargs: "AnyDict" = {
             "topic": topic or self.topic,

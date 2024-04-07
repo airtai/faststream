@@ -1,6 +1,5 @@
-from typing import Any, Dict, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional
 
-from aio_pika import IncomingMessage
 from typing_extensions import override
 
 from faststream.asyncapi.schema import (
@@ -13,10 +12,14 @@ from faststream.asyncapi.schema import (
 )
 from faststream.asyncapi.schema.bindings import amqp
 from faststream.asyncapi.utils import resolve_payloads
-from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
 from faststream.rabbit.publisher.usecase import LogicPublisher, PublishKwargs
-from faststream.rabbit.schemas import RabbitExchange, RabbitQueue
 from faststream.rabbit.utils import is_routing_exchange
+
+if TYPE_CHECKING:
+    from aio_pika import IncomingMessage
+
+    from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+    from faststream.rabbit.schemas import RabbitExchange, RabbitQueue
 
 
 class AsyncAPIPublisher(LogicPublisher):
@@ -106,12 +109,12 @@ class AsyncAPIPublisher(LogicPublisher):
         cls,
         *,
         routing_key: str,
-        queue: RabbitQueue,
-        exchange: Optional[RabbitExchange],
-        message_kwargs: PublishKwargs,
+        queue: "RabbitQueue",
+        exchange: Optional["RabbitExchange"],
+        message_kwargs: "PublishKwargs",
         # Publisher args
-        broker_middlewares: Iterable[BrokerMiddleware[IncomingMessage]],
-        middlewares: Iterable[PublisherMiddleware],
+        broker_middlewares: Iterable["BrokerMiddleware[IncomingMessage]"],
+        middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
         title_: Optional[str],

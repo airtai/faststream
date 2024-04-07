@@ -1,13 +1,16 @@
 from contextlib import ExitStack
 from functools import partial
-from types import TracebackType
-from typing import Any, Dict, Optional, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, Optional, Type, TypeVar
 
 from anyio.from_thread import start_blocking_portal
 
-from faststream.app import FastStream
 from faststream.broker.core.usecase import BrokerUsecase
-from faststream.types import SettingField
+
+if TYPE_CHECKING:
+    from types import TracebackType
+
+    from faststream.app import FastStream
+    from faststream.types import SettingField
 
 Broker = TypeVar("Broker", bound=BrokerUsecase[Any, Any])
 
@@ -17,18 +20,18 @@ class TestApp:
 
     __test__ = False
 
-    app: FastStream
-    _extra_options: Dict[str, SettingField]
+    app: "FastStream"
+    _extra_options: Dict[str, "SettingField"]
 
     def __init__(
         self,
-        app: FastStream,
-        run_extra_options: Optional[Dict[str, SettingField]] = None,
+        app: "FastStream",
+        run_extra_options: Optional[Dict[str, "SettingField"]] = None,
     ) -> None:
         self.app = app
         self._extra_options = run_extra_options or {}
 
-    def __enter__(self) -> FastStream:
+    def __enter__(self) -> "FastStream":
         with ExitStack() as stack:
             portal = stack.enter_context(start_blocking_portal())
 
@@ -48,11 +51,11 @@ class TestApp:
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exc_tb: Optional[TracebackType] = None,
+        exc_tb: Optional["TracebackType"] = None,
     ) -> None:
         self.exit_stack.close()
 
-    async def __aenter__(self) -> FastStream:
+    async def __aenter__(self) -> "FastStream":
         self.lifespan_scope = self.app.lifespan_context(**self._extra_options)
         await self.lifespan_scope.__aenter__()
         await self.app.start(**self._extra_options)
@@ -62,7 +65,7 @@ class TestApp:
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exc_tb: Optional[TracebackType] = None,
+        exc_tb: Optional["TracebackType"] = None,
     ) -> None:
         """Exit the asynchronous context manager."""
         await self.app.stop()

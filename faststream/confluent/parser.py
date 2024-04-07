@@ -1,14 +1,15 @@
 from typing import TYPE_CHECKING, Any, Optional, Tuple
 
-from confluent_kafka import Message
-
-from faststream.broker.message import StreamMessage, decode_message, gen_cor_id
+from faststream.broker.message import decode_message, gen_cor_id
 from faststream.confluent.message import FAKE_CONSUMER, KafkaMessage
-from faststream.types import DecodedMessage
 from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
+    from confluent_kafka import Message
+
+    from faststream.broker.message import StreamMessage
     from faststream.confluent.subscriber.usecase import LogicSubscriber
+    from faststream.types import DecodedMessage
 
 
 class AsyncConfluentParser:
@@ -16,8 +17,8 @@ class AsyncConfluentParser:
 
     @staticmethod
     async def parse_message(
-        message: Message,
-    ) -> StreamMessage[Message]:
+        message: "Message",
+    ) -> "StreamMessage[Message]":
         """Parses a Kafka message."""
         headers = {}
         if message.headers() is not None:
@@ -45,8 +46,8 @@ class AsyncConfluentParser:
 
     @staticmethod
     async def parse_message_batch(
-        message: Tuple[Message, ...],
-    ) -> StreamMessage[Tuple[Message, ...]]:
+        message: Tuple["Message", ...],
+    ) -> "StreamMessage[Tuple[Message, ...]]":
         """Parses a batch of messages from a Kafka consumer."""
         first = message[0]
         last = message[-1]
@@ -77,13 +78,16 @@ class AsyncConfluentParser:
         )
 
     @staticmethod
-    async def decode_message(msg: StreamMessage[Message]) -> DecodedMessage:
+    async def decode_message(
+        msg: "StreamMessage[Message]",
+    ) -> "DecodedMessage":
         """Decodes a message."""
         return decode_message(msg)
 
     @classmethod
     async def decode_message_batch(
-        cls, msg: StreamMessage[Tuple[Message, ...]]
-    ) -> DecodedMessage:
+        cls,
+        msg: "StreamMessage[Tuple[Message, ...]]",
+    ) -> "DecodedMessage":
         """Decode a batch of messages."""
         return [decode_message(await cls.parse_message(m)) for m in msg.raw_message]

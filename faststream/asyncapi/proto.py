@@ -1,9 +1,10 @@
 from abc import abstractmethod
-from typing import Dict, Optional, Protocol
+from typing import TYPE_CHECKING, Dict, Optional, Protocol
 
 from typing_extensions import Annotated, Doc
 
-from faststream.asyncapi.schema.channels import Channel
+if TYPE_CHECKING:
+    from faststream.asyncapi.schema.channels import Channel
 
 
 class AsyncAPIProto(Protocol):
@@ -35,6 +36,6 @@ class AsyncAPIProto(Protocol):
         ...
 
     @abstractmethod
-    def schema(self) -> Dict[str, Channel]:
+    def schema(self) -> Dict[str, "Channel"]:
         """Generate AsyncAPI schema."""
         ...

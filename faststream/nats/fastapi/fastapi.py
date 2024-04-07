@@ -69,7 +69,7 @@ if TYPE_CHECKING:
     )
     from faststream.nats.schemas import JStream, PullSub
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict
+    from faststream.types import AnyDict, LoggerProto
 
 
 class NatsRouter(StreamRouter["Msg"]):
@@ -266,7 +266,7 @@ class NatsRouter(StreamRouter["Msg"]):
         ] = None,
         # logging args
         logger: Annotated[
-            Union[logging.Logger, None, object],
+            Union["LoggerProto", None, object],
             Doc("User specified logger to pass into Context and log service messages."),
         ] = Parameter.empty,
         log_level: Annotated[

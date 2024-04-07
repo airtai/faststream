@@ -2,17 +2,22 @@ import warnings
 from abc import abstractmethod
 from contextlib import asynccontextmanager
 from functools import partial
-from types import MethodType, TracebackType
-from typing import Any, AsyncGenerator, Generic, Optional, Type, TypeVar
+from types import MethodType
+from typing import TYPE_CHECKING, Any, AsyncGenerator, Generic, Optional, Type, TypeVar
 from unittest.mock import AsyncMock, MagicMock
 
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.broker.middlewares.logging import CriticalLogMiddleware
-from faststream.broker.subscriber.proto import SubscriberProto
 from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.testing.app import TestApp
 from faststream.utils.ast import is_contains_context_name
 from faststream.utils.functions import timeout_scope
+
+if TYPE_CHECKING:
+    from types import TracebackType
+
+    from faststream.broker.subscriber.proto import SubscriberProto
+
 
 Broker = TypeVar("Broker", bound=BrokerUsecase[Any, Any])
 
@@ -146,7 +151,7 @@ class TestBroker(Generic[Broker]):
         broker: Broker,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exc_tb: Optional[TracebackType] = None,
+        exc_tb: Optional["TracebackType"] = None,
     ) -> None:
         for p in broker._publishers.values():
             if p._fake_handler:
@@ -176,7 +181,7 @@ class TestBroker(Generic[Broker]):
         raise NotImplementedError()
 
 
-def patch_broker_calls(broker: BrokerUsecase[Any, Any]) -> None:
+def patch_broker_calls(broker: "BrokerUsecase[Any, Any]") -> None:
     """Patch broker calls."""
     broker._abc_start()
 
@@ -186,7 +191,7 @@ def patch_broker_calls(broker: BrokerUsecase[Any, Any]) -> None:
 
 
 async def call_handler(
-    handler: SubscriberProto[Any],
+    handler: "SubscriberProto[Any]",
     message: Any,
     rpc: bool = False,
     rpc_timeout: Optional[float] = 30.0,

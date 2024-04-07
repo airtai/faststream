@@ -1,11 +1,13 @@
 from pathlib import Path
-from typing import Any, Optional, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, Any, Optional, Sequence, Tuple, Union
 
 import watchfiles
 
 from faststream.cli.supervisors.basereload import BaseReload
 from faststream.log import logger
-from faststream.types import DecoratedCallable
+
+if TYPE_CHECKING:
+    from faststream.types import DecoratedCallable
 
 
 class ExtendedFilter(watchfiles.PythonFilter):  # type: ignore[misc]
@@ -17,16 +19,6 @@ class ExtendedFilter(watchfiles.PythonFilter):  # type: ignore[misc]
         ignore_paths: Optional[Sequence[Union[str, Path]]] = None,
         extra_extensions: Sequence[str] = (),
     ) -> None:
-        """Initialize the class.
-
-        Args:
-            ignore_paths: Optional sequence of paths to ignore.
-            extra_extensions: Sequence of extra extensions to include.
-
-        Returns:
-            None
-
-        """
         super().__init__(ignore_paths=ignore_paths, extra_extensions=extra_extensions)
         self.ignore_dirs: Sequence[str] = (
             *self.ignore_dirs,
@@ -45,25 +37,12 @@ class WatchReloader(BaseReload):
 
     def __init__(
         self,
-        target: DecoratedCallable,
+        target: "DecoratedCallable",
         args: Tuple[Any, ...],
         reload_dirs: Sequence[Union[Path, str]],
         reload_delay: float = 0.3,
         extra_extensions: Sequence[str] = (),
     ) -> None:
-        """Initialize a WatchFilesReloader object.
-
-        Args:
-            target : the function to be reloaded
-            args : arguments to be passed to the target function
-            reload_dirs : directories to watch for file changes
-            reload_delay : delay in seconds between each check for file changes
-            extra_extensions: A sequence of extra extensions to include.
-
-        Returns:
-            None.
-
-        """
         super().__init__(target, args, reload_delay)
         self.reloader_name = "WatchFiles"
         self.reload_dirs = reload_dirs

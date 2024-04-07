@@ -32,21 +32,21 @@ if TYPE_CHECKING:
 class RabbitRegistrator(ABCBroker["IncomingMessage"]):
     """Includable to RabbitBroker router."""
 
-    _subscribers: Dict[int, AsyncAPISubscriber]
-    _publishers: Dict[int, AsyncAPIPublisher]
+    _subscribers: Dict[int, "AsyncAPISubscriber"]
+    _publishers: Dict[int, "AsyncAPIPublisher"]
 
     @override
     def subscriber(  # type: ignore[override]
         self,
         queue: Annotated[
-            Union[str, RabbitQueue],
+            Union[str, "RabbitQueue"],
             Doc(
                 "RabbitMQ queue to listen. "
                 "**FastStream** declares and binds queue object to `exchange` automatically if it is not passive (by default)."
             ),
         ],
         exchange: Annotated[
-            Union[str, RabbitExchange, None],
+            Union[str, "RabbitExchange", None],
             Doc(
                 "RabbitMQ exchange to bind queue to. "
                 "Uses default exchange if not presented. "
@@ -148,11 +148,11 @@ class RabbitRegistrator(ABCBroker["IncomingMessage"]):
     def publisher(  # type: ignore[override]
         self,
         queue: Annotated[
-            Union[RabbitQueue, str],
+            Union["RabbitQueue", str],
             Doc("Default message routing key to publish with."),
         ] = "",
         exchange: Annotated[
-            Union[RabbitExchange, str, None],
+            Union["RabbitExchange", str, None],
             Doc("Target exchange to publish message to."),
         ] = None,
         *,

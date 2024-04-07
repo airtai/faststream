@@ -6,8 +6,6 @@ from faststream.broker.router import ArgsContainer, BrokerRouter, SubscriberRout
 from faststream.broker.utils import default_filter
 from faststream.redis.broker.registrator import RedisRegistrator
 from faststream.redis.message import BaseMessage
-from faststream.redis.schemas import ListSub, PubSub, StreamSub
-from faststream.types import SendableMessage
 
 if TYPE_CHECKING:
     from aio_pika.message import IncomingMessage
@@ -22,7 +20,8 @@ if TYPE_CHECKING:
         PublisherMiddleware,
         SubscriberMiddleware,
     )
-    from faststream.types import AnyDict
+    from faststream.redis.schemas import ListSub, PubSub, StreamSub
+    from faststream.types import AnyDict, SendableMessage
 
 
 class RedisPublisher(ArgsContainer):
@@ -34,16 +33,16 @@ class RedisPublisher(ArgsContainer):
     def __init__(
         self,
         channel: Annotated[
-            Union[PubSub, str, None],
+            Union["PubSub", str, None],
             Doc("Redis PubSub object name to send message."),
         ] = None,
         *,
         list: Annotated[
-            Union[ListSub, str, None],
+            Union["ListSub", str, None],
             Doc("Redis List object name to send message."),
         ] = None,
         stream: Annotated[
-            Union[StreamSub, str, None],
+            Union["StreamSub", str, None],
             Doc("Redis Stream object name to send message."),
         ] = None,
         headers: Annotated[
@@ -102,27 +101,27 @@ class RedisRoute(SubscriberRoute):
     def __init__(
         self,
         call: Annotated[
-            Callable[..., SendableMessage],
+            Callable[..., "SendableMessage"],
             Doc(
                 "Message handler function "
                 "to wrap the same with `@broker.subscriber(...)` way."
             ),
         ],
         channel: Annotated[
-            Union[PubSub, str, None],
+            Union["PubSub", str, None],
             Doc("Redis PubSub object name to send message."),
         ] = None,
         *,
         publishers: Annotated[
-            Iterable[RedisPublisher],
+            Iterable["RedisPublisher"],
             Doc("Redis publishers to broadcast the handler result."),
         ] = (),
         list: Annotated[
-            Union[ListSub, str, None],
+            Union["ListSub", str, None],
             Doc("Redis List object name to send message."),
         ] = None,
         stream: Annotated[
-            Union[StreamSub, str, None],
+            Union["StreamSub", str, None],
             Doc("Redis Stream object name to send message."),
         ] = None,
         # broker arguments

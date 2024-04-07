@@ -1,20 +1,20 @@
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from aiokafka import ConsumerRecord
 from typing_extensions import override
 
 from faststream.broker.message import encode_message, gen_cor_id
-from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.kafka.broker import KafkaBroker
-from faststream.kafka.publisher.asyncapi import (
-    AsyncAPIBatchPublisher,
-    AsyncAPIPublisher,
-)
+from faststream.kafka.publisher.asyncapi import AsyncAPIBatchPublisher
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
 from faststream.kafka.subscriber.asyncapi import AsyncAPIBatchSubscriber
 from faststream.testing.broker import TestBroker, call_handler
-from faststream.types import SendableMessage
+
+if TYPE_CHECKING:
+    from faststream.broker.wrapper.call import HandlerCallWrapper
+    from faststream.kafka.publisher.asyncapi import AsyncAPIPublisher
+    from faststream.types import SendableMessage
 
 __all__ = ("TestKafkaBroker",)
 
@@ -29,8 +29,8 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     @staticmethod
     def create_publisher_fake_subscriber(
         broker: KafkaBroker,
-        publisher: AsyncAPIPublisher[Any],
-    ) -> HandlerCallWrapper[Any, Any, Any]:
+        publisher: "AsyncAPIPublisher[Any]",
+    ) -> "HandlerCallWrapper[Any, Any, Any]":
         sub = broker.subscriber(
             publisher.topic,
             batch=isinstance(publisher, AsyncAPIBatchPublisher),
@@ -38,7 +38,7 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
 
         if not sub.calls:
 
-            @sub
+            @sub  # type: ignore[misc]
             def f(msg: Any) -> None:
                 pass
 
@@ -49,7 +49,7 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     @staticmethod
     def remove_publisher_fake_subscriber(
         broker: KafkaBroker,
-        publisher: AsyncAPIPublisher[Any],
+        publisher: "AsyncAPIPublisher[Any]",
     ) -> None:
         broker._subscribers.pop(hash(publisher), None)
 
@@ -66,7 +66,7 @@ class FakeProducer(AioKafkaFastProducer):
     @override
     async def publish(  # type: ignore[override]
         self,
-        message: SendableMessage,
+        message: "SendableMessage",
         topic: str,
         key: Optional[bytes] = None,
         partition: Optional[int] = None,
@@ -107,7 +107,7 @@ class FakeProducer(AioKafkaFastProducer):
 
     async def publish_batch(
         self,
-        *msgs: SendableMessage,
+        *msgs: "SendableMessage",
         topic: str,
         partition: Optional[int] = None,
         timestamp_ms: Optional[int] = None,
@@ -147,7 +147,7 @@ class FakeProducer(AioKafkaFastProducer):
 
 
 def build_message(
-    message: SendableMessage,
+    message: "SendableMessage",
     topic: str,
     partition: Optional[int] = None,
     timestamp_ms: Optional[int] = None,

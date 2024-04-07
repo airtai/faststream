@@ -1,12 +1,14 @@
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from redis.asyncio.connection import Connection
 
 from faststream.security import BaseSecurity, SASLPlaintext
-from faststream.types import AnyDict
+
+if TYPE_CHECKING:
+    from faststream.types import AnyDict
 
 
-def parse_security(security: Optional[BaseSecurity]) -> AnyDict:
+def parse_security(security: Optional[BaseSecurity]) -> "AnyDict":
     if security is None:
         return {}
     elif isinstance(security, SASLPlaintext):
@@ -17,7 +19,7 @@ def parse_security(security: Optional[BaseSecurity]) -> AnyDict:
         raise NotImplementedError(f"RedisBroker does not support {type(security)}")
 
 
-def _parse_base_security(security: BaseSecurity) -> AnyDict:
+def _parse_base_security(security: BaseSecurity) -> "AnyDict":
     if security.use_ssl:
 
         class SSLConnection(Connection):
@@ -40,7 +42,7 @@ def _parse_base_security(security: BaseSecurity) -> AnyDict:
         return {}
 
 
-def _parse_sasl_plaintext(security: SASLPlaintext) -> AnyDict:
+def _parse_sasl_plaintext(security: SASLPlaintext) -> "AnyDict":
     return {
         **_parse_base_security(security),
         "username": security.username,

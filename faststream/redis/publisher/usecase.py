@@ -62,7 +62,7 @@ class ChannelPublisher(LogicPublisher):
     def __init__(
         self,
         *,
-        channel: PubSub,
+        channel: "PubSub",
         reply_to: str,
         headers: Optional["AnyDict"],
         # Regular publisher options
@@ -200,7 +200,7 @@ class ListPublisher(LogicPublisher):
     def __init__(
         self,
         *,
-        list: ListSub,
+        list: "ListSub",
         reply_to: str,
         headers: Optional["AnyDict"],
         # Regular publisher options
@@ -392,7 +392,7 @@ class StreamPublisher(LogicPublisher):
     def __init__(
         self,
         *,
-        stream: StreamSub,
+        stream: "StreamSub",
         reply_to: str,
         headers: Optional["AnyDict"],
         # Regular publisher options

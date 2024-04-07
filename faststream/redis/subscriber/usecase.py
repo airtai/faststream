@@ -18,7 +18,6 @@ from typing import (
 )
 
 import anyio
-from fast_depends.dependencies import Depends
 from redis.asyncio.client import PubSub as RPubSub
 from redis.asyncio.client import Redis
 from redis.exceptions import ResponseError
@@ -26,13 +25,6 @@ from typing_extensions import override
 
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
-from faststream.broker.types import (
-    AsyncDecoder,
-    AsyncParser,
-    BrokerMiddleware,
-    CustomDecoder,
-    CustomParser,
-)
 from faststream.redis.message import (
     BatchListMessage,
     BatchStreamMessage,
@@ -52,8 +44,17 @@ from faststream.redis.parser import (
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 
 if TYPE_CHECKING:
+    from fast_depends.dependencies import Depends
+
     from faststream.broker.message import StreamMessage as BrokerStreamMessage
     from faststream.broker.publisher.proto import ProducerProto
+    from faststream.broker.types import (
+        AsyncDecoder,
+        AsyncParser,
+        BrokerMiddleware,
+        CustomDecoder,
+        CustomParser,
+    )
     from faststream.types import AnyDict, LoggerProto
 
 
@@ -73,8 +74,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[MsgType]],
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
         # AsyncAPI MsgType
         title_: Optional[str],
         description_: Optional[str],
@@ -205,12 +206,12 @@ class ChannelSubscriber(LogicSubscriber[PubSubMessage]):
     def __init__(
         self,
         *,
-        channel: PubSub,
+        channel: "PubSub",
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[PubSubMessage]],
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[PubSubMessage]"],
         # AsyncAPI MsgType
         title_: Optional[str],
         description_: Optional[str],
@@ -300,8 +301,8 @@ class _ListHandlerMixin(LogicSubscriber[ListMsgType]):
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[ListMsgType]],
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[ListMsgType]"],
         # AsyncAPI MsgType
         title_: Optional[str],
         description_: Optional[str],
@@ -340,7 +341,7 @@ class _ListHandlerMixin(LogicSubscriber[ListMsgType]):
         self,
         client: "Redis[bytes]",
         *,
-        start_signal: anyio.Event,
+        start_signal: "anyio.Event",
     ) -> None:
         start_signal.set()
         await super()._consume(client, start_signal=start_signal)
@@ -364,8 +365,8 @@ class ListSubscriber(_ListHandlerMixin[DefaultListMessage]):
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[DefaultListMessage]],
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[DefaultListMessage]"],
         # AsyncAPI MsgType
         title_: Optional[str],
         description_: Optional[str],
@@ -410,8 +411,8 @@ class BatchListSubscriber(_ListHandlerMixin[BatchListMessage]):
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[BatchListMessage]],
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[BatchListMessage]"],
         # AsyncAPI MsgType
         title_: Optional[str],
         description_: Optional[str],
@@ -464,8 +465,8 @@ class _StreamHandlerMixin(LogicSubscriber[StreamMsgType]):
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[StreamMsgType]],
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[StreamMsgType]"],
         # AsyncAPI MsgType
         title_: Optional[str],
         description_: Optional[str],
@@ -559,8 +560,8 @@ class StreamSubscriber(_StreamHandlerMixin[DefaultStreamMessage]):
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[DefaultStreamMessage]],
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[DefaultStreamMessage]"],
         # AsyncAPI MsgType
         title_: Optional[str],
         description_: Optional[str],
@@ -613,8 +614,8 @@ class BatchStreamSubscriber(_StreamHandlerMixin[BatchStreamMessage]):
         # Subscriber args
         no_ack: bool,
         retry: bool,
-        broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[BatchStreamMessage]],
+        broker_dependencies: Iterable["Depends"],
+        broker_middlewares: Iterable["BrokerMiddleware[BatchStreamMessage]"],
         # AsyncAPI MsgType
         title_: Optional[str],
         description_: Optional[str],
