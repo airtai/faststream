@@ -40,7 +40,12 @@ def mock_app(request):
 
 @pytest.mark.parametrize(
     "mock_app",
-    [{"broker_type": RedisBroker, "producer_type": RedisFastProducer,}],
+    [
+        {
+            "broker_type": RedisBroker,
+            "producer_type": RedisFastProducer,
+        }
+    ],
     indirect=True,
 )
 def test_publish_command_with_redis_options(mock_app):
@@ -79,7 +84,12 @@ def test_publish_command_with_redis_options(mock_app):
 
 @pytest.mark.parametrize(
     "mock_app",
-    [{"broker_type": ConfluentBroker, "producer_type": AsyncConfluentFastProducer,}],
+    [
+        {
+            "broker_type": ConfluentBroker,
+            "producer_type": AsyncConfluentFastProducer,
+        }
+    ],
     indirect=True,
 )
 def test_publish_command_with_confluent_options(mock_app):

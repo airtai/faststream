@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Dict
+from typing import Any, ClassVar, Dict
 from unittest.mock import MagicMock
 
 import pytest
@@ -13,7 +13,7 @@ from faststream.exceptions import StopConsume
 @pytest.mark.asyncio()
 class BrokerConsumeTestcase:
     timeout: int = 3
-    subscriber_kwargs: Dict[str, Any] = {}
+    subscriber_kwargs: ClassVar[Dict[str, Any]] = {}
 
     @pytest.fixture()
     def consume_broker(self, broker: BrokerUsecase):
@@ -27,7 +27,6 @@ class BrokerConsumeTestcase:
     ):
         @consume_broker.subscriber(queue, **self.subscriber_kwargs)
         def subscriber(m):
-
             event.set()
 
         async with consume_broker:
@@ -157,7 +156,9 @@ class BrokerConsumeTestcase:
         consume2 = asyncio.Event()
 
         @consume_broker.subscriber(
-            queue, filter=lambda m: m.content_type == "application/json", **self.subscriber_kwargs
+            queue,
+            filter=lambda m: m.content_type == "application/json",
+            **self.subscriber_kwargs,
         )
         async def handler(m):
             mock.handler(m)

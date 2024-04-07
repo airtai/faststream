@@ -25,7 +25,6 @@ from redis.exceptions import ResponseError
 from typing_extensions import override
 
 from faststream.broker.publisher.fake import FakePublisher
-from faststream.broker.publisher.proto import ProducerProto
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import (
     AsyncDecoder,
@@ -51,12 +50,11 @@ from faststream.redis.parser import (
     RedisStreamParser,
 )
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
-from faststream.types import AnyDict, LoggerProto
 
 if TYPE_CHECKING:
-    from fast_depends.dependencies import Depends
-
     from faststream.broker.message import StreamMessage as BrokerStreamMessage
+    from faststream.broker.publisher.proto import ProducerProto
+    from faststream.types import AnyDict, LoggerProto
 
 
 MsgType = TypeVar("MsgType", bound=Mapping[str, Any])
@@ -526,21 +524,24 @@ class _StreamHandlerMixin(LogicSubscriber[StreamMsgType]):
                 if "already exists" not in str(e):
                     raise e
 
-            read = lambda _: client.xreadgroup(
-                groupname=stream.group,
-                consumername=stream.consumer,
-                streams={stream.name: ">"},
-                count=stream.max_records,
-                block=stream.polling_interval,
-                noack=stream.no_ack,
-            )
+            def read(_):
+                return client.xreadgroup(
+                    groupname=stream.group,
+                    consumername=stream.consumer,
+                    streams={stream.name: ">"},
+                    count=stream.max_records,
+                    block=stream.polling_interval,
+                    noack=stream.no_ack,
+                )
 
         else:
-            read = lambda last_id: client.xread(
-                {stream.name: last_id},
-                block=stream.polling_interval,
-                count=stream.max_records,
-            )
+
+            def read(last_id):
+                return client.xread(
+                    {stream.name: last_id},
+                    block=stream.polling_interval,
+                    count=stream.max_records,
+                )
 
         await super().start(read)
 

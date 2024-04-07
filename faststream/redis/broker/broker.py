@@ -29,7 +29,6 @@ from faststream.broker.message import gen_cor_id
 from faststream.exceptions import NOT_CONNECTED_YET
 from faststream.redis.broker.logging import RedisLoggingBroker
 from faststream.redis.broker.registrator import RedisRegistrator
-from faststream.redis.message import BaseMessage
 from faststream.redis.publisher.producer import RedisFastProducer
 from faststream.redis.security import parse_security
 from faststream.types import AnyDict
@@ -48,8 +47,9 @@ if TYPE_CHECKING:
         CustomDecoder,
         CustomParser,
     )
+    from faststream.redis.message import BaseMessage
     from faststream.security import BaseSecurity
-    from faststream.types import AnyDict, DecodedMessage, SendableMessage
+    from faststream.types import DecodedMessage, SendableMessage
 
     class RedisInitKwargs(TypedDict, total=False):
         host: Optional[str]
@@ -100,8 +100,7 @@ class RedisBroker(
         socket_connect_timeout: Optional[float] = None,
         socket_read_size: int = 65536,
         socket_keepalive: bool = False,
-        socket_keepalive_options: Optional[Mapping[int,
-                                                   Union[int, bytes]]] = None,
+        socket_keepalive_options: Optional[Mapping[int, Union[int, bytes]]] = None,
         socket_type: int = 0,
         retry_on_timeout: bool = False,
         encoding: str = "utf-8",
@@ -315,8 +314,7 @@ class RedisBroker(
             lib_version=__version__,
         )
 
-        client: Redis[bytes] = Redis.from_pool(
-            pool)  # type: ignore[attr-defined]
+        client: Redis[bytes] = Redis.from_pool(pool)  # type: ignore[attr-defined]
         self._producer = RedisFastProducer(
             connection=client,
             parser=self._parser,
@@ -460,12 +458,19 @@ class RedisBroker(
             wrapped_messages = [
                 await stack.enter_async_context(
                     middleware(None).publish_scope(
-                        msg, list=list, correlation_id=correlation_id,)
+                        msg,
+                        list=list,
+                        correlation_id=correlation_id,
+                    )
                 )
                 for msg in messages
                 for middleware in self._middlewares
             ] or messages
 
-            return await self._producer.publish_batch(*wrapped_messages, list=list, correlation_id=correlation_id,)
+            return await self._producer.publish_batch(
+                *wrapped_messages,
+                list=list,
+                correlation_id=correlation_id,
+            )
 
         return None

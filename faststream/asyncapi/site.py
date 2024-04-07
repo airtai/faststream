@@ -103,7 +103,9 @@ def serve_app(
 ) -> None:
     """Serve the HTTPServer with AsyncAPI schema."""
     if logger:
-        logger.info(f"HTTPServer running on http://{host}:{port} (Press CTRL+C to quit)")
+        logger.info(
+            f"HTTPServer running on http://{host}:{port} (Press CTRL+C to quit)"
+        )
         logger.warn("Please, do not use it in production.")
 
     server.HTTPServer(

@@ -98,7 +98,9 @@ class HandlerItem(SetupAble, Generic[MsgType]):
             if _get_dependant is None:
                 self.dependant = dependant
             else:
-                self.dependant = _get_dependant(self.handler._original_call, dependencies)
+                self.dependant = _get_dependant(
+                    self.handler._original_call, dependencies
+                )
 
     @property
     def call_name(self) -> str:

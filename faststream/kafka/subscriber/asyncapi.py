@@ -73,8 +73,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
-    ) -> "AsyncAPIBatchSubscriber":
-        ...
+    ) -> "AsyncAPIBatchSubscriber": ...
 
     @overload
     @staticmethod
@@ -96,8 +95,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
-    ) -> "AsyncAPIDefaultSubscriber":
-        ...
+    ) -> "AsyncAPIDefaultSubscriber": ...
 
     @overload
     @staticmethod
@@ -114,10 +112,9 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         no_ack: bool,
         retry: bool,
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[Union[
-            ConsumerRecord,
-            Tuple[ConsumerRecord, ...]],
-        ]],
+        broker_middlewares: Iterable[
+            BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]],]
+        ],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -125,8 +122,7 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
     ) -> Union[
         "AsyncAPIDefaultSubscriber",
         "AsyncAPIBatchSubscriber",
-    ]:
-        ...
+    ]: ...
 
     @override
     @staticmethod
@@ -143,10 +139,9 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
         no_ack: bool,
         retry: bool,
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[Union[
-            ConsumerRecord,
-            Tuple[ConsumerRecord, ...]],
-        ]],
+        broker_middlewares: Iterable[
+            BrokerMiddleware[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]],]
+        ],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],
@@ -187,10 +182,15 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
             )
 
 
-
-class AsyncAPIDefaultSubscriber(DefaultSubscriber, AsyncAPISubscriber[ConsumerRecord],):
+class AsyncAPIDefaultSubscriber(
+    DefaultSubscriber,
+    AsyncAPISubscriber[ConsumerRecord],
+):
     pass
 
 
-class AsyncAPIBatchSubscriber(BatchSubscriber, AsyncAPISubscriber[Tuple[ConsumerRecord, ...]],):
+class AsyncAPIBatchSubscriber(
+    BatchSubscriber,
+    AsyncAPISubscriber[Tuple[ConsumerRecord, ...]],
+):
     pass

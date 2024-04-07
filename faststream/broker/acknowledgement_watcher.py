@@ -102,9 +102,13 @@ class CounterWatcher(BaseWatcher):
         is_max = self.memory[message_id] > self.max_tries
         if self.logger is not None:
             if is_max:
-                self.logger.log(logging.ERROR, f"Already retried {self.max_tries} times. Skipped.")
+                self.logger.log(
+                    logging.ERROR, f"Already retried {self.max_tries} times. Skipped."
+                )
             else:
-                self.logger.log(logging.ERROR, "Error is occurred. Pushing back to queue.")
+                self.logger.log(
+                    logging.ERROR, "Error is occurred. Pushing back to queue."
+                )
         return is_max
 
     def remove(self, message_id: str) -> None:
@@ -175,6 +179,7 @@ class WatcherContext:
     async def __reject(self) -> None:
         await self.message.reject(**self.extra_options)
         self.watcher.remove(self.message.message_id)
+
 
 def get_watcher(
     logger: Optional["LoggerProto"],

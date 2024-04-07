@@ -28,13 +28,13 @@ def parse_handler_params(call: CallModel[Any, Any], prefix: str = "") -> Dict[st
 
 
 @overload
-def get_response_schema(call: None, prefix: str = "") -> None:
-    ...
+def get_response_schema(call: None, prefix: str = "") -> None: ...
 
 
 @overload
-def get_response_schema(call: CallModel[Any, Any], prefix: str = "") -> Dict[str, Any]:
-    ...
+def get_response_schema(
+    call: CallModel[Any, Any], prefix: str = ""
+) -> Dict[str, Any]: ...
 
 
 def get_response_schema(
@@ -55,8 +55,7 @@ def get_model_schema(
     call: None,
     prefix: str = "",
     exclude: Sequence[str] = (),
-) -> None:
-    ...
+) -> None: ...
 
 
 @overload
@@ -64,8 +63,7 @@ def get_model_schema(
     call: Type[BaseModel],
     prefix: str = "",
     exclude: Sequence[str] = (),
-) -> Dict[str, Any]:
-    ...
+) -> Dict[str, Any]: ...
 
 
 def get_model_schema(

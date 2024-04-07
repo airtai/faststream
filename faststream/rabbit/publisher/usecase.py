@@ -74,7 +74,7 @@ class PublishKwargs(TypedDict, total=False):
         Doc(
             "Message **content-type** header. "
             "Used by application, not core RabbitMQ. "
-            "Will be setted automatically if not specified."
+            "Will be set automatically if not specified."
         ),
     ]
     user_id: Annotated[

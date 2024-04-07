@@ -77,7 +77,7 @@ class LogicPublisher(PublisherUsecase[Msg]):
             Optional[Dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be setted automatically by framework anyway."
+                "**content-type** and **correlation_id** will be set automatically by framework anyway."
             ),
         ] = None,
         reply_to: Annotated[
@@ -136,11 +136,8 @@ class LogicPublisher(PublisherUsecase[Msg]):
             "raise_timeout": raise_timeout,
         }
 
-        if (stream := stream or getattr(self.stream, "name", None)):
-            kwargs.update({
-                "stream": stream,
-                "timeout": timeout or self.timeout
-            })
+        if stream := stream or getattr(self.stream, "name", None):
+            kwargs.update({"stream": stream, "timeout": timeout or self.timeout})
 
         async with AsyncExitStack() as stack:
             for m in chain(
@@ -148,14 +145,9 @@ class LogicPublisher(PublisherUsecase[Msg]):
                 or (m(None).publish_scope for m in self._broker_middlewares),
                 self._middlewares,
             ):
-                message = await stack.enter_async_context(
-                    m(message, **kwargs)
-                )
+                message = await stack.enter_async_context(m(message, **kwargs))
 
-            return await self._producer.publish(
-                message,
-                **kwargs
-            )
+            return await self._producer.publish(message, **kwargs)
 
         return None
 

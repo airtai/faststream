@@ -22,7 +22,7 @@ class TestConnection(BrokerConnectionTestcase):
             security=SASLPlaintext(
                 username=settings.login,
                 password=settings.password,
-            )
+            ),
         )
         assert await broker.connect()
         await broker.close()
@@ -36,7 +36,7 @@ class TestConnection(BrokerConnectionTestcase):
             security=SASLPlaintext(
                 username=settings.login,
                 password=settings.password,
-            )
+            ),
         )
         await broker.close()
 
@@ -49,7 +49,7 @@ class TestConnection(BrokerConnectionTestcase):
             security=SASLPlaintext(
                 username=settings.login,
                 password=settings.password,
-            )
+            ),
         )
         await broker.close()
 

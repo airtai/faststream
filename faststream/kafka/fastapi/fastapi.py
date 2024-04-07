@@ -1,8 +1,8 @@
 import logging
 from asyncio import AbstractEventLoop
-from enum import Enum
 from inspect import Parameter
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -28,15 +28,12 @@ from aiokafka.producer.producer import _missing
 from fastapi import params
 from fastapi.datastructures import Default
 from fastapi.routing import APIRoute
-from fastapi.types import IncEx
 from fastapi.utils import generate_unique_id
 from starlette.responses import JSONResponse, Response
 from starlette.routing import BaseRoute
-from starlette.types import ASGIApp, Lifespan
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.asyncapi import schema as asyncapi
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.message import StreamMessage
 from faststream.broker.types import (
@@ -57,8 +54,16 @@ from faststream.kafka.subscriber.asyncapi import (
     AsyncAPIBatchSubscriber,
     AsyncAPIDefaultSubscriber,
 )
-from faststream.security import BaseSecurity
-from faststream.types import AnyDict
+
+if TYPE_CHECKING:
+    from enum import Enum
+
+    from fastapi.types import IncEx
+    from starlette.types import ASGIApp, Lifespan
+
+    from faststream.asyncapi import schema as asyncapi
+    from faststream.security import BaseSecurity
+    from faststream.types import AnyDict
 
 Partition = TypeVar("Partition")
 
@@ -1067,8 +1072,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
                 """
             ),
         ] = False,
-    ) -> AsyncAPIDefaultSubscriber:
-        ...
+    ) -> AsyncAPIDefaultSubscriber: ...
 
     @overload
     def subscriber(
@@ -1518,8 +1522,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
                 """
             ),
         ] = False,
-    ) -> AsyncAPIBatchSubscriber:
-        ...
+    ) -> AsyncAPIBatchSubscriber: ...
 
     @overload
     def subscriber(
@@ -1985,8 +1988,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
     ) -> Union[
         AsyncAPIBatchSubscriber,
         AsyncAPIDefaultSubscriber,
-    ]:
-        ...
+    ]: ...
 
     @override
     def subscriber(
@@ -2540,7 +2542,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             Optional[Dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
+                "**content-type** and **correlation_id** will be set automatically by framework anyway. "
                 "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
@@ -2577,8 +2579,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPIDefaultPublisher:
-        ...
+    ) -> AsyncAPIDefaultPublisher: ...
 
     @overload
     def publisher(
@@ -2615,7 +2616,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             Optional[Dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
+                "**content-type** and **correlation_id** will be set automatically by framework anyway. "
                 "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
@@ -2652,8 +2653,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             bool,
             Doc("Whetever to include operation in AsyncAPI schema or not."),
         ] = True,
-    ) -> AsyncAPIBatchPublisher:
-        ...
+    ) -> AsyncAPIBatchPublisher: ...
 
     @overload
     def publisher(
@@ -2690,7 +2690,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             Optional[Dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
+                "**content-type** and **correlation_id** will be set automatically by framework anyway. "
                 "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
@@ -2730,8 +2730,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
     ) -> Union[
         AsyncAPIBatchPublisher,
         AsyncAPIDefaultPublisher,
-    ]:
-        ...
+    ]: ...
 
     @override
     def publisher(
@@ -2768,7 +2767,7 @@ class KafkaRouter(StreamRouter[Union[ConsumerRecord, Tuple[ConsumerRecord, ...]]
             Optional[Dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
+                "**content-type** and **correlation_id** will be set automatically by framework anyway. "
                 "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,

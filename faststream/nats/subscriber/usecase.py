@@ -23,7 +23,6 @@ from typing_extensions import Annotated, Doc, override
 
 from faststream.broker.message import StreamMessage
 from faststream.broker.publisher.fake import FakePublisher
-from faststream.broker.publisher.proto import ProducerProto
 from faststream.broker.subscriber.usecase import SubscriberUsecase
 from faststream.broker.types import CustomDecoder, CustomParser, MsgType
 from faststream.exceptions import NOT_CONNECTED_YET, SetupError
@@ -39,6 +38,7 @@ if TYPE_CHECKING:
     from nats.js import JetStreamContext
 
     from faststream.broker.message import StreamMessage
+    from faststream.broker.publisher.proto import ProducerProto
     from faststream.broker.types import (
         AsyncDecoder,
         AsyncParser,
@@ -144,9 +144,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
             _get_dependant=_get_dependant,
         )
 
-    async def start(
-        self
-    ) -> None:
+    async def start(self) -> None:
         """Create NATS subscription and start consume tasks."""
         assert self._connection, NOT_CONNECTED_YET
         await super().start()
@@ -331,8 +329,7 @@ class DefaultHandler(LogicSubscriber["Msg"]):
             connection = cast("JetStreamContext", connection)
 
             if self.stream is None:
-                raise SetupError(
-                    "Pull subscriber can be used only with a stream")
+                raise SetupError("Pull subscriber can be used only with a stream")
 
             self.subscription = await connection.pull_subscribe(
                 subject=self.subject,

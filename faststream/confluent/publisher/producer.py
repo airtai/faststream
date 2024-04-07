@@ -56,8 +56,7 @@ class AsyncConfluentFastProducer(ProducerProto):
             key=key,
             partition=partition,
             timestamp_ms=timestamp_ms,
-            headers=[(i, (j or "").encode())
-                     for i, j in headers_to_send.items()],
+            headers=[(i, (j or "").encode()) for i, j in headers_to_send.items()],
         )
 
     async def stop(self) -> None:
@@ -79,10 +78,7 @@ class AsyncConfluentFastProducer(ProducerProto):
 
         batch = self._producer.create_batch()
 
-        headers_to_send = {
-            "correlation_id": correlation_id,
-            **(headers or {})
-        }
+        headers_to_send = {"correlation_id": correlation_id, **(headers or {})}
 
         if reply_to:
             headers_to_send["reply_to"] = headers_to_send.get(

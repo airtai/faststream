@@ -75,7 +75,7 @@ class RabbitBroker(
         url: Annotated[
             Union[str, "URL", None],
             Doc("RabbitMQ destination location to connect."),
-        ] = "amqp://guest:guest@localhost:5672/",
+        ] = "amqp://guest:guest@localhost:5672/",  # pragma: allowlist secret
         *,
         # connection args
         host: Annotated[
@@ -267,8 +267,7 @@ class RabbitBroker(
     async def connect(  # type: ignore[override]
         self,
         url: Annotated[
-            Union[str, "URL", object], Doc(
-                "RabbitMQ destination location to connect.")
+            Union[str, "URL", object], Doc("RabbitMQ destination location to connect.")
         ] = Parameter.empty,
         *,
         host: Annotated[
@@ -500,7 +499,7 @@ class RabbitBroker(
             Doc(
                 "Message **content-type** header. "
                 "Used by application, not core RabbitMQ. "
-                "Will be setted automatically if not specified."
+                "Will be set automatically if not specified."
             ),
         ] = None,
         content_encoding: Annotated[

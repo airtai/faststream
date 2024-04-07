@@ -9,13 +9,12 @@ from faststream.kafka.schemas.params import ConsumerConnectionParams
 from faststream.log.logging import get_broker_logger
 
 
-class KafkaLoggingBroker(BrokerUsecase[
-    Union[
-        aiokafka.ConsumerRecord,
-        Tuple[aiokafka.ConsumerRecord, ...]
-    ],
-    ConsumerConnectionParams,
-]):
+class KafkaLoggingBroker(
+    BrokerUsecase[
+        Union[aiokafka.ConsumerRecord, Tuple[aiokafka.ConsumerRecord, ...]],
+        ConsumerConnectionParams,
+    ]
+):
     """A class that extends the LoggingMixin class and adds additional functionality for logging Kafka related information."""
 
     _max_topic_len: int

@@ -1,4 +1,4 @@
-from typing import Any, Dict, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 
 from nats.aio.msg import Msg
 from typing_extensions import override
@@ -15,7 +15,9 @@ from faststream.asyncapi.utils import resolve_payloads
 from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
 from faststream.nats.helpers import stream_builder
 from faststream.nats.publisher.usecase import LogicPublisher
-from faststream.nats.schemas.js_stream import JStream
+
+if TYPE_CHECKING:
+    from faststream.nats.schemas.js_stream import JStream
 
 
 class AsyncAPIPublisher(LogicPublisher):
@@ -66,7 +68,7 @@ class AsyncAPIPublisher(LogicPublisher):
         description_: Optional[str],
         include_in_schema: bool,
     ) -> "AsyncAPIPublisher":
-        if (stream := stream_builder.stream(stream)):
+        if stream := stream_builder.stream(stream):
             stream.add_subject(subject)
 
         return cls(

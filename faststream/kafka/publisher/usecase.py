@@ -115,7 +115,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
             partition (but if key is `None`, partition is chosen randomly).
             Must be type `bytes`, or be serializable to bytes via configured
             `key_serializer`.
-            """)
+            """),
         ] = None,
         partition: Annotated[
             Optional[int],
@@ -129,7 +129,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
             Doc("""
             Epoch milliseconds (from Jan 1 1970 UTC) to use as
             the message timestamp. Defaults to current time.
-            """)
+            """),
         ] = None,
         headers: Annotated[
             Optional[Dict[str, str]],
@@ -144,9 +144,7 @@ class DefaultPublisher(LogicPublisher[ConsumerRecord]):
         ] = None,
         reply_to: Annotated[
             str,
-            Doc(
-                "Reply message topic name to send response."
-            ),
+            Doc("Reply message topic name to send response."),
         ] = "",
         # publisher specific
         _extra_middlewares: Annotated[
@@ -224,7 +222,7 @@ class BatchPublisher(LogicPublisher[Tuple[ConsumerRecord, ...]]):
             Doc("""
             Epoch milliseconds (from Jan 1 1970 UTC) to use as
             the message timestamp. Defaults to current time.
-            """)
+            """),
         ] = None,
         headers: Annotated[
             Optional[Dict[str, str]],
@@ -232,9 +230,7 @@ class BatchPublisher(LogicPublisher[Tuple[ConsumerRecord, ...]]):
         ] = None,
         reply_to: Annotated[
             str,
-            Doc(
-                "Reply message topic name to send response."
-            ),
+            Doc("Reply message topic name to send response."),
         ] = "",
         correlation_id: Annotated[
             Optional[str],

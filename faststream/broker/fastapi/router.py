@@ -282,6 +282,7 @@ class StreamRouter(APIRouter, Generic[MsgType]):
                 self.license = app.license_info
 
                 from faststream.asyncapi.generate import get_app_schema
+
                 self.schema = get_app_schema(self)
 
                 app.include_router(self.docs_router)

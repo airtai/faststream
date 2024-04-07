@@ -35,6 +35,7 @@ class LogicSubscriber(
     BaseRMQInformation,
 ):
     """A class to handle logic for RabbitMQ message consumption."""
+
     app_id: Optional[str]
     declarer: Optional[RabbitDeclarer]
 

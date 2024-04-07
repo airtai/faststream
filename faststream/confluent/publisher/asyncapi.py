@@ -64,8 +64,7 @@ class AsyncAPIPublisher(LogicPublisher):
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
-    ) -> "AsyncAPIBatchPublisher":
-        ...
+    ) -> "AsyncAPIBatchPublisher": ...
 
     @overload
     @staticmethod
@@ -85,8 +84,7 @@ class AsyncAPIPublisher(LogicPublisher):
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
-    ) -> "AsyncAPIDefaultPublisher":
-        ...
+    ) -> "AsyncAPIDefaultPublisher": ...
 
     @overload
     @staticmethod
@@ -99,10 +97,9 @@ class AsyncAPIPublisher(LogicPublisher):
         headers: Optional[Dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable[BrokerMiddleware[Union[
-            Tuple[ConfluentMsg, ...],
-            ConfluentMsg
-        ]]],
+        broker_middlewares: Iterable[
+            BrokerMiddleware[Union[Tuple[ConfluentMsg, ...], ConfluentMsg]]
+        ],
         middlewares: Iterable[PublisherMiddleware],
         # AsyncAPI args
         schema_: Optional[Any],
@@ -112,8 +109,7 @@ class AsyncAPIPublisher(LogicPublisher):
     ) -> Union[
         "AsyncAPIBatchPublisher",
         "AsyncAPIDefaultPublisher",
-    ]:
-        ...
+    ]: ...
 
     @override
     @staticmethod
@@ -126,10 +122,9 @@ class AsyncAPIPublisher(LogicPublisher):
         headers: Optional[Dict[str, str]],
         reply_to: str,
         # Publisher args
-        broker_middlewares: Iterable[BrokerMiddleware[Union[
-            Tuple[ConfluentMsg, ...],
-            ConfluentMsg
-        ]]],
+        broker_middlewares: Iterable[
+            BrokerMiddleware[Union[Tuple[ConfluentMsg, ...], ConfluentMsg]]
+        ],
         middlewares: Iterable[PublisherMiddleware],
         # AsyncAPI args
         schema_: Optional[Any],

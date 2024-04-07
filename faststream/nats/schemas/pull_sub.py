@@ -20,11 +20,15 @@ class PullSub:
         ] = 1,
         timeout: Annotated[
             Optional[float],
-            Doc("Wait this time for required batch size will be accumulated in stream."),
+            Doc(
+                "Wait this time for required batch size will be accumulated in stream."
+            ),
         ] = 5.0,
         batch: Annotated[
             bool,
-            Doc("Whether to propagate consuming batch as iterable object to your handler."),
+            Doc(
+                "Whether to propagate consuming batch as iterable object to your handler."
+            ),
         ] = False,
     ) -> None:
         self.batch_size = batch_size

@@ -258,6 +258,7 @@ class DefaultSubscriber(LogicSubscriber[Message]):
             group_id=self.group_id,
         )
 
+
 class BatchSubscriber(LogicSubscriber[Tuple[Message, ...]]):
     def __init__(
         self,

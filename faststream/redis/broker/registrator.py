@@ -189,19 +189,21 @@ class RedisRegistrator(ABCBroker["BaseMessage"]):
         """
         return cast(
             AsyncAPIPublisher,
-            super().publisher(AsyncAPIPublisher.create(
-                channel=channel,
-                list=list,
-                stream=stream,
-                headers=headers,
-                reply_to=reply_to,
-                # Specific
-                broker_middlewares=self._middlewares,
-                middlewares=middlewares,
-                # AsyncAPI
-                title_=title,
-                description_=description,
-                schema_=schema,
-                include_in_schema=self._solve_include_in_schema(include_in_schema),
-            ))
+            super().publisher(
+                AsyncAPIPublisher.create(
+                    channel=channel,
+                    list=list,
+                    stream=stream,
+                    headers=headers,
+                    reply_to=reply_to,
+                    # Specific
+                    broker_middlewares=self._middlewares,
+                    middlewares=middlewares,
+                    # AsyncAPI
+                    title_=title,
+                    description_=description,
+                    schema_=schema,
+                    include_in_schema=self._solve_include_in_schema(include_in_schema),
+                )
+            ),
         )

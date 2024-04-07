@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Dict, Type
+from typing import Any, ClassVar, Dict, Type
 from unittest.mock import Mock
 
 import pytest
@@ -20,7 +20,7 @@ class RouterTestcase(
     build_message: AnyCallable
     route_class: Type[SubscriberRoute]
     timeout: int = 3
-    subscriber_kwargs: Dict[str, Any] = {}
+    subscriber_kwargs: ClassVar[Dict[str, Any]] = {}
     publisher_class: Type[ArgsContainer]
 
     def patch_broker(self, br: BrokerUsecase, router: BrokerRouter) -> BrokerUsecase:
@@ -197,7 +197,10 @@ class RouterTestcase(
         def response(m):
             event.set()
 
-        r = type(router)(prefix="test_", handlers=(self.route_class(response, queue, **self.subscriber_kwargs),))
+        r = type(router)(
+            prefix="test_",
+            handlers=(self.route_class(response, queue, **self.subscriber_kwargs),),
+        )
 
         pub_broker.include_router(r)
 
@@ -310,7 +313,9 @@ class RouterTestcase(
         def subscriber(m):
             return "hi"
 
-        @pub_broker.subscriber("test1_" + "test2_" + queue + "resp", **self.subscriber_kwargs)
+        @pub_broker.subscriber(
+            "test1_" + "test2_" + queue + "resp", **self.subscriber_kwargs
+        )
         def response(m):
             event.set()
 
@@ -343,9 +348,10 @@ class RouterTestcase(
         router = type(router)(dependencies=(Depends(lambda: 1),))
         router2 = type(router)(dependencies=(Depends(lambda: 2),))
 
-        @router2.subscriber(queue, dependencies=(Depends(lambda: 3),), **self.subscriber_kwargs)
-        def subscriber():
-            ...
+        @router2.subscriber(
+            queue, dependencies=(Depends(lambda: 3),), **self.subscriber_kwargs
+        )
+        def subscriber(): ...
 
         router.include_router(router2)
         pub_broker.include_routers(router)
@@ -366,8 +372,7 @@ class RouterTestcase(
 
         @router2.subscriber(queue, middlewares=(3,), **self.subscriber_kwargs)
         @router2.publisher(queue, middlewares=(3,))
-        def subscriber():
-            ...
+        def subscriber(): ...
 
         router.include_router(router2)
         pub_broker.include_routers(router)
@@ -449,7 +454,9 @@ class RouterTestcase(
             decoder=global_decoder,
         )
 
-        @router.subscriber(queue, parser=parser, decoder=decoder, **self.subscriber_kwargs)
+        @router.subscriber(
+            queue, parser=parser, decoder=decoder, **self.subscriber_kwargs
+        )
         def subscriber(s):
             event.set()
 

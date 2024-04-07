@@ -29,6 +29,7 @@ BaseMessage: TypeAlias = Union[
 
 class PubSubMessage(TypedDict):
     """A class to represent a PubSub message."""
+
     type: Literal["pmessage", "message"]
     channel: str
     data: bytes
@@ -38,26 +39,36 @@ class PubSubMessage(TypedDict):
 class RedisMessage(BrokerStreamMessage[PubSubMessage]):
     pass
 
+
 class ListMessage(TypedDict):
     """A class to represent an Abstract List message."""
+
     channel: str
+
 
 class DefaultListMessage(ListMessage):
     """A class to represent a single List message."""
+
     type: Literal["list"]
     data: bytes
 
+
 class BatchListMessage(ListMessage):
     """A class to represent a List messages batch."""
+
     type: Literal["blist"]
     data: List[bytes]
 
+
 class RedisListMessage(BrokerStreamMessage[DefaultListMessage]):
     """StreamMessage for single List message."""
+
     pass
+
 
 class RedisBatchListMessage(BrokerStreamMessage[BatchListMessage]):
     """StreamMessage for single List message."""
+
     decoded_body: List["DecodedMessage"]
 
 
@@ -69,15 +80,19 @@ class StreamMessage(TypedDict):
     channel: str
     message_ids: List[bytes]
 
+
 class DefaultStreamMessage(StreamMessage):
     type: Literal["stream"]
     data: Dict[bytes, bytes]
+
 
 class BatchStreamMessage(StreamMessage):
     type: Literal["bstream"]
     data: List[Dict[bytes, bytes]]
 
+
 _StreamMsgType = TypeVar("_StreamMsgType", bound=StreamMessage)
+
 
 class _RedisStreamMessageMixin(BrokerStreamMessage[_StreamMsgType]):
     @override
@@ -92,8 +107,10 @@ class _RedisStreamMessageMixin(BrokerStreamMessage[_StreamMsgType]):
             await redis.xack(channel, group, *ids)  # type: ignore[no-untyped-call]
             await super().ack()
 
+
 class RedisStreamMessage(_RedisStreamMessageMixin[DefaultStreamMessage]):
     pass
+
 
 class RedisBatchStreamMessage(_RedisStreamMessageMixin[BatchStreamMessage]):
     decoded_body: List["DecodedMessage"]

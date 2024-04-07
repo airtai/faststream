@@ -64,8 +64,7 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
-    ) -> "AsyncAPIBatchPublisher":
-        ...
+    ) -> "AsyncAPIBatchPublisher": ...
 
     @overload
     @staticmethod
@@ -85,8 +84,7 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
         title_: Optional[str],
         description_: Optional[str],
         include_in_schema: bool,
-    ) -> "AsyncAPIDefaultPublisher":
-        ...
+    ) -> "AsyncAPIDefaultPublisher": ...
 
     @overload
     @staticmethod
@@ -111,8 +109,7 @@ class AsyncAPIPublisher(LogicPublisher[MsgType]):
     ) -> Union[
         "AsyncAPIBatchPublisher",
         "AsyncAPIDefaultPublisher",
-    ]:
-        ...
+    ]: ...
 
     @override
     @staticmethod

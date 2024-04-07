@@ -180,7 +180,7 @@ class FastStream:
                 except PValidationError as e:
                     raise ValidationError(
                         fields=[x["loc"][0] for x in e.errors()]
-                    )
+                    ) from e
 
             else:
                 await call

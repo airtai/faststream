@@ -127,9 +127,7 @@ class DefaultPublisher(LogicPublisher[Message]):
                 or (m(None).publish_scope for m in self._broker_middlewares),
                 self._middlewares,
             ):
-                message = await stack.enter_async_context(
-                    m(message, **kwargs)
-                )
+                message = await stack.enter_async_context(m(message, **kwargs))
 
             return await self._producer.publish(message=message, **kwargs)
 
@@ -170,9 +168,7 @@ class BatchPublisher(LogicPublisher[Tuple[Message, ...]]):
 
         async with AsyncExitStack() as stack:
             wrapped_messages = [
-                await stack.enter_async_context(
-                    middleware(msg, **kwargs)
-                )
+                await stack.enter_async_context(middleware(msg, **kwargs))
                 for msg in msgs
                 for middleware in chain(
                     _extra_middlewares

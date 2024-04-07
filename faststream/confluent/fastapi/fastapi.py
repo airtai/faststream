@@ -1,7 +1,7 @@
 import logging
-from enum import Enum
 from inspect import Parameter
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -20,15 +20,12 @@ from confluent_kafka import Message
 from fastapi import params
 from fastapi.datastructures import Default
 from fastapi.routing import APIRoute
-from fastapi.types import IncEx
 from fastapi.utils import generate_unique_id
 from starlette.responses import JSONResponse, Response
 from starlette.routing import BaseRoute
-from starlette.types import ASGIApp, Lifespan
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.asyncapi import schema as asyncapi
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.message import StreamMessage
 from faststream.broker.types import (
@@ -43,8 +40,16 @@ from faststream.broker.utils import default_filter
 from faststream.confluent.broker.broker import KafkaBroker as KB
 from faststream.confluent.publisher.asyncapi import AsyncAPIPublisher
 from faststream.confluent.subscriber.asyncapi import AsyncAPISubscriber
-from faststream.security import BaseSecurity
-from faststream.types import AnyDict
+
+if TYPE_CHECKING:
+    from enum import Enum
+
+    from fastapi.types import IncEx
+    from starlette.types import ASGIApp, Lifespan
+
+    from faststream.asyncapi import schema as asyncapi
+    from faststream.security import BaseSecurity
+    from faststream.types import AnyDict
 
 
 class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):

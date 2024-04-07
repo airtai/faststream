@@ -34,8 +34,7 @@ class RouterTestcase:
     def test_delay_publisher(self):
         broker = self.broker_class()
 
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         router = self.router_class(
             handlers=(
@@ -54,7 +53,9 @@ class RouterTestcase:
         del schemas["Handle:Message:Payload"]
 
         for i, j in schemas.items():
-            assert i == j["title"] == IsStr(regex=r"test2[\w:]*:Publisher:Message:Payload")
+            assert (
+                i == j["title"] == IsStr(regex=r"test2[\w:]*:Publisher:Message:Payload")
+            )
             assert j["type"] == "integer"
 
     def test_not_include(self):
@@ -77,8 +78,7 @@ class RouterTestcase:
 
         @router2.subscriber("test")
         @router2.publisher("test")
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         router.include_router(router2)
         broker.include_router(router)
@@ -94,8 +94,7 @@ class RouterTestcase:
 
         @router2.subscriber("test")
         @router2.publisher("test")
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         router.include_router(router2)
         broker.include_router(router)
@@ -111,8 +110,7 @@ class RouterTestcase:
 
         @router2.subscriber("test")
         @router2.publisher("test")
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         router.include_router(router2)
         broker.include_router(router)

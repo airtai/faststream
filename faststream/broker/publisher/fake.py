@@ -39,8 +39,6 @@ class FakePublisher(BasePublisherProto):
 
         async with AsyncExitStack() as stack:
             for m in chain(_extra_middlewares, self.middlewares):
-                message = await stack.enter_async_context(
-                    m(message, **publish_kwargs)
-                )
+                message = await stack.enter_async_context(m(message, **publish_kwargs))
 
             return await self.method(message, **publish_kwargs)

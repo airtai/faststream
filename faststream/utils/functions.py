@@ -30,13 +30,13 @@ __all__ = (
 @overload
 def to_async(
     func: Callable[F_Spec, Awaitable[F_Return]],
-) -> Callable[F_Spec, Awaitable[F_Return]]:
-    ...
+) -> Callable[F_Spec, Awaitable[F_Return]]: ...
 
 
 @overload
-def to_async(func: Callable[F_Spec, F_Return]) -> Callable[F_Spec, Awaitable[F_Return]]:
-    ...
+def to_async(
+    func: Callable[F_Spec, F_Return],
+) -> Callable[F_Spec, Awaitable[F_Return]]: ...
 
 
 def to_async(

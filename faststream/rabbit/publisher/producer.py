@@ -197,9 +197,7 @@ class AioPikaFastProducer(ProducerProto):
 class _RPCCallback:
     """A class provides an RPC lock."""
 
-    def __init__(
-        self, lock: "anyio.Lock", callback_queue: "RobustQueue"
-    ) -> None:
+    def __init__(self, lock: "anyio.Lock", callback_queue: "RobustQueue") -> None:
         self.lock = lock
         self.queue = callback_queue
 
@@ -207,7 +205,9 @@ class _RPCCallback:
         (
             send_response_stream,
             receive_response_stream,
-        ) = anyio.create_memory_object_stream[AbstractIncomingMessage](max_buffer_size=1)
+        ) = anyio.create_memory_object_stream[AbstractIncomingMessage](
+            max_buffer_size=1
+        )
         await self.lock.acquire()
 
         self.consumer_tag = await self.queue.consume(

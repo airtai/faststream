@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 
 class LogicPublisher(PublisherUsecase[BaseMessage]):
     """A class to represent a Redis publisher."""
+
     _producer: Optional["RedisFastProducer"]
 
     def __init__(
@@ -348,9 +349,7 @@ class ListBatchPublisher(ListPublisher):
         *,
         correlation_id: Annotated[
             Optional[str],
-            Doc(
-                "Has no real effect. Option to be compatible with original protocol."
-            ),
+            Doc("Has no real effect. Option to be compatible with original protocol."),
         ] = None,
         # publisher specific
         _extra_middlewares: Annotated[
@@ -366,7 +365,11 @@ class ListBatchPublisher(ListPublisher):
         async with AsyncExitStack() as stack:
             wrapped_messages = [
                 await stack.enter_async_context(
-                    middleware(msg, list=list_sub, correlation_id=correlation_id,)
+                    middleware(
+                        msg,
+                        list=list_sub,
+                        correlation_id=correlation_id,
+                    )
                 )
                 for msg in message
                 for middleware in chain(
@@ -419,11 +422,7 @@ class StreamPublisher(LogicPublisher):
 
     @property
     def subscriber_property(self) -> "AnyDict":
-        return {
-            "channel": None,
-            "list": None,
-            "stream": self.stream
-        }
+        return {"channel": None, "list": None, "stream": self.stream}
 
     def add_prefix(self, prefix: str) -> None:
         stream_sub = deepcopy(self.stream)

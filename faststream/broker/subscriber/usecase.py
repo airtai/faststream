@@ -160,12 +160,16 @@ class SubscriberUsecase(
 
         for call in self.calls:
             if parser := call.item_parser or broker_parser:
-                async_parser = resolve_custom_func(to_async(parser), self._default_parser)
+                async_parser = resolve_custom_func(
+                    to_async(parser), self._default_parser
+                )
             else:
                 async_parser = self._default_parser
 
             if decoder := call.item_decoder or broker_decoder:
-                async_decoder = resolve_custom_func(to_async(decoder), self._default_decoder)
+                async_decoder = resolve_custom_func(
+                    to_async(decoder), self._default_decoder
+                )
             else:
                 async_decoder = self._default_decoder
 
@@ -226,8 +230,7 @@ class SubscriberUsecase(
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
         "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
-    ]:
-        ...
+    ]: ...
 
     @overload
     def __call__(
@@ -239,8 +242,7 @@ class SubscriberUsecase(
         decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
         middlewares: Iterable["SubscriberMiddleware"] = (),
         dependencies: Iterable["Depends"] = (),
-    ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]":
-        ...
+    ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]": ...
 
     def __call__(
         self,

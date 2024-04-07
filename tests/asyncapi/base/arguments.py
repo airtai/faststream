@@ -19,15 +19,14 @@ class FastAPICompatible:
     dependency_builder = staticmethod(APIDepends)
 
     def build_app(self, broker):
-        """Patch it to test FastAPI scheme generation too"""
+        """Patch it to test FastAPI scheme generation too."""
         return FastStream(broker)
 
     def test_custom_naming(self):
         broker = self.broker_class()
 
         @broker.subscriber("test", title="custom_name", description="test description")
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
@@ -40,7 +39,7 @@ class FastAPICompatible:
 
         @broker.subscriber("test", title="custom_name")
         async def handle(msg):
-            """Test description"""
+            """Test description."""
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
@@ -54,8 +53,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle():
-            ...
+        async def handle(): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -72,8 +70,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(msg):
-            ...
+        async def handle(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -87,8 +84,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(msg: int):
-            ...
+        async def handle(msg: int): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -103,8 +99,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(msg: Optional[int]):
-            ...
+        async def handle(msg: Optional[int]): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -128,8 +123,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(msg: int = 1):
-            ...
+        async def handle(msg: int = 1): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -147,8 +141,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(msg, another):
-            ...
+        async def handle(msg, another): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -170,8 +163,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(msg: str, another: int):
-            ...
+        async def handle(msg: str, another: int): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -193,8 +185,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(msg: str, another: Optional[int] = None):
-            ...
+        async def handle(msg: str, another: Optional[int] = None): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -233,8 +224,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(user: User):
-            ...
+        async def handle(user: User): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -265,8 +255,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(user: User):
-            ...
+        async def handle(user: User): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -304,8 +293,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(user: User, description: str = ""):
-            ...
+        async def handle(user: User, description: str = ""): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -361,8 +349,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(user: User):
-            ...
+        async def handle(user: User): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -392,12 +379,10 @@ class FastAPICompatible:
             "test",
             filter=lambda m: m.content_type == "application/json",
         )
-        async def handle(id: int):
-            ...
+        async def handle(id: int): ...
 
         @broker.subscriber("test")
-        async def handle_default(msg):
-            ...
+        async def handle_default(msg): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -428,8 +413,7 @@ class FastAPICompatible:
         message = self.dependency_builder(dep)
 
         @broker.subscriber("test", dependencies=dependencies)
-        async def handle(id: int, message=message):
-            ...
+        async def handle(id: int, message=message): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -463,8 +447,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(user: descriminator):
-            ...
+        async def handle(user: descriminator): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -487,13 +470,17 @@ class FastAPICompatible:
             },
             "schemas": {
                 "Sub": {
-                    "properties": {"type": IsPartialDict({"const": "sub", "title": "Type"})},
+                    "properties": {
+                        "type": IsPartialDict({"const": "sub", "title": "Type"})
+                    },
                     "required": ["type"],
                     "title": "Sub",
                     "type": "object",
                 },
                 "Sub2": {
-                    "properties": {"type": IsPartialDict({"const": "sub2", "title": "Type"})},
+                    "properties": {
+                        "type": IsPartialDict({"const": "sub2", "title": "Type"})
+                    },
                     "required": ["type"],
                     "title": "Sub2",
                     "type": "object",
@@ -515,8 +502,7 @@ class FastAPICompatible:
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(user: Model):
-            ...
+        async def handle(user: Model): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -532,13 +518,17 @@ class FastAPICompatible:
             },
             "schemas": {
                 "Sub": {
-                    "properties": {"type": IsPartialDict({"const": "sub", "title": "Type"})},
+                    "properties": {
+                        "type": IsPartialDict({"const": "sub", "title": "Type"})
+                    },
                     "required": ["type"],
                     "title": "Sub",
                     "type": "object",
                 },
                 "Sub2": {
-                    "properties": {"type": IsPartialDict({"const": "sub2", "title": "Type"})},
+                    "properties": {
+                        "type": IsPartialDict({"const": "sub2", "title": "Type"})
+                    },
                     "required": ["type"],
                     "title": "Sub2",
                     "type": "object",
@@ -576,8 +566,7 @@ class ArgumentsTestcase(FastAPICompatible):
                 title="Perfect",
                 examples=[1],
             ),
-        ):
-            ...
+        ): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 
@@ -599,8 +588,7 @@ class ArgumentsTestcase(FastAPICompatible):
         broker = self.broker_class()
 
         @broker.subscriber("test")
-        async def handle(id: int, user: Optional[str] = None, message=Context()):
-            ...
+        async def handle(id: int, user: Optional[str] = None, message=Context()): ...
 
         schema = get_app_schema(self.build_app(broker)).to_jsonable()
 

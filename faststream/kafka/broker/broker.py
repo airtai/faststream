@@ -27,7 +27,6 @@ from fast_depends.dependencies import Depends
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.asyncapi import schema as asyncapi
 from faststream.broker.message import StreamMessage, gen_cor_id
 from faststream.broker.types import (
     BrokerMiddleware,
@@ -40,7 +39,6 @@ from faststream.kafka.broker.registrator import KafkaRegistrator
 from faststream.kafka.publisher.producer import AioKafkaFastProducer
 from faststream.kafka.schemas.params import ConsumerConnectionParams
 from faststream.kafka.security import parse_security
-from faststream.security import BaseSecurity
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils.data import filter_by_dict
 
@@ -48,6 +46,9 @@ Partition = TypeVar("Partition")
 
 if TYPE_CHECKING:
     from typing_extensions import TypedDict, Unpack
+
+    from faststream.asyncapi import schema as asyncapi
+    from faststream.security import BaseSecurity
 
     class KafkaInitKwargs(TypedDict, total=False):
         request_timeout_ms: Annotated[
@@ -78,8 +79,7 @@ if TYPE_CHECKING:
         sasl_kerberos_service_name: str
         sasl_kerberos_domain_name: Optional[str]
         sasl_oauth_token_provider: Annotated[
-            Optional[AbstractTokenProvider],
-            Doc("OAuthBearer token provider instance.")
+            Optional[AbstractTokenProvider], Doc("OAuthBearer token provider instance.")
         ]
         loop: Optional[AbstractEventLoop]
         client_id: Annotated[
@@ -124,7 +124,7 @@ if TYPE_CHECKING:
         ]
         key_serializer: Annotated[
             Optional[Callable[[Any], bytes]],
-            Doc("Used to convert user-supplied keys to bytes.")
+            Doc("Used to convert user-supplied keys to bytes."),
         ]
         value_serializer: Annotated[
             Optional[Callable[[Any], bytes]],
@@ -170,7 +170,7 @@ if TYPE_CHECKING:
             has its own cap on record size which may be different from this.
             This setting will limit the number of record batches the producer
             will send in a single request to avoid sending huge requests.
-            """)
+            """),
         ]
         linger_ms: Annotated[
             int,
@@ -251,8 +251,7 @@ class KafkaBroker(
         sasl_kerberos_service_name: str = "kafka",
         sasl_kerberos_domain_name: Optional[str] = None,
         sasl_oauth_token_provider: Annotated[
-            Optional[AbstractTokenProvider],
-            Doc("OAuthBearer token provider instance.")
+            Optional[AbstractTokenProvider], Doc("OAuthBearer token provider instance.")
         ] = None,
         loop: Optional[AbstractEventLoop] = None,
         client_id: Annotated[
@@ -297,7 +296,7 @@ class KafkaBroker(
         ] = _missing,
         key_serializer: Annotated[
             Optional[Callable[[Any], bytes]],
-            Doc("Used to convert user-supplied keys to bytes.")
+            Doc("Used to convert user-supplied keys to bytes."),
         ] = None,
         value_serializer: Annotated[
             Optional[Callable[[Any], bytes]],
@@ -343,7 +342,7 @@ class KafkaBroker(
             has its own cap on record size which may be different from this.
             This setting will limit the number of record batches the producer
             will send in a single request to avoid sending huge requests.
-            """)
+            """),
         ] = 1024 * 1024,
         linger_ms: Annotated[
             int,
@@ -380,17 +379,21 @@ class KafkaBroker(
             ),
         ] = 15.0,
         decoder: Annotated[
-            Optional[Union[
-                CustomDecoder[StreamMessage[ConsumerRecord]],
-                CustomDecoder[StreamMessage[Tuple[ConsumerRecord, ...]]],
-            ]],
+            Optional[
+                Union[
+                    CustomDecoder[StreamMessage[ConsumerRecord]],
+                    CustomDecoder[StreamMessage[Tuple[ConsumerRecord, ...]]],
+                ]
+            ],
             Doc("Custom decoder object."),
         ] = None,
         parser: Annotated[
-            Optional[Union[
-                CustomParser[ConsumerRecord],
-                CustomParser[Tuple[ConsumerRecord, ...]]
-            ]],
+            Optional[
+                Union[
+                    CustomParser[ConsumerRecord],
+                    CustomParser[Tuple[ConsumerRecord, ...]],
+                ]
+            ],
             Doc("Custom parser object."),
         ] = None,
         dependencies: Annotated[
@@ -398,10 +401,12 @@ class KafkaBroker(
             Doc("Dependencies to apply to all broker subscribers."),
         ] = (),
         middlewares: Annotated[
-            Iterable[Union[
-                BrokerMiddleware[ConsumerRecord],
-                BrokerMiddleware[Tuple[ConsumerRecord, ...]],
-            ]],
+            Iterable[
+                Union[
+                    BrokerMiddleware[ConsumerRecord],
+                    BrokerMiddleware[Tuple[ConsumerRecord, ...]],
+                ]
+            ],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args
@@ -464,8 +469,11 @@ class KafkaBroker(
             else:
                 protocol = "kafka"
 
-        servers = [bootstrap_servers] if isinstance(
-            bootstrap_servers, str) else list(bootstrap_servers)
+        servers = (
+            [bootstrap_servers]
+            if isinstance(bootstrap_servers, str)
+            else list(bootstrap_servers)
+        )
 
         if asyncapi_url is not None:
             if isinstance(asyncapi_url, str):
@@ -553,10 +561,7 @@ class KafkaBroker(
         To startup subscribers too you should use `broker.start()` after/instead this method.
         """
         if bootstrap_servers is not Parameter.empty:
-            connect_kwargs: AnyDict = {
-                **kwargs,
-                "bootstrap_servers": bootstrap_servers
-            }
+            connect_kwargs: AnyDict = {**kwargs, "bootstrap_servers": bootstrap_servers}
         else:
             connect_kwargs = {**kwargs}
 
@@ -621,7 +626,7 @@ class KafkaBroker(
             partition (but if key is `None`, partition is chosen randomly).
             Must be type `bytes`, or be serializable to bytes via configured
             `key_serializer`.
-            """)
+            """),
         ] = None,
         partition: Annotated[
             Optional[int],
@@ -635,7 +640,7 @@ class KafkaBroker(
             Doc("""
             Epoch milliseconds (from Jan 1 1970 UTC) to use as
             the message timestamp. Defaults to current time.
-            """)
+            """),
         ] = None,
         headers: Annotated[
             Optional[Dict[str, str]],
@@ -650,9 +655,7 @@ class KafkaBroker(
         ] = None,
         reply_to: Annotated[
             str,
-            Doc(
-                "Reply message topic name to send response."
-            ),
+            Doc("Reply message topic name to send response."),
         ] = "",
         # extra options to be compatible with test client
         **kwargs: Any,
@@ -701,7 +704,7 @@ class KafkaBroker(
             Doc("""
             Epoch milliseconds (from Jan 1 1970 UTC) to use as
             the message timestamp. Defaults to current time.
-            """)
+            """),
         ] = None,
         headers: Annotated[
             Optional[Dict[str, str]],
@@ -709,9 +712,7 @@ class KafkaBroker(
         ] = None,
         reply_to: Annotated[
             str,
-            Doc(
-                "Reply message topic name to send response."
-            ),
+            Doc("Reply message topic name to send response."),
         ] = "",
         correlation_id: Annotated[
             Optional[str],
