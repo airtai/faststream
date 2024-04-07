@@ -45,7 +45,7 @@ class FastAPICompatible:
         key = tuple(schema["channels"].keys())[0]  # noqa: RUF015
 
         assert key == "custom_name"
-        assert schema["channels"][key]["description"] == "Test description", schema[
+        assert schema["channels"][key]["description"] == "Test description.", schema[
             "channels"
         ][key]["description"]
 
