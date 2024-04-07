@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from faststream._compat import DEF_KEY, HAS_FASTAPI
 from faststream.app import FastStream
@@ -14,6 +14,9 @@ from faststream.asyncapi.schema import (
 from faststream.constants import ContentTypes
 
 if TYPE_CHECKING:
+    from faststream.broker.core.usecase import BrokerUsecase
+    from faststream.broker.types import ConnectionType, MsgType
+
     if HAS_FASTAPI:
         from faststream.broker.fastapi.router import StreamRouter
 
@@ -81,7 +84,9 @@ def get_app_schema(app: Union[FastStream, "StreamRouter[Any]"]) -> Schema:
     return schema
 
 
-def get_broker_server(broker) -> Dict[str, Server]:
+def get_broker_server(
+    broker: "BrokerUsecase[MsgType, ConnectionType]",
+) -> Dict[str, Server]:
     """Get the broker server for an application."""
     servers = {}
 
@@ -99,19 +104,20 @@ def get_broker_server(broker) -> Dict[str, Server]:
         broker_meta["security"] = broker.security.get_requirement()
 
     if isinstance(broker.url, str):
+        broker_url: Optional[str] = broker.url
+    elif broker.url is None:
+        broker_url = None
+    else:
+        broker_urls = list(broker.url)
+        broker_url = broker_urls[0] if len(broker_urls) == 1 else None
+
+    if broker_url:
         servers["development"] = Server(
             url=broker.url,
             **broker_meta,
         )
-
-    elif len(broker.url) == 1:
-        servers["development"] = Server(
-            url=broker.url[0],
-            **broker_meta,
-        )
-
     else:
-        for i, url in enumerate(broker.url, 1):
+        for i, url in enumerate(broker_urls, 1):
             servers[f"Server{i}"] = Server(
                 url=url,
                 **broker_meta,
@@ -120,7 +126,9 @@ def get_broker_server(broker) -> Dict[str, Server]:
     return servers
 
 
-def get_broker_channels(broker) -> Dict[str, Channel]:
+def get_broker_channels(
+    broker: "BrokerUsecase[MsgType, ConnectionType]",
+) -> Dict[str, Channel]:
     """Get the broker channels for an application."""
     channels = {}
 

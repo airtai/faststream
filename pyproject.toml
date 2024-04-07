@@ -92,7 +92,7 @@ devdocs = [
     "requests",  # using in CI, do not pin it
 ]
 
-lint = [
+types = [
     # mypy extensions
     "types-PyYAML",
     "types-setuptools",
@@ -101,7 +101,12 @@ lint = [
     "types-Pygments",
     "types-docutils",
     "confluent-kafka-stubs; python_version >= '3.11'",
+    "faststream[rabbit,confluent,kafka,nats,redis]",
     "mypy==1.9.0",
+]
+
+lint = [
+    "faststream[types]",
     "ruff==0.3.0",
     "bandit==1.7.8",
     "semgrep==1.66.0",
@@ -150,6 +155,11 @@ skip-excluded-dirs = true
 exclude = ["/tests", "/docs"]
 
 [tool.mypy]
+
+files =[
+    "faststream",
+    "tests/mypy",
+]
 strict = true
 python_version = "3.8"
 ignore_missing_imports = true

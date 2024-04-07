@@ -2,7 +2,7 @@
 set -e
 
 echo "Running mypy..."
-mypy faststream tests/mypy
+mypy
 
 echo "Running bandit..."
 bandit -c pyproject.toml -r faststream

@@ -26,11 +26,11 @@ jobs:
 
       - name: Run ruff
         shell: bash
-        run: ruff faststream
+        run: ruff check
 
       - name: Run mypy
         shell: bash
-        run: mypy faststream tests/mypy
+        run: mypy
 
       - name: Run bandit
         shell: bash

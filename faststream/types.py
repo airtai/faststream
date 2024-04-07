@@ -87,7 +87,7 @@ try:
     ]
 
 except ImportError:
-    SendableMessage: TypeAlias = BaseSendableMessage  # type: ignore[no-redef]
+    SendableMessage: TypeAlias = BaseSendableMessage  # type: ignore[no-redef,misc]
 
 SettingField: TypeAlias = Union[
     bool,
