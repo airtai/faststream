@@ -38,8 +38,7 @@ class WrapperProto(Protocol[MsgType]):
     ) -> Callable[
         [Callable[P_HandlerParams, T_HandlerReturn]],
         HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
-    ]:
-        ...
+    ]: ...
 
     @overload
     def __call__(
@@ -51,8 +50,7 @@ class WrapperProto(Protocol[MsgType]):
         decoder: Optional[CustomDecoder[StreamMessage[MsgType]]] = None,
         middlewares: Iterable[SubscriberMiddleware] = (),
         dependencies: Iterable[Depends] = (),
-    ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]:
-        ...
+    ) -> HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]: ...
 
     def __call__(
         self,
@@ -69,5 +67,4 @@ class WrapperProto(Protocol[MsgType]):
             [Callable[P_HandlerParams, T_HandlerReturn]],
             HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn],
         ],
-    ]:
-        ...
+    ]: ...

@@ -42,7 +42,7 @@ class TestBroker(Generic[Broker]):
                 warnings.warn(
                     (
                         "\nError `{e!r}` occurred at `{self.__class__.__name__}` AST parsing."
-                        "\n`connect_only` is setted to `False` by default."
+                        "\n`connect_only` is set to `False` by default."
                     ),
                     category=RuntimeWarning,
                     stacklevel=1,

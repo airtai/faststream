@@ -44,8 +44,7 @@ class SubscriberProto(
         self,
         msg: Optional[StreamMessage[MsgType]],
         /,
-    ) -> Dict[str, str]:
-        ...
+    ) -> Dict[str, str]: ...
 
     @override
     @abstractmethod
@@ -62,32 +61,26 @@ class SubscriberProto(
         apply_types: bool,
         is_validate: bool,
         _get_dependant: Optional[Callable[..., Any]],
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @abstractmethod
     def _make_response_publisher(
         self,
         message: StreamMessage[MsgType],
-    ) -> Iterable[BasePublisherProto]:
-        ...
+    ) -> Iterable[BasePublisherProto]: ...
 
     @property
     @abstractmethod
-    def call_name(self) -> str:
-        ...
+    def call_name(self) -> str: ...
 
     @abstractmethod
-    async def start(self) -> None:
-        ...
+    async def start(self) -> None: ...
 
     @abstractmethod
-    async def close(self) -> None:
-        ...
+    async def close(self) -> None: ...
 
     @abstractmethod
-    async def consume(self, msg: MsgType) -> Any:
-        ...
+    async def consume(self, msg: MsgType) -> Any: ...
 
     @abstractmethod
     def add_call(
@@ -98,5 +91,4 @@ class SubscriberProto(
         decoder_: "CustomDecoder[StreamMessage[MsgType]]",
         middlewares_: Iterable["SubscriberMiddleware"],
         dependencies_: Iterable["Depends"],
-    ) -> Self:
-        ...
+    ) -> Self: ...

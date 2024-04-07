@@ -12,17 +12,14 @@ if TYPE_CHECKING:
 class RedisAsyncAPIProtocol(AsyncAPIOperation):
     @property
     @abstractmethod
-    def channel_binding(self) -> "redis.ChannelBinding":
-        ...
+    def channel_binding(self) -> "redis.ChannelBinding": ...
 
     @abstractmethod
-    def get_payloads(self) -> Any:
-        ...
+    def get_payloads(self) -> Any: ...
 
     @staticmethod
     @abstractmethod
-    def create() -> Any:
-        ...
+    def create() -> Any: ...
 
 
 def validate_options(

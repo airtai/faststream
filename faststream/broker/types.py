@@ -97,5 +97,4 @@ class PublisherMiddleware(Protocol):
 
     def __call__(
         self, __msg: Any, /, **__kwargs: Any
-    ) -> AsyncContextManager[SendableMessage]:
-        ...
+    ) -> AsyncContextManager[SendableMessage]: ...

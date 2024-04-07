@@ -176,7 +176,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
             try:
                 msg = await self.get_msg()
 
-            except KafkaError:  # pragma: no cover
+            # pragma: no cover
+            except KafkaError:  # noqa: PERF203
                 if connected:
                     connected = False
                 await anyio.sleep(5)
@@ -228,10 +229,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         )
 
     def add_prefix(self, prefix: str) -> None:
-        self.topics = tuple(
-            "".join((prefix, t))
-            for t in self.topics
-        )
+        self.topics = tuple("".join((prefix, t)) for t in self.topics)
+
 
 class DefaultSubscriber(LogicSubscriber[ConsumerRecord]):
     def __init__(
@@ -289,7 +288,9 @@ class BatchSubscriber(LogicSubscriber[Tuple[ConsumerRecord, ...]]):
         no_ack: bool,
         retry: bool,
         broker_dependencies: Iterable[Depends],
-        broker_middlewares: Iterable[BrokerMiddleware[Sequence[Tuple[ConsumerRecord, ...]]]],
+        broker_middlewares: Iterable[
+            BrokerMiddleware[Sequence[Tuple[ConsumerRecord, ...]]]
+        ],
         # AsyncAPI args
         title_: Optional[str],
         description_: Optional[str],

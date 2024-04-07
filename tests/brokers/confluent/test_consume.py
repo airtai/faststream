@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Dict
+from typing import Any, ClassVar, Dict
 from unittest.mock import patch
 
 import pytest
@@ -15,16 +15,15 @@ from tests.tools import spy_decorator
 @pytest.mark.confluent()
 class TestConsume(BrokerRealConsumeTestcase):
     """A class to represent a test Kafka broker."""
+
     timeout: int = 10
-    subscriber_kwargs: Dict[str, Any] = {"auto_offset_reset": "earliest"}
+    subscriber_kwargs: ClassVar[Dict[str, Any]] = {"auto_offset_reset": "earliest"}
 
     @pytest.mark.asyncio()
     async def test_consume_batch(self, confluent_kafka_topic: str, broker: KafkaBroker):
         msgs_queue = asyncio.Queue(maxsize=1)
 
-        @broker.subscriber(
-            confluent_kafka_topic, batch=True, **self.subscriber_kwargs
-        )
+        @broker.subscriber(confluent_kafka_topic, batch=True, **self.subscriber_kwargs)
         async def handler(msg):
             await msgs_queue.put(msg)
 

@@ -66,12 +66,10 @@ class PublisherProto(
         self,
         *,
         producer: Optional[ProducerProto],
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @abstractmethod
     def __call__(
         self,
         func: Callable[P_HandlerParams, T_HandlerReturn],
-    ) -> Callable[P_HandlerParams, T_HandlerReturn]:
-        ...
+    ) -> Callable[P_HandlerParams, T_HandlerReturn]: ...

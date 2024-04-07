@@ -4,6 +4,7 @@ from contextlib import AsyncExitStack
 from inspect import Parameter
 from types import TracebackType
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -22,7 +23,6 @@ from fast_depends.dependencies import Depends
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.asyncapi import schema as asyncapi
 from faststream.broker.message import StreamMessage, gen_cor_id
 from faststream.broker.types import (
     BrokerMiddleware,
@@ -36,9 +36,12 @@ from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
 from faststream.confluent.schemas.params import ConsumerConnectionParams
 from faststream.confluent.security import parse_security
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.security import BaseSecurity
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils.data import filter_by_dict
+
+if TYPE_CHECKING:
+    from faststream.asyncapi import schema as asyncapi
+    from faststream.security import BaseSecurity
 
 Partition = TypeVar("Partition")
 

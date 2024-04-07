@@ -16,9 +16,9 @@ async def test_delay_router_kafka():
     )
 
     async with TestKafkaBroker(broker) as br, TestApp(app):
-        next(iter(br._subscribers.values())).calls[0].handler.mock.assert_called_once_with(
-            {"name": "John", "user_id": 1}
-        )
+        next(iter(br._subscribers.values())).calls[
+            0
+        ].handler.mock.assert_called_once_with({"name": "John", "user_id": 1})
 
 
 @pytest.mark.asyncio()
@@ -29,9 +29,9 @@ async def test_delay_router_confluent():
     )
 
     async with TestConfluentKafkaBroker(broker) as br, TestApp(app):
-        next(iter(br._subscribers.values())).calls[0].handler.mock.assert_called_once_with(
-            {"name": "John", "user_id": 1}
-        )
+        next(iter(br._subscribers.values())).calls[
+            0
+        ].handler.mock.assert_called_once_with({"name": "John", "user_id": 1})
 
 
 @pytest.mark.asyncio()
@@ -42,9 +42,9 @@ async def test_delay_router_rabbit():
     )
 
     async with TestRabbitBroker(broker) as br, TestApp(app):
-        next(iter(br._subscribers.values())).calls[0].handler.mock.assert_called_once_with(
-            {"name": "John", "user_id": 1}
-        )
+        next(iter(br._subscribers.values())).calls[
+            0
+        ].handler.mock.assert_called_once_with({"name": "John", "user_id": 1})
 
 
 @pytest.mark.asyncio()
@@ -55,9 +55,9 @@ async def test_delay_router_nats():
     )
 
     async with TestNatsBroker(broker) as br, TestApp(app):
-        next(iter(br._subscribers.values())).calls[0].handler.mock.assert_called_once_with(
-            {"name": "John", "user_id": 1}
-        )
+        next(iter(br._subscribers.values())).calls[
+            0
+        ].handler.mock.assert_called_once_with({"name": "John", "user_id": 1})
 
 
 @pytest.mark.asyncio()
@@ -68,6 +68,6 @@ async def test_delay_router_redis():
     )
 
     async with TestRedisBroker(broker) as br, TestApp(app):
-        next(iter(br._subscribers.values())).calls[0].handler.mock.assert_called_once_with(
-            {"name": "John", "user_id": 1}
-        )
+        next(iter(br._subscribers.values())).calls[
+            0
+        ].handler.mock.assert_called_once_with({"name": "John", "user_id": 1})

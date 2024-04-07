@@ -103,8 +103,7 @@ class NatsRouter(StreamRouter["Msg"]):
             Doc("Callback to report when a new server joins the cluster."),
         ] = None,
         reconnected_cb: Annotated[
-            Optional["Callback"], Doc(
-                "Callback to report success reconnection.")
+            Optional["Callback"], Doc("Callback to report success reconnection.")
         ] = None,
         name: Annotated[
             Optional[str],
@@ -901,7 +900,7 @@ class NatsRouter(StreamRouter["Msg"]):
             Optional[Dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
+                "**content-type** and **correlation_id** will be set automatically by framework anyway. "
                 "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,

@@ -25,8 +25,7 @@ class NameRequired:
         cls: Type[NameRequiredCls],
         value: Union[str, NameRequiredCls],
         **kwargs: Any,
-    ) -> NameRequiredCls:
-        ...
+    ) -> NameRequiredCls: ...
 
     @overload
     @classmethod
@@ -34,8 +33,7 @@ class NameRequired:
         cls: Type[NameRequiredCls],
         value: None,
         **kwargs: Any,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @classmethod
     def validate(

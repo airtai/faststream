@@ -1,6 +1,6 @@
 import asyncio
 from contextlib import asynccontextmanager
-from typing import Any, Dict, Type
+from typing import Any, ClassVar, Dict, Type
 from unittest.mock import Mock
 
 import pytest
@@ -13,7 +13,7 @@ from faststream.broker.middlewares import BaseMiddleware
 class LocalMiddlewareTestcase:
     broker_class: Type[BrokerUsecase]
     timeout: int = 3
-    subscriber_kwargs: Dict[str, Any] = {}
+    subscriber_kwargs: ClassVar[Dict[str, Any]] = {}
 
     @pytest.fixture()
     def raw_broker(self):
@@ -162,7 +162,11 @@ class LocalMiddlewareTestcase:
 
         broker = self.broker_class()
 
-        @broker.subscriber(queue, filter=lambda m: m.content_type == "application/json", **self.subscriber_kwargs)
+        @broker.subscriber(
+            queue,
+            filter=lambda m: m.content_type == "application/json",
+            **self.subscriber_kwargs,
+        )
         async def handler(m):
             event2.set()
             mock()

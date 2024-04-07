@@ -37,6 +37,7 @@ class TestRedisBroker(TestBroker[RedisBroker]):
         sub = broker.subscriber(**publisher.subscriber_property)
 
         if not sub.calls:
+
             @sub
             def f(msg: Any) -> None:
                 pass
@@ -86,8 +87,12 @@ class FakeProducer(RedisFastProducer):
     ) -> Optional[Any]:
         correlation_id = correlation_id or gen_cor_id()
 
-        body = build_message(message=message, reply_to=reply_to,
-                             correlation_id=correlation_id, headers=headers,)
+        body = build_message(
+            message=message,
+            reply_to=reply_to,
+            correlation_id=correlation_id,
+            headers=headers,
+        )
 
         any_of = channel or list or stream
         if any_of is None:
@@ -139,14 +144,14 @@ class FakeProducer(RedisFastProducer):
                         type="bstream",
                         channel=stream,
                         data=[{bDATA_KEY: body}],
-                        message_ids=[]
+                        message_ids=[],
                     )
                 else:
                     msg = DefaultStreamMessage(
                         type="stream",
                         channel=stream,
                         data={bDATA_KEY: body},
-                        message_ids=[]
+                        message_ids=[],
                     )
 
                 call = stream == st.name
@@ -174,15 +179,22 @@ class FakeProducer(RedisFastProducer):
         correlation_id = correlation_id or gen_cor_id()
 
         for handler in self.broker._subscribers.values():  # pragma: no branch
-            if (list_sub := getattr(handler, "list_sub", None)) and list_sub.name == list:
+            if (
+                list_sub := getattr(handler, "list_sub", None)
+            ) and list_sub.name == list:
                 await call_handler(
                     handler=handler,
                     message=BatchListMessage(
                         type="blist",
                         channel=list,
-                        data=[build_message(
-                            m, correlation_id=correlation_id,) for m in msgs],
-                    )
+                        data=[
+                            build_message(
+                                m,
+                                correlation_id=correlation_id,
+                            )
+                            for m in msgs
+                        ],
+                    ),
                 )
 
         return None

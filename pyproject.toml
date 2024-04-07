@@ -216,6 +216,9 @@ ignore = [
 
     # todo pydocstyle
     "D100", # missing docstring in public module
+    "D101",
+    "D102",
+    "D103",
     "D104", # missing docstring in public package
     "D105", # missing docstring in magic methods
     "D106", # missing docstring in public nested class
@@ -227,9 +230,16 @@ ignore = [
     "D101",       # docstrings
     "D102",
     "D103",
-    "PLR2004", # magic-value-comparison 
+    "PLR2004", # magic-value-comparison
     "S101",    # use assert
 ]
+
+"docs/*.py" = [
+    "D101",       # docstrings
+    "D102",
+    "D103",
+]
+
 
 [tool.ruff.lint.isort]
 case-sensitive = true

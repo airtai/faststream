@@ -86,7 +86,7 @@ class BrokerUsecase(
         # Logging args
         default_logger: Annotated[
             logging.Logger,
-            Doc("Logger object to use if `logger` is not setted."),
+            Doc("Logger object to use if `logger` is not set."),
         ],
         logger: Annotated[
             Union["LoggerProto", None, object],

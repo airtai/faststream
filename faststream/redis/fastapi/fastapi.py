@@ -31,7 +31,6 @@ from faststream.__about__ import SERVICE_NAME
 from faststream.broker.fastapi.router import StreamRouter
 from faststream.broker.utils import default_filter
 from faststream.redis.broker.broker import RedisBroker as RB
-from faststream.redis.message import BaseMessage
 from faststream.redis.publisher.asyncapi import AsyncAPIPublisher
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 from faststream.redis.subscriber.asyncapi import AsyncAPISubscriber
@@ -55,6 +54,7 @@ if TYPE_CHECKING:
         PublisherMiddleware,
         SubscriberMiddleware,
     )
+    from faststream.redis.message import BaseMessage
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict
 
@@ -629,7 +629,6 @@ class RedisRouter(StreamRouter["BaseMessage"]):
             ),
         ] = False,
     ) -> AsyncAPISubscriber:
-
         list_sub = ListSub.validate(list)
         channel = PubSub.validate(channel)
         stream_sub = StreamSub.validate(stream)
@@ -639,7 +638,7 @@ class RedisRouter(StreamRouter["BaseMessage"]):
         return cast(
             AsyncAPISubscriber,
             super().subscriber(
-                path=getattr(any_of, "name", "") ,
+                path=getattr(any_of, "name", ""),
                 channel=channel,
                 list=list_sub,
                 stream=stream_sub,

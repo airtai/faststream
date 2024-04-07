@@ -149,9 +149,7 @@ class KafkaRoute(SubscriberRoute):
         auto_commit: bool = True,
         auto_commit_interval_ms: int = 5000,
         check_crcs: bool = True,
-        partition_assignment_strategy: Sequence[str] = (
-            "roundrobin",
-        ),
+        partition_assignment_strategy: Sequence[str] = ("roundrobin",),
         max_poll_interval_ms: int = 300000,
         rebalance_timeout_ms: Optional[int] = None,
         session_timeout_ms: int = 10000,
@@ -276,10 +274,12 @@ class KafkaRoute(SubscriberRoute):
 
 
 class KafkaRouter(
-    BrokerRouter[Union[
-        Message,
-        Tuple[Message, ...],
-    ]],
+    BrokerRouter[
+        Union[
+            Message,
+            Tuple[Message, ...],
+        ]
+    ],
     KafkaRegistrator,
 ):
     """Includable to KafkaBroker router."""
@@ -302,24 +302,30 @@ class KafkaRouter(
             ),
         ] = (),
         middlewares: Annotated[
-            Iterable[Union[
-                BrokerMiddleware[Message],
-                BrokerMiddleware[Tuple[Message, ...]],
-            ]],
+            Iterable[
+                Union[
+                    BrokerMiddleware[Message],
+                    BrokerMiddleware[Tuple[Message, ...]],
+                ]
+            ],
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
         parser: Annotated[
-            Optional[Union[
-                CustomParser[Message],
-                CustomParser[Tuple[Message, ...]],
-            ]],
+            Optional[
+                Union[
+                    CustomParser[Message],
+                    CustomParser[Tuple[Message, ...]],
+                ]
+            ],
             Doc("Parser to map original **Message** object to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional[Union[
-                CustomDecoder[StreamMessage[Message]],
-                CustomDecoder[StreamMessage[Tuple[Message, ...]]],
-            ]],
+            Optional[
+                Union[
+                    CustomDecoder[StreamMessage[Message]],
+                    CustomDecoder[StreamMessage[Tuple[Message, ...]]],
+                ]
+            ],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         include_in_schema: Annotated[

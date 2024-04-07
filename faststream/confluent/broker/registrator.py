@@ -41,10 +41,14 @@ from faststream.confluent.subscriber.asyncapi import (
 from faststream.exceptions import SetupError
 
 
-class KafkaRegistrator(ABCBroker[Union[
-    Message,
-    Tuple[Message, ...],
-]]):
+class KafkaRegistrator(
+    ABCBroker[
+        Union[
+            Message,
+            Tuple[Message, ...],
+        ]
+    ]
+):
     """Includable to KafkaBroker router."""
 
     _subscribers: Dict[int, Union[AsyncAPIBatchSubscriber, AsyncAPIDefaultSubscriber]]
@@ -61,17 +65,11 @@ class KafkaRegistrator(ABCBroker[Union[
         fetch_max_bytes: int = 52428800,
         fetch_min_bytes: int = 1,
         max_partition_fetch_bytes: int = 1 * 1024 * 1024,
-        auto_offset_reset: Literal[
-            "latest",
-            "earliest",
-            "none"
-        ] = "latest",
+        auto_offset_reset: Literal["latest", "earliest", "none"] = "latest",
         auto_commit: bool = True,
         auto_commit_interval_ms: int = 5 * 1000,
         check_crcs: bool = True,
-        partition_assignment_strategy: Sequence[str] = (
-            "roundrobin",
-        ),
+        partition_assignment_strategy: Sequence[str] = ("roundrobin",),
         max_poll_interval_ms: int = 5 * 60 * 1000,
         rebalance_timeout_ms: Optional[int] = None,
         session_timeout_ms: int = 10 * 1000,
@@ -80,8 +78,7 @@ class KafkaRegistrator(ABCBroker[Union[
         max_poll_records: Optional[int] = None,
         exclude_internal_topics: bool = True,
         isolation_level: Literal[
-            "read_uncommitted",
-            "read_committed"
+            "read_uncommitted", "read_committed"
         ] = "read_uncommitted",
         batch: bool = False,
         max_records: Optional[int] = None,
@@ -153,8 +150,7 @@ class KafkaRegistrator(ABCBroker[Union[
         ] = True,
     ) -> AsyncAPISubscriber:
         if not auto_commit and not group_id:
-            raise SetupError(
-                "You should install `group_id` with manual commit mode")
+            raise SetupError("You should install `group_id` with manual commit mode")
 
         builder = partial(
             AsyncConfluentConsumer,
@@ -198,8 +194,7 @@ class KafkaRegistrator(ABCBroker[Union[
                     # AsyncAPI
                     title_=title,
                     description_=description,
-                    include_in_schema=self._solve_include_in_schema(
-                        include_in_schema),
+                    include_in_schema=self._solve_include_in_schema(include_in_schema),
                 )
             ),
         )
@@ -243,7 +238,7 @@ class KafkaRegistrator(ABCBroker[Union[
             Optional[Dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
+                "**content-type** and **correlation_id** will be set automatically by framework anyway. "
                 "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
@@ -313,7 +308,7 @@ class KafkaRegistrator(ABCBroker[Union[
             Optional[Dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
+                "**content-type** and **correlation_id** will be set automatically by framework anyway. "
                 "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
@@ -383,7 +378,7 @@ class KafkaRegistrator(ABCBroker[Union[
             Optional[Dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
+                "**content-type** and **correlation_id** will be set automatically by framework anyway. "
                 "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,
@@ -456,7 +451,7 @@ class KafkaRegistrator(ABCBroker[Union[
             Optional[Dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
+                "**content-type** and **correlation_id** will be set automatically by framework anyway. "
                 "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,

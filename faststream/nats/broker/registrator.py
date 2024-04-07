@@ -1,12 +1,10 @@
-from typing import Any, Dict, Iterable, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union, cast
 
 from fast_depends.dependencies import Depends
-from nats.aio.msg import Msg
 from nats.js import api
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.broker.core.abc import ABCBroker
-from faststream.broker.message import StreamMessage
 from faststream.broker.types import (
     CustomDecoder,
     CustomParser,
@@ -16,8 +14,13 @@ from faststream.broker.types import (
 )
 from faststream.broker.utils import default_filter
 from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
-from faststream.nats.schemas import JStream, PullSub
 from faststream.nats.subscriber.asyncapi import AsyncAPISubscriber
+
+if TYPE_CHECKING:
+    from nats.aio.msg import Msg
+
+    from faststream.broker.message import StreamMessage
+    from faststream.nats.schemas import JStream, PullSub
 
 
 class NatsRegistrator(ABCBroker["Msg"]):
@@ -184,36 +187,37 @@ class NatsRegistrator(ABCBroker["Msg"]):
         """
         subscriber = cast(
             AsyncAPISubscriber,
-            super().subscriber(AsyncAPISubscriber.create(
-                subject=subject,
-                queue=queue,
-                stream=stream,
-                pull_sub=pull_sub,
-                max_workers=max_workers,
-                # extra args
-                pending_msgs_limit=pending_msgs_limit,
-                pending_bytes_limit=pending_bytes_limit,
-                max_msgs=max_msgs,
-                durable=durable,
-                config=config,
-                ordered_consumer=ordered_consumer,
-                idle_heartbeat=idle_heartbeat,
-                flow_control=flow_control,
-                deliver_policy=deliver_policy,
-                headers_only=headers_only,
-                inbox_prefix=inbox_prefix,
-                ack_first=ack_first,
-                # subscriber args
-                no_ack=no_ack,
-                retry=retry,
-                broker_middlewares=self._middlewares,
-                broker_dependencies=self._dependencies,
-                # AsyncAPI
-                title_=title,
-                description_=description,
-                include_in_schema=self._solve_include_in_schema(
-                    include_in_schema),
-            ))
+            super().subscriber(
+                AsyncAPISubscriber.create(
+                    subject=subject,
+                    queue=queue,
+                    stream=stream,
+                    pull_sub=pull_sub,
+                    max_workers=max_workers,
+                    # extra args
+                    pending_msgs_limit=pending_msgs_limit,
+                    pending_bytes_limit=pending_bytes_limit,
+                    max_msgs=max_msgs,
+                    durable=durable,
+                    config=config,
+                    ordered_consumer=ordered_consumer,
+                    idle_heartbeat=idle_heartbeat,
+                    flow_control=flow_control,
+                    deliver_policy=deliver_policy,
+                    headers_only=headers_only,
+                    inbox_prefix=inbox_prefix,
+                    ack_first=ack_first,
+                    # subscriber args
+                    no_ack=no_ack,
+                    retry=retry,
+                    broker_middlewares=self._middlewares,
+                    broker_dependencies=self._dependencies,
+                    # AsyncAPI
+                    title_=title,
+                    description_=description,
+                    include_in_schema=self._solve_include_in_schema(include_in_schema),
+                )
+            ),
         )
 
         return subscriber.add_call(
@@ -236,7 +240,7 @@ class NatsRegistrator(ABCBroker["Msg"]):
             Optional[Dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be setted automatically by framework anyway. "
+                "**content-type** and **correlation_id** will be set automatically by framework anyway. "
                 "Can be overridden by `publish.headers` if specified."
             ),
         ] = None,

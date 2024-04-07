@@ -11,7 +11,7 @@ class PublisherTestcase:
     broker_class: Type[BrokerUsecase]
 
     def build_app(self, broker):
-        """Patch it to test FastAPI scheme generation too"""
+        """Patch it to test FastAPI scheme generation too."""
         return FastStream(broker)
 
     def test_publisher_with_description(self):

@@ -70,7 +70,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
         url: Annotated[
             Union[str, "URL", None],
             Doc("RabbitMQ destination location to connect."),
-        ] = "amqp://guest:guest@localhost:5672/",
+        ] = "amqp://guest:guest@localhost:5672/",  # pragma: allowlist secret
         *,
         # connection args
         host: Annotated[
@@ -765,7 +765,7 @@ class RabbitRouter(StreamRouter["IncomingMessage"]):
             Doc(
                 "Message **content-type** header. "
                 "Used by application, not core RabbitMQ. "
-                "Will be setted automatically if not specified."
+                "Will be set automatically if not specified."
             ),
         ] = None,
         content_encoding: Annotated[

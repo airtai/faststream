@@ -32,7 +32,7 @@ def _parse_base_security(security: BaseSecurity) -> AnyDict:
             def _connection_arguments(self) -> Any:
                 return {
                     **super()._connection_arguments(),  # type: ignore[misc]
-                    "ssl": self._security.ssl_context
+                    "ssl": self._security.ssl_context,
                 }
 
         return {"connection_class": SSLConnection}

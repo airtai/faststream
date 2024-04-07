@@ -31,7 +31,6 @@ from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
 from faststream.broker.message import gen_cor_id
-from faststream.broker.publisher.proto import ProducerProto
 from faststream.nats.broker.logging import NatsLoggingBroker
 from faststream.nats.broker.registrator import NatsRegistrator
 from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
@@ -59,6 +58,7 @@ if TYPE_CHECKING:
 
     from faststream.asyncapi import schema as asyncapi
     from faststream.broker.message import StreamMessage
+    from faststream.broker.publisher.proto import ProducerProto
     from faststream.broker.types import (
         BrokerMiddleware,
         CustomDecoder,
@@ -87,8 +87,7 @@ if TYPE_CHECKING:
             Doc("Callback to report when a new server joins the cluster."),
         ]
         reconnected_cb: Annotated[
-            Optional["Callback"], Doc(
-                "Callback to report success reconnection.")
+            Optional["Callback"], Doc("Callback to report success reconnection.")
         ]
         name: Annotated[
             Optional[str],
@@ -241,8 +240,7 @@ class NatsBroker(
             Doc("Callback to report when a new server joins the cluster."),
         ] = None,
         reconnected_cb: Annotated[
-            Optional["Callback"], Doc(
-                "Callback to report success reconnection.")
+            Optional["Callback"], Doc("Callback to report success reconnection.")
         ] = None,
         name: Annotated[
             Optional[str],
@@ -627,14 +625,12 @@ class NatsBroker(
                         await self.stream.update_stream(
                             config=stream.config,
                             subjects=tuple(
-                                set(old_config.subjects or ()).union(
-                                    stream.subjects)
+                                set(old_config.subjects or ()).union(stream.subjects)
                             ),
                         )
 
                     else:  # pragma: no cover
-                        self._log(str(e), logging.ERROR,
-                                  log_context, exc_info=e)
+                        self._log(str(e), logging.ERROR, log_context, exc_info=e)
 
                 finally:
                     # prevent from double declaration
@@ -664,7 +660,7 @@ class NatsBroker(
             Optional[Dict[str, str]],
             Doc(
                 "Message headers to store metainformation. "
-                "**content-type** and **correlation_id** will be setted automatically by framework anyway."
+                "**content-type** and **correlation_id** will be set automatically by framework anyway."
             ),
         ] = None,
         reply_to: Annotated[
@@ -713,25 +709,27 @@ class NatsBroker(
 
         Please, use `@broker.publisher(...)` or `broker.publisher(...).publish(...)` instead in a regular way.
         """
-        publihs_kwargs = dict(
-            subject=subject,
-            headers=headers,
-            reply_to=reply_to,
-            correlation_id=correlation_id or gen_cor_id(),
-            rpc=rpc,
-            rpc_timeout=rpc_timeout,
-            raise_timeout=raise_timeout,
-        )
+        publihs_kwargs = {
+            "subject": subject,
+            "headers": headers,
+            "reply_to": reply_to,
+            "correlation_id": correlation_id or gen_cor_id(),
+            "rpc": rpc,
+            "rpc_timeout": rpc_timeout,
+            "raise_timeout": raise_timeout,
+        }
 
         producer: Optional[ProducerProto]
         if stream is None:
             producer = self._producer
         else:
             producer = self._js_producer
-            publihs_kwargs.update(dict(
-                stream=stream,
-                timeout=timeout,
-            ))
+            publihs_kwargs.update(
+                {
+                    "stream": stream,
+                    "timeout": timeout,
+                }
+            )
 
         return await super().publish(
             message,
@@ -746,10 +744,7 @@ class NatsBroker(
     ) -> None:
         connection: Union["Client", "JetStreamContext", None] = None
 
-        if subscriber.stream is None:
-            connection = self._connection
-        else:
-            connection = self.stream
+        connection = self._connection if subscriber.stream is None else self.stream
 
         return super().setup_subscriber(subscriber, connection=connection)
 

@@ -84,7 +84,7 @@ class TestTestclient(BrokerTestclientTestcase):
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = KafkaBroker(middlewares = (Middleware,))
+        broker = KafkaBroker(middlewares=(Middleware,))
 
         @broker.subscriber(queue, auto_offset_reset="earliest")
         async def h1(): ...
@@ -107,7 +107,7 @@ class TestTestclient(BrokerTestclientTestcase):
                 routes.append(None)
                 return await super().on_receive()
 
-        broker = KafkaBroker(middlewares = (Middleware,))
+        broker = KafkaBroker(middlewares=(Middleware,))
 
         @broker.subscriber(queue, auto_offset_reset="earliest")
         async def h1(): ...

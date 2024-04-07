@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime
-from typing import Any, Dict, List, Tuple
+from typing import Any, ClassVar, Dict, List, Tuple
 from unittest.mock import Mock
 
 import anyio
@@ -21,7 +21,7 @@ now = datetime.now()
 
 class BrokerPublishTestcase:
     timeout: int = 3
-    subscriber_kwargs: Dict[str, Any] = {}
+    subscriber_kwargs: ClassVar[Dict[str, Any]] = {}
 
     @pytest.fixture()
     def pub_broker(self, full_broker):

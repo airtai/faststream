@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Dict, Type
+from typing import Any, ClassVar, Dict, Type
 from unittest.mock import Mock
 
 import pytest
@@ -11,7 +11,7 @@ from faststream.broker.core.usecase import BrokerUsecase
 class LocalCustomParserTestcase:
     broker_class: Type[BrokerUsecase]
     timeout: int = 3
-    subscriber_kwargs: Dict[str, Any] = {}
+    subscriber_kwargs: ClassVar[Dict[str, Any]] = {}
 
     @pytest.fixture()
     def raw_broker(self):
@@ -175,7 +175,11 @@ class LocalCustomParserTestcase:
             mock(msg.body)
             return msg
 
-        @broker.subscriber(queue, filter=lambda m: m.content_type == "application/json", **self.subscriber_kwargs)
+        @broker.subscriber(
+            queue,
+            filter=lambda m: m.content_type == "application/json",
+            **self.subscriber_kwargs,
+        )
         async def handle(m):
             event.set()
 

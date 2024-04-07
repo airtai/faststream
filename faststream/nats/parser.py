@@ -1,13 +1,13 @@
 from typing import TYPE_CHECKING, Any, List, Optional
 
-from nats.aio.msg import Msg
-
 from faststream.broker.message import StreamMessage, decode_message, gen_cor_id
 from faststream.nats.message import NatsBatchMessage, NatsMessage
 from faststream.types import AnyDict, DecodedMessage
 from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
+    from nats.aio.msg import Msg
+
     from faststream.nats.subscriber.usecase import LogicSubscriber
 
 

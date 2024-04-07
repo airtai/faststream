@@ -1,11 +1,10 @@
-from typing import Any, Dict, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 
 from fast_depends.dependencies import Depends
 from nats.aio.subscription import (
     DEFAULT_SUB_PENDING_BYTES_LIMIT,
     DEFAULT_SUB_PENDING_MSGS_LIMIT,
 )
-from nats.js import api
 from nats.js.client import (
     DEFAULT_JS_SUB_PENDING_BYTES_LIMIT,
     DEFAULT_JS_SUB_PENDING_MSGS_LIMIT,
@@ -24,13 +23,17 @@ from faststream.asyncapi.utils import resolve_payloads
 from faststream.broker.types import BrokerMiddleware
 from faststream.exceptions import SetupError
 from faststream.nats.helpers import stream_builder
-from faststream.nats.schemas import JStream, PullSub
 from faststream.nats.subscriber.usecase import (
     BatchHandler,
     DefaultHandler,
     LogicSubscriber,
 )
-from faststream.types import AnyDict
+
+if TYPE_CHECKING:
+    from nats.js import api
+
+    from faststream.nats.schemas import JStream, PullSub
+    from faststream.types import AnyDict
 
 
 class AsyncAPISubscriber(LogicSubscriber[Any]):
@@ -101,7 +104,7 @@ class AsyncAPISubscriber(LogicSubscriber[Any]):
         "AsyncAPIDefaultSubscriber",
         "AsyncAPIBatchSubscriber",
     ]:
-        if (stream := stream_builder.stream(stream)):
+        if stream := stream_builder.stream(stream):
             stream.add_subject(subject)
 
         if pull_sub is not None and stream is None:
@@ -111,14 +114,15 @@ class AsyncAPISubscriber(LogicSubscriber[Any]):
             # TODO: pull & queue warning
             # TODO: push & durable warning
 
-            extra_options: AnyDict  = {
-                "pending_msgs_limit": pending_msgs_limit or DEFAULT_JS_SUB_PENDING_MSGS_LIMIT,
-                "pending_bytes_limit": pending_bytes_limit or DEFAULT_JS_SUB_PENDING_BYTES_LIMIT,
+            extra_options: AnyDict = {
+                "pending_msgs_limit": pending_msgs_limit
+                or DEFAULT_JS_SUB_PENDING_MSGS_LIMIT,
+                "pending_bytes_limit": pending_bytes_limit
+                or DEFAULT_JS_SUB_PENDING_BYTES_LIMIT,
                 "durable": durable,
                 "stream": stream.name,
                 "config": config,
             }
-
 
             if pull_sub is not None:
                 extra_options.update({"inbox_prefix": inbox_prefix})
@@ -137,8 +141,10 @@ class AsyncAPISubscriber(LogicSubscriber[Any]):
 
         else:
             extra_options = {
-                "pending_msgs_limit": pending_msgs_limit or DEFAULT_SUB_PENDING_MSGS_LIMIT,
-                "pending_bytes_limit": pending_bytes_limit or DEFAULT_SUB_PENDING_BYTES_LIMIT,
+                "pending_msgs_limit": pending_msgs_limit
+                or DEFAULT_SUB_PENDING_MSGS_LIMIT,
+                "pending_bytes_limit": pending_bytes_limit
+                or DEFAULT_SUB_PENDING_BYTES_LIMIT,
                 "max_msgs": max_msgs,
             }
 

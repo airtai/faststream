@@ -1,7 +1,6 @@
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import uuid4
 
-from redis.asyncio.client import PubSub, Redis
 from typing_extensions import override
 
 from faststream.broker.message import StreamMessage
@@ -19,6 +18,9 @@ from faststream.redis.parser import RawMessage, RedisPubSubParser
 from faststream.redis.schemas import INCORRECT_SETUP_MSG
 from faststream.types import AnyDict, SendableMessage
 from faststream.utils.functions import timeout_scope
+
+if TYPE_CHECKING:
+    from redis.asyncio.client import PubSub, Redis
 
 
 class RedisFastProducer(ProducerProto):
@@ -39,8 +41,7 @@ class RedisFastProducer(ProducerProto):
             parser,  # type: ignore[arg-type,assignment]
             RedisPubSubParser.parse_message,
         )
-        self._decoder = resolve_custom_func(
-            decoder, RedisPubSubParser.decode_message)
+        self._decoder = resolve_custom_func(decoder, RedisPubSubParser.decode_message)
 
     @override
     async def publish(  # type: ignore[override]
@@ -125,6 +126,13 @@ class RedisFastProducer(ProducerProto):
         list: str,
         correlation_id: str,
     ) -> None:
-        batch = (RawMessage.encode(message=msg, correlation_id=correlation_id,
-                 reply_to=None, headers=None,) for msg in msgs)
+        batch = (
+            RawMessage.encode(
+                message=msg,
+                correlation_id=correlation_id,
+                reply_to=None,
+                headers=None,
+            )
+            for msg in msgs
+        )
         await self._connection.rpush(list, *batch)

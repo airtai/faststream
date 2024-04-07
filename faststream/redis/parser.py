@@ -105,10 +105,12 @@ class RawMessage:
             correlation_id=correlation_id,
         )
 
-        return dump_json({
-            "data": msg.data,
-            "headers": msg.headers,
-        })
+        return dump_json(
+            {
+                "data": msg.data,
+                "headers": msg.headers,
+            }
+        )
 
     @staticmethod
     def parse(data: bytes) -> Tuple[bytes, AnyDict]:
@@ -189,10 +191,7 @@ class RedisBatchListParser(SimpleParser[BatchListMessage]):
     @staticmethod
     def _parse_data(message: BatchListMessage) -> Tuple[bytes, AnyDict]:
         return (
-            dump_json(
-                RawMessage.parse(x)[0]
-                for x in message["data"]
-            ),
+            dump_json(RawMessage.parse(x)[0] for x in message["data"]),
             {"content-type": ContentTypes.json},
         )
 
@@ -213,9 +212,7 @@ class RedisBatchStreamParser(SimpleParser[BatchStreamMessage]):
     def _parse_data(message: BatchStreamMessage) -> Tuple[bytes, AnyDict]:
         return (
             dump_json(
-                RawMessage.parse(data)[0]
-                if (data := x.get(bDATA_KEY))
-                else x
+                RawMessage.parse(data)[0] if (data := x.get(bDATA_KEY)) else x
                 for x in message["data"]
             ),
             {"content-type": ContentTypes.json},

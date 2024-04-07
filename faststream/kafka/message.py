@@ -8,8 +8,7 @@ from faststream.broker.message import StreamMessage
 class ConsumerProtocol(Protocol):
     """A protocol for Kafka consumers."""
 
-    async def commit(self) -> None:
-        ...
+    async def commit(self) -> None: ...
 
 
 class FakeConsumer:

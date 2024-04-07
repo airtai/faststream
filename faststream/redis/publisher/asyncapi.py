@@ -32,6 +32,7 @@ PublisherType: TypeAlias = Union[
     "AsyncAPIListBatchPublisher",
 ]
 
+
 class AsyncAPIPublisher(LogicPublisher, RedisAsyncAPIProtocol):
     """A class to represent a Redis publisher."""
 

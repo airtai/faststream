@@ -77,6 +77,7 @@ JsonSchemaValue = Mapping[str, Any]
 PValidationError: Optional[Type[Exception]]
 try:
     from pydantic import ValidationError
+
     PValidationError = ValidationError
 except ImportError:
     PValidationError = None

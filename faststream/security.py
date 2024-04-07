@@ -120,8 +120,8 @@ class SASLPlaintext(BaseSecurity):
             use_ssl=use_ssl,
         )
 
-        self.username=username
-        self.password=password
+        self.username = username
+        self.password = password
 
     def get_requirement(self) -> List[AnyDict]:
         """Get the security requirements for SASL/PLAINTEXT authentication.
@@ -188,8 +188,8 @@ class SASLScram256(BaseSecurity):
             use_ssl=use_ssl,
         )
 
-        self.username=username
-        self.password=password
+        self.username = username
+        self.password = password
 
     def get_requirement(self) -> List[AnyDict]:
         """Get the security requirements for SASL/SCRAM-SHA-256 authentication.
@@ -255,8 +255,8 @@ class SASLScram512(BaseSecurity):
             use_ssl=use_ssl,
         )
 
-        self.username=username
-        self.password=password
+        self.username = username
+        self.password = password
 
     def get_requirement(self) -> List[AnyDict]:
         """Get the security requirements for SASL/SCRAM-SHA-512 authentication.
