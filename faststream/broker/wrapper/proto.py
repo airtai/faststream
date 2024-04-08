@@ -1,5 +1,6 @@
 from typing import (
     TYPE_CHECKING,
+    Any,
     Callable,
     Iterable,
     Optional,
@@ -9,8 +10,7 @@ from typing import (
 )
 
 from faststream.broker.types import (
-    CustomDecoder,
-    CustomParser,
+    CustomCallable,
     Filter,
     MsgType,
     P_HandlerParams,
@@ -21,7 +21,6 @@ from faststream.broker.types import (
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.message import StreamMessage
     from faststream.broker.wrapper.call import HandlerCallWrapper
 
 
@@ -33,9 +32,9 @@ class WrapperProto(Protocol[MsgType]):
         self,
         func: None = None,
         *,
-        filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
-        parser: Optional["CustomParser[MsgType]"] = None,
-        decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
+        filter: Optional["Filter[Any]"] = None,
+        parser: Optional["CustomCallable"] = None,
+        decoder: Optional["CustomCallable"] = None,
         middlewares: Iterable["SubscriberMiddleware"] = (),
         dependencies: Iterable["Depends"] = (),
     ) -> Callable[
@@ -51,9 +50,9 @@ class WrapperProto(Protocol[MsgType]):
             "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
         ],
         *,
-        filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
-        parser: Optional["CustomParser[MsgType]"] = None,
-        decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
+        filter: Optional["Filter[Any]"] = None,
+        parser: Optional["CustomCallable"] = None,
+        decoder: Optional["CustomCallable"] = None,
         middlewares: Iterable["SubscriberMiddleware"] = (),
         dependencies: Iterable["Depends"] = (),
     ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]": ...
@@ -66,9 +65,9 @@ class WrapperProto(Protocol[MsgType]):
             None,
         ] = None,
         *,
-        filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
-        parser: Optional["CustomParser[MsgType]"] = None,
-        decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
+        filter: Optional["Filter[Any]"] = None,
+        parser: Optional["CustomCallable"] = None,
+        decoder: Optional["CustomCallable"] = None,
         middlewares: Iterable["SubscriberMiddleware"] = (),
         dependencies: Iterable["Depends"] = (),
     ) -> Union[

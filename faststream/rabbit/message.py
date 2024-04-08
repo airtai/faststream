@@ -1,9 +1,9 @@
 from aio_pika import IncomingMessage
 
-from faststream.broker.message import StreamMessage
+from faststream.broker.message import ABCMessage
 
 
-class RabbitMessage(StreamMessage[IncomingMessage]):
+class RabbitMessage(ABCMessage[IncomingMessage]):
     """A message class for working with RabbitMQ messages.
 
     This class extends `StreamMessage` to provide additional functionality for acknowledging, rejecting,

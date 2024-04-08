@@ -27,44 +27,24 @@ Filter: TypeAlias = Union[
     AsyncFilter[StreamMsg],
 ]
 
-SyncParser: TypeAlias = Callable[
-    [MsgType],
-    StreamMessage[MsgType],
-]
-AsyncParser: TypeAlias = Callable[
-    [MsgType],
-    Awaitable[StreamMessage[MsgType]],
-]
-AsyncCustomParser: TypeAlias = Union[
-    AsyncParser[MsgType],
-    Callable[
-        [MsgType, AsyncParser[MsgType]],
-        Awaitable[StreamMessage[MsgType]],
-    ],
-]
-CustomParser: TypeAlias = Union[
-    AsyncCustomParser[MsgType],
-    SyncParser[MsgType],
-]
-
-SyncDecoder: TypeAlias = Callable[
-    [StreamMsg],
+SyncCallable: TypeAlias = Callable[
+    [Any],
     Any,
 ]
-AsyncDecoder: TypeAlias = Callable[
-    [StreamMsg],
+AsyncCallable: TypeAlias = Callable[
+    [Any],
     Awaitable[Any],
 ]
-AsyncCustomDecoder: TypeAlias = Union[
-    AsyncDecoder[StreamMsg],
+AsyncCustomCallable: TypeAlias = Union[
+    AsyncCallable,
     Callable[
-        [StreamMsg, AsyncDecoder[StreamMsg]],
+        [Any, AsyncCallable],
         Awaitable[Any],
     ],
 ]
-CustomDecoder: TypeAlias = Union[
-    AsyncCustomDecoder[StreamMsg],
-    SyncDecoder[StreamMsg],
+CustomCallable: TypeAlias = Union[
+    AsyncCustomCallable,
+    SyncCallable,
 ]
 
 P_HandlerParams = ParamSpec("P_HandlerParams")

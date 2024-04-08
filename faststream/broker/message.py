@@ -1,11 +1,10 @@
 import json
 from contextlib import suppress
-from dataclasses import dataclass, field
 from typing import (
     TYPE_CHECKING,
     Any,
-    Generic,
     Optional,
+    Protocol,
     Sequence,
     Tuple,
     TypeVar,
@@ -28,26 +27,62 @@ def gen_cor_id() -> str:
     return str(uuid4())
 
 
-@dataclass
-class StreamMessage(Generic[MsgType]):
+class StreamMessage(Protocol[MsgType]):
     """Generic class to represent a stream message."""
 
-    raw_message: "MsgType"
+    raw_message: MsgType
 
     body: Union[bytes, Any]
-    decoded_body: Optional["DecodedMessage"] = None
-    headers: "AnyDict" = field(default_factory=dict)
-    path: "AnyDict" = field(default_factory=dict)
+    decoded_body: Optional["DecodedMessage"]
+    headers: "AnyDict"
+    path: "AnyDict"
 
-    content_type: Optional[str] = None
-    reply_to: str = ""
-    message_id: str = field(default_factory=gen_cor_id)  # pragma: no cover
-    correlation_id: str = field(
-        default_factory=gen_cor_id  # pragma: no cover
-    )
+    content_type: Optional[str]
+    reply_to: str
+    message_id: str
+    correlation_id: str
 
-    processed: bool = field(default=False, init=False)
-    committed: bool = field(default=False, init=False)
+    processed: bool
+    committed: bool
+
+    async def ack(self) -> None: ...
+
+    async def nack(self) -> None: ...
+
+    async def reject(self) -> None: ...
+
+
+class ABCMessage(StreamMessage[MsgType]):
+    """Generic class to represent a stream message."""
+
+    decoded_body: Optional["DecodedMessage"]
+
+    def __init__(
+        self,
+        *,
+        raw_message: MsgType,
+        body: Union[bytes, Any],
+        headers: Optional["AnyDict"] = None,
+        path: Optional["AnyDict"] = None,
+        content_type: Optional[str] = None,
+        reply_to: str = "",
+        message_id: str = "",
+        correlation_id: str = "",
+    ):
+        self.raw_message = raw_message
+        self.body = body
+        self.reply_to = reply_to
+        self.content_type = content_type
+
+        self.headers = headers or {}
+        self.path = path or {}
+
+        self.message_id = message_id or gen_cor_id()
+        self.correlation_id = correlation_id or self.message_id
+
+        self.decoded_body = None
+        self.processed = False
+        self.committed = False
 
     async def ack(self) -> None:
         self.committed = True

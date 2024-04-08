@@ -8,9 +8,9 @@ from typing import (
     Union,
 )
 
-from typing_extensions import TypeAlias, TypedDict, override
+from typing_extensions import NotRequired, TypeAlias, TypedDict, override
 
-from faststream.broker.message import StreamMessage as BrokerStreamMessage
+from faststream.broker.message import ABCMessage as BrokerStreamMessage
 
 if TYPE_CHECKING:
     from redis.asyncio import Redis
@@ -25,6 +25,29 @@ BaseMessage: TypeAlias = Union[
     "DefaultStreamMessage",
     "BatchStreamMessage",
 ]
+
+
+class UnifyRedisDict(TypedDict):
+    type: Literal[
+        "pmessage",
+        "message",
+        "list",
+        "blist",
+        "stream",
+        "bstream",
+    ]
+    channel: str
+    data: Union[
+        bytes,
+        List[bytes],
+        Dict[bytes, bytes],
+        List[Dict[bytes, bytes]],
+    ]
+    pattern: NotRequired[Optional[bytes]]
+
+
+class UnifyRedisMessage(BrokerStreamMessage[UnifyRedisDict]):
+    pass
 
 
 class PubSubMessage(TypedDict):

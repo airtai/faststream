@@ -10,7 +10,7 @@ from typing import (
     Optional,
     Type,
     Union,
-    overload,
+    cast,
 )
 
 import anyio
@@ -24,11 +24,9 @@ if TYPE_CHECKING:
 
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
-        AsyncDecoder,
-        AsyncParser,
-        CustomDecoder,
-        CustomParser,
-        MsgType,
+        AsyncCallable,
+        CustomCallable,
+        SyncCallable,
     )
     from faststream.types import LoggerProto
 
@@ -107,24 +105,10 @@ class MultiLock:
                 await self.queue.join()
 
 
-@overload
 def resolve_custom_func(
-    custom_func: Optional["CustomParser[MsgType]"],
-    default_func: "AsyncParser[MsgType]",
-) -> "AsyncParser[MsgType]": ...
-
-
-@overload
-def resolve_custom_func(
-    custom_func: Optional["CustomDecoder[StreamMessage[MsgType]]"],
-    default_func: "AsyncDecoder[StreamMessage[MsgType]]",
-) -> "AsyncDecoder[StreamMessage[MsgType]]": ...
-
-
-def resolve_custom_func(
-    custom_func: Any,
-    default_func: Any,
-) -> Any:
+    custom_func: Optional["CustomCallable"],
+    default_func: "AsyncCallable",
+) -> "AsyncCallable":
     """Resolve a custom parser/decoder with default one."""
     if custom_func is None:
         return default_func
@@ -132,7 +116,7 @@ def resolve_custom_func(
     original_params = inspect.signature(custom_func).parameters
 
     if len(original_params) == 1:
-        return to_async(custom_func)
+        return to_async(cast(Union["SyncCallable", "AsyncCallable"], custom_func))
 
     else:
         name = tuple(original_params.items())[1][0]

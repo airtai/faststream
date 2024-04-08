@@ -27,14 +27,13 @@ if TYPE_CHECKING:
     from confluent_kafka import Message
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
         Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
     )
+    from faststream.confluent.message import KafkaMessage
     from faststream.confluent.publisher.asyncapi import (
         AsyncAPIBatchPublisher,
         AsyncAPIDefaultPublisher,
@@ -304,11 +303,11 @@ class KafkaRegistrator(
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[Tuple[Message, ...]]"],
+            Optional["CustomCallable"],
             Doc("Parser to map original **Message** object to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[Tuple[Message, ...]]]"],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -316,7 +315,7 @@ class KafkaRegistrator(
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            "Filter[StreamMessage[Tuple[Message, ...]]]",
+            "Filter[KafkaMessage]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
@@ -596,11 +595,11 @@ class KafkaRegistrator(
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[Message]"],
+            Optional["CustomCallable"],
             Doc("Parser to map original **Message** object to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[Message]]"],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -608,7 +607,7 @@ class KafkaRegistrator(
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            "Filter[StreamMessage[Message]]",
+            "Filter[KafkaMessage]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
@@ -888,21 +887,11 @@ class KafkaRegistrator(
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional[
-                Union[
-                    "CustomParser[Message]",
-                    "CustomParser[Tuple[Message, ...]]",
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Parser to map original **Message** object to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional[
-                Union[
-                    "CustomDecoder[StreamMessage[Message]]",
-                    "CustomDecoder[StreamMessage[Tuple[Message, ...]]]",
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -910,10 +899,7 @@ class KafkaRegistrator(
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            Union[
-                "Filter[StreamMessage[Message]]",
-                "Filter[StreamMessage[Tuple[Message, ...]]]",
-            ],
+            "Filter[KafkaMessage]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
@@ -1196,21 +1182,11 @@ class KafkaRegistrator(
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional[
-                Union[
-                    "CustomParser[Message]",
-                    "CustomParser[Tuple[Message, ...]]",
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Parser to map original **Message** object to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional[
-                Union[
-                    "CustomDecoder[StreamMessage[Message]]",
-                    "CustomDecoder[StreamMessage[Tuple[Message, ...]]]",
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -1218,10 +1194,7 @@ class KafkaRegistrator(
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            Union[
-                "Filter[StreamMessage[Message]]",
-                "Filter[StreamMessage[Tuple[Message, ...]]]",
-            ],
+            "Filter[KafkaMessage]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),

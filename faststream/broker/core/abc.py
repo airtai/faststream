@@ -13,13 +13,11 @@ from faststream.broker.types import MsgType
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.message import StreamMessage
     from faststream.broker.publisher.proto import PublisherProto
     from faststream.broker.subscriber.proto import SubscriberProto
     from faststream.broker.types import (
         BrokerMiddleware,
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
     )
 
 
@@ -33,8 +31,8 @@ class ABCBroker(Generic[MsgType]):
         prefix: str,
         dependencies: Iterable["Depends"],
         middlewares: Iterable["BrokerMiddleware[MsgType]"],
-        parser: Optional["CustomParser[MsgType]"],
-        decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"],
+        parser: Optional["CustomCallable"],
+        decoder: Optional["CustomCallable"],
         include_in_schema: Optional[bool],
     ) -> None:
         self.prefix = prefix

@@ -12,14 +12,13 @@ if TYPE_CHECKING:
     from broker.types import PublisherMiddleware
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
         Filter,
         SubscriberMiddleware,
     )
+    from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.schemas import (
         RabbitExchange,
         RabbitQueue,
@@ -218,11 +217,11 @@ class RabbitRoute(SubscriberRoute):
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[IncomingMessage]"],
+            Optional["CustomCallable"],
             Doc("Parser to map original **IncomingMessage** Msg to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -230,7 +229,7 @@ class RabbitRoute(SubscriberRoute):
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            "Filter[StreamMessage[IncomingMessage]]",
+            "Filter[RabbitMessage]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
@@ -313,11 +312,11 @@ class RabbitRouter(
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[IncomingMessage]"],
+            Optional["CustomCallable"],
             Doc("Parser to map original **IncomingMessage** Msg to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         include_in_schema: Annotated[

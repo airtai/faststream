@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Mapping, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 
 from typing_extensions import TypeAlias, override
 
@@ -24,6 +24,7 @@ from faststream.redis.schemas.proto import RedisAsyncAPIProtocol, validate_optio
 
 if TYPE_CHECKING:
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
+    from faststream.redis.message import UnifyRedisDict
     from faststream.types import AnyDict
 
 PublisherType: TypeAlias = Union[
@@ -67,7 +68,7 @@ class AsyncAPIPublisher(LogicPublisher, RedisAsyncAPIProtocol):
         stream: Union["StreamSub", str, None],
         headers: Optional["AnyDict"],
         reply_to: str,
-        broker_middlewares: Iterable["BrokerMiddleware[Mapping[str, Any]]"],
+        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"],
         middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI args
         title_: Optional[str],

@@ -58,15 +58,14 @@ if TYPE_CHECKING:
     from starlette.types import ASGIApp, Lifespan
 
     from faststream.asyncapi import schema as asyncapi
-    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
         Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
     )
+    from faststream.nats.message import NatsBatchMessage, NatsMessage
     from faststream.nats.schemas import JStream, PullSub
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, LoggerProto
@@ -226,11 +225,11 @@ class NatsRouter(StreamRouter["Msg"]):
             ),
         ] = 15.0,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[Msg]]"],
+            Optional["CustomCallable"],
             Doc("Custom decoder object."),
         ] = None,
         parser: Annotated[
-            Optional["CustomParser[Msg]"],
+            Optional["CustomCallable"],
             Doc("Custom parser object."),
         ] = None,
         middlewares: Annotated[
@@ -673,11 +672,11 @@ class NatsRouter(StreamRouter["Msg"]):
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[Msg]"],
+            Optional["CustomCallable"],
             Doc("Parser to map original **nats-py** Msg to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[Msg]]"],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -685,7 +684,10 @@ class NatsRouter(StreamRouter["Msg"]):
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            "Filter[StreamMessage[Msg]]",
+            Union[
+                "Filter[NatsMessage]",
+                "Filter[NatsBatchMessage]",
+            ],
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),

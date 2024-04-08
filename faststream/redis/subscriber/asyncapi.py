@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Mapping, Optional, Union
+from typing import TYPE_CHECKING, Dict, Iterable, Optional, Union
 
 from typing_extensions import TypeAlias, override
 
@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream.broker.types import BrokerMiddleware
+    from faststream.redis.message import UnifyRedisDict
 
 SubsciberType: TypeAlias = Union[
     "AsyncAPIChannelSubscriber",
@@ -72,7 +73,7 @@ class AsyncAPISubscriber(LogicSubscriber, RedisAsyncAPIProtocol):
         no_ack: bool = False,
         retry: bool = False,
         broker_dependencies: Iterable["Depends"] = (),
-        broker_middlewares: Iterable["BrokerMiddleware[Mapping[str, Any]]"] = (),
+        broker_middlewares: Iterable["BrokerMiddleware[UnifyRedisDict]"] = (),
         # AsyncAPI args
         title_: Optional[str] = None,
         description_: Optional[str] = None,

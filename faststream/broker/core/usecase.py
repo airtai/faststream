@@ -23,12 +23,10 @@ from faststream.broker.middlewares.logging import CriticalLogMiddleware
 from faststream.broker.proto import SetupAble
 from faststream.broker.subscriber.proto import SubscriberProto
 from faststream.broker.types import (
-    AsyncCustomDecoder,
-    AsyncCustomParser,
+    AsyncCustomCallable,
     BrokerMiddleware,
     ConnectionType,
-    CustomDecoder,
-    CustomParser,
+    CustomCallable,
     MsgType,
 )
 from faststream.exceptions import NOT_CONNECTED_YET
@@ -42,7 +40,6 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream.asyncapi.schema import Tag, TagDict
-    from faststream.broker.message import StreamMessage
     from faststream.broker.publisher.proto import ProducerProto, PublisherProto
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, LoggerProto
@@ -63,11 +60,11 @@ class BrokerUsecase(
         self,
         *,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[MsgType]]"],
+            Optional["CustomCallable"],
             Doc("Custom decoder object."),
         ],
         parser: Annotated[
-            Optional["CustomParser[MsgType]"],
+            Optional["CustomCallable"],
             Doc("Custom parser object."),
         ],
         dependencies: Annotated[
@@ -147,11 +144,11 @@ class BrokerUsecase(
             middlewares=middlewares,
             dependencies=dependencies,
             decoder=cast(
-                Optional["AsyncCustomDecoder[StreamMessage[MsgType]]"],
+                Optional["AsyncCustomCallable"],
                 to_async(decoder) if decoder else None,
             ),
             parser=cast(
-                Optional["AsyncCustomParser[MsgType]"],
+                Optional["AsyncCustomCallable"],
                 to_async(parser) if parser else None,
             ),
             # Broker is a root router

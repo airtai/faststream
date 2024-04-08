@@ -20,7 +20,7 @@ from typing import (
 from typing_extensions import Annotated, Doc, override
 
 from faststream.__about__ import SERVICE_NAME
-from faststream.broker.message import StreamMessage, gen_cor_id
+from faststream.broker.message import gen_cor_id
 from faststream.confluent.broker.logging import KafkaLoggingBroker
 from faststream.confluent.broker.registrator import KafkaRegistrator
 from faststream.confluent.client import AsyncConfluentProducer, _missing
@@ -39,8 +39,7 @@ if TYPE_CHECKING:
     from faststream.asyncapi import schema as asyncapi
     from faststream.broker.types import (
         BrokerMiddleware,
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
     )
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, LoggerProto, SendableMessage
@@ -251,18 +250,11 @@ class KafkaBroker(
             ),
         ] = 15.0,
         decoder: Annotated[
-            Optional[
-                Union[
-                    "CustomDecoder[StreamMessage[Message]]",
-                    "CustomDecoder[StreamMessage[Tuple[Message, ...]]]",
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Custom decoder object."),
         ] = None,
         parser: Annotated[
-            Optional[
-                Union["CustomParser[Message]", "CustomParser[Tuple[Message, ...]]"]
-            ],
+            Optional["CustomCallable"],
             Doc("Custom parser object."),
         ] = None,
         dependencies: Annotated[

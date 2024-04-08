@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Mapping, Optional
+from typing import TYPE_CHECKING, Any, Optional
 from uuid import uuid4
 
 from typing_extensions import override
@@ -14,12 +14,9 @@ from faststream.utils.functions import timeout_scope
 if TYPE_CHECKING:
     from redis.asyncio.client import PubSub, Redis
 
-    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
-        AsyncDecoder,
-        AsyncParser,
-        CustomDecoder,
-        CustomParser,
+        AsyncCallable,
+        CustomCallable,
     )
     from faststream.types import AnyDict, SendableMessage
 
@@ -28,14 +25,14 @@ class RedisFastProducer(ProducerProto):
     """A class to represent a Redis producer."""
 
     _connection: "Redis[bytes]"
-    _decoder: "AsyncDecoder[StreamMessage[Mapping[str, Any]]]"
-    _parser: "AsyncParser[Mapping[str, Any]]"
+    _decoder: "AsyncCallable"
+    _parser: "AsyncCallable"
 
     def __init__(
         self,
         connection: "Redis[bytes]",
-        parser: Optional["CustomParser[Mapping[str, Any]]"],
-        decoder: Optional["CustomDecoder[StreamMessage[Mapping[str, Any]]]"],
+        parser: Optional["CustomCallable"],
+        decoder: Optional["CustomCallable"],
     ) -> None:
         self._connection = connection
         self._parser = resolve_custom_func(

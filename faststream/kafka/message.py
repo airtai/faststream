@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any, Protocol, Tuple, Union
 
-from faststream.broker.message import StreamMessage
+from faststream.broker.message import ABCMessage
 
 if TYPE_CHECKING:
     from aiokafka import ConsumerRecord
@@ -23,7 +23,7 @@ FAKE_CONSUMER = FakeConsumer()
 
 
 class KafkaMessage(
-    StreamMessage[
+    ABCMessage[
         Union[
             "ConsumerRecord",
             Tuple["ConsumerRecord", ...],

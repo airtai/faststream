@@ -55,12 +55,10 @@ if TYPE_CHECKING:
     from typing_extensions import TypedDict, Unpack
 
     from faststream.asyncapi import schema as asyncapi
-    from faststream.broker.message import StreamMessage
     from faststream.broker.publisher.proto import ProducerProto
     from faststream.broker.types import (
         BrokerMiddleware,
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
     )
     from faststream.nats.publisher.asyncapi import AsyncAPIPublisher
     from faststream.security import BaseSecurity
@@ -362,11 +360,11 @@ class NatsBroker(
             ),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[Msg]]"],
+            Optional["CustomCallable"],
             Doc("Custom decoder object."),
         ] = None,
         parser: Annotated[
-            Optional["CustomParser[Msg]"],
+            Optional["CustomCallable"],
             Doc("Custom parser object."),
         ] = None,
         dependencies: Annotated[

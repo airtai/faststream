@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
     from faststream.broker.message import StreamMessage
-    from faststream.broker.types import BrokerMiddleware, CustomDecoder, CustomParser
+    from faststream.broker.types import BrokerMiddleware, CustomCallable
     from faststream.rabbit.publisher.producer import AioPikaFastProducer
     from faststream.rabbit.schemas import (
         RabbitExchange,
@@ -105,8 +105,8 @@ class LogicSubscriber(
         graceful_timeout: Optional[float],
         extra_context: Optional["AnyDict"],
         # broker options
-        broker_parser: Optional["CustomParser[IncomingMessage]"],
-        broker_decoder: Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
         # dependant args
         apply_types: bool,
         is_validate: bool,

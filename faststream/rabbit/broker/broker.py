@@ -47,11 +47,9 @@ if TYPE_CHECKING:
     from yarl import URL
 
     from faststream.asyncapi import schema as asyncapi
-    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
     )
     from faststream.rabbit.types import AioPikaSendableMessage
     from faststream.security import BaseSecurity
@@ -122,11 +120,11 @@ class RabbitBroker(
             ),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
+            Optional["CustomCallable"],
             Doc("Custom decoder object."),
         ] = None,
         parser: Annotated[
-            Optional["CustomParser[IncomingMessage]"],
+            Optional["CustomCallable"],
             Doc("Custom parser object."),
         ] = None,
         dependencies: Annotated[

@@ -1,30 +1,30 @@
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Mapping, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union, cast
 
 from typing_extensions import Annotated, Doc, deprecated, override
 
 from faststream.broker.core.abc import ABCBroker
 from faststream.broker.utils import default_filter
+from faststream.redis.message import UnifyRedisDict
 from faststream.redis.publisher.asyncapi import AsyncAPIPublisher
 from faststream.redis.subscriber.asyncapi import AsyncAPISubscriber
 
 if TYPE_CHECKING:
     from fast_depends.dependencies import Depends
 
-    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
         Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
     )
+    from faststream.redis.message import UnifyRedisMessage
     from faststream.redis.publisher.asyncapi import PublisherType
     from faststream.redis.schemas import ListSub, PubSub, StreamSub
     from faststream.redis.subscriber.asyncapi import SubsciberType
     from faststream.types import AnyDict
 
 
-class RedisRegistrator(ABCBroker["Mapping[str, Any]"]):
+class RedisRegistrator(ABCBroker[UnifyRedisDict]):
     """Includable to RabbitBroker router."""
 
     _subscribers: Dict[int, "SubsciberType"]
@@ -52,13 +52,13 @@ class RedisRegistrator(ABCBroker["Mapping[str, Any]"]):
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[Mapping[str, Any]]"],
+            Optional["CustomCallable"],
             Doc(
                 "Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one."
             ),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[Mapping[str, Any]]]"],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -66,7 +66,7 @@ class RedisRegistrator(ABCBroker["Mapping[str, Any]"]):
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            "Filter[StreamMessage[Mapping[str, Any]]]",
+            "Filter[UnifyRedisMessage]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),

@@ -16,8 +16,7 @@ if TYPE_CHECKING:
     from faststream.broker.subscriber.call_item import HandlerItem
     from faststream.broker.types import (
         BrokerMiddleware,
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
         Filter,
         SubscriberMiddleware,
     )
@@ -56,8 +55,8 @@ class SubscriberProto(
         *,
         logger: Optional["LoggerProto"],
         graceful_timeout: Optional[float],
-        broker_parser: Optional["CustomParser[MsgType]"],
-        broker_decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"],
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
         producer: Optional["ProducerProto"],
         extra_context: "AnyDict",
         # FastDepends options
@@ -89,9 +88,9 @@ class SubscriberProto(
     def add_call(
         self,
         *,
-        filter_: "Filter[StreamMessage[MsgType]]",
-        parser_: "CustomParser[MsgType]",
-        decoder_: "CustomDecoder[StreamMessage[MsgType]]",
+        filter_: "Filter[Any]",
+        parser_: "CustomCallable",
+        decoder_: "CustomCallable",
         middlewares_: Iterable["SubscriberMiddleware"],
         dependencies_: Iterable["Depends"],
     ) -> Self: ...

@@ -18,12 +18,9 @@ if TYPE_CHECKING:
     from nats.aio.msg import Msg
     from nats.js import JetStreamContext
 
-    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
-        AsyncDecoder,
-        AsyncParser,
-        CustomDecoder,
-        CustomParser,
+        AsyncCallable,
+        CustomCallable,
     )
     from faststream.types import SendableMessage
 
@@ -31,15 +28,15 @@ if TYPE_CHECKING:
 class NatsFastProducer(ProducerProto):
     """A class to represent a NATS producer."""
 
-    _decoder: "AsyncDecoder[StreamMessage[Msg]]"
-    _parser: "AsyncParser[Msg]"
+    _decoder: "AsyncCallable"
+    _parser: "AsyncCallable"
 
     def __init__(
         self,
         *,
         connection: "Client",
-        parser: Optional["CustomParser[Msg]"],
-        decoder: Optional["CustomDecoder[StreamMessage[Msg]]"],
+        parser: Optional["CustomCallable"],
+        decoder: Optional["CustomCallable"],
     ) -> None:
         self._connection = connection
         self._parser = resolve_custom_func(parser, NatsParser.parse_message)
@@ -107,15 +104,15 @@ class NatsFastProducer(ProducerProto):
 class NatsJSFastProducer(ProducerProto):
     """A class to represent a NATS JetStream producer."""
 
-    _decoder: "AsyncDecoder[StreamMessage[Msg]]"
-    _parser: "AsyncParser[Msg]"
+    _decoder: "AsyncCallable"
+    _parser: "AsyncCallable"
 
     def __init__(
         self,
         *,
         connection: "JetStreamContext",
-        parser: Optional["CustomParser[Msg]"],
-        decoder: Optional["CustomDecoder[StreamMessage[Msg]]"],
+        parser: Optional["CustomCallable"],
+        decoder: Optional["CustomCallable"],
     ) -> None:
         self._connection = connection
         self._parser = resolve_custom_func(parser, NatsParser.parse_message)

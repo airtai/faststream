@@ -44,11 +44,9 @@ if TYPE_CHECKING:
     from typing_extensions import TypedDict, Unpack
 
     from faststream.asyncapi import schema as asyncapi
-    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
     )
     from faststream.security import BaseSecurity
     from faststream.types import LoggerProto
@@ -384,21 +382,11 @@ class KafkaBroker(
             ),
         ] = 15.0,
         decoder: Annotated[
-            Optional[
-                Union[
-                    "CustomDecoder[StreamMessage[ConsumerRecord]]",
-                    "CustomDecoder[StreamMessage[Tuple[ConsumerRecord, ...]]]",
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Custom decoder object."),
         ] = None,
         parser: Annotated[
-            Optional[
-                Union[
-                    "CustomParser[ConsumerRecord]",
-                    "CustomParser[Tuple[ConsumerRecord, ...]]",
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Custom parser object."),
         ] = None,
         dependencies: Annotated[

@@ -57,7 +57,6 @@ if TYPE_CHECKING:
     from faststream.broker.schemas import NameRequired
     from faststream.broker.types import BrokerMiddleware
     from faststream.broker.wrapper.call import HandlerCallWrapper
-    from faststream.broker.wrapper.proto import WrapperProto
     from faststream.types import AnyDict
 
 

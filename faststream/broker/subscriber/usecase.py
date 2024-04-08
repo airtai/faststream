@@ -8,7 +8,6 @@ from typing import (
     Callable,
     ContextManager,
     Dict,
-    Generic,
     Iterable,
     List,
     Optional,
@@ -42,18 +41,16 @@ if TYPE_CHECKING:
     from faststream.broker.message import StreamMessage
     from faststream.broker.middlewares import BaseMiddleware
     from faststream.broker.types import (
-        AsyncDecoder,
-        AsyncParser,
+        AsyncCallable,
         BrokerMiddleware,
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
         Filter,
         SubscriberMiddleware,
     )
     from faststream.types import AnyDict, LoggerProto
 
 
-class _CallOptions(Generic[MsgType]):
+class _CallOptions:
     __slots__ = (
         "filter",
         "parser",
@@ -65,9 +62,9 @@ class _CallOptions(Generic[MsgType]):
     def __init__(
         self,
         *,
-        filter: "Filter[StreamMessage[MsgType]]",
-        parser: Optional["CustomParser[MsgType]"],
-        decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"],
+        filter: "Filter[Any]",
+        parser: Optional["CustomCallable"],
+        decoder: Optional["CustomCallable"],
         middlewares: Iterable["SubscriberMiddleware"],
         dependencies: Iterable["Depends"],
     ) -> None:
@@ -90,7 +87,7 @@ class SubscriberUsecase(
     graceful_timeout: Optional[float]
 
     _broker_dependecies: Iterable["Depends"]
-    _call_options: Optional["_CallOptions[MsgType]"]
+    _call_options: Optional["_CallOptions"]
 
     def __init__(
         self,
@@ -99,8 +96,8 @@ class SubscriberUsecase(
         retry: Union[bool, int],
         broker_dependencies: Iterable["Depends"],
         broker_middlewares: Iterable["BrokerMiddleware[MsgType]"],
-        default_parser: "AsyncParser[MsgType]",
-        default_decoder: "AsyncDecoder[StreamMessage[MsgType]]",
+        default_parser: "AsyncCallable",
+        default_decoder: "AsyncCallable",
         # AsyncAPI information
         title_: Optional[str],
         description_: Optional[str],
@@ -143,8 +140,8 @@ class SubscriberUsecase(
         graceful_timeout: Optional[float],
         extra_context: Optional["AnyDict"],
         # broker options
-        broker_parser: Optional["CustomParser[MsgType]"],
-        broker_decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"],
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
         # dependant args
         apply_types: bool,
         is_validate: bool,
@@ -202,13 +199,13 @@ class SubscriberUsecase(
     def add_call(
         self,
         *,
-        filter_: "Filter[StreamMessage[MsgType]]",
-        parser_: Optional["CustomParser[MsgType]"],
-        decoder_: Optional["CustomDecoder[StreamMessage[MsgType]]"],
+        filter_: "Filter[Any]",
+        parser_: Optional["CustomCallable"],
+        decoder_: Optional["CustomCallable"],
         middlewares_: Iterable["SubscriberMiddleware"],
         dependencies_: Iterable["Depends"],
     ) -> Self:
-        self._call_options = _CallOptions[MsgType](
+        self._call_options = _CallOptions(
             filter=filter_,
             parser=parser_,
             decoder=decoder_,
@@ -222,9 +219,9 @@ class SubscriberUsecase(
         self,
         func: None = None,
         *,
-        filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
-        parser: Optional["CustomParser[MsgType]"] = None,
-        decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
+        filter: Optional["Filter[Any]"] = None,
+        parser: Optional["CustomCallable"] = None,
+        decoder: Optional["CustomCallable"] = None,
         middlewares: Iterable["SubscriberMiddleware"] = (),
         dependencies: Iterable["Depends"] = (),
     ) -> Callable[
@@ -237,9 +234,9 @@ class SubscriberUsecase(
         self,
         func: Callable[P_HandlerParams, T_HandlerReturn],
         *,
-        filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
-        parser: Optional["CustomParser[MsgType]"] = None,
-        decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
+        filter: Optional["Filter[Any]"] = None,
+        parser: Optional["CustomCallable"] = None,
+        decoder: Optional["CustomCallable"] = None,
         middlewares: Iterable["SubscriberMiddleware"] = (),
         dependencies: Iterable["Depends"] = (),
     ) -> "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]": ...
@@ -248,9 +245,9 @@ class SubscriberUsecase(
         self,
         func: Optional[Callable[P_HandlerParams, T_HandlerReturn]] = None,
         *,
-        filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
-        parser: Optional["CustomParser[MsgType]"] = None,
-        decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"] = None,
+        filter: Optional["Filter[Any]"] = None,
+        parser: Optional["CustomCallable"] = None,
+        decoder: Optional["CustomCallable"] = None,
         middlewares: Iterable["SubscriberMiddleware"] = (),
         dependencies: Iterable["Depends"] = (),
     ) -> Any:

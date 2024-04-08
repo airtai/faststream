@@ -24,7 +24,7 @@ from typing_extensions import Annotated, Doc, override
 from faststream.broker.message import StreamMessage
 from faststream.broker.publisher.fake import FakePublisher
 from faststream.broker.subscriber.usecase import SubscriberUsecase
-from faststream.broker.types import CustomDecoder, CustomParser, MsgType
+from faststream.broker.types import CustomCallable, MsgType
 from faststream.exceptions import NOT_CONNECTED_YET, SetupError
 from faststream.nats.parser import BatchParser, JsParser, NatsParser
 from faststream.types import AnyDict, LoggerProto, SendableMessage
@@ -40,8 +40,7 @@ if TYPE_CHECKING:
     from faststream.broker.message import StreamMessage
     from faststream.broker.publisher.proto import ProducerProto
     from faststream.broker.types import (
-        AsyncDecoder,
-        AsyncParser,
+        AsyncCallable,
         BrokerMiddleware,
     )
     from faststream.nats.schemas import JStream, PullSub
@@ -68,8 +67,8 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         stream: Optional["JStream"],
         pull_sub: Optional["PullSub"],
         # Subscriber args
-        default_parser: "AsyncParser[MsgType]",
-        default_decoder: "AsyncDecoder[StreamMessage[MsgType]]",
+        default_parser: "AsyncCallable",
+        default_decoder: "AsyncCallable",
         no_ack: bool,
         retry: Union[bool, int],
         broker_dependencies: Iterable[Depends],
@@ -123,8 +122,8 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
         graceful_timeout: Optional[float],
         extra_context: Optional["AnyDict"],
         # broker options
-        broker_parser: Optional["CustomParser[MsgType]"],
-        broker_decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"],
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
         # dependant args
         apply_types: bool,
         is_validate: bool,

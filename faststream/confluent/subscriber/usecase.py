@@ -27,11 +27,9 @@ if TYPE_CHECKING:
     from faststream.broker.message import StreamMessage
     from faststream.broker.publisher.proto import ProducerProto
     from faststream.broker.types import (
-        AsyncDecoder,
-        AsyncParser,
+        AsyncCallable,
         BrokerMiddleware,
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
     )
     from faststream.confluent.client import AsyncConfluentConsumer
     from faststream.types import AnyDict, LoggerProto
@@ -55,8 +53,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         builder: Callable[..., "AsyncConfluentConsumer"],
         is_manual: bool,
         # Subscriber args
-        default_parser: "AsyncParser[MsgType]",
-        default_decoder: "AsyncDecoder[StreamMessage[MsgType]]",
+        default_parser: "AsyncCallable",
+        default_decoder: "AsyncCallable",
         no_ack: bool,
         retry: bool,
         broker_dependencies: Iterable["Depends"],
@@ -103,8 +101,8 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
         graceful_timeout: Optional[float],
         extra_context: Optional["AnyDict"],
         # broker options
-        broker_parser: Optional["CustomParser[MsgType]"],
-        broker_decoder: Optional["CustomDecoder[StreamMessage[MsgType]]"],
+        broker_parser: Optional["CustomCallable"],
+        broker_decoder: Optional["CustomCallable"],
         # dependant args
         apply_types: bool,
         is_validate: bool,

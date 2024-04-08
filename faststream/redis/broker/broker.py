@@ -40,11 +40,9 @@ if TYPE_CHECKING:
     from typing_extensions import TypedDict, Unpack
 
     from faststream.asyncapi import schema as asyncapi
-    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
     )
     from faststream.redis.message import BaseMessage
     from faststream.security import BaseSecurity
@@ -116,11 +114,11 @@ class RedisBroker(
             ),
         ] = 15.0,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[BaseMessage]]"],
+            Optional["CustomCallable"],
             Doc("Custom decoder object."),
         ] = None,
         parser: Annotated[
-            Optional["CustomParser[BaseMessage]"],
+            Optional["CustomCallable"],
             Doc("Custom parser object."),
         ] = None,
         dependencies: Annotated[

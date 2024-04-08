@@ -38,15 +38,14 @@ if TYPE_CHECKING:
     from starlette.types import ASGIApp, Lifespan
 
     from faststream.asyncapi import schema as asyncapi
-    from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         BrokerMiddleware,
-        CustomDecoder,
-        CustomParser,
+        CustomCallable,
         Filter,
         PublisherMiddleware,
         SubscriberMiddleware,
     )
+    from faststream.confluent.message import KafkaMessage
     from faststream.confluent.publisher.asyncapi import (
         AsyncAPIBatchPublisher,
         AsyncAPIDefaultPublisher,
@@ -81,18 +80,11 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             ),
         ] = 15.0,
         decoder: Annotated[
-            Optional[
-                Union[
-                    "CustomDecoder[StreamMessage[Message]]",
-                    "CustomDecoder[StreamMessage[Tuple[Message, ...]]]",
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Custom decoder object."),
         ] = None,
         parser: Annotated[
-            Optional[
-                Union["CustomParser[Message]", "CustomParser[Tuple[Message, ...]]"]
-            ],
+            Optional["CustomCallable"],
             Doc("Custom parser object."),
         ] = None,
         middlewares: Annotated[
@@ -657,11 +649,11 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[Message]"],
+            Optional["CustomCallable"],
             Doc("Parser to map original **Message** object to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[Message]]"],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -669,7 +661,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            "Filter[StreamMessage[Message]]",
+            "Filter[KafkaMessage]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
@@ -1072,11 +1064,11 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[Tuple[Message, ...]]"],
+            Optional["CustomCallable"],
             Doc("Parser to map original **Message** object to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[Tuple[Message, ...]]]"],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -1084,7 +1076,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            "Filter[StreamMessage[Tuple[Message, ...]]]",
+            "Filter[KafkaMessage]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
@@ -1479,21 +1471,11 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional[
-                Union[
-                    "CustomParser[Message]",
-                    "CustomParser[Tuple[Message, ...]]",
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Parser to map original **Message** object to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional[
-                Union[
-                    "CustomDecoder[StreamMessage[Message]]",
-                    "CustomDecoder[StreamMessage[Tuple[Message, ...]]]",
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -1501,10 +1483,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            Union[
-                "Filter[StreamMessage[Message]]",
-                "Filter[StreamMessage[Tuple[Message, ...]]]",
-            ],
+            "Filter[KafkaMessage]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
@@ -1910,21 +1889,11 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional[
-                Union[
-                    "CustomParser[Message]",
-                    "CustomParser[Tuple[Message, ...]]",
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Parser to map original **Message** object to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional[
-                Union[
-                    "CustomDecoder[StreamMessage[Message]]",
-                    "CustomDecoder[StreamMessage[Tuple[Message, ...]]]",
-                ]
-            ],
+            Optional["CustomCallable"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -1932,10 +1901,7 @@ class KafkaRouter(StreamRouter[Union[Message, Tuple[Message, ...]]]):
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            Union[
-                "Filter[StreamMessage[Message]]",
-                "Filter[StreamMessage[Tuple[Message, ...]]]",
-            ],
+            "Filter[KafkaMessage]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
