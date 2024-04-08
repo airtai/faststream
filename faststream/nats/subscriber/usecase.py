@@ -145,7 +145,7 @@ class LogicSubscriber(SubscriberUsecase[MsgType]):
 
     async def start(self) -> None:
         """Create NATS subscription and start consume tasks."""
-        assert self._connection, NOT_CONNECTED_YET
+        assert self._connection, NOT_CONNECTED_YET  # nosec B101
         await super().start()
         await self._create_subscription(connection=self._connection)
 
