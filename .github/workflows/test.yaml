@@ -22,7 +22,7 @@ jobs:
         run: |
           set -ux
           python -m pip install --upgrade pip
-          pip install -e ".[rabbit,kafka,confluent,redis,nats,lint]"
+          pip install -e ".[lint]"
 
       - name: Run ruff
         shell: bash
