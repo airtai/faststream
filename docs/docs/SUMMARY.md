@@ -673,6 +673,8 @@ search:
                 - [RedisMessage](api/faststream/redis/message/RedisMessage.md)
                 - [RedisStreamMessage](api/faststream/redis/message/RedisStreamMessage.md)
                 - [StreamMessage](api/faststream/redis/message/StreamMessage.md)
+                - [UnifyRedisDict](api/faststream/redis/message/UnifyRedisDict.md)
+                - [UnifyRedisMessage](api/faststream/redis/message/UnifyRedisMessage.md)
             - parser
                 - [RawMessage](api/faststream/redis/parser/RawMessage.md)
                 - [RedisBatchListParser](api/faststream/redis/parser/RedisBatchListParser.md)
