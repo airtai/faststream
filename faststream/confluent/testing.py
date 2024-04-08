@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 from typing_extensions import override
 
 from faststream.broker.message import encode_message, gen_cor_id
-from faststream.broker.wrapper.call import HandlerCallWrapper
 from faststream.confluent.broker import KafkaBroker
 from faststream.confluent.publisher.asyncapi import AsyncAPIBatchPublisher
 from faststream.confluent.publisher.producer import AsyncConfluentFastProducer
@@ -12,6 +11,7 @@ from faststream.confluent.subscriber.asyncapi import AsyncAPIBatchSubscriber
 from faststream.testing.broker import TestBroker, call_handler
 
 if TYPE_CHECKING:
+    from faststream.broker.wrapper.call import HandlerCallWrapper
     from faststream.confluent.publisher.asyncapi import AsyncAPIPublisher
     from faststream.types import SendableMessage
 
@@ -28,8 +28,8 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     @staticmethod
     def create_publisher_fake_subscriber(
         broker: KafkaBroker,
-        publisher: "AsyncAPIPublisher",
-    ) -> HandlerCallWrapper[Any, Any, Any]:
+        publisher: "AsyncAPIPublisher[Any]",
+    ) -> "HandlerCallWrapper[Any, Any, Any]":
         sub = broker.subscriber(  # type: ignore[call-overload,misc]
             publisher.topic,
             batch=isinstance(publisher, AsyncAPIBatchPublisher),
@@ -37,7 +37,7 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
 
         if not sub.calls:
 
-            @sub
+            @sub  # type: ignore[misc]
             def f(msg: Any) -> None:
                 pass
 
@@ -48,7 +48,7 @@ class TestKafkaBroker(TestBroker[KafkaBroker]):
     @staticmethod
     def remove_publisher_fake_subscriber(
         broker: KafkaBroker,
-        publisher: "AsyncAPIPublisher",
+        publisher: "AsyncAPIPublisher[Any]",
     ) -> None:
         broker._subscribers.pop(hash(publisher), None)
 

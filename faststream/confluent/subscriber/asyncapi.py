@@ -10,7 +10,6 @@ from typing import (
     overload,
 )
 
-from confluent_kafka import Message as ConfluentMsg
 from typing_extensions import override
 
 from faststream.asyncapi.schema import (
@@ -30,6 +29,7 @@ from faststream.confluent.subscriber.usecase import (
 )
 
 if TYPE_CHECKING:
+    from confluent_kafka import Message as ConfluentMsg
     from fast_depends.dependencies import Depends
 
     from faststream.broker.types import BrokerMiddleware
@@ -199,13 +199,13 @@ class AsyncAPISubscriber(LogicSubscriber[MsgType]):
 
 class AsyncAPIDefaultSubscriber(
     DefaultSubscriber,
-    AsyncAPISubscriber[ConfluentMsg],
+    AsyncAPISubscriber["ConfluentMsg"],
 ):
     pass
 
 
 class AsyncAPIBatchSubscriber(
     BatchSubscriber,
-    AsyncAPISubscriber[Tuple[ConfluentMsg, ...]],
+    AsyncAPISubscriber[Tuple["ConfluentMsg", ...]],
 ):
     pass

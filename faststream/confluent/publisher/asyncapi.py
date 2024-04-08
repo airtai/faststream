@@ -21,6 +21,7 @@ from faststream.asyncapi.schema import (
 )
 from faststream.asyncapi.schema.bindings import kafka
 from faststream.asyncapi.utils import resolve_payloads
+from faststream.broker.types import MsgType
 from faststream.confluent.publisher.usecase import (
     BatchPublisher,
     DefaultPublisher,
@@ -34,7 +35,7 @@ if TYPE_CHECKING:
     from faststream.broker.types import BrokerMiddleware, PublisherMiddleware
 
 
-class AsyncAPIPublisher(LogicPublisher):
+class AsyncAPIPublisher(LogicPublisher[MsgType]):
     """A class representing a publisher."""
 
     def get_name(self) -> str:
@@ -181,9 +182,15 @@ class AsyncAPIPublisher(LogicPublisher):
             )
 
 
-class AsyncAPIBatchPublisher(BatchPublisher, AsyncAPIPublisher):
+class AsyncAPIBatchPublisher(
+    BatchPublisher,
+    AsyncAPIPublisher[Tuple["ConfluentMsg", ...]],
+):
     pass
 
 
-class AsyncAPIDefaultPublisher(DefaultPublisher, AsyncAPIPublisher):
+class AsyncAPIDefaultPublisher(
+    DefaultPublisher,
+    AsyncAPIPublisher["ConfluentMsg"],
+):
     pass

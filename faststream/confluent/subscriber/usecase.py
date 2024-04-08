@@ -46,7 +46,6 @@ class LogicSubscriber(ABC, SubscriberUsecase[MsgType]):
     consumer: Optional["AsyncConfluentConsumer"]
     task: Optional["asyncio.Task[None]"]
     client_id: Optional[str]
-    batch: bool
 
     def __init__(
         self,
