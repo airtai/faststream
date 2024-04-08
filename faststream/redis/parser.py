@@ -30,7 +30,7 @@ from faststream.types import AnyDict, DecodedMessage, SendableMessage
 from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
-    from faststream.broker.message import ABCMessage, StreamMessage
+    from faststream.broker.message import StreamMessage
     from faststream.redis.schemas import PubSub
     from faststream.redis.subscriber.usecase import ChannelSubscriber
 
@@ -125,7 +125,7 @@ class RawMessage:
 
 
 class SimpleParser:
-    msg_class: Type["ABCMessage[Any]"]
+    msg_class: Type["StreamMessage[Any]"]
 
     @classmethod
     async def parse_message(

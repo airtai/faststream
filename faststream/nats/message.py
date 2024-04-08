@@ -1,12 +1,12 @@
 from typing import TYPE_CHECKING, List, Union
 
-from faststream.broker.message import ABCMessage
+from faststream.broker.message import StreamMessage
 
 if TYPE_CHECKING:
     from nats.aio.msg import Msg
 
 
-class NatsMessage(ABCMessage["Msg"]):
+class NatsMessage(StreamMessage["Msg"]):
     """A class to represent a NATS message."""
 
     async def ack(self) -> None:
@@ -34,7 +34,7 @@ class NatsMessage(ABCMessage["Msg"]):
             await self.raw_message.in_progress()
 
 
-class NatsBatchMessage(ABCMessage[List["Msg"]]):
+class NatsBatchMessage(StreamMessage[List["Msg"]]):
     """A class to represent a NATS batch message."""
 
     async def ack(self) -> None:

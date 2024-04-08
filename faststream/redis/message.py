@@ -10,7 +10,7 @@ from typing import (
 
 from typing_extensions import NotRequired, TypeAlias, TypedDict, override
 
-from faststream.broker.message import ABCMessage as BrokerStreamMessage
+from faststream.broker.message import StreamMessage as BrokerStreamMessage
 
 if TYPE_CHECKING:
     from redis.asyncio import Redis

@@ -52,7 +52,7 @@ class NatsParser(NatsBaseParser):
 
         headers = message.header or {}
 
-        return NatsMessage(
+        return StreamMessage["Msg"](
             raw_message=message,
             body=message.data,
             path=path or {},

@@ -38,7 +38,10 @@ if TYPE_CHECKING:
     from faststream.types import AnyDict
 
 
-class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
+class StreamRoute(
+    BaseRoute,
+    Generic[MsgType, P_HandlerParams, T_HandlerReturn],
+):
     """A class representing a stream route."""
 
     handler: "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]"
