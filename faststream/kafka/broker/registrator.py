@@ -58,9 +58,13 @@ class KafkaRegistrator(
     """Includable to KafkaBroker router."""
 
     _subscribers: Dict[
-        int, Union["AsyncAPIBatchSubscriber", "AsyncAPIDefaultSubscriber"]
+        int,
+        Union["AsyncAPIBatchSubscriber", "AsyncAPIDefaultSubscriber"],
     ]
-    _publishers: Dict[int, Union["AsyncAPIBatchPublisher", "AsyncAPIDefaultPublisher"]]
+    _publishers: Dict[
+        int,
+        Union["AsyncAPIBatchPublisher", "AsyncAPIDefaultPublisher"],
+    ]
 
     @overload  # type: ignore[override]
     def subscriber(

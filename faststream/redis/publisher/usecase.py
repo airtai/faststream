@@ -2,14 +2,13 @@ from abc import abstractmethod
 from contextlib import AsyncExitStack
 from copy import deepcopy
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Iterable, Mapping, Optional
 
 from typing_extensions import Annotated, Doc, override
 
 from faststream.broker.message import gen_cor_id
 from faststream.broker.publisher.usecase import PublisherUsecase
 from faststream.exceptions import NOT_CONNECTED_YET
-from faststream.redis.message import BaseMessage
 from faststream.redis.schemas import ListSub, PubSub, StreamSub
 
 if TYPE_CHECKING:
@@ -18,7 +17,7 @@ if TYPE_CHECKING:
     from faststream.types import AnyDict, SendableMessage
 
 
-class LogicPublisher(PublisherUsecase[BaseMessage]):
+class LogicPublisher(PublisherUsecase[Mapping[str, Any]]):
     """A class to represent a Redis publisher."""
 
     _producer: Optional["RedisFastProducer"]
@@ -29,7 +28,7 @@ class LogicPublisher(PublisherUsecase[BaseMessage]):
         reply_to: str,
         headers: Optional["AnyDict"],
         # Publisher args
-        broker_middlewares: Iterable["BrokerMiddleware[BaseMessage]"],
+        broker_middlewares: Iterable["BrokerMiddleware[Mapping[str, Any]]"],
         middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI args
         schema_: Optional[Any],
@@ -66,7 +65,7 @@ class ChannelPublisher(LogicPublisher):
         reply_to: str,
         headers: Optional["AnyDict"],
         # Regular publisher options
-        broker_middlewares: Iterable["BrokerMiddleware[BaseMessage]"],
+        broker_middlewares: Iterable["BrokerMiddleware[Mapping[str, Any]]"],
         middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI options
         schema_: Optional[Any],
@@ -204,7 +203,7 @@ class ListPublisher(LogicPublisher):
         reply_to: str,
         headers: Optional["AnyDict"],
         # Regular publisher options
-        broker_middlewares: Iterable["BrokerMiddleware[BaseMessage]"],
+        broker_middlewares: Iterable["BrokerMiddleware[Mapping[str, Any]]"],
         middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI options
         schema_: Optional[Any],
@@ -396,7 +395,7 @@ class StreamPublisher(LogicPublisher):
         reply_to: str,
         headers: Optional["AnyDict"],
         # Regular publisher options
-        broker_middlewares: Iterable["BrokerMiddleware[BaseMessage]"],
+        broker_middlewares: Iterable["BrokerMiddleware[Mapping[str, Any]]"],
         middlewares: Iterable["PublisherMiddleware"],
         # AsyncAPI options
         schema_: Optional[Any],

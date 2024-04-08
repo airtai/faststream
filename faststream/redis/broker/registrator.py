@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Mapping, Optional, Union, cast
 
 from typing_extensions import Annotated, Doc, deprecated, override
 
@@ -18,16 +18,17 @@ if TYPE_CHECKING:
         PublisherMiddleware,
         SubscriberMiddleware,
     )
-    from faststream.redis.message import BaseMessage
+    from faststream.redis.publisher.asyncapi import PublisherType
     from faststream.redis.schemas import ListSub, PubSub, StreamSub
+    from faststream.redis.subscriber.asyncapi import SubsciberType
     from faststream.types import AnyDict
 
 
-class RedisRegistrator(ABCBroker["BaseMessage"]):
+class RedisRegistrator(ABCBroker["Mapping[str, Any]"]):
     """Includable to RabbitBroker router."""
 
-    _subscribers: Dict[int, "AsyncAPISubscriber"]
-    _publishers: Dict[int, "AsyncAPIPublisher"]
+    _subscribers: Dict[int, "SubsciberType"]
+    _publishers: Dict[int, "PublisherType"]
 
     @override
     def subscriber(  # type: ignore[override]
@@ -51,13 +52,13 @@ class RedisRegistrator(ABCBroker["BaseMessage"]):
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[BaseMessage]"],
+            Optional["CustomParser[Mapping[str, Any]]"],
             Doc(
                 "Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one."
             ),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[BaseMessage]]"],
+            Optional["CustomDecoder[StreamMessage[Mapping[str, Any]]]"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -65,7 +66,7 @@ class RedisRegistrator(ABCBroker["BaseMessage"]):
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            "Filter[StreamMessage[BaseMessage]]",
+            "Filter[StreamMessage[Mapping[str, Any]]]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),

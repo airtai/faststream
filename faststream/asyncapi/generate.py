@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Union
 
 from faststream._compat import DEF_KEY, HAS_FASTAPI
 from faststream.asyncapi.schema import (

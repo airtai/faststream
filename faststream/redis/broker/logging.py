@@ -1,16 +1,17 @@
 import logging
 from inspect import Parameter
-from typing import TYPE_CHECKING, Any, ClassVar, Optional, Union
+from typing import TYPE_CHECKING, Any, ClassVar, Mapping, Optional, Union
 
 from faststream.broker.core.usecase import BrokerUsecase
 from faststream.log.logging import get_broker_logger
-from faststream.redis.message import BaseMessage
 
 if TYPE_CHECKING:
+    from redis.asyncio.client import Redis  # noqa: F401
+
     from faststream.types import LoggerProto
 
 
-class RedisLoggingBroker(BrokerUsecase[BaseMessage, "Redis[bytes]"]):
+class RedisLoggingBroker(BrokerUsecase[Mapping[str, Any], "Redis[bytes]"]):
     """A class that extends the LoggingMixin class and adds additional functionality for logging Redis related information."""
 
     _max_channel_name: int

@@ -8,7 +8,6 @@ from faststream.redis.broker.registrator import RedisRegistrator
 from faststream.redis.message import BaseMessage
 
 if TYPE_CHECKING:
-    from aio_pika.message import IncomingMessage
     from fast_depends.dependencies import Depends
 
     from faststream.broker.message import StreamMessage
@@ -222,15 +221,15 @@ class RedisRouter(
             ),
         ] = (),
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[IncomingMessage]"],
+            Iterable["BrokerMiddleware[BaseMessage]"],
             Doc("Router middlewares to apply to all routers' publishers/subscribers."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[IncomingMessage]"],
+            Optional["CustomParser[BaseMessage]"],
             Doc("Parser to map original **IncomingMessage** Msg to FastStream one."),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[IncomingMessage]]"],
+            Optional["CustomDecoder[StreamMessage[BaseMessage]]"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         include_in_schema: Annotated[

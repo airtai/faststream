@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Mapping, Optional, Union
 
 from typing_extensions import TypeAlias, override
 
@@ -12,7 +12,6 @@ from faststream.asyncapi.schema import (
 from faststream.asyncapi.schema.bindings import redis
 from faststream.asyncapi.utils import resolve_payloads
 from faststream.exceptions import SetupError
-from faststream.redis.message import BaseMessage
 from faststream.redis.schemas import INCORRECT_SETUP_MSG, ListSub, PubSub, StreamSub
 from faststream.redis.schemas.proto import RedisAsyncAPIProtocol, validate_options
 from faststream.redis.subscriber.usecase import (
@@ -29,7 +28,7 @@ if TYPE_CHECKING:
 
     from faststream.broker.types import BrokerMiddleware
 
-HandlerType: TypeAlias = Union[
+SubsciberType: TypeAlias = Union[
     "AsyncAPIChannelSubscriber",
     "AsyncAPIStreamBatchSubscriber",
     "AsyncAPIStreamSubscriber",
@@ -38,7 +37,7 @@ HandlerType: TypeAlias = Union[
 ]
 
 
-class AsyncAPISubscriber(LogicSubscriber[BaseMessage], RedisAsyncAPIProtocol):
+class AsyncAPISubscriber(LogicSubscriber, RedisAsyncAPIProtocol):
     """A class to represent a Redis handler."""
 
     def get_schema(self) -> Dict[str, Channel]:
@@ -73,12 +72,12 @@ class AsyncAPISubscriber(LogicSubscriber[BaseMessage], RedisAsyncAPIProtocol):
         no_ack: bool = False,
         retry: bool = False,
         broker_dependencies: Iterable["Depends"] = (),
-        broker_middlewares: Iterable["BrokerMiddleware[BaseMessage]"] = (),
+        broker_middlewares: Iterable["BrokerMiddleware[Mapping[str, Any]]"] = (),
         # AsyncAPI args
         title_: Optional[str] = None,
         description_: Optional[str] = None,
         include_in_schema: bool = True,
-    ) -> HandlerType:
+    ) -> SubsciberType:
         validate_options(channel=channel, list=list, stream=stream)
 
         if (channel_sub := PubSub.validate(channel)) is not None:

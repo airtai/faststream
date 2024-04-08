@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Mapping, Optional
 from uuid import uuid4
 
 from typing_extensions import override
@@ -21,7 +21,6 @@ if TYPE_CHECKING:
         CustomDecoder,
         CustomParser,
     )
-    from faststream.redis.message import PubSubMessage
     from faststream.types import AnyDict, SendableMessage
 
 
@@ -29,21 +28,24 @@ class RedisFastProducer(ProducerProto):
     """A class to represent a Redis producer."""
 
     _connection: "Redis[bytes]"
-    _decoder: "AsyncDecoder[StreamMessage[PubSubMessage]]"
-    _parser: "AsyncParser[PubSubMessage]"
+    _decoder: "AsyncDecoder[StreamMessage[Mapping[str, Any]]]"
+    _parser: "AsyncParser[Mapping[str, Any]]"
 
     def __init__(
         self,
         connection: "Redis[bytes]",
-        parser: Optional["CustomParser[PubSubMessage]"],
-        decoder: Optional["CustomDecoder[StreamMessage[PubSubMessage]]"],
+        parser: Optional["CustomParser[Mapping[str, Any]]"],
+        decoder: Optional["CustomDecoder[StreamMessage[Mapping[str, Any]]]"],
     ) -> None:
         self._connection = connection
         self._parser = resolve_custom_func(
-            parser,  # type: ignore[arg-type,assignment]
+            parser,
             RedisPubSubParser.parse_message,
         )
-        self._decoder = resolve_custom_func(decoder, RedisPubSubParser.decode_message)
+        self._decoder = resolve_custom_func(
+            decoder,
+            RedisPubSubParser.decode_message,
+        )
 
     @override
     async def publish(  # type: ignore[override]

@@ -54,12 +54,11 @@ if TYPE_CHECKING:
         PublisherMiddleware,
         SubscriberMiddleware,
     )
-    from faststream.redis.message import BaseMessage
     from faststream.security import BaseSecurity
     from faststream.types import AnyDict, LoggerProto
 
 
-class RedisRouter(StreamRouter["BaseMessage"]):
+class RedisRouter(StreamRouter["Mapping[str, Any]"]):
     """A class to represent a Redis router."""
 
     broker_class = RB
@@ -97,15 +96,15 @@ class RedisRouter(StreamRouter["BaseMessage"]):
             ),
         ] = 15.0,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[BaseMessage]]"],
+            Optional["CustomDecoder[StreamMessage[Mapping[str, Any]]]"],
             Doc("Custom decoder object."),
         ] = None,
         parser: Annotated[
-            Optional["CustomParser[BaseMessage]"],
+            Optional["CustomParser[Mapping[str, Any]]"],
             Doc("Custom parser object."),
         ] = None,
         middlewares: Annotated[
-            Iterable["BrokerMiddleware[BaseMessage]"],
+            Iterable["BrokerMiddleware[Mapping[str, Any]]"],
             Doc("Middlewares to apply to all broker publishers/subscribers."),
         ] = (),
         # AsyncAPI args
@@ -457,13 +456,13 @@ class RedisRouter(StreamRouter["BaseMessage"]):
             Doc("Dependencies list (`[Depends(),]`) to apply to the subscriber."),
         ] = (),
         parser: Annotated[
-            Optional["CustomParser[BaseMessage]"],
+            Optional["CustomParser[Mapping[str, Any]]"],
             Doc(
                 "Parser to map original **aio_pika.IncomingMessage** Msg to FastStream one."
             ),
         ] = None,
         decoder: Annotated[
-            Optional["CustomDecoder[StreamMessage[BaseMessage]]"],
+            Optional["CustomDecoder[StreamMessage[Mapping[str, Any]]]"],
             Doc("Function to decode FastStream msg bytes body to python objects."),
         ] = None,
         middlewares: Annotated[
@@ -471,7 +470,7 @@ class RedisRouter(StreamRouter["BaseMessage"]):
             Doc("Subscriber middlewares to wrap incoming message processing."),
         ] = (),
         filter: Annotated[
-            "Filter[StreamMessage[BaseMessage]]",
+            "Filter[StreamMessage[Mapping[str, Any]]]",
             Doc(
                 "Overload subscriber to consume various messages from the same source."
             ),
