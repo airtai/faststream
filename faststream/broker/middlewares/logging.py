@@ -1,5 +1,4 @@
 import logging
-from types import TracebackType
 from typing import TYPE_CHECKING, Any, Optional, Type
 
 from typing_extensions import Self
@@ -9,6 +8,8 @@ from faststream.exceptions import IgnoredException
 from faststream.utils.context.repository import context
 
 if TYPE_CHECKING:
+    from types import TracebackType
+
     from faststream.types import DecodedMessage, LoggerProto
 
 
@@ -24,8 +25,9 @@ class CriticalLogMiddleware(BaseMiddleware):
         self.logger = logger
         self.log_level = log_level
 
-    def __call__(self, *args: Any) -> Self:
+    def __call__(self, msg: Optional[Any]) -> Self:
         """Call the object with a message."""
+        self.msg = msg
         return self
 
     async def on_consume(
@@ -42,7 +44,7 @@ class CriticalLogMiddleware(BaseMiddleware):
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exc_tb: Optional[TracebackType] = None,
+        exc_tb: Optional["TracebackType"] = None,
     ) -> bool:
         """Asynchronously called after processing."""
         if self.logger is not None:

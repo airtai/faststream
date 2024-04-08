@@ -114,7 +114,9 @@ class StreamRoute(BaseRoute, Generic[MsgType, P_HandlerParams, T_HandlerReturn])
             *extra,
             dependencies=list(dependencies),
             **handle_kwargs,
-        )(handler)
+        )(
+            handler,  # type: ignore[arg-type]
+        )
 
 
 class StreamMessage(Request):

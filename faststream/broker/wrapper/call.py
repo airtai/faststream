@@ -160,7 +160,7 @@ class HandlerCallWrapper(Generic[MsgType, P_HandlerParams, T_HandlerReturn]):
             dependent = build_call_model(
                 f,
                 cast=is_validate,
-                extra_dependencies=dependencies,
+                extra_dependencies=dependencies,  # type: ignore[arg-type]
             )
 
             if apply_types:

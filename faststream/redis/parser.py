@@ -128,7 +128,9 @@ class SimpleParser:
     msg_class: Type["StreamMessage[Any]"]
 
     @classmethod
-    async def parse_message(cls, message: Mapping[str, Any]) -> "StreamMessage[Mapping[str, Any]]":
+    async def parse_message(
+        cls, message: Mapping[str, Any]
+    ) -> "StreamMessage[Mapping[str, Any]]":
         data, headers = cls._parse_data(message)
         id_ = gen_cor_id()
         return cls.msg_class(

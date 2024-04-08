@@ -2,7 +2,6 @@ import json
 from abc import abstractmethod
 from contextlib import asynccontextmanager
 from enum import Enum
-from types import TracebackType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -43,6 +42,8 @@ from faststream.utils.context.repository import context
 from faststream.utils.functions import to_async
 
 if TYPE_CHECKING:
+    from types import TracebackType
+
     from fastapi import FastAPI, params
     from fastapi.background import BackgroundTasks
     from fastapi.types import IncEx
@@ -65,7 +66,7 @@ class _BackgroundMiddleware(BaseMiddleware):
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exc_tb: Optional[TracebackType] = None,
+        exc_tb: Optional["TracebackType"] = None,
     ) -> Optional[bool]:
         if not exc_type and (
             background := cast(
@@ -245,7 +246,10 @@ class StreamRouter(APIRouter, Generic[MsgType]):
         response_model_exclude_defaults: bool,
         response_model_exclude_none: bool,
         **broker_kwargs: Any,
-    ) -> "WrapperProto[MsgType]":
+    ) -> Callable[
+        [Callable[P_HandlerParams, T_HandlerReturn]],
+        "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
+    ]:
         """A function decorator for subscribing to a message queue."""
 
         def decorator(

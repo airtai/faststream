@@ -46,7 +46,10 @@ class WrapperProto(Protocol[MsgType]):
     @overload
     def __call__(
         self,
-        func: Callable[P_HandlerParams, T_HandlerReturn],
+        func: Union[
+            Callable[P_HandlerParams, T_HandlerReturn],
+            "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
+        ],
         *,
         filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
         parser: Optional["CustomParser[MsgType]"] = None,
@@ -57,7 +60,11 @@ class WrapperProto(Protocol[MsgType]):
 
     def __call__(
         self,
-        func: Optional[Callable[P_HandlerParams, T_HandlerReturn]] = None,
+        func: Union[
+            Callable[P_HandlerParams, T_HandlerReturn],
+            "HandlerCallWrapper[MsgType, P_HandlerParams, T_HandlerReturn]",
+            None,
+        ] = None,
         *,
         filter: Optional["Filter[StreamMessage[MsgType]]"] = None,
         parser: Optional["CustomParser[MsgType]"] = None,

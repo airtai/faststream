@@ -15,7 +15,6 @@ from typing import (
 import anyio
 from typing_extensions import ParamSpec
 
-from faststream._compat import PValidationError
 from faststream.cli.supervisors.utils import set_exit
 from faststream.exceptions import ValidationError
 from faststream.log.logging import logger
@@ -180,16 +179,18 @@ class FastStream:
         for func in self._on_startup_calling:
             call = func(**run_extra_options)
 
-            if PValidationError is not None:
-                try:
-                    await call
-                except PValidationError as e:
-                    raise ValidationError(
-                        fields=[x["loc"][0] for x in e.errors()]
-                    ) from e
+            try:
+                from pydantic import ValidationError as PValidation
+
+            except ImportError:
+                await call
 
             else:
-                await call
+                try:
+                    await call
+                except PValidation as e:
+                    fields = [str(x["loc"][0]) for x in e.errors()]
+                    raise ValidationError(fields=fields) from e
 
         if self.broker is not None:
             await self.broker.start()

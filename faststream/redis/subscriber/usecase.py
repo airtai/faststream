@@ -113,7 +113,9 @@ class LogicSubscriber(ABC, SubscriberUsecase[Mapping[str, Any]]):
         extra_context: Optional["AnyDict"],
         # broker options
         broker_parser: Optional["CustomParser[Mapping[str, Any]]"],
-        broker_decoder: Optional["CustomDecoder[BrokerStreamMessage[Mapping[str, Any]]]"],
+        broker_decoder: Optional[
+            "CustomDecoder[BrokerStreamMessage[Mapping[str, Any]]]"
+        ],
         # dependant args
         apply_types: bool,
         is_validate: bool,

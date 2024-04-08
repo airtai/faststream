@@ -1,4 +1,3 @@
-from types import TracebackType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -21,6 +20,8 @@ from faststream.rabbit.schemas import RABBIT_REPLY, RabbitExchange
 from faststream.utils.functions import fake_context, timeout_scope
 
 if TYPE_CHECKING:
+    from types import TracebackType
+
     import aiormq
     from aio_pika import IncomingMessage, RobustChannel, RobustQueue
     from aio_pika.abc import DateType, HeadersType, TimeoutType
@@ -224,7 +225,7 @@ class _RPCCallback:
         self,
         exc_type: Optional[Type[BaseException]] = None,
         exc_val: Optional[BaseException] = None,
-        exc_tb: Optional[TracebackType] = None,
+        exc_tb: Optional["TracebackType"] = None,
     ) -> None:
         self.lock.release()
         await self.queue.cancel(self.consumer_tag)

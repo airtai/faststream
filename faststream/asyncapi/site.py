@@ -1,10 +1,10 @@
 from functools import partial
 from http import server
-from logging import Logger
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict
 from urllib.parse import parse_qs, urlparse
 
 from faststream._compat import json_dumps
+from faststream.log import logger
 
 if TYPE_CHECKING:
     from faststream.asyncapi.schema import Schema
@@ -99,14 +99,10 @@ def serve_app(
     schema: "Schema",
     host: str,
     port: int,
-    logger: Optional[Logger] = None,
 ) -> None:
     """Serve the HTTPServer with AsyncAPI schema."""
-    if logger:
-        logger.info(
-            f"HTTPServer running on http://{host}:{port} (Press CTRL+C to quit)"
-        )
-        logger.warn("Please, do not use it in production.")
+    logger.info(f"HTTPServer running on http://{host}:{port} (Press CTRL+C to quit)")
+    logger.warn("Please, do not use it in production.")
 
     server.HTTPServer(
         (host, port),

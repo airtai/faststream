@@ -9,6 +9,7 @@ from typing import (
     Iterable,
     List,
     Optional,
+    Sequence,
     Type,
     Union,
     cast,
@@ -54,7 +55,7 @@ class BrokerUsecase(
 ):
     """A class representing a broker async use case."""
 
-    url: Union[str, Iterable[str], None]
+    url: Union[str, Sequence[str]]
     _connection: Optional[ConnectionType]
     _producer: Optional["ProducerProto"]
 
@@ -131,7 +132,7 @@ class BrokerUsecase(
             Doc("AsyncAPI server tags."),
         ],
         asyncapi_url: Annotated[
-            Union[str, List[str], None],
+            Union[str, List[str]],
             Doc("AsyncAPI hardcoded server addresses."),
         ],
         security: Annotated[

@@ -2,7 +2,6 @@ import asyncio
 import inspect
 from contextlib import suppress
 from functools import partial
-from types import TracebackType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -21,6 +20,8 @@ from faststream.broker.acknowledgement_watcher import WatcherContext, get_watche
 from faststream.utils.functions import fake_context, to_async
 
 if TYPE_CHECKING:
+    from types import TracebackType
+
     from faststream.broker.message import StreamMessage
     from faststream.broker.types import (
         AsyncDecoder,
@@ -71,7 +72,7 @@ class MultiLock:
         self,
         exc_type: Optional[Type[BaseException]],
         exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
+        exc_tb: Optional["TracebackType"],
     ) -> None:
         """Exit the context."""
         self.release()
@@ -121,18 +122,9 @@ def resolve_custom_func(
 
 
 def resolve_custom_func(
-    custom_func: Union[
-        Optional["CustomDecoder[StreamMessage[MsgType]]"],
-        Optional["CustomParser[MsgType]"],
-    ],
-    default_func: Union[
-        "AsyncDecoder[StreamMessage[MsgType]]",
-        "AsyncParser[MsgType]",
-    ],
-) -> Union[
-    "AsyncDecoder[StreamMessage[MsgType]]",
-    "AsyncParser[MsgType]",
-]:
+    custom_func: Any,
+    default_func: Any,
+) -> Any:
     """Resolve a custom parser/decoder with default one."""
     if custom_func is None:
         return default_func
